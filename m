@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbVLEVlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbVLEVpt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbVLEVlL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 16:41:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbVLEVlL
+	id S964816AbVLEVpt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 16:45:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbVLEVps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 16:41:11 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:16406 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964809AbVLEVlJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 16:41:09 -0500
+	Mon, 5 Dec 2005 16:45:48 -0500
+Received: from web50212.mail.yahoo.com ([206.190.39.176]:48554 "HELO
+	web50212.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S964816AbVLEVps (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 16:45:48 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jPird+GL/vVq0/VKGuBQu7HvZTchJKySGpmhEZQkA8vPf0Hjr/k9gLsdNdeqd2SCZnD+MbCA5YeU2q9p8LbyKxz4FvWhD/Xr31EnY5OzY88K5WcN+lt/qMF3elnKjVhs5JcDcsG/Sv5YMKXW8CPAAW1lI8s6wVLHQDLOToPd7XQ=
-Message-ID: <d120d5000512051341i3857e598n85a7131e69b93473@mail.gmail.com>
-Date: Mon, 5 Dec 2005 16:41:08 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Greg KH <greg@kroah.com>
-Subject: Re: Golden rule: don't break userland (was Re: RFC: Starting a stable kernel series off the 2.6 kernel)
-Cc: Jeff Garzik <jgarzik@pobox.com>, Adrian Bunk <bunk@stusta.de>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Greg KH <gregkh@suse.de>,
-       James Bottomley <James.Bottomley@steeleye.com>
-In-Reply-To: <20051204232903.GH8914@kroah.com>
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=57n7m0VAWO6Tu9udYLSSiv6o/iLmq48FAnHmDTAHq4Cqx2X/W8yk1RZD0G8G8/mTP6H0xS9tN1FT1A8BcZBaBeIsMnZ/QgBTO7iHvfxcoKs4t1bppqSoyg8Rau8evOFDGgwkvXTMwtb0JiJFoP6Ep9DYV8t+iQAw+H1u468Eyg0=  ;
+Message-ID: <20051205214545.41191.qmail@web50212.mail.yahoo.com>
+Date: Mon, 5 Dec 2005 13:45:44 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re:  [2.6 patch] i386: always use 4k stacks
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051203135608.GJ31395@stusta.de> <4391E764.7050704@pobox.com>
-	 <20051203203418.GA4283@kroah.com>
-	 <200512032041.00594.dtor_core@ameritech.net>
-	 <20051204232903.GH8914@kroah.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/4/05, Greg KH <greg@kroah.com> wrote:
-> On Sat, Dec 03, 2005 at 08:40:59PM -0500, Dmitry Torokhov wrote:
-> > On Saturday 03 December 2005 15:34, Greg KH wrote:
-> > > And in the future, the driver/class model changes we are going to be
-> > > doing (see http://lwn.net/Articles/162242/ for more details on this),
-> > > will be going to great lengths to prevent anything in userspace from
-> > > breaking.
-> >
-> > It is usually considered a bad netiquette to cross-post in public and
-> > subscription-only lists. I wonder if pointing to subscription-only
-> > service to get the feeling about planned driver core changes is a good
-> > idea.
->
-> My apologies.  It is merely a detailed description of what I wrote up
-> here:
->        http://www.kroah.com/log/linux/driver_model_changes.html
->
+The issues with wireless drivers, as far as I've heard, still haven't been resolved. 
 
-Ahh, I see.
+I've read all about the advantages of 4K, but, so far, no one has
+really explained the _disadvantes_ to kernel developers of allowing
+people to choose their own stack size.
 
-> I'll forward you a link to it off-list in a minute (and to anyone else
-> who wants it.)  After a week, lwn.net is free, so it will be public.
->
+-Alex
 
-That is allright, the link above is all I needed. I don't really want
-to use LWN "ahead of time" - they sell subsciptions - good for them.
+I code, therefore I am
 
---
-Dmitry
+
+		
+__________________________________________ 
+Yahoo! DSL – Something to write home about. 
+Just $16.99/mo. or less. 
+dsl.yahoo.com 
+

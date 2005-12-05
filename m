@@ -1,88 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbVLEXXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbVLEXZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbVLEXXs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 18:23:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbVLEXXs
+	id S964859AbVLEXZa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 18:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbVLEXZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 18:23:48 -0500
-Received: from cassiel.sirena.org.uk ([80.68.93.111]:13583 "EHLO
-	cassiel.sirena.org.uk") by vger.kernel.org with ESMTP
-	id S964848AbVLEXXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 18:23:46 -0500
-Date: Mon, 5 Dec 2005 23:23:01 +0000
-From: Mark Brown <broonie@sirena.org.uk>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Tim Hockin <thockin@hockin.org>,
-       Harald Welte <laforge@gnumonks.org>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] natsemi: NAPI support
-Message-ID: <20051205232301.GA4551@sirena.org.uk>
-Mail-Followup-To: Francois Romieu <romieu@fr.zoreil.com>,
-	Jeff Garzik <jgarzik@pobox.com>, Tim Hockin <thockin@hockin.org>,
-	Harald Welte <laforge@gnumonks.org>, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20051204224734.GA12962@sirena.org.uk> <20051204231209.GA28949@electric-eye.fr.zoreil.com>
+	Mon, 5 Dec 2005 18:25:30 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:16304 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S964859AbVLEXZ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 18:25:29 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+Date: Mon, 5 Dec 2005 22:18:18 +0100
+User-Agent: KMail/1.9
+Cc: Andy Isaacson <adi@hexapodia.org>, linux-kernel@vger.kernel.org
+References: <20051205081935.GI22168@hexapodia.org> <20051205121728.GF5509@elf.ucw.cz>
+In-Reply-To: <20051205121728.GF5509@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051204231209.GA28949@electric-eye.fr.zoreil.com>
-X-Cookie: Rubber bands have snappy endings!
-User-Agent: Mutt/1.5.11
-X-Spam-Score: -2.4 (--)
-X-Spam-Report: Spam detection software, running on the system "cassiel.sirena.org.uk", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  On Mon, Dec 05, 2005 at 12:12:09AM +0100, Francois 
-	Romieu wrote: > -> netif_poll_disable() may sleep while a spinlock is 
-	held. So it can, thanks. [...] 
-	Content analysis details:   (-2.4 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-	[score: 0.0000]
-	0.2 AWL                    AWL: From: address is in the auto white-list
+Message-Id: <200512052218.18769.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---KsGdsel6WgEHnImy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Monday, 5 December 2005 13:17, Pavel Machek wrote:
+> > On recent kernels such as 2.6.14-rc2-mm1, a swsusp of my laptop (1.25
+> > GB, P4M 1.4 GHz) was a pretty fast process; freeing memory took about 3
+> > seconds or less,
 
-On Mon, Dec 05, 2005 at 12:12:09AM +0100, Francois Romieu wrote:
+That is strange.  Without the recent patches It takes _much_ more time on my
+box, and I have "only" 768 MB or RAM.
 
-> -> netif_poll_disable() may sleep while a spinlock is held.
+> > and writing out the swap image took less than 5 
+> > seconds, so within 15 seconds of running my suspend script power was
+> > off.
+> 
+> So suspend took 15 second, and boot another 5 to read the image + 20
+> first time desktops are switched. ... ~40 second total.
+> 
+> > The downside was that after suspend, *everything* needed to be paged
+> > back in, so all my apps were *very* slow for the first few interactions.
+> > It would take about 15 or 20 seconds for Firefox to repaint the first
+> > time I switched to its virtual desktop, and it was perceptibly slower
+> > than normal for the next 5 or 10 minutes of use.
 
-So it can, thanks.
+That's much, IMHO.
 
-> Btw, the poll/close routines seem racy with each other.
+> > Now that I'm running 2.6.15-rc3-mm1, the page-in problem seems to be
+> > largely gone; I don't notice a significant lagginess after resuming from
+> > swsusp.
+> > 
+> > But the suspend process is *slow*.  It takes a good 20 or 30 seconds to
+> > write out the image, which makes the overall suspend process take close
+> > to a minute; it's writing about 400 MB, and my disk seems to only be
+> > good for about 18 MB/sec according to hdparm -t.
+> 
+> Lets say 20 seconds suspend, plus 20 seconds resume, and no time
+> needed to switch the desktops. So it is ~40 seconds total, again ;-).
 
-I had been under the impression that the stack was supposed to make sure
-that no poll() is running before the driver close() gets called?  I
-could well be missing something there, though.  Indeed, now that I think
-about it the calls netif_poll_disable() in suspend() ought to mean that
-we don't need to look at hands_off inside poll().
+I think there's no point in doing such calculations.  In fact, above certain
+critical RAM size (call it X), the more RAM in the box, the _worse_ it gets when
+we try to free as little memory as possible (let alone trying to save _all_
+of it).  The only question is how great is X.
 
---=20
-"You grabbed my hand and we fell into it, like a daydream - or a fever."
+The Andy's numbers suggest X \approx 1.5 GB, if I correctly remeber his dmesg
+outputs.  Therefore, even if the current code is as effective for him as the old
+one, it _will_ _not_ be so for someone who has, say, 2 GB of RAM or more.
+IOW, there is a point at which it gets reasonable to free memory before
+suspend for performance reasons and it only remains uncertain where
+that point actually is and how much memory should be freed for given
+RAM size.
 
---KsGdsel6WgEHnImy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+> > And, the resume is about the same amount slower, too.
+> > 
+> > Certainly there's a tradeoff to be made, and I'm glad to lose the slow
+> > re-paging after resume, but I'm hoping that some kind of improvement can
+> > be made in the suspend/resume time.
+> 
+> Of course, there are many ways to improve suspend. Some are easy, some
+> are hard, some can be merged, and some can not.
+> 
+> > Could we perhaps throw away *half* the cached memory rather than all of
+> > it?  
+> 
+> Should be easy, mergeable and possibly very effective. Relevant code
+> is in kernel/power/disk.c.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+For this purpose we'll need to tamper with mm, I think, and that won't be
+easy.
 
-iQCVAwUBQ5TL0w2erOLNe+68AQJaEAP/UO3bW/DMlaja/hXTTaP0mfEnjJx2JB5o
-wO5lIJjldC+NKiOOk/bMPmjJfh9u5rUXC/vGJiBvH1y6ton0WAWCbcdrV8XPVSYw
-dRBqAetDsNJ1QpGm3FsI7K1Clz+VE9ZdnlmGMMNlifCyP6oVC9jzr9HC7hhWb7M0
-HlbjZxmRNHQ=
-=BEhk
------END PGP SIGNATURE-----
+OTOH, we can get similar result by just making the kernel free some
+more memory _after_ we are sure we have enough memory to suspend.
+IOW, after the code that's currently in swsusp_shrink_memory() has finished,
+we can try to free some "extra" memory to improve performance, if
+needed.  The question is how much "extra" memory should be freed and
+I'm afraid it will have to be tuned on the per-system, or at least
+per-RAM-size, basis.
 
---KsGdsel6WgEHnImy--
+I think I can write an experimental patch for that, if Andy agrees to test
+it. ;-)
+
+Greetings,
+Rafael
+
+
+-- 
+Beer is proof that God loves us and wants us to be happy - Benjamin Franklin
+

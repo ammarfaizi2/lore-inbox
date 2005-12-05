@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbVLETM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbVLETSs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964772AbVLETM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 14:12:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbVLETMZ
+	id S932521AbVLETSs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 14:18:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbVLETSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 14:12:25 -0500
-Received: from styx.suse.cz ([82.119.242.94]:55246 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S932517AbVLETMY (ORCPT
+	Mon, 5 Dec 2005 14:18:48 -0500
+Received: from styx.suse.cz ([82.119.242.94]:56271 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S932518AbVLETSr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 14:12:24 -0500
-Date: Mon, 5 Dec 2005 20:11:58 +0100
+	Mon, 5 Dec 2005 14:18:47 -0500
+Date: Mon, 5 Dec 2005 20:18:46 +0100
 From: Jiri Benc <jbenc@suse.cz>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: netdev@nospam.otaku42.de, mbuesch@freenet.de, linux-kernel@vger.kernel.org,
-       bcm43xx-dev@lists.berlios.de, NetDev <netdev@vger.kernel.org>
+Cc: Joseph Jezak <josejx@gentoo.org>, mbuesch@freenet.de,
+       linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
+       NetDev <netdev@vger.kernel.org>
 Subject: Re: Broadcom 43xx first results
-Message-ID: <20051205201158.7cae7c86@griffin.suse.cz>
-In-Reply-To: <43948CC8.6000107@pobox.com>
+Message-ID: <20051205201846.5fa5eb5a@griffin.suse.cz>
+In-Reply-To: <4394902C.8060100@pobox.com>
 References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>
 	<20051205190038.04b7b7c1@griffin.suse.cz>
-	<1133806444.4498.35.camel@gimli>
-	<43948B13.2090509@pobox.com>
-	<20051205194923.3b868d50@griffin.suse.cz>
-	<43948CC8.6000107@pobox.com>
+	<4394892D.2090100@gentoo.org>
+	<20051205195543.5a2e2a8d@griffin.suse.cz>
+	<4394902C.8060100@pobox.com>
 X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,32 +30,40 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Dec 2005 13:54:00 -0500, Jeff Garzik wrote:
-> Complete bullshit.  There is obviously 802.11 generic code in the 
-> kernel, and that's what _I_ am saying, because it's true.
+On Mon, 05 Dec 2005 14:08:28 -0500, Jeff Garzik wrote:
+> Patently false.
 > 
-> If it doesn't support your favorite wireless chipset, then submit patches.
+> ieee80211 is used by Intel.  Some bits used by HostAP, which also 
+> duplicates a lot of ieee80211 code.  And bcm43xx.  And another couple 
+> drivers found in -mm or out-of-tree.
 
-I have no favorite chipset. I read tons of source code of different
-drivers instead. Current 802.11 code supports no management stuff at
-all. And nearly every driver needs support for it - ask any developer of
-wireless driver except James Ketrenos (oh, wait a moment - although ipw
-devices do, unlike other devices, a lot of work in firmware, he is
-implementing in the driver some management stuff too - strange, is not
-his own "stack" good enough even for himself?).
+Hostap uses only encryption code, which was copied from - guess who -
+hostap. Everything other must be done by the hostap driver itself.
 
-And, as you might notice, I sent many patches. Only minor ones were
-accepted. And then I started (and attended) a debate among wireless
-developers about concepts of 802.11 stack, do you remember? And it gave
-us interesting results. That results were implemented (patches were sent
-and not accepted).
+bcm43xx can use - like every other driver - only constants and defines
+from ieee80211.h. This is the reason why they are trying to implement
+"softmac" on top of it. But that work was already done by Jouni.
 
-It may appears that I stopped afterwards, but it is not true. Nearly
-after that debate had finished, Jouni announced opensourcing of the
-stack he has been working on for several years. From that time I have
-been trying to get familiar with that stack, it is quite complex. I have
-one semi-working driver for it now and I think I know about issues of
-the stack.
+> > of a wifi driver tries to implement his own "softmac" now. I cannot see
+> > how this can move as forward and I think we can agree this is not the
+> > way to go.
+> 
+> You're agreeing with only yourself, then?
+
+I meant that every driver tries to implements its own "softmac". This is
+not the way to go, right?
+
+> > Rewriting (or, if you like, enhancing) the current 802.11 code seems to
+> > be wasting of time now, when nearly complete Linux stack was opensourced
+> > by Devicescape. We can try to merge it, but I'm not convinced it is
+> > possible, the Devicescape's stack is far more advanced.
+> 
+> This invalid logic is why we have a ton of wireless stacks, all 
+> duplicating each other.
+
+Heh? We have one nearly finished stack (and no, it's not the one in
+kernel). Why should we try to implement a new stack instead of fixing
+some issues of the nearly finished one?
 
 
 -- 

@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVLEILW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbVLEITh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbVLEILW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 03:11:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932239AbVLEILW
+	id S932303AbVLEITh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 03:19:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVLEITh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 03:11:22 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:8080 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S1751345AbVLEILV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 03:11:21 -0500
-Date: Mon, 5 Dec 2005 01:11:21 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>
-Cc: Dave Kleikamp <shaggy@austin.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: stat64 for over 2TB file returned invalid st_blocks
-Message-ID: <20051205081121.GU14509@schatzie.adilger.int>
-Mail-Followup-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>,
-	Dave Kleikamp <shaggy@austin.ibm.com>, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org
-References: <01e901c5f66e$d4551b70$4168010a@bsd.tnes.nec.co.jp> <1133447539.8557.14.camel@kleikamp.austin.ibm.com> <041701c5f742$d6b0a450$4168010a@bsd.tnes.nec.co.jp> <20051202185805.GS14509@schatzie.adilger.int> <02cd01c5f809$95a94620$4168010a@bsd.tnes.nec.co.jp>
+	Mon, 5 Dec 2005 03:19:37 -0500
+Received: from straum.hexapodia.org ([64.81.70.185]:35955 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S932303AbVLEITg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 03:19:36 -0500
+Date: Mon, 5 Dec 2005 00:19:35 -0800
+From: Andy Isaacson <adi@hexapodia.org>
+To: linux-kernel@vger.kernel.org
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>
+Subject: swsusp performance problems in 2.6.15-rc3-mm1
+Message-ID: <20051205081935.GI22168@hexapodia.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <02cd01c5f809$95a94620$4168010a@bsd.tnes.nec.co.jp>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.4.2i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 03, 2005  22:00 +0900, Takashi Sato wrote:
-> Andreas Dilger wrote:
-> >Actually, it should probably be "sector_t", because it isn't really
-> >possible to have a file with more blocks than the size of the block
-> >device.  This avoids memory overhead for small systems that have no
-> >need for it in a very highly-used struct.  It may be for some network
-> >filesystems that support gigantic non-sparse files they would need to
-> >enable CONFIG_LBD in order to get support for this.
-> 
-> I think sector_t is ok for local filesystem as you said.  However,
-> on NFS, there may be over 2TB file on server side, and inode.i_blocks
-> for over 2TB file will become invalid on client side in case CONFIG_LBD
-> is disabled.
+On recent kernels such as 2.6.14-rc2-mm1, a swsusp of my laptop (1.25
+GB, P4M 1.4 GHz) was a pretty fast process; freeing memory took about 3
+seconds or less, and writing out the swap image took less than 5
+seconds, so within 15 seconds of running my suspend script power was
+off.
 
-I don't know the exact specs of NFS v2 and v3, but I doubt they can have
-single files larger than 2TB.  Even if they could then this is not a
-very common situation and if someone is running in such an environment
-then they can easily enable CONFIG_LBD (or make e.g. CONFIG_NFS_V4 have
-a dependency to enable this if it is important enough).  What I'd rather
-avoid is needless growth of heavily-used structures for rather uncommon
-cases (at the current time at least, this can be re-examined later).
+The downside was that after suspend, *everything* needed to be paged
+back in, so all my apps were *very* slow for the first few interactions.
+It would take about 15 or 20 seconds for Firefox to repaint the first
+time I switched to its virtual desktop, and it was perceptibly slower
+than normal for the next 5 or 10 minutes of use.
 
-It might also be possible to have a separate CONFIG_LSF (or whatever)
-that enables support for large single files, maybe enabled by default
-with CONFIG_LBD and also configurable separately for clients of network
-filesystems with large single files.  Someone who cares more about the
-proliferation of configuration options than I can decide whether it
-makes sense to keep these as separate options.
+Now that I'm running 2.6.15-rc3-mm1, the page-in problem seems to be
+largely gone; I don't notice a significant lagginess after resuming from
+swsusp.
 
-Cheers, Andreas
---
-Andreas Dilger
-Principal Software Engineer
-Cluster File Systems, Inc.
+But the suspend process is *slow*.  It takes a good 20 or 30 seconds to
+write out the image, which makes the overall suspend process take close
+to a minute; it's writing about 400 MB, and my disk seems to only be
+good for about 18 MB/sec according to hdparm -t.
 
+And, the resume is about the same amount slower, too.
+
+Certainly there's a tradeoff to be made, and I'm glad to lose the slow
+re-paging after resume, but I'm hoping that some kind of improvement can
+be made in the suspend/resume time.
+
+Could we perhaps throw away *half* the cached memory rather than all of
+it?  Or keep a lazy list of pages that need re-reading and page them in
+asynchronously after restarting userland?
+
+-andy

@@ -1,80 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbVLEPjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbVLEPoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbVLEPjL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 10:39:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751375AbVLEPjL
+	id S932442AbVLEPoL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 10:44:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbVLEPoL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 10:39:11 -0500
-Received: from tim.rpsys.net ([194.106.48.114]:12731 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S1751371AbVLEPjK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 10:39:10 -0500
-Subject: Re: [RFC PATCH 1/8] LED: Add LED Class
-From: Richard Purdie <rpurdie@rpsys.net>
-To: David Vrabel <dvrabel@cantab.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Russell King <rmk@arm.linux.org.uk>,
-       John Lenz <lenz@cs.wisc.edu>, Pavel Machek <pavel@suse.cz>
-In-Reply-To: <439455BC.4080908@cantab.net>
-References: <1133788166.8101.125.camel@localhost.localdomain>
-	 <439455BC.4080908@cantab.net>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 15:38:26 +0000
-Message-Id: <1133797107.8101.191.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Dec 2005 10:44:11 -0500
+Received: from nproxy.gmail.com ([64.233.182.197]:61979 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751376AbVLEPoK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 10:44:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MgDmKxt8yhpGBiKeW8SjiIaHCUyoKIoFUYRa+QRwUo5Pz743wxOuVRJ65wnJg5h9dwsQezsRkM1wshsrwLZw1Zh66xYBv5MvSBx81f8b8f8FP7s6ONIqVeXb0XS7IqfWHLjD7ct+ZivBPsOl2s63bJ8jTekSoKLib5bWZXuKRGE=
+Message-ID: <84144f020512050744l3cc8289dh9a34c6f60311b6aa@mail.gmail.com>
+Date: Mon, 5 Dec 2005 17:44:08 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Jakob Oestergaard <jakob@unthought.net>, Greg KH <greg@kroah.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Adrian Bunk <bunk@stusta.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+In-Reply-To: <20051205151753.GB4179@unthought.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051203135608.GJ31395@stusta.de>
+	 <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com>
+	 <20051203201945.GA4182@kroah.com>
+	 <20051204170049.GA4179@unthought.net>
+	 <20051204223931.GA8914@kroah.com>
+	 <20051205151753.GB4179@unthought.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 14:59 +0000, David Vrabel wrote: 
-> This LED subsystem isn't usable with LEDs that are controlled by I2C
-> GPIO devices.  Getting rid of (struct led_device).lock would go some way
-> to making it work.  It's not clear to me why it's needed anyway.
+Hi,
 
-The lock is so no two code paths try and change led_device at once. This
-is particularly apparent when triggers are considered as you could
-otherwise end up with two calls trying to change an led to different
-triggers or other equally bizarre circumstances. We need to guarantee
-any trigger init and exit calls are made, other wise we'd have memory
-leaks (and worse). Locking the brightness calls is just an extension of
-that so the practise is fully evident.
+On Sun, Dec 04, 2005 at 02:39:31PM -0800, Greg KH wrote:
+> > Have you filed a but at bugzilla.kernel.org about this?  If not, how do
+> > you expect it to get fixed?
 
-For i2c devices to use this, the devices will have to use a workqueue
-for brightness changes, lock or no lock. The reason is that trigger
-events can come from undetermined kernel contexts and therefore the
-brightness changing function should not sleep.
+On 12/5/05, Jakob Oestergaard <jakob@unthought.net> wrote:
+> I don't expect to get it fixed. It's futile. It can get fixed in one
+> version and broken two days later, and it seems the attitude is that
+> that is just fine.
 
-> Suspend and resume probably needs to be LED specific.
+I don't think anyone breaks things on purpose. Please feel free to
+report the bug as many times as necessary to get it fixed. You
+shouldn't be complaining if you're not doing your part.
 
-The core functions are probably applicable in 95% of cases and any LED
-driver has the option of not using them if it so wishes.
-
-Out of interest, what would an LED device wish to do instead of this?
-Corgi/Spitz already don't suspend one of the leds under certain
-circumstances as a device specific trigger (charging) is know to be
-suspend aware.
-
-> > +
-> > +menu "LED devices"
-> > +
-> > +config NEW_LEDS
-> 
-> Is there a better name than NEW_LEDS?  It won't be 'new' for very long...
-
-I'd prefer LEDS but this will clash with ARM. I'll wait for Russell's
-comments but I'm open to alternative suggestions.
-
-
-> 0-255 is probably a better range to use.  Might be worth having an enum
-> like.
-> 
-> enum led_brightness {
-> 	LED_OFF = 0, LED_HALF_BRIGHT = 127, LED_FULL_BRIGHT = 255,
-> };
-
-Yes, that's probably not a bad idea.
-
-Cheers,
-
-Richard
-
+                                          Pekka

@@ -1,134 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbVLEL77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932381AbVLEMTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932379AbVLEL77 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 06:59:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbVLEL77
+	id S932381AbVLEMTk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 07:19:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbVLEMTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 06:59:59 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:36199 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932379AbVLEL76 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 06:59:58 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:From:To:Cc:Message-Id:In-Reply-To:References:Subject;
-  b=lx+5se6qjOpINkv0vj+qMhJT7pxoMbqX5ONJLDdyxy8Jder9Gy4GFEMHYp33NOBk6GkjfmxIHct0ZPxlvZQTiL+UlekcrO9byPDtJpqDMb+zcnoXa3G471jMzXZHg2NLqjOieA/kK6M7E18JZVUslyEYT8kzyPoaEzZwoMGZffs=  ;
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>
-Message-Id: <20051205115939.3480.92812.sendpatchset@didi.local0.net>
-In-Reply-To: <20051205115901.3480.60596.sendpatchset@didi.local0.net>
-References: <20051205115901.3480.60596.sendpatchset@didi.local0.net>
-Subject: [patch 2/4] mm: PageLRU no testset
-Date: Mon, 5 Dec 2005 06:59:58 -0500
+	Mon, 5 Dec 2005 07:19:40 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55478 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932381AbVLEMTj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 07:19:39 -0500
+Date: Mon, 5 Dec 2005 13:17:28 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+Message-ID: <20051205121728.GF5509@elf.ucw.cz>
+References: <20051205081935.GI22168@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051205081935.GI22168@hexapodia.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PG_lru is protected by zone->lru_lock. It does not need TestSet/TestClear
-operations.
+Hi!
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
+> On recent kernels such as 2.6.14-rc2-mm1, a swsusp of my laptop (1.25
+> GB, P4M 1.4 GHz) was a pretty fast process; freeing memory took about 3
+> seconds or less, and writing out the swap image took less than 5
+> seconds, so within 15 seconds of running my suspend script power was
+> off.
 
-Index: linux-2.6/mm/vmscan.c
-===================================================================
---- linux-2.6.orig/mm/vmscan.c
-+++ linux-2.6/mm/vmscan.c
-@@ -666,8 +666,8 @@ static void shrink_cache(struct zone *zo
- 		 */
- 		while (!list_empty(&page_list)) {
- 			page = lru_to_page(&page_list);
--			if (TestSetPageLRU(page))
--				BUG();
-+			BUG_ON(PageLRU(page));
-+			SetPageLRU(page);
- 			list_del(&page->lru);
- 			if (PageActive(page))
- 				add_page_to_active_list(zone, page);
-@@ -779,8 +779,8 @@ refill_inactive_zone(struct zone *zone, 
- 	while (!list_empty(&l_inactive)) {
- 		page = lru_to_page(&l_inactive);
- 		prefetchw_prev_lru_page(page, &l_inactive, flags);
--		if (TestSetPageLRU(page))
--			BUG();
-+		BUG_ON(PageLRU(page));
-+		SetPageLRU(page);
- 		if (!TestClearPageActive(page))
- 			BUG();
- 		list_move(&page->lru, &zone->inactive_list);
-@@ -808,8 +808,8 @@ refill_inactive_zone(struct zone *zone, 
- 	while (!list_empty(&l_active)) {
- 		page = lru_to_page(&l_active);
- 		prefetchw_prev_lru_page(page, &l_active, flags);
--		if (TestSetPageLRU(page))
--			BUG();
-+		BUG_ON(PageLRU(page));
-+		SetPageLRU(page);
- 		BUG_ON(!PageActive(page));
- 		list_move(&page->lru, &zone->active_list);
- 		pgmoved++;
-Index: linux-2.6/mm/swap.c
-===================================================================
---- linux-2.6.orig/mm/swap.c
-+++ linux-2.6/mm/swap.c
-@@ -179,8 +179,8 @@ void fastcall __page_cache_release(struc
- 
- 		struct zone *zone = page_zone(page);
- 		spin_lock_irqsave(&zone->lru_lock, flags);
--		if (!TestClearPageLRU(page))
--			BUG();
-+		BUG_ON(!PageLRU(page));
-+		ClearPageLRU(page);
- 		del_page_from_lru(zone, page);
- 		spin_unlock_irqrestore(&zone->lru_lock, flags);
- 	}
-@@ -224,8 +224,8 @@ void release_pages(struct page **pages, 
- 				zone = pagezone;
- 				spin_lock_irq(&zone->lru_lock);
- 			}
--			if (!TestClearPageLRU(page))
--				BUG();
-+			BUG_ON(!PageLRU(page));
-+			ClearPageLRU(page);
- 			del_page_from_lru(zone, page);
- 		}
- 		BUG_ON(page_count(page));
-@@ -305,8 +305,8 @@ void __pagevec_lru_add(struct pagevec *p
- 			zone = pagezone;
- 			spin_lock_irq(&zone->lru_lock);
- 		}
--		if (TestSetPageLRU(page))
--			BUG();
-+		BUG_ON(PageLRU(page));
-+		SetPageLRU(page);
- 		add_page_to_inactive_list(zone, page);
- 	}
- 	if (zone)
-@@ -332,8 +332,8 @@ void __pagevec_lru_add_active(struct pag
- 			zone = pagezone;
- 			spin_lock_irq(&zone->lru_lock);
- 		}
--		if (TestSetPageLRU(page))
--			BUG();
-+		BUG_ON(PageLRU(page));
-+		SetPageLRU(page);
- 		if (TestSetPageActive(page))
- 			BUG();
- 		add_page_to_active_list(zone, page);
-Index: linux-2.6/include/linux/page-flags.h
-===================================================================
---- linux-2.6.orig/include/linux/page-flags.h
-+++ linux-2.6/include/linux/page-flags.h
-@@ -233,10 +233,9 @@ extern void __mod_page_state_offset(unsi
- #define __ClearPageDirty(page)	__clear_bit(PG_dirty, &(page)->flags)
- #define TestClearPageDirty(page) test_and_clear_bit(PG_dirty, &(page)->flags)
- 
--#define SetPageLRU(page)	set_bit(PG_lru, &(page)->flags)
- #define PageLRU(page)		test_bit(PG_lru, &(page)->flags)
--#define TestSetPageLRU(page)	test_and_set_bit(PG_lru, &(page)->flags)
--#define TestClearPageLRU(page)	test_and_clear_bit(PG_lru, &(page)->flags)
-+#define SetPageLRU(page)	set_bit(PG_lru, &(page)->flags)
-+#define ClearPageLRU(page)	clear_bit(PG_lru, &(page)->flags)
- 
- #define PageActive(page)	test_bit(PG_active, &(page)->flags)
- #define SetPageActive(page)	set_bit(PG_active, &(page)->flags)
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+So suspend took 15 second, and boot another 5 to read the image + 20
+first time desktops are switched. ... ~40 second total.
+
+> The downside was that after suspend, *everything* needed to be paged
+> back in, so all my apps were *very* slow for the first few interactions.
+> It would take about 15 or 20 seconds for Firefox to repaint the first
+> time I switched to its virtual desktop, and it was perceptibly slower
+> than normal for the next 5 or 10 minutes of use.
+> 
+> Now that I'm running 2.6.15-rc3-mm1, the page-in problem seems to be
+> largely gone; I don't notice a significant lagginess after resuming from
+> swsusp.
+> 
+> But the suspend process is *slow*.  It takes a good 20 or 30 seconds to
+> write out the image, which makes the overall suspend process take close
+> to a minute; it's writing about 400 MB, and my disk seems to only be
+> good for about 18 MB/sec according to hdparm -t.
+
+Lets say 20 seconds suspend, plus 20 seconds resume, and no time
+needed to switch the desktops. So it is ~40 seconds total, again ;-).
+
+> And, the resume is about the same amount slower, too.
+> 
+> Certainly there's a tradeoff to be made, and I'm glad to lose the slow
+> re-paging after resume, but I'm hoping that some kind of improvement can
+> be made in the suspend/resume time.
+
+Of course, there are many ways to improve suspend. Some are easy, some
+are hard, some can be merged, and some can not.
+
+> Could we perhaps throw away *half* the cached memory rather than all of
+> it?  
+
+Should be easy, mergeable and possibly very effective. Relevant code
+is in kernel/power/disk.c.
+
+> Or keep a lazy list of pages that need re-reading and page them in
+> asynchronously after restarting userland?
+
+This would be fine if you can do it in userspace, but it is not going
+to be so easy... ... actually, there's one entry in FAQ:
+
+Q: After resuming, system is paging heavilly, leading to very bad
+interactivity.
+
+A: Try running
+
+cat `cat /proc/[0-9]*/maps | grep / | sed 's:.* /:/:' | sort -u` >
+/dev/null
+
+after resume. swapoff -a; swapon -a may also be usefull.
+
+...does that help for you?
+
+Other possible ideas are:
+
+* get suspend to RAM working if you want it *really* fast :-)
+
+* compress the image. Needs to be done in userspace, so it needs
+uswsusp to be merged, first. Patches for that are available. Should
+speed it up about twice.
+
+* and of course you can apply one very big patch and do all of the
+above :-).
+
+							Pavel
+-- 
+Thanks, Sharp!

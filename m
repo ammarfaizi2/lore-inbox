@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbVLEMAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVLEMBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbVLEMAf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 07:00:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbVLEMAf
+	id S932390AbVLEMBs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 07:01:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932391AbVLEMBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 07:00:35 -0500
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:12648 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932390AbVLEMAe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 07:00:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:From:To:Cc:Message-Id:In-Reply-To:References:Subject;
-  b=6s9XfzZi1ZMxw7vcAd3wjz7uQlQRxV5g5jUoArDao8tW96M0+1W3m10N2u2AJIb/e5fZAUnAy1cUAphiFqPMKrTvcaN3ULQtlCuXF5hbcxfdwKNUJh3MNpHyDBr1t8DmIKWbXBIV/4+0jbY8QAL9YAmMbv7GIJ7h8U61Y5FRKaQ=  ;
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>
-Message-Id: <20051205120002.3480.97458.sendpatchset@didi.local0.net>
-In-Reply-To: <20051205115901.3480.60596.sendpatchset@didi.local0.net>
-References: <20051205115901.3480.60596.sendpatchset@didi.local0.net>
-Subject: [patch 3/4] mm: PageActive no testset
-Date: Mon, 5 Dec 2005 07:00:34 -0500
+	Mon, 5 Dec 2005 07:01:48 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:45072 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S932387AbVLEMBr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 07:01:47 -0500
+Date: Mon, 5 Dec 2005 13:01:18 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       Adrian Bunk <bunk@stusta.de>, Matthias Andree <matthias.andree@gmx.de>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051205120118.GA9295@alpha.home.local>
+References: <20051203135608.GJ31395@stusta.de> <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com> <9a8748490512031948m26b04d3ds9fbc652893ead40@mail.gmail.com> <20051204115650.GA15577@merlin.emma.line.org> <20051204232454.GG8914@kroah.com> <20051205062609.GA7096@alpha.home.local> <20051205105536.GB5148@marowsky-bree.de> <20051205113420.GA9149@alpha.home.local> <20051205114028.GD5148@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051205114028.GD5148@marowsky-bree.de>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PG_active is protected by zone->lru_lock, it does not need TestSet/TestClear
-operations.
+On Mon, Dec 05, 2005 at 12:40:28PM +0100, Lars Marowsky-Bree wrote:
+> On 2005-12-05T12:34:20, Willy Tarreau <willy@w.ods.org> wrote:
+> 
+> > > Anyway, good luck to you.
+> > > 
+> > > The current 2.6.x.y-stable series is quite sane, because they are
+> > > essentially just fixing very critical bugs in very recent kernels, with
+> > > little back porting effort.
+> > 
+> > I agree it is sane. The problem is that it does not exist for long enough.
+> > When you have 2.6.14.X working perfectly and you need a fix for a newly
+> > discovered security fix which only exists in 2.6.15.Y, then you have to
+> > leave 2.6.14 and enter 2.6.15. That is the problem, because for just a
+> > fix, you change megabytes of source code which will bring their equivalent
+> > in bugs.
+> 
+> As I said, please, go on maintaining a release for a longer period of
+> time.
 
-Signed-off-by: Nick Piggin <npiggin@suse.de>
+As I said, I know this is difficult, I already do this for 2.4 and 2.4 is
+not moving fast. But what Adrian wants to do might be far more difficult.
+That's why I suggest him to do "only" this, he will have less work and get
+a lot of happy users.
 
-Index: linux-2.6/mm/vmscan.c
-===================================================================
---- linux-2.6.orig/mm/vmscan.c
-+++ linux-2.6/mm/vmscan.c
-@@ -781,8 +781,9 @@ refill_inactive_zone(struct zone *zone, 
- 		prefetchw_prev_lru_page(page, &l_inactive, flags);
- 		BUG_ON(PageLRU(page));
- 		SetPageLRU(page);
--		if (!TestClearPageActive(page))
--			BUG();
-+		BUG_ON(!PageActive(page));
-+		ClearPageActive(page);
-+
- 		list_move(&page->lru, &zone->inactive_list);
- 		pgmoved++;
- 		if (!pagevec_add(&pvec, page)) {
-Index: linux-2.6/mm/swap.c
-===================================================================
---- linux-2.6.orig/mm/swap.c
-+++ linux-2.6/mm/swap.c
-@@ -334,8 +334,8 @@ void __pagevec_lru_add_active(struct pag
- 		}
- 		BUG_ON(PageLRU(page));
- 		SetPageLRU(page);
--		if (TestSetPageActive(page))
--			BUG();
-+		BUG_ON(PageActive(page));
-+		SetPageActive(page);
- 		add_page_to_active_list(zone, page);
- 	}
- 	if (zone)
-Index: linux-2.6/include/linux/page-flags.h
-===================================================================
---- linux-2.6.orig/include/linux/page-flags.h
-+++ linux-2.6/include/linux/page-flags.h
-@@ -240,8 +240,6 @@ extern void __mod_page_state_offset(unsi
- #define PageActive(page)	test_bit(PG_active, &(page)->flags)
- #define SetPageActive(page)	set_bit(PG_active, &(page)->flags)
- #define ClearPageActive(page)	clear_bit(PG_active, &(page)->flags)
--#define TestClearPageActive(page) test_and_clear_bit(PG_active, &(page)->flags)
--#define TestSetPageActive(page) test_and_set_bit(PG_active, &(page)->flags)
- 
- #define PageSlab(page)		test_bit(PG_slab, &(page)->flags)
- #define SetPageSlab(page)	set_bit(PG_slab, &(page)->flags)
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Regards,
+Willy
+

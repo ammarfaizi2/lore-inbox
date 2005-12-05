@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbVLERyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932486AbVLESBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751344AbVLERyn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 12:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbVLERym
+	id S932486AbVLESBL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 13:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbVLESBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 12:54:42 -0500
-Received: from rtr.ca ([64.26.128.89]:31630 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751344AbVLERym (ORCPT
+	Mon, 5 Dec 2005 13:01:11 -0500
+Received: from hera.kernel.org ([140.211.167.34]:40647 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S932486AbVLESBJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 12:54:42 -0500
-Message-ID: <43947EE0.3040006@rtr.ca>
-Date: Mon, 05 Dec 2005 12:54:40 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Add tainting for proprietary helper modules.
-References: <20051203004102.GA2923@redhat.com>	<Pine.LNX.4.61.0512050832290.27133@chaos.analogic.com>	<20051205173041.GE12664@redhat.com> <20051205093436.44d146e6@localhost.localdomain>
-In-Reply-To: <20051205093436.44d146e6@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 5 Dec 2005 13:01:09 -0500
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: virtual interface mac adress
+Date: Mon, 5 Dec 2005 10:01:04 -0800
+Organization: OSDL
+Message-ID: <20051205100104.08537752@localhost.localdomain>
+References: <20051204192958.64093.qmail@web60214.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Trace: build.pdx.osdl.net 1133805665 21696 10.8.0.222 (5 Dec 2005 18:01:05 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Mon, 5 Dec 2005 18:01:05 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> IMHO ndiswrapper can't claim legitimately to be GPL
+On Sun, 4 Dec 2005 11:29:58 -0800 (PST)
+anil dahiya <ak_ait@yahoo.com> wrote:
 
-Sure it is.
+> Hi 
+> I want to assign mac addres to virtual adpater and mac
+> address should be like that if it should not create
+> problem in arp resoultion(i.e. mac address should be
+> as real card which able to comunicate  on lan )
+> 
+> waiting for ur reply,
+> Anil 
+> 
 
-The applications it loads and runs may not be GPL,
-same as for Linux in general, but ndiswrapper is just fine.
+use random_ether_addr (see include/linux/etherdevice.h)
 
-There's no GPL non-conformance unless somebody is distributing
-code that extends GPL functionality without GPLing that code.
-
-And NDIS does not violate that.  Sure, it runs binary-only
-drivers developed for another O/S, but it is NOT distributing those.
-
-Cheers
+-- 
+Stephen Hemminger <shemminger@osdl.org>
+OSDL http://developer.osdl.org/~shemminger

@@ -1,78 +1,185 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVLEKAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbVLEKB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbVLEKAT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 05:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVLEKAS
+	id S1751306AbVLEKB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 05:01:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbVLEKB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 05:00:18 -0500
-Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:959 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S1751098AbVLEKAR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 05:00:17 -0500
-Date: Mon, 5 Dec 2005 11:00:10 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       Adrian Bunk <bunk@stusta.de>, Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051205100010.GA7896@merlin.emma.line.org>
-Mail-Followup-To: Willy Tarreau <willy@w.ods.org>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org, Adrian Bunk <bunk@stusta.de>
-References: <20051203135608.GJ31395@stusta.de> <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com> <9a8748490512031948m26b04d3ds9fbc652893ead40@mail.gmail.com> <20051204115650.GA15577@merlin.emma.line.org> <20051204232454.GG8914@kroah.com> <20051205062609.GA7096@alpha.home.local>
+	Mon, 5 Dec 2005 05:01:26 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:18158 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751306AbVLEKBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 05:01:25 -0500
+From: "Christian Volk" <volk.christian@netcom-sicherheitstechnik.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: No Hotplug with AHCI (Intel ICH6M) Kernel 2.6.15rc4
+Date: Mon, 5 Dec 2005 11:01:20 +0100
+Message-ID: <01c301c5f982$d8ddb3c0$0c016696@EW12>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051205062609.GA7096@alpha.home.local>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+Thread-Index: AcX5gtdgKmGI3F/SSMesbJ828O2qGQ==
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:1905656f500fac86bf2675c4673a16c5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Dec 2005, Willy Tarreau wrote:
+Kernel 2.6.15rc4
+I am testing the hotplug feature with the Intel ICH6M Chipset and a SATA
+harddisk.
 
-> However, the problem is that you stop maintaining old versions
-> and quickly switch to new ones when a new kernel comes up. I know
-> it's not easy, and may be terribly more difficult to maintain
-> several versions in a development kernel than in a stable kernel.
-> But imagine the users' position : they run 2.6.14.3 which finally
-> fixes all their problems. Then they get a new problem, but 2.6.15
-> comes out. There will not be any other 2.6.14, so they have the
-> choice of staying to 2.6.14.3 or jumping to fresh new and barely
-> tested 2.6.15.
+I want to use the AHCI driver, because it should support hotplugging.
+As you can see, the driver is loadet and the chipset was found correctly.
+When I detach the harddisk, there are no kernelmessages indicating hotplug.
+The only messages I can see are timeouts from the kernel when writing to
+disk(see logfile)
+Maybe is it a bug, that the unplugged harddisk is not detected?
 
-"Regression" as the threat of updating. That was the starting point :)
+Regards
+Christian Volk
 
-I believe the reason to abandon the previous "stable" branchlet was the
-assumption that the new kernel had all fixes from the previous "stable"
-merged, i. e. every patch between 2.6.14 and 2.6.14.3 would become part
-of 2.6.15 (or the underlying problem addressed by a patch were resolved
-some other way).
 
-> What I think should be done is to still maintain older 2.6
-> (eg: 2, 3 or 4 previous releases) so that people will have
-> the time to switch to a new one. And I think that what Adrian
-> wants to do would be useful *only* if he proceeds that way.
+Lspci ------------------------------------------------------------
+00:1f.1 IDE interface: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family)
+IDE Controller (rev 04) (prog-if 8a [Master SecP PriP])
+        Subsystem: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) IDE
+Controller
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at <unassigned>
+        Region 1: I/O ports at <unassigned>
+        Region 2: I/O ports at <unassigned>
+        Region 3: I/O ports at <unassigned>
+        Region 4: I/O ports at f000 [size=16]
+00: 86 80 6f 26 05 00 80 02 04 8a 01 01 00 00 00 00
+10: 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00
+20: 01 f0 00 00 00 00 00 00 00 00 00 00 86 80 6f 26
+30: 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00
 
-Perhaps a fixed number of releases doesn't cut it. Perhaps a fixed time
-neither. If the changes betweeen two subsequent releases is low, one or
-more extra versions come for free, but if lots of changes go in all over
-the map, it's going to be a royal pain.
+00:1f.2 IDE interface: Intel Corporation 82801FBM (ICH6M) SATA Controller
+(rev 04) (prog-if 8f [Master SecP SecO PriP PriO])
+        Subsystem: Intel Corporation 82801FBM (ICH6M) SATA Controller
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin B routed to IRQ 11
+        Region 0: I/O ports at e500 [size=8]
+        Region 1: I/O ports at e600 [size=4]
+        Region 2: I/O ports at e700 [size=8]
+        Region 3: I/O ports at e800 [size=4]
+        Region 4: I/O ports at e900 [size=16]
+        Region 5: Memory at d02c5000 (32-bit, non-prefetchable) [size=1K]
+        Capabilities: [70] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot+,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00: 86 80 53 26 07 00 b0 02 04 8f 01 01 00 00 00 00
+10: 01 e5 00 00 01 e6 00 00 01 e7 00 00 01 e8 00 00
+20: 01 e9 00 00 00 50 2c d0 00 00 00 00 86 80 53 26
+30: 00 00 00 00 70 00 00 00 00 00 00 00 0b 02 00 00
+----------------------------------------------------------------------
 
-It ultimately boils down to the question: how far^Wfast the upstream
-wants to run away^W^Wprogress from its previous release.
 
-> Also, I think differently from Adrian. He wants to backport
-> all new drivers and new features, while I think that they are
-> the most sensible parts and the one which bring the more
-> changes to the kernel. In fact, we should *only* maintain
-> security and critical fixes on older releases. People in the
-> need of a new driver must upgrade for this. This is the
+Booting ------------------------------------------------------------
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
 
-I think there is no such thing as The Single One New Driver[tm]. Some
-are quite intrusive, some aren't. Sometimes the new driver works with
-older kernels (if the driver is self-contained, for instance just a
-dozen new lines of code in an existing driver), sometimes not (because
-midlayer or core changes are required to support the new driver).
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
 
--- 
-Matthias Andree
+ICH6: IDE controller at PCI slot 0000:00:1f.1
+
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 11
+
+PCI: setting IRQ 11 as level-triggered
+
+ACPI: PCI Interrupt 0000:00:1f.1[A] -> Link [LNKC] -> GSI 11 (level, low) ->
+IRQ 11
+
+ICH6: chipset revision 4
+
+ICH6: not 100% native mode: will probe irqs later
+
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:DMA
+
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+
+hdb: WDC WD1200JB-00DUA0, ATA DISK drive
+
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+
+hdb: max request size: 1024KiB
+
+hdb: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=16383/255/63,
+UDMA(33)
+
+hdb: cache flushes supported
+
+ hdb: hdb1 hdb2
+
+ide-floppy driver 0.99.newide
+
+ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
+
+ACPI: PCI Interrupt 0000:00:1f.2[B] -> Link [LNKD] -> GSI 11 (level, low) ->
+IRQ 11
+
+ahci 0000:00:1f.2: AHCI 0001.0000 32 slots 4 ports 1.5 Gbps 0x5 impl IDE
+mode
+
+ahci 0000:00:1f.2: flags: 64bit ncq pm led slum part 
+
+ata1: SATA max UDMA/133 cmd 0xE002E100 ctl 0x0 bmdma 0x0 irq 11
+
+ata2: SATA max UDMA/133 cmd 0xE002E180 ctl 0x0 bmdma 0x0 irq 11
+
+ata3: SATA max UDMA/133 cmd 0xE002E200 ctl 0x0 bmdma 0x0 irq 11
+
+ata4: SATA max UDMA/133 cmd 0xE002E280 ctl 0x0 bmdma 0x0 irq 11
+
+ata1: no device found (phy stat 00000000)
+
+scsi0 : ahci
+
+ata2: no device found (phy stat 00000000)
+
+scsi1 : ahci
+
+ata3: dev 0 ATA-6, max UDMA/133, 312581808 sectors: LBA48
+
+ata3: dev 0 configured for UDMA/133
+
+scsi2 : ahci
+
+ata4: no device found (phy stat 00000000)
+
+scsi3 : ahci
+
+  Vendor: ATA       Model: WDC WD1600SD-01K  Rev: 08.0
+
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+
+--------------------------------------------------------------
+
+Messeges on writing to unplugged disk ------------------------
+ata3: handling error/timeout
+ata3: port reset, p_is 0 is 0 pis 0 cmd 4017 tf d0 ss 11 se 0
+ata3: status=0x50 { DriveReady SeekComplete }
+sda: Current: sense key: No Sense
+    Additional sense: No additional sense information
+ata3: handling error/timeout
+ata3: port reset, p_is 0 is 0 pis 0 cmd c017 tf 7f ss 0 se 0
+ata3: status=0x50 { DriveReady SeekComplete }
+--------------------------------------------------------------
+
+
+____________
+Virus checked by G DATA AntiVirusKit
+Version: AVK 16.2020 from 05.12.2005
+Virus news: www.antiviruslab.com
+

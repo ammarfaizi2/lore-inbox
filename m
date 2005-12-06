@@ -1,84 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751564AbVLFDWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751566AbVLFDXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751564AbVLFDWM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 22:22:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbVLFDWM
+	id S1751566AbVLFDXs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 22:23:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751568AbVLFDXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 22:22:12 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:21940 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751561AbVLFDWK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 22:22:10 -0500
-Date: Tue, 6 Dec 2005 14:20:53 +1100
-From: Andrew Morton <akpm@osdl.org>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, kir@sw.ru,
-       devel@openvz.org, saw@sawoct.com, dim@sw.ru, st@sw.ru
-Subject: Re: [ANNOUNCE] first stable release of OpenVZ kernel virtualization
- solution
-Message-Id: <20051206142053.17793440.akpm@osdl.org>
-In-Reply-To: <43949155.5060606@sw.ru>
-References: <43949155.5060606@sw.ru>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 5 Dec 2005 22:23:48 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:35234
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751565AbVLFDXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 22:23:47 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Greg KH <greg@kroah.com>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Date: Mon, 5 Dec 2005 21:23:43 -0600
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <20051203152339.GK31395@stusta.de> <200512051647.55395.rob@landley.net> <20051206031550.GA25427@kroah.com>
+In-Reply-To: <20051206031550.GA25427@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512052123.43898.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@sw.ru> wrote:
+On Monday 05 December 2005 21:15, Greg KH wrote:
+> On Mon, Dec 05, 2005 at 04:47:55PM -0600, Rob Landley wrote:
+> > On the busybox list we're currently working out a design for mdev, the
+> > micro-udev that'll go into busybox 1.2.  So we're thinking about this
+> > issue pretty carefully, as we speak.  What's the minimal amount of work
+> > we can't get away with not doing?
 >
-> Hello,
-> 
-> We are happy to announce the release of a stable version of the OpenVZ 
-> software, located at http://openvz.org/.
-> 
-> OpenVZ is a kernel virtualization solution which can be considered as a
-> natural step in the OS kernel evolution: after multiuser and 
-> multitasking functionality there comes an OpenVZ feature of having 
-> multiple environments.
+> I suggest you take this discussion to the linux-hotplug-devel mailing
+> list, which is the proper place for it.  Not this thread about stable
+> kernel series :)
 
-Are you able to give us a high-level overview of how it actually is
-implemented?  IOW: what does the patch do?
+Didn't know there was one.  Will do, but probably not today...
 
-> ...
-> 
-> As virtualization solution OpenVZ makes it possible to do the same 
-> things for which people use UML, Xen, QEmu or VMware, but there are 
-> differences:
-> (a) there is no ability to run other operating systems
->      (although different Linux distros can happily coexist);
-> (b) performance loss is negligible due to absense of any kind of
->      emulation;
-> (c) resource utilization is much better.
+> thanks,
+>
+> greg k-h
 
-What are OpenVZ's disadvantages wrt the above?
-
-> The dynamic assignment of resources in OpenVZ can significantly improve 
-> their utilization. For example, a x86_64 box (2.8 GHz Celeron D, 1GB 
-> RAM) is capable to run 100 VPSs with a fairly high performance (VPSs 
-> were serving http requests for 4.2Kb static pages at an overall rate of 
-> more than 80,000 req/min). Each VPS (running CentOS 4 x86_64) had the 
-> following set of processes:
-> 
-> [root@ovz-x64 ~]# vzctl exec 1043 ps axf
->   PID TTY      STAT   TIME COMMAND
->     1 ?        Ss     0:00 init
-> 11830 ?        Ss     0:00 syslogd -m 0
-> 11897 ?        Ss     0:00 /usr/sbin/sshd
-> 11943 ?        Ss     0:00 xinetd -stayalive -pidfile ...
-> 12218 ?        Ss     0:00 sendmail: accepting connections
-> 12265 ?        Ss     0:00 sendmail: Queue runner@01:00:00
-> 13362 ?        Ss     0:00 /usr/sbin/httpd
-> 13363 ?        S      0:00  \_ /usr/sbin/httpd
-> 13364 ?        S      0:00  \_ /usr/sbin/httpd
-> 13365 ?        S      0:00  \_ /usr/sbin/httpd
-> 13366 ?        S      0:00  \_ /usr/sbin/httpd
-> 13370 ?        S      0:00  \_ /usr/sbin/httpd	
-> 13371 ?        S      0:00  \_ /usr/sbin/httpd
-> 13372 ?        S      0:00  \_ /usr/sbin/httpd
-> 13373 ?        S      0:00  \_ /usr/sbin/httpd
-> 6416 ?        Rs     0:00 ps axf
-
-Do the various kernel instances share httpd text pages?
-
+Rob
+-- 
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.

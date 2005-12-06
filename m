@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932648AbVLFWgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932647AbVLFWmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932648AbVLFWgx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 17:36:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932647AbVLFWgx
+	id S932647AbVLFWmH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 17:42:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbVLFWmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 17:36:53 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:9144 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S932646AbVLFWgw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 17:36:52 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
-Date: Tue, 6 Dec 2005 23:36:47 +0100
-User-Agent: KMail/1.8
-Cc: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
-       Pete Zaitcev <zaitcev@redhat.com>, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, ehabkost@mandriva.com
-References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br> <20051206130207.7658636e.zaitcev@redhat.com> <20051206191845.6f4827b3.lcapitulino@mandriva.com.br>
-In-Reply-To: <20051206191845.6f4827b3.lcapitulino@mandriva.com.br>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512062336.47855.oliver@neukum.org>
+	Tue, 6 Dec 2005 17:42:07 -0500
+Received: from smtp03.infoave.net ([165.166.0.28]:55023 "EHLO
+	SMTP03.INFOAVE.NET") by vger.kernel.org with ESMTP id S932647AbVLFWmG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 17:42:06 -0500
+Date: Tue, 06 Dec 2005 17:40:44 -0500
+From: John Kelly <jakelly@shtc.net>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+In-reply-to: <20051206215526.GW9973@stusta.de>
+To: linux-kernel@vger.kernel.org
+Message-id: <e84cp1hc27ciiangqbtj6encnp4so7ubph@4ax.com>
+MIME-version: 1.0
+X-Mailer: Forte Agent 1.93/32.576 English (American)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+References: <20051203135608.GJ31395@stusta.de>
+ <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com>
+ <20051203201945.GA4182@kroah.com>
+ <9a8748490512031948m26b04d3ds9fbc652893ead40@mail.gmail.com>
+ <20051204115650.GA15577@merlin.emma.line.org>
+ <20051204232454.GG8914@kroah.com> <20051205062609.GA7096@alpha.home.local>
+ <20051206175422.GG3084@kroah.com> <vombp1d302marce67hpkolu2vs0rru7vi9@4ax.com>
+ <20051206215526.GW9973@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 6. Dezember 2005 22:18 schrieb Luiz Fernando Capitulino:
-> 
->  Hi Pete,
-> 
-> On Tue, 6 Dec 2005 13:02:07 -0800
-> Pete Zaitcev <zaitcev@redhat.com> wrote:
-> 
-> | On Tue, 6 Dec 2005 18:14:49 -0200, Luiz Fernando Capitulino <lcapitulino@mandriva.com.br> wrote:
-> | 
-> | >  The spinlock makes the code less clear, error prone, and we already a
-> | > semaphore in the struct usb_serial_port.
-> | > 
-> | >  The spinlocks _seems_ useless to me.
-> | 
-> | Dude, semaphores are not compatible with interrupts. Surely you
-> | understand that?
-> 
->  Sure thing man, take a look at this thread:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=113216151918308&w=2
-> 
->  My comment 'we already have a semaphore in struct usb_serial_port'
-> was about what we've discussed in that thread, where question like
-> 'why should we have yet another lock here?' have been made.
-> 
->  And *not* 'let's use the semaphore instead'.
-> 
->  If _speed_ does not make difference, the spinlock seems useless,
-> because we could use atomic_t instead.
+On Tue, 06 Dec 2005 22:55:26 +0100, Adrian Bunk <bunk@stusta.de>
+wrote:
 
-You can atomically set _one_ value using atomic_t. A spinlock allows
-that and other more complex schemes.
+>> So if Adrian wants to begin where -stable ends, there is no reason for
+>> people to oppose his efforts.
 
-	Regards
-		Oliver
+>I've read the whole thread, and I haven't seen anyone opposing my idea.
+
+>Most people in this thread who did or do maintain some kernel branch 
+>simply expressed that in their opinion my idea would be too much work 
+>for too few users...
+
+If you build it, will they come?
+
+No one really knows.  There is only one way to find out.
+
+

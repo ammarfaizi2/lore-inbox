@@ -1,34 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbVLFPSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbVLFPSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964977AbVLFPSd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 10:18:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbVLFPSc
+	id S932256AbVLFPSL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 10:18:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751691AbVLFPSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 10:18:32 -0500
-Received: from ns.suse.de ([195.135.220.2]:53889 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751699AbVLFPSb (ORCPT
+	Tue, 6 Dec 2005 10:18:11 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24009 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932605AbVLFPSJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 10:18:31 -0500
-To: "David Engraf" <engraf.david@netcom-sicherheitstechnik.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Win32 equivalent to GetTickCount systemcall (i386)
-References: <1133871202.3664.34.camel@tara.firmix.at>
-	<000201c5fa60$52bb53e0$0a016696@EW10>
-From: Andi Kleen <ak@suse.de>
-Date: 06 Dec 2005 12:48:29 -0700
-In-Reply-To: <000201c5fa60$52bb53e0$0a016696@EW10>
-Message-ID: <p73psoaqa5u.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Tue, 6 Dec 2005 10:18:09 -0500
+Date: Tue, 6 Dec 2005 16:17:29 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Message-ID: <20051206151729.GC1999@elf.ucw.cz>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43944F42.2070207@didntduck.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Engraf" <engraf.david@netcom-sicherheitstechnik.de> writes:
+Hi!
+
+> >Every time we buy a piece of hardware with binary only drivers we admit
+> >that the binary only driver vendors are doing the right choice for their
+> >stockholders. Only when we refuse to buy it, we can make a slight 
+> >difference.
+> >When we don't buy hardware without open source drivers, we send the
+> >message to the shareholders that the management is causing them a loss.
 > 
-> times has only 10ms resolution, we need at least 1ms.
+> The problem with this statement is that Linux users are a drop in the 
+> bucket of sales for this hardware.  Boycotting doesn't cost the vendors 
+> enough to make them care.  And this does nothing for people who are 
 
-It actually has jiffies resultion. Your measurements must have been
-quite off.
+Actually, yes it does cost them. If you refuse to buy $2000 notebook,
+because its 3D graphics card ($100) is not supported properly... well
+notebook vendor is going to put pressure on graphics card vendor.
 
--Andi
+And you don't have to be Linux user to refuse closed hardware. Having
+option in future is always good.x
+
+								Pavel
+-- 
+Thanks, Sharp!

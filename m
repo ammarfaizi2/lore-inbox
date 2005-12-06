@@ -1,98 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932581AbVLFNgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbVLFNkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932581AbVLFNgu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 08:36:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932571AbVLFNgn
+	id S932582AbVLFNkf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 08:40:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbVLFNke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 08:36:43 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:13530 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S932573AbVLFNgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 08:36:14 -0500
-Message-Id: <20051206135906.658120000@localhost.localdomain>
-References: <20051206135608.860737000@localhost.localdomain>
-Date: Tue, 06 Dec 2005 21:56:17 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@lameter.com>,
-       Rik van Riel <riel@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
-       Andrea Arcangeli <andrea@suse.de>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 09/13] mm: remove swap_cluster_max from scan_control
-Content-Disposition: inline; filename=mm-remove-swap-cluster-max-from-scan-control.patch
+	Tue, 6 Dec 2005 08:40:34 -0500
+Received: from web25812.mail.ukl.yahoo.com ([217.146.176.245]:6562 "HELO
+	web25812.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S932582AbVLFNkd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 08:40:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.es;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=J8jvgrsTXpG8fbecc0CgB65mSbd1ju+XuPePLdw/9HKjU2i/R5DYrswk/+wruG7+zgGExdAhUWiAYCENOqjuNccjr61sx+ufiUTKy8MNgy6hYOgIqWE/c6BoGj18KDlYFOsgTLjvRmrDtAGRz52bku/XSiD7nPWhCNxil/IADkk=  ;
+Message-ID: <20051206134027.89769.qmail@web25812.mail.ukl.yahoo.com>
+Date: Tue, 6 Dec 2005 14:40:27 +0100 (CET)
+From: Albert Herranz <albert_herranz@yahoo.es>
+Subject: Re: nfs unhappiness with memory pressure
+To: trond.myklebust@fys.uio.no, theonetruekenny@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The use of sc.swap_cluster_max is weird and redundant.
+Hi,
 
-The callers should just set sc.priority/sc.nr_to_reclaim, and let
-shrink_zone() decide the proper loop parameters.
+The patch linux-2.6.15-fix_sock_allocation.dif seems
+to have helped with this issue.
 
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
----
+With this patch applied I have been unable to
+reproduce the system freezes I was experiencing in
+latest 2.6.x kernels when using nfs-root on my
+GameCube (24MB RAM).
 
- mm/vmscan.c |   15 ++++-----------
- 1 files changed, 4 insertions(+), 11 deletions(-)
+Thanks,
+Albert
 
---- linux-2.6.15-rc5-mm1.orig/mm/vmscan.c
-+++ linux-2.6.15-rc5-mm1/mm/vmscan.c
-@@ -76,12 +76,6 @@ struct scan_control {
- 
- 	/* Can pages be swapped as part of reclaim? */
- 	int may_swap;
--
--	/* This context's SWAP_CLUSTER_MAX. If freeing memory for
--	 * suspend, we effectively ignore SWAP_CLUSTER_MAX.
--	 * In this context, it doesn't matter that we scan the
--	 * whole list at once. */
--	int swap_cluster_max;
- };
- 
- #define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
-@@ -1121,7 +1115,6 @@ shrink_zone(struct zone *zone, struct sc
- 	nr_inactive &= ~(SWAP_CLUSTER_MAX - 1);
- 
- 	sc->nr_to_scan = SWAP_CLUSTER_MAX;
--	sc->nr_to_reclaim = sc->swap_cluster_max;
- 
- 	while (nr_active >= SWAP_CLUSTER_MAX * 1024 || nr_inactive) {
- 		if (nr_active >= SWAP_CLUSTER_MAX * 1024) {
-@@ -1260,7 +1253,7 @@ int try_to_free_pages(struct zone **zone
- 		sc.nr_scanned = 0;
- 		sc.nr_reclaimed = 0;
- 		sc.priority = priority;
--		sc.swap_cluster_max = SWAP_CLUSTER_MAX;
-+		sc.nr_to_reclaim = SWAP_CLUSTER_MAX;
- 		if (!priority)
- 			disable_swap_token();
- 		shrink_caches(zones, &sc);
-@@ -1272,7 +1265,7 @@ int try_to_free_pages(struct zone **zone
- 		}
- 		total_scanned += sc.nr_scanned;
- 		total_reclaimed += sc.nr_reclaimed;
--		if (total_reclaimed >= sc.swap_cluster_max) {
-+		if (total_reclaimed >= SWAP_CLUSTER_MAX) {
- 			ret = 1;
- 			goto out;
- 		}
-@@ -1284,7 +1277,7 @@ int try_to_free_pages(struct zone **zone
- 		 * that's undesirable in laptop mode, where we *want* lumpy
- 		 * writeout.  So in laptop mode, write out the whole world.
- 		 */
--		if (total_scanned > sc.swap_cluster_max + sc.swap_cluster_max/2) {
-+		if (total_scanned > SWAP_CLUSTER_MAX * 3 / 2) {
- 			wakeup_pdflush(laptop_mode ? 0 : total_scanned);
- 			sc.may_writepage = 1;
- 		}
-@@ -1365,7 +1358,7 @@ loop_again:
- 		sc.nr_scanned = 0;
- 		sc.nr_reclaimed = 0;
- 		sc.priority = priority;
--		sc.swap_cluster_max = nr_pages ? nr_pages : SWAP_CLUSTER_MAX;
-+		sc.nr_to_reclaim = nr_pages ? nr_pages : SWAP_CLUSTER_MAX;
- 
- 		/* The swap token gets in the way of swapout... */
- 		if (!priority)
 
---
+
+	
+	
+		
+______________________________________________ 
+Renovamos el Correo Yahoo! 
+Nuevos servicios, más seguridad 
+http://correo.yahoo.es

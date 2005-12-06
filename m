@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbVLFT0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbVLFT2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbVLFT0I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 14:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbVLFT0I
+	id S1030205AbVLFT2v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 14:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbVLFT2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 14:26:08 -0500
-Received: from mx1.suse.de ([195.135.220.2]:44703 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030200AbVLFT0H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 14:26:07 -0500
-Date: Tue, 6 Dec 2005 20:26:03 +0100
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-mm@kvack.org, Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [RFC 1/3] Framework for accurate node based statistics
-Message-ID: <20051206192603.GX11190@wotan.suse.de>
-References: <20051206182843.19188.82045.sendpatchset@schroedinger.engr.sgi.com> <20051206183524.GU11190@wotan.suse.de> <Pine.LNX.4.62.0512061105220.19475@schroedinger.engr.sgi.com>
+	Tue, 6 Dec 2005 14:28:51 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:60891 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030205AbVLFT2v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 14:28:51 -0500
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Greg KH <greg@kroah.com>, Tim Bird <tim.bird@am.sony.com>,
+       David Woodhouse <dwmw2@infradead.org>, arjan@infradead.org,
+       andrew@walrond.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20051206181919.GA19905@thunk.org>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	 <200512051826.06703.andrew@walrond.org>
+	 <1133817575.11280.18.camel@localhost.localdomain>
+	 <1133817888.9356.78.camel@laptopd505.fenrus.org>
+	 <1133819684.11280.38.camel@localhost.localdomain>
+	 <4394D396.1020102@am.sony.com> <20051206041215.GC26602@kroah.com>
+	 <20051206181919.GA19905@thunk.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 06 Dec 2005 19:27:42 +0000
+Message-Id: <1133897262.23610.36.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0512061105220.19475@schroedinger.engr.sgi.com>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 11:08:42AM -0800, Christoph Lameter wrote:
-> On Tue, 6 Dec 2005, Andi Kleen wrote:
-> 
-> > > +static inline void mod_node_page_state(int node, enum node_stat_item item, int delta)
-> > > +{
-> > > +	vm_stat_diff[get_cpu()][node][item] += delta;
-> > > +	put_cpu();
-> > 
-> > Instead of get/put_cpu I would use a local_t. This would give much better code
-> > on i386/x86-64.  I have some plans to port over all the MM statistics counters
-> > over to local_t, still stuck, but for new code it should be definitely done.
-> 
-> Yuck. That code uses atomic operations and is not aware of atomic64_t.
+On Maw, 2005-12-06 at 13:19 -0500, Theodore Ts'o wrote:
+> The question of whether or not something which *could* be linked into
+> the kernel is a derived work is a very different question
 
-Hmm? What code are you looking at? 
+Its also a question that falls into the area of conspiracy to commit an
+offence in some legal domains rather than being about 'interface
+copyright'.
 
-At least i386/x86-64/generic don't use any atomic operations, just
-normal non atomic on bus but atomic for interrupts local rmw.
+Alan
 
-Do you actually need 64bit? 
-
--Andi

@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbVLFWyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbVLFW4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbVLFWyx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 17:54:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965046AbVLFWyx
+	id S965047AbVLFW4D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 17:56:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbVLFW4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 17:54:53 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:19677 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965045AbVLFWyw (ORCPT
+	Tue, 6 Dec 2005 17:56:03 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:31133 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S965047AbVLFW4B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 17:54:52 -0500
-Message-ID: <439616B6.1020308@us.ibm.com>
-Date: Tue, 06 Dec 2005 14:54:46 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH 0/8] Critical Page Pool
-References: <437E2C69.4000708@us.ibm.com> <20051118195657.GI7991@shell0.pdx.osdl.net> <43815F64.4070502@us.ibm.com> <20051121132910.GA1971@elf.ucw.cz>
-In-Reply-To: <20051121132910.GA1971@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Dec 2005 17:56:01 -0500
+Date: Tue, 6 Dec 2005 23:55:24 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: John Kelly <jakelly@shtc.net>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051206225524.GF21914@marowsky-bree.de>
+References: <0q2ap1l1poi0kpv7f12dq1f91b47ki41nq@4ax.com> <20051206132758.GW21914@marowsky-bree.de> <tmkbp1pgid9lmrbfl0k53298eqh9jm23m4@4ax.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <tmkbp1pgid9lmrbfl0k53298eqh9jm23m4@4ax.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>>* Matthew Dobson (colpatch@us.ibm.com) wrote:
->>>
->>>
->>>>/proc/sys/vm/critical_pages: write the number of pages you want to reserve
->>>>for the critical pool into this file
->>>
->>>
->>>How do you size this pool?
->>
->>Trial and error.  If you want networking to survive with no memory other
->>than the critical pool for 2 minutes, for example, you pick a random value,
->>block all other allocations (I have a test patch to do this), and send a
->>boatload of packets at the box.  If it OOMs, you need a bigger pool.
->>Lather, rinse, repeat.
-> 
-> 
-> ...and then you find out that your test was not "bad enough" or that
-> it needs more memory on different machines. It may be good enough hack
-> for your usage, but I do not think it belongs in mainline.
-> 								Pavel
+On 2005-12-06T13:21:23, John Kelly <jakelly@shtc.net> wrote:
 
-Way late in responding to this, but...
+> >So stop whining and go fucking do it, one of you.
+> Does it annoy you that I don't use a "distro" Lars?
 
-Apropriate sizing of this pool is a known issue.  For example, we want to
-use it to keep the networking stack alive during extreme memory pressure
-situations.  The only way to size the pool so as to *guarantee* that it
-will not be exhausted during the 2 minute window we need would be to ensure
-that the pool has at least (TOTAL_BANDWITH_OF_ALL_NICS * 120 seconds) bytes
-available.  In the case of a simple system with a single GigE adapter we'd
-need (1 gigbit/sec * 120 sec) = 120 gigabits = 15 gigabytes of reserve
-pool.  That is obviously completely impractical, considering many boxes
-have multiple GigE adapters or even 10 GigE adapters.  It is also
-incredibly unlikely that the NIC will be hit with a continuous stream of
-packets at a level that would completely saturate the link.  Starting with
-an educated guess and some test runs with a reasonble workload should give
-you a good idea of how much space you'd *realistically* need to reserve.
-Given any reserve size less than the theoretical maximum you obviously
-can't *guarantee* the pool won't be exhausted, but you can be pretty confident.
+I couldn't care less ;-) Technical savvy users create way too much work,
+anyway. ;-)
 
--Matt
+No, I'm just annoyed by the explosion in this thread where so many
+people comment, but very few who say they want to do the work, yet many
+complain that the current model doesn't meet their needs. And yes, I
+call that whining, and someone should just go fucking do it and get it
+over with.
+
+> I wonder why you have such a hostile attitude.  Maybe the atmosphere
+> is not too happy at SUSE nowadays.  It makes me glad I don't use your
+> "distro."
+
+You're free not to. This is the beauty of Linux.
+
+
+Sincerely,
+    Lars Marowsky-Brée
+
+-- 
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
+

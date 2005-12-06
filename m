@@ -1,78 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbVLFSPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932484AbVLFSU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964996AbVLFSPW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 13:15:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965001AbVLFSPW
+	id S932484AbVLFSU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 13:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVLFSU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 13:15:22 -0500
-Received: from straum.hexapodia.org ([64.81.70.185]:18448 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S964996AbVLFSPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 13:15:21 -0500
-Date: Tue, 6 Dec 2005 10:15:20 -0800
-From: Andy Isaacson <adi@hexapodia.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
-Message-ID: <20051206181520.GA21501@hexapodia.org>
-References: <20051205081935.GI22168@hexapodia.org> <20051205121728.GF5509@elf.ucw.cz> <1133791084.3872.53.camel@laptop.cunninghams> <200512052328.01999.rjw@sisk.pl> <1133832773.6360.38.camel@localhost> <20051206020626.GO22168@hexapodia.org> <20051206121835.GN1770@elf.ucw.cz>
-Mime-Version: 1.0
+	Tue, 6 Dec 2005 13:20:57 -0500
+Received: from ns1.suse.de ([195.135.220.2]:39063 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932484AbVLFSU4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 13:20:56 -0500
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Policy for reverting user ABI breaking patches was Re: RFC: Starting a stable kernel series off the 2.6 kernel
+References: <20051203135608.GJ31395@stusta.de>
+	<9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com>
+	<20051203201945.GA4182@kroah.com>
+	<9a8748490512031948m26b04d3ds9fbc652893ead40@mail.gmail.com>
+	<20051204115650.GA15577@merlin.emma.line.org>
+	<20051204232454.GG8914@kroah.com> <20051205185110.GJ9973@stusta.de>
+	<20051206175017.GF3084@kroah.com>
+From: Andi Kleen <ak@suse.de>
+Date: 06 Dec 2005 15:50:55 -0700
+In-Reply-To: <20051206175017.GF3084@kroah.com>
+Message-ID: <p73hd9lrga8.fsf_-_@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051206121835.GN1770@elf.ucw.cz>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 01:18:35PM +0100, Pavel Machek wrote:
-> > I'm assuming that the difference is that with Rafael's patches, clean
-> > pages that would have been evicted in the "freeing pages..." step are
-> > now being written out to the swsusp image.  If so, this is a waste - no
-> > point in having the data on disk twice.  (It would be nice to confirm
-> > this suspicion.)
+Greg KH <greg@kroah.com> writes:
+
 > 
-> Confirmed. But you are wrong; it is not a waste. The pages are nicely
-> linear in suspend image, while they would be all over the disk
-> otherwise. There can easily be factor 20 difference between linear
-> read and random read.
+> And there will always be a need for new package upgrades for some small
+> subset of programs that are tightly tied to the kernel (like
+> wpa_supplicant or alsa-libs, or even udev).  But "normal" userspace
 
-Agreed, linear reads are obviously an enormous improvement over seeking
-all over the disk.  (Especially given my 15 ms seek latency.)  It would
-suck to have to do all those seeks synchronously (before allowing the
-swsusp resume to complete).  But see below for my suggested alternative.
+Actually I don't necessarily agree on that. It's best to avoid
+breakage even for them. It has actually worked for a long time.
+In the early days of Linux there was frequent breakage like
+this but then in recent times the kernel has been very good
+at this for a long time (one exception was the module rewrite,
+but that was a single flag day). I have been running
+modern kernels on old distributions for a long time
+and it generally worked. 
 
-> > Could we rework it to avoid writing clean pages out to the swsusp image,
-> > but keep a list of those pages and read them back in *after* having
-> > resumed?  Maybe do the /dev/initrd ('less +/once Documentation/initrd.txt'
-> > if you're not familiar with it) trick to make the list of pages available 
-> > to a userland helper.
-> 
-> I did not understand this one.
+And if there is breakage of such kernel-near applications there should
+be an *extremly* good reason for this (and minor cleanup isn't such a
+reason). For example for the recent udev breakage imho the cleanup
+patch that caused this should have just been reverted. I know it's not
+possible to know such bad interactions in advance, but when they are
+known and there isn't an *extremly* good reason for it then the ABI
+breaking change should be reverted.
 
-I'm suggesting that rather than writing the clean pages out to the
-image, simply make their metadata available to a post-resume userland
-helper.  Something like
+It would be good to have a policy like this: if an important program
+breaks due to a new kernel
 
-% head -2 /dev/swsusp-helper
-/bin/sh 105-115 192 199-259
-/lib/libc-2.3.2.so 1-250
+[With important being fairly liberally defined as anything shipped in
+standard distros unless it's something exotic that does something
+stupid or is obviously broken. External kernel modules or /dev/mem
+access don't count.]
 
-where the userland program is expected to use the list of page numbers
-(and getpagesize(2)) to asynchronously page in the working set in an
-ionice'd manner.
+then the breakage needs to have an *extremly* good rationale 
+(fixing security bugs etc.) and if there isn't one from the person
+who submitted the patch then it should be reverted.
 
-This doesn't get rid of the seeks, of course, but doing them post-resume
-will improve interactive performance while avoiding the cost of gigantic
-swsusp images.
-
-> Anyway, try limiting size of image to ~500MB, first. Should solve your
-> problem with very little work.
-
-This is obviously the right thing for my situation, and it's on my list.
-
--andy
+-Andi

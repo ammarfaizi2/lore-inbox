@@ -1,42 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbVLFUnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932451AbVLFUtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbVLFUnl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 15:43:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030233AbVLFUnl
+	id S932451AbVLFUtU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 15:49:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932632AbVLFUtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 15:43:41 -0500
-Received: from solarneutrino.net ([66.199.224.43]:43525 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S1030231AbVLFUnk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 15:43:40 -0500
-Date: Tue, 6 Dec 2005 15:43:37 -0500
+	Tue, 6 Dec 2005 15:49:20 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:12014 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S932451AbVLFUtT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 15:49:19 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
 To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       ryan@tau.solarneutrino.net
-Subject: Re: Fw: crash on x86_64 - mm related?
-Message-ID: <20051206204336.GA12248@tau.solarneutrino.net>
-References: <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local> <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org> <20051201195657.GB7236@tau.solarneutrino.net> <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com> <20051202180326.GB7634@tau.solarneutrino.net> <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com> <20051202194447.GA7679@tau.solarneutrino.net> <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com> <20051206160815.GC11560@tau.solarneutrino.net> <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Subject: Re: [PATCH] /dev/mem validate mmap requests
+Date: Tue, 6 Dec 2005 13:49:11 -0700
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org
+References: <200512051700.20269.bjorn.helgaas@hp.com> <Pine.LNX.4.61.0512061832090.26899@goblin.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.61.0512061832090.26899@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+Message-Id: <200512061349.11895.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 08:31:43PM +0000, Hugh Dickins wrote:
-> Thanks for the further report.  And you had my st.c patch in along
-> with 2.6.14.3, but it still happened, very much like before (except the
-> latter errors, general protection fault onwards - but once we get into
-> using one page for two uses at the same time, anything can go wrong).
+On Tuesday 06 December 2005 11:39 am, Hugh Dickins wrote:
+> On Mon, 5 Dec 2005, Bjorn Helgaas wrote:
+> > Add a hook so architectures can validate /dev/mem mmap requests.
 > 
-> I've been staring and thinking, but no inspiration yet.
+> Not a comment on your patch at all, just an FYI in case you've missed
+> it, and in case it makes any difference to your ia64 needs.
+> 
+> A side-effect of 2.6.15-rc's PageReserved changes is that a user with
+> access to /dev/mem can now mmap any page of it, and see what's there
+> rather than zeroes, whether or not it has been marked PageReserved.
 
-That's correct, thanks for looking.  Let me know if there's anything I
-could do get more information.
+Thanks for the pointer.
 
--ryan
+I think my patch is orthogonal to your PageReserved changes.
+
+Here's a little more detail on the problem scenario.  An HP
+sx1000 machine with VGA has a memory map like this:
+
+	0-640K 		memory (supports only WB mappings)
+	640K-768K	VGA frame buffer (MMIO, supports only UC mappings)
+	768K-16M	memory (supports only WB mappings)
+
+We use a 16MB "granule".  All mappings within a granule have to
+be the same type to avoid attribute aliasing.  Since we're using
+VGA, we have to use UC mappings for the MMIO frame buffer.  We
+can't use UC mappings for the memory, because the sx1000 chipset
+doesn't support that.  We can't use WB mappings, because that would
+cause attribute aliasing.
+
+Since we can't use WB mappings, the kernel ignores all that memory
+between 0-16MB.  There aren't even any page structures for it.  But
+without my patch, /dev/mem allows users to mmap it.  And there's no
+safe way to allow access of any kind to that memory.
+
+Bjorn

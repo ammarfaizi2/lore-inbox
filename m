@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbVLFKqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbVLFKqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964947AbVLFKqU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 05:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbVLFKqU
+	id S964949AbVLFKqp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 05:46:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964951AbVLFKqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 05:46:20 -0500
-Received: from mail.gmx.de ([213.165.64.20]:51075 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964947AbVLFKqT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 05:46:19 -0500
-X-Authenticated: #428038
-Date: Tue, 6 Dec 2005 11:46:17 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051206104617.GB10574@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <87hd9n708t.fsf@mid.deneb.enyo.de> <200512060110.jB61AMHF004027@pincoya.inf.utfsm.cl>
+	Tue, 6 Dec 2005 05:46:45 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:58298 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S964949AbVLFKqo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 05:46:44 -0500
+Date: Tue, 6 Dec 2005 11:46:52 +0100
+From: Sander <sander@humilis.net>
+To: Dirk Steuwer <dirk@steuwer.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Message-ID: <20051206104652.GB3354@favonius>
+Reply-To: sander@humilis.net
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org> <loom.20051206T094816-40@post.gmane.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200512060110.jB61AMHF004027@pincoya.inf.utfsm.cl>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+In-Reply-To: <loom.20051206T094816-40@post.gmane.org>
+X-Uptime: 11:19:44 up 18 days, 20:53, 31 users,  load average: 2.91, 2.26, 2.04
 User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Dec 2005, Horst von Brand wrote:
+Dirk Steuwer wrote (ao):
+> The only solution is to create pressure on these companies, as suggested.
+> Ideally, there should be a label "designed for Linux" (or "designed for free
+> software" (maybe getting the bsd people on board as well?)) straight on the box.
+> So customers that start to care about linux, can see this right away and make
+> the right choice, when buying hardware. 
 
-> > You mentioned security issues in your initial post.  I think it would
-> > help immensely if security bugs would be documented properly (affected
-> > versions, configuration requirements, attack range, loss type etc.)
-> > when the bug is fixed, by someone who is familiar with the code.
-> > (Currently, this information is scraped together mostly by security
-> > folks, sometimes after considerable time has passed.)  Having a
-> > central repository with this kind of information would enable vendors
-> > and not-quite-vendors (people who have their own set of kernels for
-> > their machines) to address more vulnerabilties promptly, including
-> > less critical ones.
-> 
-> I've fixed bugs which turned out to be security vulnerabilities. And I
-> didn't know (or even care much) at the time. Finding out if some random bug
-> has security implications, and exactly which ones/how much of a risk they
-> pose is normally /much/ harder than to fix the bugs.  And rather pointless,
-> after the fix is in.
+Quite a few companies state on their site that their hardware is
+supported in Linux if it is.
 
-I believe everyone who maintains a nontrivial piece of software has
-experienced a situation where a bug fix addressed a bug that could
-actually be exploited and that wasn't clear at the time.
-
-Calling this "pointless" after the fix is in leaves people in danger
-unaware, unless it happens on a branch where every user can be expected
-to update because only tested fixes are merged. As this isn't the case
-for the kernel, but everyone moves on at will, doesn't care if a
-previous bug fix is exploitable and whatnot, the Linux kernel's security
-is essentially nonexistent, and expecting downstream QA teams to handle
-this is just ridiculous for many reasons already mentioned.
+And I've never bought any computer equipment in a shop. Always online,
+where there is no such thing as a box anyway :-)
 
 -- 
-Matthias Andree
+Humilis IT Services and Solutions
+http://www.humilis.net

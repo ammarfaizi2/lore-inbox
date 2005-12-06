@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030213AbVLFTya@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbVLFTyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030213AbVLFTya (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 14:54:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbVLFTya
+	id S965028AbVLFTyF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 14:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbVLFTyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 14:54:30 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:43745 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030202AbVLFTy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 14:54:29 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Brian Gerst <bgerst@didntduck.org>, Arjan van de Ven <arjan@infradead.org>,
-       "M." <vo.sinh@gmail.com>, Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <4395E962.2060309@pobox.com>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <20051205121851.GC2838@holomorphy.com>
-	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
-	 <20051206030828.GA823@opteron.random>
-	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
-	 <1133869465.4836.11.camel@laptopd505.fenrus.org>
-	 <4394ECA7.80808@didntduck.org>  <4395E2F4.7000308@pobox.com>
-	 <1133897867.29084.14.camel@mindpipe>  <4395E962.2060309@pobox.com>
-Content-Type: text/plain
-Date: Tue, 06 Dec 2005 14:55:11 -0500
-Message-Id: <1133898911.29084.25.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Dec 2005 14:54:05 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:27346 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965028AbVLFTyC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 14:54:02 -0500
+Subject: [ANNOUNCE]  December Release of LTP
+To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net,
+       ltp-announce@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 6.5.3 September 14, 2004
+Message-ID: <OF953B1BE9.A5FD0D1A-ON852570CF.006D2C22-862570CF.006D4D13@us.ibm.com>
+From: Marty Ridgeway <mridge@us.ibm.com>
+Date: Tue, 6 Dec 2005 13:53:56 -0600
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.5.4FP2 HF2|November 9, 2005) at
+ 12/06/2005 14:53:58
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-06 at 14:41 -0500, Jeff Garzik wrote:
-> Lee Revell wrote:
-> > On Tue, 2005-12-06 at 14:13 -0500, Jeff Garzik wrote:
-> >>Let's hope the rev-eng people do it the right way, by having one team 
-> >>write a document, and a totally separate team write the driver from
-> >>that document.
-> 
-> > Isn't it also legal for a single person or team to capture all IO
-> > to/from the device with a bus analyzer or kernel debugger and write a
-> > driver from that, as long as you don't disassemble the original driver?
-> 
-> It's still legally shaky.  The "Chinese wall" approach I described above 
-> is beyond reproach, and that's where Linux needs to be.
+The December release of LTP is now avaiaable.
 
-I know you are not a lawyer but do you have a pointer or two?  As long
-as we are REing for interoperability I've never read anything to
-indicate the approach I described could be a problem even in the US.
+LTP-20051205
+- New networkStress testcase files
+- Security test updates for cleanup and testcase improvements
+- New nfsV4 testsuite
+- Updates for nfsV4 testsuite
+- Updates for open_hpi_testsuite
+- Corrected out of memory error msg in ltpstress.sh
 
-Lee
+Marty Ridgeway
+Linux Test Project
+Linux Technology Center
+IBM Corporation
+
+Internet E-Mail : mridge@us.ibm.com
+IBM, 11501 Burnet Rd, Austin, TX  78758
+Phone (512) 838-1356 - T/L 678-1356 - Bldg. 902/6B021
+Austin, TX.
 

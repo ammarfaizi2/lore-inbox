@@ -1,52 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbVLFVlk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbVLFVtw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030253AbVLFVlk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 16:41:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932643AbVLFVlk
+	id S1030259AbVLFVtw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 16:49:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbVLFVtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 16:41:40 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:52912 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932642AbVLFVlk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 16:41:40 -0500
-Subject: Re: [PATCH 02/14] spufs: fix local store page refcounting
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, arjan@infradead.org,
-       viro@ftp.linux.org.uk
-In-Reply-To: <17301.65082.251692.675360@cargo.ozlabs.ibm.com>
-References: <20051206035220.097737000@localhost>
-	 <200512061118.19633.arnd@arndb.de> <1133869108.7968.1.camel@localhost>
-	 <200512061949.33482.arnd@arndb.de> <1133895947.3279.4.camel@localhost>
-	 <17301.65082.251692.675360@cargo.ozlabs.ibm.com>
-Date: Tue, 06 Dec 2005 23:41:38 +0200
-Message-Id: <1133905298.8027.13.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Tue, 6 Dec 2005 16:49:52 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:35737 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030259AbVLFVtv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 16:49:51 -0500
+Message-ID: <43960774.1000202@pobox.com>
+Date: Tue, 06 Dec 2005 16:49:40 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Brian Gerst <bgerst@didntduck.org>, Arjan van de Ven <arjan@infradead.org>,
+       "M." <vo.sinh@gmail.com>, Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Reverse engineering (was Re: Linux in a binary world... a doomsday
+ scenario)
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>	 <20051205121851.GC2838@holomorphy.com>	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>	 <20051206030828.GA823@opteron.random>	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>	 <1133869465.4836.11.camel@laptopd505.fenrus.org>	 <4394ECA7.80808@didntduck.org>  <4395E2F4.7000308@pobox.com>	 <1133897867.29084.14.camel@mindpipe>  <4395E962.2060309@pobox.com> <1133898911.29084.25.camel@mindpipe>
+In-Reply-To: <1133898911.29084.25.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.4.2 
+X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Lee Revell wrote: > On Tue, 2005-12-06 at 14:41 -0500,
+	Jeff Garzik wrote: > >>Lee Revell wrote: >> >>>On Tue, 2005-12-06 at
+	14:13 -0500, Jeff Garzik wrote: >>> >>>>Let's hope the rev-eng people
+	do it the right way, by having one team >>>>write a document, and a
+	totally separate team write the driver from >>>>that document. >>
+	>>>Isn't it also legal for a single person or team to capture all IO
+	>>>to/from the device with a bus analyzer or kernel debugger and write
+	a >>>driver from that, as long as you don't disassemble the original
+	driver? >> >>It's still legally shaky. The "Chinese wall" approach I
+	described above >>is beyond reproach, and that's where Linux needs to
+	be. > > > I know you are not a lawyer but do you have a pointer or two?
+	As long > as we are REing for interoperability I've never read anything
+	to > indicate the approach I described could be a problem even in the
+	US. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul,
+Lee Revell wrote:
+> On Tue, 2005-12-06 at 14:41 -0500, Jeff Garzik wrote:
+> 
+>>Lee Revell wrote:
+>>
+>>>On Tue, 2005-12-06 at 14:13 -0500, Jeff Garzik wrote:
+>>>
+>>>>Let's hope the rev-eng people do it the right way, by having one team 
+>>>>write a document, and a totally separate team write the driver from
+>>>>that document.
+>>
+>>>Isn't it also legal for a single person or team to capture all IO
+>>>to/from the device with a bus analyzer or kernel debugger and write a
+>>>driver from that, as long as you don't disassemble the original driver?
+>>
+>>It's still legally shaky.  The "Chinese wall" approach I described above 
+>>is beyond reproach, and that's where Linux needs to be.
+> 
+> 
+> I know you are not a lawyer but do you have a pointer or two?  As long
+> as we are REing for interoperability I've never read anything to
+> indicate the approach I described could be a problem even in the US.
 
-On Wed, 2005-12-07 at 08:10 +1100, Paul Mackerras wrote:
-> The point is that people making changes to the filesystem interfaces
-> will be much more likely to notice and fix stuff that is under fs/
-> than code that is buried deep under arch/ somewhere.  Filesystems
-> should go under fs/ for the sake of long-term maintainability.  The
-> fact that it's only used on one architecture is irrelevant - you
-> simply make sure (with the appropriate Kconfig bits) that it's only
-> offered on that architecture.
+The _potential_ for problems is very high:
 
-I think the fact that it is highly architecture specific is relevant. I
-have no way of testing spufs changes except on cell, no? And if I am
-developing on a cell, I probably will notice it in arch/ all the same.
-So I don't quite buy your the maintenace argument.
+1) [ref Alan's email] copying programming sequences
 
-But as Arnd said, there are no clear rules on what kind of filesystems
-should go into fs/ so please do whatever you must.
+2) Lack of Chinese wall requires TRUST and EVIDENCE that you did the 
+rev-eng without "source code that fell off the back of a truck" [i.e. 
+illegally obtained] or "docs that fell off the back of a truck."
 
-			Pekka
+3) Lack of Chinese wall increases the likelihood that a SCOX or other 
+entity could use that as a legal weapon against Linux.
+
+In Linux, I really have no way of knowing how questionable a driver 
+submission is, if it did not arrive from the Chinese wall approach, or a 
+known hacker with a valid path to hardware docs/engineers/code.  Past 
+experience shows that Mr. Unknown Hacker is likely to take legal 
+shortcuts when writing the driver.
+
+If I accept code of highly questionable origin, then I put Linux in 
+jeopardy.
+
+	Jeff
+
 

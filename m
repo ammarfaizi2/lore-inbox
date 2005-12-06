@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751641AbVLFE1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751624AbVLFEje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751641AbVLFE1b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 23:27:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751642AbVLFE1a
+	id S1751624AbVLFEje (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 23:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751644AbVLFEje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 23:27:30 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:38979 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751639AbVLFE1a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 23:27:30 -0500
-Date: Mon, 05 Dec 2005 23:27:27 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Linux in a binary world... a doomsday scenario
-In-reply-to: <Pine.LNX.4.64.0512051954040.19959@montezuma.fsmlabs.com>
-To: linux-kernel@vger.kernel.org
-Message-id: <200512052327.27780.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
- <200512052122.02485.gene.heskett@verizon.net>
- <Pine.LNX.4.64.0512051954040.19959@montezuma.fsmlabs.com>
-User-Agent: KMail/1.7
+	Mon, 5 Dec 2005 23:39:34 -0500
+Received: from ozlabs.org ([203.10.76.45]:20957 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751624AbVLFEje (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 23:39:34 -0500
+Subject: Re: Two module-init-
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: dtor_core@ameritech.net
+Cc: linux-input@atrey.karlin.mff.cuni.cz,
+       Scott James Remnant <scott@ubuntu.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, vojtech@suse.cz
+In-Reply-To: <d120d5000512051347u1d77aabam2b70ef91d8709f39@mail.gmail.com>
+References: <1133359773.2779.13.camel@localhost.localdomain>
+	 <1133482376.4094.11.camel@localhost.localdomain>
+	 <200512022319.05246.dtor_core@ameritech.net>
+	 <200512022328.29182.dtor_core@ameritech.net>
+	 <1133691865.30188.24.camel@localhost.localdomain>
+	 <d120d5000512051347u1d77aabam2b70ef91d8709f39@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 06 Dec 2005 15:39:32 +1100
+Message-Id: <1133843972.17208.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 December 2005 22:56, Zwane Mwaikambo wrote:
->On Mon, 5 Dec 2005, Gene Heskett wrote:
->> Which is the best reason in the world to buy and use, the open source
->> video card now under development, and I hear its less than 3-4 months
->> from production status now, and at a competitive, sub $150 USD price.
->>
->> If 50% of nvidia's currant linux market share were to dissappear a
->> month after this card becomes available for purchase by those whom
->> one might categorize as believers, I'd think that would send a
->> message loud enough to be heard.
->>
->> Particularly if windows drivers are available, open sourced, and
->> installable on a winderz box using the normal install wizard, and
->> promoted as such to the joe six-packs of the world.  At the right
->> price, that would send an even louder message to both nvidia and ati
->
->Do you think this opensource hardware could keep up with nvidia and ati
->hardware development? Joe sixpack is all about the fastest hardware.
+On Mon, 2005-12-05 at 16:47 -0500, Dmitry Torokhov wrote:
+> It's not like swbit is new in 2.6.15, it was there since 2.6.14
+> was opened.
 
-That I've no knowledge of.  The developers are claiming pretty decent 
-performance from the breadboards now, in the top 85% I'd guess, but go 
-check their site for clarification on that.  As to keeping up with new 
-hardware, if the sales support it, then even newer ones will always be 
-in the pipeline.  The key to success is as always, sales propaganda in 
-Joe Six-packs face, and that, no surprise, costs money.  So when it is 
-released, support it if you want to keep it alive.  To me, thats a no 
-brainer.  But who am I but an old fart on SS...  If I can afford it, 
-certainly lots of you younger folks can too.  Putting our money where 
-our mouth is makes perfect sense to me and I'll do it at least once.  
-Maybe 3 times as I have 3 boxes here.
+Err, yeah, good point.  I had assumed this was new in 2.6.14.  Since
+we've only seen reports now, I'll assume it's low priority and we can
+wait until 2.6.16.
 
+I have a cunning plan to fix module-init-tools in the meantime; expect a
+release if it works out...
 
+Thanks all!
+Rusty.
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.36% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+A bad analogy is like a leaky screwdriver -- Richard Braakman
+

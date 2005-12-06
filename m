@@ -1,57 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751556AbVLFDTm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751560AbVLFDUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751556AbVLFDTm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 22:19:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbVLFDTm
+	id S1751560AbVLFDUk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 22:20:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751561AbVLFDUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 22:19:42 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:32930
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1751556AbVLFDTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 22:19:41 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Date: Mon, 5 Dec 2005 21:19:28 -0600
-User-Agent: KMail/1.8
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <20051203152339.GK31395@stusta.de> <200512051647.55395.rob@landley.net> <20051205230502.GB12955@kvack.org>
-In-Reply-To: <20051205230502.GB12955@kvack.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 5 Dec 2005 22:20:40 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:32908 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751413AbVLFDUj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 22:20:39 -0500
+Subject: Re: ntp problems
+From: john stultz <johnstul@us.ibm.com>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200512052107.24427.gene.heskett@verizon.net>
+References: <200512050031.39438.gene.heskett@verizon.net>
+	 <200512051833.19629.gene.heskett@verizon.net>
+	 <1133828065.7605.50.camel@cog.beaverton.ibm.com>
+	 <200512052107.24427.gene.heskett@verizon.net>
+Content-Type: text/plain
+Date: Mon, 05 Dec 2005 19:20:29 -0800
+Message-Id: <1133839229.7605.63.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512052119.28706.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 December 2005 17:05, Benjamin LaHaise wrote:
-> On Mon, Dec 05, 2005 at 04:47:55PM -0600, Rob Landley wrote:
-> > So no in-kernel filesystem can get this right without help from userspace
-> > (even devfs had devfsd), and as soon as you've got a userspace daemon to
-> > tell the kernel who is who you might as well do the whole thing there,
-> > now that the kernel is exporting everyting _else_ we need to know via
-> > /sys and /sbin/hotplug.
->
-> /sbin/hotplug is suboptimal.  Even a pretty fast machine is slowed down
-> pretty significantly by the ~thousand fork and exec that take place during
-> startup.
+On Mon, 2005-12-05 at 21:07 -0500, Gene Heskett wrote:
+> On Monday 05 December 2005 19:14, john stultz wrote:
+> >On Mon, 2005-12-05 at 18:33 -0500, Gene Heskett wrote:
+> >> On Monday 05 December 2005 16:39, john stultz wrote:
+> >> >On Mon, 2005-12-05 at 00:31 -0500, Gene Heskett wrote:
+> >> >> Greetings everybody;
+> >> >>
+> >> >> I seem to have an ntp problem.  I noticed a few minutes ago that
+> >> >> if my watch was anywhere near correct, then the computer was about
+> >> >> 6 minutes fast.  Doing a service ntpd restart crash set it back
+> >> >> nearly 6 minutes.
+> >> >
+> >> >Not sure exactly what is going on, but you might want to try
+> >> > dropping the LOCAL server reference in your ntp.conf. It could be
+> >> > you're just syncing w/ yourself.
+> >>
+> >> Joanne, bless her, pointed out that I had probably turned the ACPI
+> >> stuff in my kernel back on.  She was of course correct, shut it off &
+> >> ntpd works just fine.
+> >
+> >Err. ACPI stuff? Could you elaborate? Sounds like you have some sort of
+> >bug hiding there.
+> 
+> This has been a relatively long standing problem, John.  I think its 
+> possibly related to some access path in the nforce2 chipset as it seems 
+> to plague that chipset worse than others.  But its long been, and I had 
+> forgotten, that if ntpd didn't work, turning off the ACPI stuff was the 
+> fix.
 
-Why do you need hotplug events on startup?  Can't you just scan /sys for "dev" 
-entries do the initial populate of /dev from that?
+Hey Gene,
 
-> For the most common devices -- common tty, pty, floppy, etc that 
-> every system has, this is a plain waste of resources -- otherwise known as
-> bloat.
+	I know we've spoken before about a few timekeeping problems, but
+sometimes I have a hard time keeping all the issues straight. Have you
+filed a bug on this issue? I queried for your email in
+bugzilla.kernel.org and I couldn't find anything. If not, would you mind
+opening a bug describing the behavior you are seeing with the different
+boot options (possibly also dmesg output for both configurations)? It
+will greatly help make sure this doesn't slip by without notice.
 
-I get those from a scan of /sys, and only care about hotplug events that come 
-in after that.  (Could just be me...)
 
->   -ben
+> It had worked for a few kernel.org kernels and I had become complacent.  
+> My mistake.
+> 
+> OTOH, calling it a local bug, no, I certainly wouldn't call it a local to 
+> my machine bug.  Jdow OTOH, running an FC4 box, has it enabled, and hers 
+> is working just fine.  She is I believe, running the FC4's latest kernel 
+> too, so maybe the redhat people have massaged it.  However, at one time 
+> several months ago I believe she also had to have a grub argument 
+> turning acpi=no.
 
-Rob
--- 
-Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
-I do not think it means what you think it means.
+Hmmm. Indeed the nforce2 has had a number of problems, but I'm not sure
+why it would have changed recently. Can you bound at all the kernel
+versions where it worked and where it broke? Additionally, do be sure
+you have the most recent BIOS, I've seen a number of nforce2 issues be
+resolved with a BIOS update.
+
+
+> There was a bunch of ntp related patches submitted recently, and I have 
+> no idea which of them may have restored the broken acpi vs ntp scenario 
+> to its formerly broken status, again.
+
+I don't think the NTP changes would have triggered this, but I want to
+be sure (its more likely something else in the timekeeping code is
+causing problems).
+
+> Should it be looked at?  Certainly, but I don't have the knowledge to do 
+> so.  So I build kernels, and report problems areas.  The canary in the 
+> coal mine so to speak. :-)
+
+The testing and problem report is very much appreciated! Start with
+filing a bugzilla bug and then I'll point you at a few more mines to
+checkout :)
+
+thanks
+-john
+
+

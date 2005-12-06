@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbVLFX1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030289AbVLFX0S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030291AbVLFX1B (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 18:27:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030293AbVLFX1B
+	id S1030289AbVLFX0S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 18:26:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbVLFX0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 18:27:01 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:58018
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030291AbVLFX1A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 18:27:00 -0500
-Date: Tue, 06 Dec 2005 15:27:04 -0800 (PST)
-Message-Id: <20051206.152704.82461039.davem@davemloft.net>
-To: greg@kroah.com
-Cc: felipe.alfaro@gmail.com, fw@deneb.enyo.de, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051206174714.GE3084@kroah.com>
-References: <87psoapa8t.fsf@mid.deneb.enyo.de>
-	<6f6293f10512060855p79fb5e91ke6fca33f96cb1750@mail.gmail.com>
-	<20051206174714.GE3084@kroah.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 6 Dec 2005 18:26:17 -0500
+Received: from ns.firmix.at ([62.141.48.66]:4256 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1030289AbVLFX0Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 18:26:16 -0500
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Dave Jones <davej@redhat.com>
+Cc: =?iso-8859-2?Q?Pawe=B3?= Sikora <pluto@agmk.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051206202902.GC17108@redhat.com>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	 <200512061649.14470.pluto@agmk.net> <20051206190051.GA4232@irc.pl>
+	 <200512062011.55234.pluto@agmk.net>  <20051206202902.GC17108@redhat.com>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Date: Wed, 07 Dec 2005 00:25:52 +0100
+Message-Id: <1133911552.3299.37.camel@gimli.at.home>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg KH <greg@kroah.com>
-Date: Tue, 6 Dec 2005 09:47:14 -0800
-
-> On Tue, Dec 06, 2005 at 05:55:42PM +0100, Felipe Alfaro Solana wrote:
-> > > There might be some subtle changes in the netfilter/routing
-> > > interaction which break user configurations, but this still being
-> > > tracked down (and maybe the any behavior is fine because it's
-> > > unspecified; hard to tell).
-> > 
-> > Yeah! For example, the first datagram triggering an IPSec SA is always
-> > lost (instead of being queued until the IPSec SA has been
-> > established).
-> > 
-> > For example, try pinging the IPSec SA peer for the very first time and
-> > the first ICMP datagram will always return "resource currently
-> > unavailable" and, of course, will get lost.
-> > 
-> > BTW this works perfectly under *BSD and Mac OS X.
+On Tue, 2005-12-06 at 15:29 -0500, Dave Jones wrote:
+[...]
+> Indeed, anything newer than a G550 is binary only as far as 3D is concerned.
+> Sad, as Matrox used to be a really good recommendation for an
+> opensource friendly graphic card vendor.
 > 
-> Do the network kernel developers know about this issue?  And if so, what
-> have they said about it?
+> It's not as if their newer cards are even that fast, so my only
+> guess is that they've gone the binary blob route purely for
+> paranoia reasons.
 
-It's on the TODO list, known problem with not an easy solution.
+Yes, the "software as such patent" and/or "trivial patent" disease
+spreaded the last decades - not only in USPTO-land (and identically in
+JPO-land) but also basically illegally in EPO-land.
+And it is probably much simpler to "prove" (in the law sense, not
+technically/mathematically) a patent infringement if you have C source
+of the driver instead of some undocumented blob of object code.
 
-BTW, BSD doesn't do any better, the KAME BSD ipsec stack drops the
-initial datagram just like we do.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+
+
+

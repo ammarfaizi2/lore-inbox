@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbVLFTZP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbVLFT0I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030199AbVLFTZP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 14:25:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbVLFTZP
+	id S1030200AbVLFT0I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 14:26:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbVLFT0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 14:25:15 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:22409 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030199AbVLFTZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 14:25:14 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Brian Gerst <bgerst@didntduck.org>, Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1133894575.4136.171.camel@baythorne.infradead.org>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <20051205121851.GC2838@holomorphy.com>
-	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
-	 <20051206030828.GA823@opteron.random>  <4394696B.6060008@didntduck.org>
-	 <1133894575.4136.171.camel@baythorne.infradead.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 06 Dec 2005 19:23:55 +0000
-Message-Id: <1133897035.23610.32.camel@localhost.localdomain>
+	Tue, 6 Dec 2005 14:26:08 -0500
+Received: from mx1.suse.de ([195.135.220.2]:44703 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030200AbVLFT0H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 14:26:07 -0500
+Date: Tue, 6 Dec 2005 20:26:03 +0100
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-mm@kvack.org, Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [RFC 1/3] Framework for accurate node based statistics
+Message-ID: <20051206192603.GX11190@wotan.suse.de>
+References: <20051206182843.19188.82045.sendpatchset@schroedinger.engr.sgi.com> <20051206183524.GU11190@wotan.suse.de> <Pine.LNX.4.62.0512061105220.19475@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0512061105220.19475@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-12-06 at 18:42 +0000, David Woodhouse wrote:
-> There's some work on reverse-engineering the BIOS so that you can
-> hackishly poke 'new' modes into its tables, but it's still not a very
-> good option.
+On Tue, Dec 06, 2005 at 11:08:42AM -0800, Christoph Lameter wrote:
+> On Tue, 6 Dec 2005, Andi Kleen wrote:
+> 
+> > > +static inline void mod_node_page_state(int node, enum node_stat_item item, int delta)
+> > > +{
+> > > +	vm_stat_diff[get_cpu()][node][item] += delta;
+> > > +	put_cpu();
+> > 
+> > Instead of get/put_cpu I would use a local_t. This would give much better code
+> > on i386/x86-64.  I have some plans to port over all the MM statistics counters
+> > over to local_t, still stuck, but for new code it should be definitely done.
+> 
+> Yuck. That code uses atomic operations and is not aware of atomic64_t.
 
-Especially as the BIOS interface at the low level for the analogue end
-and the logic driving it is board specific. Intel have been fairly clear
-why they use the BIOS interface.
+Hmm? What code are you looking at? 
 
+At least i386/x86-64/generic don't use any atomic operations, just
+normal non atomic on bus but atomic for interrupts local rmw.
+
+Do you actually need 64bit? 
+
+-Andi

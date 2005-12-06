@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965009AbVLFSnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbVLFSm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965009AbVLFSnL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 13:43:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVLFSnL
+	id S965017AbVLFSm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 13:42:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbVLFSm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 13:43:11 -0500
-Received: from baythorne.infradead.org ([81.187.2.161]:42163 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S965009AbVLFSnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 13:43:10 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: David Woodhouse <dwmw2@infradead.org>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <4394696B.6060008@didntduck.org>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <20051205121851.GC2838@holomorphy.com>
-	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
-	 <20051206030828.GA823@opteron.random>  <4394696B.6060008@didntduck.org>
+	Tue, 6 Dec 2005 13:42:28 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:39387 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965009AbVLFSm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 13:42:26 -0500
+Subject: Re: copy_from_user/copy_to_user question
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Vinay Venkataraghavan <raghavanvinay@yahoo.com>, Andi Kleen <ak@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0512061314560.5396@chaos.analogic.com>
+References: <20051206175301.34596.qmail@web32110.mail.mud.yahoo.com>
+	 <Pine.LNX.4.61.0512061314560.5396@chaos.analogic.com>
 Content-Type: text/plain
-Date: Tue, 06 Dec 2005 18:42:55 +0000
-Message-Id: <1133894575.4136.171.camel@baythorne.infradead.org>
+Date: Tue, 06 Dec 2005 13:42:20 -0500
+Message-Id: <1133894540.6724.95.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 11:23 -0500, Brian Gerst wrote:
-> Intel?  That's all nice and dandy if and only if you have an Intel
-> CPU.   Not an option for AMD users, for obvious reasons.
+On Tue, 2005-12-06 at 13:23 -0500, linux-os (Dick Johnson) wrote:
 
-Actually even the Intel support isn't particularly good. We don't have
-proper mode setup code -- we have to invoke the BIOS to do mode setup,
-and we can't set specific modelines (like PAL-compatible modes); we're
-limited to what the BIOS knows about -- it's like vesafb with
-acceleration.
+> 
+> (note)__assess__ means even "peek at".
+> 
+> FYI, there should never even be such a question.
 
-There's some work on reverse-engineering the BIOS so that you can
-hackishly poke 'new' modes into its tables, but it's still not a very
-good option.
+Dick, be nice.  I get the impression that Vinay is just looking at some
+code that he can't disclose because of some policy of the company he
+works for.  He's curiously looking at the code of some non-mainstream
+driver (either GPL or some NDA version) and is questioning what he sees.
+Not everyone that does this is a kernel hacker.  This is the way I
+started, and these questions, which may seem so obvious to a veteran
+kernel hacker, is not so to a novice.
 
--- 
-dwmw2
+-- Steve
 
 

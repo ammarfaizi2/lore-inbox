@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbVLFXPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbVLFXSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932657AbVLFXPL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 18:15:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbVLFXPK
+	id S932511AbVLFXSe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 18:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbVLFXSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 18:15:10 -0500
-Received: from 81-223-115-237.meidling.xdsl-line.inode.at ([81.223.115.237]:51724
-	"EHLO esgaroth.petrovitsch.at") by vger.kernel.org with ESMTP
-	id S932658AbVLFXPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 18:15:09 -0500
+	Tue, 6 Dec 2005 18:18:33 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:18845 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932511AbVLFXSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 18:18:33 -0500
 Subject: Re: Reverse engineering
-From: Bernd Petrovitsch <bernd@petrovitsch.priv.at>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+From: Lee Revell <rlrevell@joe-job.com>
+To: Bernd Petrovitsch <bernd@petrovitsch.priv.at>
+Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
        William Lee Irwin III <wli@holomorphy.com>,
        Andrea Arcangeli <andrea@suse.de>, "M." <vo.sinh@gmail.com>,
        Arjan van de Ven <arjan@infradead.org>,
-       Brian Gerst <bgerst@didntduck.org>, Lee Revell <rlrevell@joe-job.com>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <4395FA92.8030502@wolfmountaingroup.com>
+       Brian Gerst <bgerst@didntduck.org>, Jeff Garzik <jgarzik@pobox.com>
+In-Reply-To: <1133910804.3299.28.camel@gimli.at.home>
 References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
 	 <20051205121851.GC2838@holomorphy.com>
 	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
@@ -29,45 +29,35 @@ References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
 	 <1133897867.29084.14.camel@mindpipe>  <4395E962.2060309@pobox.com>
 	 <1133898911.29084.25.camel@mindpipe> <43960774.1000202@pobox.com>
 	 <4395FA92.8030502@wolfmountaingroup.com>
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 07 Dec 2005 00:13:24 +0100
-Message-Id: <1133910804.3299.28.camel@gimli.at.home>
+	 <1133910804.3299.28.camel@gimli.at.home>
+Content-Type: text/plain
+Date: Tue, 06 Dec 2005 18:19:21 -0500
+Message-Id: <1133911162.29084.55.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-06 at 13:54 -0700, Jeff V. Merkey wrote:
-[...]
-> Guys, get real.  SCO is out of money and just took 10 million in float 
-> capital to keep the doors open.  They are after IBM, not Linux.  WAKE UP!!!
+On Wed, 2005-12-07 at 00:13 +0100, Bernd Petrovitsch wrote:
+> On Tue, 2005-12-06 at 13:54 -0700, Jeff V. Merkey wrote:
+> [...]
+> > Guys, get real.  SCO is out of money and just took 10 million in float 
+> > capital to keep the doors open.  They are after IBM, not Linux.  WAKE UP!!!
+> 
+> Yes, this was obvious since the first accusation. But "they"
+> -) didn't formulate it that way but came down with completely false (if
+>    not intentionally lied *from the very first day of the public
+>    campaign*).
+> -) used the Linux kernel as a - innocent - vehicle for their great
+>    campaign to get bought by IBM (which - for God's sake - didn't work
+>    out) *without* any serious and real background, evidence or anything
+>    else.
+> 
+> So it's completely up to these folks to make up for the damage they
+> evoked.
 
-Yes, this was obvious since the first accusation. But "they"
--) didn't formulate it that way but came down with completely false (if
-   not intentionally lied *from the very first day of the public
-   campaign*).
--) used the Linux kernel as a - innocent - vehicle for their great
-   campaign to get bought by IBM (which - for God's sake - didn't work
-   out) *without* any serious and real background, evidence or anything
-   else.
+Please don't feed the trolls, this thread was bad enough already.
 
-So it's completely up to these folks to make up for the damage they
-evoked.
-
-And yes, I can understand that "they" want to make money and get rich
-(who doesn't want this?). And no, this doesn't imply any tolerance or
-even understanding of the used means, the lying all the way, spreading
-FUD, and all other less then serious accusations and the media show.
-
-	Berndm, shutting now up about SCO since they are apparently dead
-
-PS: I don't understand for what reason any (and which) entity should
-    give them money (and if it's only 1$).
--- 
-"Mozart hätte Stehgeiger werden müssen, wenn Haydn ein Patent auf
-Symphonien bekommen hätte"            - http://www.luga.at/swpat/
-"Der Horizont vieler Menschen ist ein Kreis mit Radius Null - und
-das nennen sie ihren Standpunkt."                   - A. Einstein
-
+Lee
 

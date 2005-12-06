@@ -1,46 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965012AbVLFSrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbVLFSry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965012AbVLFSrP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 13:47:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965019AbVLFSrP
+	id S932619AbVLFSry (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 13:47:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbVLFSry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 13:47:15 -0500
-Received: from mail.suse.de ([195.135.220.2]:8603 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965012AbVLFSrO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 13:47:14 -0500
-Date: Tue, 6 Dec 2005 19:47:08 +0100
-From: Andi Kleen <ak@suse.de>
-To: Avuton Olrich <avuton@gmail.com>
-Cc: Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel panic: Machine check exception
-Message-ID: <20051206184708.GV11190@wotan.suse.de>
-References: <3aa654a40511190145v6f4df755wf16673050d077edb@mail.gmail.com> <1132406652.5238.19.camel@localhost.localdomain> <3aa654a40511191254x4bf50cc8l6a9b8786f1a5ebc8@mail.gmail.com> <1132436886.19692.17.camel@localhost.localdomain> <m1wtiicwbv.fsf@ebiederm.dsl.xmission.com> <p73y82yqaaf.fsf@verdi.suse.de> <3aa654a40512061045h33fea2a0y1511366df2e7c166@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Dec 2005 13:47:54 -0500
+Received: from moutng.kundenserver.de ([212.227.126.183]:15576 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932619AbVLFSrx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 13:47:53 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [PATCH 02/14] spufs: fix local store page refcounting
+Date: Tue, 6 Dec 2005 19:49:30 +0100
+User-Agent: KMail/1.7.2
+Cc: Paul Mackerras <paulus@samba.org>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, arjan@infradead.org,
+       viro@ftp.linux.org.uk
+References: <20051206035220.097737000@localhost> <200512061118.19633.arnd@arndb.de> <1133869108.7968.1.camel@localhost>
+In-Reply-To: <1133869108.7968.1.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3aa654a40512061045h33fea2a0y1511366df2e7c166@mail.gmail.com>
+Message-Id: <200512061949.33482.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 10:45:36AM -0800, Avuton Olrich wrote:
-> On 06 Dec 2005 12:45:44 -0700, Andi Kleen <ak@suse.de> wrote:
-> > ebiederm@xmission.com (Eric W. Biederman) writes:
-> > >
-> > > To decode an Opteron machine_check you can look in
-> > > the bios and kernel programmers guide.  (Possibly the
+On Dinsdag 06 Dezember 2005 12:38, Pekka Enberg wrote:
+> On Dinsdag 06 Dezember 2005 01:51, Paul Mackerras wrote:
+> > > Remind me again why spufs is under arch/powerpc/ rather than fs/ ?
 > 
-> > mcelog --ascii decodes the "final" machine checks output
-> > by the 64bit kernel. The normal recoverable machine checks
-> > should be decoded at runtime assuming your distribution
-> > set it up right (normally into /var/log/mcelog)
+> On Tue, 2005-12-06 at 11:18 +0100, Arnd Bergmann wrote:
+> > We had a discussion about this in August, after the patch
+> > at http://patchwork.ozlabs.org/linuxppc64/patch?id=2140
+> > 
+> > Nobody had voiced any objections against the arch/powerpc location,
+> > and Pekka had good reasons against fs/, so I changed it.
 > 
-> That also works on kernel panic?
+> It had arch specific hooks which IMHO do not belong into fs/.
 
-The automatic logging doesn't work during panic, but if you 
-redirected the output of the kernel panic to some other machine
-(using serial console etc) you can pipe that log 
-into it for decoding.
+Since the discussion came up again in irc, I looked up the existing file
+systems.
 
--Andi
+outside of fs/, we have the following file systems.
+
+find -name \*.c | grep -v ^./fs | xargs grep struct.file_system_type.*=
+./arch/ia64/kernel/perfmon.c:static struct file_system_type pfm_fs_type = {
+./drivers/infiniband/core/uverbs_main.c:static struct file_system_type uverbs_event_fs = {
+./drivers/isdn/capi/capifs.c:static struct file_system_type capifs_fs_type = {
+./drivers/misc/ibmasm/ibmasmfs.c:static struct file_system_type ibmasmfs_type = {
+./drivers/oprofile/oprofilefs.c:static struct file_system_type oprofilefs_type = {
+./drivers/usb/core/inode.c:static struct file_system_type usb_fs_type = {
+./drivers/usb/gadget/inode.c:static struct file_system_type gadgetfs_type = {
+./ipc/mqueue.c:static struct file_system_type mqueue_fs_type = {
+./kernel/cpuset.c:static struct file_system_type cpuset_fs_type = {
+./kernel/futex.c:static struct file_system_type futex_fs_type = {
+./mm/shmem.c:static struct file_system_type tmpfs_fs_type = {
+./mm/tiny-shmem.c:static struct file_system_type tmpfs_fs_type = {
+./net/socket.c:static struct file_system_type sock_fs_type = {
+./net/sunrpc/rpc_pipe.c:static struct file_system_type rpc_pipe_fs_type = {
+./security/inode.c:static struct file_system_type fs_type = {
+./security/selinux/selinuxfs.c:static struct file_system_type sel_fs_type = {
+
+In fs/, most code deals with actual files stored on a disk or similar,
+with the exception of:
+
+./fs/binfmt_misc.c:static struct file_system_type bm_fs_type = {
+./fs/block_dev.c:static struct file_system_type bd_type = {
+./fs/debugfs/inode.c:static struct file_system_type debug_fs_type = {
+./fs/devfs/base.c:static struct file_system_type devfs_fs_type = {
+./fs/devpts/inode.c:static struct file_system_type devpts_fs_type = {
+./fs/eventpoll.c:static struct file_system_type eventpoll_fs_type = {
+./fs/hugetlbfs/inode.c:static struct file_system_type hugetlbfs_fs_type = {
+./fs/inotify.c:static struct file_system_type inotify_fs_type = {
+./fs/openpromfs/inode.c:static struct file_system_type openprom_fs_type = {
+./fs/pipe.c:static struct file_system_type pipe_fs_type = {
+./fs/proc/root.c:static struct file_system_type proc_fs_type = {
+./fs/relayfs/inode.c:static struct file_system_type relayfs_fs_type = {
+./fs/sysfs/mount.c:static struct file_system_type sysfs_fs_type = {
+
+I guess there is no strict rule where these file systems go to, e.g.
+hugetlbs could just as well live near mm/shmem.c or any of those outside
+of fs/ could be moved in there.
+
+I don't really care where I put spufs, but I would prefer to move
+the files only one more time at most.
+Initially, they were in fs/spufs, and I moved them to
+arch/powerpc/platforms/cell/spufs at Pekkas suggestion.
+
+	Arnd <><

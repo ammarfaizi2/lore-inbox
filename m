@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751575AbVLFDfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751577AbVLFDgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751575AbVLFDfj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 22:35:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751577AbVLFDfj
+	id S1751577AbVLFDgr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 22:36:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751579AbVLFDgr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 22:35:39 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:41603 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1751575AbVLFDfi (ORCPT
+	Mon, 5 Dec 2005 22:36:47 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:41910 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751578AbVLFDgq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 22:35:38 -0500
-Date: Mon, 5 Dec 2005 22:32:36 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Rob Landley <rob@landley.net>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051206033236.GC15428@kvack.org>
-References: <20051203152339.GK31395@stusta.de> <200512051647.55395.rob@landley.net> <20051205230502.GB12955@kvack.org> <200512052119.28706.rob@landley.net>
+	Mon, 5 Dec 2005 22:36:46 -0500
+Date: Tue, 6 Dec 2005 14:36:31 +1100
+From: Andrew Morton <akpm@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: theonetruekenny@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: nfs unhappiness with memory pressure
+Message-Id: <20051206143631.08b4e8e6.akpm@osdl.org>
+In-Reply-To: <1133822367.8003.5.camel@lade.trondhjem.org>
+References: <20051205210442.17357.qmail@web34106.mail.mud.yahoo.com>
+	<1133822367.8003.5.camel@lade.trondhjem.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512052119.28706.rob@landley.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 05, 2005 at 09:19:28PM -0600, Rob Landley wrote:
-> > /sbin/hotplug is suboptimal.  Even a pretty fast machine is slowed down
-> > pretty significantly by the ~thousand fork and exec that take place during
-> > startup.
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+>
+> Argh... Not sure entirely how to deal with that... We definitely don't
+>  want the thing futzing around inside throttle_vm_writeout(), 'cos
+>  writeout isn't going to happen while the socket blocks.
 > 
-> Why do you need hotplug events on startup?  Can't you just scan /sys for "dev" 
-> entries do the initial populate of /dev from that?
 
-That's my point: I don't.  Yet the kernel tries to exec /sbin/hotplug on 
-startup around 1000 times.
+As far as the core VM is concerned, these pages are really "dirty", only it
+happens to be a different flavour of dirtiness.  So perhaps we should
+continue to mark these pages as dirty and let NFS internally take care
+of which end of the wire they're dirty at.
 
-		-ben
--- 
-"You know, I've seen some crystals do some pretty trippy shit, man."
-Don't Email: <dont@kvack.org>.
+Presumably calling writepage() a second time won't be very useful.  Or will
+it?  Perhaps when NFS sees writepage against a PageDirty && PageUnstable
+page it can recognise that as a hint to kick off a server-side write.
+
+>  ...OTOH, I'm not entirely sure we want to use GFP_ATOMIC and risk
+>  bleeding the emergency pools dry: we also need those in order to receive
+>  replies from the server.
+
+You can use (GFP_ATOMIC & !__GFP_HIGH) to avoid draining emergency pools.
+

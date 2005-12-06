@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbVLFTPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbVLFTRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030188AbVLFTPv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 14:15:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVLFTPv
+	id S1030192AbVLFTRU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 14:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVLFTRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 14:15:51 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:44437 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030188AbVLFTPu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 14:15:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Kj5766ieMCLa5sTDES0oB7fzPs2F+9ToekS2AznT684DLbe8qgmWTVn78d9vLgultS550N81GdLbLrAD6szqV4z2eGuAbuMpYLn1A/2kgW1ZSxy9eAovZTohbmRyE/I3sZYZlO4lRVTHtsqSvfC42TaBWyTn4CKELKDxkjP3cvg=
-Message-ID: <9a8748490512061115i1ab38c82td9978f596bd915ee@mail.gmail.com>
-Date: Tue, 6 Dec 2005 20:15:49 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0512061110400.13220@montezuma.fsmlabs.com>
+	Tue, 6 Dec 2005 14:17:20 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:52369
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1030192AbVLFTRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 14:17:19 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Luke-Jr <luke-jr@utopios.org>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Date: Tue, 6 Dec 2005 13:17:11 -0600
+User-Agent: KMail/1.8
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+References: <20051203152339.GK31395@stusta.de> <200512051834.01384.rob@landley.net> <200512061034.21336.luke-jr@utopios.org>
+In-Reply-To: <200512061034.21336.luke-jr@utopios.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <4394D396.1020102@am.sony.com>
-	 <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
-	 <200512052122.02485.gene.heskett@verizon.net>
-	 <Pine.LNX.4.64.0512051954040.19959@montezuma.fsmlabs.com>
-	 <9a8748490512061033y79692c98xb49b6ab63e103502@mail.gmail.com>
-	 <Pine.LNX.4.64.0512061110400.13220@montezuma.fsmlabs.com>
+Message-Id: <200512061317.11592.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/6/05, Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
-> On Tue, 6 Dec 2005, Jesper Juhl wrote:
->
-> > On 12/6/05, Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
-> > > On Mon, 5 Dec 2005, Gene Heskett wrote:
-> > >
-> > > > Particularly if windows drivers are available, open sourced, and
-> > > > installable on a winderz box using the normal install wizard, and
-> > > > promoted as such to the joe six-packs of the world.  At the right price,
-> > > > that would send an even louder message to both nvidia and ati
-> > >
-> > > Do you think this opensource hardware could keep up with nvidia and ati
-> > > hardware development? Joe sixpack is all about the fastest hardware.
+On Tuesday 06 December 2005 04:34, Luke-Jr wrote:
+> > > Nope, but I don't see how udev can possibly detect something that
+> > > doesn't let the OS know it's there-- except, of course, loading the
+> > > driver for it and seeing if it works.
 > >
-> > Well, they are not aiming at creating a high end gaming card.
-> >
-> > Here are some quotes from various documents at http://www.opengraphics.org/  :
+> > Stuff shows up in /sys whether or not Linux has a driver loaded for it.
 >
-> My reply was to his email and not in reference to opengraphics.org
->
+> Only if Linux is aware it exists. I'm thinking of those old ISA cards and
+> such.
 
-Ok, then I misunderstood your mail.
+A) This is only true for obsolete hardware.  Can you name an example that's 
+currently being manufactured?  (I'm trying to figure out if serial mice 
+count, not that you really need kernel support to detect those.)
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+B) You can insmod the module from userspace to actively probe for stuff.  If 
+the kernel doesn't know either until it probes, and you can trigger the probe 
+at will, what additional kernel support do you need?
+
+Rob
+-- 
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.

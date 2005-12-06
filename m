@@ -1,66 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbVLFQ12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932286AbVLFQca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbVLFQ12 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 11:27:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVLFQ12
+	id S932286AbVLFQca (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 11:32:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932292AbVLFQca
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 11:27:28 -0500
-Received: from darla.ti-wmc.nl ([217.114.97.45]:47822 "EHLO smtp.wmc")
-	by vger.kernel.org with ESMTP id S932281AbVLFQ11 (ORCPT
+	Tue, 6 Dec 2005 11:32:30 -0500
+Received: from mail.enyo.de ([212.9.189.167]:41170 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S932286AbVLFQc3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 11:27:27 -0500
-Message-ID: <4395BBDB.307@ti-wmc.nl>
-Date: Tue, 06 Dec 2005 17:27:07 +0100
-From: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
+	Tue, 6 Dec 2005 11:32:29 -0500
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
 Subject: Re: Linux in a binary world... a doomsday scenario
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>	 <200512051826.06703.andrew@walrond.org> <1133807641.9356.50.camel@laptopd505.fenrus.org>
-In-Reply-To: <1133807641.9356.50.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	<9e4733910512060816k26e12313y6b9a943d7cce4341@mail.gmail.com>
+Date: Tue, 06 Dec 2005 17:32:14 +0100
+In-Reply-To: <9e4733910512060816k26e12313y6b9a943d7cce4341@mail.gmail.com>
+	(Jon Smirl's message of "Tue, 6 Dec 2005 11:16:56 -0500")
+Message-ID: <87fyp6mbjl.fsf@mid.deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Mon, 2005-12-05 at 18:26 +0000, Andrew Walrond wrote:
-> 
->>On Monday 05 December 2005 10:52, Arjan van de Ven wrote:
->>
->>>a hypothetical doomsday scenario by Arjan van de Ven
->>>
->>
->>Can I ask what prompted your post?
-> 
-> 
-> I got one too many hatemails from a "nvidia fanboy" who blamed me for
-> just about anything wrong in the world.... I fear that most of these
-> people have no idea why open source drivers matter, or at least what the
-> consequences are for not caring about drivers being open or not.
-> 
-> 
+* Jon Smirl:
 
-I suppose this is as good as any point in the thread to add my 2 
-eurocents...
+> 2) Endure the lawsuit and hope the FSF doesn't get a $450M settlement
+> like NTP is getting from RIM. Meanwhile watch your stock price tumble
+> since the injunction prevents you from shipping product.
 
-I use nvidia cards, mostly because they work better than an alternative 
-for now, but every time I need a card I look for stuff that is more 
-open, because I hate to have to use the non-free closed stuff to do 
-graphics. (Having no real choice in this is really annoying to me!)
+Unlike NTP[1], the FSF distributes real products and is vulnerable to
+counterclaims.
 
-I believe the kernel community has a great leverage point on these 
-proprietary vendors (although I don't know how far this goes), by 
-changing the ABI/API fairly often, they will have to adjust their driver 
-building tools as well. This will become annoying to them and may cause 
-them to free some more parts of their code. This is not a full solution, 
-but at least it will cause them to rethink their policies more often.
-
-Alternatively, I'd be willing to pay some more money than for an 
-equivalent closed source driver card, to get good hardware with a GPL 
-driver. I may not be part of the majority of PC equipment buyers though ;-)
-
-Cheers
-
-Simon
+[1] http://www.ntp.com/ belongs to a different company, AFAIK.

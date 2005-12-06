@@ -1,98 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbVLFBwU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbVLFBzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964908AbVLFBwU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 20:52:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbVLFBwT
+	id S964911AbVLFBzl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 20:55:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbVLFBzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 20:52:19 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9949 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964908AbVLFBwT (ORCPT
+	Mon, 5 Dec 2005 20:55:41 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:25488 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964911AbVLFBzk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 20:52:19 -0500
-Date: Tue, 6 Dec 2005 02:52:00 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Andy Isaacson <adi@hexapodia.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
-Message-ID: <20051206015200.GJ1770@elf.ucw.cz>
-References: <20051205081935.GI22168@hexapodia.org> <20051205121728.GF5509@elf.ucw.cz> <1133791084.3872.53.camel@laptop.cunninghams> <20051205172938.GC25114@atrey.karlin.mff.cuni.cz> <1133816579.3872.83.camel@localhost> <20051205233430.GA1770@elf.ucw.cz> <1133832410.6360.35.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1133832410.6360.35.camel@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 5 Dec 2005 20:55:40 -0500
+Message-ID: <4394EF89.7040009@pobox.com>
+Date: Mon, 05 Dec 2005 20:55:21 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Tim Bird <tim.bird@am.sony.com>, David Woodhouse <dwmw2@infradead.org>,
+       arjan@infradead.org, andrew@walrond.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512051826.06703.andrew@walrond.org> <1133817575.11280.18.camel@localhost.localdomain> <1133817888.9356.78.camel@laptopd505.fenrus.org> <1133819684.11280.38.camel@localhost.localdomain> <4394D396.1020102@am.sony.com> <20051206005341.GN28539@opteron.random> <4394E750.8020205@am.sony.com> <20051206013549.GP28539@opteron.random>
+In-Reply-To: <20051206013549.GP28539@opteron.random>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Andrea Arcangeli wrote: > On Mon, Dec 05, 2005 at
+	05:20:16PM -0800, Tim Bird wrote: > >>This interpretation puts kernel
+	developers in the >>position of making the legal decision about which >
+	> > An hint can hardly defined as a "legal decision". > > An hint
+	_only_ means "be careful you _might_ be illegal". > > "might be" is
+	hardly a "legal deicision", infact it's not decision at > all. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > If goal is "make it work with least effort", answer is of course
-> > > > suspend2; but I need someone to help me doing it right.
-> > > 
-> > > How do you think suspend2 does it wrong? Is it just that you think that
-> > > everything belongs in userspace, or is there more to it?
-> > 
-> > Everything belongs in userspace... that makes it "wrong
-> > enough". Userland and kernel programming is quite different, so any
-> > improvements to suspend2 will be wasted, long-term. You'll make users
-> > happy for now, but it means u-swsusp gets less users and less
-> > developers, making "doing it right" slightly harder...
+Andrea Arcangeli wrote:
+> On Mon, Dec 05, 2005 at 05:20:16PM -0800, Tim Bird wrote:
 > 
-> Ok. I guess I need help then in seeing why everything belongs in
-> userspace. Actually, let's revise that for a start - I know you don't
-> really mean everything, because even you still do the atomic copy in
-> kernel space... or are you planning on changing that too? :)
+>>This interpretation puts kernel developers in the
+>>position of making the legal decision about which
+> 
+> 
+> An hint can hardly defined as a "legal decision".
+> 
+> An hint _only_ means "be careful you _might_ be illegal".
+> 
+> "might be" is hardly a "legal deicision", infact it's not decision at
+> all.
 
-Unfortunately atomic copy can not be moved to userspace, nor can be
-driver handling moved. [If I knew how to do it completely from
-userspace, I definitely would, BTW.]
+Correct.  It's largely a demonstration of "intent" -- which is both a 
+legal and a common sense concept.  It's not a legally binding <anything>.
 
-> I'm not unwilling to be convinced - I just don't see why, with such a
-> lowlevel operation as suspending to disk, userspace is the place to put
-> everything. The preference for userspace seems to me to be just that - a
-> preference.
+IANAL, of course.
 
-Its actually pretty hard rule. It should be userspace if it reasonably
-can. It should be userspace if it contains policy.
+	Jeff
 
-suspend2 contains bits of policy -- esc to cancel, compression
-options, encryption options. It is not unreasonable that someone would
-want any key to cancel, or some other compression, or something like
-that. You actually put progressbar code into userspace -- good
-step. So you have all the complexity of userspace running during
-suspend/resume (it is not that bad), but are not using full benefits
--- move more code to userspace. 
 
-Practical benefits of u-swsusp should be:
 
-* no need to split userland parts in small pieces.
-
-* it is easier to develop in userspace.
-
-* access to libraries -- adding LZW or whatever is not a problem. No
-need to convert those libraries to kernel coding style.
-
-* it is possible to have multiple version. In kernel, only one version
-can exist, but in userland, it is okay to have few implementations.
-
-> Regarding improvements to suspend2 being wasted long term, I actually
-> think that I could port at least part of it to userspace without too
-> much effort at all. My main concern would be exporting the information
-> and interfaces needed in a way that isn't ugly, is reliable and doesn't
-> open security holes. I'm not at all convinced that kmem meets those
-> criteria. But if you can show me a better way, I'll happily come on
-> board.
-
-I have thought about this. We already mark pages for suspend with
-PageNosave | PageNosaveFree; we could only allow access to pages
-marked like this by /dev/suspend, or something like that. 
-
-Rafael thinks we should provide nicer interface to userspace; that's
-okay with me as long as it is not slow or too much of code.
-
-								Pavel
--- 
-Thanks, Sharp!

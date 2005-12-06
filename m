@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbVLFLw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964942AbVLFL4s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964951AbVLFLw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 06:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbVLFLw7
+	id S964942AbVLFL4s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 06:56:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbVLFL4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 06:52:59 -0500
-Received: from moutvdom.kundenserver.de ([212.227.126.249]:64225 "EHLO
-	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964951AbVLFLw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 06:52:58 -0500
-Message-ID: <43957B94.1070604@anagramm.de>
-Date: Tue, 06 Dec 2005 12:52:52 +0100
-From: Clemens Koller <clemens.koller@anagramm.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-CC: linux-kernel@vger.kernel.org, Jeff Collins <jgcc@pacbell.net>
-Subject: Re: 2.6.13.2 crash on shutdown on SMP machine
-References: <433A747E.3070705@anagramm.de> <4394260F.7020703@anagramm.de> <Pine.LNX.4.64.0512051246130.13220@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.64.0512051246130.13220@montezuma.fsmlabs.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Dec 2005 06:56:48 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42434 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964942AbVLFL4r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 06:56:47 -0500
+Date: Tue, 6 Dec 2005 12:56:33 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: IDE performance on notebooks [was Re: swsusp performance problems in 2.6.15-rc3-mm1]
+Message-ID: <20051206115633.GL1770@elf.ucw.cz>
+References: <20051205081935.GI22168@hexapodia.org> <20051205121728.GF5509@elf.ucw.cz> <1133791084.3872.53.camel@laptop.cunninghams> <200512052328.01999.rjw@sisk.pl> <1133831242.6360.15.camel@localhost> <20051206013759.GI1770@elf.ucw.cz> <20051206014720.GN22168@hexapodia.org> <20051206015616.GK1770@elf.ucw.cz> <20051206062322.GP22168@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051206062322.GP22168@hexapodia.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Zwane!
+Hi!
 
->>From what i hear it's this issue;
+> > Below are data from my machine... but that should be moved to
+> > linux-ide or something. This thinkpad is from this summer, too, BTW.
+> > 
+> > /dev/hda:
+> >  Model=HTS541040G9AT00, FwRev=MB2IA5BJ, SerialNo=MPB2L0X2GLMG5M
 > 
-> http://bugzilla.kernel.org/show_bug.cgi?id=5203
+> Alas, the reason for my poor disk performance becomes clear - it's a
+> 1.8" drive!  Gah, if I'd known that I wouldn't have bought this laptop
+> (though I *do* like it in other regards).
 
-Yes it seems to be the same issue.
-But who is Eric, mentioned in bugzilla? :-]
-If it makes sense I can test his patch while/before he is pushing
-it upstream.
-
-Thanks!
+Don't go near sharp zaurus then. It has compact-flash-sized harddrive,
+with 2MB/sec max. I still like that machine, through.
+								Pavel
 -- 
-Clemens Koller
-_______________________________
-R&D Imaging Devices
-Anagramm GmbH
-Rupert-Mayer-Str. 45/1
-81379 Muenchen
-Germany
-
-http://www.anagramm.de
-Phone: +49-89-741518-50
-Fax: +49-89-741518-19
+Thanks, Sharp!

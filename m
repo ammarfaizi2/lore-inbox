@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbVLFAxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbVLFAzR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbVLFAxp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 19:53:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbVLFAxo
+	id S964891AbVLFAzR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 19:55:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbVLFAzR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 19:53:44 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:41557
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S964890AbVLFAxo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 19:53:44 -0500
-Date: Tue, 6 Dec 2005 01:53:41 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, arjan@infradead.org,
-       andrew@walrond.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-Message-ID: <20051206005341.GN28539@opteron.random>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512051826.06703.andrew@walrond.org> <1133817575.11280.18.camel@localhost.localdomain> <1133817888.9356.78.camel@laptopd505.fenrus.org> <1133819684.11280.38.camel@localhost.localdomain> <4394D396.1020102@am.sony.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4394D396.1020102@am.sony.com>
+	Mon, 5 Dec 2005 19:55:17 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:36297 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964891AbVLFAzP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 19:55:15 -0500
+Date: Mon, 5 Dec 2005 19:54:26 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Rob Landley <rob@landley.net>
+cc: Florian Weimer <fw@deneb.enyo.de>, Lee Revell <rlrevell@joe-job.com>,
+       Mark Lord <lkml@rtr.ca>, Adrian Bunk <bunk@stusta.de>,
+       David Ranson <david@unsolicited.net>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+In-Reply-To: <200512051709.08940.rob@landley.net>
+Message-ID: <Pine.LNX.4.58.0512051947070.29325@gandalf.stny.rr.com>
+References: <20051203135608.GJ31395@stusta.de> <873bl76zd3.fsf@mid.deneb.enyo.de>
+ <1133817679.6724.52.camel@localhost.localdomain> <200512051709.08940.rob@landley.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 05, 2005 at 03:56:06PM -0800, Tim Bird wrote:
-> If the GPL covers interface linkages (whether static or
-> dynamic) then EXPORT_SYMBOL_GPL is redundant.  If it does
-> not, in all cases, then EXPORT_SYMBOL_GPL is, as
-> an extension to GPL, therefore a GPL violation.
 
-The last time I spoke with Linus about this, what I understood can be
-described in two points:
+On Mon, 5 Dec 2005, Rob Landley wrote:
+> On Monday 05 December 2005 15:21, Steven Rostedt wrote:
+> > Perhaps, we could start out having Greg and Chris just concentrate on
+> > every fifth branch instead of every one, and that way the stability will
+> > last much longer.
+>
+> Ah, belling the cat.
 
-1) EXPORT_SYMBOL_GPL is an hint: if you have to circumvent it, there are
-high chances that you're creating a derivative of the linux kernel and
-in turn there are high chances that you're illegal
+:)
 
-2) The fact you're illegal or not, has nothing to do with the _GPL tag
-in the exports, the illegal usage is when the module create a derivative
-of the linux kernel.
+>
+> Hint:  Any plan in a volunteer community that starts with "$BUSY_PEOPLE should
+> do $THIS" fails.  Any plan that starts with "I could do $THIS" at least has a
+> chance.
 
-Now I don't know for sure myself (I'm not a lawyer) what is a derivative
-of the linux kernel (don't ask me), but the two above points are quite
-clear to me. 
+Actually, they are already maintaining 2.6.x.y, (x => 11, 12, ...) I was
+trying to get them to only maintain 2.6.x.y (x => 11, 12, 13, 14, 20, 25, ...)
 
-I always thought the _GPL tag could have no direct legal implications
-and Linus confirmed it. The kernel is GPL so everyone can modify the
-exports or re-export symbols as usual, the exports are GPL code too. The
-guy who re-exports or remove a _GPL tag is just modifying a GPL code, so
-he's ok.
+So maybe it would actually be easier.  But I'm sure they wouldn't be
+fooled, since the longer you maintain a fork, the harder it becomes.
 
-The _GPL tag is useful as an hint to binary only vendors as as such it
-makes perfect sense.
+I was just making a suggestion, so that if someone else thought it was a
+good idea, they could do it.  I personally don't need such a beast, since
+I would just stay with the latest 2.6.x anyway.  Since I have that luxury.
+
+>
+> This is not limited to open source, by the way...
+
+Yep, I know that.
+
+-- Steve

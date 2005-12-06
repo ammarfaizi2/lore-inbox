@@ -1,115 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVLFLof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVLFLoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964954AbVLFLof (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 06:44:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbVLFLof
+	id S932136AbVLFLoP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 06:44:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbVLFLoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 06:44:35 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:56711 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964954AbVLFLoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 06:44:34 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: Arjan van de Ven <arjan@infradead.org>
-To: "M." <vo.sinh@gmail.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Brian Gerst <bgerst@didntduck.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <20051205121851.GC2838@holomorphy.com>
-	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
-	 <20051206030828.GA823@opteron.random>
-	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 06 Dec 2005 12:44:25 +0100
-Message-Id: <1133869465.4836.11.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 6 Dec 2005 06:44:15 -0500
+Received: from www.eclis.ch ([144.85.15.72]:36245 "EHLO mail.eclis.ch")
+	by vger.kernel.org with ESMTP id S932136AbVLFLoO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 06:44:14 -0500
+Message-ID: <4395798D.6040201@eclis.ch>
+Date: Tue, 06 Dec 2005 12:44:13 +0100
+From: Jean-Christian de Rivaz <jc@eclis.ch>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ntp problems
+References: <200512050031.39438.gene.heskett@verizon.net> <200512052107.24427.gene.heskett@verizon.net> <1133839229.7605.63.camel@cog.beaverton.ibm.com> <200512052301.16998.gene.heskett@verizon.net>
+In-Reply-To: <200512052301.16998.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-06 at 12:07 +0100, M. wrote:
+Gene Heskett a écrit :
+
+>>Hmmm. Indeed the nforce2 has had a number of problems, but I'm not sure
+>>why it would have changed recently. Can you bound at all the kernel
+>>versions where it worked and where it broke? Additionally, do be sure
+>>you have the most recent BIOS, I've seen a number of nforce2 issues be
+>>resolved with a BIOS update.
 > 
 > 
-> On 12/6/05, Andrea Arcangeli <andrea@suse.de> wrote:
->         On Mon, Dec 05, 2005 at 09:31:30AM -0500, Brian Gerst wrote:
->         > The problem with this statement is that Linux users are a
->         drop in the
->         > bucket of sales for this hardware.  Boycotting doesn't cost
->         the vendors
->         > enough to make them care.  And this does nothing for people
->         who are
->         > converting over to Linux, and didn't buy hardware with that
->         > consideration in mind.
->         
->         Effectively this is why 3d drivers are the only thing we
->         litearlly lost 
->         control of. But my email was general. I wasn't only speaking
->         of 3d
->         hardware.
->         
->         For 3d you're very well right, but once linux becomes
->         mainstream in the
->         desktop, things could change.
-> 
-> Without proper hardware support linux is not going to become
-> mainstream in the desktop area. In fact It's adopted in offices, by
-> governments and schools for security, reliability and openoffirce.org
-> (low $$). 
+> I've already put more powerdown cycles (60 some) on my hard drives 
+> fighting with the recent tv card problem, I'd like to get some uptime 
+> in.  All I know for sure is if I build 2.6.15-rc5 with acpi, ntpd 
+> doesn't work.  ntpdate does, but ntpd doesn't.  And both dmesg and the 
+> ntp.log (and -d's passed at launch time do not make it more verbose, 
+> they just keep it from starting) are silent as to the diffs other than 
+> the interrupt number shuffling in dmesg when its on.  But I suspect it 
+> may have started with 2.6.15-rc2, and I didn't build rc1.  And I *think* 
+> it worked as recently as 2.6.14.1 with it turned on.  I've cleaned house 
+> in /usr/src's so I don't have anything older.  Sorry.
 
-but... "proper hardware support" can be open source, that's the whole
-point! Everyone considering binary only support "full" causes the entire
-problem of not being able to run without binary modules anymore, which
-in turn means you're either stuck with enterprise distro kernels, or
-linux is stuck with a kernel that can't be developed on anymore in a 2.7
-style series.
+I have to agree with John Stultz. I am one with a nForce2 chipset where 
+updating to the latest BIOS have totaly solved the excatly same ntpd 
+problem.
 
-Nobody is arguing that hardware shouldn't be supported, to the contrary.
-I and others are arguing that short term binary only "support" isn't
-real support in the long term, and in both the long and short term leads
-to a significant reduction in choice. Note: NVidia right now is nice
-enough to do the blob+glue layer thing. Many others don't, they only
-provide modules for certain enterprise distros. Now those schools and
-governments of course run those enterprise distros... but what does that
-gain in the end? Security? It doesn't; several of these binary modules
-actually introduce security holes (the most famous one is an old 3D
-driver of a company I won't name that had a "make me root" ioctl).
-Price? Well those enterprise distribution companies need to make money
-somehow... so while the price may be lower... you're stuck to them
-again..
-
-> So , without some sort of effort from kernel developers, things
-> arent going to change.
-
-I would turn this around; without some sort of effort from the USERS,
-things aren't going to change. As long as USERS don't use their purchase
-power to urge vendors that linux and open source are important, nothing
-is going to improve. Going binary is not a long term improvement! It's
-more like a quick shot of heroin that makes you feel better today,
-rather than going to a psychiatrist who helps you out of your depression
-for the rest of your life.
-
-> There could be, for example, a limited but stable API for
-> external/binary stuff. This could force hardware vendors to lately use
-> the current API for better performance and thus releasing drivers with
-> an open layer a la NVIDA & c. or even opensource.
-
-doesn't work; such a limited api wouldn't be used by the majority of
-those modules, simply because most of them want to touch internals for
-some reason (probably lack of judgement and just because they can, but
-still)
-
-
+Regards,
+-- 
+Jean-Christian de Rivaz

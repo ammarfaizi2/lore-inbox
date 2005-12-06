@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751710AbVLFP0N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751714AbVLFPa6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751710AbVLFP0N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 10:26:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751711AbVLFP0N
+	id S1751714AbVLFPa6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 10:30:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751715AbVLFPa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 10:26:13 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:9199 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751707AbVLFP0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 10:26:12 -0500
-From: "David Engraf" <engraf.david@netcom-sicherheitstechnik.de>
-To: <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: AW: [PATCH] Win32 equivalent to GetTickCount systemcall (i386)
-Date: Tue, 6 Dec 2005 16:25:59 +0100
-Message-ID: <001b01c5fa79$62fea6d0$0a016696@EW10>
+	Tue, 6 Dec 2005 10:30:58 -0500
+Received: from mail.enyo.de ([212.9.189.167]:46006 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S1751713AbVLFPa5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 10:30:57 -0500
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, "M." <vo.sinh@gmail.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	<20051205121851.GC2838@holomorphy.com>
+	<20051206011844.GO28539@opteron.random>
+	<43944F42.2070207@didntduck.org> <20051206030828.GA823@opteron.random>
+	<f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
+	<1133869465.4836.11.camel@laptopd505.fenrus.org>
+	<4394ECA7.80808@didntduck.org>
+Date: Tue, 06 Dec 2005 16:30:45 +0100
+In-Reply-To: <4394ECA7.80808@didntduck.org> (Brian Gerst's message of "Mon, 05
+	Dec 2005 20:43:03 -0500")
+Message-ID: <87psoansyi.fsf@mid.deneb.enyo.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <p73u0dmqa84.fsf@verdi.suse.de>
-Thread-Index: AcX6eCACdUDMiCluR4S8gWsYnbY8fAAARM7A
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:79a9c929f10b28b00e544b1aedb42267
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Brian Gerst:
 
-> "David Engraf" <engraf.david@netcom-sicherheitstechnik.de> writes:
-> 
-> > This patch adds a new systemcall on i386 architectures returning the
-> jiffies
-> > value to the application.
-> > As a kernel developer you can use jiffies but from the user space there
-> is
-> > no equivalent function which counts every millisecond like the Win32
-> > GetTickCount.
-> 
-> You want a timer that never go backwards, right?
-> 
-> Use clock_gettime(CLOCK_MONOTONIC). It's the POSIX way to do this.
-> 
-> -Andi
+> Once again I'd like to point out that user's purchase power means jack 
+> when they only have two choices for video:  ATI and Nvidia.  You can't 
+> walk into a computer store and find anything else (I don't count 
+> integrated video on the motherboard as a solution, since only Intel 
+> boards have it, sorry AMD users).  Even over the web it's hard to find 
+> anything else.
 
-Yes, clock_gettime works(CLOCK_MONOTONIC), thanks.
-
-David
-
-
-____________
-Virus checked by G DATA AntiVirusKit
-Version: AVK 16.2042 from 06.12.2005
-Virus news: www.antiviruslab.com
-
+What about Matrox cards?  Are there open drivers for accelerated 2D
+operation?

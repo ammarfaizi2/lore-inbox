@@ -1,69 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVLFJU6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbVLFJ13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbVLFJU6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 04:20:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbVLFJU6
+	id S964935AbVLFJ13 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 04:27:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVLFJ13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 04:20:58 -0500
-Received: from main.gmane.org ([80.91.229.2]:17285 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964872AbVLFJU5 (ORCPT
+	Tue, 6 Dec 2005 04:27:29 -0500
+Received: from smtpout.mac.com ([17.250.248.88]:30421 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S964888AbVLFJ12 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 04:20:57 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Dirk Steuwer <dirk@steuwer.de>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Tue, 6 Dec 2005 09:07:21 +0000 (UTC)
-Message-ID: <loom.20051206T094816-40@post.gmane.org>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Dec 2005 04:27:28 -0500
+In-Reply-To: <20051205214256.492421ad@griffin.suse.cz>
+References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de> <20051205190038.04b7b7c1@griffin.suse.cz> <200512052123.42357.mbuesch@freenet.de> <20051205214256.492421ad@griffin.suse.cz>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <D76B7270-C6A7-4068-9FDD-4C8B9F491F62@mac.com>
+Cc: Michael Buesch <mbuesch@freenet.de>, linux-kernel@vger.kernel.org,
+       bcm43xx-dev@lists.berlios.de, NetDev <netdev@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 213.61.178.52 (Mozilla/5.0 (Windows; U; Windows NT 5.0; de-DE; rv:1.7.12) Gecko/20050919 Firefox/1.0.7)
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Broadcom 43xx first results
+Date: Tue, 6 Dec 2005 04:26:50 -0500
+To: Jiri Benc <jbenc@suse.cz>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Gerst <bgerst <at> didntduck.org> writes:
+On Dec 05, 2005, at 15:42, Jiri Benc wrote:
+> On Mon, 5 Dec 2005 21:23:42 +0100, Michael Buesch wrote:
+>> This is __not__ "yet another stack". It is an _extension_.  It is  
+>> all about management frames, which the in-kernel code does not  
+>> manage.
+>
+> But this code should be part of the stack, as nearly every driver  
+> needs it.
 
-> The problem with this statement is that Linux users are a drop in the 
-> bucket of sales for this hardware.  Boycotting doesn't cost the vendors 
-> enough to make them care.  And this does nothing for people who are 
-> converting over to Linux, and didn't buy hardware with that 
-> consideration in mind.
-> 
-> The only way to break the stalemate is to reverse engineer drivers. 
-> Turning the screws tighter isn't going to make open drivers magically 
-> appear.  More likely, the vendors will abandon Linux as being too 
-> hostile and/or too costly to support, leaving everybody back at square one.
-> 
-> --
-> 				Brian Gerst
-> 
+WRONG.  More than half the currently Linux-compatible wireless cards  
+handle the wireless management packets in hardware, such that they're  
+little more complicated than a basic ethernet device with a channel,  
+an ESSID, and a list of MACs/APs.
+
+> Management handling should be really managed by the kernel.
+
+Yes, but it might not need to be in the base stack if it's largely  
+functionally independent.
+
+> The hard part is that every driver will need a slightly different  
+> amount of this support depending on the amount of features that are  
+> provided by firmware.
+
+s/firmware/hardware/g.  This is _exactly_ why an external module  
+makes a lot of sense.
+
+>> We tried the code from the RTL driver, but it is total crap.  We  
+>> dropped it again. We thought about using yet another out of kernel  
+>> ieee80211 stack, but we began to write an extension to the in- 
+>> kernel code. If that was right or wrong, well, that's the question.
+>>
+>> If you _really_ think we should have used $EXTERNAL_STACK, go and  
+>> patch the driver to work with it.
+>
+> No. I just think we (everybody) should concentrate at one  
+> particular stack, finish it and merge it. And I'm convinced Jouni's  
+> stack is currently the best solution available - far far from  
+> perfect, with many issues, but still the best - and it will finally  
+> save as much time.
+
+What you miss is that the kernel does _not_ go with the "rewrite it  
+and replace it" methodology.  See Luben Toikov in the SAS flamewar  
+for another example.  If a better stack exists, provide a nice clean  
+set of totally functional changes that convert the current one into  
+that one.  In the process, we even get to keep the nice parts of the  
+current one that aren't in his (whatever they may be), and we always  
+have a working wireless stack.  With the rewrite/replace solution,  
+you end up broken or unstable half the time.
+
+Cheers,
+Kyle Moffett
+
+--
+Simple things should be simple and complex things should be possible
+   -- Alan Kay
 
 
-I see binary drivers as a problem, too.
-How does a customer find out, if a piece of Hardware works in the free software
-world? Yes there are a few places, where you find a hardware compatibility list,
-but these are scattered and often incomplete. And they only include hardware
-that someone thinks is working, added a couple of month after sales launch.
-
-The only solution is to create pressure on these companies, as suggested.
-Ideally, there should be a label "designed for Linux" (or "designed for free
-software" (maybe getting the bsd people on board as well?)) straight on the box.
-So customers that start to care about linux, can see this right away and make
-the right choice, when buying hardware. 
-And because the driver is already included/licensed before the product makes it
-into the shelves, its a plug and play scenario for the customer. They don't need
-to worry about drivers at all. Stick it in and it just works(tm).
-This would be a real value added in favor of linux for the customer and could
-create some real pressure on companies with binary only drivers. 
-
-
-Which Authority would be best to release such a Label?
-
-Regards,
-Dirk
 

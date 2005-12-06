@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbVLFVNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbVLFVPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbVLFVNS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 16:13:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbVLFVNR
+	id S1030240AbVLFVPK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 16:15:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbVLFVPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 16:13:17 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:28680 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030240AbVLFVNR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 16:13:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oOK/dQ1sw1lhM0i6C4ofa6RxLJevyvIfhJi/7+q5W2NySxqvz4J5gkg/tcINdqcYZna+jeJD6r0rXA4KhpMWOKkv9SeXUC1pUJsOAYVvegIwGqQjmPOukb0Y39hPIOYjms44VrtBsPtN43I+bLqORwZQZOhdf3qO02ITFMDz54g=
-Message-ID: <35fb2e590512061313l658b8408le7434e1f54a3df7b@mail.gmail.com>
-Date: Tue, 6 Dec 2005 21:13:16 +0000
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Cc: Jean-Christian de Rivaz <jc@eclis.ch>,
-       Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       Jon Masters <jon@linuxuser.co.uk>
-In-Reply-To: <9a8748490512061112x622f6b3as1ea95dd430f09918@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 6 Dec 2005 16:15:10 -0500
+Received: from mail.kroah.org ([69.55.234.183]:27076 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030240AbVLFVPI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 16:15:08 -0500
+Date: Tue, 6 Dec 2005 13:14:23 -0800
+From: Greg KH <greg@kroah.com>
+To: herve@lucidia.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Scanner/webcam not working when connected to USB hub
+Message-ID: <20051206211423.GA5937@kroah.com>
+References: <4413284c0512050519n67c50a88t@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <4394D396.1020102@am.sony.com>
-	 <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
-	 <200512052122.02485.gene.heskett@verizon.net>
-	 <4395784F.4090202@eclis.ch>
-	 <9a8748490512061112x622f6b3as1ea95dd430f09918@mail.gmail.com>
+In-Reply-To: <4413284c0512050519n67c50a88t@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/6/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 12/6/05, Jean-Christian de Rivaz <jc@eclis.ch> wrote:
+On Mon, Dec 05, 2005 at 11:19:05AM -0200, Herv? Fache wrote:
+> Hello guys,
+> 
+> I have the following problem: if connected directly to my computer's
+> USB ports, my webcam works correctly, but when connected through my
+> 'AirVast' hub (124a:168b), it fails. The device is reported by lsusb
+> (IDs correct), but it does not work. The worst is: I have tried using
+> some proprietary OS, and it all worked there.
 
-> > Gene Heskett a écrit :
+Is it a USB 1.1 device connected to a USB 2.0 hub?  If so, Linux
+currently has some issues with running properly for this setup.  See the
+linux-usb-devel mailing list archives for some patches that some people
+have found to resolve this.
 
-> > Can you post a link about this open source video card ? I strongly wants
+thanks,
 
-Merci monsieur de votre question.
-
-> http://www.opengraphics.org/
-
-I'll take a look at this - and I'd appreciate as much spam as possible
-on this so I can turn it into some interesting articles on the topic.
-Looks like I'll need to buy one of these :-)
-
-Jon.
+greg k-h

@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbVLFR3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVLFRdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbVLFR3W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 12:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932474AbVLFR3W
+	id S964803AbVLFRdF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 12:33:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932605AbVLFRdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 12:29:22 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:6532 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932440AbVLFR3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 12:29:21 -0500
-Date: Tue, 6 Dec 2005 17:29:10 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Tom Zanussi <zanussi@us.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, karim@opersys.com
-Subject: Re: [PATCH 2/12] relayfs: export relayfs_create_file() with fileops param
-Message-ID: <20051206172910.GA24362@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Tom Zanussi <zanussi@us.ibm.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, karim@opersys.com
-References: <17268.51814.215178.281986@tut.ibm.com> <17268.51975.485344.880078@tut.ibm.com> <20051111193749.GA17018@infradead.org> <17268.62897.434122.165183@tut.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17268.62897.434122.165183@tut.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 6 Dec 2005 12:33:05 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:44953 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932598AbVLFRdE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 12:33:04 -0500
+Date: Tue, 6 Dec 2005 18:32:41 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: tglx@linutronix.de
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       rostedt@goodmis.org, johnstul@us.ibm.com, mingo@elte.hu
+Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
+In-Reply-To: <20051206000126.589223000@tglx.tec.linutronix.de>
+Message-ID: <Pine.LNX.4.61.0512061628050.1610@scrub.home>
+References: <20051206000126.589223000@tglx.tec.linutronix.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 11, 2005 at 01:49:05PM -0600, Tom Zanussi wrote:
-> Christoph Hellwig writes:
->  > On Fri, Nov 11, 2005 at 10:47:03AM -0600, Tom Zanussi wrote:
->  > > This patch adds a mandatory fileops param to relayfs_create_file() and
->  > > exports that function so that clients can use it to create files
->  > > defined by their own set of file operations, in relayfs.  The purpose
->  > > is to allow relayfs applications to create their own set of 'control'
->  > > files alongside their relay files in relayfs rather than having to
->  > > create them in /proc or debugfs for instance.  relayfs_create_file()
->  > > is also used by relay_open_buf() to create the relay files for a
->  > > channel.  In this case, a pointer to relayfs_file_operations is passed
->  > > in, along with a pointer to the buffer associated with the file.
->  > 
->  > Again, NACK,  control files don't belong into relayfs.
->  > 
-> 
-> Sure, applications could just as easily create these same files in
-> /proc, /sys, or /debug, but since relayfs is a filesystem, too, it
-> seems to me to make sense to take advantage of that and allow them to
-> be created alongside the relay files they're associated with, in
-> relayfs.
+Hi Thomas,
 
-Didn't we have that discussion before?  If we want a mix-and-match fs
-just redo relayfs into a library of file operations for debugfs
-(or anything else that can use file_operations for that matter)
+On Tue, 6 Dec 2005 tglx@linutronix.de wrote:
 
+Before I get into a detailed review, I have to asked a question I already 
+asked earlier: are even interested in a discussion about this?
+
+Since I posted the ptimer patches, I haven't gotten a single direct 
+response from you, except some generic description in your last patch.
+I would prefer if we could work together on this, but this requires some 
+communication. I know I'm sometimes a little hard to understand, but you 
+don't even try to ask if something is unclear or to explain the details 
+from your perspective.
+Slowly I'm asking myself why I should bother, the alternative would be to 
+just continue my own patch set. I don't really want that and Andrew 
+certainly doesn't want to choose between two versions either. So Thomas, 
+please get over yourself and start talking.
+
+> We worked through the subsystem and its users and further reduced the 
+> implementation to the basic required infrastructure and generally 
+> streamlined it. (We did this with easy extensibility for the high 
+> resolution clock support still in mind, so we kept some small extras 
+> around.)
+
+It looks better, but could you please explain, what these extras are good 
+for?
+
+> After reading the Posix specification again, we came to the conclusion 
+> that it is possible to do no rounding at all for the ktime_t values, and 
+> to still ensure that the timer is not delivered early.
+
+Nice, that you finally also come to that conclusion, after I said that 
+already for ages. (It's also interesting how you do that without giving me 
+any credit for it.)
+Nevertheless, if you read my explanation of the rounding carefully and 
+look at my implementation, you may notice that I still disagree with the 
+actual implementation.
+
+BTW there is one thing I'm currently curious about. Why did you rename the 
+timer from high-precision timer to high-resolution timer? hrtimer was just 
+a suggestion from Andrew and ptimer would have been fine as well.
+
+bye, Roman

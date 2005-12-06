@@ -1,37 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbVLFMJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbVLFMGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964955AbVLFMJc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 07:09:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbVLFMJc
+	id S964952AbVLFMGs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 07:06:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbVLFMGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 07:09:32 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:14116 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964955AbVLFMJb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 07:09:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=gDgxVstD/IU9lxfz0m/gAWjFGYKifXSHj+bxuv08SXNs3FNPDtfDmZiiarkKRe3fciLEpCX52aLoWJ1UFTksgEpf0Sq2cJagXpZKqLN5i6Nf799tfifOdzYH07oKLYtfK/em/AxovYtzHe44Un2e4tB+fpy7Zbza8TKM+4Wj844=
-Message-ID: <f69849430512060409k1798e377h442e42bbf17b0d8a@mail.gmail.com>
-Date: Tue, 6 Dec 2005 04:09:30 -0800
-From: kernel coder <lhrkernelcoder@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: zero copy
+	Tue, 6 Dec 2005 07:06:48 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:61907 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S964952AbVLFMGs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 07:06:48 -0500
+From: "David Engraf" <engraf.david@netcom-sicherheitstechnik.de>
+To: "'Ingo Molnar'" <mingo@elte.hu>
+Cc: "'Arjan van de Ven'" <arjan@infradead.org>, <linux-kernel@vger.kernel.org>,
+       "'Andrew Morton'" <akpm@osdl.org>
+Subject: Re: [PATCH] Win32 equivalent to GetTickCount systemcall (i386)
+Date: Tue, 6 Dec 2005 13:06:36 +0100
+Message-ID: <000101c5fa5d$863f3900$0a016696@EW10>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook 11
+In-Reply-To: <20051206112900.GA29790@elte.hu>
+Thread-Index: AcX6WI9ojNcovxfdRPakOC7/BfBPmQABGhHw
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:79a9c929f10b28b00e544b1aedb42267
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
-i'm trying to track the code flow of sendfile system call.Mine
-ethernet card doesn't have scatter gather and checksum calculation
-features.So stack should be making a copy of data.
+> * David Engraf <engraf.david@netcom-sicherheitstechnik.de> wrote:
+> 
+> > > (and.. wait.. isn't that called gettimeofday() )
+> >
+> > Not really gettimeofday is based on the date and time, but what if the
+> > user changes the date, the counter would also change.
+> 
+> see 'man clock_gettime', and CLOCK_MONOTONIC:
+> 
+>        CLOCK_MONOTONIC
+>               Clock that cannot be set and  represents  monotonic  time
+> since
+>               some unspecified starting point.
+> 
+> and it has microsecond resolution.
+> 
+> 	Ingo
 
-Please tell me where in sendfile code flow,check for scatter gather
-and cecksum features is made so that stack can decide whether to copy
-data from user space or not.
+You're right, clock_gettime with CLOCK_MONOTONIC seems to be date/time
+independent. For a GetTickCount implementation it is absolutely enough.
 
-lhrkernelcoder
+Thanks
+David Engraf
+
+
+____________
+Virus checked by G DATA AntiVirusKit
+Version: AVK 16.2039 from 06.12.2005
+Virus news: www.antiviruslab.com
+

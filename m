@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965017AbVLFSm2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbVLFSpj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965017AbVLFSm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 13:42:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbVLFSm2
+	id S965010AbVLFSpj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 13:45:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbVLFSpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 13:42:28 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:39387 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965009AbVLFSm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 13:42:26 -0500
-Subject: Re: copy_from_user/copy_to_user question
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Vinay Venkataraghavan <raghavanvinay@yahoo.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0512061314560.5396@chaos.analogic.com>
-References: <20051206175301.34596.qmail@web32110.mail.mud.yahoo.com>
-	 <Pine.LNX.4.61.0512061314560.5396@chaos.analogic.com>
-Content-Type: text/plain
-Date: Tue, 06 Dec 2005 13:42:20 -0500
-Message-Id: <1133894540.6724.95.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Dec 2005 13:45:38 -0500
+Received: from zproxy.gmail.com ([64.233.162.201]:24591 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932619AbVLFSph convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 13:45:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ivypSXHKMseyCZybQ9J4MHzQxx+lxkMrALAWh7kYHN5vkhfCCTEuC/SZ9QRS10llKvdtzwujCeRPNNfstpPhia1PaGE9E+sPAYsdV5DsqwCoaK8Tp7n+Cwr5v1TcXMazsbCobXvSRNPdxWvLmiyFso/Esyw4DwPaFr9IsP5sq9Q=
+Message-ID: <3aa654a40512061045h33fea2a0y1511366df2e7c166@mail.gmail.com>
+Date: Tue, 6 Dec 2005 10:45:36 -0800
+From: Avuton Olrich <avuton@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: Kernel panic: Machine check exception
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <p73y82yqaaf.fsf@verdi.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3aa654a40511190145v6f4df755wf16673050d077edb@mail.gmail.com>
+	 <1132406652.5238.19.camel@localhost.localdomain>
+	 <3aa654a40511191254x4bf50cc8l6a9b8786f1a5ebc8@mail.gmail.com>
+	 <1132436886.19692.17.camel@localhost.localdomain>
+	 <m1wtiicwbv.fsf@ebiederm.dsl.xmission.com>
+	 <p73y82yqaaf.fsf@verdi.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-06 at 13:23 -0500, linux-os (Dick Johnson) wrote:
+On 06 Dec 2005 12:45:44 -0700, Andi Kleen <ak@suse.de> wrote:
+> ebiederm@xmission.com (Eric W. Biederman) writes:
+> >
+> > To decode an Opteron machine_check you can look in
+> > the bios and kernel programmers guide.  (Possibly the
 
-> 
-> (note)__assess__ means even "peek at".
-> 
-> FYI, there should never even be such a question.
+> mcelog --ascii decodes the "final" machine checks output
+> by the 64bit kernel. The normal recoverable machine checks
+> should be decoded at runtime assuming your distribution
+> set it up right (normally into /var/log/mcelog)
 
-Dick, be nice.  I get the impression that Vinay is just looking at some
-code that he can't disclose because of some policy of the company he
-works for.  He's curiously looking at the code of some non-mainstream
-driver (either GPL or some NDA version) and is questioning what he sees.
-Not everyone that does this is a kernel hacker.  This is the way I
-started, and these questions, which may seem so obvious to a veteran
-kernel hacker, is not so to a novice.
+That also works on kernel panic?
 
--- Steve
+thanks,
+avuton
 
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

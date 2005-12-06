@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbVLFAmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbVLFAnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbVLFAmL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 19:42:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbVLFAmK
+	id S964893AbVLFAnt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 19:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbVLFAnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 19:42:10 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:27086
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751532AbVLFAee
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 19:34:34 -0500
-Message-Id: <20051206000153.545039000@tglx.tec.linutronix.de>
-References: <20051206000126.589223000@tglx.tec.linutronix.de>
-Date: Tue, 06 Dec 2005 01:01:32 +0100
-From: tglx@linutronix.de
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, rostedt@goodmis.org, johnstul@us.ibm.com,
-       zippel@linux-m86k.org, mingo@elte.hu
-Subject: [patch 06/21] Remove unused clock constants
-Content-Disposition: inline;
-	filename=time-h-remove-unused-clock-constants.patch
+	Mon, 5 Dec 2005 19:43:49 -0500
+Received: from mail.enyo.de ([212.9.189.167]:64640 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S964888AbVLFAnr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 19:43:47 -0500
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+References: <20051203135608.GJ31395@stusta.de>
+	<1133620264.2171.14.camel@localhost.localdomain>
+	<20051203193538.GM31395@stusta.de>
+	<1133639835.16836.24.camel@mindpipe>
+	<20051203225815.GH25722@merlin.emma.line.org>
+	<87y82z5kep.fsf@mid.deneb.enyo.de>
+	<1133816764.9356.72.camel@laptopd505.fenrus.org>
+Date: Tue, 06 Dec 2005 01:43:43 +0100
+In-Reply-To: <1133816764.9356.72.camel@laptopd505.fenrus.org> (Arjan van de
+	Ven's message of "Mon, 05 Dec 2005 22:06:04 +0100")
+Message-ID: <87mzjf2gxs.fsf@mid.deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Arjan van de Ven:
 
-- remove unused CLOCK_ constants from time.h
+>> Well, if there's a CVE name, the proper patch isn't *that* far away
+>> (someone has already done a bit of work to isolate the fix).  The real
+>> issue seems to be how to make sure that CVE names are assigned during
+>> the kernel development process (and not just as an afterthought by the
+>> security folks).
+>
+> security@kernel.org works that way already in a way.
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+As far as I know, many of the recent CVE assignments for kernel
+vulnerabilities have been done by MITRE, requested by individuals
+which are neither known as kernel developers, nor vendor security
+folks (for "vendor" as in "we have our own legal department with real
+lawyers").
 
- include/linux/time.h |   11 ++++-------
- 1 files changed, 4 insertions(+), 7 deletions(-)
+Maybe the source of CVE assignments paints a wrong picture.  But if
+the CVE picture is correct, vendor-paid kernel developers help behind
+the scenes, but there is little interest in openly documenting
+security issues, so that users (and what kernel.org considers fringe
+distros) can apply the relevant patches if they use kernel.org
+kernels.
 
-Index: linux-2.6.15-rc5/include/linux/time.h
-===================================================================
---- linux-2.6.15-rc5.orig/include/linux/time.h
-+++ linux-2.6.15-rc5/include/linux/time.h
-@@ -103,12 +103,10 @@ struct	itimerval {
- /*
-  * The IDs of the various system clocks (for POSIX.1b interval timers).
-  */
--#define CLOCK_REALTIME		  0
--#define CLOCK_MONOTONIC	  1
-+#define CLOCK_REALTIME		 0
-+#define CLOCK_MONOTONIC	  	 1
- #define CLOCK_PROCESS_CPUTIME_ID 2
- #define CLOCK_THREAD_CPUTIME_ID	 3
--#define CLOCK_REALTIME_HR	 4
--#define CLOCK_MONOTONIC_HR	  5
- 
- /*
-  * The IDs of various hardware clocks
-@@ -117,9 +115,8 @@ struct	itimerval {
- 
- #define CLOCK_SGI_CYCLE 10
- #define MAX_CLOCKS 16
--#define CLOCKS_MASK  (CLOCK_REALTIME | CLOCK_MONOTONIC | \
--                     CLOCK_REALTIME_HR | CLOCK_MONOTONIC_HR)
--#define CLOCKS_MONO (CLOCK_MONOTONIC & CLOCK_MONOTONIC_HR)
-+#define CLOCKS_MASK  (CLOCK_REALTIME | CLOCK_MONOTONIC)
-+#define CLOCKS_MONO (CLOCK_MONOTONIC)
- 
- /*
-  * The various flags for setting POSIX.1b interval timers.
+>From a vendor POV, the lack of official kernel.org advisories may be a
+feature.  I find it rather disturbing, and I'm puzzled that the kernel
+developer community doesn't view this a problem.  I know I'm alone,
+and there are certainly part-time security guys who would be willing
+join forces to create something like a kernel.org security bug
+database.  But the only answers we get is that everything is fine,
+vendors handle the situation, security@kernel.org actually does this
+already, etc.
 
---
+> The hardest part is actually knowing which versions are affected,
 
+First, you need to know that the patch plugs a security hole. 8-) This
+isn't always obvious based on the patch, even if the fact is known to
+the comitter.

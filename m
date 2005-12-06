@@ -1,130 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbVLFWBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbVLFWD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030269AbVLFWBo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 17:01:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbVLFWBo
+	id S1030270AbVLFWD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 17:03:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbVLFWD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 17:01:44 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:60458 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030269AbVLFWBn (ORCPT
+	Tue, 6 Dec 2005 17:03:59 -0500
+Received: from main.gmane.org ([80.91.229.2]:6069 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030270AbVLFWD6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 17:01:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=USd9kZUfAzO/imrnr/iBHruuJOXYQDsIovuQoG1pKxyNhSiaYL1QqKJuUo2P/qPR793pUdaq8XLFrlHpf12pqbswoap8Go9WdUz1eHclvYZSTrgPOdj+nLTGUA7V9VupSUeVr9ypGZXhyMlcWbls1tzRQc+eLoqbwM2bj0gunAw=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH] Reduce number of pointer derefs in various files (kernel/exit.c used as example)
-Date: Tue, 6 Dec 2005 23:02:06 +0100
-User-Agent: KMail/1.9
-Cc: Jesper Juhl <jesper.juhl@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 6 Dec 2005 17:03:58 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Date: Tue, 6 Dec 2005 21:39:19 +0000 (UTC)
+Message-ID: <loom.20051206T220254-691@post.gmane.org>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>  <20051205121851.GC2838@holomorphy.com>  <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>  <20051206030828.GA823@opteron.random>  <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>  <1133869465.4836.11.camel@laptopd505.fenrus.org>  <4394ECA7.80808@didntduck.org> <1133880581.4836.37.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512062302.06933.jesper.juhl@gmail.com>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 81.64.157.3 (Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.8) Gecko/20051129 Fedora/1.5-1 Firefox/1.5)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Arjan van de Ven <arjan <at> infradead.org> writes:
 
-There are a lot of places in the kernel where we dereference several pointers
-in a row several times.
-As far as I can tell it should be more efficient to just deref those pointers
-once, store the result in a variable, and then use that (unless the use is very
-limited of course). 
+> There are lots of opportunities to put pressure on vendors, either
+> direct or indirect. Nvidia has a support department. If they get enough
+> calls / letters about their solution not being good enough, they're more
+> likely to consider the rearchtect solution. 
 
-To "test the waters" before I do a lot of work that won't be accepted, I picked
-a random file with generic kernel code that has this issue and made a patch.
+Indeed a single centralized complete online hardware database (with hardware
+rated according to driver support level) would go a long way to put real
+pressure on vendors. We know how to set up one for gnome/kde themes surely it'd
+be possible to create one for hardware ? (not the current nebulae of
+semi-complete overlapping projects, menuconfig entries, blog notes, linux-kernel
+notifications)
 
-What I'd like to know is if anyone sees any problems with this and if patches
-such as this one would be considered a good thing.
+But this requires _kernel_ _people_ cooperation. You're the ones who know what
+works and what doesn't. You're the ones who know which corporations are helpful.
+You're the first people users contact when they have new hardware they'd like to
+make work. You're the ones who know which drivers you're currently working on.
 
-If patches like the one below are wanted I'll have a bunch of similar ones
-ready to go pretty soon.
+The PCI ID database can be maintained without kernel people intervention. A
+"linux-friendly hardware" database can not.
 
-I've compile tested this patch and I'm currently running a 2.6.15-rc5-git1
-kernel with it applied without problems.
+Right now getting hardware advice is a long and painful process. Hardware that
+works is only semi-documented. Hardware which doesn't isn't at all. Users have
+to comb numerous on-line databases and mail archives (full of obsolete/wrong
+info) to spec a single linux-friendly system. Few people bother to answer
+hardware advice requests on mailing lists.
 
-Ohh, and before I forget, besides the fact that this should speed things up a
-little bit it also has the added benefit of reducing the size of the generated
-code.
-The original kernel/exit.o file was 19604 bytes in size, the patched one is
-19508 bytes in size.
+Linux users could reward friendly hardware makers if only you bothered to point
+them the right way. That is :
+- list publicly working hardware as soon as the kernel driver is ready
+- list publicly non-working hardware as soon as someone enquires for a reference
+which does not work.
 
-Comments very welcome.
+There's no magic.
 
+Hardware makers do all kinds of stupid stuff to please review sites. Review
+sites are influential because lots of people buy stuff based on their advice.
+Lots of people follow review site advice because review sites centralize info
+about all kinds of hardware, so you don't have to comb the web to find it.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- kernel/exit.c |   37 +++++++++++++++++++++----------------
- 1 files changed, 21 insertions(+), 16 deletions(-)
-
---- linux-2.6.15-rc5-git1-orig/kernel/exit.c	2005-12-04 18:48:53.000000000 +0100
-+++ linux-2.6.15-rc5-git1/kernel/exit.c	2005-12-06 22:11:17.000000000 +0100
-@@ -1068,6 +1068,9 @@ static int wait_task_zombie(task_t *p, i
- 	}
- 
- 	if (likely(p->real_parent == p->parent) && likely(p->signal)) {
-+		struct signal_struct *psig;
-+		struct signal_struct *sig;
-+		
- 		/*
- 		 * The resource counters for the group leader are in its
- 		 * own task_struct.  Those for dead threads in the group
-@@ -1084,24 +1087,26 @@ static int wait_task_zombie(task_t *p, i
- 		 * here reaping other children at the same time.
- 		 */
- 		spin_lock_irq(&p->parent->sighand->siglock);
--		p->parent->signal->cutime =
--			cputime_add(p->parent->signal->cutime,
-+		psig = p->parent->signal;
-+		sig = p->signal;
-+		psig->cutime =
-+			cputime_add(psig->cutime,
- 			cputime_add(p->utime,
--			cputime_add(p->signal->utime,
--				    p->signal->cutime)));
--		p->parent->signal->cstime =
--			cputime_add(p->parent->signal->cstime,
-+			cputime_add(sig->utime,
-+				    sig->cutime)));
-+		psig->cstime =
-+			cputime_add(psig->cstime,
- 			cputime_add(p->stime,
--			cputime_add(p->signal->stime,
--				    p->signal->cstime)));
--		p->parent->signal->cmin_flt +=
--			p->min_flt + p->signal->min_flt + p->signal->cmin_flt;
--		p->parent->signal->cmaj_flt +=
--			p->maj_flt + p->signal->maj_flt + p->signal->cmaj_flt;
--		p->parent->signal->cnvcsw +=
--			p->nvcsw + p->signal->nvcsw + p->signal->cnvcsw;
--		p->parent->signal->cnivcsw +=
--			p->nivcsw + p->signal->nivcsw + p->signal->cnivcsw;
-+			cputime_add(sig->stime,
-+				    sig->cstime)));
-+		psig->cmin_flt +=
-+			p->min_flt + sig->min_flt + sig->cmin_flt;
-+		psig->cmaj_flt +=
-+			p->maj_flt + sig->maj_flt + sig->cmaj_flt;
-+		psig->cnvcsw +=
-+			p->nvcsw + sig->nvcsw + sig->cnvcsw;
-+		psig->cnivcsw +=
-+			p->nivcsw + sig->nivcsw + sig->cnivcsw;
- 		spin_unlock_irq(&p->parent->sighand->siglock);
- 	}
- 
-
-
-
+As Groklaw has shown - if you manage to do complete coverage of a subject, even
+an obscure subject like IP laws or Linux drivers, you suddenly get quoted
+everywhere. But to reach that stage you mustn't go halfways but record
+meticulously info about all the hardware you know of.
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
-
+Nicolas Mailhot
 

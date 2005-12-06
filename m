@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751593AbVLFEIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbVLFEJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751593AbVLFEIs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 23:08:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751591AbVLFEIs
+	id S1751591AbVLFEJF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 23:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751598AbVLFEJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 23:08:48 -0500
-Received: from mail.kroah.org ([69.55.234.183]:45206 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751476AbVLFEIr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 23:08:47 -0500
-Date: Mon, 5 Dec 2005 20:08:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: Dave Airlie <airlied@gmail.com>, David Woodhouse <dwmw2@infradead.org>,
-       arjan@infradead.org, andrew@walrond.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-Message-ID: <20051206040820.GB26602@kroah.com>
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com> <4394DA1D.3090007@am.sony.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4394DA1D.3090007@am.sony.com>
-User-Agent: Mutt/1.5.11
+	Mon, 5 Dec 2005 23:09:04 -0500
+Received: from gepetto.dc.ltu.se ([130.240.42.40]:28827 "EHLO
+	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751591AbVLFEJA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 23:09:00 -0500
+Message-ID: <43951003.1070501@student.ltu.se>
+Date: Tue, 06 Dec 2005 05:13:55 +0100
+From: Richard Knutsson <ricknu-0@student.ltu.se>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: [PATCH 2.6.15-rc5-mm1] drivers: Replace pci_module_init() with pci_register_driver()
+ (-mm only)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 05, 2005 at 04:23:57PM -0800, Tim Bird wrote:
-> Dave Airlie wrote:
-> >>To the larger argument about supporting binary drivers,
-> >>all Arjan manages to prove with his post is that,
-> >>if handled in the worst possible way, support for
-> >>binary drivers would be a disaster.  Who can disagree
-> >>with that?
-> >> 
-> > And do you think that given the opportunity, any company is going
-> > spend the extra money required to not do it in the worst possible
-> > way?? 
-> 
-> I meant "handled in the worst possible way by
-> the kernel developers".  It *is* possible to define
-> stable APIs and have them used successfully.
-> 
-> POSIX is not the greatest example, but it seems
-> to work OK.  I realize that drivers are more
-> tightly bound to the kernel than are libraries
-> or applications, but sheesh, this is not rocket
-> science.
+From: Richard Knutsson <ricknu-0@student.ltu.se>
 
-For people to think that the kernel developers are just "too dumb" to
-make a stable kernel api (and yes, I've had people accuse me of this
-many times to my face[1]) shows a total lack of understanding as to
-_why_ we change the in-kernel api all the time.  Please see
-Documentation/stable_api_nonsense.txt for details on this.
+Replace obsolete pci_module_init() with pci_register_driver().
 
-thanks,
+This patch is for -mm only. There is (for now) no drivers/hwmon/vt8231.c 
+file and drivers/net/sk98lin/skge.c already have pci_register_driver() 
+instead of pci_module_init() in the linus-tree.
 
-greg k-h
+Signed-off-by: Richard Knutsson <ricknu-0@student.ltu.se>
 
-[1] My usual response is, "If we are so dumb, why are you using the kernel
-    made by us?", which usually stops the conversation right there.
+---
+
+ hwmon/vt8231.c     |    2 +-
+ net/sk98lin/skge.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -Narup a/drivers/hwmon/vt8231.c b/drivers/hwmon/vt8231.c
+--- a/drivers/hwmon/vt8231.c	2005-12-06 03:35:12.000000000 +0100
++++ b/drivers/hwmon/vt8231.c	2005-12-06 03:31:50.000000000 +0100
+@@ -842,7 +842,7 @@ static int __devinit vt8231_pci_probe(st
+ 
+ static int __init sm_vt8231_init(void)
+ {
+-	return pci_module_init(&vt8231_pci_driver);
++	return pci_register_driver(&vt8231_pci_driver);
+ }
+ 
+ static void __exit sm_vt8231_exit(void)
+diff -Narup a/drivers/net/sk98lin/skge.c b/drivers/net/sk98lin/skge.c
+--- a/drivers/net/sk98lin/skge.c	2005-12-06 03:35:17.000000000 +0100
++++ b/drivers/net/sk98lin/skge.c	2005-12-06 03:30:21.000000000 +0100
+@@ -5107,7 +5107,7 @@ static struct pci_driver skge_driver = {
+ 
+ static int __init skge_init(void)
+ {
+-	return pci_module_init(&skge_driver);
++	return pci_register_driver(&skge_driver);
+ }
+ 
+ static void __exit skge_exit(void)
+
 

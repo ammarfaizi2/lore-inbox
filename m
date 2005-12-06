@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932438AbVLFUGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932605AbVLFUHl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932438AbVLFUGS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 15:06:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932597AbVLFUGS
+	id S932605AbVLFUHl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 15:07:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932627AbVLFUHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 15:06:18 -0500
-Received: from cantor.suse.de ([195.135.220.2]:29348 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932438AbVLFUGR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 15:06:17 -0500
-Date: Tue, 6 Dec 2005 21:06:07 +0100
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-mm@kvack.org, Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [RFC 1/3] Framework for accurate node based statistics
-Message-ID: <20051206200607.GY11190@wotan.suse.de>
-References: <20051206182843.19188.82045.sendpatchset@schroedinger.engr.sgi.com> <20051206183524.GU11190@wotan.suse.de> <Pine.LNX.4.62.0512061105220.19475@schroedinger.engr.sgi.com> <20051206192603.GX11190@wotan.suse.de> <Pine.LNX.4.62.0512061131500.19637@schroedinger.engr.sgi.com>
+	Tue, 6 Dec 2005 15:07:41 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:27107 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932605AbVLFUHk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 15:07:40 -0500
+Subject: Re: Add tainting for proprietary helper modules.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051205093436.44d146e6@localhost.localdomain>
+References: <20051203004102.GA2923@redhat.com>
+	 <Pine.LNX.4.61.0512050832290.27133@chaos.analogic.com>
+	 <20051205173041.GE12664@redhat.com>
+	 <20051205093436.44d146e6@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 06 Dec 2005 20:06:52 +0000
+Message-Id: <1133899612.23610.59.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0512061131500.19637@schroedinger.engr.sgi.com>
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 11:36:43AM -0800, Christoph Lameter wrote:
-> On Tue, 6 Dec 2005, Andi Kleen wrote:
-> 
-> > > Yuck. That code uses atomic operations and is not aware of atomic64_t.
-> > Hmm? What code are you looking at? 
-> include/asm-generic/local.h. this is the default right? And 
-> include/asm-ia64/local.h.
->  
-> > At least i386/x86-64/generic don't use any atomic operations, just
-> > normal non atomic on bus but atomic for interrupts local rmw.
-> 
-> inc/dec are atomic by default on x86_64?
+On Llu, 2005-12-05 at 09:34 -0800, Stephen Hemminger wrote:
+> IMHO ndiswrapper can't claim legitimately to be GPL, so just
+> patch that. 
 
-They are atomic against interrupts on the same CPU. And on Linux
-also atomic against preempt moving you to another CPU. And all that
-without the cost of a bus lock. And that is what local_t is about.
+Actually it isnt so simple. Load ndiswrapper. Now load a GPL windows
+driver binary. I don't know if ndiswrapper itself could dig licenses out
+of windows modules but if so it could even conditionally taint.
 
->  
-> > Do you actually need 64bit? 
-> 
-> 32 bit limits us in the worst case to 8 Terabytes of RAM (assuming a very 
-> small page size of 4k and 31 bit available for an atomic variable 
-> [sparc]). SGI already has installations with 15 Terabytes of RAM.
-
-Ok we'll need a local64_t then. No big deal - can be easily added.
-Or perhaps better a long_local_t so that 32bit doesn't need to
-pay the cost.
-
--Andi
+Alan
 

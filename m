@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751675AbVLFFG1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbVLFFKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751675AbVLFFG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 00:06:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751673AbVLFFG1
+	id S1751354AbVLFFKW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 00:10:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbVLFFKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 00:06:27 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:43183
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1751665AbVLFFG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 00:06:26 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: zine el abidine Hamid <zine46@yahoo.fr>
-Subject: Re: Kernel BUG at page_alloc.c:117!
-Date: Mon, 5 Dec 2005 23:06:18 -0600
-User-Agent: KMail/1.8
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-References: <20051205150530.91163.qmail@web30607.mail.mud.yahoo.com>
-In-Reply-To: <20051205150530.91163.qmail@web30607.mail.mud.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 6 Dec 2005 00:10:21 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:15534 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751354AbVLFFKV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 00:10:21 -0500
+Subject: [RFC][PATCH 000/002]  Add timestamp to process event connector
+	message
+From: Matt Helsley <matthltc@us.ibm.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Badari Pulavarty <pbadari@us.ibm.com>, Ram Pai <linuxram@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Erich Focht <efocht@hpce.nec.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       Jay Lan <jlan@engr.sgi.com>, Erik Jacobson <erikj@sgi.com>,
+       Jack Steiner <steiner@sgi.com>
+Content-Type: text/plain
+Date: Mon, 05 Dec 2005 21:00:25 -0800
+Message-Id: <1133845225.25202.1373.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512052306.18420.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 December 2005 09:05, zine el abidine Hamid wrote:
+	This series of patches adds a timestamp field to the events sent
+via the process event connector. The timestamp allows listeners to
+accurately account the duration(s) between a process' events and offers
+strong means with which to determine the order of events while also
+avoiding the addition of per-task data.
 
-> PS : The user's manual definition of The Watch-Dog
-> Timer is : "a device to ensure thet standalone systems
-> can always recover from abnormal conditions that cause
-> the system to crash. These conditions may result from
-> an external EMI or software bug."
+Series:
 
-Such as the power supply filling up with dust and catching fire.
+getnstimestamp.patch
+proc-events-timestamp.patch
 
-Rather an optimistic user's manual, really...
+	The first patch adds a new generic function, getnstimestamp(),
+which gets an SMP-safe high-resolution monotonic timestamp.
 
-Rob
--- 
-Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
-I do not think it means what you think it means.
+	The second patch adds a timestamp field to the events sent via
+the process event connector and fills the field using the new timestamp
+function. It alters the size and layout of the event structure and hence
+would break compatibility if not incorporated with the first release of
+process events connector in a mainline kernel.
+
+Cheers,
+	-Matt Helsley
+

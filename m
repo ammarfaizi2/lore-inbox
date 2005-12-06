@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750978AbVLECWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S964778AbVLFWOl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbVLECWt (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 4 Dec 2005 21:22:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751035AbVLECWt
+	id S964778AbVLFWOl (ORCPT <rfc822;akpm@zip.com.au>);
+	Tue, 6 Dec 2005 17:14:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbVLFWOl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Dec 2005 21:22:49 -0500
-Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:31103 "HELO
-	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750978AbVLECWt convert rfc822-to-8bit (ORCPT
+	Tue, 6 Dec 2005 17:14:41 -0500
+Received: from vds.fauxbox.com ([208.210.124.75]:7301 "EHLO thorn.pobox.com")
+	by vger.kernel.org with ESMTP id S964778AbVLFWOk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Dec 2005 21:22:49 -0500
-Message-ID: <004401c11c83$f7523d20$7c01a8c0@soyo>
-From: "Dorr Dawson" <dorr.dawson@sbcglobal.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Sr. Embedded Software Engineer in San Jose, California  -- BM5001
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Outlook Express 6.00.2800.1506
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1506
-Date: Sun, 4 Dec 2005 21:22:49 -0500
+	Tue, 6 Dec 2005 17:14:40 -0500
+Date: Tue, 6 Dec 2005 17:14:34 -0500
+From: Nathan Lynch <ntl@pobox.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, linuxppc64-dev@ozlabs.org,
+        viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org,
+        arjan@infradead.org
+Subject: Re: [PATCH 02/14] spufs: fix local store page refcounting
+Message-ID: <20051206221434.GB8901@localhost.localdomain>
+References: <20051206035220.097737000@localhost> <200512061118.19633.arnd@arndb.de> <1133869108.7968.1.camel@localhost> <200512061949.33482.arnd@arndb.de> <1133895947.3279.4.camel@localhost> <17301.65082.251692.675360@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17301.65082.251692.675360@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Paul Mackerras wrote:
+> Pekka Enberg writes:
+> 
+> > I would prefer them to stay in arch/powerpc/. As far as I understand,
+> > spufs will never have any use for platforms other than cell, so I really
+> > don't see any point in putting it in fs/.
+> 
+> The point is that people making changes to the filesystem interfaces
+> will be much more likely to notice and fix stuff that is under fs/
+> than code that is buried deep under arch/ somewhere.  Filesystems
+> should go under fs/ for the sake of long-term maintainability.  The
+> fact that it's only used on one architecture is irrelevant - you
+> simply make sure (with the appropriate Kconfig bits) that it's only
+> offered on that architecture.
 
-I found you on a resume board and the following position may be of interest.
-
-Sr. Embedded Software Engineer - San Jose, California
-
-Job Description
-The Sr. Embedded Software Engineer will work independently and be responsible for leading the design and implementation efforts for home networking applications & products. This position will design and implement system level networking applications & products. This position will also be responsible for system integration & architecture for networking gateway, PC, back-end network management platforms and documentation.
-
-Qualifications
-
-Bachelor of Science or foreign equivalent in Computer Science, Engineering or related field and six years of experience developing embedded software. In lieu of a Bachelor's Degree and six years of experience,also acceptableis  a Master’s Degree plus four years of experience developing embedded software. Any suitable combination of this education, training, and experience is acceptable. 
-Experience with kernel development, network security and TCP/IP.
-
-Please send your resume to Dorr.Dawson@sbcglobal.netas a Word attachment and/or call  925-935-3636 for details.
-
-Please include your salary requirements and when you would be able to start and please allow BM5001 to remain in the subject area of your email.
-
-Best regards,
-
-Dorr Dawson
-925-935-3636
+openpromfs seems to be a precedent here.  It makes sense only on sparc
+and sparc64 but it lives in fs/.
 

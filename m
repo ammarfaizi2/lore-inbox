@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbVLFF10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbVLFFii@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbVLFF10 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 00:27:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbVLFF10
+	id S964798AbVLFFii (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 00:38:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbVLFFii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 00:27:26 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:16071 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S964827AbVLFF1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 00:27:25 -0500
-Subject: Re: Nick's preempt nosched patch.
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1133844903.5501.17.camel@localhost>
-References: <1133844903.5501.17.camel@localhost>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1133846622.5501.20.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 06 Dec 2005 15:23:53 +1000
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Dec 2005 00:38:38 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:36868 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964798AbVLFFih convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 00:38:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KY+HUDCkCWKXVlFouxUzbTq33uGg7FyyNVG3ZQvec/Su65MLLGfRI01QLO9NEywf9+HDL4mS14w9YNvvBlW1RokQeRwQxN0sTGK0F/g6DC7TUMk+vNw89jKzLSn1CirQRmd1d1XUMiwIT+pKLlSNOePWhwvrOE1dv4TCQirzReg=
+Message-ID: <a762e240512052138i3243761fl25f750f351f0b7f0@mail.gmail.com>
+Date: Mon, 5 Dec 2005 21:38:36 -0800
+From: Keith Mannthey <kmannth@gmail.com>
+To: Rob Landley <rob@landley.net>
+Subject: Re: Kernel BUG at page_alloc.c:117!
+Cc: zine el abidine Hamid <zine46@yahoo.fr>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200512052306.18420.rob@landley.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051205150530.91163.qmail@web30607.mail.mud.yahoo.com>
+	 <200512052306.18420.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi again.
-
-On Tue, 2005-12-06 at 15:02, Nigel Cunningham wrote:
-> Hi.
-> 
-> A while ago I had a problem with cpu hotplug failing to take down cpus
-> due to preemption problems. Nick prepared a patch (included below) that
-> fixed this, but it's not yet in mainline. The problem seems to have
-> disappeared on my work desktop (so I thought it had been applied until I
-> did a quick check), but a suspend2 user has just reported the problem
-> again. Can look at applying this or something better in mainline,
-> please?
-
-Ah. I eat my words, having discovered that it has been merged since
-2.6.14, which I was looking at earlier. Sorry for the noise.
-
-Nigel
-
+You might want to file a bug with the distro you are running. The
+kernel numbering seems to be RedHat?  Perhaps they have seen and fixed
+the problem already upsteam in their tree somewhere.

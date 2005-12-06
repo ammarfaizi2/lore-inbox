@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751508AbVLFAKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751507AbVLFAKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751508AbVLFAKr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 19:10:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbVLFAKr
+	id S1751507AbVLFAKL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 19:10:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbVLFAKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 19:10:47 -0500
-Received: from tirith.ics.muni.cz ([147.251.4.36]:65482 "EHLO
-	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1751508AbVLFAKq
+	Mon, 5 Dec 2005 19:10:10 -0500
+Received: from xproxy.gmail.com ([66.249.82.205]:45751 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751507AbVLFAKJ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 19:10:46 -0500
-Date: Tue, 6 Dec 2005 01:10:06 +0100
-From: Jan Kasprzak <kas@fi.muni.cz>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org, bharata@in.ibm.com
-Subject: Re: 2.6.14 kswapd eating too much CPU
-Message-ID: <20051206001006.GX22772@fi.muni.cz>
-References: <20051123110241.528a0b37.akpm@osdl.org> <20051123202438.GE28142@fi.muni.cz> <20051123123531.470fc804.akpm@osdl.org> <20051124083141.GJ28142@fi.muni.cz> <20051127084231.GC20701@logos.cnet> <20051127203924.GE27805@fi.muni.cz> <20051127160207.GE21383@logos.cnet> <20051127152108.11f58f9c.akpm@osdl.org> <20051128131648.GG19307@fi.muni.cz> <20051128080446.GA23516@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 5 Dec 2005 19:10:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=GlAUixJtaQ17OXpDfZmnHdd1Br38BncoZOHTNk+Ur35ECsilnW9RmsiFTCQtpC1aw2Y2zR8kMhV4uR9W+WmjAZiLHSxUA7vr4kUtiuURwWIufhsH8m6u/1FnJzaYTxJgriJVrdk5b4aNZPCMv8PTWHR+X4+SK7XpHw50E1mJFvE=
+Message-ID: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
+Date: Tue, 6 Dec 2005 11:10:08 +1100
+From: Dave Airlie <airlied@gmail.com>
+To: Tim Bird <tim.bird@am.sony.com>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Cc: David Woodhouse <dwmw2@infradead.org>, arjan@infradead.org,
+       andrew@walrond.org, linux-kernel@vger.kernel.org
+In-Reply-To: <4394D396.1020102@am.sony.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051128080446.GA23516@logos.cnet>
-User-Agent: Mutt/1.4.1i
-X-Muni-Spam-TestIP: 147.251.48.3
-X-Muni-Envelope-From: kas@fi.muni.cz
-X-Muni-Virus-Test: Clean
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	 <200512051826.06703.andrew@walrond.org>
+	 <1133817575.11280.18.camel@localhost.localdomain>
+	 <1133817888.9356.78.camel@laptopd505.fenrus.org>
+	 <1133819684.11280.38.camel@localhost.localdomain>
+	 <4394D396.1020102@am.sony.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-: I wonder why prune_icache() does not move inodes with positive i_count
-: to inode_inuse list, letting iput() take care of moving to unused
-: once the count reaches zero.
-: 
-:                 inode = list_entry(inode_unused.prev, struct inode, i_list);
-:                 if (inode->i_state || atomic_read(&inode->i_count)) {
-:                         list_move(&inode->i_list, &inode_unused);
-:                         continue;
-:                 }
-: 
-: Couldnt it be 
-: 			list_move(&inode->i_list, &inode_inuse);
-: 
-: ?
+> To the larger argument about supporting binary drivers,
+> all Arjan manages to prove with his post is that,
+> if handled in the worst possible way, support for
+> binary drivers would be a disaster.  Who can disagree
+> with that?
+>
 
-	Hmm, this code is indeed strange. Why does it move the inode
-to the inode_unused list, when the inode has in fact been _found_ while
-scanning the inode_unused list? And how can an inode with positive
-->i_count end up on the inode_unused list?
+And do you think that given the opportunity, any company is going
+spend the extra money required to not do it in the worst possible
+way?? Companies want to spend as little as possible on drivers, and
+drop support as soon as it makes sense financially to do so, they
+aren't going to come to the correct best possible way on their own, or
+via consortia of companies ala CEL or OSDL, they require outside
+pressure to make them change their mindset from the only example they
+have which is developing Windows drivers..
 
--Yenya
-
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
-> Specs are a basis for _talking_about_ things. But they are _not_ a basis <
-> for implementing software.                              --Linus Torvalds <
+Dave.

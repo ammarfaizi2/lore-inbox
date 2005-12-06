@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932632AbVLFVdh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbVLFVeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932632AbVLFVdh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 16:33:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932640AbVLFVdh
+	id S932640AbVLFVeS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 16:34:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932641AbVLFVeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 16:33:37 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:28057 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932632AbVLFVdg (ORCPT
+	Tue, 6 Dec 2005 16:34:18 -0500
+Received: from xenotime.net ([66.160.160.81]:26769 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932640AbVLFVeR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 16:33:36 -0500
-Message-ID: <4396039B.2010405@pobox.com>
-Date: Tue, 06 Dec 2005 16:33:15 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 6 Dec 2005 16:34:17 -0500
+Date: Tue, 6 Dec 2005 13:34:11 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: David Woodhouse <dwmw2@infradead.org>, Brian Gerst <bgerst@didntduck.org>,
-       Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>	 <20051205121851.GC2838@holomorphy.com>	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>	 <20051206030828.GA823@opteron.random>  <4394696B.6060008@didntduck.org>	 <1133894575.4136.171.camel@baythorne.infradead.org> <1133897035.23610.32.camel@localhost.localdomain>
-In-Reply-To: <1133897035.23610.32.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Alan Cox wrote: > On Maw, 2005-12-06 at 18:42 +0000,
-	David Woodhouse wrote: > >>There's some work on reverse-engineering the
-	BIOS so that you can >>hackishly poke 'new' modes into its tables, but
-	it's still not a very >>good option. > > > Especially as the BIOS
-	interface at the low level for the analogue end > and the logic driving
-	it is board specific. Intel have been fairly clear > why they use the
-	BIOS interface. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+cc: Brian Gerst <bgerst@didntduck.org>,
+       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Add tainting for proprietary helper modules.
+In-Reply-To: <1133900880.23610.77.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0512061333100.5519@shark.he.net>
+References: <20051203004102.GA2923@redhat.com>  <Pine.LNX.4.61.0512050832290.27133@chaos.analogic.com>
+  <20051205173041.GE12664@redhat.com>  <20051205093436.44d146e6@localhost.localdomain>
+  <1133899612.23610.59.camel@localhost.localdomain>  <4395F097.5060005@didntduck.org>
+ <1133900880.23610.77.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Maw, 2005-12-06 at 18:42 +0000, David Woodhouse wrote:
-> 
->>There's some work on reverse-engineering the BIOS so that you can
->>hackishly poke 'new' modes into its tables, but it's still not a very
->>good option.
-> 
-> 
-> Especially as the BIOS interface at the low level for the analogue end
-> and the logic driving it is board specific. Intel have been fairly clear
-> why they use the BIOS interface.
+On Tue, 6 Dec 2005, Alan Cox wrote:
 
-[utter, complete, abrupt tangent]
+> On Maw, 2005-12-06 at 15:12 -0500, Brian Gerst wrote:
+> > Alan Cox wrote:
+> > > On Llu, 2005-12-05 at 09:34 -0800, Stephen Hemminger wrote:
+> > >
+> > >>IMHO ndiswrapper can't claim legitimately to be GPL, so just
+> > >>patch that.
+> > >
+> > >
+> > > Actually it isnt so simple. Load ndiswrapper. Now load a GPL windows
+> > > driver binary. I don't know if ndiswrapper itself could dig licenses out
+> > > of windows modules but if so it could even conditionally taint.
+> > >
+> > > Alan
+> >
+> > On the other hand, if the windows driver were GPL then there wouldn't be
+> > any barrier to writing a native driver.
+>
+> Sure, but the point was to demonstrate in a clear and logical fashion
+> that ndiswrapper could be GPL.
+> -
 
-Since people are talking about BIOS, that made me remember that I wanted 
-to mention something of minor significance:
+so it would be OK to run a windows NDIS driver on Linux,
+by using ndiswrapper, as long as the windows NDIS driver is GPL?
 
-Marvell GPL'd their storage BIOS that ships with their 50xx and 60xx 
-cards.  x86 code, not OF.
+Never mind its possible stack needs or who knows what else.
 
-FWIW.
-
-Now you may return to your regularly scheduled flamewar...
-
-	Jeff
-
-
+-- 
+~Randy

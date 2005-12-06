@@ -1,68 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbVLFUcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbVLFUfH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030225AbVLFUcd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 15:32:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbVLFUcc
+	id S1030224AbVLFUfH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 15:35:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030226AbVLFUfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 15:32:32 -0500
-Received: from silver.veritas.com ([143.127.12.111]:59687 "EHLO
-	silver.veritas.com") by vger.kernel.org with ESMTP id S1030210AbVLFUcb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 15:32:31 -0500
-Date: Tue, 6 Dec 2005 20:31:43 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Fw: crash on x86_64 - mm related?
-In-Reply-To: <20051206160815.GC11560@tau.solarneutrino.net>
-Message-ID: <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
-References: <20051129092432.0f5742f0.akpm@osdl.org>
- <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local>
- <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org> <20051201195657.GB7236@tau.solarneutrino.net>
- <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com>
- <20051202180326.GB7634@tau.solarneutrino.net>
- <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com>
- <20051202194447.GA7679@tau.solarneutrino.net>
- <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com>
- <20051206160815.GC11560@tau.solarneutrino.net>
+	Tue, 6 Dec 2005 15:35:07 -0500
+Received: from rtsoft3.corbina.net ([85.21.88.6]:36408 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S1030224AbVLFUfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 15:35:06 -0500
+Message-ID: <4395F5C4.8080701@ru.mvista.com>
+Date: Tue, 06 Dec 2005 23:34:12 +0300
+From: Valentine Barshak <vbarshak@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 06 Dec 2005 20:32:19.0726 (UTC) FILETIME=[27AE92E0:01C5FAA4]
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: posix_fadvise succeeds on FIFO.
+Content-Type: multipart/mixed;
+ boundary="------------050001010505030003040706"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Dec 2005, Ryan Richter wrote:
+This is a multi-part message in MIME format.
+--------------050001010505030003040706
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Another crash during last night's backup:
-> 
-> Bad page state at free_hot_cold_page (in process 'taper', page ffff810002410cc0)
-> flags:0x010000000000000c mapping:ffff81017d5beb70 mapcount:2 count:0
-> Bad page state at free_hot_cold_page (in process 'taper', page ffff810002410cc0)
-> flags:0x010000000000081c mapping:ffff810064cd6910 mapcount:0 count:0
-> Kernel BUG at include/linux/mm.h:341
-> Pid: 11402, comm: taper Tainted: G    B 2.6.14.3 #1
-> RIP: 0010:[<ffffffff802b904d>] <ffffffff802b904d>{sgl_unmap_user_pages+93}
-> Kernel BUG at mm/rmap.c:487
-> Pid: 11402, comm: taper Tainted: G    B 2.6.14.3 #1
-> RIP: 0010:[<ffffffff8016f437>] <ffffffff8016f437>{page_remove_rmap+39}
-> Bad page state at prep_new_page (in process 'dumper', page ffff810002410cc0)
-> flags:0x010000000000001c mapping:0000000000000000 mapcount:-1 count:0
-> general protection fault: 0000 [3] SMP 
-> Pid: 1303, comm: kjournald Tainted: G    B 2.6.14.3 #1
-> RIP: 0010:[<ffffffff8015fdfa>] <ffffffff8015fdfa>{cache_alloc_refill+330}
->  NMI Watchdog detected LOCKUP on CPU 1
-> Pid: 918, comm: md0_raid5 Tainted: G    B 2.6.14.3 #1
-> RIP: 0010:[<ffffffff8038385b>] <ffffffff8038385b>{.text.lock.spinlock+116}
+Hello all.
+The following issue has been found with posix_fadvise:
+the system call succeeds on a pipe or FIFO, although it has to fail with 
+EINVAL return value on linux.
+I've attached a small test for posix_fadvise and a patch for linux 
+kernel 2.6.14 that fixes the problem.
+The patch makes posix_fadvise return ESPIPE on FIFO/pipe in order to be 
+fully POSIX-compliant.
+Please, take a look at these. Is it really a bug in kernel?
+Thanks.
 
-Thanks for the further report.  And you had my st.c patch in along
-with 2.6.14.3, but it still happened, very much like before (except the
-latter errors, general protection fault onwards - but once we get into
-using one page for two uses at the same time, anything can go wrong).
 
-I've been staring and thinking, but no inspiration yet.
+--------------050001010505030003040706
+Content-Type: text/x-csrc;
+ name="posix_fadvise_test.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="posix_fadvise_test.c"
 
-Hugh
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <errno.h>
+
+int main()
+{
+	int retval, fd;
+
+	if (mkfifo("fifo", 0666) < 0) {
+		printf("create fifo error\n");
+		return 1;
+	}
+	
+	fd = open("fifo", O_RDWR);
+	if (fd < 0) {
+		printf("open fifo error\n");
+		remove("fifo");
+		return 1;
+	}
+	
+	retval = posix_fadvise(fd, 0, 0, POSIX_FADV_NORMAL);
+	if (retval) {
+		printf("Expected fail - The fd argument is associated with a pipe or FIFO.\n");
+		if (retval != ESPIPE)
+			printf("Unexpected ERRNO %d (Expected %d)\n", retval, ESPIPE);
+	} else
+		printf("Unexpected success  - The fd argument is associated with a pipe or FIFO.\n");
+
+	close(fd);
+	remove("fifo");
+
+	if (retval)
+		return 0;
+	return 1;
+}
+
+--------------050001010505030003040706
+Content-Type: text/x-patch;
+ name="fadv.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fadv.patch"
+
+--- a/mm/fadvise.c 2005-10-10 22:54:29.000000000 +0400
++++ b/mm/fadvise.c 2005-12-06 23:04:19.980711464 +0300
+@@ -37,6 +37,11 @@
+        if (!file)
+                return -EBADF;
+ 
++       if (S_ISFIFO(file->f_dentry->d_inode->i_mode)) {
++               ret = -ESPIPE;
++               goto out;
++       }
++
+        mapping = file->f_mapping;
+        if (!mapping || len < 0) {
+                ret = -EINVAL;
+
+
+--------------050001010505030003040706--

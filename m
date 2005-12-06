@@ -1,109 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbVLFGpn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbVLFG4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbVLFGpn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 01:45:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbVLFGpn
+	id S1751411AbVLFG4a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 01:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbVLFG4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 01:45:43 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:24475 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751023AbVLFGpm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 01:45:42 -0500
-Message-ID: <43953440.9070102@in.ibm.com>
-Date: Tue, 06 Dec 2005 12:18:32 +0530
-From: Sachin Sant <sachinp@in.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050523
+	Tue, 6 Dec 2005 01:56:30 -0500
+Received: from main.gmane.org ([80.91.229.2]:672 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751411AbVLFG43 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 01:56:29 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: Linux SATA status report updated
+Date: Tue, 06 Dec 2005 15:53:55 +0900
+Message-ID: <dn3cj7$c0d$1@sea.gmane.org>
+References: <438E8980.4030800@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s185160.ppp.asahi-net.or.jp
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051020)
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] Adding ctrl-o sysrq hack support to 8250 driver
-References: <438D8A3A.9030400@in.ibm.com> <20051130130429.GB25032@flint.arm.linux.org.uk>
-In-Reply-To: <20051130130429.GB25032@flint.arm.linux.org.uk>
-Content-Type: multipart/mixed;
- boundary="------------010204080000050802000504"
+In-Reply-To: <438E8980.4030800@pobox.com>
+X-Enigmail-Version: 0.93.0.0
+Cc: linux-ide@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010204080000050802000504
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-> Why are you doing this and not using uart_handle_break()?
+Jeff Garzik wrote:
 > 
-> Do you realise that this enables sysrq support for _any_ 8250 serial
-> port, be it console or not?
+> I just updated the Linux SATA status pages with the latest drivers and
+> progress:
 > 
-At present we have ctrl-break that works over a serial connection. But 
-there are few instances where the above does not works. Consider the 
-following senarios
-
-p615, power4, no-hmc configuration.
-
-I attached an IBM 3153 (a "real" tty) to the serial port.I then observed
-that neither ctrl-o or the tty's ctrl-SysRq_key worked. (but ctrl-o did 
-still work with the patched kernel, of course).  However, the 
-ctrl-Break_key does work on the native tty, taking the place of the 
-ctrl-o on vterms.So in summary, ctrl-Break works. I then re-attached the 
-cu cable (both are defined alike as ttyS0 and give login's) and 
-re-verified that ctrl-Break stopped working.
-
-In the future, if this configuration is found hung, then (provided sysrq 
-was enabled), attach a physical tty and use ctrl-Break to debug.
-
-2nd configuration: p630, hmc-attached, booted in "full-system partition" 
-mode.Everything in the first configuration applied here too.There is 
-only a slight diff in the way the console works.Since the hmc is 
-attached, the "vterm" on the hmc will be the console.However, when it is 
-booted in "full-system partition" mode, the OS sees that console as 
-ttyS0 - just like a non-hmc attached connection.Unfortunately, neither 
-the ctrl-o nor the ctrl-Break works on this either (just like the cu 
-session above).The only way to get ctrl-Break to work is to "close the 
-terminal" operation on the hmc, and then attach and turn on a real tty 
-onto the lowest serial port (not the "HMC" port) on the p630.  You can't 
-have both running at the same time, because they both configure as 
-ttyS0.  Then with the real tty attached, you can use ctrl-Break to debug.
-
-So the general idea behind this patch was to make the behaviour of 
-invoking sysrq key more consistent over virtual and real consoles. It's 
-not a must but would be nice to have this functionality.
-
+>     hardware: http://linux.yyz.us/sata/sata-status.html
+>     software: http://linux.yyz.us/sata/software-status.html
 > 
-> We don't drop the lock when calling uart_handle_sysrq_char() further
-> down in this function.  Why is this needed?  Also, why is this needed
-> to be duplicated?
-> 
-You are correct. This is not needed. I have removed this piece of code.
+> Let me know if there are any errors or omissions.
 
-How about the following patch.
+Thank you for the time and passion devoted!
 
---------------010204080000050802000504
-Content-Type: text/plain;
- name="8250-magic-sysrq-support.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="8250-magic-sysrq-support.patch"
+I was just thinking and may I suggest if it is not too much hassle, why not add some kind of version
+control to those pages?
 
-Signed-off-by: Sachin Sant <sachinp@in.ibm.com>
+Lately I am playing with subversion and I am using it at work for such documents (only internal)
+with apache. The basic setup allows that your last version is always accessible through HTTP and for
+those wanting more (and having proper clearance), svn access allows diffing and log examining.
 
-diff -Naurp a/drivers/serial/8250.c b/drivers/serial/8250.c
---- a/drivers/serial/8250.c	2005-11-11 11:03:12.000000000 +0530
-+++ b/drivers/serial/8250.c	2005-12-06 11:52:40.000000000 +0530
-@@ -1084,6 +1084,15 @@ receive_chars(struct uart_8250_port *up,
- 			 */
- 		}
- 		ch = serial_inp(up, UART_RX);
-+
-+#if defined(CONFIG_MAGIC_SYSRQ) && defined(CONFIG_SERIAL_CORE_CONSOLE)
-+		/* Handle the SysRq ^O Hack */
-+		if (ch == '\x0f') {
-+			up->port.sysrq = jiffies + HZ*5;
-+			goto ignore_char; 
-+		}
-+#endif /* CONFIG_MAGIC_SYSRQ && CONFIG_SERIAL_CORE_CONSOLE */
-+
- 		flag = TTY_NORMAL;
- 		up->port.icount.rx++;
- 
+Yes, I know there is the "Recent Changes" at the top of each document, but sometimes it is too broad.
+On the other hand my suggestion might be an overkill. And it might need some time initially (but can
+pay later?).
 
---------------010204080000050802000504--
+Just my 2 cents, as the saying goes.
+
+Kalin.
+
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
+

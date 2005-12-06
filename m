@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbVLFHGl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbVLFHKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbVLFHGl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 02:06:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751432AbVLFHGl
+	id S1751432AbVLFHKj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 02:10:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbVLFHKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 02:06:41 -0500
-Received: from ns.suse.de ([195.135.220.2]:30901 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751400AbVLFHGl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 02:06:41 -0500
-From: Neil Brown <neilb@suse.de>
-To: Willy Tarreau <willy@w.ods.org>
-Date: Tue, 6 Dec 2005 18:06:07 +1100
+	Tue, 6 Dec 2005 02:10:39 -0500
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:14505 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S1751432AbVLFHKj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 02:10:39 -0500
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Roman Zippel <zippel@linux-m68k.org>
+Date: Tue, 06 Dec 2005 08:10:03 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17301.14431.887295.711118@cse.unsw.edu.au>
-Cc: Greg KH <greg@kroah.com>, Tim Bird <tim.bird@am.sony.com>,
-       Dave Airlie <airlied@gmail.com>, David Woodhouse <dwmw2@infradead.org>,
-       arjan@infradead.org, andrew@walrond.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-In-Reply-To: message from Willy Tarreau on Tuesday December 6
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
-	<4394DA1D.3090007@am.sony.com>
-	<20051206040820.GB26602@kroah.com>
-	<20051206060734.GB7096@alpha.home.local>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Subject: Re: [PATCH 2/13] Time: Reduced NTP Rework (part 2)
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
+       Nishanth Aravamudan <nacc@us.ibm.com>,
+       Frank Sorenson <frank@tuxrocks.com>,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Thomas Gleixner <tglx@linutronix.de>
+Message-ID: <4395475C.21877.29399CFE@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <Pine.LNX.4.61.0512051132460.1609@scrub.home>
+References: <4390E48E.4020005@mvista.com>
+X-mailer: Pegasus Mail for Windows (4.30 public beta 1)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=3.98.0+V=3.98+U=2.07.112+R=03 October 2005+T=112970@20051206.070542Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday December 6, willy@w.ods.org wrote:
-> On Mon, Dec 05, 2005 at 08:08:20PM -0800, Greg KH wrote:
->  
-> > For people to think that the kernel developers are just "too dumb" to
-> > make a stable kernel api (and yes, I've had people accuse me of this
-> > many times to my face[1]) shows a total lack of understanding as to
-> > _why_ we change the in-kernel api all the time.  Please see
-> > Documentation/stable_api_nonsense.txt for details on this.
+On 5 Dec 2005 at 11:35, Roman Zippel wrote:
+
+> Hi,
 > 
-> It's not about being dumb, but this problem is -I think- what prevents
-> some companies from releasing drivers for their hardware (when they
-> don't consider that opening it will give their IP away). I've played
-> several times with opensource drivers for ADSL modems, LCD modules,
-> watchdogs, ethernet adapters, IDE drivers, etc... and their problem
-> was that what worked well in 2.4.21 did not even build in 2.4.22
-> and became difficult to fix starting with 2.4.23. Most of those
-> small companies who propose a Linux driver simply start by paying
-> a student during summer for porting their windows/sco/whatever
-> driver to linux. They think the job is done when he leaves.
-> Unfortunately, they receive complaints 3 months later from users
-> because the driver is broken and does not build. They don't have
-> the resources to keep a permanent developer on it, and they
-> quickly understand that Linux is just a "geek OS" and that it's
-> the last time they release any driver.
+> On Fri, 2 Dec 2005, George Anzinger wrote:
 > 
-> Of course, you'll tell me that they can write the driver for
-> the major stable distros (RHEL, SLES, ...). 
+> > In a discusson aroung the leapsecond and how to disable it (some folks don't
+> > want the time jump) it came to light that, for the most part, this is unused
+> > code.  It requires that time be kept in UST to be useful and, from what I can
+> > tell, most folks keep time in their local timezone, thus, effectively,
+> > disableing the usage of the leapsecond correction (ntp figures this out and
+> > just says "no").  Possibly it is time to ask if we should keep this in the
+> > kernel at all.
+> 
+> I'm thinking about moving the leap second handling to a timer, with the 
+> new timer system it would be easy to set a timer for e.g. 23:59.59 and 
+> then set the time. This way it would be gone from the common path and it 
+> wouldn't matter that much anymore whether it's used or not.
 
-I won't tell you that.
-I'd say that with a linux driver, the job isn't done it "works", but
-rather the job is done when it "is merged".
+Will the timer solution guarantee consistent and exact updates?
 
-Once it is merged, it will mostly be updated along with the rest of
-the kernel, and if it breaks silently, there is probably someone
-available who can fix it.
+Regards,
+Ulrich
 
-I think we should frown on out-of-tree drivers nearly as much as
-closed-source drivers.
-
-NeilBrown

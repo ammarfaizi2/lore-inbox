@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbVLFSCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbVLFSCt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964993AbVLFSCV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 13:02:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbVLFSBx
+	id S964986AbVLFSCt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 13:02:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbVLFSCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 13:01:53 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:1181 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S964974AbVLFSBj (ORCPT
+	Tue, 6 Dec 2005 13:02:22 -0500
+Received: from mail.kroah.org ([69.55.234.183]:45036 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964986AbVLFSB2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 13:01:39 -0500
-Date: Tue, 6 Dec 2005 10:01:28 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: akpm@osdl.org, Christoph Hellwig <hch@infradead.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH 1/2] Zone reclaim V2
-In-Reply-To: <20051206175256.GO11190@wotan.suse.de>
-Message-ID: <Pine.LNX.4.62.0512060957160.18975@schroedinger.engr.sgi.com>
-References: <20051206172444.18786.30131.sendpatchset@schroedinger.engr.sgi.com>
- <20051206175256.GO11190@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Dec 2005 13:01:28 -0500
+Date: Tue, 6 Dec 2005 09:55:52 -0800
+From: Greg KH <greg@kroah.com>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: "M." <vo.sinh@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051206175551.GH3084@kroah.com>
+References: <20051203135608.GJ31395@stusta.de> <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com> <20051203201945.GA4182@kroah.com> <f0cc38560512031254j3b28d579s539be721c247c10a@mail.gmail.com> <20051203211209.GA4937@kroah.com> <87y82z10pq.fsf@mid.deneb.enyo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87y82z10pq.fsf@mid.deneb.enyo.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Dec 2005, Andi Kleen wrote:
-
-> > An arch can control zone_reclaim by setting zone_reclaim_mode during bootup
-> > if it is discovered that the kernel is running on an NUMA configuration.
+On Tue, Dec 06, 2005 at 02:19:29AM +0100, Florian Weimer wrote:
+> * Greg KH:
 > 
-> Looks much better. Thanks. But how about auto controlling the variable in generic
-> code based on node_distance() (at least for the non node hotplug case)
-
-Any suggestions on how to determine zone reclaim behavior based on node 
-distances? AFAIK the main aspects in this are latency and bandwidth of 
-remote accesses. These vary depending on the distance of the remote node 
-under consideration.
-
-> > +int zone_reclaim_mode;
+> >> Yes but not home users with relatively new/bleeding edge hardware or
+> >> small projects writing for example a wifi driver or a security patch
+> >> or whatever without full time commitment to tracking kernel changes.
+> >
+> > If you are a user that wants this kind of support, then use a distro
+> > that can handle this.  Obvious examples that come to mind are both
+> > Debian and Gentoo and Fedora and OpenSuSE, and I'm sure there are
+> > others.
 > 
-> I would mark it __read_mostly to avoid potential false sharing.
+> IIRC, Gentoo ignores some kinds of security bugs so that the task
+> remains manageable.
 
-Ok.
+Do you have specific details about this?  I know the Gentoo kernel team
+is currently revamping the way they handle their security updates, as it
+is known to need some work.  I'm sure they would be glad for input into
+this process.
+
+thanks,
+
+greg k-h

@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbVLFACN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751506AbVLFAJG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751505AbVLFACN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 19:02:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbVLFACN
+	id S1751506AbVLFAJG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 19:09:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbVLFAJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 19:02:13 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65216 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751505AbVLFACN (ORCPT
+	Mon, 5 Dec 2005 19:09:06 -0500
+Received: from mail.enyo.de ([212.9.189.167]:28056 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S1751506AbVLFAJF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 19:02:13 -0500
-Date: Tue, 6 Dec 2005 01:01:54 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       Andy Isaacson <adi@hexapodia.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
-Message-ID: <20051206000154.GD1770@elf.ucw.cz>
-References: <20051205081935.GI22168@hexapodia.org> <1133791084.3872.53.camel@laptop.cunninghams> <20051205172938.GC25114@atrey.karlin.mff.cuni.cz> <200512052344.01506.rjw@sisk.pl>
-Mime-Version: 1.0
+	Mon, 5 Dec 2005 19:09:05 -0500
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Bernd Petrovitsch <bernd@firmix.at>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+References: <20051203135608.GJ31395@stusta.de>
+	<1133620264.2171.14.camel@localhost.localdomain>
+	<20051203193538.GM31395@stusta.de>
+	<1133639835.16836.24.camel@mindpipe>
+	<20051203225815.GH25722@merlin.emma.line.org>
+	<1133653782.19768.1.camel@mindpipe> <87u0dn5k6m.fsf@mid.deneb.enyo.de>
+	<1133818877.21641.92.camel@mindpipe>
+	<87mzjf409y.fsf@mid.deneb.enyo.de>
+	<1133824015.3562.5.camel@gimli.at.home>
+Date: Tue, 06 Dec 2005 01:08:57 +0100
+In-Reply-To: <1133824015.3562.5.camel@gimli.at.home> (Bernd Petrovitsch's
+	message of "Tue, 06 Dec 2005 00:06:55 +0100")
+Message-ID: <87y82z2ijq.fsf@mid.deneb.enyo.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512052344.01506.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+* Bernd Petrovitsch:
 
-> > Yes, it is not completely fair. But as I started to use X32 with good
-> > battery... well I'm not really using swsusp any more.
-> 
-> Unfortunately I can't make my box suspend to RAM ... :-(
+> On Tue, 2005-12-06 at 00:00 +0100, Florian Weimer wrote:
+> [...]
+>> fixes (and other critical bug fixes).  For picking functionality, I
+>> agree, but critical bug fixes which basically affect everone are a
+>> different matter.  It doesn't make sense to redo the same analysis
+>> over and over again, at each vendor.
+>
+> Then vendors should cooperate/collaborate. Where's the problem?
 
-Yes, debugging suspend-to-RAM is hard, but it is not impossible. Try
-with minimal config (noapic, 32-bit kernel, ...) then add
-features. Hopefully minimum kernel will work...
+Usually, publicly visisble security bug handling is not separated from
+the main development effort, especially if there is already a
+centralized team for that purpose.
 
-> > > > * compress the image. Needs to be done in userspace, so it needs
-> > > > uswsusp to be merged, first. Patches for that are available. Should
-> > > > speed it up about twice.
-> 
-> Frankly, I would think that compression could be done in the kernel.
+It's also a waste of resources if someone with no detailed knowledge
+of the first analysis (which was made when the bug was fixed) or the
+source code in question has to redo the whole analysis, just to pick
+up the correct patches and classify the vulnerability.  If you
+duplicate the work just once, things are a bit better, but it's still
+a waste of resources, and people not familiar with the code tend to
+make more mistakes.
 
-Unfortunately cryptoapi only supports gzip compression, and that's
-useless for swsusp. (Slows it down, 10 times). And adding LZW to
-kernel just for swusp is wrong  thing to do.
-
-> > If goal is "make it work with least effort", answer is of course
-> > suspend2; but I need someone to help me doing it right.
-> 
-> Well, in the Andy's case this may or may not help.  Actually I'd like him to try
-> and say what's the result, but only if he's so kind, has some free time
-> to was^H^H^Hdo this, etc. ;-)
-     ~~~~~~~~~~~
-	I think I'm missing something here.
-								Pavel
--- 
-Thanks, Sharp!
+It's not that there isn't any cooperation, either.  As far as I can
+tell, it's possible to get most insider know-how on vulnerabilities
+once it is published.  It's just more time-consuming than necessary.

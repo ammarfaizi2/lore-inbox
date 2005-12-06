@@ -1,62 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbVLFMLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbVLFMPN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbVLFMLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 07:11:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbVLFMLI
+	id S964959AbVLFMPN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 07:15:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbVLFMPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 07:11:08 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:3262 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964920AbVLFMLH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 07:11:07 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: Arjan van de Ven <arjan@infradead.org>
-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
-Cc: "M." <vo.sinh@gmail.com>, Andrea Arcangeli <andrea@suse.de>,
-       Brian Gerst <bgerst@didntduck.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <6f6293f10512060404x57cfb97dqaa469f2701cd2528@mail.gmail.com>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <20051205121851.GC2838@holomorphy.com>
-	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
-	 <20051206030828.GA823@opteron.random>
-	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
-	 <1133869465.4836.11.camel@laptopd505.fenrus.org>
-	 <6f6293f10512060404x57cfb97dqaa469f2701cd2528@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 06 Dec 2005 13:11:01 +0100
-Message-Id: <1133871062.4836.13.camel@laptopd505.fenrus.org>
+	Tue, 6 Dec 2005 07:15:13 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:24196 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S964959AbVLFMPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 07:15:08 -0500
+Date: Tue, 6 Dec 2005 09:57:22 -0200
+From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+To: gregkh@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       ehabkost@mandriva.com
+Subject: [PATCH 01/10] usb-serial: URB write locking macros.
+Message-Id: <20051206095722.45cf4a32.lcapitulino@mandriva.com.br>
+Organization: Mandriva
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i586-mandriva-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-06 at 13:04 +0100, Felipe Alfaro Solana wrote:
-> > I would turn this around; without some sort of effort from the USERS,
-> > things aren't going to change. As long as USERS don't use their
-> > purchase power to urge vendors that linux and open source are
-> > important, nothing is going to improve.
-> 
-> I do always choose Linux-compatible hardware for my boxes. However, we
-> are still a small community, so I see it complicated using our power
-> to change vendor's minds.
 
-it worked in the past.. and the linux community got bigger. lots bigger.
-Now the hard part is getting the "newcomers" care about this and also
-help to convince the vendors, rather than blindly accepting that
-ndiswrapper and nvidia blobs are the right way.
+ Introduces URB write locking macros.
+
+Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
+
+ drivers/usb/serial/usb-serial.h |   37 ++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 36 insertions(+), 1 deletion(-)
+
+diff -Nparu -X /home/lcapitulino/kernels/dontdiff a/drivers/usb/serial/usb-serial.h a~/drivers/usb/serial/usb-serial.h
+--- a/drivers/usb/serial/usb-serial.h	2005-12-04 20:05:26.000000000 -0200
++++ a~/drivers/usb/serial/usb-serial.h	2005-12-04 20:06:53.000000000 -0200
+@@ -17,6 +17,7 @@
+ #include <linux/config.h>
+ #include <linux/kref.h>
+ #include <asm/semaphore.h>
++#include <asm/atomic.h>
+ 
+ #define SERIAL_TTY_MAJOR	188	/* Nice legal number now */
+ #define SERIAL_TTY_MINORS	255	/* loads of devices :) */
+@@ -83,7 +84,7 @@ struct usb_serial_port {
+ 	unsigned char *		bulk_out_buffer;
+ 	int			bulk_out_size;
+ 	struct urb *		write_urb;
+-	int			write_urb_busy;
++	atomic_t		write_urb_busy;
+ 	__u8			bulk_out_endpointAddress;
+ 
+ 	wait_queue_head_t	write_wait;
+@@ -104,6 +105,40 @@ static inline void usb_set_serial_port_d
+ 	dev_set_drvdata(&port->dev, data);
+ }
+ 
++/*
++ * usb_serial URB write access locking functions
++ *
++ * Protects 'write_urb_busy' member access, used to avoid two or more threads
++ * trying to write the same URB at the same time.
++ */
++
++/* Initialize the lock */
++static inline void usb_serial_write_urb_lock_init(struct usb_serial_port *port)
++{
++	atomic_set(&port->write_urb_busy, 0);
++}
++
++/*
++ * Lock function: returns zero if the lock was acquired,
++ * and non-zero otherwise
++ */
++static inline int usb_serial_write_urb_lock(struct usb_serial_port *port)
++{
++	return !atomic_add_unless(&port->write_urb_busy, 1, 1);
++}
++
++/* unlock function */
++static inline void usb_serial_write_urb_unlock(struct usb_serial_port *port)
++{
++	atomic_set(&port->write_urb_busy, 0);
++}
++
++/* Lock test: returns non-zero if the port is locked, and zero otherwise */
++static inline int usb_serial_write_urb_locked(struct usb_serial_port *port)
++{
++	return atomic_read(&port->write_urb_busy);
++}
++
+ /**
+  * usb_serial - structure used by the usb-serial core for a device
+  * @dev: pointer to the struct usb_device for this device
 
 
+-- 
+Luiz Fernando N. Capitulino

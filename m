@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbVLFTRZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVLFTVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030195AbVLFTRZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 14:17:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbVLFTRZ
+	id S1030197AbVLFTVL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 14:21:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbVLFTVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 14:17:25 -0500
-Received: from thunk.org ([69.25.196.29]:26275 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030195AbVLFTRY (ORCPT
+	Tue, 6 Dec 2005 14:21:11 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:11416 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030197AbVLFTVK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 14:17:24 -0500
-Date: Tue, 6 Dec 2005 13:19:19 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Greg KH <greg@kroah.com>
-Cc: Tim Bird <tim.bird@am.sony.com>, David Woodhouse <dwmw2@infradead.org>,
-       arjan@infradead.org, andrew@walrond.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-Message-ID: <20051206181919.GA19905@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Greg KH <greg@kroah.com>,
-	Tim Bird <tim.bird@am.sony.com>,
-	David Woodhouse <dwmw2@infradead.org>, arjan@infradead.org,
-	andrew@walrond.org, linux-kernel@vger.kernel.org
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512051826.06703.andrew@walrond.org> <1133817575.11280.18.camel@localhost.localdomain> <1133817888.9356.78.camel@laptopd505.fenrus.org> <1133819684.11280.38.camel@localhost.localdomain> <4394D396.1020102@am.sony.com> <20051206041215.GC26602@kroah.com>
+	Tue, 6 Dec 2005 14:21:10 -0500
+Message-ID: <4395E491.6060807@pobox.com>
+Date: Tue, 06 Dec 2005 14:20:49 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051206041215.GC26602@kroah.com>
-User-Agent: Mutt/1.5.11
+To: Andrea Arcangeli <andrea@suse.de>
+CC: David Woodhouse <dwmw2@infradead.org>, Bernd Petrovitsch <bernd@firmix.at>,
+       Tim Bird <tim.bird@am.sony.com>, arjan@infradead.org,
+       andrew@walrond.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512051826.06703.andrew@walrond.org> <1133817575.11280.18.camel@localhost.localdomain> <1133817888.9356.78.camel@laptopd505.fenrus.org> <1133819684.11280.38.camel@localhost.localdomain> <4394D396.1020102@am.sony.com> <20051206005341.GN28539@opteron.random> <4394E750.8020205@am.sony.com> <1133861208.10158.34.camel@tara.firmix.at> <1133863003.4136.42.camel@baythorne.infradead.org> <20051206145025.GY28539@opteron.random>
+In-Reply-To: <20051206145025.GY28539@opteron.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Andrea Arcangeli wrote: > I think Linus is doing the
+	right thing here, and he is avoiding what I > described in the previous
+	email: that is breaking drivers gratuitously > is what could make linux
+	hostile and too costly to support IMHO. We want > to be parnters with
+	all hardware companies, but we want them to support > linux properly
+	(not with binary only drivers), in a way that we can fix > it, port it
+	to other archs, and so that we don't lose support for the > hardware
+	while improving internal APIs. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 05, 2005 at 08:12:16PM -0800, Greg KH wrote:
-> On Mon, Dec 05, 2005 at 03:56:06PM -0800, Tim Bird wrote:
-> > DISCLAIMER: I'm not speaking for Sony here. Personally
-> > I don't believe that most drivers are derivative works
-> > of the operating systems they run with, and I don't
-> > believe it helps Linux to assert that they are.
-> > But, hey, it's not my kernel, and not my plan for
-> > world domination. ;-)
-> 
-> Why do people bring up the "derivative works" issue all the time.  Are
-> they so blind to the very simple "linking" issue that all kernel modules
-> do when they are loaded into the kernel?
+Andrea Arcangeli wrote:
+> I think Linus is doing the right thing here, and he is avoiding what I
+> described in the previous email: that is breaking drivers gratuitously
+> is what could make linux hostile and too costly to support IMHO. We want
+> to be parnters with all hardware companies, but we want them to support
+> linux properly (not with binary only drivers), in a way that we can fix
+> it, port it to other archs, and so that we don't lose support for the
+> hardware while improving internal APIs.
 
-The linked kernel+module combination is pretty clearly a derived work
-(but I am not a lawyer).  However, that never gets *distributed* and
-the GPL only covers distribution rights.
+Agreed.
 
-The question of whether or not something which *could* be linked into
-the kernel is a derived work is a very different question, and if
-taken too far, an advocate of this interpretation starts advocating
-something very close to interface copyrights --- something which I
-will note the FSF is passionately against when they called a boycott
-on companies such as Lotus many years ago.
+	Jeff
 
-But this is very much off-topic for this list.  I suggest that folks
-talk to Larry Rosen for his view on this issue, if they want a
-balanced counterpoint to that pushed by the FSF.
 
-							- Ted

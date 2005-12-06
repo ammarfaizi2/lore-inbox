@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVLFLoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbVLFLw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbVLFLoP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 06:44:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbVLFLoP
+	id S964951AbVLFLw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 06:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbVLFLw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 06:44:15 -0500
-Received: from www.eclis.ch ([144.85.15.72]:36245 "EHLO mail.eclis.ch")
-	by vger.kernel.org with ESMTP id S932136AbVLFLoO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 06:44:14 -0500
-Message-ID: <4395798D.6040201@eclis.ch>
-Date: Tue, 06 Dec 2005 12:44:13 +0100
-From: Jean-Christian de Rivaz <jc@eclis.ch>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: fr, en
+	Tue, 6 Dec 2005 06:52:59 -0500
+Received: from moutvdom.kundenserver.de ([212.227.126.249]:64225 "EHLO
+	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S964951AbVLFLw6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 06:52:58 -0500
+Message-ID: <43957B94.1070604@anagramm.de>
+Date: Tue, 06 Dec 2005 12:52:52 +0100
+From: Clemens Koller <clemens.koller@anagramm.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ntp problems
-References: <200512050031.39438.gene.heskett@verizon.net> <200512052107.24427.gene.heskett@verizon.net> <1133839229.7605.63.camel@cog.beaverton.ibm.com> <200512052301.16998.gene.heskett@verizon.net>
-In-Reply-To: <200512052301.16998.gene.heskett@verizon.net>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+CC: linux-kernel@vger.kernel.org, Jeff Collins <jgcc@pacbell.net>
+Subject: Re: 2.6.13.2 crash on shutdown on SMP machine
+References: <433A747E.3070705@anagramm.de> <4394260F.7020703@anagramm.de> <Pine.LNX.4.64.0512051246130.13220@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.64.0512051246130.13220@montezuma.fsmlabs.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett a écrit :
+Hello, Zwane!
 
->>Hmmm. Indeed the nforce2 has had a number of problems, but I'm not sure
->>why it would have changed recently. Can you bound at all the kernel
->>versions where it worked and where it broke? Additionally, do be sure
->>you have the most recent BIOS, I've seen a number of nforce2 issues be
->>resolved with a BIOS update.
+>>From what i hear it's this issue;
 > 
-> 
-> I've already put more powerdown cycles (60 some) on my hard drives 
-> fighting with the recent tv card problem, I'd like to get some uptime 
-> in.  All I know for sure is if I build 2.6.15-rc5 with acpi, ntpd 
-> doesn't work.  ntpdate does, but ntpd doesn't.  And both dmesg and the 
-> ntp.log (and -d's passed at launch time do not make it more verbose, 
-> they just keep it from starting) are silent as to the diffs other than 
-> the interrupt number shuffling in dmesg when its on.  But I suspect it 
-> may have started with 2.6.15-rc2, and I didn't build rc1.  And I *think* 
-> it worked as recently as 2.6.14.1 with it turned on.  I've cleaned house 
-> in /usr/src's so I don't have anything older.  Sorry.
+> http://bugzilla.kernel.org/show_bug.cgi?id=5203
 
-I have to agree with John Stultz. I am one with a nForce2 chipset where 
-updating to the latest BIOS have totaly solved the excatly same ntpd 
-problem.
+Yes it seems to be the same issue.
+But who is Eric, mentioned in bugzilla? :-]
+If it makes sense I can test his patch while/before he is pushing
+it upstream.
 
-Regards,
+Thanks!
 -- 
-Jean-Christian de Rivaz
+Clemens Koller
+_______________________________
+R&D Imaging Devices
+Anagramm GmbH
+Rupert-Mayer-Str. 45/1
+81379 Muenchen
+Germany
+
+http://www.anagramm.de
+Phone: +49-89-741518-50
+Fax: +49-89-741518-19

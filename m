@@ -1,192 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964874AbVLFAjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbVLFAkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964874AbVLFAjH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 19:39:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751542AbVLFAfO
+	id S964882AbVLFAkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 19:40:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751531AbVLFAfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 19:35:14 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:35278
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751543AbVLFAek
+	Mon, 5 Dec 2005 19:35:10 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:33742
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751528AbVLFAek
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 5 Dec 2005 19:34:40 -0500
-Message-Id: <20051206000155.335080000@tglx.tec.linutronix.de>
+Message-Id: <20051206000155.036987000@tglx.tec.linutronix.de>
 References: <20051206000126.589223000@tglx.tec.linutronix.de>
-Date: Tue, 06 Dec 2005 01:01:44 +0100
+Date: Tue, 06 Dec 2005 01:01:42 +0100
 From: tglx@linutronix.de
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, rostedt@goodmis.org, johnstul@us.ibm.com,
        zippel@linux-m86k.org, mingo@elte.hu
-Subject: [patch 18/21] Create hrtimer nanosleep API
-Content-Disposition: inline; filename=hrtimer-nanosleep-interface.patch
+Subject: [patch 16/21] hrtimer documentation
+Content-Disposition: inline; filename=hrtimer-documentation.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-- introduce the hrtimer_nanosleep() and hrtimer_nanosleep_real() APIs.
-  Not yet used by any code.
+- add hrtimer docbook and design document
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
- include/linux/hrtimer.h |    6 ++
- kernel/hrtimer.c        |  127 ++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 133 insertions(+)
+ Documentation/DocBook/kernel-api.tmpl |    5 
+ Documentation/hrtimers.txt            |  178 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 183 insertions(+)
 
-Index: linux-2.6.15-rc5/include/linux/hrtimer.h
+Index: linux-2.6.15-rc5/Documentation/DocBook/kernel-api.tmpl
 ===================================================================
---- linux-2.6.15-rc5.orig/include/linux/hrtimer.h
-+++ linux-2.6.15-rc5/include/linux/hrtimer.h
-@@ -121,6 +121,12 @@ static inline int hrtimer_active(const s
- extern unsigned long hrtimer_forward(struct hrtimer *timer,
- 				     const ktime_t interval);
- 
-+/* Precise sleep: */
-+extern long hrtimer_nanosleep(struct timespec *rqtp,
-+			      struct timespec __user *rmtp,
-+			      const enum hrtimer_mode mode,
-+			      const clockid_t clockid);
-+
- /* Soft interrupt function to run the hrtimer queues: */
- extern void hrtimer_run_queues(void);
- 
-Index: linux-2.6.15-rc5/kernel/hrtimer.c
+--- linux-2.6.15-rc5.orig/Documentation/DocBook/kernel-api.tmpl
++++ linux-2.6.15-rc5/Documentation/DocBook/kernel-api.tmpl
+@@ -54,6 +54,11 @@
+ !Ekernel/sched.c
+ !Ekernel/timer.c
+      </sect1>
++     <sect1><title>High-resolution timers</title>
++!Iinclude/linux/ktime.h
++!Iinclude/linux/hrtimer.h
++!Ekernel/hrtimer.c
++     </sect1>
+      <sect1><title>Internal Functions</title>
+ !Ikernel/exit.c
+ !Ikernel/signal.c
+Index: linux-2.6.15-rc5/Documentation/hrtimers.txt
 ===================================================================
---- linux-2.6.15-rc5.orig/kernel/hrtimer.c
-+++ linux-2.6.15-rc5/kernel/hrtimer.c
-@@ -581,6 +581,133 @@ void hrtimer_run_queues(void)
- }
- 
- /*
-+ * Sleep related functions:
-+ */
+--- /dev/null
++++ linux-2.6.15-rc5/Documentation/hrtimers.txt
+@@ -0,0 +1,178 @@
 +
-+/**
-+ * schedule_hrtimer - sleep until timeout
-+ *
-+ * @timer:	hrtimer variable initialized with the correct clock base
-+ * @mode:	timeout value is abs/rel
-+ *
-+ * Make the current task sleep until @timeout is
-+ * elapsed.
-+ *
-+ * You can set the task state as follows -
-+ *
-+ * %TASK_UNINTERRUPTIBLE - at least @timeout is guaranteed to
-+ * pass before the routine returns. The routine will return 0
-+ *
-+ * %TASK_INTERRUPTIBLE - the routine may return early if a signal is
-+ * delivered to the current task. In this case the remaining time
-+ * will be returned
-+ *
-+ * The current task state is guaranteed to be TASK_RUNNING when this
-+ * routine returns.
-+ */
-+static ktime_t __sched
-+schedule_hrtimer(struct hrtimer *timer, const enum hrtimer_mode mode)
-+{
-+	/* fn stays NULL, meaning single-shot wakeup: */
-+	timer->data = current;
++hrtimers - subsystem for high-resolution kernel timers
++----------------------------------------------------
 +
-+	hrtimer_start(timer, timer->expires, mode);
++This patch introduces a new subsystem for high-resolution kernel timers.
 +
-+	schedule();
-+	hrtimer_cancel(timer);
++One might ask the question: we already have a timer subsystem
++(kernel/timers.c), why do we need two timer subsystems? After a lot of
++back and forth trying to integrate high-resolution and high-precision
++features into the existing timer framework, and after testing various
++such high-resolution timer implementations in practice, we came to the
++conclusion that the timer wheel code is fundamentally not suitable for
++such an approach. We initially didnt believe this ('there must be a way
++to solve this'), and spent a considerable effort trying to integrate
++things into the timer wheel, but we failed. In hindsight, there are
++several reasons why such integration is hard/impossible:
 +
-+	/* Return the remaining time: */
-+	if (timer->state != HRTIMER_EXPIRED)
-+		return ktime_sub(timer->expires, timer->base->get_time());
-+	else
-+		return (ktime_t) {.tv64 = 0 };
-+}
++- the forced handling of low-resolution and high-resolution timers in
++  the same way leads to a lot of compromises, macro magic and #ifdef
++  mess. The timers.c code is very "tightly coded" around jiffies and
++  32-bitness assumptions, and has been honed and micro-optimized for a
++  relatively narrow use case (jiffies in a relatively narrow HZ range)
++  for many years - and thus even small extensions to it easily break
++  the wheel concept, leading to even worse compromises. The timer wheel
++  code is very good and tight code, there's zero problems with it in its
++  current usage - but it is simply not suitable to be extended for
++  high-res timers.
 +
-+static inline ktime_t __sched
-+schedule_hrtimer_interruptible(struct hrtimer *timer,
-+			       const enum hrtimer_mode mode)
-+{
-+	set_current_state(TASK_INTERRUPTIBLE);
++- the unpredictable [O(N)] overhead of cascading leads to delays which
++  necessiate a more complex handling of high resolution timers, which
++  in turn decreases robustness. Such a design still led to rather large
++  timing inaccuracies. Cascading is a fundamental property of the timer
++  wheel concept, it cannot be 'designed out' without unevitably
++  degrading other portions of the timers.c code in an unacceptable way.
 +
-+	return schedule_hrtimer(timer, mode);
-+}
++- the implementation of the current posix-timer subsystem on top of
++  the timer wheel has already introduced a quite complex handling of
++  the required readjusting of absolute CLOCK_REALTIME timers at
++  settimeofday or NTP time - further underlying our experience by
++  example: that the timer wheel data structure is too rigid for high-res
++  timers.
 +
-+static long __sched
-+nanosleep_restart(struct restart_block *restart, clockid_t clockid)
-+{
-+	struct timespec __user *rmtp, tu;
-+	void *rfn_save = restart->fn;
-+	struct hrtimer timer;
-+	ktime_t rem;
++- the timer wheel code is most optimal for use cases which can be
++  identified as "timeouts". Such timeouts are usually set up to cover
++  error conditions in various I/O paths, such as networking and block
++  I/O. The vast majority of those timers never expire and are rarely
++  recascaded because the expected correct event arrives in time so they
++  can be removed from the timer wheel before any further processing of
++  them becomes necessary. Thus the users of these timeouts can accept
++  the granularity and precision tradeoffs of the timer wheel, and
++  largely expect the timer subsystem to have near-zero overhead.
++  Accurate timing for them is not a core purpose - in fact most of the
++  timeout values used are ad-hoc. For them it is at most a necessary
++  evil to guarantee the processing of actual timeout completions
++  (because most of the timeouts are deleted before completion), which
++  should thus be as cheap and unintrusive as possible.
 +
-+	restart->fn = do_no_restart_syscall;
++The primary users of precision timers are user-space applications that
++utilize nanosleep, posix-timers and itimer interfaces. Also, in-kernel
++users like drivers and subsystems which require precise timed events
++(e.g. multimedia) can benefit from the availability of a seperate
++high-resolution timer subsystem as well.
 +
-+	hrtimer_init(&timer, clockid);
++While this subsystem does not offer high-resolution clock sources just
++yet, the hrtimer subsystem can be easily extended with high-resolution
++clock capabilities, and patches for that exist and are maturing quickly.
++The increasing demand for realtime and multimedia applications along
++with other potential users for precise timers gives another reason to
++separate the "timeout" and "precise timer" subsystems.
 +
-+	timer.expires.tv64 = ((u64)restart->arg1 << 32) | (u64) restart->arg0;
++Another potential benefit is that such a seperation allows even more
++special-purpose optimization of the existing timer wheel for the low
++resolution and low precision use cases - once the precision-sensitive
++APIs are separated from the timer wheel and are migrated over to
++hrtimers. E.g. we could decrease the frequency of the timeout subsystem
++from 250 Hz to 100 HZ (or even smaller).
 +
-+	rem = schedule_hrtimer_interruptible(&timer, HRTIMER_ABS);
++hrtimer subsystem implementation details
++----------------------------------------
 +
-+	if (rem.tv64 <= 0)
-+		return 0;
++the basic design considerations were:
 +
-+	rmtp = (struct timespec __user *) restart->arg2;
-+	tu = ktime_to_timespec(rem);
-+	if (rmtp && copy_to_user(rmtp, &tu, sizeof(tu)))
-+		return -EFAULT;
++- simplicity
 +
-+	restart->fn = rfn_save;
++- data structure not bound to jiffies or any other granularity. All the
++  kernel logic works at 64-bit nanoseconds resolution - no compromises.
 +
-+	/* The other values in restart are already filled in */
-+	return -ERESTART_RESTARTBLOCK;
-+}
++- simplification of existing, timing related kernel code
 +
-+static long __sched nanosleep_restart_mono(struct restart_block *restart)
-+{
-+	return nanosleep_restart(restart, CLOCK_MONOTONIC);
-+}
++another basic requirement was the immediate enqueueing and ordering of
++timers at activation time. After looking at several possible solutions
++such as radix trees and hashes, we chose the red black tree as the basic
++data structure. Rbtrees are available as a library in the kernel and are
++used in various performance-critical areas of e.g. memory management and
++file systems. The rbtree is solely used for time sorted ordering, while
++a separate list is used to give the expiry code fast access to the
++queued timers, without having to walk the rbtree.
 +
-+static long __sched nanosleep_restart_real(struct restart_block *restart)
-+{
-+	return nanosleep_restart(restart, CLOCK_REALTIME);
-+}
++(This seperate list is also useful for later when we'll introduce
++high-resolution clocks, where we need seperate pending and expired
++queues while keeping the time-order intact.)
 +
-+long hrtimer_nanosleep(struct timespec *rqtp, struct timespec __user *rmtp,
-+		       const enum hrtimer_mode mode, const clockid_t clockid)
-+{
-+	struct restart_block *restart;
-+	struct hrtimer timer;
-+	struct timespec tu;
-+	ktime_t rem;
++Time-ordered enqueueing is not purely for the purposes of
++high-resolution clocks though, it also simplifies the handling of
++absolute timers based on a low-resolution CLOCK_REALTIME. The existing
++implementation needed to keep an extra list of all armed absolute
++CLOCK_REALTIME timers along with complex locking. In case of
++settimeofday and NTP, all the timers (!) had to be dequeued, the
++time-changing code had to fix them up one by one, and all of them had to
++be enqueued again. The time-ordered enqueueing and the storage of the
++expiry time in absolute time units removes all this complex and poorly
++scaling code from the posix-timer implementation - the clock can simply
++be set without having to touch the rbtree. This also makes the handling
++of posix-timers simpler in general.
 +
-+	hrtimer_init(&timer, clockid);
++The locking and per-CPU behavior of hrtimers was mostly taken from the
++existing timer wheel code, as it is mature and well suited. Sharing code
++was not really a win, due to the different data structures. Also, the
++hrtimer functions now have clearer behavior and clearer names - such as
++hrtimer_try_to_cancel() and hrtimer_cancel() [which are roughly
++equivalent to del_timer() and del_timer_sync()] - so there's no direct
++1:1 mapping between them on the algorithmical level, and thus no real
++potential for code sharing either.
 +
-+	timer.expires = timespec_to_ktime(*rqtp);
++Basic data types: every time value, absolute or relative, is in a
++special nanosecond-resolution type: ktime_t. The kernel-internal
++representation of ktime_t values and operations is implemented via
++macros and inline functions, and can be switched between a "hybrid
++union" type and a plain "scalar" 64bit nanoseconds representation (at
++compile time). The hybrid union type optimizes time conversions on 32bit
++CPUs. This build-time-selectable ktime_t storage format was implemented
++to avoid the performance impact of 64-bit multiplications and divisions
++on 32bit CPUs. Such operations are frequently necessary to convert
++between the storage formats provided by kernel and userspace interfaces
++and the internal time format. (See include/linux/ktime.h for further
++details.)
 +
-+	rem = schedule_hrtimer_interruptible(&timer, mode);
-+	if (rem.tv64 <= 0)
-+		return 0;
++hrtimers - rounding of timer values
++-----------------------------------
 +
-+	/* Absolute timers do not update the rmtp value: */
-+	if (mode == HRTIMER_ABS)
-+		return -ERESTARTNOHAND;
++the hrtimer code will round timer events to lower-resolution clocks
++because it has to. Otherwise it will do no artificial rounding at all.
 +
-+	tu = ktime_to_timespec(rem);
++one question is, what resolution value should be returned to the user by
++the clock_getres() interface. This will return whatever real resolution
++a given clock has - be it low-res, high-res, or artificially-low-res.
 +
-+	if (rmtp && copy_to_user(rmtp, &tu, sizeof(tu)))
-+		return -EFAULT;
++hrtimers - testing and verification
++----------------------------------
 +
-+	restart = &current_thread_info()->restart_block;
-+	restart->fn = (clockid == CLOCK_MONOTONIC) ?
-+		nanosleep_restart_mono : nanosleep_restart_real;
-+	restart->arg0 = timer.expires.tv64 & 0xFFFFFFFF;
-+	restart->arg1 = timer.expires.tv64 >> 32;
-+	restart->arg2 = (unsigned long) rmtp;
++We used the high-resolution clock subsystem ontop of hrtimers to verify
++the hrtimer implementation details in praxis, and we also ran the posix
++timer tests in order to ensure specification compliance. We also ran
++tests on low-resolution clocks.
 +
-+	return -ERESTART_RESTARTBLOCK;
-+}
++The hrtimer patch converts the following kernel functionality to use
++hrtimers:
 +
-+/*
-  * Functions related to boot-time initialization:
-  */
- static void __devinit init_hrtimers_cpu(int cpu)
++ - nanosleep
++ - itimers
++ - posix-timers
++
++The conversion of nanosleep and posix-timers enabled the unification of
++nanosleep and clock_nanosleep.
++
++The code was successfully compiled for the following platforms:
++
++ i386, x86_64, ARM, PPC, PPC64, IA64
++
++The code was run-tested on the following platforms:
++
++ i386(UP/SMP), x86_64(UP/SMP), ARM, PPC
++
++hrtimers were also integrated into the -rt tree, along with a
++hrtimers-based high-resolution clock implementation, so the hrtimers
++code got a healthy amount of testing and use in practice.
++
++	Thomas Gleixner, Ingo Molnar
 
 --
 

@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751624AbVLFEje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751646AbVLFEkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751624AbVLFEje (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 23:39:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751644AbVLFEje
+	id S1751646AbVLFEkw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 23:40:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751650AbVLFEkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 23:39:34 -0500
-Received: from ozlabs.org ([203.10.76.45]:20957 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751624AbVLFEje (ORCPT
+	Mon, 5 Dec 2005 23:40:52 -0500
+Received: from pat.uio.no ([129.240.130.16]:14584 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751646AbVLFEkv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 23:39:34 -0500
-Subject: Re: Two module-init-
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: dtor_core@ameritech.net
-Cc: linux-input@atrey.karlin.mff.cuni.cz,
-       Scott James Remnant <scott@ubuntu.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, vojtech@suse.cz
-In-Reply-To: <d120d5000512051347u1d77aabam2b70ef91d8709f39@mail.gmail.com>
-References: <1133359773.2779.13.camel@localhost.localdomain>
-	 <1133482376.4094.11.camel@localhost.localdomain>
-	 <200512022319.05246.dtor_core@ameritech.net>
-	 <200512022328.29182.dtor_core@ameritech.net>
-	 <1133691865.30188.24.camel@localhost.localdomain>
-	 <d120d5000512051347u1d77aabam2b70ef91d8709f39@mail.gmail.com>
+	Mon, 5 Dec 2005 23:40:51 -0500
+Subject: Re: nfs unhappiness with memory pressure
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrew Morton <akpm@osdl.org>
+Cc: theonetruekenny@yahoo.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20051206143641.3feadaea.akpm@osdl.org>
+References: <20051205210442.17357.qmail@web34106.mail.mud.yahoo.com>
+	 <1133822367.8003.5.camel@lade.trondhjem.org>
+	 <20051206143641.3feadaea.akpm@osdl.org>
 Content-Type: text/plain
-Date: Tue, 06 Dec 2005 15:39:32 +1100
-Message-Id: <1133843972.17208.1.camel@localhost.localdomain>
+Date: Mon, 05 Dec 2005 23:40:26 -0500
+Message-Id: <1133844026.8007.36.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.071, required 12,
+	autolearn=disabled, AWL 1.74, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 16:47 -0500, Dmitry Torokhov wrote:
-> It's not like swbit is new in 2.6.15, it was there since 2.6.14
-> was opened.
+On Tue, 2005-12-06 at 14:36 +1100, Andrew Morton wrote:
+> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> >
+> > Argh... Not sure entirely how to deal with that... We definitely don't
+> >  want the thing futzing around inside throttle_vm_writeout(), 'cos
+> >  writeout isn't going to happen while the socket blocks.
+> > 
+> 
+> As far as the core VM is concerned, these pages are really "dirty", only it
+> happens to be a different flavour of dirtiness.  So perhaps we should
+> continue to mark these pages as dirty and let NFS internally take care
+> of which end of the wire they're dirty at.
+> 
+> Presumably calling writepage() a second time won't be very useful.  Or will
+> it?  Perhaps when NFS sees writepage against a PageDirty && PageUnstable
+> page it can recognise that as a hint to kick off a server-side write.
 
-Err, yeah, good point.  I had assumed this was new in 2.6.14.  Since
-we've only seen reports now, I'll assume it's low priority and we can
-wait until 2.6.16.
+Calling writepages() would actually be better. That will do the right
+thing, and trigger a commit if there are unstable writes.
 
-I have a cunning plan to fix module-init-tools in the meantime; expect a
-release if it works out...
-
-Thanks all!
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+Cheers,
+  Trond
 

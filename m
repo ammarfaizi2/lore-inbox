@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbVLFXIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932653AbVLFXQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932606AbVLFXIq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 18:08:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932652AbVLFXIq
+	id S932653AbVLFXQr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 18:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbVLFXQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 18:08:46 -0500
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:35184 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S932606AbVLFXIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 18:08:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=dg33vwOdTFpKJY93SvYuarPeIeDqWhvgF+g6xSnuAIYgT9SpFSNXtTOta+A/rIm7C4F/bfsKZwW6YGqtoD9e+zl7uwvMW+9rWZ5AjwI3bzEThwICDV197jg+RZSYjb8EgJ4xEXz2bfTkGD5wk5cN2Pdr7RyuBx8KI1Ajopn3HSE=  ;
-Message-ID: <439619F9.4030905@yahoo.com.au>
-Date: Wed, 07 Dec 2005 10:08:41 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-CC: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       linux-mm@kvack.org, Andi Kleen <ak@suse.de>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [RFC 1/3] Framework for accurate node based statistics
-References: <20051206182843.19188.82045.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20051206182843.19188.82045.sendpatchset@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 6 Dec 2005 18:16:47 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:51612 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932656AbVLFXQq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 18:16:46 -0500
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: Lee Revell <rlrevell@joe-job.com>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Brian Gerst <bgerst@didntduck.org>,
+       Arjan van de Ven <arjan@infradead.org>, "M." <vo.sinh@gmail.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <87ek4phmlg.fsf@mid.deneb.enyo.de>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	 <20051205121851.GC2838@holomorphy.com>
+	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
+	 <20051206030828.GA823@opteron.random>
+	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
+	 <1133869465.4836.11.camel@laptopd505.fenrus.org>
+	 <4394ECA7.80808@didntduck.org> <4395E2F4.7000308@pobox.com>
+	 <1133897867.29084.14.camel@mindpipe> <4395E962.2060309@pobox.com>
+	 <1133898911.29084.25.camel@mindpipe>  <87ek4phmlg.fsf@mid.deneb.enyo.de>
+Content-Type: text/plain
+Date: Tue, 06 Dec 2005 18:17:35 -0500
+Message-Id: <1133911056.29084.53.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> [RFC] Framework for accurate node based statistics
+On Tue, 2005-12-06 at 23:44 +0100, Florian Weimer wrote:
+> * Lee Revell:
 > 
-> Currently we have various vm counters that are split per cpu. This arrangement
-> does not allow access to per node statistics that are important to optimize
-> VM behavior for NUMA architectures. All one can say from the per_cpu
-> differential variables is how much a certain variable was changed by this cpu
-> without being able to deduce how many pages in each node are of a certain type.
+> > I know you are not a lawyer but do you have a pointer or two?  As long
+> > as we are REing for interoperability I've never read anything to
+> > indicate the approach I described could be a problem even in the US.
 > 
-> This patch introduces a generic framework to allow accurate per node vm
-> statistics through a large per node and per cpu array. The numbers are
-> consolidated when the slab drainer runs (every 3 seconds or so) into global
-> and per node counters. VM functions can then check these statistics by
-> simply accessing the node specific or global counter.
-> 
-> A significant problem with this approach is that the statistics are only
-> accumulated every 3 seconds or so. I have tried various other approaches
-> but they typically end up with having to add atomic variables to critical
-> VM paths. I'd be glad if someone else had a bright idea on how to improve
-> the situation.
+> Are we still reverse-engineering for interoperability when we
+> essentially want to duplicate a piece of software with identical
+> purpose? 8-)
 > 
 
-Why not have per-node * per-cpu counters?
+I would think that any reverse engineering to make a Linux driver falls
+under interoperability because it's the only way to make the hardware
+work with my OS.
 
-Or even use the current per-zone * per-cpu counters, and work out your
-node details from there?
+Lee
 
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

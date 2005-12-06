@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030206AbVLFTiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbVLFTll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030206AbVLFTiW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 14:38:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbVLFTiV
+	id S1030212AbVLFTll (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 14:41:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbVLFTll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 14:38:21 -0500
-Received: from thunk.org ([69.25.196.29]:13988 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1030206AbVLFTiU (ORCPT
+	Tue, 6 Dec 2005 14:41:41 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:32152 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030212AbVLFTlk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 14:38:20 -0500
-Date: Tue, 6 Dec 2005 14:38:04 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, Tim Bird <tim.bird@am.sony.com>,
-       David Woodhouse <dwmw2@infradead.org>, arjan@infradead.org,
-       andrew@walrond.org, linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-Message-ID: <20051206193801.GC19905@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-	Tim Bird <tim.bird@am.sony.com>,
-	David Woodhouse <dwmw2@infradead.org>, arjan@infradead.org,
-	andrew@walrond.org, linux-kernel@vger.kernel.org
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512051826.06703.andrew@walrond.org> <1133817575.11280.18.camel@localhost.localdomain> <1133817888.9356.78.camel@laptopd505.fenrus.org> <1133819684.11280.38.camel@localhost.localdomain> <4394D396.1020102@am.sony.com> <20051206041215.GC26602@kroah.com> <20051206181919.GA19905@thunk.org> <1133897262.23610.36.camel@localhost.localdomain>
+	Tue, 6 Dec 2005 14:41:40 -0500
+Message-ID: <4395E962.2060309@pobox.com>
+Date: Tue, 06 Dec 2005 14:41:22 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1133897262.23610.36.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Brian Gerst <bgerst@didntduck.org>, Arjan van de Ven <arjan@infradead.org>,
+       "M." <vo.sinh@gmail.com>, Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>	 <20051205121851.GC2838@holomorphy.com>	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>	 <20051206030828.GA823@opteron.random>	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>	 <1133869465.4836.11.camel@laptopd505.fenrus.org>	 <4394ECA7.80808@didntduck.org>  <4395E2F4.7000308@pobox.com> <1133897867.29084.14.camel@mindpipe>
+In-Reply-To: <1133897867.29084.14.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Lee Revell wrote: > On Tue, 2005-12-06 at 14:13 -0500,
+	Jeff Garzik wrote: >>Let's hope the rev-eng people do it the right way,
+	by having one team >>write a document, and a totally separate team
+	write the driver from >>that document. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 07:27:42PM +0000, Alan Cox wrote:
-> On Maw, 2005-12-06 at 13:19 -0500, Theodore Ts'o wrote:
-> > The question of whether or not something which *could* be linked into
-> > the kernel is a derived work is a very different question
-> 
-> Its also a question that falls into the area of conspiracy to commit an
-> offence in some legal domains rather than being about 'interface
-> copyright'.
+Lee Revell wrote:
+> On Tue, 2005-12-06 at 14:13 -0500, Jeff Garzik wrote:
+>>Let's hope the rev-eng people do it the right way, by having one team 
+>>write a document, and a totally separate team write the driver from
+>>that document.
 
-Conspiracy to commit what offence?  There's nothing wrong with linking
-GPL'ed code with propietary code, in the privacy of your own home (or
-server).  The offence only happens when you distribute the resulting
-derived work....
+> Isn't it also legal for a single person or team to capture all IO
+> to/from the device with a bus analyzer or kernel debugger and write a
+> driver from that, as long as you don't disassemble the original driver?
 
-						- Ted
+It's still legally shaky.  The "Chinese wall" approach I described above 
+is beyond reproach, and that's where Linux needs to be.
+
+	Jeff
+
+

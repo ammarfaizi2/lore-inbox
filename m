@@ -1,78 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964953AbVLFLlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVLFLof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964953AbVLFLlF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 06:41:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964952AbVLFLlE
+	id S964954AbVLFLof (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 06:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbVLFLof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 06:41:04 -0500
-Received: from mbox2.netikka.net ([213.250.81.203]:35270 "EHLO
-	mbox2.netikka.net") by vger.kernel.org with ESMTP id S964942AbVLFLlD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 06:41:03 -0500
-From: Thomas Backlund <tmb@mandriva.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] sata_sil: greatly improve DMA handling
-Date: Tue, 6 Dec 2005 13:41:02 +0200
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <20051203200438.GA3770@havoc.gtf.org> <dn297e$aip$1@sea.gmane.org> <439554A3.7000305@pobox.com>
-In-Reply-To: <439554A3.7000305@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 6 Dec 2005 06:44:35 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:56711 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964954AbVLFLoe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 06:44:34 -0500
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: Arjan van de Ven <arjan@infradead.org>
+To: "M." <vo.sinh@gmail.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Brian Gerst <bgerst@didntduck.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	 <20051205121851.GC2838@holomorphy.com>
+	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
+	 <20051206030828.GA823@opteron.random>
+	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 06 Dec 2005 12:44:25 +0100
+Message-Id: <1133869465.4836.11.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512061341.02863.tmb@mandriva.org>
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tisdag 06 december 2005 11:06 skrev Jeff Garzik:
-> Thomas Backlund wrote:
-> > Jeff Garzik wrote:
-> >>To make it easy for others to test, since there are merge conflicts,
-> >>I've combined the two previous sata_sil patches into a single patch.
-> >>
-> >>Verified here on my 3112 (Adaptec 1210SA).
-> >>
-> >>I'm especially interested to hear from anyone willing to test on a
-> >>SI 3114 (4-port).
-> >
-> > Please cc me as I'm not subscribed....
-> >
-> >
-> > ASUS K8N-E-Deluxe, nForce3 250Gb chipset, AMD Athlon64 3200+ running
-> > x86_64
-> >
-> > Sil 3114A with 3 Maxtor MaxLine III+ 250GBSATA disks running in linux
-> > raid1, linux raid0 and linux LVM2
-> >
-> > Boots and runs without problem with 2.6.15-rc5-git1,
-> >
-> > Applying this patch lets it boot, but I cant login either locally or with
-> > ssh, no output on VT12 or in the logs, but the hd led is lit all the
-> > time...
->
-> Thanks for testing.
->
-> > only way to reboot is the reset button...
-> >
-> >
-> > Distribution is Mandriva Linux 2006 x86_64, gcc 4.0.1
-> >
-> > attached are config and /var/log/messages parts that got logged
->
-> Didn't receive any attachments...
->
-> 	Jeff
+On Tue, 2005-12-06 at 12:07 +0100, M. wrote:
+> 
+> 
+> On 12/6/05, Andrea Arcangeli <andrea@suse.de> wrote:
+>         On Mon, Dec 05, 2005 at 09:31:30AM -0500, Brian Gerst wrote:
+>         > The problem with this statement is that Linux users are a
+>         drop in the
+>         > bucket of sales for this hardware.  Boycotting doesn't cost
+>         the vendors
+>         > enough to make them care.  And this does nothing for people
+>         who are
+>         > converting over to Linux, and didn't buy hardware with that
+>         > consideration in mind.
+>         
+>         Effectively this is why 3d drivers are the only thing we
+>         litearlly lost 
+>         control of. But my email was general. I wasn't only speaking
+>         of 3d
+>         hardware.
+>         
+>         For 3d you're very well right, but once linux becomes
+>         mainstream in the
+>         desktop, things could change.
+> 
+> Without proper hardware support linux is not going to become
+> mainstream in the desktop area. In fact It's adopted in offices, by
+> governments and schools for security, reliability and openoffirce.org
+> (low $$). 
+
+but... "proper hardware support" can be open source, that's the whole
+point! Everyone considering binary only support "full" causes the entire
+problem of not being able to run without binary modules anymore, which
+in turn means you're either stuck with enterprise distro kernels, or
+linux is stuck with a kernel that can't be developed on anymore in a 2.7
+style series.
+
+Nobody is arguing that hardware shouldn't be supported, to the contrary.
+I and others are arguing that short term binary only "support" isn't
+real support in the long term, and in both the long and short term leads
+to a significant reduction in choice. Note: NVidia right now is nice
+enough to do the blob+glue layer thing. Many others don't, they only
+provide modules for certain enterprise distros. Now those schools and
+governments of course run those enterprise distros... but what does that
+gain in the end? Security? It doesn't; several of these binary modules
+actually introduce security holes (the most famous one is an old 3D
+driver of a company I won't name that had a "make me root" ioctl).
+Price? Well those enterprise distribution companies need to make money
+somehow... so while the price may be lower... you're stuck to them
+again..
+
+> So , without some sort of effort from kernel developers, things
+> arent going to change.
+
+I would turn this around; without some sort of effort from the USERS,
+things aren't going to change. As long as USERS don't use their purchase
+power to urge vendors that linux and open source are important, nothing
+is going to improve. Going binary is not a long term improvement! It's
+more like a quick shot of heroin that makes you feel better today,
+rather than going to a psychiatrist who helps you out of your depression
+for the rest of your life.
+
+> There could be, for example, a limited but stable API for
+> external/binary stuff. This could force hardware vendors to lately use
+> the current API for better performance and thus releasing drivers with
+> an open layer a la NVIDA & c. or even opensource.
+
+doesn't work; such a limited api wouldn't be used by the majority of
+those modules, simply because most of them want to touch internals for
+some reason (probably lack of judgement and just because they can, but
+still)
 
 
-And just to add...
-as you can see from the messages file the kernel is capable of writing logging 
-of the whole bootup to the disks, but it stopped logging pretty much directly 
-as the kernel was fully started...
-
-Any more tests you want?? more debugging enabled? or what?...
---
-Regards
-
-Thomas

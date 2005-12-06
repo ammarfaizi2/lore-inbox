@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932585AbVLMTit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932594AbVLMTta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932585AbVLMTit (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 14:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932580AbVLMTit
+	id S932594AbVLMTta (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 14:49:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbVLMTta
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 14:38:49 -0500
-Received: from mail.kroah.org ([69.55.234.183]:11169 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932585AbVLMTit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 14:38:49 -0500
-Date: Tue, 13 Dec 2005 11:38:32 -0800
-From: Greg KH <greg@kroah.com>
-To: Denny Priebe <spamtrap@siglost.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Repeated USB disconnect and reconnect with Wacom Intuos3 6x11 tablet
-Message-ID: <20051213193832.GA14047@kroah.com>
-References: <20051213184600.GA4283@nostromo.dyndns.info>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051213184600.GA4283@nostromo.dyndns.info>
-User-Agent: Mutt/1.5.11
+	Tue, 13 Dec 2005 14:49:30 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:5454 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932594AbVLMTtX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 14:49:23 -0500
+Message-ID: <4396036C.70107@tmr.com>
+Date: Tue, 06 Dec 2005 16:32:28 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bharath Ramesh <krosswindz@gmail.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Only one processor detected in 8-Way opteron in 32-bit mode
+References: <c775eb9b0512011315y40bdbf30w172583cd85e92fa6@mail.gmail.com>	 <a762e240512011527s69053b8eg13ec4674c3e36b07@mail.gmail.com>	 <c775eb9b0512011651kb0e1cb4xf79ca20372f6d76e@mail.gmail.com>	 <c775eb9b0512011712x2f4f2f44t4cd11d5d6f60a9d8@mail.gmail.com>	 <a762e240512011742p681df3bdic16598a85926dd67@mail.gmail.com>	 <c775eb9b0512020732v3f41f91fpb3b4b61b0b539d92@mail.gmail.com>	 <a762e240512021407p5a31c0daid902352625701ca2@mail.gmail.com>	 <c775eb9b0512021534y693f3bf3i4b85b7cb0dcb08b6@mail.gmail.com>	 <a762e240512021701q4ea436d9u563704c4daeb7584@mail.gmail.com> <c775eb9b0512021806wb8bb3fdh9cd0a0a80fead69@mail.gmail.com>
+In-Reply-To: <c775eb9b0512021806wb8bb3fdh9cd0a0a80fead69@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 07:46:00PM +0100, Denny Priebe wrote:
-> Hello,
+Bharath Ramesh wrote:
+> I have attached the kernel config. I will enable debugging and rebuild
+> the kernel soon and send in the latest dmesg soon.
 > 
-> I just want to report a strange observation that I've made while trying to
-> setup my Wacom Intuos3 6x11 tablet:
+> Thanks,
 > 
-> When I use the tablet (e.g. press a button, move the pen) and do not have
-> any process reading the provided data (e.g. there's no process reading 
-> /dev/input/mouse0 and there's no process reading /dev/input/event5 in my 
-> setup) the tablet disconnects from and immediately reconnects to the USB. 
-> There's one pair of disconnect and reconnect each time I press a button or 
-> use the pen. These disconnects and reconnects disappear as soon as there's 
-> a process reading either /dev/input/mouse0 or /dev/input/event5 (mouse0 and
-> event5 according to my setup).
-> 
-> I'm able to reproduce this with 2.6.15-rc5, 2.6.15-rc4, and 2.6.14.3,
-> but haven't tried other kernels yet.
+> Bharath
 
-Sounds like a hardware problem, the kernel can't cause a device to
-electronically disconnect itself like this.
+I'm not at all an expert on x86_64, but I notice the NUMA is not set in 
+this config, and I have a similar config from another post with DOES 
+work, and it has NUMA on (four way only, dual dual-core).
 
-I suggest plugging this into a different port, using a powered hub, or
-checking that the cable is still good.
+I have no idea if that can be useful, but if you're still out of ideas 
+you might try it.
 
-good luck,
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
 
-greg k-h

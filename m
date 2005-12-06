@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbVLFCje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbVLFCqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbVLFCje (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 21:39:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbVLFCje
+	id S1751356AbVLFCqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 21:46:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbVLFCqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 21:39:34 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:43162 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751357AbVLFCje (ORCPT
+	Mon, 5 Dec 2005 21:46:16 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:18100 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751356AbVLFCqP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 21:39:34 -0500
-Subject: Re: [ckrm-tech] [RFC][PATCH]  Add timestamp to process event
-	connector message
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Badari Pulavarty <pbadari@us.ibm.com>, Ram Pai <linuxram@us.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Erich Focht <efocht@hpce.nec.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       ay Lan <jlan@engr.sgi.com>, Erik Jacobson <erikj@sgi.com>,
-       Jack Steiner <steiner@sgi.com>
-In-Reply-To: <1133835717.25202.1317.camel@stark>
-References: <1133835717.25202.1317.camel@stark>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 18:39:23 -0800
-Message-Id: <1133836764.6296.1.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Mon, 5 Dec 2005 21:46:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=LhJjHy4fJa3E/PPo2rDpy3OVBO102Z3jFcTuaJDGp95zIkygxSGYuSdSKHGCFZJQ1BsR5DlICSxzNKIMebtrXh2RE46fSdT5a8TscTTgewDgzR7+f+dMynV1C6GxS4CY7daCEwz+usqKVfTlv/4/u2DyVMcYmtmULOQYbJltmAY=
+Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [patch 00/43] ktimer reworked
+Date: Mon, 5 Dec 2005 21:46:01 -0500
+User-Agent: KMail/1.8.3
+Cc: Steven Rostedt <rostedt@goodmis.org>, johnstul@us.ibm.com,
+       george@mvista.com, mingo@elte.hu, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>, ray-gmail@madrabbit.org,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+References: <1133395019.32542.443.camel@tglx.tec.linutronix.de> <200512032028.59472.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <Pine.LNX.4.61.0512051136060.1609@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0512051136060.1609@scrub.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512052146.03041.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 18:21 -0800, Matt Helsley wrote:
-> +static inline void get_timestamp(struct timespec *ts)
-> +{
-> +       unsigned int seq;
-> +       struct timespec wall2mono;
-> +
-> +       /* synchronize with settimeofday() changes */
-> +       do {
-> +               seq = read_seqbegin(&xtime_lock);
-> +               getnstimeofday(ts);
-> +               wall2mono = wall_to_monotonic;
-> +       } while(read_seqretry(&xtime_lock, seq));
-> +
-> +       /* adjust to monotonicaly-increasing values */
-> +       ts += wall2mono.tv_sec;
-> +       ts += wall2mono.tv_nsec;
-> +       while ((ts->tv_nsec - NSEC_PER_SEC) >= 0) {
-> +               ts->tv_nsec -= NSEC_PER_SEC;
-> +               ts->tv_sec++;
-> +       }
-> +}
+On Monday 05 December 2005 14:40, Roman Zippel wrote:
+> ...
+> rbtree based timer are also not necessarily the better general case. ...
 
-This seems like something a bit too generic to have in your
-drivers/connector/cn_proc.c file.  Is there a generic timekeeping
-function that should be used instead?  Or, should this go into one of
-the timekeeping files?
+... As you've mentioned before. Somehow I missed that. Thank you for your
+patience.
 
--- Dave
-
+Andrew

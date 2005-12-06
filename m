@@ -1,157 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932529AbVLFSb2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbVLFSck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932529AbVLFSb2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 13:31:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932567AbVLFSb2
+	id S964998AbVLFSck (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 13:32:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbVLFSck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 13:31:28 -0500
-Received: from gold.veritas.com ([143.127.12.110]:31384 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932529AbVLFSb1 (ORCPT
+	Tue, 6 Dec 2005 13:32:40 -0500
+Received: from mail.gmx.de ([213.165.64.20]:28846 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964998AbVLFScj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 13:31:27 -0500
-Date: Tue, 6 Dec 2005 18:31:26 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Nick Holloway <Nick.Holloway@pyrites.org.uk>
-cc: Andrew Morton <akpm@osdl.org>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.15-rc4 1/1] cpia: use vm_insert_page() instead of
- remap_pfn_range()
-In-Reply-To: <20051205152758.GA29108@pyrites.org.uk>
-Message-ID: <Pine.LNX.4.61.0512061801220.26899@goblin.wat.veritas.com>
-References: <20051205152758.GA29108@pyrites.org.uk>
+	Tue, 6 Dec 2005 13:32:39 -0500
+X-Authenticated: #26200865
+Message-ID: <4395D945.6080108@gmx.net>
+Date: Tue, 06 Dec 2005 19:32:37 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 06 Dec 2005 18:31:22.0470 (UTC) FILETIME=[42053060:01C5FA93]
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, stable@kernel.org
+Subject: [PATCH] Fix oops in asus_acpi.c on Samsung P30/P35 Laptops
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Dec 2005, Nick Holloway wrote:
+Hi,
 
-> Use vm_insert_page() instead of remap_pfn_range(), and remove
-> the PageReserved fiddling.
-> 
-> Signed-off-by: Nick Holloway <Nick.Holloway@pyrites.org.uk>
-> 
-> ---
-> 
-> Although the cpia driver functioned correctly after printing out the
-> "incomplete pfn remapping" message, I thought I would have a go at the
-> trivial conversion'' as I have access to the hardware.
-> 
-> Driver has been tested with a parport CPIA camera (using "motion").
+on insmod of asus_acpi on my Samsung P35 laptop I get the following
+Oops (perfectly reproducible):
 
-That patch looks good, thanks for making and testing it.
+Asus Laptop ACPI Extras version 0.29
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+  printing eip:
+e1dfc362
+*pde = 00000000
+Oops: 0000 [#1]
+Modules linked in: asus_acpi thermal processor fan button battery ac snd_pcm_oss snd_mixer_oss snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm snd_timer snd soundcore
+snd_page_alloc ipt_TOS ipt_LOG ipt_limit ipt_pkttype pcmcia firmware_class ipt_state ip6t_REJECT ipt_REJECT iptable_mangle iptable_nat iptable_filter ip6table_mangle
+ip_nat_ftp ip_nat ip_conntrack_ftp ip_conntrack nfnetlink ip_tables ip6table_filter ip6_tables ipv6 evdev sg sd_mod sr_mod scsi_mod intel_agp agpgart ohci1394 ieee1394
+yenta_socket rsrc_nonstatic pcmcia_core ehci_hcd uhci_hcd i2c_i801 joydev dm_mod usbcore 8139too mii reiserfs ide_cd cdrom ide_disk piix ide_core
+CPU:    0
+EIP:    0060:[<e1dfc362>]    Not tainted VLI
+EFLAGS: 00010203   (2.6.15-rc5)
+EIP is at asus_hotk_get_info+0x17f/0x76c [asus_acpi]
+eax: def75000   ebx: de8aaf54   ecx: 00000002   edx: 00000003
+esi: 00000000   edi: e1e82a9c   ebp: dde2fea0   esp: de8aaf48
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 6566, threadinfo=de8aa000 task=ddac05b0)
+Stack: 00000000 00005105 deef8000 00000010 dde2fea0 dfeddc00 e1e83196 dfeddc84
+        dfedd820 e1dfc982 e1dfca11 dfeddc00 e1e849e0 00000000 c021c2fa dfeddc00
+        e1e849e0 c021c39e e1e84b00 0805bc08 00000028 de8aa000 e1dfcb20 c0133b32
+Call Trace:
+  [<e1dfc982>] asus_hotk_check+0x33/0x34 [asus_acpi]
+  [<e1dfca11>] asus_hotk_add+0x8e/0x148 [asus_acpi]
+  [<c021c2fa>] acpi_bus_driver_init+0x2e/0x57
+  [<c021c39e>] acpi_driver_attach+0x3e/0x63
+  [<e1dfcb20>] asus_acpi_init+0x55/0x7d [asus_acpi]
+  [<c0133b32>] sys_init_module+0xf2/0x180
+  [<c0102e6f>] sysenter_past_esp+0x54/0x75
+Code: 08 68 7f 30 e8 e1 e8 0e f2 31 de 58 5a a1 10 4d e8 e1 ba 03 00 00 00 bf 9c 2a e8 e1 89 d1 c7 40 14 12 00 00 00 8b 75 08 49 78 08 <ac> ae 75 08 84 c0 75 f5 31 c0 eb 04
+19 c0 0c 01 85 c0 75 11 a1
 
-A couple of minor points which you may reasonably feel go beyond
-what you were attempting:
 
-rvfree becomes totally pointless (since vfree checks for NULL itself),
-so it would be better to delete rvfree and replace the rvfree calls
-by vfree calls (removing the size argument).
+This oops affects all kernels since 2.6.12. Patch follows.
+Please apply.
 
-pos would be better off as a u8* matching frame_buf, than an unsigned
-long that has to be cast this way and that.
+Regards,
+Carl-Daniel
 
-And a third point which makes me hesitate.  It used to set PAGE_SHARED
-(read-write access) on all the page table entries, whether the mmap
-was MAP_PRIVATE or MAP_SHARED, PROT_WRITE or not.  That was wrong, and
-Linus intentionally does not permit that mistake with vm_insert_page.
 
-And the change _probably_ causes no trouble for anyone; but it _might_
-cause trouble somewhere: it could be that userspace needs correcting
-(to ask for shared write access where it wasn't asking before).
-I've no idea whether write access makes sense with this driver.
+From: Christian Aichinger <Greek0@gmx.net>
+Subject: [PATCH] acpi: Fix oops in asus_acpi.c on Samsung P30/P35 Laptops
+Date: 2005-09-23 23:36:25 GMT
 
-So personally I'm rather reluctant to recommend a change of this kind
-late in a release cycle (and I'd prefer that you didn't have to endure
-the noisy warnings at this stage too, but Linus put them in,
-so I think he wants them to stay).
+Samsung P35's INIT returns an integer (instead of a string or a
+plain buffer), which caused an oops when the result was treated as
+string in asus_hotk_get_info() (since an invalid pointer got
+dereferenced).
 
-Mauro, is this drivers/media/video/cpia.c under your maintainership?
-If the maintainer wants such a patch to go in now, then I'd agree
-with him; but I wouldn't be pushing it myself.
+This patch explicitly checks for ACPI_TYPE_INTEGER and for the
+return values possible on the P30/P35.
 
-Later on, perhaps 2.6.16-rc-mm and early 2.6.17, I'd like to go over
-lots of SetPageReserved drivers, to remove that and convert them over.
-I'm sure various other little fixups will suggest themselves in that
-exercise (things like adding VM_DONTEXPAND, removing VM_RESERVED and
-VM_SHM, adding helpers for vmalloc and high-order loops).
+Signed-off-by: Christian Aichinger <Greek0@gmx.net>
+---
 
-Hugh
+  drivers/acpi/asus_acpi.c |   31 ++++++++++++++++++++++++++++---
+  1 files changed, 28 insertions(+), 3 deletions(-)
 
->  cpia.c |   22 ++++------------------
->  1 files changed, 4 insertions(+), 18 deletions(-)
-> 
-> --- linux-2.6.15-rc4/drivers/media/video/cpia.c~	2005-12-03 10:04:33.000000000 +0000
-> +++ linux-2.6.15-rc4/drivers/media/video/cpia.c	2005-12-05 11:20:57.000000000 +0000
-> @@ -219,7 +219,6 @@ static void set_flicker(struct cam_param
->  static void *rvmalloc(unsigned long size)
->  {
->  	void *mem;
-> -	unsigned long adr;
->  
->  	size = PAGE_ALIGN(size);
->  	mem = vmalloc_32(size);
-> @@ -227,29 +226,15 @@ static void *rvmalloc(unsigned long size
->  		return NULL;
->  
->  	memset(mem, 0, size); /* Clear the ram out, no junk to the user */
-> -	adr = (unsigned long) mem;
-> -	while (size > 0) {
-> -		SetPageReserved(vmalloc_to_page((void *)adr));
-> -		adr += PAGE_SIZE;
-> -		size -= PAGE_SIZE;
-> -	}
->  
->  	return mem;
->  }
->  
->  static void rvfree(void *mem, unsigned long size)
->  {
-> -	unsigned long adr;
-> -
->  	if (!mem)
->  		return;
->  
-> -	adr = (unsigned long) mem;
-> -	while ((long) size > 0) {
-> -		ClearPageReserved(vmalloc_to_page((void *)adr));
-> -		adr += PAGE_SIZE;
-> -		size -= PAGE_SIZE;
-> -	}
->  	vfree(mem);
->  }
->  
-> @@ -3753,7 +3738,8 @@ static int cpia_mmap(struct file *file, 
->  	struct video_device *dev = file->private_data;
->  	unsigned long start = vma->vm_start;
->  	unsigned long size  = vma->vm_end - vma->vm_start;
-> -	unsigned long page, pos;
-> +	unsigned long pos;
-> +	struct page* page;
->  	struct cam_data *cam = dev->priv;
->  	int retval;
->  
-> @@ -3781,8 +3767,8 @@ static int cpia_mmap(struct file *file, 
->  
->  	pos = (unsigned long)(cam->frame_buf);
->  	while (size > 0) {
-> -		page = vmalloc_to_pfn((void *)pos);
-> -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
-> +		page = vmalloc_to_page((void *)pos);
-> +		if (vm_insert_page(vma, start, page)) {
->  			up(&cam->busy_lock);
->  			return -EAGAIN;
->  		}
-> 
-> -- 
->  `O O'  | Nick.Holloway@pyrites.org.uk
-> // ^ \\ | http://www.pyrites.org.uk/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+c51f431351c648519a9b91de3c5e1d636246d7bc
+diff --git a/drivers/acpi/asus_acpi.c b/drivers/acpi/asus_acpi.c
+--- a/drivers/acpi/asus_acpi.c
++++ b/drivers/acpi/asus_acpi.c
+@@ -1006,6 +1006,24 @@ static int __init asus_hotk_get_info(voi
+  	}
+
+  	model = (union acpi_object *)buffer.pointer;
++
++	/* INIT on Samsung's P35 returns an integer, possible return
++	 * values are tested below */
++	if (model->type == ACPI_TYPE_INTEGER) {
++		if (model->integer.value == -1 ||
++			model->integer.value == 0x58 ||
++			model->integer.value == 0x38) {
++			hotk->model = P30;
++			printk(KERN_NOTICE
++				       "  Samsung P35 detected, supported\n");
++			goto out_known;
++		} else {
++			printk(KERN_WARNING
++				"  unknown integer returned by INIT\n");
++			goto out_unknown;
++		}
++	}
++
+  	if (model->type == ACPI_TYPE_STRING) {
+  		printk(KERN_NOTICE "  %s model detected, ",
+  		       model->string.pointer);
+@@ -1057,9 +1075,7 @@ static int __init asus_hotk_get_info(voi
+  		hotk->model = L5x;
+
+  	if (hotk->model == END_MODEL) {
+-		printk("unsupported, trying default values, supply the "
+-		       "developers with your DSDT\n");
+-		hotk->model = M2E;
++		goto out_unknown;
+  	} else {
+  		printk("supported\n");
+  	}
+@@ -1088,6 +1104,15 @@ static int __init asus_hotk_get_info(voi
+  	acpi_os_free(model);
+
+  	return AE_OK;
++
++out_unknown:
++	printk(KERN_WARNING "  unsupported, trying default values, "
++			"supply the developers with your DSDT\n");
++	hotk->model = M2E;
++out_known:
++	hotk->methods = &model_conf[hotk->model];
++	acpi_os_free(model);
++	return AE_OK;
+  }
+
+  static int __init asus_hotk_check(void)
+
+

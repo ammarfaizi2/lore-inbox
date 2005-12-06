@@ -1,77 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbVLFWD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbVLFWEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030270AbVLFWD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 17:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbVLFWD7
+	id S1030279AbVLFWEu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 17:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbVLFWEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 17:03:59 -0500
-Received: from main.gmane.org ([80.91.229.2]:6069 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030270AbVLFWD6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 17:03:58 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 6 Dec 2005 17:04:50 -0500
+Received: from web34109.mail.mud.yahoo.com ([66.163.178.107]:44142 "HELO
+	web34109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030277AbVLFWEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 17:04:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=nVbaJnjfGOCDIL/GWZtFmE6C1tEiLYIjRynA2fjKS3UPyCKJJYC1W2FaDywpXjJ3EhThOH2UTWWKp86Io1ukjNutDcpH1Bj2ivo9C5tqb90oJvn5FDB6NuYwNT4xdB1Wa2YdLksMsH6gD4qypF4F/3eVAGYkIv5XkKZrPo+vDnQ=  ;
+Message-ID: <20051206220448.82860.qmail@web34109.mail.mud.yahoo.com>
+Date: Tue, 6 Dec 2005 14:04:48 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: another nfs puzzle
 To: linux-kernel@vger.kernel.org
-From: Nicolas Mailhot <nicolas.mailhot@laposte.net>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Tue, 6 Dec 2005 21:39:19 +0000 (UTC)
-Message-ID: <loom.20051206T220254-691@post.gmane.org>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>  <20051205121851.GC2838@holomorphy.com>  <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>  <20051206030828.GA823@opteron.random>  <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>  <1133869465.4836.11.camel@laptopd505.fenrus.org>  <4394ECA7.80808@didntduck.org> <1133880581.4836.37.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 81.64.157.3 (Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.8) Gecko/20051129 Fedora/1.5-1 Firefox/1.5)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-1990726021-1133906688=:79032"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan <at> infradead.org> writes:
+--0-1990726021-1133906688=:79032
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Id: 
+Content-Disposition: inline
 
-> There are lots of opportunities to put pressure on vendors, either
-> direct or indirect. Nvidia has a support department. If they get enough
-> calls / letters about their solution not being good enough, they're more
-> likely to consider the rearchtect solution. 
+Hi again,
+  I am seeing some odd behavior with O_DIRECT.  If a file opened with O_DIRECT has a page mmap'd,
+and the file is extended via pwrite, then the mmap'd region seems to get lost - i.e. it neither
+takes up system memory, nor does it get written out.
 
-Indeed a single centralized complete online hardware database (with hardware
-rated according to driver support level) would go a long way to put real
-pressure on vendors. We know how to set up one for gnome/kde themes surely it'd
-be possible to create one for hardware ? (not the current nebulae of
-semi-complete overlapping projects, menuconfig entries, blog notes, linux-kernel
-notifications)
+The attached file demonstrates this.
+Compile with -DABUSE to trigger the bad case.
+This behavior does not happen with an ext3 partition.
 
-But this requires _kernel_ _people_ cooperation. You're the ones who know what
-works and what doesn't. You're the ones who know which corporations are helpful.
-You're the first people users contact when they have new hardware they'd like to
-make work. You're the ones who know which drivers you're currently working on.
+ethereal shows the behavior to be a large amount of block reads, with single byte writes every so
+often.  Viewing the resultant file from other hosts or even the original host shows the file is
+grown, but is zero-filled, not 'a'-filled.
 
-The PCI ID database can be maintained without kernel people intervention. A
-"linux-friendly hardware" database can not.
+-Kenny
 
-Right now getting hardware advice is a long and painful process. Hardware that
-works is only semi-documented. Hardware which doesn't isn't at all. Users have
-to comb numerous on-line databases and mail archives (full of obsolete/wrong
-info) to spec a single linux-friendly system. Few people bother to answer
-hardware advice requests on mailing lists.
 
-Linux users could reward friendly hardware makers if only you bothered to point
-them the right way. That is :
-- list publicly working hardware as soon as the kernel driver is ready
-- list publicly non-working hardware as soon as someone enquires for a reference
-which does not work.
 
-There's no magic.
+		
+__________________________________________ 
+Yahoo! DSL – Something to write home about. 
+Just $16.99/mo. or less. 
+dsl.yahoo.com 
 
-Hardware makers do all kinds of stupid stuff to please review sites. Review
-sites are influential because lots of people buy stuff based on their advice.
-Lots of people follow review site advice because review sites centralize info
-about all kinds of hardware, so you don't have to comb the web to find it.
+--0-1990726021-1133906688=:79032
+Content-Type: text/x-csrc; name="dtest.c"
+Content-Description: 862959384-dtest.c
+Content-Disposition: inline; filename="dtest.c"
 
-As Groklaw has shown - if you manage to do complete coverage of a subject, even
-an obscure subject like IP laws or Linux drivers, you suddenly get quoted
-everywhere. But to reach that stage you mustn't go halfways but record
-meticulously info about all the hardware you know of.
+#define _GNU_SOURCE
 
--- 
-Nicolas Mailhot
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
+#include <stdio.h>
+#include <string.h>
+
+/*
+ * the 'abusive' case is where we
+ *   grow the file via pwrite
+ *   unmap the previous mapping,
+ *   do the new mapping
+ *
+ * the non-abusive case we
+ *   unmap the previous mapping
+ *   grow the file
+ *   do the new mapping
+ *
+ * the difference being that in the abusive case,
+ * we maintain a mapping during the pwrite.
+ *
+ * If we grow the file via pwrite and maintain a
+ * mapping, the mapped pages are never written out.
+ *
+ * If we either grow the file via ftruncate or remove
+ * old mappings before growing the file, then all is
+ * fine.
+ */
+
+#ifdef ABUSE
+#define UNMAP_AFTER() munmap(mapping, size)
+#define UNMAP_BEFORE() struct eat_semi
+#else
+#define UNMAP_AFTER() struct eat_semi
+#define UNMAP_BEFORE() munmap(mapping, size)
+#endif
+
+int main(int argc, char* argv[])
+{
+  int fd;
+  unsigned int const size = 4096 * 1024;
+  unsigned int offset = 0;
+
+  if (argc != 2) {
+    printf("usage: %s <filename>\n", argv[0]);
+    return 0;
+  }
+
+  fd = open(argv[1], O_RDWR | O_CREAT | O_TRUNC | O_LARGEFILE | O_DIRECT, 0644);
+  if (fd < 0) {
+    perror("open");
+    return 0;
+  }
+
+  pwrite64(fd, "", 1, offset + size);
+  //ftruncate64(fd, offset + size);
+  char* mapping = (char*)mmap64(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset);
+  memset(mapping, 'a', size);
+  UNMAP_BEFORE();
+
+  for (;;) {
+    offset += size;
+
+    pwrite64(fd, "", 1, offset + size);
+    //ftruncate64(fd, offset + size);
+    UNMAP_AFTER();
+    mapping = (char*)mmap64(0, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset);
+    memset(mapping, 'a', size);
+    UNMAP_BEFORE();
+  }
+
+  close(fd);
+
+  return 0;
+}
+
+--0-1990726021-1133906688=:79032--

@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964924AbVLFGXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbVLFG3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964924AbVLFGXX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 01:23:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVLFGXX
+	id S932432AbVLFG3E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 01:29:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbVLFG3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 01:23:23 -0500
-Received: from straum.hexapodia.org ([64.81.70.185]:23870 "EHLO
-	straum.hexapodia.org") by vger.kernel.org with ESMTP
-	id S964924AbVLFGXX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 01:23:23 -0500
-Date: Mon, 5 Dec 2005 22:23:22 -0800
-From: Andy Isaacson <adi@hexapodia.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE performance on notebooks [was Re: swsusp performance problems in 2.6.15-rc3-mm1]
-Message-ID: <20051206062322.GP22168@hexapodia.org>
-References: <20051205081935.GI22168@hexapodia.org> <20051205121728.GF5509@elf.ucw.cz> <1133791084.3872.53.camel@laptop.cunninghams> <200512052328.01999.rjw@sisk.pl> <1133831242.6360.15.camel@localhost> <20051206013759.GI1770@elf.ucw.cz> <20051206014720.GN22168@hexapodia.org> <20051206015616.GK1770@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Dec 2005 01:29:04 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:48568
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S932432AbVLFG3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 01:29:01 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Date: Tue, 6 Dec 2005 00:28:54 -0600
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <4394766A.8060803@pobox.com> <20051205172915.GK13985@lug-owl.de>
+In-Reply-To: <20051205172915.GK13985@lug-owl.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051206015616.GK1770@elf.ucw.cz>
-User-Agent: Mutt/1.4.2i
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
-X-Domestic-Surveillance: money launder bomb tax evasion
+Message-Id: <200512060028.55052.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 02:56:16AM +0100, Pavel Machek wrote:
-> Below are data from my machine... but that should be moved to
-> linux-ide or something. This thinkpad is from this summer, too, BTW.
-> 
-> /dev/hda:
->  Model=HTS541040G9AT00, FwRev=MB2IA5BJ, SerialNo=MPB2L0X2GLMG5M
+On Monday 05 December 2005 11:29, Jan-Benedict Glaw wrote:
+> On Mon, 2005-12-05 12:18:34 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
+> > Arjan van de Ven wrote:
+> > >Linux in a binary world
+> >
+> > You forgot the effect of binary-only on non-x86 arches...
+>
+> Um, let's write an binary emulator for those archs. It did work for
+> Alphas executing i386 code, so it'd work for PPC, too :-)
 
-Alas, the reason for my poor disk performance becomes clear - it's a
-1.8" drive!  Gah, if I'd known that I wouldn't have bought this laptop
-(though I *do* like it in other regards).
+Fabrice Bellard beat you to it, QEMU, and yes it's GPL.
 
-/dev/hda:
+Trying to bolt it to the kernel would deeply suck.
 
- Model=HTC426040G9AT00, FwRev=00P4A0B4, SerialNo=121611
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=4
- BuffType=unknown, BuffSize=0kB, MaxMultSect=16, MultSect=off
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=78140160
- IORDY=yes, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4 
- DMA modes:  mdma0 mdma1 mdma2 
- UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5 
- AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
- Drive conforms to: ATA/ATAPI-6 T13 1410D revision 3a: 
-
- * signifies the current active mode
-
--andy
+Rob
+-- 
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.

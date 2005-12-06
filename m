@@ -1,59 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbVLFOXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932593AbVLFOai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbVLFOXa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 09:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbVLFOXa
+	id S932593AbVLFOai (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 09:30:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbVLFOai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 09:23:30 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10398 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932238AbVLFOXa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 09:23:30 -0500
-Date: Tue, 6 Dec 2005 15:22:37 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Andy Isaacson <adi@hexapodia.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
-Message-ID: <20051206142237.GB1814@elf.ucw.cz>
-References: <20051205081935.GI22168@hexapodia.org> <20051205121728.GF5509@elf.ucw.cz> <1133791084.3872.53.camel@laptop.cunninghams> <200512052328.01999.rjw@sisk.pl> <1133832773.6360.38.camel@localhost> <20051206020626.GO22168@hexapodia.org> <1133835586.3896.33.camel@localhost>
+	Tue, 6 Dec 2005 09:30:38 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:57813 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932589AbVLFOah
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 09:30:37 -0500
+Subject: Re: stat64 for over 2TB file returned invalid st_blocks
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Takashi Sato <sho@tnes.nec.co.jp>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <000301c5fa62$8d1bb730$4168010a@bsd.tnes.nec.co.jp>
+References: <000301c5fa62$8d1bb730$4168010a@bsd.tnes.nec.co.jp>
+Content-Type: text/plain
+Date: Tue, 06 Dec 2005 08:30:34 -0600
+Message-Id: <1133879435.8895.14.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1133835586.3896.33.camel@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Hi. Tue, 2005-12-06 at 12:06, Andy Isaacson wrote:
-> > Could we rework it to avoid writing clean pages out to the swsusp image,
-> > but keep a list of those pages and read them back in *after* having
-> > resumed?  Maybe do the /dev/initrd ('less +/once Documentation/initrd.txt'
-> > if you're not familiar with it) trick to make the list of pages available 
-> > to a userland helper.
+On Tue, 2005-12-06 at 21:42 +0900, Takashi Sato wrote:
+> I realized some 32-bit big-endian architectures such as sh and m68k
+> have a padding before 32-bit st_blocks, though mips and ppc have
+> 64-bit st_blocks.
 > 
-> The problem is that once you let userspace run, you have absolutely no
-> control over what pages are read from or written to, and if a userspace
-> app assumes that data is there in a page when it isn't, you have a
-> recipe for an oops at best, and possibly for on disk
-> corruption. Pages
+> - asm-sh
+> #if defined(__BIG_ENDIAN__)
+>         unsigned long   __pad4;         /* Future possible st_blocks hi bits */
+>         unsigned long   st_blocks;      /* Number 512-byte blocks allocated. */
+> #else /* Must be little */
+>         unsigned long   st_blocks;      /* Number 512-byte blocks allocated. */
+>         unsigned long   __pad4;         /* Future possible st_blocks hi bits */
+> #endif
+> 
+> - asm-m68k
+>         unsigned long   __pad4;         /* future possible st_blocks high bits */
+>         unsigned long   st_blocks;      /* Number 512-byte blocks allocated. */
+> 
+> So I updated the patch.  Any feedback and comments are welcome.
 
-No, that will not be a problem. You just resume system as you do now,
-most pages will be not there. *But kernel knows it is not there*, and
-will on-demand load them back. It will be normal userland application
-doing readback. There's absolutely no risk of corruption.
+I think it looks good.  The only issue I have is that I agree with
+Andreas that i_blocks should be of type sector_t.  I find the case of
+accessing very large files over nfs with CONFIG_LBD disabled to be very
+unlikely.
 
-Imagine something that saves list of needed pages before suspend, then
-does something like
-
-cat `cat /proc/[0-9]*/maps | grep / | sed 's:.* /:/:' | sort -u` > /dev/null
-
-...it should work pretty well. And worst thing it can do is send your
-system thrashing.
-
-								Pavel
+> Signed-off-by: Takashi Sato <sho@tnes.nec.co.jp>
+> Signed-off-by: ASANO Masahiro <masano@tnes.nec.co.jp>
+> 
+> diff -uprN -X linux-2.6.15-rc5.org/Documentation/dontdiff linux-2.6.15-rc5.org/include/asm-i386/stat.h
+> linux-2.6.15-rc5-blocks/include/asm-i386/stat.h
+> --- linux-2.6.15-rc5.org/include/asm-i386/stat.h	2005-10-28 09:02:08.000000000 +0900
+> +++ linux-2.6.15-rc5-blocks/include/asm-i386/stat.h	2005-12-06 16:24:31.000000000 +0900
+> @@ -58,8 +58,7 @@ struct stat64 {
+>  	long long	st_size;
+>  	unsigned long	st_blksize;
+> 
+> -	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
+> -	unsigned long	__pad4;		/* future possible st_blocks high bits */
+> +	unsigned long long	st_blocks;	/* Number 512-byte blocks allocated. */
+> 
+>  	unsigned long	st_atime;
+>  	unsigned long	st_atime_nsec;
+> diff -uprN -X linux-2.6.15-rc5.org/Documentation/dontdiff linux-2.6.15-rc5.org/include/asm-m68k/stat.h
+> linux-2.6.15-rc5-blocks/include/asm-m68k/stat.h
+> --- linux-2.6.15-rc5.org/include/asm-m68k/stat.h	2005-10-28 09:02:08.000000000 +0900
+> +++ linux-2.6.15-rc5-blocks/include/asm-m68k/stat.h	2005-12-06 16:29:50.000000000 +0900
+> @@ -60,8 +60,7 @@ struct stat64 {
+>  	long long	st_size;
+>  	unsigned long	st_blksize;
+> 
+> -	unsigned long	__pad4;		/* future possible st_blocks high bits */
+> -	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
+> +	unsigned long long	st_blocks;	/* Number 512-byte blocks allocated. */
+> 
+>  	unsigned long	st_atime;
+>  	unsigned long	st_atime_nsec;
+> diff -uprN -X linux-2.6.15-rc5.org/Documentation/dontdiff linux-2.6.15-rc5.org/include/asm-sh/stat.h
+> linux-2.6.15-rc5-blocks/include/asm-sh/stat.h
+> --- linux-2.6.15-rc5.org/include/asm-sh/stat.h	2005-10-28 09:02:08.000000000 +0900
+> +++ linux-2.6.15-rc5-blocks/include/asm-sh/stat.h	2005-12-06 16:28:37.000000000 +0900
+> @@ -60,13 +60,7 @@ struct stat64 {
+>  	long long	st_size;
+>  	unsigned long	st_blksize;
+> 
+> -#if defined(__BIG_ENDIAN__)
+> -	unsigned long	__pad4;		/* Future possible st_blocks hi bits */
+> -	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
+> -#else /* Must be little */
+> -	unsigned long	st_blocks;	/* Number 512-byte blocks allocated. */
+> -	unsigned long	__pad4;		/* Future possible st_blocks hi bits */
+> -#endif
+> +	unsigned long long	st_blocks;	/* Number 512-byte blocks allocated. */
+> 
+>  	unsigned long	st_atime;
+>  	unsigned long	st_atime_nsec;
+> diff -uprN -X linux-2.6.15-rc5.org/Documentation/dontdiff linux-2.6.15-rc5.org/include/linux/fs.h
+> linux-2.6.15-rc5-blocks/include/linux/fs.h
+> --- linux-2.6.15-rc5.org/include/linux/fs.h	2005-12-06 16:20:21.000000000 +0900
+> +++ linux-2.6.15-rc5-blocks/include/linux/fs.h	2005-12-06 16:26:01.000000000 +0900
+> @@ -450,7 +450,7 @@ struct inode {
+>  	unsigned int		i_blkbits;
+>  	unsigned long		i_blksize;
+>  	unsigned long		i_version;
+> -	unsigned long		i_blocks;
+> +	unsigned long long	i_blocks;
+>  	unsigned short          i_bytes;
+>  	spinlock_t		i_lock;	/* i_blocks, i_bytes, maybe i_size */
+>  	struct semaphore	i_sem;
+> diff -uprN -X linux-2.6.15-rc5.org/Documentation/dontdiff linux-2.6.15-rc5.org/include/linux/stat.h
+> linux-2.6.15-rc5-blocks/include/linux/stat.h
+> --- linux-2.6.15-rc5.org/include/linux/stat.h	2005-10-28 09:02:08.000000000 +0900
+> +++ linux-2.6.15-rc5-blocks/include/linux/stat.h	2005-12-06 16:26:26.000000000 +0900
+> @@ -69,7 +69,7 @@ struct kstat {
+>  	struct timespec	mtime;
+>  	struct timespec	ctime;
+>  	unsigned long	blksize;
+> -	unsigned long	blocks;
+> +	unsigned long long	blocks;
+>  };
+> 
+>  #endif
+> 
+> -- Takashi Sato
 -- 
-Thanks, Sharp!
+David Kleikamp
+IBM Linux Technology Center
+

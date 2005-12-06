@@ -1,70 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964956AbVLFMJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbVLFMJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964956AbVLFMJp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 07:09:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964957AbVLFMJp
+	id S964955AbVLFMJc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 07:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964956AbVLFMJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 07:09:45 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:60839 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964956AbVLFMJo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 07:09:44 -0500
-Date: Tue, 6 Dec 2005 13:09:30 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andy Isaacson <adi@hexapodia.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
-Message-ID: <20051206120930.GM1770@elf.ucw.cz>
-References: <20051205081935.GI22168@hexapodia.org> <20051205121728.GF5509@elf.ucw.cz> <1133791084.3872.53.camel@laptop.cunninghams> <200512052328.01999.rjw@sisk.pl> <1133831242.6360.15.camel@localhost> <20051206013759.GI1770@elf.ucw.cz> <1133834576.3896.26.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Dec 2005 07:09:32 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:14116 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964955AbVLFMJb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 07:09:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=gDgxVstD/IU9lxfz0m/gAWjFGYKifXSHj+bxuv08SXNs3FNPDtfDmZiiarkKRe3fciLEpCX52aLoWJ1UFTksgEpf0Sq2cJagXpZKqLN5i6Nf799tfifOdzYH07oKLYtfK/em/AxovYtzHe44Un2e4tB+fpy7Zbza8TKM+4Wj844=
+Message-ID: <f69849430512060409k1798e377h442e42bbf17b0d8a@mail.gmail.com>
+Date: Tue, 6 Dec 2005 04:09:30 -0800
+From: kernel coder <lhrkernelcoder@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: zero copy
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1133834576.3896.26.camel@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+hi,
+i'm trying to track the code flow of sendfile system call.Mine
+ethernet card doesn't have scatter gather and checksum calculation
+features.So stack should be making a copy of data.
 
-> > root@amd:~# hdparm -t /dev/hda
-> > 
-> > /dev/hda:
-> >  Timing buffered disk reads:  108 MB in  3.01 seconds =  35.85 MB/sec
-> > 
-> > > > Second, IMHO, some things you are doing in suspend2, like image encryption,
-> > > > or accessing ordinary files, should not be implemented in the kernel.
-> > > 
-> > > Image encryption is just done using cryptoapi - I just expose the
-> > > parameters and optionally save them in the image; there's no nous in
-> > > suspend2 regarding encryption beyond that.
-> > 
-> > Unfortunately all these "small things" add up.
-> 
-> But so does doing it from userspace - you then have to make the pages
-> available to the userspace program, implement encryption there, provide
-> safety nets in case userspace dies unexpectedly and so on. There is a
-> cost to encryption that occurs regardless of where we do the
-> compressing.
+Please tell me where in sendfile code flow,check for scatter gather
+and cecksum features is made so that stack can decide whether to copy
+data from user space or not.
 
-Well, doing it in userspace means that you only pay kernel complexity
-once; and then you can get encryption, compression, suspend-to-file
-for free. And amount of kernel changes is surprisingly small.
-
-Userspace recovery is not big problem, btw. First, userspace should
-just work. It is doing suspend to disk, so it should better not
-fail. Fortunately, during debugging I found out that being userspace
-has big advantages: you can still use usual recover techniques after
-segfault.
-
-> > Interesting use, but for embedded app, they can just reserve partition
-> > as well. [I have seen some patches doing that.]
-> 
-> For swap?
-
-Yes. And then add some hacks to swapoff as soon as image is restored.
-
-								Pavel
--- 
-Thanks, Sharp!
+lhrkernelcoder

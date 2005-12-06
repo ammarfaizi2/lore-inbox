@@ -1,401 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751557AbVLFAhF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751562AbVLFAiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751557AbVLFAhF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 19:37:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbVLFAf1
+	id S1751562AbVLFAiI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 19:38:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751541AbVLFAfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 19:35:27 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:31694
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751538AbVLFAeh
+	Mon, 5 Dec 2005 19:35:21 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:31950
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751540AbVLFAei
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 19:34:37 -0500
-Message-Id: <20051206000153.993739000@tglx.tec.linutronix.de>
+	Mon, 5 Dec 2005 19:34:38 -0500
+Message-Id: <20051206000154.586104000@tglx.tec.linutronix.de>
 References: <20051206000126.589223000@tglx.tec.linutronix.de>
-Date: Tue, 06 Dec 2005 01:01:35 +0100
+Date: Tue, 06 Dec 2005 01:01:39 +0100
 From: tglx@linutronix.de
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, rostedt@goodmis.org, johnstul@us.ibm.com,
        zippel@linux-m86k.org, mingo@elte.hu
-Subject: [patch 09/21] Make clockid_t arguments const
-Content-Disposition: inline; filename=posix-timer-const-overhaul.patch
+Subject: [patch 13/21] Introduce nsec_t type and conversion functions
+Content-Disposition: inline; filename=nsec-t.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-- add const arguments to the posix-timers.h API functions
+- introduce the nsec_t type
+- basic nsec conversion routines: timespec_to_ns(), timeval_to_ns(),
+  ns_to_timespec(), ns_to_timeval().
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
- include/linux/posix-timers.h |   22 +++++++++++-----------
- kernel/posix-cpu-timers.c    |   40 ++++++++++++++++++++++------------------
- kernel/posix-timers.c        |   38 +++++++++++++++++++++-----------------
- 3 files changed, 54 insertions(+), 46 deletions(-)
+ include/linux/time.h |   47 +++++++++++++++++++++++++++++++++++++++++++++++
+ kernel/time.c        |   36 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 83 insertions(+)
 
-Index: linux-2.6.15-rc5/include/linux/posix-timers.h
+Index: linux-2.6.15-rc5/include/linux/time.h
 ===================================================================
---- linux-2.6.15-rc5.orig/include/linux/posix-timers.h
-+++ linux-2.6.15-rc5/include/linux/posix-timers.h
-@@ -72,12 +72,12 @@ struct k_clock_abs {
- };
- struct k_clock {
- 	int res;		/* in nano seconds */
--	int (*clock_getres) (clockid_t which_clock, struct timespec *tp);
-+	int (*clock_getres) (const clockid_t which_clock, struct timespec *tp);
- 	struct k_clock_abs *abs_struct;
--	int (*clock_set) (clockid_t which_clock, struct timespec * tp);
--	int (*clock_get) (clockid_t which_clock, struct timespec * tp);
-+	int (*clock_set) (const clockid_t which_clock, struct timespec * tp);
-+	int (*clock_get) (const clockid_t which_clock, struct timespec * tp);
- 	int (*timer_create) (struct k_itimer *timer);
--	int (*nsleep) (clockid_t which_clock, int flags, struct timespec *);
-+	int (*nsleep) (const clockid_t which_clock, int flags, struct timespec *);
- 	int (*timer_set) (struct k_itimer * timr, int flags,
- 			  struct itimerspec * new_setting,
- 			  struct itimerspec * old_setting);
-@@ -87,12 +87,12 @@ struct k_clock {
- 			   struct itimerspec * cur_setting);
- };
+--- linux-2.6.15-rc5.orig/include/linux/time.h
++++ linux-2.6.15-rc5/include/linux/time.h
+@@ -50,6 +50,12 @@ extern void set_normalized_timespec(stru
+ #define timespec_valid(ts) \
+ 	(((ts)->tv_sec >= 0) && (((unsigned) (ts)->tv_nsec) < NSEC_PER_SEC))
  
--void register_posix_clock(clockid_t clock_id, struct k_clock *new_clock);
-+void register_posix_clock(const clockid_t clock_id, struct k_clock *new_clock);
++/*
++ * 64-bit nanosec type. Large enough to span 292+ years in nanosecond
++ * resolution. Ought to be enough for a while.
++ */
++typedef s64 nsec_t;
++
+ extern struct timespec xtime;
+ extern struct timespec wall_to_monotonic;
+ extern seqlock_t xtime_lock;
+@@ -78,6 +84,47 @@ extern void getnstimeofday(struct timesp
  
- /* Error handlers for timer_create, nanosleep and settime */
- int do_posix_clock_notimer_create(struct k_itimer *timer);
--int do_posix_clock_nonanosleep(clockid_t, int flags, struct timespec *);
--int do_posix_clock_nosettime(clockid_t, struct timespec *tp);
-+int do_posix_clock_nonanosleep(const clockid_t, int flags, struct timespec *);
-+int do_posix_clock_nosettime(const clockid_t, struct timespec *tp);
+ extern struct timespec timespec_trunc(struct timespec t, unsigned gran);
  
- /* function to call to trigger timer event */
- int posix_timer_event(struct k_itimer *timr, int si_private);
-@@ -117,11 +117,11 @@ struct now_struct {
-               }								\
-             }while (0)
++/**
++ * timespec_to_ns - Convert timespec to nanoseconds
++ * @ts:		pointer to the timespec variable to be converted
++ *
++ * Returns the scalar nanosecond representation of the timespec
++ * parameter.
++ */
++static inline nsec_t timespec_to_ns(const struct timespec *ts)
++{
++	return ((nsec_t) ts->tv_sec * NSEC_PER_SEC) + ts->tv_nsec;
++}
++
++/**
++ * timeval_to_ns - Convert timeval to nanoseconds
++ * @ts:		pointer to the timeval variable to be converted
++ *
++ * Returns the scalar nanosecond representation of the timeval
++ * parameter.
++ */
++static inline nsec_t timeval_to_ns(const struct timeval *tv)
++{
++	return ((nsec_t) tv->tv_sec * NSEC_PER_SEC) +
++		tv->tv_usec * NSEC_PER_USEC;
++}
++
++/**
++ * ns_to_timespec - Convert nanoseconds to timespec
++ * @nsec:	the nanoseconds value to be converted
++ *
++ * Returns the timespec representation of the nsec parameter.
++ */
++extern struct timespec ns_to_timespec(const nsec_t nsec);
++
++/**
++ * ns_to_timeval - Convert nanoseconds to timeval
++ * @nsec:	the nanoseconds value to be converted
++ *
++ * Returns the timeval representation of the nsec parameter.
++ */
++extern struct timeval ns_to_timeval(const nsec_t nsec);
++
+ #endif /* __KERNEL__ */
  
--int posix_cpu_clock_getres(clockid_t which_clock, struct timespec *);
--int posix_cpu_clock_get(clockid_t which_clock, struct timespec *);
--int posix_cpu_clock_set(clockid_t which_clock, const struct timespec *tp);
-+int posix_cpu_clock_getres(const clockid_t which_clock, struct timespec *);
-+int posix_cpu_clock_get(const clockid_t which_clock, struct timespec *);
-+int posix_cpu_clock_set(const clockid_t which_clock, const struct timespec *tp);
- int posix_cpu_timer_create(struct k_itimer *);
--int posix_cpu_nsleep(clockid_t, int, struct timespec *);
-+int posix_cpu_nsleep(const clockid_t, int, struct timespec *);
- int posix_cpu_timer_set(struct k_itimer *, int,
- 			struct itimerspec *, struct itimerspec *);
- int posix_cpu_timer_del(struct k_itimer *);
-Index: linux-2.6.15-rc5/kernel/posix-cpu-timers.c
+ #define NFDBITS			__NFDBITS
+Index: linux-2.6.15-rc5/kernel/time.c
 ===================================================================
---- linux-2.6.15-rc5.orig/kernel/posix-cpu-timers.c
-+++ linux-2.6.15-rc5/kernel/posix-cpu-timers.c
-@@ -7,7 +7,7 @@
- #include <asm/uaccess.h>
- #include <linux/errno.h>
- 
--static int check_clock(clockid_t which_clock)
-+static int check_clock(const clockid_t which_clock)
- {
- 	int error = 0;
- 	struct task_struct *p;
-@@ -31,7 +31,7 @@ static int check_clock(clockid_t which_c
+--- linux-2.6.15-rc5.orig/kernel/time.c
++++ linux-2.6.15-rc5/kernel/time.c
+@@ -630,6 +630,42 @@ void set_normalized_timespec(struct time
+ 	ts->tv_nsec = nsec;
  }
  
- static inline union cpu_time_count
--timespec_to_sample(clockid_t which_clock, const struct timespec *tp)
-+timespec_to_sample(const clockid_t which_clock, const struct timespec *tp)
++/**
++ * ns_to_timespec - Convert nanoseconds to timespec
++ * @nsec:       the nanoseconds value to be converted
++ *
++ * Returns the timespec representation of the nsec parameter.
++ */
++inline struct timespec ns_to_timespec(const nsec_t nsec)
++{
++	struct timespec ts;
++
++	if (nsec)
++		ts.tv_sec = div_long_long_rem_signed(nsec, NSEC_PER_SEC,
++						     &ts.tv_nsec);
++	else
++		ts.tv_sec = ts.tv_nsec = 0;
++
++	return ts;
++}
++
++/**
++ * ns_to_timeval - Convert nanoseconds to timeval
++ * @nsec:       the nanoseconds value to be converted
++ *
++ * Returns the timeval representation of the nsec parameter.
++ */
++struct timeval ns_to_timeval(const nsec_t nsec)
++{
++	struct timespec ts = ns_to_timespec(nsec);
++	struct timeval tv;
++
++	tv.tv_sec = ts.tv_sec;
++	tv.tv_usec = (suseconds_t) ts.tv_nsec / 1000;
++
++	return tv;
++}
++
+ #if (BITS_PER_LONG < 64)
+ u64 get_jiffies_64(void)
  {
- 	union cpu_time_count ret;
- 	ret.sched = 0;		/* high half always zero when .cpu used */
-@@ -43,7 +43,7 @@ timespec_to_sample(clockid_t which_clock
- 	return ret;
- }
- 
--static void sample_to_timespec(clockid_t which_clock,
-+static void sample_to_timespec(const clockid_t which_clock,
- 			       union cpu_time_count cpu,
- 			       struct timespec *tp)
- {
-@@ -55,7 +55,7 @@ static void sample_to_timespec(clockid_t
- 	}
- }
- 
--static inline int cpu_time_before(clockid_t which_clock,
-+static inline int cpu_time_before(const clockid_t which_clock,
- 				  union cpu_time_count now,
- 				  union cpu_time_count then)
- {
-@@ -65,7 +65,7 @@ static inline int cpu_time_before(clocki
- 		return cputime_lt(now.cpu, then.cpu);
- 	}
- }
--static inline void cpu_time_add(clockid_t which_clock,
-+static inline void cpu_time_add(const clockid_t which_clock,
- 				union cpu_time_count *acc,
- 			        union cpu_time_count val)
- {
-@@ -75,7 +75,7 @@ static inline void cpu_time_add(clockid_
- 		acc->cpu = cputime_add(acc->cpu, val.cpu);
- 	}
- }
--static inline union cpu_time_count cpu_time_sub(clockid_t which_clock,
-+static inline union cpu_time_count cpu_time_sub(const clockid_t which_clock,
- 						union cpu_time_count a,
- 						union cpu_time_count b)
- {
-@@ -151,7 +151,7 @@ static inline unsigned long long sched_n
- 	return (p == current) ? current_sched_time(p) : p->sched_time;
- }
- 
--int posix_cpu_clock_getres(clockid_t which_clock, struct timespec *tp)
-+int posix_cpu_clock_getres(const clockid_t which_clock, struct timespec *tp)
- {
- 	int error = check_clock(which_clock);
- 	if (!error) {
-@@ -169,7 +169,7 @@ int posix_cpu_clock_getres(clockid_t whi
- 	return error;
- }
- 
--int posix_cpu_clock_set(clockid_t which_clock, const struct timespec *tp)
-+int posix_cpu_clock_set(const clockid_t which_clock, const struct timespec *tp)
- {
- 	/*
- 	 * You can never reset a CPU clock, but we check for other errors
-@@ -186,7 +186,7 @@ int posix_cpu_clock_set(clockid_t which_
- /*
-  * Sample a per-thread clock for the given task.
-  */
--static int cpu_clock_sample(clockid_t which_clock, struct task_struct *p,
-+static int cpu_clock_sample(const clockid_t which_clock, struct task_struct *p,
- 			    union cpu_time_count *cpu)
- {
- 	switch (CPUCLOCK_WHICH(which_clock)) {
-@@ -259,7 +259,7 @@ static int cpu_clock_sample_group_locked
-  * Sample a process (thread group) clock for the given group_leader task.
-  * Must be called with tasklist_lock held for reading.
-  */
--static int cpu_clock_sample_group(clockid_t which_clock,
-+static int cpu_clock_sample_group(const clockid_t which_clock,
- 				  struct task_struct *p,
- 				  union cpu_time_count *cpu)
- {
-@@ -273,7 +273,7 @@ static int cpu_clock_sample_group(clocki
- }
- 
- 
--int posix_cpu_clock_get(clockid_t which_clock, struct timespec *tp)
-+int posix_cpu_clock_get(const clockid_t which_clock, struct timespec *tp)
- {
- 	const pid_t pid = CPUCLOCK_PID(which_clock);
- 	int error = -EINVAL;
-@@ -1410,7 +1410,7 @@ void set_process_cpu_timer(struct task_s
- 
- static long posix_cpu_clock_nanosleep_restart(struct restart_block *);
- 
--int posix_cpu_nsleep(clockid_t which_clock, int flags,
-+int posix_cpu_nsleep(const clockid_t which_clock, int flags,
- 		     struct timespec *rqtp)
- {
- 	struct restart_block *restart_block =
-@@ -1514,11 +1514,13 @@ posix_cpu_clock_nanosleep_restart(struct
- #define PROCESS_CLOCK	MAKE_PROCESS_CPUCLOCK(0, CPUCLOCK_SCHED)
- #define THREAD_CLOCK	MAKE_THREAD_CPUCLOCK(0, CPUCLOCK_SCHED)
- 
--static int process_cpu_clock_getres(clockid_t which_clock, struct timespec *tp)
-+static int process_cpu_clock_getres(const clockid_t which_clock,
-+				    struct timespec *tp)
- {
- 	return posix_cpu_clock_getres(PROCESS_CLOCK, tp);
- }
--static int process_cpu_clock_get(clockid_t which_clock, struct timespec *tp)
-+static int process_cpu_clock_get(const clockid_t which_clock,
-+				 struct timespec *tp)
- {
- 	return posix_cpu_clock_get(PROCESS_CLOCK, tp);
- }
-@@ -1527,16 +1529,18 @@ static int process_cpu_timer_create(stru
- 	timer->it_clock = PROCESS_CLOCK;
- 	return posix_cpu_timer_create(timer);
- }
--static int process_cpu_nsleep(clockid_t which_clock, int flags,
-+static int process_cpu_nsleep(const clockid_t which_clock, int flags,
- 			      struct timespec *rqtp)
- {
- 	return posix_cpu_nsleep(PROCESS_CLOCK, flags, rqtp);
- }
--static int thread_cpu_clock_getres(clockid_t which_clock, struct timespec *tp)
-+static int thread_cpu_clock_getres(const clockid_t which_clock,
-+				   struct timespec *tp)
- {
- 	return posix_cpu_clock_getres(THREAD_CLOCK, tp);
- }
--static int thread_cpu_clock_get(clockid_t which_clock, struct timespec *tp)
-+static int thread_cpu_clock_get(const clockid_t which_clock,
-+				struct timespec *tp)
- {
- 	return posix_cpu_clock_get(THREAD_CLOCK, tp);
- }
-@@ -1545,7 +1549,7 @@ static int thread_cpu_timer_create(struc
- 	timer->it_clock = THREAD_CLOCK;
- 	return posix_cpu_timer_create(timer);
- }
--static int thread_cpu_nsleep(clockid_t which_clock, int flags,
-+static int thread_cpu_nsleep(const clockid_t which_clock, int flags,
- 			      struct timespec *rqtp)
- {
- 	return -EINVAL;
-Index: linux-2.6.15-rc5/kernel/posix-timers.c
-===================================================================
---- linux-2.6.15-rc5.orig/kernel/posix-timers.c
-+++ linux-2.6.15-rc5/kernel/posix-timers.c
-@@ -151,7 +151,7 @@ static void posix_timer_fn(unsigned long
- static u64 do_posix_clock_monotonic_gettime_parts(
- 	struct timespec *tp, struct timespec *mo);
- int do_posix_clock_monotonic_gettime(struct timespec *tp);
--static int do_posix_clock_monotonic_get(clockid_t, struct timespec *tp);
-+static int do_posix_clock_monotonic_get(const clockid_t, struct timespec *tp);
- 
- static struct k_itimer *lock_timer(timer_t timer_id, unsigned long *flags);
- 
-@@ -176,7 +176,7 @@ static inline void unlock_timer(struct k
-  * the function pointer CALL in struct k_clock.
-  */
- 
--static inline int common_clock_getres(clockid_t which_clock,
-+static inline int common_clock_getres(const clockid_t which_clock,
- 				      struct timespec *tp)
- {
- 	tp->tv_sec = 0;
-@@ -184,13 +184,15 @@ static inline int common_clock_getres(cl
- 	return 0;
- }
- 
--static inline int common_clock_get(clockid_t which_clock, struct timespec *tp)
-+static inline int common_clock_get(const clockid_t which_clock,
-+				   struct timespec *tp)
- {
- 	getnstimeofday(tp);
- 	return 0;
- }
- 
--static inline int common_clock_set(clockid_t which_clock, struct timespec *tp)
-+static inline int common_clock_set(const clockid_t which_clock,
-+				   struct timespec *tp)
- {
- 	return do_sys_settimeofday(tp, NULL);
- }
-@@ -207,7 +209,7 @@ static inline int common_timer_create(st
- /*
-  * These ones are defined below.
-  */
--static int common_nsleep(clockid_t, int flags, struct timespec *t);
-+static int common_nsleep(const clockid_t, int flags, struct timespec *t);
- static void common_timer_get(struct k_itimer *, struct itimerspec *);
- static int common_timer_set(struct k_itimer *, int,
- 			    struct itimerspec *, struct itimerspec *);
-@@ -216,7 +218,7 @@ static int common_timer_del(struct k_iti
- /*
-  * Return nonzero iff we know a priori this clockid_t value is bogus.
-  */
--static inline int invalid_clockid(clockid_t which_clock)
-+static inline int invalid_clockid(const clockid_t which_clock)
- {
- 	if (which_clock < 0)	/* CPU clock, posix_cpu_* will check it */
- 		return 0;
-@@ -522,7 +524,7 @@ static inline struct task_struct * good_
- 	return rtn;
- }
- 
--void register_posix_clock(clockid_t clock_id, struct k_clock *new_clock)
-+void register_posix_clock(const clockid_t clock_id, struct k_clock *new_clock)
- {
- 	if ((unsigned) clock_id >= MAX_CLOCKS) {
- 		printk("POSIX clock register failed for clock_id %d\n",
-@@ -568,7 +570,7 @@ static void release_posix_timer(struct k
- /* Create a POSIX.1b interval timer. */
- 
- asmlinkage long
--sys_timer_create(clockid_t which_clock,
-+sys_timer_create(const clockid_t which_clock,
- 		 struct sigevent __user *timer_event_spec,
- 		 timer_t __user * created_timer_id)
- {
-@@ -1195,7 +1197,8 @@ static u64 do_posix_clock_monotonic_gett
- 	return jiff;
- }
- 
--static int do_posix_clock_monotonic_get(clockid_t clock, struct timespec *tp)
-+static int do_posix_clock_monotonic_get(const clockid_t clock,
-+					struct timespec *tp)
- {
- 	struct timespec wall_to_mono;
- 
-@@ -1212,7 +1215,7 @@ int do_posix_clock_monotonic_gettime(str
- 	return do_posix_clock_monotonic_get(CLOCK_MONOTONIC, tp);
- }
- 
--int do_posix_clock_nosettime(clockid_t clockid, struct timespec *tp)
-+int do_posix_clock_nosettime(const clockid_t clockid, struct timespec *tp)
- {
- 	return -EINVAL;
- }
-@@ -1224,7 +1227,8 @@ int do_posix_clock_notimer_create(struct
- }
- EXPORT_SYMBOL_GPL(do_posix_clock_notimer_create);
- 
--int do_posix_clock_nonanosleep(clockid_t clock, int flags, struct timespec *t)
-+int do_posix_clock_nonanosleep(const clockid_t clock, int flags,
-+			       struct timespec *t)
- {
- #ifndef ENOTSUP
- 	return -EOPNOTSUPP;	/* aka ENOTSUP in userland for POSIX */
-@@ -1234,8 +1238,8 @@ int do_posix_clock_nonanosleep(clockid_t
- }
- EXPORT_SYMBOL_GPL(do_posix_clock_nonanosleep);
- 
--asmlinkage long
--sys_clock_settime(clockid_t which_clock, const struct timespec __user *tp)
-+asmlinkage long sys_clock_settime(const clockid_t which_clock,
-+				  const struct timespec __user *tp)
- {
- 	struct timespec new_tp;
- 
-@@ -1248,7 +1252,7 @@ sys_clock_settime(clockid_t which_clock,
- }
- 
- asmlinkage long
--sys_clock_gettime(clockid_t which_clock, struct timespec __user *tp)
-+sys_clock_gettime(const clockid_t which_clock, struct timespec __user *tp)
- {
- 	struct timespec kernel_tp;
- 	int error;
-@@ -1265,7 +1269,7 @@ sys_clock_gettime(clockid_t which_clock,
- }
- 
- asmlinkage long
--sys_clock_getres(clockid_t which_clock, struct timespec __user *tp)
-+sys_clock_getres(const clockid_t which_clock, struct timespec __user *tp)
- {
- 	struct timespec rtn_tp;
- 	int error;
-@@ -1387,7 +1391,7 @@ void clock_was_set(void)
- long clock_nanosleep_restart(struct restart_block *restart_block);
- 
- asmlinkage long
--sys_clock_nanosleep(clockid_t which_clock, int flags,
-+sys_clock_nanosleep(const clockid_t which_clock, int flags,
- 		    const struct timespec __user *rqtp,
- 		    struct timespec __user *rmtp)
- {
-@@ -1419,7 +1423,7 @@ sys_clock_nanosleep(clockid_t which_cloc
- }
- 
- 
--static int common_nsleep(clockid_t which_clock,
-+static int common_nsleep(const clockid_t which_clock,
- 			 int flags, struct timespec *tsave)
- {
- 	struct timespec t, dum;
 
 --
 

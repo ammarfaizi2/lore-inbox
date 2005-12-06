@@ -1,106 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751560AbVLFDUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751564AbVLFDWM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751560AbVLFDUk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 22:20:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751561AbVLFDUk
+	id S1751564AbVLFDWM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 22:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbVLFDWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 22:20:40 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:32908 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751413AbVLFDUj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 22:20:39 -0500
-Subject: Re: ntp problems
-From: john stultz <johnstul@us.ibm.com>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200512052107.24427.gene.heskett@verizon.net>
-References: <200512050031.39438.gene.heskett@verizon.net>
-	 <200512051833.19629.gene.heskett@verizon.net>
-	 <1133828065.7605.50.camel@cog.beaverton.ibm.com>
-	 <200512052107.24427.gene.heskett@verizon.net>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 19:20:29 -0800
-Message-Id: <1133839229.7605.63.camel@cog.beaverton.ibm.com>
+	Mon, 5 Dec 2005 22:22:12 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:21940 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751561AbVLFDWK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 22:22:10 -0500
+Date: Tue, 6 Dec 2005 14:20:53 +1100
+From: Andrew Morton <akpm@osdl.org>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, kir@sw.ru,
+       devel@openvz.org, saw@sawoct.com, dim@sw.ru, st@sw.ru
+Subject: Re: [ANNOUNCE] first stable release of OpenVZ kernel virtualization
+ solution
+Message-Id: <20051206142053.17793440.akpm@osdl.org>
+In-Reply-To: <43949155.5060606@sw.ru>
+References: <43949155.5060606@sw.ru>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 21:07 -0500, Gene Heskett wrote:
-> On Monday 05 December 2005 19:14, john stultz wrote:
-> >On Mon, 2005-12-05 at 18:33 -0500, Gene Heskett wrote:
-> >> On Monday 05 December 2005 16:39, john stultz wrote:
-> >> >On Mon, 2005-12-05 at 00:31 -0500, Gene Heskett wrote:
-> >> >> Greetings everybody;
-> >> >>
-> >> >> I seem to have an ntp problem.  I noticed a few minutes ago that
-> >> >> if my watch was anywhere near correct, then the computer was about
-> >> >> 6 minutes fast.  Doing a service ntpd restart crash set it back
-> >> >> nearly 6 minutes.
-> >> >
-> >> >Not sure exactly what is going on, but you might want to try
-> >> > dropping the LOCAL server reference in your ntp.conf. It could be
-> >> > you're just syncing w/ yourself.
-> >>
-> >> Joanne, bless her, pointed out that I had probably turned the ACPI
-> >> stuff in my kernel back on.  She was of course correct, shut it off &
-> >> ntpd works just fine.
-> >
-> >Err. ACPI stuff? Could you elaborate? Sounds like you have some sort of
-> >bug hiding there.
+Kirill Korotaev <dev@sw.ru> wrote:
+>
+> Hello,
 > 
-> This has been a relatively long standing problem, John.  I think its 
-> possibly related to some access path in the nforce2 chipset as it seems 
-> to plague that chipset worse than others.  But its long been, and I had 
-> forgotten, that if ntpd didn't work, turning off the ACPI stuff was the 
-> fix.
-
-Hey Gene,
-
-	I know we've spoken before about a few timekeeping problems, but
-sometimes I have a hard time keeping all the issues straight. Have you
-filed a bug on this issue? I queried for your email in
-bugzilla.kernel.org and I couldn't find anything. If not, would you mind
-opening a bug describing the behavior you are seeing with the different
-boot options (possibly also dmesg output for both configurations)? It
-will greatly help make sure this doesn't slip by without notice.
-
-
-> It had worked for a few kernel.org kernels and I had become complacent.  
-> My mistake.
+> We are happy to announce the release of a stable version of the OpenVZ 
+> software, located at http://openvz.org/.
 > 
-> OTOH, calling it a local bug, no, I certainly wouldn't call it a local to 
-> my machine bug.  Jdow OTOH, running an FC4 box, has it enabled, and hers 
-> is working just fine.  She is I believe, running the FC4's latest kernel 
-> too, so maybe the redhat people have massaged it.  However, at one time 
-> several months ago I believe she also had to have a grub argument 
-> turning acpi=no.
+> OpenVZ is a kernel virtualization solution which can be considered as a
+> natural step in the OS kernel evolution: after multiuser and 
+> multitasking functionality there comes an OpenVZ feature of having 
+> multiple environments.
 
-Hmmm. Indeed the nforce2 has had a number of problems, but I'm not sure
-why it would have changed recently. Can you bound at all the kernel
-versions where it worked and where it broke? Additionally, do be sure
-you have the most recent BIOS, I've seen a number of nforce2 issues be
-resolved with a BIOS update.
+Are you able to give us a high-level overview of how it actually is
+implemented?  IOW: what does the patch do?
 
+> ...
+> 
+> As virtualization solution OpenVZ makes it possible to do the same 
+> things for which people use UML, Xen, QEmu or VMware, but there are 
+> differences:
+> (a) there is no ability to run other operating systems
+>      (although different Linux distros can happily coexist);
+> (b) performance loss is negligible due to absense of any kind of
+>      emulation;
+> (c) resource utilization is much better.
 
-> There was a bunch of ntp related patches submitted recently, and I have 
-> no idea which of them may have restored the broken acpi vs ntp scenario 
-> to its formerly broken status, again.
+What are OpenVZ's disadvantages wrt the above?
 
-I don't think the NTP changes would have triggered this, but I want to
-be sure (its more likely something else in the timekeeping code is
-causing problems).
+> The dynamic assignment of resources in OpenVZ can significantly improve 
+> their utilization. For example, a x86_64 box (2.8 GHz Celeron D, 1GB 
+> RAM) is capable to run 100 VPSs with a fairly high performance (VPSs 
+> were serving http requests for 4.2Kb static pages at an overall rate of 
+> more than 80,000 req/min). Each VPS (running CentOS 4 x86_64) had the 
+> following set of processes:
+> 
+> [root@ovz-x64 ~]# vzctl exec 1043 ps axf
+>   PID TTY      STAT   TIME COMMAND
+>     1 ?        Ss     0:00 init
+> 11830 ?        Ss     0:00 syslogd -m 0
+> 11897 ?        Ss     0:00 /usr/sbin/sshd
+> 11943 ?        Ss     0:00 xinetd -stayalive -pidfile ...
+> 12218 ?        Ss     0:00 sendmail: accepting connections
+> 12265 ?        Ss     0:00 sendmail: Queue runner@01:00:00
+> 13362 ?        Ss     0:00 /usr/sbin/httpd
+> 13363 ?        S      0:00  \_ /usr/sbin/httpd
+> 13364 ?        S      0:00  \_ /usr/sbin/httpd
+> 13365 ?        S      0:00  \_ /usr/sbin/httpd
+> 13366 ?        S      0:00  \_ /usr/sbin/httpd
+> 13370 ?        S      0:00  \_ /usr/sbin/httpd	
+> 13371 ?        S      0:00  \_ /usr/sbin/httpd
+> 13372 ?        S      0:00  \_ /usr/sbin/httpd
+> 13373 ?        S      0:00  \_ /usr/sbin/httpd
+> 6416 ?        Rs     0:00 ps axf
 
-> Should it be looked at?  Certainly, but I don't have the knowledge to do 
-> so.  So I build kernels, and report problems areas.  The canary in the 
-> coal mine so to speak. :-)
-
-The testing and problem report is very much appreciated! Start with
-filing a bugzilla bug and then I'll point you at a few more mines to
-checkout :)
-
-thanks
--john
-
+Do the various kernel instances share httpd text pages?
 

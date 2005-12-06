@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965020AbVLFSmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965009AbVLFSnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965020AbVLFSmj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 13:42:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965018AbVLFSmj
+	id S965009AbVLFSnL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 13:43:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVLFSnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 13:42:39 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:28351 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965010AbVLFSmi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 13:42:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nuIfJr1dwmzhbxble3zGB3gSiKcEWFmyoUYvy6jpisOUPNVr02R/scEyMCbinWvV5YJ8/km1pY7pXJM74xnlt3+IUt9uA8AbGMV74YoJcszr/a9BnqLaEWvt35OhVqypAodlDc4AxJgTbA5EvEN+O4Gev8wzGWA3AvZlCpjyRj8=
-Message-ID: <d120d5000512061042j36a6c0a3gd784d087c40f0f75@mail.gmail.com>
-Date: Tue, 6 Dec 2005 13:42:37 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Andi Kleen <ak@suse.de>
-Subject: Re: Policy for reverting user ABI breaking patches was Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <p73hd9lrga8.fsf_-_@verdi.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051203135608.GJ31395@stusta.de>
-	 <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com>
-	 <20051203201945.GA4182@kroah.com>
-	 <9a8748490512031948m26b04d3ds9fbc652893ead40@mail.gmail.com>
-	 <20051204115650.GA15577@merlin.emma.line.org>
-	 <20051204232454.GG8914@kroah.com> <20051205185110.GJ9973@stusta.de>
-	 <20051206175017.GF3084@kroah.com> <p73hd9lrga8.fsf_-_@verdi.suse.de>
+	Tue, 6 Dec 2005 13:43:11 -0500
+Received: from baythorne.infradead.org ([81.187.2.161]:42163 "EHLO
+	baythorne.infradead.org") by vger.kernel.org with ESMTP
+	id S965009AbVLFSnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 13:43:10 -0500
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: David Woodhouse <dwmw2@infradead.org>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <4394696B.6060008@didntduck.org>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	 <20051205121851.GC2838@holomorphy.com>
+	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
+	 <20051206030828.GA823@opteron.random>  <4394696B.6060008@didntduck.org>
+Content-Type: text/plain
+Date: Tue, 06 Dec 2005 18:42:55 +0000
+Message-Id: <1133894575.4136.171.camel@baythorne.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06 Dec 2005 15:50:55 -0700, Andi Kleen <ak@suse.de> wrote:
-> And if there is breakage of such kernel-near applications there should
-> be an *extremly* good reason for this (and minor cleanup isn't such a
-> reason). For example for the recent udev breakage imho the cleanup
-> patch that caused this should have just been reverted.
+On Mon, 2005-12-05 at 11:23 -0500, Brian Gerst wrote:
+> Intel?  That's all nice and dandy if and only if you have an Intel
+> CPU.   Not an option for AMD users, for obvious reasons.
 
-It was not a cleanup patch, without it you could not get input events
-through netlink.
+Actually even the Intel support isn't particularly good. We don't have
+proper mode setup code -- we have to invoke the BIOS to do mode setup,
+and we can't set specific modelines (like PAL-compatible modes); we're
+limited to what the BIOS knows about -- it's like vesafb with
+acceleration.
 
-I wonder, since udev is fairly closely tied to the kernel, meybe it
-woudl be beneficial just to fold it in. This way we could keep
-compatibility with older kernels and rapidly roll out never stuff.
+There's some work on reverse-engineering the BIOS so that you can
+hackishly poke 'new' modes into its tables, but it's still not a very
+good option.
 
---
-Dmitry
+-- 
+dwmw2
+
+

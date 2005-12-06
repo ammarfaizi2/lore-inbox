@@ -1,88 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbVLFUjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbVLFUk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030227AbVLFUjY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 15:39:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbVLFUjY
+	id S1030229AbVLFUk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 15:40:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030231AbVLFUk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 15:39:24 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:1746 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750759AbVLFUjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 15:39:23 -0500
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Michael Krufky <mkrufky@gmail.com>
-Subject: Re: [PATCH] b2c2: make front-ends selectable and include noob option
-Date: Tue, 6 Dec 2005 21:39:16 +0100
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org
-References: <200512062053.00711.prakash@punnoor.de> <37219a840512061220w17388551jd54c189973e23355@mail.gmail.com>
-In-Reply-To: <37219a840512061220w17388551jd54c189973e23355@mail.gmail.com>
+	Tue, 6 Dec 2005 15:40:26 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:3392 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030229AbVLFUkZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 15:40:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:organization:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=rpGE0J+0os3gUTKKIGMeOii4zX+7eGQm+UllmAw9kjWBocGe560aGDvnPlPrMErG7QgcKCfTebEXZsNSnlkL1XxG/d4fjwUyzEmsi8ZB9aYYFxCUZWmvU4pLS8SIMMMTEbRb/jvOIWlLqUd76Zy56GquoBqodCGRyE53oKaPDzI=
+Message-ID: <4395F733.3080501@gmail.com>
+Date: Tue, 06 Dec 2005 22:40:19 +0200
+From: Matan Peled <chaosite@gmail.com>
+Reply-To: chaosite@gmail.com
+Organization: Chaosite Destruction, inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051014 Thunderbird/1.0.7 Mnenhy/0.7.2.0
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart14176239.iUslbcJ5dN";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Richard Knutsson <ricknu-0@student.ltu.se>
+CC: Matthias Andree <matthias.andree@gmx.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+References: <1133620598.22170.14.camel@laptopd505.fenrus.org> <20051203152339.GK31395@stusta.de> <20051203162755.GA31405@merlin.emma.line.org> <1133630556.22170.26.camel@laptopd505.fenrus.org> <20051203230520.GJ25722@merlin.emma.line.org> <43923DD9.8020301@wolfmountaingroup.com> <20051204121209.GC15577@merlin.emma.line.org> <1133699555.5188.29.camel@laptopd505.fenrus.org> <20051204132813.GA4769@merlin.emma.line.org> <1133703338.5188.38.camel@laptopd505.fenrus.org> <20051204142551.GB4769@merlin.emma.line.org> <43930A5F.9050802@student.ltu.se>
+In-Reply-To: <43930A5F.9050802@student.ltu.se>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200512062139.16846.prakash@punnoor.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart14176239.iUslbcJ5dN
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Richard Knutsson wrote:
+> But I do wonder how copyright and GPL can co-exist. Do the copyright 
+> holder own the changes anybody else does to the code?
+> Anyone care to explain?
 
-Am Dienstag Dezember 6 2005 21:20 schrieb Michael Krufky:
-> On 12/6/05, Prakash Punnoor <prakash@punnoor.de> wrote:
-> > Hi,
-> >
-> > this patch probably needs some touch-up but mainly I am sking the dvb
-> > guys why
-> > don't they do something like this. Current situation:
-> >
->
-> NACK.
->
-> You are going to run into some problems with this patch... For instance,
-> What if the user chooses to compile the b2c2-flexcop driver in-kernel, but
-> only compiles the frontend drivers as modules...  Then, the frontend
-> support will be built into the flexcop driver, but the module will not yet
-> be available at the time when the kernel is looking for it...
+IANAL, but GPL is a copyright license. Copyright is the right to make copies of 
+somethings, to distribute it to be precise.
 
-Well, I said it needed touch up. ;-) After all I didn't seriously believe i=
-t=20
-gets merged in current state (and yes, I didn't think about the module issu=
-e,=20
-but you're right , of course). But it simply didn't seem like dvb guys are=
-=20
-caring about the problem. I once (probably half a year ago already) mailed =
-to=20
-linux-dvb and got zero response. That told me everything.
+So if I write foo.c and release it under the GPL, and JR Hacker takes it and 
+writes foo++.c but doesn't give his super duper sekrit version to anyone, then 
+he isn't bound by copyright laws (he isn't making copies) and therefore the GPL 
+doesn't hold for him.
 
-Personally I won't invest more time in perfecting the patch. I just wanted =
-to=20
-get some attention to this problem and will use the patch privately for my=
-=20
-own happiness...
+The moment he wants to give a copy to his best friend, the GPL does kick in, 
+though, and he has to abide by the GPL and distribute the whole piece (as it is 
+a "derivative work") with the source code included (or an offer, or whatever. 
+Read the GPL sometime, its not legalese at all).
 
-Thanks for your input.
+For more information, ask your friendly (*cough*) neighborhood lawyer.
 
-=2D-=20
-(=C2=B0=3D                 =3D=C2=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+-- 
+[Name      ]   ::  [Matan I. Peled    ]
+[Location  ]   ::  [Israel            ]
+[Public Key]   ::  [0xD6F42CA5        ]
+[Keyserver ]   ::  [keyserver.kjsl.com]
+encrypted/signed  plain text  preferred
 
---nextPart14176239.iUslbcJ5dN
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDlfb0xU2n/+9+t5gRAllBAKC1yI7USJIrpu6YEJHRdWIH+XeKagCgkf9Z
-S8xxX/DYbnE2mgp7aZwRneQ=
-=PWy7
------END PGP SIGNATURE-----
-
---nextPart14176239.iUslbcJ5dN--

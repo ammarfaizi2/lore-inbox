@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbVLFPK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbVLFPJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964982AbVLFPK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 10:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVLFPK3
+	id S964970AbVLFPJn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 10:09:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751682AbVLFPJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 10:10:29 -0500
-Received: from mail.enyo.de ([212.9.189.167]:21211 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S964977AbVLFPK1 (ORCPT
+	Tue, 6 Dec 2005 10:09:43 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:1943 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751670AbVLFPJm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 10:10:27 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-References: <20051203135608.GJ31395@stusta.de>
-	<1133620264.2171.14.camel@localhost.localdomain>
-	<20051203193538.GM31395@stusta.de>
-	<1133639835.16836.24.camel@mindpipe>
-	<20051203225815.GH25722@merlin.emma.line.org>
-	<87y82z5kep.fsf@mid.deneb.enyo.de>
-	<1133816764.9356.72.camel@laptopd505.fenrus.org>
-	<87mzjf2gxs.fsf@mid.deneb.enyo.de>
-	<20051206112127.GE10574@merlin.emma.line.org>
-Date: Tue, 06 Dec 2005 16:10:25 +0100
-In-Reply-To: <20051206112127.GE10574@merlin.emma.line.org> (Matthias Andree's
-	message of "Tue, 6 Dec 2005 12:21:27 +0100")
-Message-ID: <87acfep8gu.fsf@mid.deneb.enyo.de>
-MIME-Version: 1.0
+	Tue, 6 Dec 2005 10:09:42 -0500
+Date: Tue, 6 Dec 2005 16:09:09 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jiri Benc <jbenc@suse.cz>
+Cc: Christoph Hellwig <hch@infradead.org>, Joseph Jezak <josejx@gentoo.org>,
+       mbuesch@freenet.de, linux-kernel@vger.kernel.org,
+       NetDev <netdev@vger.kernel.org>
+Subject: Re: Broadcom 43xx first results
+Message-ID: <20051206150909.GB1999@elf.ucw.cz>
+References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de> <20051205190038.04b7b7c1@griffin.suse.cz> <4394892D.2090100@gentoo.org> <20051205195543.5a2e2a8d@griffin.suse.cz> <20051205191008.GA28433@infradead.org> <20051205203121.48241a08@griffin.suse.cz> <20051205194146.GA29317@infradead.org> <20051205211107.61941ab9@griffin.suse.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051205211107.61941ab9@griffin.suse.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Matthias Andree:
+Hi!
 
-> On Tue, 06 Dec 2005, Florian Weimer wrote:
->
->> From a vendor POV, the lack of official kernel.org advisories may be a
->> feature.  I find it rather disturbing, and I'm puzzled that the kernel
->> developer community doesn't view this a problem.  I know I'm alone,
->
-> You're not alone in viewing this as a problem, 
+> > That's because you still don't get how we do development.  The last thing
+> > we want is full-scale rewrites.  Submit patches to fix things based on
+> > whatever you want but do it incremental.
+> 
+> We have got almost finished and working stack. Everything we need to do
+> is:
+> 1. identify issues;
+> 2. fix the issues; some of them will need broader discussion;
+> 3. split it into several (potentially a lot of) reviewable patches;
+> 4. clean up the drivers.
+> 
+> I'm in phase 2 now (no interesting results yet). I don't think it is
 
-I know, it's a typo.
+No, it does not work like that. You don't get nice, reviewable,
+mergeable patches by developing code independently for 3 years or so
+then attempting merge.
 
-> How about the Signed-off-by: lines? Those people who pass on the changes
-> also pass on the bugs, and they are responsible for the code - not only
-> license-wise, but also quality-wise. That's the latest point where
-> regression tests MUST happen.
+If devicescape code is better than mainline, merge it _now_. If it is
+not, drop it and start from mainline code.
 
-There are critical kernel parts for which automated regression testing
-is very hard.  In some twisted sense, regression testing ist best done
-by those who run real applications, i.e. end users.  The interesting
-thing is that you end up with reasonably stable software this way,
-except in a few corner cases.
+> And if you are familiar with the current in-kernel 802.11 code (and if
+> you know at least two different drivers), you will probably agree that
+> many things have to be changed in the current code even if we decided to
+> build on the top of it, so the result will finally differ a lot and will
+> be almost incompatible with the current code.
 
-The main point of debate seems to be how relevant the corner cases
-are, and how much general kernel development should care about them.
-(And no, not everyone in such a corner has $$,$$$ to spend.)
+That's okay; as long as incremental way exist, first version not being
+compatible with last version is not a problem.
+								Pavel
+
+-- 
+Thanks, Sharp!

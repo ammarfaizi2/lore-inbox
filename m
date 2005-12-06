@@ -1,62 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbVLFAll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbVLFAmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbVLFAll (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 19:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964886AbVLFAlY
+	id S964892AbVLFAmL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 19:42:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbVLFAmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 19:41:24 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:49578 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751570AbVLFAe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 19:34:59 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: David Woodhouse <dwmw2@infradead.org>
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: arjan@infradead.org, andrew@walrond.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4394D396.1020102@am.sony.com>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <200512051826.06703.andrew@walrond.org>
-	 <1133817575.11280.18.camel@localhost.localdomain>
-	 <1133817888.9356.78.camel@laptopd505.fenrus.org>
-	 <1133819684.11280.38.camel@localhost.localdomain>
-	 <4394D396.1020102@am.sony.com>
-Content-Type: text/plain
-Date: Tue, 06 Dec 2005 00:34:55 +0000
-Message-Id: <1133829295.11280.66.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 5 Dec 2005 19:42:10 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:27086
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751532AbVLFAee
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 19:34:34 -0500
+Message-Id: <20051206000153.545039000@tglx.tec.linutronix.de>
+References: <20051206000126.589223000@tglx.tec.linutronix.de>
+Date: Tue, 06 Dec 2005 01:01:32 +0100
+From: tglx@linutronix.de
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, rostedt@goodmis.org, johnstul@us.ibm.com,
+       zippel@linux-m86k.org, mingo@elte.hu
+Subject: [patch 06/21] Remove unused clock constants
+Content-Disposition: inline;
+	filename=time-h-remove-unused-clock-constants.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 15:56 -0800, Tim Bird wrote:
-> If the GPL covers interface linkages (whether static or
-> dynamic) then EXPORT_SYMBOL_GPL is redundant.  If it does
-> not, in all cases, then EXPORT_SYMBOL_GPL is, as
-> an extension to GPL, therefore a GPL violation.
 
-You seem to be agreeing with me to a certain extent. What I'm saying is
-that there _can_ be no difference between EXPORT_SYMBOL() and
-EXPORT_SYMBOL_GPL(). We might as well stick to one or the other.
+- remove unused CLOCK_ constants from time.h
 
-As you say -- if the GPL covers modules, EXPORT_SYMBOL_GPL is redundant.
-If it does not, then EXPORT_SYMBOL_GPL in itself is a GPL violation.
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-The point of EXPORT_SYMBOL_GPL, however, is that it is a technical
-restriction which needs to be circumvented in order to load a non-GPL
-module. That does affect the outcome of a court case when the licence is
-violated, and that's why I think we should it throughout.
+ include/linux/time.h |   11 ++++-------
+ 1 files changed, 4 insertions(+), 7 deletions(-)
 
-However, if your lawyers promise you that the court won't rule that the
-GPL covers modules, then you have nothing to fear from EXPORT_SYMBOL_GPL
-because (according to your lawyers) the court will rule that it means no
-more than EXPORT_SYMBOL does. That's your risk to take; there's no
-reason why we should use EXPORT_SYMBOL _anywhere_ until/unless a court
-actually makes that ruling. 
+Index: linux-2.6.15-rc5/include/linux/time.h
+===================================================================
+--- linux-2.6.15-rc5.orig/include/linux/time.h
++++ linux-2.6.15-rc5/include/linux/time.h
+@@ -103,12 +103,10 @@ struct	itimerval {
+ /*
+  * The IDs of the various system clocks (for POSIX.1b interval timers).
+  */
+-#define CLOCK_REALTIME		  0
+-#define CLOCK_MONOTONIC	  1
++#define CLOCK_REALTIME		 0
++#define CLOCK_MONOTONIC	  	 1
+ #define CLOCK_PROCESS_CPUTIME_ID 2
+ #define CLOCK_THREAD_CPUTIME_ID	 3
+-#define CLOCK_REALTIME_HR	 4
+-#define CLOCK_MONOTONIC_HR	  5
+ 
+ /*
+  * The IDs of various hardware clocks
+@@ -117,9 +115,8 @@ struct	itimerval {
+ 
+ #define CLOCK_SGI_CYCLE 10
+ #define MAX_CLOCKS 16
+-#define CLOCKS_MASK  (CLOCK_REALTIME | CLOCK_MONOTONIC | \
+-                     CLOCK_REALTIME_HR | CLOCK_MONOTONIC_HR)
+-#define CLOCKS_MONO (CLOCK_MONOTONIC & CLOCK_MONOTONIC_HR)
++#define CLOCKS_MASK  (CLOCK_REALTIME | CLOCK_MONOTONIC)
++#define CLOCKS_MONO (CLOCK_MONOTONIC)
+ 
+ /*
+  * The various flags for setting POSIX.1b interval timers.
 
--- 
-dwmw2
+--
 

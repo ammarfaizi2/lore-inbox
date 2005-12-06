@@ -1,67 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbVLFCbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbVLFCje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751335AbVLFCbj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 21:31:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbVLFCbj
+	id S1751357AbVLFCje (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 21:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbVLFCje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 21:31:39 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:22426 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id S1751335AbVLFCbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 21:31:38 -0500
-Message-ID: <43944F42.2070207@didntduck.org>
-Date: Mon, 05 Dec 2005 09:31:30 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mail/News 1.5 (X11/20051129)
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: William Lee Irwin III <wli@holomorphy.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random>
-In-Reply-To: <20051206011844.GO28539@opteron.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 5 Dec 2005 21:39:34 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:43162 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751357AbVLFCje (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 21:39:34 -0500
+Subject: Re: [ckrm-tech] [RFC][PATCH]  Add timestamp to process event
+	connector message
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Matt Helsley <matthltc@us.ibm.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Jean-Pierre Dion <jean-pierre.dion@bull.net>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Badari Pulavarty <pbadari@us.ibm.com>, Ram Pai <linuxram@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Erich Focht <efocht@hpce.nec.com>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       ay Lan <jlan@engr.sgi.com>, Erik Jacobson <erikj@sgi.com>,
+       Jack Steiner <steiner@sgi.com>
+In-Reply-To: <1133835717.25202.1317.camel@stark>
+References: <1133835717.25202.1317.camel@stark>
+Content-Type: text/plain
+Date: Mon, 05 Dec 2005 18:39:23 -0800
+Message-Id: <1133836764.6296.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> On Mon, Dec 05, 2005 at 04:18:51AM -0800, William Lee Irwin III wrote:
->> The December 6 event is extraordinarily unlikely. What's vastly more
->> likely is consistent "erosion" over time. First the 3D video drivers,
->> then the wireless network drivers, then the fakeraid drivers, and so on.
-> 
-> I agree about the erosion.
-> 
-> I am convinced that the only way to stop the erosion is to totally stop
-> buying hardware that has only binary only drivers (unless you buy it to
-> create an open source driver or to reverse engineer the binary only
-> driver of course! ;).
-> 
-> For example if a laptop has an embedded wirless or 3d card not supported by
-> open source drivers, buy a laptop without any wireless card or without
-> 3d, instead of buying one with the not-supported hardware without using
-> it (I can guarantee there are still laptops that requires no 3d
-> binary only drivers and no wirless cards drivers, even for the winmodems
-> you can choose the ones supported by alsa). We literally have to refuse
-> buying those cards with binary only kernel drivers.
-> 
-> Every time we buy a piece of hardware with binary only drivers we admit
-> that the binary only driver vendors are doing the right choice for their
-> stockholders. Only when we refuse to buy it, we can make a slight difference.
-> When we don't buy hardware without open source drivers, we send the
-> message to the shareholders that the management is causing them a loss.
+On Mon, 2005-12-05 at 18:21 -0800, Matt Helsley wrote:
+> +static inline void get_timestamp(struct timespec *ts)
+> +{
+> +       unsigned int seq;
+> +       struct timespec wall2mono;
+> +
+> +       /* synchronize with settimeofday() changes */
+> +       do {
+> +               seq = read_seqbegin(&xtime_lock);
+> +               getnstimeofday(ts);
+> +               wall2mono = wall_to_monotonic;
+> +       } while(read_seqretry(&xtime_lock, seq));
+> +
+> +       /* adjust to monotonicaly-increasing values */
+> +       ts += wall2mono.tv_sec;
+> +       ts += wall2mono.tv_nsec;
+> +       while ((ts->tv_nsec - NSEC_PER_SEC) >= 0) {
+> +               ts->tv_nsec -= NSEC_PER_SEC;
+> +               ts->tv_sec++;
+> +       }
+> +}
 
-The problem with this statement is that Linux users are a drop in the 
-bucket of sales for this hardware.  Boycotting doesn't cost the vendors 
-enough to make them care.  And this does nothing for people who are 
-converting over to Linux, and didn't buy hardware with that 
-consideration in mind.
+This seems like something a bit too generic to have in your
+drivers/connector/cn_proc.c file.  Is there a generic timekeeping
+function that should be used instead?  Or, should this go into one of
+the timekeeping files?
 
-The only way to break the stalemate is to reverse engineer drivers. 
-Turning the screws tighter isn't going to make open drivers magically 
-appear.  More likely, the vendors will abandon Linux as being too 
-hostile and/or too costly to support, leaving everybody back at square one.
+-- Dave
 
---
-				Brian Gerst

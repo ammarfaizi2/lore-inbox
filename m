@@ -1,56 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbVLFSOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964996AbVLFSPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964995AbVLFSOg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 13:14:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbVLFSOg
+	id S964996AbVLFSPW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 13:15:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965001AbVLFSPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 13:14:36 -0500
-Received: from hera.kernel.org ([140.211.167.34]:46554 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S964995AbVLFSOf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 13:14:35 -0500
-Date: Tue, 6 Dec 2005 16:14:12 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Jan Kasprzak <kas@fi.muni.cz>
-Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org, bharata@in.ibm.com
-Subject: Re: 2.6.14 kswapd eating too much CPU
-Message-ID: <20051206181412.GA18070@dmt.cnet>
-References: <20051123202438.GE28142@fi.muni.cz> <20051123123531.470fc804.akpm@osdl.org> <20051124083141.GJ28142@fi.muni.cz> <20051127084231.GC20701@logos.cnet> <20051127203924.GE27805@fi.muni.cz> <20051127160207.GE21383@logos.cnet> <20051127152108.11f58f9c.akpm@osdl.org> <20051128131648.GG19307@fi.muni.cz> <20051128080446.GA23516@logos.cnet> <20051206001006.GX22772@fi.muni.cz>
+	Tue, 6 Dec 2005 13:15:22 -0500
+Received: from straum.hexapodia.org ([64.81.70.185]:18448 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S964996AbVLFSPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 13:15:21 -0500
+Date: Tue, 6 Dec 2005 10:15:20 -0800
+From: Andy Isaacson <adi@hexapodia.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+Message-ID: <20051206181520.GA21501@hexapodia.org>
+References: <20051205081935.GI22168@hexapodia.org> <20051205121728.GF5509@elf.ucw.cz> <1133791084.3872.53.camel@laptop.cunninghams> <200512052328.01999.rjw@sisk.pl> <1133832773.6360.38.camel@localhost> <20051206020626.GO22168@hexapodia.org> <20051206121835.GN1770@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051206001006.GX22772@fi.muni.cz>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20051206121835.GN1770@elf.ucw.cz>
+User-Agent: Mutt/1.4.2i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 01:10:06AM +0100, Jan Kasprzak wrote:
-> Marcelo Tosatti wrote:
-> : I wonder why prune_icache() does not move inodes with positive i_count
-> : to inode_inuse list, letting iput() take care of moving to unused
-> : once the count reaches zero.
-> : 
-> :                 inode = list_entry(inode_unused.prev, struct inode, i_list);
-> :                 if (inode->i_state || atomic_read(&inode->i_count)) {
-> :                         list_move(&inode->i_list, &inode_unused);
-> :                         continue;
-> :                 }
-> : 
-> : Couldnt it be 
-> : 			list_move(&inode->i_list, &inode_inuse);
-> : 
-> : ?
+On Tue, Dec 06, 2005 at 01:18:35PM +0100, Pavel Machek wrote:
+> > I'm assuming that the difference is that with Rafael's patches, clean
+> > pages that would have been evicted in the "freeing pages..." step are
+> > now being written out to the swsusp image.  If so, this is a waste - no
+> > point in having the data on disk twice.  (It would be nice to confirm
+> > this suspicion.)
 > 
-> 	Hmm, this code is indeed strange. Why does it move the inode
-> to the inode_unused list, when the inode has in fact been _found_ while
-> scanning the inode_unused list? 
+> Confirmed. But you are wrong; it is not a waste. The pages are nicely
+> linear in suspend image, while they would be all over the disk
+> otherwise. There can easily be factor 20 difference between linear
+> read and random read.
 
-It just moves to the head of the list, for later scanning.
+Agreed, linear reads are obviously an enormous improvement over seeking
+all over the disk.  (Especially given my 15 ms seek latency.)  It would
+suck to have to do all those seeks synchronously (before allowing the
+swsusp resume to complete).  But see below for my suggested alternative.
 
-> And how can an inode with positive ->i_count end up on the
-> inode_unused list?
+> > Could we rework it to avoid writing clean pages out to the swsusp image,
+> > but keep a list of those pages and read them back in *after* having
+> > resumed?  Maybe do the /dev/initrd ('less +/once Documentation/initrd.txt'
+> > if you're not familiar with it) trick to make the list of pages available 
+> > to a userland helper.
+> 
+> I did not understand this one.
 
-Such inodes only end up in the unused list during superblock
-shutdown, so they should not be a problem actually (my bad).
+I'm suggesting that rather than writing the clean pages out to the
+image, simply make their metadata available to a post-resume userland
+helper.  Something like
 
+% head -2 /dev/swsusp-helper
+/bin/sh 105-115 192 199-259
+/lib/libc-2.3.2.so 1-250
+
+where the userland program is expected to use the list of page numbers
+(and getpagesize(2)) to asynchronously page in the working set in an
+ionice'd manner.
+
+This doesn't get rid of the seeks, of course, but doing them post-resume
+will improve interactive performance while avoiding the cost of gigantic
+swsusp images.
+
+> Anyway, try limiting size of image to ~500MB, first. Should solve your
+> problem with very little work.
+
+This is obviously the right thing for my situation, and it's on my list.
+
+-andy

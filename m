@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbVLFKop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964947AbVLFKqU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964948AbVLFKop (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 05:44:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbVLFKop
+	id S964947AbVLFKqU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 05:46:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbVLFKqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 05:44:45 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:15050 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964948AbVLFKop (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 05:44:45 -0500
-Subject: Re: [PATCH] Win32 equivalent to GetTickCount systemcall (i386)
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Engraf <engraf.david@netcom-sicherheitstechnik.de>
-Cc: linux-kernel@vger.kernel.org, "'Andrew Morton'" <akpm@osdl.org>
-In-Reply-To: <009201c5fa50$f3f58a10$0a016696@EW10>
-References: <009201c5fa50$f3f58a10$0a016696@EW10>
-Content-Type: text/plain
-Date: Tue, 06 Dec 2005 11:44:39 +0100
-Message-Id: <1133865880.2858.42.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 6 Dec 2005 05:46:20 -0500
+Received: from mail.gmx.de ([213.165.64.20]:51075 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964947AbVLFKqT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 05:46:19 -0500
+X-Authenticated: #428038
+Date: Tue, 6 Dec 2005 11:46:17 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051206104617.GB10574@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <87hd9n708t.fsf@mid.deneb.enyo.de> <200512060110.jB61AMHF004027@pincoya.inf.utfsm.cl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200512060110.jB61AMHF004027@pincoya.inf.utfsm.cl>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-06 at 11:36 +0100, David Engraf wrote:
-> This patch adds a new systemcall on i386 architectures returning the jiffies
-> value to the application. 
-> As a kernel developer you can use jiffies but from the user space there is
-> no equivalent function which counts every millisecond like the Win32
-> GetTickCount.
+On Mon, 05 Dec 2005, Horst von Brand wrote:
 
-a few comments
+> > You mentioned security issues in your initial post.  I think it would
+> > help immensely if security bugs would be documented properly (affected
+> > versions, configuration requirements, attack range, loss type etc.)
+> > when the bug is fixed, by someone who is familiar with the code.
+> > (Currently, this information is scraped together mostly by security
+> > folks, sometimes after considerable time has passed.)  Having a
+> > central repository with this kind of information would enable vendors
+> > and not-quite-vendors (people who have their own set of kernels for
+> > their machines) to address more vulnerabilties promptly, including
+> > less critical ones.
+> 
+> I've fixed bugs which turned out to be security vulnerabilities. And I
+> didn't know (or even care much) at the time. Finding out if some random bug
+> has security implications, and exactly which ones/how much of a risk they
+> pose is normally /much/ harder than to fix the bugs.  And rather pointless,
+> after the fix is in.
 
-1) jiffies are 64 bit not 32
-2) jiffies are not a constant time, eg HZ is a config option,
-   exposing that internal counter to userspace sounds wrong, after
-   all what would it be used for
-3) wouldn't it be better to expose a wallclock time thing which
-   has a constant unit of time between all kernels?
+I believe everyone who maintains a nontrivial piece of software has
+experienced a situation where a bug fix addressed a bug that could
+actually be exploited and that wasn't clear at the time.
 
-(and.. wait.. isn't that called gettimeofday() )
+Calling this "pointless" after the fix is in leaves people in danger
+unaware, unless it happens on a branch where every user can be expected
+to update because only tested fixes are merged. As this isn't the case
+for the kernel, but everyone moves on at will, doesn't care if a
+previous bug fix is exploitable and whatnot, the Linux kernel's security
+is essentially nonexistent, and expecting downstream QA teams to handle
+this is just ridiculous for many reasons already mentioned.
 
-
+-- 
+Matthias Andree

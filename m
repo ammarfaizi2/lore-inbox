@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932631AbVLFUOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932633AbVLFUPF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932631AbVLFUOT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 15:14:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932632AbVLFUOT
+	id S932633AbVLFUPF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 15:15:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932634AbVLFUPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 15:14:19 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:35278 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932631AbVLFUOS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 15:14:18 -0500
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051205030936.GH15164@ca-server1.us.oracle.com>
-References: <43923DD9.8020301@wolfmountaingroup.com>
-	 <20051204121209.GC15577@merlin.emma.line.org>
-	 <1133699555.5188.29.camel@laptopd505.fenrus.org>
-	 <20051204132813.GA4769@merlin.emma.line.org>
-	 <1133703338.5188.38.camel@laptopd505.fenrus.org>
-	 <20051204142551.GB4769@merlin.emma.line.org>
-	 <1133707855.5188.41.camel@laptopd505.fenrus.org>
-	 <20051204150804.GA17846@merlin.emma.line.org>
-	 <jebqzw50x8.fsf@sykes.suse.de>
-	 <20051204161709.GC17846@merlin.emma.line.org>
-	 <20051205030936.GH15164@ca-server1.us.oracle.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 06 Dec 2005 20:13:30 +0000
-Message-Id: <1133900010.23610.62.camel@localhost.localdomain>
+	Tue, 6 Dec 2005 15:15:05 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:21400 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S932633AbVLFUPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 15:15:03 -0500
+Date: Tue, 6 Dec 2005 18:14:49 -0200
+From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       ehabkost@mandriva.com
+Subject: Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
+Message-Id: <20051206181449.11947f4f.lcapitulino@mandriva.com.br>
+In-Reply-To: <20051206194041.GA22890@suse.de>
+References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br>
+	<20051206194041.GA22890@suse.de>
+Organization: Mandriva
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i586-mandriva-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-12-04 at 19:09 -0800, Joel Becker wrote:
-> On Sun, Dec 04, 2005 at 05:17:09PM +0100, Matthias Andree wrote:
-> > There are things that old Sun Workshop versions bitch about that GCC
-> > deals with without complaining, and I'm not talking about C99/C++-style
-> > comments. C standard issue? I believe not.
-> 
-> 	I have seen many a code like so:
-> 
->     char buf[4];
->     memcpy(buf, source, 5);
-> 
-> accepted by the Sun compilers and run just fine.  When the application
-> was ported to Linux/GCC, the developers complained their program
-> segfaulted, and "it must be something broken on Linux!"
-> 	Just because Sun's compiler does something doesn't mean it's
+On Tue, 6 Dec 2005 11:40:41 -0800
+Greg KH <gregkh@suse.de> wrote:
 
-It isnt the compiler quite often. The usual case is
+| On Tue, Dec 06, 2005 at 09:56:10AM -0200, Luiz Fernando Capitulino wrote:
+| >  Greg,
+| > 
+| >  Don't get scared. :-)
+| > 
+| >  As showed by Eduardo Habkost some days ago, the spin lock 'lock' in the
+| > struct 'usb_serial_port' is being used by some USB serial drivers to protect
+| > the access to the 'write_urb_busy' member of the same struct.
+| > 
+| >  The spin lock however, is needless: we can change 'write_urb_busy' type
+| > to be atomic_t and remove all the spin lock usage.
+| 
+| But if you do that, you make things slower on non-smp machines, which
+| isn't very nice.  Why does the spinlock bother you?
 
-	char buf[4];
-	strcpy(buf, "bits");
+ The spinlock makes the code less clear, error prone, and we already a
+semaphore in the struct usb_serial_port.
 
-And those cases usually work because its a big endian box and the \00
-ends up overwriting the \00 in the return address.
+ The spinlocks _seems_ useless to me.
 
-
+-- 
+Luiz Fernando N. Capitulino

@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbVLFTRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbVLFTRZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbVLFTRU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 14:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVLFTRU
+	id S1030195AbVLFTRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 14:17:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbVLFTRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 14:17:20 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:52369
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1030192AbVLFTRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 14:17:19 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Luke-Jr <luke-jr@utopios.org>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Date: Tue, 6 Dec 2005 13:17:11 -0600
-User-Agent: KMail/1.8
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-References: <20051203152339.GK31395@stusta.de> <200512051834.01384.rob@landley.net> <200512061034.21336.luke-jr@utopios.org>
-In-Reply-To: <200512061034.21336.luke-jr@utopios.org>
+	Tue, 6 Dec 2005 14:17:25 -0500
+Received: from thunk.org ([69.25.196.29]:26275 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1030195AbVLFTRY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 14:17:24 -0500
+Date: Tue, 6 Dec 2005 13:19:19 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Greg KH <greg@kroah.com>
+Cc: Tim Bird <tim.bird@am.sony.com>, David Woodhouse <dwmw2@infradead.org>,
+       arjan@infradead.org, andrew@walrond.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Message-ID: <20051206181919.GA19905@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, Greg KH <greg@kroah.com>,
+	Tim Bird <tim.bird@am.sony.com>,
+	David Woodhouse <dwmw2@infradead.org>, arjan@infradead.org,
+	andrew@walrond.org, linux-kernel@vger.kernel.org
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512051826.06703.andrew@walrond.org> <1133817575.11280.18.camel@localhost.localdomain> <1133817888.9356.78.camel@laptopd505.fenrus.org> <1133819684.11280.38.camel@localhost.localdomain> <4394D396.1020102@am.sony.com> <20051206041215.GC26602@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512061317.11592.rob@landley.net>
+In-Reply-To: <20051206041215.GC26602@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 December 2005 04:34, Luke-Jr wrote:
-> > > Nope, but I don't see how udev can possibly detect something that
-> > > doesn't let the OS know it's there-- except, of course, loading the
-> > > driver for it and seeing if it works.
-> >
-> > Stuff shows up in /sys whether or not Linux has a driver loaded for it.
->
-> Only if Linux is aware it exists. I'm thinking of those old ISA cards and
-> such.
+On Mon, Dec 05, 2005 at 08:12:16PM -0800, Greg KH wrote:
+> On Mon, Dec 05, 2005 at 03:56:06PM -0800, Tim Bird wrote:
+> > DISCLAIMER: I'm not speaking for Sony here. Personally
+> > I don't believe that most drivers are derivative works
+> > of the operating systems they run with, and I don't
+> > believe it helps Linux to assert that they are.
+> > But, hey, it's not my kernel, and not my plan for
+> > world domination. ;-)
+> 
+> Why do people bring up the "derivative works" issue all the time.  Are
+> they so blind to the very simple "linking" issue that all kernel modules
+> do when they are loaded into the kernel?
 
-A) This is only true for obsolete hardware.  Can you name an example that's 
-currently being manufactured?  (I'm trying to figure out if serial mice 
-count, not that you really need kernel support to detect those.)
+The linked kernel+module combination is pretty clearly a derived work
+(but I am not a lawyer).  However, that never gets *distributed* and
+the GPL only covers distribution rights.
 
-B) You can insmod the module from userspace to actively probe for stuff.  If 
-the kernel doesn't know either until it probes, and you can trigger the probe 
-at will, what additional kernel support do you need?
+The question of whether or not something which *could* be linked into
+the kernel is a derived work is a very different question, and if
+taken too far, an advocate of this interpretation starts advocating
+something very close to interface copyrights --- something which I
+will note the FSF is passionately against when they called a boycott
+on companies such as Lotus many years ago.
 
-Rob
--- 
-Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
-I do not think it means what you think it means.
+But this is very much off-topic for this list.  I suggest that folks
+talk to Larry Rosen for his view on this issue, if they want a
+balanced counterpoint to that pushed by the FSF.
+
+							- Ted

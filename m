@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbVLFTMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbVLFTMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030194AbVLFTMn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 14:12:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVLFTMn
+	id S1030190AbVLFTMI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 14:12:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbVLFTMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 14:12:43 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:60294 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030188AbVLFTMm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 14:12:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bRlFjT1nIrNtliLaX137fbRH6PKyI0VCTaFJ3OMkM9G+vJTCec/OTLzptt43mlaIbe1mH0TjesN6OSNIVivyqlDx8SHZxiKKigHS2KgH8KmTMMMU6zemd5PQf3RIXp9yngGsDlMsY9NjJMcfaKKLqInl3fzQhwLqvAza1/eLTNI=
-Message-ID: <9a8748490512061112x622f6b3as1ea95dd430f09918@mail.gmail.com>
-Date: Tue, 6 Dec 2005 20:12:39 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Jean-Christian de Rivaz <jc@eclis.ch>
+	Tue, 6 Dec 2005 14:12:08 -0500
+Received: from agmk.net ([217.73.31.34]:2566 "EHLO mail.agmk.net")
+	by vger.kernel.org with ESMTP id S1030190AbVLFTMH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 14:12:07 -0500
+From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Linux in a binary world... a doomsday scenario
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <4395784F.4090202@eclis.ch>
+Date: Tue, 6 Dec 2005 20:11:55 +0100
+User-Agent: KMail/1.9
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512061649.14470.pluto@agmk.net> <20051206190051.GA4232@irc.pl>
+In-Reply-To: <20051206190051.GA4232@irc.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <4394D396.1020102@am.sony.com>
-	 <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
-	 <200512052122.02485.gene.heskett@verizon.net>
-	 <4395784F.4090202@eclis.ch>
+Message-Id: <200512062011.55234.pluto@agmk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/6/05, Jean-Christian de Rivaz <jc@eclis.ch> wrote:
-> Gene Heskett a �crit :
+Dnia wtorek, 6 grudnia 2005 20:00, Tomasz Torcz napisał:
+> On Tue, Dec 06, 2005 at 04:49:14PM +0100, Paweł Sikora wrote:
+> > Dnia wtorek, 6 grudnia 2005 16:30, Florian Weimer napisał:
+> > > * Brian Gerst:
+> > > > Once again I'd like to point out that user's purchase power means
+> > > > jack when they only have two choices for video:  ATI and Nvidia.  You
+> > > > can't walk into a computer store and find anything else (I don't
+> > > > count integrated video on the motherboard as a solution, since only
+> > > > Intel boards have it, sorry AMD users).  Even over the web it's hard
+> > > > to find anything else.
+> > >
+> > > What about Matrox cards?  Are there open drivers for accelerated 2D
+> > > operation?
+> >
+> > Open 2D is nothing new. The OpenGL is a major part.
+> > Matrox and XGI (e.g. Volari V3 based cards) have openGL parts closed.
 >
-> > Which is the best reason in the world to buy and use, the open source
-> > video card now under development, and I hear its less than 3-4 months
-> > from production status now, and at a competitive, sub $150 USD price.
->
-> Can you post a link about this open source video card ? I strongly wants
+>  Interesting remark, but false.
 
-http://www.opengraphics.org/
+I investigated only mtx driver from theirs website.
 
+> Xorg ships open source driver with full 3D acceleration suport forMatrox.
 
-> to support this kind of project. It's clear for me: this is the only way
-> to solve the problem in the long term.
->
+For which card?
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+-- 
+to_be || !to_be == 1, to_be | ~to_be == -1

@@ -1,103 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030259AbVLFVtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbVLFVvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030259AbVLFVtw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 16:49:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbVLFVtw
+	id S1030261AbVLFVvR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 16:51:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030262AbVLFVvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 16:49:52 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:35737 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030259AbVLFVtv (ORCPT
+	Tue, 6 Dec 2005 16:51:17 -0500
+Received: from soundwarez.org ([217.160.171.123]:42176 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S1030261AbVLFVvQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 16:49:51 -0500
-Message-ID: <43960774.1000202@pobox.com>
-Date: Tue, 06 Dec 2005 16:49:40 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Brian Gerst <bgerst@didntduck.org>, Arjan van de Ven <arjan@infradead.org>,
-       "M." <vo.sinh@gmail.com>, Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Reverse engineering (was Re: Linux in a binary world... a doomsday
- scenario)
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>	 <20051205121851.GC2838@holomorphy.com>	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>	 <20051206030828.GA823@opteron.random>	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>	 <1133869465.4836.11.camel@laptopd505.fenrus.org>	 <4394ECA7.80808@didntduck.org>  <4395E2F4.7000308@pobox.com>	 <1133897867.29084.14.camel@mindpipe>  <4395E962.2060309@pobox.com> <1133898911.29084.25.camel@mindpipe>
-In-Reply-To: <1133898911.29084.25.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Bad-Reply: References and In-Reply-To but no 'Re:' in Subject.
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Lee Revell wrote: > On Tue, 2005-12-06 at 14:41 -0500,
-	Jeff Garzik wrote: > >>Lee Revell wrote: >> >>>On Tue, 2005-12-06 at
-	14:13 -0500, Jeff Garzik wrote: >>> >>>>Let's hope the rev-eng people
-	do it the right way, by having one team >>>>write a document, and a
-	totally separate team write the driver from >>>>that document. >>
-	>>>Isn't it also legal for a single person or team to capture all IO
-	>>>to/from the device with a bus analyzer or kernel debugger and write
-	a >>>driver from that, as long as you don't disassemble the original
-	driver? >> >>It's still legally shaky. The "Chinese wall" approach I
-	described above >>is beyond reproach, and that's where Linux needs to
-	be. > > > I know you are not a lawyer but do you have a pointer or two?
-	As long > as we are REing for interoperability I've never read anything
-	to > indicate the approach I described could be a problem even in the
-	US. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+	Tue, 6 Dec 2005 16:51:16 -0500
+Date: Tue, 6 Dec 2005 22:51:14 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051206215114.GA25007@vrfy.org>
+References: <20051203152339.GK31395@stusta.de> <20051203225020.GF25722@merlin.emma.line.org> <20051204002043.GA1879@kroah.com> <200512040446.32450.luke-jr@utopios.org> <20051204232205.GF8914@kroah.com> <4395A72E.6030006@tmr.com> <20051206175919.GI3084@kroah.com> <4395FE34.5070406@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4395FE34.5070406@tmr.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Tue, 2005-12-06 at 14:41 -0500, Jeff Garzik wrote:
+On Tue, Dec 06, 2005 at 04:10:12PM -0500, Bill Davidsen wrote:
+> Greg KH wrote:
+> >On Tue, Dec 06, 2005 at 09:58:54AM -0500, Bill Davidsen wrote:
+> >
+> >>If a new udev config is needed with every new kernel, why isn't it in
+> >>the kernel tarball? Is that what you mean by "broken distro
+> >>configuration?" The info should be in /proc or /sys and not in an
+> >>external config file, particularly if a different versions per-kernel is
+> >>needed and people are trying new kernels and perhaps falling back to the
+> >>old.
+> >
+> >Every distro has different needs for its device naming and groups and
+> >other intergration into the boot process.  To force all of them to unify
+> >on one-grand-way-of-doing-things would just not work out at all.
 > 
->>Lee Revell wrote:
->>
->>>On Tue, 2005-12-06 at 14:13 -0500, Jeff Garzik wrote:
->>>
->>>>Let's hope the rev-eng people do it the right way, by having one team 
->>>>write a document, and a totally separate team write the driver from
->>>>that document.
->>
->>>Isn't it also legal for a single person or team to capture all IO
->>>to/from the device with a bus analyzer or kernel debugger and write a
->>>driver from that, as long as you don't disassemble the original driver?
->>
->>It's still legally shaky.  The "Chinese wall" approach I described above 
->>is beyond reproach, and that's where Linux needs to be.
+> Did I say that. No, I said it would be desirable to provide a working 
+> config with the kernel, to which something could be symlinked. This no 
+> more "forces" distributions to do anything than LSB. It would provide a 
+> default, it would provide something working, and if I didn't like it I 
+> could change it. But I wouldn't have to try and change thing way up in 
+> initrd so I can boot one kernel or another...
+
+That already works today. All distros I know are capable to run
+kernel.org kernels, if you care yourself, that the rootfs is accessible.
+
+> >Look at all of the variations in the udev tarball between the different
+> >vendor configurations (we put them in there for other people to base
+> >their distro off of, if they want to.)
+> >
+> >So providing this config in the kernel will just not work, sorry.
 > 
-> 
-> I know you are not a lawyer but do you have a pointer or two?  As long
-> as we are REing for interoperability I've never read anything to
-> indicate the approach I described could be a problem even in the US.
+> We have standard libraries, header files, system calls, why is a 
+> standard in this case a bad thing? Actually not even a standard, 
+> perhaps, a default. It wouldn't make it one bit harder to have custom 
+> names, for those who believe different is better.
 
-The _potential_ for problems is very high:
+Just give it its time. It will happen without anybody claiming to have
+or to be a standard. We are already much more similar than we've ever
+been across the current devel releases of all major distros.
+The complete replacement of hotplug by udev rules, kernel uevents and
+kernel event replay triggers made the situation so much simpler and better
+than it ever was.
 
-1) [ref Alan's email] copying programming sequences
+It's, as in most cases, not about someone defining some standard, talk a
+lot about it, create an interest group, write a noisy paper... - it's the
+whole lot of real work to come up with a solution that is convincing enough
+for the involved parties, and to manage all the different interests people
+have and still get things done at the same time. It has almost nothing
+to do with a "standard".
 
-2) Lack of Chinese wall requires TRUST and EVIDENCE that you did the 
-rev-eng without "source code that fell off the back of a truck" [i.e. 
-illegally obtained] or "docs that fell off the back of a truck."
+Convergence will just happen, cause it makes sense and there is a reasonable
+way to do it. And there was no such thing in that area in the past that
+made this kind of sense.
 
-3) Lack of Chinese wall increases the likelihood that a SCOX or other 
-entity could use that as a legal weapon against Linux.
+And yeah, the never ending discussion about stupid options like devfs
+does not help anything here. It should have been removed a long time
+ago, so that the the confused people start to walk in the right direction
+instead of delaying the needed convergence progress again and again.
 
-In Linux, I really have no way of knowing how questionable a driver 
-submission is, if it did not arrive from the Chinese wall approach, or a 
-known hacker with a valid path to hardware docs/engineers/code.  Past 
-experience shows that Mr. Unknown Hacker is likely to take legal 
-shortcuts when writing the driver.
-
-If I accept code of highly questionable origin, then I put Linux in 
-jeopardy.
-
-	Jeff
-
-
+Thanks,
+Kay

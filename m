@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932554AbVLFOX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbVLFOXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932554AbVLFOX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 09:23:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbVLFOX4
+	id S932238AbVLFOXa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 09:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbVLFOXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 09:23:56 -0500
-Received: from bay24-f4.bay24.hotmail.com ([64.4.18.54]:35895 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S932554AbVLFOXz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 09:23:55 -0500
-Message-ID: <BAY24-F4B9004DBECC32E6BD7FC488400@phx.gbl>
-X-Originating-IP: [195.238.198.245]
-X-Originating-Email: [aimo.asiakas@hotmail.com]
-From: "Aimo Asiakas" <aimo.asiakas@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Tue, 06 Dec 2005 16:23:52 +0200
+	Tue, 6 Dec 2005 09:23:30 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10398 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932238AbVLFOXa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 09:23:30 -0500
+Date: Tue, 6 Dec 2005 15:22:37 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Andy Isaacson <adi@hexapodia.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+Message-ID: <20051206142237.GB1814@elf.ucw.cz>
+References: <20051205081935.GI22168@hexapodia.org> <20051205121728.GF5509@elf.ucw.cz> <1133791084.3872.53.camel@laptop.cunninghams> <200512052328.01999.rjw@sisk.pl> <1133832773.6360.38.camel@localhost> <20051206020626.GO22168@hexapodia.org> <1133835586.3896.33.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-X-OriginalArrivalTime: 06 Dec 2005 14:23:53.0148 (UTC) FILETIME=[AF2277C0:01C5FA70]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133835586.3896.33.camel@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->greg k-h
->
->[1] My usual response is, "If we are so dumb, why are you using the kernel
->      made by us?", which usually stops the conversation right there.
-This is indeed a very good question. Maybe Greg is right and we really 
-should not be using
-their kernel. There are alternatives that are open source and equally good 
-if not better (BSD, Solaris).
+Hi!
 
-Linux is made for the members of the Linux community (family) who understand 
-how important it is to get all the hardware details and other trade secrets 
-made available public domain. This is a live and death issue to the 
-community because it lmakes it possible to hackers to continue to hack. 
-Binary (only) drivers are considered evil because then may cause the 
-hardware information flow to hackers to stop forever. Linux should be made 
-the dominating desktop OS so that stupid hardware companies will be forced 
-to realize that resistence is futile.
+> Hi. Tue, 2005-12-06 at 12:06, Andy Isaacson wrote:
+> > Could we rework it to avoid writing clean pages out to the swsusp image,
+> > but keep a list of those pages and read them back in *after* having
+> > resumed?  Maybe do the /dev/initrd ('less +/once Documentation/initrd.txt'
+> > if you're not familiar with it) trick to make the list of pages available 
+> > to a userland helper.
+> 
+> The problem is that once you let userspace run, you have absolutely no
+> control over what pages are read from or written to, and if a userspace
+> app assumes that data is there in a page when it isn't, you have a
+> recipe for an oops at best, and possibly for on disk
+> corruption. Pages
 
-But what do the desktop customers (the ones who should start using Linux) 
-expect? We would expect that Linux works with the hardware we have or 
-whatever we decide to buy. And more important we expect that the 
-applications we need are available for Linux. Do we care about hackers' 
-right to free hardware information? No. This means that we users are 
-complete morons and we should be brainwashed to realize how cool thing Linux 
-is.
+No, that will not be a problem. You just resume system as you do now,
+most pages will be not there. *But kernel knows it is not there*, and
+will on-demand load them back. It will be normal userland application
+doing readback. There's absolutely no risk of corruption.
 
-So the conclusion is that we (potential) customers should grow up to the 
-level where we can fully understand the importance of the Linux movement. 
-The kernel community in turn does the right thing in trying to enforce pure 
-GPL even if it causes some unavoidable damage to usability of Linux. Linux 
-will sooner or later dominate the desktop. Until that happens we we users 
-should support the effort of the development community and happily suffer 
-from hardware compatibility problems (or user some less state-of-the-art 
-hardware). Or should we?
+Imagine something that saves list of needed pages before suspend, then
+does something like
 
-As I said maybe Greg's opinion is correct. We stupid morons should let the 
-kernel guys to play with their nice sandbox in whatever way they like. We 
-don't contribute anything to the kernel so we definitely don't have any vote 
-on what they do or don't do. We should stop raising idiotic issues like 
-unbanning binary only drivers. Instead by moving to some other open source 
-kernel we can improve the S/N ratio of this mailing list. This gives the 
-kernel community good working peace to build as pure GPL kernel as they 
-like.
+cat `cat /proc/[0-9]*/maps | grep / | sed 's:.* /:/:' | sort -u` > /dev/null
 
-Regards,
+...it should work pretty well. And worst thing it can do is send your
+system thrashing.
 
-Aimo
-
-_________________________________________________________________
-Nopea ja hauska tapa l‰hett‰‰ viestej‰ reaaliaikaisesti - MSN Messenger. 
-http://messenger.msn.fi
-
+								Pavel
+-- 
+Thanks, Sharp!

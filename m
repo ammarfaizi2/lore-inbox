@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbVLFCYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbVLFCYe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbVLFCYK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 21:24:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbVLFCYJ
+	id S964931AbVLFCYe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 21:24:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbVLFCYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 21:24:09 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:50839 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id S964928AbVLFCYI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 21:24:08 -0500
-Message-Id: <200512060110.jB61AMHF004027@pincoya.inf.utfsm.cl>
-To: Florian Weimer <fw@deneb.enyo.de>
-cc: Adrian Bunk <bunk@stusta.de>, Greg KH <greg@kroah.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel 
-In-Reply-To: Message from Florian Weimer <fw@deneb.enyo.de> 
-   of "Mon, 05 Dec 2005 21:33:06 BST." <87hd9n708t.fsf@mid.deneb.enyo.de> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Mon, 05 Dec 2005 22:10:22 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 5 Dec 2005 21:24:34 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:15254 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S964931AbVLFCYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 21:24:32 -0500
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051206020626.GO22168@hexapodia.org>
+References: <20051205081935.GI22168@hexapodia.org>
+	 <20051205121728.GF5509@elf.ucw.cz>
+	 <1133791084.3872.53.camel@laptop.cunninghams>
+	 <200512052328.01999.rjw@sisk.pl> <1133832773.6360.38.camel@localhost>
+	 <20051206020626.GO22168@hexapodia.org>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1133835586.3896.33.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 06 Dec 2005 12:21:08 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Weimer <fw@deneb.enyo.de> wrote:
+Hi. Tue, 2005-12-06 at 12:06, Andy Isaacson wrote:
+> Could we rework it to avoid writing clean pages out to the swsusp image,
+> but keep a list of those pages and read them back in *after* having
+> resumed?  Maybe do the /dev/initrd ('less +/once Documentation/initrd.txt'
+> if you're not familiar with it) trick to make the list of pages available 
+> to a userland helper.
 
-[...]
+The problem is that once you let userspace run, you have absolutely no
+control over what pages are read from or written to, and if a userspace
+app assumes that data is there in a page when it isn't, you have a
+recipe for an oops at best, and possibly for on disk corruption. Pages
+that haven't been read yet could conceivably be set up to be treated as
+faults, but then we're making things a lot more complicated than Pavel
+or I want to do. That's why a good portion of the improvements in
+Suspend2 have concentrated on making the process work faster - doing
+more than one I/O at a time results in a good performance improvement.
 
-> You mentioned security issues in your initial post.  I think it would
-> help immensely if security bugs would be documented properly (affected
-> versions, configuration requirements, attack range, loss type etc.)
-> when the bug is fixed, by someone who is familiar with the code.
-> (Currently, this information is scraped together mostly by security
-> folks, sometimes after considerable time has passed.)  Having a
-> central repository with this kind of information would enable vendors
-> and not-quite-vendors (people who have their own set of kernels for
-> their machines) to address more vulnerabilties promptly, including
-> less critical ones.
+Regards,
 
-I've fixed bugs which turned out to be security vulnerabilities. And I
-didn't know (or even care much) at the time. Finding out if some random bug
-has security implications, and exactly which ones/how much of a risk they
-pose is normally /much/ harder than to fix the bugs.  And rather pointless,
-after the fix is in.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Nigel
+

@@ -1,88 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbVLFTel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbVLFTg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030204AbVLFTel (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 14:34:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030198AbVLFTel
+	id S1030198AbVLFTg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 14:36:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030206AbVLFTg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 14:34:41 -0500
-Received: from 6.143.111.62.revers.nsm.pl ([62.111.143.6]:64488 "HELO
-	matthew.ogrody.nsm.pl") by vger.kernel.org with SMTP
-	id S1030204AbVLFTek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 14:34:40 -0500
-Date: Tue, 6 Dec 2005 20:34:34 +0100
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-Message-ID: <20051206193434.GB4232@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512061649.14470.pluto@agmk.net> <20051206190051.GA4232@irc.pl> <200512062011.55234.pluto@agmk.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TRYliJ5NKNqkz5bu"
-Content-Disposition: inline
-In-Reply-To: <200512062011.55234.pluto@agmk.net>
-User-Agent: Mutt/1.5.4i
+	Tue, 6 Dec 2005 14:36:57 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:23744 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030198AbVLFTg4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 14:36:56 -0500
+Date: Tue, 6 Dec 2005 11:36:43 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [RFC 1/3] Framework for accurate node based statistics
+In-Reply-To: <20051206192603.GX11190@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0512061131500.19637@schroedinger.engr.sgi.com>
+References: <20051206182843.19188.82045.sendpatchset@schroedinger.engr.sgi.com>
+ <20051206183524.GU11190@wotan.suse.de> <Pine.LNX.4.62.0512061105220.19475@schroedinger.engr.sgi.com>
+ <20051206192603.GX11190@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 6 Dec 2005, Andi Kleen wrote:
 
---TRYliJ5NKNqkz5bu
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > Yuck. That code uses atomic operations and is not aware of atomic64_t.
+> Hmm? What code are you looking at? 
+include/asm-generic/local.h. this is the default right? And 
+include/asm-ia64/local.h.
+ 
+> At least i386/x86-64/generic don't use any atomic operations, just
+> normal non atomic on bus but atomic for interrupts local rmw.
 
+inc/dec are atomic by default on x86_64?
+ 
+> Do you actually need 64bit? 
 
-On Tue, Dec 06, 2005 at 08:11:55PM +0100, Pawe=B3 Sikora wrote:
-> Dnia wtorek, 6 grudnia 2005 20:00, Tomasz Torcz napisa=B3:
-> > On Tue, Dec 06, 2005 at 04:49:14PM +0100, Pawe=B3 Sikora wrote:
-> > > Dnia wtorek, 6 grudnia 2005 16:30, Florian Weimer napisa=B3:
-> > > > * Brian Gerst:
-> > > > > Once again I'd like to point out that user's purchase power means
-> > > > > jack when they only have two choices for video:  ATI and Nvidia. =
- You
-> > > > > can't walk into a computer store and find anything else (I don't
-> > > > > count integrated video on the motherboard as a solution, since on=
-ly
-> > > > > Intel boards have it, sorry AMD users).  Even over the web it's h=
-ard
-> > > > > to find anything else.
-> > > >
-> > > > What about Matrox cards?  Are there open drivers for accelerated 2D
-> > > > operation?
-> > >
-> > > Open 2D is nothing new. The OpenGL is a major part.
-> > > Matrox and XGI (e.g. Volari V3 based cards) have openGL parts closed.
-> >
-> >  Interesting remark, but false.
->=20
-> I investigated only mtx driver from theirs website.
-
- Binary driver from matrox website caontains, IIRC, only some interface
-to access matrox card in dual-monitor modes. It's irrelevant for OpenGL.
-
-> > Xorg ships open source driver with full 3D acceleration suport forMatro=
-x.
->=20
-> For which card?
-
- For my Matrox G550 and earlier models.
-
---=20
-Tomasz Torcz               "Never underestimate the bandwidth of a station
-zdzichu@irc.-nie.spam-.pl    wagon filled with backup tapes." -- Jim Gray
-
-
---TRYliJ5NKNqkz5bu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: gpg --search-keys Tomasz Torcz
-
-iD8DBQFDlefKThhlKowQALQRAufXAKCBj8+3Vm6N6saXKB4qzRzVhETCJQCeOmDo
-xPWnL2zCIBd0CaYuyX9GCxE=
-=hgwk
------END PGP SIGNATURE-----
-
---TRYliJ5NKNqkz5bu--
+32 bit limits us in the worst case to 8 Terabytes of RAM (assuming a very 
+small page size of 4k and 31 bit available for an atomic variable 
+[sparc]). SGI already has installations with 15 Terabytes of RAM.

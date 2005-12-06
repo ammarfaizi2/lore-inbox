@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbVLFFnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVLFFsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbVLFFnE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 00:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbVLFFnD
+	id S964784AbVLFFsU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 00:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbVLFFsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 00:43:03 -0500
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:1902 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S964825AbVLFFnC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 00:43:02 -0500
+	Tue, 6 Dec 2005 00:48:19 -0500
+Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:10644 "HELO
+	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S964784AbVLFFsT (ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Tue, 6 Dec 2005 00:48:19 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=xlX7pO8CpvzM66om+qzpe/fXkLt+lTbp+Ah9OHr8/Q3l51gxXBeh95XPbTSl7ForbVynkD1f3+ZYRbzVO5zvBo/ys6KKTLbvTIT+3omr7F1DvYrmkfrOYJ4kjBDnpvzX9EvWBbsZSHUFvFIFR0NT6hALO198J7e8q6vrrxWbT5E=  ;
-Message-ID: <439524E2.7050500@yahoo.com.au>
-Date: Tue, 06 Dec 2005 16:42:58 +1100
+  b=Lhs2fj99me9s8gmNMPwwMwiS1tklJsddC+8zYX2uF6cLVkBrgV9fAp0Sf6pZuat2X8kGtYpEhtkhOa0D2z8YxYPAZry/n9hlq2o4dj4bdXjuu0sPJfosTGZZDyTztQ+h69EFpQHfcby4pfbY5Ue+mwgoRmnpeLhWdNlhzjIrsIw=  ;
+Message-ID: <4395261C.8000907@yahoo.com.au>
+Date: Tue, 06 Dec 2005 16:48:12 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Andrew Morton <akpm@osdl.org>, theonetruekenny@yahoo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: nfs unhappiness with memory pressure
-References: <20051205210442.17357.qmail@web34106.mail.mud.yahoo.com>	 <1133822367.8003.5.camel@lade.trondhjem.org>	 <20051206143641.3feadaea.akpm@osdl.org> <1133844026.8007.36.camel@lade.trondhjem.org>
-In-Reply-To: <1133844026.8007.36.camel@lade.trondhjem.org>
+To: "David S. Miller" <davem@davemloft.net>
+CC: Linux-Kernel@vger.kernel.org, linux-mm@kvack.org, paul.mckenney@us.ibm.com,
+       wfg@mail.ustc.edu.cn
+Subject: Re: [RFC] lockless radix tree readside
+References: <4394EC28.8050304@yahoo.com.au> <20051205.191153.19905732.davem@davemloft.net>
+In-Reply-To: <20051205.191153.19905732.davem@davemloft.net>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> On Tue, 2005-12-06 at 14:36 +1100, Andrew Morton wrote:
-> 
->>Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
->>
->>>Argh... Not sure entirely how to deal with that... We definitely don't
->>> want the thing futzing around inside throttle_vm_writeout(), 'cos
->>> writeout isn't going to happen while the socket blocks.
->>>
->>
->>As far as the core VM is concerned, these pages are really "dirty", only it
->>happens to be a different flavour of dirtiness.  So perhaps we should
->>continue to mark these pages as dirty and let NFS internally take care
->>of which end of the wire they're dirty at.
->>
->>Presumably calling writepage() a second time won't be very useful.  Or will
->>it?  Perhaps when NFS sees writepage against a PageDirty && PageUnstable
->>page it can recognise that as a hint to kick off a server-side write.
+David S. Miller wrote:
+> From: Nick Piggin <nickpiggin@yahoo.com.au>
+> Date: Tue, 06 Dec 2005 12:40:56 +1100
 > 
 > 
-> Calling writepages() would actually be better. That will do the right
-> thing, and trigger a commit if there are unstable writes.
+>>I realise that radix-tree.c isn't a trivial bit of code so I don't
+>>expect reviews to be forthcoming, but if anyone had some spare time
+>>to glance over it that would be great.
+> 
+> 
+> I went over this a few times and didn't find any obvious
+> problems with the RCU aspect of this.
 > 
 
-writepage should as well, then it would have a better chance
-of just doing the right thing.
+Thanks!
+
+> 
+>>Is my given detail of the implementation clear? Sufficient? Would
+>>diagrams be helpful?
+> 
+> 
+> If I were to suggest an ascii diagram for a comment, it would be
+> one which would show the height invariant this patch takes advantage
+> of.
+> 
+
+I'll see if I can make something reasonably descriptive. And possibly
+another diagram to show the node insertion concurrency cases vs lookup.
+These things are the main concepts to understand, so I agree diagrams
+might be helpful.
+
+Nick
 
 -- 
 SUSE Labs, Novell Inc.

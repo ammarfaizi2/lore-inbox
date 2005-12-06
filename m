@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVLFQQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbVLFQ12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbVLFQQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 11:16:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVLFQQ6
+	id S932281AbVLFQ12 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 11:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932286AbVLFQ12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 11:16:58 -0500
-Received: from wproxy.gmail.com ([64.233.184.198]:37850 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932220AbVLFQQ5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 11:16:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Crfj0DYAE77k6tjln/gUpSMXzCCF64uGLUM1sp1F/zuzT/8TsfUe7dKolsx1ddNXJDSVSv0hvCAhK38dCK5CX9HhGRLdnMIUEPejbC7Wsqp9ZbLRXaOiblrzZWXh0YktLR1cIMyAfUtFCZh3C1mI+OC+8PNcdq+6QgvVISuKbBI=
-Message-ID: <9e4733910512060816k26e12313y6b9a943d7cce4341@mail.gmail.com>
-Date: Tue, 6 Dec 2005 11:16:56 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	Tue, 6 Dec 2005 11:27:28 -0500
+Received: from darla.ti-wmc.nl ([217.114.97.45]:47822 "EHLO smtp.wmc")
+	by vger.kernel.org with ESMTP id S932281AbVLFQ11 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 11:27:27 -0500
+Message-ID: <4395BBDB.307@ti-wmc.nl>
+Date: Tue, 06 Dec 2005 17:27:07 +0100
+From: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>	 <200512051826.06703.andrew@walrond.org> <1133807641.9356.50.camel@laptopd505.fenrus.org>
+In-Reply-To: <1133807641.9356.50.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/5/05, Arjan van de Ven <arjan@infradead.org> wrote:
-> Linux in a binary world
+Arjan van de Ven wrote:
+> On Mon, 2005-12-05 at 18:26 +0000, Andrew Walrond wrote:
+> 
+>>On Monday 05 December 2005 10:52, Arjan van de Ven wrote:
+>>
+>>>a hypothetical doomsday scenario by Arjan van de Ven
+>>>
+>>
+>>Can I ask what prompted your post?
+> 
+> 
+> I got one too many hatemails from a "nvidia fanboy" who blamed me for
+> just about anything wrong in the world.... I fear that most of these
+> people have no idea why open source drivers matter, or at least what the
+> consequences are for not caring about drivers being open or not.
+> 
+> 
 
-Why not start our own Linux doomsday? Give the closed source vendors
-exactly what they fear the most, a patent lawsuit. Whining will get us
-nowhere, hitting the vendor's revenue stream will get you anything you
-want.
+I suppose this is as good as any point in the thread to add my 2 
+eurocents...
 
-US patent infringement provides the giant sledgehammer of having a
-court issue an injunction stopping the shipment of product that is in
-litigation over patent infringement. Note that it does not have to be
-proven that the the patents are valid. RIM is very close to having an
-injunction issued against it even though it is likely that the patents
-they are accused of violating will be found invalid.
+I use nvidia cards, mostly because they work better than an alternative 
+for now, but every time I need a card I look for stuff that is more 
+open, because I hate to have to use the non-free closed stuff to do 
+graphics. (Having no real choice in this is really annoying to me!)
 
-The game plan is simple. IBM and Intel hold enough hardware patents to
-take down any hardware company these choose. Donate one or two key
-patents to the FSF with a rule that they can't be used against the
-company that donated them. The FSF then moves for a patent
-infringement injunction against ATI, NVidia or other closed source
-vendor.
+I believe the kernel community has a great leverage point on these 
+proprietary vendors (although I don't know how far this goes), by 
+changing the ABI/API fairly often, they will have to adjust their driver 
+building tools as well. This will become annoying to them and may cause 
+them to free some more parts of their code. This is not a full solution, 
+but at least it will cause them to rethink their policies more often.
 
-The target company gets a choice:
+Alternatively, I'd be willing to pay some more money than for an 
+equivalent closed source driver card, to get good hardware with a GPL 
+driver. I may not be part of the majority of PC equipment buyers though ;-)
 
-1) open source the drivers and hardware. As a sweetener contribute a
-patent to the pool and aim the FSF at the next domino. In exchange the
-suit will be dropped.
+Cheers
 
-2) Endure the lawsuit and hope the FSF doesn't get a $450M settlement
-like NTP is getting from RIM. Meanwhile watch your stock price tumble
-since the injunction prevents you from shipping product.
-
-http://www.latimes.com/news/opinion/editorials/la-ed-ebay4dec04,0,6943666.story?coll=la-news-comment-editorials
-
---
-Jon Smirl
-jonsmirl@gmail.com
+Simon

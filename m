@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932575AbVLFNiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbVLFNh6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932575AbVLFNiV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 08:38:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbVLFNh7
+	id S932586AbVLFNh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 08:37:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbVLFNhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 08:37:59 -0500
-Received: from mail.enyo.de ([212.9.189.167]:16792 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S932575AbVLFNhu (ORCPT
+	Tue, 6 Dec 2005 08:37:33 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:43227 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932584AbVLFNhQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 08:37:50 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-References: <20051203135608.GJ31395@stusta.de>
-	<20051203205911.GX18919@marowsky-bree.de>
-	<87wtij2iao.fsf@mid.deneb.enyo.de>
-	<20051206132007.GU21914@marowsky-bree.de>
-Date: Tue, 06 Dec 2005 14:37:46 +0100
-In-Reply-To: <20051206132007.GU21914@marowsky-bree.de> (Lars Marowsky-Bree's
-	message of "Tue, 6 Dec 2005 14:20:07 +0100")
-Message-ID: <87lkyyqrbp.fsf@mid.deneb.enyo.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Dec 2005 08:37:16 -0500
+Message-Id: <20051206140008.698069000@localhost.localdomain>
+References: <20051206135608.860737000@localhost.localdomain>
+Date: Tue, 06 Dec 2005 21:56:21 +0800
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@lameter.com>,
+       Rik van Riel <riel@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
+       Andrea Arcangeli <andrea@suse.de>, Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: [PATCH 13/13] mm: fix minor scan count bugs
+Content-Disposition: inline; filename=mm-scan-accounting-fix.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lars Marowsky-Bree:
+- in isolate_lru_pages(): reports one more scan. Fix it.
+- in shrink_cache(): 0 pages taken does not mean 0 pages scanned. Fix it.
 
-> On 2005-12-06T01:14:23, Florian Weimer <fw@deneb.enyo.de> wrote:
->
->> > The right way to address this is to work with the distribution of your
->> > choice to make these updates available faster.
->> Working with a distribution benefits that distribution alone.  Working
->> on (e.g.) kernel security advisories would benefit everyone.  It's not
->> a speed issue, it's more about coverage.  And full coverage is very
->> hard to get without support from the real developers.
->
-> The distributions differ from another in their sync and branch points
-> from the main kernel, and there's no way before hell freezes over this
-> is going to change.
->
-> So, you essentially need to maintain the kernel your distribution
-> branched from. This means: backport fixes/features relevant to your
-> release, and make sure the rest of the system stays in sync. This puts
-> the effort there where it belongs: to those people benefitting from it.
+Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+---
 
-Lars, please read again what I wrote.  It's not about branch
-maintenance ("here's the patch"), it's about providing basic
-information which can guide branch maintenance ("here's an issue you
-need to look at if you use code from the IPv6 stack in version 2.6.10
-to 2.6.12").
+ mm/vmscan.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
+
+--- linux-2.6.15-rc5-mm1.orig/mm/vmscan.c
++++ linux-2.6.15-rc5-mm1/mm/vmscan.c
+@@ -916,7 +916,8 @@ static int isolate_lru_pages(int nr_to_s
+ 	struct page *page;
+ 	int scan = 0;
+ 
+-	while (scan++ < nr_to_scan && !list_empty(src)) {
++	while (scan < nr_to_scan && !list_empty(src)) {
++		scan++;
+ 		page = lru_to_page(src);
+ 		prefetchw_prev_lru_page(page, src, flags);
+ 
+@@ -963,14 +964,15 @@ static void shrink_cache(struct zone *zo
+ 	update_zone_age(zone, nr_scan);
+ 	spin_unlock_irq(&zone->lru_lock);
+ 
+-	if (nr_taken == 0)
+-		return;
+-
+ 	sc->nr_scanned += nr_scan;
+ 	if (current_is_kswapd())
+ 		mod_page_state_zone(zone, pgscan_kswapd, nr_scan);
+ 	else
+ 		mod_page_state_zone(zone, pgscan_direct, nr_scan);
++
++	if (nr_taken == 0)
++		return;
++
+ 	nr_freed = shrink_list(&page_list, sc);
+ 	if (current_is_kswapd())
+ 		mod_page_state(kswapd_steal, nr_freed);
+
+--

@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbVLFVLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbVLFVMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030232AbVLFVLx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 16:11:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965040AbVLFVLx
+	id S965040AbVLFVMv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 16:12:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbVLFVMu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 16:11:53 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:47598 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S965039AbVLFVLw convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 16:11:52 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Olivier MATZ <zer0@droids-corp.org>
-Subject: Re: [PATCH] asm-i386 : config.h should not be included out of kernel
-Date: Tue, 6 Dec 2005 22:11:39 +0100
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <4395F405.9010107@droids-corp.org>
-In-Reply-To: <4395F405.9010107@droids-corp.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Tue, 6 Dec 2005 16:12:50 -0500
+Received: from hansmi.home.forkbomb.ch ([213.144.146.165]:9245 "EHLO
+	hansmi.home.forkbomb.ch") by vger.kernel.org with ESMTP
+	id S965039AbVLFVMu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 16:12:50 -0500
+Date: Tue, 6 Dec 2005 22:12:42 +0100
+From: Michael Hanselmann <linux-kernel@hansmi.ch>
+To: Andy Botting <andy@andybotting.com>
+Cc: Stelian Pop <stelian@popies.net>,
+       Parag Warudkar <kernel-stuff@comcast.net>,
+       debian-powerpc@lists.debian.org,
+       linux-kernel <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org,
+       johannes@sipsolutions.net
+Subject: Re: PowerBook5,8 - TrackPad update
+Message-ID: <20051206211242.GA17017@hansmi.ch>
+References: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net> <70210ED5-37CA-40BC-8293-FF1DAA3E8BD5@comcast.net> <20051129000615.GA20843@hansmi.ch> <20051130223917.GA15102@hansmi.ch> <20051130234653.GB15102@hansmi.ch> <1133533712.23129.25.camel@localhost.localdomain> <20051204224221.GA28218@hansmi.ch> <1133840316.10415.4.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512062211.40142.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+In-Reply-To: <1133840316.10415.4.camel@localhost>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag 06 Dezember 2005 21:26 schrieb Olivier MATZ:
-> @@ -1,9 +1,9 @@
-> -#include <linux/config.h>
-> -
->  #ifndef _ASMi386_PARAM_H
->  #define _ASMi386_PARAM_H
->  
->  #ifdef __KERNEL__
-> +#include <linux/config.h>  /* mustn't include <linux/config.h> outside of
-> #ifdef __KERNEL__ */ +
+Hello Andy
 
-Just drop that line completely, including linux/config.h is no longer 
-necessary.
+On Tue, Dec 06, 2005 at 02:38:36PM +1100, Andy Botting wrote:
+> I managed to get this working on my 15" PowerBook, but the USB id for my
 
-	Arnd <><
+Thanks for testing.
+
+> Keyboard/Trackpad is 0x0214 as opposed to the 0x0215 you have in the
+> patch. Are you going to add 0x0214 (and any others?) to this patch
+> before sending it off?
+
+Yes, I can add that one. I don't know about any other IDs that will work
+with this patch, so I can't add them.
+
+> Also, I found that the patch didn't apply cleanly on my kernel
+> 2.6.15-rc5 kernel. I think many of the line numbers were out, so I ended
+> up patching the file manually. 
+
+A friend of mine tested it today with a fresh unpacked 2.6.15-rc15 and
+it applied cleanly.
+
+Greets,
+Michael

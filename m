@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932592AbVLFOcG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbVLFOgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932592AbVLFOcG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 09:32:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932598AbVLFOcG
+	id S1751463AbVLFOgb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 09:36:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751464AbVLFOga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 09:32:06 -0500
-Received: from mail.enyo.de ([212.9.189.167]:41673 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S932592AbVLFOcF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 09:32:05 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Greg KH <greg@kroah.com>
+	Tue, 6 Dec 2005 09:36:30 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:52436 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751463AbVLFOga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 09:36:30 -0500
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: Arjan van de Ven <arjan@infradead.org>
+To: Aimo Asiakas <aimo.asiakas@hotmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-References: <20051203135608.GJ31395@stusta.de>
-	<9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com>
-	<20051203201945.GA4182@kroah.com>
-	<9a8748490512031948m26b04d3ds9fbc652893ead40@mail.gmail.com>
-	<20051204115650.GA15577@merlin.emma.line.org>
-	<20051204232454.GG8914@kroah.com>
-Date: Tue, 06 Dec 2005 15:32:02 +0100
-In-Reply-To: <20051204232454.GG8914@kroah.com> (Greg KH's message of "Sun, 4
-	Dec 2005 15:24:54 -0800")
-Message-ID: <87psoapa8t.fsf@mid.deneb.enyo.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <BAY24-F4B9004DBECC32E6BD7FC488400@phx.gbl>
+References: <BAY24-F4B9004DBECC32E6BD7FC488400@phx.gbl>
+Content-Type: text/plain
+Date: Tue, 06 Dec 2005 15:36:26 +0100
+Message-Id: <1133879787.4836.30.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH:
+>  And more important we expect that the 
+> applications we need are available for Linux. Do we care about hackers' 
+> right to free hardware information? No. 
 
-> What are we breaking that people are complaining so much about?
-> Specifics please.
+In my article I tried to explain to you why you SHOULD care. If you can
+get your drivers ONLY for the SLES/RHEL distros... would you be happy
+with that? Are you currently running RHEL or SLES? If not, why not? If
+you have a reason for that... then maybe you shouldn't be happy about
+the direction things are going either!
 
-Drastic performance changes in certain pipe usage patterns.  This was
-probably too early in the 2.6 series to count, though.
+Open drivers are NOT just for hackers. GET THAT? They are there for YOU
+as well. So that YOU can run whatever linux you want, not just today but
+also tomorrow and next month and later. Maybe you don't want to read the
+source code, maybe you're no programmer at all and don't know how to
+read it. Yet even if you use nvidia and ndiswrapper you depend on the
+rest of the kernel drivers to be open to run the distribution you want,
+and not RHEL or SLES.
 
-There might be some subtle changes in the netfilter/routing
-interaction which break user configurations, but this still being
-tracked down (and maybe the any behavior is fine because it's
-unspecified; hard to tell).
+Maybe saying this makes me a fundamentalist GPL terrorist (as some have
+called me as reaction to the article I wrote). To some degree I don't
+care, I've been called worse.
+
+But I am hoping that people like you (and I don't mean that in any
+negative way) start to realize why you can run the linux you want today,
+and that embracing binary drivers as a good thing will threaten that
+ability in the future. 
+
+
+
+

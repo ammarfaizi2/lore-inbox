@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbVLFVMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbVLFVNS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965040AbVLFVMv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 16:12:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbVLFVMu
+	id S1030239AbVLFVNS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 16:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030238AbVLFVNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 16:12:50 -0500
-Received: from hansmi.home.forkbomb.ch ([213.144.146.165]:9245 "EHLO
-	hansmi.home.forkbomb.ch") by vger.kernel.org with ESMTP
-	id S965039AbVLFVMu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 16:12:50 -0500
-Date: Tue, 6 Dec 2005 22:12:42 +0100
-From: Michael Hanselmann <linux-kernel@hansmi.ch>
-To: Andy Botting <andy@andybotting.com>
-Cc: Stelian Pop <stelian@popies.net>,
-       Parag Warudkar <kernel-stuff@comcast.net>,
-       debian-powerpc@lists.debian.org,
-       linux-kernel <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org,
-       johannes@sipsolutions.net
-Subject: Re: PowerBook5,8 - TrackPad update
-Message-ID: <20051206211242.GA17017@hansmi.ch>
-References: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net> <70210ED5-37CA-40BC-8293-FF1DAA3E8BD5@comcast.net> <20051129000615.GA20843@hansmi.ch> <20051130223917.GA15102@hansmi.ch> <20051130234653.GB15102@hansmi.ch> <1133533712.23129.25.camel@localhost.localdomain> <20051204224221.GA28218@hansmi.ch> <1133840316.10415.4.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Dec 2005 16:13:17 -0500
+Received: from zproxy.gmail.com ([64.233.162.206]:28680 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030240AbVLFVNR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 16:13:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oOK/dQ1sw1lhM0i6C4ofa6RxLJevyvIfhJi/7+q5W2NySxqvz4J5gkg/tcINdqcYZna+jeJD6r0rXA4KhpMWOKkv9SeXUC1pUJsOAYVvegIwGqQjmPOukb0Y39hPIOYjms44VrtBsPtN43I+bLqORwZQZOhdf3qO02ITFMDz54g=
+Message-ID: <35fb2e590512061313l658b8408le7434e1f54a3df7b@mail.gmail.com>
+Date: Tue, 6 Dec 2005 21:13:16 +0000
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Cc: Jean-Christian de Rivaz <jc@eclis.ch>,
+       Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       Jon Masters <jon@linuxuser.co.uk>
+In-Reply-To: <9a8748490512061112x622f6b3as1ea95dd430f09918@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <1133840316.10415.4.camel@localhost>
-User-Agent: Mutt/1.5.11
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	 <4394D396.1020102@am.sony.com>
+	 <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
+	 <200512052122.02485.gene.heskett@verizon.net>
+	 <4395784F.4090202@eclis.ch>
+	 <9a8748490512061112x622f6b3as1ea95dd430f09918@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andy
+On 12/6/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> On 12/6/05, Jean-Christian de Rivaz <jc@eclis.ch> wrote:
 
-On Tue, Dec 06, 2005 at 02:38:36PM +1100, Andy Botting wrote:
-> I managed to get this working on my 15" PowerBook, but the USB id for my
+> > Gene Heskett a écrit :
 
-Thanks for testing.
+> > Can you post a link about this open source video card ? I strongly wants
 
-> Keyboard/Trackpad is 0x0214 as opposed to the 0x0215 you have in the
-> patch. Are you going to add 0x0214 (and any others?) to this patch
-> before sending it off?
+Merci monsieur de votre question.
 
-Yes, I can add that one. I don't know about any other IDs that will work
-with this patch, so I can't add them.
+> http://www.opengraphics.org/
 
-> Also, I found that the patch didn't apply cleanly on my kernel
-> 2.6.15-rc5 kernel. I think many of the line numbers were out, so I ended
-> up patching the file manually. 
+I'll take a look at this - and I'd appreciate as much spam as possible
+on this so I can turn it into some interesting articles on the topic.
+Looks like I'll need to buy one of these :-)
 
-A friend of mine tested it today with a fresh unpacked 2.6.15-rc15 and
-it applied cleanly.
-
-Greets,
-Michael
+Jon.

@@ -1,71 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVLFBbl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVLFBfw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbVLFBbl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 20:31:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVLFBbl
+	id S964898AbVLFBfw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 20:35:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVLFBfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 20:31:41 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:62606 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S964903AbVLFBbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 20:31:40 -0500
-Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andy Isaacson <adi@hexapodia.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-In-Reply-To: <20051205233430.GA1770@elf.ucw.cz>
-References: <20051205081935.GI22168@hexapodia.org>
-	 <20051205121728.GF5509@elf.ucw.cz>
-	 <1133791084.3872.53.camel@laptop.cunninghams>
-	 <20051205172938.GC25114@atrey.karlin.mff.cuni.cz>
-	 <1133816579.3872.83.camel@localhost>  <20051205233430.GA1770@elf.ucw.cz>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1133832410.6360.35.camel@localhost>
+	Mon, 5 Dec 2005 20:35:52 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:59483
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S964898AbVLFBfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 20:35:52 -0500
+Date: Tue, 6 Dec 2005 02:35:49 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, arjan@infradead.org,
+       andrew@walrond.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Message-ID: <20051206013549.GP28539@opteron.random>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512051826.06703.andrew@walrond.org> <1133817575.11280.18.camel@localhost.localdomain> <1133817888.9356.78.camel@laptopd505.fenrus.org> <1133819684.11280.38.camel@localhost.localdomain> <4394D396.1020102@am.sony.com> <20051206005341.GN28539@opteron.random> <4394E750.8020205@am.sony.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Tue, 06 Dec 2005 11:26:51 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4394E750.8020205@am.sony.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Mon, Dec 05, 2005 at 05:20:16PM -0800, Tim Bird wrote:
+> This interpretation puts kernel developers in the
+> position of making the legal decision about which
 
-On Tue, 2005-12-06 at 09:34, Pavel Machek wrote:
-> > > If goal is "make it work with least effort", answer is of course
-> > > suspend2; but I need someone to help me doing it right.
-> > 
-> > How do you think suspend2 does it wrong? Is it just that you think that
-> > everything belongs in userspace, or is there more to it?
-> 
-> Everything belongs in userspace... that makes it "wrong
-> enough". Userland and kernel programming is quite different, so any
-> improvements to suspend2 will be wasted, long-term. You'll make users
-> happy for now, but it means u-swsusp gets less users and less
-> developers, making "doing it right" slightly harder...
+An hint can hardly defined as a "legal decision".
 
-Ok. I guess I need help then in seeing why everything belongs in
-userspace. Actually, let's revise that for a start - I know you don't
-really mean everything, because even you still do the atomic copy in
-kernel space... or are you planning on changing that too? :)
+An hint _only_ means "be careful you _might_ be illegal".
 
-I'm not unwilling to be convinced - I just don't see why, with such a
-lowlevel operation as suspending to disk, userspace is the place to put
-everything. The preference for userspace seems to me to be just that - a
-preference.
+"might be" is hardly a "legal deicision", infact it's not decision at
+all.
 
-Regarding improvements to suspend2 being wasted long term, I actually
-think that I could port at least part of it to userspace without too
-much effort at all. My main concern would be exporting the information
-and interfaces needed in a way that isn't ugly, is reliable and doesn't
-open security holes. I'm not at all convinced that kmem meets those
-criteria. But if you can show me a better way, I'll happily come on
-board.
+It's like a "you should check your stuff to be sure you're ok".
 
-Regards,
+This is the way I understood it at least...
 
-Nigel
+> Different developers are likely to have
+> different viewpoints on which interfaces pose risks.
 
+The way I understood it, is that you may be breaking the GPL even if you
+don't circumvent any _GPL tag. You've to check your stuff yourself, and
+if you have troubles because of a _GPL tag, it means you must check it
+even more closely because you got an explicit _warning_. A warning isn't
+a "legal deicsion", it's just a warning.
+
+> I guess Linus gets the last call (as usual),
+> so there's some possibility of some amount
+> of uniformity here.
+
+agreed.
+
+> Most kernel developers will naturally tend
+> towards making more symbols EXPORT_SYMBOL_GPL,
+> whether there's valid legal basis for it or not.
+
+Could be, but then those developers would be wrong. We're not required
+to make a symbol as _GPL to make the module illegal. So we should be
+reasonable.
+
+> (Please let me know if there's a lawyer somewhere
+> reviewing the insertion of EXPORT_SYMBOL_GPLs)
+
+I don't think there is one, and there needs to be no one, because the
+_GPL tag is not a legal decision, is an hint given from programmers to
+lawyers. Programmers may be totally wrong, but we do our best to help on
+the legal side too.
+
+> David currently suggests that *all* interfaces
+> be so designated.  I suspect he strongly believes
+> that any use of a kernel interface creates a
+> derivative work.  I have a different opinion.
+
+This question I don't want to answer because I'm a programmer, this
+requires a lawyer because this is the real _legal_decision_: what is a
+derived work of the kernel is the only thing that  decides what is legal
+and illegal.
+
+> Well, if it makes sense to have developers giving out legal
+> advice, then I guess so.
+
+;) Of course I meant it makes perfect sense that it's _only_ an "hint".

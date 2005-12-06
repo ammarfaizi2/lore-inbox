@@ -1,94 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964945AbVLFKgv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964946AbVLFKmm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964945AbVLFKgv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 05:36:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbVLFKgu
+	id S964946AbVLFKmm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 05:42:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964947AbVLFKmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 05:36:50 -0500
-Received: from moutng.kundenserver.de ([212.227.126.171]:42451 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964945AbVLFKgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 05:36:50 -0500
-From: "David Engraf" <engraf.david@netcom-sicherheitstechnik.de>
-To: <linux-kernel@vger.kernel.org>
-Cc: "'Andrew Morton'" <akpm@osdl.org>
-Subject: [PATCH] Win32 equivalent to GetTickCount systemcall (i386)
-Date: Tue, 6 Dec 2005 11:36:42 +0100
-Message-ID: <009201c5fa50$f3f58a10$0a016696@EW10>
+	Tue, 6 Dec 2005 05:42:42 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:38330 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S964946AbVLFKmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 05:42:42 -0500
+Date: Tue, 6 Dec 2005 11:42:47 +0100
+From: Sander <sander@humilis.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Brian Gerst <bgerst@didntduck.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Message-ID: <20051206104247.GA3354@favonius>
+Reply-To: sander@humilis.net
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org> <20051206030828.GA823@opteron.random>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Thread-Index: AcX6UOubYVOdLZgMSe2dYzztiLYpAA==
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:79a9c929f10b28b00e544b1aedb42267
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051206030828.GA823@opteron.random>
+X-Uptime: 11:19:44 up 18 days, 20:53, 31 users,  load average: 2.91, 2.26, 2.04
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a new systemcall on i386 architectures returning the jiffies
-value to the application. 
-As a kernel developer you can use jiffies but from the user space there is
-no equivalent function which counts every millisecond like the Win32
-GetTickCount.
+Andrea Arcangeli wrote (ao):
+> Let's not forget they make money selling the hardware, the binary only
+> driver is free.
 
-linux-2.6.15-rc5-mm1
+The driver is not free. You paid for it when you bought the card. The
+driver is just as free as the tires on the car you just bought.
 
-
-
-diff -puN include/asm-i386/unistd_orig.h include/asm-i386/unistd.h
---- include/asm-i386/unistd_orig.h	2005-12-06 12:07:16.000000000 +0100
-+++ include/asm-i386/unistd.h	2005-12-06 12:10:07.000000000 +0100
-@@ -300,8 +300,9 @@
- #define __NR_inotify_add_watch	292
- #define __NR_inotify_rm_watch	293
- #define __NR_migrate_pages	294
-+#define __NR_tickcount	295
- 
--#define NR_syscalls 295
-+#define NR_syscalls 296
- 
- /*
-  * user-visible error numbers are in the range -1 - -128: see
-
-
-
-
-diff -puN arch/i386/kernel/syscall_table_orig.S
-arch/i386/kernel/syscall_table.S
---- arch/i386/kernel/syscall_table_orig.S	2005-12-06
-12:07:14.000000000 +0100
-+++ arch/i386/kernel/syscall_table.S	2005-12-06 12:10:40.000000000 +0100
-@@ -294,3 +294,4 @@ ENTRY(sys_call_table)
- 	.long sys_inotify_add_watch
- 	.long sys_inotify_rm_watch
- 	.long sys_migrate_pages
-+	.long sys_tickcount
-
-
-
-diff -puN kernel/sys_orig.c kernel/sys.c
---- kernel/sys_orig.c	2005-12-06 12:06:49.000000000 +0100
-+++ kernel/sys.c	2005-12-06 12:08:57.000000000 +0100
-@@ -1855,3 +1855,9 @@ asmlinkage long sys_prctl(int option, un
- 	}
- 	return error;
- }
-+
-+asmlinkage long sys_tickcount(long __user *ret)
-+{
-+	if (copy_to_user(ret, (void*)&jiffies, sizeof(long)))
-+	return 0;
-+}
-
-
-
-Thanks
-David Engraf
-
-
-____________
-Virus checked by G DATA AntiVirusKit
-Version: AVK 16.2037 from 06.12.2005
-Virus news: www.antiviruslab.com
-
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

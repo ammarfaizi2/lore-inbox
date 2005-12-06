@@ -1,54 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVLFIN2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbVLFIMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbVLFIN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 03:13:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVLFIN2
+	id S1750743AbVLFIMx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 03:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbVLFIMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 03:13:28 -0500
-Received: from baythorne.infradead.org ([81.187.2.161]:46483 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S1750745AbVLFIN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 03:13:27 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: David Woodhouse <dwmw2@infradead.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Greg KH <greg@kroah.com>, Tim Bird <tim.bird@am.sony.com>,
-       Dave Airlie <airlied@gmail.com>, arjan@infradead.org,
-       andrew@walrond.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20051206060734.GB7096@alpha.home.local>
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
-	 <4394DA1D.3090007@am.sony.com> <20051206040820.GB26602@kroah.com>
-	 <20051206060734.GB7096@alpha.home.local>
-Content-Type: text/plain
-Date: Tue, 06 Dec 2005 08:13:10 +0000
-Message-Id: <1133856790.4136.5.camel@baythorne.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 6 Dec 2005 03:12:53 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:36063 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750743AbVLFIMw convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 03:12:52 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [git pull 02/14] Add Wistron driver
+Date: Tue, 6 Dec 2005 16:11:45 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F840A53FCC5@pdsmsx403>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [git pull 02/14] Add Wistron driver
+thread-index: AcX3YAEsHiXYmxZDQfafrVT4fMthbgC2tw0A
+From: "Yu, Luming" <luming.yu@intel.com>
+To: <dtor_core@ameritech.net>
+Cc: "Linus Torvalds" <torvalds@osdl.org>, "Vojtech Pavlik" <vojtech@suse.cz>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Brown, Len" <len.brown@intel.com>
+X-OriginalArrivalTime: 06 Dec 2005 08:11:46.0050 (UTC) FILETIME=[B325AE20:01C5FA3C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-06 at 07:07 +0100, Willy Tarreau wrote:
-> Most of those small companies who propose a Linux driver simply start
-> by paying a student during summer for porting their
-> windows/sco/whatever driver to linux. They think the job is done when
-> he leaves. Unfortunately, they receive complaints 3 months later from
-> users because the driver is broken and does not build. They don't have
-> the resources to keep a permanent developer on it, and they quickly
-> understand that Linux is just a "geek OS" and that it's the last time
-> they release any driver.
+>On 12/2/05, Yu, Luming <luming.yu@intel.com> wrote:
+>> I just tested module wistron_btn on  one Acer Aspire laptop after
+>> adding one dmi entry.  The wistron_btn found BIOS interfaces.
+>> One visible error is the bluetooth light won't turn on upon
+>> stroking bluetooth button.
+>> Without wistron_btn module, the bluetooth light works.
+>>  with acpi enabled, I didn't try acpi disabled)
+>>
+>
+>Did you add the new keymap table with KE_BLUETOOTH to go with 
+>that DMI entry?
 
-If they hired someone who did a _proper_ job -- writing a fully portable
-and maintainable driver which got merged into Linus' kernel, then this
-scenario doesn't make much sense. In-kernel code does generally get
-maintained as interfaces change.
+Yes,  I added.
+>
+>> wistron_btn polls a cmos address to detect hotkey event.  It
+>> is not necessary, because there do have ACPI interrupt triggered upon
+>> hotkeys.
+>>
+>
+>Unfortunately ACPI does not route these events through the input layer
+>so aside from special buttons (like sleep) it is not very useful.
 
-Of course, maintaining a driver _outside_ the kernel tree is a
-never-ending task -- but why would anybody ever want to do that?
+There are acpi daemon for any evetnts that needs user space attention.
+I'm not sure if these events should be routed to input layer.
+But, we can do that.
 
--- 
-dwmw2
+>
+>> So, my suggestion is to disable this module when ACPI enabled.
+>> We need to implement hotkey support from ACPI subsystem for my
+>> Acer aspire laptop.
+>
+>I do not agree.
 
+For my acer aspire laptop.
+I added dmi entry, and keymap.
 
+With acpi disabled, bluetooth light doesn't work
+With acpi disabled + wistron module,  bluetooth light doesn't work.
+
+With acpi enabled +  wistron module,  bluetooth light doesn't work
+
+With acpi enabled - wistron module, bluetooth works.
+>From these test cases, do you still think wistron driver can help my
+laptop?
+
+Thanks,
+Luming

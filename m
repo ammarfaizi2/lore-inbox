@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbVLFB0m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVLFBbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964900AbVLFB0m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 20:26:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVLFB0l
+	id S964903AbVLFBbl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 20:31:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbVLFBbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 20:26:41 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:56793 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964900AbVLFB0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 20:26:41 -0500
-Date: Mon, 5 Dec 2005 20:26:12 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Florian Weimer <fw@deneb.enyo.de>
-cc: Rob Landley <rob@landley.net>, Lee Revell <rlrevell@joe-job.com>,
-       Mark Lord <lkml@rtr.ca>, Adrian Bunk <bunk@stusta.de>,
-       David Ranson <david@unsolicited.net>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-In-Reply-To: <873bl72fpt.fsf@mid.deneb.enyo.de>
-Message-ID: <Pine.LNX.4.58.0512052018290.29880@gandalf.stny.rr.com>
-References: <20051203135608.GJ31395@stusta.de> <873bl76zd3.fsf@mid.deneb.enyo.de>
- <1133817679.6724.52.camel@localhost.localdomain> <200512051709.08940.rob@landley.net>
- <Pine.LNX.4.58.0512051947070.29325@gandalf.stny.rr.com> <873bl72fpt.fsf@mid.deneb.enyo.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Dec 2005 20:31:41 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:62606 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S964903AbVLFBbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 20:31:40 -0500
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andy Isaacson <adi@hexapodia.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+In-Reply-To: <20051205233430.GA1770@elf.ucw.cz>
+References: <20051205081935.GI22168@hexapodia.org>
+	 <20051205121728.GF5509@elf.ucw.cz>
+	 <1133791084.3872.53.camel@laptop.cunninghams>
+	 <20051205172938.GC25114@atrey.karlin.mff.cuni.cz>
+	 <1133816579.3872.83.camel@localhost>  <20051205233430.GA1770@elf.ucw.cz>
+Content-Type: text/plain
+Organization: Cyclades
+Message-Id: <1133832410.6360.35.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Tue, 06 Dec 2005 11:26:51 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Dec 2005, Florian Weimer wrote:
-> >
-> > Actually, they are already maintaining 2.6.x.y, (x => 11, 12, ...)
->
-> I think the 2.6.x.y series is no longer maintained once 2.6.x+1 has
-> been released for some time (surely after 2.6.x+2).
->
+Hi.
 
-The same can still go for this, but instead of stopping at 2.6.x+2 we could
-stop at 2.6.x+6 (or +5), and just not care about 2.6.x+[1-4].  But that
-would be strong enough for those that would like the stable branch to
-maintain it themselves.  Currently it'l hard to pick a 2.6.x that you want
-to stay with since the 2.6.x.y is stopped right after 2.6.x+1 is out.  But
-if not all 2.6.x has a .y, then that would focus more distrobutions or
-whatever to pick the same one to support.
+On Tue, 2005-12-06 at 09:34, Pavel Machek wrote:
+> > > If goal is "make it work with least effort", answer is of course
+> > > suspend2; but I need someone to help me doing it right.
+> > 
+> > How do you think suspend2 does it wrong? Is it just that you think that
+> > everything belongs in userspace, or is there more to it?
+> 
+> Everything belongs in userspace... that makes it "wrong
+> enough". Userland and kernel programming is quite different, so any
+> improvements to suspend2 will be wasted, long-term. You'll make users
+> happy for now, but it means u-swsusp gets less users and less
+> developers, making "doing it right" slightly harder...
 
-Oh well, I'm just spitting out a bunch of lip service here. It actually
-seems interesting to try, and if I actually had a need to do this, I
-would. But right now my focus is elsewhere.
+Ok. I guess I need help then in seeing why everything belongs in
+userspace. Actually, let's revise that for a start - I know you don't
+really mean everything, because even you still do the atomic copy in
+kernel space... or are you planning on changing that too? :)
 
-Cheers,
+I'm not unwilling to be convinced - I just don't see why, with such a
+lowlevel operation as suspending to disk, userspace is the place to put
+everything. The preference for userspace seems to me to be just that - a
+preference.
 
--- Steve
+Regarding improvements to suspend2 being wasted long term, I actually
+think that I could port at least part of it to userspace without too
+much effort at all. My main concern would be exporting the information
+and interfaces needed in a way that isn't ugly, is reliable and doesn't
+open security holes. I'm not at all convinced that kmem meets those
+criteria. But if you can show me a better way, I'll happily come on
+board.
+
+Regards,
+
+Nigel
 

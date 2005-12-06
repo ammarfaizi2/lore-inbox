@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932647AbVLFWmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbVLFWpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932647AbVLFWmH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 17:42:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbVLFWmH
+	id S932530AbVLFWpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 17:45:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932651AbVLFWpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 17:42:07 -0500
-Received: from smtp03.infoave.net ([165.166.0.28]:55023 "EHLO
-	SMTP03.INFOAVE.NET") by vger.kernel.org with ESMTP id S932647AbVLFWmG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 17:42:06 -0500
-Date: Tue, 06 Dec 2005 17:40:44 -0500
-From: John Kelly <jakelly@shtc.net>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-In-reply-to: <20051206215526.GW9973@stusta.de>
-To: linux-kernel@vger.kernel.org
-Message-id: <e84cp1hc27ciiangqbtj6encnp4so7ubph@4ax.com>
-MIME-version: 1.0
-X-Mailer: Forte Agent 1.93/32.576 English (American)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-References: <20051203135608.GJ31395@stusta.de>
- <9a8748490512030629t16d0b9ebv279064245743e001@mail.gmail.com>
- <20051203201945.GA4182@kroah.com>
- <9a8748490512031948m26b04d3ds9fbc652893ead40@mail.gmail.com>
- <20051204115650.GA15577@merlin.emma.line.org>
- <20051204232454.GG8914@kroah.com> <20051205062609.GA7096@alpha.home.local>
- <20051206175422.GG3084@kroah.com> <vombp1d302marce67hpkolu2vs0rru7vi9@4ax.com>
- <20051206215526.GW9973@stusta.de>
+	Tue, 6 Dec 2005 17:45:09 -0500
+Received: from mail.enyo.de ([212.9.189.167]:56263 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S932530AbVLFWpH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 17:45:07 -0500
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Brian Gerst <bgerst@didntduck.org>,
+       Arjan van de Ven <arjan@infradead.org>, "M." <vo.sinh@gmail.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	<20051205121851.GC2838@holomorphy.com>
+	<20051206011844.GO28539@opteron.random>
+	<43944F42.2070207@didntduck.org> <20051206030828.GA823@opteron.random>
+	<f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
+	<1133869465.4836.11.camel@laptopd505.fenrus.org>
+	<4394ECA7.80808@didntduck.org> <4395E2F4.7000308@pobox.com>
+	<1133897867.29084.14.camel@mindpipe> <4395E962.2060309@pobox.com>
+	<1133898911.29084.25.camel@mindpipe>
+Date: Tue, 06 Dec 2005 23:44:43 +0100
+In-Reply-To: <1133898911.29084.25.camel@mindpipe> (Lee Revell's message of
+	"Tue, 06 Dec 2005 14:55:11 -0500")
+Message-ID: <87ek4phmlg.fsf@mid.deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 06 Dec 2005 22:55:26 +0100, Adrian Bunk <bunk@stusta.de>
-wrote:
+* Lee Revell:
 
->> So if Adrian wants to begin where -stable ends, there is no reason for
->> people to oppose his efforts.
+> I know you are not a lawyer but do you have a pointer or two?  As long
+> as we are REing for interoperability I've never read anything to
+> indicate the approach I described could be a problem even in the US.
 
->I've read the whole thread, and I haven't seen anyone opposing my idea.
-
->Most people in this thread who did or do maintain some kernel branch 
->simply expressed that in their opinion my idea would be too much work 
->for too few users...
-
-If you build it, will they come?
-
-No one really knows.  There is only one way to find out.
-
-
+Are we still reverse-engineering for interoperability when we
+essentially want to duplicate a piece of software with identical
+purpose? 8-)

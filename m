@@ -1,33 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbVLFH6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbVLFIDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbVLFH6U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 02:58:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbVLFH6T
+	id S1750728AbVLFIDi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 03:03:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVLFIDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 02:58:19 -0500
-Received: from d47-69-64-201.try.wideopenwest.com ([69.47.201.64]:33549 "HELO
-	cims.cz") by vger.kernel.org with SMTP id S932093AbVLFH6S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 02:58:18 -0500
-Message-ID: <bb1d01c5fa43$223d43e5$01487e9f@cims.cz>
-From: "Helena Whitley" <helenawhitleykc@cierpinski.de>
-To: linux-kernel@vger.kernel.org
-Subject: insetant hardons
-Date: Tue, 06 Dec 2005 09:57:01 +0100
-X-Priority: 1
-X-MSMail-Priority: High
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Tue, 6 Dec 2005 03:03:38 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:22735 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750728AbVLFIDh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 03:03:37 -0500
+Subject: Re: Help track a memory leak in 2.6.0..14
+From: Arjan van de Ven <arjan@infradead.org>
+To: Kalin KOZHUHAROV <kalin@thinrope.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43954489.5040309@thinrope.net>
+References: <43954489.5040309@thinrope.net>
+Content-Type: text/plain
+Date: Tue, 06 Dec 2005 09:03:34 +0100
+Message-Id: <1133856214.2858.13.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; format=flowed; charset=iso-8859-1; reply-type=original
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Be ERECT in less than 15 mins
+> Who uses that memory?
 
-PRlCE: $ 2 / use
+the programs
 
-visit our website --> goldslive.net
+slabtop
+xrestop
+cat /proc/meminfo
+
+are probably good starting points to find the leak; they give a detailed
+overview of various memory pools
 

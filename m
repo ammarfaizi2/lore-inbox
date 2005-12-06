@@ -1,93 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbVLFRxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932616AbVLFRxL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbVLFRxE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 12:53:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbVLFRxE
+	id S932616AbVLFRxL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 12:53:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932615AbVLFRxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 12:53:04 -0500
-Received: from web32110.mail.mud.yahoo.com ([68.142.207.124]:35740 "HELO
-	web32110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932605AbVLFRxC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 12:53:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=Kz+AiCpVg2ovZQhYRP54p45zQ3In2J2jZDZo76d1zAu+Yqn6nzOvwOxHdBnrLY6VoaGNBhdW5tMpB+7PB3aDFVEvWAN3pI2eWO0AdYTBVn3X/z03yOZW4mXqukmRhzJab4adH6kxSaYx7EWtf80AOeOsuf0KcY2DH2EQXvOBR1s=  ;
-Message-ID: <20051206175301.34596.qmail@web32110.mail.mud.yahoo.com>
-Date: Tue, 6 Dec 2005 09:53:01 -0800 (PST)
-From: Vinay Venkataraghavan <raghavanvinay@yahoo.com>
-Subject: Re: copy_from_user/copy_to_user question
-To: Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>
-Cc: Vinay Venkataraghavan <raghavanvinay@yahoo.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1133634378.6724.16.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 6 Dec 2005 12:53:11 -0500
+Received: from ns2.suse.de ([195.135.220.15]:7313 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932605AbVLFRxK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 12:53:10 -0500
+Date: Tue, 6 Dec 2005 18:52:56 +0100
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: akpm@osdl.org, Christoph Hellwig <hch@infradead.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, ak@suse.de,
+       torvalds@osdl.org
+Subject: Re: [PATCH 1/2] Zone reclaim V2
+Message-ID: <20051206175256.GO11190@wotan.suse.de>
+References: <20051206172444.18786.30131.sendpatchset@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051206172444.18786.30131.sendpatchset@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Thanks to Steve and everybody who sent such detailed
-and timely responses to my question. 
-
-The motivation for the copy to user question is due to
-the handling of ioctl calls in the driver for a chip
-that is widely used. I just could not beleive that
-they would/could commit such a mistake. 
-
-It looks like the old driver code still seems to work
-even without performing copy_to_user and
-copy_from_user.
-
-But this brings about another scenario. What if the
-case statement in the ioctl call only needs to have
-access to the members of the structure passed in
-through the arg pointer but does not need to modify
-these values and return values. 
-
-Is this still a problem if copy_to_user and
-copy_from_user is not used?
-
-Thanks,
-Vinay
-
-
---- Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> On Sat, 2005-12-03 at 15:35 -0700, Andi Kleen wrote:
-> > Steven Rostedt <rostedt@goodmis.org> writes:
-> > > 
-> > > Nope, the kernel is always locked into memory. 
-> If you take a page fault
-> > > from the kernel world, you will crash and burn.
-> The kernel is never
-> > > "swapped out".  So if you are in kernel mode,
-> going into do_page_fault
-> > > in arch/i386/mm/fault.c there is no path to swap
-> a page in.
-> > 
-> > Actually there is - when the page fault was caused
-> by *_user. 
+On Tue, Dec 06, 2005 at 09:24:44AM -0800, Christoph Lameter wrote:
+> Zone reclaim allows the reclaiming of pages from a zone if the number of free
+> pages falls below the watermark even if other zones still have enough pages
+> available. Zone reclaim is of particular importance for NUMA machines. It can
+> be more beneficial to reclaim a page than taking the performance penalties
+> that come with allocating a page on a remote zone.
 > 
-> Sorry I wasn't clearer.  I know the copy_user case
-> (and explained it in
-> detail earlier in this thread). I was talking about
-> what happens in the
-> memcpy case.  So that should have said "outside of
-> copy_user and
-> friends, there is no path to swap a page in".
+> The patch replaces Martin Hick's zone reclaim function (which was never
+> working properly).
 > 
-> -- Steve
-> 
-> 
-> 
+> An arch can control zone_reclaim by setting zone_reclaim_mode during bootup
+> if it is discovered that the kernel is running on an NUMA configuration.
+
+Looks much better. Thanks. But how about auto controlling the variable in generic
+code based on node_distance() (at least for the non node hotplug case)
 
 
+> +/*
+> + * Zone reclaim mode
+> + *
+> + * If non-zero call zone_reclaim when the number of free pages falls below
+> + * the watermarks.
+> + */
+> +int zone_reclaim_mode;
 
-		
-__________________________________________ 
-Yahoo! DSL – Something to write home about. 
-Just $16.99/mo. or less. 
-dsl.yahoo.com 
+I would mark it __read_mostly to avoid potential false sharing.
 
+-Andi

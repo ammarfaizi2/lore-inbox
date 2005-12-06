@@ -1,53 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbVLFK3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbVLFKbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbVLFK3f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 05:29:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVLFK3f
+	id S964944AbVLFKbh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 05:31:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVLFKbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 05:29:35 -0500
-Received: from user-0c938qu.cable.mindspring.com ([24.145.163.94]:20690 "EHLO
-	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
-	id S932547AbVLFK3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 05:29:35 -0500
-From: Luke-Jr <luke-jr@utopios.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Date: Tue, 6 Dec 2005 10:34:20 +0000
-User-Agent: KMail/1.9
-Cc: Rob Landley <rob@landley.net>, Greg KH <greg@kroah.com>
-References: <20051203152339.GK31395@stusta.de> <200512050559.34464.luke-jr@utopios.org> <200512051834.01384.rob@landley.net>
-In-Reply-To: <200512051834.01384.rob@landley.net>
-Public-GPG-Key: 0xD53E9583
-Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
-IM-Address: luke-jr@jabber.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Dec 2005 05:31:37 -0500
+Received: from mivlgu.ru ([81.18.140.87]:17367 "EHLO master.mivlgu.local")
+	by vger.kernel.org with ESMTP id S964944AbVLFKbg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 05:31:36 -0500
+Date: Tue, 6 Dec 2005 13:31:30 +0300
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Sergei Organov <osv@javad.com>, linux-kernel@vger.kernel.org
+Subject: Re: SATA ICH6M problems on Sharp M4000
+Message-ID: <20051206103129.GA18233@master.mivlgu.local>
+References: <87u0dri996.fsf@javad.com> <20051205202228.13232c10.vsu@altlinux.ru> <874q5nfm1e.fsf@javad.com> <439484EC.5080406@pobox.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
 Content-Disposition: inline
-Message-Id: <200512061034.21336.luke-jr@utopios.org>
+In-Reply-To: <439484EC.5080406@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 December 2005 00:34, Rob Landley wrote:
-> On Sunday 04 December 2005 23:59, Luke-Jr wrote:
-> > On Sunday 04 December 2005 23:22, Greg KH wrote:
-> > > On Sun, Dec 04, 2005 at 04:46:31AM +0000, Luke-Jr wrote:
-> > > > Well, devfs does have some abilities udev doesn't: hotplug/udev
-> > > > doesn't detect everything, and can result in rarer or non-PnP devices
-> > > > not being automatically available;
-> > >
-> > > Are you sure about that today?
-> >
-> > Nope, but I don't see how udev can possibly detect something that doesn't
-> > let the OS know it's there-- except, of course, loading the driver for it
-> > and seeing if it works.
->
-> Stuff shows up in /sys whether or not Linux has a driver loaded for it.
 
-Only if Linux is aware it exists. I'm thinking of those old ISA cards and 
-such.
--- 
-Luke-Jr
-Developer, Utopios
-http://utopios.org/
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Dec 05, 2005 at 01:20:28PM -0500, Jeff Garzik wrote:
+> Sergei Organov wrote:
+> >Sergey Vlasov <vsu@altlinux.ru> writes:
+> >>See http://lkml.org/lkml/2005/10/18/167 and the reply to it :-\
+> >
+> >Well, Jef's answer was:
+> >
+> >  This is a reasonable point, but the rare person who runs modular IDE o=
+n=20
+> >  these PATA/SATA combined mode beasts can certainly tell the IDE driver=
+=20
+> >  to not probe certain ports.
+> >
+> >I can say that the kernel I have problem with is from Debian "testing"
+> >distribution so those "rare person" going to become quite a few in the
+> >near future. Besides, Debian loads ata_piix first, then IDE, so telling
+> >the IDE to ignore certain ports won't help.
+
+mkinitrd in ALT Linux has some hacks to detect driver type (IDE or SCSI
+subsystem) and load all IDE drivers before SCSI - exactly for this reason.
+
+> >Though one can argue that that's yet another distribution problem, I
+> >fail to see a way for a distribution to overcome the problem provided it
+> >doesn't know the exact hardware it will run on. No hope for modularized
+> >kernel to run out of the box on given hardware?
+> >
+> >Jeff, is there any hope it will be fixed in the kernel.org sources, or
+> >should I report the problem to Debian instead so that they consider
+> >maintaining their own patch?
+>=20
+> Debian doesn't need to maintain a patch, they should load modules in the=
+=20
+> proper order.
+
+This will not help - without my patch the combined mode support code is
+not compiled if IDE is modular.
+
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFDlWiBW82GfkQfsqIRAmSPAKCSLbu3TSKTVD9XnL61K0VPAiZHrQCeMjLg
+RyzPGqJ5wVGvwLkQ5rvrcoY=
+=eSHv
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--

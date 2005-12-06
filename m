@@ -1,82 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbVLFIMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751516AbVLFIOq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbVLFIMx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 03:12:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbVLFIMx
+	id S1751516AbVLFIOq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 03:14:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751522AbVLFIOq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 03:12:53 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:36063 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750743AbVLFIMw convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 03:12:52 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 6 Dec 2005 03:14:46 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:58359 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751516AbVLFIOp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 03:14:45 -0500
+From: Len Brown <len.brown@intel.com>
+Organization: Intel Open Source Technology Center
+To: torvalds@osdl.org
+Subject: git pull on Linux/ACPI release tree
+Date: Tue, 6 Dec 2005 03:17:50 -0500
+User-Agent: KMail/1.8.2
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+References: <200512010305.43469.len.brown@intel.com>
+In-Reply-To: <200512010305.43469.len.brown@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [git pull 02/14] Add Wistron driver
-Date: Tue, 6 Dec 2005 16:11:45 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F840A53FCC5@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [git pull 02/14] Add Wistron driver
-thread-index: AcX3YAEsHiXYmxZDQfafrVT4fMthbgC2tw0A
-From: "Yu, Luming" <luming.yu@intel.com>
-To: <dtor_core@ameritech.net>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Vojtech Pavlik" <vojtech@suse.cz>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Brown, Len" <len.brown@intel.com>
-X-OriginalArrivalTime: 06 Dec 2005 08:11:46.0050 (UTC) FILETIME=[B325AE20:01C5FA3C]
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512060317.53925.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On 12/2/05, Yu, Luming <luming.yu@intel.com> wrote:
->> I just tested module wistron_btn on  one Acer Aspire laptop after
->> adding one dmi entry.  The wistron_btn found BIOS interfaces.
->> One visible error is the bluetooth light won't turn on upon
->> stroking bluetooth button.
->> Without wistron_btn module, the bluetooth light works.
->>  with acpi enabled, I didn't try acpi disabled)
->>
->
->Did you add the new keymap table with KE_BLUETOOTH to go with 
->that DMI entry?
+Hi Linus,
 
-Yes,  I added.
->
->> wistron_btn polls a cmos address to detect hotkey event.  It
->> is not necessary, because there do have ACPI interrupt triggered upon
->> hotkeys.
->>
->
->Unfortunately ACPI does not route these events through the input layer
->so aside from special buttons (like sleep) it is not very useful.
+please pull from: 
 
-There are acpi daemon for any evetnts that needs user space attention.
-I'm not sure if these events should be routed to input layer.
-But, we can do that.
+git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git release
 
->
->> So, my suggestion is to disable this module when ACPI enabled.
->> We need to implement hotkey support from ACPI subsystem for my
->> Acer aspire laptop.
->
->I do not agree.
+This will update the file shown below.
 
-For my acer aspire laptop.
-I added dmi entry, and keymap.
+thanks!
 
-With acpi disabled, bluetooth light doesn't work
-With acpi disabled + wistron module,  bluetooth light doesn't work.
+-Len
 
-With acpi enabled +  wistron module,  bluetooth light doesn't work
+ drivers/acpi/processor_idle.c |   20 +++++++++++++++-----
+ 1 files changed, 15 insertions(+), 5 deletions(-)
 
-With acpi enabled - wistron module, bluetooth works.
->From these test cases, do you still think wistron driver can help my
-laptop?
+through these commits:
 
-Thanks,
-Luming
+David Shaohua Li:
+      [ACPI] correct earlier SMP deep C-states on HT patch
+
+with this log:
+
+commit 927fe18397b3b1194a5b26b1d388d97e391e5fd2
+Merge: e4f5c82a92c2a546a16af1614114eec19120e40a 
+1e483969930a82e16767884449f3a121a817ef00
+Author: Len Brown <len.brown@intel.com>
+Date:   Mon Dec 5 17:08:40 2005 -0500
+
+    Pull 5165 into release branch
+
+commit 1e483969930a82e16767884449f3a121a817ef00
+Author: David Shaohua Li <shaohua.li@intel.com>
+Date:   Thu Dec 1 17:00:00 2005 -0500
+
+    [ACPI] correct earlier SMP deep C-states on HT patch
+    
+    http://bugzilla.kernel.org/show_bug.cgi?id=5165
+    
+    Change polarity of test for PLVL2_UP flag.
+    Skip promotion/demotion code when not needed.
+    
+    Signed-off-by: Shaohua Li <shaohua.li@intel.com>
+    Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+

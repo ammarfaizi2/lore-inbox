@@ -1,88 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbVLFWVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030282AbVLFWVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030274AbVLFWVq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 17:21:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbVLFWVp
+	id S1030282AbVLFWVK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 17:21:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbVLFWVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 17:21:45 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:57499 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030274AbVLFWVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 17:21:44 -0500
-Subject: Re: Reverse engineering (was Re: Linux in a binary world... a
-	doomsday scenario)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Brian Gerst <bgerst@didntduck.org>, Arjan van de Ven <arjan@infradead.org>,
-       "M." <vo.sinh@gmail.com>, Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <43960774.1000202@pobox.com>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <20051205121851.GC2838@holomorphy.com>
-	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
-	 <20051206030828.GA823@opteron.random>
-	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
-	 <1133869465.4836.11.camel@laptopd505.fenrus.org>
-	 <4394ECA7.80808@didntduck.org>  <4395E2F4.7000308@pobox.com>
-	 <1133897867.29084.14.camel@mindpipe>  <4395E962.2060309@pobox.com>
-	 <1133898911.29084.25.camel@mindpipe>  <43960774.1000202@pobox.com>
-Content-Type: text/plain
-Date: Tue, 06 Dec 2005 17:21:31 -0500
-Message-Id: <1133907691.29084.50.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 6 Dec 2005 17:21:09 -0500
+Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:54862 "HELO
+	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1030282AbVLFWVH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 17:21:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ld2IDbSzHQPF0QX/TDfLPlAAy8rgB1Szh64Dj3jG2wgTUrn1Z+bydaRh45VvHRwSmy0hruUFszzrTPK5w8jVZc1pdzDjCKUp25mrsgmv/E/4JNkrewLNiz1B6EPYCoVg6POzKElhnDHWC6Q+PgBl+vpq/wx+kdf3nQmV+xrMDNo=  ;
+Message-ID: <43960EC7.6030904@yahoo.com.au>
+Date: Wed, 07 Dec 2005 09:20:55 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nick Holloway <Nick.Holloway@pyrites.org.uk>
+CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.15-rc4 1/1] cpia: use vm_insert_page() instead of
+ remap_pfn_range()
+References: <20051205152758.GA29108@pyrites.org.uk> <20051206191012.GA27116@infradead.org> <20051206210445.GB7591@pyrites.org.uk>
+In-Reply-To: <20051206210445.GB7591@pyrites.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-06 at 16:49 -0500, Jeff Garzik wrote:
-> Lee Revell wrote:
-> > On Tue, 2005-12-06 at 14:41 -0500, Jeff Garzik wrote:
-> > 
-> >>Lee Revell wrote:
-> >>
-> >>>On Tue, 2005-12-06 at 14:13 -0500, Jeff Garzik wrote:
-> >>>
-> >>>>Let's hope the rev-eng people do it the right way, by having one team 
-> >>>>write a document, and a totally separate team write the driver from
-> >>>>that document.
-> >>
-> >>>Isn't it also legal for a single person or team to capture all IO
-> >>>to/from the device with a bus analyzer or kernel debugger and write a
-> >>>driver from that, as long as you don't disassemble the original driver?
-> >>
-> >>It's still legally shaky.  The "Chinese wall" approach I described above 
-> >>is beyond reproach, and that's where Linux needs to be.
-> > 
-> > 
-> > I know you are not a lawyer but do you have a pointer or two?  As long
-> > as we are REing for interoperability I've never read anything to
-> > indicate the approach I described could be a problem even in the US.
+Nick Holloway wrote:
+> On Tue, Dec 06, 2005 at 07:10:12PM +0000, Christoph Hellwig wrote:
 > 
-> The _potential_ for problems is very high:
+>>>    pos = (unsigned long)(cam->frame_buf);
+>>>    while (size > 0) {
+>>>-           page = vmalloc_to_pfn((void *)pos);
+>>>-           if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
+>>>+           page = vmalloc_to_page((void *)pos);
+>>>+           if (vm_insert_page(vma, start, page)) {
+>>
+>>it would be nicer to do the arithmetis on pos as pointers rather than unsigned
+>>long.  Also you might want to use alloc_pages + vmap instead of vmalloc so that
+>>you already have a page array.  Or we should provide a helper that walks over
+>>a vmalloc'ed region and calls vmalloc_to_page + vm_insert_page.  Either way
+>>this type of code is duplicated far too much and we'd really need some better
+>>interface for it.
 > 
-> 1) [ref Alan's email] copying programming sequences
 > 
-> 2) Lack of Chinese wall requires TRUST and EVIDENCE that you did the 
-> rev-eng without "source code that fell off the back of a truck" [i.e. 
-> illegally obtained] or "docs that fell off the back of a truck."
+> As I said in my previous mail, the patch was just switching to use
+> vm_insert_page, and not any other cleanups.
 > 
-> 3) Lack of Chinese wall increases the likelihood that a SCOX or other 
-> entity could use that as a legal weapon against Linux.
+> I agree that a helper is a good idea, as the vmalloc, SetPageReserved,
+> remap_pfn_range (was remap_page_range in 2.4) pattern has been copied
+> and pasted across many video4linux drivers.
 > 
-> In Linux, I really have no way of knowing how questionable a driver 
-> submission is, if it did not arrive from the Chinese wall approach, or a 
-> known hacker with a valid path to hardware docs/engineers/code.  Past 
-> experience shows that Mr. Unknown Hacker is likely to take legal 
-> shortcuts when writing the driver.
+> The cpia driver could do with other cleanups.
 > 
-> If I accept code of highly questionable origin, then I put Linux in 
-> jeopardy.
+>         - It doesn't have a sysfs release callback (so says warning printk).
+> 	- The colourspace conversion has been disabled, but should be
+> 	  ripped out.
+> 	- Needs to support V4L2 API
+> 
 
-Should this high barrier to entry for reverse engineered drivers be
-documented anywhere?  I would have expected black box reverse
-engineering to be OK for Linux driver development.
+- remove the last traces of rvmalloc (which is an oft repeated code
+   sequence in drivers, means something like vmalloc + SetPageReserved)
 
-Lee
+-- 
+SUSE Labs, Novell Inc.
 
+Send instant messages to your online friends http://au.messenger.yahoo.com 

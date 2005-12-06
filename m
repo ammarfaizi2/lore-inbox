@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932562AbVLFNgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbVLFNgu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932562AbVLFNgE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 08:36:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbVLFNgC
+	id S932571AbVLFNgu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 08:36:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932575AbVLFNgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 08:36:02 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:32985 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S932571AbVLFNf5 (ORCPT
+	Tue, 6 Dec 2005 08:36:41 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:34522 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932574AbVLFNg3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 08:35:57 -0500
-Message-Id: <20051206135820.201098000@localhost.localdomain>
+	Tue, 6 Dec 2005 08:36:29 -0500
+Message-Id: <20051206135922.125063000@localhost.localdomain>
 References: <20051206135608.860737000@localhost.localdomain>
-Date: Tue, 06 Dec 2005 21:56:14 +0800
+Date: Tue, 06 Dec 2005 21:56:18 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@lameter.com>,
@@ -19,283 +19,156 @@ Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@lameter.com>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
        Andrea Arcangeli <andrea@suse.de>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 06/13] mm: balance slab aging
-Content-Disposition: inline; filename=mm-balance-slab-aging.patch
+Subject: [PATCH 10/13] mm: let sc.nr_scanned/sc.nr_reclaimed accumulate
+Content-Disposition: inline; filename=mm-accumulate-nr-scanned-reclaimed-in-scan-control.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current slab shrinking code is way too fragile.
-Let it manage aging pace by itself, and provide a simple and robust interface.
-
-The design considerations:
-- use the same syncing facilities as that of the zones
-- keep the age of slabs in line with that of the largest zone
-  this in effect makes aging rate of slabs follow that of the most aged node.
-
-- reserve a minimal number of unused slabs
-  the size of reservation depends on vm pressure
-
-- shrink more slab caches only when vm pressure is high
-  the old logic, `mmap pages found' - `shrink more caches' - `avoid swapping',
-  sounds not quite logical, so the code is removed.
-
-- let sc->nr_scanned record the exact number of cold pages scanned
-  it is no longer used by the slab cache shrinking algorithm, but good for other
-  algorithms(e.g. the active_list/inactive_list balancing).
+Now that there's no need to keep track of nr_scanned/nr_reclaimed for every
+single round of shrink_zone(), remove the total_scanned/total_reclaimed and
+let nr_scanned/nr_reclaimed accumulate between shrink_zone() calls.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- fs/drop-pagecache.c |    2 
- include/linux/mm.h  |    7 +--
- mm/vmscan.c         |  106 +++++++++++++++++++++-------------------------------
- 3 files changed, 48 insertions(+), 67 deletions(-)
+ mm/vmscan.c |   36 ++++++++++++++----------------------
+ 1 files changed, 14 insertions(+), 22 deletions(-)
 
---- linux-2.6.15-rc5-mm1.orig/include/linux/mm.h
-+++ linux-2.6.15-rc5-mm1/include/linux/mm.h
-@@ -798,7 +798,9 @@ struct shrinker {
- 	shrinker_t		shrinker;
- 	struct list_head	list;
- 	int			seeks;	/* seeks to recreate an obj */
--	long			nr;	/* objs pending delete */
-+	unsigned long		aging_total;
-+	unsigned long		aging_milestone;
-+	unsigned long		page_age;
- 	struct shrinker_stats	*s_stats;
- };
- 
-@@ -1080,8 +1082,7 @@ int in_gate_area_no_task(unsigned long a
- 
- int drop_pagecache_sysctl_handler(struct ctl_table *, int, struct file *,
- 					void __user *, size_t *, loff_t *);
--int shrink_slab(unsigned long scanned, gfp_t gfp_mask,
--			unsigned long lru_pages);
-+int shrink_slab(struct zone *zone, int priority, gfp_t gfp_mask);
- 
- #endif /* __KERNEL__ */
- #endif /* _LINUX_MM_H */
 --- linux-2.6.15-rc5-mm1.orig/mm/vmscan.c
 +++ linux-2.6.15-rc5-mm1/mm/vmscan.c
-@@ -165,6 +165,18 @@ static inline void update_zone_age(struc
- 						<< PAGE_AGE_SHIFT) / len;
- }
- 
-+static inline void update_slab_age(struct shrinker *s,
-+					unsigned long len, int nr_scan)
-+{
-+	s->aging_total += nr_scan;
-+
-+	if (s->aging_total - s->aging_milestone > len)
-+		s->aging_milestone += len;
-+
-+	s->page_age = ((s->aging_total - s->aging_milestone)
-+						<< PAGE_AGE_SHIFT) / len;
-+}
-+
- /*
-  * Add a shrinker callback to be called from the vm
-  */
-@@ -176,7 +188,9 @@ struct shrinker *set_shrinker(int seeks,
-         if (shrinker) {
- 	        shrinker->shrinker = theshrinker;
- 	        shrinker->seeks = seeks;
--	        shrinker->nr = 0;
-+	        shrinker->aging_total = 0;
-+	        shrinker->aging_milestone = 0;
-+	        shrinker->page_age = 0;
- 		shrinker->s_stats = alloc_percpu(struct shrinker_stats);
- 		if (!shrinker->s_stats) {
- 			kfree(shrinker);
-@@ -204,6 +218,7 @@ void remove_shrinker(struct shrinker *sh
- EXPORT_SYMBOL(remove_shrinker);
- 
- #define SHRINK_BATCH 128
-+#define SLAB_RESERVE 1000
- /*
-  * Call the shrink functions to age shrinkable caches
-  *
-@@ -212,76 +227,49 @@ EXPORT_SYMBOL(remove_shrinker);
-  * percentages of the lru and ageable caches.  This should balance the seeks
-  * generated by these structures.
-  *
-- * If the vm encounted mapped pages on the LRU it increase the pressure on
-- * slab to avoid swapping.
-+ * @priority reflects the vm pressure, the lower the value, the more to
-+ * shrink.
-  *
-- * We do weird things to avoid (scanned*seeks*entries) overflowing 32 bits.
-- *
-- * `lru_pages' represents the number of on-LRU pages in all the zones which
-- * are eligible for the caller's allocation attempt.  It is used for balancing
-- * slab reclaim versus page reclaim.
-+ * @zone is better to be the least over-scanned one (normally the highest
-+ * zone).
-  *
-  * Returns the number of slab objects which we shrunk.
-  */
--int shrink_slab(unsigned long scanned, gfp_t gfp_mask, unsigned long lru_pages)
-+int shrink_slab(struct zone *zone, int priority, gfp_t gfp_mask)
+@@ -1225,7 +1225,6 @@ int try_to_free_pages(struct zone **zone
  {
- 	struct shrinker *shrinker;
+ 	int priority;
  	int ret = 0;
- 
--	if (scanned == 0)
--		scanned = SWAP_CLUSTER_MAX;
--
- 	if (!down_read_trylock(&shrinker_rwsem))
- 		return 1;	/* Assume we'll be able to shrink next time */
- 
- 	list_for_each_entry(shrinker, &shrinker_list, list) {
--		unsigned long long delta;
--		unsigned long total_scan;
--		unsigned long max_pass = (*shrinker->shrinker)(0, gfp_mask);
--
--		delta = (4 * scanned) / shrinker->seeks;
--		delta *= max_pass;
--		do_div(delta, lru_pages + 1);
--		shrinker->nr += delta;
--		if (shrinker->nr < 0) {
--			printk(KERN_ERR "%s: nr=%ld\n",
--					__FUNCTION__, shrinker->nr);
--			shrinker->nr = max_pass;
--		}
--
--		/*
--		 * Avoid risking looping forever due to too large nr value:
--		 * never try to free more than twice the estimate number of
--		 * freeable entries.
--		 */
--		if (shrinker->nr > max_pass * 2)
--			shrinker->nr = max_pass * 2;
--
--		total_scan = shrinker->nr;
--		shrinker->nr = 0;
--
--		while (total_scan >= SHRINK_BATCH) {
--			long this_scan = SHRINK_BATCH;
--			int shrink_ret;
-+		while (!zone || age_gt(zone, shrinker)) {
- 			int nr_before;
-+			int nr_after;
- 
- 			nr_before = (*shrinker->shrinker)(0, gfp_mask);
--			shrink_ret = (*shrinker->shrinker)(this_scan, gfp_mask);
--			if (shrink_ret == -1)
-+			if (nr_before < SLAB_RESERVE * priority / DEF_PRIORITY)
-+				break;
-+
-+			nr_after = (*shrinker->shrinker)(SHRINK_BATCH, gfp_mask);
-+			if (nr_after == -1)
- 				break;
--			if (shrink_ret < nr_before) {
--				ret += nr_before - shrink_ret;
--				shrinker_stat_add(shrinker, nr_freed,
--					(nr_before - shrink_ret));
-+
-+			if (nr_after < nr_before) {
-+				int nr_freed = nr_before - nr_after;
-+
-+				ret += nr_freed;
-+				shrinker_stat_add(shrinker, nr_freed, nr_freed);
- 			}
--			shrinker_stat_add(shrinker, nr_req, this_scan);
--			mod_page_state(slabs_scanned, this_scan);
--			total_scan -= this_scan;
-+			shrinker_stat_add(shrinker, nr_req, SHRINK_BATCH);
-+			mod_page_state(slabs_scanned, SHRINK_BATCH);
-+			update_slab_age(shrinker, nr_before * DEF_PRIORITY * 2,
-+					SHRINK_BATCH * shrinker->seeks *
-+					(DEF_PRIORITY + priority));
- 
- 			cond_resched();
- 		}
--
--		shrinker->nr += total_scan;
- 	}
- 	up_read(&shrinker_rwsem);
- 	return ret;
-@@ -487,11 +475,6 @@ static int shrink_list(struct list_head 
- 
- 		BUG_ON(PageActive(page));
- 
--		sc->nr_scanned++;
--		/* Double the slab pressure for mapped and swapcache pages */
--		if (page_mapped(page) || PageSwapCache(page))
--			sc->nr_scanned++;
--
- 		if (PageWriteback(page))
- 			goto keep_locked;
- 
-@@ -936,6 +919,7 @@ static void shrink_cache(struct zone *zo
- 			goto done;
- 
- 		max_scan -= nr_scan;
-+		sc->nr_scanned += nr_scan;
- 		if (current_is_kswapd())
- 			mod_page_state_zone(zone, pgscan_kswapd, nr_scan);
- 		else
-@@ -1254,7 +1238,6 @@ int try_to_free_pages(struct zone **zone
- 	int total_scanned = 0, total_reclaimed = 0;
+-	int total_scanned = 0, total_reclaimed = 0;
  	struct reclaim_state *reclaim_state = current->reclaim_state;
  	struct scan_control sc;
--	unsigned long lru_pages = 0;
  	int i;
+@@ -1235,6 +1234,8 @@ int try_to_free_pages(struct zone **zone
+ 	sc.gfp_mask = gfp_mask;
+ 	sc.may_writepage = 0;
+ 	sc.may_swap = 1;
++	sc.nr_scanned = 0;
++	sc.nr_reclaimed = 0;
  
- 	delay_prefetch();
-@@ -1272,7 +1255,6 @@ int try_to_free_pages(struct zone **zone
- 			continue;
+ 	inc_page_state(allocstall);
  
- 		zone->temp_priority = DEF_PRIORITY;
--		lru_pages += zone->nr_active + zone->nr_inactive;
- 	}
- 
+@@ -1250,8 +1251,6 @@ int try_to_free_pages(struct zone **zone
  	/* The added 10 priorities are for scan rate balancing */
-@@ -1285,7 +1267,8 @@ int try_to_free_pages(struct zone **zone
+ 	for (priority = DEF_PRIORITY + 10; priority >= 0; priority--) {
+ 		sc.nr_mapped = read_page_state(nr_mapped);
+-		sc.nr_scanned = 0;
+-		sc.nr_reclaimed = 0;
+ 		sc.priority = priority;
+ 		sc.nr_to_reclaim = SWAP_CLUSTER_MAX;
  		if (!priority)
- 			disable_swap_token();
- 		shrink_caches(zones, &sc);
--		shrink_slab(sc.nr_scanned, gfp_mask, lru_pages);
-+		if (zone_idx(zones[0]))
-+			shrink_slab(zones[0], priority, gfp_mask);
- 		if (reclaim_state) {
+@@ -1263,9 +1262,7 @@ int try_to_free_pages(struct zone **zone
  			sc.nr_reclaimed += reclaim_state->reclaimed_slab;
  			reclaim_state->reclaimed_slab = 0;
-@@ -1381,8 +1364,6 @@ loop_again:
+ 		}
+-		total_scanned += sc.nr_scanned;
+-		total_reclaimed += sc.nr_reclaimed;
+-		if (total_reclaimed >= SWAP_CLUSTER_MAX) {
++		if (sc.nr_reclaimed >= SWAP_CLUSTER_MAX) {
+ 			ret = 1;
+ 			goto out;
+ 		}
+@@ -1277,13 +1274,13 @@ int try_to_free_pages(struct zone **zone
+ 		 * that's undesirable in laptop mode, where we *want* lumpy
+ 		 * writeout.  So in laptop mode, write out the whole world.
+ 		 */
+-		if (total_scanned > SWAP_CLUSTER_MAX * 3 / 2) {
+-			wakeup_pdflush(laptop_mode ? 0 : total_scanned);
++		if (sc.nr_scanned > SWAP_CLUSTER_MAX * 3 / 2) {
++			wakeup_pdflush(laptop_mode ? 0 : sc.nr_scanned);
+ 			sc.may_writepage = 1;
+ 		}
+ 
+ 		/* Take a nap, wait for some writeback to complete */
+-		if (sc.nr_scanned && priority < DEF_PRIORITY)
++		if (priority < DEF_PRIORITY)
+ 			blk_congestion_wait(WRITE, HZ/10);
  	}
+ out:
+@@ -1329,18 +1326,17 @@ static int balance_pgdat(pg_data_t *pgda
+ 	int all_zones_ok;
+ 	int priority;
+ 	int i;
+-	int total_scanned, total_reclaimed;
+ 	struct reclaim_state *reclaim_state = current->reclaim_state;
+ 	struct scan_control sc;
+ 	struct zone *prev_zone = pgdat->node_zones;
+ 
+ loop_again:
+-	total_scanned = 0;
+-	total_reclaimed = 0;
+ 	sc.gfp_mask = GFP_KERNEL;
+ 	sc.may_writepage = 0;
+ 	sc.may_swap = 1;
+ 	sc.nr_mapped = read_page_state(nr_mapped);
++	sc.nr_scanned = 0;
++	sc.nr_reclaimed = 0;
+ 
+ 	inc_page_state(pageoutrun);
+ 
+@@ -1355,8 +1351,6 @@ loop_again:
  
  	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
--		unsigned long lru_pages = 0;
--
  		all_zones_ok = 1;
- 		sc.nr_scanned = 0;
- 		sc.nr_reclaimed = 0;
-@@ -1433,7 +1414,6 @@ scan_swspd:
- 			zone->temp_priority = priority;
- 			if (zone->prev_priority > priority)
- 				zone->prev_priority = priority;
--			lru_pages += zone->nr_active + zone->nr_inactive;
+-		sc.nr_scanned = 0;
+-		sc.nr_reclaimed = 0;
+ 		sc.priority = priority;
+ 		sc.nr_to_reclaim = nr_pages ? nr_pages : SWAP_CLUSTER_MAX;
  
- 			shrink_zone(zone, &sc);
- 
-@@ -1442,7 +1422,7 @@ scan_swspd:
- 				zone->all_unreclaimable = 1;
- 		}
+@@ -1417,19 +1411,17 @@ scan_swspd:
  		reclaim_state->reclaimed_slab = 0;
--		shrink_slab(sc.nr_scanned, GFP_KERNEL, lru_pages);
-+		shrink_slab(prev_zone, priority, GFP_KERNEL);
+ 		shrink_slab(prev_zone, priority, GFP_KERNEL);
  		sc.nr_reclaimed += reclaim_state->reclaimed_slab;
- 		total_reclaimed += sc.nr_reclaimed;
- 		total_scanned += sc.nr_scanned;
---- linux-2.6.15-rc5-mm1.orig/fs/drop-pagecache.c
-+++ linux-2.6.15-rc5-mm1/fs/drop-pagecache.c
-@@ -47,7 +47,7 @@ static void drop_slab(void)
- 	int nr_objects;
+-		total_reclaimed += sc.nr_reclaimed;
+-		total_scanned += sc.nr_scanned;
  
- 	do {
--		nr_objects = shrink_slab(1000, GFP_KERNEL, 1000);
-+		nr_objects = shrink_slab(NULL, 0, GFP_KERNEL);
- 	} while (nr_objects > 10);
+ 		/*
+ 		 * If we've done a decent amount of scanning and
+ 		 * the reclaim ratio is low, start doing writepage
+ 		 * even in laptop mode
+ 		 */
+-		if (total_scanned > SWAP_CLUSTER_MAX * 2 &&
+-		    total_scanned > total_reclaimed+total_reclaimed/2)
++		if (sc.nr_scanned > SWAP_CLUSTER_MAX * 2 &&
++		    sc.nr_scanned > sc.nr_reclaimed + sc.nr_reclaimed / 2)
+ 			sc.may_writepage = 1;
+ 
+-		if (nr_pages && to_free > total_reclaimed)
++		if (nr_pages && to_free > sc.nr_reclaimed)
+ 			continue;	/* swsusp: need to do more work */
+ 		if (all_zones_ok)
+ 			break;		/* kswapd: all done */
+@@ -1437,7 +1429,7 @@ scan_swspd:
+ 		 * OK, kswapd is getting into trouble.  Take a nap, then take
+ 		 * another pass across the zones.
+ 		 */
+-		if (total_scanned && priority < DEF_PRIORITY - 2)
++		if (priority < DEF_PRIORITY - 2)
+ 			blk_congestion_wait(WRITE, HZ/10);
+ 
+ 		/*
+@@ -1446,7 +1438,7 @@ scan_swspd:
+ 		 * matches the direct reclaim path behaviour in terms of impact
+ 		 * on zone->*_priority.
+ 		 */
+-		if ((total_reclaimed >= SWAP_CLUSTER_MAX) && (!nr_pages))
++		if (sc.nr_reclaimed >= SWAP_CLUSTER_MAX && !nr_pages)
+ 			break;
+ 	}
+ 	for (i = 0; i < pgdat->nr_zones; i++) {
+@@ -1459,7 +1451,7 @@ scan_swspd:
+ 		goto loop_again;
+ 	}
+ 
+-	return total_reclaimed;
++	return sc.nr_reclaimed;
  }
  
+ /*
 
 --

@@ -1,52 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbVLFAO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751509AbVLFAO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751510AbVLFAO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 19:14:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751511AbVLFAO2
+	id S1751509AbVLFAO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 19:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751510AbVLFAO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 19:14:28 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:55994 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751510AbVLFAO2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 19:14:28 -0500
-Subject: Re: ntp problems
-From: john stultz <johnstul@us.ibm.com>
-To: Gene Heskett <gene.heskett@verizon.net>
+	Mon, 5 Dec 2005 19:14:27 -0500
+Received: from mail.enyo.de ([212.9.189.167]:36502 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S1751509AbVLFAO0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 19:14:26 -0500
+From: Florian Weimer <fw@deneb.enyo.de>
+To: Lars Marowsky-Bree <lmb@suse.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200512051833.19629.gene.heskett@verizon.net>
-References: <200512050031.39438.gene.heskett@verizon.net>
-	 <1133818753.7605.47.camel@cog.beaverton.ibm.com>
-	 <200512051833.19629.gene.heskett@verizon.net>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 16:14:25 -0800
-Message-Id: <1133828065.7605.50.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+References: <20051203135608.GJ31395@stusta.de>
+	<20051203205911.GX18919@marowsky-bree.de>
+Date: Tue, 06 Dec 2005 01:14:23 +0100
+In-Reply-To: <20051203205911.GX18919@marowsky-bree.de> (Lars Marowsky-Bree's
+	message of "Sat, 3 Dec 2005 21:59:11 +0100")
+Message-ID: <87wtij2iao.fsf@mid.deneb.enyo.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-05 at 18:33 -0500, Gene Heskett wrote:
-> On Monday 05 December 2005 16:39, john stultz wrote:
-> >On Mon, 2005-12-05 at 00:31 -0500, Gene Heskett wrote:
-> >> Greetings everybody;
-> >>
-> >> I seem to have an ntp problem.  I noticed a few minutes ago that if
-> >> my watch was anywhere near correct, then the computer was about 6
-> >> minutes fast.  Doing a service ntpd restart crash set it back nearly
-> >> 6 minutes.
-> >
-> >Not sure exactly what is going on, but you might want to try dropping
-> >the LOCAL server reference in your ntp.conf. It could be you're just
-> >syncing w/ yourself.
-> >
-> Joanne, bless her, pointed out that I had probably turned the ACPI
-> stuff in my kernel back on.  She was of course correct, shut it off &
-> ntpd works just fine.
+* Lars Marowsky-Bree:
 
-Err. ACPI stuff? Could you elaborate? Sounds like you have some sort of
-bug hiding there. 
+> The right way to address this is to work with the distribution of your
+> choice to make these updates available faster.
 
-thanks
--john
-
+Working with a distribution benefits that distribution alone.  Working
+on (e.g.) kernel security advisories would benefit everyone.  It's not
+a speed issue, it's more about coverage.  And full coverage is very
+hard to get without support from the real developers.

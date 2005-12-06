@@ -1,189 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751567AbVLFAe4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751529AbVLFAed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751567AbVLFAe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 19:34:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbVLFAeh
+	id S1751529AbVLFAed (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 19:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751530AbVLFAed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 19:34:37 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:24014
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751531AbVLFAee
+	Mon, 5 Dec 2005 19:34:33 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:21710
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751526AbVLFAec
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 19:34:34 -0500
-Message-Id: <20051206000153.102392000@tglx.tec.linutronix.de>
-References: <20051206000126.589223000@tglx.tec.linutronix.de>
-Date: Tue, 06 Dec 2005 01:01:29 +0100
+	Mon, 5 Dec 2005 19:34:32 -0500
+Message-Id: <20051206000126.589223000@tglx.tec.linutronix.de>
+Date: Tue, 06 Dec 2005 01:01:26 +0100
 From: tglx@linutronix.de
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, rostedt@goodmis.org, johnstul@us.ibm.com,
        zippel@linux-m86k.org, mingo@elte.hu
-Subject: [patch 03/21] Deinline mktime and set_normalized_timespec
-Content-Disposition: inline;
-	filename=deinline-mktime-set-normalized-timespec.patch
+Subject: [patch 00/21] hrtimer - High-resolution timer subsystem
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a major rework of the former ktimer subsystem. It replaces the 
+ktimer patch series and drops the ktimeout series completely.
 
-- mktime() and set_normalized_timespec() are large inline functions used
-  in many places: deinline them.
+A broken out series is available from
+http://www.tglx.de/projects/ktimers/patches-2.6.15-rc5-hrtimer.tar.bz2
 
-From: George Anzinger, off-by-1 bugfix
+1. Naming
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+After the extensive discussions on LKML, Andrew Morton suggested 
+"hrtimer" and we picked it up. While the hrtimer subsystem does not 
+offer high-resolution clock sources just yet, the subsystem can be 
+easily extended with high-resolution clock capabilities. The rework of 
+the ktimer-hrt patches is the next step.
 
- include/linux/time.h |   52 ++++---------------------------------------
- kernel/time.c        |   61 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 66 insertions(+), 47 deletions(-)
+2. More simplifications
 
-Index: linux-2.6.15-rc5/include/linux/time.h
-===================================================================
---- linux-2.6.15-rc5.orig/include/linux/time.h
-+++ linux-2.6.15-rc5/include/linux/time.h
-@@ -38,38 +38,9 @@ static __inline__ int timespec_equal(str
- 	return (a->tv_sec == b->tv_sec) && (a->tv_nsec == b->tv_nsec);
- } 
- 
--/* Converts Gregorian date to seconds since 1970-01-01 00:00:00.
-- * Assumes input in normal date format, i.e. 1980-12-31 23:59:59
-- * => year=1980, mon=12, day=31, hour=23, min=59, sec=59.
-- *
-- * [For the Julian calendar (which was used in Russia before 1917,
-- * Britain & colonies before 1752, anywhere else before 1582,
-- * and is still in use by some communities) leave out the
-- * -year/100+year/400 terms, and add 10.]
-- *
-- * This algorithm was first published by Gauss (I think).
-- *
-- * WARNING: this function will overflow on 2106-02-07 06:28:16 on
-- * machines were long is 32-bit! (However, as time_t is signed, we
-- * will already get problems at other places on 2038-01-19 03:14:08)
-- */
--static inline unsigned long
--mktime (unsigned int year, unsigned int mon,
--	unsigned int day, unsigned int hour,
--	unsigned int min, unsigned int sec)
--{
--	if (0 >= (int) (mon -= 2)) {	/* 1..12 -> 11,12,1..10 */
--		mon += 12;		/* Puts Feb last since it has leap day */
--		year -= 1;
--	}
--
--	return (((
--		(unsigned long) (year/4 - year/100 + year/400 + 367*mon/12 + day) +
--			year*365 - 719499
--	    )*24 + hour /* now have hours */
--	  )*60 + min /* now have minutes */
--	)*60 + sec; /* finally seconds */
--}
-+extern unsigned long mktime (unsigned int year, unsigned int mon,
-+			     unsigned int day, unsigned int hour,
-+			     unsigned int min, unsigned int sec);
- 
- extern struct timespec xtime;
- extern struct timespec wall_to_monotonic;
-@@ -80,6 +51,8 @@ static inline unsigned long get_seconds(
- 	return xtime.tv_sec;
- }
- 
-+extern void set_normalized_timespec (struct timespec *ts, time_t sec, long nsec);
-+
- struct timespec current_kernel_time(void);
- 
- #define CURRENT_TIME (current_kernel_time())
-@@ -98,21 +71,6 @@ extern void getnstimeofday (struct times
- 
- extern struct timespec timespec_trunc(struct timespec t, unsigned gran);
- 
--static inline void
--set_normalized_timespec (struct timespec *ts, time_t sec, long nsec)
--{
--	while (nsec >= NSEC_PER_SEC) {
--		nsec -= NSEC_PER_SEC;
--		++sec;
--	}
--	while (nsec < 0) {
--		nsec += NSEC_PER_SEC;
--		--sec;
--	}
--	ts->tv_sec = sec;
--	ts->tv_nsec = nsec;
--}
--
- #endif /* __KERNEL__ */
- 
- #define NFDBITS			__NFDBITS
-Index: linux-2.6.15-rc5/kernel/time.c
-===================================================================
---- linux-2.6.15-rc5.orig/kernel/time.c
-+++ linux-2.6.15-rc5/kernel/time.c
-@@ -561,6 +561,67 @@ void getnstimeofday(struct timespec *tv)
- EXPORT_SYMBOL_GPL(getnstimeofday);
- #endif
- 
-+/* Converts Gregorian date to seconds since 1970-01-01 00:00:00.
-+ * Assumes input in normal date format, i.e. 1980-12-31 23:59:59
-+ * => year=1980, mon=12, day=31, hour=23, min=59, sec=59.
-+ *
-+ * [For the Julian calendar (which was used in Russia before 1917,
-+ * Britain & colonies before 1752, anywhere else before 1582,
-+ * and is still in use by some communities) leave out the
-+ * -year/100+year/400 terms, and add 10.]
-+ *
-+ * This algorithm was first published by Gauss (I think).
-+ *
-+ * WARNING: this function will overflow on 2106-02-07 06:28:16 on
-+ * machines were long is 32-bit! (However, as time_t is signed, we
-+ * will already get problems at other places on 2038-01-19 03:14:08)
-+ */
-+unsigned long
-+mktime (unsigned int year, unsigned int mon,
-+	unsigned int day, unsigned int hour,
-+	unsigned int min, unsigned int sec)
-+{
-+	if (0 >= (int) (mon -= 2)) {	/* 1..12 -> 11,12,1..10 */
-+		mon += 12;		/* Puts Feb last since it has leap day */
-+		year -= 1;
-+	}
-+
-+	return ((((unsigned long)
-+		  (year/4 - year/100 + year/400 + 367*mon/12 + day) +
-+		  year*365 - 719499
-+	    )*24 + hour /* now have hours */
-+	  )*60 + min /* now have minutes */
-+	)*60 + sec; /* finally seconds */
-+}
-+
-+/**
-+ * set_normalized_timespec - set timespec sec and nsec parts and normalize
-+ *
-+ * @ts:		pointer to timespec variable to be set
-+ * @sec:	seconds to set
-+ * @nsec:	nanoseconds to set
-+ *
-+ * Set seconds and nanoseconds field of a timespec variable and
-+ * normalize to the timespec storage format
-+ *
-+ * Note: The tv_nsec part is always in the range of
-+ * 	0 <= tv_nsec < NSEC_PER_SEC
-+ * For negative values only the tv_sec field is negative !
-+ */
-+void set_normalized_timespec (struct timespec *ts, time_t sec, long nsec)
-+{
-+	while (nsec >= NSEC_PER_SEC) {
-+		nsec -= NSEC_PER_SEC;
-+		++sec;
-+	}
-+	while (nsec < 0) {
-+		nsec += NSEC_PER_SEC;
-+		--sec;
-+	}
-+	ts->tv_sec = sec;
-+	ts->tv_nsec = nsec;
-+}
-+
- #if (BITS_PER_LONG < 64)
- u64 get_jiffies_64(void)
- {
+We worked through the subsystem and its users and further reduced the 
+implementation to the basic required infrastructure and generally 
+streamlined it. (We did this with easy extensibility for the high 
+resolution clock support still in mind, so we kept some small extras 
+around.)
+
+The new .text overhead (on x86) we believe speaks for itself:
+
+    text    data     bss     dec     hex filename
+ 2468380  547212  155164 3170756  3061c4 vmlinux-2.6.15-rc2
+ 2469996  548016  155164 3173176  306b38 vmlinux-ktimer-rc5-mm1
+ 2468164  547508  155100 3170772  3061d4 vmlinux-hrtimer
+
+While it was +1616 bytes before, it's -216 bytes now. This also gives a 
+new justification for hrtimers: it reduces .text overhead ;-) [ There's 
+still some .data overhead, but it's acceptable at 0.1%.]
+
+On 64-bit platforms such as x64 there are even more .text savings:
+
+    text    data     bss     dec     hex filename
+ 3853431  914316  403880 5171627  4ee9ab vmlinux-x64-2.6.15-rc5
+ 3852407  914548  403752 5170707  4ee613 vmlinux-x64-hrtimer
+
+(due to the compactness of 64-bit ktime_t ops)
+
+Other 32-bit platforms (arm, ppc) have a much smaller .text 
+hrtimers footprint now too.
+
+3. Fixes
+
+The last splitup of ktimers resulted in a bug in the overrun accounting.  
+This bug is now fixed and the code verified for correctness.
+
+4. Rounding
+
+We looked at the runtime behaviour of vanilla, ktimers and ptimers to 
+figure out the consequences for applications in a more detailed way.
+
+The rounding of time values and intervals leads to rather unpredictible 
+results which deviates of the current mainline implementation 
+significantly and introduces unpredictible behaviour vs. the timeline.
+
+After reading the Posix specification again, we came to the conclusion 
+that it is possible to do no rounding at all for the ktime_t values, and 
+to still ensure that the timer is not delivered early.
+
+".. and that timers must wait for the next clock tick after the 
+theoretical expiration time, to ensure that a timer never returns too 
+soon. Note also that the granularity of the clock may be significantly 
+coarser than the resolution of the data format used to set and get time 
+and interval values. Also note that some implementations may choose to 
+adjust time and/or interval values to exactly match the ticks of the 
+underlying clock."
+
+Which allows the already discussed part of the spec to be interpreted 
+differently:
+
+"Time values that are between two consecutive non-negative integer 
+multiples of the resolution of the specified timer shall be rounded up 
+to the larger multiple of the resolution. Quantization error shall not 
+cause the timer to expire earlier than the rounded time value."
+
+The rounding of the time value i.e. the expiry time itself must be
+rounded to the next clock tick, to ensure that a timer never expires
+early.
+
+	Thomas, Ingo
 
 --
 

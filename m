@@ -1,52 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932256AbVLFPSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751701AbVLFPVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932256AbVLFPSL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 10:18:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751691AbVLFPSL
+	id S1751701AbVLFPVK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 10:21:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbVLFPVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 10:18:11 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:24009 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932605AbVLFPSJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 10:18:09 -0500
-Date: Tue, 6 Dec 2005 16:17:29 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-Message-ID: <20051206151729.GC1999@elf.ucw.cz>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Dec 2005 10:21:10 -0500
+Received: from zproxy.gmail.com ([64.233.162.206]:9129 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751701AbVLFPVI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 10:21:08 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NDEFP3oJoxdKeGO4KVH0WAJenBmCeZrato3SUwc/Z5b2p3k0e8Ze3LkIWhygv0v36j/Y67ovmO+mCx9jo6MmOr1J9MUvTMB8Gn6vJ7th2oFktT2Ffy++yjyakJRP2zJ8qGLGDHqYzni0zmmo8A88tz+wSrTI2PxhE8diWvQVrXE=
+Message-ID: <d120d5000512060721j3a75ff7bh40309f4fa132b39a@mail.gmail.com>
+Date: Tue, 6 Dec 2005 10:21:07 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: "Yu, Luming" <luming.yu@intel.com>
+Subject: Re: [git pull 02/14] Add Wistron driver
+Cc: Linus Torvalds <torvalds@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Brown, Len" <len.brown@intel.com>,
+       Bernhard Rosenkraenzer <bero@arklinux.org>
+In-Reply-To: <3ACA40606221794F80A5670F0AF15F840A53FCC5@pdsmsx403>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43944F42.2070207@didntduck.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+References: <3ACA40606221794F80A5670F0AF15F840A53FCC5@pdsmsx403>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 12/6/05, Yu, Luming <luming.yu@intel.com> wrote:
+> >> wistron_btn polls a cmos address to detect hotkey event.  It
+> >> is not necessary, because there do have ACPI interrupt triggered upon
+> >> hotkeys.
+> >>
+> >
+> >Unfortunately ACPI does not route these events through the input layer
+> >so aside from special buttons (like sleep) it is not very useful.
+>
+> There are acpi daemon for any evetnts that needs user space attention.
+> I'm not sure if these events should be routed to input layer.
 
-> >Every time we buy a piece of hardware with binary only drivers we admit
-> >that the binary only driver vendors are doing the right choice for their
-> >stockholders. Only when we refuse to buy it, we can make a slight 
-> >difference.
-> >When we don't buy hardware without open source drivers, we send the
-> >message to the shareholders that the management is causing them a loss.
-> 
-> The problem with this statement is that Linux users are a drop in the 
-> bucket of sales for this hardware.  Boycotting doesn't cost the vendors 
-> enough to make them care.  And this does nothing for people who are 
+How do you suggest handle buttons such as "Mail", "WWW", etc? Through
+acpid? And then tunnel them to X somewhow?
 
-Actually, yes it does cost them. If you refuse to buy $2000 notebook,
-because its 3D graphics card ($100) is not supported properly... well
-notebook vendor is going to put pressure on graphics card vendor.
+> But, we can do that.
+>
+> >
+> >> So, my suggestion is to disable this module when ACPI enabled.
+> >> We need to implement hotkey support from ACPI subsystem for my
+> >> Acer aspire laptop.
+> >
+> >I do not agree.
+>
+> For my acer aspire laptop.
+> I added dmi entry, and keymap.
+>
+> With acpi disabled, bluetooth light doesn't work
+> With acpi disabled + wistron module,  bluetooth light doesn't work.
+>
+> With acpi enabled +  wistron module,  bluetooth light doesn't work
+>
+> With acpi enabled - wistron module, bluetooth works.
+> From these test cases, do you still think wistron driver can help my
+> laptop?
+>
 
-And you don't have to be Linux user to refuse closed hardware. Having
-option in future is always good.x
+No, you have proven that the driver will not help to your laptop. Now,
+as it is, it won't even load on your laptop either, because of
+different DMI signature. So why are you complaining? I am pretty sure
+Bernhard (who added bluetooth handling) has his working with ACPI.
+Bernhard, any input on this?
 
-								Pavel
--- 
-Thanks, Sharp!
+--
+Dmitry

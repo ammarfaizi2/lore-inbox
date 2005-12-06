@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbVLFVSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbVLFVTH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030248AbVLFVSj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 16:18:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030245AbVLFVSi
+	id S1030241AbVLFVTH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 16:19:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030245AbVLFVTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 16:18:38 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:54713 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030248AbVLFVSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 16:18:37 -0500
-Date: Tue, 6 Dec 2005 13:18:24 -0800
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, prasanna@in.ibm.com,
-       anil.s.keshavamurthy@intel.com
-Subject: Re: [PATCH] kprobes: fix race in aggregate kprobe registration
-Message-ID: <20051206131823.A8726@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20051206051711.GA3206@in.ibm.com>
+	Tue, 6 Dec 2005 16:19:06 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:43717 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1030254AbVLFVTC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 16:19:02 -0500
+Date: Tue, 6 Dec 2005 19:18:45 -0200
+From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net, ehabkost@mandriva.com
+Subject: Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
+Message-Id: <20051206191845.6f4827b3.lcapitulino@mandriva.com.br>
+In-Reply-To: <20051206130207.7658636e.zaitcev@redhat.com>
+References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br>
+	<20051206194041.GA22890@suse.de>
+	<20051206181449.11947f4f.lcapitulino@mandriva.com.br>
+	<20051206130207.7658636e.zaitcev@redhat.com>
+Organization: Mandriva
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i586-mandriva-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20051206051711.GA3206@in.ibm.com>; from ananth@in.ibm.com on Tue, Dec 06, 2005 at 10:47:11AM +0530
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 10:47:11AM +0530, Ananth N Mavinakayanahalli wrote:
-> From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-> 
-> When registering multiple kprobes at the same address, we leave a small
-> window where the kprobe hlist will not contain a reference to the
-> registered kprobe, leading to potentially, a system crash if the
-> breakpoint is hit on another processor.
-> 
-> Patch below changes the order of hlist updation to make sure that there
-> is always a reference to the kprobe at the location.
 
-Hi Ananth,
-	How do you like this patch? Here the old entry
-will be replace with the new entry automically. 
+ Hi Pete,
 
-Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+On Tue, 6 Dec 2005 13:02:07 -0800
+Pete Zaitcev <zaitcev@redhat.com> wrote:
 
- kernel/kprobes.c |    5 +----
- 1 files changed, 1 insertion(+), 4 deletions(-)
+| On Tue, 6 Dec 2005 18:14:49 -0200, Luiz Fernando Capitulino <lcapitulino@mandriva.com.br> wrote:
+| 
+| >  The spinlock makes the code less clear, error prone, and we already a
+| > semaphore in the struct usb_serial_port.
+| > 
+| >  The spinlocks _seems_ useless to me.
+| 
+| Dude, semaphores are not compatible with interrupts. Surely you
+| understand that?
 
-Index: linux-2.6.15-rc5-mm1/kernel/kprobes.c
-===================================================================
---- linux-2.6.15-rc5-mm1.orig/kernel/kprobes.c
-+++ linux-2.6.15-rc5-mm1/kernel/kprobes.c
-@@ -399,10 +399,7 @@ static inline void add_aggr_kprobe(struc
- 	INIT_LIST_HEAD(&ap->list);
- 	list_add_rcu(&p->list, &ap->list);
- 
--	INIT_HLIST_NODE(&ap->hlist);
--	hlist_del_rcu(&p->hlist);
--	hlist_add_head_rcu(&ap->hlist,
--		&kprobe_table[hash_ptr(ap->addr, KPROBE_HASH_BITS)]);
-+	hlist_replace_rcu(&p->hlist, &ap->hlist);
- }
- 
- /*
+ Sure thing man, take a look at this thread:
+
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113216151918308&w=2
+
+ My comment 'we already have a semaphore in struct usb_serial_port'
+was about what we've discussed in that thread, where question like
+'why should we have yet another lock here?' have been made.
+
+ And *not* 'let's use the semaphore instead'.
+
+ If _speed_ does not make difference, the spinlock seems useless,
+because we could use atomic_t instead.
+
+-- 
+Luiz Fernando N. Capitulino

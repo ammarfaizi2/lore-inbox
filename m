@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965031AbVLFWPK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbVLFWTP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965031AbVLFWPK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 17:15:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965045AbVLFWPJ
+	id S964831AbVLFWTP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 17:19:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932645AbVLFWTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 17:15:09 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:39093 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965031AbVLFWPI (ORCPT
+	Tue, 6 Dec 2005 17:19:15 -0500
+Received: from ozlabs.org ([203.10.76.45]:25012 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932643AbVLFWTO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 17:15:08 -0500
-Date: Tue, 6 Dec 2005 23:15:28 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] Reduce number of pointer derefs in various files (kernel/exit.c used as example)
-Message-ID: <20051206221528.GA12358@elte.hu>
-References: <200512062302.06933.jesper.juhl@gmail.com>
-Mime-Version: 1.0
+	Tue, 6 Dec 2005 17:19:14 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512062302.06933.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
+Message-ID: <17302.3696.364669.18755@cargo.ozlabs.ibm.com>
+Date: Wed, 7 Dec 2005 09:19:28 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Arnd Bergmann <arnd@arndb.de>, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, arjan@infradead.org,
+       viro@ftp.linux.org.uk
+Subject: Re: [PATCH 02/14] spufs: fix local store page refcounting
+In-Reply-To: <1133905298.8027.13.camel@localhost>
+References: <20051206035220.097737000@localhost>
+	<200512061118.19633.arnd@arndb.de>
+	<1133869108.7968.1.camel@localhost>
+	<200512061949.33482.arnd@arndb.de>
+	<1133895947.3279.4.camel@localhost>
+	<17301.65082.251692.675360@cargo.ozlabs.ibm.com>
+	<1133905298.8027.13.camel@localhost>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pekka Enberg writes:
 
-* Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> I think the fact that it is highly architecture specific is relevant. I
+> have no way of testing spufs changes except on cell, no? And if I am
+> developing on a cell, I probably will notice it in arch/ all the same.
+> So I don't quite buy your the maintenace argument.
 
-> Ohh, and before I forget, besides the fact that this should speed 
-> things up a little bit it also has the added benefit of reducing the 
-> size of the generated code. The original kernel/exit.o file was 19604 
-> bytes in size, the patched one is 19508 bytes in size.
+Think about someone changing the VFS layer interface and fixing up all
+the filesystems to accommodate that change.  That person is doing some
+of your work for you, so you want to make it easy for him/her to find
+your filesystem.  That's the sort of thing I was referring to as
+maintenance.
 
-nice. Just to underline your point, on x86, with gcc 4.0.2, i'm getting 
-this with your patch:
+As for changes on the cell-specific side, the people doing those
+changes will know where to find it, so it isn't a problem having it in
+fs/.
 
-   text    data     bss     dec     hex filename
-  11077       0       0   11077    2b45 exit.o.orig
-  10997       0       0   10997    2af5 exit.o
+Having it in fs/ also means that it is more likely that people
+familiar with VFS internals will look through your code and comment on
+it.  I know that can be painful in the short term, but in the long
+term it will lead to better code.
 
-so 80 bytes shaved off. I think such patches also increase readability.
-
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo
+Paul.

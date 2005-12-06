@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbVLFVeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbVLFVf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932640AbVLFVeS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 16:34:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932641AbVLFVeS
+	id S1030243AbVLFVf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 16:35:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932642AbVLFVf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 16:34:18 -0500
-Received: from xenotime.net ([66.160.160.81]:26769 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932640AbVLFVeR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 16:34:17 -0500
-Date: Tue, 6 Dec 2005 13:34:11 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Brian Gerst <bgerst@didntduck.org>,
-       Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Add tainting for proprietary helper modules.
-In-Reply-To: <1133900880.23610.77.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0512061333100.5519@shark.he.net>
-References: <20051203004102.GA2923@redhat.com>  <Pine.LNX.4.61.0512050832290.27133@chaos.analogic.com>
-  <20051205173041.GE12664@redhat.com>  <20051205093436.44d146e6@localhost.localdomain>
-  <1133899612.23610.59.camel@localhost.localdomain>  <4395F097.5060005@didntduck.org>
- <1133900880.23610.77.camel@localhost.localdomain>
+	Tue, 6 Dec 2005 16:35:57 -0500
+Received: from spc1-cosh5-3-0-cust36.cosh.broadband.ntl.com ([81.102.80.36]:60623
+	"EHLO central.regress.homelinux.org") by vger.kernel.org with ESMTP
+	id S932641AbVLFVf4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 16:35:56 -0500
+From: Grahame White <grahame@regress.homelinux.org>
+Reply-To: grahame@regress.homelinux.org
+To: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Date: Tue, 6 Dec 2005 21:35:51 +0000
+User-Agent: KMail/1.8.2
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <loom.20051206T173458-358@post.gmane.org> <1133894933.29084.3.camel@mindpipe>
+In-Reply-To: <1133894933.29084.3.camel@mindpipe>
+X-Face: 0Ziawa}xspG!GTK/bAR):WO~4;[}eXz^*`HIlzgaJES"@`:xa{JZ#mY`fB,+,=?utf-8?q?kBR=3B=5C=608jX=0A=09JH=5E2g9t=3A6Ol6wI=5C=7C=2E1-cn3yDHq8ebH3?=
+ =?utf-8?q?=7BGFfrXkbE=2E=7Bd=240=3Bci=7BWddXcB?=,
+ =?utf-8?q?Vuy*/xtN60p=5EcQ=0A=09h-?=
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-6"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512062135.51960.grahame@regress.homelinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Dec 2005, Alan Cox wrote:
-
-> On Maw, 2005-12-06 at 15:12 -0500, Brian Gerst wrote:
-> > Alan Cox wrote:
-> > > On Llu, 2005-12-05 at 09:34 -0800, Stephen Hemminger wrote:
+On Tuesday 06 December 2005 18:48, you wrote:
+> On Tue, 2005-12-06 at 16:41 +0000, Dirk Steuwer wrote:
+> > Sander <sander <at> humilis.net> writes:
+> > > Quite a few companies state on their site that their hardware is
+> > > supported in Linux if it is.
 > > >
-> > >>IMHO ndiswrapper can't claim legitimately to be GPL, so just
-> > >>patch that.
-> > >
-> > >
-> > > Actually it isnt so simple. Load ndiswrapper. Now load a GPL windows
-> > > driver binary. I don't know if ndiswrapper itself could dig licenses out
-> > > of windows modules but if so it could even conditionally taint.
-> > >
-> > > Alan
+> > > And I've never bought any computer equipment in a shop. Always
+> > > online, where there is no such thing as a box anyway
 > >
-> > On the other hand, if the windows driver were GPL then there wouldn't be
-> > any barrier to writing a native driver.
+> > Yes, but there isn't and won't be much recognition - every company
+> > does its own thing. And how many people buy online all the time? But
+> > even then, a genery "runs with Linux" Logo would be great. If a
+> > company's product is not certified, its not considered by Linux
+> > customers.
 >
-> Sure, but the point was to demonstrate in a clear and logical fashion
-> that ndiswrapper could be GPL.
+> The vendors will just lie like they do now.  For example M-Audio claims
+> all its products are supported under Linux but leave out the fact that
+> half of it had to be reverse engineered, lots of it still doesn't work
+> right for lack of docs, and whenever someone asks them about Linux
+> support they just punt to the ALSA mailing lists.
+
+Then how about a "formal" linux certified logo? IOW a logo that can *only* 
+be used if the hardware has drivers that were written using an officially 
+supplied set of specifications and if said drivers are available under an 
+OSI certified licence. Any use of the logo on a piece of hardware that is 
+not certified would be liable to legal action.
+
+Admittedly this would require a fair amount of effort to set up and uphold 
+but if it helped make it easier to choose compatible hardware it could be 
+worth it.
+
+>
+> Lee
+>
 > -
-
-so it would be OK to run a windows NDIS driver on Linux,
-by using ndiswrapper, as long as the windows NDIS driver is GPL?
-
-Never mind its possible stack needs or who knows what else.
-
--- 
-~Randy
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

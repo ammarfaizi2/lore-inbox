@@ -1,38 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbVLFKUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932539AbVLFKXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932489AbVLFKUp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 05:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbVLFKUp
+	id S932539AbVLFKXp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 05:23:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbVLFKXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 05:20:45 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:65249
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932489AbVLFKUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 05:20:44 -0500
-Date: Tue, 06 Dec 2005 02:20:21 -0800 (PST)
-Message-Id: <20051206.022021.46863653.davem@davemloft.net>
-To: kjak@users.sourceforge.net, kjak@ispwest.com
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH] Socket filter instruction limit validation
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <e16bc6209efd4b6e840f78f35de61b2f.kjak@ispwest.com>
-References: <e16bc6209efd4b6e840f78f35de61b2f.kjak@ispwest.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 6 Dec 2005 05:23:45 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:3856 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S932539AbVLFKXo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 05:23:44 -0500
+Date: Tue, 6 Dec 2005 11:23:40 +0100
+From: Luc Saillard <luc@saillard.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Jiri Benc <jbenc@suse.cz>, Michael Buesch <mbuesch@freenet.de>,
+       linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
+       NetDev <netdev@vger.kernel.org>
+Subject: Re: Broadcom 43xx first results
+Message-ID: <20051206102340.GC24486@sd291.sivit.org>
+Mail-Followup-To: Kyle Moffett <mrmacman_g4@mac.com>,
+	Jiri Benc <jbenc@suse.cz>, Michael Buesch <mbuesch@freenet.de>,
+	linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
+	NetDev <netdev@vger.kernel.org>
+References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de> <20051205190038.04b7b7c1@griffin.suse.cz> <200512052123.42357.mbuesch@freenet.de> <20051205214256.492421ad@griffin.suse.cz> <D76B7270-C6A7-4068-9FDD-4C8B9F491F62@mac.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D76B7270-C6A7-4068-9FDD-4C8B9F491F62@mac.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Kris Katterjohn" <kjak@ispwest.com>
-Date: Tue, 6 Dec 2005 02:10:49 -0800
-
-> This patch checks to make sure that the number of instructions doesn't surpass
-> BPF_MAXINSNS in sk_chk_filter().
+On Tue, Dec 06, 2005 at 04:26:50AM -0500, Kyle Moffett wrote:
+> On Dec 05, 2005, at 15:42, Jiri Benc wrote:
+> >On Mon, 5 Dec 2005 21:23:42 +0100, Michael Buesch wrote:
+> >>This is __not__ "yet another stack". It is an _extension_.  It is  
+> >>all about management frames, which the in-kernel code does not  
+> >>manage.
+> >
+> >But this code should be part of the stack, as nearly every driver  
+> >needs it.
 > 
-> Signed-off-by: Kris Katterjohn <kjak@users.sourceforge.net>
+> WRONG.  More than half the currently Linux-compatible wireless cards  
+> handle the wireless management packets in hardware, such that they're  
+> little more complicated than a basic ethernet device with a channel,  
+> an ESSID, and a list of MACs/APs.
+> 
+ 
+I do not want to enter in this flamewar, but the current driver i'm working
+on (marvell libertas chipset) need management frames in software. But to
+reduce cost, i think that lower chipset try to put the most in the host and
+not in the chipset. Marvell build the chipset around a ARM cpu so i think one
+day i can do it in hardware but for now i need to choose a ieee802.11 stack.
+I've began to used the in kernel solution with my own functions to
+send and received this frame. But i hope we will find a technical solution
+that please everyone. I'll try to see if the softmac layer written for
+broadcom driver can be used for my project.
 
-How about posting networking patches to netdev@vger.kernel.org for
-discussion, and the CC:'ing the networking maintainer (me)?
-
-Thanks.
+Luc

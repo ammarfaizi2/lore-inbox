@@ -1,26 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932660AbVLFXUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbVLFXXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932660AbVLFXUL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 18:20:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbVLFXUK
+	id S932543AbVLFXXK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 18:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932659AbVLFXXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 18:20:10 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:53460
+	Tue, 6 Dec 2005 18:23:10 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54946
 	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932656AbVLFXUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 18:20:08 -0500
-Date: Tue, 06 Dec 2005 15:19:19 -0800 (PST)
-Message-Id: <20051206.151919.72043193.davem@davemloft.net>
-To: laforge@gnumonks.org
-Cc: davej@redhat.com, jgarzik@pobox.com, jbenc@suse.cz, josejx@gentoo.org,
-       mbuesch@freenet.de, linux-kernel@vger.kernel.org,
-       bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org
-Subject: Re: Broadcom 43xx first results
+	id S932543AbVLFXXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 18:23:09 -0500
+Date: Tue, 06 Dec 2005 15:23:16 -0800 (PST)
+Message-Id: <20051206.152316.82233251.davem@davemloft.net>
+To: trizt@iname.com
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: Sparc: Kernel 2.6.13 to 2.6.15-rc2 bug when running X11
 From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051206151046.GF4038@rama.exocore.com>
-References: <4394902C.8060100@pobox.com>
-	<20051205195329.GB19964@redhat.com>
-	<20051206151046.GF4038@rama.exocore.com>
+In-Reply-To: <Pine.LNX.4.64.0512061658190.14952@lai.local.lan>
+References: <Pine.LNX.4.64.0512060257160.27930@lai.local.lan>
+	<20051205.181732.34234732.davem@davemloft.net>
+	<Pine.LNX.4.64.0512061658190.14952@lai.local.lan>
 X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -28,37 +26,23 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Harald Welte <laforge@gnumonks.org>
-Date: Tue, 6 Dec 2005 20:40:47 +0530
+From: "J.O. Aho" <trizt@iname.com>
+Date: Tue, 6 Dec 2005 17:10:07 +0100 (CET)
 
-> I'm also in favor of merging the devicescape code, but I don't see it
-> happening without somebody taking care to provide all the required
-> levels of interfaces (I see at least three levels of API's that a wireless
-> driver would need, depending on how much stuff is done in
-> hardware/firmware and how much in software.
+> On Mon, 5 Dec 2005, David S. Miller wrote:
+> 
+> > 2) You didn't give what the failure mode is for kernels such
+> >   as 2.6.14.2, which should work, and certainly don't print out
+> >   that bug message
+> 
+> It's the same as for 2.6.13 and 2.6.15rc, did build a 2.6.14.3 as had 
+> removed the 14.2 when I started to use 15rc.
 
-I hate to say this, but part of the problem is exactly the fact
-that all the implementors have implemented different levels of
-hardware-MAC'ness in their wireless products.
+You're still not answering my question, what is this failure
+mode?  Xorg doesn't start?  The kernel crashes when Xorg starts?
+Xorg starts but you get a blank screen?  You did not mention
+this critical information anywhere.  Mentioning a list of other
+kernels that "it's the same" for doesn't describe the failure
+mode. :)
 
-Stated even further, things might have been more consistent if M$ had
-specified a set of driver interfaces into their own softmac stack,
-which I am to understand they are working on now.
 
-So every M$ wireless driver essentially links in their own softmac
-stack, if needed.
-
-This has resulted in a complicated situation for an already
-complicated technology.  Therefore, the fact that it's taking this
-long to accomodate all of the cases in the vanilla tree is quite
-understandable.
-
-I'm at the point where I frankly don't care which softmac
-implementation we go with, but rather I'm more concerned that we pick
-_ONE_ and just stick with it, and then adding the necessary interfaces
-and infrastructure as different wireless devices require.
-
-Yes, you hear me right, it's more important to agree to one
-implementation as the basis, even if it's the worst one currently.
-Division of labor is something we simply cannot afford on the wireless
-stack at this time.

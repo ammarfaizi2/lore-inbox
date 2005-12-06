@@ -1,45 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbVLFJRE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVLFJU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbVLFJRE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 04:17:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932489AbVLFJRE
+	id S964872AbVLFJU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 04:20:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964922AbVLFJU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 04:17:04 -0500
-Received: from smtp6.wanadoo.fr ([193.252.22.25]:17696 "EHLO smtp6.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S932484AbVLFJRD (ORCPT
+	Tue, 6 Dec 2005 04:20:58 -0500
+Received: from main.gmane.org ([80.91.229.2]:17285 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964872AbVLFJU5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 04:17:03 -0500
-X-ME-UUID: 20051206091702444.0AD061C00235@mwinf0608.wanadoo.fr
+	Tue, 6 Dec 2005 04:20:57 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Dirk Steuwer <dirk@steuwer.de>
 Subject: Re: Linux in a binary world... a doomsday scenario
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, David Woodhouse <dwmw2@infradead.org>,
-       arjan@infradead.org, andrew@walrond.org, linux-kernel@vger.kernel.org
-In-Reply-To: <4394E750.8020205@am.sony.com>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <200512051826.06703.andrew@walrond.org>
-	 <1133817575.11280.18.camel@localhost.localdomain>
-	 <1133817888.9356.78.camel@laptopd505.fenrus.org>
-	 <1133819684.11280.38.camel@localhost.localdomain>
-	 <4394D396.1020102@am.sony.com> <20051206005341.GN28539@opteron.random>
-	 <4394E750.8020205@am.sony.com>
-Content-Type: text/plain
-Message-Id: <1133860612.1615.110.camel@capoeira>
+Date: Tue, 6 Dec 2005 09:07:21 +0000 (UTC)
+Message-ID: <loom.20051206T094816-40@post.gmane.org>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Tue, 06 Dec 2005 10:16:52 +0100
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 213.61.178.52 (Mozilla/5.0 (Windows; U; Windows NT 5.0; de-DE; rv:1.7.12) Gecko/20050919 Firefox/1.0.7)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-06 at 02:20, Tim Bird wrote:
+Brian Gerst <bgerst <at> didntduck.org> writes:
 
-> > The _GPL tag is useful as an hint to binary only vendors as as such it
-> > makes perfect sense.
-> Well, if it makes sense to have developers giving out legal
-> advice, then I guess so.
+> The problem with this statement is that Linux users are a drop in the 
+> bucket of sales for this hardware.  Boycotting doesn't cost the vendors 
+> enough to make them care.  And this does nothing for people who are 
+> converting over to Linux, and didn't buy hardware with that 
+> consideration in mind.
+> 
+> The only way to break the stalemate is to reverse engineer drivers. 
+> Turning the screws tighter isn't going to make open drivers magically 
+> appear.  More likely, the vendors will abandon Linux as being too 
+> hostile and/or too costly to support, leaving everybody back at square one.
+> 
+> --
+> 				Brian Gerst
+> 
 
-You seem to imply that kernel developers have no legitimity to give a
-hint on how to use what *they* created.
 
+I see binary drivers as a problem, too.
+How does a customer find out, if a piece of Hardware works in the free software
+world? Yes there are a few places, where you find a hardware compatibility list,
+but these are scattered and often incomplete. And they only include hardware
+that someone thinks is working, added a couple of month after sales launch.
+
+The only solution is to create pressure on these companies, as suggested.
+Ideally, there should be a label "designed for Linux" (or "designed for free
+software" (maybe getting the bsd people on board as well?)) straight on the box.
+So customers that start to care about linux, can see this right away and make
+the right choice, when buying hardware. 
+And because the driver is already included/licensed before the product makes it
+into the shelves, its a plug and play scenario for the customer. They don't need
+to worry about drivers at all. Stick it in and it just works(tm).
+This would be a real value added in favor of linux for the customer and could
+create some real pressure on companies with binary only drivers. 
+
+
+Which Authority would be best to release such a Label?
+
+Regards,
+Dirk
 

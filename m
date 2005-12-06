@@ -1,50 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbVLFRKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbVLFRQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932452AbVLFRKq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 12:10:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbVLFRKp
+	id S932339AbVLFRQn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 12:16:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbVLFRQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 12:10:45 -0500
-Received: from ns2.suse.de ([195.135.220.15]:23693 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932437AbVLFRKo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 12:10:44 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: "Zou, Nanhai" <nanhai.zou@intel.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Reading /proc/stat is slooow
-References: <B8E391BBE9FE384DAA4C5C003888BE6F05204A1E@scsmsx401.amr.corp.intel.com>
-	<894E37DECA393E4D9374E0ACBBE7427003BC9642@pdsmsx402.ccr.corp.intel.com>
-	<20051206165800.GA6277@agluck-lia64.sc.intel.com>
-X-Yow: Why are these athletic shoe salesmen following me??
-Date: Tue, 06 Dec 2005 18:10:40 +0100
-In-Reply-To: <20051206165800.GA6277@agluck-lia64.sc.intel.com> (Tony Luck's
-	message of "Tue, 6 Dec 2005 08:58:00 -0800")
-Message-ID: <jeslt6xib3.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 6 Dec 2005 12:16:43 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59913 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932339AbVLFRQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 12:16:43 -0500
+Date: Tue, 6 Dec 2005 17:16:34 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Sachin Sant <sachinp@in.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] Adding ctrl-o sysrq hack support to 8250 driver
+Message-ID: <20051206171633.GB19664@flint.arm.linux.org.uk>
+Mail-Followup-To: Sachin Sant <sachinp@in.ibm.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <438D8A3A.9030400@in.ibm.com> <20051130130429.GB25032@flint.arm.linux.org.uk> <43953440.9070102@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43953440.9070102@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Luck, Tony" <tony.luck@intel.com> writes:
+On Tue, Dec 06, 2005 at 12:18:32PM +0530, Sachin Sant wrote:
+> >Why are you doing this and not using uart_handle_break()?
+> >
+> >Do you realise that this enables sysrq support for _any_ 8250 serial
+> >port, be it console or not?
+>
+> At present we have ctrl-break that works over a serial connection. But 
+> there are few instances where the above does not works. Consider the 
+> following senarios
+> 
+> p615, power4, no-hmc configuration.
+> 
+> I attached an IBM 3153 (a "real" tty) to the serial port.I then observed
+> that neither ctrl-o or the tty's ctrl-SysRq_key worked.  (but ctrl-o did 
+> still work with the patched kernel, of course).  However, the 
+> ctrl-Break_key does work on the native tty, taking the place of the 
+> ctrl-o on vterms.
 
-> 2) The problem loop is already #ifdef'd out for PPC64 and ALPHA.  We could add
-> IA64 to that exclusive club and just not include the per irq sums.  Since kstat_irqs()
-> computes the sums in an "int", they will wrap frequently on a large system
-> (512 cpus * default 250Hz = 128000 ... which wraps a 32-bit unsigned in 9 hours
-> and 19 minutes) ... so their usefulness is questionable.  Does xosview use
-> the per-irq values?
+Frown.  Sorry, I'm not sure what "p615", "power4" and "no-hmc" is.  I
+also don't know what an IBM 3153 is.
 
-It doesn't use them, it uses /proc/interrupts instead.  So IMHO this would
-be the preferred solution.
+However, you seem to be suggesting that a terminal application somehow
+forwards the ctrl-sysrq (and it's actually alt-sysrq).  Maybe it does,
+maybe it doesn't.  Probably depends on the terminal application itself.
 
-Andreas.
+Eg, with minicom, you need to ask minicom to create the serial break
+event itself, normally by (assuming default configuration) <ctrl-a> <f>.
+
+> So in summary, ctrl-Break works. I then re-attached the 
+> cu cable (both are defined alike as ttyS0 and give login's) and 
+> re-verified that ctrl-Break stopped working.
+> 
+> In the future, if this configuration is found hung, then (provided sysrq 
+> was enabled), attach a physical tty and use ctrl-Break to debug.
+> 
+> 2nd configuration: p630, hmc-attached, booted in "full-system partition" 
+> mode.Everything in the first configuration applied here too.
+
+At around this point, I'm starting to loose track of this email -
+please can you format the message better, eg use at least one space
+(preferably two) after a full stop and separate up what you want to
+say into easy to read paragraphs.
+
+> There is 
+> only a slight diff in the way the console works.Since the hmc is 
+> attached, the "vterm" on the hmc will be the console.However, when it is 
+> booted in "full-system partition" mode, the OS sees that console as 
+> ttyS0 - just like a non-hmc attached connection.Unfortunately, neither 
+> the ctrl-o nor the ctrl-Break works on this either (just like the cu 
+> session above).The only way to get ctrl-Break to work is to "close the 
+> terminal" operation on the hmc, and then attach and turn on a real tty 
+> onto the lowest serial port (not the "HMC" port) on the p630.  You can't 
+> have both running at the same time, because they both configure as 
+> ttyS0.  Then with the real tty attached, you can use ctrl-Break to debug.
+> 
+> So the general idea behind this patch was to make the behaviour of 
+> invoking sysrq key more consistent over virtual and real consoles. It's 
+> not a must but would be nice to have this functionality.
+
+I don't think you've addressed my concern... but I'm afraid I haven't
+been able to properly follow what you're saying.
+
+In any case, applying this patch means that you _permanently_ prevent
+the reception of ^O on _ANY_ 8250 serial port, whether it be a serial
+console or not.
+
+With this patch, I guess it's tough luck if you have a modem connected
+to your PC and you want to run ppp or x,y,z modem protocols.
+
+> >We don't drop the lock when calling uart_handle_sysrq_char() further
+> >down in this function.  Why is this needed?  Also, why is this needed
+> >to be duplicated?
+>
+> You are correct. This is not needed. I have removed this piece of code.
+> 
+> How about the following patch.
+
+I'm still highly concerned about this whole idea.  Applying this patch
+_will_ without doubt inconvenience a lot of people who expect ^O to be
+received as normal.
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

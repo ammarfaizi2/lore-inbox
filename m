@@ -1,84 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVLFLJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVLFLOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbVLFLJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 06:09:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbVLFLJ3
+	id S1750736AbVLFLOS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 06:14:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbVLFLOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 06:09:29 -0500
-Received: from mail.gmx.de ([213.165.64.20]:42420 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751360AbVLFLJ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 06:09:28 -0500
-X-Authenticated: #428038
-Date: Tue, 6 Dec 2005 12:09:25 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051206110925.GD10574@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20051203135608.GJ31395@stusta.de> <4391D335.7040008@unsolicited.net> <20051203175355.GL31395@stusta.de> <200512042131.13015.rob@landley.net> <4394681B.20608@rtr.ca> <1133800090.21641.17.camel@mindpipe> <20051205164418.GA12725@merlin.emma.line.org> <1133803048.21641.48.camel@mindpipe> <20051205175518.GA21928@merlin.emma.line.org> <873bl76zd3.fsf@mid.deneb.enyo.de>
+	Tue, 6 Dec 2005 06:14:17 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:39088 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750736AbVLFLOR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 06:14:17 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Avuton Olrich <avuton@gmail.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel panic: Machine check exception
+References: <3aa654a40511190145v6f4df755wf16673050d077edb@mail.gmail.com>
+	<1132406652.5238.19.camel@localhost.localdomain>
+	<3aa654a40511191254x4bf50cc8l6a9b8786f1a5ebc8@mail.gmail.com>
+	<1132436886.19692.17.camel@localhost.localdomain>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Tue, 06 Dec 2005 04:13:24 -0700
+In-Reply-To: <1132436886.19692.17.camel@localhost.localdomain> (Alan Cox's
+ message of "Sat, 19 Nov 2005 21:48:06 +0000")
+Message-ID: <m1wtiicwbv.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <873bl76zd3.fsf@mid.deneb.enyo.de>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 05 Dec 2005, Florian Weimer wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> * Matthias Andree:
-> 
-> > Basically, no-one should have permission to touch any core parts, except
-> > for fixes, until 2.7. Yes, that means going back to older models. Yes,
-> > that means that the discussions will start all over. And yes, that means
-> > that the cool stuff has to wait. Solution: release more often.
-> 
-> Would this alone change much?  I think what we really want is that our
-> favorite branch (whatever it is) gets critical fixes forever (well,
-> maybe one or two years, but this is forever).  This is a bit
-> unrealistic because everyone has a slightly different branchpoint.
-> Releasing more often doesn't change that, really.
+> On Sad, 2005-11-19 at 12:54 -0800, Avuton Olrich wrote:
+>> Is there a good way to narrow it down? I guess running a badmem
+>> program would be good to start with, otherwise ...(?).
+>
+> A memory test may be worth doing but most machine checks indicate the
+> fault is more serious than bad memory.
 
-Releasing minor releases more often and enforcing "don't touch unless
-you must" policy would create such synchronization point and a branch
-where everyone could safely hop between releases.
+Although on the Opteron that is usually what it is (as memory
+errors can be reported through the machine check interface)
 
-> In the security area, I think there is enough experience out there to
-> collect data which would help each local branch maintainer to install
-> the relevant fixes.  But for general development, this seems to be
-> infeasible, unless you focus your software architecture on this
-> purpose (which is probably a terrible idea to do for kernel
-> development).
+In this case bank 4 is the appropriate bank.  Although the
+other bits don't look right for a memory error.  I wonder
+if it is that darn iommu fault again.
 
-I don't think focusing the kernel on code quality and security is wrong
-though. The actual problem we've seen from postings by Lee and others is
-that the burden of test is shifted to the distros and their QA teams so
-that effectively everyone is free to break things at will, downstream QA
-will fix it anyways.
+To decode an Opteron machine_check you can look in
+the bios and kernel programmers guide.  (Possibly the
+architecture but I think that is too generic) to see
+what all of the bits mean.
 
-This however doesn't work, and the problem here is the propagation
-delay. At the time the end user sees a problem with his kernel, the
-upstream has already abandoned the 2.6.X.Y stable branch the distro was
-based on, and upstream is at 2.6.X+2 or even farther ahead. What is
-actually needed is to enclose this end user system in the tests run
-before further changes in the same area. And as udev etc. need to
-change, a simple test if the current kernel works means updating some
-user space packages, hotplug, modutils (OK this was 2.5), udev,
-whatever, and what's even worse, if that doesn't help or breaks other
-things. Going back may not even work through the packaging system
-because the old kernel version may not have a "udev <= N" dependency
-either...
+It is a pain but is faster than poking blindly in
+the dark.
 
-So before this can work, the actual package maintenance systems such as
-yum, yast, dpkg, apt and rpm will need to support what Emacs Lisp calls
-excursions. It means, snapshot the packages and revert to the same set
-later.
-
-Even if this were solved and excursions were cheap, it would still not
-solve the time skew bug report and upstream fixes...
-
--- 
-Matthias Andree
+Eric

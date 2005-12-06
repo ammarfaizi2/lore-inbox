@@ -1,54 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbVLFTMI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbVLFTOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030190AbVLFTMI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 14:12:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbVLFTMI
+	id S965030AbVLFTOU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 14:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbVLFTOU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 14:12:08 -0500
-Received: from agmk.net ([217.73.31.34]:2566 "EHLO mail.agmk.net")
-	by vger.kernel.org with ESMTP id S1030190AbVLFTMH (ORCPT
+	Tue, 6 Dec 2005 14:14:20 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:5272 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965030AbVLFTOT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 14:12:07 -0500
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@agmk.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Tue, 6 Dec 2005 20:11:55 +0100
-User-Agent: KMail/1.9
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512061649.14470.pluto@agmk.net> <20051206190051.GA4232@irc.pl>
-In-Reply-To: <20051206190051.GA4232@irc.pl>
+	Tue, 6 Dec 2005 14:14:19 -0500
+Message-ID: <4395E2F4.7000308@pobox.com>
+Date: Tue, 06 Dec 2005 14:13:56 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200512062011.55234.pluto@agmk.net>
+To: Brian Gerst <bgerst@didntduck.org>
+CC: Arjan van de Ven <arjan@infradead.org>, "M." <vo.sinh@gmail.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>	 <20051205121851.GC2838@holomorphy.com>	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>	 <20051206030828.GA823@opteron.random>	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com> <1133869465.4836.11.camel@laptopd505.fenrus.org> <4394ECA7.80808@didntduck.org>
+In-Reply-To: <4394ECA7.80808@didntduck.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Brian Gerst wrote: > Once again I'd like to point out
+	that user's purchase power means jack > when they only have two choices
+	for video: ATI and Nvidia. You can't > walk into a computer store and
+	find anything else (I don't count > integrated video on the motherboard
+	as a solution, since only Intel > boards have it, sorry AMD users).
+	Even over the web it's hard to find > anything else. I'm not trying to
+	defend closed source here, but you > people just have to face the
+	reality that trying to use the market to > get our way is just not
+	going to work with video. The only way forward > is reverse
+	engineering. We aren't going to get help from the vendors so > we have
+	to help ourselves. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia wtorek, 6 grudnia 2005 20:00, Tomasz Torcz napisał:
-> On Tue, Dec 06, 2005 at 04:49:14PM +0100, Paweł Sikora wrote:
-> > Dnia wtorek, 6 grudnia 2005 16:30, Florian Weimer napisał:
-> > > * Brian Gerst:
-> > > > Once again I'd like to point out that user's purchase power means
-> > > > jack when they only have two choices for video:  ATI and Nvidia.  You
-> > > > can't walk into a computer store and find anything else (I don't
-> > > > count integrated video on the motherboard as a solution, since only
-> > > > Intel boards have it, sorry AMD users).  Even over the web it's hard
-> > > > to find anything else.
-> > >
-> > > What about Matrox cards?  Are there open drivers for accelerated 2D
-> > > operation?
-> >
-> > Open 2D is nothing new. The OpenGL is a major part.
-> > Matrox and XGI (e.g. Volari V3 based cards) have openGL parts closed.
->
->  Interesting remark, but false.
+Brian Gerst wrote:
+> Once again I'd like to point out that user's purchase power means jack 
+> when they only have two choices for video:  ATI and Nvidia.  You can't 
+> walk into a computer store and find anything else (I don't count 
+> integrated video on the motherboard as a solution, since only Intel 
+> boards have it, sorry AMD users).  Even over the web it's hard to find 
+> anything else.  I'm not trying to defend closed source here, but you 
+> people just have to face the reality that trying to use the market to 
+> get our way is just not going to work with video.  The only way forward 
+> is reverse engineering.  We aren't going to get help from the vendors so 
+> we have to help ourselves.
 
-I investigated only mtx driver from theirs website.
+It sure looks that way.
 
-> Xorg ships open source driver with full 3D acceleration suport forMatrox.
+Let's hope the rev-eng people do it the right way, by having one team 
+write a document, and a totally separate team write the driver from that 
+document.
 
-For which card?
+	Jeff
 
--- 
-to_be || !to_be == 1, to_be | ~to_be == -1
+

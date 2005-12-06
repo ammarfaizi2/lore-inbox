@@ -1,68 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932559AbVLFOBw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932578AbVLFOGl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932559AbVLFOBw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 09:01:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932563AbVLFOBw
+	id S932578AbVLFOGl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 09:06:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932584AbVLFOGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 09:01:52 -0500
-Received: from mail.enyo.de ([212.9.189.167]:57752 "EHLO mail.enyo.de")
-	by vger.kernel.org with ESMTP id S932559AbVLFOBv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 09:01:51 -0500
-From: Florian Weimer <fw@deneb.enyo.de>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Adrian Bunk <bunk@stusta.de>, Greg KH <greg@kroah.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-References: <200512060110.jB61AMHF004027@pincoya.inf.utfsm.cl>
-Date: Tue, 06 Dec 2005 15:01:20 +0100
-In-Reply-To: <200512060110.jB61AMHF004027@pincoya.inf.utfsm.cl> (Horst von
-	Brand's message of "Mon, 05 Dec 2005 22:10:22 -0300")
-Message-ID: <8764q2qq8f.fsf@mid.deneb.enyo.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Dec 2005 09:06:41 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:16324 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S932578AbVLFOGl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 09:06:41 -0500
+Date: Tue, 6 Dec 2005 15:06:12 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: david singleton <dsingleton@mvista.com>
+Cc: robustmutexes@lists.osdl.org, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: robust futex heap support patch
+In-Reply-To: <EABD795D-6613-11DA-B91D-000A959BB91E@mvista.com>
+Message-Id: <Pine.OSF.4.05.10512061404140.23158-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Horst von Brand:
+On Mon, 5 Dec 2005, david singleton wrote:
 
->> You mentioned security issues in your initial post.  I think it would
->> help immensely if security bugs would be documented properly (affected
->> versions, configuration requirements, attack range, loss type etc.)
->> when the bug is fixed, by someone who is familiar with the code.
->> (Currently, this information is scraped together mostly by security
->> folks, sometimes after considerable time has passed.)  Having a
->> central repository with this kind of information would enable vendors
->> and not-quite-vendors (people who have their own set of kernels for
->> their machines) to address more vulnerabilties promptly, including
->> less critical ones.
->
-> I've fixed bugs which turned out to be security vulnerabilities. And I
-> didn't know (or even care much) at the time. Finding out if some random bug
-> has security implications, and exactly which ones/how much of a risk they
-> pose is normally /much/ harder than to fix the bugs.
+> 
+> On Dec 5, 2005, at 2:30 PM, Esben Nielsen wrote:
+> 
+> I'm currently trying to close a race condition between futex_wait_robust
+> and futex_wake_robust that Dave Carlson is seeing on his SMP system.
+> 
+> The scenario is as follows:
+> 
+> Thread A locks an pthread_mutex via the fast path and does not enter 
+> the kernel.
+> 
+> Thread B tries to lock the lock and sees it is already locked.  Thread 
+> B sets the
+> waiters flag in the lock and enters the kernel to lock the lock on 
+> behalf of
+> thread A and then block on the mutex waiting for it's release.
+> 
+> Thread A unlocks the lock and sees the waiters flag set.  Thread A gets
+> to the futex_wake_robust before Thread B can get to futex_wait_robust.
+> 
+> Thread A sees that it does not own the lock in the kernel and was 
+> returning EINVAL.
+> 
+> patch-2.6.14-rt21-rf8 was a preliminary patch for Dave Carlson to try 
+> and get more information about
+> the race condition.   ( rf8 and rf9 are still returning EAGAIN from 
+> thread B trying to
+> do the futex_wait_robust and the library should be retrying with 
+> EAGAIN, but it currently isn't).
+> 
 
-I know, it happens all the time: vulnerabilities are fixed because
-they are bugs, and not because they are vulnerabilities.  It's
-unfortunate if people are unnecessarily exposed to the vulnerability
-(because they don't know about it and don't apply the fix as a result),
-but it's better than carrying around the bug indefinitely.
+*nod*
+I just pointed out that you can't make thread A loop the way you do.
 
-But if there's considerable evidence that you might have fixed a
-security bug, preserving this information (and other bits that are
-immediately obvious to you as a developer, but not necessarily who
-reviews the issue) seems worthwhile.  Maybe you don't want to put it
-into the public commit message, but forwarding what you have to some
-trusted group of volunteers would make sense.  The volunteers would
-distill the information, add more data and assign a CVE if necessary,
-and declassify the information as soon as the public is ready (in the
-form of a short security advisory, like the ones you see for most
-applications).
+What I would do was to do the user space flag checks while having the
+raw spinlock of the rt_mutex. That way you are sure that stuff in the
+kernel is serialized. But I don't know what to do exactly to do in
+there....
 
-Does this sound too far-fetched?  Why don't you think this would be a
-valuable service to all users, vanilla kernels or not?
 
-> And rather pointless, after the fix is in.
+> When I get the race condition closed I'll post the patch and notify 
+> everyone on lkml
+> and the robustmutexes mailing lists.
 
-It doesn't matter much if the fix is in the kernel.org tree, when I'm
-supposed to use vendor kernels. 8-)
+Where can I sign up to that mailing list? I would like to follow the
+development, although I don't have much time to contibute.
+
+Esben
+
+> 
+> David
+> 
+> 
+> 
+> > Hi,
+> >  I got a little time to look at your current patch (2.6.14-rt21-rf8).
+> > I noticed a problem in futex_wake_robust(). You have a "goto retry" to
+> > solve the following situation:
+> >
+> >   Task A                             Task B
+> >       takes futex in userspace
+> >                                      Tries to take mutex and sets the
+> >                                      waiting bit in user space
+> >       releases futex, notices task B
+> >       calls kernel and enters
+> >       futex_wake_robust()
+> >
+> >     retry:
+> >       if not owner in rt_mutex
+> >          goto retry;
+> >                                      Calls kernel
+> >                                      Makes A owner in rt_mutex
+> >                                      blocks
+> >        Leaves retry-loop and
+> >        completes the futex wake
+> >        operation as normally.
+> >
+> >
+> > However,  if Task A is RT on a UP machine it will go on in the retry 
+> > loop
+> > forever. Task B will never get the CPU to complete it's kernel-call.
+> >
+> > You have probably by manipulating the userspace flag from within the
+> > rt_mutex code :-(
+> >
+> > Esben
+> >
+> >
+> > On Fri, 25 Nov 2005, david singleton wrote:
+> >
+> >> There is a new patch, patch-2.6.14-rt15-rf1,  that adds support for
+> >> robust and priority inheriting
+> >> pthread_mutexes on the 'heap'.
+> >>
+> >> The previous patches only supported either file based pthread_mutexes
+> >> or mmapped anonymous memory based pthread_mutexes.  This patch allows
+> >> pthread_mutexes
+> >> to be 'malloc'ed while using the PTHREAD_MUTEX_ROBUST_NP attribute
+> >> or PTHREAD_PRIO_INHERIT attribute.
+> >>
+> >> The patch can be found at:
+> >>
+> >> http://source.mvista.com/~dsingleton
+> >>
+> >> David
+> >>
+> >> -
+> >> To unsubscribe from this list: send the line "unsubscribe 
+> >> linux-kernel" in
+> >> the body of a message to majordomo@vger.kernel.org
+> >> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >> Please read the FAQ at  http://www.tux.org/lkml/
+> >>
+> >
+> 
+

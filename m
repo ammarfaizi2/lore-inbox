@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbVLFTIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030191AbVLFTKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbVLFTIz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 14:08:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbVLFTIz
+	id S1030191AbVLFTKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 14:10:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbVLFTKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 14:08:55 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:19896 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030185AbVLFTIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 14:08:54 -0500
-Date: Tue, 6 Dec 2005 11:08:42 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [RFC 1/3] Framework for accurate node based statistics
-In-Reply-To: <20051206183524.GU11190@wotan.suse.de>
-Message-ID: <Pine.LNX.4.62.0512061105220.19475@schroedinger.engr.sgi.com>
-References: <20051206182843.19188.82045.sendpatchset@schroedinger.engr.sgi.com>
- <20051206183524.GU11190@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 6 Dec 2005 14:10:15 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:2495 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030188AbVLFTKO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 14:10:14 -0500
+Date: Tue, 6 Dec 2005 19:10:12 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Nick Holloway <Nick.Holloway@pyrites.org.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH 2.6.15-rc4 1/1] cpia: use vm_insert_page() instead of remap_pfn_range()
+Message-ID: <20051206191012.GA27116@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Nick Holloway <Nick.Holloway@pyrites.org.uk>,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org
+References: <20051205152758.GA29108@pyrites.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051205152758.GA29108@pyrites.org.uk>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Dec 2005, Andi Kleen wrote:
+>  	pos = (unsigned long)(cam->frame_buf);
+>  	while (size > 0) {
+> -		page = vmalloc_to_pfn((void *)pos);
+> -		if (remap_pfn_range(vma, start, page, PAGE_SIZE, PAGE_SHARED)) {
+> +		page = vmalloc_to_page((void *)pos);
+> +		if (vm_insert_page(vma, start, page)) {
 
-> > +static inline void mod_node_page_state(int node, enum node_stat_item item, int delta)
-> > +{
-> > +	vm_stat_diff[get_cpu()][node][item] += delta;
-> > +	put_cpu();
-> 
-> Instead of get/put_cpu I would use a local_t. This would give much better code
-> on i386/x86-64.  I have some plans to port over all the MM statistics counters
-> over to local_t, still stuck, but for new code it should be definitely done.
+it would be nicer to do the arithmetis on pos as pointers rather than unsigned
+long.  Also you might want to use alloc_pages + vmap instead of vmalloc so that
+you already have a page array.  Or we should provide a helper that walks over
+a vmalloc'ed region and calls vmalloc_to_page + vm_insert_page.  Either way
+this type of code is duplicated far too much and we'd really need some better
+interface for it.
 
-Yuck. That code uses atomic operations and is not aware of atomic64_t.

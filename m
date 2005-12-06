@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbVLFM1X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbVLFM3f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964975AbVLFM1X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 07:27:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbVLFM1X
+	id S964972AbVLFM3f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 07:29:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751463AbVLFM3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 07:27:23 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:45212 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S964995AbVLFM1W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 07:27:22 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Andrea Arcangeli <andrea@suse.de>
+	Tue, 6 Dec 2005 07:29:35 -0500
+Received: from extgw-uk.mips.com ([62.254.210.129]:24336 "EHLO
+	bacchus.net.dhis.org") by vger.kernel.org with ESMTP
+	id S1750747AbVLFM3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 07:29:34 -0500
+Date: Tue, 6 Dec 2005 12:29:27 +0000
+From: Ralf Baechle <ralf@linux-mips.org>
+To: Luke-Jr <luke-jr@utopios.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Tue, 6 Dec 2005 14:26:37 +0200
-User-Agent: KMail/1.8.2
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random>
-In-Reply-To: <20051206011844.GO28539@opteron.random>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Message-ID: <20051206122927.GC2698@linux-mips.org>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <84144f020512050507h3f41bfecuc9f3e13fd23fde98@mail.gmail.com> <200512051844.56838.s0348365@sms.ed.ac.uk> <200512061051.39844.luke-jr@utopios.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512061426.37287.vda@ilport.com.ua>
+In-Reply-To: <200512061051.39844.luke-jr@utopios.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 December 2005 03:18, Andrea Arcangeli wrote:
-> On Mon, Dec 05, 2005 at 04:18:51AM -0800, William Lee Irwin III wrote:
-> > The December 6 event is extraordinarily unlikely. What's vastly more
-> > likely is consistent "erosion" over time. First the 3D video drivers,
-> > then the wireless network drivers, then the fakeraid drivers, and so on.
-> 
-> I agree about the erosion.
-> 
-> I am convinced that the only way to stop the erosion is to totally stop
-> buying hardware that has only binary only drivers (unless you buy it to
-> create an open source driver or to reverse engineer the binary only
-> driver of course! ;).
+On Tue, Dec 06, 2005 at 10:51:39AM +0000, Luke-Jr wrote:
 
-I'm afraid there is not enough Linux users in desktop/laptop market
-for vendors to notice.
+> On Monday 05 December 2005 18:44, Alistair John Strachan wrote:
+> > When this happens, vendors will just have to solve all the IP nonsense
+> > associated with their hardware, or design hardware to be more dependent on
+> > firmware so that largely open source drivers are more feasible for them.
+> 
+> That just moves the problem. Now, there is yet even more concern that they 
+> should release source for the firmware.
 
-How about refusing binary-only modules instead? I mean, maybe
-if Linux will stop being lax about GPL requirements on modules.
---
-vda
+ACPI is a demonstration why firmware is not the answer.
+
+  Ralf

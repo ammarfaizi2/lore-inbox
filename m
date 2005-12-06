@@ -1,143 +1,314 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbVLFNgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbVLFNgD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932577AbVLFNgA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 08:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbVLFNf6
+	id S932572AbVLFNgD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 08:36:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbVLFNgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 08:35:58 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:21977 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S932562AbVLFNfv (ORCPT
+	Tue, 6 Dec 2005 08:36:01 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:34521 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S932573AbVLFNf4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 08:35:51 -0500
-Message-Id: <20051206135804.825753000@localhost.localdomain>
+	Tue, 6 Dec 2005 08:35:56 -0500
+Message-Id: <20051206135835.568520000@localhost.localdomain>
 References: <20051206135608.860737000@localhost.localdomain>
-Date: Tue, 06 Dec 2005 21:56:13 +0800
+Date: Tue, 06 Dec 2005 21:56:15 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@lameter.com>,
        Rik van Riel <riel@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
-       Andrea Arcangeli <andrea@suse.de>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 05/13] mm: balance zone aging in kswapd reclaim path
-Content-Disposition: inline; filename=mm-balance-zone-aging-in-kswapd-reclaim.patch
+       Andrea Arcangeli <andrea@suse.de>
+Subject: [PATCH 07/13] mm: balance active/inactive list scan rates
+Content-Disposition: inline; filename=mm-balance-active-inactive-list-aging.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The vm subsystem is rather complex. System memory is divided into zones,
-lower zones act as fallback of higher zones in memory allocation.  The page
-reclaim algorithm should generally keep zone aging rates in sync. But if a
-zone under watermark has many unreclaimable pages, it has to be scanned much
-more to get enough free pages. While doing this,
+shrink_zone() has two major design goals:
+1) let active/inactive lists have equal scan rates
+2) do the scans in small chunks
 
-- lower zones should also be scanned more, since their pages are also usable
-  for higher zone allocations.
-- higher zones should not be scanned just to keep the aging in sync, which
-  can evict large amount of pages without saving the problem(and may well
-  worsen it).
+But the implementation has some problems:
+- reluctant to scan small zones
+  the callers often have to dip into low priority to free memory.
 
-With that in mind, the patch does the rebalance in kswapd as follows:
-1) reclaim from the lowest zone when
-	- under pages_high
-	- under pages_high+lowmem_reserve, and less/equal aged than highest
-	  zone(or out of sync with it)
-2) reclaim from higher zones when
-	- under pages_high+lowmem_reserve, and less/equal aged than its
-	  immediate lower neighbor(or out of sync with it)
+- the balance is quite rough
+  the break statement in the loop breaks it.
 
-Note that the zone age is a normalized value in range 0-4096 on i386/4G. 4096
-corresponds to a full scan of one zone. And the comparison of ages are only
-deemed ok if the gap is less than 4096/8, or they will be regarded as out of
-sync.
+- may scan few pages in one batch
+  refill_inactive_zone can be called twice to scan 32 and 1 pages.
 
-On exit, the code ensures:
-1) the lowest zone will be pages_high ok
-2) at least one zone will be pages_high+lowmem_reserve ok
-3) a very strong force of rebalancing with the exception of
-	- some lower zones are unreclaimable: we must let them go ahead
-	  alone, leaving higher zones back
-	- shrink_zone() scans too much and creates huge imbalance in one
-	  run(Nick is working on this)
+The new design:
+1) keep perfect balance
+   let active_list follow inactive_list in scan rate
 
-The logic can deal with known normal/abnormal situations gracefully:
-1) Normal case
-	- zone ages are cyclicly tied together: taking over each other, and
-	  keeping close enough
+2) always scan in SWAP_CLUSTER_MAX sized chunks
+   simple and efficient
 
-2) A Zone is unreclaimable, scanned much more, and become out of sync
-	- if ever a troublesome zone is being overscanned, the logic brings
-	  its lower neighbors ahead together, leaving higher neighbors back.
-	- the aging tie between the two groups is broken, and the relevant
-	  zones are reclaimed when pages_high+lowmem_reserve not ok, just as
-	  before the patch.
-	- at some time the zone ages meet again and back to normal
-	- a possiblely better strategy, as soon as the pressure disappeared,
-	  might be relunctant to reclaim from the already overscanned lower
-	  group, and let the higher group slowly catch up.
+3) will scan at least one chunk
+   the expected behavior from the callers
 
-3) Zone is truncated
-	- will not reclaim from it until under watermark
+The perfect balance may or may not yield better performance, though it
+a) is a more understandable and dependable behavior
+b) together with inter-zone balancing, makes the zoned memories consistent
 
-With this patch, the meaning of zone->pages_high+lowmem_reserve changed from
-the _required_ watermark to the _recommended_ watermark. Someone might be
-willing to increase them somehow.
+The atomic reclaim_in_progress is there to prevent most concurrent reclaims.
+If concurrent reclaims did happen, there will be no fatal errors.
+
+
+I tested the patch with the following commands:
+	dd if=/dev/zero of=hot bs=1M seek=800 count=1
+	dd if=/dev/zero of=cold bs=1M seek=50000 count=1
+	./test-aging.sh; ./active-inactive-aging-rate.sh
+
+Before the patch:
+-----------------------------------------------------------------------------
+active/inactive sizes on 2.6.14-2-686-smp:
+0/1000          = 0 / 1241
+563/1000        = 73343 / 130108
+887/1000        = 137348 / 154816
+
+active/inactive scan rates:
+dma      38/1000        = 7731 / (198924 + 0)
+normal   465/1000       = 2979780 / (6394740 + 0)
+high     680/1000       = 4354230 / (6396786 + 0)
+
+             total       used       free     shared    buffers     cached
+Mem:          2027       1978         49          0          4       1923
+-/+ buffers/cache:         49       1977
+Swap:            0          0          0
+-----------------------------------------------------------------------------
+
+After the patch, the scan rates and the size ratios are kept roughly the same
+for all zones:
+-----------------------------------------------------------------------------
+active/inactive sizes on 2.6.15-rc3-mm1:
+0/1000          = 0 / 961
+236/1000        = 38385 / 162429
+319/1000        = 70607 / 221101
+
+active/inactive scan rates:
+dma      0/1000         = 0 / (42176 + 0)
+normal   234/1000       = 1714688 / (7303456 + 1088)
+high     317/1000       = 3151936 / (9933792 + 96)
+             
+             total       used       free     shared    buffers     cached
+Mem:          2020       1969         50          0          5       1908
+-/+ buffers/cache:         54       1965
+Swap:            0          0          0
+-----------------------------------------------------------------------------
+
+script test-aging.sh:
+------------------------------
+#!/bin/zsh
+cp cold /dev/null&
+
+while {pidof cp > /dev/null};
+do
+        cp hot /dev/null
+done
+------------------------------
+
+script active-inactive-aging-rate.sh:
+-----------------------------------------------------------------------------
+#!/bin/sh
+
+echo active/inactive sizes on `uname -r`:
+egrep '(active|inactive)' /proc/zoneinfo |
+while true
+do
+	read name value
+	[[ -z $name ]] && break
+	eval $name=$value
+	[[ $name = "inactive" ]] && echo -e "$((active * 1000 / (1 + inactive)))/1000  \t= $active / $inactive"
+done
+
+while true
+do
+	read name value
+	[[ -z $name ]] && break
+	eval $name=$value
+done < /proc/vmstat
+
+echo
+echo active/inactive scan rates:
+echo -e "dma \t $((pgrefill_dma * 1000 / (1 + pgscan_kswapd_dma + pgscan_direct_dma)))/1000 \t= $pgrefill_dma / ($pgscan_kswapd_dma + $pgscan_direct_dma)"
+echo -e "normal \t $((pgrefill_normal * 1000 / (1 + pgscan_kswapd_normal + pgscan_direct_normal)))/1000 \t= $pgrefill_normal / ($pgscan_kswapd_normal + $pgscan_direct_normal)"
+echo -e "high \t $((pgrefill_high * 1000 / (1 + pgscan_kswapd_high + pgscan_direct_high)))/1000 \t= $pgrefill_high / ($pgscan_kswapd_high + $pgscan_direct_high)"
+
+echo
+free -m
+-----------------------------------------------------------------------------
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- mm/vmscan.c |   25 ++++++++++++++++++++-----
- 1 files changed, 20 insertions(+), 5 deletions(-)
+ include/linux/mmzone.h |    3 --
+ include/linux/swap.h   |    2 -
+ mm/page_alloc.c        |    5 +---
+ mm/vmscan.c            |   52 +++++++++++++++++++++++++++----------------------
+ 4 files changed, 33 insertions(+), 29 deletions(-)
 
 --- linux-2.6.15-rc5-mm1.orig/mm/vmscan.c
 +++ linux-2.6.15-rc5-mm1/mm/vmscan.c
-@@ -1359,6 +1359,7 @@ static int balance_pgdat(pg_data_t *pgda
- 	int total_scanned, total_reclaimed;
- 	struct reclaim_state *reclaim_state = current->reclaim_state;
- 	struct scan_control sc;
-+	struct zone *prev_zone = pgdat->node_zones;
+@@ -907,7 +907,7 @@ static void shrink_cache(struct zone *zo
+ 		int nr_scan;
+ 		int nr_freed;
  
- loop_again:
- 	total_scanned = 0;
-@@ -1374,6 +1375,9 @@ loop_again:
- 		struct zone *zone = pgdat->node_zones + i;
+-		nr_taken = isolate_lru_pages(sc->swap_cluster_max,
++		nr_taken = isolate_lru_pages(sc->nr_to_scan,
+ 					     &zone->inactive_list,
+ 					     &page_list, &nr_scan);
+ 		zone->nr_inactive -= nr_taken;
+@@ -1101,56 +1101,56 @@ refill_inactive_zone(struct zone *zone, 
  
- 		zone->temp_priority = DEF_PRIORITY;
+ /*
+  * This is a basic per-zone page freer.  Used by both kswapd and direct reclaim.
++ * The reclaim process:
++ * a) scan always in batch of SWAP_CLUSTER_MAX pages
++ * b) scan inactive list at least one batch
++ * c) balance the scan rate of active/inactive list
++ * d) finish on either scanned or reclaimed enough pages
+  */
+ static void
+ shrink_zone(struct zone *zone, struct scan_control *sc)
+ {
++	unsigned long long next_scan_active;
+ 	unsigned long nr_active;
+ 	unsigned long nr_inactive;
+ 
+ 	atomic_inc(&zone->reclaim_in_progress);
+ 
++	next_scan_active = sc->nr_scanned;
 +
-+		if (populated_zone(zone))
-+			prev_zone = zone;
+ 	/*
+ 	 * Add one to `nr_to_scan' just to make sure that the kernel will
+ 	 * slowly sift through the active list.
+ 	 */
+-	zone->nr_scan_active += (zone->nr_active >> sc->priority) + 1;
+-	nr_active = zone->nr_scan_active;
+-	if (nr_active >= sc->swap_cluster_max)
+-		zone->nr_scan_active = 0;
+-	else
+-		nr_active = 0;
+-
+-	zone->nr_scan_inactive += (zone->nr_inactive >> sc->priority) + 1;
+-	nr_inactive = zone->nr_scan_inactive;
+-	if (nr_inactive >= sc->swap_cluster_max)
+-		zone->nr_scan_inactive = 0;
+-	else
+-		nr_inactive = 0;
++	nr_active = zone->nr_scan_active + 1;
++	nr_inactive = (zone->nr_inactive >> sc->priority) + SWAP_CLUSTER_MAX;
++	nr_inactive &= ~(SWAP_CLUSTER_MAX - 1);
+ 
++	sc->nr_to_scan = SWAP_CLUSTER_MAX;
+ 	sc->nr_to_reclaim = sc->swap_cluster_max;
+ 
+-	while (nr_active || nr_inactive) {
+-		if (nr_active) {
+-			sc->nr_to_scan = min(nr_active,
+-					(unsigned long)sc->swap_cluster_max);
+-			nr_active -= sc->nr_to_scan;
++	while (nr_active >= SWAP_CLUSTER_MAX * 1024 || nr_inactive) {
++		if (nr_active >= SWAP_CLUSTER_MAX * 1024) {
++			nr_active -= SWAP_CLUSTER_MAX * 1024;
+ 			refill_inactive_zone(zone, sc);
+ 		}
+ 
+ 		if (nr_inactive) {
+-			sc->nr_to_scan = min(nr_inactive,
+-					(unsigned long)sc->swap_cluster_max);
+-			nr_inactive -= sc->nr_to_scan;
++			nr_inactive -= SWAP_CLUSTER_MAX;
+ 			shrink_cache(zone, sc);
+ 			if (sc->nr_to_reclaim <= 0)
+ 				break;
+ 		}
  	}
  
- 	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
-@@ -1404,14 +1408,25 @@ loop_again:
- 			if (!populated_zone(zone))
- 				continue;
+-	throttle_vm_writeout();
++	next_scan_active = (sc->nr_scanned - next_scan_active) * 1024ULL *
++					(unsigned long long)zone->nr_active;
++	do_div(next_scan_active, zone->nr_inactive | 1);
++	zone->nr_scan_active = nr_active + (unsigned long)next_scan_active;
  
--			if (nr_pages == 0) {	/* Not software suspend */
--				if (zone_watermark_ok(zone, order,
--					zone->pages_high, 0, 0))
--					continue;
-+			if (nr_pages) 	/* software suspend */
-+				goto scan_swspd;
- 
--				all_zones_ok = 0;
-+			if (zone < prev_zone &&
-+					!zone_watermark_ok(zone, order,
-+						zone->pages_high, 0, 0)) {
-+			} else if (!age_gt(zone, prev_zone) &&
-+					!zone_watermark_ok(zone, order,
-+						zone->pages_high,
-+						pgdat->nr_zones - 1, 0)) {
-+			} else {
-+				prev_zone = zone;
-+				continue;
- 			}
- 
-+			prev_zone = zone;
-+			all_zones_ok = 0;
+ 	atomic_dec(&zone->reclaim_in_progress);
 +
-+scan_swspd:
++	throttle_vm_writeout();
+ }
+ 
+ /*
+@@ -1191,6 +1191,9 @@ shrink_caches(struct zone **zones, struc
+ 		if (zone->all_unreclaimable && sc->priority < DEF_PRIORITY)
+ 			continue;	/* Let kswapd poll it */
+ 
++		if (atomic_read(&zone->reclaim_in_progress))
++			continue;
++
+ 		/*
+ 		 * Balance page aging in local zones and following headless
+ 		 * zones.
+@@ -1411,6 +1414,9 @@ scan_swspd:
  			if (zone->all_unreclaimable && priority != DEF_PRIORITY)
  				continue;
  
++			if (atomic_read(&zone->reclaim_in_progress))
++				continue;
++
+ 			zone->temp_priority = priority;
+ 			if (zone->prev_priority > priority)
+ 				zone->prev_priority = priority;
+--- linux-2.6.15-rc5-mm1.orig/mm/page_alloc.c
++++ linux-2.6.15-rc5-mm1/mm/page_alloc.c
+@@ -2145,7 +2145,6 @@ static void __init free_area_init_core(s
+ 		INIT_LIST_HEAD(&zone->active_list);
+ 		INIT_LIST_HEAD(&zone->inactive_list);
+ 		zone->nr_scan_active = 0;
+-		zone->nr_scan_inactive = 0;
+ 		zone->nr_active = 0;
+ 		zone->nr_inactive = 0;
+ 		zone->aging_total = 0;
+@@ -2301,7 +2300,7 @@ static int zoneinfo_show(struct seq_file
+ 			   "\n        inactive %lu"
+ 			   "\n        aging    %lu"
+ 			   "\n        age      %lu"
+-			   "\n        scanned  %lu (a: %lu i: %lu)"
++			   "\n        scanned  %lu (a: %lu)"
+ 			   "\n        spanned  %lu"
+ 			   "\n        present  %lu",
+ 			   zone->free_pages,
+@@ -2313,7 +2312,7 @@ static int zoneinfo_show(struct seq_file
+ 			   zone->aging_total,
+ 			   zone->page_age,
+ 			   zone->pages_scanned,
+-			   zone->nr_scan_active, zone->nr_scan_inactive,
++			   zone->nr_scan_active / 1024,
+ 			   zone->spanned_pages,
+ 			   zone->present_pages);
+ 		seq_printf(m,
+--- linux-2.6.15-rc5-mm1.orig/include/linux/swap.h
++++ linux-2.6.15-rc5-mm1/include/linux/swap.h
+@@ -111,7 +111,7 @@ enum {
+ 	SWP_SCANNING	= (1 << 8),	/* refcount in scan_swap_map */
+ };
+ 
+-#define SWAP_CLUSTER_MAX 32
++#define SWAP_CLUSTER_MAX 32		/* must be power of 2 */
+ 
+ #define SWAP_MAP_MAX	0x7fff
+ #define SWAP_MAP_BAD	0x8000
+--- linux-2.6.15-rc5-mm1.orig/include/linux/mmzone.h
++++ linux-2.6.15-rc5-mm1/include/linux/mmzone.h
+@@ -142,8 +142,7 @@ struct zone {
+ 	spinlock_t		lru_lock;	
+ 	struct list_head	active_list;
+ 	struct list_head	inactive_list;
+-	unsigned long		nr_scan_active;
+-	unsigned long		nr_scan_inactive;
++	unsigned long		nr_scan_active;	/* x1024 to be more precise */
+ 	unsigned long		nr_active;
+ 	unsigned long		nr_inactive;
+ 	unsigned long		pages_scanned;	   /* since last reclaim */
 
 --

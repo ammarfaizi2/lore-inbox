@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbVLFSB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbVLFSCV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbVLFSB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 13:01:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbVLFSB1
+	id S964993AbVLFSCV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 13:02:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbVLFSBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 13:01:27 -0500
-Received: from mail.kroah.org ([69.55.234.183]:42732 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964818AbVLFSB0 (ORCPT
+	Tue, 6 Dec 2005 13:01:53 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:1181 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964974AbVLFSBj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 13:01:26 -0500
-Date: Tue, 6 Dec 2005 09:59:19 -0800
-From: Greg KH <greg@kroah.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051206175919.GI3084@kroah.com>
-References: <20051203152339.GK31395@stusta.de> <20051203225020.GF25722@merlin.emma.line.org> <20051204002043.GA1879@kroah.com> <200512040446.32450.luke-jr@utopios.org> <20051204232205.GF8914@kroah.com> <4395A72E.6030006@tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4395A72E.6030006@tmr.com>
-User-Agent: Mutt/1.5.11
+	Tue, 6 Dec 2005 13:01:39 -0500
+Date: Tue, 6 Dec 2005 10:01:28 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: akpm@osdl.org, Christoph Hellwig <hch@infradead.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH 1/2] Zone reclaim V2
+In-Reply-To: <20051206175256.GO11190@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0512060957160.18975@schroedinger.engr.sgi.com>
+References: <20051206172444.18786.30131.sendpatchset@schroedinger.engr.sgi.com>
+ <20051206175256.GO11190@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 09:58:54AM -0500, Bill Davidsen wrote:
+On Tue, 6 Dec 2005, Andi Kleen wrote:
+
+> > An arch can control zone_reclaim by setting zone_reclaim_mode during bootup
+> > if it is discovered that the kernel is running on an NUMA configuration.
 > 
-> If a new udev config is needed with every new kernel, why isn't it in
-> the kernel tarball? Is that what you mean by "broken distro
-> configuration?" The info should be in /proc or /sys and not in an
-> external config file, particularly if a different versions per-kernel is
-> needed and people are trying new kernels and perhaps falling back to the
-> old.
+> Looks much better. Thanks. But how about auto controlling the variable in generic
+> code based on node_distance() (at least for the non node hotplug case)
 
-Every distro has different needs for its device naming and groups and
-other intergration into the boot process.  To force all of them to unify
-on one-grand-way-of-doing-things would just not work out at all.
+Any suggestions on how to determine zone reclaim behavior based on node 
+distances? AFAIK the main aspects in this are latency and bandwidth of 
+remote accesses. These vary depending on the distance of the remote node 
+under consideration.
 
-Look at all of the variations in the udev tarball between the different
-vendor configurations (we put them in there for other people to base
-their distro off of, if they want to.)
+> > +int zone_reclaim_mode;
+> 
+> I would mark it __read_mostly to avoid potential false sharing.
 
-So providing this config in the kernel will just not work, sorry.
-
-greg k-h
+Ok.

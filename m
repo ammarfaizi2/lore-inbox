@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbVLFVDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbVLFVET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbVLFVDE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 16:03:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbVLFVDE
+	id S965034AbVLFVET (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 16:04:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbVLFVES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 16:03:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:30661 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964983AbVLFVDB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 16:03:01 -0500
-Date: Tue, 6 Dec 2005 13:02:07 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, ehabkost@mandriva.com,
-       zaitcev@redhat.com
-Subject: Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
-Message-Id: <20051206130207.7658636e.zaitcev@redhat.com>
-In-Reply-To: <20051206181449.11947f4f.lcapitulino@mandriva.com.br>
-References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br>
-	<20051206194041.GA22890@suse.de>
-	<20051206181449.11947f4f.lcapitulino@mandriva.com.br>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.7; i386-redhat-linux-gnu)
+	Tue, 6 Dec 2005 16:04:18 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:42433 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S965034AbVLFVES
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 16:04:18 -0500
+Date: Tue, 6 Dec 2005 22:00:39 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Message-ID: <20051206210039.GA3425@electric-eye.fr.zoreil.com>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org> <20051206030828.GA823@opteron.random> <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com> <1133869465.4836.11.camel@laptopd505.fenrus.org> <4394ECA7.80808@didntduck.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4394ECA7.80808@didntduck.org>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Dec 2005 18:14:49 -0200, Luiz Fernando Capitulino <lcapitulino@mandriva.com.br> wrote:
+Brian Gerst <bgerst@didntduck.org> :
+[...]
+> walk into a computer store and find anything else (I don't count 
+> integrated video on the motherboard as a solution, since only Intel 
+> boards have it, sorry AMD users).
 
->  The spinlock makes the code less clear, error prone, and we already a
-> semaphore in the struct usb_serial_port.
-> 
->  The spinlocks _seems_ useless to me.
+Some SiS based motherboards offer both an integrated video and AMD
+processor support.
 
-Dude, semaphores are not compatible with interrupts. Surely you
-understand that?
-
--- Pete
+--
+Ueimor

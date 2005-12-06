@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751646AbVLFEkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751651AbVLFEnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751646AbVLFEkw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 23:40:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751650AbVLFEkw
+	id S1751651AbVLFEnD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 23:43:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751653AbVLFEnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 23:40:52 -0500
-Received: from pat.uio.no ([129.240.130.16]:14584 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751646AbVLFEkv (ORCPT
+	Mon, 5 Dec 2005 23:43:03 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:58288 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751651AbVLFEnB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 23:40:51 -0500
-Subject: Re: nfs unhappiness with memory pressure
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: theonetruekenny@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20051206143641.3feadaea.akpm@osdl.org>
-References: <20051205210442.17357.qmail@web34106.mail.mud.yahoo.com>
-	 <1133822367.8003.5.camel@lade.trondhjem.org>
-	 <20051206143641.3feadaea.akpm@osdl.org>
-Content-Type: text/plain
-Date: Mon, 05 Dec 2005 23:40:26 -0500
-Message-Id: <1133844026.8007.36.camel@lade.trondhjem.org>
+	Mon, 5 Dec 2005 23:43:01 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Jean Delvare <khali@linux-fr.org>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Questions on __initdata 
+In-reply-to: Your message of "Sun, 04 Dec 2005 15:15:33 BST."
+             <20051204151533.13df37c6.khali@linux-fr.org> 
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.071, required 12,
-	autolearn=disabled, AWL 1.74, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 06 Dec 2005 15:42:46 +1100
+Message-ID: <9121.1133844166@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-06 at 14:36 +1100, Andrew Morton wrote:
-> Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
-> >
-> > Argh... Not sure entirely how to deal with that... We definitely don't
-> >  want the thing futzing around inside throttle_vm_writeout(), 'cos
-> >  writeout isn't going to happen while the socket blocks.
-> > 
-> 
-> As far as the core VM is concerned, these pages are really "dirty", only it
-> happens to be a different flavour of dirtiness.  So perhaps we should
-> continue to mark these pages as dirty and let NFS internally take care
-> of which end of the wire they're dirty at.
-> 
-> Presumably calling writepage() a second time won't be very useful.  Or will
-> it?  Perhaps when NFS sees writepage against a PageDirty && PageUnstable
-> page it can recognise that as a hint to kick off a server-side write.
+On Sun, 4 Dec 2005 15:15:33 +0100, 
+Jean Delvare <khali@linux-fr.org> wrote:
+>Hi all,
+>
+>I've been reading the heading comment of include/linux/init.h to learn
+>when and how __initdata can be used. Some of the help text doesn't seem
+>to match my observations, and some of it confused me and could probably
+>be made clearer. However, I don't feel completely comfortable with this
+>topic yet and would welcome comments.
+>
+>First, the comment goes:
+>
+>> /* These macros are used to mark some functions or 
+>>  * initialized data (doesn't apply to uninitialized data)
+>>  * as `initialization' functions. The kernel can take this
+>>  * as hint that the function is used only during the initialization
+>>  * phase and free up used memory resources after
+>
+>My tests (on i386) seem to suggest that "doesn't apply to uninitialized
+>data" only holds for non-global variables. Tagging uninitialized global
+>variables __initdata works, and moves the variables from .bss to .data.
+>Is it correct? Does it work on all archs? If so, the comment above
+>needs to be fixed.
 
-Calling writepages() would actually be better. That will do the right
-thing, and trigger a commit if there are unstable writes.
-
-Cheers,
-  Trond
+gcc version dependent.  Older versions of gcc put all uninitialized
+global variables into .bss, even if there was an attribute like
+__initdata that tried to use a different section.  So we got into the
+habit of '__initdata variables must be explicitly initialized'.  Some
+platforms are using old versions of gcc where that restriction may
+still apply.
 

@@ -1,62 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbVLFM0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbVLFM1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751446AbVLFM0z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 07:26:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbVLFM0y
+	id S964975AbVLFM1X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 07:27:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbVLFM1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 07:26:54 -0500
-Received: from moutng.kundenserver.de ([212.227.126.186]:19678 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751446AbVLFM0x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 07:26:53 -0500
-From: "David Engraf" <engraf.david@netcom-sicherheitstechnik.de>
-To: "'Bernd Petrovitsch'" <bernd@firmix.at>
-Cc: <linux-kernel@vger.kernel.org>, "'Andrew Morton'" <akpm@osdl.org>
-Subject: Re: [PATCH] Win32 equivalent to GetTickCount systemcall (i386)
-Date: Tue, 6 Dec 2005 13:26:43 +0100
-Message-ID: <000201c5fa60$52bb53e0$0a016696@EW10>
+	Tue, 6 Dec 2005 07:27:23 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:45212 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S964995AbVLFM1W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 07:27:22 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Date: Tue, 6 Dec 2005 14:26:37 +0200
+User-Agent: KMail/1.8.2
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random>
+In-Reply-To: <20051206011844.GO28539@opteron.random>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <1133871202.3664.34.camel@tara.firmix.at>
-Thread-Index: AcX6X14/RZPwoVSoR+yA3aNY+Rmx3wAAJkEQ
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:79a9c929f10b28b00e544b1aedb42267
+Content-Disposition: inline
+Message-Id: <200512061426.37287.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 2005-12-06 at 12:23 +0100, David Engraf wrote:
-> > > On Tue, 2005-12-06 at 11:36 +0100, David Engraf wrote:
-> [.../9
-> > > 3) wouldn't it be better to expose a wallclock time thing which
-> > >    has a constant unit of time between all kernels?
-> >
-> > What is it?
-> >
-> >
-> > > (and.. wait.. isn't that called gettimeofday() )
-> > Not really gettimeofday is based on the date and time, but what if the
-> user
-> > changes the date, the counter would also change.
+On Tuesday 06 December 2005 03:18, Andrea Arcangeli wrote:
+> On Mon, Dec 05, 2005 at 04:18:51AM -0800, William Lee Irwin III wrote:
+> > The December 6 event is extraordinarily unlikely. What's vastly more
+> > likely is consistent "erosion" over time. First the 3D video drivers,
+> > then the wireless network drivers, then the fakeraid drivers, and so on.
 > 
-> man 2 times
-> And use the returned value.
+> I agree about the erosion.
 > 
-> 	Bernd
-> --
-> Firmix Software GmbH                   http://www.firmix.at/
-> mobil: +43 664 4416156                 fax: +43 1 7890849-55
->           Embedded Linux Development and Services
+> I am convinced that the only way to stop the erosion is to totally stop
+> buying hardware that has only binary only drivers (unless you buy it to
+> create an open source driver or to reverse engineer the binary only
+> driver of course! ;).
 
-times has only 10ms resolution, we need at least 1ms.
+I'm afraid there is not enough Linux users in desktop/laptop market
+for vendors to notice.
 
-David
-
-
-____________
-Virus checked by G DATA AntiVirusKit
-Version: AVK 16.2039 from 06.12.2005
-Virus news: www.antiviruslab.com
-
+How about refusing binary-only modules instead? I mean, maybe
+if Linux will stop being lax about GPL requirements on modules.
+--
+vda

@@ -1,66 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbVLFBsZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbVLFBwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbVLFBsZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 20:48:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbVLFBsZ
+	id S964908AbVLFBwU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 20:52:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964909AbVLFBwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 20:48:25 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:18576 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964907AbVLFBsY (ORCPT
+	Mon, 5 Dec 2005 20:52:19 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9949 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964908AbVLFBwT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 20:48:24 -0500
-Message-ID: <4394EDDE.30605@pobox.com>
-Date: Mon, 05 Dec 2005 20:48:14 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-References: <20051203135608.GJ31395@stusta.de> <1133620264.2171.14.camel@localhost.localdomain> <4394C745.2020802@tmr.com>
-In-Reply-To: <4394C745.2020802@tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Bill Davidsen wrote: > I do think the old model was
-	better; by holding down major changes for > six months or so after a
-	new even release came out, people had a chance > to polich the stable
-	release, and developers had time to recharge their > batteries so to
-	speak, and to sit and think about what they wanted to > do, without
-	feeling the pressure to write code and submit it right away. > Knowing
-	that there's no place to send code for six months is a great aid > to
-	generating GOOD code. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+	Mon, 5 Dec 2005 20:52:19 -0500
+Date: Tue, 6 Dec 2005 02:52:00 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Andy Isaacson <adi@hexapodia.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+Message-ID: <20051206015200.GJ1770@elf.ucw.cz>
+References: <20051205081935.GI22168@hexapodia.org> <20051205121728.GF5509@elf.ucw.cz> <1133791084.3872.53.camel@laptop.cunninghams> <20051205172938.GC25114@atrey.karlin.mff.cuni.cz> <1133816579.3872.83.camel@localhost> <20051205233430.GA1770@elf.ucw.cz> <1133832410.6360.35.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1133832410.6360.35.camel@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> I do think the old model was better; by holding down major changes for 
-> six months or so after a new even release came out, people had a chance 
-> to polich the stable release, and developers had time to recharge their 
-> batteries so to speak, and to sit and think about what they wanted to 
-> do, without feeling the pressure to write code and submit it right away. 
-> Knowing that there's no place to send code for six months is a great aid 
-> to generating GOOD code.
+Hi!
 
-It never worked that way, which is why the model changed.
+> > > > If goal is "make it work with least effort", answer is of course
+> > > > suspend2; but I need someone to help me doing it right.
+> > > 
+> > > How do you think suspend2 does it wrong? Is it just that you think that
+> > > everything belongs in userspace, or is there more to it?
+> > 
+> > Everything belongs in userspace... that makes it "wrong
+> > enough". Userland and kernel programming is quite different, so any
+> > improvements to suspend2 will be wasted, long-term. You'll make users
+> > happy for now, but it means u-swsusp gets less users and less
+> > developers, making "doing it right" slightly harder...
+> 
+> Ok. I guess I need help then in seeing why everything belongs in
+> userspace. Actually, let's revise that for a start - I know you don't
+> really mean everything, because even you still do the atomic copy in
+> kernel space... or are you planning on changing that too? :)
 
-Like it or not, developers would only focus on one release.  In the old 
-model, unstable things would get shoved into the stable kernel, because 
-people didn't want to wait six months.  And for the unstable kernel, it 
-would often be so horribly broken that even developers couldn't use it 
-for development (think 2.5.x IDE).
+Unfortunately atomic copy can not be moved to userspace, nor can be
+driver handling moved. [If I knew how to do it completely from
+userspace, I definitely would, BTW.]
 
-	Jeff
+> I'm not unwilling to be convinced - I just don't see why, with such a
+> lowlevel operation as suspending to disk, userspace is the place to put
+> everything. The preference for userspace seems to me to be just that - a
+> preference.
 
+Its actually pretty hard rule. It should be userspace if it reasonably
+can. It should be userspace if it contains policy.
 
+suspend2 contains bits of policy -- esc to cancel, compression
+options, encryption options. It is not unreasonable that someone would
+want any key to cancel, or some other compression, or something like
+that. You actually put progressbar code into userspace -- good
+step. So you have all the complexity of userspace running during
+suspend/resume (it is not that bad), but are not using full benefits
+-- move more code to userspace. 
+
+Practical benefits of u-swsusp should be:
+
+* no need to split userland parts in small pieces.
+
+* it is easier to develop in userspace.
+
+* access to libraries -- adding LZW or whatever is not a problem. No
+need to convert those libraries to kernel coding style.
+
+* it is possible to have multiple version. In kernel, only one version
+can exist, but in userland, it is okay to have few implementations.
+
+> Regarding improvements to suspend2 being wasted long term, I actually
+> think that I could port at least part of it to userspace without too
+> much effort at all. My main concern would be exporting the information
+> and interfaces needed in a way that isn't ugly, is reliable and doesn't
+> open security holes. I'm not at all convinced that kmem meets those
+> criteria. But if you can show me a better way, I'll happily come on
+> board.
+
+I have thought about this. We already mark pages for suspend with
+PageNosave | PageNosaveFree; we could only allow access to pages
+marked like this by /dev/suspend, or something like that. 
+
+Rafael thinks we should provide nicer interface to userspace; that's
+okay with me as long as it is not slow or too much of code.
+
+								Pavel
+-- 
+Thanks, Sharp!

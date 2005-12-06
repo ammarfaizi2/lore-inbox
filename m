@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbVLFCqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbVLFCud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751356AbVLFCqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 21:46:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbVLFCqQ
+	id S1751401AbVLFCud (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 21:50:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751410AbVLFCud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 21:46:16 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:18100 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751356AbVLFCqP (ORCPT
+	Mon, 5 Dec 2005 21:50:33 -0500
+Received: from fsmlabs.com ([168.103.115.128]:22228 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1751401AbVLFCuc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 21:46:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
-        b=LhJjHy4fJa3E/PPo2rDpy3OVBO102Z3jFcTuaJDGp95zIkygxSGYuSdSKHGCFZJQ1BsR5DlICSxzNKIMebtrXh2RE46fSdT5a8TscTTgewDgzR7+f+dMynV1C6GxS4CY7daCEwz+usqKVfTlv/4/u2DyVMcYmtmULOQYbJltmAY=
-Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [patch 00/43] ktimer reworked
-Date: Mon, 5 Dec 2005 21:46:01 -0500
-User-Agent: KMail/1.8.3
-Cc: Steven Rostedt <rostedt@goodmis.org>, johnstul@us.ibm.com,
-       george@mvista.com, mingo@elte.hu, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Kyle Moffett <mrmacman_g4@mac.com>, ray-gmail@madrabbit.org,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-References: <1133395019.32542.443.camel@tglx.tec.linutronix.de> <200512032028.59472.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <Pine.LNX.4.61.0512051136060.1609@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0512051136060.1609@scrub.home>
+	Mon, 5 Dec 2005 21:50:32 -0500
+X-ASG-Debug-ID: 1133837429-25466-47-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Mon, 5 Dec 2005 18:56:05 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Serge Noiraud <serge.noiraud@bull.net>
+cc: linux-kernel@vger.kernel.org
+X-ASG-Orig-Subj: Re: APIC,  x86: How to change the IRQ of one board when BIOS can't
+ ?
+Subject: Re: APIC,  x86: How to change the IRQ of one board when BIOS can't
+ ?
+In-Reply-To: <200512051034.46954.Serge.Noiraud@bull.net>
+Message-ID: <Pine.LNX.4.64.0512051851380.19959@montezuma.fsmlabs.com>
+References: <200512051034.46954.Serge.Noiraud@bull.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512052146.03041.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-From: Andrew James Wade <andrew.j.wade@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.60
+X-Barracuda-Spam-Status: No, SCORE=0.60 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=COMMA_SUBJECT
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6000
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.60 COMMA_SUBJECT          Subject is like 'Re: FDSDS, this is a subject'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 December 2005 14:40, Roman Zippel wrote:
-> ...
-> rbtree based timer are also not necessarily the better general case. ...
+On Mon, 5 Dec 2005, Serge Noiraud wrote:
 
-... As you've mentioned before. Somehow I missed that. Thank you for your
-patience.
+> I get sometimes an APIC error on CPU 1. for IRQ 169, I get 4 modules : 3 USB 
+> and one Nvidia ( I know, you dislike that). I would like to affect another 
+> IRQ to the nvidia card to see if the problem is nvidia or not. I don't want 
+> to modify the others IRQ.
+> I can't from the BIOS. I red Documentation/i386/IO-APIC.txt but I'm not sure 
+> it is possible.
+> What is the best method to do that ? is pirq the solution ? how ?
 
-Andrew
+This most likely has nothing to do with the interrupt routing, do the APIC  
+errors occur when you boot with 'noapic'? Also what are the two numbers 
+after the APIC error?

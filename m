@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbVLFJ1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbVLFJdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964860AbVLFJ1W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 04:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbVLFJ1W
+	id S964922AbVLFJdR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 04:33:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbVLFJdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 04:27:22 -0500
-Received: from relay4.usu.ru ([194.226.235.39]:941 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S964860AbVLFJ1V (ORCPT
+	Tue, 6 Dec 2005 04:33:17 -0500
+Received: from ns.firmix.at ([62.141.48.66]:18846 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S964922AbVLFJdR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 04:27:21 -0500
-Message-ID: <43955931.2080602@ums.usu.ru>
-Date: Tue, 06 Dec 2005 14:26:09 +0500
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [OT] Re: Linux in a binary world... a doomsday scenario
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>	 <200512051826.06703.andrew@walrond.org> <1133807641.9356.50.camel@laptopd505.fenrus.org>
-In-Reply-To: <1133807641.9356.50.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 6 Dec 2005 04:33:17 -0500
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, David Woodhouse <dwmw2@infradead.org>,
+       arjan@infradead.org, andrew@walrond.org, linux-kernel@vger.kernel.org
+In-Reply-To: <4394E750.8020205@am.sony.com>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	 <200512051826.06703.andrew@walrond.org>
+	 <1133817575.11280.18.camel@localhost.localdomain>
+	 <1133817888.9356.78.camel@laptopd505.fenrus.org>
+	 <1133819684.11280.38.camel@localhost.localdomain>
+	 <4394D396.1020102@am.sony.com> <20051206005341.GN28539@opteron.random>
+	 <4394E750.8020205@am.sony.com>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Tue, 06 Dec 2005 10:26:48 +0100
+Message-Id: <1133861208.10158.34.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.32.1.63; VDF: 6.32.1.11; host: usu2.usu.ru)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Mon, 2005-12-05 at 18:26 +0000, Andrew Walrond wrote:
-> 
->>On Monday 05 December 2005 10:52, Arjan van de Ven wrote:
->>
->>>a hypothetical doomsday scenario by Arjan van de Ven
->>>
->>
->>Can I ask what prompted your post?
-> 
-> 
-> I got one too many hatemails from a "nvidia fanboy" who blamed me for
-> just about anything wrong in the world.... I fear that most of these
-> people have no idea why open source drivers matter, or at least what the
-> consequences are for not caring about drivers being open or not.
+On Mon, 2005-12-05 at 17:20 -0800, Tim Bird wrote:
+> Andrea Arcangeli wrote:
+> >[...]
+> > The _GPL tag is useful as an hint to binary only vendors as as such it
+> > makes perfect sense.
+> Well, if it makes sense to have developers giving out legal
+> advice, then I guess so.
 
-I guess that such people also use drivers without Microsoft's digital 
-signature in Windows and don't understand where their bluescreens come 
-from. So talking to them is a wasted effort.
+Lots of patent attorneys and average law persons gives advices on
+technical stuff (where they effectively have no idea what's really going
+on) so it *must* be legitimate the other way 'round.
 
+	Bernd
 -- 
-Alexander E. Patrakov
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+

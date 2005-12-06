@@ -1,297 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbVLFABE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbVLFACN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbVLFABE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 19:01:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbVLFABD
+	id S1751505AbVLFACN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 19:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751506AbVLFACN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 19:01:03 -0500
-Received: from serv01.siteground.net ([70.85.91.68]:8408 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1751498AbVLFABB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 19:01:01 -0500
-Date: Mon, 5 Dec 2005 16:00:53 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@suse.de>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       linux-kernel@vger.kernel.org
-Subject: [patch 2/2] Kill L1_CACHE_SHIFT_MAX
-Message-ID: <20051206000053.GB3788@localhost.localdomain>
-References: <20051205235926.GA3788@localhost.localdomain>
+	Mon, 5 Dec 2005 19:02:13 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:65216 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751505AbVLFACN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 19:02:13 -0500
+Date: Tue, 6 Dec 2005 01:01:54 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       Andy Isaacson <adi@hexapodia.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+Message-ID: <20051206000154.GD1770@elf.ucw.cz>
+References: <20051205081935.GI22168@hexapodia.org> <1133791084.3872.53.camel@laptop.cunninghams> <20051205172938.GC25114@atrey.karlin.mff.cuni.cz> <200512052344.01506.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051205235926.GA3788@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <200512052344.01506.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch to kill L1_CACHE_SHIFT from all arches.
-Since L1_CACHE_SHIFT_MAX is not used anymore with the  introduction
-of INTERNODE_CACHE, kill L1_CACHE_SHIFT_MAX.
+Hi!
 
-Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-Signed-off-by: Shai Fultheim <shai@scalex86.org>
-Signed-off-by: Andi Kleen <ak@suse.de>
+> > Yes, it is not completely fair. But as I started to use X32 with good
+> > battery... well I'm not really using swsusp any more.
+> 
+> Unfortunately I can't make my box suspend to RAM ... :-(
 
-Index: linux-2.6.15-rc4/include/asm-alpha/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-alpha/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-alpha/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -20,6 +20,5 @@
- 
- #define L1_CACHE_ALIGN(x)  (((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
- #define SMP_CACHE_BYTES    L1_CACHE_BYTES
--#define L1_CACHE_SHIFT_MAX L1_CACHE_SHIFT
- 
- #endif
-Index: linux-2.6.15-rc4/include/asm-arm/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-arm/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-arm/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -7,9 +7,4 @@
- #define L1_CACHE_SHIFT		5
- #define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
- 
--/*
-- * largest L1 which this arch supports
-- */
--#define L1_CACHE_SHIFT_MAX	5
--
- #endif
-Index: linux-2.6.15-rc4/include/asm-cris/arch-v10/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-cris/arch-v10/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-cris/arch-v10/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -4,6 +4,5 @@
- /* Etrax 100LX have 32-byte cache-lines. */
- #define L1_CACHE_BYTES 32
- #define L1_CACHE_SHIFT 5
--#define L1_CACHE_SHIFT_MAX 5
- 
- #endif /* _ASM_ARCH_CACHE_H */
-Index: linux-2.6.15-rc4/include/asm-cris/arch-v32/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-cris/arch-v32/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-cris/arch-v32/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -4,6 +4,5 @@
- /* A cache-line is 32 bytes. */
- #define L1_CACHE_BYTES 32
- #define L1_CACHE_SHIFT 5
--#define L1_CACHE_SHIFT_MAX 5
- 
- #endif /* _ASM_CRIS_ARCH_CACHE_H */
-Index: linux-2.6.15-rc4/include/asm-cris/dma-mapping.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-cris/dma-mapping.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-cris/dma-mapping.h	2005-12-02 16:59:35.000000000 -0800
-@@ -153,7 +153,7 @@
- static inline int
- dma_get_cache_alignment(void)
- {
--	return (1 << L1_CACHE_SHIFT_MAX);
-+	return (1 << INTERNODE_CACHE_SHIFT);
- }
- 
- #define dma_is_consistent(d)	(1)
-Index: linux-2.6.15-rc4/include/asm-generic/dma-mapping.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-generic/dma-mapping.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-generic/dma-mapping.h	2005-12-02 16:59:35.000000000 -0800
-@@ -274,7 +274,7 @@
- {
- 	/* no easy way to get cache size on all processors, so return
- 	 * the maximum possible, to be safe */
--	return (1 << L1_CACHE_SHIFT_MAX);
-+	return (1 << INTERNODE_CACHE_SHIFT);
- }
- 
- static inline void
-Index: linux-2.6.15-rc4/include/asm-i386/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-i386/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-i386/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -10,6 +10,4 @@
- #define L1_CACHE_SHIFT	(CONFIG_X86_L1_CACHE_SHIFT)
- #define L1_CACHE_BYTES	(1 << L1_CACHE_SHIFT)
- 
--#define L1_CACHE_SHIFT_MAX 7	/* largest L1 which this arch supports */
--
- #endif
-Index: linux-2.6.15-rc4/include/asm-ia64/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-ia64/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-ia64/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -12,8 +12,6 @@
- #define L1_CACHE_SHIFT		CONFIG_IA64_L1_CACHE_SHIFT
- #define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
- 
--#define L1_CACHE_SHIFT_MAX 7	/* largest L1 which this arch supports */
--
- #ifdef CONFIG_SMP
- # define SMP_CACHE_SHIFT	L1_CACHE_SHIFT
- # define SMP_CACHE_BYTES	L1_CACHE_BYTES
-Index: linux-2.6.15-rc4/include/asm-m32r/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-m32r/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-m32r/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -7,6 +7,4 @@
- #define L1_CACHE_SHIFT		4
- #define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
- 
--#define L1_CACHE_SHIFT_MAX	4
--
- #endif  /* _ASM_M32R_CACHE_H */
-Index: linux-2.6.15-rc4/include/asm-m68k/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-m68k/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-m68k/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -8,6 +8,4 @@
- #define        L1_CACHE_SHIFT  4
- #define        L1_CACHE_BYTES  (1<< L1_CACHE_SHIFT)
- 
--#define L1_CACHE_SHIFT_MAX 4	/* largest L1 which this arch supports */
--
- #endif
-Index: linux-2.6.15-rc4/include/asm-mips/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-mips/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-mips/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -15,7 +15,6 @@
- #define L1_CACHE_SHIFT		CONFIG_MIPS_L1_CACHE_SHIFT
- #define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
- 
--#define L1_CACHE_SHIFT_MAX	6
- #define SMP_CACHE_SHIFT		L1_CACHE_SHIFT
- #define SMP_CACHE_BYTES		L1_CACHE_BYTES
- 
-Index: linux-2.6.15-rc4/include/asm-parisc/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-parisc/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-parisc/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -28,7 +28,6 @@
- #define L1_CACHE_ALIGN(x)       (((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
- 
- #define SMP_CACHE_BYTES L1_CACHE_BYTES
--#define L1_CACHE_SHIFT_MAX 5	/* largest L1 which this arch supports */
- 
- extern void flush_data_cache_local(void);  /* flushes local data-cache only */
- extern void flush_instruction_cache_local(void); /* flushes local code-cache only */
-Index: linux-2.6.15-rc4/include/asm-powerpc/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-powerpc/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-powerpc/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -19,7 +19,6 @@
- #define	L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
- 
- #define	SMP_CACHE_BYTES		L1_CACHE_BYTES
--#define L1_CACHE_SHIFT_MAX	7 /* largest L1 which this arch supports */
- 
- #if defined(__powerpc64__) && !defined(__ASSEMBLY__)
- struct ppc64_caches {
-Index: linux-2.6.15-rc4/include/asm-s390/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-s390/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-s390/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -13,7 +13,6 @@
- 
- #define L1_CACHE_BYTES     256
- #define L1_CACHE_SHIFT     8
--#define L1_CACHE_SHIFT_MAX 8	/* largest L1 which this arch supports */
- 
- #define ARCH_KMALLOC_MINALIGN	8
- 
-Index: linux-2.6.15-rc4/include/asm-sh/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-sh/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-sh/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -22,8 +22,6 @@
- 
- #define L1_CACHE_ALIGN(x)	(((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
- 
--#define L1_CACHE_SHIFT_MAX 	5	/* largest L1 which this arch supports */
--
- struct cache_info {
- 	unsigned int ways;
- 	unsigned int sets;
-Index: linux-2.6.15-rc4/include/asm-sh64/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-sh64/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-sh64/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -20,8 +20,6 @@
- #define L1_CACHE_ALIGN_MASK	(~(L1_CACHE_BYTES - 1))
- #define L1_CACHE_ALIGN(x)	(((x)+(L1_CACHE_BYTES - 1)) & L1_CACHE_ALIGN_MASK)
- #define L1_CACHE_SIZE_BYTES	(L1_CACHE_BYTES << 10)
--/* Largest L1 which this arch supports */
--#define L1_CACHE_SHIFT_MAX	5
- 
- #ifdef MODULE
- #define __cacheline_aligned __attribute__((__aligned__(L1_CACHE_BYTES)))
-Index: linux-2.6.15-rc4/include/asm-sparc/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-sparc/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-sparc/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -13,7 +13,6 @@
- #define L1_CACHE_SHIFT 5
- #define L1_CACHE_BYTES 32
- #define L1_CACHE_ALIGN(x) ((((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1)))
--#define L1_CACHE_SHIFT_MAX 5	/* largest L1 which this arch supports */
- 
- #define SMP_CACHE_BYTES 32
- 
-Index: linux-2.6.15-rc4/include/asm-sparc64/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-sparc64/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-sparc64/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -9,7 +9,6 @@
- #define        L1_CACHE_BYTES	32 /* Two 16-byte sub-blocks per line. */
- 
- #define        L1_CACHE_ALIGN(x)       (((x)+(L1_CACHE_BYTES-1))&~(L1_CACHE_BYTES-1))
--#define		L1_CACHE_SHIFT_MAX 5	/* largest L1 which this arch supports */
- 
- #define        SMP_CACHE_BYTES_SHIFT	6
- #define        SMP_CACHE_BYTES		(1 << SMP_CACHE_BYTES_SHIFT) /* L2 cache line size. */
-Index: linux-2.6.15-rc4/include/asm-um/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-um/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-um/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -13,9 +13,6 @@
- # define L1_CACHE_SHIFT		5
- #endif
- 
--/* XXX: this is valid for x86 and x86_64. */
--#define L1_CACHE_SHIFT_MAX	7	/* largest L1 which this arch supports */
--
- #define L1_CACHE_BYTES		(1 << L1_CACHE_SHIFT)
- 
- #endif
-Index: linux-2.6.15-rc4/include/asm-v850/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-v850/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-v850/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -23,6 +23,4 @@
- #define L1_CACHE_SHIFT		4
- #endif
- 
--#define L1_CACHE_SHIFT_MAX	L1_CACHE_SHIFT
--
- #endif /* __V850_CACHE_H__ */
-Index: linux-2.6.15-rc4/include/asm-x86_64/cache.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/asm-x86_64/cache.h	2005-12-02 16:58:05.000000000 -0800
-+++ linux-2.6.15-rc4/include/asm-x86_64/cache.h	2005-12-02 16:59:35.000000000 -0800
-@@ -9,6 +9,5 @@
- /* L1 cache line size */
- #define L1_CACHE_SHIFT	(CONFIG_X86_L1_CACHE_SHIFT)
- #define L1_CACHE_BYTES	(1 << L1_CACHE_SHIFT)
--#define L1_CACHE_SHIFT_MAX 7	/* largest L1 which this arch supports */
- 
- #endif
+Yes, debugging suspend-to-RAM is hard, but it is not impossible. Try
+with minimal config (noapic, 32-bit kernel, ...) then add
+features. Hopefully minimum kernel will work...
+
+> > > > * compress the image. Needs to be done in userspace, so it needs
+> > > > uswsusp to be merged, first. Patches for that are available. Should
+> > > > speed it up about twice.
+> 
+> Frankly, I would think that compression could be done in the kernel.
+
+Unfortunately cryptoapi only supports gzip compression, and that's
+useless for swsusp. (Slows it down, 10 times). And adding LZW to
+kernel just for swusp is wrong  thing to do.
+
+> > If goal is "make it work with least effort", answer is of course
+> > suspend2; but I need someone to help me doing it right.
+> 
+> Well, in the Andy's case this may or may not help.  Actually I'd like him to try
+> and say what's the result, but only if he's so kind, has some free time
+> to was^H^H^Hdo this, etc. ;-)
+     ~~~~~~~~~~~
+	I think I'm missing something here.
+								Pavel
+-- 
+Thanks, Sharp!

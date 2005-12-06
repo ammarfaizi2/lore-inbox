@@ -1,106 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbVLFCY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbVLFCZY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964929AbVLFCY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Dec 2005 21:24:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964931AbVLFCYZ
+	id S964932AbVLFCZY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Dec 2005 21:25:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVLFCZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Dec 2005 21:24:25 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:12753 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id S964929AbVLFCYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Dec 2005 21:24:24 -0500
-Message-Id: <200512060041.jB60fElI003764@pincoya.inf.utfsm.cl>
-To: Bernd Petrovitsch <bernd@firmix.at>
-cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel 
-In-Reply-To: Message from Bernd Petrovitsch <bernd@firmix.at> 
-   of "Mon, 05 Dec 2005 10:06:07 BST." <1133773567.22753.15.camel@tara.firmix.at> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Mon, 05 Dec 2005 21:41:14 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Mon, 5 Dec 2005 21:25:23 -0500
+Received: from fmr13.intel.com ([192.55.52.67]:2513 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S964932AbVLFCYy convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Dec 2005 21:24:54 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: APIC,  x86: How to change the IRQ of one board when BIOS can't ?
+Date: Mon, 5 Dec 2005 21:24:51 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3005515C89@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: APIC,  x86: How to change the IRQ of one board when BIOS can't ?
+Thread-Index: AcX6Cw5KMulrFDegSsejw30nfoesKAAAKQOg
+From: "Brown, Len" <len.brown@intel.com>
+To: "Robert Hancock" <hancockr@shaw.ca>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 06 Dec 2005 02:24:53.0280 (UTC) FILETIME=[3DC50200:01C5FA0C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Petrovitsch <bernd@firmix.at> wrote:
-> [ Minimized quoted part ]
-> On Sun, 2005-12-04 at 17:43 -0700, Jeff V. Merkey wrote:
-> > Bernd Petrovitsch wrote:
-> > >On Sat, 2005-12-03 at 17:52 -0700, Jeff V. Merkey wrote:
-> [...]
-> > >>of this code. I have apps written for Windows in 1990 and 1998 that 
-> > >                      ^^^^
-> > >>still run on Windows XP today. Linux has no such concept of
 
-> > >But this not even holds for nearly all apps.
+>If the BIOS can't do it, it may not be possible at all, i.e. the 
+>interrupt lines may be hard wired that way on the motherboard.
 
-> > >>backwards compatiblity. Every company who has embraced it outside of 
+Note that physical interrupt wires are associated with physical
+slots.  So if the devices in question are pluggable and you
+have multiple slots, then moving devices between slots may
+give devices different interrupt lines.  (or they can be all
+wired together and this will make no difference)
 
-> > >The same holds (probably) for Linux apps (given that your kernel can
-> > >start a.out). And AFAIBT by Win* driver developers even in the Win*
-> > >world you have to change your driver because of a new Win* version now
-> > >and then.
-> [...]
-> > whole libc -> glib switchover.
+But it is unusual for PCI IRQs to have lots of sharing in IOAPIC mode.
+I didn't see the message preceeding this one -- did you post your
+/proc/interrupts and output from dmesg -s64000?
 
-> glib has AFAIK next to nothing to do with a libc AFAICT (i.e. it is
-> using standard libc functions but that's all).
-
-He refers to the a.out to ELF switchover. Yes, it was painful. But not as
-much as he makes out. The Win98 --> WinNT change was worse, IMHO.
-
-> > It's hilarious that BSD had to create a Linux app compat lib,
-
-And Solaris forever had a BSD compatibility suite, including libraries and
-tools. So what?
-
-> >                                                               and the 
-> > RedHat shipped compat libs for 3 releases
-
-So legacy stuff continued working. And that is bad how?
-
-> Here you have your backwards compatibility.
-
-Right.
-
-> > as well.   Not even close.  Windows has won.  M$ has won.  Linux lost 
-> > the desktop wars
-
-First of all, Linux isn't about "winning a war". And the desktop wars
-haven't really started...
-
-> >                  and will soon loose the server wars as well.
-
-Sorry, but that one is almost over, and Linux has won.
-
-> >                                                                 The
-> > reason - infighting and lack of backwards 
-
-> Yes, probably - MSFT is spreading the same story since ages.
-
-Gandhi-con 3 ;-)
-
-> >                                           compatibility.  Binary only
-> > module breakage kernel to kernel will continue. 
-
-So what? Binary modules are mostly bad and break the kernel, so...
-
-> As other told there never was a stable kernel module interface. Of
-> course there is probably enough willing manpower out there who will work
-> on that once you pay them. Or you can provide such support on your own.
-
-Right.
-
-> Or do you (or anybody else) has drivers which should be maintained for
-> vanilla-kernel and/or vendor kernels and/or other kernels (to fix the
-> breakage in a cosntructive way), we can provide you with an offer to do
-> that.
-
-Constructive criticism? Even of the sort that contributes something? What
-are you thinking about?!
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
-
+thanks,
+-Len

@@ -1,72 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030222AbVLFU1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbVLFU1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030222AbVLFU1U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 15:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030218AbVLFU1U
+	id S1030218AbVLFU1p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 15:27:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbVLFU1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 15:27:20 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:7908 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030222AbVLFU1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 15:27:19 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Brian Gerst <bgerst@didntduck.org>,
-       Arjan van de Ven <arjan@infradead.org>, "M." <vo.sinh@gmail.com>,
-       Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1133898911.29084.25.camel@mindpipe>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <20051205121851.GC2838@holomorphy.com>
-	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
-	 <20051206030828.GA823@opteron.random>
-	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
-	 <1133869465.4836.11.camel@laptopd505.fenrus.org>
-	 <4394ECA7.80808@didntduck.org>  <4395E2F4.7000308@pobox.com>
-	 <1133897867.29084.14.camel@mindpipe>  <4395E962.2060309@pobox.com>
-	 <1133898911.29084.25.camel@mindpipe>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 06 Dec 2005 20:25:35 +0000
-Message-Id: <1133900736.23610.76.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 6 Dec 2005 15:27:45 -0500
+Received: from smtp2-g19.free.fr ([212.27.42.28]:19085 "EHLO smtp2-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1030218AbVLFU1o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 15:27:44 -0500
+Message-ID: <4395F405.9010107@droids-corp.org>
+Date: Tue, 06 Dec 2005 21:26:45 +0100
+From: Olivier MATZ <zer0@droids-corp.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] asm-i386 : config.h should not be included out of kernel
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/mixed;
+ boundary="------------000509000103030605040707"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-12-06 at 14:55 -0500, Lee Revell wrote:
-> > It's still legally shaky.  The "Chinese wall" approach I described above 
-> > is beyond reproach, and that's where Linux needs to be.
-> 
-> I know you are not a lawyer but do you have a pointer or two?  As long
-> as we are REing for interoperability I've never read anything to
-> indicate the approach I described could be a problem even in the US.
+This is a multi-part message in MIME format.
+--------------000509000103030605040707
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-It isnt a problem providing you don't copy anything. The chinese wall
-approach is used to avoid the risk that what happens is not 
+Hi,
 
-"Oh so register foo bit 4 controls the backlight"
+It seems that in include/asm-i386/param.h the "#include
+<linux/config.h>" should be inside the #ifdef __KERNEL__, as it is done
+in asm-ia64.
 
+Some applications cannot compile/work correctly whithout this patch. For
+example busybox defines for itself CONFIG_TR (related to the tr
+program), which is unfortunately undefined when including sys/param.h,
+which includes linux/config.h (CONFIG_TR is the config for token ring).
 
-but
+Can you consider the following patch ?
 
-"this sequence of instructions turns on the backlight"
+Thanks,
+Olivier
 
+--------------000509000103030605040707
+Content-Type: text/plain;
+ name="asm-i386_dont_include_config.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="asm-i386_dont_include_config.diff"
 
-The risk is that by reading the disassembled binary and rewriting it a
-programming might actually be deemed to have copied code if they
-accidentally just reproduce the original implementation.
+--- linux-2.6.14.3.orig/include/asm-i386/param.h	2005-12-06 14:13:15.000000000 +0100
++++ linux-2.6.14.3/include/asm-i386/param.h	2005-12-06 13:51:12.000000000 +0100
+@@ -1,9 +1,9 @@
+-#include <linux/config.h>
+-
+ #ifndef _ASMi386_PARAM_H
+ #define _ASMi386_PARAM_H
+ 
+ #ifdef __KERNEL__
++#include <linux/config.h>  /* mustn't include <linux/config.h> outside of #ifdef __KERNEL__ */
++
+ # define HZ		CONFIG_HZ	/* Internal kernel timer frequency */
+ # define USER_HZ	100		/* .. some user interfaces are in "ticks" */
+ # define CLOCKS_PER_SEC		(USER_HZ)	/* like times() */
 
-
-Often of course disassembly is the hard way to solve the problem. Firing
-up the driver with analyser tools and studying how it works can be far
-more informative. With the ATI R3xx work asking the binary driver to
-draw a wide range of triangles and monitoring the command queue output
-for each request  provides very good info, while attempting to deciphers
-megabytes of windows 3D driver code, which is likely to contain self
-modifying or JIT generated pipelines, is going to be extremely hard
-work.
-
-
+--------------000509000103030605040707--

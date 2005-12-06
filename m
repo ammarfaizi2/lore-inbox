@@ -1,83 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbVLFSmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbVLFSlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965016AbVLFSmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 13:42:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbVLFSmI
+	id S965011AbVLFSlh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 13:41:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbVLFSlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 13:42:08 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:60610 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S965007AbVLFSmG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 13:42:06 -0500
-Date: Tue, 6 Dec 2005 10:41:57 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andi Kleen <ak@suse.de>
-cc: akpm@osdl.org, Christoph Hellwig <hch@infradead.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH 1/2] Zone reclaim V2
-In-Reply-To: <20051206180920.GR11190@wotan.suse.de>
-Message-ID: <Pine.LNX.4.62.0512061037180.19225@schroedinger.engr.sgi.com>
-References: <20051206172444.18786.30131.sendpatchset@schroedinger.engr.sgi.com>
- <20051206175256.GO11190@wotan.suse.de> <Pine.LNX.4.62.0512060957160.18975@schroedinger.engr.sgi.com>
- <20051206180920.GR11190@wotan.suse.de>
+	Tue, 6 Dec 2005 13:41:37 -0500
+Received: from silver.veritas.com ([143.127.12.111]:63660 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S965008AbVLFSlg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 13:41:36 -0500
+Date: Tue, 6 Dec 2005 18:39:56 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Tony Luck <tony.luck@intel.com>, linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] /dev/mem validate mmap requests
+In-Reply-To: <200512051700.20269.bjorn.helgaas@hp.com>
+Message-ID: <Pine.LNX.4.61.0512061832090.26899@goblin.wat.veritas.com>
+References: <200512051700.20269.bjorn.helgaas@hp.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 06 Dec 2005 18:39:52.0230 (UTC) FILETIME=[71DC6460:01C5FA94]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Dec 2005, Andi Kleen wrote:
+On Mon, 5 Dec 2005, Bjorn Helgaas wrote:
+> Add a hook so architectures can validate /dev/mem mmap requests.
 
-> I would enable it if distance for any combination of online (or possible?) nodes is 
-> > LOCAL_DISTANCE. I guess hotplug can be ignored for now.
-> 
-> If an architecture really needs something better it can be still refined. But there aren't 
-> that many NUMA architectures anyways, so it shouldn't be a big issue. 
-> 
-> It will actually need some tweaking on Opterons because many BIOS just
-> report 10 everywhere in SLIT and it should be still enabled, but that can be done 
-> in the architecture then.
+Not a comment on your patch at all, just an FYI in case you've missed
+it, and in case it makes any difference to your ia64 needs.
 
-Here is a patch that may do what you want. The LOCAL_DISTANCE may have to 
-be set per arch and we may need a reasonable default:
+A side-effect of 2.6.15-rc's PageReserved changes is that a user with
+access to /dev/mem can now mmap any page of it, and see what's there
+rather than zeroes, whether or not it has been marked PageReserved.
 
-
-Index: linux-2.6.15-rc4/mm/page_alloc.c
-===================================================================
---- linux-2.6.15-rc4.orig/mm/page_alloc.c	2005-12-06 10:30:35.000000000 -0800
-+++ linux-2.6.15-rc4/mm/page_alloc.c	2005-12-06 10:35:03.000000000 -0800
-@@ -1561,13 +1561,17 @@ static void __init build_zonelists(pg_da
- 	prev_node = local_node;
- 	nodes_clear(used_mask);
- 	while ((node = find_next_best_node(local_node, &used_mask)) >= 0) {
-+		int distance = node_distance(local_node, node);
- 		/*
- 		 * We don't want to pressure a particular node.
- 		 * So adding penalty to the first node in same
- 		 * distance group to make it round-robin.
- 		 */
--		if (node_distance(local_node, node) !=
--				node_distance(local_node, prev_node))
-+
-+		if (distance > LOCAL_DISTANCE)
-+			zone_reclaim_mode = 1;
-+
-+		if (distance != node_distance(local_node, prev_node))
- 			node_load[node] += load;
- 		prev_node = node;
- 		load--;
-Index: linux-2.6.15-rc4/include/linux/numa.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/linux/numa.h	2005-11-30 22:25:15.000000000 -0800
-+++ linux-2.6.15-rc4/include/linux/numa.h	2005-12-06 10:32:49.000000000 -0800
-@@ -13,4 +13,8 @@
- 
- #define MAX_NUMNODES    (1 << NODES_SHIFT)
- 
-+#ifndef LOCAL_DISTANCE
-+#define LOCAL_DISTANCE 10
-+#endif
-+
- #endif /* _LINUX_NUMA_H */
-
-
+Hugh

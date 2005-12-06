@@ -1,69 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030218AbVLFU1p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbVLFU2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030218AbVLFU1p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 15:27:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbVLFU1p
+	id S1030219AbVLFU2N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 15:28:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbVLFU2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 15:27:45 -0500
-Received: from smtp2-g19.free.fr ([212.27.42.28]:19085 "EHLO smtp2-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1030218AbVLFU1o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 15:27:44 -0500
-Message-ID: <4395F405.9010107@droids-corp.org>
-Date: Tue, 06 Dec 2005 21:26:45 +0100
-From: Olivier MATZ <zer0@droids-corp.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
+	Tue, 6 Dec 2005 15:28:13 -0500
+Received: from gw02.applegatebroadband.net ([207.55.227.2]:1013 "EHLO
+	data.mvista.com") by vger.kernel.org with ESMTP id S1030221AbVLFU2L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 15:28:11 -0500
+Message-ID: <4395F3FC.6030301@mvista.com>
+Date: Tue, 06 Dec 2005 12:26:36 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] asm-i386 : config.h should not be included out of kernel
-X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/mixed;
- boundary="------------000509000103030605040707"
+To: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>
+CC: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Darren Hart <dvhltc@us.ibm.com>, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Frank Sorenson <frank@tuxrocks.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 2/13] Time: Reduced NTP Rework (part 2)
+References: <20051202032604.19357.59425.sendpatchset@cog.beaverton.ibm.com> <4394018D.19764.2440ED5D@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+In-Reply-To: <4394018D.19764.2440ED5D@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000509000103030605040707
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Ulrich Windl wrote:
+> On 2 Dec 2005 at 16:19, George Anzinger wrote:
+> 
+> 
+>>john stultz wrote:
+>>
+>>>All,
+>>>	Here is the second of two patches which try to minimize my ntp rework
+>>>patches.
+>>>	
+>>>This patch further changes the interrupt time NTP code, breaking out the
+>>>leapsecond processing and introduces an accessor to a shifted ppm
+>>
+>>In a discusson aroung the leapsecond and how to disable it (some folks 
+>>don't want the time jump) it came to light that, for the most part, 
+>>this is unused code.  It requires that time be kept in UST to be 
+>>useful and, from what I can tell, most folks keep time in their local 
+>>timezone, thus, effectively, disableing the usage of the leapsecond 
+>>correction (ntp figures this out and just says "no").  Possibly it is 
+>>time to ask if we should keep this in the kernel at all.
+> 
+> 
+> I think this is not a question at all whether people like leap seconds or not: 
+> Either they want to have the current official time, or they do not. If they do 
+> not, they won't care about NTP; if they do they'd use it.
+> 
+> If they don't like leap seconds, they'd go into politics to forbid them by law.
 
-Hi,
+I don't think that is what happens now.  Rather the leapsecond is not 
+requested by ntp and either a) ntp sets the clock at the required time 
+or b) it "creeps" it ahead or back by one second over a somewhat 
+longer time.  It is behavior b) that I have found some folks want.  In 
+no case do I see anyone wanting to drop the leapsecond, they just 
+don't want the discontinuity it introduces and are willing to be a 
+second (or if done properly, half a second) away from the correct time 
+for a period of time around the official leapsecond.
 
-It seems that in include/asm-i386/param.h the "#include
-<linux/config.h>" should be inside the #ifdef __KERNEL__, as it is done
-in asm-ia64.
-
-Some applications cannot compile/work correctly whithout this patch. For
-example busybox defines for itself CONFIG_TR (related to the tr
-program), which is unfortunately undefined when including sys/param.h,
-which includes linux/config.h (CONFIG_TR is the config for token ring).
-
-Can you consider the following patch ?
-
-Thanks,
-Olivier
-
---------------000509000103030605040707
-Content-Type: text/plain;
- name="asm-i386_dont_include_config.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="asm-i386_dont_include_config.diff"
-
---- linux-2.6.14.3.orig/include/asm-i386/param.h	2005-12-06 14:13:15.000000000 +0100
-+++ linux-2.6.14.3/include/asm-i386/param.h	2005-12-06 13:51:12.000000000 +0100
-@@ -1,9 +1,9 @@
--#include <linux/config.h>
--
- #ifndef _ASMi386_PARAM_H
- #define _ASMi386_PARAM_H
- 
- #ifdef __KERNEL__
-+#include <linux/config.h>  /* mustn't include <linux/config.h> outside of #ifdef __KERNEL__ */
-+
- # define HZ		CONFIG_HZ	/* Internal kernel timer frequency */
- # define USER_HZ	100		/* .. some user interfaces are in "ticks" */
- # define CLOCKS_PER_SEC		(USER_HZ)	/* like times() */
-
---------------000509000103030605040707--
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

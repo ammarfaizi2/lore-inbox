@@ -1,186 +1,233 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVLGJgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVLGJhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbVLGJgu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 04:36:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVLGJgt
+	id S1750732AbVLGJhx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 04:37:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbVLGJhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 04:36:49 -0500
-Received: from smtp.andrew.cmu.edu ([128.2.10.82]:12698 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1750739AbVLGJgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 04:36:49 -0500
-Message-ID: <4396ACF5.3050204@andrew.cmu.edu>
-Date: Wed, 07 Dec 2005 04:35:49 -0500
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: David Lang <david.lang@digitalinsight.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Steven Rostedt <rostedt@goodmis.org>, johnstul@us.ibm.com,
-       george@mvista.com, mingo@elte.hu, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       ray-gmail@madrabbit.org, Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 00/43] ktimer reworked
-References: dlang@dlang.diginsite.com <Pine.LNX.4.62.0512011734020.10276@qynat.qvtvafvgr.pbz> <Pine.LNX.4.61.0512021124360.1609@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0512021124360.1609@scrub.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Dec 2005 04:37:53 -0500
+Received: from smtp2.rz.uni-karlsruhe.de ([129.13.185.218]:54678 "EHLO
+	smtp2.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
+	id S1750732AbVLGJhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 04:37:52 -0500
+Date: Wed, 7 Dec 2005 10:37:47 +0100
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.32 Oops in scsi_dispatch_cmd
+Message-ID: <20051207093747.GA1154@hek501.hek.uni-karlsruhe.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ftEhullJWpWg/VHq"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+From: =?iso-8859-1?Q?Jan_Oberl=E4nder?= <mindriot@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+--ftEhullJWpWg/VHq
+Content-Type: multipart/mixed; boundary="KsGdsel6WgEHnImy"
+Content-Disposition: inline
+
+
+--KsGdsel6WgEHnImy
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
 Hi,
 
-Roman Zippel wrote:
-> On Thu, 1 Dec 2005, David Lang wrote:
->>In addition, once you remove the bulk of these uses from the picture (by
->>makeing them use a new timer type that's optimized for their useage pattern,
->>the 'unlikly to expire' case) the remainder of the timer users easily fall
->>into the catagory where the timer is expected to expire, so that code can
->>accept a performance hit for removing events prior to them going off that
->>would not be acceptable in a general case version.
-> 
-> Guys, before you continue spreading nonsense, please read carefully Ingos 
-> description of the timer wheel at http://lwn.net/Articles/156329/ .
-> Let me also refine the statement I made in this mail: the _focus_ on 
-> delivery is complete nonsense.
+[please Cc:, I'm not on the list!]
 
-Must you start every email with inflammatory rhetoric?  If you want to 
-know why you find it difficult to get people to see things your way, the 
-key is in the above paragraph.  In everyday life you don't insult a 
-person on the street and then ask them for directions.
+I've been receiving Oops repeatedly in scsi_dispatch_cmd, in different
+kernels (2.4.{27,31,32}).  At first I thought that a non-free module for
+an ATA RAID card was responsible, but in 2.4.32 I've seen it without
+using that as well (in a non-tainted kernel).  I can't exactly rule out
+that it's a hardware problem, but since it's very repeatable I'm really
+not sure.  The box doesn't recover from the Oops, but I was still able
+to see the Oops message in /var/log/messages.  See the attached file for
+ksymoops output.
 
-Yes, the expiry/non-expiry distinction is an approximation and perhaps 
-an oversimplification.  However, after insulting others for that, you 
-continue with your own oversimplification of the algorithms involved. 
-Following your words, I could say "Roman, before you continue spreading 
-nonsense, please go back and read your algorithms textbook".  The 
-reality though is that both of you are approximately correct, and 
-neither post deserves to be called nonsense.
+The tar process is run from a backup scripts that mounts an IDE drive
+partition, writes a backup to it and unmounts it.  It's always been the
+tar process behind this crash.  Some system details:
 
-> The delivery is really not the important part, what is important is the 
-> _lifetime_ of the timer. As Ingo said we try to delay as much work as 
-> possible into the future, so that all the work needed for short-lived 
-> timer is basically:
-> 
-> 	list_add() + list_del()
-> 
-> This is a constant operation and whether at the end is a callback is 
-> unimportant from the perspective of the timer system.
+$ uname -a
+Linux server 2.4.32 #1 Tue Dec 6 10:55:41 CET 2005 i686 GNU/Linux
+$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 7
+model name      : AMD Duron(tm) Processor
+stepping        : 1
+cpu MHz         : 1197.726
+cache size      : 64 KB
+ [...]
+$ lspci
+0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A=
+/333]
+0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/=
+333 AGP]
+0000:00:0d.0 SCSI storage controller: Adaptec AHA-2940U2/U2W
+0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 =
+Controller (rev 80)
+0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 =
+Controller (rev 80)
+0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 =
+Controller (rev 80)
+0000:00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
+0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
+0000:00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B=
+/VT823x/A/C PIPC Bus Master IDE (rev 06)
+0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8=
+235/8237 AC97 Audio Controller (rev 50)
+0000:00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] =
+(rev 74)
+0000:01:00.0 VGA compatible controller: nVidia Corporation NV5M64 [RIVA TNT=
+2 Model 64/Model 64 Pro] (rev 15)
+$=20
 
-Timeout-style timers imply a short lifetime, independent of their 
-maximum expiry time.  Regular timers expected to expire can have their 
-lifetime predicted accurately by looking at their expiry time.  An 
-interface which gives a hint as to the type of timer allows us to 
-predict the lifetime.  Please tell me how this tight relation is nonsense?
+There are no modules loaded.  The IDE HDD is on the VIA controller,
+several other disks are behind the Adaptec controller (several of them
+on Software RAID).
 
-You are right in that the lifetime is what is important, but the whole 
-point of the ktimer distinction is that by knowing if something is a 
-timer vs a timeout, *we can more accurately predict the lifetime*.
+Maybe you have an idea what's going on (or who to talk to instead)?  I'm
+stuck.
 
-> When the timer spends more time in the timer wheel, it has to be moved 
-> into different slots over time, but this not a really expensive operation 
-> either, so e.g. all the work needed with a single cascading step is:
-> 
-> 	list_add() + list_del() + list_add() + list_del()
-> 
-> This is still quite cheap and with a single cascading step we cover 2^14 
-> jiffies (2^10 for small configurations), which is quite a lot of time and 
-> whether in that time the timer is delivered or not doesn't change above 
-> cost. Another important thing to realize is that this cost is independent 
-> of the amount of timers, the per timer cost depends only on the timeout 
-> value.
+Thanks in advance & keep up the good work!
 
-On the other hand, there is a huge difference between *amortized* 
-constant time, and constant time.  The cascade falls into the former 
-category, and affects latency a great deal.  It's cheap *per timer*, but 
-by batching so much work to be done at once, it's not cheap to execute 
-the *cascade operation*.  If you are putting important, latency 
-sensitive timers in the same data structure as non-latency-sensitive 
-timeouts, it is going to hurt accuracy and timeliness.  For timeouts we 
-don't care much, since they rarely cascade; Timers which expire *will* 
-go through all the cascades based on their expiry time, and if there are 
-many of them, worst-case latency will suffer.  In a mathematical sense 
-then, it's not O(1) and to call it so is incorrect.  It's "amortized 
-O(log(l))", where "l" is the lifetime of the timer, and the minimum 
-resolution is constant.
+Jan
 
-> So let's look at the new timer which uses a rbtree. Its per timer cost 
-> doesn't depend on the expiry value, but on the size of the tree instead. 
-> All you have to do with the timer is:
-> 
-> 	tree_insert() + tree_remove()
-> 
-> This is not a constant operation, with O(log(n)) it grows quite slowly, 
-> but in any case it's more expensive than a simple list_add/list_del, this 
-> means you have to do a number of list operations before it becomes more 
-> expensive than a single tree operation. The nonconstant cost also means 
-> the more timer start using the rbtree, the relatively cheaper it becomes 
-> to use the timer wheel again.
+--=20
 
-Thank you for a very good argument about why timeouts shouldn't use 
-rbtree, and should continue to use the timer wheel.  Nobody disagrees on 
-this however, and adding ktimers will not force any existing users to 
-change to the new interface.
++-------------------------------------+
+| Jan Oberl=E4nder   <mindriot@gmx.net> |
+|         PGP key: 0xC4D910E3         |
++-------------------------------------+
 
-> The break-even point may now be different on various machines, but I think 
-> it's safe to assume that two list add/del is at least as cheap and usually 
-> cheaper then a tree add/del. This means timers which run for less than 
-> 2^14 jiffies are better off using the timer wheel, unless they require the 
-> higher resolution of the new timer system.
+--KsGdsel6WgEHnImy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="crash.symoops"
+Content-Transfer-Encoding: quoted-printable
 
-Again, putting timeouts on the timer wheel is ideal, since we know they 
-tend to have short lifetimes.  Same goes for low-resolution timers which 
-only need jiffy accuracy.  However, jiffy accuracy doesn't cut it for a 
-lot of applications.  It is when we add high accuracy that the timer 
-wheel falls down, and requires a different approach.  So let's call "dt" 
-the desired resolution of the timer in seconds.  Then the timer wheel 
-becomes "amortized O(log(l/dt)) = O(log(l) + log(1/dt))".  When you 
-start talking about resolutions where dt=25usec, then the timer wheel 
-all the sudden becomes worse than a balanced tree, which is always O(n), 
-independent of resolution.
+ksymoops 2.4.9 on i686 2.4.32.  Options used
+     -V (default)
+     -k /proc/ksyms (specified)
+     -l /proc/modules (specified)
+     -o /lib/modules/2.4.32/ (specified)
+     -m /boot/System.map-2.4.32 (specified)
 
-And that's the whole *point* about how we got here.  Let the low 
-resolution, low lifetime timeouts stay on the timer wheel, and make a 
-new approach that specializes in handling longer lifetime, higher 
-resolution timers.  That's ktimers in a nutshell.  You seem to be 
-arguing for it rather than against it.
+No modules in ksyms, skipping objects
+Warning (read_lsmod): no symbols in lsmod, is /proc/modules a valid lsmod f=
+ile?
+Dec  7 01:11:46 server kernel: c01cdd9b
+Dec  7 01:11:46 server kernel: Oops: 0000
+Dec  7 01:11:46 server kernel: CPU:    0
+Dec  7 01:11:46 server kernel: EIP:    0010:[scsi_dispatch_cmd+107/544]    =
+Not tainted
+Dec  7 01:11:46 server kernel: EFLAGS: 00010246
+Dec  7 01:11:46 server kernel: eax: 00000000   ebx: c02d7da0   ecx: c13be08=
+8   edx: 000000c8
+Dec  7 01:11:46 server kernel: esi: c12e5480   edi: cff3edc0   ebp: c13be00=
+0   esp: c97b5e58
+Dec  7 01:11:46 server kernel: ds: 0018   es: 0018   ss: 0018
+Dec  7 01:11:46 server kernel: Process tar (pid: 10731, stackpage=3Dc97b500=
+0)
+Dec  7 01:11:46 server kernel: Stack: ce072e40 c01ce410 00000018 00000000 c=
+02d7da0 c12e5480 c13be110 c13be000=20
+Dec  7 01:11:46 server kernel:        c01d4ecf c13be000 00000000 00000000 0=
+0000001 00001000 c13be0b8 c12e54bc=20
+Dec  7 01:11:46 server kernel:        c02d7da0 cff1edc0 c12e5480 00000296 c=
+97b5ec8 c97b5ee8 c12c0338 c01a5259=20
+Dec  7 01:11:46 server kernel: Call Trace:    [scsi_done+0/160] [scsi_reque=
+st_fn+431/880] [generic_unplug_device+57/64] [__run_task_queue+75/96] [bloc=
+k_sync_page+33/48]
+Dec  7 01:11:46 server kernel: Code: f6 40 67 04 0f 84 5a 01 00 00 c7 44 24=
+ 08 30 1c 1d c0 8b 45=20
+Using defaults from ksymoops -t elf32-i386 -a i386
 
-> Moving timers away from the timer wheel will also not help with the 
-> problem cases of the timer wheel. If you have a million network timer, a 
-> cascading step for thousands of timer takes time, but it doesn't change 
-> the cost per timer, we just have to do the work that we were too lazy to 
-> do before. In this case it would be better to look into solutions which 
-> avoid generating millions of timer in first place.
 
-Putting timers on an rbtree most definitely helps with the worst-case 
-latency of the timer wheel.  That is an issue that some of us care very 
-deeply about.
+>>ebx; c02d7da0 <sd_template+0/48>
 
-You've brought up the fact that networking shouldn't use lots of timers 
-several times in the overall discussion.  If you know how to do this, 
-I'm sure you can start sending patches to netdev and show them all how 
-stupid they've been all along.  However, more likely you'll just find 
-out that just maybe the networking people really *have* thought about 
-the problem, and the solution they came up with is actually a pretty 
-good one.
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   f6 40 67 04               testb  $0x4,0x67(%eax)
+Code;  00000004 Before first symbol
+   4:   0f 84 5a 01 00 00         je     164 <_EIP+0x164>
+Code;  0000000a Before first symbol
+   a:   c7 44 24 08 30 1c 1d      movl   $0xc01d1c30,0x8(%esp)
+Code;  00000011 Before first symbol
+  11:   c0=20
+Code;  00000012 Before first symbol
+  12:   8b 45 00                  mov    0x0(%ebp),%eax
 
-At any rate, while you fix up all those "timer-abusing" subsystems 
-throughout the kernel, can we just try to improve the timer system in 
-the meantime?
+Dec  7 01:11:46 server kernel:  <1>Unable to handle kernel NULL pointer der=
+eference at virtual address 00000011
+Dec  7 01:11:46 server kernel: c0114cd2
+Dec  7 01:11:46 server kernel: Oops: 0000
+Dec  7 01:11:46 server kernel: CPU:    0
+Dec  7 01:11:46 server kernel: EIP:    0010:[__wake_up+146/176]    Not tain=
+ted
+Dec  7 01:11:46 server kernel: EFLAGS: 00010046
+Dec  7 01:11:46 server kernel: eax: 00000000   ebx: c97b5ef8   ecx: c926800=
+0   edx: 00000011
+Dec  7 01:11:46 server kernel: esi: c116b5c8   edi: c12c0338   ebp: cae05ea=
+8   esp: cae05e90
+Dec  7 01:11:46 server kernel: ds: 0018   es: 0018   ss: 0018
+Dec  7 01:11:46 server kernel: Process sendmail (pid: 10848, stackpage=3Dca=
+e05000)
+Dec  7 01:11:46 server kernel: Stack: 00000000 00000282 00000003 00000000 c=
+116b5c8 08421065 cb06d3b4 c012552f=20
+Dec  7 01:11:46 server kernel:        cb5e5000 c4aa1000 c0130534 c11f4378 0=
+80edac4 cb0c5740 00000001 cb832d40=20
+Dec  7 01:11:46 server kernel:        c0125de2 cb0c5740 cb832d40 080edac4 c=
+b06d3b4 08421065 c2770140 cb0c5740=20
+Dec  7 01:11:46 server kernel: Call Trace:    [do_wp_page+79/528] [__alloc_=
+pages+100/608] [handle_mm_fault+242/256] [do_page_fault+440/1317] [build_mm=
+ap_rb+73/96]
+Dec  7 01:11:46 server kernel: Code: 8b 02 89 d3 89 c2 0f 0d 00 39 fb 75 91=
+ ff 75 ec 9d 83 c4 0c=20
 
-> So can we please stop this likely/unlikely expiry nonsense? It's great if 
-> you want to tell aunt Tillie about kernel hacking, but it's terrible 
-> advice to kernel programmers. When it comes to choosing a timer 
-> implementation, the delivery is completely and utterly unimportant.
 
-Expected expiry is a simple predictor of expected lifetime.  If we knew 
-the lifetime, we could use that, but expiry is one hint that is easier 
-for the developer to provide.  Really, we want to know "E[l]/dt" (E[] is 
-notation for expected value), but that's unrealistic to estimate.  What 
-ktimers says is: if it's a timeout (E[l] is low and dt is high), use the 
-timer wheel, and if its a timer (E[l] is high and dt is low), use an 
-rbtree.  In what way is that not a reasonable approach?
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   8b 02                     mov    (%edx),%eax
+Code;  00000002 Before first symbol
+   2:   89 d3                     mov    %edx,%ebx
+Code;  00000004 Before first symbol
+   4:   89 c2                     mov    %eax,%edx
+Code;  00000006 Before first symbol
+   6:   0f 0d 00                  prefetch (%eax)
+Code;  00000009 Before first symbol
+   9:   39 fb                     cmp    %edi,%ebx
+Code;  0000000b Before first symbol
+   b:   75 91                     jne    ffffff9e <_EIP+0xffffff9e>
+Code;  0000000d Before first symbol
+   d:   ff 75 ec                  pushl  0xffffffec(%ebp)
+Code;  00000010 Before first symbol
+  10:   9d                        popf  =20
+Code;  00000011 Before first symbol
+  11:   83 c4 0c                  add    $0xc,%esp
 
-Jim Bruce
+Dec  7 01:11:46 server kernel:  <1>Unable to handle kernel NULL pointer der=
+eference at virtual address 00000011
+
+1 warning issued.  Results may not be reliable.
+
+--KsGdsel6WgEHnImy--
+
+--ftEhullJWpWg/VHq
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDlq1rrN8DZMTZEOMRArPwAKC9+H0DekP0mJ3XezHb1l3d1aK3pACfRms1
+nRSesemjjsXNmEh4FvDfZ2w=
+=m30v
+-----END PGP SIGNATURE-----
+
+--ftEhullJWpWg/VHq--

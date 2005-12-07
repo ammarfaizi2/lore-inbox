@@ -1,111 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750820AbVLGKsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbVLGKs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750820AbVLGKsm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 05:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVLGKsm
+	id S1750821AbVLGKs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 05:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVLGKs5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 05:48:42 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:989 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1750820AbVLGKsm (ORCPT
+	Wed, 7 Dec 2005 05:48:57 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:23212 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750821AbVLGKs4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 05:48:42 -0500
-Date: Wed, 7 Dec 2005 19:15:01 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: mm: fold sc.may_writepage and sc.may_swap into sc.flags
-Message-ID: <20051207111501.GA8133@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20051207104755.177435000@localhost.localdomain> <20051207105154.142779000@localhost.localdomain>
-MIME-Version: 1.0
+	Wed, 7 Dec 2005 05:48:56 -0500
+Date: Wed, 7 Dec 2005 11:49:00 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, zippel@linux-m68k.org,
+       linux-kernel@vger.kernel.org, rostedt@goodmis.org, johnstul@us.ibm.com
+Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
+Message-ID: <20051207104900.GA26877@elte.hu>
+References: <20051206000126.589223000@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512061628050.1610@scrub.home> <1133908082.16302.93.camel@tglx.tec.linutronix.de> <20051207013122.3f514718.akpm@osdl.org> <20051207101137.GA25796@elte.hu> <4396B81E.4030605@yahoo.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051207105154.142779000@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <4396B81E.4030605@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fold bool values into flags to make struct scan_control more compact.
 
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
----
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
- mm/vmscan.c |   22 ++++++++++------------
- 1 files changed, 10 insertions(+), 12 deletions(-)
+> Ingo Molnar wrote:
+> 
+> >so i believe that:
+> >
+> >	- 'struct ktimer', 'struct ktimeout'
+> >
+> >is in theory superior naming, compared to:
+> >
+> >	- 'struct ptimer', 'struct timer_list'
+> >
+> 
+> Just curious -- why the "k" thing?
 
---- linux.orig/mm/vmscan.c
-+++ linux/mm/vmscan.c
-@@ -72,12 +72,12 @@ struct scan_control {
- 	/* This context's GFP mask */
- 	gfp_t gfp_mask;
- 
--	int may_writepage;
--
--	/* Can pages be swapped as part of reclaim? */
--	int may_swap;
-+	unsigned long flags;
- };
- 
-+#define SC_MAY_WRITEPAGE	0x1
-+#define SC_MAY_SWAP		0x2	/* Can pages be swapped as part of reclaim? */
-+
- #define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
- 
- #ifdef ARCH_HAS_PREFETCH
-@@ -488,7 +488,7 @@ static int shrink_list(struct list_head 
- 		 * Try to allocate it some swap space here.
- 		 */
- 		if (PageAnon(page) && !PageSwapCache(page)) {
--			if (!sc->may_swap)
-+			if (!(sc->flags & SC_MAY_SWAP))
- 				goto keep_locked;
- 			if (!add_to_swap(page, GFP_ATOMIC))
- 				goto activate_locked;
-@@ -519,7 +519,7 @@ static int shrink_list(struct list_head 
- 				goto keep_locked;
- 			if (!may_enter_fs)
- 				goto keep_locked;
--			if (laptop_mode && !sc->may_writepage)
-+			if (laptop_mode && !(sc->flags & SC_MAY_WRITEPAGE))
- 				goto keep_locked;
- 
- 			/* Page is dirty, try to write it out here */
-@@ -1238,8 +1238,7 @@ int try_to_free_pages(struct zone **zone
- 	delay_prefetch();
- 
- 	sc.gfp_mask = gfp_mask;
--	sc.may_writepage = 0;
--	sc.may_swap = 1;
-+	sc.flags = SC_MAY_SWAP;
- 	sc.nr_scanned = 0;
- 	sc.nr_reclaimed = 0;
- 
-@@ -1287,7 +1286,7 @@ int try_to_free_pages(struct zone **zone
- 		 */
- 		if (sc.nr_scanned > SWAP_CLUSTER_MAX * 3 / 2) {
- 			wakeup_pdflush(laptop_mode ? 0 : sc.nr_scanned);
--			sc.may_writepage = 1;
-+			sc.flags |= SC_MAY_WRITEPAGE;
- 		}
- 
- 		/* Take a nap, wait for some writeback to complete */
-@@ -1343,8 +1342,7 @@ static int balance_pgdat(pg_data_t *pgda
- 
- loop_again:
- 	sc.gfp_mask = GFP_KERNEL;
--	sc.may_writepage = 0;
--	sc.may_swap = 1;
-+	sc.flags = SC_MAY_SWAP;
- 	sc.nr_mapped = read_page_state(nr_mapped);
- 	sc.nr_scanned = 0;
- 	sc.nr_reclaimed = 0;
-@@ -1439,7 +1437,7 @@ scan_swspd:
- 		 */
- 		if (sc.nr_scanned > SWAP_CLUSTER_MAX * 2 &&
- 		    sc.nr_scanned > sc.nr_reclaimed + sc.nr_reclaimed / 2)
--			sc.may_writepage = 1;
-+			sc.flags |= SC_MAY_WRITEPAGE;
- 
- 		if (nr_pages && to_free > sc.nr_reclaimed)
- 			continue;	/* swsusp: need to do more work */
+yeah. 'struct timer' and 'struct timeout' is even better. I tried it on 
+real code and sometimes it looked a bit funny: often we have a 'timeout' 
+parameter somewhere that is a scalar or a timeval/timespec. So at least 
+for variable names it was useful to have it in this form:
+
+	struct timeout *ktimeout;
+
+	struct timer *ktimer;
+
+otherwise it looked OK. This is also in line with most other 'object 
+names' we have in the kernel: struct inode, struct dentry.
+
+	Ingo

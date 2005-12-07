@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVLGPtq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbVLGPt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbVLGPtq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 10:49:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVLGPtq
+	id S1750789AbVLGPt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 10:49:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbVLGPt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 10:49:46 -0500
-Received: from nproxy.gmail.com ([64.233.182.194]:14092 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751155AbVLGPtp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 10:49:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=U3FLJfhzVUlDqg9jP7Lg6whJBybhCq4GHmP/cR3vijUC7yiGJzCbjJsvsn49hqtPqw+pyRPsOWBaFLLgKnQ3mV/ijlpbn+uUam20T7Ch5o1+tuc8sfQz6W91S1gNpQ//+PThgjoBKDlXrFz/FRfDeRorjLpAk8Te/wuD+KEbikg=
-Message-ID: <58cb370e0512070749y68b2f9e9t1c68a3e03f91baa0@mail.gmail.com>
-Date: Wed, 7 Dec 2005 16:49:41 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [RFC]add ACPI hooks for IDE suspend/resume
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Shaohua Li <shaohua.li@intel.com>,
-       linux-ide <linux-ide@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, pavel <pavel@ucw.cz>,
-       Len Brown <len.brown@intel.com>, akpm <akpm@osdl.org>
-In-Reply-To: <1133970074.544.69.camel@localhost.localdomain>
+	Wed, 7 Dec 2005 10:49:57 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:50050 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1750789AbVLGPt4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 10:49:56 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [linux-usb-devel] Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
+Date: Wed, 7 Dec 2005 16:50:01 +0100
+User-Agent: KMail/1.8
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net,
+       Eduardo Pereira Habkost <ehabkost@mandriva.com>,
+       Greg KH <gregkh@suse.de>,
+       Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0512071000120.21143-100000@iolanthe.rowland.org> <200512071637.40018.oliver@neukum.org> <1133970015.2869.31.camel@laptopd505.fenrus.org>
+In-Reply-To: <1133970015.2869.31.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1133849404.3026.10.camel@sli10-mobl.sh.intel.com>
-	 <20051206222001.GA14171@srcf.ucam.org>
-	 <58cb370e0512070017u606ee22fse207b9a859856dd4@mail.gmail.com>
-	 <20051207131454.GA16558@srcf.ucam.org>
-	 <58cb370e0512070619k17022317v8e871dc3f9cafb9@mail.gmail.com>
-	 <20051207143337.GA16938@srcf.ucam.org>
-	 <58cb370e0512070645o78569e82y63483a9ae5511f52@mail.gmail.com>
-	 <1133970074.544.69.camel@localhost.localdomain>
+Message-Id: <200512071650.01439.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Mer, 2005-12-07 at 15:45 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > OK, I understand it now - when using 'ide-generic' host driver for IDE
-> > PCI device, resume fails (for obvious reason - IDE PCI device is not
-> > re-configured) and this patch fixes it through using ACPI methods.
+Am Mittwoch, 7. Dezember 2005 16:40 schrieben Sie:
+> On Wed, 2005-12-07 at 16:37 +0100, Oliver Neukum wrote:
+> > Am Mittwoch, 7. Dezember 2005 16:22 schrieb Arjan van de Ven:
+> > > > On the other hand, Oliver needs to be careful about claiming too much.  In 
+> > > > general atomic_t operations _are_ superior to the spinlock approach.
+> > > 
+> > > No they're not. Both are just about equally expensive cpu wise,
+> > > sometimes the atomic_t ones are a bit more expensive (like on parisc
+> > > architecture). But on x86 in either case it's a locked cycle, which is
+> > > just expensive no matter which side you flip the coin...
+> > 
+> > You are refering to SMP, aren't you?
+> 
+> yes.
+> on UP neither is a locked instruction ;)
 
-I was talking about bugzilla bug #5604.
+But the atomic variant has to guard against interrupts, at least on
+architectures that do load/store only, hasn't it? AFAICT it is even
+theoretically impossible to tell for the compiler whether a function
+is always called with interrupts off.
 
-> Even in the piix case some devices need it because the bios wants to
-> issue commands such as password control if the laptop is set up in
-> secure modes.
-
-I completely agree.  However at the moment this patch doesn't seem
-to issue any ATA commands (code is commented out in _GTF) so
-this is not a case for bugzilla bug #5604.
-
-Bartlomiej
+	Regards
+		Oliver

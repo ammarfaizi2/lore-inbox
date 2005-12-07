@@ -1,35 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932656AbVLGFvZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbVLGGFp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932656AbVLGFvZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 00:51:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932651AbVLGFvZ
+	id S932661AbVLGGFp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 01:05:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932662AbVLGGFp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 00:51:25 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:10125 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932644AbVLGFvZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 00:51:25 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [RFC 1/3] Framework for accurate node based statistics 
-In-reply-to: Your message of "Tue, 06 Dec 2005 14:52:33 -0800."
-             <Pine.LNX.4.62.0512061447590.20377@schroedinger.engr.sgi.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 07 Dec 2005 16:50:52 +1100
-Message-ID: <9353.1133934652@kao2.melbourne.sgi.com>
+	Wed, 7 Dec 2005 01:05:45 -0500
+Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:63674 "HELO
+	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932661AbVLGGFo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 01:05:44 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [PATCH] Minor change to platform_device_register_simple prototype
+Date: Wed, 7 Dec 2005 01:05:39 -0500
+User-Agent: KMail/1.8.3
+Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+References: <20051205212337.74103b96.khali@linux-fr.org> <20051205202707.GH15201@flint.arm.linux.org.uk>
+In-Reply-To: <20051205202707.GH15201@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512070105.40169.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Dec 2005 14:52:33 -0800 (PST), 
-Christoph Lameter <clameter@engr.sgi.com> wrote:
->+DEFINE_PER_CPU(local_t [MAX_NUMNODES][NR_STAT_ITEMS], vm_stat_diff);
+On Monday 05 December 2005 15:27, Russell King wrote:
+> On Mon, Dec 05, 2005 at 09:23:37PM +0100, Jean Delvare wrote:
+> > The name parameter of platform_device_register_simple should be of
+> > type const char * instead of char *, as we simply pass it to
+> > platform_device_alloc, where it has type const char *.
+> > 
+> > Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> 
+> Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> 
+> However, I've been wondering whether we want to keep this "simple"
+> interface around long-term given that we now have a more flexible
+> platform device allocation interface - I don't particularly like
+> having superfluous interfaces for folk to get confused with.
 
-How big is that array going to get?  The total per cpu data area is
-limited to 64K on IA64 and we already use at least 34K.
+Now that you made platform_device_alloc install default release
+handler there is no need to have the _simple interface. I will
+convert input devices (main users of _simple) to the new interface
+and then we can get rid of it.
 
+-- 
+Dmitry

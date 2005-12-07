@@ -1,143 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVLGWEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030385AbVLGWIP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbVLGWEj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 17:04:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751791AbVLGWEi
+	id S1030385AbVLGWIP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 17:08:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbVLGWIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 17:04:38 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:48909 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1750787AbVLGWEi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 17:04:38 -0500
-Date: Wed, 7 Dec 2005 17:04:01 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
-To: linux-kernel@vger.kernel.org
-Cc: mingo@redhat.com, akpm@osdl.org
-Subject: [PATCH] vm: enhance __alloc_pages to prioritize pagecache eviction when pressed for memory
-Message-ID: <20051207220401.GB13577@hmsreliant.homelinux.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 7 Dec 2005 17:08:15 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:53391 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030385AbVLGWIP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 17:08:15 -0500
+Message-ID: <43975D45.3080801@watson.ibm.com>
+Date: Wed, 07 Dec 2005 22:08:05 +0000
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: elsa-devel <elsa-devel@lists.sourceforge.net>,
+       lse-tech@lists.sourceforge.net,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Jay Lan <jlan@sgi.com>, Jens Axboe <axboe@suse.de>
+Subject: [RFC][Patch 0/5] Per-task delay accounting 
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The following patches add accounting for the delays seen by a task in
+a) waiting for a CPU (while being runnable)
+b) completion of synchronous block I/O initiated by the task
+c) swapping in pages (i.e. capacity misses).
 
---huq684BweRXVnRxX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Such delays provide feedback for a task's cpu priority, io priority and
+rss limit values. Long delays, especially relative to other tasks, can be
+a trigger for changing a task's cpu/io priorities and modifying its rss usage
+(either directly through sys_getprlimit() that was proposed earlier on lkml or
+by throttling cpu consumption or process calling sys_setrlimit etc.)
 
-Hey all-
-     I was recently shown this issue, wherein, if the kernel was kept full =
-of
-pagecache via applications that were constantly writing large amounts of da=
-ta to
-disk, the box could find itself in a position where the vm, in __alloc_pages
-would invoke the oom killer repetatively within try_to_free_pages, until su=
-ch
-time as the box had no candidate processes left to kill, at which point it =
-would
-panic.  While this seems like the right thing to do in general, it occured =
-to me
-that if we could simply force some additional evictions from pagecache befo=
-re we
-tried to reclaim memory in try_to_free_pages, we stood a good chance of avo=
-iding
-the need to invoke the oom killer at all (assuming that the pages freed from
-pagecache were physically contiguous).  The following patch preforms this
-operation and in my testing, and that of the origional reporter, results in
-avoidance of the oom killer being invoked for the workloads which would
-previously oom kill the box to the point that it would panic.
+There are quite a few differences from the earlier posting of these patches
+(http://www.uwsg.indiana.edu/hypermail/linux/kernel/0511.1/2275.html):
 
-Thanks & Regards
-Neil
+- block I/O is (hopefully) being accounted properly now  instead of just counting the
+time spent in io_schedule() as done earlier.
 
-Signed-off-by: Neil Horman <nhorman@redhat.com>
+- instead of accounting for time spent in all page faults, only swapping in of pages
+is being counted since thats the only part that one can really control (capacity misses
+vs. compulsory misses)
+
+- a /proc interface is being used instead of connector-based interface. Andrew Morton
+suggested a generic connector-based interface useful for future usage of
+connectors fo stats. This revised connector-based interface will be posted separately
+since its useful for efficient delivery of any per-task statistics, not just the ones
+being introduced by these patches.
+
+- the timestamping code has been made generic (following the suggestions to Matt Helsley's
+patches to add timestamps to process events connectors)
 
 
- include/linux/writeback.h |    1 +
- mm/page-writeback.c       |   17 +++++++++++++++++
- mm/page_alloc.c           |   10 ++++++++++
- 3 files changed, 28 insertions(+)
+More comments in individual patches.
 
+Series
 
-diff --git a/include/linux/writeback.h b/include/linux/writeback.h
---- a/include/linux/writeback.h
-+++ b/include/linux/writeback.h
-@@ -86,6 +86,7 @@ static inline void wait_on_inode(struct=20
-  * mm/page-writeback.c
-  */
- int wakeup_pdflush(long nr_pages);
-+void clean_pagecache(long nr_pages);
- void laptop_io_completion(void);
- void laptop_sync_completion(void);
- void throttle_vm_writeout(void);
-diff --git a/mm/page-writeback.c b/mm/page-writeback.c
---- a/mm/page-writeback.c
-+++ b/mm/page-writeback.c
-@@ -350,6 +350,23 @@ static void background_writeout(unsigned
- }
-=20
- /*
-+ * Writeback nr_pages from pagecache to disk synchronously
-+ * blocks until the writeback is complete
-+ */
-+void clean_pagecache(long nr_pages)
-+{
-+	struct writeback_control wbc =3D {
-+		.bdi            =3D NULL,
-+		.sync_mode      =3D WB_SYNC_ALL,
-+		.older_than_this =3D NULL,
-+		.nr_to_write    =3D nr_pages,
-+		.nonblocking    =3D 0,
-+	};
-+
-+	writeback_inodes(&wbc);
-+}
-+
-+/*
-  * Start writeback of `nr_pages' pages.  If `nr_pages' is zero, write back
-  * the whole world.  Returns 0 if a pdflush thread was dispatched.  Returns
-  * -1 if all pdflush threads were busy.
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -949,6 +949,16 @@ rebalance:
- 	reclaim_state.reclaimed_slab =3D 0;
- 	p->reclaim_state =3D &reclaim_state;
-=20
-+	/*
-+	 * We're pinched for memory, so before we try to reclaim some=20
-+	 * pages synchronously, lets try to force some more pages out
-+	 * of pagecache, to raise our chances of this succeding.
-+	 * specifically, lets write out the number of pages that this
-+	 * allocation is requesting, in the hopes that they will be
-+	 * contiguous
-+	 */
-+	clean_pagecache(1<<order);
-+
- 	did_some_progress =3D try_to_free_pages(zonelist->zones, gfp_mask);
-=20
- 	p->reclaim_state =3D NULL;
---=20
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+nstimestamp-diff.patch
+delayacct-init.patch
+delayacct-blkio.patch
+delayacct-swapin.patch
+delayacct-procfs.patch
 
---huq684BweRXVnRxX
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFDl1xRM+bEoZKnT6ERAuPTAJ0csGqZvpx+4AkDnipLNeCoPwsUsACeLDQv
-YCL739Ba7P9Mgb2ih7NfPnw=
-=YPv/
------END PGP SIGNATURE-----
-
---huq684BweRXVnRxX--

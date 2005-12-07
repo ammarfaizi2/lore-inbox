@@ -1,70 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030453AbVLGXlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVLGXqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030453AbVLGXlN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 18:41:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030449AbVLGXlM
+	id S964899AbVLGXqM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 18:46:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbVLGXqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 18:41:12 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:26241 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030446AbVLGXlM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 18:41:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VV5KohgA0uKLLTd9deVaaExi0G0GcohuoVMTYx/DRoVDFAU9ckyNU7G4E1uLB/kJlireVIL0xwU+HyG9NTdl5q2H/YCrbyM4Tjp7fG2czHm9Ofx4xNTlYeRyy+/Kpy875nrxpq+LNKvk5wlyAvFgymV9eXMi1+XlzVB3AXNal58=
-Message-ID: <9e4733910512071541s1a6215d9pb166bb27e2c579f9@mail.gmail.com>
-Date: Wed, 7 Dec 2005 18:41:11 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Cc: Chase Venters <chase.venters@clientec.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1133996869.544.112.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 7 Dec 2005 18:46:11 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34833 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964899AbVLGXqK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 18:46:10 -0500
+Date: Wed, 7 Dec 2005 23:46:04 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Dave Jones <davej@redhat.com>, Xavier Bestel <xavier.bestel@free.fr>,
+       Jason Dravet <dravet@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: wrong number of serial port detected
+Message-ID: <20051207234603.GQ6793@flint.arm.linux.org.uk>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Xavier Bestel <xavier.bestel@free.fr>,
+	Jason Dravet <dravet@hotmail.com>, linux-kernel@vger.kernel.org
+References: <20051207155034.GB6793@flint.arm.linux.org.uk> <BAY103-F32F90C9849D407E9336826DF430@phx.gbl> <20051207211551.GL6793@flint.arm.linux.org.uk> <1133990886.6184.2.camel@bip.parateam.prv> <20051207213128.GM6793@flint.arm.linux.org.uk> <20051207213856.GN6793@flint.arm.linux.org.uk> <20051207230302.GD22690@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <9e4733910512060816k26e12313y6b9a943d7cce4341@mail.gmail.com>
-	 <Pine.LNX.4.64.0512071538110.17767@turbotaz.ourhouse>
-	 <1133996869.544.112.camel@localhost.localdomain>
+In-Reply-To: <20051207230302.GD22690@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Mer, 2005-12-07 at 15:46 -0600, Chase Venters wrote:
-> > bad things to allowing their competitor to take a *big* lead. Hell,
-> > wasn't 3dfx's fall from power partially related to IP suits? Or
-> > did I just hear that somewhere? I don't recall.
->
-> If my memory still works correctly 3Dfx sued Nvidia and in the end
-> Nvidia had to buy them to solve it. Patents are a big issue in the 3D
-> graphics space and the 'what they can't see' approach to minimising
-> lawsuits has its obvious appeal.
->
-> One of the problems in this area is the big fight going on and the fact
-> it is not commodity. Ten random developers are not going to produce a
-> driver comparable to Nvidia's libGL in the same way that ten random
-> developers can produce as good an ATA or SCSI adapter as anyone else
+On Wed, Dec 07, 2005 at 06:03:02PM -0500, Dave Jones wrote:
+> Ok, how about something along the lines of this (completely untested) patch,
+> which adds a runtime param to lower the number of registered ports,
+> also allowing a default to be set for common cases.
+> 
+> Would something like this be acceptable ?
 
-I do believe that patent lawsuits can be used to force hardware specs
-out of everyone; all we need is for someone to donate a good patent to
-get the ball rolling. Being on the receiving end of a suit like this
-will suck big time. There is no good solution for the company being
-attacked, cough up your hardware specs or risk an injunction that may
-kill your company.
+Sure, looks fine.  The new parameter should probably be documented
+though, so folk know about it.
 
-But to play fair the settlement should only ask for the specs needed
-to program the hardware. It wouldn't be right to use these tactics to
-force Nvidia's libGL source out of them if they didn't want to
-contribute it.
+> @@ -2653,6 +2657,9 @@ module_param(share_irqs, uint, 0644);
+>  MODULE_PARM_DESC(share_irqs, "Share IRQs with other non-8250/16x50 devices"
+>  	" (unsafe)");
+>  
+> +module_param(nr_uarts, uint, 0644);
+> +MODULE_PARM_DESC(nr_uarts, "Maximum number of UARTs supported.");
 
-Can the Linux community justify using ruthless means to force
-documentation out of vendors? Asking politely doesn't seem to be
-working -  I suspect it may take something of this magnitude to force
-a change out of NVidia/ATI.
+Should this help string include the compile-time maximum somehow?
 
---
-Jon Smirl
-jonsmirl@gmail.com
+What limits it to the compile-time maximum?
+
+> diff -urpN --exclude-from=/home/devel/davej/.exclude vanilla/drivers/serial/Kconfig linux-2.6.14/drivers/serial/Kconfig
+> --- vanilla/drivers/serial/Kconfig	2005-12-07 17:56:56.000000000 -0500
+> +++ linux-2.6.14/drivers/serial/Kconfig	2005-12-07 17:53:34.000000000 -0500
+> @@ -95,6 +100,15 @@ config SERIAL_8250_NR_UARTS
+>  	  PCI enumeration and any ports that may be added at run-time
+>  	  via hot-plug, or any ISA multi-port serial cards.
+>  
+> +config SERIAL_8250_RUNTIME_UARTS
+> +	int "Number of 8250/16550 serial ports to register at runtime"
+> +	depends on SERIAL_8250
+> +	default "4"
+
+Can this be restricted to a range of 1 to SERIAL_8250_UARTS ?
+
+> +	help
+> +	  Set this to the maximum number of serial ports you want
+> +	  the kernel to register at boot time.  This can be overriden
+> +	  with the parameter "nr_uarts".
+
+And should we also give a pointer to the boot-time parameter (which
+I think will be 8250.nr_uarts ?)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

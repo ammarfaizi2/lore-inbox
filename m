@@ -1,60 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVLGOpW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbVLGOrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbVLGOpW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 09:45:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbVLGOpV
+	id S1751109AbVLGOrl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 09:47:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751115AbVLGOrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 09:45:21 -0500
-Received: from nproxy.gmail.com ([64.233.182.204]:9133 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751108AbVLGOpV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 09:45:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LSBfxzK4iiIeAHgPMyqsmMnsF88XnpgDkarcFIHxYhz6itBP+qiCdizNwwEpaTHyhA80xAn7fWi4JkthxeIhpzj5ms+ZE7Yww3VHMQAw9HenmvJ/oNdaz7Dkr6Jc585tTaKpw9qSpaogoI7D8wkDFgeg0jgjOVyY1YNyD+5QM9U=
-Message-ID: <58cb370e0512070645o78569e82y63483a9ae5511f52@mail.gmail.com>
-Date: Wed, 7 Dec 2005 15:45:19 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [RFC]add ACPI hooks for IDE suspend/resume
-Cc: Shaohua Li <shaohua.li@intel.com>, linux-ide <linux-ide@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, pavel <pavel@ucw.cz>,
-       Len Brown <len.brown@intel.com>, akpm <akpm@osdl.org>
-In-Reply-To: <20051207143337.GA16938@srcf.ucam.org>
+	Wed, 7 Dec 2005 09:47:41 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:55489 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751109AbVLGOrk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 09:47:40 -0500
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Hubertus Franke <frankeh@watson.ibm.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Paul Jackson <pj@sgi.com>
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+References: <20051114212341.724084000@sergelap>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Wed, 07 Dec 2005 07:46:27 -0700
+In-Reply-To: <20051114212341.724084000@sergelap> (Serge E. Hallyn's message
+ of "Mon, 14 Nov 2005 15:23:41 -0600")
+Message-ID: <m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1133849404.3026.10.camel@sli10-mobl.sh.intel.com>
-	 <20051206222001.GA14171@srcf.ucam.org>
-	 <58cb370e0512070017u606ee22fse207b9a859856dd4@mail.gmail.com>
-	 <20051207131454.GA16558@srcf.ucam.org>
-	 <58cb370e0512070619k17022317v8e871dc3f9cafb9@mail.gmail.com>
-	 <20051207143337.GA16938@srcf.ucam.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/05, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> On Wed, Dec 07, 2005 at 03:19:07PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > On 12/7/05, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> > > On Wed, Dec 07, 2005 at 09:17:31AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > >
-> > > > Isn't ide-io.c:ide_{start,complete}_power_step() enough?
-> > >
-> > > No.
-> >
-> > Why? :)
+"Serge E. Hallyn" <serue@us.ibm.com> writes:
+
+> --
 >
-> Heh :) The failure is (IIRC, I don't have the serial logs to hand)
-> before ide_start_power_step() is called. We get to start_request(), and
-> the system then fails with "bus not ready on wakeup" and "drive not
-> ready on wakeup". Calling the _GTM and _STM ACPI methods before then
-> lets the system come back up normally.
+> I'm part of a project implementing checkpoint/restart processes.
+> After a process or group of processes is checkpointed, killed, and
+> restarted, the changing of pids could confuse them.  There are many
+> other such issues, but we wanted to start with pids.
+>
+> Does something like this, presumably after much working over, seem
+> mergeable?
 
-OK, I understand it now - when using 'ide-generic' host driver for IDE
-PCI device, resume fails (for obvious reason - IDE PCI device is not
-re-configured) and this patch fixes it through using ACPI methods.
+This set of patches looks like a global s/current->pid/task_pid(current)/
+Which may be an interesting exercise but I don't see how this
+helps your problem.  And as has been shown by a few comments
+this process making all of these changes is subject to human error.
 
-Thanks,
-Bartlomiej
+Many of the interesting places that deal with pids and where you
+want translation are not where the values are read from current->pid,
+but where the values are passed between functions.  Think about
+the return value of do_fork.
+
+There are also a lot of cases you haven't even tried to address.
+You haven't touched process groups, or sessions.
+
+At the current time the patch definitely fails the no in kernel
+users test because it doesn't go as far as taking advantage
+of the abstraction it attempts to introduce.  Which means
+other people can't read through the code and make sense
+of what you are trying to do or to see if there is a better way.
+
+I will also contend that walking down a path that does not cause
+compilation to fail when the subtle things like which flavor of
+pid you want to see is a problem.
+
+Another question is how do your pid spaces nest.  Currently
+it sounds like you are taking the vserver model and allowing
+everyone outside your pid space to see all of your internal
+pids.  Is this really what you want?  Who do you report as
+the source of your signal.  
+
+What pid does waitpid return when the parent of your pidspace exits?
+What pid does waitpid return when both processes are in the same pidspace?
+
+How does /proc handle multiple pid spaces?
+
+While something allowing multiple pidspaces may be mergeable,
+unnecessary and incomplete changes rarely are.  This is a fundamental
+change to the unix API so it will take a lot of scrutiny to get
+merged.
+
+Eric

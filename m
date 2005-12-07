@@ -1,306 +1,295 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVLGRbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbVLGRdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbVLGRbM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 12:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVLGRbL
+	id S1751262AbVLGRdH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 12:33:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbVLGRdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 12:31:11 -0500
-Received: from wproxy.gmail.com ([64.233.184.197]:29275 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751257AbVLGRbK (ORCPT
+	Wed, 7 Dec 2005 12:33:06 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:42690 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751262AbVLGRdF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 12:31:10 -0500
+	Wed, 7 Dec 2005 12:33:05 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
-        b=nMK42heo/SH0K0a/tsYuCT/pYY+clB2W5QBccBUkOzqeDxhSS7HUdMJoFuaOgULYTv5EHA47m2rY10+TE38mCML+53yTMB6v+vbA/Z7NYVq4f27ArSL81EUKa7S6IKcDAAGWf+dKKNmx7yRUJPJvF/fq63k2ee9y3gULgxBtQXk=
-Message-ID: <808c8e9d0512070931k607cd7a9g404d131ded8c014b@mail.gmail.com>
-Date: Wed, 7 Dec 2005 11:31:09 -0600
+        b=PaCwtySWvRIaNSv1EYQwzcHh/g9SeTG0LS7Q5TqQyKoGvwCtOVinm1g/bdr0zR8/iVKjsF1qJt8UgXChkPqDQXo2gAjcxlgcfawhJoLIdn6wdQwgTviMPiiIiyXBnm5lfU4UVDx0UOI86jBoj9C1pL4S3zW+WJFka8fM0DFS+x8=
+Message-ID: <808c8e9d0512070933re472072x43f35d454be699f1@mail.gmail.com>
+Date: Wed, 7 Dec 2005 11:33:04 -0600
 From: Ben Gardner <gardner.ben@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 1/3] i386: CS5535 chip support - cpu
+Subject: [PATCH 2/3] i386: CS5535 chip support - GPIO
 Cc: lm-sensors <lm-sensors@lm-sensors.org>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: multipart/mixed; 
-	boundary="----=_Part_1948_15531274.1133976669519"
+	boundary="----=_Part_1960_10976397.1133976784559"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_1948_15531274.1133976669519
+------=_Part_1960_10976397.1133976784559
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Configures the DIVIL component of the AMD CS5535 (Geode companion device).
-
-This patch does the following:
- - verifies the existence of the CS5535 by checking the DIVIL signature
- - configures UART1 as a NS16550A
- - (optionally) enables UART2 and configures it as a NS16550A
- - (optionally) enables the SMBus/I2C interface
+Provides a simple GPIO char driver for the AMD CS5535, modeled after
+the scx200_gpio driver.
 
 Signed-off-by: Ben Gardner <bgardner@wabtec.com>
 
-------=_Part_1948_15531274.1133976669519
-Content-Type: text/plain; name=cs5535-cpu.patch.txt; charset=us-ascii
+------=_Part_1960_10976397.1133976784559
+Content-Type: text/plain; name=cs5535-gpio.patch.txt; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="cs5535-cpu.patch.txt"
+Content-Disposition: attachment; filename="cs5535-gpio.patch.txt"
 
- arch/i386/Kconfig         |   27 ++++++
- arch/i386/kernel/Makefile |    8 +
- arch/i386/kernel/cs5535.c |  190 ++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 225 insertions(+)
+ drivers/char/Kconfig       |    9 +
+ drivers/char/Makefile      |    1 
+ drivers/char/cs5535_gpio.c |  209 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 219 insertions(+)
 
-Index: linux-2.6.14/arch/i386/kernel/cs5535.c
+Index: linux-2.6.14/drivers/char/cs5535_gpio.c
 ===================================================================
 --- /dev/null
-+++ linux-2.6.14/arch/i386/kernel/cs5535.c
-@@ -0,0 +1,190 @@
-+/**
-+ * linux/arch/i386/kernel/cs5535.c
++++ linux-2.6.14/drivers/char/cs5535_gpio.c
+@@ -0,0 +1,209 @@
++/*
++ * linux/drivers/char/cs5535_gpio.c
 + *
-+ *  Copyright (c) 2005 Ben Gardner <bgardner@wabtec.com>
++ * AMD CS5535 GPIO driver.
++ * Allows a user space process to play with the GPIO pins.
 + *
-+ *  AMD CS5535 Companion Device support (AMD Geode processor).
++ * Heavily inspired by scx200_gpio, by Christer Weinigel
 + *
-+ *  This does early configuration of the UARTs, SMB port, and GPIO.
++ * Copyright (c) 2005 Ben Gardner <bgardner@wabtec.com>
 + *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; version 2 of the License.
++ * This program is free software; you can redistribute it and/or modify
++ * it under the smems of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
 + */
 +
 +#include <linux/config.h>
++#include <linux/fs.h>
 +#include <linux/module.h>
 +#include <linux/errno.h>
 +#include <linux/kernel.h>
 +#include <linux/init.h>
-+#include <asm/msr.h>
++#include <linux/cdev.h>
++#include <linux/ioport.h>
++#include <asm/uaccess.h>
 +#include <asm/io.h>
 +
 +
-+#define NAME			"cs5535"
++#define NAME			"cs5535_gpio"
 +
 +MODULE_AUTHOR("Ben Gardner <bgardner@wabtec.com>");
-+MODULE_DESCRIPTION("AMD CS5535 Driver");
++MODULE_DESCRIPTION("AMD CS5535 GPIO Pin Driver");
 +MODULE_LICENSE("GPL");
 +
-+/* GPIO base address (from MSR_LBAR_GPIO; MSR 5140000Ch, bits 15:0) */
-+u32 cs5535_gpio_base;
-+u32 cs5535_gpio_mask;
-+EXPORT_SYMBOL(cs5535_gpio_base);
-+EXPORT_SYMBOL(cs5535_gpio_mask);
++static int major = 0;		/* default to dynamic major */
++module_param(major, int, 0);
++MODULE_PARM_DESC(major, "Major device number");
 +
-+#define MSR_DIVIL_GLD_CAP	0x51400000
-+#define DEVID_DIVIL		0x2DF0
++/* These are defined in cs5535.c */
++extern u32 cs5535_gpio_base;
++extern u32 cs5535_gpio_mask;
 +
-+#define MSR_LBAR_SMB		0x5140000B
-+#define MSR_LBAR_GPIO		0x5140000C
++static struct cdev cs5535_gpio_cdev;
 +
-+#define MSR_UART1_CONF		0x5140003a
-+#define MSR_UART2_CONF		0x5140003e
++/* reserve 32 entries even though some aren't usable */
++#define CS5535_GPIO_COUNT	32
 +
-+#define MSR_DIVIL_LEG_IO	0x51400014
-+#define MSR_DIVIL_BALL_OPT	0x51400015
-+#define MSR_IRQ_MAPY_H		0x51400021
++/* IO block size */
++#define CS5535_GPIO_SIZE	256
 +
-+struct gpio_reg_val {
-+	u32 reg;
-+	u32 val;
++struct gpio_regmap {
++	u32 rd_offset;
++	u32 wr_offset;
++	char on;
++	char off;
++};
++static struct gpio_regmap rm[] =
++{
++	{ 0x30, 0x00, '1', '0' },	/* GPIOx_READ_BACK / GPIOx_OUT_VAL */
++	{ 0x20, 0x20, 'I', 'i' },	/* GPIOx_IN_EN */
++	{ 0x04, 0x04, 'O', 'o' },	/* GPIOx_OUT_EN */
++	{ 0x08, 0x08, 't', 'T' },	/* GPIOx_OUT_OD_EN */
++	{ 0x18, 0x18, 'P', 'p' },	/* GPIOL_OUT_PU_EN */
++	{ 0x1c, 0x1c, 'D', 'd' },	/* GPIOx_OUT_PD_EN */
 +};
 +
-+#ifdef CS5535_SMB
-+static const struct gpio_reg_val gpio_smb[] __initdata =
++
++/**
++ * Gets the register offset for the GPIO bank.
++ * Low (0-15) starts at 0x00, high (16-31) starts at 0x80
++ */
++static inline u32 cs5535_lowhigh_base(int reg)
 +{
-+	{ 0x04, 0x0000c000 },		/* enable OUTPUT */
-+	{ 0x08, 0x0000c000 },		/* enable OpenDrain */
-+	{ 0x10, 0x0000c000 },		/* enable OUT_AUX1 */
-+	{ 0x14, 0xc0000000UL },		/* disable OUT_AUX2 */
-+	{ 0x20, 0x0000c000 },		/* enable INPUT */
-+	{ 0x34, 0x0000c000 },		/* enable IN_AUX1 */
++	return (reg & 0x10) << 3;
++}
++
++static ssize_t cs5535_gpio_write(struct file *file, const char __user *data,
++				 size_t len, loff_t *ppos)
++{
++	u32	m = iminor(file->f_dentry->d_inode);
++	int	i, j;
++	u32	base = cs5535_gpio_base + cs5535_lowhigh_base(m);
++	u32	m0, m1;
++	char	c;
++
++	/**
++	 * Creates the mask for atomic bit programming.
++	 * The high 16 bits and the low 16 bits are used to set the mask.
++	 * For example, GPIO 15 maps to 31,15: 0,1 => On; 1,0=> Off
++	 */
++	m1 = 1 << (m & 0x0F);
++	m0 = m1 << 16;
++
++	for (i = 0; i < len; ++i) {
++		if (get_user(c, data+i))
++			return -EFAULT;
++
++		for (j = 0; j < ARRAY_SIZE(rm); j++) {
++			if (c == rm[j].on) {
++				outl(m1, base + rm[j].wr_offset);
++				break;
++			} else if (c == rm[j].off) {
++				outl(m0, base + rm[j].wr_offset);
++				break;
++			}
++		}
++	}
++	*ppos = 0;
++	return len;
++}
++
++static ssize_t cs5535_gpio_read(struct file *file, char __user *buf,
++				size_t len, loff_t *ppos)
++{
++	u32	m = iminor(file->f_dentry->d_inode);
++	u32	base = cs5535_gpio_base + cs5535_lowhigh_base(m);
++	int	mask = 1 << (m & 0x0f);
++	int	i;
++	char	ch;
++	ssize_t	count = 0;
++
++	if (*ppos >= ARRAY_SIZE(rm))
++		return 0;
++
++	for (i = *ppos; (i < (*ppos + len)) && (i < ARRAY_SIZE(rm)); i++) {
++		ch = (inl(base + rm[i].rd_offset) & mask) ?
++		     rm[i].on : rm[i].off;
++
++		if (put_user(ch, buf+count))
++			return -EFAULT;
++
++		count++;
++	}
++
++	/* add a line-feed if there is room */
++	if ((i == ARRAY_SIZE(rm)) && (count < len)) {
++		put_user('\n', buf + count);
++		count++;
++	}
++
++	*ppos += count;
++	return count;
++}
++
++static int cs5535_gpio_open(struct inode *inode, struct file *file)
++{
++	u32 m = iminor(inode);
++
++	/* the mask says which pins are usable by this driver */
++	if ((cs5535_gpio_mask & (1 << m)) == 0)
++		return -EINVAL;
++
++	return nonseekable_open(inode, file);
++}
++
++static struct file_operations cs5535_gpio_fops = {
++	.owner	= THIS_MODULE,
++	.write	= cs5535_gpio_write,
++	.read	= cs5535_gpio_read,
++	.open	= cs5535_gpio_open
 +};
-+#endif
 +
-+/* don't touch GPIO 3 & 4 unless UART2 is enabled */
-+#ifdef CS5535_UART2
-+#define RMSK	0x03180318
-+#else
-+#define RMSK	0x03000300
-+#endif
-+
-+static const struct gpio_reg_val gpio_uarts[] __initdata =
++static int __init cs5535_gpio_init(void)
 +{
-+	{ 0x00, 0x03180000 & RMSK },	/* output val */
-+	{ 0x04, 0x02080110 & RMSK },	/* output enable */
-+	{ 0x08, 0x02080110 & RMSK },	/* open-drain enable */
-+	{ 0x0c, 0x03180000 & RMSK },	/* invert output */
-+	{ 0x10, 0x02080110 & RMSK },	/* Out-Aux-1 */
-+	{ 0x14, 0x03180000 & RMSK },	/* Out-Aux-2 */
-+	{ 0x18, 0x03180000 & RMSK },	/* Pull-Up */
-+	{ 0x1c, 0x03180000 & RMSK },	/* Pull-Down */
-+	{ 0x20, 0x01100208 & RMSK },	/* Input enable */
-+	{ 0x24, 0x03180000 & RMSK },	/* invert */
-+	{ 0x28, 0x03180000 & RMSK },	/* filter */
-+	{ 0x2c, 0x03180000 & RMSK },	/* event-count */
-+	{ 0x34, 0x01100208 & RMSK },	/* in-aux1 */
-+	{ 0x38, 0x03180000 & RMSK },	/* events */
-+	{ 0x40, 0x03180000 & RMSK },	/* Input Pos Edge */
-+	{ 0x44, 0x03180000 & RMSK },	/* Input Neg Edge */
-+};
++	dev_t dev_id;
++	int retval;
 +
-+static int __init init_cs5535_divil(void)
-+{
-+	u32 low32;
-+	u32 high32;
-+	int idx;
-+
-+	/* Check the DIVIL device ID for validation */
-+	rdmsr(MSR_DIVIL_GLD_CAP, low32, high32);
-+	if ((high32 != 0) || ((low32 >> 8) != DEVID_DIVIL)) {
-+		printk(KERN_WARNING NAME ": DIVIL device not found\n");
++	if (cs5535_gpio_base == 0) {
++		printk(KERN_WARNING NAME ": GPIO not available\n");
 +		return -ENODEV;
 +	}
 +
-+	/* Grab the GPIO I/O range */
-+	rdmsr(MSR_LBAR_GPIO, low32, high32);
-+	cs5535_gpio_base = low32 & 0x0000ff00;
-+
-+	/* Check the mask and whether GPIO is enabled */
-+	if (high32 != 0x0000f001) {
-+		/* TODO: enable GPIO IO mappings via LBAR */
-+		printk(KERN_WARNING NAME ": GPIO not enabled\n");
++	if (request_region(cs5535_gpio_base, CS5535_GPIO_SIZE, NAME) == 0) {
++		printk(KERN_ERR NAME ": can't allocate I/O for GPIO\n");
 +		return -ENODEV;
 +	}
 +
-+	/* GPIO pins 31-29,23 are reserved, 22-16 are used for LPC,
-+	 * 9,8 are used for UART1 */
-+	cs5535_gpio_mask =  ~0xe0ff0300UL;
++	printk(KERN_DEBUG NAME ": AMD CS5535 GPIO Driver: mask=%x\n",
++	       cs5535_gpio_mask);
 +
-+#ifdef CS5535_SMB
-+	/* GPIO pins 14 & 15 are used for SMBus */
-+	cs5535_gpio_mask &= ~0x0000c000UL;
-+
-+	/* Grab & reserve the SMB I/O range */
-+	rdmsr(MSR_LBAR_SMB, low32, high32);
-+
-+	/* Check the mask and whether SMB is enabled */
-+	if (high32 != 0x0000F001) {
-+		/* TODO: enable SMB IO mappings via LBAR */
-+		printk(KERN_WARNING NAME ": SMBus not enabled\n");
-+		return -ENODEV;
++	if (major) {
++		dev_id = MKDEV(major, 0);
++		retval = register_chrdev_region(dev_id, CS5535_GPIO_COUNT,
++						NAME);
++	} else {
++		retval = alloc_chrdev_region(&dev_id, 0, CS5535_GPIO_COUNT,
++					     NAME);
++		major = MAJOR(dev_id);
 +	}
 +
-+	/* Configure GPIO 14 & 15 to do SMB/ACB/I2C */
-+	for (idx = 0; idx < ARRAY_SIZE(gpio_smb); idx++) {
-+		outl(gpio_smb[idx].val,
-+		     gpio_smb[idx].reg + cs5535_gpio_base);
-+	}
-+#endif	/* CS5535_SMB */
-+
-+	/* Configure GPIO to do UART1 and maybe UART2 */
-+	for (idx = 0; idx < ARRAY_SIZE(gpio_uarts); idx++) {
-+		outl(gpio_uarts[idx].val,
-+		     gpio_uarts[idx].reg + cs5535_gpio_base);
++	if (retval) {
++		release_region(cs5535_gpio_base, CS5535_GPIO_SIZE);
++		return -1;
 +	}
 +
-+	/* Set UART1 base address to 0x3f8 */
-+	rdmsr(MSR_DIVIL_LEG_IO, low32, high32);
-+	low32 &= 0xfff8ffffUL;		/* UART1 base IO */
-+	low32 |= 0x00070000;		/* 0x3F8 */
-+	wrmsr(MSR_DIVIL_LEG_IO, low32, high32);
-+
-+	/* Set UART1 interrupt to 4 */
-+	rdmsr(MSR_IRQ_MAPY_H, low32, high32);
-+	low32 &= 0xf0ffffffUL;		/* UART1 is on MAPY-14 */
-+	low32 |= 0x04000000;		/* IRQ 4 */
-+	wrmsr(MSR_IRQ_MAPY_H, low32, high32);
-+
-+	/* Set up UART1 as a NS15560A */
-+	wrmsr(MSR_UART1_CONF, 0x12, 0);
-+
-+#ifdef CS5535_UART2
-+	/* GPIO pins 3 & 4 are used for UART2 */
-+	cs5535_gpio_mask &= ~0x00000018UL;
-+
-+	/* Set UART2 base address to 0x2f8 */
-+	rdmsr(MSR_DIVIL_LEG_IO, low32, high32);
-+	low32 &= 0xff8fffffUL;		/* UART2 base IO */
-+	low32 |= 0x00500000;		/* 0x2F8 */
-+	wrmsr(MSR_DIVIL_LEG_IO, low32, high32);
-+
-+	/* Set UART1 interrupt to 3 */
-+	rdmsr(MSR_IRQ_MAPY_H, low32, high32);
-+	low32 &= 0x0fffffffUL;		/* UART2 is on MAPY-15 */
-+	low32 |= 0x30000000;		/* IRQ 3 */
-+	wrmsr(MSR_IRQ_MAPY_H, low32, high32);
-+
-+	/* Set up UART2 as a NS15560A */
-+	wrmsr(MSR_UART2_CONF, 0x12, 0);
-+#endif	/* CS5535_UART2 */
-+
-+	printk(KERN_INFO NAME ": GPIO=%#x Mask=%#x\n",
-+	       cs5535_gpio_base, cs5535_gpio_mask);
++	cdev_init(&cs5535_gpio_cdev, &cs5535_gpio_fops);
++	cdev_add(&cs5535_gpio_cdev, dev_id, CS5535_GPIO_COUNT);
 +
 +	return 0;
 +}
 +
-+subsys_initcall(init_cs5535_divil);
++static void __exit cs5535_gpio_cleanup(void)
++{
++	dev_t dev_id = MKDEV(major, 0);
++	unregister_chrdev_region(dev_id, CS5535_GPIO_COUNT);
++	release_region(cs5535_gpio_base, CS5535_GPIO_SIZE);
++}
 +
-Index: linux-2.6.14/arch/i386/Kconfig
++module_init(cs5535_gpio_init);
++module_exit(cs5535_gpio_cleanup);
+Index: linux-2.6.14/drivers/char/Kconfig
 ===================================================================
---- linux-2.6.14.orig/arch/i386/Kconfig
-+++ linux-2.6.14/arch/i386/Kconfig
-@@ -336,6 +336,33 @@ config I8K
- 	  Say Y if you intend to run this kernel on a Dell Inspiron 8000.
- 	  Say N otherwise.
+--- linux-2.6.14.orig/drivers/char/Kconfig
++++ linux-2.6.14/drivers/char/Kconfig
+@@ -936,6 +936,15 @@ config SCx200_GPIO
  
-+config CS5535
-+	tristate "AMD CS5535 (Geode Companion Device) support"
-+	help
-+	  This provides basic support for the CS5535 Companion Chip for
-+	  the AMD Geode processor.
-+
-+	  If you don't know what to do here, say N.
-+
-+config CS5535_SMB
-+	bool "Enable CS5535 SMBus/Access.Bus/I2C"
+ 	  If compiled as a module, it will be called scx200_gpio.
+ 
++config CS5535_GPIO
++	tristate "AMD CS5535 GPIO (Geode GX)"
 +	depends on CS5535
-+	default y
 +	help
-+	  Choosing this will configure the CS5535 GPIO pins 14 & 15 for SMB.
-+	  Select I2C_CS5535 under i2c to build the SMB/I2C driver.
++	  Give userspace access to the GPIO pins on the AMD CS5535 Geode GX
++	  companion device.
 +
-+	  Say Y if you intend to use the SMBus.
++	  If compiled as a module, it will be called cs5535_gpio.
 +
-+config CS5535_UART2
-+	bool "Enable UART2"
-+	depends on CS5535
-+	default y
-+	help
-+	  By default, CS5535 GPIO pins 3 & 4 are configured for DDC.
-+
-+	  Say Y to configure them as UART2 instead.
-+
- config X86_REBOOTFIXUPS
- 	bool "Enable X86 board specific fixups for reboot"
- 	depends on X86
-Index: linux-2.6.14/arch/i386/kernel/Makefile
+ config GPIO_VR41XX
+ 	tristate "NEC VR4100 series General-purpose I/O Unit support"
+ 	depends on CPU_VR41XX
+Index: linux-2.6.14/drivers/char/Makefile
 ===================================================================
---- linux-2.6.14.orig/arch/i386/kernel/Makefile
-+++ linux-2.6.14/arch/i386/kernel/Makefile
-@@ -42,6 +42,14 @@ EXTRA_AFLAGS   := -traditional
- 
- obj-$(CONFIG_SCx200)		+= scx200.o
- 
-+obj-$(CONFIG_CS5535)		+= cs5535.o
-+ifeq ($(CONFIG_CS5535_SMB), y)
-+EXTRA_CFLAGS += -DCS5535_SMB
-+endif
-+ifeq ($(CONFIG_CS5535_UART2), y)
-+EXTRA_CFLAGS += -DCS5535_UART2
-+endif
-+
- # vsyscall.o contains the vsyscall DSO images as __initdata.
- # We must build both images before we can assemble it.
- # Note: kbuild does not track this dependency due to usage of .incbin
+--- linux-2.6.14.orig/drivers/char/Makefile
++++ linux-2.6.14/drivers/char/Makefile
+@@ -81,6 +81,7 @@ obj-$(CONFIG_PPDEV) += ppdev.o
+ obj-$(CONFIG_NWBUTTON) += nwbutton.o
+ obj-$(CONFIG_NWFLASH) += nwflash.o
+ obj-$(CONFIG_SCx200_GPIO) += scx200_gpio.o
++obj-$(CONFIG_CS5535_GPIO) += cs5535_gpio.o
+ obj-$(CONFIG_GPIO_VR41XX) += vr41xx_giu.o
+ obj-$(CONFIG_TANBAC_TB0219) += tb0219.o
+ obj-$(CONFIG_TELCLOCK) += tlclk.o
 
-------=_Part_1948_15531274.1133976669519--
+------=_Part_1960_10976397.1133976784559--

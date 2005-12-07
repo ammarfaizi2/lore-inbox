@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbVLGQE3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbVLGQDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbVLGQE3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 11:04:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751172AbVLGQE3
+	id S1750793AbVLGQDz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 11:03:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbVLGQDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 11:04:29 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:481 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751170AbVLGQE2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 11:04:28 -0500
+	Wed, 7 Dec 2005 11:03:54 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:29918 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750793AbVLGQDy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 11:03:54 -0500
 Subject: Re: [linux-usb-devel] Re: [PATCH 00/10] usb-serial: Switches from
 	spin lock to atomic_t.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Oliver Neukum <oliver@neukum.org>, linux-usb-devel@lists.sourceforge.net,
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net,
        Eduardo Pereira Habkost <ehabkost@mandriva.com>,
        Greg KH <gregkh@suse.de>,
        Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44L0.0512071059420.21143-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.0512071059420.21143-100000@iolanthe.rowland.org>
+In-Reply-To: <200512071650.01439.oliver@neukum.org>
+References: <Pine.LNX.4.44L0.0512071000120.21143-100000@iolanthe.rowland.org>
+	 <200512071637.40018.oliver@neukum.org>
+	 <1133970015.2869.31.camel@laptopd505.fenrus.org>
+	 <200512071650.01439.oliver@neukum.org>
 Content-Type: text/plain
-Date: Wed, 07 Dec 2005 17:04:16 +0100
-Message-Id: <1133971457.2869.43.camel@laptopd505.fenrus.org>
+Content-Transfer-Encoding: 7bit
+Date: Wed, 07 Dec 2005 16:02:07 +0000
+Message-Id: <1133971327.544.75.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-07 at 11:01 -0500, Alan Stern wrote:
-> On Wed, 7 Dec 2005, Arjan van de Ven wrote:
-> 
-> > > On the other hand, Oliver needs to be careful about claiming too much.  In 
-> > > general atomic_t operations _are_ superior to the spinlock approach.
-> > 
-> > No they're not. Both are just about equally expensive cpu wise,
-> > sometimes the atomic_t ones are a bit more expensive (like on parisc
-> > architecture). But on x86 in either case it's a locked cycle, which is
-> > just expensive no matter which side you flip the coin... 
-> 
-> You're overgeneralizing.
+On Mer, 2005-12-07 at 16:50 +0100, Oliver Neukum wrote:
+> But the atomic variant has to guard against interrupts, at least on
+> architectures that do load/store only, hasn't it?
 
-to some degree yes.
+Yes. And you will see at least four different approaches 
 
-> 
-> Sure, a locked cycle has a certain expense.  But it's a lot less than the 
-> expense of a contested spinlock. 
+1. ll/sc where if the sequence was interrupted and may be stale it gets
+retried
 
-the chances that *this* spinlock ends up being contested are near zero,
-and.. in that scenario a locked cycle does the same thing, just in
-hardware..... (eg the other cpu will busy wait until this locked cycle
-is done)
+2. locked operations where the IRQ cannot split the sequence and use of 
+
+3. spin locks to provide atomic operations where there are architecture
+limits
+
+4. Use of instructions acting on memory where the CPU in question has
+them and (as is usual in processors) does not permit an IRQ mid
+instruction.
+
+Thus on x86
+
+	*foo++
+
+might be atomic, might not on uniprocessor v interrupt solely because
+the compiler chooses the operations. Atomic_inc however merely has to
+use asm to force an inc of a memory location target. That instruction
+cannot be split part way by an interrupt so is sufficient.
+
+Relative efficiency of spin_lock versus atomic_foo is very platform
+dependant.
 

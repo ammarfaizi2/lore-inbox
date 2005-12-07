@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbVLGNwd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbVLGOB2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbVLGNwd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 08:52:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbVLGNwd
+	id S1751068AbVLGOB2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 09:01:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751070AbVLGOB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 08:52:33 -0500
-Received: from pat.uio.no ([129.240.130.16]:46826 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751025AbVLGNwc (ORCPT
+	Wed, 7 Dec 2005 09:01:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:62180 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751053AbVLGOB1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 08:52:32 -0500
-Subject: RE: stat64 for over 2TB file returned invalid st_blocks
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Takashi Sato <sho@tnes.nec.co.jp>
-Cc: "'Andreas Dilger'" <adilger@clusterfs.com>,
-       "'Dave Kleikamp'" <shaggy@austin.ibm.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <000001c5fb1d$0a27c8d0$4168010a@bsd.tnes.nec.co.jp>
-References: <000001c5fb1d$0a27c8d0$4168010a@bsd.tnes.nec.co.jp>
-Content-Type: text/plain
-Date: Wed, 07 Dec 2005 08:52:08 -0500
-Message-Id: <1133963528.27373.4.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Wed, 7 Dec 2005 09:01:27 -0500
+Message-ID: <4396EB2F.3060404@redhat.com>
+Date: Wed, 07 Dec 2005 09:01:19 -0500
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kenny Simpson <theonetruekenny@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: another nfs puzzle
+References: <20051206220448.82860.qmail@web34109.mail.mud.yahoo.com>
+In-Reply-To: <20051206220448.82860.qmail@web34109.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.744, required 12,
-	autolearn=disabled, AWL 1.07, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-07 at 19:57 +0900, Takashi Sato wrote:
+Kenny Simpson wrote:
 
-> On my previous mail, I said that CONFIG_LBD should not determine
-> whether large single files is enabled.  But after further
-> consideration, on such a small system that CONFIG_LBD is disabled,
-> using large filesystem over network seems to be very rare.
-> So I think that the type of i_blocks should be sector_t.
+>Hi again,
+>  I am seeing some odd behavior with O_DIRECT.  If a file opened with O_DIRECT has a page mmap'd,
+>and the file is extended via pwrite, then the mmap'd region seems to get lost - i.e. it neither
+>takes up system memory, nor does it get written out.
+>  
+>
 
-???? Where do you get this misinformation from?
+I don't think that I understand why or how the kernel allows a file,
+which was opened with O_DIRECT, to be mmap'd.  The use of O_DIRECT
+implies no caching and mmap implies the use of caching.
 
-Cheers,
-  Trond
+I do understand that the kernel can flush and invalidate pages in
+the ranges of the i/o operations done, but does it really guarantee
+that a pagein operation won't happen on a page within the range of
+a region of the file being written to using direct i/o?  If it does
+not, then any consistency guarantees are gone and data corruption
+can occur.
 
+    Thanx...
+
+       ps

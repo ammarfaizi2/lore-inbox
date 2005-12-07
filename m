@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbVLGP47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbVLGQBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbVLGP47 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 10:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVLGP4z
+	id S1751168AbVLGQBs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 11:01:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVLGQBs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 10:56:55 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:64715 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751166AbVLGP4y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 10:56:54 -0500
-Message-ID: <4397063A.2030200@redhat.com>
-Date: Wed, 07 Dec 2005 10:56:42 -0500
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 7 Dec 2005 11:01:48 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:51331 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751168AbVLGQBs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 11:01:48 -0500
+Date: Wed, 7 Dec 2005 11:01:46 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Oliver Neukum <oliver@neukum.org>, <linux-usb-devel@lists.sourceforge.net>,
+       Eduardo Pereira Habkost <ehabkost@mandriva.com>,
+       Greg KH <gregkh@suse.de>,
+       Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] Re: [PATCH 00/10] usb-serial: Switches from
+ spin lock to atomic_t.
+In-Reply-To: <1133968943.2869.26.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.44L0.0512071059420.21143-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Kenny Simpson <theonetruekenny@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: another nfs puzzle
-References: <20051206220448.82860.qmail@web34109.mail.mud.yahoo.com>	 <4396EB2F.3060404@redhat.com>	 <1133964667.27373.13.camel@lade.trondhjem.org> <4396EF50.30201@redhat.com>	 <1133966063.27373.29.camel@lade.trondhjem.org>	 <4397011E.9010703@redhat.com> <1133970117.27373.53.camel@lade.trondhjem.org>
-In-Reply-To: <1133970117.27373.53.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+On Wed, 7 Dec 2005, Arjan van de Ven wrote:
 
->On Wed, 2005-12-07 at 10:34 -0500, Peter Staubach wrote:
->
->  
->
->>This seems like a dangerous enough area that denying mmap on a file which
->>has been opened with O_DIRECT by any process and denying open(O_DIRECT)
->>on a file which has been mmap'd would be a good thing.  These things are
->>easy enough to keep track of, so it shouldn't be too hard to implement.
->>    
->>
->
->That would be a recipe for DOSes as it would allow one process to block
->another just by opening a file. I'd really not like to see my database
->crash just because some obscure monitoring program happens to use mmap()
->to browse the file.
->
+> > On the other hand, Oliver needs to be careful about claiming too much.  In 
+> > general atomic_t operations _are_ superior to the spinlock approach.
+> 
+> No they're not. Both are just about equally expensive cpu wise,
+> sometimes the atomic_t ones are a bit more expensive (like on parisc
+> architecture). But on x86 in either case it's a locked cycle, which is
+> just expensive no matter which side you flip the coin... 
 
-I wouldn't think that a database would be a problem since it is opened early
-and then stays open.  However, point granted.  There are tools around, lsof
-and such, which would be handy for diagnosing such a situation though.
+You're overgeneralizing.
 
-I do know of other operating systems which do implement the semantics that I
-have suggested and I don't think that they are concerned or have been 
-notified
-that these semantics for a problem.  These semantics are used because the
-kernel itself can not even guarantee that the data that it is caching is 
-valid,
-without lots of synchronization which may tend to reduce performance.
+Sure, a locked cycle has a certain expense.  But it's a lot less than the 
+expense of a contested spinlock.  On the other hand, many times UP systems 
+can eliminate spinlocks entirely.  There are lots of variables and many 
+possible tradeoffs.
 
-    Thanx...
+Alan Stern
 
-       ps

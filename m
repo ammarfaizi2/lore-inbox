@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751796AbVLGVjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbVLGVj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751796AbVLGVjE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 16:39:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbVLGVjD
+	id S1030360AbVLGVj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 16:39:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030361AbVLGVj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 16:39:03 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49170 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751796AbVLGVjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 16:39:02 -0500
-Date: Wed, 7 Dec 2005 21:38:56 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Xavier Bestel <xavier.bestel@free.fr>, Jason Dravet <dravet@hotmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: wrong number of serial port detected
-Message-ID: <20051207213856.GN6793@flint.arm.linux.org.uk>
-Mail-Followup-To: Xavier Bestel <xavier.bestel@free.fr>,
-	Jason Dravet <dravet@hotmail.com>, linux-kernel@vger.kernel.org
-References: <20051207155034.GB6793@flint.arm.linux.org.uk> <BAY103-F32F90C9849D407E9336826DF430@phx.gbl> <20051207211551.GL6793@flint.arm.linux.org.uk> <1133990886.6184.2.camel@bip.parateam.prv> <20051207213128.GM6793@flint.arm.linux.org.uk>
+	Wed, 7 Dec 2005 16:39:29 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:29147
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030360AbVLGVj2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 16:39:28 -0500
+Date: Wed, 07 Dec 2005 13:38:20 -0800 (PST)
+Message-Id: <20051207.133820.39286690.davem@davemloft.net>
+To: gh@us.ibm.com
+Cc: davej@redhat.com, geert@linux-m68k.org, arjan@infradead.org,
+       rdunlap@xenotime.net, riel@redhat.com, andrea@suse.de,
+       wli@holomorphy.com, linux-kernel@vger.kernel.org, ogasawara@osdl.org
+Subject: Re: Linux in a binary world... a doomsday scenario 
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <E1Ek6ri-0006aV-00@w-gerrit.beaverton.ibm.com>
+References: <20051207210246.GB22690@redhat.com>
+	<E1Ek6ri-0006aV-00@w-gerrit.beaverton.ibm.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051207213128.GM6793@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 09:31:28PM +0000, Russell King wrote:
-> On Wed, Dec 07, 2005 at 10:28:05PM +0100, Xavier Bestel wrote:
-> > Le mercredi 07 d?cembre 2005 ? 21:15 +0000, Russell King a ?crit :
-> > 
-> > > 4. User tries the well documented "setserial /dev/ttyS2 port 0x220 irq 5"
-> > >    procedure, which has been supported since Linux 1.x
-> > > 
-> > > 5. User finds that, because there is no ttyS2 device in /dev, they
-> > >    can't configure their card.
-> > 
-> > Well, instead of polluting everybody's /dev for the 3 users having such
-> > cards, why not just tell the user to run
-> > MAKEDEV /dev/ttyS2 ; setserial /dev/ttyS2 port 0x220 irq 5
-> > instead ? (Or even mknod)
-> 
-> Oh sorry.  Mail me your root password and IP address, let me log in
-> to your system, and I'll remove those device nodes right now.  Thanks
-> for pointing that out.
-> 
-> Seriously, surely you aren't suggesting that I somehow have personal
-> control over this?
+From: Gerrit Huizenga <gh@us.ibm.com>
+Date: Wed, 07 Dec 2005 13:30:18 -0800
 
-Additionally, if you have a problem with this, the total number of
-ports _is_ kernel configurable.
+> OSDL.org has no desire to advocate binary drivers in any way and I
+> don't expect that they will do anything to educate or influence their
+> members or the global vendor/IHV/developer communities to use binary
+> drivers.  Further, I expect they will do exactly the opposite, in
+> particular, educate members, developers, IHV's on how to deploy
+> open source drivers and the benefits of doing so.
 
-So if you're getting 32 ports from a distro targetted at the current
-range of consumer hardware which commonly has maybe 1 or 2 and
-possibly a modem card (iow probably max 4 ports), please take it up
-with them.
+You might want to read the following before stating such
+things:
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+	http://www.kroah.com/log/2005/11/03/#osdl_gkai
+
+Thanks.

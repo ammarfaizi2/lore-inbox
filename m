@@ -1,93 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbVLGH30@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932644AbVLGHXn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030242AbVLGH30 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 02:29:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbVLGH30
+	id S932644AbVLGHXn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 02:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932649AbVLGHXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 02:29:26 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:7616 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964793AbVLGH3Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 02:29:25 -0500
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Johannes Stezenbach <js@linuxtv.org>
-Subject: Re: [linux-dvb-maintainer] Re: [PATCH] b2c2: make front-ends selectable and include noob option
-Date: Wed, 7 Dec 2005 08:29:24 +0100
-User-Agent: KMail/1.9
-Cc: Michael Krufky <mkrufky@gmail.com>, linux-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org
-References: <200512062053.00711.prakash@punnoor.de> <200512062139.16846.prakash@punnoor.de> <20051206215610.GA18247@linuxtv.org>
-In-Reply-To: <20051206215610.GA18247@linuxtv.org>
+	Wed, 7 Dec 2005 02:23:43 -0500
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:8599 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S932644AbVLGHXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 02:23:42 -0500
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: Roman Zippel <zippel@linux-m68k.org>
+Date: Wed, 07 Dec 2005 08:23:11 +0100
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2880482.or6BiEHnD8";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200512070829.29726.prakash@punnoor.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
+Subject: Re: [PATCH 2/13] Time: Reduced NTP Rework (part 2)
+Cc: Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Darren Hart <dvhltc@us.ibm.com>, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Frank Sorenson <frank@tuxrocks.com>,
+       Thomas Gleixner <tglx@linutronix.de>
+Message-ID: <43969BEF.23136.2E6BFD65@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <Pine.LNX.4.61.0512061130410.1609@scrub.home>
+References: <20051206072708.GA25129@elte.hu>
+X-mailer: Pegasus Mail for Windows (4.30 public beta 1)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=3.98.0+V=3.98+U=2.07.112+R=03 October 2005+T=113022@20051207.072010Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2880482.or6BiEHnD8
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 6 Dec 2005 at 11:35, Roman Zippel wrote:
 
-Am Dienstag Dezember 6 2005 22:56 schrieb Johannes Stezenbach:
-> On Tue, Dec 06, 2005, Prakash Punnoor wrote:
-> > Well, I said it needed touch up. ;-) After all I didn't seriously belie=
-ve
-> > it gets merged in current state (and yes, I didn't think about the modu=
-le
-> > issue, but you're right , of course). But it simply didn't seem like dvb
-> > guys are caring about the problem. I once (probably half a year ago
-> > already) mailed to linux-dvb and got zero response. That told me
-> > everything.
->
-> I make it a point to ignore postings which ignore
-> the recent mailing list history ;-)
->
-> This had been discussed on linux-dvb and the consensus was that
-> no one wants to invest time to maintain an #ifdef mess
-> just so that people can save a few KB in their kernel.
+> Hi,
+> 
+> On Tue, 6 Dec 2005, Ingo Molnar wrote:
+> 
+> > > > I'm thinking about moving the leap second handling to a timer, with the 
+> > > > new timer system it would be easy to set a timer for e.g. 23:59.59 and 
+> > > > then set the time. This way it would be gone from the common path and it 
+> > > > wouldn't matter that much anymore whether it's used or not.
+> > > 
+> > > Will the timer solution guarantee consistent and exact updates?
+> > 
+> > it would still be dependent on system-load situations.
+> 
+> Interrupt-load, actually.
+> 
+> > It's an 
+> > interesting idea to use a timer for that, but there is no strict 
+> > synchronization between "get time of day" and "timer execution", so any 
+> > timer-based leap-second handling would be fundamentally asynchronous. I 
+> > dont think we want that, leap second handling should be a synchronous 
+> > property of 'time'.
+> 
+> I'm not really sure what you're talking about. Could you please elaborate 
+> on "fundamentally asynchronous" and "synchronous property of 'time'"?
 
-A short "search the list" note would have been enough, then. I think I=20
-followed the list, but probably skipped the messages, as the subject probab=
-ly=20
-seemed like something else.
+It's always the same: A process busily reads time, and it wants to have it smooth 
+(low jitter, preferrably constant jitter, small time increments):
 
+/*
+ * This program can be used to calibrate the clock reading jitter of a
+ * particular CPU and operating system. It first tickles every element
+ * of an array, in order to force pages into memory, then repeatedly calls
+ * gettimeofday() and, finally, writes out the time values for later
+ * analysis. From this you can determine the jitter and if the clock ever
+ * runs backwards.
+ */
+#include <sys/time.h>
+#include <stdio.h>
 
-> Also, most users don't know and don't care what demodulator
-> their card has, the dependency on all of them, plus the
-> implied auto probing saves them some headaches and us a lot of
-> newbie questions.
+#define NBUF 20002
 
+void
+main()
+{
+        struct timeval ts, tr;
+        struct timezone tzp;
+        long temp, j, i, gtod[NBUF];
 
-Well, could you be so nice and at least turn that xfer transfer errors and=
-=20
-similar off? I guess that should be debugging output, but only printed when=
-=20
-you actually want debugging and shouldn't be default behaviour. Does't this=
-=20
-confuse users? It at least always draws my attention...
+        gettimeofday(&ts, &tzp);
 
-bye,
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+        /*
+         * Force pages into memory
+         */
+        for (i = 0; i < NBUF; i ++)
+                gtod[i] = 0;
 
---nextPart2880482.or6BiEHnD8
-Content-Type: application/pgp-signature
+        /*
+         * Construct gtod array
+         */
+        for (i = 0; i < NBUF; i ++) {
+                gettimeofday(&tr, &tzp);
+                gtod[i] = (tr.tv_sec - ts.tv_sec) * 1000000 + tr.tv_usec;
+        }
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+        /*
+         * Write out gtod array for later processing with S
+         */
+        for (i = 0; i < NBUF - 2; i++) {
+/*
+                printf("%lu\n", gtod[i]);
+*/
+                gtod[i] = gtod[i + 1] - gtod[i];
+                printf("%lu\n", gtod[i]);
+        }
 
-iD8DBQBDlo9ZxU2n/+9+t5gRAlOiAJ9KLGTJKdU5gU79sqEdHIsytwyAjACdHq9f
-X58y2yx7HigxNYcJkR4V3tg=
-=9OvN
------END PGP SIGNATURE-----
+        /*
+         * Sort the gtod array and display deciles
+         */
+        for (i = 0; i < NBUF - 2; i++) {
+                for (j = 0; j <= i; j++) {
+                        if (gtod[j] > gtod[i]) {
+                                temp = gtod[j];
+                                gtod[j] = gtod[i];
+                                gtod[i] = temp;
+                        }
+                }
+        }
+        fprintf(stderr, "First rank\n");
+        for (i = 0; i < 10; i++)
+                fprintf(stderr, "%10ld%10ld\n", i, gtod[i]);
+        fprintf(stderr, "Last rank\n");
+        for (i = NBUF - 12; i < NBUF - 2; i++)
+                fprintf(stderr, "%10ld%10ld\n", i, gtod[i]);
+}
 
---nextPart2880482.or6BiEHnD8--
+(Code taken from some 10 year old xntp source tree)

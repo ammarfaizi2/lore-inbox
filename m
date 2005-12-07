@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbVLGRC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbVLGRFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbVLGRC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 12:02:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbVLGRC1
+	id S1751092AbVLGRFX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 12:05:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVLGRFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 12:02:27 -0500
-Received: from galileo.bork.org ([134.117.69.57]:50897 "EHLO galileo.bork.org")
-	by vger.kernel.org with ESMTP id S1751264AbVLGRC0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 12:02:26 -0500
-Date: Wed, 7 Dec 2005 12:02:26 -0500
-From: Martin Hicks <mort@bork.org>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: mm: fold sc.may_writepage and sc.may_swap into sc.flags
-Message-ID: <20051207170226.GB3085@bork.org>
-References: <20051207104755.177435000@localhost.localdomain> <20051207105154.142779000@localhost.localdomain> <20051207111501.GA8133@mail.ustc.edu.cn>
+	Wed, 7 Dec 2005 12:05:22 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:39644 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751092AbVLGRFW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 12:05:22 -0500
+Subject: Re: Missing break in timedia serial setup.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051207165811.GA3574@redhat.com>
+References: <20051207010526.GA7258@redhat.com>
+	 <20051207093431.GB32365@flint.arm.linux.org.uk>
+	 <20051207165811.GA3574@redhat.com>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 18:05:19 +0100
+Message-Id: <1133975119.2869.49.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QVzQgM+zdZ3YWXqn"
-Content-Disposition: inline
-In-Reply-To: <20051207111501.GA8133@mail.ustc.edu.cn>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---QVzQgM+zdZ3YWXqn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> 
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> --- linux-2.6.14/drivers/serial/8250_pci.c~	2005-12-07 11:56:13.000000000 -0500
+> +++ linux-2.6.14/drivers/serial/8250_pci.c	2005-12-07 11:56:41.000000000 -0500
+> @@ -516,7 +516,6 @@ pci_timedia_setup(struct serial_private 
+>  		break;
+>  	case 3:
+>  		offset = board->uart_offset;
+> -		bar = 1;
+>  	case 4: /* BAR 2 */
+>  	case 5: /* BAR 3 */
+>  	case 6: /* BAR 4 */
+> -
+
+might as well add a /* fall through */ comment
+so that this doesn't come up again in the future..
 
 
-On Wed, Dec 07, 2005 at 07:15:01PM +0800, Wu Fengguang wrote:
-> Fold bool values into flags to make struct scan_control more compact.
->=20
-
-I suspect that the may_swap flag is still a left over from my failed
-attempt at zone_reclaim.  It should be removed.
-
-mh
-
---=20
-Martin Hicks || mort@bork.org || PGP/GnuPG: 0x4C7F2BEE
-
---QVzQgM+zdZ3YWXqn
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDlxWi0ZUZrUx/K+4RAlQAAKCH6h4pXFZi9ovGET2NiuzJ8GZ6CgCgsnwj
-VUw5p5i2/2ynXrOFiRkjVxo=
-=4Yjs
------END PGP SIGNATURE-----
-
---QVzQgM+zdZ3YWXqn--

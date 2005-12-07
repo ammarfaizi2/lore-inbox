@@ -1,85 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbVLGVfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751796AbVLGVjE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030358AbVLGVfx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 16:35:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbVLGVfx
+	id S1751796AbVLGVjE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 16:39:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbVLGVjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 16:35:53 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:28947 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751795AbVLGVfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 16:35:52 -0500
-Date: Wed, 7 Dec 2005 22:35:47 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Conio sandiago <coniodiago@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Urgent work ! please help
-Message-ID: <20051207213547.GA15993@alpha.home.local>
-References: <993d182d0512070225kbc4d926w5ab4255e4cdaea75@mail.gmail.com>
+	Wed, 7 Dec 2005 16:39:03 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49170 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751796AbVLGVjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 16:39:02 -0500
+Date: Wed, 7 Dec 2005 21:38:56 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Xavier Bestel <xavier.bestel@free.fr>, Jason Dravet <dravet@hotmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: wrong number of serial port detected
+Message-ID: <20051207213856.GN6793@flint.arm.linux.org.uk>
+Mail-Followup-To: Xavier Bestel <xavier.bestel@free.fr>,
+	Jason Dravet <dravet@hotmail.com>, linux-kernel@vger.kernel.org
+References: <20051207155034.GB6793@flint.arm.linux.org.uk> <BAY103-F32F90C9849D407E9336826DF430@phx.gbl> <20051207211551.GL6793@flint.arm.linux.org.uk> <1133990886.6184.2.camel@bip.parateam.prv> <20051207213128.GM6793@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <993d182d0512070225kbc4d926w5ab4255e4cdaea75@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <20051207213128.GM6793@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 03:55:32PM +0530, Conio sandiago wrote:
-> Hi all
-> i am conio,
-> i am facing some problems.
-> I have a embedded monta vista linux kernel running on arm processor,
-> the linux kernel version is 2.6.x
-
-First rule if you're looking for some help : be precise. 2.6.x is not
-a kernel version, and ARM is more a family than a processor.
-
-> I have developed a ethernet driver for the same.
-
->From your report below, I think that you now need to add some debug
-code to your driver. It seems reasonable that a new development is
-buggy at first, and a broken ethernet driver can easily lead to
-corrupted data.
-
-> But now i am facing a strange problems-
+On Wed, Dec 07, 2005 at 09:31:28PM +0000, Russell King wrote:
+> On Wed, Dec 07, 2005 at 10:28:05PM +0100, Xavier Bestel wrote:
+> > Le mercredi 07 d?cembre 2005 ? 21:15 +0000, Russell King a ?crit :
+> > 
+> > > 4. User tries the well documented "setserial /dev/ttyS2 port 0x220 irq 5"
+> > >    procedure, which has been supported since Linux 1.x
+> > > 
+> > > 5. User finds that, because there is no ttyS2 device in /dev, they
+> > >    can't configure their card.
+> > 
+> > Well, instead of polluting everybody's /dev for the 3 users having such
+> > cards, why not just tell the user to run
+> > MAKEDEV /dev/ttyS2 ; setserial /dev/ttyS2 port 0x220 irq 5
+> > instead ? (Or even mknod)
 > 
-> 1) If i do a ftp for a very big file from one board to another pc
-> using a switching hub then
-
-what size ? what speed ? half/full duplex ? what transfer speed do
-you observe before the problem ?
-
-> At an early stage ftp-data is normally sent to LinuxPC. Then suddenly
-> the embedded linux  asks the IP address of LinuxPC with using ARP.
-
-it may simply mean that it has lost access to the other one and that
-the ARP cache has expired.
-
-> After this point it start taking a lot of time to transfer data with
-> ftp command.
+> Oh sorry.  Mail me your root password and IP address, let me log in
+> to your system, and I'll remove those device nodes right now.  Thanks
+> for pointing that out.
 > 
-> The packet analysis  shows there are  errors ,"TCP CHECKSUM INCORRECT".
+> Seriously, surely you aren't suggesting that I somehow have personal
+> control over this?
 
-before asking, have you tried :
-  - change your switch and connect with a cross-over cable
-  - sending icmp, udp
-  - transfer in each direction separately to check whether it happens
-    on transmit / receive / both
-  - reduce MTU on one, then the other, then both ends
-  - ping during the transfer
+Additionally, if you have a problem with this, the total number of
+ports _is_ kernel configurable.
 
-?
+So if you're getting 32 ports from a distro targetted at the current
+range of consumer hardware which commonly has maybe 1 or 2 and
+possibly a modem card (iow probably max 4 ports), please take it up
+with them.
 
-> Please help
-> if somebody has some idea
-> whether it can be a hardware / software bug???
-
-with so few information, it's hard to say. At most, we can deduce that
-you encountered a problem the first time you tried your fresh new driver.
-
-> Regards
-> conio
-
-Regards,
-Willy
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

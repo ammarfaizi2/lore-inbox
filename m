@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbVLGPfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbVLGPhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbVLGPfX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 10:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbVLGPfX
+	id S1751138AbVLGPhh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 10:37:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVLGPhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 10:35:23 -0500
-Received: from nproxy.gmail.com ([64.233.182.194]:40328 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751140AbVLGPfW convert rfc822-to-8bit
+	Wed, 7 Dec 2005 10:37:37 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:8665 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1751138AbVLGPhg convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 10:35:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KpDjh5R3tcJRwn/zopOJHV2atRX3Uf7KXcvslW7jXr4DExFRSWH9oNifmq3Mpl4cdPJMC4C+VX4ufvXLcdmNoSN3UFUjQeH5eXVXJAliJ4gDV4Go5HE926Yt9lS07bWrSwRm5eGHQQoDzNpSqSDE/zQ7Uwk7cNdDLcrVxrJArLQ=
-Message-ID: <1e62d1370512070735ye02db49kc9bed24f4a7d99e3@mail.gmail.com>
-Date: Wed, 7 Dec 2005 20:35:20 +0500
-From: Fawad Lateef <fawadlateef@gmail.com>
-To: Anil kumar <anils_r@yahoo.com>
-Subject: Re: Physical to Page in 2.6
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051207032236.71308.qmail@web32403.mail.mud.yahoo.com>
+	Wed, 7 Dec 2005 10:37:36 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [linux-usb-devel] Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
+Date: Wed, 7 Dec 2005 16:37:39 +0100
+User-Agent: KMail/1.8
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       linux-usb-devel@lists.sourceforge.net,
+       Eduardo Pereira Habkost <ehabkost@mandriva.com>,
+       Greg KH <gregkh@suse.de>,
+       Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44L0.0512071000120.21143-100000@iolanthe.rowland.org> <1133968943.2869.26.camel@laptopd505.fenrus.org>
+In-Reply-To: <1133968943.2869.26.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <20051207032236.71308.qmail@web32403.mail.mud.yahoo.com>
+Message-Id: <200512071637.40018.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/05, Anil kumar <anils_r@yahoo.com> wrote:
->
-> How to get a page from a physical address for a x86_64
-> in 2.6 kernel.
-> I guess there are macros in 2.4 like phys_to_pfn( )
-> and pfn_to_page(). I don't see these macros in 2.6 for
-> x86_64 arch.
->
-> These macros are defined only if CONFIG_DISCONTIGMEM
-> for 2.6.
->
+Am Mittwoch, 7. Dezember 2005 16:22 schrieb Arjan van de Ven:
+> > On the other hand, Oliver needs to be careful about claiming too much.  In 
+> > general atomic_t operations _are_ superior to the spinlock approach.
+> 
+> No they're not. Both are just about equally expensive cpu wise,
+> sometimes the atomic_t ones are a bit more expensive (like on parisc
+> architecture). But on x86 in either case it's a locked cycle, which is
+> just expensive no matter which side you flip the coin...
 
-pfn_to_page is defined in include/asm-x86_64/page.h (see
-http://sosdg.org/~coywolf/lxr/source/include/asm-x86_64/page.h#L114)
-if the CONFIG_FLATMEM is defined and I think its defined by-default
-(although not sure)
+You are refering to SMP, aren't you?
 
---
-Fawad Lateef
+	Regards
+		Oliver

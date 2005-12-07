@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVLGRSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbVLGRWX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751216AbVLGRSA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 12:18:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVLGRSA
+	id S1751227AbVLGRWX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 12:22:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVLGRWW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 12:18:00 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:20387 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751216AbVLGRSA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 12:18:00 -0500
-Date: Wed, 7 Dec 2005 18:17:43 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, rostedt@goodmis.org, johnstul@us.ibm.com
-Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
-In-Reply-To: <20051207165550.GA2426@elte.hu>
-Message-ID: <Pine.LNX.4.61.0512071813540.1610@scrub.home>
-References: <20051206000126.589223000@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0512061628050.1610@scrub.home> <1133908082.16302.93.camel@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0512070347450.1609@scrub.home> <20051207165550.GA2426@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Dec 2005 12:22:22 -0500
+Received: from fmr15.intel.com ([192.55.52.69]:12470 "EHLO
+	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751219AbVLGRWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 12:22:21 -0500
+Subject: Re: [RFC]add ACPI hooks for IDE suspend/resume
+From: Shaohua Li <shaohua.li@intel.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Matthew Garrett <mjg59@srcf.ucam.org>,
+       linux-ide <linux-ide@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, pavel <pavel@ucw.cz>,
+       Len Brown <len.brown@intel.com>, akpm <akpm@osdl.org>
+In-Reply-To: <58cb370e0512070749y68b2f9e9t1c68a3e03f91baa0@mail.gmail.com>
+References: <1133849404.3026.10.camel@sli10-mobl.sh.intel.com>
+	 <20051206222001.GA14171@srcf.ucam.org>
+	 <58cb370e0512070017u606ee22fse207b9a859856dd4@mail.gmail.com>
+	 <20051207131454.GA16558@srcf.ucam.org>
+	 <58cb370e0512070619k17022317v8e871dc3f9cafb9@mail.gmail.com>
+	 <20051207143337.GA16938@srcf.ucam.org>
+	 <58cb370e0512070645o78569e82y63483a9ae5511f52@mail.gmail.com>
+	 <1133970074.544.69.camel@localhost.localdomain>
+	 <58cb370e0512070749y68b2f9e9t1c68a3e03f91baa0@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 09:22:03 +0800
+Message-Id: <1133918523.2936.12.camel@sli10-mobl.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 7 Dec 2005, Ingo Molnar wrote:
-
-> > A bit later ktime_t looked pretty much like the 64bit part of my 
-> > ktimespec.
+On Wed, 2005-12-07 at 16:49 +0100, Bartlomiej Zolnierkiewicz wrote:
+> On 12/7/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> > On Mer, 2005-12-07 at 15:45 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > > OK, I understand it now - when using 'ide-generic' host driver for IDE
+> > > PCI device, resume fails (for obvious reason - IDE PCI device is not
+> > > re-configured) and this patch fixes it through using ACPI methods.
 > 
-> and Thomas credited you for that point in his announcement:
+> I was talking about bugzilla bug #5604.
+Sorry for my ignorance in IDE side. From the ACPI spec, there isn't a
+generic way to save/restore IDE's configuration. That's why ACPI
+provides such methods. I suppose all IDE drivers need call the methods,
+wrong?
+
+> > Even in the piix case some devices need it because the bios wants to
+> > issue commands such as password control if the laptop is set up in
+> > secure modes.
 > 
->  " Roman pointed out that the penalty for some architectures
->    would be quite big when using the nsec_t (64bit) scalar time
->    storage format. "
+> I completely agree.  However at the moment this patch doesn't seem
+> to issue any ATA commands (code is commented out in _GTF) so
+> this is not a case for bugzilla bug #5604.
+I actually tried to invoke ATA commands using IDE APIs, but can't find
+any available one. I'd be very happy if you can give me any hint how to
+do it or even you can fix it.
 
-"pointed out that the penalty" is a bit different from "provided the 
-basic idea of the ktime_t union and half the implementation"...
+Thanks,
+Shaohua
 
-bye, Roman

@@ -1,41 +1,306 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbVLGR3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbVLGRbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbVLGR3z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 12:29:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVLGR3z
+	id S1751257AbVLGRbM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 12:31:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbVLGRbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 12:29:55 -0500
-Received: from smtp6-g19.free.fr ([212.27.42.36]:33685 "EHLO smtp6-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750830AbVLGR3y (ORCPT
+	Wed, 7 Dec 2005 12:31:11 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:29275 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751257AbVLGRbK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 12:29:54 -0500
-Message-ID: <43971BD5.6040601@droids-corp.org>
-Date: Wed, 07 Dec 2005 18:28:53 +0100
-From: Olivier MATZ <zer0@droids-corp.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
-X-Accept-Language: en-us, en
+	Wed, 7 Dec 2005 12:31:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=nMK42heo/SH0K0a/tsYuCT/pYY+clB2W5QBccBUkOzqeDxhSS7HUdMJoFuaOgULYTv5EHA47m2rY10+TE38mCML+53yTMB6v+vbA/Z7NYVq4f27ArSL81EUKa7S6IKcDAAGWf+dKKNmx7yRUJPJvF/fq63k2ee9y3gULgxBtQXk=
+Message-ID: <808c8e9d0512070931k607cd7a9g404d131ded8c014b@mail.gmail.com>
+Date: Wed, 7 Dec 2005 11:31:09 -0600
+From: Ben Gardner <gardner.ben@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/3] i386: CS5535 chip support - cpu
+Cc: lm-sensors <lm-sensors@lm-sensors.org>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Arnd Bergmann <arnd@arndb.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] asm-i386 : config.h should not be included out of kernel
-References: <4395F405.9010107@droids-corp.org> <200512062211.40142.arnd@arndb.de>
-In-Reply-To: <200512062211.40142.arnd@arndb.de>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_1948_15531274.1133976669519"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+------=_Part_1948_15531274.1133976669519
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Just drop that line completely, including linux/config.h is no longer 
-> necessary.
+Configures the DIVIL component of the AMD CS5535 (Geode companion device).
 
-You're right, including linux/config.h is not necessary because every
-file that includes asm/param.h also includes the linux/config.h directly
-or indirectly.
+This patch does the following:
+ - verifies the existence of the CS5535 by checking the DIVIL signature
+ - configures UART1 as a NS16550A
+ - (optionally) enables UART2 and configures it as a NS16550A
+ - (optionally) enables the SMBus/I2C interface
 
-But in my opinion, as we use CONFIG_HERTZ in param.h, we should keep the
-include of config.h.
+Signed-off-by: Ben Gardner <bgardner@wabtec.com>
 
-Olivier
+------=_Part_1948_15531274.1133976669519
+Content-Type: text/plain; name=cs5535-cpu.patch.txt; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="cs5535-cpu.patch.txt"
+
+ arch/i386/Kconfig         |   27 ++++++
+ arch/i386/kernel/Makefile |    8 +
+ arch/i386/kernel/cs5535.c |  190 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 225 insertions(+)
+
+Index: linux-2.6.14/arch/i386/kernel/cs5535.c
+===================================================================
+--- /dev/null
++++ linux-2.6.14/arch/i386/kernel/cs5535.c
+@@ -0,0 +1,190 @@
++/**
++ * linux/arch/i386/kernel/cs5535.c
++ *
++ *  Copyright (c) 2005 Ben Gardner <bgardner@wabtec.com>
++ *
++ *  AMD CS5535 Companion Device support (AMD Geode processor).
++ *
++ *  This does early configuration of the UARTs, SMB port, and GPIO.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; version 2 of the License.
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/errno.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <asm/msr.h>
++#include <asm/io.h>
++
++
++#define NAME			"cs5535"
++
++MODULE_AUTHOR("Ben Gardner <bgardner@wabtec.com>");
++MODULE_DESCRIPTION("AMD CS5535 Driver");
++MODULE_LICENSE("GPL");
++
++/* GPIO base address (from MSR_LBAR_GPIO; MSR 5140000Ch, bits 15:0) */
++u32 cs5535_gpio_base;
++u32 cs5535_gpio_mask;
++EXPORT_SYMBOL(cs5535_gpio_base);
++EXPORT_SYMBOL(cs5535_gpio_mask);
++
++#define MSR_DIVIL_GLD_CAP	0x51400000
++#define DEVID_DIVIL		0x2DF0
++
++#define MSR_LBAR_SMB		0x5140000B
++#define MSR_LBAR_GPIO		0x5140000C
++
++#define MSR_UART1_CONF		0x5140003a
++#define MSR_UART2_CONF		0x5140003e
++
++#define MSR_DIVIL_LEG_IO	0x51400014
++#define MSR_DIVIL_BALL_OPT	0x51400015
++#define MSR_IRQ_MAPY_H		0x51400021
++
++struct gpio_reg_val {
++	u32 reg;
++	u32 val;
++};
++
++#ifdef CS5535_SMB
++static const struct gpio_reg_val gpio_smb[] __initdata =
++{
++	{ 0x04, 0x0000c000 },		/* enable OUTPUT */
++	{ 0x08, 0x0000c000 },		/* enable OpenDrain */
++	{ 0x10, 0x0000c000 },		/* enable OUT_AUX1 */
++	{ 0x14, 0xc0000000UL },		/* disable OUT_AUX2 */
++	{ 0x20, 0x0000c000 },		/* enable INPUT */
++	{ 0x34, 0x0000c000 },		/* enable IN_AUX1 */
++};
++#endif
++
++/* don't touch GPIO 3 & 4 unless UART2 is enabled */
++#ifdef CS5535_UART2
++#define RMSK	0x03180318
++#else
++#define RMSK	0x03000300
++#endif
++
++static const struct gpio_reg_val gpio_uarts[] __initdata =
++{
++	{ 0x00, 0x03180000 & RMSK },	/* output val */
++	{ 0x04, 0x02080110 & RMSK },	/* output enable */
++	{ 0x08, 0x02080110 & RMSK },	/* open-drain enable */
++	{ 0x0c, 0x03180000 & RMSK },	/* invert output */
++	{ 0x10, 0x02080110 & RMSK },	/* Out-Aux-1 */
++	{ 0x14, 0x03180000 & RMSK },	/* Out-Aux-2 */
++	{ 0x18, 0x03180000 & RMSK },	/* Pull-Up */
++	{ 0x1c, 0x03180000 & RMSK },	/* Pull-Down */
++	{ 0x20, 0x01100208 & RMSK },	/* Input enable */
++	{ 0x24, 0x03180000 & RMSK },	/* invert */
++	{ 0x28, 0x03180000 & RMSK },	/* filter */
++	{ 0x2c, 0x03180000 & RMSK },	/* event-count */
++	{ 0x34, 0x01100208 & RMSK },	/* in-aux1 */
++	{ 0x38, 0x03180000 & RMSK },	/* events */
++	{ 0x40, 0x03180000 & RMSK },	/* Input Pos Edge */
++	{ 0x44, 0x03180000 & RMSK },	/* Input Neg Edge */
++};
++
++static int __init init_cs5535_divil(void)
++{
++	u32 low32;
++	u32 high32;
++	int idx;
++
++	/* Check the DIVIL device ID for validation */
++	rdmsr(MSR_DIVIL_GLD_CAP, low32, high32);
++	if ((high32 != 0) || ((low32 >> 8) != DEVID_DIVIL)) {
++		printk(KERN_WARNING NAME ": DIVIL device not found\n");
++		return -ENODEV;
++	}
++
++	/* Grab the GPIO I/O range */
++	rdmsr(MSR_LBAR_GPIO, low32, high32);
++	cs5535_gpio_base = low32 & 0x0000ff00;
++
++	/* Check the mask and whether GPIO is enabled */
++	if (high32 != 0x0000f001) {
++		/* TODO: enable GPIO IO mappings via LBAR */
++		printk(KERN_WARNING NAME ": GPIO not enabled\n");
++		return -ENODEV;
++	}
++
++	/* GPIO pins 31-29,23 are reserved, 22-16 are used for LPC,
++	 * 9,8 are used for UART1 */
++	cs5535_gpio_mask =  ~0xe0ff0300UL;
++
++#ifdef CS5535_SMB
++	/* GPIO pins 14 & 15 are used for SMBus */
++	cs5535_gpio_mask &= ~0x0000c000UL;
++
++	/* Grab & reserve the SMB I/O range */
++	rdmsr(MSR_LBAR_SMB, low32, high32);
++
++	/* Check the mask and whether SMB is enabled */
++	if (high32 != 0x0000F001) {
++		/* TODO: enable SMB IO mappings via LBAR */
++		printk(KERN_WARNING NAME ": SMBus not enabled\n");
++		return -ENODEV;
++	}
++
++	/* Configure GPIO 14 & 15 to do SMB/ACB/I2C */
++	for (idx = 0; idx < ARRAY_SIZE(gpio_smb); idx++) {
++		outl(gpio_smb[idx].val,
++		     gpio_smb[idx].reg + cs5535_gpio_base);
++	}
++#endif	/* CS5535_SMB */
++
++	/* Configure GPIO to do UART1 and maybe UART2 */
++	for (idx = 0; idx < ARRAY_SIZE(gpio_uarts); idx++) {
++		outl(gpio_uarts[idx].val,
++		     gpio_uarts[idx].reg + cs5535_gpio_base);
++	}
++
++	/* Set UART1 base address to 0x3f8 */
++	rdmsr(MSR_DIVIL_LEG_IO, low32, high32);
++	low32 &= 0xfff8ffffUL;		/* UART1 base IO */
++	low32 |= 0x00070000;		/* 0x3F8 */
++	wrmsr(MSR_DIVIL_LEG_IO, low32, high32);
++
++	/* Set UART1 interrupt to 4 */
++	rdmsr(MSR_IRQ_MAPY_H, low32, high32);
++	low32 &= 0xf0ffffffUL;		/* UART1 is on MAPY-14 */
++	low32 |= 0x04000000;		/* IRQ 4 */
++	wrmsr(MSR_IRQ_MAPY_H, low32, high32);
++
++	/* Set up UART1 as a NS15560A */
++	wrmsr(MSR_UART1_CONF, 0x12, 0);
++
++#ifdef CS5535_UART2
++	/* GPIO pins 3 & 4 are used for UART2 */
++	cs5535_gpio_mask &= ~0x00000018UL;
++
++	/* Set UART2 base address to 0x2f8 */
++	rdmsr(MSR_DIVIL_LEG_IO, low32, high32);
++	low32 &= 0xff8fffffUL;		/* UART2 base IO */
++	low32 |= 0x00500000;		/* 0x2F8 */
++	wrmsr(MSR_DIVIL_LEG_IO, low32, high32);
++
++	/* Set UART1 interrupt to 3 */
++	rdmsr(MSR_IRQ_MAPY_H, low32, high32);
++	low32 &= 0x0fffffffUL;		/* UART2 is on MAPY-15 */
++	low32 |= 0x30000000;		/* IRQ 3 */
++	wrmsr(MSR_IRQ_MAPY_H, low32, high32);
++
++	/* Set up UART2 as a NS15560A */
++	wrmsr(MSR_UART2_CONF, 0x12, 0);
++#endif	/* CS5535_UART2 */
++
++	printk(KERN_INFO NAME ": GPIO=%#x Mask=%#x\n",
++	       cs5535_gpio_base, cs5535_gpio_mask);
++
++	return 0;
++}
++
++subsys_initcall(init_cs5535_divil);
++
+Index: linux-2.6.14/arch/i386/Kconfig
+===================================================================
+--- linux-2.6.14.orig/arch/i386/Kconfig
++++ linux-2.6.14/arch/i386/Kconfig
+@@ -336,6 +336,33 @@ config I8K
+ 	  Say Y if you intend to run this kernel on a Dell Inspiron 8000.
+ 	  Say N otherwise.
+ 
++config CS5535
++	tristate "AMD CS5535 (Geode Companion Device) support"
++	help
++	  This provides basic support for the CS5535 Companion Chip for
++	  the AMD Geode processor.
++
++	  If you don't know what to do here, say N.
++
++config CS5535_SMB
++	bool "Enable CS5535 SMBus/Access.Bus/I2C"
++	depends on CS5535
++	default y
++	help
++	  Choosing this will configure the CS5535 GPIO pins 14 & 15 for SMB.
++	  Select I2C_CS5535 under i2c to build the SMB/I2C driver.
++
++	  Say Y if you intend to use the SMBus.
++
++config CS5535_UART2
++	bool "Enable UART2"
++	depends on CS5535
++	default y
++	help
++	  By default, CS5535 GPIO pins 3 & 4 are configured for DDC.
++
++	  Say Y to configure them as UART2 instead.
++
+ config X86_REBOOTFIXUPS
+ 	bool "Enable X86 board specific fixups for reboot"
+ 	depends on X86
+Index: linux-2.6.14/arch/i386/kernel/Makefile
+===================================================================
+--- linux-2.6.14.orig/arch/i386/kernel/Makefile
++++ linux-2.6.14/arch/i386/kernel/Makefile
+@@ -42,6 +42,14 @@ EXTRA_AFLAGS   := -traditional
+ 
+ obj-$(CONFIG_SCx200)		+= scx200.o
+ 
++obj-$(CONFIG_CS5535)		+= cs5535.o
++ifeq ($(CONFIG_CS5535_SMB), y)
++EXTRA_CFLAGS += -DCS5535_SMB
++endif
++ifeq ($(CONFIG_CS5535_UART2), y)
++EXTRA_CFLAGS += -DCS5535_UART2
++endif
++
+ # vsyscall.o contains the vsyscall DSO images as __initdata.
+ # We must build both images before we can assemble it.
+ # Note: kbuild does not track this dependency due to usage of .incbin
+
+------=_Part_1948_15531274.1133976669519--

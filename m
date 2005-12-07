@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVLGPu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbVLGPxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbVLGPu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 10:50:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVLGPu5
+	id S1751164AbVLGPxx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 10:53:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVLGPxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 10:50:57 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21514 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751155AbVLGPu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 10:50:56 -0500
-Date: Wed, 7 Dec 2005 15:50:34 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jason Dravet <dravet@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: wrong number of serial port detected
-Message-ID: <20051207155034.GB6793@flint.arm.linux.org.uk>
-Mail-Followup-To: Jason Dravet <dravet@hotmail.com>,
-	linux-kernel@vger.kernel.org
-References: <BAY103-F1629FE16D5F4DBB7B16524DF430@phx.gbl>
+	Wed, 7 Dec 2005 10:53:53 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:24997 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1751164AbVLGPxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 10:53:52 -0500
+Date: Wed, 7 Dec 2005 15:53:48 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Shaohua Li <shaohua.li@intel.com>, linux-ide <linux-ide@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, pavel <pavel@ucw.cz>,
+       Len Brown <len.brown@intel.com>, akpm <akpm@osdl.org>
+Subject: Re: [RFC]add ACPI hooks for IDE suspend/resume
+Message-ID: <20051207155348.GB17371@srcf.ucam.org>
+References: <1133849404.3026.10.camel@sli10-mobl.sh.intel.com> <20051206222001.GA14171@srcf.ucam.org> <58cb370e0512070017u606ee22fse207b9a859856dd4@mail.gmail.com> <20051207131454.GA16558@srcf.ucam.org> <58cb370e0512070619k17022317v8e871dc3f9cafb9@mail.gmail.com> <20051207143337.GA16938@srcf.ucam.org> <58cb370e0512070645o78569e82y63483a9ae5511f52@mail.gmail.com> <20051207145811.GA17119@srcf.ucam.org> <58cb370e0512070744w6a820f72h853783c851b580c4@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <BAY103-F1629FE16D5F4DBB7B16524DF430@phx.gbl>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <58cb370e0512070744w6a820f72h853783c851b580c4@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 09:44:29AM -0600, Jason Dravet wrote:
-> So I ask this mailing list Can the kernel detect the proper number of 
-> serial ports or not?
+On Wed, Dec 07, 2005 at 04:44:39PM +0100, Bartlomiej Zolnierkiewicz wrote:
 
-It does detect serial ports found in the machine.
+> PCI device will get re-configured indirectly by ide_complete_power_step()
+> which is calling hwif->ide_dma_check() (piix_config_drive_xfer_rate).
 
-However, it _always_ offers the configured number of serial devices.
-This is to allow folk whose ports are not autodetected to configure
-them appropriately via the setserial command.  If they were not
-available, they could not configure them.
+Ah, right - which is /after/ the failure I see, so it's not surprising 
+that it doesn't work :)
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Matthew Garrett | mjg59@srcf.ucam.org

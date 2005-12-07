@@ -1,69 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbVLGFaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbVLGFZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932546AbVLGFaL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 00:30:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVLGFaL
+	id S932488AbVLGFZq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 00:25:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVLGFZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 00:30:11 -0500
-Received: from mail.kroah.org ([69.55.234.183]:61854 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932546AbVLGFaK (ORCPT
+	Wed, 7 Dec 2005 00:25:46 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:29852 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932488AbVLGFZq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 00:30:10 -0500
-Date: Tue, 6 Dec 2005 21:29:43 -0800
-From: Greg KH <greg@kroah.com>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: Tim Bird <tim.bird@am.sony.com>, Dave Airlie <airlied@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>, arjan@infradead.org,
-       andrew@walrond.org, linux-kernel@vger.kernel.org, rms@gnu.org
+	Wed, 7 Dec 2005 00:25:46 -0500
+Message-ID: <4396724B.9090408@pobox.com>
+Date: Wed, 07 Dec 2005 00:25:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Wed, 7 Dec 2005 03:06:35 +0100" <grundig@teleline.es>
+CC: Coywolf Qi Hunt <coywolf@gmail.com>, luke-jr@utopios.org,
+       linux-kernel@vger.kernel.org, rms@gnu.org
 Subject: Re: Linux in a binary world... a doomsday scenario
-Message-ID: <20051207052943.GB21229@kroah.com>
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com> <4394DA1D.3090007@am.sony.com> <20051206040820.GB26602@kroah.com> <2cd57c900512052358m5b631204i@mail.gmail.com> <20051206161131.GB2088@kroah.com> <2cd57c900512061738l2f19aa54x@mail.gmail.com> <20051207024000.GB19746@kroah.com> <2cd57c900512061923u1ce526c8p@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2cd57c900512061923u1ce526c8p@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>	<20051206040820.GB26602@kroah.com>	<2cd57c900512052358m5b631204i@mail.gmail.com>	<200512061856.42493.luke-jr@utopios.org>	<2cd57c900512061742s28f57b5eu@mail.gmail.com> <20051207030635.8d0a24c1.grundig@teleline.es>
+In-Reply-To: <20051207030635.8d0a24c1.grundig@teleline.es>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Wed, 7 Dec 2005 03:06:35 +0100 wrote: > different
+	thing. bios and firmware is pretty much part of the hardware, > pretty
+	much like the chips' internal design: it just "does its work". >
+	There's no of point on having open source bioses/firmware if you don't
+	> have the design docs and all the related hardware info aswell. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 11:23:37AM +0800, Coywolf Qi Hunt wrote:
-> 2005/12/7, Greg KH <greg@kroah.com>:
-> > On Wed, Dec 07, 2005 at 09:38:30AM +0800, Coywolf Qi Hunt wrote:
-> > > 2005/12/7, Greg KH <greg@kroah.com>:
-> > > > And no kernel developers are forcing anyone to use Linux.  If they don't
-> > > > like it for whatever reasons, there are other alternatives...
-> > >
-> > > AFAIK, no proprietary software vendors are forcing any1 to buy their
-> > > proprietary software. Still you are speaking in a monopoly tone!
-> >
-> > How is the statement, "If you don't trust the intelligence of the Linux
-> > kernel developers, then don't use the Linux kernel." a monopolistic
-> > tone?
-> 
-> The fact is Linux supports more hardware now. Some *BSD users turn to
-> Linux in order to drive their hardware for the _same_ reason as users
-> turn to windows. That is really a monopolistic position.
+Wed, 7 Dec 2005 03:06:35 +0100 wrote:
+> different thing. bios and firmware is pretty much part of the hardware,
+> pretty much like the chips' internal design: it just "does its work".
+> There's no of point on having open source bioses/firmware if you don't
+> have the design docs and all the related hardware info aswell.
 
-No, not at all:
-	mo·nop·o·ly
-	Function: noun
-	1 : exclusive control of a particular market that is marked by
-	    the power to control prices and exclude competition and that
-	    esp. is developed willfully rather than as the result of
-	    superior products or skill.
-	2 : one that has a monopoly
+True for firmware, false for BIOS.
 
-	Source: Merriam-Webster's Dictionary of Law, © 1996 Merriam-Webster, Inc.
+	Jeff
 
-I think our "superior product and skill" is what makes us not a
-monopoly :)
 
-Besides, the *BSD developers routinely use our code to write their own
-drivers (looking at how things are done) so in the end, having Linux
-support a device helps them out too.  So the "exclude competition"
-portion of the above definition is also false...
-
-thanks,
-
-greg k-h

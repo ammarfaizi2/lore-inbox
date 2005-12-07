@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751804AbVLGWeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbVLGWeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751804AbVLGWeY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 17:34:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751802AbVLGWeY
+	id S1030381AbVLGWeT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 17:34:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751804AbVLGWeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 17:34:24 -0500
-Received: from serv01.siteground.net ([70.85.91.68]:64922 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1751804AbVLGWeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 17:34:23 -0500
-Date: Wed, 7 Dec 2005 14:34:14 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: linux-kernel@vger.kernel.org
-Cc: discuss@x86-64.org
-Subject: pcibus_to_node value when no pxm info is present for the pci bus
-Message-ID: <20051207223414.GA4493@localhost.localdomain>
+	Wed, 7 Dec 2005 17:34:19 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:26761 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751802AbVLGWeS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 17:34:18 -0500
+Subject: Re: [ckrm-tech] [RFC][Patch 3/5] Per-task delay accounting: Sync
+	block I/O delays
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Shailabh Nagar <nagar@watson.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       LSE <lse-tech@lists.sourceforge.net>,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Jay Lan <jlan@sgi.com>, Jens Axboe <axboe@suse.de>,
+       Suparna Bhattacharya <bsuparna@in.ibm.com>
+In-Reply-To: <439760CE.7050401@watson.ibm.com>
+References: <43975D45.3080801@watson.ibm.com>
+	 <439760CE.7050401@watson.ibm.com>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 14:33:55 -0800
+Message-Id: <1133994835.30387.49.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Most of the arches seem to return -1 for pcibus_to_node if there is no pxm
-kind of proximity information for the pci busses.  Arch specific code on
-those arches check if nodeid >= 0  before using the nodeid for kmalloc_node
-etc. But some code paths in x86_64/i386 does not doe this --
-x86_64/dma_alloc_pages() and e1000 node local descriptor (I am to blame for 
-the second one).  Also, pcibus_to_node seems to be 0 when there is no pxm 
-info available.
+On Wed, 2005-12-07 at 22:23 +0000, Shailabh Nagar wrote:
+> 
+> +       if (-EIOCBQUEUED == ret) {
+> +               __attribute__((unused)) struct timespec start, end;
+> +
 
-The question is, what should be the default pcibus_to_node if there is no
-pxm info? Answer seems like -1 -- in which case dma_alloc_pages and e1000
-driver has to be fixed.
+Those "unused" things suck.  They're really ugly.
 
-Thanks,
-Kiran
+Doesn't making your delay functions into static inlines make the unused
+warnings go away?
+
+-- Dave
+

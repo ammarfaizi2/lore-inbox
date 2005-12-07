@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbVLGLJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbVLGLMt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750852AbVLGLJf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 06:09:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbVLGLJf
+	id S1750855AbVLGLMt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 06:12:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbVLGLMt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 06:09:35 -0500
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:25483 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750851AbVLGLJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 06:09:35 -0500
+	Wed, 7 Dec 2005 06:12:49 -0500
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:40800 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1750853AbVLGLMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 06:12:48 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=qTyulX7UBPn9mvfo8FIcdkmQaTcr7hjPY5bXqYN7YVMn5YFh5Zsl77xVP2P194ouM10dSrYoYHsm/IkqHtcBYuftzeAdII1CfkRyiL6VatFE/LCvcmnEBP3yk37p2EtEOyXsl0W3gB135wokd3+3lzHSbcXMvXCOy3ZAVrvlZos=  ;
-Message-ID: <4396C2EB.1000203@yahoo.com.au>
-Date: Wed, 07 Dec 2005 22:09:31 +1100
+  b=4JCjQFMUtkYIm33QmYyvVkiYkf12deEPRM5G5vQsa5DQfa+m/lUDhvKzUhArch8Tv3AsAqSSCpkFgpsq2C/o6tNJyPhjmVcECQngL19xIfYGyAyAzAuVfHYGLdrQNkG06JDodvucq6yw6SD3g9g6G+tYHfSODfjeszl6b55HGdE=  ;
+Message-ID: <4396C3AC.9000802@yahoo.com.au>
+Date: Wed, 07 Dec 2005 22:12:44 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, zippel@linux-m68k.org,
-       linux-kernel@vger.kernel.org, rostedt@goodmis.org, johnstul@us.ibm.com
-Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
-References: <20051206000126.589223000@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512061628050.1610@scrub.home> <1133908082.16302.93.camel@tglx.tec.linutronix.de> <20051207013122.3f514718.akpm@osdl.org> <20051207101137.GA25796@elte.hu> <4396B81E.4030605@yahoo.com.au> <20051207104900.GA26877@elte.hu>
-In-Reply-To: <20051207104900.GA26877@elte.hu>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Christoph Lameter <christoph@lameter.com>,
+       Rik van Riel <riel@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
+       Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [PATCH 12/16] mm: fold sc.may_writepage and sc.may_swap into
+ sc.flags
+References: <20051207104755.177435000@localhost.localdomain> <20051207105154.142779000@localhost.localdomain> <4396BB27.50104@yahoo.com.au> <20051207111117.GA8001@mail.ustc.edu.cn>
+In-Reply-To: <20051207111117.GA8001@mail.ustc.edu.cn>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Wu Fengguang wrote:
+> On Wed, Dec 07, 2005 at 09:36:23PM +1100, Nick Piggin wrote:
 > 
-> 
->>Ingo Molnar wrote:
+>>Wu Fengguang wrote:
 >>
->>
->>>so i believe that:
->>>
->>>	- 'struct ktimer', 'struct ktimeout'
->>>
->>>is in theory superior naming, compared to:
->>>
->>>	- 'struct ptimer', 'struct timer_list'
+>>>Fold bool values into flags to make struct scan_control more compact.
 >>>
 >>
->>Just curious -- why the "k" thing?
+>>Probably not a bad idea (although you haven't done anything for 64-bit
+>>archs, yet)... do we wait until one more flag wants to be added?
 > 
 > 
-> yeah. 'struct timer' and 'struct timeout' is even better. I tried it on 
+> I did this to hold some more debug flags :)
 
-Oh good, glad you think so :)
+Yes, but if they make sense for the current kernel too, it reduces
+the peripheral noise out of your patchset... which helps everyone :)
 
-> real code and sometimes it looked a bit funny: often we have a 'timeout' 
-> parameter somewhere that is a scalar or a timeval/timespec. So at least 
+> I'll make it a standalone patch, too.
+> 
 
-Sure... hmm, the names timeout and timer themselves have something
-vagely wrong about them, but I can't quite place my finger on it,
-not a real worry though...
-
-Maybe it is that timeout is an end result, but timer is a mechanism.
-So maybe it should be 'struct interval', 'struct timeout';
-or 'struct timer', 'struct timeout_timer'.
-
-But I don't know really, it isn't a big deal.
-
-Nick
+Thanks. I don't have strong feelings either way, but I had always
+been meaning to do something like this if we picked up another flag.
 
 -- 
 SUSE Labs, Novell Inc.

@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVLGUKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbVLGUKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbVLGUKw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 15:10:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbVLGUKw
+	id S1750947AbVLGUKo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 15:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbVLGUKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 15:10:52 -0500
-Received: from smtp1-g19.free.fr ([212.27.42.27]:38093 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750832AbVLGUKv (ORCPT
+	Wed, 7 Dec 2005 15:10:44 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:53943 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1750832AbVLGUKn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 15:10:51 -0500
-Message-ID: <4397418E.3070400@droids-corp.org>
-Date: Wed, 07 Dec 2005 21:09:50 +0100
-From: Olivier MATZ <zer0@droids-corp.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
-X-Accept-Language: en-us, en
+	Wed, 7 Dec 2005 15:10:43 -0500
+Date: Wed, 7 Dec 2005 21:10:29 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Denis Vlasenko <vda@ilport.com.ua>
+cc: Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux in a binary world... a doomsday scenario
+In-Reply-To: <200512061426.37287.vda@ilport.com.ua>
+Message-ID: <Pine.LNX.4.62.0512072109360.24915@pademelon.sonytel.be>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+ <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random>
+ <200512061426.37287.vda@ilport.com.ua>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] asm-i386 : config.h should not be included out of kernel
-References: <4395F405.9010107@droids-corp.org> <200512062211.40142.arnd@arndb.de> <43971BD5.6040601@droids-corp.org> <20051207191030.GA7585@mars.ravnborg.org>
-In-Reply-To: <20051207191030.GA7585@mars.ravnborg.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+On Tue, 6 Dec 2005, Denis Vlasenko wrote:
+> On Tuesday 06 December 2005 03:18, Andrea Arcangeli wrote:
+> > On Mon, Dec 05, 2005 at 04:18:51AM -0800, William Lee Irwin III wrote:
+> > > The December 6 event is extraordinarily unlikely. What's vastly more
+> > > likely is consistent "erosion" over time. First the 3D video drivers,
+> > > then the wireless network drivers, then the fakeraid drivers, and so on.
+> > 
+> > I agree about the erosion.
+> > 
+> > I am convinced that the only way to stop the erosion is to totally stop
+> > buying hardware that has only binary only drivers (unless you buy it to
+> > create an open source driver or to reverse engineer the binary only
+> > driver of course! ;).
+> 
+> I'm afraid there is not enough Linux users in desktop/laptop market
+> for vendors to notice.
+> 
+> How about refusing binary-only modules instead? I mean, maybe
 
-> If you look at the commandline passed to gcc you will notice -include
-> include/linux/autoconf.h which tell gcc to pull in autoconf.h.
-> So it is no longer required to include config.h.
+You mean, call panic() if module license not acceptable? Nice!
 
-I'm not sure. On my 2.6.14.3, this is a compilation line :
+Gr{oetje,eeting}s,
 
-gcc -m32 -Wp,-MD,kernel/.sys.o.d  -nostdinc -isystem
-/usr/lib/gcc-lib/i486-linux-gnu/3.3.6/include -D__KERNEL__ -Iinclude
--Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -fno-strict-aliasing
--fno-common -ffreestanding -Os     -fno-omit-frame-pointer
--fno-optimize-sibling-calls -g -pipe -msoft-float
--mpreferred-stack-boundary=2  -march=i686 -mregparm=3
--Iinclude/asm-i386/mach-default      -DKBUILD_BASENAME=sys
--DKBUILD_MODNAME=sys -c -o kernel/.tmp_sys.o kernel/sys.c
+						Geert
 
-Moreover, if I try to compile a C file which only define a variable and
-assign it to a CONFIG_XXX, it doesn't work. Did I do something wrong ?
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Olivier
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

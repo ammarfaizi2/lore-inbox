@@ -1,92 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030378AbVLGV4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbVLGV6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030378AbVLGV4i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 16:56:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030379AbVLGV4i
+	id S1030387AbVLGV6i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 16:58:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVLGV6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 16:56:38 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:29137 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030378AbVLGV4h (ORCPT
+	Wed, 7 Dec 2005 16:58:38 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:44689 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1030383AbVLGV6h convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 16:56:37 -0500
-Date: Wed, 7 Dec 2005 13:55:42 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, lhms-devel@lists.sourceforge.net
-Subject: [PATCH] swap migration: Fix lru drain
-Message-ID: <Pine.LNX.4.62.0512071351010.25527@schroedinger.engr.sgi.com>
+	Wed, 7 Dec 2005 16:58:37 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC]add ACPI hooks for IDE suspend/resume
+Date: Thu, 8 Dec 2005 05:58:14 +0800
+Message-ID: <59D45D057E9702469E5775CBB56411F101082713@pdsmsx406>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC]add ACPI hooks for IDE suspend/resume
+thread-index: AcX7Yozn0OS5rWtWS+SjMYbrjv+TAwAFl0dA
+From: "Li, Shaohua" <shaohua.li@intel.com>
+To: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Matthew Garrett" <mjg59@srcf.ucam.org>,
+       "linux-ide" <linux-ide@vger.kernel.org>,
+       "lkml" <linux-kernel@vger.kernel.org>, "pavel" <pavel@ucw.cz>,
+       "Brown, Len" <len.brown@intel.com>, "akpm" <akpm@osdl.org>
+X-OriginalArrivalTime: 07 Dec 2005 21:58:15.0949 (UTC) FILETIME=[537183D0:01C5FB79]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-isolate_page() currently uses an IPI to notify other processors that the lru
-caches need to be drained if the page cannot be found on the LRU. The IPI
-interrupt may interrupt a processor that is just processing lru requests
-and cause a race condition.
+Hi,
+>
+>On 12/7/05, Shaohua Li <shaohua.li@intel.com> wrote:
+>> On Wed, 2005-12-07 at 16:49 +0100, Bartlomiej Zolnierkiewicz wrote:
+>> > On 12/7/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>> > > On Mer, 2005-12-07 at 15:45 +0100, Bartlomiej Zolnierkiewicz
+wrote:
+>> > > > OK, I understand it now - when using 'ide-generic' host driver
+for
+>IDE
+>> > > > PCI device, resume fails (for obvious reason - IDE PCI device
+is
+>not
+>> > > > re-configured) and this patch fixes it through using ACPI
+methods.
+>> >
+>> > I was talking about bugzilla bug #5604.
+>> Sorry for my ignorance in IDE side. From the ACPI spec, there isn't a
+>> generic way to save/restore IDE's configuration. That's why ACPI
+>> provides such methods. I suppose all IDE drivers need call the
+methods,
+>> wrong?
+>
+>From the hardware POV:
+>* there is generic way to save/restores IDE device's configuration
+>* there is no generic way to save/restore IDE controller's
+configuration
+>
+>From the software POV what we only do currently is setting controller
+>and drive for a correct transfer mode by using host driver specific
+>callback
+>(in case of using 'ide-generic' there is no such callback).
+>
+>> > > Even in the piix case some devices need it because the bios wants
+to
+>> > > issue commands such as password control if the laptop is set up
+in
+>> > > secure modes.
+>> >
+>> > I completely agree.  However at the moment this patch doesn't seem
+>> > to issue any ATA commands (code is commented out in _GTF) so
+>> > this is not a case for bugzilla bug #5604.
+>> I actually tried to invoke ATA commands using IDE APIs, but can't
+find
+>> any available one. I'd be very happy if you can give me any hint how
+to
+>> do it or even you can fix it.
+>
+>Probably do_rw_taskfile() is the method you want to use, you also need
+>to place invoking of ACPI provided ATA commands in the right place in
+>the IDE PM state machine [ ide_{start,complete}_power_step() ].
+>
+>PS1 Please don't use taskfile_lib_get_identify(), drive->id
+>should contain valid ID - if it doesn't it is a BUG.
+>
+>PS2 Have you seen libata ACPI patches by Randy?
+>Maybe some of the code dealing with ACPI can be put to
+><linux/ata.h> and be shared between IDE and libata drivers?
+Thanks a lot! I'll try your suggestions after my travel. Hopefully I can
+understand the IDE staffs you mentioned then :).
 
-This patch introduces a new function run_on_each_cpu() that uses the keventd()
-to run the LRU draining on each processor. Processors disable preemption
-when dealing the LRU caches (these are per processor) and thus executing
-LRU draining from another process is safe.
-
-Thanks to Lee Schermerhorn <lee.schermerhorn@hp.com> for finding this race
-condition.
-
-This makes the 
-
-preserve-irq-status-in-release_pages-__pagevec_lru_add.patch
-
-in Andrews tree no longer necessary.
-
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.15-rc5-mm1/mm/vmscan.c
-===================================================================
---- linux-2.6.15-rc5-mm1.orig/mm/vmscan.c	2005-12-05 11:32:21.000000000 -0800
-+++ linux-2.6.15-rc5-mm1/mm/vmscan.c	2005-12-05 13:02:27.000000000 -0800
-@@ -1038,7 +1038,7 @@ redo:
- 		 * Maybe this page is still waiting for a cpu to drain it
- 		 * from one of the lru lists?
- 		 */
--		on_each_cpu(lru_add_drain_per_cpu, NULL, 0, 1);
-+		schedule_on_each_cpu(lru_add_drain_per_cpu, NULL);
- 		if (PageLRU(page))
- 			goto redo;
- 	}
-Index: linux-2.6.15-rc5-mm1/include/linux/workqueue.h
-===================================================================
---- linux-2.6.15-rc5-mm1.orig/include/linux/workqueue.h	2005-12-03 21:10:42.000000000 -0800
-+++ linux-2.6.15-rc5-mm1/include/linux/workqueue.h	2005-12-05 13:02:07.000000000 -0800
-@@ -65,6 +65,7 @@ extern int FASTCALL(schedule_work(struct
- extern int FASTCALL(schedule_delayed_work(struct work_struct *work, unsigned long delay));
- 
- extern int schedule_delayed_work_on(int cpu, struct work_struct *work, unsigned long delay);
-+extern void schedule_on_each_cpu(void (*func)(void *info), void *info);
- extern void flush_scheduled_work(void);
- extern int current_is_keventd(void);
- extern int keventd_up(void);
-Index: linux-2.6.15-rc5-mm1/kernel/workqueue.c
-===================================================================
---- linux-2.6.15-rc5-mm1.orig/kernel/workqueue.c	2005-12-05 11:15:24.000000000 -0800
-+++ linux-2.6.15-rc5-mm1/kernel/workqueue.c	2005-12-06 17:50:44.000000000 -0800
-@@ -424,6 +424,19 @@ int schedule_delayed_work_on(int cpu,
- 	return ret;
- }
- 
-+void schedule_on_each_cpu(void (*func) (void *info), void *info)
-+{
-+	int cpu;
-+	struct work_struct * work = kmalloc(NR_CPUS * sizeof(struct work_struct), GFP_KERNEL);
-+
-+	for_each_online_cpu(cpu) {
-+		INIT_WORK(work + cpu, func, info);
-+		__queue_work(per_cpu_ptr(keventd_wq->cpu_wq, cpu), work + cpu);
-+	}
-+	flush_workqueue(keventd_wq);
-+	kfree(work);
-+}
-+
- void flush_scheduled_work(void)
- {
- 	flush_workqueue(keventd_wq);
+Thanks,
+Shaohua

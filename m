@@ -1,49 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbVLGBmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbVLGByf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965049AbVLGBmY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 20:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbVLGBmY
+	id S1750910AbVLGByf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 20:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbVLGByf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 20:42:24 -0500
-Received: from nproxy.gmail.com ([64.233.182.196]:39454 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965051AbVLGBmX convert rfc822-to-8bit
+	Tue, 6 Dec 2005 20:54:35 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:56027 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750888AbVLGBye
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 20:42:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GwRkuWSf90yiadgAJ9MfPAe55Du2K5JGK3tE4dEI4Mgp5HQndyxF/Q2qIhESrjcsIuSWb2eF4yN2WQgtLcXBXi0iURFmUXCFO/CTguHIK+tRROGxiTL4lUBgxvLj0sR1tME9rBhwxagpOx/0rJQOV7nVGJTrvN5Z+hM+wzU2Fnc=
-Message-ID: <2cd57c900512061742s28f57b5eu@mail.gmail.com>
-Date: Wed, 7 Dec 2005 09:42:22 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Luke-Jr <luke-jr@utopios.org>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, rms@gnu.org
-In-Reply-To: <200512061856.42493.luke-jr@utopios.org>
+	Tue, 6 Dec 2005 20:54:34 -0500
+Message-ID: <439640A1.3030300@us.ibm.com>
+Date: Tue, 06 Dec 2005 17:53:37 -0800
+From: Haren Myneni <haren@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
-	 <20051206040820.GB26602@kroah.com>
-	 <2cd57c900512052358m5b631204i@mail.gmail.com>
-	 <200512061856.42493.luke-jr@utopios.org>
+To: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+Subject: [PATCH] Trivial fix in __alloc_bootmem_core() when there is no free
+ page in first node's memory
+Content-Type: multipart/mixed;
+ boundary="------------010407060102010300050006"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/12/7, Luke-Jr <luke-jr@utopios.org>:
-> On Tuesday 06 December 2005 07:58, Coywolf Qi Hunt wrote:
-> > Your response is nonsense. It has the same logic as saying "If
-> > proprietary software is wrong, why are you using it?".
-> > Everybody are using proprietary software, aren't they?
->
-> No proprietary software here, excluding things such as firmware/BIOS where
-> there is no choice.
+This is a multi-part message in MIME format.
+--------------010407060102010300050006
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Why 'excluding'? You can't deny you are using proprietary software.
-Neither do us.
+Hi,
+    Hitting BUG_ON() in __alloc_bootmem_core() when there is no free 
+page available in the first node's memory. For the case of kdump on 
+PPC64 (Power 4 machine), the captured kernel is used two memory regions 
+- memory for TCE tables (tce-base and tce-size at top of RAM and 
+reserved) and captured kernel memory region (crashk_base and 
+crashk_size). Since we reserve the memory for the first node, we should 
+be returning from __alloc_bootmem_core() to search for the next node 
+(pg_dat).
 
-(cc: rms)
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Currently, find_next_zero_bit() is returning the n^th bit (eidx) when 
+there is no free page. Then, test_bit() is failed since we set 0xff only 
+for the actual size initially (init_bootmem_core()) even though rounded 
+up to one page for bdata->node_bootmem_map. We are hitting the BUG_ON 
+after failing to enter second "for" loop.
+
+Please apply.
+
+Thanks
+Haren
+
+Signed-off-by: Haren Myneni <haren@us.ibm.com>
+
+
+
+
+
+--------------010407060102010300050006
+Content-Type: text/x-patch;
+ name="bootmem_bug_on_fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="bootmem_bug_on_fix.patch"
+
+--- 2.6.15-rc5-git1/mm/bootmem.c.orig	2005-12-14 21:28:46.000000000 -0800
++++ 2.6.15-rc5-git1/mm/bootmem.c	2005-12-14 21:35:54.000000000 -0800
+@@ -204,6 +204,8 @@ restart_scan:
+ 		unsigned long j;
+ 		i = find_next_zero_bit(bdata->node_bootmem_map, eidx, i);
+ 		i = ALIGN(i, incr);
++		if (i >= eidx)
++			break;
+ 		if (test_bit(i, bdata->node_bootmem_map))
+ 			continue;
+ 		for (j = i + 1; j < i + areasize; ++j) {
+
+--------------010407060102010300050006--

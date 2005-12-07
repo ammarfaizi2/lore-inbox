@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbVLGOB2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbVLGOBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751068AbVLGOB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 09:01:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751070AbVLGOB1
+	id S1751053AbVLGOBh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 09:01:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbVLGOBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 09:01:27 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:62180 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751053AbVLGOB1 (ORCPT
+	Wed, 7 Dec 2005 09:01:37 -0500
+Received: from proxy.seznam.cz ([212.80.76.5]:49677 "EHLO proxy.seznam.cz")
+	by vger.kernel.org with ESMTP id S1751053AbVLGOBg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 09:01:27 -0500
-Message-ID: <4396EB2F.3060404@redhat.com>
-Date: Wed, 07 Dec 2005 09:01:19 -0500
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
+	Wed, 7 Dec 2005 09:01:36 -0500
+Message-ID: <4396EB32.4010800@feix.cz>
+Date: Wed, 07 Dec 2005 15:01:22 +0100
+From: Michal Feix <michal@feix.cz>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050716)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Kenny Simpson <theonetruekenny@yahoo.com>
+To: Christoph Hellwig <hch@infradead.org>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: another nfs puzzle
-References: <20051206220448.82860.qmail@web34109.mail.mud.yahoo.com>
-In-Reply-To: <20051206220448.82860.qmail@web34109.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: [SCSI] SCSI block devices larger then 2TB
+References: <4396B795.1000108@feix.cz> <20051207123519.GA17414@infradead.org>
+In-Reply-To: <20051207123519.GA17414@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kenny Simpson wrote:
+>>Greetings!
+>>
+>>Current aic79xxx driver doesn't see SCSI devices larger, then 2TB. It 
+>>fails with READ CAPACITY(16) command. As far as I can understand, we 
+>>already have LBD support in kernel for some time now. So it's only the 
+>>drivers, that need to be fixed? LSI driver is the only one I found 
+>>working with devices over 2TB; I couldn't test any other driver, as I 
+>>don't have the hardware. Is it really so bad, that only LSI chipset and 
+>>maybe few others are capable of seeng such devices?
+> 
+> 
+> I definitly works fine with Qlogic parallel scsi and fibrechannel and emulex
+> fibre channel controllers aswell as lsi/engenio megaraid controllers.
+> 
+> It looks like aci79xx is just broken in that repsect. Unfortunately the
+> driver doesn't have a proper maintainer, we scsi developers put in fixes
+> and cleanups but we don't have the full documentation to fix such complicated
+> issue.  If you have a support contract with Adaptec complain to them.
 
->Hi again,
->  I am seeing some odd behavior with O_DIRECT.  If a file opened with O_DIRECT has a page mmap'd,
->and the file is extended via pwrite, then the mmap'd region seems to get lost - i.e. it neither
->takes up system memory, nor does it get written out.
->  
->
+As we do not have any special support contract with Adaptec, it's 
+probably a dead end. I found some aic79xx driver on Adaptec website for 
+2.6 kernel. It detects full SCSI device capacity, but it hangs 
+ocassionaly when that drive is beeing accessed, so it's unusable for 
+every day use.
 
-I don't think that I understand why or how the kernel allows a file,
-which was opened with O_DIRECT, to be mmap'd.  The use of O_DIRECT
-implies no caching and mmap implies the use of caching.
-
-I do understand that the kernel can flush and invalidate pages in
-the ranges of the i/o operations done, but does it really guarantee
-that a pagein operation won't happen on a page within the range of
-a region of the file being written to using direct i/o?  If it does
-not, then any consistency guarantees are gone and data corruption
-can occur.
-
-    Thanx...
-
-       ps
+Anyway, thanks for the info. And to everyone else, beware of Adaptec 
+SCSI host adapters when using large SCSI arrays... :(

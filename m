@@ -1,114 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030382AbVLGWNJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbVLGWOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030382AbVLGWNJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 17:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030392AbVLGWNJ
+	id S1030393AbVLGWOU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 17:14:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030396AbVLGWOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 17:13:09 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:56013 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030382AbVLGWNH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 17:13:07 -0500
-Message-ID: <43975E6D.9000301@watson.ibm.com>
-Date: Wed, 07 Dec 2005 22:13:01 +0000
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Shailabh Nagar <nagar@watson.ibm.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       lse-tech@lists.sourceforge.net,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Jay Lan <jlan@sgi.com>, Jens Axboe <axboe@suse.de>
-Subject: [RFC][Patch 1/5] nanosecond timestamps and diffs
-References: <43975D45.3080801@watson.ibm.com>
-In-Reply-To: <43975D45.3080801@watson.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 7 Dec 2005 17:14:19 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:47594 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030393AbVLGWOS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 17:14:18 -0500
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>, Paul Jackson <pj@sgi.com>
+In-Reply-To: <1133982048.2869.60.camel@laptopd505.fenrus.org>
+References: <20051114212341.724084000@sergelap>
+	 <m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
+	 <1133977623.24344.31.camel@localhost>
+	 <1133978128.2869.51.camel@laptopd505.fenrus.org>
+	 <1133978996.24344.42.camel@localhost>
+	 <1133982048.2869.60.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 14:13:56 -0800
+Message-Id: <1133993636.30387.41.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add kernel utility functions for
-- nanosecond resolution timestamps, adjusted for lost ticks
-- interval (diff) between two such timestamps, in nanoseconds, adjusting
-  for overflow
+On Wed, 2005-12-07 at 20:00 +0100, Arjan van de Ven wrote:
+> > So, like in the global pidspace (which can see all pids and appears to
+> > applications to be just like normal) you end up returning "kernel" pids
+> > to userspace.  That didn't seem to make sense.  
+> 
+> hmm this is scary. If you don't have "unique" pids inside the kernel a
+> lot of stuff will subtly break. DRM for example (which has the pid
+> inside locking to track ownership and recursion), but I'm sure there's
+> many many cases like that. I guess the address of the task struct is the
+> ultimate unique pid in this sense.... but I suspect the way to get there
+> is first make a ->user_pid field, and switch all userspace visible stuff
+> to that, and then try to get rid of ->pid users one by one by
+> eliminating their uses... 
 
-The timestamp part of this patch is identical to the one proposed by
-Matt Helsley (as part of adding timestamps to process event connectors)
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0512.0/1373.html
+OK, what I'm talking about here is the way that it is done now with
+existing code.  It seems to work and make people happy, but it certainly
+isn't the only possible way to do it.  I'm very open to suggestions. :)
 
-Signed-off-by: Shailabh Nagar <nagar@watson.ibm.com>
+There really are two distinct pid spaces.  Instead of vservers, we tend
+to call the different partitioned areas containers.
 
- include/linux/time.h |   16 ++++++++++++++++
- kernel/time.c        |   22 ++++++++++++++++++++++
- 2 files changed, 38 insertions(+)
+Each container can only see processes in its own container.  The
+exception is the "global container", which has a view of all of the
+system processes.  Having the global container allows you to do things
+like see all of the processes on the whole system with top.
 
-Index: linux-2.6.15-rc5/include/linux/time.h
-===================================================================
---- linux-2.6.15-rc5.orig/include/linux/time.h
-+++ linux-2.6.15-rc5/include/linux/time.h
-@@ -95,6 +95,7 @@ struct itimerval;
- extern int do_setitimer(int which, struct itimerval *value, struct itimerval *ovalue);
- extern int do_getitimer(int which, struct itimerval *value);
- extern void getnstimeofday (struct timespec *tv);
-+extern void getnstimestamp(struct timespec *ts);
+So, the current tsk->pid is still unique.  However, there is also a
+tsk->virtual_pid (or some name) that is unique _inside_ of a container.
+These two pids are completely unrelated.  Having this virtualized pid
+allows you to have the real tsk->pid change without userspace ever
+knowing.
 
- extern struct timespec timespec_trunc(struct timespec t, unsigned gran);
+For example, that tsk->pid might change if you checkpointed a process,
+it crashed, and you restarted it later from the checkpoint.
 
-@@ -113,6 +114,21 @@ set_normalized_timespec (struct timespec
- 	ts->tv_nsec = nsec;
- }
+> but I'm really afraid that if you make the "fake" pid visible to normal
+> kernel code, too much stuff will go bonkers and end up with an eternal
+> stream of security hazards. "Magic" hurts here, and if you don't do
+> magic I don't see a reason to add an abstraction which in itself doesn't
+> mean anything or doesn't abstract anything....
 
-+/*
-+ * timespec_nsdiff - Return difference of two timestamps in nanoseconds
-+ * In the rare case of @end being earlier than @start, return zero
-+ */
-+static inline unsigned long long
-+timespec_nsdiff(struct timespec *start, struct timespec *end)
-+{
-+	long long ret;
-+
-+	ret = end->tv_sec*(1000000000) + end->tv_nsec;
-+	ret -= start->tv_sec*(1000000000) + start->tv_nsec;
-+	if (ret < 0)
-+		return 0;
-+	return ret;
-+}
- #endif /* __KERNEL__ */
+99% of the time, the kernel can deal with the same old tsk->pid that
+it's always dealt with.  Generally, the only times the kernel has to
+worry about the virtualized one is where (as Eric noted) it cross the
+user<->kernel boundary.
 
- #define NFDBITS			__NFDBITS
-Index: linux-2.6.15-rc5/kernel/time.c
-===================================================================
---- linux-2.6.15-rc5.orig/kernel/time.c
-+++ linux-2.6.15-rc5/kernel/time.c
-@@ -561,6 +561,28 @@ void getnstimeofday(struct timespec *tv)
- EXPORT_SYMBOL_GPL(getnstimeofday);
- #endif
+-- Dave
 
-+void getnstimestamp(struct timespec *ts)
-+{
-+	unsigned int seq;
-+	struct timespec wall2mono;
-+
-+	/* synchronize with settimeofday() changes */
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+		getnstimeofday(ts);
-+		wall2mono = wall_to_monotonic;
-+	} while(unlikely(read_seqretry(&xtime_lock, seq)));
-+
-+	/* adjust to monotonicaly-increasing values */
-+	ts->tv_sec += wall2mono.tv_sec;
-+	ts->tv_nsec += wall2mono.tv_nsec;
-+	while (unlikely(ts->tv_nsec >= NSEC_PER_SEC)) {
-+		ts->tv_nsec -= NSEC_PER_SEC;
-+		ts->tv_sec++;
-+	}
-+}
-+EXPORT_SYMBOL_GPL(getnstimestamp);
-+
- #if (BITS_PER_LONG < 64)
- u64 get_jiffies_64(void)
- {

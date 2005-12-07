@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbVLGCG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbVLGCO6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964840AbVLGCG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 21:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbVLGCG6
+	id S964845AbVLGCO6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 21:14:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbVLGCO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 21:06:58 -0500
-Received: from smtp.terra.es ([213.4.129.129]:35713 "EHLO tsmtp1.mail.isp")
-	by vger.kernel.org with ESMTP id S964840AbVLGCG5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 21:06:57 -0500
-Date: Wed, 7 Dec 2005 03:06:35 +0100
-From: "Wed, 7 Dec 2005 03:06:35 +0100" <grundig@teleline.es>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: luke-jr@utopios.org, linux-kernel@vger.kernel.org, rms@gnu.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-Message-Id: <20051207030635.8d0a24c1.grundig@teleline.es>
-In-Reply-To: <2cd57c900512061742s28f57b5eu@mail.gmail.com>
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
-	<20051206040820.GB26602@kroah.com>
-	<2cd57c900512052358m5b631204i@mail.gmail.com>
-	<200512061856.42493.luke-jr@utopios.org>
-	<2cd57c900512061742s28f57b5eu@mail.gmail.com>
-X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.3; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Tue, 6 Dec 2005 21:14:58 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:16795 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964845AbVLGCO6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 21:14:58 -0500
+Message-ID: <43964586.3080300@pobox.com>
+Date: Tue, 06 Dec 2005 21:14:30 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: [PATCH 0/3] x86 PCI domain support
+References: <20051203013904.GA2560@havoc.gtf.org> <20051203031533.GB14247@wotan.suse.de> <4391FC0A.9040202@pobox.com> <20051207003922.GA18528@kroah.com>
+In-Reply-To: <20051207003922.GA18528@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Greg KH wrote: > On Sat, Dec 03, 2005 at 03:11:54PM
+	-0500, Jeff Garzik wrote: > >>The first two patches could go in
+	immediately, the last should probably >>wait a bit... > > > What is the
+	rush? These seem pretty late for the -rc series :) > > I'll send them
+	in after 2.6.15 is out, is that ok? [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Wed, 7 Dec 2005 09:42:22 +0800,
-Coywolf Qi Hunt <coywolf@gmail.com> escribió:
-
-> 2005/12/7, Luke-Jr <luke-jr@utopios.org>:
-> > No proprietary software here, excluding things such as firmware/BIOS where
-> > there is no choice.
+Greg KH wrote:
+> On Sat, Dec 03, 2005 at 03:11:54PM -0500, Jeff Garzik wrote:
 > 
-> Why 'excluding'? You can't deny you are using proprietary software.
-> Neither do us.
+>>The first two patches could go in immediately, the last should probably 
+>>wait a bit...
+> 
+> 
+> What is the rush?  These seem pretty late for the -rc series :)
+> 
+> I'll send them in after 2.6.15 is out, is that ok?
 
-BIOS'es and firmware are not drivers or normal "processes". Firmware
-doesn't deal with the internal kernel's locking for example- is a very
-different thing. bios and firmware is pretty much part of the hardware,
-pretty much like the chips' internal design: it just "does its work".
-There's no of point on having open source bioses/firmware if you don't
-have the design docs and all the related hardware info aswell.
+You were supposed to read my mind :)  "immediately" meant "ok for 
+upstream when -rc cycle closes" :)  The third patch I don't consider 
+ready for upstream, -rc or no.
 
-(IOW: Saying that you'are using "propietary software" because you're
-using a propietary BIOS is wrong, IMO - it's pretty much "propietary 
-hardware" even if its software)
+So post-2.6.15 is quite fine, that's what I expected.
+
+	Jeff
+
+

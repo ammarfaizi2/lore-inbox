@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030377AbVLGVzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbVLGV4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030377AbVLGVzM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 16:55:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030378AbVLGVzL
+	id S1030379AbVLGV4l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 16:56:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030380AbVLGV4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 16:55:11 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30956 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030377AbVLGVzK (ORCPT
+	Wed, 7 Dec 2005 16:56:41 -0500
+Received: from www.eclis.ch ([144.85.15.72]:44687 "EHLO mail.eclis.ch")
+	by vger.kernel.org with ESMTP id S1030379AbVLGV4k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 16:55:10 -0500
-Date: Wed, 7 Dec 2005 22:52:56 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][mm] swsusp: limit image size
-Message-ID: <20051207215256.GI2772@elf.ucw.cz>
-References: <200512072246.06222.rjw@sisk.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512072246.06222.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Wed, 7 Dec 2005 16:56:40 -0500
+Message-ID: <43975A96.9090503@eclis.ch>
+Date: Wed, 07 Dec 2005 22:56:38 +0100
+From: Jean-Christian de Rivaz <jc@eclis.ch>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+Subject: Re: ntp problems
+References: <200512050031.39438.gene.heskett@verizon.net> <200512061622.54583.gene.heskett@verizon.net> <0E093DF2-A72F-4A76-9BF6-8D7E9B1AF31F@mac.com> <200512070108.58466.gene.heskett@verizon.net>
+In-Reply-To: <200512070108.58466.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On St 07-12-05 22:46:05, Rafael J. Wysocki wrote:
-> Hi,
-> 
-> The following patch limits the size of the suspend image to approx. 500 MB,
-> which should improve the overall performance of swsusp on systems with
-> more than 1 GB of RAM.
-> 
-> It introduces the constant IMAGE_SIZE that can be set to the preferred size
-> of the image (in MB) and modifies the memory-shrinking part of
-> swsusp to take this constant into account (500 is the default value
-> of IMAGE_SIZE).
-> 
-> Please apply (Pavel, please ack if that's ok).
+Gene Heskett a écrit :
+> And, acpi is on, and ntpd is happy with the new bios.  Hurrah!
 
-ACK.
+Good news!
 
+I wonder if it would be a good idea to add something into the kernel or 
+into ntpd to alert the users that ntpd can't run normaly because of a 
+too fast drift ? Then a BIOS upgrade could be proposed (especially on a 
+nForce2 system). I don't know if it's even realistc.
+
+Regards,
 -- 
-Thanks, Sharp!
+Jean-Christian de Rivaz

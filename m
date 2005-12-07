@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbVLGTut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030329AbVLGTxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbVLGTut (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 14:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbVLGTut
+	id S1030329AbVLGTxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 14:53:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030330AbVLGTxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 14:50:49 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:13233 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S964930AbVLGTus (ORCPT
+	Wed, 7 Dec 2005 14:53:25 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:4789 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1030329AbVLGTxY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 14:50:48 -0500
-Date: Wed, 7 Dec 2005 14:47:46 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Dirk Steuwer <dirk@steuwer.de>, linux-kernel@vger.kernel.org
-Subject: Re: Runs with Linux (tm)
-Message-ID: <20051207194746.GG533@kvack.org>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org> <loom.20051206T094816-40@post.gmane.org> <20051206104652.GB3354@favonius> <loom.20051206T173458-358@post.gmane.org> <20051207141720.GA533@kvack.org> <1133982741.17901.32.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1133982741.17901.32.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
+	Wed, 7 Dec 2005 14:53:24 -0500
+Date: Wed, 7 Dec 2005 20:53:03 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Arjan van de Ven <arjan@infradead.org>
+cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Rik van Riel <riel@redhat.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux in a binary world... a doomsday scenario
+In-Reply-To: <1133981708.2869.54.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.62.0512072049110.24915@pademelon.sonytel.be>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+ <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random>
+ <1133857767.2858.25.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.63.0512071337560.17172@cuia.boston.redhat.com>
+ <Pine.LNX.4.58.0512071041420.17648@shark.he.net> <1133981708.2869.54.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 02:12:20PM -0500, Lee Revell wrote:
-> If even some "Linux-friendly" hardware manufacturers barely cooperate
-> with the Linux comminuty now what makes you think this would work?
+On Wed, 7 Dec 2005, Arjan van de Ven wrote:
+> > Such lists could tell us not only which devices work (are
+> > supported with open source drivers) but also which devices
+> > are not supported and hence may need attention.
+> > 
+> > There has been some discussion about OSDL attempting to do this.
+> 
+> the biggest pitfal by having this done by a commercial entity or an
+> entity with commercial funding is that there is a LOT of pressure to
+> call things with binary drivers also certified/working. 
+> It has to be an entity that can resist that pressure; if OSDL can,
+> great. But their funding is partially from sources that will try to put
+> that pressure on I suspect...
+> So I would almost rather have a separate "kicked off and supported by
+> OSDL" organisation with its own charter than have OSDL do it itself. I
+> can imagine OSDL feeling the same as well ...
 
-Nothing in life is guaranteed.  But at the very least, I think it would 
-be a good step towards improving the Linux end user experience.  Instead 
-of the unclear mess we have now (Is it supported?  Check with your 
-vendor!), we would be able to say "Look for the Linux Certified logo".  
-Combine that with a standard format for source code driver disks, and 
-it would be a good step in the right direction.
+What about linux/Documentation/, which is maintained by us (as in `the
+community', not by `commercial entity that can be pressured')?
 
-> Christ, some vendors don't bother to get their Windows drivers
-> certified.
+At least for a `positive' lists it's not that difficult: if the driver is in
+the tree, just add the supported hardware to the list in linux/Documentation/.
 
-Maybe our lower cost will make it easier to entice hardware vendors.  As 
-far as I know, the requirements for Windows driver certification are 
-pretty heft as vendors have to pay for the cost of future driver 
-maintenence.  In the Linux case we'll make it easier on the vendors as 
-our maintenence component comes from having the source code and many 
-hands amongst the community.
+Whether we want to put a `negative' list there as well is another question.
+Perhaps some form of `to do' or `drivers wanted' list?
 
-		-ben
--- 
-"You know, I've seen some crystals do some pretty trippy shit, man."
-Don't Email: <dont@kvack.org>.
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

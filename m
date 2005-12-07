@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbVLGMgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbVLGMhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750989AbVLGMgT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 07:36:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbVLGMgS
+	id S1750954AbVLGMhe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 07:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbVLGMhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 07:36:18 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:41695 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750987AbVLGMgS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 07:36:18 -0500
-Message-ID: <4396D814.5070809@aitel.hist.no>
-Date: Wed, 07 Dec 2005 13:39:48 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-CC: Michael Poole <mdpoole@troilus.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512051826.06703.andrew@walrond.org> <1133817575.11280.18.camel@localhost.localdomain> <1133817888.9356.78.camel@laptopd505.fenrus.org> <1133819684.11280.38.camel@localhost.localdomain> <4394D396.1020102@am.sony.com> <20051206041215.GC26602@kroah.com> <87iru2c0zc.fsf@graviton.dyn.troilus.org> <20051206172153.GB22502@kvack.org>
-In-Reply-To: <20051206172153.GB22502@kvack.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Dec 2005 07:37:34 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:26560 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1750954AbVLGMhd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 07:37:33 -0500
+Message-Id: <200512070045.jB70jNJU004201@laptop11.inf.utfsm.cl>
+To: Dirk Steuwer <dirk@steuwer.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario 
+In-Reply-To: Message from Dirk Steuwer <dirk@steuwer.de> 
+   of "Tue, 06 Dec 2005 16:41:44 -0000." <loom.20051206T173458-358@post.gmane.org> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Tue, 06 Dec 2005 21:45:23 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 07 Dec 2005 09:37:28 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
+Dirk Steuwer <dirk@steuwer.de> wrote:
 
->On Mon, Dec 05, 2005 at 11:18:15PM -0500, Michael Poole wrote:
->  
->
->>Besides, if the act of linking is what makes the derivative work,
->>there is no problem: The GPL allows a user to make any modifications
->>or combinations or derivatives whatsoever, and only imposes
->>requirements when the result is distributed.  The linking of the two
->>works occurs only on the end user's machine.
->>    
->>
->
->But if it's a module, it's probably been compiled against kernel headers.  
->Last time I checked, header files were covered by the GPL unless explicitly 
->placed under a more permissive license.  How do you use something like 
->spinlocks without compiling in GPL code to a module?
->  
->
-They can always claim that reverse engineering works both ways.
-Linux spinlocks can be reverse engineered, or they can search
-the mailing list archives for detailed explanations. :-/
+[...]
 
-Helge Hafting
+> Yes, but there isn't and won't be much recognition - every company does
+> its own thing. And how many people buy online all the time? But even
+> then, a genery "runs with Linux" Logo would be great.
+
+Problem is that there are certain monopolists who would like everybody to
+think there is nothing else around... besides, "works with Linux" (or BSD,
+or whatever) doesn't say anything if it is "includes a driver for Red Hat's
+2.2.x-y". "Works with Windows" doesn't say anything either (even if MSFT
+themselves certifies games for running on Win98 and later it doesn't mean
+they will run on WinNT)
+
+>                                                       If a company's
+> product is not certified, its not considered by Linux customers.
+
+Doesn't work, as almost nothing is "Linux certified" today.
+
+>                                                                  Also you
+> could hold up figures from certified hardware to impress and argue
+> against companies that think there is no real market for Linux.
+
+We here having any credible figures will happen /long/ after the affected
+company has smelled the coffee and taken appropiate steps. They /do/ care
+about who buys their stuff. It just is too little for now to make any big
+difference. Having the figures here won't do any difference.
+
+>                                                                  There
+> needs to be a way to breack out of the chicken and egg problem - no linux
+> market, no linux hardware.
+
+There is hardware that works well enough with Linux, thank you so much.
+Some is broken, some doesn't work at all.
+
+> Corporate Customers can afford to do research, expert staff does the
+> buying. But the average homeuser? He needs a generic sign, as simple as
+> that.
+
+It would be very nice, true. But just isn't here yet.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

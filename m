@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbVLGLDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVLGLCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbVLGLDA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 06:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbVLGLDA
+	id S1750837AbVLGLCq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 06:02:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbVLGLCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 06:03:00 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33482 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750840AbVLGLC7 (ORCPT
+	Wed, 7 Dec 2005 06:02:46 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:57254 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S1750837AbVLGLCq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 06:02:59 -0500
-Date: Wed, 7 Dec 2005 12:02:46 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Could not suspend device [VIA UHCI USB controller]: error -22
-Message-ID: <20051207110246.GA2563@elf.ucw.cz>
-References: <43923479.3020305@tls.msk.ru> <20051205132143.GC7478@elf.ucw.cz> <4396B9DE.40908@tls.msk.ru>
+	Wed, 7 Dec 2005 06:02:46 -0500
+Date: Wed, 7 Dec 2005 12:02:44 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Jan De Luyck <lkml@kcore.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.14.2] port smartcard driver to new pcmcia infrastructure?
+Message-ID: <20051207110244.GA12569@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Jan De Luyck <lkml@kcore.org>, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4396B9DE.40908@tls.msk.ru>
-X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >>Also, "suspend to mem" does just nothing, -- the same as "suspend to disk"
-> >>(but for disk, it never worked at all as stated above).
-> > 
-> > 
-> > Can you quote exact messages? Suspend to mem should not have problems
-> > without 4MB pages, as it does not do any pagetables related magic. If
-> > it does include same check, it is bug and should be easy to fix.
-> 
-> Hmm.. There's no messages, no at all.
-> 
->  echo mem > /sys/power/state
-> 
-> does exactly nothing.  When writing 'suspend' to that file, the
->system
+> I'm currently looking into getting my smartcard driver to work. O2Micro was 
+> nice enough to opensource the driver [1]. The driver compiles without 
+> problems, and can be insmod' without triggering any problem. The main problem 
+> lies that it doesn't seem to be calling the ozscrx_attach function, which 
+> sets up the irq's and everything, thus causing the subsequent open of the 
+> device to fail with -ENODEV.
+>
+> Does anyone have any idea how i can continue debugging this?
 
-I think you mean 'standby'?
+The problem is that one, possibly two of the required changes haven't yet
+propagated to their driver.
 
-> at least tries to do something (now with 2.6.15-rc4 it completes the
-> syspend procedure; but it wakes up again in a secound or two), with all
-> the messages et al, but not 'mem' or 'disk' - no messages at all.
+* event handler initialization in struct pcmcia_driver (as of 2.6.13)
+   The event handler is notified of all events, and must be initialized
+   as the event() callback in the driver's struct pcmcia_driver.
+Example patch:
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=1e212f3645a6b355de8c43a23376bc0e2ac49a63
 
-You are hitting something else than missing 4MB pages:
+and
 
-static inline int
-arch_prepare_suspend(void)
-{
-        /* If you want to make non-PSE machine work, turn off paging
-           in swsusp_arch_suspend. swsusp_pg_dir should have identity
-mapping, so
-           it could work...  */
-        if (!cpu_has_pse) {
-                printk(KERN_ERR "PSE is required for swsusp.\n");
-                return -EPERM;
-        }
-        return 0;
-}
+* in-kernel device<->driver matching (as of 2.6.13)
+   PCMCIA devices and their correct drivers can now be matched in
+   kernelspace. See 'devicetable.txt' for details.
+Example patch:
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff;h=cdcc46e1f11d6dfbf4e741d7c77ec83a4b7c09ac;hp=f3ea4a9f2bf196a0b884cde3d44a2cec27f9db13;hb=ce8a0037e110c1f4ec2fac7a3d791043e4e38cfc;f=drivers/net/pcmcia/pcnet_cs.c
+the correct ID is, AFAICS:
+	PCMCIA_DEVICE_PROD_ID123("O2Micro", "SmartCardBus Reader", "V1.0", 0x97299583, 0xb8501ba9, 0xe611e659);
 
-...so just insert printks into the code to find out what is going on...
 
-								Pavel
--- 
-Thanks, Sharp!
+For -mm (and for 2.6.16, not .15) there are quite more changes necessary,
+which are also described in Documentation/pcmcia/driver-changes.txt.
+
+
+	Dominik

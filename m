@@ -1,85 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030441AbVLGXIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030425AbVLGXMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030441AbVLGXIT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 18:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030442AbVLGXIT
+	id S1030425AbVLGXMl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 18:12:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbVLGXMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 18:08:19 -0500
-Received: from mail.kroah.org ([69.55.234.183]:61392 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030441AbVLGXIS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 18:08:18 -0500
-Date: Wed, 7 Dec 2005 15:06:15 -0800
-From: Greg KH <greg@kroah.com>
-To: dtor_core@ameritech.net
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Minor change to platform_device_register_simple prototype
-Message-ID: <20051207230615.GB742@kroah.com>
-References: <20051205212337.74103b96.khali@linux-fr.org> <20051205202707.GH15201@flint.arm.linux.org.uk> <200512070105.40169.dtor_core@ameritech.net> <d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com> <20051207180842.GG6793@flint.arm.linux.org.uk> <d120d5000512071023u151c42f4lcc40862b2debad73@mail.gmail.com> <20051207190352.GI6793@flint.arm.linux.org.uk> <d120d5000512071418q521d2155r81759ef8993000d8@mail.gmail.com> <20051207225126.GA648@kroah.com> <d120d5000512071459s9b461d8ye7abc41d0e1950fd@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000512071459s9b461d8ye7abc41d0e1950fd@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Wed, 7 Dec 2005 18:12:41 -0500
+Received: from smtp103.mail.sc5.yahoo.com ([66.163.169.222]:59992 "HELO
+	smtp103.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1030425AbVLGXMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 18:12:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=0kLAuMViQzhFgLsrW29pv9ugSE2fKIeN1PITVsFtKA8UsVHFHS7ijuHqLjXZRqgJUv0RxpIb1WqIPpRy//iPSO74Vg9Xbzn5qCuDtRYURNJ6Y0BnuDaEOV7nsHlQRoKpT4QPHnHhnKqt04srZ7ONx0gYtrPbl6bS6Bx5v4P+tcc=  ;
+Message-ID: <43976C63.7020107@yahoo.com.au>
+Date: Thu, 08 Dec 2005 10:12:35 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, linux-kernel@vger.kernel.org, rostedt@goodmis.org,
+       johnstul@us.ibm.com
+Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
+References: <20051206000126.589223000@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512061628050.1610@scrub.home> <1133908082.16302.93.camel@tglx.tec.linutronix.de> <20051207013122.3f514718.akpm@osdl.org> <20051207101137.GA25796@elte.hu> <4396B81E.4030605@yahoo.com.au> <20051207104900.GA26877@elte.hu> <4396C2EB.1000203@yahoo.com.au> <Pine.LNX.4.61.0512071335180.1609@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0512071335180.1609@scrub.home>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 05:59:24PM -0500, Dmitry Torokhov wrote:
-> On 12/7/05, Greg KH <greg@kroah.com> wrote:
-> > On Wed, Dec 07, 2005 at 05:18:40PM -0500, Dmitry Torokhov wrote:
-> > > On 12/7/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > >
-> > > > Unregistering is just a matter of calling platform_device_unregister().
-> > > > An unregister call is a del + put in exactly the same way as it is
-> > > > throughout the rest of the driver model.
-> > > >
-> > >
-> > > Yes, and it works just fine everywhere except in initialization code
-> > > when you need to jump in the middle of _del + _put sequence.
-> >
-> > So, if you had _del, would it work easier for you?  I just objected to
-> > it if it wasn't necessary.  I didn't want to add functions that aren't
-> > used by anyone, but if is needed, I don't see a problem with it.
-> >
-> 
-> Yes, the I can just write:
-> 
->         ...
->         err = platform_driver_register(&i8042_driver);
->         if (err)
->                 goto err_controller_cleanup;
-> 
->         i8042_platform_device = platform_device_alloc("i8042", -1);
->         if (!i8042_platform_device) {
->                 err = -ENOMEM;
->                 goto err_unregister_driver;
->         }
-> 
->         err = platform_device_add(i8042_platform_device);
->         if (err)
->                 goto err_free_device;
->         ...
-> 
->         if (!have_ports) {
->                 err = -ENODEV;
->                 goto err_delete_device;
->         }
-> 
->         mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
->         return 0;
-> 
->  err_delete_device:
->         platform_device_del(i8042_platform_device);
->  err_free_device:
->         platform_device_put(i8042_platform_device);
->  err_unregister_driver:
->         platform_driver_unregister(&i8042_driver);
->  ....
-> 
-> As you can see - single cleanup path..
+Hi Roman,
 
-Ok, that's fine with me.  Russell, any objections?
+Roman Zippel wrote:
+> 
+> Nick, thanks for speaking up about this.
+> My mistake was to make a big deal out of it, because I knew it would 
+> confuse more people. After I got the heat for this, it seems nobody else 
+> want to get flamed for it.
+> 
 
-thanks,
+I didn't mean to trivialise the issue. I think good naming is
+important, however I added the disclaimer because of course I
+didn't write any code, so my opinion didn't carry much weight
+in that particular situation compared to you guys.
 
-greg k-h
+Thanks,
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

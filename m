@@ -1,99 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbVLGV6i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVLGWEj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030387AbVLGV6i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 16:58:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVLGV6i
+	id S1750787AbVLGWEj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 17:04:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751791AbVLGWEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 16:58:38 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:44689 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030383AbVLGV6h convert rfc822-to-8bit (ORCPT
+	Wed, 7 Dec 2005 17:04:38 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:48909 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1750787AbVLGWEi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 16:58:37 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC]add ACPI hooks for IDE suspend/resume
-Date: Thu, 8 Dec 2005 05:58:14 +0800
-Message-ID: <59D45D057E9702469E5775CBB56411F101082713@pdsmsx406>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC]add ACPI hooks for IDE suspend/resume
-thread-index: AcX7Yozn0OS5rWtWS+SjMYbrjv+TAwAFl0dA
-From: "Li, Shaohua" <shaohua.li@intel.com>
-To: "Bartlomiej Zolnierkiewicz" <bzolnier@gmail.com>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Matthew Garrett" <mjg59@srcf.ucam.org>,
-       "linux-ide" <linux-ide@vger.kernel.org>,
-       "lkml" <linux-kernel@vger.kernel.org>, "pavel" <pavel@ucw.cz>,
-       "Brown, Len" <len.brown@intel.com>, "akpm" <akpm@osdl.org>
-X-OriginalArrivalTime: 07 Dec 2005 21:58:15.0949 (UTC) FILETIME=[537183D0:01C5FB79]
+	Wed, 7 Dec 2005 17:04:38 -0500
+Date: Wed, 7 Dec 2005 17:04:01 -0500
+From: Neil Horman <nhorman@tuxdriver.com>
+To: linux-kernel@vger.kernel.org
+Cc: mingo@redhat.com, akpm@osdl.org
+Subject: [PATCH] vm: enhance __alloc_pages to prioritize pagecache eviction when pressed for memory
+Message-ID: <20051207220401.GB13577@hmsreliant.homelinux.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="huq684BweRXVnRxX"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
->
->On 12/7/05, Shaohua Li <shaohua.li@intel.com> wrote:
->> On Wed, 2005-12-07 at 16:49 +0100, Bartlomiej Zolnierkiewicz wrote:
->> > On 12/7/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->> > > On Mer, 2005-12-07 at 15:45 +0100, Bartlomiej Zolnierkiewicz
-wrote:
->> > > > OK, I understand it now - when using 'ide-generic' host driver
-for
->IDE
->> > > > PCI device, resume fails (for obvious reason - IDE PCI device
-is
->not
->> > > > re-configured) and this patch fixes it through using ACPI
-methods.
->> >
->> > I was talking about bugzilla bug #5604.
->> Sorry for my ignorance in IDE side. From the ACPI spec, there isn't a
->> generic way to save/restore IDE's configuration. That's why ACPI
->> provides such methods. I suppose all IDE drivers need call the
-methods,
->> wrong?
->
->From the hardware POV:
->* there is generic way to save/restores IDE device's configuration
->* there is no generic way to save/restore IDE controller's
-configuration
->
->From the software POV what we only do currently is setting controller
->and drive for a correct transfer mode by using host driver specific
->callback
->(in case of using 'ide-generic' there is no such callback).
->
->> > > Even in the piix case some devices need it because the bios wants
-to
->> > > issue commands such as password control if the laptop is set up
-in
->> > > secure modes.
->> >
->> > I completely agree.  However at the moment this patch doesn't seem
->> > to issue any ATA commands (code is commented out in _GTF) so
->> > this is not a case for bugzilla bug #5604.
->> I actually tried to invoke ATA commands using IDE APIs, but can't
-find
->> any available one. I'd be very happy if you can give me any hint how
-to
->> do it or even you can fix it.
->
->Probably do_rw_taskfile() is the method you want to use, you also need
->to place invoking of ACPI provided ATA commands in the right place in
->the IDE PM state machine [ ide_{start,complete}_power_step() ].
->
->PS1 Please don't use taskfile_lib_get_identify(), drive->id
->should contain valid ID - if it doesn't it is a BUG.
->
->PS2 Have you seen libata ACPI patches by Randy?
->Maybe some of the code dealing with ACPI can be put to
-><linux/ata.h> and be shared between IDE and libata drivers?
-Thanks a lot! I'll try your suggestions after my travel. Hopefully I can
-understand the IDE staffs you mentioned then :).
 
-Thanks,
-Shaohua
+--huq684BweRXVnRxX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hey all-
+     I was recently shown this issue, wherein, if the kernel was kept full =
+of
+pagecache via applications that were constantly writing large amounts of da=
+ta to
+disk, the box could find itself in a position where the vm, in __alloc_pages
+would invoke the oom killer repetatively within try_to_free_pages, until su=
+ch
+time as the box had no candidate processes left to kill, at which point it =
+would
+panic.  While this seems like the right thing to do in general, it occured =
+to me
+that if we could simply force some additional evictions from pagecache befo=
+re we
+tried to reclaim memory in try_to_free_pages, we stood a good chance of avo=
+iding
+the need to invoke the oom killer at all (assuming that the pages freed from
+pagecache were physically contiguous).  The following patch preforms this
+operation and in my testing, and that of the origional reporter, results in
+avoidance of the oom killer being invoked for the workloads which would
+previously oom kill the box to the point that it would panic.
+
+Thanks & Regards
+Neil
+
+Signed-off-by: Neil Horman <nhorman@redhat.com>
+
+
+ include/linux/writeback.h |    1 +
+ mm/page-writeback.c       |   17 +++++++++++++++++
+ mm/page_alloc.c           |   10 ++++++++++
+ 3 files changed, 28 insertions(+)
+
+
+diff --git a/include/linux/writeback.h b/include/linux/writeback.h
+--- a/include/linux/writeback.h
++++ b/include/linux/writeback.h
+@@ -86,6 +86,7 @@ static inline void wait_on_inode(struct=20
+  * mm/page-writeback.c
+  */
+ int wakeup_pdflush(long nr_pages);
++void clean_pagecache(long nr_pages);
+ void laptop_io_completion(void);
+ void laptop_sync_completion(void);
+ void throttle_vm_writeout(void);
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -350,6 +350,23 @@ static void background_writeout(unsigned
+ }
+=20
+ /*
++ * Writeback nr_pages from pagecache to disk synchronously
++ * blocks until the writeback is complete
++ */
++void clean_pagecache(long nr_pages)
++{
++	struct writeback_control wbc =3D {
++		.bdi            =3D NULL,
++		.sync_mode      =3D WB_SYNC_ALL,
++		.older_than_this =3D NULL,
++		.nr_to_write    =3D nr_pages,
++		.nonblocking    =3D 0,
++	};
++
++	writeback_inodes(&wbc);
++}
++
++/*
+  * Start writeback of `nr_pages' pages.  If `nr_pages' is zero, write back
+  * the whole world.  Returns 0 if a pdflush thread was dispatched.  Returns
+  * -1 if all pdflush threads were busy.
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -949,6 +949,16 @@ rebalance:
+ 	reclaim_state.reclaimed_slab =3D 0;
+ 	p->reclaim_state =3D &reclaim_state;
+=20
++	/*
++	 * We're pinched for memory, so before we try to reclaim some=20
++	 * pages synchronously, lets try to force some more pages out
++	 * of pagecache, to raise our chances of this succeding.
++	 * specifically, lets write out the number of pages that this
++	 * allocation is requesting, in the hopes that they will be
++	 * contiguous
++	 */
++	clean_pagecache(1<<order);
++
+ 	did_some_progress =3D try_to_free_pages(zonelist->zones, gfp_mask);
+=20
+ 	p->reclaim_state =3D NULL;
+--=20
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/
+
+--huq684BweRXVnRxX
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFDl1xRM+bEoZKnT6ERAuPTAJ0csGqZvpx+4AkDnipLNeCoPwsUsACeLDQv
+YCL739Ba7P9Mgb2ih7NfPnw=
+=YPv/
+-----END PGP SIGNATURE-----
+
+--huq684BweRXVnRxX--

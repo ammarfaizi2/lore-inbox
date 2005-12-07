@@ -1,59 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbVLGRFX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVLGRJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbVLGRFX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 12:05:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVLGRFW
+	id S1751201AbVLGRJe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 12:09:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbVLGRJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 12:05:22 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:39644 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751092AbVLGRFW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 12:05:22 -0500
-Subject: Re: Missing break in timedia serial setup.
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051207165811.GA3574@redhat.com>
-References: <20051207010526.GA7258@redhat.com>
-	 <20051207093431.GB32365@flint.arm.linux.org.uk>
-	 <20051207165811.GA3574@redhat.com>
-Content-Type: text/plain
-Date: Wed, 07 Dec 2005 18:05:19 +0100
-Message-Id: <1133975119.2869.49.camel@laptopd505.fenrus.org>
+	Wed, 7 Dec 2005 12:09:34 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:4286 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1751201AbVLGRJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 12:09:33 -0500
+Date: Wed, 7 Dec 2005 15:13:32 -0200
+From: Eduardo Pereira Habkost <ehabkost@mandriva.com>
+To: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
+Message-ID: <20051207171332.GI20451@duckman.conectiva>
+References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br> <20051207164118.GA28032@suse.de> <20051207145113.4cbdc264.lcapitulino@mandriva.com.br>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="16qp2B0xu0fRvRD7"
+Content-Disposition: inline
+In-Reply-To: <20051207145113.4cbdc264.lcapitulino@mandriva.com.br>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> 
-> Signed-off-by: Dave Jones <davej@redhat.com>
-> 
-> --- linux-2.6.14/drivers/serial/8250_pci.c~	2005-12-07 11:56:13.000000000 -0500
-> +++ linux-2.6.14/drivers/serial/8250_pci.c	2005-12-07 11:56:41.000000000 -0500
-> @@ -516,7 +516,6 @@ pci_timedia_setup(struct serial_private 
->  		break;
->  	case 3:
->  		offset = board->uart_offset;
-> -		bar = 1;
->  	case 4: /* BAR 2 */
->  	case 5: /* BAR 3 */
->  	case 6: /* BAR 4 */
-> -
+--16qp2B0xu0fRvRD7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-might as well add a /* fall through */ comment
-so that this doesn't come up again in the future..
+On Wed, Dec 07, 2005 at 02:51:13PM -0200, Luiz Fernando Capitulino wrote:
+> On Wed, 7 Dec 2005 08:41:18 -0800
+> Greg KH <gregkh@suse.de> wrote:
+>=20
+> | On Tue, Dec 06, 2005 at 09:56:10AM -0200, Luiz Fernando Capitulino wrot=
+e:
+> | >  Greg,
+> | >=20
+> | >  Don't get scared. :-)
+> |=20
+> | I'm not scared, just not liking this patch series at all.
+> |=20
+> | In the end, it's just moving from one locking scheme to another.  No big
+> | deal.
+>=20
+>  I understand.
+>=20
+> | The problem is, none of this should be needed at all.  We need to move
+> | the usb-serial drivers over to use the serial core code.  If that
+> | happens, then none of this locking is needed.
+> |=20
+> | That's the right thing to do, so I'm not going to take this patch series
+> | right now because of that.  If you all want to work on moving to use the
+> | serial core, I would love to see that happen.
+>=20
+>  If it's the right thing to do, I'll love to work on that. :)
+>=20
+>  There is only one problem though, I've never touched in the serial core.
+> It means I'll need some time to do it, and maybe the first tries can be
+> wrong.
+>=20
+>  Any tips you have in mind are very welcome.
 
+I have a small question: in my view, this patch series is a small
+step towards implementing the usb-serial drivers The Right Way, as it
+removes a a bit of duplicated code. If we start to do The Big Change to
+serial_core , probably we would make further refactorings on these parts,
+going towards The Right Way to implement the drivers.
 
+My question would be: where would the small refactorings belong, while
+the big change to serial_core is work in progress? I would like them
+to go to some tree for testing, while the work is being done, instead
+of pushing lots of changes later, but I don't know if there is someone
+who we could send them.
+
+>=20
+>  Eduardo, let's do it? :)
+
+I would love it, but I will be on vacations in two weeks. So, probably
+on January.
+
+My wife is lucky that I won't have a notebook available during our
+vacations.  8)
+
+--=20
+Eduardo
+
+--16qp2B0xu0fRvRD7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDlxg8caRJ66w1lWgRAjxHAKCYydzIfjx735zUjui+nxl2IT1uZQCggMKf
+c128uSilO/+Z+mV0mdMF+xk=
+=XDU0
+-----END PGP SIGNATURE-----
+
+--16qp2B0xu0fRvRD7--

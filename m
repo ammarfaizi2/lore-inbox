@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932677AbVLGAlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932678AbVLGAph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932677AbVLGAlK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 19:41:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbVLGAlJ
+	id S932678AbVLGAph (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 19:45:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932679AbVLGAph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 19:41:09 -0500
-Received: from xproxy.gmail.com ([66.249.82.203]:20808 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932677AbVLGAlI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 19:41:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fnASiIoLdURDm3Yo6QFIbvSFsm/pW/4Tppn3cEPRBMACj5FQ5oLv3bx5KZsnkvj+C3aRGj4sKzGEWwnlkuk+OD2yLHnRoayLNXKflhXlbH9QdSbRl2lSAdN5+OppF1cLAAIIZXDmhuKz8lQd8gib3Br46rK7NCrPuzq+6KxcL/w=
-Message-ID: <4413284c0512061641t766854d0t@mail.gmail.com>
-Date: Tue, 6 Dec 2005 22:41:07 -0200
-From: =?ISO-8859-1?Q?Herv=E9_Fache?= <herve.fache@gmail.com>
-Reply-To: herve@lucidia.net
-To: Greg KH <greg@kroah.com>
-Subject: Re : Scanner/webcam not working when connected to USB hub
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051206211423.GA5937@kroah.com>
+	Tue, 6 Dec 2005 19:45:37 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:16569 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932678AbVLGApg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 19:45:36 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.15-rc5-mm1 (x86_64-hpet-overflow.patch breaks resume from disk)
+Date: Wed, 7 Dec 2005 01:46:49 +0100
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org, "Discuss x86-64" <discuss@x86-64.org>,
+       Andi Kleen <ak@suse.de>
+References: <20051204232153.258cd554.akpm@osdl.org>
+In-Reply-To: <20051204232153.258cd554.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <4413284c0512050519n67c50a88t@mail.gmail.com>
-	 <20051206211423.GA5937@kroah.com>
+Message-Id: <200512070146.50221.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry I missed this important point in my message. You're right. I
-shall check the mailing lists you supplied and report success there if
-any.
+Hi,
 
-Cheers,
-Hervé.
+On Monday, 5 December 2005 08:21, Andrew Morton wrote:
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm1/
+
+}-- snip --{
+> +x86_64-hpet-overflow.patch
+
+This patch breaks resume from disk badly.  The box hangs solid as soon as interrupts
+are reenabled during resume (right after the image has been read).  Unfortunately
+
+> +x86_64-hpet-overflow-fix.patch
+
+does not help.
+
+Greetings,
+Rafael
+
+
+-- 
+Beer is proof that God loves us and wants us to be happy - Benjamin Franklin

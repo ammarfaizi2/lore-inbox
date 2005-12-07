@@ -1,55 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030425AbVLGXMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030428AbVLGXNr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030425AbVLGXMl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 18:12:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbVLGXMl
+	id S1030428AbVLGXNr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 18:13:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751815AbVLGXNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 18:12:41 -0500
-Received: from smtp103.mail.sc5.yahoo.com ([66.163.169.222]:59992 "HELO
-	smtp103.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1030425AbVLGXMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 18:12:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=0kLAuMViQzhFgLsrW29pv9ugSE2fKIeN1PITVsFtKA8UsVHFHS7ijuHqLjXZRqgJUv0RxpIb1WqIPpRy//iPSO74Vg9Xbzn5qCuDtRYURNJ6Y0BnuDaEOV7nsHlQRoKpT4QPHnHhnKqt04srZ7ONx0gYtrPbl6bS6Bx5v4P+tcc=  ;
-Message-ID: <43976C63.7020107@yahoo.com.au>
-Date: Thu, 08 Dec 2005 10:12:35 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 7 Dec 2005 18:13:47 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:10944 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1751809AbVLGXNq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 18:13:46 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.15-rc5-mm1 (x86_64-hpet-overflow.patch breaks resume from disk)
+Date: Thu, 8 Dec 2005 00:15:01 +0100
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org, "Discuss x86-64" <discuss@x86-64.org>,
+       Andi Kleen <ak@suse.de>
+References: <20051204232153.258cd554.akpm@osdl.org> <200512070146.50221.rjw@sisk.pl>
+In-Reply-To: <200512070146.50221.rjw@sisk.pl>
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, linux-kernel@vger.kernel.org, rostedt@goodmis.org,
-       johnstul@us.ibm.com
-Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
-References: <20051206000126.589223000@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512061628050.1610@scrub.home> <1133908082.16302.93.camel@tglx.tec.linutronix.de> <20051207013122.3f514718.akpm@osdl.org> <20051207101137.GA25796@elte.hu> <4396B81E.4030605@yahoo.com.au> <20051207104900.GA26877@elte.hu> <4396C2EB.1000203@yahoo.com.au> <Pine.LNX.4.61.0512071335180.1609@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0512071335180.1609@scrub.home>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512080015.01444.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roman,
+Update:
 
-Roman Zippel wrote:
+On Wednesday, 7 December 2005 01:46, Rafael J. Wysocki wrote:
+> Hi,
 > 
-> Nick, thanks for speaking up about this.
-> My mistake was to make a big deal out of it, because I knew it would 
-> confuse more people. After I got the heat for this, it seems nobody else 
-> want to get flamed for it.
+> On Monday, 5 December 2005 08:21, Andrew Morton wrote:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm1/
 > 
+> }-- snip --{
+> > +x86_64-hpet-overflow.patch
+> 
+> This patch breaks resume from disk badly.  The box hangs solid as soon as interrupts
+> are reenabled during resume (right after the image has been read).
 
-I didn't mean to trivialise the issue. I think good naming is
-important, however I added the disclaimer because of course I
-didn't write any code, so my opinion didn't carry much weight
-in that particular situation compared to you guys.
+I've just managed to get a call trace from it, which is appended.
 
-Thanks,
-Nick
+Greetings,
+Rafael
 
--- 
-SUSE Labs, Novell Inc.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+swsusp: Reading resume file was successful
+PM: Preparing devices for restore.
+Suspending device 1.0
+Suspending device ide1
+Suspending device 0.1
+Suspending device ide0
+Suspending device serial8250
+Suspending device serio4
+Suspending device serio3
+Suspending device serio2
+Suspending device serio1
+Suspending device serio0
+Suspending device i8042
+Suspending device vesafb.0
+Suspending device 0000:01:00.0
+Suspending device 0000:02:02.0
+Suspending device 0000:02:01.4
+Suspending device 0000:02:01.3
+Suspending device 0000:02:01.2
+Suspending device 0000:02:01.1
+Suspending device 0000:02:01.0
+Suspending device 0000:02:00.0
+Suspending device 0000:00:18.3
+Suspending device 0000:00:18.2
+Suspending device 0000:00:18.1
+Suspending device 0000:00:18.0
+Suspending device 0000:00:0b.0
+Suspending device 0000:00:0a.0
+Suspending device 0000:00:08.0
+Suspending device 0000:00:06.0
+Suspending device 0000:00:02.2
+Suspending device 0000:00:02.1
+Suspending device 0000:00:02.0
+Suspending device 0000:00:01.1
+Suspending device 0000:00:01.0
+Suspending device 0000:00:00.0
+Suspending device pci0000:00
+Suspending device platform
+PM: Restoring saved image.
+NMI Watchdog detected LOCKUP on CPU 0
+CPU 0
+Modules linked in: usbserial thermal processor fan button battery ac snd_pcm_oss snd_mixer_oss snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_
+pcm snd_timer snd soundcore snd_page_alloc af_packet pcmcia firmware_class yenta_socket rsrc_nonstatic pcmcia_core evdev joydev sg usbhid st
+ sr_mod ehci_hcd ohci_hcd sk98lin sd_mod scsi_mod ide_cd cdrom dm_mod parport_pc lp parport
+Pid: 3304, comm: bash Not tainted 2.6.15-rc5-mm1 #1
+RIP: 0010:[<ffffffff8013c87d>] <ffffffff8013c87d>{do_timer+77}
+RSP: 0018:ffffffff80481eb8  EFLAGS: 00000002
+RAX: 000000001d0f8788 RBX: 00000255e7679aa8 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 00000000003d09fa RDI: 0000000000000000
+RBP: ffffffff80481ed8 R08: 0000000000000040 R09: 00000000ffffffff
+R10: 0000000094fc4b38 R11: 00000000c0010008 R12: 000002560cbc37bc
+R13: ffff81002bd63d38 R14: ffff81002bd63d38 R15: 0000000000000000
+FS:  00002aaaab28fe80(0000) GS:ffffffff8050f000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 00002aaaaaac2000 CR3: 000000002ad20000 CR4: 00000000000006e0
+Process bash (pid: 3304, threadinfo ffff81002bd62000, task ffff810001fdb790)
+Stack: 0000000000000fed 00000000000002b7 0000000000000b18 000002560cbc37bb
+       ffffffff80481f08 ffffffff80112dd1 ffffffff803d39c0 0000000000000000
+       ffff81002bd63d38 0000000000000000
+Call Trace: <IRQ> <ffffffff80112dd1>{timer_interrupt+689} <ffffffff8015ae83>{handle_IRQ_event+51}
+       <ffffffff8015af72>{__do_IRQ+162} <ffffffff80111097>{do_IRQ+55}
+       <ffffffff8010f0b0>{ret_from_intr+0}  <EOI> <ffffffff8011ae3d>{enable_lapic_nmi_watchdog+29}
+       <ffffffff8011ae63>{lapic_nmi_resume+19} <ffffffff8015296d>{swsusp_suspend+93}
+       <ffffffff8015296a>{swsusp_suspend+90} <ffffffff801537b8>{pm_suspend_disk+88}
+       <ffffffff80151266>{enter_state+118} <ffffffff801514a7>{state_store+119}
+       <ffffffff801c09a4>{subsys_attr_store+36} <ffffffff801c0e2a>{sysfs_write_file+202}
+       <ffffffff80180549>{vfs_write+233} <ffffffff801806f0>{sys_write+80}
+       <ffffffff8010eb0e>{system_call+126}
+
+Code: 48 ff cb 48 85 c9 48 89 ce 74 25 8b 05 de 38 2a 00 48 63 d0
+console shuts up ...
+ <7>APIC error on CPU0: 00(00)
+Kernel panic - not syncing: Aiee, killing interrupt handler!

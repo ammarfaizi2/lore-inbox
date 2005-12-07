@@ -1,68 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932463AbVLGG25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbVLGGcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932463AbVLGG25 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 01:28:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVLGG25
+	id S932651AbVLGGcA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 01:32:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932644AbVLGGcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 01:28:57 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:41112 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932463AbVLGG25 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 01:28:57 -0500
-Message-ID: <439681CF.90305@in.ibm.com>
-Date: Wed, 07 Dec 2005 12:01:43 +0530
-From: Sachin Sant <sachinp@in.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050523
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] Adding ctrl-o sysrq hack support to 8250 driver
-References: <438D8A3A.9030400@in.ibm.com> <20051130130429.GB25032@flint.arm.linux.org.uk> <43953440.9070102@in.ibm.com> <20051206171633.GB19664@flint.arm.linux.org.uk>
-In-Reply-To: <20051206171633.GB19664@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Dec 2005 01:32:00 -0500
+Received: from ganesha.gnumonks.org ([213.95.27.120]:36524 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S932548AbVLGGb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 01:31:59 -0500
+Date: Wed, 7 Dec 2005 12:46:10 +0530
+From: Harald Welte <laforge@gnumonks.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Dave Jones <davej@redhat.com>, Jiri Benc <jbenc@suse.cz>,
+       Joseph Jezak <josejx@gentoo.org>, mbuesch@freenet.de,
+       linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
+       NetDev <netdev@vger.kernel.org>
+Subject: Re: Broadcom 43xx first results
+Message-ID: <20051207071610.GC4361@rama.exocore.com>
+References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de> <20051205190038.04b7b7c1@griffin.suse.cz> <4394892D.2090100@gentoo.org> <20051205195543.5a2e2a8d@griffin.suse.cz> <4394902C.8060100@pobox.com> <20051205195329.GB19964@redhat.com> <20051206151046.GF4038@rama.exocore.com> <4395E0E3.4040601@pobox.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="96YOpH+ONegL0A3E"
+Content-Disposition: inline
+In-Reply-To: <4395E0E3.4040601@pobox.com>
+User-Agent: mutt-ng devel-20050619 (Debian)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->Frown.  Sorry, I'm not sure what "p615", "power4" and "no-hmc" is.  I
->also don't know what an IBM 3153 is.
->
->However, you seem to be suggesting that a terminal application somehow
->forwards the ctrl-sysrq (and it's actually alt-sysrq).  Maybe it does,
->maybe it doesn't.  Probably depends on the terminal application itself.
->
->Eg, with minicom, you need to ask minicom to create the serial break
->event itself, normally by (assuming default configuration) <ctrl-a> <f>.
->
->  
->
-Sorry about using all those cryptic terms. I was trying to explain with
-the help of few test scenario's. I had tested on couple of PowerPC processor
-based machines which can be configured either as a standalone machine 
-[ Without any Logical Partitions ] or can be logically partitioned.
-One can use a Hardware Management console [HMC] to manage the machine.
 
+--96YOpH+ONegL0A3E
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->I don't think you've addressed my concern... but I'm afraid I haven't
->been able to properly follow what you're saying.
->
->In any case, applying this patch means that you _permanently_ prevent
->the reception of ^O on _ANY_ 8250 serial port, whether it be a serial
->console or not.
->
->With this patch, I guess it's tough luck if you have a modem connected
->to your PC and you want to run ppp or x,y,z modem protocols.
->
->  
->
-The point i was trying to make was to have a consistent behavior across
-virtual and real consoles connected to certain kind of machines. 
-But as stated by you this patch might cause lot of inconvenience to 
-other user. So it's best not to introduce this patch.
+On Tue, Dec 06, 2005 at 02:05:07PM -0500, Jeff Garzik wrote:
+> Harald Welte wrote:
+> >I also think that there is a lack of knowledge on the architecture of
+> >802.11 low-level protocols and drivers among many people (including
+> >myself) in the network community.  Only this way I can explain why there
+> >are always people who claim that the kernel already has a 802.11
+> >'stack'.
+>=20
+> This last sentence, regardless of the source, is simply playing with word=
+s.
 
->  
->
+I don't think that having clear definitions of certain terms is playing
+with words.  I don't neccessarily care which words are used, but it's
+always useful to have common, well-defined terminology.
 
+I also wouldn't call the TCP code a stack, if it hadn't all the state
+engine in it. =20
+
+> We have 802.11 common code in the kernel, that several drivers are
+> using. =20
+
+Yes.
+
+> Future drivers should modify that common code to suit their
+> needs, rather than dropping it and starting from scratch.
+
+I did not state that it has to be replaced.  I'm much in favour of
+gradual changes myself.
+
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
+
+--96YOpH+ONegL0A3E
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDlow6XaXGVTD0i/8RAjBDAKCd78Py8EsqyE0Njc7BIL2bOiEHagCfUz6V
+IaDv+ovK8LPgWDjc23ysj4g=
+=aNsK
+-----END PGP SIGNATURE-----
+
+--96YOpH+ONegL0A3E--

@@ -1,64 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750855AbVLGLMt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbVLGLNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750855AbVLGLMt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 06:12:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbVLGLMt
+	id S1750858AbVLGLNj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 06:13:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbVLGLNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 06:12:49 -0500
-Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:40800 "HELO
-	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1750853AbVLGLMs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 06:12:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=4JCjQFMUtkYIm33QmYyvVkiYkf12deEPRM5G5vQsa5DQfa+m/lUDhvKzUhArch8Tv3AsAqSSCpkFgpsq2C/o6tNJyPhjmVcECQngL19xIfYGyAyAzAuVfHYGLdrQNkG06JDodvucq6yw6SD3g9g6G+tYHfSODfjeszl6b55HGdE=  ;
-Message-ID: <4396C3AC.9000802@yahoo.com.au>
-Date: Wed, 07 Dec 2005 22:12:44 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Rik van Riel <riel@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH 12/16] mm: fold sc.may_writepage and sc.may_swap into
- sc.flags
-References: <20051207104755.177435000@localhost.localdomain> <20051207105154.142779000@localhost.localdomain> <4396BB27.50104@yahoo.com.au> <20051207111117.GA8001@mail.ustc.edu.cn>
-In-Reply-To: <20051207111117.GA8001@mail.ustc.edu.cn>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 7 Dec 2005 06:13:39 -0500
+Received: from mail.renesas.com ([202.234.163.13]:38788 "EHLO
+	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S1750857AbVLGLNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 06:13:38 -0500
+Date: Wed, 07 Dec 2005 20:13:34 +0900 (JST)
+Message-Id: <20051207.201334.735919797.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, fujiwara@linux-m32r.org,
+       takata@linux-m32r.org
+Subject: [PATCH 2.6.15-rc5-mm1] m32r: Fix M32104 cache flushing routines
+From: Hirokazu Takata <takata@linux-m32r.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wu Fengguang wrote:
-> On Wed, Dec 07, 2005 at 09:36:23PM +1100, Nick Piggin wrote:
-> 
->>Wu Fengguang wrote:
->>
->>>Fold bool values into flags to make struct scan_control more compact.
->>>
->>
->>Probably not a bad idea (although you haven't done anything for 64-bit
->>archs, yet)... do we wait until one more flag wants to be added?
-> 
-> 
-> I did this to hold some more debug flags :)
+This patch fixes cache memory parameter setting for the M32104 target.
+So far, its performance seemed to have been degraded due to incorrect
+cache parameter setting.
 
-Yes, but if they make sense for the current kernel too, it reduces
-the peripheral noise out of your patchset... which helps everyone :)
+  * arch/m32r/boot/setup.S: Set SFR(Special Fuction Registers) region 
+    to be non-cachable explicitly.
+  * arch/m32r/mm/cache.c: Fix cache flushing routines not to switch off
+    the M32104 cache.
 
-> I'll make it a standalone patch, too.
-> 
+Signed-off-by: Hayato Fujiwara <fujiwara@linux-m32r.org>
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-Thanks. I don't have strong feelings either way, but I had always
-been meaning to do something like this if we picked up another flag.
+ arch/m32r/boot/setup.S |   15 ++++++++++++---
+ arch/m32r/mm/cache.c   |   28 +++++++++++++++++++++-------
+ 2 files changed, 33 insertions(+), 10 deletions(-)
 
--- 
-SUSE Labs, Novell Inc.
+Index: linux-2.6.15-rc5-mm1/arch/m32r/mm/cache.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/arch/m32r/mm/cache.c	2005-12-06 22:34:17.000000000 +0900
++++ linux-2.6.15-rc5-mm1/arch/m32r/mm/cache.c	2005-12-07 19:35:51.007406864 +0900
+@@ -1,7 +1,7 @@
+ /*
+  *  linux/arch/m32r/mm/cache.c
+  *
+- *  Copyright (C) 2002  Hirokazu Takata
++ *  Copyright (C) 2002-2005  Hirokazu Takata, Hayato Fujiwara
+  */
+ 
+ #include <linux/config.h>
+@@ -9,7 +9,8 @@
+ 
+ #undef MCCR
+ 
+-#if defined(CONFIG_CHIP_XNUX2) || defined(CONFIG_CHIP_M32700) || defined(CONFIG_CHIP_VDEC2) || defined(CONFIG_CHIP_OPSP)
++#if defined(CONFIG_CHIP_XNUX2) || defined(CONFIG_CHIP_M32700) \
++	|| defined(CONFIG_CHIP_VDEC2) || defined(CONFIG_CHIP_OPSP)
+ /* Cache Control Register */
+ #define MCCR		((volatile unsigned long*)0xfffffffc)
+ #define MCCR_CC		(1UL << 7)	/* Cache mode modify bit */
+@@ -27,7 +28,7 @@
+ #define MCCR_IIV	(1UL << 0)	/* I-cache invalidate */
+ #define MCCR_ICACHE_INV		MCCR_IIV
+ #elif defined(CONFIG_CHIP_M32104)
+-#define MCCR		((volatile unsigned long*)0xfffffffc)
++#define MCCR		((volatile unsigned short*)0xfffffffe)
+ #define MCCR_IIV	(1UL << 8)	/* I-cache invalidate */
+ #define MCCR_DIV	(1UL << 9)	/* D-cache invalidate */
+ #define MCCR_DCB	(1UL << 10)	/* D-cache copy back */
+@@ -36,7 +37,7 @@
+ #define MCCR_ICACHE_INV		MCCR_IIV
+ #define MCCR_DCACHE_CB		MCCR_DCB
+ #define MCCR_DCACHE_CBINV	(MCCR_DIV|MCCR_DCB)
+-#endif /* CONFIG_CHIP_XNUX2 || CONFIG_CHIP_M32700 */
++#endif
+ 
+ #ifndef MCCR
+ #error Unknown cache type.
+@@ -47,29 +48,42 @@
+ void _flush_cache_all(void)
+ {
+ #if defined(CONFIG_CHIP_M32102)
++	unsigned char mccr;
+ 	*MCCR = MCCR_ICACHE_INV;
++#elif defined(CONFIG_CHIP_M32104)
++	unsigned short mccr;
++
++	/* Copyback and invalidate D-cache */
++	/* Invalidate I-cache */
++	*MCCR |= (MCCR_ICACHE_INV | MCCR_DCACHE_CBINV);
+ #else
+ 	unsigned long mccr;
+ 
+ 	/* Copyback and invalidate D-cache */
+ 	/* Invalidate I-cache */
+ 	*MCCR = MCCR_ICACHE_INV | MCCR_DCACHE_CBINV;
+-	while ((mccr = *MCCR) & MCCR_IIV); /* loop while invalidating... */
+ #endif
++	while ((mccr = *MCCR) & MCCR_IIV); /* loop while invalidating... */
+ }
+ 
+ /* Copy back D-cache and invalidate I-cache all */
+ void _flush_cache_copyback_all(void)
+ {
+ #if defined(CONFIG_CHIP_M32102)
++	unsigned char mccr;
+ 	*MCCR = MCCR_ICACHE_INV;
++#elif defined(CONFIG_CHIP_M32104)
++	unsigned short mccr;
++
++	/* Copyback and invalidate D-cache */
++	/* Invalidate I-cache */
++	*MCCR |= (MCCR_ICACHE_INV | MCCR_DCACHE_CB);
+ #else
+ 	unsigned long mccr;
+ 
+ 	/* Copyback D-cache */
+ 	/* Invalidate I-cache */
+ 	*MCCR = MCCR_ICACHE_INV | MCCR_DCACHE_CB;
+-	while ((mccr = *MCCR) & MCCR_IIV); /* loop while invalidating... */
+-
+ #endif
++	while ((mccr = *MCCR) & MCCR_IIV); /* loop while invalidating... */
+ }
+Index: linux-2.6.15-rc5-mm1/arch/m32r/boot/setup.S
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/arch/m32r/boot/setup.S	2005-12-06 22:34:17.000000000 +0900
++++ linux-2.6.15-rc5-mm1/arch/m32r/boot/setup.S	2005-12-07 15:23:31.404976272 +0900
+@@ -1,11 +1,10 @@
+ /*
+  *  linux/arch/m32r/boot/setup.S -- A setup code.
+  *
+- *  Copyright (C) 2001, 2002  Hiroyuki Kondo, Hirokazu Takata,
+- *  and Hitoshi Yamamoto
++ *  Copyright (C) 2001-2005   Hiroyuki Kondo, Hirokazu Takata,
++ *                            Hitoshi Yamamoto, Hayato Fujiwara
+  *
+  */
+-/* $Id$ */
+ 
+ #include <linux/linkage.h>
+ #include <asm/segment.h>
+@@ -81,6 +80,16 @@ ENTRY(boot)
+ ;	ldi	r1, #0x00		; cache off
+ 	st	r1, @r0
+ #elif defined(CONFIG_CHIP_M32104)
++	ldi	r0, #-96		; DNCR0
++	seth	r1, #0x0060		;  from 0x00600000
++	or3	r1, r1, #0x0005		;  size 2MB
++	st	r1, @r0
++	seth	r1, #0x0100		;  from 0x01000000
++	or3	r1, r1, #0x0003		;  size 16MB
++	st	r1, @+r0
++	seth	r1, #0x0200		;  from 0x02000000
++	or3	r1, r1, #0x0002		;  size 32MB
++	st	r1, @+r0
+ 	ldi	r0, #-4              ;LDIMM	(r0, M32R_MCCR)
+ 	ldi	r1, #0x703		; cache on (with invalidation)
+ 	st	r1, @r0
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

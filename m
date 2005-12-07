@@ -1,52 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751724AbVLGSfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751726AbVLGSfM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751724AbVLGSfI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:35:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751727AbVLGSfI
+	id S1751726AbVLGSfM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:35:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751728AbVLGSfM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:35:08 -0500
-Received: from mail.kroah.org ([69.55.234.183]:25293 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751724AbVLGSfH (ORCPT
+	Wed, 7 Dec 2005 13:35:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:29389 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751726AbVLGSfL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:35:07 -0500
-Date: Wed, 7 Dec 2005 09:04:27 -0800
-From: Greg KH <greg@kroah.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Minor change to platform_device_register_simple prototype
-Message-ID: <20051207170426.GB28414@kroah.com>
-References: <20051205212337.74103b96.khali@linux-fr.org> <20051205202707.GH15201@flint.arm.linux.org.uk> <200512070105.40169.dtor_core@ameritech.net>
+	Wed, 7 Dec 2005 13:35:11 -0500
+Date: Wed, 7 Dec 2005 09:56:14 -0800
+From: Greg KH <gregkh@suse.de>
+To: Eduardo Pereira Habkost <ehabkost@mandriva.com>
+Cc: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
+Message-ID: <20051207175614.GA29117@suse.de>
+References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br> <20051207164118.GA28032@suse.de> <20051207145113.4cbdc264.lcapitulino@mandriva.com.br> <20051207171332.GI20451@duckman.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200512070105.40169.dtor_core@ameritech.net>
+In-Reply-To: <20051207171332.GI20451@duckman.conectiva>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 01:05:39AM -0500, Dmitry Torokhov wrote:
-> On Monday 05 December 2005 15:27, Russell King wrote:
-> > On Mon, Dec 05, 2005 at 09:23:37PM +0100, Jean Delvare wrote:
-> > > The name parameter of platform_device_register_simple should be of
-> > > type const char * instead of char *, as we simply pass it to
-> > > platform_device_alloc, where it has type const char *.
-> > > 
-> > > Signed-off-by: Jean Delvare <khali@linux-fr.org>
-> > 
-> > Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
-> > 
-> > However, I've been wondering whether we want to keep this "simple"
-> > interface around long-term given that we now have a more flexible
-> > platform device allocation interface - I don't particularly like
-> > having superfluous interfaces for folk to get confused with.
-> 
-> Now that you made platform_device_alloc install default release
-> handler there is no need to have the _simple interface. I will
-> convert input devices (main users of _simple) to the new interface
-> and then we can get rid of it.
+On Wed, Dec 07, 2005 at 03:13:32PM -0200, Eduardo Pereira Habkost wrote:
+> I have a small question: in my view, this patch series is a small
+> step towards implementing the usb-serial drivers The Right Way, as it
+> removes a a bit of duplicated code.
 
-That sounds like a very good idea.
+It doesn't remove any "duplicated code", it only changes a spinlock to
+an atomic_t for one single value (which I personally do not think is the
+best thing to do, and based on the number of comments on this thread, I
+think others also feel this way.)
+
+> If we start to do The Big Change to serial_core , probably we would
+> make further refactorings on these parts, going towards The Right Way
+> to implement the drivers.
+
+Sure, that's the way kernel development is done.
+
+> My question would be: where would the small refactorings belong, while
+> the big change to serial_core is work in progress? I would like them
+> to go to some tree for testing, while the work is being done, instead
+> of pushing lots of changes later, but I don't know if there is someone
+> who we could send them.
+
+The "normal" way of doing work like this is, do it somewhere, and then
+break it all down into a series of steps, after you have figured out
+exactly where you are going to end up.
+
+Feel free to send me any patches that you feel should be applied that
+work toward this end goal.
 
 thanks,
 

@@ -1,70 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbVLGR5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751571AbVLGR7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751484AbVLGR5L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 12:57:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751569AbVLGR5L
+	id S1751571AbVLGR7L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 12:59:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbVLGR7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 12:57:11 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:19595 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751484AbVLGR5K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 12:57:10 -0500
-Date: Wed, 7 Dec 2005 18:57:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, rostedt@goodmis.org, johnstul@us.ibm.com
-Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
-Message-ID: <20051207175708.GA3672@elte.hu>
-References: <20051206000126.589223000@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512061628050.1610@scrub.home> <1133908082.16302.93.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512070347450.1609@scrub.home> <20051207165550.GA2426@elte.hu> <Pine.LNX.4.61.0512071813540.1610@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Dec 2005 12:59:11 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:24536 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751570AbVLGR7K convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 12:59:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WKVxzUf8/O19PFVo6K/dLvn6c1ejRbeik/I/W0sutmkarrzuvXzfIClR2h0fQbxOPh5sKrRyk0X8UXjWBq1ZrG5tx1eYkk+GYPMz36CjDJzxwe0GqMYqquZG7/ZDlyvuWBIirC2o0R7FKCST6Qe+Px/epUQadKhqA7eVUvVea40=
+Message-ID: <d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com>
+Date: Wed, 7 Dec 2005 12:59:09 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH] Minor change to platform_device_register_simple prototype
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <200512070105.40169.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0512071813540.1610@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.6 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <20051205212337.74103b96.khali@linux-fr.org>
+	 <20051205202707.GH15201@flint.arm.linux.org.uk>
+	 <200512070105.40169.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Roman Zippel <zippel@linux-m68k.org> wrote:
-
-> > > (It's also interesting how you do that without giving me any 
-> > >  credit for it.)
+On 12/7/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> On Monday 05 December 2005 15:27, Russell King wrote:
+> > On Mon, Dec 05, 2005 at 09:23:37PM +0100, Jean Delvare wrote:
+> > > The name parameter of platform_device_register_simple should be of
+> > > type const char * instead of char *, as we simply pass it to
+> > > platform_device_alloc, where it has type const char *.
+> > >
+> > > Signed-off-by: Jean Delvare <khali@linux-fr.org>
 > >
-> > Sorry if it was previously your idea and if we didnt credit you for 
-> > it.
-> > [...]
+> > Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
 > >
-> > > A bit later ktime_t looked pretty much like the 64bit part of my 
-> > > ktimespec.
-> > 
-> > and Thomas credited you for that point in his announcement:
-> > 
-> >  " Roman pointed out that the penalty for some architectures
-> >    would be quite big when using the nsec_t (64bit) scalar time
-> >    storage format. "
-> 
-> "pointed out that the penalty" is a bit different from "provided the 
-> basic idea of the ktime_t union and half the implementation"...
+> > However, I've been wondering whether we want to keep this "simple"
+> > interface around long-term given that we now have a more flexible
+> > platform device allocation interface - I don't particularly like
+> > having superfluous interfaces for folk to get confused with.
+>
+> Now that you made platform_device_alloc install default release
+> handler there is no need to have the _simple interface. I will
+> convert input devices (main users of _simple) to the new interface
+> and then we can get rid of it.
+>
 
-so ... did you change your position from accusing us of not giving you 
-_any_ credit:
+I have started moving drivers from the "_simple" interface and I found
+that I'm missing platform_device_del that would complement
+platform_device_add. Would you object to having such a function, like
+we do for other sysfs objects? With it one can write somthing like
+this:
 
-   "It's also interesting how you do that without giving me
-    any credit for it."
+ err_delete_device:
+        platform_device_del(i8042_platform_device);
+ err_free_device:
+        platform_device_put(i8042_platform_device);
+ err_unregister_driver:
+        platform_driver_unregister(&i8042_driver);
 
-to accusing us of not giving you _enough_ credit? Did i get that right?
 
-And ontop of that, you now want the credit for providing the basic idea 
-for half of the ktimer/hrtimer implementation? Sorry that i did not find 
-out in advance that you wanted _that_ ;-)
-
-	Ingo
+--
+Dmitry

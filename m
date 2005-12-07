@@ -1,77 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbVLGOeb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbVLGOfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751100AbVLGOeb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 09:34:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVLGOea
+	id S1751106AbVLGOfn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 09:35:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbVLGOfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 09:34:30 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:44552 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP
-	id S1751100AbVLGOea convert rfc822-to-8bit (ORCPT
+	Wed, 7 Dec 2005 09:35:42 -0500
+Received: from mxb.rambler.ru ([81.19.66.30]:57092 "EHLO mxb.rambler.ru")
+	by vger.kernel.org with ESMTP id S1751106AbVLGOfl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 09:34:30 -0500
+	Wed, 7 Dec 2005 09:35:41 -0500
+Message-ID: <4396F38E.1020200@rambler.ru>
+Date: Wed, 07 Dec 2005 17:37:02 +0300
+From: Pavel Fedin <sonic_amiga@rambler.ru>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <20051207141720.GA533@kvack.org>
-X-OriginalArrivalTime: 07 Dec 2005 14:34:28.0787 (UTC) FILETIME=[546B0830:01C5FB3B]
-Content-class: urn:content-classes:message
-Subject: Re: Runs with Linux (tm)
-Date: Wed, 7 Dec 2005 09:34:28 -0500
-Message-ID: <Pine.LNX.4.61.0512070925070.8723@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Runs with Linux (tm)
-Thread-Index: AcX7O1R0UnPayG3rQOqthsCLgGoTww==
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org> <loom.20051206T094816-40@post.gmane.org> <20051206104652.GB3354@favonius> <loom.20051206T173458-358@post.gmane.org> <20051207141720.GA533@kvack.org>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Benjamin LaHaise" <bcrl@kvack.org>
-Cc: "Dirk Steuwer" <dirk@steuwer.de>, <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] support for Posiflex PP-7000 retail printer for ftdi_sio
+ driver
+Content-Type: multipart/mixed;
+ boundary="------------090206060805060000070104"
+X-Auth-User: sonic_amiga, whoson: (null)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------090206060805060000070104
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, 7 Dec 2005, Benjamin LaHaise wrote:
+  This little patch adds an ability to recognize Posiflex PP-7000 retail printer for ftdi_sio 
+driver. The printer uses FT232BM USB-serial brigde but is programmed with custom VID and PID.
+  The patch is made for 2.6.11.1 kernel but is extremely easy to adapt to newer versions. I also 
+posted it to "Patches" page on sf.net project. I wrote to project admin a letter asking to give me 
+an access to their CVS but got no reply.
 
-> On Tue, Dec 06, 2005 at 04:41:44PM +0000, Dirk Steuwer wrote:
->> Yes, but there isn't and won't be much recognition - every company does
->> its own thing. And how many people buy online all the time? But even then,
->> a genery "runs with Linux" Logo would be great. If a company's product
->> is not certified, its not considered by Linux customers.
->
-> This is something I've wanted to see for years now.  Linux distributions
-> do not have the motivation to work out the hardware certification issues
-> on the community level, as it interferes with their value add of branding.
-> I have always wished that when I see hardware advertising Linux support
-> that it has a meaning: open source, supportable drivers.  Maybe it's time
-> to get such a project moving.
->
-> 		-ben
+  Kind regards
 
-If you have one of those junk PCs that the major companies keep
-buying, look at the label; "Designed for Microsoft Windows".
+--------------090206060805060000070104
+Content-Type: text/x-patch;
+ name="ftdi_sio_posiflex_pp7000-2.6.11.1.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ftdi_sio_posiflex_pp7000-2.6.11.1.diff"
 
-This should tell you how little bluff-factor the "Linux fringe"
-can pull.
+--- linux-2.6.11.1/drivers/usb/serial/ftdi_sio.c.orig	2005-03-04 20:26:42.000000000 +0300
++++ linux-2.6.11.1/drivers/usb/serial/ftdi_sio.c	2005-12-06 22:47:20.000000000 +0300
+@@ -488,6 +488,7 @@
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USTL4_PID, 0x400, 0xffff) },
+ 	{ USB_DEVICE_VER(BANDB_VID, BANDB_USO9ML2_PID, 0x400, 0xffff) },
+ 	{ USB_DEVICE_VER(FTDI_VID, EVER_ECO_PRO_CDS, 0x400, 0xffff) },
++	{ USB_DEVICE(POSIFLEX_VID, POSIFLEX_PP7000_PID) },
+ 	{ }						/* Terminating entry */
+ };
+ 
+@@ -611,6 +612,7 @@
+ 	{ USB_DEVICE(BANDB_VID, BANDB_USTL4_PID) },
+ 	{ USB_DEVICE(BANDB_VID, BANDB_USO9ML2_PID) },
+ 	{ USB_DEVICE(FTDI_VID, EVER_ECO_PRO_CDS) },
++	{ USB_DEVICE(POSIFLEX_VID, POSIFLEX_PP7000_PID) },
+ 	{ }						/* Terminating entry */
+ };
+ 
+--- linux-2.6.11.1/drivers/usb/serial/ftdi_sio.h.orig	2005-03-04 20:26:44.000000000 +0300
++++ linux-2.6.11.1/drivers/usb/serial/ftdi_sio.h	2005-12-05 22:22:27.000000000 +0300
+@@ -246,6 +246,12 @@
+ 
+ #define	EVER_ECO_PRO_CDS	0xe520	/* RS-232 converter */
+ 
++/*
++ * Posiflex inc retail equipment (http://www.posiflex.com.tw)
++ */
++#define POSIFLEX_VID		0x0d3a  /* Vendor ID */
++#define POSIFLEX_PP7000_PID	0x0300  /* PP-7000II thermal printer */
++
+ /* Commands */
+ #define FTDI_SIO_RESET 		0 /* Reset the port */
+ #define FTDI_SIO_MODEM_CTRL 	1 /* Set the modem control register */
 
-In spite of the imminent destruction of major companies IP by
-the incredibly stupid Windows OS, they still use it. Like lemmings
-being led to the sea, most companies can't accept that M$ is
-a defective, bug-ridden, and security-holed system. Instead they
-think that M$ couldn't possibly be as bad as has been proven and
-documented.
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+--------------090206060805060000070104--

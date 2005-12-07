@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbVLGR0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbVLGR2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbVLGR0L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 12:26:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbVLGR0L
+	id S1751228AbVLGR2e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 12:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVLGR2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 12:26:11 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:30876 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751239AbVLGR0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 12:26:10 -0500
-Date: Wed, 7 Dec 2005 09:25:54 -0800
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Ananth N Mavinakayanahalli <ananth@in.ibm.com>, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, prasanna@in.ibm.com,
-       anil.s.keshavamurthy@intel.com
-Subject: [PATCH] kprobes: fix race in aggregate kprobe registration
-Message-ID: <20051207092554.A19162@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20051206051711.GA3206@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Dec 2005 12:28:33 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:726 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751228AbVLGR2d convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 12:28:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=C1pnmaXqrlXqb0kjLonaN2JknKot8v0ArZvOSmYPvpygyCm42Mgn5rdDrfr5kmLNyJyHEAgzDgidpLvtIq4IDvBp2dH/2zKlb1s00q3SD9NWuBZxxj7FSvj56l7X3B+Df16zkDm4weP+OeJ9RxYDrK8GTC8pW7Ka85U2ovDMAS4=
+Message-ID: <808c8e9d0512070928y6f50be0arcba9404de2f68f78@mail.gmail.com>
+Date: Wed, 7 Dec 2005 11:28:30 -0600
+From: Ben Gardner <gardner.ben@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 0/3] i386: CS5535 chip support (Geode companion chip)
+Cc: lm-sensors <lm-sensors@lm-sensors.org>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20051206051711.GA3206@in.ibm.com>; from ananth@in.ibm.com on Tue, Dec 06, 2005 at 10:47:11AM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When registering multiple kprobes at the same address, we leave a small
-window where the kprobe hlist will not contain a reference to the
-registered kprobe, leading to potentially, a system crash if the
-breakpoint is hit on another processor.
+This patch series adds support for the AMD CS5535, which is the Geode
+companion chip.  It targets the DIVIL (Diverse Integrated Logic)
+components.
 
-Patch below now automically relpace the old kprobe with the new
-kprobe from the hash list.
+Patch 1 does the following:
+ - verifies the existence of the CS5535 by checking the DIVIL signature
+ - configures UART1 as a NS16550A
+ - (optionally) enables UART2 and configures it as a NS16550A
+ - (optionally) enables the SMBus/I2C interface
 
-Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Acked-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+Patch 2 provides a simple GPIO char driver, modeled after the
+scx200_gpio driver.
 
- kernel/kprobes.c |    5 +----
- 1 files changed, 1 insertion(+), 4 deletions(-)
+Patch 3 provides a SMBus/I2C driver, modeled after the scx200_acb driver.
 
-Index: linux-2.6.15-rc5-mm1/kernel/kprobes.c
-===================================================================
---- linux-2.6.15-rc5-mm1.orig/kernel/kprobes.c
-+++ linux-2.6.15-rc5-mm1/kernel/kprobes.c
-@@ -399,10 +399,7 @@ static inline void add_aggr_kprobe(struc
- 	INIT_LIST_HEAD(&ap->list);
- 	list_add_rcu(&p->list, &ap->list);
- 
--	INIT_HLIST_NODE(&ap->hlist);
--	hlist_del_rcu(&p->hlist);
--	hlist_add_head_rcu(&ap->hlist,
--		&kprobe_table[hash_ptr(ap->addr, KPROBE_HASH_BITS)]);
-+	hlist_replace_rcu(&p->hlist, &ap->hlist);
- }
- 
- /*
+Signed-off-by: Ben Gardner <bgardner@wabtec.com>

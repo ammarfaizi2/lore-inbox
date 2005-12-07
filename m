@@ -1,77 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbVLGByf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbVLGCG6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750910AbVLGByf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 20:54:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030319AbVLGByf
+	id S964840AbVLGCG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 21:06:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbVLGCG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 20:54:35 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:56027 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750888AbVLGBye
+	Tue, 6 Dec 2005 21:06:58 -0500
+Received: from smtp.terra.es ([213.4.129.129]:35713 "EHLO tsmtp1.mail.isp")
+	by vger.kernel.org with ESMTP id S964840AbVLGCG5 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 20:54:34 -0500
-Message-ID: <439640A1.3030300@us.ibm.com>
-Date: Tue, 06 Dec 2005 17:53:37 -0800
-From: Haren Myneni <haren@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: [PATCH] Trivial fix in __alloc_bootmem_core() when there is no free
- page in first node's memory
-Content-Type: multipart/mixed;
- boundary="------------010407060102010300050006"
+	Tue, 6 Dec 2005 21:06:57 -0500
+Date: Wed, 7 Dec 2005 03:06:35 +0100
+From: "Wed, 7 Dec 2005 03:06:35 +0100" <grundig@teleline.es>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: luke-jr@utopios.org, linux-kernel@vger.kernel.org, rms@gnu.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Message-Id: <20051207030635.8d0a24c1.grundig@teleline.es>
+In-Reply-To: <2cd57c900512061742s28f57b5eu@mail.gmail.com>
+References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
+	<20051206040820.GB26602@kroah.com>
+	<2cd57c900512052358m5b631204i@mail.gmail.com>
+	<200512061856.42493.luke-jr@utopios.org>
+	<2cd57c900512061742s28f57b5eu@mail.gmail.com>
+X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010407060102010300050006
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+El Wed, 7 Dec 2005 09:42:22 +0800,
+Coywolf Qi Hunt <coywolf@gmail.com> escribió:
 
-Hi,
-    Hitting BUG_ON() in __alloc_bootmem_core() when there is no free 
-page available in the first node's memory. For the case of kdump on 
-PPC64 (Power 4 machine), the captured kernel is used two memory regions 
-- memory for TCE tables (tce-base and tce-size at top of RAM and 
-reserved) and captured kernel memory region (crashk_base and 
-crashk_size). Since we reserve the memory for the first node, we should 
-be returning from __alloc_bootmem_core() to search for the next node 
-(pg_dat).
+> 2005/12/7, Luke-Jr <luke-jr@utopios.org>:
+> > No proprietary software here, excluding things such as firmware/BIOS where
+> > there is no choice.
+> 
+> Why 'excluding'? You can't deny you are using proprietary software.
+> Neither do us.
 
-Currently, find_next_zero_bit() is returning the n^th bit (eidx) when 
-there is no free page. Then, test_bit() is failed since we set 0xff only 
-for the actual size initially (init_bootmem_core()) even though rounded 
-up to one page for bdata->node_bootmem_map. We are hitting the BUG_ON 
-after failing to enter second "for" loop.
+BIOS'es and firmware are not drivers or normal "processes". Firmware
+doesn't deal with the internal kernel's locking for example- is a very
+different thing. bios and firmware is pretty much part of the hardware,
+pretty much like the chips' internal design: it just "does its work".
+There's no of point on having open source bioses/firmware if you don't
+have the design docs and all the related hardware info aswell.
 
-Please apply.
-
-Thanks
-Haren
-
-Signed-off-by: Haren Myneni <haren@us.ibm.com>
-
-
-
-
-
---------------010407060102010300050006
-Content-Type: text/x-patch;
- name="bootmem_bug_on_fix.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="bootmem_bug_on_fix.patch"
-
---- 2.6.15-rc5-git1/mm/bootmem.c.orig	2005-12-14 21:28:46.000000000 -0800
-+++ 2.6.15-rc5-git1/mm/bootmem.c	2005-12-14 21:35:54.000000000 -0800
-@@ -204,6 +204,8 @@ restart_scan:
- 		unsigned long j;
- 		i = find_next_zero_bit(bdata->node_bootmem_map, eidx, i);
- 		i = ALIGN(i, incr);
-+		if (i >= eidx)
-+			break;
- 		if (test_bit(i, bdata->node_bootmem_map))
- 			continue;
- 		for (j = i + 1; j < i + areasize; ++j) {
-
---------------010407060102010300050006--
+(IOW: Saying that you'are using "propietary software" because you're
+using a propietary BIOS is wrong, IMO - it's pretty much "propietary 
+hardware" even if its software)

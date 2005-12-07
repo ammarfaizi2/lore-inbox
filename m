@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbVLGKgI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbVLGKgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbVLGKgI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 05:36:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVLGKgH
+	id S1750825AbVLGKgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 05:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVLGKgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 05:36:07 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:57289 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1750823AbVLGKgG (ORCPT
+	Wed, 7 Dec 2005 05:36:09 -0500
+Received: from ns.firmix.at ([62.141.48.66]:9889 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1750825AbVLGKgH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 05:36:06 -0500
-Date: Wed, 7 Dec 2005 19:02:22 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 13/16] mm: fix minor scan count bugs
-Message-ID: <20051207110222.GA7570@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-References: <20051207104755.177435000@localhost.localdomain> <20051207105209.818705000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051207105209.818705000@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+	Wed, 7 Dec 2005 05:36:07 -0500
+Subject: Re: Urgent work ! please help
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Conio sandiago <coniodiago@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <993d182d0512070225kbc4d926w5ab4255e4cdaea75@mail.gmail.com>
+References: <993d182d0512070225kbc4d926w5ab4255e4cdaea75@mail.gmail.com>
+Content-Type: text/plain
+Organization: Firmix Software GmbH
+Date: Wed, 07 Dec 2005 11:36:02 +0100
+Message-Id: <1133951762.29581.34.camel@tara.firmix.at>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Wed, 2005-12-07 at 15:55 +0530, Conio sandiago wrote:
+> Hi all
+> i am conio,
+> i am facing some problems.
+> I have a embedded monta vista linux kernel running on arm processor,
 
-Here is the standalone version for -mm inclusion.
+What says MontaVistas support to the question about MontaVistas product?
 
+[...]
+> The packet analysis  shows there are  errors ,"TCP CHECKSUM INCORRECT".
 
-Subject: mm: fix minor scan count bugs
+Your network (i.e .at least one part of it) is broken.
 
-- in isolate_lru_pages(): reports one more scan. Fix it.
-- in shrink_cache(): 0 pages taken does not mean 0 pages scanned. Fix it.
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
 
-Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
----
-
---- linux.orig/mm/vmscan.c
-+++ linux/mm/vmscan.c
-@@ -837,7 +837,8 @@ static int isolate_lru_pages(int nr_to_s
- 	struct page *page;
- 	int scan = 0;
- 
--	while (scan++ < nr_to_scan && !list_empty(src)) {
-+	while (scan < nr_to_scan && !list_empty(src)) {
-+		scan++;
- 		page = lru_to_page(src);
- 		prefetchw_prev_lru_page(page, src, flags);
- 
-@@ -886,14 +887,15 @@ static void shrink_cache(struct zone *zo
- 		zone->pages_scanned += nr_scan;
- 		spin_unlock_irq(&zone->lru_lock);
- 
--		if (nr_taken == 0)
--			goto done;
--
- 		max_scan -= nr_scan;
- 		if (current_is_kswapd())
- 			mod_page_state_zone(zone, pgscan_kswapd, nr_scan);
- 		else
- 			mod_page_state_zone(zone, pgscan_direct, nr_scan);
-+
-+		if (nr_taken == 0)
-+			goto done;
-+
- 		nr_freed = shrink_list(&page_list, sc);
- 		if (current_is_kswapd())
- 			mod_page_state(kswapd_steal, nr_freed);

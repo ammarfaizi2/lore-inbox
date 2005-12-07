@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbVLGGep@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbVLGGso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030275AbVLGGep (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 01:34:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbVLGGep
+	id S1030290AbVLGGso (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 01:48:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbVLGGso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 01:34:45 -0500
-Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:59982 "HELO
-	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030275AbVLGGeo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 01:34:44 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Jasper Spaans <jasper@vs19.net>
-Subject: Re: [patch] patchlet for logips2pp.c
-Date: Wed, 7 Dec 2005 01:34:42 -0500
-User-Agent: KMail/1.8.3
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-References: <20051205151302.GB25577@spaans.vs19.net>
-In-Reply-To: <20051205151302.GB25577@spaans.vs19.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Wed, 7 Dec 2005 01:48:44 -0500
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:53263 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1030290AbVLGGsn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 01:48:43 -0500
+Date: Wed, 7 Dec 2005 07:50:32 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] Minor change to platform_device_register_simple
+ prototype
+Message-Id: <20051207075032.5e968a5a.khali@linux-fr.org>
+In-Reply-To: <20051205202707.GH15201@flint.arm.linux.org.uk>
+References: <20051205212337.74103b96.khali@linux-fr.org>
+	<20051205202707.GH15201@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512070134.42825.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 December 2005 10:13, Jasper Spaans wrote:
-> Hi,
-> 
-> When booting, my kernel spits out:
-> 
-> [4294670.033000] logips2pp: Detected unknown logitech mouse model 85
-> [4294670.106000] input: ImPS/2 Logitech Wheel Mouse as /class/input/input2
-> 
-> This is a simple wheel mouse, so the following patch should be OK for this
-> model:
-> 
-> diff --git a/drivers/input/mouse/logips2pp.c b/drivers/input/mouse/logips2pp.c
-> index 31a59f7..9a0bbe8 100644
-> --- a/drivers/input/mouse/logips2pp.c
-> +++ b/drivers/input/mouse/logips2pp.c
-> @@ -226,6 +226,7 @@ static struct ps2pp_info *get_model_info
->  		{ 80,	PS2PP_KIND_WHEEL,	PS2PP_SIDE_BTN | PS2PP_WHEEL },
->  		{ 81,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
->  		{ 83,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
-> +		{ 85,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
->  		{ 86,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
->  		{ 88,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
->  		{ 96,	0,			0 },
-> 
-> 
-> Cheers,
+Hi Russell,
 
-I will add this to my tree.
+> On Mon, Dec 05, 2005 at 09:23:37PM +0100, Jean Delvare wrote:
+> > The name parameter of platform_device_register_simple should be of
+> > type const char * instead of char *, as we simply pass it to
+> > platform_device_alloc, where it has type const char *.
+> > 
+> > Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> 
+> Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> 
+> However, I've been wondering whether we want to keep this "simple"
+> interface around long-term given that we now have a more flexible
+> platform device allocation interface - I don't particularly like
+> having superfluous interfaces for folk to get confused with.
 
-Thanks!
+What is the new preferred interface? Is it already in mainline or only
+in -mm? I am writing a new platform driver, and am using
+platform_device_interface_simple for now. It works just fine, but if
+it is going to be deprecated soon, I better update my driver before I
+submit it for inclusion.
 
+Thanks,
 -- 
-Dmitry
+Jean Delvare

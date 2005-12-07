@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751569AbVLGSIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751642AbVLGSKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751569AbVLGSIy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751634AbVLGSIy
+	id S1751642AbVLGSKW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:10:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751643AbVLGSKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:08:54 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22289 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750872AbVLGSIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:08:54 -0500
-Date: Wed, 7 Dec 2005 18:08:42 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: dtor_core@ameritech.net, Greg KH <greg@kroah.com>
-Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Minor change to platform_device_register_simple prototype
-Message-ID: <20051207180842.GG6793@flint.arm.linux.org.uk>
-Mail-Followup-To: dtor_core@ameritech.net, Greg KH <greg@kroah.com>,
-	Jean Delvare <khali@linux-fr.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20051205212337.74103b96.khali@linux-fr.org> <20051205202707.GH15201@flint.arm.linux.org.uk> <200512070105.40169.dtor_core@ameritech.net> <d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com>
+	Wed, 7 Dec 2005 13:10:22 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:45986 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751642AbVLGSKV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 13:10:21 -0500
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>, Paul Jackson <pj@sgi.com>
+In-Reply-To: <1133978128.2869.51.camel@laptopd505.fenrus.org>
+References: <20051114212341.724084000@sergelap>
+	 <m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
+	 <1133977623.24344.31.camel@localhost>
+	 <1133978128.2869.51.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 10:09:56 -0800
+Message-Id: <1133978996.24344.42.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 12:59:09PM -0500, Dmitry Torokhov wrote:
-> On 12/7/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> > On Monday 05 December 2005 15:27, Russell King wrote:
-> > > On Mon, Dec 05, 2005 at 09:23:37PM +0100, Jean Delvare wrote:
-> > > > The name parameter of platform_device_register_simple should be of
-> > > > type const char * instead of char *, as we simply pass it to
-> > > > platform_device_alloc, where it has type const char *.
-> > > >
-> > > > Signed-off-by: Jean Delvare <khali@linux-fr.org>
-> > >
-> > > Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
-> > >
-> > > However, I've been wondering whether we want to keep this "simple"
-> > > interface around long-term given that we now have a more flexible
-> > > platform device allocation interface - I don't particularly like
-> > > having superfluous interfaces for folk to get confused with.
-> >
-> > Now that you made platform_device_alloc install default release
-> > handler there is no need to have the _simple interface. I will
-> > convert input devices (main users of _simple) to the new interface
-> > and then we can get rid of it.
-> >
+On Wed, 2005-12-07 at 18:55 +0100, Arjan van de Ven wrote:
+> > > Many of the interesting places that deal with pids and where you
+> > > want translation are not where the values are read from current->pid,
+> > > but where the values are passed between functions.  Think about
+> > > the return value of do_fork.
+> > 
+> > Exactly.  The next phase will focus on such places.  Hubertus has some
+> > stuff working that's probably not ready for LKML, but could certainly be
+> > shared.
 > 
-> I have started moving drivers from the "_simple" interface and I found
-> that I'm missing platform_device_del that would complement
-> platform_device_add. Would you object to having such a function, like
-> we do for other sysfs objects? With it one can write somthing like
-> this:
+> hmm wonder if it's not just a lot simpler to introduce a split in
+> "kernel pid" and "userspace pid", and have current->pid and
+> current->user_pid for that.
+> 
+> Using accessor macros doesn't sound like it gains much here.. (but then
+> I've not seen the full picture and you have)
 
-Greg and myself discussed that, and we decided that it was adding
-unnecessary complexity to the interface.  Maybe Greg's view has
-changed?
+My first instinct was to introduce functions like get_user_pid() and
+get_kernel_pid() which would effectively introduce the same split.
+Doing that, we could keep from even referencing ->user_pid in normal
+code, and keep things small and simpler for people like the embedded
+folks.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+For the particular application that we're thinking of, we really don't
+want "user pid" and "kernel pid" we want "virtualized" and
+"unvirtualized", or "regular old pid" and "fancy new virtualized pid".
+
+So, like in the global pidspace (which can see all pids and appears to
+applications to be just like normal) you end up returning "kernel" pids
+to userspace.  That didn't seem to make sense.  
+
+-- Dave
+

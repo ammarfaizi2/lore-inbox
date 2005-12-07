@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbVLGGso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbVLGGoY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030290AbVLGGso (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 01:48:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbVLGGso
+	id S1030286AbVLGGoY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 01:44:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030296AbVLGGoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 01:48:44 -0500
-Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:53263 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1030290AbVLGGsn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 01:48:43 -0500
-Date: Wed, 7 Dec 2005 07:50:32 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] Minor change to platform_device_register_simple
- prototype
-Message-Id: <20051207075032.5e968a5a.khali@linux-fr.org>
-In-Reply-To: <20051205202707.GH15201@flint.arm.linux.org.uk>
-References: <20051205212337.74103b96.khali@linux-fr.org>
-	<20051205202707.GH15201@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 7 Dec 2005 01:44:24 -0500
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:64402 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1030286AbVLGGoY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 01:44:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=r8FuH9jqni0zReuaaH/wJ3mpv2xMiNKsal5p/TUiwta3qc65OBRDMNanUTDiwJXGTvdXutxwQcX8EXyGXYRN+oD5ya5nSoMtxT00OPujpi6Qac3uBEp62o95IJzhdsxcHuXgo/QMz1mRwHPYD6rBCw7/Uo9LmvCQ8qkDt5T2v20=  ;
+Message-ID: <439684C0.9090107@yahoo.com.au>
+Date: Wed, 07 Dec 2005 17:44:16 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       linux-mm@kvack.org, Andi Kleen <ak@suse.de>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [RFC 1/3] Framework for accurate node based statistics
+References: <20051206182843.19188.82045.sendpatchset@schroedinger.engr.sgi.com> <439619F9.4030905@yahoo.com.au> <Pine.LNX.4.62.0512061536001.20580@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0512061536001.20580@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
-
-> On Mon, Dec 05, 2005 at 09:23:37PM +0100, Jean Delvare wrote:
-> > The name parameter of platform_device_register_simple should be of
-> > type const char * instead of char *, as we simply pass it to
-> > platform_device_alloc, where it has type const char *.
-> > 
-> > Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Christoph Lameter wrote:
+> On Wed, 7 Dec 2005, Nick Piggin wrote:
 > 
-> Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
 > 
-> However, I've been wondering whether we want to keep this "simple"
-> interface around long-term given that we now have a more flexible
-> platform device allocation interface - I don't particularly like
-> having superfluous interfaces for folk to get confused with.
+>>Why not have per-node * per-cpu counters?
+> 
+> 
+> Yes, that is exactly what this patch implements.
+>  
 
-What is the new preferred interface? Is it already in mainline or only
-in -mm? I am writing a new platform driver, and am using
-platform_device_interface_simple for now. It works just fine, but if
-it is going to be deprecated soon, I better update my driver before I
-submit it for inclusion.
+Sorry, I think I meant: why don't you just use the "add all counters
+from all per-cpu of the node" in order to find the node-statistic?
 
-Thanks,
+Ie. like the node based page_state statistics that we already have.
+
 -- 
-Jean Delvare
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

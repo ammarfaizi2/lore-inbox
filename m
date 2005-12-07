@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVLGUeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbVLGUje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932237AbVLGUeu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 15:34:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751771AbVLGUeu
+	id S964848AbVLGUje (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 15:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbVLGUje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 15:34:50 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:2184
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751752AbVLGUet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 15:34:49 -0500
-Date: Wed, 07 Dec 2005 12:34:58 -0800 (PST)
-Message-Id: <20051207.123458.26771065.davem@davemloft.net>
-To: trizt@iname.com
-Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: Re: Sparc: Kernel 2.6.13 to 2.6.15-rc2 bug when running X11
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.64.0512071203460.8861@localhost.localdomain>
-References: <Pine.LNX.4.64.0512061658190.14952@lai.local.lan>
-	<20051206.152316.82233251.davem@davemloft.net>
-	<Pine.LNX.4.64.0512071203460.8861@localhost.localdomain>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Dec 2005 15:39:34 -0500
+Received: from web34103.mail.mud.yahoo.com ([66.163.178.101]:47697 "HELO
+	web34103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964848AbVLGUjd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 15:39:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=bHv2/XOwdwaJdvU0RrJ5likhVHKdCNqbuFqqu4Pi2HaR6FLehu0YC86eBe9gEuDkW+wc0oyP5WqRIdwPXVrRsngLwjUEanmQTO+N+0DGHQ5a+2SvjF2I3MQMESf9wrWGJdktwtAL4kPftncNKKPIRpri373jI5JxsbghkR+LBkQ=  ;
+Message-ID: <20051207203932.25422.qmail@web34103.mail.mud.yahoo.com>
+Date: Wed, 7 Dec 2005 12:39:32 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: An nfs question ftruncate vs. pwrite
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "J.O. Aho" <trizt@iname.com>
-Date: Wed, 7 Dec 2005 12:05:43 +0100 (CET)
+When a file that is opened with normal flags (O_RDWR|O_CREAT|O_TRUNC|O_LARGEFILE) is on NFS, and
+it is exteded via ftruncate, the new expty pages get read back from the server before the system
+call returns:
+  (from strace -T):
+ftruncate64(3, 41943040)                = 0 <0.063866>
 
-> When running in plain console (without trying to run X) everything works 
-> fine (just telling that so I won't get people to ask if ps segfaults in 
-> other cases or claims that my init is broke and so on).
 
-Is the Xorg.conf setup to use the "ati" driver?  You can't use
-"fbdev" or similar, that will in fact hang the machine in a
-manner similar to how you describe.
+-Kenny
+
+
+
+		
+__________________________________________ 
+Yahoo! DSL – Something to write home about. 
+Just $16.99/mo. or less. 
+dsl.yahoo.com 
+

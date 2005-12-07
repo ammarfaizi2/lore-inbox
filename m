@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbVLGQ3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751200AbVLGQbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbVLGQ3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 11:29:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbVLGQ3Y
+	id S1751200AbVLGQbr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 11:31:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVLGQbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 11:29:24 -0500
-Received: from host94-205.pool8022.interbusiness.it ([80.22.205.94]:18876 "EHLO
-	waobagger.intranet.nucleus.it") by vger.kernel.org with ESMTP
-	id S1751182AbVLGQ3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 11:29:23 -0500
-From: Massimiliano Hofer <max@bbs.cc.uniud.it>
-Organization: Nucleus snc
-To: linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Date: Wed, 7 Dec 2005 17:29:18 +0100
-User-Agent: KMail/1.9
-References: <200512071605.jB7G5M84007973@laptop11.inf.utfsm.cl>
-In-Reply-To: <200512071605.jB7G5M84007973@laptop11.inf.utfsm.cl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Dec 2005 11:31:47 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:26556 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S1751200AbVLGQbq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 11:31:46 -0500
+Date: Wed, 7 Dec 2005 13:55:02 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Florian Weimer <fw@deneb.enyo.de>, Jon Smirl <jonsmirl@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Message-ID: <20051207125502.GL21914@marowsky-bree.de>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <9e4733910512060816k26e12313y6b9a943d7cce4341@mail.gmail.com> <87fyp6mbjl.fsf@mid.deneb.enyo.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200512071729.18797.max@bbs.cc.uniud.it>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <87fyp6mbjl.fsf@mid.deneb.enyo.de>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 7 December 2005 5:05 pm, Horst von Brand wrote:
+On 2005-12-06T17:32:14, Florian Weimer <fw@deneb.enyo.de> wrote:
 
-> You can certainly keep 2.6.x.y for a while when 2.6.(x+1) shows up, and
-> even wait for 2.6.(x+1).1. Note that the stable series maintainers are
-> sypmathetic to the idea of doing a last 2.6.x.(y+1), flushing the queued
-> patches when 2.6.(x+1) shows up. Is this enough for you?
+> > 2) Endure the lawsuit and hope the FSF doesn't get a $450M settlement
+> > like NTP is getting from RIM. Meanwhile watch your stock price tumble
+> > since the injunction prevents you from shipping product.
+> Unlike NTP[1], the FSF distributes real products and is vulnerable to
+> counterclaims.
 
-If a 2.6.x.1 is released and a vulnerability is discovered with the wrong 
-timing, this leaves us with a kernel that has had little or no testing.
+We have organizations which could do this, but their sponsors wouldn't
+like it.
 
-We already had a 2.6.x that didn't even boot on half my servers. When 2.6.x.1 
-is the first bootable version and a security patch arrives, this leaves me 
-with an uncomfortable choice between an old, stable and vulnerable version 
-and a new, shiny and untested one.
 
-Having 2.6.x-1.y and 2.6.x.y would avoid this situation.
+Sincerely,
+    Lars Marowsky-Brée
 
 -- 
-Bye,
-   Massimiliano Hofer
+High Availability & Clustering
+SUSE Labs, Research and Development
+SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
+"Ignorance more frequently begets confidence than does knowledge"
+

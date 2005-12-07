@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVLGH5V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVLGILP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbVLGH5V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 02:57:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbVLGH5V
+	id S1750714AbVLGILP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 03:11:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbVLGILP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 02:57:21 -0500
-Received: from znsun1.ifh.de ([141.34.1.16]:51146 "EHLO znsun1.ifh.de")
-	by vger.kernel.org with ESMTP id S1750701AbVLGH5V (ORCPT
+	Wed, 7 Dec 2005 03:11:15 -0500
+Received: from main.gmane.org ([80.91.229.2]:20461 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750714AbVLGILP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 02:57:21 -0500
-Date: Wed, 7 Dec 2005 08:56:29 +0100 (CET)
-From: Patrick Boettcher <patrick.boettcher@desy.de>
-X-X-Sender: pboettch@pub5.ifh.de
-To: Johannes Stezenbach <js@linuxtv.org>
-Cc: Michael Krufky <mkrufky@gmail.com>, linux-dvb-maintainer@linuxtv.org,
-       linux-kernel@vger.kernel.org, Prakash Punnoor <prakash@punnoor.de>
-Subject: Re: [linux-dvb-maintainer] Re: [PATCH] b2c2: make front-ends   
- selectable and include noob option
-In-Reply-To: <20051207002919.GA18629@linuxtv.org>
-Message-ID: <Pine.LNX.4.64.0512070849300.18120@pub5.ifh.de>
-References: <200512062053.00711.prakash@punnoor.de>    
- <37219a840512061220w17388551jd54c189973e23355@mail.gmail.com>    
- <200512062139.16846.prakash@punnoor.de>     <20051206215610.GA18247@linuxtv.org>
-     <37219a840512061420j6dc6a0bdy71cc817706dcd0ef@mail.gmail.com>
- <20051207002919.GA18629@linuxtv.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Spam-Report: ALL_TRUSTED,BAYES_00
+	Wed, 7 Dec 2005 03:11:15 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Dirk Steuwer <dirk@steuwer.de>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Date: Wed, 7 Dec 2005 08:09:09 +0000 (UTC)
+Message-ID: <loom.20051207T085908-898@post.gmane.org>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <loom.20051206T173458-358@post.gmane.org> <1133894933.29084.3.camel@mindpipe> <200512062135.51960.grahame@regress.homelinux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 84.56.62.30 (Mozilla/5.0 (X11; U; Linux i686; de-DE; rv:1.7.12) Gecko/20051010 Firefox/1.0.7 (Ubuntu package 1.0.7))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Grahame White <grahame <at> regress.homelinux.org> writes:
 
-On Wed, 7 Dec 2005, Johannes Stezenbach wrote:
-> I think b2c2-flexcop-pci uses a 240K dma buffer, whether you
-> save a few K in demodulator code doesn't mean much.
-> The saved memory will be similarly unnoticable to the user as
-> if you would go and scatter #ifdefs all over tuner-simple.c.
->
-> But I'm neither the author nor the maintainer of the b2c2-flexcop
-> driver, you better ask Patrick if he likes it.
+> Then how about a "formal" linux certified logo? IOW a logo that can *only* 
+> be used if the hardware has drivers that were written using an officially 
+> supplied set of specifications and if said drivers are available under an 
+> OSI certified licence. Any use of the logo on a piece of hardware that is 
+> not certified would be liable to legal action.
+> 
+> Admittedly this would require a fair amount of effort to set up and uphold 
+> but if it helped make it easier to choose compatible hardware it could be 
+> worth it.
 
-There will be at least two new devices in the future, which again will 
-need (at least) two new demod(and maybe tuner)-modules.
 
-Prakash, if it is just the i2c_xfer failed, that could be easily turned 
-into a debug-message, but I rather have these as errors, because they are.
+Yes, precisely what i was talking about. 
+Something really simple joe average can
+follow. 
+It has to be validated from a license point of view, 
+but also from a technical side. 
+Otherwise, hardware folks license a piece of hardware and 
+then change something along the way, which doesn't work with the driver. 
+So ideally you have
+the according linux kernel hacker acknowledging this as well was 
+OSI or someone else.
+This would be a fantastic central database to look up for linux hardware
+compatibility. 
+With clever Marketing, this in itself could be turn up quite some
+revenue. 
+Part of the money could be returned to kernel bounty payment....
+And this would put tremendous pressure on hardware folk to get in there 
+- job done.
+I think this is feasable and if it chucks out some money, i can be done.
 
-I don't see the need for the ifdef - on the contrary: the number of people 
-asking for which demod they shall load dropped significantly after 
-FE_REFACTORING starting one year ago - now reintroducing that again is not 
-a good idea, IMO.
+regards,
+Dirk
 
-best regards,
-Patrick.
 
---
-   Mail: patrick.boettcher@desy.de
-   WWW:  http://www.wi-bw.tfh-wildau.de/~pboettch/

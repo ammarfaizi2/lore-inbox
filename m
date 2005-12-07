@@ -1,73 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVLGKef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbVLGKge@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbVLGKef (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 05:34:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbVLGKef
+	id S1750826AbVLGKge (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 05:36:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVLGKgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 05:34:35 -0500
-Received: from ext-gw.newtoncomputing.co.uk ([81.2.122.18]:520 "EHLO
-	mail.newtoncomputing.co.uk") by vger.kernel.org with ESMTP
-	id S1750822AbVLGKee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 05:34:34 -0500
-Date: Wed, 7 Dec 2005 10:34:27 +0000
-From: matthew-lkml@newtoncomputing.co.uk
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.27 crashed: any ideas?
-Message-ID: <20051207103427.GB6542@newtoncomputing.co.uk>
-References: <20051206111625.GA6542@newtoncomputing.co.uk> <Pine.LNX.4.64.0512060944480.13220@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512060944480.13220@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.9i
-X-NC-Fw-Sig: 579b9f15cc6d6ef038f7c9571346d6bf matthew-lkml@newtoncomputing.co.uk
+	Wed, 7 Dec 2005 05:36:33 -0500
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:8828 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1750826AbVLGKg2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 05:36:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=1TmMXE8Ijdxo/n970p8eVbiigsV757JHHBoloDvbF0mozxsevde43aUPtgRvZmzgnOjgAOkz1zo7f9Vfca40Mka1K8JeQ1AqPy/xxUH6/savJ+YcECuQ9BhV2F5/3zI5b6i3loxCCz8qkzbI+NYO2jwtk6jI0hLgwzPgxqqvHNg=  ;
+Message-ID: <4396BB27.50104@yahoo.com.au>
+Date: Wed, 07 Dec 2005 21:36:23 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Christoph Lameter <christoph@lameter.com>,
+       Rik van Riel <riel@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
+       Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [PATCH 12/16] mm: fold sc.may_writepage and sc.may_swap into
+ sc.flags
+References: <20051207104755.177435000@localhost.localdomain> <20051207105154.142779000@localhost.localdomain>
+In-Reply-To: <20051207105154.142779000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, Dec 06, 2005 at 09:47:34AM -0800, Zwane Mwaikambo wrote:
-> On Tue, 6 Dec 2005, matthew-lkml@newtoncomputing.co.uk wrote:
-> > Our main user-facing Linux machine at work crashed a couple of times over the
-> > last few days, both with the same error. It's been up and stable for the last
-> > 80ish days (from when it was upgraded to Debian sarge), and had no problems
-> > before that with the same kernel.
-> > 
-> > Machine is an HP DL740 with four Xeon 2Ghz CPUs and 4Gb RAM (5Gb RAID 5).
-> > 
-> > I've put both outputs that our console logger saved, and the result from running
-> > them through ksymoops, at http://www.le.ac.uk/cc/mcn4/problem/
-> > 
-> > I realise the kernel is tainted. It's a locally compiled Debian kernel. I think
-> > the non-free module is the qla SAN card driver, but I'm not sure (is there a way
-> > of finding out what exactly tainted the kernel?)
-> > 
-> > The strange thing is that both times it seemed to crash in cfi_probe, which
-> > looks like something to do with Compact Flash / MTDs. Something we don't use.
+Wu Fengguang wrote:
+> Fold bool values into flags to make struct scan_control more compact.
 > 
-> You're probably using a bad System.map, all we do know is that the oops is 
-> occuring in a module. Can you try rerunning ksymoops using the System.map 
-> in your kernel build directory? Or, cat /proc/modules before it oopses and 
-> then we can compare the faulting address.
 
-Thanks for the ideas from different people. I've started to take a copy of
-/proc/modules and /proc/ksyms on an every-two-minutes basis, so should have the
-latest versions if it goes down again. I hadn't realised that things change
-depending on the module load order. (Are there any other things from the running
-system I should backup in case of a crash?)
+Probably not a bad idea (although you haven't done anything for 64-bit
+archs, yet)... do we wait until one more flag wants to be added?
 
-I'm considering going to a later kernel, as it's been pointed out that this
-version is quite old. It is that version because it is a recompiled Debian one
-with a couple of additional patches (like QLogic qla2x000 support). Hence why I
-posted here not the Debian lists...
-
-I'll ignore the Debian kernel next anyway if I go to 2.6, as they've annoyingly
-stripped the qla modules out. Ho hum.
-
-Of course, it hasn't crashed again yet. I'm still waiting to see, as I'd like to
-find out what is causing it!
-
-Thanks!
+> Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
+> ---
+> 
+>  mm/vmscan.c |   22 ++++++++++------------
+>  1 files changed, 10 insertions(+), 12 deletions(-)
+> 
+> --- linux.orig/mm/vmscan.c
+> +++ linux/mm/vmscan.c
+> @@ -72,12 +72,12 @@ struct scan_control {
+>  	/* This context's GFP mask */
+>  	gfp_t gfp_mask;
+>  
+> -	int may_writepage;
+> -
+> -	/* Can pages be swapped as part of reclaim? */
+> -	int may_swap;
+> +	unsigned long flags;
+>  };
+>  
+> +#define SC_MAY_WRITEPAGE	0x1
+> +#define SC_MAY_SWAP		0x2	/* Can pages be swapped as part of reclaim? */
+> +
+>  #define lru_to_page(_head) (list_entry((_head)->prev, struct page, lru))
+>  
+>  #ifdef ARCH_HAS_PREFETCH
+> @@ -488,7 +488,7 @@ static int shrink_list(struct list_head 
+>  		 * Try to allocate it some swap space here.
+>  		 */
+>  		if (PageAnon(page) && !PageSwapCache(page)) {
+> -			if (!sc->may_swap)
+> +			if (!(sc->flags & SC_MAY_SWAP))
+>  				goto keep_locked;
+>  			if (!add_to_swap(page, GFP_ATOMIC))
+>  				goto activate_locked;
+> @@ -519,7 +519,7 @@ static int shrink_list(struct list_head 
+>  				goto keep_locked;
+>  			if (!may_enter_fs)
+>  				goto keep_locked;
+> -			if (laptop_mode && !sc->may_writepage)
+> +			if (laptop_mode && !(sc->flags & SC_MAY_WRITEPAGE))
+>  				goto keep_locked;
+>  
+>  			/* Page is dirty, try to write it out here */
+> @@ -1238,8 +1238,7 @@ int try_to_free_pages(struct zone **zone
+>  	delay_prefetch();
+>  
+>  	sc.gfp_mask = gfp_mask;
+> -	sc.may_writepage = 0;
+> -	sc.may_swap = 1;
+> +	sc.flags = SC_MAY_SWAP;
+>  	sc.nr_scanned = 0;
+>  	sc.nr_reclaimed = 0;
+>  
+> @@ -1287,7 +1286,7 @@ int try_to_free_pages(struct zone **zone
+>  		 */
+>  		if (sc.nr_scanned > SWAP_CLUSTER_MAX * 3 / 2) {
+>  			wakeup_pdflush(laptop_mode ? 0 : sc.nr_scanned);
+> -			sc.may_writepage = 1;
+> +			sc.flags |= SC_MAY_WRITEPAGE;
+>  		}
+>  
+>  		/* Take a nap, wait for some writeback to complete */
+> @@ -1343,8 +1342,7 @@ static int balance_pgdat(pg_data_t *pgda
+>  
+>  loop_again:
+>  	sc.gfp_mask = GFP_KERNEL;
+> -	sc.may_writepage = 0;
+> -	sc.may_swap = 1;
+> +	sc.flags = SC_MAY_SWAP;
+>  	sc.nr_mapped = read_page_state(nr_mapped);
+>  	sc.nr_scanned = 0;
+>  	sc.nr_reclaimed = 0;
+> @@ -1439,7 +1437,7 @@ scan_swspd:
+>  		 */
+>  		if (sc.nr_scanned > SWAP_CLUSTER_MAX * 2 &&
+>  		    sc.nr_scanned > sc.nr_reclaimed + sc.nr_reclaimed / 2)
+> -			sc.may_writepage = 1;
+> +			sc.flags |= SC_MAY_WRITEPAGE;
+>  
+>  		if (nr_pages && to_free > sc.nr_reclaimed)
+>  			continue;	/* swsusp: need to do more work */
+> 
 
 -- 
-Matthew
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

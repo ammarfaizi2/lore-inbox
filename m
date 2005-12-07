@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVLGXei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751824AbVLGXez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbVLGXei (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 18:34:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751812AbVLGXeh
+	id S1751824AbVLGXez (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 18:34:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751828AbVLGXez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 18:34:37 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:26604 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750754AbVLGXeh (ORCPT
+	Wed, 7 Dec 2005 18:34:55 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:32661 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751824AbVLGXey (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 18:34:37 -0500
-Subject: Re: 2.6.15-rc4 panic in __nr_to_section() with CONFIG_SPARSEMEM
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Andy Whitcroft <andyw@uk.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1133997772.21841.62.camel@localhost.localdomain>
-References: <1133995060.21841.56.camel@localhost.localdomain>
-	 <43976AA4.2060606@uk.ibm.com>
-	 <1133997772.21841.62.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 07 Dec 2005 15:34:15 -0800
-Message-Id: <1133998455.30387.67.camel@localhost>
+	Wed, 7 Dec 2005 18:34:54 -0500
+Date: Wed, 7 Dec 2005 15:36:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: sekharan@us.ibm.com, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/7]: Fix for unsafe notifier chain
+Message-Id: <20051207153612.0de2ce38.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.44L0.0512071441010.22006-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0512071441010.22006-100000@iolanthe.rowland.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-07 at 15:22 -0800, Badari Pulavarty wrote:
-> On Wed, 2005-12-07 at 23:05 +0000, Andy Whitcroft wrote:
-> > Badari Pulavarty wrote:
-> > > Hi Andy,
-> > > 
-> > > I getting a panic while doing "cat /proc/<pid>/smaps" on
-> > > a process. I debugged a little to find out that faulting
-> > > IP is in _nr_to_section() - seems to be getting somehow
-> > > called by  pte_offset_map_lock() from smaps_pte_range
-> > > (which show_smaps) calls.
-> > > 
-> > > Any ideas on why or how to debug further ? 
-> > 
-> > From dave's call graph I'd ask the question whether we should be calling
-> > pfn_valid() before pfn_to_page().  When I reviewed the proposed
-> > pfn_to_page() implementation I only recall one use and that already had
-> > the pfn_valid() in it.  I'll review -rc4 in the morning.
+Alan Stern <stern@rowland.harvard.edu> wrote:
+>
+> A high percentage of the existing notifier chains are of the blocking sort
+> (the callouts are allowed to sleep).  They are well served by a simple
+> rw-semaphore, as in our patch.  It seems foolish to force the duplication
+> of this locking code in all the places that would need it.
 > 
-> BTW, the problem seems to be while dealing with shared memory areas
-> that are backed by largepages.
+> Likewise, the atomic-type chains (where the callouts must run in an atomic 
+> context) are generally well served by the RCU mechanism, especially in 
+> cases where callouts are never unregistered.
+> 
+> So I propose that, in addition to those two types of chains, we define a
+> third type: raw notifiers.  These will be implemented with no protection
+> at all.  No rw-semaphore, no spinlock, no RCU, no need to avoid
+> self-unregistration, nothing -- all protection will be up to the users.  
+> In other words, just what you asked for.
+> 
+> This gives us the best of both worlds.  The common cases can benefit from
+> the centralized locking and protection, while anyone who has special needs
+> can easily provide for them.
+> 
+> If you think this would be okay, I'll rewrite the notifier patch to 
+> include the raw type.
 
-Should you even be making it into the pte function with large pages?
-Don't they just stop at the pmd level?
+The default version of notifier chains should be the lockless version -
+just like list_head, radix_tree, etc.  (idr tries to provide its own
+locking and has turned out to be a classic case of why we shouldn't do
+that).
 
-Maybe smaps_pmd_range() needs a pmd_huge() check.
+And sure, it makes sense to provide additional, higher-level data
+structures and APIs which layer on top of that, purely as a code
+consolidation exercise.  But they shouldn't be called notifier_chains. 
+Call them notifier_chain_mutex_locked and notifier_chain_rwlocked and
+notifier_chain_spinlocked or whatever.
 
--- Dave
-
+As for the NMIs and RCU: I suspect it was simply a mistake to try to use
+notifier chains for NMI registration in the first place - they are simply
+too complex a data structure for this.  I think I previously suggested
+removing that code and using just a fixed-size array of function pointers. 
+But if the RCUified notifier chain solution is less-than-totally-gross then
+that might be OK as well.

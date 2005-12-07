@@ -1,63 +1,408 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVLGJiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbVLGJkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbVLGJiM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 04:38:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbVLGJiL
+	id S1750751AbVLGJkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 04:40:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbVLGJkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 04:38:11 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:10598 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1750744AbVLGJiK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 04:38:10 -0500
+	Wed, 7 Dec 2005 04:40:25 -0500
+Received: from web30611.mail.mud.yahoo.com ([68.142.201.244]:2463 "HELO
+	web30611.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750751AbVLGJkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 04:40:24 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=GD/sTSxexWuxT19uu0BbT6tumxQ3oPTcSZodvjAYXBNNac6izysf/MFllUizEyqXedJv+aYML7c/KWvkiKgyj6jlPB3BDHlW1L2/1yGrgyh7dZ6ljfHlwkm4k8MOKWObsU13BLY69qH6CTO7116LkUx7ZVmTIm7E4BntApIkQkI=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH] um: fix compile error for tt
-Date: Wed, 7 Dec 2005 10:38:04 +0100
-User-Agent: KMail/1.8.3
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jdike@karaya.com
-References: <1133900650.3279.9.camel@localhost>
-In-Reply-To: <1133900650.3279.9.camel@localhost>
+  s=s1024; d=yahoo.fr;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=xM2NhjKJ8fpCx4szdiqhLsXzWGEq4dYITnQO344Y4UwU7oPb0m2TQwMtiRnxHPNZWK6oiHryxGX+5MUIyelPD8g64Xrqaw5cU17A+glp+q6WqWOB55Dfv97vqBYiwKWABnLz2PRn6SOlugIOhCF/kvkBs/dLu157ehGnyehBhrI=  ;
+Message-ID: <20051207094021.87235.qmail@web30611.mail.mud.yahoo.com>
+Date: Wed, 7 Dec 2005 10:40:21 +0100 (CET)
+From: zine el abidine Hamid <zine46@yahoo.fr>
+Subject: Re: Kernel BUG at page_alloc.c:117!
+To: Dirk Henning Gerdes <mail@dirk-gerdes.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1133870375.5334.9.camel@home.sweethome>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512071038.04958.blaisorblade@yahoo.it>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 December 2005 21:24, Pekka Enberg wrote:
-> Without the included patch, I get the following compile error for um:
+Hello,
+
+
+I come back to you. The code of the module wdpiano is
+the next one :
+
+
+#include <linux/config.h>
+#include <linux/module.h>
+#include <linux/version.h>
+#include <linux/types.h>
+#include <linux/errno.h>
+#include <linux/kernel.h>
+#include <linux/sched.h>
+#include <linux/miscdevice.h>
+#include <linux/watchdog.h>
+#include <linux/slab.h>
+#include <linux/ioport.h>
+#include <linux/fcntl.h>
+#include <asm/io.h>
+#include <asm/uaccess.h>
+#include <asm/system.h>
+#include <linux/notifier.h>
+#include <linux/reboot.h>
+#include <linux/init.h>
+
+
+#define WDIO 0x443
+#define WDIODIS 0x43
+static int wdpiano_is_open=0; // le fichier driver
+n'est pas ouvert
+static unsigned char tempo=10; //temporisation de 10
+second par défaut
+
+MODULE_PARM(tempo, "b");
+MODULE_PARM_DESC(tempo, "time-out period from 1s to
+255s (default 10s)");
+MODULE_AUTHOR("Massinissa AGOUDJIL RATP(R)
+<massinissa.agoudjil@ratp.fr>");
+MODULE_LICENSE("GPL");
+
+static int wdpiano_open(struct inode *inode, struct
+file *file) {
+   if (MINOR(inode->i_rdev)!=WATCHDOG_MINOR) return
+-ENODEV;
+   // access exclusive au fichier de driver
+   if (wdpiano_is_open) return -EBUSY;
+   // Comptage du nombre de chargement
+   MOD_INC_USE_COUNT;
+   //Initialise le timeout
+   outb_p(tempo,WDIO);
+    printk("<1>wdpiano: initialised with a time-out of
+%ds\n",tempo);
+   // limiter l'ouverture 
+   wdpiano_is_open=1;
+   return 0;
+}
+
+static int wdpiano_release(struct inode *inode, struct
+file *file) {
+   if (MINOR(inode->i_rdev)==WATCHDOG_MINOR) {
+#ifndef CONFIG_WATCHDOG_NOWAYOUT
+      //désactiver le watchdog à la fermeture
+      inb_p(WDIO);
+      inb_p(WDIODIS);
+#endif
+      wdpiano_is_open=0;
+   }
+   MOD_DEC_USE_COUNT;
+   return 0;
+}
+
+static ssize_t wdpiano_write(struct file *file, const
+char *buf, size_t count, loff_t *ppos) {
+   if (ppos!=&file->f_pos)
+     return -ESPIPE;
+   if (count) {
+      //reinitialiser le timer du watchdog
+      inb_p(WDIODIS);
+      inb_p(WDIO);
+      return 1;
+   }
+   return 0;
+}
+//Un petit message!
+static int wdpiano_notify_sys(struct notifier_block
+*this, unsigned long code,
+	void *unused) {
+	if(code==SYS_DOWN || code==SYS_HALT) {
+	    //désactiver le watchdog à la fermeture
+      	    inb_p(WDIO);
+      	    inb_p(WDIODIS);
+	}
+	return NOTIFY_DONE;
+}
+
+
+static struct file_operations wdpiano_fops = {
+  owner:          THIS_MODULE,
+// read:           wdpiano_read,
+   write:          wdpiano_write,
+   open:           wdpiano_open,
+   release:        wdpiano_release,
+};
+
+static struct miscdevice wdpiano_dev = {
+   WATCHDOG_MINOR, //fixer le mineur voir miscdevice.h
+et devices.txt
+     "watchdog",   //fixer le nom de fichier d'accee 
+     &wdpiano_fops
+};
+
+
+
+static struct notifier_block wdpiano_notifier = {
+   wdpiano_notify_sys,
+     NULL,
+     0
+};
+
+int init_module(void)
+{
+ int retval;
+
+ printk("Piano watchdog driver RATP(r) V1.0\n");
+
+ wdpiano_dev.fops = &wdpiano_fops;
+ // Allocation des ressources
+ register_reboot_notifier(&wdpiano_notifier);
+ // Enregistrement du module
+ retval = misc_register(&wdpiano_dev);
+/* if (retval)
+         return retval;*/
+ return 0;
+}
+
+
+
+void cleanup_module(void)
+{
+ printk("<1>wdpiano: cleanup_module\n");
+
+ // Suppression du module
+ misc_deregister(&wdpiano_dev);
+ //liberation des ressources 
+ unregister_reboot_notifier(&wdpiano_notifier);
+}
+
+
+
+Thank's for your help.
+
+Zine
+
+
+
+--- Dirk Henning Gerdes <mail@dirk-gerdes.de> a écrit
+:
+
+> Hi Zine!
+> 
+> That is not the point. But I suppose that the module
+> which runs under
+> 2.4.18 won't run under Linux 2.6. Or quite even
+> under 2.4.32.
+> That could cause some problems, either.
+> If the vendor would give you a new version
+> compatible to 2.6, you could
+> update your whole kernel.
+> 
+> 
+> Am Dienstag, den 06.12.2005, 11:35 +0100 schrieb
+> zine el abidine Hamid:
+> > Why? Do you think that the problem is the module
+> > wdpiano?
+> > 
+> > It's a small program which modify the Watch-Dog
+> Timer
+> > value only...
+> > 
+> > --- Dirk Henning Gerdes <mail@dirk-gerdes.de> a
+> écrit
+> > :
+> > 
+> > > Probably you can contact the manufactor of the
+> board
+> > > to get a driver for
+> > > the watchdog, which runs under newer
+> Linux-versions,
+> > > if you really need
+> > > the watchdog
+> > > Am Montag, den 05.12.2005, 17:48 +0100 schrieb
+> zine
+> > > el abidine Hamid:
+> > > > 
+> > > > I don't know if it's helpfull but the output
+> of
+> > > > ksymoops is :
+> > > > 
+> > > > ksymoops 2.4.4 on i686 2.4.18-3.  Options used
+> > > >      -V (default)
+> > > >      -k /proc/ksyms (default)
+> > > >      -l /proc/modules (default)
+> > > >      -o /lib/modules/2.4.18-3/ (default)
+> > > >      -m /boot/System.map-2.4.18-3 (default)
+> > > > 
+> > > > Warning: You did not tell me where to find
+> symbol
+> > > > information.  I will
+> > > > assume that the log matches the kernel and
+> modules
+> > > > that are running
+> > > > right now and I'll use the default options
+> above
+> > > for
+> > > > symbol resolution.
+> > > > If the current kernel and/or modules do not
+> match
+> > > the
+> > > > log, you can get
+> > > > more accurate output by telling me the kernel
+> > > version
+> > > > and where to find
+> > > > map, modules, ksyms etc.  ksymoops -h explains
+> the
+> > > > options.
+> > > > 
+> > > > Error (expand_objects): cannot
+> stat(/lib/ext3.o)
+> > > for
+> > > > ext3
+> > > > ksymoops: No such file or directory
+> > > > Error (expand_objects): cannot
+> stat(/lib/jbd.o)
+> > > for
+> > > > jbd
+> > > > 
+> > > > ....
+> > > > 
+> > > > 
+> > > > Warning (compare_maps): parport symbol
+> > > > parport_unregister_port not found in
+> > > >
+> > >
+> >
 >
-> arch/um/kernel/tt/uaccess.c: In function `copy_from_user_tt':
-> arch/um/kernel/tt/uaccess.c:11: error: `FIXADDR_USER_START' undeclared
-> (first use in this function) arch/um/kernel/tt/uaccess.c:11: error: (Each
-> undeclared identifier is reported only once arch/um/kernel/tt/uaccess.c:11:
-> error: for each function it appears in.)
+/lib/modules/2.4.18-3/kernel/drivers/parport/parport.o.
+> > > >  Ignoring
+> > > >
+> > >
+> >
 >
-> The error only happens when I disable CONFIG_MODE_SKAS.
-Ok, fine, just a note - the header inclusion should be added to 
+/lib/modules/2.4.18-3/kernel/drivers/parport/parport.o
+> > > > entry
+> > > > Warning (compare_maps): parport symbol
+> > > > parport_wait_event not found in
+> > > >
+> > >
+> >
+>
+/lib/modules/2.4.18-3/kernel/drivers/parport/parport.o.
+> > > >  Ignoring
+> > > >
+> > >
+> >
+>
+/lib/modules/2.4.18-3/kernel/drivers/parport/parport.o
+> > > > entry
+> > > > Warning (compare_maps): parport symbol
+> > > > parport_wait_peripheral not found in
+> > > >
+> > >
+> >
+>
+/lib/modules/2.4.18-3/kernel/drivers/parport/parport.o.
+> > > >  Ignoring
+> > > >
+> > >
+> >
+>
+/lib/modules/2.4.18-3/kernel/drivers/parport/parport.o
+> > > > entry
+> > > > Warning (compare_maps): parport symbol
+> > > parport_write
+> > > > not found in
+> > > >
+> > >
+> >
+>
+/lib/modules/2.4.18-3/kernel/drivers/parport/parport.o.
+> > > >  Ignoring
+> > > >
+> > >
+> >
+>
+/lib/modules/2.4.18-3/kernel/drivers/parport/parport.o
+> > > > entry
+> > > > Warning (map_ksym_to_module): cannot match
+> loaded
+> > > > module ext3 to a unique module object.  Trace
+> may
+> > > not
+> > > > be reliable.
+> > > > Warning (map_ksym_to_module): cannot match
+> loaded
+> > > > module jbd to a unique module object.  Trace
+> may
+> > > not
+> > > > be reliable.
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel:
+> kernel
+> > > BUG at
+> > > > page_alloc.c:117!
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel:
+> invalid
+> > > > operand: 0000
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel: CPU: 
+>   0
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel: EIP: 
+>  
+> > > > 0010:[<c01316e7>]    Not tainted
+> > > > 
+> > > > Using defaults from ksymoops -t elf32-i386 -a
+> i386
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel:
+> EFLAGS:
+> > > > 00010282
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel: eax:
+> > > 00000020
+> > > >   ebx: c16502d8   ecx: 00000001   edx: 000019
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel: esi:
+> > > 00000000
+> > > >   edi: 000001d0   ebp: 00000000   esp: c1755f
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel: ds:
+> 0018 
+> > > 
+> > > > es: 0018   ss: 0018
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel:
+> Process
+> > > > kswapd (pid: 5, stackpage=c1755000)
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel:
+> Stack:
+> > > > c02250b5 00000075 c013d0e3 ddf7e600 c16502d8
+> > > 000001d
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel:      
+> 
+> > > > c16502f4 c16502d8 c16502d8 000001d0 000001d0
+> > > c012ff8
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel:      
+> 
+> > > > 00000125 c02c473c 00000c24 00000848 0000000f
+> > > c013038
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel: Call
+> > > Trace:
+> > > > [<c013d0e3>] try_to_free_buffers [kernel] 0xb3
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel:
+> > > [<c013b23a>]
+> > > > try_to_release_page [kernel] 0x3a
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel:
+> > > [<c012ff8b>]
+> > > > page_launder_zone [kernel] 0x42b
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel:
+> > > [<c0130388>]
+> > > > page_launder [kernel] 0x168
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel:
+> > > [<c0130c12>]
+> > > > do_try_to_free_pages [kernel] 0x12
+> > > > Dec  1 14:54:58 Republique_ncl_a kernel:
+> 
+=== message truncated ===
 
-arch/um/include/um_uaccess.h
 
-where it is effectively used (the offending macros, using FIXADDR_USER_*, are 
-__access_ok_vsyscall.
-
-For the rest it's ok.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
 
 	
 
 	
 		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+___________________________________________________________________________ 
+Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
+Téléchargez cette version sur http://fr.messenger.yahoo.com

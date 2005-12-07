@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbVLGKX1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVLGKZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbVLGKX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 05:23:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbVLGKX1
+	id S1750796AbVLGKZf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 05:25:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVLGKZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 05:23:27 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:27828 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1750788AbVLGKXZ (ORCPT
+	Wed, 7 Dec 2005 05:25:15 -0500
+Received: from ns.ustc.edu.cn ([202.38.64.1]:40632 "EHLO mx1.ustc.edu.cn")
+	by vger.kernel.org with ESMTP id S1750801AbVLGKYz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 05:23:25 -0500
-Message-Id: <20051207104932.630888000@localhost.localdomain>
+	Wed, 7 Dec 2005 05:24:55 -0500
+Message-Id: <20051207105106.887005000@localhost.localdomain>
 References: <20051207104755.177435000@localhost.localdomain>
-Date: Wed, 07 Dec 2005 18:47:58 +0800
+Date: Wed, 07 Dec 2005 18:48:04 +0800
 From: Wu Fengguang <wfg@mail.ustc.edu.cn>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@lameter.com>,
@@ -19,175 +19,145 @@ Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <christoph@lameter.com>,
        Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
        Andrea Arcangeli <andrea@suse.de>, Wu Fengguang <wfg@mail.ustc.edu.cn>
-Subject: [PATCH 03/16] mm: supporting variables and functions for balanced zone aging
-Content-Disposition: inline; filename=mm-balance-zone-aging-supporting-facilities.patch
+Subject: [PATCH 09/16] mm: remove unnecessary variable and loop
+Content-Disposition: inline; filename=mm-remove-unnecessary-variable-and-loop.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The zone aging rates are currently imbalanced, the gap can be as large as 3
-times, which can severely damage read-ahead requests and shorten their
-effective life time.
+shrink_cache() and refill_inactive_zone() do not need loops.
 
-This patch adds three variables in struct zone
-	- aging_total
-	- aging_milestone
-	- page_age
-to keep track of page aging rate, and keep it in sync on page reclaim time.
-
-The aging_total is just a per-zone counter-part to the per-cpu
-pgscan_{kswapd,direct}_{zone name}. But it is not direct comparable between
-zones, so the aging_milestone/page_age are maintained based on aging_total.
-
-The page_age is a normalized value that can be direct compared between zones
-with the helper macro age_ge/age_gt. The goal of balancing logics are to keep
-this normalized value in sync between zones.
-
-One can check the balanced aging progress by running:
-                        tar c / | cat > /dev/null &
-                        watch -n1 'grep "age " /proc/zoneinfo'
+Simplify them to scan one chunk at a time.
 
 Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
 ---
 
- include/linux/mmzone.h |   14 ++++++++++++++
- mm/page_alloc.c        |   11 +++++++++++
- mm/vmscan.c            |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 73 insertions(+)
+ mm/vmscan.c |   92 ++++++++++++++++++++++++++++--------------------------------
+ 1 files changed, 43 insertions(+), 49 deletions(-)
 
---- linux.orig/include/linux/mmzone.h
-+++ linux/include/linux/mmzone.h
-@@ -149,6 +149,20 @@ struct zone {
- 	unsigned long		pages_scanned;	   /* since last reclaim */
- 	int			all_unreclaimable; /* All pages pinned */
- 
-+	/* Fields for balanced page aging:
-+	 * aging_total     - The accumulated number of activities that may
-+	 *                   cause page aging, that is, make some pages closer
-+	 *                   to the tail of inactive_list.
-+	 * aging_milestone - A snapshot of total_scan every time a full
-+	 *                   inactive_list of pages become aged.
-+	 * page_age        - A normalized value showing the percent of pages
-+	 *                   have been aged.  It is compared between zones to
-+	 *                   balance the rate of page aging.
-+	 */
-+	unsigned long		aging_total;
-+	unsigned long		aging_milestone;
-+	unsigned long		page_age;
-+
- 	/*
- 	 * Does the allocator try to reclaim pages from the zone as soon
- 	 * as it fails a watermark_ok() in __alloc_pages?
 --- linux.orig/mm/vmscan.c
 +++ linux/mm/vmscan.c
-@@ -123,6 +123,53 @@ static long total_memory;
- static LIST_HEAD(shrinker_list);
- static DECLARE_RWSEM(shrinker_rwsem);
+@@ -900,63 +900,58 @@ static void shrink_cache(struct zone *zo
+ {
+ 	LIST_HEAD(page_list);
+ 	struct pagevec pvec;
+-	int max_scan = sc->nr_to_scan;
++	struct page *page;
++	int nr_taken;
++	int nr_scan;
++	int nr_freed;
  
-+#ifdef CONFIG_HIGHMEM64G
-+#define		PAGE_AGE_SHIFT  8
-+#elif BITS_PER_LONG == 32
-+#define		PAGE_AGE_SHIFT  12
-+#elif BITS_PER_LONG == 64
-+#define		PAGE_AGE_SHIFT  20
-+#else
-+#error unknown BITS_PER_LONG
-+#endif
-+#define		PAGE_AGE_SIZE   (1 << PAGE_AGE_SHIFT)
-+#define		PAGE_AGE_MASK   (PAGE_AGE_SIZE - 1)
-+
-+/*
-+ * The simplified code is:
-+ * 	age_ge: (@a->page_age >= @b->page_age)
-+ * 	age_gt: (@a->page_age > @b->page_age)
-+ * The complexity deals with the wrap-around problem.
-+ * Two page ages not close enough(gap >= 1/8) should also be ignored:
-+ * they are out of sync and the comparison may be nonsense.
-+ *
-+ * Return value depends on the position of @a relative to @b:
-+ * -1/8       b      +1/8
-+ *   |--------|--------|-----------------------------------------------|
-+ *       0        1                           0
-+ */
-+#define age_ge(a, b) \
-+	(((a->page_age - b->page_age) & PAGE_AGE_MASK) < PAGE_AGE_SIZE / 8)
-+#define age_gt(a, b) \
-+	(((b->page_age - a->page_age) & PAGE_AGE_MASK) > PAGE_AGE_SIZE * 7 / 8)
-+
-+/*
-+ * Keep track of the percent of cold pages that have been scanned / aged.
-+ * It's not really ##%, but a high resolution normalized value.
-+ */
-+static inline void update_zone_age(struct zone *z, int nr_scan)
-+{
-+	unsigned long len = z->nr_inactive | 1;
-+
-+	z->aging_total += nr_scan;
-+
-+	if (z->aging_total - z->aging_milestone > len)
-+		z->aging_milestone += len;
-+
-+	z->page_age = ((z->aging_total - z->aging_milestone)
-+						<< PAGE_AGE_SHIFT) / len;
-+}
-+
- /*
-  * Add a shrinker callback to be called from the vm
-  */
-@@ -887,6 +934,7 @@ static void shrink_cache(struct zone *zo
- 					     &page_list, &nr_scan);
- 		zone->nr_inactive -= nr_taken;
- 		zone->pages_scanned += nr_scan;
-+		update_zone_age(zone, nr_scan);
- 		spin_unlock_irq(&zone->lru_lock);
+ 	pagevec_init(&pvec, 1);
  
- 		if (nr_taken == 0)
---- linux.orig/mm/page_alloc.c
-+++ linux/mm/page_alloc.c
-@@ -1522,6 +1522,8 @@ void show_free_areas(void)
- 			" active:%lukB"
- 			" inactive:%lukB"
- 			" present:%lukB"
-+			" aging:%lukB"
-+			" age:%lu"
- 			" pages_scanned:%lu"
- 			" all_unreclaimable? %s"
- 			"\n",
-@@ -1533,6 +1535,8 @@ void show_free_areas(void)
- 			K(zone->nr_active),
- 			K(zone->nr_inactive),
- 			K(zone->present_pages),
-+			K(zone->aging_total),
-+			zone->page_age,
- 			zone->pages_scanned,
- 			(zone->all_unreclaimable ? "yes" : "no")
- 			);
-@@ -2144,6 +2148,9 @@ static void __init free_area_init_core(s
- 		zone->nr_scan_inactive = 0;
- 		zone->nr_active = 0;
- 		zone->nr_inactive = 0;
-+		zone->aging_total = 0;
-+		zone->aging_milestone = 0;
-+		zone->page_age = 0;
- 		atomic_set(&zone->reclaim_in_progress, 0);
- 		if (!size)
- 			continue;
-@@ -2292,6 +2299,8 @@ static int zoneinfo_show(struct seq_file
- 			   "\n        high     %lu"
- 			   "\n        active   %lu"
- 			   "\n        inactive %lu"
-+			   "\n        aging    %lu"
-+			   "\n        age      %lu"
- 			   "\n        scanned  %lu (a: %lu i: %lu)"
- 			   "\n        spanned  %lu"
- 			   "\n        present  %lu",
-@@ -2301,6 +2310,8 @@ static int zoneinfo_show(struct seq_file
- 			   zone->pages_high,
- 			   zone->nr_active,
- 			   zone->nr_inactive,
-+			   zone->aging_total,
-+			   zone->page_age,
- 			   zone->pages_scanned,
- 			   zone->nr_scan_active, zone->nr_scan_inactive,
- 			   zone->spanned_pages,
+ 	lru_add_drain();
+ 	spin_lock_irq(&zone->lru_lock);
+-	while (max_scan > 0) {
+-		struct page *page;
+-		int nr_taken;
+-		int nr_scan;
+-		int nr_freed;
+-
+-		nr_taken = isolate_lru_pages(sc->nr_to_scan,
+-					     &zone->inactive_list,
+-					     &page_list, &nr_scan);
+-		zone->nr_inactive -= nr_taken;
+-		zone->pages_scanned += nr_scan;
+-		update_zone_age(zone, nr_scan);
+-		spin_unlock_irq(&zone->lru_lock);
++	nr_taken = isolate_lru_pages(sc->nr_to_scan,
++				     &zone->inactive_list,
++				     &page_list, &nr_scan);
++	zone->nr_inactive -= nr_taken;
++	zone->pages_scanned += nr_scan;
++	update_zone_age(zone, nr_scan);
++	spin_unlock_irq(&zone->lru_lock);
+ 
+-		if (nr_taken == 0)
+-			goto done;
++	if (nr_taken == 0)
++		return;
+ 
+-		max_scan -= nr_scan;
+-		sc->nr_scanned += nr_scan;
+-		if (current_is_kswapd())
+-			mod_page_state_zone(zone, pgscan_kswapd, nr_scan);
+-		else
+-			mod_page_state_zone(zone, pgscan_direct, nr_scan);
+-		nr_freed = shrink_list(&page_list, sc);
+-		if (current_is_kswapd())
+-			mod_page_state(kswapd_steal, nr_freed);
+-		mod_page_state_zone(zone, pgsteal, nr_freed);
+-		sc->nr_to_reclaim -= nr_freed;
++	sc->nr_scanned += nr_scan;
++	if (current_is_kswapd())
++		mod_page_state_zone(zone, pgscan_kswapd, nr_scan);
++	else
++		mod_page_state_zone(zone, pgscan_direct, nr_scan);
++	nr_freed = shrink_list(&page_list, sc);
++	if (current_is_kswapd())
++		mod_page_state(kswapd_steal, nr_freed);
++	mod_page_state_zone(zone, pgsteal, nr_freed);
++	sc->nr_to_reclaim -= nr_freed;
+ 
+-		spin_lock_irq(&zone->lru_lock);
+-		/*
+-		 * Put back any unfreeable pages.
+-		 */
+-		while (!list_empty(&page_list)) {
+-			page = lru_to_page(&page_list);
+-			if (TestSetPageLRU(page))
+-				BUG();
+-			list_del(&page->lru);
+-			if (PageActive(page))
+-				add_page_to_active_list(zone, page);
+-			else
+-				add_page_to_inactive_list(zone, page);
+-			if (!pagevec_add(&pvec, page)) {
+-				spin_unlock_irq(&zone->lru_lock);
+-				__pagevec_release(&pvec);
+-				spin_lock_irq(&zone->lru_lock);
+-			}
++	spin_lock_irq(&zone->lru_lock);
++	/*
++	 * Put back any unfreeable pages.
++	 */
++	while (!list_empty(&page_list)) {
++		page = lru_to_page(&page_list);
++		if (TestSetPageLRU(page))
++			BUG();
++		list_del(&page->lru);
++		if (PageActive(page))
++			add_page_to_active_list(zone, page);
++		else
++			add_page_to_inactive_list(zone, page);
++		if (!pagevec_add(&pvec, page)) {
++			spin_unlock_irq(&zone->lru_lock);
++			__pagevec_release(&pvec);
++			spin_lock_irq(&zone->lru_lock);
+ 		}
+-  	}
++	}
+ 	spin_unlock_irq(&zone->lru_lock);
+-done:
++
+ 	pagevec_release(&pvec);
+ }
+ 
+@@ -983,7 +978,6 @@ refill_inactive_zone(struct zone *zone, 
+ 	int pgmoved;
+ 	int pgdeactivate = 0;
+ 	int pgscanned;
+-	int nr_pages = sc->nr_to_scan;
+ 	LIST_HEAD(l_hold);	/* The pages which were snipped off */
+ 	LIST_HEAD(l_inactive);	/* Pages to go onto the inactive_list */
+ 	LIST_HEAD(l_active);	/* Pages to go onto the active_list */
+@@ -996,7 +990,7 @@ refill_inactive_zone(struct zone *zone, 
+ 
+ 	lru_add_drain();
+ 	spin_lock_irq(&zone->lru_lock);
+-	pgmoved = isolate_lru_pages(nr_pages, &zone->active_list,
++	pgmoved = isolate_lru_pages(sc->nr_to_scan, &zone->active_list,
+ 				    &l_hold, &pgscanned);
+ 	zone->pages_scanned += pgscanned;
+ 	zone->nr_active -= pgmoved;
 
 --

@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbVLGRzg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751484AbVLGR5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751478AbVLGRzg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 12:55:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751483AbVLGRzg
+	id S1751484AbVLGR5L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 12:57:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751569AbVLGR5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 12:55:36 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:12706 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751478AbVLGRzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 12:55:35 -0500
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>, Paul Jackson <pj@sgi.com>
-In-Reply-To: <1133977623.24344.31.camel@localhost>
-References: <20051114212341.724084000@sergelap>
-	 <m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
-	 <1133977623.24344.31.camel@localhost>
-Content-Type: text/plain
-Date: Wed, 07 Dec 2005 18:55:27 +0100
-Message-Id: <1133978128.2869.51.camel@laptopd505.fenrus.org>
+	Wed, 7 Dec 2005 12:57:11 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:19595 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751484AbVLGR5K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 12:57:10 -0500
+Date: Wed, 7 Dec 2005 18:57:08 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, rostedt@goodmis.org, johnstul@us.ibm.com
+Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
+Message-ID: <20051207175708.GA3672@elte.hu>
+References: <20051206000126.589223000@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512061628050.1610@scrub.home> <1133908082.16302.93.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512070347450.1609@scrub.home> <20051207165550.GA2426@elte.hu> <Pine.LNX.4.61.0512071813540.1610@scrub.home>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0512071813540.1610@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.6 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> > Many of the interesting places that deal with pids and where you
-> > want translation are not where the values are read from current->pid,
-> > but where the values are passed between functions.  Think about
-> > the return value of do_fork.
+* Roman Zippel <zippel@linux-m68k.org> wrote:
+
+> > > (It's also interesting how you do that without giving me any 
+> > >  credit for it.)
+> >
+> > Sorry if it was previously your idea and if we didnt credit you for 
+> > it.
+> > [...]
+> >
+> > > A bit later ktime_t looked pretty much like the 64bit part of my 
+> > > ktimespec.
+> > 
+> > and Thomas credited you for that point in his announcement:
+> > 
+> >  " Roman pointed out that the penalty for some architectures
+> >    would be quite big when using the nsec_t (64bit) scalar time
+> >    storage format. "
 > 
-> Exactly.  The next phase will focus on such places.  Hubertus has some
-> stuff working that's probably not ready for LKML, but could certainly be
-> shared.
-> 
+> "pointed out that the penalty" is a bit different from "provided the 
+> basic idea of the ktime_t union and half the implementation"...
 
-hmm wonder if it's not just a lot simpler to introduce a split in
-"kernel pid" and "userspace pid", and have current->pid and
-current->user_pid for that.
+so ... did you change your position from accusing us of not giving you 
+_any_ credit:
 
-Using accessor macros doesn't sound like it gains much here.. (but then
-I've not seen the full picture and you have)
+   "It's also interesting how you do that without giving me
+    any credit for it."
 
+to accusing us of not giving you _enough_ credit? Did i get that right?
+
+And ontop of that, you now want the credit for providing the basic idea 
+for half of the ktimer/hrtimer implementation? Sorry that i did not find 
+out in advance that you wanted _that_ ;-)
+
+	Ingo

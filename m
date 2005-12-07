@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbVLGMZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbVLGM1i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750925AbVLGMZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 07:25:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbVLGMZ7
+	id S1750929AbVLGM1i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 07:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750931AbVLGM1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 07:25:59 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:6124 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1750791AbVLGMZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 07:25:58 -0500
-Date: Wed, 7 Dec 2005 10:25:40 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, ehabkost@mandriva.com
+	Wed, 7 Dec 2005 07:27:38 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:17103 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750928AbVLGM1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 07:27:37 -0500
 Subject: Re: [linux-usb-devel] Re: [PATCH 00/10] usb-serial: Switches from
- spin lock to atomic_t.
-Message-Id: <20051207102540.792ee35c.lcapitulino@mandriva.com.br>
-In-Reply-To: <200512062336.47855.oliver@neukum.org>
+	spin lock to atomic_t.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+Cc: Oliver Neukum <oliver@neukum.org>, linux-usb-devel@lists.sourceforge.net,
+       ehabkost@mandriva.com, gregkh@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20051207102419.1f395664.lcapitulino@mandriva.com.br>
 References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br>
-	<20051206130207.7658636e.zaitcev@redhat.com>
-	<20051206191845.6f4827b3.lcapitulino@mandriva.com.br>
-	<200512062336.47855.oliver@neukum.org>
-Organization: Mandriva
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i586-mandriva-linux-gnu)
+	 <20051206194041.GA22890@suse.de> <20051206201340.GB20451@duckman.conectiva>
+	 <200512062348.14349.oliver@neukum.org>
+	 <20051207102419.1f395664.lcapitulino@mandriva.com.br>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 13:27:13 +0100
+Message-Id: <1133958433.2869.19.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Dec 2005 23:36:47 +0100
-Oliver Neukum <oliver@neukum.org> wrote:
 
-| Am Dienstag, 6. Dezember 2005 22:18 schrieb Luiz Fernando Capitulino:
-| > 
-| >  Hi Pete,
-| > 
-| > On Tue, 6 Dec 2005 13:02:07 -0800
-| > Pete Zaitcev <zaitcev@redhat.com> wrote:
-| > 
-| > | On Tue, 6 Dec 2005 18:14:49 -0200, Luiz Fernando Capitulino <lcapitulino@mandriva.com.br> wrote:
-| > | 
-| > | >  The spinlock makes the code less clear, error prone, and we already a
-| > | > semaphore in the struct usb_serial_port.
-| > | > 
-| > | >  The spinlocks _seems_ useless to me.
-| > | 
-| > | Dude, semaphores are not compatible with interrupts. Surely you
-| > | understand that?
-| > 
-| >  Sure thing man, take a look at this thread:
-| > 
-| > http://marc.theaimsgroup.com/?l=linux-kernel&m=113216151918308&w=2
-| > 
-| >  My comment 'we already have a semaphore in struct usb_serial_port'
-| > was about what we've discussed in that thread, where question like
-| > 'why should we have yet another lock here?' have been made.
-| > 
-| >  And *not* 'let's use the semaphore instead'.
-| > 
-| >  If _speed_ does not make difference, the spinlock seems useless,
-| > because we could use atomic_t instead.
-| 
-| You can atomically set _one_ value using atomic_t. A spinlock allows
-| that and other more complex schemes.
+>  Isn't it right? Is the URB write so fast that switching to atomic_t
+> doesn't pay-off?
 
- We only need to set 'write_urb_busy', nothing more.
+an atomic_t access and a spinlock are basically the same price... so
+what's the payoff ?
 
--- 
-Luiz Fernando N. Capitulino
+

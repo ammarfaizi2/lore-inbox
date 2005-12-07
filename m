@@ -1,87 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932651AbVLGGcA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbVLGGep@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932651AbVLGGcA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 01:32:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932644AbVLGGcA
+	id S1030275AbVLGGep (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 01:34:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbVLGGep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 01:32:00 -0500
-Received: from ganesha.gnumonks.org ([213.95.27.120]:36524 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S932548AbVLGGb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 01:31:59 -0500
-Date: Wed, 7 Dec 2005 12:46:10 +0530
-From: Harald Welte <laforge@gnumonks.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Dave Jones <davej@redhat.com>, Jiri Benc <jbenc@suse.cz>,
-       Joseph Jezak <josejx@gentoo.org>, mbuesch@freenet.de,
-       linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
-       NetDev <netdev@vger.kernel.org>
-Subject: Re: Broadcom 43xx first results
-Message-ID: <20051207071610.GC4361@rama.exocore.com>
-References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de> <20051205190038.04b7b7c1@griffin.suse.cz> <4394892D.2090100@gentoo.org> <20051205195543.5a2e2a8d@griffin.suse.cz> <4394902C.8060100@pobox.com> <20051205195329.GB19964@redhat.com> <20051206151046.GF4038@rama.exocore.com> <4395E0E3.4040601@pobox.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="96YOpH+ONegL0A3E"
+	Wed, 7 Dec 2005 01:34:45 -0500
+Received: from smtp103.sbc.mail.re2.yahoo.com ([68.142.229.102]:59982 "HELO
+	smtp103.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030275AbVLGGeo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 01:34:44 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Jasper Spaans <jasper@vs19.net>
+Subject: Re: [patch] patchlet for logips2pp.c
+Date: Wed, 7 Dec 2005 01:34:42 -0500
+User-Agent: KMail/1.8.3
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+References: <20051205151302.GB25577@spaans.vs19.net>
+In-Reply-To: <20051205151302.GB25577@spaans.vs19.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4395E0E3.4040601@pobox.com>
-User-Agent: mutt-ng devel-20050619 (Debian)
+Message-Id: <200512070134.42825.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 05 December 2005 10:13, Jasper Spaans wrote:
+> Hi,
+> 
+> When booting, my kernel spits out:
+> 
+> [4294670.033000] logips2pp: Detected unknown logitech mouse model 85
+> [4294670.106000] input: ImPS/2 Logitech Wheel Mouse as /class/input/input2
+> 
+> This is a simple wheel mouse, so the following patch should be OK for this
+> model:
+> 
+> diff --git a/drivers/input/mouse/logips2pp.c b/drivers/input/mouse/logips2pp.c
+> index 31a59f7..9a0bbe8 100644
+> --- a/drivers/input/mouse/logips2pp.c
+> +++ b/drivers/input/mouse/logips2pp.c
+> @@ -226,6 +226,7 @@ static struct ps2pp_info *get_model_info
+>  		{ 80,	PS2PP_KIND_WHEEL,	PS2PP_SIDE_BTN | PS2PP_WHEEL },
+>  		{ 81,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+>  		{ 83,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+> +		{ 85,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+>  		{ 86,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+>  		{ 88,	PS2PP_KIND_WHEEL,	PS2PP_WHEEL },
+>  		{ 96,	0,			0 },
+> 
+> 
+> Cheers,
 
---96YOpH+ONegL0A3E
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I will add this to my tree.
 
-On Tue, Dec 06, 2005 at 02:05:07PM -0500, Jeff Garzik wrote:
-> Harald Welte wrote:
-> >I also think that there is a lack of knowledge on the architecture of
-> >802.11 low-level protocols and drivers among many people (including
-> >myself) in the network community.  Only this way I can explain why there
-> >are always people who claim that the kernel already has a 802.11
-> >'stack'.
->=20
-> This last sentence, regardless of the source, is simply playing with word=
-s.
+Thanks!
 
-I don't think that having clear definitions of certain terms is playing
-with words.  I don't neccessarily care which words are used, but it's
-always useful to have common, well-defined terminology.
-
-I also wouldn't call the TCP code a stack, if it hadn't all the state
-engine in it. =20
-
-> We have 802.11 common code in the kernel, that several drivers are
-> using. =20
-
-Yes.
-
-> Future drivers should modify that common code to suit their
-> needs, rather than dropping it and starting from scratch.
-
-I did not state that it has to be replaced.  I'm much in favour of
-gradual changes myself.
-
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
-
---96YOpH+ONegL0A3E
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDlow6XaXGVTD0i/8RAjBDAKCd78Py8EsqyE0Njc7BIL2bOiEHagCfUz6V
-IaDv+ovK8LPgWDjc23ysj4g=
-=aNsK
------END PGP SIGNATURE-----
-
---96YOpH+ONegL0A3E--
+-- 
+Dmitry

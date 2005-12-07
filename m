@@ -1,62 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbVLGA5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbVLGBAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbVLGA5M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 19:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVLGA5M
+	id S964974AbVLGBAI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 20:00:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030311AbVLGBAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 19:57:12 -0500
-Received: from baythorne.infradead.org ([81.187.2.161]:675 "EHLO
-	baythorne.infradead.org") by vger.kernel.org with ESMTP
-	id S964852AbVLGA5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 19:57:12 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Grover <andy.grover@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Brian Gerst <bgerst@didntduck.org>,
-       Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <c0a09e5c0512061525n1c1a472ci56eeef22a6d970b4@mail.gmail.com>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <20051205121851.GC2838@holomorphy.com>
-	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
-	 <20051206030828.GA823@opteron.random> <4394696B.6060008@didntduck.org>
-	 <1133894575.4136.171.camel@baythorne.infradead.org>
-	 <1133897035.23610.32.camel@localhost.localdomain>
-	 <1133907922.4136.218.camel@baythorne.infradead.org>
-	 <c0a09e5c0512061525n1c1a472ci56eeef22a6d970b4@mail.gmail.com>
+	Tue, 6 Dec 2005 20:00:07 -0500
+Received: from pat.uio.no ([129.240.130.16]:2558 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S964974AbVLGBAG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 20:00:06 -0500
+Subject: Re: stat64 for over 2TB file returned invalid st_blocks
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>, Takashi Sato <sho@tnes.nec.co.jp>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20051206212416.GZ14509@schatzie.adilger.int>
+References: <000301c5fa62$8d1bb730$4168010a@bsd.tnes.nec.co.jp>
+	 <1133879435.8895.14.camel@kleikamp.austin.ibm.com>
+	 <1133880516.9040.6.camel@lade.trondhjem.org>
+	 <20051206212416.GZ14509@schatzie.adilger.int>
 Content-Type: text/plain
-Date: Wed, 07 Dec 2005 00:56:54 +0000
-Message-Id: <1133917014.4136.244.camel@baythorne.infradead.org>
+Date: Tue, 06 Dec 2005 19:59:44 -0500
+Message-Id: <1133917184.8197.57.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by baythorne.infradead.org
-	See http://www.infradead.org/rpr.html
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.977, required 12,
+	autolearn=disabled, AWL 1.84, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-06 at 15:25 -0800, Andrew Grover wrote:
-> Where possible ACPI does still use tables. For more complicated
-> configuration, ACPI uses easily-decompiled bytecodes. I think if the
-> graphics bios provided arch-neutral AML for doing all this
-> mode-setting stuff we'd be better off. Better than interpreting x86
-> real-mode BIOS code!
+On Tue, 2005-12-06 at 14:24 -0700, Andreas Dilger wrote:
+> On Dec 06, 2005  09:48 -0500, Trond Myklebust wrote:
+> > On Tue, 2005-12-06 at 08:30 -0600, Dave Kleikamp wrote:
+> > > I think it looks good.  The only issue I have is that I agree with
+> > > Andreas that i_blocks should be of type sector_t.  I find the case of
+> > > accessing very large files over nfs with CONFIG_LBD disabled to be very
+> > > unlikely.
+> > 
+> > NO! sector_t is a block-device specific type. It does not belong in the
+> > generic inode.
+> 
+> sector_t would imply "units of 512-byte sectors", and this is exactly
+> what i_blocks is actually measuring, so I don't really understand your
+> objection.
 
-This is true. Real drivers with only _tables_ to describe the hardware
-would be best, but AML would be at least be better than i386 code, if we
-have to settle for something less.
+Strictly speaking, sector_t is a block offset that happens to be in
+"units of 1<<inode->i_blkbits bytes". It is not a count of the number of
+blocks in a file.
 
-> You have to get a priori information about the system somewhere. With
-> ACPI at least it's not a complete mystery what the BIOS is doing,
-> unlike these video BIOSes.
+> If you have objection to the use of sector_t, it could be some other type
+> that is defined virtually identically as CONFIG_LBD sector_t, except that
+> it might be desirable to allow it to be configured separately for network
+> filesystems that have large files.  I'm sure the embedded linux folks
+> wouldn't be thrilled at an extra 4 bytes in every inode and 64-bit math
+> if they don't really use it.
 
-Actually, the one time I tried to decompile a DSDT it was a Dell
-Inspiron which did _everything_ through SMM traps. It was more opaque
-even than a binary-only driver (or BIOS). At least with i386-code I have
-_some_ hope of tracing it, if I have enough time and patience.
+That would be fine.
 
--- 
-dwmw2
-
+Cheers,
+  Trond
 

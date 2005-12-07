@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbVLGWq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030413AbVLGWwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750861AbVLGWq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 17:46:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751821AbVLGWq6
+	id S1030413AbVLGWwG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 17:52:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030416AbVLGWwG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 17:46:58 -0500
-Received: from rtr.ca ([64.26.128.89]:41145 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1750861AbVLGWq6 (ORCPT
+	Wed, 7 Dec 2005 17:52:06 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:2996 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S1030413AbVLGWwF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 17:46:58 -0500
-Message-ID: <43976661.1030004@rtr.ca>
-Date: Wed, 07 Dec 2005 17:46:57 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH] Fix incorrect pointer in megaraid.c MODE_SENSE emulation
-Content-Type: multipart/mixed;
- boundary="------------000708050106030802060008"
+	Wed, 7 Dec 2005 17:52:05 -0500
+Date: Wed, 7 Dec 2005 17:49:06 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+Cc: Lee Revell <rlrevell@joe-job.com>, Dirk Steuwer <dirk@steuwer.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Runs with Linux (tm)
+Message-ID: <20051207224906.GK533@kvack.org>
+References: <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org> <loom.20051206T094816-40@post.gmane.org> <20051206104652.GB3354@favonius> <loom.20051206T173458-358@post.gmane.org> <20051207141720.GA533@kvack.org> <1133982741.17901.32.camel@mindpipe> <20051207194746.GG533@kvack.org> <439760FF.3060605@mnsu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <439760FF.3060605@mnsu.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000708050106030802060008
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, Dec 07, 2005 at 04:23:59PM -0600, Jeffrey Hundstad wrote:
+> The problem as I see it:
+> 
+> A hardware vendor hires someone to write a driver.  The driver is 
+> completed and submitted and finally makes it into the kernel.  It's 
+> fully GPL and everyone is happy.  The hardware gets a "Native Linux 
+> Support" logo.  The card goes out of favor and no one is interested in 
+> maintaining the driver, it is marked obsolete and finally removed from 
+> the kernel. ...the logo still suggests the hardware will work.
 
-The SCSI megaraid drive goes to great effort to kmap
-the scatterlist buffer (if used), but then uses the
-wrong pointer when copying to it afterward.
+Your assumptions are pretty wild: drivers which are accepted into the 
+mainline kernel, we *rarely* drop.  Only recently have some of the more 
+impossible to find ISA drivers started being dropped.
 
-Signed-off-by:  Mark Lord <lkml@rtr.ca>
+> It might be possible to add a serial number to the logo, and keep a 
+> database that maintains a current status of the device in the Linux kernel.
 
---------------000708050106030802060008
-Content-Type: text/x-patch;
- name="megaraid.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="megaraid.patch"
+Note as you're thinking.  It makes more sense to say that the driver 
+works with version x.y.z of the kernel and later.
 
---- linux-2.6.15-rc5/drivers/scsi/megaraid.c.orig	2005-12-04 00:10:42.000000000 -0500
-+++ linux/drivers/scsi/megaraid.c	2005-12-07 17:41:30.000000000 -0500
-@@ -664,7 +664,7 @@
- 					sg->offset;
- 			} else
- 				buf = cmd->request_buffer;
--			memset(cmd->request_buffer, 0, cmd->cmnd[4]);
-+			memset(buf, 0, cmd->cmnd[4]);
- 			if (cmd->use_sg) {
- 				struct scatterlist *sg;
- 
-
---------------000708050106030802060008--
+		-ben
+-- 
+"You know, I've seen some crystals do some pretty trippy shit, man."
+Don't Email: <dont@kvack.org>.

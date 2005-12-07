@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750843AbVLGLFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbVLGLGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750843AbVLGLFe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 06:05:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbVLGLFe
+	id S1750845AbVLGLGO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 06:06:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbVLGLGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 06:05:34 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51336 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750841AbVLGLFd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 06:05:33 -0500
-Date: Wed, 7 Dec 2005 12:05:21 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Could not suspend device [VIA UHCI USB controller]: error -22
-Message-ID: <20051207110521.GB2563@elf.ucw.cz>
-References: <43923479.3020305@tls.msk.ru> <20051204003130.GB1879@kroah.com> <386F0C1C.1040509@tls.msk.ru> <20051205132048.GB7478@elf.ucw.cz> <4396BBF4.4010609@tls.msk.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4396BBF4.4010609@tls.msk.ru>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Wed, 7 Dec 2005 06:06:13 -0500
+Received: from 1-1-3-46a.gml.gbg.bostream.se ([82.182.110.161]:61655 "EHLO
+	kotiaho.net") by vger.kernel.org with ESMTP id S1750845AbVLGLGM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 06:06:12 -0500
+Date: Wed, 7 Dec 2005 12:05:43 +0100 (CET)
+From: "J.O. Aho" <trizt@iname.com>
+X-X-Sender: trizt@localhost.localdomain
+To: "David S. Miller" <davem@davemloft.net>
+cc: linux-kernel maillist <linux-kernel@vger.kernel.org>,
+       sparclinux@vger.kernel.org
+Subject: Re: Sparc: Kernel 2.6.13 to 2.6.15-rc2 bug when running X11
+In-Reply-To: <20051206.152316.82233251.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0512071203460.8861@localhost.localdomain>
+References: <Pine.LNX.4.64.0512060257160.27930@lai.local.lan>
+ <20051205.181732.34234732.davem@davemloft.net> <Pine.LNX.4.64.0512061658190.14952@lai.local.lan>
+ <20051206.152316.82233251.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On St 07-12-05 13:39:48, Michael Tokarev wrote:
-> Pavel Machek wrote:
-> >>I tried various 'wakeup' settings in bios, incl. turning everything
-> >>off in that menu - no difference.
-> >>
-> >>The same behaviour is shown by all 2.6 kernels I tried so far
-> >>(since 2.6.6 or so).
-> > 
-> > Try ACPI wakeup settings, and ask on ACPI lists. Unfortunately noone
-> > really cares about standby these days.
-> 
-> Which "ACPI wakeup settings" did you mean?  In BIOS or in kernel?
+On Tue, 6 Dec 2005, David S. Miller wrote:
 
-/proc/acpi/wakeup. And do ask on acpi mailing lists.
+> From: "J.O. Aho" <trizt@iname.com>
+> Date: Tue, 6 Dec 2005 17:10:07 +0100 (CET)
+>
+>> On Mon, 5 Dec 2005, David S. Miller wrote:
+>>
+>>> 2) You didn't give what the failure mode is for kernels such
+>>>   as 2.6.14.2, which should work, and certainly don't print out
+>>>   that bug message
+>>
+>> It's the same as for 2.6.13 and 2.6.15rc, did build a 2.6.14.3 as had
+>> removed the 14.2 when I started to use 15rc.
+>
+> You're still not answering my question, what is this failure
+> mode?  Xorg doesn't start?  The kernel crashes when Xorg starts?
+> Xorg starts but you get a blank screen?  You did not mention
+> this critical information anywhere.  Mentioning a list of other
+> kernels that "it's the same" for doesn't describe the failure
+> mode. :)
 
-> Too bad no one cares about standby.. :(
-> I've several of those systems, and I love them for their quiet
-> operation.  The only problem for me is the system startup time
-> (about 3 minutes) and applications startup time (due to the
-> empty filesystem cache) -- it'd be very nice to be able to
-> suspend the system somehow instead of turning it off...  Now,
-> suspend to disk does not work at all (that 4M pages stuff on
-> a VIA C3 CPU), suspend to mem does not work either, and "normal"
-> standby, while works, triggers a wakeup almost immediately.
-> So, in short, no suspend at all...
+Sorry, thought the log from Xorg was quite selfexplaining
 
-Well, printk time. Find out what is wrong. Noone else can because lack
-of hardware.
-								Pavel
+Xorg jumps to VT7, you see a console cursor, "_", at the top left corner 
+and thats it. It's impossible to change back to VT1 (or any other), the 
+only thing that works is to press [stop]-[a] so that you get back to the
+OBP from where I can reset the machine (resetting by the reset button 
+don't work). It's still possible to ssh to the machine, more and dmesg is 
+possible, but running ps causes the machine to completly lock up, change 
+init mode don't give any affects att all and trying to turn off or kill X 
+results in the same as ps.
+
+When running in plain console (without trying to run X) everything works 
+fine (just telling that so I won't get people to ask if ps segfaults in 
+other cases or claims that my init is broke and so on).
+
+
 -- 
-Thanks, Sharp!
+       //Aho
+
+   ------------------------------------------------------------------------
+    E-Mail: trizt@iname.com            URL: http://www.kotiaho.net/~trizt/
+       ICQ: 13696780
+    System: Linux System                        (PPC7447/1000 AMD K7A/2000)
+   ------------------------------------------------------------------------
+              EU forbids you to send spam without my permission
+   ------------------------------------------------------------------------

@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbVLGMsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbVLGMu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751024AbVLGMsX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 07:48:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbVLGMsX
+	id S1750940AbVLGMu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 07:50:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750941AbVLGMu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 07:48:23 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:64865 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751021AbVLGMsV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 07:48:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=pqQJOIKzVrWD7qdk3l6PsnA+d1XH+iUDCf7PP/yyijK/ZYFs6YWNTw1LLoyGAAb782HOkMVMHMBdQYnGgE4t0svT2R0xiQ8Q8eha7rqHF88dotFJRccWhMtrMtGPuZSOx29+LwCjgYL29ww6rbQu+HjQuRWNinScvUfYBu5VPdE=
-Message-ID: <4396DA09.8040800@gmail.com>
-Date: Wed, 07 Dec 2005 21:48:09 +0900
-From: Tejun <htejun@gmail.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Boot <bootc@bootc.net>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
-       linux-ide@vger.kernel.org
-Subject: Re: 2.6.15-rc5-mm1 sata_sil regression
-References: <4396CB79.5040408@bootc.net>
-In-Reply-To: <4396CB79.5040408@bootc.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 7 Dec 2005 07:50:56 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:59620 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750935AbVLGMuz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 07:50:55 -0500
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Florian Weimer <fw@deneb.enyo.de>, Jon Smirl <jonsmirl@gmail.com>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <4396D913.7070503@aitel.hist.no>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	 <9e4733910512060816k26e12313y6b9a943d7cce4341@mail.gmail.com>
+	 <87fyp6mbjl.fsf@mid.deneb.enyo.de>  <4396D913.7070503@aitel.hist.no>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 07 Dec 2005 12:49:55 +0000
+Message-Id: <1133959795.544.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Boot wrote:
-> Hi all,
-> 
-> I just upgraded to 2.6.15-rc5-mm1 from 2.6.15-rc2-mm1 and sata_sil 
-> refused to recognise the two SATA drives that are connected to it:
-> 
+On Mer, 2005-12-07 at 13:44 +0100, Helge Hafting wrote:
+> But they can fix that in a trivial way by setting up a separate company,
+> "FSF patent management" or some such?
 
-The sata_sil driver in the current ALL branch doesn't work due to the 
-collision between pio changes and sata_sil irq handling improvements.
+You sell the patent and all rights to an offshore company that does no
+other work. They then sue you for violating the patent because you
+"accidentally" forgot to keep your own rights, you settle and pay them
+back the same amount of money they paid you, you claim tax breaks on the
+resulting loss. 
 
-Jeff, maybe the sil branch shouldn't be merged into ALL for the time being?
+Just spinning off a company in the modern day world is so tax
+inefficient.
 
--- 
-tejun
+
+Alan
+- -
+The fundamental problem with western capitalist states is the peculiar
+way they differentiate between "bribes" and "lobbying"
+

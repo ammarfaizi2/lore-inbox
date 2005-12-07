@@ -1,68 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbVLGN0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbVLGNfk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751022AbVLGN0j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 08:26:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751052AbVLGN0j
+	id S1751052AbVLGNfk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 08:35:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbVLGNfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 08:26:39 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:35494 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1751022AbVLGN0j (ORCPT
-	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Wed, 7 Dec 2005 08:26:39 -0500
-Date: Wed, 7 Dec 2005 21:53:47 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 01/16] mm: delayed page activation
-Message-ID: <20051207135347.GB6141@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Nikita Danilov <nikita@clusterfs.com>,
-	Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
-	Andrew Morton <akpm@osdl.org>
-References: <20051203071444.260068000@localhost.localdomain> <20051203071609.755741000@localhost.localdomain> <17298.56560.78408.693927@gargle.gargle.HOWL> <20051204134818.GA4305@mail.ustc.edu.cn> <17299.1331.368159.374754@gargle.gargle.HOWL> <20051205014842.GA5103@mail.ustc.edu.cn> <17301.53377.614777.913013@gargle.gargle.HOWL> <20051207014235.GA5186@mail.ustc.edu.cn> <17302.55593.531594.871250@gargle.gargle.HOWL>
+	Wed, 7 Dec 2005 08:35:40 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:11474 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S1750987AbVLGNfj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 08:35:39 -0500
+From: Michael Buesch <mbuesch@freenet.de>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: Broadcom 43xx first results
+Date: Wed, 7 Dec 2005 14:34:22 +0100
+User-Agent: KMail/1.8.3
+References: <4394902C.8060100@pobox.com> <20051206151046.GF4038@rama.exocore.com> <20051206.151919.72043193.davem@davemloft.net>
+In-Reply-To: <20051206.151919.72043193.davem@davemloft.net>
+Cc: davej@redhat.com, jgarzik@pobox.com, jbenc@suse.cz, josejx@gentoo.org,
+       mbuesch@freenet.de, linux-kernel@vger.kernel.org,
+       bcm43xx-dev@lists.berlios.de, netdev@vger.kernel.org,
+       laforge@gnumonks.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17302.55593.531594.871250@gargle.gargle.HOWL>
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed;
+  boundary="nextPart1801062.7lD3BpfnaP";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200512071434.23706.mbuesch@freenet.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 03:44:25PM +0300, Nikita Danilov wrote:
-> Wu Fengguang writes:
->  > Yes, it also increased the lifetimes by meaningful values: first re-accessed
->  > pages are prolonged more lifetime. Immediately removing them from inactive_list 
->  > is basicly doing MRU eviction.
-> 
-> Are you talking about CLOCK-pro here? I don't understand your statement
-> in the context of current VM: if the "first re-accessed" page was close
-> to the cold tail of the inactive list, and "second re-accessed" page was
-> close to the head of the inactive list, then life-time of second one is
-> increased by larger amount.
+--nextPart1801062.7lD3BpfnaP
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Sorry, I fail to mention that I'm comparing two pages that are read in at the
-same time, therefore they are in the same place in inactive_list. But their
-re-access time can be quite different.
+On Wednesday 07 December 2005 00:19, you wrote:
+> From: Harald Welte <laforge@gnumonks.org>
+> Date: Tue, 6 Dec 2005 20:40:47 +0530
+>=20
+> > I'm also in favor of merging the devicescape code, but I don't see it
+> > happening without somebody taking care to provide all the required
+> > levels of interfaces (I see at least three levels of API's that a wirel=
+ess
+> > driver would need, depending on how much stuff is done in
+> > hardware/firmware and how much in software.
+>=20
+> I hate to say this, but part of the problem is exactly the fact
+> that all the implementors have implemented different levels of
+> hardware-MAC'ness in their wireless products.
+>=20
+> Stated even further, things might have been more consistent if M$ had
+> specified a set of driver interfaces into their own softmac stack,
+> which I am to understand they are working on now.
+>=20
+> So every M$ wireless driver essentially links in their own softmac
+> stack, if needed.
+>=20
+> This has resulted in a complicated situation for an already
+> complicated technology.  Therefore, the fact that it's taking this
+> long to accomodate all of the cases in the vanilla tree is quite
+> understandable.
+>=20
+> I'm at the point where I frankly don't care which softmac
+> implementation we go with, but rather I'm more concerned that we pick
+> _ONE_ and just stick with it, and then adding the necessary interfaces
+> and infrastructure as different wireless devices require.
+>=20
+> Yes, you hear me right, it's more important to agree to one
+> implementation as the basis, even if it's the worst one currently.
+> Division of labor is something we simply cannot afford on the wireless
+> stack at this time.
 
-There are roughly two kinds of reads: almost instantly and slowly forward. For
-the former one, read-in-time = first-access-time, unless for initial cache misses.
-The latter one is the original purpose of of the patch: to keep one chunk of
-read-ahead pages together, instead of let them littering throughout the lru
-list.
+I agree with you, and that is exactly what we are doing:
+We take the existing code and add functionality to it. If the
+added functionality is an external module, well, consinder this
+as an extra cookie for devices which do not need MAC handling.
 
->  > Delayed activation increased scanning activity, while immediate activation
->  > increased the locking activity. Early profiling data on a 2 CPU Xeon box showed
->  > that the delayed activation acctually cost less time.
-> 
-> That's great, but current mark_page_accessed() has an important
-> advantage: the work is done by the process that accessed the page in
-> read/write path, or at page fault. By delegating activation to the VM
-> scanner, the burden of work is shifted to the innocent thread that
-> happened to trigger scanning during page allocation.
+=2D-=20
+Greetings Michael.
 
-Thanks to notice it. It will happen in the direct page reclaim path. But I have
-just made interesting tests of the patch, in which direct page reclaims were
-reduced to zero. Till now I have no hint of why this is happening :)
+--nextPart1801062.7lD3BpfnaP
+Content-Type: application/pgp-signature
 
-Wu
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDluTflb09HEdWDKgRAkzMAKCl1t/hPpe1cfb1wygotPs+kbLa6QCZAV+i
+sSmnauJ0TnAFqxyPQ/iYd2A=
+=wzEO
+-----END PGP SIGNATURE-----
+
+--nextPart1801062.7lD3BpfnaP--

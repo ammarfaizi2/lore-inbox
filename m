@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751735AbVLGSkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751730AbVLGSjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751735AbVLGSkR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:40:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751738AbVLGSkQ
+	id S1751730AbVLGSjm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:39:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751735AbVLGSjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:40:16 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:45994 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751735AbVLGSkN convert rfc822-to-8bit (ORCPT
+	Wed, 7 Dec 2005 13:39:42 -0500
+Received: from xenotime.net ([66.160.160.81]:32980 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751730AbVLGSjl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:40:13 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 7 Dec 2005 13:39:41 -0500
+Date: Wed, 7 Dec 2005 10:39:36 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] Minor change to platform_device_register_simple prototype
+In-Reply-To: <d120d5000512071011s2e2acf14u1532e47d0f24292e@mail.gmail.com>
+Message-ID: <Pine.LNX.4.58.0512071038170.17648@shark.he.net>
+References: <20051205212337.74103b96.khali@linux-fr.org> 
+ <20051205202707.GH15201@flint.arm.linux.org.uk>  <200512070105.40169.dtor_core@ameritech.net>
+  <d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com>
+ <d120d5000512071011s2e2acf14u1532e47d0f24292e@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [RFC 1/3] Framework for accurate node based statistics 
-Date: Wed, 7 Dec 2005 10:39:54 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F052359F9@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC 1/3] Framework for accurate node based statistics 
-Thread-Index: AcX7XAzPzDP2aXYaQV2LSJkCImLZ5QAAJecg
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Christoph Lameter" <clameter@engr.sgi.com>, "Keith Owens" <kaos@sgi.com>
-Cc: "Andi Kleen" <ak@suse.de>, <linux-kernel@vger.kernel.org>,
-       "Hugh Dickins" <hugh@veritas.com>,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>, <linux-mm@kvack.org>,
-       <linux-ia64@vger.kernel.org>,
-       "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
-X-OriginalArrivalTime: 07 Dec 2005 18:39:49.0026 (UTC) FILETIME=[9A5D4020:01C5FB5D]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> How big is that array going to get?  The total per cpu data area is
->> limited to 64K on IA64 and we already use at least 34K.
->
-> Maximum around 1k nodes and I guess we may end up with 16 counters:
->
-> 1024*16*8 = 131k ?
+On Wed, 7 Dec 2005, Dmitry Torokhov wrote:
 
-Ouch.
+> Btw, what is the policy on placing EXPORT_SYMBOL(...). Should they all
+> go together (at the top or teh bottom) or after each symbol
+> definition? Right now platform.c mixes 2 styles...
 
-Can you live with a pointer to that monster block of space in the
-per-cpu area?
+Not all grouped together (option 1 above), but
+yes, after each symbol definition (option 2 above)...
+is the current preference AFAIK.
 
-Otherwise the next step up is a 256K per cpu area ... which I wouldn't
-want to make the default (so we'll have another 2*X explosion in the
-number of possible configs to test).
-
--Tony
+-- 
+~Randy

@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751742AbVLGSm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751741AbVLGSoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751742AbVLGSm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:42:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751741AbVLGSm1
+	id S1751741AbVLGSoF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:44:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751745AbVLGSoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:42:27 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:24813 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751738AbVLGSm0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:42:26 -0500
-Message-Id: <200512071840.jB7IeNe8009407@laptop11.inf.utfsm.cl>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Bill Davidsen <davidsen@tmr.com>, Rob Landley <rob@landley.net>,
-       Mark Lord <lkml@rtr.ca>, Adrian Bunk <bunk@stusta.de>,
-       David Ranson <david@unsolicited.net>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel 
-In-Reply-To: Message from Arjan van de Ven <arjan@infradead.org> 
-   of "Wed, 07 Dec 2005 16:48:38 BST." <1133970518.2869.37.camel@laptopd505.fenrus.org> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Wed, 07 Dec 2005 15:40:23 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Wed, 07 Dec 2005 15:40:25 -0300 (CLST)
+	Wed, 7 Dec 2005 13:44:05 -0500
+Received: from intranet.networkstreaming.com ([24.227.179.66]:42589 "EHLO
+	networkstreaming.com") by vger.kernel.org with ESMTP
+	id S1751741AbVLGSoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 13:44:04 -0500
+Message-ID: <43972D70.9040005@davyandbeth.com>
+Date: Wed, 07 Dec 2005 12:44:00 -0600
+From: Davy Durham <pubaddr2@davyandbeth.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: config question
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Dec 2005 18:44:18.0153 (UTC) FILETIME=[3AC6C590:01C5FB5E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan@infradead.org> wrote:
+Question: 
 
-> > The other group is the people who use and depend on some feature, be it 
-> > cryptoloop, 8k stacks, ndiswrapper, ipchains, whatever... which is 
-> > scheduled for extinction. 
+What is the danger or disadvantage (if any) of setting:
 
-Come on, most of those were scheduled for deletion a /long/ time ago.
+CONFIG_HIGHMEM4G=y
+CONFIG_HIGHMEM=y
 
-> these are actually 2 groups
-> 
-> 1) people who depend on an in-kernel features
-> 
-> 2) people who depend on out of kernel / binary modules
-> 
-> treating them as one is not correct or fair to this thread.
+when a machine only has say 512megs installed?
 
-Right.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+
+Thanks,
+  Davy

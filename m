@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbVLGQ6V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbVLGRAr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbVLGQ6V (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 11:58:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbVLGQ6V
+	id S1751207AbVLGRAr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 12:00:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbVLGRAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 11:58:21 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:43659 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751208AbVLGQ6U (ORCPT
+	Wed, 7 Dec 2005 12:00:47 -0500
+Received: from mail.kroah.org ([69.55.234.183]:29610 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751207AbVLGRAq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 11:58:20 -0500
-Date: Wed, 7 Dec 2005 11:58:11 -0500
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Missing break in timedia serial setup.
-Message-ID: <20051207165811.GA3574@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <20051207010526.GA7258@redhat.com> <20051207093431.GB32365@flint.arm.linux.org.uk>
+	Wed, 7 Dec 2005 12:00:46 -0500
+Date: Wed, 7 Dec 2005 08:59:46 -0800
+From: Greg KH <gregkh@suse.de>
+To: Otavio Salvador <otavio@debian.org>
+Cc: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       ehabkost@mandriva.com
+Subject: Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
+Message-ID: <20051207165946.GA28393@suse.de>
+References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br> <20051207164118.GA28032@suse.de> <87vey0hmok.fsf@nurf.casa>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051207093431.GB32365@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <87vey0hmok.fsf@nurf.casa>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 09:34:31AM +0000, Russell King wrote:
- > On Tue, Dec 06, 2005 at 08:05:26PM -0500, Dave Jones wrote:
- > > Spotted during code review by a Fedora user.
- > > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=174967
- > 
- > Makes no difference.
- > 
- >         switch (idx) {
- >         case 3:
- >                 bar = 1;
- >         case 4: /* BAR 2 */
- >         case 5: /* BAR 3 */
- >         case 6: /* BAR 4 */
- >         case 7: /* BAR 5 */
- >                 bar = idx - 2;
- > 
- > If idx is 3, idx - 2 is 1.  So the bar = 1 is actually redundant in
- > case 3.
+On Wed, Dec 07, 2005 at 02:55:07PM -0200, Otavio Salvador wrote:
+> Greg KH <gregkh@suse.de> writes:
+> 
+> > That's the right thing to do, so I'm not going to take this patch series
+> > right now because of that.  If you all want to work on moving to use the
+> > serial core, I would love to see that happen.
+> 
+> But wouldn't be better to have this intermediary solution merged while
+> someone work on this conversion?
 
-Duh, yes of course. Here's a patch to remove the redundant assignment,
-but as it's harmless, I'll leave it up to you to decide whether or
-not it's worth applying.
+No, why do you say that?  It doesn't fix a bug at all, and it isn't a
+"solution" to any existing problem.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+thanks,
 
---- linux-2.6.14/drivers/serial/8250_pci.c~	2005-12-07 11:56:13.000000000 -0500
-+++ linux-2.6.14/drivers/serial/8250_pci.c	2005-12-07 11:56:41.000000000 -0500
-@@ -516,7 +516,6 @@ pci_timedia_setup(struct serial_private 
- 		break;
- 	case 3:
- 		offset = board->uart_offset;
--		bar = 1;
- 	case 4: /* BAR 2 */
- 	case 5: /* BAR 3 */
- 	case 6: /* BAR 4 */
+greg k-h

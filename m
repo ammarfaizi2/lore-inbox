@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751571AbVLGR7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbVLGSAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751571AbVLGR7L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 12:59:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbVLGR7L
+	id S1751573AbVLGSAc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:00:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751634AbVLGSAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 12:59:11 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:24536 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751570AbVLGR7K convert rfc822-to-8bit
+	Wed, 7 Dec 2005 13:00:32 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:43932 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751573AbVLGSAb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 12:59:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WKVxzUf8/O19PFVo6K/dLvn6c1ejRbeik/I/W0sutmkarrzuvXzfIClR2h0fQbxOPh5sKrRyk0X8UXjWBq1ZrG5tx1eYkk+GYPMz36CjDJzxwe0GqMYqquZG7/ZDlyvuWBIirC2o0R7FKCST6Qe+Px/epUQadKhqA7eVUvVea40=
-Message-ID: <d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com>
-Date: Wed, 7 Dec 2005 12:59:09 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [PATCH] Minor change to platform_device_register_simple prototype
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-In-Reply-To: <200512070105.40169.dtor_core@ameritech.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051205212337.74103b96.khali@linux-fr.org>
-	 <20051205202707.GH15201@flint.arm.linux.org.uk>
-	 <200512070105.40169.dtor_core@ameritech.net>
+	Wed, 7 Dec 2005 13:00:31 -0500
+Subject: Re: [RFC][PATCH] x86_64:  Fix collision between pmtimer and
+	pit/hpet timekeeping
+From: john stultz <johnstul@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, Chris McDermott <lcm@us.ibm.com>,
+       vojtech@suse.cz
+In-Reply-To: <20051207175338.GB11190@wotan.suse.de>
+References: <1133931639.10613.39.camel@cog.beaverton.ibm.com>
+	 <20051207175338.GB11190@wotan.suse.de>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 10:00:30 -0800
+Message-Id: <1133978430.18188.3.camel@leatherman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> On Monday 05 December 2005 15:27, Russell King wrote:
-> > On Mon, Dec 05, 2005 at 09:23:37PM +0100, Jean Delvare wrote:
-> > > The name parameter of platform_device_register_simple should be of
-> > > type const char * instead of char *, as we simply pass it to
-> > > platform_device_alloc, where it has type const char *.
-> > >
-> > > Signed-off-by: Jean Delvare <khali@linux-fr.org>
-> >
-> > Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
-> >
-> > However, I've been wondering whether we want to keep this "simple"
-> > interface around long-term given that we now have a more flexible
-> > platform device allocation interface - I don't particularly like
-> > having superfluous interfaces for folk to get confused with.
->
-> Now that you made platform_device_alloc install default release
-> handler there is no need to have the _simple interface. I will
-> convert input devices (main users of _simple) to the new interface
-> and then we can get rid of it.
->
+On Wed, 2005-12-07 at 18:53 +0100, Andi Kleen wrote:
+> On Tue, Dec 06, 2005 at 09:00:39PM -0800, john stultz wrote:
+> > Hello,
+> > 	I thought I had caught all the problems when the no-legacy HPET support
+> > landed close to the time that the ACPI PM timer support landed, but
+> > apparently not. :(
+> > 
+> > On systems that do not support the HPET legacy functions (basically the
+> > IBM x460, but there could be others), in time_init() we accidentally
+> > fall into a PM timer conditional and set the vxtime_hz value to the PM
+> > timer's frequency. We then use this value with the HPET for timekeeping.
+> > 
+> > This patch (which mimics the behavior in time_init_gtod) corrects the
+> > collision.
+> > 
+> > Andi, any objections or suggestions for a better way?
+> 
+> Ok. I will apply it.
+> 
+> But I never quite got why you fall back to the PIT on these systems
+> anyways - if LEGSUP is not set it just means that the HPET interrupt
+> cannot be routed to irq 0, right? It should be quite easy to change
+> the timer code to accept timer interrupts on other irqs. 
+> 
+> You just need to allocate the other interrupt and possibly coordinate
+> that with the hpet char driver (or rather move the code for that
+> from there to time.c). I think implementing that would be a better
+> solution.
 
-I have started moving drivers from the "_simple" interface and I found
-that I'm missing platform_device_del that would complement
-platform_device_add. Would you object to having such a function, like
-we do for other sysfs objects? With it one can write somthing like
-this:
+Indeed that does sound like a decent cleanup. I can't promise anything
+in the near future, but its on my list.
 
- err_delete_device:
-        platform_device_del(i8042_platform_device);
- err_free_device:
-        platform_device_put(i8042_platform_device);
- err_unregister_driver:
-        platform_driver_unregister(&i8042_driver);
+Would you then want to move all systems to use the non-legacy HPET
+interrupt?
+
+thanks
+-john
 
 
---
-Dmitry

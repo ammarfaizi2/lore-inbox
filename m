@@ -1,146 +1,396 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbVLGDaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965054AbVLGDbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbVLGDaA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 22:30:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbVLGDaA
+	id S965054AbVLGDbT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 22:31:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965042AbVLGDbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 22:30:00 -0500
-Received: from mexforward.lss.emc.com ([168.159.213.200]:3993 "EHLO
-	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
-	id S964814AbVLGD37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 22:29:59 -0500
-Message-ID: <C2EEB4E538D3DC48BF57F391F422779321AE8F@srmanning.eng.emc.com>
-From: "goggin, edward" <egoggin@emc.com>
-To: "'Patrick Mansfield'" <patmans@us.ibm.com>,
-       James Bottomley <James.Bottomley@SteelEye.com>
-Cc: "goggin, edward" <egoggin@emc.com>,
-       "'Rolf Eike Beer'" <eike-kernel@sf-tec.de>,
-       "'Andrew Morton'" <akpm@osdl.org>,
-       Masanari Iida <standby24x7@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, linux-scsi@vger.kernel.org
-Subject: RE: oops with USB Storage on 2.6.14
-Date: Tue, 6 Dec 2005 22:29:13 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+	Tue, 6 Dec 2005 22:31:19 -0500
+Received: from [203.2.177.25] ([203.2.177.25]:29261 "EHLO pfeiffer.tusc.com.au")
+	by vger.kernel.org with ESMTP id S964838AbVLGDbR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 22:31:17 -0500
+Subject: Re: [PATCH] X25: Add ITU-T facilite
+From: Andrew Hendry <ahendry@tusc.com.au>
+To: Arnaldo Carvalho de Melo <acme@ghostprotocols.net>, eis@baty.hanse.de,
+       linux-x25@vger.kernel.org, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
 Content-Type: text/plain
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.12.6.36
-X-PerlMx-Spam: Gauge=, SPAM=1%, Reasons='EMC_FROM_00+ -3, __C230066_P3_4 0, __CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __IMS_MSGID 0, __IMS_MUA 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
+Message-Id: <1133925800.3575.63.camel@localhost.localdomain>
+Mime-Version: 1.0
+Date: Wed, 07 Dec 2005 14:23:20 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Patrick Mansfield [mailto:patmans@us.ibm.com] 
-> Sent: Tuesday, November 08, 2005 4:33 PM
-> To: James Bottomley
-> Cc: goggin, edward; 'Rolf Eike Beer'; 'Andrew Morton'; 
-> Masanari Iida; linux-kernel@vger.kernel.org; 
-> linux-usb-devel@lists.sourceforge.net; linux-scsi@vger.kernel.org
-> Subject: Re: oops with USB Storage on 2.6.14
-> 
-> On Tue, Nov 08, 2005 at 04:08:43PM -0500, James Bottomley wrote:
-> > On Tue, 2005-11-08 at 15:02 -0500, goggin, edward wrote:
-> > > Thanks!  Here's a better one.
-> > 
-> > It's line wrapped, but I fixed that up.
-> 
-> What code path triggered this?
+Any update on the status of this patch?
 
-I was testing multipath responsiveness to FC transport failures
-by inducing scsi target device removal by writing into the
-delete attribute of the scsi device kobject for scsi target
-devices managed by multipathd.  The test is simple and involves no
-user block read/write IO to the multipath mapped or target devices.
-After initial multipath discovery is complete, the only IO going on
-to target devices is periodic test paths, for my devices this
-amounts to issuing an EVPD page 0xc0 inquiry to each target
-device every 10 seconds.
+Thanks,
+Andrew.
 
-My kernel call stack at the time of panic looks very similar to
-the one originally reported by Masanari Iida.  I've shown
-Masanari's kernel stack trace below.
+On 10/24/05, Andrew Hendry <ahendry@tusc.com.au> wrote:
+Structure alignment corrected.
+        
+        Adds options for ITU DTE facilities to X.25, called address extension and calling address extension
+        
+        Signed-off-by: Andrew Hendry <ahendry@tusc.com.au>
+        
+        
+        diff -uprN -X dontdiff linux-2.6.13.4-vanilla/include/linux/x25.h linux-2.6.13.4/include/linux/x25.h
+        --- linux-2.6.13.4-vanilla/include/linux/x25.h  2005-10-11 04:54:29.000000000 +1000
+        +++ linux-2.6.13.4 /include/linux/x25.h  2005-10-21 09:20:53.000000000 +1000
+        @@ -11,6 +11,8 @@
+        #ifndef        X25_KERNEL_H
+        #define        X25_KERNEL_H
+        
+        +#include <linux/types.h>
+        +
+        #define        SIOCX25GSUBSCRIP        (SIOCPROTOPRIVATE + 0)
+        #define        SIOCX25SSUBSCRIP        (SIOCPROTOPRIVATE + 1)
+        #define        SIOCX25GFACILITIES      (SIOCPROTOPRIVATE + 2)
+        @@ -21,6 +23,8 @@
+        #define SIOCX25SCUDMATCHLEN    (SIOCPROTOPRIVATE + 7)
+        #define SIOCX25CALLACCPTAPPRV   (SIOCPROTOPRIVATE + 8)
+        #define SIOCX25SENDCALLACCPT    (SIOCPROTOPRIVATE + 9)
+        +#define SIOCX25GDTEFACILITIES   (SIOCPROTOPRIVATE + 10) 
+        +#define SIOCX25SDTEFACILITIES   (SIOCPROTOPRIVATE + 11)
+        
+        /*
+          *     Values for {get,set}sockopt.
+        @@ -77,6 +81,8 @@ struct x25_subscrip_struct {
+        #define        X25_MASK_PACKET_SIZE    0x04
+        #define        X25_MASK_WINDOW_SIZE    0x08 
+        
+        +#define X25_MASK_CALLING_AE     0x10
+        +#define X25_MASK_CALLED_AE      0x20
+        
+        
+        /*
+        @@ -98,6 +104,26 @@ struct x25_facilities {
+                unsigned int    reverse;
+        };
+        
+        +/*
+        +*     ITU DTE facilities 
+        +*     Only the called and calling address
+        +*     extension are currently implemented.
+        +*     The rest are in place to avoid the struct
+        +*     changing size if someone needs them later
+        +*/
+        +
+        +struct x25_dte_facilities { 
+        +       __u16           delay_cumul;
+        +       __u16           delay_target;
+        +       __u16           delay_max;
+        +       __u8            min_throughput;
+        +       __u8            expedited;
+        +       __u8            calling_len;
+        +       __u8            called_len;
+        +       __u8            calling_ae[20];
+        +       __u8            called_ae[20];
+        +};
+        +
+        /*
+          *     Call User Data structure.
+          */
+        diff -uprN -X dontdiff linux-2.6.13.4-vanilla/include/net/x25.h linux-2.6.13.4/include/net/x25.h 
+        --- linux-2.6.13.4-vanilla/include/net/x25.h    2005-10-11 04:54:29.000000000 +1000
+        +++ linux-2.6.13.4/include/net/x25.h    2005-10-21 09:20:16.000000000 +1000
+        @@ -101,9 +101,16 @@ enum {
+        #define        X25_FAC_PACKET_SIZE     0x42 
+        #define        X25_FAC_WINDOW_SIZE     0x43
+        
+        -#define        X25_MAX_FAC_LEN         20              /* Plenty to spare */
+        +#define        X25_MAX_FAC_LEN         60
+        #define        X25_MAX_CUD_LEN         128
+        
+        +#define X25_FAC_CALLING_AE      0xCB
+        +#define X25_FAC_CALLED_AE       0xC9
+        +
+        +#define X25_MARKER              0x00 
+        +#define X25_DTE_SERVICES        0x0F
+        +#define X25_MAX_AE_LEN          32
+        +
+        /**
+          *     struct x25_route - x25 routing entry
+          *     @node - entry in x25_list_lock
+        @@ -148,6 +155,7 @@ struct x25_sock { 
+                struct timer_list       timer;
+                struct x25_causediag    causediag;
+                struct x25_facilities   facilities;
+        +       struct x25_dte_facilities dte_facilities;
+                struct x25_calluserdata calluserdata; 
+                unsigned long           vc_facil_mask;  /* inc_call facilities mask */
+        };
+        @@ -180,9 +188,9 @@ extern void x25_establish_link(struct x2
+        extern void x25_terminate_link(struct x25_neigh *);
+        
+        /* x25_facilities.c */
+        -extern int  x25_parse_facilities(struct sk_buff *, struct x25_facilities *, unsigned long *); 
+        -extern int  x25_create_facilities(unsigned char *, struct x25_facilities *, unsigned long);
+        -extern int  x25_negotiate_facilities(struct sk_buff *, struct sock *, struct x25_facilities *);
+        +extern int  x25_parse_facilities(struct sk_buff *, struct x25_facilities *, struct x25_dte_facilities *, unsigned long *);
+        +extern int  x25_create_facilities(unsigned char *, struct x25_facilities *, struct x25_dte_facilities *, unsigned long);
+        +extern int  x25_negotiate_facilities(struct sk_buff *, struct sock *, struct x25_facilities *, struct x25_dte_facilities *);
+        extern void x25_limit_facilities(struct x25_facilities *, struct x25_neigh *); 
+        
+        /* x25_in.c */
+        diff -uprN -X dontdiff linux-2.6.13.4-vanilla/net/x25/af_x25.c linux-2.6.13.4/net/x25/af_x25.c
+        --- linux-2.6.13.4-vanilla/net/x25/af_x25.c     2005-10-11 04:54:29.000000000 +1000
+        +++ linux-2.6.13.4 /net/x25/af_x25.c     2005-10-21 09:20:16.000000000 +1000
+        @@ -513,6 +513,13 @@ static int x25_create(struct socket *soc
+                x25->facilities.pacsize_out = X25_DEFAULT_PACKET_SIZE;
+                x25->facilities.throughput   = X25_DEFAULT_THROUGHPUT;
+                x25->facilities.reverse     = X25_DEFAULT_REVERSE;
+        +       x25->dte_facilities.calling_len = 0;
+        +       x25->dte_facilities.called_len  = 0;
+        +       memset(x25->dte_facilities.called_ae, '\0', 
+        +               sizeof(x25->dte_facilities.called_ae));
+        +       memset(x25->dte_facilities.calling_ae, '\0',
+        +               sizeof(x25->dte_facilities.calling_ae));
+        +
+                rc = 0;
+        out:
+                return rc;
+        @@ -554,6 +561,7 @@ static struct sock *x25_make_new(struct
+                x25->t2         = ox25->t2;
+                x25->facilities = ox25->facilities;
+                x25->qbitincl   = ox25->qbitincl; 
+        +       x25->dte_facilities = ox25->dte_facilities;
+                x25->cudmatchlength = ox25->cudmatchlength;
+                x25->accptapprv = ox25->accptapprv;
+        
+        @@ -833,6 +841,7 @@ int x25_rx_call_request(struct sk_buff * 
+                struct x25_sock *makex25;
+                struct x25_address source_addr, dest_addr;
+                struct x25_facilities facilities;
+        +       struct x25_dte_facilities dte_facilities;
+                int len, rc;
+        
+                /*
+        @@ -869,7 +878,8 @@ int x25_rx_call_request(struct sk_buff *
+                /*
+                 *      Try to reach a compromise on the requested facilities.
+                 */
+        -       if ((len = x25_negotiate_facilities(skb, sk, &facilities)) == -1)
+        +       if ((len = x25_negotiate_facilities(skb, sk, &facilities,
+        +               &dte_facilities)) == -1) 
+                        goto out_sock_put;
+        
+                /*
+        @@ -900,9 +910,12 @@ int x25_rx_call_request(struct sk_buff *
+                makex25->source_addr   = source_addr;
+                makex25->neighbour     = nb;
+                makex25->facilities    = facilities; 
+        +       makex25->dte_facilities= dte_facilities;
+                makex25->vc_facil_mask = x25_sk(sk)->vc_facil_mask;
+                /* ensure no reverse facil on accept */
+                makex25->vc_facil_mask &= ~X25_MASK_REVERSE; 
+        +       /* ensure no calling address extension on accept */
+        +       makex25->vc_facil_mask &= ~X25_MASK_CALLING_AE;
+                makex25->cudmatchlength = x25_sk(sk)->cudmatchlength;
+        
+                /* Normally all calls are accepted immediatly */ 
+        @@ -1309,6 +1322,34 @@ static int x25_ioctl(struct socket *sock
+                                break;
+                        }
+        
+        +               case SIOCX25GDTEFACILITIES: {
+        +                       rc = copy_to_user(argp, &x25->dte_facilities,
+        +                               sizeof(x25->dte_facilities)) ? -EFAULT : 0;
+        +                       break;
+        +               }
+        +
+        +               case SIOCX25SDTEFACILITIES: {
+        +                       struct x25_dte_facilities dtefacs;
+        +                       rc = -EFAULT;
+        +                       if (copy_from_user(&dtefacs, argp, sizeof(dtefacs)))
+        +                               break;
+        +                       rc = -EINVAL;
+        +                       if (sk->sk_state != TCP_LISTEN &&
+        +                           sk->sk_state != TCP_CLOSE)
+        +                               break;
+        +                       if (dtefacs.calling_len > X25_MAX_AE_LEN)
+        +                               break;
+        +                       if (dtefacs.calling_ae == NULL)
+        +                               break;
+        +                       if (dtefacs.called_len > X25_MAX_AE_LEN)
+        +                               break;
+        +                       if (dtefacs.called_ae == NULL)
+        +                               break;
+        +                       x25->dte_facilities = dtefacs;
+        +                       rc = 0;
+        +                       break;
+        +               }
+        +
+                        case SIOCX25GCALLUSERDATA: {
+                                struct x25_calluserdata cud = x25->calluserdata;
+                                rc = copy_to_user(argp, &cud,
+        diff -uprN -X dontdiff linux-2.6.13.4-vanilla/net/x25/x25_facilities.c linux-2.6.13.4/net/x25/x25_facilities.c
+        --- linux-2.6.13.4-vanilla/net/x25/x25_facilities.c     2005-10-11 04:54: 29.000000000 +1000
+        +++ linux-2.6.13.4/net/x25/x25_facilities.c     2005-10-21 09:20:16.000000000 +1000
+        @@ -28,11 +28,12 @@
+        #include <net/x25.h>
+        
+        /*
+        - *     Parse a set of facilities into the facilities structure. Unrecognised 
+        + *     Parse a set of facilities into the facilities structures. Unrecognised
+          *     facilities are written to the debug log file.
+          */
+        int x25_parse_facilities(struct sk_buff *skb,
+                                 struct x25_facilities *facilities,
+        +                        struct x25_dte_facilities *dte_facs,
+                                 unsigned long *vc_fac_mask)
+        {
+                unsigned char *p = skb->data;
+        @@ -40,6 +41,16 @@ int x25_parse_facilities(struct sk_buff
+        
+                *vc_fac_mask = 0;
+        
+        +       /* The kernel knows which facilities were set on an incoming call 
+        +        * but currently this information is not available to userspace.
+        +        * Here we give userspace who read incoming call facilities
+        +        * 0 length to indicate it wasn't set.
+        +        */
+        +       dte_facs->calling_len = 0; 
+        +       dte_facs->called_len = 0;
+        +       memset(dte_facs->called_ae, '\0', sizeof(dte_facs->called_ae));
+        +       memset(dte_facs->calling_ae, '\0', sizeof(dte_facs->calling_ae));
+        +
+                while (len > 0) { 
+                        switch (*p & X25_FAC_CLASS_MASK) {
+                        case X25_FAC_CLASS_A:
+        @@ -74,6 +85,8 @@ int x25_parse_facilities(struct sk_buff
+                                        facilities->throughput = p[1];
+                                        *vc_fac_mask |= X25_MASK_THROUGHPUT;
+                                        break;
+        +                       case X25_MARKER:
+        +                               break;
+                                default:
+                                        printk(KERN_DEBUG "X.25: unknown facility "
+                                               "%02X, value %02X\n",
+        @@ -112,9 +125,28 @@ int x25_parse_facilities(struct sk_buff
+                                len -= 4;
+                                break;
+                        case X25_FAC_CLASS_D:
+        -                       printk(KERN_DEBUG "X.25: unknown facility %02X, "
+        -                              "length %d, values %02X, %02X, %02X, %02X\n",
+        -                              p[0], p[1], p[2], p[3], p[4], p[5]);
+        +                       switch (*p) {
+        +                       case X25_FAC_CALLING_AE:
+        +                               if (p[1] > 33)
+        +                                       break;
+        +                               dte_facs->calling_len = p[2];
+        +                               memcpy(dte_facs->calling_ae, &p[3], p[1] - 1);
+        +                               *vc_fac_mask |= X25_MASK_CALLING_AE;
+        +                               break;
+        +                       case X25_FAC_CALLED_AE:
+        +                               if (p[1] > 33)
+        +                                       break;
+        +                               dte_facs->called_len = p[2];
+        +                               memcpy(dte_facs->called_ae, &p[3], p[1] - 1);
+        +                               *vc_fac_mask |= X25_MASK_CALLED_AE;
+        +                               break;
+        +                       default:
+        +                               printk(KERN_DEBUG "X.25: unknown facility %02X,"
+        +                               "length %d, values %02X, %02X, %02X, %02X\n",
+        +                                p[0], p[1], p[2], p[3], p[4], p[5]);
+        +                               break;
+        +                       }
+        +
+                                len -= p[1] + 2;
+                                p   += p[1] + 2;
+                                break;
+        @@ -129,6 +161,7 @@ int x25_parse_facilities(struct sk_buff
+          */
+        int x25_create_facilities(unsigned char *buffer,
+                                  struct x25_facilities *facilities,
+        +                         struct x25_dte_facilities *dte_facs,
+                                  unsigned long facil_mask)
+        {
+                unsigned char *p = buffer + 1;
+        @@ -168,6 +201,34 @@ int x25_create_facilities(unsigned char
+                        *p++ = facilities->winsize_out ? : facilities->winsize_in;
+                }
+        
+        +       if ((facil_mask & X25_MASK_CALLING_AE) ||
+        +            (facil_mask & X25_MASK_CALLED_AE)) {
+        +               *p++ = X25_MARKER; 
+        +               *p++ = X25_DTE_SERVICES;
+        +       }
+        +
+        +       if (dte_facs->calling_len && (facil_mask & X25_MASK_CALLING_AE)) {
+        +               unsigned bytecount = (dte_facs->calling_len % 2) ?
+        +                        dte_facs->calling_len / 2 + 1 :
+        +                       dte_facs->calling_len / 2;
+        +               *p++ = X25_FAC_CALLING_AE;
+        +               *p++ = 1 + bytecount;
+        +               *p++ = dte_facs->calling_len;
+        +               memcpy(p, dte_facs->calling_ae, bytecount);
+        +               p+=bytecount;
+        +       }
+        +
+        +       if (dte_facs->called_len && (facil_mask & X25_MASK_CALLED_AE)) {
+        +               unsigned bytecount = (dte_facs->called_len % 2) ?
+        +                        dte_facs->called_len / 2 + 1 :
+        +                       dte_facs->called_len / 2;
+        +               *p++ = X25_FAC_CALLED_AE;
+        +               *p++ = 1 + bytecount;
+        +               *p++ = dte_facs->called_len;
+        +               memcpy(p, dte_facs->called_ae, bytecount);
+        +               p+=bytecount;
+        +       }
+        +
+                len       = p - buffer;
+                buffer[0] = len - 1;
+        
+        @@ -180,7 +241,8 @@ int x25_create_facilities(unsigned char 
+          *     The only real problem is with reverse charging.
+          */
+        int x25_negotiate_facilities(struct sk_buff *skb, struct sock *sk,
+        -                            struct x25_facilities *new)
+        +                            struct x25_facilities *new,
+        +                            struct x25_dte_facilities *dte)
+        {
+                struct x25_sock *x25 = x25_sk(sk);
+                struct x25_facilities *ours = &x25->facilities;
+        @@ -190,7 +252,7 @@ int x25_negotiate_facilities(struct sk_b
+                memset(&theirs, 0, sizeof(theirs)); 
+                memcpy(new, ours, sizeof(*new));
+        
+        -       len = x25_parse_facilities(skb, &theirs, &x25->vc_facil_mask);
+        +       len = x25_parse_facilities(skb, &theirs, dte, &x25->vc_facil_mask); 
+        
+                /*
+                 *      They want reverse charging, we won't accept it.
+        diff -uprN -X dontdiff linux-2.6.13.4-vanilla/net/x25/x25_in.c linux-2.6.13.4/net/x25/x25_in.c
+        --- linux-2.6.13.4-vanilla/net/x25/x25_in.c     2005-10-11 04:54:29.000000000 +1000
+        +++ linux-2.6.13.4 /net/x25/x25_in.c     2005-10-21 09:20:16.000000000 +1000
+        @@ -106,6 +106,7 @@ static int x25_state1_machine(struct soc
+                                skb_pull(skb, x25_addr_ntoa(skb->data, &source_addr, &dest_addr));
+                                skb_pull(skb,
+                                         x25_parse_facilities(skb, &x25->facilities,
+        +                                                     &x25->dte_facilities,
+                                                              &x25->vc_facil_mask));
+                                /*
+                                 *      Copy any Call User Data.
+        diff -uprN -X dontdiff linux-2.6.13.4-vanilla/net/x25/x25_subr.c linux-2.6.13.4/net/x25/x25_subr.c
+        --- linux-2.6.13.4-vanilla/net/x25/x25_subr.c   2005-10-11 04:54:29.000000000 +1000 
+        +++ linux-2.6.13.4/net/x25/x25_subr.c   2005-10-21 09:20:16.000000000 +1000
+        @@ -191,6 +191,7 @@ void x25_write_internal(struct sock *sk,
+                                memcpy(dptr, addresses, len);
+                                len     = x25_create_facilities(facilities,
+                                                                &x25->facilities,
+        +                                                       &x25->dte_facilities,
+                                                     x25->neighbour->global_facil_mask);
+                                dptr    = skb_put(skb, len);
+                                memcpy(dptr, facilities, len);
+        @@ -206,6 +207,7 @@ void x25_write_internal(struct sock *sk,
+                                *dptr++ = 0x00;         /* Address lengths */
+                                len     = x25_create_facilities(facilities,
+                                                                &x25->facilities,
+        +                                                       &x25->dte_facilities,
+                                                                x25->vc_facil_mask);
+                                dptr    = skb_put(skb, len);
+                                memcpy(dptr, facilities, len);
+        
 
-> Call Trace:
->  [<c0103abf>] show_stack+0x7f/0xa0
->  [<c0103c72>] show_registers+0x162/0x1d0
->  [<c0103e90>] die+0x100/0x1a0
->  [<c039d7ae>] do_page_fault+0x31e/0x640
->  [<c0103763>] error_code+0x4f/0x54
->  [<c02b4612>] scsi_next_command+0x22/0x30
->  [<c02b473f>] scsi_end_request+0xcf/0xf0
->  [<c02b4b2e>] scsi_io_completion+0x26e/0x470
->  [<c02b4fc7>] scsi_generic_done+0x37/0x50
->  [<c02af9e5>] scsi_finish_command+0x85/0xa0
->  [<c02af89c>] scsi_softirq+0xcc/0x140
->  [<c0122085>] __do_softirq+0xd5/0xf0
->  [<c01220d8>] do_softirq+0x38/0x40
->  [<c0122685>] ksoftirqd+0x95/0xe0
->  [<c0131cfa>] kthread+0xba/0xc0
->  [<c0100ecd>] kernel_thread_helper+0x5/0x18
-
-The scsi command being terminated by scsi_end_request is
-an inquiry issued by the multipathd target device testing
-thread.
-
-> 
-> I mean we get a ref to the sdev in the upper level driver 
-> opens, scan, and
-> sd flush. So where are we not getting a ref?
-
-Good question.
-
-The ref to the sdev obtained by the device scan has been
-dropped by device_del() called from scsi_remove_device()
-since the scsi_device has been removed via sysfs control.
-
-The ref held by the dm open of the target device has been
-closed when multipathd updates the multipath map to not
-include the target device being removed.
-
-The ref held by the multipathd initiated open of the target
-device for purposes of issuing a test IO gets removed as
-soon as the multipathd test thread is notified of the
-completion of its test SG_IO ioctl via the scsi_end_request()
-call on the inquiry request I mentioned earlier.
-Soon after this point, the target device is closed by
-multipathd since there is no more need for test IOs to
-be issued to that target device.  Note that this is the last
-ref held on the target scsi device by opens or scans and
-that it is highly possible on an SMP host for this ref to be
-released BEFORE the scsi_end_request() actually returns to
-its soft interrupt stack.
-
-At this point, the only refs held on the target scsi device
-are from ones for active scsi commands for that device
-or for an invocation of scsi_request_fn() servicing the
-device's queue.  If the queue is not actively being
-serviced and this is the last active command for the
-device, the call to scsi_put_command() from
-scsi_next_command() will free the memory for both the
-scsi device and its request queue will be freed in
-scsi_release_dev_release() when the device's kobject's
-kref count goes to zero.
-
-> 
-> Shouldn't the get be done at a higher level?
-
-As you can see, there are plenty of gets being done at
-higher levels.
-
-BTW, I have since reproduced this problem without
-multipath at all, just two simple concurrently executing
-processes -- one issues an ioctl to a scsi device
-although any IO type would likely do) and closes its file
-descriptor while the second one removes the device via sysfs.  
-It seems like the prerequisite sequence of events are
-
-open device
-issue io to device
-device gets reaped
-io completes up to scsi_end_request()
-device is closed
-scsi_put_command() reduces device kref count to zero, device is freed
-scsi_next_command() can reference freed scsi device memory
-
-> 
-> -- Patrick Mansfield
-> 

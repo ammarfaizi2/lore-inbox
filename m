@@ -1,72 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751816AbVLGXPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030436AbVLGXPR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751816AbVLGXPV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 18:15:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbVLGXPU
+	id S1030436AbVLGXPR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 18:15:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbVLGXPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 18:15:20 -0500
-Received: from gate.crashing.org ([63.228.1.57]:42909 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751816AbVLGXPT (ORCPT
+	Wed, 7 Dec 2005 18:15:17 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:53139 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751816AbVLGXPP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 18:15:19 -0500
-Subject: Re: uart_match_port() question
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200512071515.11937.bjorn.helgaas@hp.com>
-References: <1133050906.7768.66.camel@gaston>
-	 <200512071515.11937.bjorn.helgaas@hp.com>
-Content-Type: text/plain
-Date: Thu, 08 Dec 2005 10:13:45 +1100
-Message-Id: <1133997226.7168.93.camel@gaston>
+	Wed, 7 Dec 2005 18:15:15 -0500
+Date: Wed, 7 Dec 2005 15:15:59 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Hicks <mort@bork.org>
+Cc: wfg@mail.ustc.edu.cn, linux-kernel@vger.kernel.org
+Subject: Re: mm: fold sc.may_writepage and sc.may_swap into sc.flags
+Message-Id: <20051207151559.090c356f.akpm@osdl.org>
+In-Reply-To: <20051207170226.GB3085@bork.org>
+References: <20051207104755.177435000@localhost.localdomain>
+	<20051207105154.142779000@localhost.localdomain>
+	<20051207111501.GA8133@mail.ustc.edu.cn>
+	<20051207170226.GB3085@bork.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> ia64 has basically the same situation.  I decided it was a mistake to
-> have the arch code register serial ports early, because we only learn
-> about a few of the ports early, and the firmware console configuration
-> determines which ones we learn about.
+Martin Hicks <mort@bork.org> wrote:
+>
+> On Wed, Dec 07, 2005 at 07:15:01PM +0800, Wu Fengguang wrote:
+> > Fold bool values into flags to make struct scan_control more compact.
+> > 
 > 
-> The consequence is that changing the firmware configuration changes the
-> serial device names, which I thought was a bad thing.
-> 
-> I finally settled on this scheme:
-> 	- discover default firmware port (pcdp.c)
-> 	- set it up as an "early uart" which has no ttyS name
-> 	  and runs in polled mode (early_serial_console_init())
-> 	- register it as a console
-> 	- let 8250_{pci,pnp,etc} discover all the ports and
-> 	  figure out minor numbers (i.e., ttyS names)
-> 	- locate the port that matches the default firmware port,
-> 	  switch console to it, and unregister the "early uart"
-> 	  (early_uart_console_switch())
+> I suspect that the may_swap flag is still a left over from my failed
+> attempt at zone_reclaim.  It should be removed.
 
-Yup, I've been thinking about a similar approach yah. My main issue is
-your last step: "locate the port that matches the default firmware
-port". Right now, thins works because the early registration allow me to
-know in advance what the ttyS number will be. If I go your way,  which I
-'m tempted to do, I need to figure out precisely how to properly match
-the ports. Part of the problem here is for example PIO. There is no such
-thing as PIO on a PowerPC, it's purely a PCI abstraction, thus inX/outX
-will only work once the PCI host briges have been discovered and their
-IO space mapped (setup_arch() time, but I definitely want my early
-console earlier). Thus, for early ports, we use the open firmware tree
-to translate all (including PIO) addresses to MMIO in CPU space.
-
-Thus, later on, when the serial driver kicks in, it can't match the PCI
-IO resources it's getting from the PCI code to the MMIO physical
-addresses or ioremaped addresses that were used at early boot time.
-
-That sort of thing ...
-
-Anyway, things work now with the fix for properly matching MMIO ports
-with their physical address and my current mecanism, even if it's not
-the nicest solution. I'll still look into reworking it a better way but
-I don't have the time right now.
-
-
+Yes, it can be removed, thanks.  I missed that.  (Patch
+`kill-last-zone_reclaim-bits.patch' in -mm updated).

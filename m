@@ -1,49 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbVLGMfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbVLGMfw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbVLGMfW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 07:35:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbVLGMfW
+	id S1750972AbVLGMfw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 07:35:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbVLGMfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 07:35:22 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41390 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750945AbVLGMfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 07:35:20 -0500
-Date: Wed, 7 Dec 2005 12:35:19 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Michal Feix <michal@feix.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [SCSI] SCSI block devices larger then 2TB
-Message-ID: <20051207123519.GA17414@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Michal Feix <michal@feix.cz>, linux-kernel@vger.kernel.org
-References: <4396B795.1000108@feix.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4396B795.1000108@feix.cz>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 7 Dec 2005 07:35:52 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:9889 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750966AbVLGMfv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 07:35:51 -0500
+Date: Wed, 7 Dec 2005 13:34:59 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: James Bruce <bruce@andrew.cmu.edu>
+cc: David Lang <david.lang@digitalinsight.com>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Steven Rostedt <rostedt@goodmis.org>, johnstul@us.ibm.com,
+       george@mvista.com, mingo@elte.hu, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       ray-gmail@madrabbit.org, Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 00/43] ktimer reworked
+In-Reply-To: <4396ACF5.3050204@andrew.cmu.edu>
+Message-ID: <Pine.LNX.4.61.0512071319320.1609@scrub.home>
+References: dlang@dlang.diginsite.com <Pine.LNX.4.62.0512011734020.10276@qynat.qvtvafvgr.pbz>
+ <Pine.LNX.4.61.0512021124360.1609@scrub.home> <4396ACF5.3050204@andrew.cmu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 11:21:09AM +0100, Michal Feix wrote:
-> Greetings!
+Hi,
+
+On Wed, 7 Dec 2005, James Bruce wrote:
+
+> > Guys, before you continue spreading nonsense, please read carefully Ingos
+> > description of the timer wheel at http://lwn.net/Articles/156329/ .
+> > Let me also refine the statement I made in this mail: the _focus_ on
+> > delivery is complete nonsense.
 > 
-> Current aic79xxx driver doesn't see SCSI devices larger, then 2TB. It 
-> fails with READ CAPACITY(16) command. As far as I can understand, we 
-> already have LBD support in kernel for some time now. So it's only the 
-> drivers, that need to be fixed? LSI driver is the only one I found 
-> working with devices over 2TB; I couldn't test any other driver, as I 
-> don't have the hardware. Is it really so bad, that only LSI chipset and 
-> maybe few others are capable of seeng such devices?
+> Must you start every email with inflammatory rhetoric?  If you want to know
+> why you find it difficult to get people to see things your way, the key is in
+> the above paragraph.  In everyday life you don't insult a person on the street
+> and then ask them for directions.
 
-I definitly works fine with Qlogic parallel scsi and fibrechannel and emulex
-fibre channel controllers aswell as lsi/engenio megaraid controllers.
+You analogy is wrong: Thomas and Ingo spread flyer for "free food", above 
+is my frustration about all the people wanting free food.
 
-It looks like aci79xx is just broken in that repsect. Unfortunately the
-driver doesn't have a proper maintainer, we scsi developers put in fixes
-and cleanups but we don't have the full documentation to fix such complicated
-issue.  If you have a support contract with Adaptec complain to them.
+> And that's the whole *point* about how we got here.  Let the low resolution,
+> low lifetime timeouts stay on the timer wheel, and make a new approach that
+> specializes in handling longer lifetime, higher resolution timers.  That's
+> ktimers in a nutshell.  You seem to be arguing for it rather than against it.
 
+I do, just without the focus on the lifetime, which is really unimportant 
+for most kernel developers.
+
+> You've brought up the fact that networking shouldn't use lots of timers
+> several times in the overall discussion.  If you know how to do this, I'm sure
+> you can start sending patches to netdev and show them all how stupid they've
+> been all along.  However, more likely you'll just find out that just maybe the
+> networking people really *have* thought about the problem, and the solution
+> they came up with is actually a pretty good one.
+> 
+> At any rate, while you fix up all those "timer-abusing" subsystems throughout
+> the kernel, can we just try to improve the timer system in the meantime?
+
+James, after giving me a rhetoric lesson you maybe should be a bit more
+careful with your own rhetoric. What kind of answer do you expect after 
+insulting me?
+
+The short version is that I didn't bring up the network timer problem, I 
+only made a suggestions how it could be solved, but nobody followed me up 
+on it, so I guess the problem wasn't really that big. Please check the 
+archives for details.
+
+bye, Roman

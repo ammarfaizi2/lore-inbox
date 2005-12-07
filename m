@@ -1,73 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbVLGEYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbVLGEcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbVLGEYN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 23:24:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932607AbVLGEYM
+	id S965042AbVLGEcH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 23:32:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932621AbVLGEcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 23:24:12 -0500
-Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:49867 "EHLO
-	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
-	id S932576AbVLGEYM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 23:24:12 -0500
-From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
-Message-Id: <200512070425.jB74Pkhq009503@auster.physics.adelaide.edu.au>
-Subject: Re: 2.6.14-rt21: slow-running clock
-To: johnstul@us.ibm.com (john stultz)
-Date: Wed, 7 Dec 2005 14:55:46 +1030 (CST)
-Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1133928070.10613.19.camel@cog.beaverton.ibm.com> from "john stultz" at Dec 06, 2005 08:01:10 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 6 Dec 2005 23:32:07 -0500
+Received: from d36-15-41.home1.cgocable.net ([24.36.15.41]:53994 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932607AbVLGEcG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 23:32:06 -0500
+Subject: [patch] add two inotify_add_watch flags
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Robert Love <rml@novell.com>, Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 06 Dec 2005 22:54:48 -0500
+Message-Id: <1133927688.20396.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > When running Ingo's 2.6.14-rt21 (and in fact rt kernels back to at least
-> > > > 2.6.13-rc days), the clock on my i915-based laptop runs slow.  The degree
-> > > > of slowness appears directly related to how busy the machine is.  If
-> > > > it is just sitting around doing very little the time is kept rather
-> > > > well.  However, as soon as the load increases the RTC and system time
-> > > > diverge significantly.  For example, running jackd for 2 minutes results
-> > > > in the system time loosing as much as 20 seconds compared to the CMOS RTC.
-> > > > Processes doing HDD I/O also seem to affect the system time similarly.
-> > > > 
-> > > > Selectively disabling different timer-related kernel options does not make
-> > > > any difference.  However, the clock seems fine under vanilla 2.6.14,
-> > > > suggesting an issue somewhere in the rt patches.
-> > > 
-> > > Could you please send me your dmesg and the output of:
-> > > 
-> > > 	cat  /sys/devices/system/clocksource/clocksource0/*
-> > 
-> > First the contents of the above /sys/ files:
-> > 
-> >   /sys/devices/system/clocksource/clocksource0/current_clocksource:
-> >     c3tsc
-> > 
-> >   /sys/devices/system/clocksource/clocksource0/available_clocksource
-> >     acpi_pm jiffies c3tsc pit
-> 
-> Odd. I'm not sure why the acpi_pm wasn't chosen by default if it was
-> available and the TSC fell back to the c3tsc. It might be something in
-> the -RT tree that's changed that bit. Could you try the following and
-> see if it doesn't resolve the timekeeping problems you're seeing?
-> 
-> echo "acpi_pm" >  /sys/devices/system/clocksource/clocksource0/current_clocksource
+Yo,
 
-Will test it tonight.
+The below patch lets user space have more control over the inodes that
+inotify will watch. It introduces two new flags. 
 
-> Still it sounds like something isn't right w/ either the c3tsc code or
-> the cpufreq notification code. Would you be willing to test further
-> patches?
+	IN_ONLYDIR -- only watch the inode if it is a directory
+	This is needed to avoid the race that can occur when we want to be sure
+that we are watching a directory.
 
-Yes, no problem.
+	IN_DONT_FOLLOW -- don't follow a symlink. In combination with
+IN_ONLYDIR we can make sure that we don't watch the target of symlinks.
 
-> Also could you try booting w/ idle=poll and see if that changes the
-> behavior?
+The issues the flags fix came up when writing the gnome-vfs inotify
+backend. Default behaviour is unchanged.
 
-Again, it will be done tonight and I'll advise tomorrow.
 
-Regards
-  jonathan
+Signed-off-by: John McCutchan <ttb@tentacle.dhs.org>
+Index: linux-2.6.14-rc5/fs/inotify.c
+===================================================================
+--- linux-2.6.14-rc5.orig/fs/inotify.c	2005-10-20 02:23:05.000000000 -0400
++++ linux-2.6.14-rc5/fs/inotify.c	2005-12-06 19:01:22.000000000 -0500
+@@ -363,11 +363,18 @@
+ /*
+  * find_inode - resolve a user-given path to a specific inode and return a nd
+  */
+-static int find_inode(const char __user *dirname, struct nameidata *nd)
++static int find_inode(const char __user *dirname, struct nameidata *nd,
++		      int only_dir, int dont_follow_symlink)
+ {
+ 	int error;
++	unsigned flags = 0;
+ 
+-	error = __user_walk(dirname, LOOKUP_FOLLOW, nd);
++	if (!dont_follow_symlink)
++		flags |= LOOKUP_FOLLOW;
++	if (only_dir)
++		flags |= LOOKUP_DIRECTORY;
++
++	error = __user_walk(dirname, flags, nd);
+ 	if (error)
+ 		return error;
+ 	/* you can only watch an inode if you have read permissions on it */
+@@ -943,7 +950,7 @@
+ 		goto fput_and_out;
+ 	}
+ 
+-	ret = find_inode(path, &nd);
++	ret = find_inode(path, &nd, mask & IN_ONLYDIR, mask & IN_DONT_FOLLOW);
+ 	if (unlikely(ret))
+ 		goto fput_and_out;
+ 
+Index: linux-2.6.14-rc5/include/linux/inotify.h
+===================================================================
+--- linux-2.6.14-rc5.orig/include/linux/inotify.h	2005-10-20 02:23:05.000000000 -0400
++++ linux-2.6.14-rc5/include/linux/inotify.h	2005-12-06 18:57:11.000000000 -0500
+@@ -47,6 +47,8 @@
+ #define IN_MOVE			(IN_MOVED_FROM | IN_MOVED_TO) /* moves */
+ 
+ /* special flags */
++#define IN_ONLYDIR		0x01000000	/* only watch the path if it is a directory */
++#define IN_DONT_FOLLOW		0x02000000	/* don't follow a sym link */
+ #define IN_MASK_ADD		0x20000000	/* add to the mask of an already existing watch */
+ #define IN_ISDIR		0x40000000	/* event occurred against dir */
+ #define IN_ONESHOT		0x80000000	/* only send event once */
+

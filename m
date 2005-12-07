@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbVLGBid@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbVLGBl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030317AbVLGBid (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 20:38:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbVLGBid
+	id S1030318AbVLGBl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 20:41:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965049AbVLGBl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 20:38:33 -0500
-Received: from nproxy.gmail.com ([64.233.182.205]:6551 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965043AbVLGBic convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 20:38:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RiBgLDxUB0PaLt+GHLdY5+bSzvjdAmk2hbq79/0ZRUseugx/EE/v09j/dbtSAut4AITNPh2S/+lIhCW3tPof/XYMZL3+cf5pJzk2YAEU2F0wdP4jHNvVLrSnccHmlubHPfuQ5VYRsssxQVXYrT0WUUZxzCjY2QnfZVQOMKiiIwU=
-Message-ID: <2cd57c900512061738l2f19aa54x@mail.gmail.com>
-Date: Wed, 7 Dec 2005 09:38:30 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Cc: Tim Bird <tim.bird@am.sony.com>, Dave Airlie <airlied@gmail.com>,
-       David Woodhouse <dwmw2@infradead.org>, arjan@infradead.org,
-       andrew@walrond.org, linux-kernel@vger.kernel.org, rms@gnu.org
-In-Reply-To: <20051206161131.GB2088@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 6 Dec 2005 20:41:29 -0500
+Received: from mail.kroah.org ([69.55.234.183]:25524 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965044AbVLGBl2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 20:41:28 -0500
+Date: Tue, 6 Dec 2005 17:41:02 -0800
+From: Greg KH <gregkh@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] x86 PCI domain support
+Message-ID: <20051207014102.GA19170@suse.de>
+References: <20051203013904.GA2560@havoc.gtf.org> <20051203031533.GB14247@wotan.suse.de> <4391FC0A.9040202@pobox.com> <20051207003922.GA18528@kroah.com> <20051207013201.GZ11190@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
-	 <4394DA1D.3090007@am.sony.com> <20051206040820.GB26602@kroah.com>
-	 <2cd57c900512052358m5b631204i@mail.gmail.com>
-	 <20051206161131.GB2088@kroah.com>
+In-Reply-To: <20051207013201.GZ11190@wotan.suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/12/7, Greg KH <greg@kroah.com>:
-> On Tue, Dec 06, 2005 at 03:58:46PM +0800, Coywolf Qi Hunt wrote:
-> > > [1] My usual response is, "If we are so dumb, why are you using the kernel
-> > >     made by us?", which usually stops the conversation right there.
-> >
-> > Your response is nonsense. It has the same logic as saying "If
-> > proprietary software is wrong, why are you using it?".
-> > Everybody are using proprietary software, aren't they?
->
-> Um, no, not at all.  The logic is, "you trust these developers enough to
-> want to run their code, controlling the most basic and secure portions
-> of your machines, yet you think they are incapable programmers?"
+On Wed, Dec 07, 2005 at 02:32:02AM +0100, Andi Kleen wrote:
+> On Tue, Dec 06, 2005 at 04:39:22PM -0800, Greg KH wrote:
+> > On Sat, Dec 03, 2005 at 03:11:54PM -0500, Jeff Garzik wrote:
+> > > The first two patches could go in immediately, the last should probably 
+> > > wait a bit...
+> > 
+> > What is the rush?  These seem pretty late for the -rc series :)
+> > 
+> > I'll send them in after 2.6.15 is out, is that ok?
+> 
+> It's ok, but the two related workaround patches I posted earlier should
+> go into .15 (because they fix broken boot on some machines) 
 
-One bought a PC, that doesn't mean he trust the BIOS, the firmware, etc...
-He run windows on the box, that doesn't mean he trust windows either.
+Ok, that's fine.  Thanks for fixing those issues, I appreciate it.
 
->
-> And no kernel developers are forcing anyone to use Linux.  If they don't
-> like it for whatever reasons, there are other alternatives...
-
-AFAIK, no proprietary software vendors are forcing any1 to buy their
-proprietary software. Still you are speaking in a monopoly tone!
-
-
-(cc: rms)
---
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+greg k-h

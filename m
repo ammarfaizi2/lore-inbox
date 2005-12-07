@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbVLGP5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbVLGP47@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbVLGP5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 10:57:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbVLGP5P
+	id S1751175AbVLGP47 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 10:56:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVLGP4z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 10:57:15 -0500
-Received: from sanosuke.troilus.org ([66.92.173.88]:25260 "EHLO
-	sanosuke.troilus.org") by vger.kernel.org with ESMTP
-	id S1751166AbVLGP5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 10:57:01 -0500
-To: Rik van Riel <riel@redhat.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	<200512051826.06703.andrew@walrond.org>
-	<1133817575.11280.18.camel@localhost.localdomain>
-	<1133817888.9356.78.camel@laptopd505.fenrus.org>
-	<1133819684.11280.38.camel@localhost.localdomain>
-	<4394D396.1020102@am.sony.com> <20051206041215.GC26602@kroah.com>
-	<87iru2c0zc.fsf@graviton.dyn.troilus.org>
-	<Pine.LNX.4.63.0512070925230.17172@cuia.boston.redhat.com>
-From: Michael Poole <mdpoole@troilus.org>
-Date: 07 Dec 2005 10:56:59 -0500
-In-Reply-To: <Pine.LNX.4.63.0512070925230.17172@cuia.boston.redhat.com>
-Message-ID: <87iru0529g.fsf@graviton.dyn.troilus.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Wed, 7 Dec 2005 10:56:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:64715 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751166AbVLGP4y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 10:56:54 -0500
+Message-ID: <4397063A.2030200@redhat.com>
+Date: Wed, 07 Dec 2005 10:56:42 -0500
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Kenny Simpson <theonetruekenny@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: another nfs puzzle
+References: <20051206220448.82860.qmail@web34109.mail.mud.yahoo.com>	 <4396EB2F.3060404@redhat.com>	 <1133964667.27373.13.camel@lade.trondhjem.org> <4396EF50.30201@redhat.com>	 <1133966063.27373.29.camel@lade.trondhjem.org>	 <4397011E.9010703@redhat.com> <1133970117.27373.53.camel@lade.trondhjem.org>
+In-Reply-To: <1133970117.27373.53.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel writes:
+Trond Myklebust wrote:
 
-> On Mon, 5 Dec 2005, Michael Poole wrote:
-> 
-> > Most likely people bring up the "derivative works" issue because
-> > that's what the GPL says it affects.  The FSF contends that linking
-> > creates a derivative work, but is curiously quiet when people ask for
-> > statutory or case law to support that claim.
-> 
-> For statically linked programs this is quite easy to find.
+>On Wed, 2005-12-07 at 10:34 -0500, Peter Staubach wrote:
+>
+>  
+>
+>>This seems like a dangerous enough area that denying mmap on a file which
+>>has been opened with O_DIRECT by any process and denying open(O_DIRECT)
+>>on a file which has been mmap'd would be a good thing.  These things are
+>>easy enough to keep track of, so it shouldn't be too hard to implement.
+>>    
+>>
+>
+>That would be a recipe for DOSes as it would allow one process to block
+>another just by opening a file. I'd really not like to see my database
+>crash just because some obscure monitoring program happens to use mmap()
+>to browse the file.
+>
 
-Then please actually do this (rather than just waving your hands).
+I wouldn't think that a database would be a problem since it is opened early
+and then stays open.  However, point granted.  There are tools around, lsof
+and such, which would be handy for diagnosing such a situation though.
 
-Michael Poole
+I do know of other operating systems which do implement the semantics that I
+have suggested and I don't think that they are concerned or have been 
+notified
+that these semantics for a problem.  These semantics are used because the
+kernel itself can not even guarantee that the data that it is caching is 
+valid,
+without lots of synchronization which may tend to reduce performance.
+
+    Thanx...
+
+       ps

@@ -1,68 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbVLGSAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751582AbVLGSCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751573AbVLGSAc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:00:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751634AbVLGSAc
+	id S1751582AbVLGSCs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:02:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751634AbVLGSCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:00:32 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:43932 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751573AbVLGSAb
+	Wed, 7 Dec 2005 13:02:48 -0500
+Received: from bay101-dav12.bay101.hotmail.com ([64.4.56.84]:35720 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1751582AbVLGSCr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:00:31 -0500
-Subject: Re: [RFC][PATCH] x86_64:  Fix collision between pmtimer and
-	pit/hpet timekeeping
-From: john stultz <johnstul@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, Chris McDermott <lcm@us.ibm.com>,
-       vojtech@suse.cz
-In-Reply-To: <20051207175338.GB11190@wotan.suse.de>
-References: <1133931639.10613.39.camel@cog.beaverton.ibm.com>
-	 <20051207175338.GB11190@wotan.suse.de>
-Content-Type: text/plain
-Date: Wed, 07 Dec 2005 10:00:30 -0800
-Message-Id: <1133978430.18188.3.camel@leatherman>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 7 Dec 2005 13:02:47 -0500
+Message-ID: <BAY101-DAV1224DE4ABBD4DA2329B15EB5430@phx.gbl>
+X-Originating-IP: [62.189.34.9]
+X-Originating-Email: [pauljbaxter@hotmail.com]
+From: "Paul Baxter" <pauljbaxter@hotmail.com>
+To: "Roman Zippel" <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>
+References: <20051206000126.589223000@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512061628050.1610@scrub.home> <1133908082.16302.93.camel@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512070347450.1609@scrub.home> <20051207165550.GA2426@elte.hu> <Pine.LNX.4.61.0512071813540.1610@scrub.home>
+Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
+Date: Wed, 7 Dec 2005 18:02:31 -0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2670
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+X-OriginalArrivalTime: 07 Dec 2005 18:02:45.0464 (UTC) FILETIME=[6D049D80:01C5FB58]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-07 at 18:53 +0100, Andi Kleen wrote:
-> On Tue, Dec 06, 2005 at 09:00:39PM -0800, john stultz wrote:
-> > Hello,
-> > 	I thought I had caught all the problems when the no-legacy HPET support
-> > landed close to the time that the ACPI PM timer support landed, but
-> > apparently not. :(
-> > 
-> > On systems that do not support the HPET legacy functions (basically the
-> > IBM x460, but there could be others), in time_init() we accidentally
-> > fall into a PM timer conditional and set the vxtime_hz value to the PM
-> > timer's frequency. We then use this value with the HPET for timekeeping.
-> > 
-> > This patch (which mimics the behavior in time_init_gtod) corrects the
-> > collision.
-> > 
-> > Andi, any objections or suggestions for a better way?
-> 
-> Ok. I will apply it.
-> 
-> But I never quite got why you fall back to the PIT on these systems
-> anyways - if LEGSUP is not set it just means that the HPET interrupt
-> cannot be routed to irq 0, right? It should be quite easy to change
-> the timer code to accept timer interrupts on other irqs. 
-> 
-> You just need to allocate the other interrupt and possibly coordinate
-> that with the hpet char driver (or rather move the code for that
-> from there to time.c). I think implementing that would be a better
-> solution.
+> "pointed out that the penalty" is a bit different from "provided the
+> basic idea of the ktime_t union and half the implementation"...
+>
+> bye, Roman
 
-Indeed that does sound like a decent cleanup. I can't promise anything
-in the near future, but its on my list.
+This is getting bloody ridiculous.
 
-Would you then want to move all systems to use the non-legacy HPET
-interrupt?
+Roman, you won't get credited for every nuance of what you've said and done, 
+neither will Ingo and Thomas and the many others that work hard to make 
+Linux a better Operating System.
 
-thanks
--john
+I admire the fact that you did pick up the gauntlett and produce code which 
+has helped further the whole work.
 
+I keep reading this thread because, against all odds, there is a lot of 
+technical progress but the constant bickering really does your credibility 
+no favours.
+
+Please stop trying to portray yourself as a victim, those that care will 
+form an opinion from your words. Please, please have the grace to rise above 
+any perceived 'insults' both actual, and, in my view, mostly insubstantial.
+
+A frustrated lurker, who can't wait for high resolution timers and maybe 
+even high precision timers one day.
+
+Thank you, Roman, for all your technical efforts.
 

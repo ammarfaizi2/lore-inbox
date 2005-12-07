@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbVLGMfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbVLGMgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbVLGMfw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 07:35:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbVLGMfw
+	id S1750989AbVLGMgT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 07:36:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbVLGMgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 07:35:52 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:9889 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750966AbVLGMfv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 07:35:51 -0500
-Date: Wed, 7 Dec 2005 13:34:59 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: James Bruce <bruce@andrew.cmu.edu>
-cc: David Lang <david.lang@digitalinsight.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Steven Rostedt <rostedt@goodmis.org>, johnstul@us.ibm.com,
-       george@mvista.com, mingo@elte.hu, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       ray-gmail@madrabbit.org, Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 00/43] ktimer reworked
-In-Reply-To: <4396ACF5.3050204@andrew.cmu.edu>
-Message-ID: <Pine.LNX.4.61.0512071319320.1609@scrub.home>
-References: dlang@dlang.diginsite.com <Pine.LNX.4.62.0512011734020.10276@qynat.qvtvafvgr.pbz>
- <Pine.LNX.4.61.0512021124360.1609@scrub.home> <4396ACF5.3050204@andrew.cmu.edu>
+	Wed, 7 Dec 2005 07:36:18 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:41695 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750987AbVLGMgS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 07:36:18 -0500
+Message-ID: <4396D814.5070809@aitel.hist.no>
+Date: Wed, 07 Dec 2005 13:39:48 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Benjamin LaHaise <bcrl@kvack.org>
+CC: Michael Poole <mdpoole@troilus.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512051826.06703.andrew@walrond.org> <1133817575.11280.18.camel@localhost.localdomain> <1133817888.9356.78.camel@laptopd505.fenrus.org> <1133819684.11280.38.camel@localhost.localdomain> <4394D396.1020102@am.sony.com> <20051206041215.GC26602@kroah.com> <87iru2c0zc.fsf@graviton.dyn.troilus.org> <20051206172153.GB22502@kvack.org>
+In-Reply-To: <20051206172153.GB22502@kvack.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Benjamin LaHaise wrote:
 
-On Wed, 7 Dec 2005, James Bruce wrote:
+>On Mon, Dec 05, 2005 at 11:18:15PM -0500, Michael Poole wrote:
+>  
+>
+>>Besides, if the act of linking is what makes the derivative work,
+>>there is no problem: The GPL allows a user to make any modifications
+>>or combinations or derivatives whatsoever, and only imposes
+>>requirements when the result is distributed.  The linking of the two
+>>works occurs only on the end user's machine.
+>>    
+>>
+>
+>But if it's a module, it's probably been compiled against kernel headers.  
+>Last time I checked, header files were covered by the GPL unless explicitly 
+>placed under a more permissive license.  How do you use something like 
+>spinlocks without compiling in GPL code to a module?
+>  
+>
+They can always claim that reverse engineering works both ways.
+Linux spinlocks can be reverse engineered, or they can search
+the mailing list archives for detailed explanations. :-/
 
-> > Guys, before you continue spreading nonsense, please read carefully Ingos
-> > description of the timer wheel at http://lwn.net/Articles/156329/ .
-> > Let me also refine the statement I made in this mail: the _focus_ on
-> > delivery is complete nonsense.
-> 
-> Must you start every email with inflammatory rhetoric?  If you want to know
-> why you find it difficult to get people to see things your way, the key is in
-> the above paragraph.  In everyday life you don't insult a person on the street
-> and then ask them for directions.
-
-You analogy is wrong: Thomas and Ingo spread flyer for "free food", above 
-is my frustration about all the people wanting free food.
-
-> And that's the whole *point* about how we got here.  Let the low resolution,
-> low lifetime timeouts stay on the timer wheel, and make a new approach that
-> specializes in handling longer lifetime, higher resolution timers.  That's
-> ktimers in a nutshell.  You seem to be arguing for it rather than against it.
-
-I do, just without the focus on the lifetime, which is really unimportant 
-for most kernel developers.
-
-> You've brought up the fact that networking shouldn't use lots of timers
-> several times in the overall discussion.  If you know how to do this, I'm sure
-> you can start sending patches to netdev and show them all how stupid they've
-> been all along.  However, more likely you'll just find out that just maybe the
-> networking people really *have* thought about the problem, and the solution
-> they came up with is actually a pretty good one.
-> 
-> At any rate, while you fix up all those "timer-abusing" subsystems throughout
-> the kernel, can we just try to improve the timer system in the meantime?
-
-James, after giving me a rhetoric lesson you maybe should be a bit more
-careful with your own rhetoric. What kind of answer do you expect after 
-insulting me?
-
-The short version is that I didn't bring up the network timer problem, I 
-only made a suggestions how it could be solved, but nobody followed me up 
-on it, so I guess the problem wasn't really that big. Please check the 
-archives for details.
-
-bye, Roman
+Helge Hafting

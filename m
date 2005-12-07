@@ -1,168 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbVLGLNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbVLGLQ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbVLGLNj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 06:13:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750860AbVLGLNj
+	id S1750875AbVLGLQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 06:16:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbVLGLQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 06:13:39 -0500
-Received: from mail.renesas.com ([202.234.163.13]:38788 "EHLO
-	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S1750857AbVLGLNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 06:13:38 -0500
-Date: Wed, 07 Dec 2005 20:13:34 +0900 (JST)
-Message-Id: <20051207.201334.735919797.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, fujiwara@linux-m32r.org,
-       takata@linux-m32r.org
-Subject: [PATCH 2.6.15-rc5-mm1] m32r: Fix M32104 cache flushing routines
-From: Hirokazu Takata <takata@linux-m32r.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Wed, 7 Dec 2005 06:16:29 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:49339 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1750867AbVLGLQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 06:16:28 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+Date: Wed, 7 Dec 2005 12:17:41 +0100
+User-Agent: KMail/1.9
+Cc: Andy Isaacson <adi@hexapodia.org>,
+       Nigel Cunningham <ncunningham@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20051205081935.GI22168@hexapodia.org> <200512070205.37414.rjw@sisk.pl> <20051207011019.GA2233@elf.ucw.cz>
+In-Reply-To: <20051207011019.GA2233@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512071217.41814.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes cache memory parameter setting for the M32104 target.
-So far, its performance seemed to have been degraded due to incorrect
-cache parameter setting.
+Hi,
 
-  * arch/m32r/boot/setup.S: Set SFR(Special Fuction Registers) region 
-    to be non-cachable explicitly.
-  * arch/m32r/mm/cache.c: Fix cache flushing routines not to switch off
-    the M32104 cache.
+On Wednesday, 7 December 2005 02:10, Pavel Machek wrote:
+> > > I'm suggesting that rather than writing the clean pages out to the
+> > > image, simply make their metadata available to a post-resume userland
+> > > helper.  Something like
+> > > 
+> > > % head -2 /dev/swsusp-helper
+> > > /bin/sh 105-115 192 199-259
+> > > /lib/libc-2.3.2.so 1-250
+> > > 
+> > > where the userland program is expected to use the list of page numbers
+> > > (and getpagesize(2)) to asynchronously page in the working set in an
+> > > ionice'd manner.
+> > 
+> > The helper is not necessary, I think.
+> 
+> Actually, I like the helper. It is safest solution,
 
-Signed-off-by: Hayato Fujiwara <fujiwara@linux-m32r.org>
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+No, it's not.
 
- arch/m32r/boot/setup.S |   15 ++++++++++++---
- arch/m32r/mm/cache.c   |   28 +++++++++++++++++++++-------
- 2 files changed, 33 insertions(+), 10 deletions(-)
+Let me explain what I have in mind.
 
-Index: linux-2.6.15-rc5-mm1/arch/m32r/mm/cache.c
-===================================================================
---- linux-2.6.15-rc5-mm1.orig/arch/m32r/mm/cache.c	2005-12-06 22:34:17.000000000 +0900
-+++ linux-2.6.15-rc5-mm1/arch/m32r/mm/cache.c	2005-12-07 19:35:51.007406864 +0900
-@@ -1,7 +1,7 @@
- /*
-  *  linux/arch/m32r/mm/cache.c
-  *
-- *  Copyright (C) 2002  Hirokazu Takata
-+ *  Copyright (C) 2002-2005  Hirokazu Takata, Hayato Fujiwara
-  */
- 
- #include <linux/config.h>
-@@ -9,7 +9,8 @@
- 
- #undef MCCR
- 
--#if defined(CONFIG_CHIP_XNUX2) || defined(CONFIG_CHIP_M32700) || defined(CONFIG_CHIP_VDEC2) || defined(CONFIG_CHIP_OPSP)
-+#if defined(CONFIG_CHIP_XNUX2) || defined(CONFIG_CHIP_M32700) \
-+	|| defined(CONFIG_CHIP_VDEC2) || defined(CONFIG_CHIP_OPSP)
- /* Cache Control Register */
- #define MCCR		((volatile unsigned long*)0xfffffffc)
- #define MCCR_CC		(1UL << 7)	/* Cache mode modify bit */
-@@ -27,7 +28,7 @@
- #define MCCR_IIV	(1UL << 0)	/* I-cache invalidate */
- #define MCCR_ICACHE_INV		MCCR_IIV
- #elif defined(CONFIG_CHIP_M32104)
--#define MCCR		((volatile unsigned long*)0xfffffffc)
-+#define MCCR		((volatile unsigned short*)0xfffffffe)
- #define MCCR_IIV	(1UL << 8)	/* I-cache invalidate */
- #define MCCR_DIV	(1UL << 9)	/* D-cache invalidate */
- #define MCCR_DCB	(1UL << 10)	/* D-cache copy back */
-@@ -36,7 +37,7 @@
- #define MCCR_ICACHE_INV		MCCR_IIV
- #define MCCR_DCACHE_CB		MCCR_DCB
- #define MCCR_DCACHE_CBINV	(MCCR_DIV|MCCR_DCB)
--#endif /* CONFIG_CHIP_XNUX2 || CONFIG_CHIP_M32700 */
-+#endif
- 
- #ifndef MCCR
- #error Unknown cache type.
-@@ -47,29 +48,42 @@
- void _flush_cache_all(void)
- {
- #if defined(CONFIG_CHIP_M32102)
-+	unsigned char mccr;
- 	*MCCR = MCCR_ICACHE_INV;
-+#elif defined(CONFIG_CHIP_M32104)
-+	unsigned short mccr;
-+
-+	/* Copyback and invalidate D-cache */
-+	/* Invalidate I-cache */
-+	*MCCR |= (MCCR_ICACHE_INV | MCCR_DCACHE_CBINV);
- #else
- 	unsigned long mccr;
- 
- 	/* Copyback and invalidate D-cache */
- 	/* Invalidate I-cache */
- 	*MCCR = MCCR_ICACHE_INV | MCCR_DCACHE_CBINV;
--	while ((mccr = *MCCR) & MCCR_IIV); /* loop while invalidating... */
- #endif
-+	while ((mccr = *MCCR) & MCCR_IIV); /* loop while invalidating... */
- }
- 
- /* Copy back D-cache and invalidate I-cache all */
- void _flush_cache_copyback_all(void)
- {
- #if defined(CONFIG_CHIP_M32102)
-+	unsigned char mccr;
- 	*MCCR = MCCR_ICACHE_INV;
-+#elif defined(CONFIG_CHIP_M32104)
-+	unsigned short mccr;
-+
-+	/* Copyback and invalidate D-cache */
-+	/* Invalidate I-cache */
-+	*MCCR |= (MCCR_ICACHE_INV | MCCR_DCACHE_CB);
- #else
- 	unsigned long mccr;
- 
- 	/* Copyback D-cache */
- 	/* Invalidate I-cache */
- 	*MCCR = MCCR_ICACHE_INV | MCCR_DCACHE_CB;
--	while ((mccr = *MCCR) & MCCR_IIV); /* loop while invalidating... */
--
- #endif
-+	while ((mccr = *MCCR) & MCCR_IIV); /* loop while invalidating... */
- }
-Index: linux-2.6.15-rc5-mm1/arch/m32r/boot/setup.S
-===================================================================
---- linux-2.6.15-rc5-mm1.orig/arch/m32r/boot/setup.S	2005-12-06 22:34:17.000000000 +0900
-+++ linux-2.6.15-rc5-mm1/arch/m32r/boot/setup.S	2005-12-07 15:23:31.404976272 +0900
-@@ -1,11 +1,10 @@
- /*
-  *  linux/arch/m32r/boot/setup.S -- A setup code.
-  *
-- *  Copyright (C) 2001, 2002  Hiroyuki Kondo, Hirokazu Takata,
-- *  and Hitoshi Yamamoto
-+ *  Copyright (C) 2001-2005   Hiroyuki Kondo, Hirokazu Takata,
-+ *                            Hitoshi Yamamoto, Hayato Fujiwara
-  *
-  */
--/* $Id$ */
- 
- #include <linux/linkage.h>
- #include <asm/segment.h>
-@@ -81,6 +80,16 @@ ENTRY(boot)
- ;	ldi	r1, #0x00		; cache off
- 	st	r1, @r0
- #elif defined(CONFIG_CHIP_M32104)
-+	ldi	r0, #-96		; DNCR0
-+	seth	r1, #0x0060		;  from 0x00600000
-+	or3	r1, r1, #0x0005		;  size 2MB
-+	st	r1, @r0
-+	seth	r1, #0x0100		;  from 0x01000000
-+	or3	r1, r1, #0x0003		;  size 16MB
-+	st	r1, @+r0
-+	seth	r1, #0x0200		;  from 0x02000000
-+	or3	r1, r1, #0x0002		;  size 32MB
-+	st	r1, @+r0
- 	ldi	r0, #-4              ;LDIMM	(r0, M32R_MCCR)
- 	ldi	r1, #0x703		; cache on (with invalidation)
- 	st	r1, @r0
+For starters, please observe that the addresses we use are page-aligned,
+so the least significant bit is always zero.  Thus it can be used as a marker.
 
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
+Now before we save the image we can mark blank pages by setting
+the least significant bit of .orig_address to 1 in the coresponding PBEs.
+We save the "marked" .orig_address values to the image.
+
+Then, when we are about to save the page, we check the least
+significant bit of its .orig_address, and save it only if this bit is zero.
+
+When we are about to load a page, we first get a _zeroed_ page for it.
+Next, we check if its .orig_address has the least significant bit set.
+If not, we load the page, and otherwise we only clear that bit
+(the page is already zero).
+
+> and list of cached 
+> pages in memory is going to be usefull for other stuff, too.
+> 
+> Imagine:
+> 
+> cat /dev/give-me-list-of-pages-in-page-cache > /tmp/delme.suspend
+> echo disk > /sys/power/state
+> nice ( cat /tmp/delme.suspend | read-those-pages-back ) &
+> 
+> Result is quite obviously safe (unless you mess up locking while
+> dumping pagecache), and it is going to be rather easy to test. Just
+> load the system as  much as you can while doing
+> 
+> while true; do cat /dev/give-me-list-of-pages-in-page-cache >
+> /dev/null; done
+> 
+> . Still, limiting image size to 500MB is probably easier solution. I'm
+> looking forward to that page.
+
+This is in the works.
+
+Greetings,
+Rafael
+
+
+-- 
+Beer is proof that God loves us and wants us to be happy - Benjamin Franklin

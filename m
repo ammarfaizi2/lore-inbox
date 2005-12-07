@@ -1,47 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbVLGKRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbVLGKUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbVLGKRU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 05:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbVLGKRU
+	id S1750776AbVLGKUf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 05:20:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbVLGKUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 05:17:20 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:40422 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750775AbVLGKRT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 05:17:19 -0500
-Date: Wed, 7 Dec 2005 10:17:08 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Arnd Bergmann <arnd@arndb.de>,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       arjan@infradead.org
-Subject: Re: [PATCH 02/14] spufs: fix local store page refcounting
-Message-ID: <20051207101708.GJ27946@ftp.linux.org.uk>
-References: <20051206035220.097737000@localhost> <200512061118.19633.arnd@arndb.de> <1133869108.7968.1.camel@localhost> <200512061949.33482.arnd@arndb.de> <1133895947.3279.4.camel@localhost> <17301.65082.251692.675360@cargo.ozlabs.ibm.com> <1133905298.8027.13.camel@localhost> <17302.3696.364669.18755@cargo.ozlabs.ibm.com> <20051207022610.GI27946@ftp.linux.org.uk> <17302.21437.608048.64857@cargo.ozlabs.ibm.com>
+	Wed, 7 Dec 2005 05:20:35 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:53981 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750776AbVLGKUe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 05:20:34 -0500
+Date: Wed, 7 Dec 2005 11:20:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tglx@linutronix.de, zippel@linux-m68k.org, linux-kernel@vger.kernel.org,
+       rostedt@goodmis.org, johnstul@us.ibm.com
+Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
+Message-ID: <20051207102048.GA26608@elte.hu>
+References: <20051206000126.589223000@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512061628050.1610@scrub.home> <1133908082.16302.93.camel@tglx.tec.linutronix.de> <20051207013122.3f514718.akpm@osdl.org> <20051207101137.GA25796@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17302.21437.608048.64857@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051207101137.GA25796@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.6 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 02:15:09PM +1100, Paul Mackerras wrote:
-> Al Viro writes:
-> 
-> > FWIW, I think it's not a serious argument.  Interface changes => grep time.
-> > And that means grep over the tree anyway.
-> 
-> OK, well, where would you prefer the spufs code to go?
 
-Up to ppc folks, really - I don't see any serious objections to arch/powerpc/
-variants; it could go there, it could go to fs/*.  Objections along the lines
-of "it won't be found" are BS - any interface change is going to start with
-grep over the entire tree anyway.
- 
-> > That's solved by asking for review...
-> 
-> Could you review the spufs code (i.e. the patches posted by Arnd
-> recently to linuxppc64-dev@ozlabs.org) please?
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-If it's what you have in powerpc.git - see comments on IRC yesterday...
+> once we take 'mass change of timer_list to ktimeout' out of the possible 
+> things to do, we've only got these secondary possibilities:
+> 
+> 	'struct timer_list, struct ktimer'
+> 	'struct timer_list, struct ptimer'
+> 	'struct timer_list, struct hrtimer'
+> 
+> and having eliminated the first option due to being impractical to pull 
+> off, [...]
+
+(correction: due to being confusing.)
+
+	Ingo

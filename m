@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751664AbVLGSMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751667AbVLGSNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751664AbVLGSMh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:12:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751681AbVLGSMg
+	id S1751667AbVLGSNv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:13:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751678AbVLGSNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:12:36 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:45324 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751662AbVLGSMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:12:36 -0500
-Date: Wed, 7 Dec 2005 19:12:34 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Ben Gardner <gardner.ben@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, lm-sensors <lm-sensors@lm-sensors.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/3] i386: CS5535 chip support - cpu
-Message-ID: <20051207181234.GF31922@stusta.de>
-References: <808c8e9d0512070931k607cd7a9g404d131ded8c014b@mail.gmail.com>
+	Wed, 7 Dec 2005 13:13:51 -0500
+Received: from xenotime.net ([66.160.160.81]:28569 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751662AbVLGSNu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 13:13:50 -0500
+Date: Wed, 7 Dec 2005 10:13:49 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Benjamin LaHaise <bcrl@kvack.org>
+cc: Dirk Steuwer <dirk@steuwer.de>, linux-kernel@vger.kernel.org
+Subject: Re: Runs with Linux (tm)
+In-Reply-To: <20051207141720.GA533@kvack.org>
+Message-ID: <Pine.LNX.4.58.0512071008450.17648@shark.he.net>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+ <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random>
+ <43944F42.2070207@didntduck.org> <loom.20051206T094816-40@post.gmane.org>
+ <20051206104652.GB3354@favonius> <loom.20051206T173458-358@post.gmane.org>
+ <20051207141720.GA533@kvack.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <808c8e9d0512070931k607cd7a9g404d131ded8c014b@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 11:31:09AM -0600, Ben Gardner wrote:
->...
-> --- linux-2.6.14.orig/arch/i386/kernel/Makefile
-> +++ linux-2.6.14/arch/i386/kernel/Makefile
-> @@ -42,6 +42,14 @@ EXTRA_AFLAGS   := -traditional
->  
->  obj-$(CONFIG_SCx200)		+= scx200.o
->  
-> +obj-$(CONFIG_CS5535)		+= cs5535.o
-> +ifeq ($(CONFIG_CS5535_SMB), y)
-> +EXTRA_CFLAGS += -DCS5535_SMB
-> +endif
-> +ifeq ($(CONFIG_CS5535_UART2), y)
-> +EXTRA_CFLAGS += -DCS5535_UART2
-> +endif
->...
+On Wed, 7 Dec 2005, Benjamin LaHaise wrote:
 
-Please use CONFIG_CS5535_{SMB,UART2} in cs5535.c instead of setting 
-EXTRA_CFLAGS.
+> On Tue, Dec 06, 2005 at 04:41:44PM +0000, Dirk Steuwer wrote:
+> > Yes, but there isn't and won't be much recognition - every company does
+> > its own thing. And how many people buy online all the time? But even then,
+> > a genery "runs with Linux" Logo would be great. If a company's product
+> > is not certified, its not considered by Linux customers.
+>
+> This is something I've wanted to see for years now.  Linux distributions
+> do not have the motivation to work out the hardware certification issues
+> on the community level, as it interferes with their value add of branding.
+> I have always wished that when I see hardware advertising Linux support
+> that it has a meaning: open source, supportable drivers.  Maybe it's time
+> to get such a project moving.
 
-cu
-Adrian
+Yes, the problem afaict is the "works with Linux(notm)" crowd,
+e.g., those companies who see ndiswrapper as a way to say
+"works with Linux."  I don't see how the Runs with Linux(tm)
+org can keep them from saying "works with Linux" and confusing
+uses with that, but IANAL.  Maybe "Linux native support" or
+some such words could be used to mean your "open source,
+supportable drivers."
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+~Randy

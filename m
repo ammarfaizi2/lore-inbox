@@ -1,104 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVLGRJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751221AbVLGRQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbVLGRJe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 12:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbVLGRJe
+	id S1751221AbVLGRQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 12:16:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVLGRQP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 12:09:34 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:4286 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S1751201AbVLGRJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 12:09:33 -0500
-Date: Wed, 7 Dec 2005 15:13:32 -0200
-From: Eduardo Pereira Habkost <ehabkost@mandriva.com>
-To: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
-Message-ID: <20051207171332.GI20451@duckman.conectiva>
-References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br> <20051207164118.GA28032@suse.de> <20051207145113.4cbdc264.lcapitulino@mandriva.com.br>
+	Wed, 7 Dec 2005 12:16:15 -0500
+Received: from fmr13.intel.com ([192.55.52.67]:21383 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1751214AbVLGRQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 12:16:14 -0500
+Subject: Re: [RFC]add ACPI hooks for IDE suspend/resume
+From: Shaohua Li <shaohua.li@intel.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-ide <linux-ide@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
+       pavel <pavel@ucw.cz>, Len Brown <len.brown@intel.com>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, akpm <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0512061557420.5519@shark.he.net>
+References: <1133849404.3026.10.camel@sli10-mobl.sh.intel.com>
+	 <Pine.LNX.4.58.0512061557420.5519@shark.he.net>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 09:15:57 +0800
+Message-Id: <1133918157.2936.5.camel@sli10-mobl.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="16qp2B0xu0fRvRD7"
-Content-Disposition: inline
-In-Reply-To: <20051207145113.4cbdc264.lcapitulino@mandriva.com.br>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-12-06 at 16:11 -0800, Randy.Dunlap wrote:
+> On Tue, 6 Dec 2005, Shaohua Li wrote:
+> 
+> > Hi,
+> > Adding ACPI IDE hook in IDE suspend/resume. The ACPI spec
+> > explicitly says we must call some ACPI methods to restore IDE drives.
+> > The sequences defined by ACPI spec are:
+> > suspend:
+> > 1. Get the DMA and PIO info from IDE channel's _GTM method.
+> >
+> > resume:
+> > 1. Calling IDE channel's _STM to set the transfer timing setting.
+> > 2. For each drive on the IDE channel, running drive's _GTF to get the
+> > ATA commands required to reinitialize each drive.
+> > 3. Sending the ATA commands gotton from step 2 to drives.
+> >
+> > TODO: invoking ATA commands.
+> >
+> > Though we didn't invoke ATA commands, this patch fixes the bug at
+> > http://bugzilla.kernel.org/show_bug.cgi?id=5604. And Matthew said this
+> > actually fixes a lot of systems in his test.
+> > I'm not familiar with IDE, so comments/suggestions are welcome.
+> >
+> > ---
+> >
+> >  linux-2.6.15-rc5-root/drivers/ide/ide.c |  282 ++++++++++++++++++++++++++++++++
+> >  1 files changed, 282 insertions(+)
+> >
+> > diff -puN drivers/ide/ide.c~acpi-ide drivers/ide/ide.c
+> > --- linux-2.6.15-rc5/drivers/ide/ide.c~acpi-ide	2005-12-07 03:01:36.000000000 +0800
+> > +++ linux-2.6.15-rc5-root/drivers/ide/ide.c	2005-12-07 03:01:36.000000000 +0800
+> > @@ -155,6 +155,10 @@
+> >  #include <linux/device.h>
+> >  #include <linux/bitops.h>
+> >
+> > +#ifdef CONFIG_ACPI
+> > +#include <linux/acpi.h>
+> > +#endif
+> 
+> Shouldn't need or use ifdef/endif for #includes.
+Ok.
 
---16qp2B0xu0fRvRD7
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > +
+> > +/* The _GTM return package length is 5 dwords */
+> > +#define GTM_LEN (sizeof(u32) * 5)
+> > +struct acpi_ide_state {
+> > +	acpi_handle handle; /* channel device's handle */
+> > +	u32 gtm[GTM_LEN/sizeof(u32)]; /* info from _GTM */
+> > +	struct hd_driveid id_buff[2]; /* one chanel has two drives */
+> 
+> s/2/MAX_DRIVES/
+> s/chanel/channel/
+:), thanks!
 
-On Wed, Dec 07, 2005 at 02:51:13PM -0200, Luiz Fernando Capitulino wrote:
-> On Wed, 7 Dec 2005 08:41:18 -0800
-> Greg KH <gregkh@suse.de> wrote:
->=20
-> | On Tue, Dec 06, 2005 at 09:56:10AM -0200, Luiz Fernando Capitulino wrot=
-e:
-> | >  Greg,
-> | >=20
-> | >  Don't get scared. :-)
-> |=20
-> | I'm not scared, just not liking this patch series at all.
-> |=20
-> | In the end, it's just moving from one locking scheme to another.  No big
-> | deal.
->=20
->  I understand.
->=20
-> | The problem is, none of this should be needed at all.  We need to move
-> | the usb-serial drivers over to use the serial core code.  If that
-> | happens, then none of this locking is needed.
-> |=20
-> | That's the right thing to do, so I'm not going to take this patch series
-> | right now because of that.  If you all want to work on moving to use the
-> | serial core, I would love to see that happen.
->=20
->  If it's the right thing to do, I'll love to work on that. :)
->=20
->  There is only one problem though, I've never touched in the serial core.
-> It means I'll need some time to do it, and maybe the first tries can be
-> wrong.
->=20
->  Any tips you have in mind are very welcome.
+> > +	if (!handle) {
+> > +		printk(KERN_DEBUG "IDE device's ACPI handler is NULL\n");
+> 
+> s/handler/handle/ ??
+A typo.
 
-I have a small question: in my view, this patch series is a small
-step towards implementing the usb-serial drivers The Right Way, as it
-removes a a bit of duplicated code. If we start to do The Big Change to
-serial_core , probably we would make further refactorings on these parts,
-going towards The Right Way to implement the drivers.
 
-My question would be: where would the small refactorings belong, while
-the big change to serial_core is work in progress? I would like them
-to go to some tree for testing, while the work is being done, instead
-of pushing lots of changes later, but I don't know if there is someone
-who we could send them.
+> > +	status = acpi_evaluate_object(parent_handle, "_GTM", NULL, &buffer);
+> > +	if (ACPI_FAILURE(status)) {
+> > +		printk(KERN_ERR "Error evaluating _GTM\n");
+> 
+> I don't read the ACPI spec. as saying that _GTM is required, (?)
+> so I would make this a KERN_DEBUG instead of KERN_ERR.
+Yes, _GTM is required.
 
->=20
->  Eduardo, let's do it? :)
 
-I would love it, but I will be on vacations in two weeks. So, probably
-on January.
+> > +	status = acpi_evaluate_object(state->handle, "_STM", &input, NULL);
+> > +	if (ACPI_FAILURE(status)) {
+> > +		printk(KERN_ERR "Evaluating _STM error\n");
+> 
+> Same as for _GTM, KERN_DEBUG instead of KERN_ERR.
+_STM also is required.
 
-My wife is lucky that I won't have a notebook available during our
-vacations.  8)
+> > +	acpi_status status;
+> > +
+> > +	status = acpi_evaluate_object(handle, "_GTF", NULL, &output);
+> > +	if (ACPI_FAILURE(status)) {
+> > +		printk(KERN_ERR "evaluate _GTF error\n");
+> 
+> KERN_DEBUG if not present since it's not required AFAIK.
+Actually it's required, but I have no idea how to invoke the ata
+commands gotten from _GTF.
 
---=20
-Eduardo
+Thanks for your time. I'll update this patch as you suggested after the
+IDE gurus think it's ok.
 
---16qp2B0xu0fRvRD7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Thanks,
+Shaohua
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDlxg8caRJ66w1lWgRAjxHAKCYydzIfjx735zUjui+nxl2IT1uZQCggMKf
-c128uSilO/+Z+mV0mdMF+xk=
-=XDU0
------END PGP SIGNATURE-----
-
---16qp2B0xu0fRvRD7--

@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750950AbVLGMcv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbVLGMer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750950AbVLGMcv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 07:32:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750953AbVLGMcv
+	id S1750953AbVLGMer (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 07:34:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbVLGMer
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 07:32:51 -0500
-Received: from ns.ustc.edu.cn ([202.38.64.1]:4024 "EHLO mx1.ustc.edu.cn")
-	by vger.kernel.org with ESMTP id S1750948AbVLGMcu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 07:32:50 -0500
-Date: Wed, 7 Dec 2005 20:59:33 +0800
-From: Wu Fengguang <wfg@mail.ustc.edu.cn>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Rik van Riel <riel@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH 06/16] mm: balance slab aging
-Message-ID: <20051207125933.GA5355@mail.ustc.edu.cn>
-Mail-Followup-To: Wu Fengguang <wfg@mail.ustc.edu.cn>,
-	Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>,
-	Christoph Lameter <christoph@lameter.com>,
-	Rik van Riel <riel@redhat.com>,
-	Peter Zijlstra <a.p.zijlstra@chello.nl>,
-	Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-	Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
-	Andrea Arcangeli <andrea@suse.de>
-References: <20051207104755.177435000@localhost.localdomain> <20051207105019.800865000@localhost.localdomain> <20051207110840.GC7570@mail.ustc.edu.cn> <4396C8B3.1020908@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4396C8B3.1020908@yahoo.com.au>
-User-Agent: Mutt/1.5.11
+	Wed, 7 Dec 2005 07:34:47 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:41134 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750964AbVLGMeq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 07:34:46 -0500
+Subject: Re: [linux-usb-devel] Re: [PATCH 00/10] usb-serial: Switches from
+	spin lock to atomic_t.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
+Cc: oliver@neukum.org, linux-usb-devel@lists.sourceforge.net,
+       ehabkost@mandriva.com, gregkh@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <20051207103025.7f4979a0.lcapitulino@mandriva.com.br>
+References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br>
+	 <20051206194041.GA22890@suse.de> <20051206201340.GB20451@duckman.conectiva>
+	 <200512062348.14349.oliver@neukum.org>
+	 <20051207102419.1f395664.lcapitulino@mandriva.com.br>
+	 <1133958433.2869.19.camel@laptopd505.fenrus.org>
+	 <20051207103025.7f4979a0.lcapitulino@mandriva.com.br>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 13:34:38 +0100
+Message-Id: <1133958878.2869.21.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 10:34:11PM +1100, Nick Piggin wrote:
-> Wu Fengguang wrote:
-> >A question about the current one:
-> >
-> >For a NUMA system with N nodes, the way kswapd calculates lru_pages - only 
-> >sum
-> >up local zones - may cause N times more shrinking than a 1-CPU system.
-> >
+On Wed, 2005-12-07 at 10:30 -0200, Luiz Fernando Capitulino wrote:
+> On Wed, 07 Dec 2005 13:27:13 +0100
+> Arjan van de Ven <arjan@infradead.org> wrote:
 > 
-> But it is equal pressure for all pools involved in being scaned the
-> simplifying assumption is that slab is equally distributed among
-> nodes. And yeah, scanning would load up when more than 1 kswapd is
-> running.
+> | 
+> | >  Isn't it right? Is the URB write so fast that switching to atomic_t
+> | > doesn't pay-off?
+> | 
+> | an atomic_t access and a spinlock are basically the same price... so
+> | what's the payoff ?
 > 
-> I had patches to do per-zone inode and dentry slab shrinking ages
-> ago, but nobody was interested... so I'm guessing it is a feature :)
+>  One lock less,
 
-I rechecked shrink_dcache_memory()/prune_dcache(), it seems to be operating in
-a global manner, which means (conceptually) if 10 nodes each scans 10%, the
-global dcache is scanned 100%. Isn't it crazy? ;)
+where? spin_unlock in principle runs unlocked on x86 at least
+(except for ppro workarounds but those are/should be optional)
 
-Thanks,
-Wu
+

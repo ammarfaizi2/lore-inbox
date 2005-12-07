@@ -1,84 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030451AbVLGWSH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030399AbVLGWSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030451AbVLGWSH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 17:18:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030401AbVLGWSG
+	id S1030399AbVLGWSn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 17:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030400AbVLGWSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 17:18:06 -0500
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:41118 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030400AbVLGWSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 17:18:03 -0500
-Message-ID: <43975F8F.6080703@fr.ibm.com>
-Date: Wed, 07 Dec 2005 23:17:51 +0100
-From: Cedric Le Goater <clg@fr.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 7 Dec 2005 17:18:43 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:20428 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030399AbVLGWSl convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 17:18:41 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Qs3wrRFQgni8pStxc37CL1p9Kq8AxIGAVRgREo5oZz7JS7jMupxxWIVXtt32digfhxs+fxKPS79rE7F0rDMUvlNs52FPzLv2Honbn2be6L6vQfDon+ukZWRlCNSir81WU21fHCJIEqe1nzNRI6sQWxxpiCHYguxOcUleHL1u/Cg=
+Message-ID: <d120d5000512071418q521d2155r81759ef8993000d8@mail.gmail.com>
+Date: Wed, 7 Dec 2005 17:18:40 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: dtor_core@ameritech.net, Greg KH <greg@kroah.com>,
+       Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Minor change to platform_device_register_simple prototype
+In-Reply-To: <20051207190352.GI6793@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: Dave Hansen <haveblue@us.ibm.com>,
-       "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>, Paul Jackson <pj@sgi.com>
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-References: <20051114212341.724084000@sergelap>	<m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>	<1133977623.24344.31.camel@localhost> <m1hd9kd89y.fsf@ebiederm.dsl.xmission.com>
-In-Reply-To: <m1hd9kd89y.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051205212337.74103b96.khali@linux-fr.org>
+	 <20051205202707.GH15201@flint.arm.linux.org.uk>
+	 <200512070105.40169.dtor_core@ameritech.net>
+	 <d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com>
+	 <20051207180842.GG6793@flint.arm.linux.org.uk>
+	 <d120d5000512071023u151c42f4lcc40862b2debad73@mail.gmail.com>
+	 <20051207190352.GI6793@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+On 12/7/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> On Wed, Dec 07, 2005 at 01:23:11PM -0500, Dmitry Torokhov wrote:
+> > On 12/7/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> > > On Wed, Dec 07, 2005 at 12:59:09PM -0500, Dmitry Torokhov > > I have started moving drivers from the "_simple" interface and I found
+> > > > that I'm missing platform_device_del that would complement
+> > > > platform_device_add. Would you object to having such a function, like
+> > > > we do for other sysfs objects? With it one can write somthing like
+> > > > this:
+> > >
+> > > Greg and myself discussed that, and we decided that it was adding
+> > > unnecessary complexity to the interface.  Maybe Greg's view has
+> > > changed?
+> > >
+> >
+> > How do you write error handling path without the _del function if
+> > platform_device_add is not the last call? you can't call
+> > platform_device_unregister() and then platform_device_put(). And I
+> > don't like to take extra references in error path or assign the
+> > pointer to NULL in teh middle of unwinding...
+>
+> The example code in the commit comments contains a complete example of
+> registering a platform device, and cleaning up should something go
+> wrong with that process.
+>
 
->>>Who do you report as the source of your signal.  
->>
->>I've never dealt with signal enough from userspace to give you a good
->>answer.  Can you explain the mechanics of how you would go about doing
->>this?
-> 
-> Look at siginfo_t si_pid....
+The problem with what you proposing is that one will have to code 2
+cleanup code paths - one when platform_device_add fails (in this case
+you just call platform_device_put) and another one when
+platfrom_device_add succeeds but something else fails. In the second
+case you have to use platfrom_device_unregister to release resources
+but can't use platform_device_put because the device will most likely
+be released by plaform_device_unregister. I prefer having single
+cleanup code path, like most other drivers have.
 
-the siginfo is queued when a process is killed and si_pid is updated using
-the pidspace of the killing process. Processes parent of a pidspace are of
-a special kind : the init kind.
+> Unregistering is just a matter of calling platform_device_unregister().
+> An unregister call is a del + put in exactly the same way as it is
+> throughout the rest of the driver model.
+>
 
->>>What pid does waitpid return when the parent of your pidspace exits?
+Yes, and it works just fine everywhere except in initialization code
+when you need to jump in the middle of _del + _put sequence.
 
-Well, a process doing waitpid on a parent of a pidspace, is not part
-of that pidspace so waitpid would return the 'real pid'.
-
-Am i getting your point correctly ?
-
->>>What pid does waitpid return when both processes are in the same pidspace?
-
-hmm, please elaborate.
-
-There are indeed issues when a process is the parent of different
-namespaces. This case that should be avoided.
-
->>>How does /proc handle multiple pid spaces?
->>
->>I'm working on it :)
->>
->>Right now, there's basically a hack in d_hash() to get new dentries for
->>each pidspace.  It is horrible and causes a 50x decrease in performance
->>on some benchmarks like dbench.
->>
->>I think the long-term solution is to make multiple, independent proc
->>mounts, and give each pidspace a separate filesystem view.  That
->>requires some of the nifty new bind mount functionality and a chroot
->>when a new pidspace is created, but I think it works.
-> 
-> I think you will ultimately want a new filesystem namespace
-> not just a chroot, so you can ``virtualize'' your filesystem namespace
-> as well.
-
-"virtualize" the mount points but not necessarily the whole filesystem.
-
-> I wonder if you could hook up with the linux vserver project.  The
-> requirements are strongly similar, and making a solution that
-> would work for everyone has a better chance of getting in.
-
-We feel the same.
-
-C.
+--
+Dmitry

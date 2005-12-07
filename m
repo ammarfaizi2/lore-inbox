@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbVLGIRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVLGIVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750721AbVLGIRe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 03:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750726AbVLGIRe
+	id S1750712AbVLGIVw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 03:21:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbVLGIVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 03:17:34 -0500
-Received: from nproxy.gmail.com ([64.233.182.204]:39430 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750713AbVLGIRd convert rfc822-to-8bit
+	Wed, 7 Dec 2005 03:21:52 -0500
+Received: from nproxy.gmail.com ([64.233.182.207]:59050 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750712AbVLGIVv convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 03:17:33 -0500
+	Wed, 7 Dec 2005 03:21:51 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Vc6/DF+K3OSBhOGo+hI3qDQ/NNonMpkjrnUR9fYofncB80P0JUfri45Sk8l6znu7oLRueoXx5Ep4GY0ukF/khH1urJvk5aS/Kcjqj9pSJ2kZ021k9U//8gp7gBDTHxHVKJeVEug3bZl/B92fTTcWnm6PDpeHoGWi6eNwtuHzMzQ=
-Message-ID: <58cb370e0512070017u606ee22fse207b9a859856dd4@mail.gmail.com>
-Date: Wed, 7 Dec 2005 09:17:31 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [RFC]add ACPI hooks for IDE suspend/resume
-Cc: Shaohua Li <shaohua.li@intel.com>, linux-ide <linux-ide@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, pavel <pavel@ucw.cz>,
-       Len Brown <len.brown@intel.com>, akpm <akpm@osdl.org>
-In-Reply-To: <20051206222001.GA14171@srcf.ucam.org>
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TEvVSEmxKM7bajqvpjRLmQc7fmCdMxPlRU1xtzBCx/mwv+CWllYIPXMqRS3Ql5NR5SohLNL2sc4qftxvHzI7QKrLufKKtdP3wTdBSv3dlKPJkMVmsurpHDByQAR5o7y7LFX3KNINRp0mpfolGC4Z8WBeRqm9iUtTQQ1eV6xV89I=
+Message-ID: <84144f020512070021r38188044x54c0b2491ef4a176@mail.gmail.com>
+Date: Wed, 7 Dec 2005 10:21:50 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH 02/14] spufs: fix local store page refcounting
+Cc: Al Viro <viro@ftp.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+In-Reply-To: <17302.21437.608048.64857@cargo.ozlabs.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <1133849404.3026.10.camel@sli10-mobl.sh.intel.com>
-	 <20051206222001.GA14171@srcf.ucam.org>
+References: <20051206035220.097737000@localhost>
+	 <200512061118.19633.arnd@arndb.de> <1133869108.7968.1.camel@localhost>
+	 <200512061949.33482.arnd@arndb.de> <1133895947.3279.4.camel@localhost>
+	 <17301.65082.251692.675360@cargo.ozlabs.ibm.com>
+	 <1133905298.8027.13.camel@localhost>
+	 <17302.3696.364669.18755@cargo.ozlabs.ibm.com>
+	 <20051207022610.GI27946@ftp.linux.org.uk>
+	 <17302.21437.608048.64857@cargo.ozlabs.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/6/05, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> On Tue, Dec 06, 2005 at 02:10:04PM +0800, Shaohua Li wrote:
->
-> > TODO: invoking ATA commands.
-> >
-> > Though we didn't invoke ATA commands, this patch fixes the bug at
-> > http://bugzilla.kernel.org/show_bug.cgi?id=5604. And Matthew said this
-> > actually fixes a lot of systems in his test.
-> > I'm not familiar with IDE, so comments/suggestions are welcome.
->
-> Of the DSDTs I've looked at, most seem to provide taskfile commands
-> concerned about doing things like setting up drive security. I haven't
-> yet seen an IDE failure on resume when using this patch, so the _GTF
-> stuff doesn't seem terribly important. The reason for it not currently
-> being implemented is that the IDE queues haven't been restarted at the
-> point where this code is called, so there's no obvious way of submitting
-> them to the drive yet.
+Hi Paul,
 
-Isn't ide-io.c:ide_{start,complete}_power_step() enough?
+On 12/7/05, Paul Mackerras <paulus@samba.org> wrote:
+> Could you review the spufs code (i.e. the patches posted by Arnd
+> recently to linuxppc64-dev@ozlabs.org) please?
 
-BTW:
+Why not post them to LKML?
 
-bugzilla bug #5604 - user is using 'ide-generic' host driver instead
-of 'piix' so no wonder that suspend/resume doesn't work
-
-bugzilla bug #2039 - is probably fixed by 2.6.12 (contains bugfix for
-via82cxxx host driver not  bugfix for not restoring transfer mode)
-
-"From Matthew Garrett  2005-03-30 17:17 UTC  [reply] -------
-
-Linux currently has no real support for setting up IDE interfaces on resume.
-Some machines are kind enough to set the IDE interface up themselves, but on
-others we're doomed to failure. I'm looking into implementing this, but it won't
-happen until some time after Hoary."
-
-ide_{start,complete}_power_step() was there since the early 2.6.x days
-
-Bartlomiej
+                              Pekka

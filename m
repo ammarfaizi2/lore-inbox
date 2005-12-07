@@ -1,73 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVLGD2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932567AbVLGD2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbVLGD2b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 22:28:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964814AbVLGD2b
+	id S932567AbVLGD2v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 22:28:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbVLGD2v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 22:28:31 -0500
-Received: from mexforward.lss.emc.com ([168.159.213.200]:25752 "EHLO
-	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
-	id S932144AbVLGD2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 22:28:30 -0500
-Message-ID: <C2EEB4E538D3DC48BF57F391F422779321AE8E@srmanning.eng.emc.com>
-From: "goggin, edward" <egoggin@emc.com>
-To: "'James Bottomley'" <James.Bottomley@SteelEye.com>,
-       "goggin, edward" <egoggin@emc.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: RE: [SCSI BUG 2.6.15-rc3-mm1] scheduling while atomic on boot tim
-	 e
-Date: Tue, 6 Dec 2005 22:27:49 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.12.6.36
-X-PerlMx-Spam: Gauge=, SPAM=1%, Reasons='EMC_FROM_00+ -3, __CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __IMS_MSGID 0, __IMS_MUA 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
+	Tue, 6 Dec 2005 22:28:51 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:33001 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932567AbVLGD2u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 22:28:50 -0500
+Date: Wed, 7 Dec 2005 09:00:25 +0530
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, prasanna@in.ibm.com
+Subject: Re: [PATCH] kprobes: fix race in aggregate kprobe registration
+Message-ID: <20051207033025.GA2643@in.ibm.com>
+Reply-To: ananth@in.ibm.com
+References: <20051206051711.GA3206@in.ibm.com> <20051206131823.A8726@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051206131823.A8726@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+On Tue, Dec 06, 2005 at 01:18:24PM -0800, Keshavamurthy Anil S wrote:
+> On Tue, Dec 06, 2005 at 10:47:11AM +0530, Ananth N Mavinakayanahalli wrote:
+> > From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+> > 
+> > When registering multiple kprobes at the same address, we leave a small
+> > window where the kprobe hlist will not contain a reference to the
+> > registered kprobe, leading to potentially, a system crash if the
+> > breakpoint is hit on another processor.
+> > 
+> > Patch below changes the order of hlist updation to make sure that there
+> > is always a reference to the kprobe at the location.
+> 
+> Hi Ananth,
+> 	How do you like this patch? Here the old entry
+> will be replace with the new entry automically. 
 
-> -----Original Message-----
-> From: James Bottomley [mailto:James.Bottomley@SteelEye.com] 
-> Sent: Monday, December 05, 2005 3:32 PM
-> To: goggin, edward
-> Cc: 'Andrew Morton'; Wu Fengguang; 
-> linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
-> Subject: RE: [SCSI BUG 2.6.15-rc3-mm1] scheduling while 
-> atomic on boot tim e
-> 
-> On Fri, 2005-12-02 at 15:35 -0500, goggin, edward wrote:
-> > I think this is caused by my patch to scsi_next_command()
-> > (on or about 11/11) causing it to call put_device() and
-> > invoke the kobject's release() function while in soft
-> > interrupt.  My patch should be removed ... although I
-> > don't have an alternate solution in mind for the original
-> > problem which was an "oops with USB Storage on 2.6.14".
-> 
-> Yes and no.
-> 
-> Reverting your patch won't fix the problem because scsi_put_command()
-> will then relinquish the last reference to the device and trigger the
-> same warning.  Additionally, blk_run_queue now stands a good chance of
-> running on a freed queue which could trigger a panic.
-> 
-> The problem seems to be that device_del() is apparently requiring user
-> context, if that's true, this will bite us not only here, but all over
-> the place
+Your patch looks better.
 
-like as a result of the call to put_device() at the bottom of
-scsi_request_fn() when called indirectly via scsi_next_command()'s 
-call to scsi_run_queue()
+Andrew,
+Anil's patch depends on the list.h updates currently in -mm
 
-> ... in fact the fix might have to be to do the target reap
-> through a workqueue.
+> Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Acked-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+
 > 
-> Regardless, your patch isn't the culprit here, it's just the 
-> thing which
-> is doing the last put.
+>  kernel/kprobes.c |    5 +----
+>  1 files changed, 1 insertion(+), 4 deletions(-)
 > 
-> James
-> 
-> 
-> 
+> Index: linux-2.6.15-rc5-mm1/kernel/kprobes.c
+> ===================================================================
+> --- linux-2.6.15-rc5-mm1.orig/kernel/kprobes.c
+> +++ linux-2.6.15-rc5-mm1/kernel/kprobes.c
+> @@ -399,10 +399,7 @@ static inline void add_aggr_kprobe(struc
+>  	INIT_LIST_HEAD(&ap->list);
+>  	list_add_rcu(&p->list, &ap->list);
+>  
+> -	INIT_HLIST_NODE(&ap->hlist);
+> -	hlist_del_rcu(&p->hlist);
+> -	hlist_add_head_rcu(&ap->hlist,
+> -		&kprobe_table[hash_ptr(ap->addr, KPROBE_HASH_BITS)]);
+> +	hlist_replace_rcu(&p->hlist, &ap->hlist);
+>  }
+>  
+>  /*

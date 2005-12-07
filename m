@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbVLGOTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbVLGOTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751079AbVLGOTA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 09:19:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbVLGOTA
+	id S1751082AbVLGOTN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 09:19:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbVLGOTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 09:19:00 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:38274 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751079AbVLGOS7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 09:18:59 -0500
-Message-ID: <4396EF50.30201@redhat.com>
-Date: Wed, 07 Dec 2005 09:18:56 -0500
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 7 Dec 2005 09:19:12 -0500
+Received: from nproxy.gmail.com ([64.233.182.196]:47513 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751082AbVLGOTK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 09:19:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Qo79aCfWjOpvgb8ohNC/DY8M+NDxgAWf10qQUHI0yPRIxBfD/rxaA+woq6/zQfkiqEV2FsICx9ClC2Bcvv1trtTv23UEbfTkWjCKz91Qnt5JnzSs7/WXkzCgkKbC7wMnQrt0YehF7tZqmvs8fUJTBfTtbulAshhvlRIBfrug3ro=
+Message-ID: <58cb370e0512070619k17022317v8e871dc3f9cafb9@mail.gmail.com>
+Date: Wed, 7 Dec 2005 15:19:07 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Subject: Re: [RFC]add ACPI hooks for IDE suspend/resume
+Cc: Shaohua Li <shaohua.li@intel.com>, linux-ide <linux-ide@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, pavel <pavel@ucw.cz>,
+       Len Brown <len.brown@intel.com>, akpm <akpm@osdl.org>
+In-Reply-To: <20051207131454.GA16558@srcf.ucam.org>
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Kenny Simpson <theonetruekenny@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: another nfs puzzle
-References: <20051206220448.82860.qmail@web34109.mail.mud.yahoo.com>	 <4396EB2F.3060404@redhat.com> <1133964667.27373.13.camel@lade.trondhjem.org>
-In-Reply-To: <1133964667.27373.13.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1133849404.3026.10.camel@sli10-mobl.sh.intel.com>
+	 <20051206222001.GA14171@srcf.ucam.org>
+	 <58cb370e0512070017u606ee22fse207b9a859856dd4@mail.gmail.com>
+	 <20051207131454.GA16558@srcf.ucam.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-
->On Wed, 2005-12-07 at 09:01 -0500, Peter Staubach wrote:
->  
+On 12/7/05, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> On Wed, Dec 07, 2005 at 09:17:31AM +0100, Bartlomiej Zolnierkiewicz wrote:
 >
->>Kenny Simpson wrote:
->>
->>    
->>
->>>Hi again,
->>> I am seeing some odd behavior with O_DIRECT.  If a file opened with O_DIRECT has a page mmap'd,
->>>and the file is extended via pwrite, then the mmap'd region seems to get lost - i.e. it neither
->>>takes up system memory, nor does it get written out.
->>> 
->>>
->>>      
->>>
->>I don't think that I understand why or how the kernel allows a file,
->>which was opened with O_DIRECT, to be mmap'd.  The use of O_DIRECT
->>implies no caching and mmap implies the use of caching.
->>    
->>
+> > Isn't ide-io.c:ide_{start,complete}_power_step() enough?
 >
->In this context it doesn't matter whether or not the you use the same
->file descriptor. The problem is the same if my process opens the file
->for O_DIRECT and then your process open it for normal I/O, and mmaps it.
->
+> No.
 
-Yup, same problem.  Why is this allowed?  Does it really work correctly?
-
-    Thanx...
-
-       ps
+Why? :)

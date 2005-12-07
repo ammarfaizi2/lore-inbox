@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbVLGQeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVLGQjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbVLGQeM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 11:34:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVLGQeL
+	id S1751191AbVLGQjh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 11:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbVLGQjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 11:34:11 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:13512 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751202AbVLGQeK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 11:34:10 -0500
-Subject: RE: stat64 for over 2TB file returned invalid st_blocks
-From: Dave Kleikamp <shaggy@austin.ibm.com>
+	Wed, 7 Dec 2005 11:39:37 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48876 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751191AbVLGQjg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 11:39:36 -0500
+Message-ID: <4397103D.7050409@redhat.com>
+Date: Wed, 07 Dec 2005 11:39:25 -0500
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.4.1 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Takashi Sato <sho@tnes.nec.co.jp>,
-       "'Andreas Dilger'" <adilger@clusterfs.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <1133969671.27373.47.camel@lade.trondhjem.org>
-References: <000001c5fb1d$0a27c8d0$4168010a@bsd.tnes.nec.co.jp>
-	 <1133963528.27373.4.camel@lade.trondhjem.org>
-	 <1133967716.8910.5.camel@kleikamp.austin.ibm.com>
-	 <1133969671.27373.47.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Date: Wed, 07 Dec 2005 10:34:07 -0600
-Message-Id: <1133973247.8907.33.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+CC: Kenny Simpson <theonetruekenny@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: another nfs puzzle
+References: <20051206220448.82860.qmail@web34109.mail.mud.yahoo.com>	 <4396EB2F.3060404@redhat.com>	 <1133964667.27373.13.camel@lade.trondhjem.org> <4396EF50.30201@redhat.com>	 <1133966063.27373.29.camel@lade.trondhjem.org>	 <4397011E.9010703@redhat.com>	 <1133970117.27373.53.camel@lade.trondhjem.org>	 <4397063A.2030200@redhat.com> <1133971780.27373.64.camel@lade.trondhjem.org>
+In-Reply-To: <1133971780.27373.64.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-07 at 10:34 -0500, Trond Myklebust wrote:
-> If you really want a variable size type here, then the right thing to do
-> is to define a __kernel_blkcnt_t or some such thing, and hide the
-> configuration knob for it somewhere in the arch-specific Kconfigs.
+Trond Myklebust wrote:
 
-Takashi's patch does improve on what currently exists.  Maybe someone
-can create a separate patch to replace sector_t with blkcnt_t where it
-makes sense.
--- 
-David Kleikamp
-IBM Linux Technology Center
+>
+>I agree. It is clearly going to be a drag on performance, but it should
+>be very much a corner case, so...
+>
+>  
+>
 
+Yes, file systems tend to mostly be about the corner cases though...  :-)
+
+>To tell you the truth, I'm more interested in this case in order to
+>figure out how to make mmap() work correctly for the case of an ordinary
+>file, but where the file changes on the server. Currently we just call
+>invalidate_inode_pages2(), without unmapping first. The conclusion from
+>Kenny's testcase appears to be that this may lead to mmapped dirty data
+>being lost.
+>
+
+Ugly, huh?  The options seem to be to either write out all of the data
+to the server or just truncate it.  I have seen the former used mostly,
+although this does generate the "last one there wins" scenario.  This
+does match the usual semantics associated with normal cached data from
+write(2)s and should fit well with the NFSv4 callback notifying that a
+write delegation is being withdrawn.
+
+    Thanx...
+
+       ps

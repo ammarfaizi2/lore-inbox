@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbVLGQbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbVLGQeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbVLGQbr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 11:31:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVLGQbq
+	id S1751202AbVLGQeM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 11:34:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVLGQeL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 11:31:46 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:26044 "EHLO mx.in-addr.de")
-	by vger.kernel.org with ESMTP id S1751198AbVLGQbq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 11:31:46 -0500
-Date: Wed, 7 Dec 2005 13:47:36 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-Message-ID: <20051207124736.GK21914@marowsky-bree.de>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <loom.20051206T173458-358@post.gmane.org> <1133894933.29084.3.camel@mindpipe> <200512062135.51960.grahame@regress.homelinux.org> <loom.20051207T085908-898@post.gmane.org>
+	Wed, 7 Dec 2005 11:34:11 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:13512 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751202AbVLGQeK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 11:34:10 -0500
+Subject: RE: stat64 for over 2TB file returned invalid st_blocks
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Takashi Sato <sho@tnes.nec.co.jp>,
+       "'Andreas Dilger'" <adilger@clusterfs.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <1133969671.27373.47.camel@lade.trondhjem.org>
+References: <000001c5fb1d$0a27c8d0$4168010a@bsd.tnes.nec.co.jp>
+	 <1133963528.27373.4.camel@lade.trondhjem.org>
+	 <1133967716.8910.5.camel@kleikamp.austin.ibm.com>
+	 <1133969671.27373.47.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 10:34:07 -0600
+Message-Id: <1133973247.8907.33.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <loom.20051207T085908-898@post.gmane.org>
-X-Ctuhulu: HASTUR
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2005-12-07T08:09:09, Dirk Steuwer <dirk@steuwer.de> wrote:
+On Wed, 2005-12-07 at 10:34 -0500, Trond Myklebust wrote:
+> If you really want a variable size type here, then the right thing to do
+> is to define a __kernel_blkcnt_t or some such thing, and hide the
+> configuration knob for it somewhere in the arch-specific Kconfigs.
 
-> Yes, precisely what i was talking about. 
-> Something really simple joe average can
-> follow. 
-> It has to be validated from a license point of view, 
-> but also from a technical side. 
-
-Be careful here. You're talking about something OSDL could actually be
-useful for. This means there's some serious dragons here.
-
-
-Sincerely,
-    Lars Marowsky-Brée
-
+Takashi's patch does improve on what currently exists.  Maybe someone
+can create a separate patch to replace sector_t with blkcnt_t where it
+makes sense.
 -- 
-High Availability & Clustering
-SUSE Labs, Research and Development
-SUSE LINUX Products GmbH - A Novell Business	 -- Charles Darwin
-"Ignorance more frequently begets confidence than does knowledge"
+David Kleikamp
+IBM Linux Technology Center
 

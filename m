@@ -1,50 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbVLGDPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbVLGDXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbVLGDPT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 22:15:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbVLGDPT
+	id S964771AbVLGDXk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 22:23:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964821AbVLGDXj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 22:15:19 -0500
-Received: from ozlabs.org ([203.10.76.45]:6592 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030299AbVLGDPR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 22:15:17 -0500
+	Tue, 6 Dec 2005 22:23:39 -0500
+Received: from nproxy.gmail.com ([64.233.182.193]:7838 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964771AbVLGDXj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 22:23:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RkCCn9PMuiigjBmvDqKv0KulMuc1k54FYoO7pSImLOehEN3Hs27cO0QF0HZ/cwNN4TvAfOCCArb+yBTvfUZDwkFISodMW8xTYz3Z0quoKEU4PxL4gMjb/fDTjjLuawnwXaNSHpHASBKHj0oSqnUO1a8Apx+q7ck9IZtlfNfZBn4=
+Message-ID: <2cd57c900512061923u1ce526c8p@mail.gmail.com>
+Date: Wed, 7 Dec 2005 11:23:37 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Cc: Tim Bird <tim.bird@am.sony.com>, Dave Airlie <airlied@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>, arjan@infradead.org,
+       andrew@walrond.org, linux-kernel@vger.kernel.org, rms@gnu.org
+In-Reply-To: <20051207024000.GB19746@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17302.21437.608048.64857@cargo.ozlabs.ibm.com>
-Date: Wed, 7 Dec 2005 14:15:09 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Arnd Bergmann <arnd@arndb.de>,
-       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       arjan@infradead.org
-Subject: Re: [PATCH 02/14] spufs: fix local store page refcounting
-In-Reply-To: <20051207022610.GI27946@ftp.linux.org.uk>
-References: <20051206035220.097737000@localhost>
-	<200512061118.19633.arnd@arndb.de>
-	<1133869108.7968.1.camel@localhost>
-	<200512061949.33482.arnd@arndb.de>
-	<1133895947.3279.4.camel@localhost>
-	<17301.65082.251692.675360@cargo.ozlabs.ibm.com>
-	<1133905298.8027.13.camel@localhost>
-	<17302.3696.364669.18755@cargo.ozlabs.ibm.com>
-	<20051207022610.GI27946@ftp.linux.org.uk>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
+	 <4394DA1D.3090007@am.sony.com> <20051206040820.GB26602@kroah.com>
+	 <2cd57c900512052358m5b631204i@mail.gmail.com>
+	 <20051206161131.GB2088@kroah.com>
+	 <2cd57c900512061738l2f19aa54x@mail.gmail.com>
+	 <20051207024000.GB19746@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro writes:
+2005/12/7, Greg KH <greg@kroah.com>:
+> On Wed, Dec 07, 2005 at 09:38:30AM +0800, Coywolf Qi Hunt wrote:
+> > 2005/12/7, Greg KH <greg@kroah.com>:
+> > > And no kernel developers are forcing anyone to use Linux.  If they don't
+> > > like it for whatever reasons, there are other alternatives...
+> >
+> > AFAIK, no proprietary software vendors are forcing any1 to buy their
+> > proprietary software. Still you are speaking in a monopoly tone!
+>
+> How is the statement, "If you don't trust the intelligence of the Linux
+> kernel developers, then don't use the Linux kernel." a monopolistic
+> tone?
 
-> FWIW, I think it's not a serious argument.  Interface changes => grep time.
-> And that means grep over the tree anyway.
+The fact is Linux supports more hardware now. Some *BSD users turn to
+Linux in order to drive their hardware for the _same_ reason as users
+turn to windows. That is really a monopolistic position.
 
-OK, well, where would you prefer the spufs code to go?
+>
+> I'm serious, I never want to force anyone to use Linux.  I want to make
+> Linux be so good that everyone wants to use it, out of their own free
+> will.  And if they disagree with the way Linux is developed, or the
+> license terms, or the way it works, it will not bother me at all if they
+> choose to use something else.
 
-> That's solved by asking for review...
+Never doubt.
 
-Could you review the spufs code (i.e. the patches posted by Arnd
-recently to linuxppc64-dev@ozlabs.org) please?
+>
+> I hear OpenSolaris is looking for users :)
 
-Thanks,
-Paul.
+Clever response. Add it to your usual response. ;)
+--
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

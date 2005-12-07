@@ -1,74 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbVLGDNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbVLGDPT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030264AbVLGDNu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 22:13:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbVLGDNu
+	id S1030299AbVLGDPT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 22:15:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030302AbVLGDPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 22:13:50 -0500
-Received: from mexforward.lss.emc.com ([168.159.213.200]:65425 "EHLO
-	mexforward.lss.emc.com") by vger.kernel.org with ESMTP
-	id S1750947AbVLGDNt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 22:13:49 -0500
-Message-ID: <C2EEB4E538D3DC48BF57F391F422779321AE8D@srmanning.eng.emc.com>
-From: "goggin, edward" <egoggin@emc.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>,
-       "goggin, edward" <egoggin@emc.com>
-Cc: "'Andrew Morton'" <akpm@osdl.org>, Wu Fengguang <wfg@mail.ustc.edu.cn>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: RE: [SCSI BUG 2.6.15-rc3-mm1] scheduling while atomic on boot tim
-	 e
-Date: Tue, 6 Dec 2005 22:13:13 -0500 
+	Tue, 6 Dec 2005 22:15:19 -0500
+Received: from ozlabs.org ([203.10.76.45]:6592 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1030299AbVLGDPR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Dec 2005 22:15:17 -0500
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
-X-PMX-Version: 4.7.1.128075, Antispam-Engine: 2.1.0.0, Antispam-Data: 2005.12.6.35
-X-PerlMx-Spam: Gauge=, SPAM=1%, Reasons='EMC_FROM_00+ -3, __CT 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __HAS_X_MAILER 0, __IMS_MSGID 0, __IMS_MUA 0, __MIME_TEXT_ONLY 0, __MIME_VERSION 0, __SANE_MSGID 0'
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17302.21437.608048.64857@cargo.ozlabs.ibm.com>
+Date: Wed, 7 Dec 2005 14:15:09 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Arnd Bergmann <arnd@arndb.de>,
+       linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: [PATCH 02/14] spufs: fix local store page refcounting
+In-Reply-To: <20051207022610.GI27946@ftp.linux.org.uk>
+References: <20051206035220.097737000@localhost>
+	<200512061118.19633.arnd@arndb.de>
+	<1133869108.7968.1.camel@localhost>
+	<200512061949.33482.arnd@arndb.de>
+	<1133895947.3279.4.camel@localhost>
+	<17301.65082.251692.675360@cargo.ozlabs.ibm.com>
+	<1133905298.8027.13.camel@localhost>
+	<17302.3696.364669.18755@cargo.ozlabs.ibm.com>
+	<20051207022610.GI27946@ftp.linux.org.uk>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+Al Viro writes:
 
-> -----Original Message-----
-> From: James Bottomley [mailto:James.Bottomley@SteelEye.com] 
-> Sent: Monday, December 05, 2005 3:32 PM
-> To: goggin, edward
-> Cc: 'Andrew Morton'; Wu Fengguang; 
-> linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
-> Subject: RE: [SCSI BUG 2.6.15-rc3-mm1] scheduling while 
-> atomic on boot tim e
-> 
-> On Fri, 2005-12-02 at 15:35 -0500, goggin, edward wrote:
-> > I think this is caused by my patch to scsi_next_command()
-> > (on or about 11/11) causing it to call put_device() and
-> > invoke the kobject's release() function while in soft
-> > interrupt.  My patch should be removed ... although I
-> > don't have an alternate solution in mind for the original
-> > problem which was an "oops with USB Storage on 2.6.14".
-> 
-> Yes and no.
-> 
-> Reverting your patch won't fix the problem because scsi_put_command()
-> will then relinquish the last reference to the device and trigger the
-> same warning.  Additionally, blk_run_queue now stands a good chance of
-> running on a freed queue which could trigger a panic.
-> 
-> The problem seems to be that device_del() is apparently requiring user
-> context, if that's true, this will bite us not only here, but all over
-> the place ... in fact the fix might have to be to do the target reap
-> through a workqueue.
+> FWIW, I think it's not a serious argument.  Interface changes => grep time.
+> And that means grep over the tree anyway.
 
-How about extending kobject_cleanup() to queue to a workqueue if
-requested to do so?  Doing so would provide an easy mechanism for
-other cases to utilize and they could all share the same workqueue.
-Scsi would request certainly request this feature for calls to
-scsi_device_dev_release() for its device kobjects.
- 
-> 
-> Regardless, your patch isn't the culprit here, it's just the 
-> thing which
-> is doing the last put.
-> 
-> James
-> 
-> 
-> 
+OK, well, where would you prefer the spufs code to go?
+
+> That's solved by asking for review...
+
+Could you review the spufs code (i.e. the patches posted by Arnd
+recently to linuxppc64-dev@ozlabs.org) please?
+
+Thanks,
+Paul.

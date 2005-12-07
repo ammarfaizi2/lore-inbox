@@ -1,96 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030400AbVLGWS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030402AbVLGWUM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030400AbVLGWS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 17:18:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030403AbVLGWSz
+	id S1030402AbVLGWUM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 17:20:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030398AbVLGWUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 17:18:55 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:24263 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030402AbVLGWSy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 17:18:54 -0500
+	Wed, 7 Dec 2005 17:20:12 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:39048 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030402AbVLGWUJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 17:20:09 -0500
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+From: Arjan van de Ven <arjan@infradead.org>
 To: Dave Hansen <haveblue@us.ibm.com>
-Cc: "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Hubertus Franke <frankeh@watson.ibm.com>, Paul Jackson <pj@sgi.com>
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+In-Reply-To: <1133993636.30387.41.camel@localhost>
 References: <20051114212341.724084000@sergelap>
-	<m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
-	<1133977623.24344.31.camel@localhost>
-	<m1hd9kd89y.fsf@ebiederm.dsl.xmission.com>
-	<1133991650.30387.17.camel@localhost>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 07 Dec 2005 15:17:58 -0700
-In-Reply-To: <1133991650.30387.17.camel@localhost> (Dave Hansen's message of
- "Wed, 07 Dec 2005 13:40:50 -0800")
-Message-ID: <m18xuwd015.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	 <m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
+	 <1133977623.24344.31.camel@localhost>
+	 <1133978128.2869.51.camel@laptopd505.fenrus.org>
+	 <1133978996.24344.42.camel@localhost>
+	 <1133982048.2869.60.camel@laptopd505.fenrus.org>
+	 <1133993636.30387.41.camel@localhost>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 23:20:02 +0100
+Message-Id: <1133994002.2869.73.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
 
-> On Wed, 2005-12-07 at 12:19 -0700, Eric W. Biederman wrote:
->> >> Another question is how do your pid spaces nest.
->> >
->> > They don't, and thankfully there is anybody asking for it.  It adds
->> > loads of complexity, and nobody apparently needs it.
->> 
->> So only very special pids can generate a pidspace.  That will
->> tend to reduce the generality of the solution.  What do you do
->> if I am running your code in a vserver?
->
-> I don't think it would be a good idea to stack these containers within
-> vservers, either.  vserver uses different pidspaces, and will use the
-> same infrastructure.  The only difference is that they only have a very
-> small change to the different pidspaces for init.
+> 99% of the time, the kernel can deal with the same old tsk->pid that
+> it's always dealt with.  Generally, the only times the kernel has to
+> worry about the virtualized one is where (as Eric noted) it cross the
+> user<->kernel boundary.
 
-Well that depends on the implementation.  The first concern with
-the implementation is of course maintainability.
+that's fair enough. I don't see the need for the macro abstractions
+though; a current->pid and current->user_pid (or visible_pid or any
+other good name) split makes sense. no need for macro abstractions at
+all, just add ->user_pid in patch 1, in patch 2 assign it default to
+->pid as well and patch 3 converts the places where ->pid is now given
+to userspace ;)
 
-But beyond that a general test to see if you have done a good
-job of virtualizing something is to see if you can recurse.
+again the DRM layer needs an audit, I'm not entirely sure if it doesn't
+get pids from userspace. THe rest of the kernel mostly ought to cope
+just fine.
 
-One of my wish list items would be to run my things like my
-web browser in a container with only access to a subset of
-the things I can normally access.  That way I could be less
-concerned about the latest browser security bug.
-
-Although I do expect that just like private namespaces it will
-take a while to figure out how to allow non-privileged access
-to these kinds of powerful concepts.
-
-In the bsdjail paper the point is made that as systems grow
-more complex creating minimal privilege containers is easy
-and simple compared to what it takes to get a complex system
-up and going today.  (I expressed that badly)  
-
-And then of course there is the other pipe dream if you can
-consider the whole system in a container then you can implement
-the equivalent of swsuspend by checkpointing the top level
-container.
-
-At least this should solve the classic complaint about job
-control.  That it wasn't transparent to processes.
-
->> >> Who do you report as the source of your signal.  
->> >
->> > I've never dealt with signal enough from userspace to give you a good
->> > answer.  Can you explain the mechanics of how you would go about doing
->> > this?
->> 
->> Look at siginfo_t si_pid....
->
-> Are those things that are exported outside of the kernel?  It's not
-> immediately obvious.
-
-Sorry do a man sigaction.  Basically the signal handler
-needs to be configured with SA_SIGINFO but it should get
-that information.  
-
-I believe you have to 
-
-Eric
 

@@ -1,95 +1,212 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbVLGLQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbVLGLZA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbVLGLQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 06:16:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbVLGLQ3
+	id S1750866AbVLGLZA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 06:25:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbVLGLY7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 06:16:29 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:49339 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1750867AbVLGLQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 06:16:28 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
-Date: Wed, 7 Dec 2005 12:17:41 +0100
-User-Agent: KMail/1.9
-Cc: Andy Isaacson <adi@hexapodia.org>,
-       Nigel Cunningham <ncunningham@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20051205081935.GI22168@hexapodia.org> <200512070205.37414.rjw@sisk.pl> <20051207011019.GA2233@elf.ucw.cz>
-In-Reply-To: <20051207011019.GA2233@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 7 Dec 2005 06:24:59 -0500
+Received: from mail.renesas.com ([202.234.163.13]:36814 "EHLO
+	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S1750850AbVLGLY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 06:24:59 -0500
+Date: Wed, 07 Dec 2005 20:24:56 +0900 (JST)
+Message-Id: <20051207.202456.303477463.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, fujiwara@linux-m32r.org,
+       takata@linux-m32r.org
+Subject: [PATCH 2.6.15-rc5-mm1] m32r: Remove unnecessary icu_data_t
+ definitions
+From: Hirokazu Takata <takata@linux-m32r.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512071217.41814.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This patch removes unnecessary struct icu_data_t definitions of 
+arch/m32r/kernel/setup_*.c.
 
-On Wednesday, 7 December 2005 02:10, Pavel Machek wrote:
-> > > I'm suggesting that rather than writing the clean pages out to the
-> > > image, simply make their metadata available to a post-resume userland
-> > > helper.  Something like
-> > > 
-> > > % head -2 /dev/swsusp-helper
-> > > /bin/sh 105-115 192 199-259
-> > > /lib/libc-2.3.2.so 1-250
-> > > 
-> > > where the userland program is expected to use the list of page numbers
-> > > (and getpagesize(2)) to asynchronously page in the working set in an
-> > > ionice'd manner.
-> > 
-> > The helper is not necessary, I think.
-> 
-> Actually, I like the helper. It is safest solution,
+Signed-off-by: Hayato Fujiwara <fujiwara@linux-m32r.org>
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-No, it's not.
+ arch/m32r/kernel/setup_m32104ut.c |    6 ------
+ arch/m32r/kernel/setup_m32700ut.c |    8 --------
+ arch/m32r/kernel/setup_mappi.c    |    6 ------
+ arch/m32r/kernel/setup_mappi2.c   |    6 ------
+ arch/m32r/kernel/setup_mappi3.c   |    6 ------
+ arch/m32r/kernel/setup_oaks32r.c  |    6 ------
+ arch/m32r/kernel/setup_opsput.c   |    8 --------
+ arch/m32r/kernel/setup_usrv.c     |    6 ------
+ include/asm-m32r/m32102.h         |    7 ++-----
+ 9 files changed, 2 insertions(+), 57 deletions(-)
 
-Let me explain what I have in mind.
+Index: linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_m32104ut.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/arch/m32r/kernel/setup_m32104ut.c	2005-12-06 22:35:41.000000000 +0900
++++ linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_m32104ut.c	2005-12-07 20:16:27.713971160 +0900
+@@ -20,12 +20,6 @@
+ 
+ #define irq2port(x) (M32R_ICU_CR1_PORTL + ((x - 1) * sizeof(unsigned long)))
+ 
+-#ifndef CONFIG_SMP
+-typedef struct {
+-	unsigned long icucr;  /* ICU Control Register */
+-} icu_data_t;
+-#endif /* CONFIG_SMP */
+-
+ icu_data_t icu_data[NR_IRQS];
+ 
+ static void disable_m32104ut_irq(unsigned int irq)
+Index: linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_m32700ut.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/arch/m32r/kernel/setup_m32700ut.c	2005-12-07 15:23:03.219261152 +0900
++++ linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_m32700ut.c	2005-12-07 15:23:08.127514984 +0900
+@@ -26,15 +26,7 @@
+  */
+ #define irq2port(x) (M32R_ICU_CR1_PORTL + ((x - 1) * sizeof(unsigned long)))
+ 
+-#ifndef CONFIG_SMP
+-typedef struct {
+-	unsigned long icucr;  /* ICU Control Register */
+-} icu_data_t;
+-static icu_data_t icu_data[M32700UT_NUM_CPU_IRQ];
+-#else
+ icu_data_t icu_data[M32700UT_NUM_CPU_IRQ];
+-#endif /* CONFIG_SMP */
+-
+ 
+ static void disable_m32700ut_irq(unsigned int irq)
+ {
+Index: linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_mappi.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/arch/m32r/kernel/setup_mappi.c	2005-12-07 15:23:03.232259176 +0900
++++ linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_mappi.c	2005-12-07 15:23:08.146512096 +0900
+@@ -19,12 +19,6 @@
+ 
+ #define irq2port(x) (M32R_ICU_CR1_PORTL + ((x - 1) * sizeof(unsigned long)))
+ 
+-#ifndef CONFIG_SMP
+-typedef struct {
+-	unsigned long icucr;  /* ICU Control Register */
+-} icu_data_t;
+-#endif /* CONFIG_SMP */
+-
+ icu_data_t icu_data[NR_IRQS];
+ 
+ static void disable_mappi_irq(unsigned int irq)
+Index: linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_mappi2.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/arch/m32r/kernel/setup_mappi2.c	2005-12-07 15:23:03.245257200 +0900
++++ linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_mappi2.c	2005-12-07 15:23:08.152511184 +0900
+@@ -19,12 +19,6 @@
+ 
+ #define irq2port(x) (M32R_ICU_CR1_PORTL + ((x - 1) * sizeof(unsigned long)))
+ 
+-#ifndef CONFIG_SMP
+-typedef struct {
+-	unsigned long icucr;  /* ICU Control Register */
+-} icu_data_t;
+-#endif /* CONFIG_SMP */
+-
+ icu_data_t icu_data[NR_IRQS];
+ 
+ static void disable_mappi2_irq(unsigned int irq)
+Index: linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_mappi3.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/arch/m32r/kernel/setup_mappi3.c	2005-12-07 15:23:03.257255376 +0900
++++ linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_mappi3.c	2005-12-07 15:23:08.160509968 +0900
+@@ -19,12 +19,6 @@
+ 
+ #define irq2port(x) (M32R_ICU_CR1_PORTL + ((x - 1) * sizeof(unsigned long)))
+ 
+-#ifndef CONFIG_SMP
+-typedef struct {
+-	unsigned long icucr;  /* ICU Control Register */
+-} icu_data_t;
+-#endif /* CONFIG_SMP */
+-
+ icu_data_t icu_data[NR_IRQS];
+ 
+ static void disable_mappi3_irq(unsigned int irq)
+Index: linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_oaks32r.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/arch/m32r/kernel/setup_oaks32r.c	2005-12-07 15:23:03.265254160 +0900
++++ linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_oaks32r.c	2005-12-07 15:23:08.166509056 +0900
+@@ -18,12 +18,6 @@
+ 
+ #define irq2port(x) (M32R_ICU_CR1_PORTL + ((x - 1) * sizeof(unsigned long)))
+ 
+-#ifndef CONFIG_SMP
+-typedef struct {
+-	unsigned long icucr;  /* ICU Control Register */
+-} icu_data_t;
+-#endif /* CONFIG_SMP */
+-
+ icu_data_t icu_data[NR_IRQS];
+ 
+ static void disable_oaks32r_irq(unsigned int irq)
+Index: linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_opsput.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/arch/m32r/kernel/setup_opsput.c	2005-12-07 15:23:03.287250816 +0900
++++ linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_opsput.c	2005-12-07 15:23:08.174507840 +0900
+@@ -27,15 +27,7 @@
+  */
+ #define irq2port(x) (M32R_ICU_CR1_PORTL + ((x - 1) * sizeof(unsigned long)))
+ 
+-#ifndef CONFIG_SMP
+-typedef struct {
+-	unsigned long icucr;  /* ICU Control Register */
+-} icu_data_t;
+-static icu_data_t icu_data[OPSPUT_NUM_CPU_IRQ];
+-#else
+ icu_data_t icu_data[OPSPUT_NUM_CPU_IRQ];
+-#endif /* CONFIG_SMP */
+-
+ 
+ static void disable_opsput_irq(unsigned int irq)
+ {
+Index: linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_usrv.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/arch/m32r/kernel/setup_usrv.c	2005-12-07 15:23:03.301248688 +0900
++++ linux-2.6.15-rc5-mm1/arch/m32r/kernel/setup_usrv.c	2005-12-07 15:23:08.181506776 +0900
+@@ -18,12 +18,6 @@
+ 
+ #define irq2port(x) (M32R_ICU_CR1_PORTL + ((x - 1) * sizeof(unsigned long)))
+ 
+-#if !defined(CONFIG_SMP)
+-typedef struct {
+-	unsigned long icucr;	/* ICU Control Register */
+-} icu_data_t;
+-#endif /* CONFIG_SMP */
+-
+ icu_data_t icu_data[M32700UT_NUM_CPU_IRQ];
+ 
+ static void disable_mappi_irq(unsigned int irq)
+Index: linux-2.6.15-rc5-mm1/include/asm-m32r/m32102.h
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/include/asm-m32r/m32102.h	2005-12-07 15:23:03.315246560 +0900
++++ linux-2.6.15-rc5-mm1/include/asm-m32r/m32102.h	2005-12-07 15:23:08.139513160 +0900
+@@ -302,15 +302,12 @@
+ #define M32R_FPGA_VERSION0_PORTL    (0x30+M32R_FPGA_TOP)
+ #define M32R_FPGA_VERSION1_PORTL    (0x34+M32R_FPGA_TOP)
+ 
++#endif /* CONFIG_SMP */
++
+ #ifndef __ASSEMBLY__
+-/* For NETDEV WATCHDOG */
+ typedef struct {
+ 	unsigned long icucr;	/* ICU Control Register */
+ } icu_data_t;
+-
+-extern icu_data_t icu_data[];
+ #endif
+ 
+-#endif /* CONFIG_SMP */
+-
+ #endif /* _M32102_H_ */
 
-For starters, please observe that the addresses we use are page-aligned,
-so the least significant bit is always zero.  Thus it can be used as a marker.
-
-Now before we save the image we can mark blank pages by setting
-the least significant bit of .orig_address to 1 in the coresponding PBEs.
-We save the "marked" .orig_address values to the image.
-
-Then, when we are about to save the page, we check the least
-significant bit of its .orig_address, and save it only if this bit is zero.
-
-When we are about to load a page, we first get a _zeroed_ page for it.
-Next, we check if its .orig_address has the least significant bit set.
-If not, we load the page, and otherwise we only clear that bit
-(the page is already zero).
-
-> and list of cached 
-> pages in memory is going to be usefull for other stuff, too.
-> 
-> Imagine:
-> 
-> cat /dev/give-me-list-of-pages-in-page-cache > /tmp/delme.suspend
-> echo disk > /sys/power/state
-> nice ( cat /tmp/delme.suspend | read-those-pages-back ) &
-> 
-> Result is quite obviously safe (unless you mess up locking while
-> dumping pagecache), and it is going to be rather easy to test. Just
-> load the system as  much as you can while doing
-> 
-> while true; do cat /dev/give-me-list-of-pages-in-page-cache >
-> /dev/null; done
-> 
-> . Still, limiting image size to 500MB is probably easier solution. I'm
-> looking forward to that page.
-
-This is in the works.
-
-Greetings,
-Rafael
-
-
--- 
-Beer is proof that God loves us and wants us to be happy - Benjamin Franklin
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

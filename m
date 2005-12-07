@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751765AbVLGTFS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751763AbVLGTFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751765AbVLGTFS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 14:05:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751766AbVLGTFS
+	id S1751763AbVLGTFP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 14:05:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751765AbVLGTFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 14:05:18 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:33413 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S1751765AbVLGTFQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 14:05:16 -0500
-Date: Wed, 7 Dec 2005 11:05:12 -0800
-To: Jiri Benc <jbenc@suse.cz>, netdev@vger.kernel.org,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Michael Renzmann <netdev@nospam.otaku42.de>,
-       Pavel Machek <pavel@suse.cz>, Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: Broadcom 43xx first results
-Message-ID: <20051207190512.GA1993@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20051206224728.GA31894@bougret.hpl.hp.com>
+	Wed, 7 Dec 2005 14:05:14 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59148 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751763AbVLGTFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 14:05:13 -0500
+Date: Wed, 7 Dec 2005 19:05:05 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>,
+       Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] Minor change to platform_device_register_simple prototype
+Message-ID: <20051207190505.GJ6793@flint.arm.linux.org.uk>
+Mail-Followup-To: "Randy.Dunlap" <rdunlap@xenotime.net>,
+	Dmitry Torokhov <dtor_core@ameritech.net>,
+	Jean Delvare <khali@linux-fr.org>,
+	LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+References: <20051205212337.74103b96.khali@linux-fr.org> <20051205202707.GH15201@flint.arm.linux.org.uk> <200512070105.40169.dtor_core@ameritech.net> <d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com> <d120d5000512071011s2e2acf14u1532e47d0f24292e@mail.gmail.com> <Pine.LNX.4.58.0512071038170.17648@shark.he.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051206224728.GA31894@bougret.hpl.hp.com>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
+In-Reply-To: <Pine.LNX.4.58.0512071038170.17648@shark.he.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 02:47:28PM -0800, jt wrote:
+On Wed, Dec 07, 2005 at 10:39:36AM -0800, Randy.Dunlap wrote:
+> On Wed, 7 Dec 2005, Dmitry Torokhov wrote:
 > 
-> MadWifi stack :
-> 	drivers using it : MadWifi (non GPL)
-> 	drivers in progress : FreeHAL Atheros, Prism54 softMAC, ural-ralink
+> > Btw, what is the policy on placing EXPORT_SYMBOL(...). Should they all
+> > go together (at the top or teh bottom) or after each symbol
+> > definition? Right now platform.c mixes 2 styles...
+> 
+> Not all grouped together (option 1 above), but
+> yes, after each symbol definition (option 2 above)...
+> is the current preference AFAIK.
 
-	Sam kindly pointed out that my statement above may be
-confusing. It should read :
+And of course I didn't want to add extra noise by shuffling them around
+needlessly, especially if we're going to be removing some of them at
+some point in the future.
 
-MadWifi stack :
-	drivers using it : Atheros (binary blob)
-	drivers in progress : FreeHAL Atheros, Prism54 softMAC, ural-ralink
-
-	Accept my apologies for the error.
-
-	Jean
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

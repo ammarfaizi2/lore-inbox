@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750963AbVLGMec@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbVLGMfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750963AbVLGMec (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 07:34:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbVLGMec
+	id S1750949AbVLGMfW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 07:35:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbVLGMfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 07:34:32 -0500
-Received: from moutng.kundenserver.de ([212.227.126.177]:61141 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750946AbVLGMeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 07:34:31 -0500
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] sata_sil: combined irq + LBT DMA patch for testing
-Date: Wed, 7 Dec 2005 13:35:41 +0100
-User-Agent: KMail/1.9
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20051204011953.GA16381@havoc.gtf.org>
-In-Reply-To: <20051204011953.GA16381@havoc.gtf.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3100709.MfkPN4uTuv";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200512071335.42016.prakash@punnoor.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
+	Wed, 7 Dec 2005 07:35:22 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:41390 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750945AbVLGMfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 07:35:20 -0500
+Date: Wed, 7 Dec 2005 12:35:19 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Michal Feix <michal@feix.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [SCSI] SCSI block devices larger then 2TB
+Message-ID: <20051207123519.GA17414@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Michal Feix <michal@feix.cz>, linux-kernel@vger.kernel.org
+References: <4396B795.1000108@feix.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4396B795.1000108@feix.cz>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3100709.MfkPN4uTuv
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Wed, Dec 07, 2005 at 11:21:09AM +0100, Michal Feix wrote:
+> Greetings!
+> 
+> Current aic79xxx driver doesn't see SCSI devices larger, then 2TB. It 
+> fails with READ CAPACITY(16) command. As far as I can understand, we 
+> already have LBD support in kernel for some time now. So it's only the 
+> drivers, that need to be fixed? LSI driver is the only one I found 
+> working with devices over 2TB; I couldn't test any other driver, as I 
+> don't have the hardware. Is it really so bad, that only LSI chipset and 
+> maybe few others are capable of seeng such devices?
 
-Am Sonntag Dezember 4 2005 02:19 schrieb Jeff Garzik:
-> To make it easy for others to test, since there are merge conflicts,
-> I've combined the two previous sata_sil patches into a single patch.
->
-> Verified here on my 3112 (Adaptec 1210SA).
+I definitly works fine with Qlogic parallel scsi and fibrechannel and emulex
+fibre channel controllers aswell as lsi/engenio megaraid controllers.
 
-Seems to work fine here with my 3112 on nforce2 board, as well.
+It looks like aci79xx is just broken in that repsect. Unfortunately the
+driver doesn't have a proper maintainer, we scsi developers put in fixes
+and cleanups but we don't have the full documentation to fix such complicated
+issue.  If you have a support contract with Adaptec complain to them.
 
-Cheers,
-
-Prakash
-
---nextPart3100709.MfkPN4uTuv
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDltcdxU2n/+9+t5gRAlTUAKDwDFYH8nhJvmZrWV8jPv8slqdApACgqBcx
-z58V7KweYA1FCHlO1zWZUBo=
-=ogX/
------END PGP SIGNATURE-----
-
---nextPart3100709.MfkPN4uTuv--

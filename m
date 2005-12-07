@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751718AbVLGS36@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751725AbVLGSay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751718AbVLGS36 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:29:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751722AbVLGS36
+	id S1751725AbVLGSay (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:30:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751722AbVLGSay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:29:58 -0500
-Received: from ns.suse.de ([195.135.220.2]:17105 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751715AbVLGS36 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:29:58 -0500
-Date: Wed, 7 Dec 2005 19:29:55 +0100
-From: Andi Kleen <ak@suse.de>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
-       Chris McDermott <lcm@us.ibm.com>, vojtech@suse.cz
-Subject: Re: [RFC][PATCH] x86_64:  Fix collision between pmtimer and pit/hpet timekeeping
-Message-ID: <20051207182955.GC11190@wotan.suse.de>
-References: <1133931639.10613.39.camel@cog.beaverton.ibm.com> <20051207175338.GB11190@wotan.suse.de> <1133978430.18188.3.camel@leatherman>
+	Wed, 7 Dec 2005 13:30:54 -0500
+Received: from solarneutrino.net ([66.199.224.43]:48133 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S1751367AbVLGSax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 13:30:53 -0500
+Date: Wed, 7 Dec 2005 13:30:47 -0500
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       ryan@tau.solarneutrino.net
+Subject: Re: Fw: crash on x86_64 - mm related?
+Message-ID: <20051207183047.GA12857@tau.solarneutrino.net>
+References: <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local> <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org> <20051201195657.GB7236@tau.solarneutrino.net> <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com> <20051202180326.GB7634@tau.solarneutrino.net> <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com> <20051202194447.GA7679@tau.solarneutrino.net> <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com> <20051206160815.GC11560@tau.solarneutrino.net> <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <1133978430.18188.3.camel@leatherman>
+In-Reply-To: <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 10:00:30AM -0800, john stultz wrote:
-> Would you then want to move all systems to use the non-legacy HPET
-> interrupt?
+I don't know if this is related, but in the last couple days I've seen
+hundreds of these messages from this machine (and I haven't seen it
+before):
 
-You mean all HPET systems? Yes that might be a good idea unless
-someone else knows about problems with this. Interrupt 0 seems
-to be shakey on many systems so not using it is probably
-a good idea.
+Hangcheck: hangcheck value past margin!
 
--Andi
-
+-ryan

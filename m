@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751757AbVLGS4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751761AbVLGS7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751757AbVLGS4u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:56:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751763AbVLGS4t
+	id S1751761AbVLGS7N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:59:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751716AbVLGS7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:56:49 -0500
-Received: from gold.veritas.com ([143.127.12.110]:65442 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751760AbVLGS4s (ORCPT
+	Wed, 7 Dec 2005 13:59:13 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:13524 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1751462AbVLGS7M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:56:48 -0500
-Date: Wed, 7 Dec 2005 18:56:04 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: Fw: crash on x86_64 - mm related?
-In-Reply-To: <20051207183047.GA12857@tau.solarneutrino.net>
-Message-ID: <Pine.LNX.4.61.0512071844560.3335@goblin.wat.veritas.com>
-References: <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local>
- <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org> <20051201195657.GB7236@tau.solarneutrino.net>
- <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com>
- <20051202180326.GB7634@tau.solarneutrino.net>
- <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com>
- <20051202194447.GA7679@tau.solarneutrino.net>
- <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com>
- <20051206160815.GC11560@tau.solarneutrino.net>
- <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
- <20051207183047.GA12857@tau.solarneutrino.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 07 Dec 2005 18:56:07.0150 (UTC) FILETIME=[E15F20E0:01C5FB5F]
+	Wed, 7 Dec 2005 13:59:12 -0500
+Message-Id: <200512071857.jB7Iv8rc009600@laptop11.inf.utfsm.cl>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+cc: Greg KH <greg@kroah.com>, Tim Bird <tim.bird@am.sony.com>,
+       Dave Airlie <airlied@gmail.com>, David Woodhouse <dwmw2@infradead.org>,
+       arjan@infradead.org, andrew@walrond.org, linux-kernel@vger.kernel.org,
+       rms@gnu.org
+Subject: Re: Linux in a binary world... a doomsday scenario 
+In-Reply-To: Message from Coywolf Qi Hunt <coywolf@gmail.com> 
+   of "Wed, 07 Dec 2005 11:23:37 +0800." <2cd57c900512061923u1ce526c8p@mail.gmail.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Wed, 07 Dec 2005 15:57:07 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 07 Dec 2005 15:57:11 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Dec 2005, Ryan Richter wrote:
+Coywolf Qi Hunt <coywolf@gmail.com> wrote:
+> 2005/12/7, Greg KH <greg@kroah.com>:
+> > On Wed, Dec 07, 2005 at 09:38:30AM +0800, Coywolf Qi Hunt wrote:
+> > > 2005/12/7, Greg KH <greg@kroah.com>:
 
-> I don't know if this is related, but in the last couple days I've seen
-> hundreds of these messages from this machine (and I haven't seen it
-> before):
-> 
-> Hangcheck: hangcheck value past margin!
+> > > > And no kernel developers are forcing anyone to use Linux.  If they
+> > > > don't like it for whatever reasons, there are other alternatives...
 
-I'm unclear whether you rebooted after the "general protection fault"
-and "NMI Watchdog" messages (if you had to, I'm sure you did, but I
-don't know whether the machine appeared to work on after those).
+> > > AFAIK, no proprietary software vendors are forcing any1 to buy their
+> > > proprietary software. Still you are speaking in a monopoly tone!
 
-If you didn't reboot, then discount these "Hangcheck" messages as a
-consequence of the earlier errors, and reboot as soon as convenient.
-It's interesting for me to see the Bad page state, Bad page state,
-BUG in mm.h, BUG in rmap.c; but after those you ought to reboot.
+> > How is the statement, "If you don't trust the intelligence of the Linux
+> > kernel developers, then don't use the Linux kernel." a monopolistic
+> > tone?
 
-If you did reboot, well, maybe related, but it doesn't tell us much.
+> The fact is Linux supports more hardware now. Some *BSD users turn to
+> Linux in order to drive their hardware for the _same_ reason as users
+> turn to windows.
 
-Hugh
+So? Nobody is forcing them. Nobody is squeezing them for money (or anything
+else) in exchange. If they want, they can take it, use it, modify it to
+their heart's content. Modulo GPL restrictions, obviously.
+
+>                  That is really a monopolistic position.
+
+Perhaps /position/, but not /taking advantage of it/. The second part is
+where trouble brews.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

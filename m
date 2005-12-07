@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVLGPBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVLGPCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbVLGPBk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 10:01:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVLGPBk
+	id S1751125AbVLGPCF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 10:02:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVLGPCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 10:01:40 -0500
-Received: from nproxy.gmail.com ([64.233.182.203]:20413 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751119AbVLGPBj convert rfc822-to-8bit
+	Wed, 7 Dec 2005 10:02:04 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:52697 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751120AbVLGPCB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 10:01:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qY8oFXKhvKFOswiloTChIuTVzBezELnrMi3nYsxBUxIuRotUkbFCkwySRBKZCIORMGckwH/+xQWruj1WBZaPBDhkc+d9R8zOHdToYNvJtuigx7UW2ddxx6PUqfBTzEQN8e6XhSHwA5RdmekEtUsx29OmZUJrMqXrwvOLADNMmCw=
-Message-ID: <84144f020512070701s344f721dsd92f33d5f275a453@mail.gmail.com>
-Date: Wed, 7 Dec 2005 17:01:37 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Marco Correia <mvc@di.fct.unl.pt>
-Subject: Re: slow boot
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200512071027.26364.mvc@di.fct.unl.pt>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200512071027.26364.mvc@di.fct.unl.pt>
+	Wed, 7 Dec 2005 10:02:01 -0500
+Subject: RE: stat64 for over 2TB file returned invalid st_blocks
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Takashi Sato <sho@tnes.nec.co.jp>,
+       "'Andreas Dilger'" <adilger@clusterfs.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <1133963528.27373.4.camel@lade.trondhjem.org>
+References: <000001c5fb1d$0a27c8d0$4168010a@bsd.tnes.nec.co.jp>
+	 <1133963528.27373.4.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 09:01:56 -0600
+Message-Id: <1133967716.8910.5.camel@kleikamp.austin.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marco,
+On Wed, 2005-12-07 at 08:52 -0500, Trond Myklebust wrote:
+> On Wed, 2005-12-07 at 19:57 +0900, Takashi Sato wrote:
+> 
+> > On my previous mail, I said that CONFIG_LBD should not determine
+> > whether large single files is enabled.  But after further
+> > consideration, on such a small system that CONFIG_LBD is disabled,
+> > using large filesystem over network seems to be very rare.
+> > So I think that the type of i_blocks should be sector_t.
+> 
+> ???? Where do you get this misinformation from?
 
-On 12/7/05, Marco Correia <mvc@di.fct.unl.pt> wrote:
-> I've been experiencing very VERY slow boots after I've upgraded from kernel
-> 2.6.10 to 2.6.14.2. The boot process is fast until the start of the init
-> script, after this 2.6.14.2 spends 10 seconds or so for each init task.
+Without some kind of counter-example, I would tend to agree with
+Takashi.  In what scenerio would someone build a kernel with CONFIG_LBD
+disabled, yet would be needing to access files > 2TB across the network?
 
-It would be helpful if you could identify the exact version where this
-regression happened. If you're comfortable with git, please refer to
-the following document on how to isolate the changeset that causes the
-problem: http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bisect.txt
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 
-                                    Pekka

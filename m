@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbVLGPtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVLGPtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751142AbVLGPtD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 10:49:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbVLGPtD
+	id S1751161AbVLGPtq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 10:49:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVLGPtq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 10:49:03 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:24449 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751142AbVLGPtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 10:49:01 -0500
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-From: Arjan van de Ven <arjan@infradead.org>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Rob Landley <rob@landley.net>, Mark Lord <lkml@rtr.ca>,
-       Adrian Bunk <bunk@stusta.de>, David Ranson <david@unsolicited.net>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Matthias Andree <matthias.andree@gmx.de>
-In-Reply-To: <4395DDA8.8000003@tmr.com>
-References: <20051203135608.GJ31395@stusta.de> <4394681B.20608@rtr.ca>
-	 <1133800090.21641.17.camel@mindpipe> <200512051158.06882.rob@landley.net>
-	 <4395DDA8.8000003@tmr.com>
-Content-Type: text/plain
-Date: Wed, 07 Dec 2005 16:48:38 +0100
-Message-Id: <1133970518.2869.37.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 7 Dec 2005 10:49:46 -0500
+Received: from nproxy.gmail.com ([64.233.182.194]:14092 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751155AbVLGPtp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 10:49:45 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=U3FLJfhzVUlDqg9jP7Lg6whJBybhCq4GHmP/cR3vijUC7yiGJzCbjJsvsn49hqtPqw+pyRPsOWBaFLLgKnQ3mV/ijlpbn+uUam20T7Ch5o1+tuc8sfQz6W91S1gNpQ//+PThgjoBKDlXrFz/FRfDeRorjLpAk8Te/wuD+KEbikg=
+Message-ID: <58cb370e0512070749y68b2f9e9t1c68a3e03f91baa0@mail.gmail.com>
+Date: Wed, 7 Dec 2005 16:49:41 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [RFC]add ACPI hooks for IDE suspend/resume
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Shaohua Li <shaohua.li@intel.com>,
+       linux-ide <linux-ide@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>, pavel <pavel@ucw.cz>,
+       Len Brown <len.brown@intel.com>, akpm <akpm@osdl.org>
+In-Reply-To: <1133970074.544.69.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1133849404.3026.10.camel@sli10-mobl.sh.intel.com>
+	 <20051206222001.GA14171@srcf.ucam.org>
+	 <58cb370e0512070017u606ee22fse207b9a859856dd4@mail.gmail.com>
+	 <20051207131454.GA16558@srcf.ucam.org>
+	 <58cb370e0512070619k17022317v8e871dc3f9cafb9@mail.gmail.com>
+	 <20051207143337.GA16938@srcf.ucam.org>
+	 <58cb370e0512070645o78569e82y63483a9ae5511f52@mail.gmail.com>
+	 <1133970074.544.69.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/7/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Mer, 2005-12-07 at 15:45 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > OK, I understand it now - when using 'ide-generic' host driver for IDE
+> > PCI device, resume fails (for obvious reason - IDE PCI device is not
+> > re-configured) and this patch fixes it through using ACPI methods.
 
-> The other group is the people who use and depend on some feature, be it 
-> cryptoloop, 8k stacks, ndiswrapper, ipchains, whatever... which is 
-> scheduled for extinction. 
+I was talking about bugzilla bug #5604.
 
-these are actually 2 groups
+> Even in the piix case some devices need it because the bios wants to
+> issue commands such as password control if the laptop is set up in
+> secure modes.
 
-1) people who depend on an in-kernel features
+I completely agree.  However at the moment this patch doesn't seem
+to issue any ATA commands (code is commented out in _GTF) so
+this is not a case for bugzilla bug #5604.
 
-2) people who depend on out of kernel / binary modules
-
-treating them as one is not correct or fair to this thread.
-
+Bartlomiej

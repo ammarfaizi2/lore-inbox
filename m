@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbVLGKgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbVLGKjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbVLGKgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 05:36:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVLGKgJ
+	id S1750827AbVLGKjw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 05:39:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVLGKjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 05:36:09 -0500
-Received: from ns.firmix.at ([62.141.48.66]:9889 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S1750825AbVLGKgH (ORCPT
+	Wed, 7 Dec 2005 05:39:52 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:60238 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S1750827AbVLGKjv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 05:36:07 -0500
-Subject: Re: Urgent work ! please help
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Conio sandiago <coniodiago@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <993d182d0512070225kbc4d926w5ab4255e4cdaea75@mail.gmail.com>
-References: <993d182d0512070225kbc4d926w5ab4255e4cdaea75@mail.gmail.com>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Wed, 07 Dec 2005 11:36:02 +0100
-Message-Id: <1133951762.29581.34.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 7 Dec 2005 05:39:51 -0500
+Message-ID: <4396BBF4.4010609@tls.msk.ru>
+Date: Wed, 07 Dec 2005 13:39:48 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Could not suspend device [VIA UHCI USB controller]: error -22
+References: <43923479.3020305@tls.msk.ru> <20051204003130.GB1879@kroah.com> <386F0C1C.1040509@tls.msk.ru> <20051205132048.GB7478@elf.ucw.cz>
+In-Reply-To: <20051205132048.GB7478@elf.ucw.cz>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-07 at 15:55 +0530, Conio sandiago wrote:
-> Hi all
-> i am conio,
-> i am facing some problems.
-> I have a embedded monta vista linux kernel running on arm processor,
+Pavel Machek wrote:
+> Hi!
+> 
+> 
+>> ..preparing for standby...
+>> ..hdd stops spinning..
+>> ..monitor is turned off..
+>> ..less-than-a-secound-pause..
+>> Back to C!
+>> ..the system goes back, restoring interrupts etc...
+>>
+>>I tried various 'wakeup' settings in bios, incl. turning everything
+>>off in that menu - no difference.
+>>
+>>The same behaviour is shown by all 2.6 kernels I tried so far
+>>(since 2.6.6 or so).
+> 
+> Try ACPI wakeup settings, and ask on ACPI lists. Unfortunately noone
+> really cares about standby these days.
 
-What says MontaVistas support to the question about MontaVistas product?
+Which "ACPI wakeup settings" did you mean?  In BIOS or in kernel?
 
-[...]
-> The packet analysis  shows there are  errors ,"TCP CHECKSUM INCORRECT".
+In my BIOS, there's a page called "Power management" (or something
+of that sort), which, among other things, contains a section
+"Wakeup devices" or "Wakeup events" - i tried to turn them all
+on and off, all at once and in alot of different combinations -
+makes no real difference, the system wakes up in a secound or
+two regardless.
 
-Your network (i.e .at least one part of it) is broken.
+Too bad no one cares about standby.. :(
+I've several of those systems, and I love them for their quiet
+operation.  The only problem for me is the system startup time
+(about 3 minutes) and applications startup time (due to the
+empty filesystem cache) -- it'd be very nice to be able to
+suspend the system somehow instead of turning it off...  Now,
+suspend to disk does not work at all (that 4M pages stuff on
+a VIA C3 CPU), suspend to mem does not work either, and "normal"
+standby, while works, triggers a wakeup almost immediately.
+So, in short, no suspend at all...
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+But Ok.  Lemme see what's going on around that file in the code..
 
+/mjt

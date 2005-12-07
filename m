@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVLGPOt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVLGPSi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750763AbVLGPOt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 10:14:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751122AbVLGPOt
+	id S1751126AbVLGPSi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 10:18:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVLGPSi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 10:14:49 -0500
-Received: from nproxy.gmail.com ([64.233.182.195]:42118 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750763AbVLGPOs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 10:14:48 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=D4FoRj0GDBPtmyPtTmV1vqMqsFs4xku3LZMGB3Zy6s/7zFoAFxw4usUy7MmGg9kB3VDjpRaRNzGLgAANYjJcJecAz0yCpv+7JIUDnWC6vMRfnYn1tn2iwAY02actgXLl0Kgol0iwg1uAl0yF+lKi1B+ZgEO+ELvBHR7/a7DcK80=
-Message-ID: <84144f020512070714m6a1452d5x9565758cdc8aa318@mail.gmail.com>
-Date: Wed, 7 Dec 2005 17:14:46 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Marco Correia <mvc@di.fct.unl.pt>
-Subject: Re: slow boot
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200512071506.40336.mvc@di.fct.unl.pt>
+	Wed, 7 Dec 2005 10:18:38 -0500
+Received: from fw5.argo.co.il ([194.90.79.130]:18949 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1751126AbVLGPSh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 10:18:37 -0500
+Message-ID: <4396FD4A.5070009@argo.co.il>
+Date: Wed, 07 Dec 2005 17:18:34 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200512071027.26364.mvc@di.fct.unl.pt>
-	 <84144f020512070701s344f721dsd92f33d5f275a453@mail.gmail.com>
-	 <200512071506.40336.mvc@di.fct.unl.pt>
+To: Hannu Savolainen <hannu@opensound.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <200512061426.37287.vda@ilport.com.ua> <Pine.LNX.4.61.0512061707370.23913@zeus.compusonic.fi>
+In-Reply-To: <Pine.LNX.4.61.0512061707370.23913@zeus.compusonic.fi>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Dec 2005 15:18:35.0886 (UTC) FILETIME=[7E3648E0:01C5FB41]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hannu Savolainen wrote:
 
-On 12/7/05, Marco Correia <mvc@di.fct.unl.pt> wrote:
-> Thanks for the reply. I think my problem has something to do with this
-> http://bugzilla.kernel.org/show_bug.cgi?id=5165, however I just installed
-> kernel 2.6.15_rc5 and the problem is still there, but now it seems that it
-> slows down even before the init begins.
 >
-> As soon as I have the time I'll look into git, since I never used it before.
+>Or why not to include an embedded version of gcc/binutils in the kernel
+>LKM interface. In this way all drivers can only be distributed in source 
+>code which effectively makes all forms of binary only drivers impossible. 
+>After that all the EXPORT_SYMBOL_GPL nonsense can be removed and a proper 
+>DDI layer can be implemented for Linux. This makes it possible to ship 
+>"outside the kernel build" drivers without a risk of major 
+>incompatibility problems in the next kernel version. No, I'm not 100% 
+>serious but just 50%.
+>
+>  
+>
+char mydriver[] = { 0x90, 0xf3, 0xa4, ... };
+struct { unsigned long offset; void* symbol; } fixups[] = { { 79, 
+schedule }, ... };
 
-Here's a good tutorial: http://linux.yyz.us/git-howto.html. You
-probably should first see if 2.6.11 and 2.6.12 have the problem.
-Pre-2.6.11-rc2 changesets are in old-2.6-bkcvs git tree (which used to
-be Bitkeeper) and rest are in linux-2.6.git as seen here:
-http://www.kernel.org/git/.
+module_init() { link(mydriver, fixups); ((void (*)())mydriver)(); }
 
-                          Pekka
+:)
+
+-- 
+error compiling committee.c: too many arguments to function
+

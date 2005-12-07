@@ -1,116 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbVLGLqF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbVLGLwn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbVLGLqF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 06:46:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbVLGLqF
+	id S1750904AbVLGLwn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 06:52:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbVLGLwn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 06:46:05 -0500
-Received: from baldrick.bootc.net ([83.142.228.48]:56528 "EHLO
-	baldrick.bootc.net") by vger.kernel.org with ESMTP id S1750891AbVLGLqE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 06:46:04 -0500
-Message-ID: <4396CB79.5040408@bootc.net>
-Date: Wed, 07 Dec 2005 11:46:01 +0000
-From: Chris Boot <bootc@bootc.net>
-User-Agent: Mail/News 1.5 (X11/20051130)
+	Wed, 7 Dec 2005 06:52:43 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:60347 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1750903AbVLGLwm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 06:52:42 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: swsusp: how much memory to free? [was Re: swsusp performance problems in 2.6.15-rc3-mm1]
+Date: Wed, 7 Dec 2005 12:53:53 +0100
+User-Agent: KMail/1.9
+Cc: Andy Isaacson <adi@hexapodia.org>, linux-kernel@vger.kernel.org
+References: <20051205081935.GI22168@hexapodia.org> <200512052218.18769.rjw@sisk.pl> <20051205235501.GC1770@elf.ucw.cz>
+In-Reply-To: <20051205235501.GC1770@elf.ucw.cz>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.15-rc5-mm1 sata_sil regression
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512071253.54055.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hi,
 
-I just upgraded to 2.6.15-rc5-mm1 from 2.6.15-rc2-mm1 and sata_sil 
-refused to recognise the two SATA drives that are connected to it:
+On Tuesday, 6 December 2005 00:55, Pavel Machek wrote:
+}-- snip --{
+> > OTOH, we can get similar result by just making the kernel free some
+> > more memory _after_ we are sure we have enough memory to suspend.
+> > IOW, after the code that's currently in swsusp_shrink_memory() has finished,
+> > we can try to free some "extra" memory to improve performance, if
+> > needed.  The question is how much "extra" memory should be freed and
+> > I'm afraid it will have to be tuned on the per-system, or at least
+> > per-RAM-size, basis.
+> 
+> I'd prefer not to have extra tunables. "Write only 500MB" will work
+> okay for common desktop users -- as long as common desktop fits into
+> 500MB, that is. "Free not used in last 10 minutes" should work okay
+> for everyone, but may be slightly harder to implement.
 
-[4294671.418000] libata version 1.20 loaded.
-[4294671.419000] sata_sil 0000:00:0a.0: version 0.9
-[4294671.419000] ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 18 (level, 
-low) -> IRQ 169
-[4294671.429000] ata1: SATA max UDMA/100 cmd 0xF8802080 ctl 0xF880208A 
-bmdma 0xF8802010 irq 169
-[4294671.440000] ata2: SATA max UDMA/100 cmd 0xF88020C0 ctl 0xF88020CA 
-bmdma 0xF8802018 irq 169
-[4294671.652000] ata1: SATA link up 1.5 Gbps (SStatus 113)
-[4294671.809000] ata1: dev 0 cfg 49:0000 82:0000 83:0000 84:0000 85:0000 
-86:0000 87:0000 88:0000
-[4294671.809000] ata1: no dma
-[4294671.809000] ata1: dev 0 not supported, ignoring
-[4294671.815000] scsi0 : sata_sil
-[4294671.839000] input: AT Translated Set 2 keyboard as /class/input/input0
-[4294671.850000] atkbd.c: Spurious ACK on isa0060/serio0. Some program, 
-like XFree86, might be trying access hardware directly.
-[4294672.021000] ata2: SATA link up 1.5 Gbps (SStatus 113)
-[4294672.069000] input: AT Translated Set 2 keyboard as /class/input/input1
-[4294672.178000] ata2: dev 0 cfg 49:0000 82:0000 83:0000 84:0000 85:0000 
-86:0000 87:0000 88:0000
-[4294672.178000] ata2: no dma
-[4294672.178000] ata2: dev 0 not supported, ignoring
-[4294672.184000] scsi1 : sata_sil
+Still, it can be done with a fairly small patch that has an additional
+advantage, as it allows us to get rid of the FAST_FREE constant
+which I don't like.  Appended (untested).
 
-My sata_via controller, also with 2 identical drives on it, works fine:
+Greetings,
+Rafael
 
-[4294672.731000] scsi2 : sata_via
-[4294672.971000] ata4: SATA link up 1.5 Gbps (SStatus 113)
-[4294673.163000] ata4: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4023 85:3469 
-86:3c01 87:4023 88:407f
-[4294673.163000] ata4: dev 0 ATA-7, max UDMA/133, 488397168 sectors: LBA48
-[4294673.207000] ata4: dev 0 configured for UDMA/133
-[4294673.248000] scsi3 : sata_via
-[4294673.288000]   Vendor: ATA       Model: ST3250823AS       Rev: 3.03
-[4294673.332000]   Type:   Direct-Access                      ANSI SCSI 
-revision: 05
-[4294673.377000]   Vendor: ATA       Model: ST3250823AS       Rev: 3.03
-[4294673.422000]   Type:   Direct-Access                      ANSI SCSI 
-revision: 05
-[4294673.467000] SCSI device sda: 488397168 512-byte hdwr sectors 
-(250059 MB)
-[4294673.512000] SCSI device sda: drive cache: write back
-[4294673.554000] SCSI device sda: 488397168 512-byte hdwr sectors 
-(250059 MB)
-[4294673.599000] SCSI device sda: drive cache: write back
-[4294673.642000]  sda: sda1 sda2 sda3
-[4294673.704000] sd 2:0:0:0: Attached scsi disk sda
-[4294673.746000] SCSI device sdb: 488397168 512-byte hdwr sectors 
-(250059 MB)
-[4294673.791000] SCSI device sdb: drive cache: write back
-[4294673.834000] SCSI device sdb: 488397168 512-byte hdwr sectors 
-(250059 MB)
-[4294673.878000] SCSI device sdb: drive cache: write back
-[4294673.920000]  sdb: sdb1 sdb2 sdb3
-[4294673.979000] sd 3:0:0:0: Attached scsi disk sdb
-[4294674.021000] sd 2:0:0:0: Attached scsi generic sg0 type 0
-[4294674.063000] sd 3:0:0:0: Attached scsi generic sg1 type 0
 
-The controller is:
+ kernel/power/power.h  |    8 +++-----
+ kernel/power/swsusp.c |   16 ++++++++--------
+ 2 files changed, 11 insertions(+), 13 deletions(-)
 
-00:0a.0 Mass storage controller: Silicon Image, Inc. SiI 3112 
-[SATALink/SATARaid] Serial ATA Controller (rev 02) (prog-if 01)
-         Subsystem: Adaptec SATAConnect 1205SA Host Controller
-         Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 169
-         I/O ports at a400 [size=8]
-         I/O ports at a800 [size=4]
-         I/O ports at ac00 [size=8]
-         I/O ports at b000 [size=4]
-         I/O ports at b400 [size=16]
-         Memory at ea001000 (32-bit, non-prefetchable) [size=512]
-         [virtual] Expansion ROM at 50000000 [disabled] [size=512K]
-         Capabilities: [60] Power Management version 2
-00: 95 10 12 31 07 00 b0 02 02 01 80 01 08 20 00 00
-10: 01 a4 00 00 01 a8 00 00 01 ac 00 00 01 b0 00 00
-20: 01 b4 00 00 00 10 00 ea 00 00 00 00 05 90 50 02
-30: 00 00 00 00 60 00 00 00 00 00 00 00 0a 01 00 00
+Index: linux-2.6.15-rc5-mm1/kernel/power/power.h
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/kernel/power/power.h	2005-12-05 22:07:12.000000000 +0100
++++ linux-2.6.15-rc5-mm1/kernel/power/power.h	2005-12-07 12:45:04.000000000 +0100
+@@ -53,12 +53,10 @@
+ extern struct pbe *pagedir_nosave;
+ 
+ /*
+- * This compilation switch determines the way in which memory will be freed
+- * during suspend.  If defined, only as much memory will be freed as needed
+- * to complete the suspend, which will make it go faster.  Otherwise, the
+- * largest possible amount of memory will be freed.
++ * Preferred image size in MB (set it to zero to get the smallest
++ * image possible)
+  */
+-#define FAST_FREE	1
++#define IMAGE_SIZE	500
+ 
+ extern asmlinkage int swsusp_arch_suspend(void);
+ extern asmlinkage int swsusp_arch_resume(void);
+Index: linux-2.6.15-rc5-mm1/kernel/power/swsusp.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/kernel/power/swsusp.c	2005-12-05 22:07:12.000000000 +0100
++++ linux-2.6.15-rc5-mm1/kernel/power/swsusp.c	2005-12-07 12:40:27.000000000 +0100
+@@ -626,6 +626,7 @@
+ 
+ int swsusp_shrink_memory(void)
+ {
++	unsigned long size;
+ 	long tmp;
+ 	struct zone *zone;
+ 	unsigned long pages = 0;
+@@ -634,11 +635,11 @@
+ 
+ 	printk("Shrinking memory...  ");
+ 	do {
+-#ifdef FAST_FREE
+-		tmp = 2 * count_highmem_pages();
+-		tmp += tmp / 50 + count_data_pages();
+-		tmp += (tmp + PBES_PER_PAGE - 1) / PBES_PER_PAGE +
++		size = 2 * count_highmem_pages();
++		size += size / 50 + count_data_pages();
++		size += (size + PBES_PER_PAGE - 1) / PBES_PER_PAGE +
+ 			PAGES_FOR_IO;
++		tmp = size;
+ 		for_each_zone (zone)
+ 			if (!is_highmem(zone))
+ 				tmp -= zone->free_pages;
+@@ -647,11 +648,10 @@
+ 			if (!tmp)
+ 				return -ENOMEM;
+ 			pages += tmp;
++		} else if (size > (IMAGE_SIZE * 1024 * 1024) / PAGE_SIZE) {
++			tmp = shrink_all_memory(SHRINK_BITE);
++			pages += tmp;
+ 		}
+-#else
+-		tmp = shrink_all_memory(SHRINK_BITE);
+-		pages += tmp;
+-#endif
+ 		printk("\b%c", p[i++%4]);
+ 	} while (tmp > 0);
+ 	printk("\bdone (%lu pages freed)\n", pages);
 
-This all used to work fine in 2.6.15-rc2-mm1. Any ideas? Need any more 
-information?
-
-Cheers,
-Chris
 
 -- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
+Beer is proof that God loves us and wants us to be happy - Benjamin Franklin

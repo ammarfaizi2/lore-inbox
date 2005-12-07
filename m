@@ -1,73 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbVLGNDj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbVLGNHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbVLGNDj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 08:03:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbVLGNDj
+	id S1751034AbVLGNHe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 08:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbVLGNHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 08:03:39 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:63155 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S1750982AbVLGNDi (ORCPT
+	Wed, 7 Dec 2005 08:07:33 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:22433 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751031AbVLGNHd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 08:03:38 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-Subject: Re: [linux-usb-devel] Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
-Date: Wed, 7 Dec 2005 14:01:25 +0100
-User-Agent: KMail/1.8
-Cc: linux-usb-devel@lists.sourceforge.net, zaitcev@redhat.com, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, ehabkost@mandriva.com
-References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br> <200512062336.47855.oliver@neukum.org> <20051207102540.792ee35c.lcapitulino@mandriva.com.br>
-In-Reply-To: <20051207102540.792ee35c.lcapitulino@mandriva.com.br>
+	Wed, 7 Dec 2005 08:07:33 -0500
+Date: Wed, 7 Dec 2005 14:06:36 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, linux-kernel@vger.kernel.org, rostedt@goodmis.org,
+       johnstul@us.ibm.com
+Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
+In-Reply-To: <20051207113324.GA28646@elte.hu>
+Message-ID: <Pine.LNX.4.61.0512071401110.1609@scrub.home>
+References: <20051206000126.589223000@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0512061628050.1610@scrub.home> <1133908082.16302.93.camel@tglx.tec.linutronix.de>
+ <20051207013122.3f514718.akpm@osdl.org> <20051207101137.GA25796@elte.hu>
+ <4396B81E.4030605@yahoo.com.au> <20051207104900.GA26877@elte.hu>
+ <4396C2EB.1000203@yahoo.com.au> <20051207113324.GA28646@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512071401.25934.oliver@neukum.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 7. Dezember 2005 13:25 schrieb Luiz Fernando Capitulino:
-> On Tue, 6 Dec 2005 23:36:47 +0100
-> Oliver Neukum <oliver@neukum.org> wrote:
-> 
-> | Am Dienstag, 6. Dezember 2005 22:18 schrieb Luiz Fernando Capitulino:
-> | > 
-> | >  Hi Pete,
-> | > 
-> | > On Tue, 6 Dec 2005 13:02:07 -0800
-> | > Pete Zaitcev <zaitcev@redhat.com> wrote:
-> | > 
-> | > | On Tue, 6 Dec 2005 18:14:49 -0200, Luiz Fernando Capitulino <lcapitulino@mandriva.com.br> wrote:
-> | > | 
-> | > | >  The spinlock makes the code less clear, error prone, and we already a
-> | > | > semaphore in the struct usb_serial_port.
-> | > | > 
-> | > | >  The spinlocks _seems_ useless to me.
-> | > | 
-> | > | Dude, semaphores are not compatible with interrupts. Surely you
-> | > | understand that?
-> | > 
-> | >  Sure thing man, take a look at this thread:
-> | > 
-> | > http://marc.theaimsgroup.com/?l=linux-kernel&m=113216151918308&w=2
-> | > 
-> | >  My comment 'we already have a semaphore in struct usb_serial_port'
-> | > was about what we've discussed in that thread, where question like
-> | > 'why should we have yet another lock here?' have been made.
-> | > 
-> | >  And *not* 'let's use the semaphore instead'.
-> | > 
-> | >  If _speed_ does not make difference, the spinlock seems useless,
-> | > because we could use atomic_t instead.
-> | 
-> | You can atomically set _one_ value using atomic_t. A spinlock allows
-> | that and other more complex schemes.
-> 
->  We only need to set 'write_urb_busy', nothing more.
+Hi,
 
-So go hence and encapsulate that using the existent infrastructure. Thus
-you get the most efficient solution.
+On Wed, 7 Dec 2005, Ingo Molnar wrote:
 
-	Regards
-		Oliver
+> maybe 'struct timer' and 'struct hrtimer' is the right solution after 
+> all, and our latest queue doing 'struct timer_list' + 'struct hrtimer' 
+> is actually quite close to it.
+> 
+> 'struct ptimer' does have a bit of vagueness in it at first sight, do 
+> you agree with that? (does it mean 'process'? 'posix'? 'precision'?) 
+> 
+> also, hrtimers on low-res clocks do have high internal resolution, but 
+> they are not precise timing mechanisms in the end, due to the low-res 
+> clock. So the more generic name would be 'high-resolution timers', not 
+> 'precision timers'. (also, the name 'precision timers' sounds a bit 
+> funny too, but i dont really know why.)
+
+My ptimer suggestion was based on your "funny" name "high-precision 
+timer". Sorry Ingo, that joke is on you. :-)
+Anyway, anything else than ktimer is fine with me.
+
+bye, Roman

@@ -1,71 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030416AbVLGWwd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbVLGW70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030416AbVLGWwd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 17:52:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030417AbVLGWwc
+	id S1030429AbVLGW70 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 17:59:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030430AbVLGW70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 17:52:32 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48071 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030416AbVLGWwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 17:52:25 -0500
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>, Paul Jackson <pj@sgi.com>
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-References: <20051114212341.724084000@sergelap>
-	<m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
-	<1133977623.24344.31.camel@localhost>
-	<m1hd9kd89y.fsf@ebiederm.dsl.xmission.com>
-	<1133991650.30387.17.camel@localhost>
-	<m18xuwd015.fsf@ebiederm.dsl.xmission.com>
-	<1133994685.30387.47.camel@localhost>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Wed, 07 Dec 2005 15:51:26 -0700
-In-Reply-To: <1133994685.30387.47.camel@localhost> (Dave Hansen's message of
- "Wed, 07 Dec 2005 14:31:25 -0800")
-Message-ID: <m14q5kcyhd.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Wed, 7 Dec 2005 17:59:26 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:7530 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030429AbVLGW70 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 17:59:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=K+O2FOptvT/BQaIq6TQ4lttcVTLLfpdYyL7P8uU2PNb0OlUU8Y5fHaOKiUD7g0TZcVtt/NTJmPg2k/d+0nXXi30nPnjLSUGWbsKGafpm9L5WBNbsz4Q57N53vQmpunB9R5yLKdGvneg58q4ZSVzcs+bfttskfim/cp3y3/k42E0=
+Message-ID: <d120d5000512071459s9b461d8ye7abc41d0e1950fd@mail.gmail.com>
+Date: Wed, 7 Dec 2005 17:59:24 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] Minor change to platform_device_register_simple prototype
+Cc: Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051207225126.GA648@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051205212337.74103b96.khali@linux-fr.org>
+	 <20051205202707.GH15201@flint.arm.linux.org.uk>
+	 <200512070105.40169.dtor_core@ameritech.net>
+	 <d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com>
+	 <20051207180842.GG6793@flint.arm.linux.org.uk>
+	 <d120d5000512071023u151c42f4lcc40862b2debad73@mail.gmail.com>
+	 <20051207190352.GI6793@flint.arm.linux.org.uk>
+	 <d120d5000512071418q521d2155r81759ef8993000d8@mail.gmail.com>
+	 <20051207225126.GA648@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
-
-> On Wed, 2005-12-07 at 15:17 -0700, Eric W. Biederman wrote:
->> But beyond that a general test to see if you have done a good
->> job of virtualizing something is to see if you can recurse.
+On 12/7/05, Greg KH <greg@kroah.com> wrote:
+> On Wed, Dec 07, 2005 at 05:18:40PM -0500, Dmitry Torokhov wrote:
+> > On 12/7/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> >
+> > > Unregistering is just a matter of calling platform_device_unregister().
+> > > An unregister call is a del + put in exactly the same way as it is
+> > > throughout the rest of the driver model.
+> > >
+> >
+> > Yes, and it works just fine everywhere except in initialization code
+> > when you need to jump in the middle of _del + _put sequence.
 >
-> I admit it would be interesting at the very least.  But, using that
-> definition, we haven't done any good virtualization in Linux that I can
-> think of.  Besides some vague ranting I heard about zSeries (the real
-> IBM mainframes) I can't think of anything that does this today.
+> So, if you had _del, would it work easier for you?  I just objected to
+> it if it wasn't necessary.  I didn't want to add functions that aren't
+> used by anyone, but if is needed, I don't see a problem with it.
 >
-> I don think any of Solaris containers, ppc64 LPARs, Xen, UML, or
-> vservers can recurse.  
->
-> Can you think of any?
 
-There is Xnest that allows X to run on X.
+Yes, the I can just write:
 
-There are process groups and sessions that while they may
-not strictly nest you don't loose the ability to create new
-ones.
+        ...
+        err = platform_driver_register(&i8042_driver);
+        if (err)
+                goto err_controller_cleanup;
 
-There is the CLONE_NEWNS and just about any of the other
-clone flags in linux.
+        i8042_platform_device = platform_device_alloc("i8042", -1);
+        if (!i8042_platform_device) {
+                err = -ENOMEM;
+                goto err_unregister_driver;
+        }
 
-There is bochs that emulates the whole machine.
+        err = platform_device_add(i8042_platform_device);
+        if (err)
+                goto err_free_device;
+        ...
 
-I am actually a little surprised that UML can't run UML.  I
-suspect it is an address space conflict and not something fundamental.
+        if (!have_ports) {
+                err = -ENODEV;
+                goto err_delete_device;
+        }
 
-With pidspaces as long as the parent isn't required to send
-signals to arbitrary children  I don't think nesting pids spaces
-is hard.  Or more properly have a process in one pidspace be
-the parent of a process in another.  Although I grant there
-are a few boundary issues, that have to be handled carefully.
+        mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
+        return 0;
 
-Eric
+ err_delete_device:
+        platform_device_del(i8042_platform_device);
+ err_free_device:
+        platform_device_put(i8042_platform_device);
+ err_unregister_driver:
+        platform_driver_unregister(&i8042_driver);
+ ....
+
+As you can see - single cleanup path..
+
+--
+Dmitry

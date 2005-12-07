@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbVLGOew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbVLGOjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbVLGOew (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 09:34:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVLGOew
+	id S1751060AbVLGOjR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 09:39:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbVLGOjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 09:34:52 -0500
-Received: from pat.uio.no ([129.240.130.16]:55001 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751104AbVLGOev (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 09:34:51 -0500
-Subject: Re: another nfs puzzle
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Peter Staubach <staubach@redhat.com>
-Cc: Kenny Simpson <theonetruekenny@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <4396EF50.30201@redhat.com>
-References: <20051206220448.82860.qmail@web34109.mail.mud.yahoo.com>
-	 <4396EB2F.3060404@redhat.com>
-	 <1133964667.27373.13.camel@lade.trondhjem.org>  <4396EF50.30201@redhat.com>
-Content-Type: text/plain
-Date: Wed, 07 Dec 2005 09:34:22 -0500
-Message-Id: <1133966063.27373.29.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Wed, 7 Dec 2005 09:39:17 -0500
+Received: from host94-205.pool8022.interbusiness.it ([80.22.205.94]:28592 "EHLO
+	waobagger.intranet.nucleus.it") by vger.kernel.org with ESMTP
+	id S1751063AbVLGOjR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 09:39:17 -0500
+From: Massimiliano Hofer <max@bbs.cc.uniud.it>
+Organization: Nucleus snc
+To: linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Date: Wed, 7 Dec 2005 15:38:54 +0100
+User-Agent: KMail/1.9
+References: <20051203135608.GJ31395@stusta.de> <20051205151753.GB4179@unthought.net> <20051206174424.GC3084@kroah.com>
+In-Reply-To: <20051206174424.GC3084@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.076, required 12,
-	autolearn=disabled, AWL 1.74, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Disposition: inline
+Message-Id: <200512071538.55967.max@bbs.cc.uniud.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-07 at 09:18 -0500, Peter Staubach wrote:
-> >In this context it doesn't matter whether or not the you use the same
-> >file descriptor. The problem is the same if my process opens the file
-> >for O_DIRECT and then your process open it for normal I/O, and mmaps it.
-> >
-> 
-> Yup, same problem.  Why is this allowed?  Does it really work correctly?
+On Tuesday 6 December 2005 6:44 pm, Greg KH wrote:
 
-Assuming that the processes have _some_ method of synchronisation, then
-I cannot see why it shouldn't be workable. Come to think of it, it might
-even be possible to use O_DIRECT to provide that synchronisation (use
-O_DIRECT to set a "lock" on the page, then modify it using mmap). 
+> > Now what? Do I as a user upgrade my production environment to the latest
+> > and greatest kernel experiment, hope that the problems can be fixed
+> > quickly, and hope that I don't lose too much data in the process?
+>
+> No, if you rely on a production environment for your stuff, stick with a
+> disto kernel which has been tested and is backed up by a company that
+> will maintain it over time.
 
-Whether or not there are people out there that actually _want_ to do
-this is a different matter.
+If the purpose of not having a 2.7 branch or longer RCs is to have people test 
+the latest vanilla, you can't simultaneously send users away.
 
-Cheers,
-  Trond
+I maintain a number of servers and don't like to depend on a distro for the 
+kernel. I do my tests before deployment and can live with some problems in a 
+specific release (noone is perfect), but I'd like to have a plan B without 
+creating my own branch.
 
+Having security patches in a 2.6.(x-1).y would allow me to test the latest 
+vanilla AND have stable production servers without the rush that usually 
+accompanies a new release followed by a vulnerability.
+
+-- 
+Bye,
+   Massimiliano Hofer

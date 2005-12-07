@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751725AbVLGSay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751724AbVLGSfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751725AbVLGSay (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:30:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751722AbVLGSay
+	id S1751724AbVLGSfI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:35:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751727AbVLGSfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:30:54 -0500
-Received: from solarneutrino.net ([66.199.224.43]:48133 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S1751367AbVLGSax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:30:53 -0500
-Date: Wed, 7 Dec 2005 13:30:47 -0500
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       ryan@tau.solarneutrino.net
-Subject: Re: Fw: crash on x86_64 - mm related?
-Message-ID: <20051207183047.GA12857@tau.solarneutrino.net>
-References: <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local> <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org> <20051201195657.GB7236@tau.solarneutrino.net> <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com> <20051202180326.GB7634@tau.solarneutrino.net> <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com> <20051202194447.GA7679@tau.solarneutrino.net> <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com> <20051206160815.GC11560@tau.solarneutrino.net> <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
+	Wed, 7 Dec 2005 13:35:08 -0500
+Received: from mail.kroah.org ([69.55.234.183]:25293 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751724AbVLGSfH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 13:35:07 -0500
+Date: Wed, 7 Dec 2005 09:04:27 -0800
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Jean Delvare <khali@linux-fr.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Minor change to platform_device_register_simple prototype
+Message-ID: <20051207170426.GB28414@kroah.com>
+References: <20051205212337.74103b96.khali@linux-fr.org> <20051205202707.GH15201@flint.arm.linux.org.uk> <200512070105.40169.dtor_core@ameritech.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+In-Reply-To: <200512070105.40169.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if this is related, but in the last couple days I've seen
-hundreds of these messages from this machine (and I haven't seen it
-before):
+On Wed, Dec 07, 2005 at 01:05:39AM -0500, Dmitry Torokhov wrote:
+> On Monday 05 December 2005 15:27, Russell King wrote:
+> > On Mon, Dec 05, 2005 at 09:23:37PM +0100, Jean Delvare wrote:
+> > > The name parameter of platform_device_register_simple should be of
+> > > type const char * instead of char *, as we simply pass it to
+> > > platform_device_alloc, where it has type const char *.
+> > > 
+> > > Signed-off-by: Jean Delvare <khali@linux-fr.org>
+> > 
+> > Acked-by: Russell King <rmk+kernel@arm.linux.org.uk>
+> > 
+> > However, I've been wondering whether we want to keep this "simple"
+> > interface around long-term given that we now have a more flexible
+> > platform device allocation interface - I don't particularly like
+> > having superfluous interfaces for folk to get confused with.
+> 
+> Now that you made platform_device_alloc install default release
+> handler there is no need to have the _simple interface. I will
+> convert input devices (main users of _simple) to the new interface
+> and then we can get rid of it.
 
-Hangcheck: hangcheck value past margin!
+That sounds like a very good idea.
 
--ryan
+thanks,
+
+greg k-h

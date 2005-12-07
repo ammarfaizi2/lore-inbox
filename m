@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbVLGR2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbVLGR3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751228AbVLGR2e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 12:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVLGR2d
+	id S1750830AbVLGR3z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 12:29:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbVLGR3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 12:28:33 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:726 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751228AbVLGR2d convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 12:28:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=C1pnmaXqrlXqb0kjLonaN2JknKot8v0ArZvOSmYPvpygyCm42Mgn5rdDrfr5kmLNyJyHEAgzDgidpLvtIq4IDvBp2dH/2zKlb1s00q3SD9NWuBZxxj7FSvj56l7X3B+Df16zkDm4weP+OeJ9RxYDrK8GTC8pW7Ka85U2ovDMAS4=
-Message-ID: <808c8e9d0512070928y6f50be0arcba9404de2f68f78@mail.gmail.com>
-Date: Wed, 7 Dec 2005 11:28:30 -0600
-From: Ben Gardner <gardner.ben@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 0/3] i386: CS5535 chip support (Geode companion chip)
-Cc: lm-sensors <lm-sensors@lm-sensors.org>, linux-kernel@vger.kernel.org
+	Wed, 7 Dec 2005 12:29:55 -0500
+Received: from smtp6-g19.free.fr ([212.27.42.36]:33685 "EHLO smtp6-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1750830AbVLGR3y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 12:29:54 -0500
+Message-ID: <43971BD5.6040601@droids-corp.org>
+Date: Wed, 07 Dec 2005 18:28:53 +0100
+From: Olivier MATZ <zer0@droids-corp.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: Arnd Bergmann <arnd@arndb.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] asm-i386 : config.h should not be included out of kernel
+References: <4395F405.9010107@droids-corp.org> <200512062211.40142.arnd@arndb.de>
+In-Reply-To: <200512062211.40142.arnd@arndb.de>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch series adds support for the AMD CS5535, which is the Geode
-companion chip.  It targets the DIVIL (Diverse Integrated Logic)
-components.
+Hi,
 
-Patch 1 does the following:
- - verifies the existence of the CS5535 by checking the DIVIL signature
- - configures UART1 as a NS16550A
- - (optionally) enables UART2 and configures it as a NS16550A
- - (optionally) enables the SMBus/I2C interface
+> Just drop that line completely, including linux/config.h is no longer 
+> necessary.
 
-Patch 2 provides a simple GPIO char driver, modeled after the
-scx200_gpio driver.
+You're right, including linux/config.h is not necessary because every
+file that includes asm/param.h also includes the linux/config.h directly
+or indirectly.
 
-Patch 3 provides a SMBus/I2C driver, modeled after the scx200_acb driver.
+But in my opinion, as we use CONFIG_HERTZ in param.h, we should keep the
+include of config.h.
 
-Signed-off-by: Ben Gardner <bgardner@wabtec.com>
+Olivier

@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbVLGHdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVLGH5V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030296AbVLGHdR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 02:33:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964805AbVLGHdR
+	id S1750701AbVLGH5V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 02:57:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbVLGH5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 02:33:17 -0500
-Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:5530 "EHLO
-	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id S964793AbVLGHdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 02:33:16 -0500
-From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: george@mvista.com
-Date: Wed, 07 Dec 2005 08:33:07 +0100
+	Wed, 7 Dec 2005 02:57:21 -0500
+Received: from znsun1.ifh.de ([141.34.1.16]:51146 "EHLO znsun1.ifh.de")
+	by vger.kernel.org with ESMTP id S1750701AbVLGH5V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 02:57:21 -0500
+Date: Wed, 7 Dec 2005 08:56:29 +0100 (CET)
+From: Patrick Boettcher <patrick.boettcher@desy.de>
+X-X-Sender: pboettch@pub5.ifh.de
+To: Johannes Stezenbach <js@linuxtv.org>
+Cc: Michael Krufky <mkrufky@gmail.com>, linux-dvb-maintainer@linuxtv.org,
+       linux-kernel@vger.kernel.org, Prakash Punnoor <prakash@punnoor.de>
+Subject: Re: [linux-dvb-maintainer] Re: [PATCH] b2c2: make front-ends   
+ selectable and include noob option
+In-Reply-To: <20051207002919.GA18629@linuxtv.org>
+Message-ID: <Pine.LNX.4.64.0512070849300.18120@pub5.ifh.de>
+References: <200512062053.00711.prakash@punnoor.de>    
+ <37219a840512061220w17388551jd54c189973e23355@mail.gmail.com>    
+ <200512062139.16846.prakash@punnoor.de>     <20051206215610.GA18247@linuxtv.org>
+     <37219a840512061420j6dc6a0bdy71cc817706dcd0ef@mail.gmail.com>
+ <20051207002919.GA18629@linuxtv.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH 2/13] Time: Reduced NTP Rework (part 2)
-Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Darren Hart <dvhltc@us.ibm.com>, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Frank Sorenson <frank@tuxrocks.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Message-ID: <43969E43.20093.2E7516A4@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-In-reply-to: <4395F3FC.6030301@mvista.com>
-References: <4394018D.19764.2440ED5D@Ulrich.Windl.rkdvmks1.ngate.uni-regensburg.de>
-X-mailer: Pegasus Mail for Windows (4.30 public beta 1)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Content-Conformance: HerringScan-0.25/Sophos-P=3.98.0+V=3.98+U=2.07.112+R=03 October 2005+T=113022@20051207.072010Z
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Spam-Report: ALL_TRUSTED,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Dec 2005 at 12:26, George Anzinger wrote:
+Hi,
 
-[...]
-> > I think this is not a question at all whether people like leap seconds or not: 
-> > Either they want to have the current official time, or they do not. If they do 
-> > not, they won't care about NTP; if they do they'd use it.
-> > 
-> > If they don't like leap seconds, they'd go into politics to forbid them by law.
-> 
-> I don't think that is what happens now.  Rather the leapsecond is not 
+On Wed, 7 Dec 2005, Johannes Stezenbach wrote:
+> I think b2c2-flexcop-pci uses a 240K dma buffer, whether you
+> save a few K in demodulator code doesn't mean much.
+> The saved memory will be similarly unnoticable to the user as
+> if you would go and scatter #ifdefs all over tuner-simple.c.
+>
+> But I'm neither the author nor the maintainer of the b2c2-flexcop
+> driver, you better ask Patrick if he likes it.
 
-Be aware of the following: If a recent NTP daemon detects an old NTP kernel 
-interface (like that of unpatched Linux), it will not use the NTP kernel interface 
-at all ("disable kernel"). Thus no leap second processing will happen (AFAIK).
+There will be at least two new devices in the future, which again will 
+need (at least) two new demod(and maybe tuner)-modules.
 
-> requested by ntp and either a) ntp sets the clock at the required time 
-> or b) it "creeps" it ahead or back by one second over a somewhat 
-> longer time.  It is behavior b) that I have found some folks want.  In 
-> no case do I see anyone wanting to drop the leapsecond, they just 
-> don't want the discontinuity it introduces and are willing to be a 
-> second (or if done properly, half a second) away from the correct time 
-> for a period of time around the official leapsecond.
+Prakash, if it is just the i2c_xfer failed, that could be easily turned 
+into a debug-message, but I rather have these as errors, because they are.
 
-Fight the real problem then: Update the kernel NTP interface to the current one 
-(which is several years old by now). It's named "nanokernel" by Dave Mills, and it 
-was exactly the reason why I had patched Linux 2.4 to provide a nanosecond clock 
-resolution (in theory), and I also thought that's the reason for having 
-nanoseconds with your patch set ;-)
+I don't see the need for the ifdef - on the contrary: the number of people 
+asking for which demod they shall load dropped significantly after 
+FE_REFACTORING starting one year ago - now reintroducing that again is not 
+a good idea, IMO.
 
-Regards,
-Ulrich
+best regards,
+Patrick.
 
+--
+   Mail: patrick.boettcher@desy.de
+   WWW:  http://www.wi-bw.tfh-wildau.de/~pboettch/

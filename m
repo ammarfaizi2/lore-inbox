@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbVLGRAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbVLGRC1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbVLGRAr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 12:00:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751212AbVLGRAr
+	id S1751264AbVLGRC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 12:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbVLGRC1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 12:00:47 -0500
-Received: from mail.kroah.org ([69.55.234.183]:29610 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751207AbVLGRAq (ORCPT
+	Wed, 7 Dec 2005 12:02:27 -0500
+Received: from galileo.bork.org ([134.117.69.57]:50897 "EHLO galileo.bork.org")
+	by vger.kernel.org with ESMTP id S1751264AbVLGRC0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 12:00:46 -0500
-Date: Wed, 7 Dec 2005 08:59:46 -0800
-From: Greg KH <gregkh@suse.de>
-To: Otavio Salvador <otavio@debian.org>
-Cc: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       ehabkost@mandriva.com
-Subject: Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
-Message-ID: <20051207165946.GA28393@suse.de>
-References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br> <20051207164118.GA28032@suse.de> <87vey0hmok.fsf@nurf.casa>
+	Wed, 7 Dec 2005 12:02:26 -0500
+Date: Wed, 7 Dec 2005 12:02:26 -0500
+From: Martin Hicks <mort@bork.org>
+To: Wu Fengguang <wfg@mail.ustc.edu.cn>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: mm: fold sc.may_writepage and sc.may_swap into sc.flags
+Message-ID: <20051207170226.GB3085@bork.org>
+References: <20051207104755.177435000@localhost.localdomain> <20051207105154.142779000@localhost.localdomain> <20051207111501.GA8133@mail.ustc.edu.cn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QVzQgM+zdZ3YWXqn"
 Content-Disposition: inline
-In-Reply-To: <87vey0hmok.fsf@nurf.casa>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051207111501.GA8133@mail.ustc.edu.cn>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 02:55:07PM -0200, Otavio Salvador wrote:
-> Greg KH <gregkh@suse.de> writes:
-> 
-> > That's the right thing to do, so I'm not going to take this patch series
-> > right now because of that.  If you all want to work on moving to use the
-> > serial core, I would love to see that happen.
-> 
-> But wouldn't be better to have this intermediary solution merged while
-> someone work on this conversion?
 
-No, why do you say that?  It doesn't fix a bug at all, and it isn't a
-"solution" to any existing problem.
+--QVzQgM+zdZ3YWXqn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
 
-greg k-h
+On Wed, Dec 07, 2005 at 07:15:01PM +0800, Wu Fengguang wrote:
+> Fold bool values into flags to make struct scan_control more compact.
+>=20
+
+I suspect that the may_swap flag is still a left over from my failed
+attempt at zone_reclaim.  It should be removed.
+
+mh
+
+--=20
+Martin Hicks || mort@bork.org || PGP/GnuPG: 0x4C7F2BEE
+
+--QVzQgM+zdZ3YWXqn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDlxWi0ZUZrUx/K+4RAlQAAKCH6h4pXFZi9ovGET2NiuzJ8GZ6CgCgsnwj
+VUw5p5i2/2ynXrOFiRkjVxo=
+=4Yjs
+-----END PGP SIGNATURE-----
+
+--QVzQgM+zdZ3YWXqn--

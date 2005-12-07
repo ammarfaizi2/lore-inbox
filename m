@@ -1,82 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030393AbVLGWOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbVLGWPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030393AbVLGWOU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 17:14:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030396AbVLGWOT
+	id S1030384AbVLGWPY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 17:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030390AbVLGWPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 17:14:19 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:47594 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030393AbVLGWOS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 17:14:18 -0500
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>, Paul Jackson <pj@sgi.com>
-In-Reply-To: <1133982048.2869.60.camel@laptopd505.fenrus.org>
-References: <20051114212341.724084000@sergelap>
-	 <m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
-	 <1133977623.24344.31.camel@localhost>
-	 <1133978128.2869.51.camel@laptopd505.fenrus.org>
-	 <1133978996.24344.42.camel@localhost>
-	 <1133982048.2869.60.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Wed, 07 Dec 2005 14:13:56 -0800
-Message-Id: <1133993636.30387.41.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Wed, 7 Dec 2005 17:15:24 -0500
+Received: from atlrel9.hp.com ([156.153.255.214]:36035 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1030384AbVLGWPW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 17:15:22 -0500
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: uart_match_port() question
+Date: Wed, 7 Dec 2005 15:15:11 -0700
+User-Agent: KMail/1.8.2
+Cc: Russell King <rmk@arm.linux.org.uk>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <1133050906.7768.66.camel@gaston>
+In-Reply-To: <1133050906.7768.66.camel@gaston>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512071515.11937.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-07 at 20:00 +0100, Arjan van de Ven wrote:
-> > So, like in the global pidspace (which can see all pids and appears to
-> > applications to be just like normal) you end up returning "kernel" pids
-> > to userspace.  That didn't seem to make sense.  
+On Saturday 26 November 2005 5:21 pm, Benjamin Herrenschmidt wrote:
+> The reason is a bit complicated, but basically, we have some arch code
+> that builds a list of available serial ports very early and registers that
+> as a platform device. It also detects which one is the default firmware port
+> and what speed it's been configured for and builds a proper config line to
+> pass to add_preferred_console() so we get the default serial console setup
+> properly automatically.
 > 
-> hmm this is scary. If you don't have "unique" pids inside the kernel a
-> lot of stuff will subtly break. DRM for example (which has the pid
-> inside locking to track ownership and recursion), but I'm sure there's
-> many many cases like that. I guess the address of the task struct is the
-> ultimate unique pid in this sense.... but I suspect the way to get there
-> is first make a ->user_pid field, and switch all userspace visible stuff
-> to that, and then try to get rid of ->pid users one by one by
-> eliminating their uses... 
+> This list includes however ports that are on PCI devices on some recent
+> machines. Thus, we need to make sure that, when 8250_pci.c kicks in, it
+> property detects that those platform ports are the same it's discovered
+> and thus properly re-uses the same port & minor.
 
-OK, what I'm talking about here is the way that it is done now with
-existing code.  It seems to work and make people happy, but it certainly
-isn't the only possible way to do it.  I'm very open to suggestions. :)
+[Sorry for the late response, I haven't been keeping up on lkml lately.]
 
-There really are two distinct pid spaces.  Instead of vservers, we tend
-to call the different partitioned areas containers.
+ia64 has basically the same situation.  I decided it was a mistake to
+have the arch code register serial ports early, because we only learn
+about a few of the ports early, and the firmware console configuration
+determines which ones we learn about.
 
-Each container can only see processes in its own container.  The
-exception is the "global container", which has a view of all of the
-system processes.  Having the global container allows you to do things
-like see all of the processes on the whole system with top.
+The consequence is that changing the firmware configuration changes the
+serial device names, which I thought was a bad thing.
 
-So, the current tsk->pid is still unique.  However, there is also a
-tsk->virtual_pid (or some name) that is unique _inside_ of a container.
-These two pids are completely unrelated.  Having this virtualized pid
-allows you to have the real tsk->pid change without userspace ever
-knowing.
+I finally settled on this scheme:
+	- discover default firmware port (pcdp.c)
+	- set it up as an "early uart" which has no ttyS name
+	  and runs in polled mode (early_serial_console_init())
+	- register it as a console
+	- let 8250_{pci,pnp,etc} discover all the ports and
+	  figure out minor numbers (i.e., ttyS names)
+	- locate the port that matches the default firmware port,
+	  switch console to it, and unregister the "early uart"
+	  (early_uart_console_switch())
 
-For example, that tsk->pid might change if you checkpointed a process,
-it crashed, and you restarted it later from the checkpoint.
+This all should work for any arch, though I've only really tried it on
+ia64.  Of course, the pcdp.c part would have to be replaced.  You can
+try it out without the firmware support using the "console=uart"
+argument:
 
-> but I'm really afraid that if you make the "fake" pid visible to normal
-> kernel code, too much stuff will go bonkers and end up with an eternal
-> stream of security hazards. "Magic" hurts here, and if you don't do
-> magic I don't see a reason to add an abstraction which in itself doesn't
-> mean anything or doesn't abstract anything....
-
-99% of the time, the kernel can deal with the same old tsk->pid that
-it's always dealt with.  Generally, the only times the kernel has to
-worry about the virtualized one is where (as Eric noted) it cross the
-user<->kernel boundary.
-
--- Dave
-
+        console=        [KNL] Output console device and options.
+        ...
+                uart,io,<addr>[,options]
+                uart,mmio,<addr>[,options]
+                        Start an early, polled-mode console on the 8250/16550
+                        UART at the specified I/O port or MMIO address,
+                        switching to the matching ttyS device later.  The
+                        options are the same as for ttyS, above.

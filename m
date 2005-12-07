@@ -1,34 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVLGDxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbVLGD5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbVLGDxA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 22:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbVLGDw7
+	id S1750889AbVLGD5e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 22:57:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbVLGD5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 22:52:59 -0500
-Received: from [220.231.123.147] ([220.231.123.147]:21765 "EHLO hn.vnn.vn")
-	by vger.kernel.org with ESMTP id S1750730AbVLGDw7 (ORCPT
+	Tue, 6 Dec 2005 22:57:34 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:40648 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750889AbVLGD5e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 22:52:59 -0500
-Message-ID: <20051207105226.6094037B01B4C4CB@hn.vnn.vn>
-From: hdo4a@hn.vnn.vn
+	Tue, 6 Dec 2005 22:57:34 -0500
+Date: Tue, 6 Dec 2005 22:57:25 -0500
+From: Dave Jones <davej@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: From HDO4A
-Date: 07 Dec 2005 10:52:27 +0700
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: odd tsc related msg at bootup.
+Message-ID: <20051207035725.GB16838@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kinh gui quy khach hang,
-HD xin tran trong gui toi quy cong ty dich vu sua chua cac thiet bi tin 
-hoc:
--Dich vu sua chua Mainboard
--Dich vu sua chua Mornitor
--Dich vu sua chua ModemADSL
--Dich vu sua chua cac thiet bi kho sua chua nhu CardSound Creative, loa 
-Creative-Altec Lansing-Klipsch-Bose Companion...
--Dich vu sua chua-cuu du lieu tren cac HDD hong...
-Quy khach co nhu cau xin lien he: Tel:04.9875709; http://suachua.vnn.vn 
-hdo4a@hn.vnn.vn
+Whilst diagnosing an unrelated problem by looking through
+a users dmesg, I noticed this..
 
+CPU#0 had 0 usecs TSC skew, fixed it up.
+CPU#1 had 0 usecs TSC skew, fixed it up.
+
+Which looks very strange.
+Taking a look at the code in arch/i386/kernel/smpboot.c:synchronize_tsc_bp()
+I'm puzzled at to how this happened, as we should only hit that
+printk with a skew of more than 2 usecs.
+
+		Dave

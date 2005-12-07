@@ -1,205 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964854AbVLGCqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVLGDFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964854AbVLGCqt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 21:46:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbVLGCqt
+	id S932184AbVLGDFa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 22:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750955AbVLGDFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 21:46:49 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:23937 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964854AbVLGCqs (ORCPT
+	Tue, 6 Dec 2005 22:05:30 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:23197 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750926AbVLGDF3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 21:46:48 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andi Kleen <ak@suse.de>, Corey Minyard <minyard@acm.org>,
-       Andrew Morton <akpm@osdl.org>, paulmck@us.ibm.com, greg@kroah.com,
-       sekharan@us.ibm.com, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, Douglas_Warzecha@dell.com,
-       Abhay_Salunke@dell.com, achim_leubner@adaptec.com,
-       dmp@davidmpye.dyndns.org
-Subject: Re: [Lse-tech] Re: [PATCH 0/7]: Fix for unsafe notifier chain 
-In-reply-to: Your message of "Wed, 07 Dec 2005 10:38:44 +1100."
-             <20749.1133912324@ocs3.ocs.com.au> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 07 Dec 2005 13:43:51 +1100
-Message-ID: <5893.1133923431@kao2.melbourne.sgi.com>
+	Tue, 6 Dec 2005 22:05:29 -0500
+Date: Wed, 7 Dec 2005 04:05:20 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: tglx@linutronix.de, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, rostedt@goodmis.org, johnstul@us.ibm.com
+Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
+In-Reply-To: <20051206190713.GA8363@elte.hu>
+Message-ID: <Pine.LNX.4.61.0512062030570.1610@scrub.home>
+References: <20051206000126.589223000@tglx.tec.linutronix.de>
+ <Pine.LNX.4.61.0512061628050.1610@scrub.home> <20051206190713.GA8363@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 07 Dec 2005 10:38:44 +1100, 
-Keith Owens <kaos@sgi.com> wrote:
->On Sun, 04 Dec 2005 16:19:57 +0000, 
->Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->>On Llu, 2005-11-28 at 19:31 +1100, Keith Owens wrote:
->>> >Or just don't unregister. That is what I did for the debug notifiers.
->>> 
->>> Unregister is not the only problem.  Chain traversal races with
->>> register as well.
->>
->>There are some NMI handler registration functions and attempts at safe
->>code for it in the unmerged experimental part of the bluesmoke
->>(bluesmoke.sf.net) project that may be useful perhaps ?
->
->Thanks Alan, the bluesmoke NMI handlers look very similar to the code
->that I have just written.  However bluesmoke only handles a single
->notifier chain, it has only one walking_handler_list array.  The kernel
->is getting to the stage where it needs multiple notifier chains that
->can be traversed without locks.  The patch below against 2.6.15-rc5
->gives us lockfree traversal of notifier chains and supports multiple
->chains.
+Hi,
 
-My previous patch was way too complicated, this is much simpler.  Based
-on Corey Minyard's patch of http://lkml.org/lkml/2004/8/19/140,
-generalized to support multiple lockfree notifier chains, with a few
-extra synchronization calls added.
+On Tue, 6 Dec 2005, Ingo Molnar wrote:
 
-Again, for review only.  Compiled but not tested yet.
+> you think the reason is that you are "sometimes a little hard to
+> understand". Which, as i guess it implies, comes from your superior
+> intellectual state of mind, and i am really thankful for your efforts
+> trying to educate us mere mortals.
 
- include/linux/notifier.h |    7 +++
- kernel/sys.c             |  105 +++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 112 insertions(+)
+I can assure you my "superior intellectual state of mind" is not much 
+different from many other kernel hackers. I have at times strong opinions, 
+but who here hasn't?
 
-Index: linux/include/linux/notifier.h
-===================================================================
---- linux.orig/include/linux/notifier.h	2005-12-07 12:00:57.569908107 +1100
-+++ linux/include/linux/notifier.h	2005-12-07 13:07:18.643526153 +1100
-@@ -24,6 +24,13 @@ struct notifier_block
- extern int notifier_chain_register(struct notifier_block **list, struct notifier_block *n);
- extern int notifier_chain_unregister(struct notifier_block **nl, struct notifier_block *n);
- extern int notifier_call_chain(struct notifier_block **n, unsigned long val, void *v);
-+static inline int
-+notifier_chain_register_lockfree(struct notifier_block **list, struct notifier_block *n)
-+{
-+	return notifier_chain_register(list, n);
-+}
-+extern int notifier_chain_unregister_lockfree(struct notifier_block **nl, struct notifier_block *n);
-+extern int notifier_call_chain_lockfree(struct notifier_block **n, unsigned long val, void *v);
- 
- #define NOTIFY_DONE		0x0000		/* Don't care */
- #define NOTIFY_OK		0x0001		/* Suits me */
-Index: linux/kernel/sys.c
-===================================================================
---- linux.orig/kernel/sys.c	2005-12-07 12:00:57.570884536 +1100
-+++ linux/kernel/sys.c	2005-12-07 13:37:53.773534284 +1100
-@@ -116,6 +116,7 @@ int notifier_chain_register(struct notif
- 		list= &((*list)->next);
- 	}
- 	n->next = *list;
-+	smp_wmb();
- 	*list=n;
- 	write_unlock(&notifier_lock);
- 	return 0;
-@@ -187,6 +188,110 @@ int notifier_call_chain(struct notifier_
- 
- EXPORT_SYMBOL(notifier_call_chain);
- 
-+/* The notifier_chain_*_lockfree functions below are based on the formal
-+ * notifier_chain_* functions above, but allow the notifier chain to be
-+ * traversed in situations where locks cannot be taken to protect the list,
-+ * typically in the various notifier_die() handlers.  The 'lockfree' suffix
-+ * only refers to the list traversal; register and unregister still take locks
-+ * to protect against concurrent list update.  Register and unregister can only
-+ * be called from contexts that can sleep.
-+ */
-+
-+/* Array notifier_chain_lockfree_inuse is shared between all lockfree notifier
-+ * chains.   Unregistration of any chain entry must be delayed if any cpu is
-+ * executing a lockfree callback, even if that callback is on a different
-+ * chain.  No big deal, unregister is a rare event.
-+ *
-+ * Each element is only updated from one cpu so the elements do not need to be
-+ * atomic.  This avoids problems on architectures that use a hash of spinlocks
-+ * to implement atomic variables.
-+ *
-+ * This array could be replaced by a per cpu variable, but cpu hotplug may want
-+ * to use these functions.  Before converting to a per cpu variable, review the
-+ * cpu hotplug code, paying particular attention to where cpu_online() is set
-+ * or cleared and where cpu hotplug runs any notify chains.  For the same
-+ * reason, these functions do not check cpu_online() at the moment.
-+ */
-+
-+static int notifier_chain_lockfree_inuse[NR_CPUS];
-+
-+/**
-+ *	notifier_chain_unregister_lockfree - Remove notifier from a lockfree
-+ *	traversal notifier chain
-+ *	@list: Pointer to root list pointer
-+ *	@n: New entry in notifier chain
-+ *
-+ *	Removes a notifier from a lockfree traversal notifier chain.
-+ *
-+ *	Returns zero on success, or %-ENOENT on failure.
-+ */
-+
-+int notifier_chain_unregister_lockfree(struct notifier_block **list,
-+				       struct notifier_block *n)
-+{
-+	int i;
-+	write_lock(&notifier_lock);
-+	while (*list) {
-+		if (*list == n) {
-+			*list = n->next;
-+			smp_wmb();
-+			for (i = 0; i < NR_CPUS; ++i) {
-+				while (unlikely(notifier_chain_lockfree_inuse[i])) {
-+					barrier();
-+					cpu_relax();
-+				}
-+			}
-+			n->next = NULL;
-+			write_unlock(&notifier_lock);
-+			return 0;
-+		}
-+		list = &((*list)->next);
-+	}
-+	write_unlock(&notifier_lock);
-+	return -ENOENT;
-+}
-+
-+EXPORT_SYMBOL(notifier_chain_unregister_lockfree);
-+
-+/**
-+ *	notifier_call_chain_lockfree - Call functions in a lockfree traversal
-+ *	notifier chain
-+ *	@list: Pointer to root pointer of notifier chain
-+ *	@val: Value passed unmodified to notifier function
-+ *	@v: Pointer passed unmodified to notifier function
-+ *
-+ *	Calls each function in a lockfree traversal notifier chain in turn.
-+ *
-+ *	If the return value of the notifier can be and'd with
-+ *	%NOTIFY_STOP_MASK, then notifier_call_chain will return immediately,
-+ *	with the return value of the notifier function which halted execution.
-+ *	Otherwise, the return value is the return value of the last notifier
-+ *	function called.
-+ */
-+
-+int notifier_call_chain_lockfree(struct notifier_block **list,
-+				 unsigned long val, void *v)
-+{
-+	int ret = NOTIFY_DONE, cpu = smp_processor_id(), nested;
-+	struct notifier_block *nb;
-+	nested = notifier_chain_lockfree_inuse[cpu];
-+	notifier_chain_lockfree_inuse[cpu] = 1;
-+	wmb();
-+	nb = *list;
-+	while (nb) {
-+		smp_read_barrier_depends();
-+		ret = nb->notifier_call(nb, val, v);
-+		if (ret & NOTIFY_STOP_MASK)
-+			break;
-+		nb = nb->next;
-+	}
-+	barrier();
-+	notifier_chain_lockfree_inuse[cpu] = nested;
-+	return ret;
-+}
-+
-+EXPORT_SYMBOL(notifier_call_chain_lockfree);
-+
- /**
-  *	register_reboot_notifier - Register function to be called at reboot time
-  *	@nb: Info about notifier function to be called
+> to be able to comprehend what kind of mood we might be in when reading 
+> your emails these days, how about this little snippet from you, from the 
+> second email you wrote in the ktimers threads:
+> 
+> "First off, I can understand that you're rather upset with what I wrote,
+>  unfortunately you got overly defensive, so could you please next time
+>  not reply immediately and first sleep over it, an overly emotional
+>  reply is funny to read but not exactly useful."
 
+Here we probably get to the root of the problem: we got off on the wrong 
+foot. 
+In my first email I hadn't much good to say about the initial 
+announcement, but at any time it was meant technical. Anyone who compares 
+the first and the following announcement will notice the big improvement. 
+Unfortunately Thomas seemed to have to taken it rather personal (although 
+it never was meant that way) and I never got past this first impression 
+and ever since I can't get him back to a normal conversation.
+
+> Insults like the following sentence in this very email:
+> 
+> > [...] So Thomas, please get over yourself and start talking.
+
+I must say it's completely beyond me how this could be "insulting". This 
+is my desperate attempt at getting any conversation started. If Thomas 
+isn't talking to me at all, I can't resolve any issue he might have with 
+me. Instead he's just moping around, pissed at me and simply ignores me, 
+which makes a conversation over this channel nearly impossible.
+
+> let me be frank, and show you my initial reply that came to my mind when 
+> reading the above sentence: "who the f*ck do you think you are to talk 
+> to _anyone_ like that?". Now i'm usually polite and wont reply like 
+> that,...
+
+You may haven't said it openly like that, but this hostility was still 
+noticable. You disagreed with me on minor issues and used the smallest 
+mistake to simply lecture me. From my point the attitude you showed 
+towards me is not much different from what you're accusing me of here.
+I'm not saying that I'm innocent about this, but any "insult" was never 
+intentional and I tried my best to correct any issues after we got off on 
+the wrong foot, but I obviously failed at that, I simply never got past 
+the initial impression.
+
+> in any case, from me you'll definitely get a reply to every positive or 
+> constructive question you ask in this thread, but you wont get many 
+> replies to mails that also include high-horse insults, question or 
+> statements.
+
+Let's take the ptimer patches, I got _zero_ direct responses to it and 
+it's difficult for me to understand how this could be taken as "high-horse 
+insult". As I obviously failed to make my criticism understandable before, 
+I produced these patches to provide a technical base for a discussion of 
+how this functionality could be merged in the hopes of "Patches wont be 
+ignored, i can assure you", unfortunately they were.
+Ingo, you might now start to understand my frustration. One positive 
+effect at least is that finally some movement got into this mess and you 
+managed to produce a simplified version of the timer. OTOH since I never 
+got a reply to these patches does that mean they were neither positive nor 
+constructive?
+
+bye, Roman

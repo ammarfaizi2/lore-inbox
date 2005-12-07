@@ -1,125 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030328AbVLGUqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbVLGUvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030328AbVLGUqO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 15:46:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbVLGUqO
+	id S1030339AbVLGUvt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 15:51:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbVLGUvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 15:46:14 -0500
-Received: from web34114.mail.mud.yahoo.com ([66.163.178.112]:53357 "HELO
-	web34114.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964899AbVLGUqO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 15:46:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=VnakuZEgBuN+0+hWbaPRJqL0Ah/h7ol4WwAc8YyQJHaLaYT9Re43tQUSNZyPVnbVf/javXznzBS1QKjQQMReYW9PZ7/pPQ5GZpi+tGrH0ZHEkX7AN91pqwCrgEimraYa1Nf+WKLHD8Em4QMUepw+5I6/CoWOxN24932qUb80tGg=  ;
-Message-ID: <20051207204612.70808.qmail@web34114.mail.mud.yahoo.com>
-Date: Wed, 7 Dec 2005 12:46:12 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: nfs question - ftruncate vs pwrite
-To: linux kernel <linux-kernel@vger.kernel.org>
+	Wed, 7 Dec 2005 15:51:49 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37824 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964899AbVLGUvt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 15:51:49 -0500
+Date: Wed, 7 Dec 2005 15:51:22 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Andrea Arcangeli <andrea@cpushare.com>
+cc: Arjan van de Ven <arjan@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+In-Reply-To: <20051207201612.GV28539@opteron.random>
+Message-ID: <Pine.LNX.4.63.0512071548520.17172@cuia.boston.redhat.com>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+ <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random>
+ <1133857767.2858.25.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.63.0512071337560.17172@cuia.boston.redhat.com>
+ <Pine.LNX.4.58.0512071041420.17648@shark.he.net> <1133981708.2869.54.camel@laptopd505.fenrus.org>
+ <20051207201612.GV28539@opteron.random>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-811623306-1133988372=:66928"
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-811623306-1133988372=:66928
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Id: 
-Content-Disposition: inline
+On Wed, 7 Dec 2005, Andrea Arcangeli wrote:
 
-Sorry about the previous partial message...
+> A moinmoin wiki.kernel.org should work fine and it takes 10 minutes to
+> set it up. Let's use the community to build this list.
 
-If a file is extended via ftruncate, the new empty pages are read in before the the ftruncate
-returns (taking 64mS on my machine), but if the file is extended via pwrite, nothing is read in
-and the system call is very quick (34uS).
+MoinMoin needs a navigation structure though.  This has
+been on my TODO list (http://linux-mm.org/RikvanRiel) for
+months now, but I haven't gotten around to it yet ;(
 
-Why is there such a difference?  Is there another cheap way to grow a file and map in its new
-pages?  Am I missing some other semantic difference between ftruncate and a pwrite past the end of
-the file?
+Maybe I should try making this during the christmas
+holidays. Or, better yet, convince somebody else to do
+it with this shameless email ;)
 
-Here is a test program.. compile with -DABUSE to get the pwrite version.
+> Perhaps wiki.kernel.org could also be used to document some kernel stuff 
+> later on.
 
-thanks,
--Kenny
+This is already done in a few places:
 
+http://linux-net.osdl.org/
+http://linux-mm.org/
+http://wiki.kernelnewbies.org/
 
-		
-__________________________________________ 
-Yahoo! DSL – Something to write home about. 
-Just $16.99/mo. or less. 
-dsl.yahoo.com 
-
---0-811623306-1133988372=:66928
-Content-Type: text/x-csrc; name="dtest.c"
-Content-Description: 862959384-dtest.c
-Content-Disposition: inline; filename="dtest.c"
-
-#define _GNU_SOURCE
-
-#include <sys/mman.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-#include <stdio.h>
-#include <string.h>
-#include <malloc.h>
-
-int main(int argc, char* argv[])
-{
-  int fd;
-  unsigned long long int const size = 4096 * 1024;
-  unsigned int const size_page = 1024;
-  unsigned long long int offset = 0;
-  unsigned int offset_page = 0;
-
-  //char* buffer = valloc(size);
-  //memset(buffer, 0, size);
-
-  if (argc != 2) {
-    printf("usage: %s <filename>\n", argv[0]);
-    return 0;
-  }
-
-  fd = open(argv[1], O_RDWR | O_CREAT | O_TRUNC | O_LARGEFILE /*| O_DIRECT*/, 0644);
-  if (fd < 0) {
-    perror("open");
-    return 0;
-  }
-
-#ifdef ABUSE
-  pwrite64(fd, "" , 1, offset + size);
-#else
-  ftruncate64(fd, offset + size);
-#endif
-
-  char* mapping = (char*)mmap64(0, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE | MAP_NONBLOCK, fd, offset);
-  memset(mapping, 'a', size);
-
-  for (;;) {
-    offset += size;
-    offset_page += size_page;
-
-#ifdef ABUSE
-    pwrite64(fd, "", 1, offset + size);
-#else
-    ftruncate64(fd, offset + size);
-#endif
-
-    //munmap(mapping, size);
-    //mapping = (char*)mmap64(0, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE | MAP_NONBLOCK, fd, offset);
-    remap_file_pages(mapping, size, 0, offset_page, MAP_NONBLOCK);
-
-    memset(mapping, 'a', size);
-  }
-
-  close(fd);
-
-  return 0;
-}
-
---0-811623306-1133988372=:66928--
+-- 
+All Rights Reversed

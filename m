@@ -1,98 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbVLGVuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030376AbVLGVxs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030371AbVLGVuU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 16:50:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030373AbVLGVuT
+	id S1030376AbVLGVxs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 16:53:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbVLGVxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 16:50:19 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:30227 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1030371AbVLGVuS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 16:50:18 -0500
-Date: Wed, 7 Dec 2005 22:50:14 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Jan =?iso-8859-1?Q?Oberl=E4nder?= <mindriot@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.32 Oops in scsi_dispatch_cmd
-Message-ID: <20051207215014.GB15993@alpha.home.local>
-References: <20051207093747.GA1154@hek501.hek.uni-karlsruhe.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051207093747.GA1154@hek501.hek.uni-karlsruhe.de>
-User-Agent: Mutt/1.5.10i
+	Wed, 7 Dec 2005 16:53:48 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:34494 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030376AbVLGVxs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 16:53:48 -0500
+To: "David S. Miller" <davem@davemloft.net>
+cc: davej@redhat.com, geert@linux-m68k.org, arjan@infradead.org,
+       rdunlap@xenotime.net, riel@redhat.com, andrea@suse.de,
+       wli@holomorphy.com, linux-kernel@vger.kernel.org, ogasawara@osdl.org
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: Linux in a binary world... a doomsday scenario 
+In-reply-to: Your message of Wed, 07 Dec 2005 13:38:20 PST.
+             <20051207.133820.39286690.davem@davemloft.net> 
+Date: Wed, 07 Dec 2005 13:53:39 -0800
+Message-Id: <E1Ek7EJ-0006nu-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, Dec 07, 2005 at 10:37:47AM +0100, Jan Oberländer wrote:
-> Hi,
+On Wed, 07 Dec 2005 13:38:20 PST, "David S. Miller" wrote:
+> From: Gerrit Huizenga <gh@us.ibm.com>
+> Date: Wed, 07 Dec 2005 13:30:18 -0800
 > 
-> [please Cc:, I'm not on the list!]
+> > OSDL.org has no desire to advocate binary drivers in any way and I
+> > don't expect that they will do anything to educate or influence their
+> > members or the global vendor/IHV/developer communities to use binary
+> > drivers.  Further, I expect they will do exactly the opposite, in
+> > particular, educate members, developers, IHV's on how to deploy
+> > open source drivers and the benefits of doing so.
 > 
-> I've been receiving Oops repeatedly in scsi_dispatch_cmd, in different
-> kernels (2.4.{27,31,32}).  At first I thought that a non-free module for
-> an ATA RAID card was responsible, but in 2.4.32 I've seen it without
-> using that as well (in a non-tainted kernel).  I can't exactly rule out
-> that it's a hardware problem, but since it's very repeatable I'm really
-> not sure.  The box doesn't recover from the Oops, but I was still able
-> to see the Oops message in /var/log/messages.  See the attached file for
-> ksymoops output.
-
-could you send your .config and gcc version please ? I've checked the
-code and it's not easy to find what data is accessed in your oopses.
-
-> The tar process is run from a backup scripts that mounts an IDE drive
-> partition, writes a backup to it and unmounts it.  It's always been the
-> tar process behind this crash.  Some system details:
-
-could you please also tell us what partition tar reads data from ? I've
-understood that you have some disks on your adaptec card and some software
-RAID, so if you could roughly explain the setup, it would be great.
-
-> $ uname -a
-> Linux server 2.4.32 #1 Tue Dec 6 10:55:41 CET 2005 i686 GNU/Linux
-> $ cat /proc/cpuinfo
-> processor       : 0
-> vendor_id       : AuthenticAMD
-> cpu family      : 6
-> model           : 7
-> model name      : AMD Duron(tm) Processor
-> stepping        : 1
-> cpu MHz         : 1197.726
-> cache size      : 64 KB
->  [...]
-> $ lspci
-> 0000:00:00.0 Host bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333]
-> 0000:00:01.0 PCI bridge: VIA Technologies, Inc. VT8366/A/7 [Apollo KT266/A/333 AGP]
-> 0000:00:0d.0 SCSI storage controller: Adaptec AHA-2940U2/U2W
-> 0000:00:10.0 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 80)
-> 0000:00:10.1 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 80)
-> 0000:00:10.2 USB Controller: VIA Technologies, Inc. VT82xxxxx UHCI USB 1.1 Controller (rev 80)
-> 0000:00:10.3 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 82)
-> 0000:00:11.0 ISA bridge: VIA Technologies, Inc. VT8235 ISA Bridge
-> 0000:00:11.1 IDE interface: VIA Technologies, Inc. VT82C586A/B/VT82C686/A/B/VT823x/A/C PIPC Bus Master IDE (rev 06)
-> 0000:00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235/8237 AC97 Audio Controller (rev 50)
-> 0000:00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 74)
-> 0000:01:00.0 VGA compatible controller: nVidia Corporation NV5M64 [RIVA TNT2 Model 64/Model 64 Pro] (rev 15)
-> $ 
+> You might want to read the following before stating such
+> things:
 > 
-> There are no modules loaded.  The IDE HDD is on the VIA controller,
-> several other disks are behind the Adaptec controller (several of them
-> on Software RAID).
+> 	http://www.kroah.com/log/2005/11/03/#osdl_gkai
 > 
-> Maybe you have an idea what's going on (or who to talk to instead)?  I'm
-> stuck.
+> Thanks.
 
-It may be doable with a few more info. Please also confirm that your
-System.map really matches your kernel (for the oops report).
+I have read that and in fact I was at that meeting.  That was a case
+where we had spent some time trying to convince member companies that
+a stable kernel API was not going to happen.  They did not believe it.
+Greg and others came in and expressed directly to those people their
+viewpoints.  That has helped and the companies in question are still
+thinking about their future strategy.  Greg had an impact where OSDL
+members (myself included) were simply viewed as expressing a radical
+opinion which reality would change.
 
-> Thanks in advance & keep up the good work!
-> 
-> Jan
+This whole concept of drivers being broken has been painful for everyone
+and people are still trying to apply traditional solutions.  The kernel
+communities solution solves a piece of the problem (not the distro portion
+of the problem) but the continuing education on a pardaigm shift seems
+to be unending.  I've been working on this for over a year and I still
+run into people every day that just don't see the value of the paradigm
+change and don't even realize that there *is* a paradigm change.
 
-Regards,
-Willy
+Wishing the problem away hasn't helped.  People need education and all
+kinds of levels and unfortunately LKML doesn't reach most of the people
+that actually need the education.  :(
 
+gerrit

@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751761AbVLGS7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751762AbVLGTBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751761AbVLGS7N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751716AbVLGS7N
+	id S1751762AbVLGTBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 14:01:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751763AbVLGTBZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:59:13 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:13524 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1751462AbVLGS7M (ORCPT
+	Wed, 7 Dec 2005 14:01:25 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:64522 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1751762AbVLGTBY convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:59:12 -0500
-Message-Id: <200512071857.jB7Iv8rc009600@laptop11.inf.utfsm.cl>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-cc: Greg KH <greg@kroah.com>, Tim Bird <tim.bird@am.sony.com>,
-       Dave Airlie <airlied@gmail.com>, David Woodhouse <dwmw2@infradead.org>,
-       arjan@infradead.org, andrew@walrond.org, linux-kernel@vger.kernel.org,
-       rms@gnu.org
-Subject: Re: Linux in a binary world... a doomsday scenario 
-In-Reply-To: Message from Coywolf Qi Hunt <coywolf@gmail.com> 
-   of "Wed, 07 Dec 2005 11:23:37 +0800." <2cd57c900512061923u1ce526c8p@mail.gmail.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Wed, 07 Dec 2005 15:57:07 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 07 Dec 2005 15:57:11 -0300 (CLST)
+	Wed, 7 Dec 2005 14:01:24 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <Pine.LNX.4.63.0512071345210.17172@cuia.boston.redhat.com>
+X-OriginalArrivalTime: 07 Dec 2005 19:01:22.0626 (UTC) FILETIME=[9D68F220:01C5FB60]
+Content-class: urn:content-classes:message
+Subject: Re: Load-on-demand. How does the kernel locate the pages on secondary storage?
+Date: Wed, 7 Dec 2005 14:01:22 -0500
+Message-ID: <Pine.LNX.4.61.0512071352160.9463@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Load-on-demand. How does the kernel locate the pages on secondary storage?
+Thread-Index: AcX7YJ2Hfo4fe2QCRMWNJoeI0l4tMQ==
+References: <afd776760512061938w7647b155r28a9eef8fdcfb640@mail.gmail.com> <Pine.LNX.4.63.0512071345210.17172@cuia.boston.redhat.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Rik van Riel" <riel@redhat.com>
+Cc: "Mohamed El Dawy" <msdawy@gmail.com>, <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt <coywolf@gmail.com> wrote:
-> 2005/12/7, Greg KH <greg@kroah.com>:
-> > On Wed, Dec 07, 2005 at 09:38:30AM +0800, Coywolf Qi Hunt wrote:
-> > > 2005/12/7, Greg KH <greg@kroah.com>:
 
-> > > > And no kernel developers are forcing anyone to use Linux.  If they
-> > > > don't like it for whatever reasons, there are other alternatives...
+On Wed, 7 Dec 2005, Rik van Riel wrote:
 
-> > > AFAIK, no proprietary software vendors are forcing any1 to buy their
-> > > proprietary software. Still you are speaking in a monopoly tone!
+> On Tue, 6 Dec 2005, Mohamed El Dawy wrote:
+>
+>>  Assume we have a process running, not all the pages of the process
+>> are in main memory. Some are swapped, and some are just not loaded
+>> yet.
+>> How does the kernel locate those pages on disk? Is there a pointer in
+>> the page table? or is there some place else? Any pointers to source
+>> code in the kernel would be greatly appreciated.
+>
+> http://linux-mm.org/PageFaultHandling
+>
+> --
+> All Rights Reversed
 
-> > How is the statement, "If you don't trust the intelligence of the Linux
-> > kernel developers, then don't use the Linux kernel." a monopolistic
-> > tone?
+Look at /usr/src/linux-`uname -r`/mm/swapfile.c scan_swap_map()
+for a hint. They are indexed using cluster numbers and it's an easy
+index because the swap i/o is in pages.
 
-> The fact is Linux supports more hardware now. Some *BSD users turn to
-> Linux in order to drive their hardware for the _same_ reason as users
-> turn to windows.
 
-So? Nobody is forcing them. Nobody is squeezing them for money (or anything
-else) in exchange. If they want, they can take it, use it, modify it to
-their heart's content. Modulo GPL restrictions, obviously.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
 
->                  That is really a monopolistic position.
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-Perhaps /position/, but not /taking advantage of it/. The second part is
-where trouble brews.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Thank you.

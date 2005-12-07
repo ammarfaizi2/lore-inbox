@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbVLGPt6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVLGPu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750789AbVLGPt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 10:49:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbVLGPt5
+	id S1751155AbVLGPu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 10:50:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVLGPu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 10:49:57 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:50050 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S1750789AbVLGPt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 10:49:56 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [linux-usb-devel] Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
-Date: Wed, 7 Dec 2005 16:50:01 +0100
-User-Agent: KMail/1.8
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       linux-usb-devel@lists.sourceforge.net,
-       Eduardo Pereira Habkost <ehabkost@mandriva.com>,
-       Greg KH <gregkh@suse.de>,
-       Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
-       linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L0.0512071000120.21143-100000@iolanthe.rowland.org> <200512071637.40018.oliver@neukum.org> <1133970015.2869.31.camel@laptopd505.fenrus.org>
-In-Reply-To: <1133970015.2869.31.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Dec 2005 10:50:57 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21514 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751155AbVLGPu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 10:50:56 -0500
+Date: Wed, 7 Dec 2005 15:50:34 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jason Dravet <dravet@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: wrong number of serial port detected
+Message-ID: <20051207155034.GB6793@flint.arm.linux.org.uk>
+Mail-Followup-To: Jason Dravet <dravet@hotmail.com>,
+	linux-kernel@vger.kernel.org
+References: <BAY103-F1629FE16D5F4DBB7B16524DF430@phx.gbl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512071650.01439.oliver@neukum.org>
+In-Reply-To: <BAY103-F1629FE16D5F4DBB7B16524DF430@phx.gbl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 7. Dezember 2005 16:40 schrieben Sie:
-> On Wed, 2005-12-07 at 16:37 +0100, Oliver Neukum wrote:
-> > Am Mittwoch, 7. Dezember 2005 16:22 schrieb Arjan van de Ven:
-> > > > On the other hand, Oliver needs to be careful about claiming too much.  In 
-> > > > general atomic_t operations _are_ superior to the spinlock approach.
-> > > 
-> > > No they're not. Both are just about equally expensive cpu wise,
-> > > sometimes the atomic_t ones are a bit more expensive (like on parisc
-> > > architecture). But on x86 in either case it's a locked cycle, which is
-> > > just expensive no matter which side you flip the coin...
-> > 
-> > You are refering to SMP, aren't you?
-> 
-> yes.
-> on UP neither is a locked instruction ;)
+On Wed, Dec 07, 2005 at 09:44:29AM -0600, Jason Dravet wrote:
+> So I ask this mailing list Can the kernel detect the proper number of 
+> serial ports or not?
 
-But the atomic variant has to guard against interrupts, at least on
-architectures that do load/store only, hasn't it? AFAICT it is even
-theoretically impossible to tell for the compiler whether a function
-is always called with interrupts off.
+It does detect serial ports found in the machine.
 
-	Regards
-		Oliver
+However, it _always_ offers the configured number of serial devices.
+This is to allow folk whose ports are not autodetected to configure
+them appropriately via the setserial command.  If they were not
+available, they could not configure them.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

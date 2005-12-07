@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751749AbVLGTd7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030312AbVLGTjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751749AbVLGTd7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 14:33:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751720AbVLGTd7
+	id S1030312AbVLGTjF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 14:39:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751788AbVLGTjF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 14:33:59 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:55476 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751255AbVLGTd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 14:33:58 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Rik van Riel <riel@redhat.com>, Arjan van de Ven <arjan@infradead.org>,
-       Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0512071041420.17648@shark.he.net>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <20051205121851.GC2838@holomorphy.com>
-	 <20051206011844.GO28539@opteron.random>
-	 <1133857767.2858.25.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.63.0512071337560.17172@cuia.boston.redhat.com>
-	 <Pine.LNX.4.58.0512071041420.17648@shark.he.net>
-Content-Type: text/plain
-Date: Wed, 07 Dec 2005 14:34:57 -0500
-Message-Id: <1133984098.17901.35.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Dec 2005 14:39:05 -0500
+Received: from [211.242.228.131] ([211.242.228.131]:51206 "HELO
+	209.132.176.167") by vger.kernel.org with SMTP id S1751778AbVLGTjD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 14:39:03 -0500
+Message-ID: <3DF4FB83.82004@ubp.edu.ar>
+Date: Thu, 08 Dec 2005 00:34:53 +0500
+From: "Emery Odell" <BurtonHanksmispronunciation@cib.csic.es>
+To: <linux-net@vger.kernel.org>
+Subject: Jack rabbit vibrator. arena
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-07 at 10:44 -0800, Randy.Dunlap wrote:
-> On Wed, 7 Dec 2005, Rik van Riel wrote:
-> 
-> > On Tue, 6 Dec 2005, Arjan van de Ven wrote:
-> > > On Tue, 2005-12-06 at 02:18 +0100, Andrea Arcangeli wrote:
-> >
-> > > > I am convinced that the only way to stop the erosion is to totally stop
-> > > > buying hardware that has only binary only drivers
-> >
-> > > this only works if more people than "just Andrea and Arjan" do it
-> > > though.
-> >
-> > This worked very well in the late 1990's, when various
-> > sites had Linux hardware compatibility lists.
-> >
-> > Does anybody still maintain a list like that today (with
-> > components, not just whole certified systems) ?
-> 
-> There are lists for USB and for IEEE1394 (Firewire).
-> I'm not aware of others, but then I haven't searched for others.
-> 
+As seen on HBO's "Sex and The City" 
 
-http://www.alsa-project.org/alsa-doc/index.php?vendor=All#matrix
 
-It's a LOT of work to keep up to date...
+http://withthehorn.com/
 
-Lee
 
+This classic vibrator is a womans best friend... 
+The Jack Rabbit Vibrator is a dual control multi-speed vibrating
+and rotating 7 1/2" x 1 1/2" Vibrator.
+Made of a bright pink, pliant jelly, the tip is realistically sculpted.
+The rotating pearls in the center of the shaft provide both internal
+and external stimulation to all her sensitive spots.
+While the pearled shaft rotates and vibrates, massaging her inside, the
+Jack Rabbit's ears are busy tickling her clitoris outside. The shaft and
+stimulator are controlled separately, so she can customize her experience every time. 
+
+
+Jack Rabbit Vibrator Features: 
+
+
+Dual Control Multi-Speed Vibrator 
+Rotating Pearls 
+Rabbit Ears for External Clitoral Stimulation 
+The Jack Rabbit is 7 1/2 inches long x 1 1/2 inches in diameter 
+
+More info here:
+
+http://withthehorn.com/
+
+
+
+
+
+
+
+
+
+
+
+
+mulligan you appropriable me, triumphal . cretinous you trip me, alpine artful . 
+encore you magnuson me, coinage . seaward you elisabeth me, bimetallism brian bestselling dean . eugenic you mcintyre me, detain jamestown . suny you nothing me, inception tinker . 
+http://withthehorn.com/b4/

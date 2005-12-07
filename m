@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751746AbVLGSoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751748AbVLGSpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751746AbVLGSoz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:44:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751748AbVLGSoz
+	id S1751748AbVLGSpn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:45:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751749AbVLGSpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:44:55 -0500
-Received: from xenotime.net ([66.160.160.81]:28385 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751745AbVLGSoy (ORCPT
+	Wed, 7 Dec 2005 13:45:43 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:28372 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751747AbVLGSpm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:44:54 -0500
-Date: Wed, 7 Dec 2005 10:44:53 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Rik van Riel <riel@redhat.com>
-cc: Arjan van de Ven <arjan@infradead.org>, Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-In-Reply-To: <Pine.LNX.4.63.0512071337560.17172@cuia.boston.redhat.com>
-Message-ID: <Pine.LNX.4.58.0512071041420.17648@shark.he.net>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> 
- <20051205121851.GC2838@holomorphy.com>  <20051206011844.GO28539@opteron.random>
- <1133857767.2858.25.camel@laptopd505.fenrus.org>
- <Pine.LNX.4.63.0512071337560.17172@cuia.boston.redhat.com>
+	Wed, 7 Dec 2005 13:45:42 -0500
+Date: Wed, 7 Dec 2005 13:45:34 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Mohamed El Dawy <msdawy@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Load-on-demand. How does the kernel locate the pages on secondary
+ storage?
+In-Reply-To: <afd776760512061938w7647b155r28a9eef8fdcfb640@mail.gmail.com>
+Message-ID: <Pine.LNX.4.63.0512071345210.17172@cuia.boston.redhat.com>
+References: <afd776760512061938w7647b155r28a9eef8fdcfb640@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Dec 2005, Rik van Riel wrote:
+On Tue, 6 Dec 2005, Mohamed El Dawy wrote:
 
-> On Tue, 6 Dec 2005, Arjan van de Ven wrote:
-> > On Tue, 2005-12-06 at 02:18 +0100, Andrea Arcangeli wrote:
->
-> > > I am convinced that the only way to stop the erosion is to totally stop
-> > > buying hardware that has only binary only drivers
->
-> > this only works if more people than "just Andrea and Arjan" do it
-> > though.
->
-> This worked very well in the late 1990's, when various
-> sites had Linux hardware compatibility lists.
->
-> Does anybody still maintain a list like that today (with
-> components, not just whole certified systems) ?
+>  Assume we have a process running, not all the pages of the process
+> are in main memory. Some are swapped, and some are just not loaded
+> yet.
+> How does the kernel locate those pages on disk? Is there a pointer in
+> the page table? or is there some place else? Any pointers to source
+> code in the kernel would be greatly appreciated.
 
-There are lists for USB and for IEEE1394 (Firewire).
-I'm not aware of others, but then I haven't searched for others.
-
-Such lists could tell us not only which devices work (are
-supported with open source drivers) but also which devices
-are not supported and hence may need attention.
-
-There has been some discussion about OSDL attempting to do this.
+http://linux-mm.org/PageFaultHandling
 
 -- 
-~Randy
+All Rights Reversed

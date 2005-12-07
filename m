@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932674AbVLGBFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932679AbVLGBKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932674AbVLGBFr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Dec 2005 20:05:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932679AbVLGBFr
+	id S932679AbVLGBKi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Dec 2005 20:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932680AbVLGBKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Dec 2005 20:05:47 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:48604 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932674AbVLGBFq (ORCPT
+	Tue, 6 Dec 2005 20:10:38 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:4067 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932679AbVLGBKh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Dec 2005 20:05:46 -0500
-Date: Tue, 6 Dec 2005 20:05:26 -0500
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: rmk@arm.linux.org.uk
-Subject: Missing break in timedia serial setup.
-Message-ID: <20051207010526.GA7258@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org, rmk@arm.linux.org.uk
+	Tue, 6 Dec 2005 20:10:37 -0500
+Date: Wed, 7 Dec 2005 02:10:19 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andy Isaacson <adi@hexapodia.org>,
+       Nigel Cunningham <ncunningham@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+Message-ID: <20051207011019.GA2233@elf.ucw.cz>
+References: <20051205081935.GI22168@hexapodia.org> <20051206121835.GN1770@elf.ucw.cz> <20051206181520.GA21501@hexapodia.org> <200512070205.37414.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200512070205.37414.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spotted during code review by a Fedora user.
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=174967
+Hi!
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+> > I'm suggesting that rather than writing the clean pages out to the
+> > image, simply make their metadata available to a post-resume userland
+> > helper.  Something like
+> > 
+> > % head -2 /dev/swsusp-helper
+> > /bin/sh 105-115 192 199-259
+> > /lib/libc-2.3.2.so 1-250
+> > 
+> > where the userland program is expected to use the list of page numbers
+> > (and getpagesize(2)) to asynchronously page in the working set in an
+> > ionice'd manner.
+> 
+> The helper is not necessary, I think.
 
---- linux-2.6.14/drivers/serial/8250_pci.c~	2005-12-06 20:01:17.000000000 -0500
-+++ linux-2.6.14/drivers/serial/8250_pci.c	2005-12-06 20:01:51.000000000 -0500
-@@ -517,6 +517,7 @@ pci_timedia_setup(struct serial_private 
- 	case 3:
- 		offset = board->uart_offset;
- 		bar = 1;
-+		break;
- 	case 4: /* BAR 2 */
- 	case 5: /* BAR 3 */
- 	case 6: /* BAR 4 */
+Actually, I like the helper. It is safest solution, and list of cached
+pages in memory is going to be usefull for other stuff, too.
+
+Imagine:
+
+cat /dev/give-me-list-of-pages-in-page-cache > /tmp/delme.suspend
+echo disk > /sys/power/state
+nice ( cat /tmp/delme.suspend | read-those-pages-back ) &
+
+Result is quite obviously safe (unless you mess up locking while
+dumping pagecache), and it is going to be rather easy to test. Just
+load the system as  much as you can while doing
+
+while true; do cat /dev/give-me-list-of-pages-in-page-cache >
+/dev/null; done
+
+. Still, limiting image size to 500MB is probably easier solution. I'm
+looking forward to that page.
+								Pavel
+-- 
+Thanks, Sharp!

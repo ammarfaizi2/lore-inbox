@@ -1,87 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751462AbVLGTBH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751769AbVLGTCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751462AbVLGTBH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 14:01:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751760AbVLGTBH
+	id S1751769AbVLGTCk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 14:02:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751780AbVLGTCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 14:01:07 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:24761 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751462AbVLGTBG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 14:01:06 -0500
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>, Paul Jackson <pj@sgi.com>
-In-Reply-To: <1133978996.24344.42.camel@localhost>
-References: <20051114212341.724084000@sergelap>
-	 <m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
-	 <1133977623.24344.31.camel@localhost>
-	 <1133978128.2869.51.camel@laptopd505.fenrus.org>
-	 <1133978996.24344.42.camel@localhost>
+	Wed, 7 Dec 2005 14:02:40 -0500
+Received: from mail.gmx.de ([213.165.64.20]:4249 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751770AbVLGTCj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 14:02:39 -0500
+X-Authenticated: #26515711
+Subject: POSIX-timers: is this a bug?
+From: Oliver Korpilla <Oliver.Korpilla@gmx.de>
+Reply-To: Oliver.Korpilla@gmx.de
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Date: Wed, 07 Dec 2005 20:00:48 +0100
-Message-Id: <1133982048.2869.60.camel@laptopd505.fenrus.org>
+Date: Wed, 07 Dec 2005 20:02:40 +0100
+Message-Id: <1133982160.8611.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I`m not on list, so please CC me.
 
-> > hmm wonder if it's not just a lot simpler to introduce a split in
-> > "kernel pid" and "userspace pid", and have current->pid and
-> > current->user_pid for that.
-> > 
-> > Using accessor macros doesn't sound like it gains much here.. (but then
-> > I've not seen the full picture and you have)
-> 
-> My first instinct was to introduce functions like get_user_pid() and
-> get_kernel_pid() which would effectively introduce the same split.
-> Doing that, we could keep from even referencing ->user_pid in normal
-> code, and keep things small and simpler for people like the embedded
-> folks.
+When setting a new timer with timer_create() one can supply a sigevent_t
+structure, within one can supply a thread ID (by setting
+->sigev_notify_thread_id and SIGEV_THREAD_ID | SIGEV_SIGNAL). You can
+use this to get the thread signalled when the timer expires with the
+given signal.
 
-well I don't see the point for the abstraction... get_kernel_pid() is no
-better or worse than using current->pid directly, unless you want to do
-"deep magic". 
+Even though the thread ID is asked for, in reality the PID is required -
+as you can see in the code below. Because the associated task is located
+by PID, not by PID. This collides with the API description for
+timer_create(): 
+"timer_create creates an interval timer based on the POSIX 1003.1b
+standard using the clock type specified by which_clock. The timer ID is
+stored in the timer_t value pointed to by created_timer_id.
+The timer is started by timer_settime (3). If timer_event_spec is
+non-NULL, it specifies the behavior on timer expiration.  If the
+sigev_notify member of timer_event_spec is SIGEV_SIGNAL then the signal
+specified by sigev_signo is sent to the process on expiration.
+If the value is SIGEV_THREAD_ID then the sigev_notify_thread_id member
+of timer_event_spec should contain the pthread_t id of the thread that
+is to receive the signal."
 
-> For the particular application that we're thinking of, we really don't
-> want "user pid" and "kernel pid" we want "virtualized" and
-> "unvirtualized", or "regular old pid" and "fancy new virtualized pid".
+As you can see below, the value is used as PID instead of as TID.
+Printing out PID and TID of my thread has shown that both values clearly
+differ.
 
-same thing, different name :)
+Is this a bug?
 
-> So, like in the global pidspace (which can see all pids and appears to
-> applications to be just like normal) you end up returning "kernel" pids
-> to userspace.  That didn't seem to make sense.  
+With kind regards,
+Oliver Korpilla
 
-hmm this is scary. If you don't have "unique" pids inside the kernel a
-lot of stuff will subtly break. DRM for example (which has the pid
-inside locking to track ownership and recursion), but I'm sure there's
-many many cases like that. I guess the address of the task struct is the
-ultimate unique pid in this sense.... but I suspect the way to get there
-is first make a ->user_pid field, and switch all userspace visible stuff
-to that, and then try to get rid of ->pid users one by one by
-eliminating their uses... 
+kernel/posix-timers.c (2.6.13.4):
 
-but I'm really afraid that if you make the "fake" pid visible to normal
-kernel code, too much stuff will go bonkers and end up with an eternal
-stream of security hazards. "Magic" hurts here, and if you don't do
-magic I don't see a reason to add an abstraction which in itself doesn't
-mean anything or doesn't abstract anything....
+static inline struct task_struct * good_sigevent(sigevent_t * event)
+{
+	struct task_struct *rtn = current->group_leader;
+
+	if ((event->sigev_notify & SIGEV_THREAD_ID ) &&
+	(!(rtn = find_task_by_pid(event->sigev_notify_thread_id)) ||
+	rtn->tgid != current->tgid ||
+	 (event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_SIGNAL))
+		return NULL;
+
+	if (((event->sigev_notify & ~SIGEV_THREAD_ID) != SIGEV_NONE) &&
+	    ((event->sigev_signo <= 0) || 
+		(event->sigev_signo > SIGRTMAX)))
+		return NULL;
+
+	return rtn;
+}
+
 

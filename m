@@ -1,62 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbVLGQQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbVLGQTO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbVLGQQW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 11:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbVLGQQW
+	id S1751169AbVLGQTO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 11:19:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbVLGQTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 11:16:22 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:39567 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1751188AbVLGQQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 11:16:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=5GQqbe8GBTvp0JhinAKDbqLNrVAHLFbLfkLZiU9uNt2RYFFO0O42yzKPzt/jdxYaw3oiIHIu95mTOTQK8fY9SGB9ENKwnF//jwxfVky6ng/0nvKOs6bfCcuit1E9UPemOMXc+6EW0mF2Nkw6zlrYhlzehSXRLzqAu96Q0sjh3Mo=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH] um: fix compile error for tt
-Date: Wed, 7 Dec 2005 17:16:05 +0100
-User-Agent: KMail/1.8.3
-Cc: Pekka J Enberg <penberg@cs.helsinki.fi>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, jdike@karaya.com
-References: <1133900650.3279.9.camel@localhost> <200512071038.04958.blaisorblade@yahoo.it> <Pine.LNX.4.58.0512071538230.22525@sbz-30.cs.Helsinki.FI>
-In-Reply-To: <Pine.LNX.4.58.0512071538230.22525@sbz-30.cs.Helsinki.FI>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Dec 2005 11:19:14 -0500
+Received: from perninha.conectiva.com.br ([200.140.247.100]:58034 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S1751169AbVLGQTO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 11:19:14 -0500
+Date: Wed, 7 Dec 2005 14:23:11 -0200
+From: Eduardo Pereira Habkost <ehabkost@mandriva.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Oliver Neukum <oliver@neukum.org>,
+       linux-usb-devel@lists.sourceforge.net, Greg KH <gregkh@suse.de>,
+       Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
+Message-ID: <20051207162311.GH20451@duckman.conectiva>
+References: <Pine.LNX.4.44L0.0512071000120.21143-100000@iolanthe.rowland.org> <1133968943.2869.26.camel@laptopd505.fenrus.org> <20051207160047.GG20451@duckman.conectiva> <1133971353.2869.41.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rCwQ2Y43eQY6RBgR"
 Content-Disposition: inline
-Message-Id: <200512071716.08637.blaisorblade@yahoo.it>
+In-Reply-To: <1133971353.2869.41.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 December 2005 14:39, Pekka J Enberg wrote:
-> Hi,
->
-> On Wed, 7 Dec 2005, Blaisorblade wrote:
-> > Ok, fine, just a note - the header inclusion should be added to
-> >
-> > arch/um/include/um_uaccess.h
-> >
-> > where it is effectively used (the offending macros, using FIXADDR_USER_*,
-> > are __access_ok_vsyscall.
-> >
-> > For the rest it's ok.
->
-> Here's an updated patch.
 
-ACK - Andrew, please merge (and queue for -linus), or notify if it needs to be 
-resent. Thanks.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+--rCwQ2Y43eQY6RBgR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	
+On Wed, Dec 07, 2005 at 05:02:33PM +0100, Arjan van de Ven wrote:
+>=20
+> > > No they're not. Both are just about equally expensive cpu wise,
+> > > sometimes the atomic_t ones are a bit more expensive (like on parisc
+> > > architecture). But on x86 in either case it's a locked cycle, which is
+> > > just expensive no matter which side you flip the coin...=20
+> >=20
+> > But if a lock is used exclusively to protect a int variable, an atomic_t
+> > seems to be more appropriate to me. Isn't it?
+>=20
+> sounds like it...=20
+>=20
+> > Please, if you could, review the patches with this in mind: we aren't
+> > changing any behaviour neither creating any weird lock scheme, we are
+> > only doing two things:
+>=20
+> ... however you are NOT changing the behavior, which is EXACTLY my
+> point; the current "lock emulation" behavior is wrong, all you're doing
+> is replacing how you do the wrong thing ;)
 
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+But now doing the Right Thing will be easy, as the wrong code isn't
+duplicated all around anymore: it is only in one place.  ;)
+
+We have just done a small refactoring, trying to keep behaviour.
+I haven't analysed deeply the current code to check if the "lock
+emulation" could be replaced by a better approach. But at a first look,
+it didn't look wrong to me. I am open to suggestions on how to replace
+the write_urb_busy checking by something better.
+
+So, at least we agree that using atomic_t is better than the current
+approach, right? So, do you agree that, _if_ we chose to keep the
+write_urb_busy "pseudo-locking", we could at least remove the code
+duplication for that and use an atomic_t instead of spin_lock+int?
+
+>=20
+> It's like having a bike with square wheels, and replacing a flat tire
+> with one with air in, as opposed to replacing it with a round wheel...
+>=20
+
+I am open to suggestions on how to build a round wheel in this case.  :)
+
+--=20
+Eduardo
+
+--rCwQ2Y43eQY6RBgR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDlwxvcaRJ66w1lWgRAqRhAJ9yh6+GIEWL06IddJCYCDPb0quhOACbBacc
+KTKoXS1e7CJqPCRWe7kZEr8=
+=Ydmk
+-----END PGP SIGNATURE-----
+
+--rCwQ2Y43eQY6RBgR--

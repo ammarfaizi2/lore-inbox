@@ -1,37 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751741AbVLGSoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751746AbVLGSoz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751741AbVLGSoF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:44:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751745AbVLGSoF
+	id S1751746AbVLGSoz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:44:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751748AbVLGSoz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:44:05 -0500
-Received: from intranet.networkstreaming.com ([24.227.179.66]:42589 "EHLO
-	networkstreaming.com") by vger.kernel.org with ESMTP
-	id S1751741AbVLGSoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:44:04 -0500
-Message-ID: <43972D70.9040005@davyandbeth.com>
-Date: Wed, 07 Dec 2005 12:44:00 -0600
-From: Davy Durham <pubaddr2@davyandbeth.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
-X-Accept-Language: en-us, en
+	Wed, 7 Dec 2005 13:44:55 -0500
+Received: from xenotime.net ([66.160.160.81]:28385 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751745AbVLGSoy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 13:44:54 -0500
+Date: Wed, 7 Dec 2005 10:44:53 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Rik van Riel <riel@redhat.com>
+cc: Arjan van de Ven <arjan@infradead.org>, Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+In-Reply-To: <Pine.LNX.4.63.0512071337560.17172@cuia.boston.redhat.com>
+Message-ID: <Pine.LNX.4.58.0512071041420.17648@shark.he.net>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> 
+ <20051205121851.GC2838@holomorphy.com>  <20051206011844.GO28539@opteron.random>
+ <1133857767.2858.25.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.63.0512071337560.17172@cuia.boston.redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: config question
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Dec 2005 18:44:18.0153 (UTC) FILETIME=[3AC6C590:01C5FB5E]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Question: 
+On Wed, 7 Dec 2005, Rik van Riel wrote:
 
-What is the danger or disadvantage (if any) of setting:
+> On Tue, 6 Dec 2005, Arjan van de Ven wrote:
+> > On Tue, 2005-12-06 at 02:18 +0100, Andrea Arcangeli wrote:
+>
+> > > I am convinced that the only way to stop the erosion is to totally stop
+> > > buying hardware that has only binary only drivers
+>
+> > this only works if more people than "just Andrea and Arjan" do it
+> > though.
+>
+> This worked very well in the late 1990's, when various
+> sites had Linux hardware compatibility lists.
+>
+> Does anybody still maintain a list like that today (with
+> components, not just whole certified systems) ?
 
-CONFIG_HIGHMEM4G=y
-CONFIG_HIGHMEM=y
+There are lists for USB and for IEEE1394 (Firewire).
+I'm not aware of others, but then I haven't searched for others.
 
-when a machine only has say 512megs installed?
+Such lists could tell us not only which devices work (are
+supported with open source drivers) but also which devices
+are not supported and hence may need attention.
 
+There has been some discussion about OSDL attempting to do this.
 
-Thanks,
-  Davy
+-- 
+~Randy

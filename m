@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVLGPSi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVLGPWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbVLGPSi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 10:18:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVLGPSi
+	id S1751133AbVLGPWm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 10:22:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbVLGPWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 10:18:38 -0500
-Received: from fw5.argo.co.il ([194.90.79.130]:18949 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S1751126AbVLGPSh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 10:18:37 -0500
-Message-ID: <4396FD4A.5070009@argo.co.il>
-Date: Wed, 07 Dec 2005 17:18:34 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Hannu Savolainen <hannu@opensound.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <200512061426.37287.vda@ilport.com.ua> <Pine.LNX.4.61.0512061707370.23913@zeus.compusonic.fi>
-In-Reply-To: <Pine.LNX.4.61.0512061707370.23913@zeus.compusonic.fi>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 7 Dec 2005 10:22:42 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:34477 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751124AbVLGPWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 10:22:41 -0500
+Subject: Re: [linux-usb-devel] Re: [PATCH 00/10] usb-serial: Switches from
+	spin lock to atomic_t.
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Oliver Neukum <oliver@neukum.org>, linux-usb-devel@lists.sourceforge.net,
+       Eduardo Pereira Habkost <ehabkost@mandriva.com>,
+       Greg KH <gregkh@suse.de>,
+       Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44L0.0512071000120.21143-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0512071000120.21143-100000@iolanthe.rowland.org>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 16:22:23 +0100
+Message-Id: <1133968943.2869.26.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Dec 2005 15:18:35.0886 (UTC) FILETIME=[7E3648E0:01C5FB41]
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hannu Savolainen wrote:
 
->
->Or why not to include an embedded version of gcc/binutils in the kernel
->LKM interface. In this way all drivers can only be distributed in source 
->code which effectively makes all forms of binary only drivers impossible. 
->After that all the EXPORT_SYMBOL_GPL nonsense can be removed and a proper 
->DDI layer can be implemented for Linux. This makes it possible to ship 
->"outside the kernel build" drivers without a risk of major 
->incompatibility problems in the next kernel version. No, I'm not 100% 
->serious but just 50%.
->
->  
->
-char mydriver[] = { 0x90, 0xf3, 0xa4, ... };
-struct { unsigned long offset; void* symbol; } fixups[] = { { 79, 
-schedule }, ... };
+> On the other hand, Oliver needs to be careful about claiming too much.  In 
+> general atomic_t operations _are_ superior to the spinlock approach.
 
-module_init() { link(mydriver, fixups); ((void (*)())mydriver)(); }
+No they're not. Both are just about equally expensive cpu wise,
+sometimes the atomic_t ones are a bit more expensive (like on parisc
+architecture). But on x86 in either case it's a locked cycle, which is
+just expensive no matter which side you flip the coin... 
 
-:)
+>   If 
+> they weren't, atomic_t wouldn't belong in the kernel at all.
 
--- 
-error compiling committee.c: too many arguments to function
+there's different usage patterns where either makes sense. 
+In this case it looks just disgusting on very first sight; the atomic
+are used to implement a lock, and that lock itself is then implemented
+with a spinlock again. For me, again on first sight, the real solution
+appears to be to use a linux primitive for the higher level lock in the
+first place, instead of reimplementing <your own thing> with <another
+own thing>.
+
+
 

@@ -1,88 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751737AbVLGTPL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751779AbVLGTPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751737AbVLGTPL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 14:15:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751778AbVLGTPK
+	id S1751779AbVLGTPe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 14:15:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751777AbVLGTPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 14:15:10 -0500
-Received: from nproxy.gmail.com ([64.233.182.192]:395 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751744AbVLGTPI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 14:15:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eierMJKCUX0TWoFT82/6qA0MGpTGAml+AU7MZQNS2TT3M0Qwob46G8bf+AG2jqdXcTdncq2o5eMpCvfd4qSPHSYEKPcVAfWbfOzlC59kzTfD2qIGByaCCmEl9/kaHtAWKXYcIJc46E7FgmVDgS04z4mrFe7XskKmhZbwc6ZBz9M=
-Message-ID: <58cb370e0512071115i3dbb741aqda7f98a97221d99b@mail.gmail.com>
-Date: Wed, 7 Dec 2005 20:15:05 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Shaohua Li <shaohua.li@intel.com>
-Subject: Re: [RFC]add ACPI hooks for IDE suspend/resume
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Matthew Garrett <mjg59@srcf.ucam.org>,
-       linux-ide <linux-ide@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, pavel <pavel@ucw.cz>,
-       Len Brown <len.brown@intel.com>, akpm <akpm@osdl.org>
-In-Reply-To: <1133918523.2936.12.camel@sli10-mobl.sh.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 7 Dec 2005 14:15:34 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:16261 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751779AbVLGTPc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 14:15:32 -0500
+Date: Thu, 8 Dec 2005 01:04:29 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>, David Singleton <dsingleton@mvista.com>
+Subject: [PATCH] Fix timeout in robust path
+Message-ID: <20051207193429.GD4897@in.ibm.com>
+Reply-To: dino@in.ibm.com
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="fdj2RfSjLxBAspz7"
 Content-Disposition: inline
-References: <1133849404.3026.10.camel@sli10-mobl.sh.intel.com>
-	 <20051206222001.GA14171@srcf.ucam.org>
-	 <58cb370e0512070017u606ee22fse207b9a859856dd4@mail.gmail.com>
-	 <20051207131454.GA16558@srcf.ucam.org>
-	 <58cb370e0512070619k17022317v8e871dc3f9cafb9@mail.gmail.com>
-	 <20051207143337.GA16938@srcf.ucam.org>
-	 <58cb370e0512070645o78569e82y63483a9ae5511f52@mail.gmail.com>
-	 <1133970074.544.69.camel@localhost.localdomain>
-	 <58cb370e0512070749y68b2f9e9t1c68a3e03f91baa0@mail.gmail.com>
-	 <1133918523.2936.12.camel@sli10-mobl.sh.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/05, Shaohua Li <shaohua.li@intel.com> wrote:
-> On Wed, 2005-12-07 at 16:49 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > On 12/7/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > > On Mer, 2005-12-07 at 15:45 +0100, Bartlomiej Zolnierkiewicz wrote:
-> > > > OK, I understand it now - when using 'ide-generic' host driver for IDE
-> > > > PCI device, resume fails (for obvious reason - IDE PCI device is not
-> > > > re-configured) and this patch fixes it through using ACPI methods.
-> >
-> > I was talking about bugzilla bug #5604.
-> Sorry for my ignorance in IDE side. From the ACPI spec, there isn't a
-> generic way to save/restore IDE's configuration. That's why ACPI
-> provides such methods. I suppose all IDE drivers need call the methods,
-> wrong?
 
->From the hardware POV:
-* there is generic way to save/restores IDE device's configuration
-* there is no generic way to save/restore IDE controller's configuration
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->From the software POV what we only do currently is setting controller
-and drive for a correct transfer mode by using host driver specific callback
-(in case of using 'ide-generic' there is no such callback).
+Hi Ingo,
 
-> > > Even in the piix case some devices need it because the bios wants to
-> > > issue commands such as password control if the laptop is set up in
-> > > secure modes.
-> >
-> > I completely agree.  However at the moment this patch doesn't seem
-> > to issue any ATA commands (code is commented out in _GTF) so
-> > this is not a case for bugzilla bug #5604.
-> I actually tried to invoke ATA commands using IDE APIs, but can't find
-> any available one. I'd be very happy if you can give me any hint how to
-> do it or even you can fix it.
+I hit the following BUG when exercising the robust futex path
 
-Probably do_rw_taskfile() is the method you want to use, you also need
-to place invoking of ACPI provided ATA commands in the right place in
-the IDE PM state machine [ ide_{start,complete}_power_step() ].
+testpi-1/4920[CPU#0]: BUG in FREE_WAITER at kernel/rt.c:1368
+ [<c011f180>] __WARN_ON+0x60/0x80 (8)
+ [<c03f6581>] __down_mutex+0x601/0x844 (48)
+ [<c013813a>] pi_setprio+0xa1/0x632 (104)
+ [<c0127386>] lock_timer_base+0x19/0x33 (8)
+ [<c03f884d>] _spin_lock_irqsave+0x1d/0x46 (12)
+ [<c0127386>] lock_timer_base+0x19/0x33 (8)
+ [<c0127386>] lock_timer_base+0x19/0x33 (16)
+ [<c01273d8>] __mod_timer+0x38/0xdf (16)
+ [<c013fb9b>] sub_preempt_count+0x1a/0x1e (12)
+ [<c03f81e1>] __down_interruptible+0x922/0xaf7 (20)
+ [<c01411f5>] futex_wait_robust+0x14c/0x216 (16)
+ [<c01394e8>] process_timeout+0x0/0x9 (48)
+ [<c01411f5>] futex_wait_robust+0x14c/0x216 (64)
+ [<c013d042>] down_futex+0x7d/0xe2 (12)
+ [<c01411f5>] futex_wait_robust+0x14c/0x216 (12)
+ [<c013d066>] down_futex+0xa1/0xe2 (8)
+ [<c01411f5>] futex_wait_robust+0x14c/0x216 (12)
+ [<c01411f5>] futex_wait_robust+0x14c/0x216 (24)
+ [<c01419de>] do_futex+0x92/0xf8 (72)
+ [<c0141b3c>] sys_futex+0xf8/0x104 (40)
+ [<c0103017>] sysenter_past_esp+0x54/0x75 (60)
+---------------------------
+| preempt count: 00000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<c013fb00>] .... add_preempt_count+0x1a/0x1e
+.....[<00000000>] ..   ( <= stext+0x3feffd68/0x8)
 
-PS1 Please don't use taskfile_lib_get_identify(), drive->id
-should contain valid ID - if it doesn't it is a BUG.
+------------------------------
+| showing all locks held by: |  (testpi-1/4920 [f6326120,  59]):
+------------------------------
 
-PS2 Have you seen libata ACPI patches by Randy?
-Maybe some of the code dealing with ACPI can be put to
-<linux/ata.h> and be shared between IDE and libata drivers?
+When calling futex_wait_robust, we need to ensure that the timeout
+is reset to zero, incase userspace timeout is NULL.
+Please consider applying
 
-Thanks,
-Bartlomiej
+        -Dinakar
+
+Signed-off-by: Dinakar Guniguntala <dino@in.ibm.com>
+
+
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="rt22-timeout.patch"
+
+Index: linux-2.6.14/kernel/futex.c
+===================================================================
+--- linux-2.6.14.orig/kernel/futex.c	2005-12-08 00:31:29.000000000 +0530
++++ linux-2.6.14/kernel/futex.c	2005-12-08 00:33:01.000000000 +0530
+@@ -1535,6 +1535,8 @@
+ 			return -EFAULT;
+ 		timeout = timespec_to_jiffies(&t) + 1;
+ 	}
++	if (op == FUTEX_WAIT_ROBUST && utime == NULL)
++		timeout = 0;
+ 	/*
+ 	 * requeue parameter in 'utime' if op == FUTEX_REQUEUE.
+ 	 */
+
+--fdj2RfSjLxBAspz7--

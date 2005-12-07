@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932576AbVLGFaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbVLGFaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932576AbVLGFaR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 00:30:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932607AbVLGFaR
+	id S932546AbVLGFaL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 00:30:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVLGFaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 00:30:17 -0500
-Received: from mail.kroah.org ([69.55.234.183]:671 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932576AbVLGFaP (ORCPT
+	Wed, 7 Dec 2005 00:30:11 -0500
+Received: from mail.kroah.org ([69.55.234.183]:61854 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932546AbVLGFaK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 00:30:15 -0500
-Date: Tue, 6 Dec 2005 21:23:27 -0800
+	Wed, 7 Dec 2005 00:30:10 -0500
+Date: Tue, 6 Dec 2005 21:29:43 -0800
 From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH 0/3] x86 PCI domain support
-Message-ID: <20051207052327.GA21229@kroah.com>
-References: <20051203013904.GA2560@havoc.gtf.org> <20051203031533.GB14247@wotan.suse.de> <4391FC0A.9040202@pobox.com> <20051207003922.GA18528@kroah.com> <43964586.3080300@pobox.com> <20051207023305.GA19746@kroah.com> <43966117.9040700@pobox.com>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: Tim Bird <tim.bird@am.sony.com>, Dave Airlie <airlied@gmail.com>,
+       David Woodhouse <dwmw2@infradead.org>, arjan@infradead.org,
+       andrew@walrond.org, linux-kernel@vger.kernel.org, rms@gnu.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Message-ID: <20051207052943.GB21229@kroah.com>
+References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com> <4394DA1D.3090007@am.sony.com> <20051206040820.GB26602@kroah.com> <2cd57c900512052358m5b631204i@mail.gmail.com> <20051206161131.GB2088@kroah.com> <2cd57c900512061738l2f19aa54x@mail.gmail.com> <20051207024000.GB19746@kroah.com> <2cd57c900512061923u1ce526c8p@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=unknown-8bit
 Content-Disposition: inline
-In-Reply-To: <43966117.9040700@pobox.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <2cd57c900512061923u1ce526c8p@mail.gmail.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 11:12:07PM -0500, Jeff Garzik wrote:
-> Greg KH wrote:
-> >On Tue, Dec 06, 2005 at 09:14:30PM -0500, Jeff Garzik wrote:
+On Wed, Dec 07, 2005 at 11:23:37AM +0800, Coywolf Qi Hunt wrote:
+> 2005/12/7, Greg KH <greg@kroah.com>:
+> > On Wed, Dec 07, 2005 at 09:38:30AM +0800, Coywolf Qi Hunt wrote:
+> > > 2005/12/7, Greg KH <greg@kroah.com>:
+> > > > And no kernel developers are forcing anyone to use Linux.  If they don't
+> > > > like it for whatever reasons, there are other alternatives...
+> > >
+> > > AFAIK, no proprietary software vendors are forcing any1 to buy their
+> > > proprietary software. Still you are speaking in a monopoly tone!
 > >
-> >>Greg KH wrote:
-> >>
-> >>>On Sat, Dec 03, 2005 at 03:11:54PM -0500, Jeff Garzik wrote:
-> >>>
-> >>>
-> >>>>The first two patches could go in immediately, the last should probably 
-> >>>>wait a bit...
-> >>>
-> >>>
-> >>>What is the rush?  These seem pretty late for the -rc series :)
-> >>>
-> >>>I'll send them in after 2.6.15 is out, is that ok?
-> >>
-> >>You were supposed to read my mind :)  "immediately" meant "ok for 
-> >>upstream when -rc cycle closes" :)  The third patch I don't consider 
-> >>ready for upstream, -rc or no.
-> >
-> >
-> >Ok, thanks.  But I did just include the third patch in my tree, so it
-> >will get tested in -mm.  If you don't want this to happen, just let me
-> >know and I'll drop it.
+> > How is the statement, "If you don't trust the intelligence of the Linux
+> > kernel developers, then don't use the Linux kernel." a monopolistic
+> > tone?
 > 
-> There's no ultimate harm in it, because nothing turns on 
-> CONFIG_PCI_DOMAINS in x86[-64] yet...
+> The fact is Linux supports more hardware now. Some *BSD users turn to
+> Linux in order to drive their hardware for the _same_ reason as users
+> turn to windows. That is really a monopolistic position.
 
-I'm guessing that will be a follow-on patch?  :)
+No, not at all:
+	mo·nop·o·ly
+	Function: noun
+	1 : exclusive control of a particular market that is marked by
+	    the power to control prices and exclude competition and that
+	    esp. is developed willfully rather than as the result of
+	    superior products or skill.
+	2 : one that has a monopoly
+
+	Source: Merriam-Webster's Dictionary of Law, © 1996 Merriam-Webster, Inc.
+
+I think our "superior product and skill" is what makes us not a
+monopoly :)
+
+Besides, the *BSD developers routinely use our code to write their own
+drivers (looking at how things are done) so in the end, having Linux
+support a device helps them out too.  So the "exclude competition"
+portion of the above definition is also false...
+
+thanks,
 
 greg k-h

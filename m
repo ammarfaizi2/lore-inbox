@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbVLGO0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbVLGO0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbVLGO0r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 09:26:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbVLGO0r
+	id S1751085AbVLGO0F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 09:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbVLGO0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 09:26:47 -0500
-Received: from nproxy.gmail.com ([64.233.182.203]:34701 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751087AbVLGO0q convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 09:26:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dhk/1YgypYurMLAfJCt3V4zo8XHzCkkdoL8SsD6OYhkdnwua0ISwB0CitcZKTlPySMV6mzbBg4x6a6gerdCoOFSqzjF/XzwAB7ifzisqaStfw9OgKjxQsK/o/DqTDphPBLWikOHPZVP4fJ1kAM9LsRPTIaquwIzASVPlFsln/ns=
-Message-ID: <58cb370e0512070626w735004afgf8cde34b8549fbdc@mail.gmail.com>
-Date: Wed, 7 Dec 2005 15:26:45 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: [RFC]add ACPI hooks for IDE suspend/resume
-Cc: Shaohua Li <shaohua.li@intel.com>, linux-ide <linux-ide@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, pavel <pavel@ucw.cz>,
-       Len Brown <len.brown@intel.com>, akpm <akpm@osdl.org>
-In-Reply-To: <58cb370e0512070619k17022317v8e871dc3f9cafb9@mail.gmail.com>
+	Wed, 7 Dec 2005 09:26:05 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32391 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751085AbVLGO0E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 09:26:04 -0500
+Date: Wed, 7 Dec 2005 09:25:47 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cuia.boston.redhat.com
+To: Michael Poole <mdpoole@troilus.org>
+cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+In-Reply-To: <87iru2c0zc.fsf@graviton.dyn.troilus.org>
+Message-ID: <Pine.LNX.4.63.0512070925230.17172@cuia.boston.redhat.com>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+ <200512051826.06703.andrew@walrond.org> <1133817575.11280.18.camel@localhost.localdomain>
+ <1133817888.9356.78.camel@laptopd505.fenrus.org> <1133819684.11280.38.camel@localhost.localdomain>
+ <4394D396.1020102@am.sony.com> <20051206041215.GC26602@kroah.com>
+ <87iru2c0zc.fsf@graviton.dyn.troilus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1133849404.3026.10.camel@sli10-mobl.sh.intel.com>
-	 <20051206222001.GA14171@srcf.ucam.org>
-	 <58cb370e0512070017u606ee22fse207b9a859856dd4@mail.gmail.com>
-	 <20051207131454.GA16558@srcf.ucam.org>
-	 <58cb370e0512070619k17022317v8e871dc3f9cafb9@mail.gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
-> On 12/7/05, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> > On Wed, Dec 07, 2005 at 09:17:31AM +0100, Bartlomiej Zolnierkiewicz wrote:
-> >
-> > > Isn't ide-io.c:ide_{start,complete}_power_step() enough?
+On Mon, 5 Dec 2005, Michael Poole wrote:
 
-Why feeding device with ACPI taskfile(s) can't be added to
-the existing suspend/resume state machine (ide_*_power_step)?
+> Most likely people bring up the "derivative works" issue because
+> that's what the GPL says it affects.  The FSF contends that linking
+> creates a derivative work, but is curiously quiet when people ask for
+> statutory or case law to support that claim.
 
-> > No.
->
-> Why? :)
+For statically linked programs this is quite easy to find.
+
+-- 
+All Rights Reversed

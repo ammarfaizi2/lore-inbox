@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751726AbVLGSfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751740AbVLGSiU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751726AbVLGSfM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 13:35:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751728AbVLGSfM
+	id S1751740AbVLGSiU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 13:38:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751738AbVLGSiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 13:35:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:29389 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751726AbVLGSfL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 13:35:11 -0500
-Date: Wed, 7 Dec 2005 09:56:14 -0800
-From: Greg KH <gregkh@suse.de>
-To: Eduardo Pereira Habkost <ehabkost@mandriva.com>
-Cc: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH 00/10] usb-serial: Switches from spin lock to atomic_t.
-Message-ID: <20051207175614.GA29117@suse.de>
-References: <20051206095610.29def5e7.lcapitulino@mandriva.com.br> <20051207164118.GA28032@suse.de> <20051207145113.4cbdc264.lcapitulino@mandriva.com.br> <20051207171332.GI20451@duckman.conectiva>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051207171332.GI20451@duckman.conectiva>
-User-Agent: Mutt/1.5.11
+	Wed, 7 Dec 2005 13:38:20 -0500
+Received: from silver.veritas.com ([143.127.12.111]:25655 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1751732AbVLGSiT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 13:38:19 -0500
+Date: Wed, 7 Dec 2005 18:37:22 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+In-Reply-To: <20051206204336.GA12248@tau.solarneutrino.net>
+Message-ID: <Pine.LNX.4.61.0512071803300.2975@goblin.wat.veritas.com>
+References: <Pine.LNX.4.63.0512012040390.5777@kai.makisara.local>
+ <Pine.LNX.4.64.0512011136000.3099@g5.osdl.org> <20051201195657.GB7236@tau.solarneutrino.net>
+ <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com>
+ <20051202180326.GB7634@tau.solarneutrino.net>
+ <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com>
+ <20051202194447.GA7679@tau.solarneutrino.net>
+ <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com>
+ <20051206160815.GC11560@tau.solarneutrino.net>
+ <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
+ <20051206204336.GA12248@tau.solarneutrino.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 07 Dec 2005 18:37:26.0251 (UTC) FILETIME=[454383B0:01C5FB5D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 03:13:32PM -0200, Eduardo Pereira Habkost wrote:
-> I have a small question: in my view, this patch series is a small
-> step towards implementing the usb-serial drivers The Right Way, as it
-> removes a a bit of duplicated code.
+On Tue, 6 Dec 2005, Ryan Richter wrote:
+> On Tue, Dec 06, 2005 at 08:31:43PM +0000, Hugh Dickins wrote:
+> > Thanks for the further report.  And you had my st.c patch in along
+> > with 2.6.14.3, but it still happened, very much like before (except the
+> > latter errors, general protection fault onwards - but once we get into
+> > using one page for two uses at the same time, anything can go wrong).
+> > 
+> > I've been staring and thinking, but no inspiration yet.
+> 
+> That's correct, thanks for looking.  Let me know if there's anything I
+> could do get more information.
 
-It doesn't remove any "duplicated code", it only changes a spinlock to
-an atomic_t for one single value (which I personally do not think is the
-best thing to do, and based on the number of comments on this thread, I
-think others also feel this way.)
+Still no luck with it, I'm afraid: I've found no error in st.c,
+beyond what the patch already fixed, to account for what you see.
 
-> If we start to do The Big Change to serial_core , probably we would
-> make further refactorings on these parts, going towards The Right Way
-> to implement the drivers.
+I have noticed that struct st_buffer's unsigned char do_dio ought to be
+unsigned short, in order to accommodate its maximum value of 256; but
+that would not account for your symptoms, nor does taper approach that
+maximum.
 
-Sure, that's the way kernel development is done.
+The symptoms are consistent with that do_dio field (near the start of
+struct st_buffer) being corrupted, infrequently but repeatedly - the
+same page has been mis-released three times before your first error
+message.  But I see nothing wrong with st.c's handling of do_dio,
+nor with get_user_pages' returned count.
 
-> My question would be: where would the small refactorings belong, while
-> the big change to serial_core is work in progress? I would like them
-> to go to some tree for testing, while the work is being done, instead
-> of pushing lots of changes later, but I don't know if there is someone
-> who we could send them.
+So I think the best I can suggest is that you rebuild your kernel with
+CONFIG_DEBUG_SLAB=y, and see if that sheds any light.  And if you don't
+mind doing so, advancing to 2.6.15-rc5 (which includes my patch) with
+CONFIG_DEBUG_SLAB=y would be even better: there's a chance it's a bug
+that's already been fixed.  Though that won't really be proved if you
+don't hit the problem, since the new kernel will be sufficiently
+different that it might just have shifted the bug aside.
 
-The "normal" way of doing work like this is, do it somewhere, and then
-break it all down into a series of steps, after you have figured out
-exactly where you are going to end up.
+To be honest, the symptoms seem a little too regular to blame someone
+overrunning their slab; but I've searched in vain and must move on.
 
-Feel free to send me any patches that you feel should be applied that
-work toward this end goal.
-
-thanks,
-
-greg k-h
+Hugh

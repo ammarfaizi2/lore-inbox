@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbVLGMqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbVLGMsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbVLGMqw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 07:46:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbVLGMqw
+	id S1751024AbVLGMsX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 07:48:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbVLGMsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 07:46:52 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:17057 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750977AbVLGMqv (ORCPT
+	Wed, 7 Dec 2005 07:48:23 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:64865 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751021AbVLGMsV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 07:46:51 -0500
-Date: Wed, 7 Dec 2005 13:40:53 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, linux-kernel@vger.kernel.org, rostedt@goodmis.org,
-       johnstul@us.ibm.com
-Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
-In-Reply-To: <4396C2EB.1000203@yahoo.com.au>
-Message-ID: <Pine.LNX.4.61.0512071335180.1609@scrub.home>
-References: <20051206000126.589223000@tglx.tec.linutronix.de>
- <Pine.LNX.4.61.0512061628050.1610@scrub.home> <1133908082.16302.93.camel@tglx.tec.linutronix.de>
- <20051207013122.3f514718.akpm@osdl.org> <20051207101137.GA25796@elte.hu>
- <4396B81E.4030605@yahoo.com.au> <20051207104900.GA26877@elte.hu>
- <4396C2EB.1000203@yahoo.com.au>
+	Wed, 7 Dec 2005 07:48:21 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=pqQJOIKzVrWD7qdk3l6PsnA+d1XH+iUDCf7PP/yyijK/ZYFs6YWNTw1LLoyGAAb782HOkMVMHMBdQYnGgE4t0svT2R0xiQ8Q8eha7rqHF88dotFJRccWhMtrMtGPuZSOx29+LwCjgYL29ww6rbQu+HjQuRWNinScvUfYBu5VPdE=
+Message-ID: <4396DA09.8040800@gmail.com>
+Date: Wed, 07 Dec 2005 21:48:09 +0900
+From: Tejun <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Boot <bootc@bootc.net>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
+       linux-ide@vger.kernel.org
+Subject: Re: 2.6.15-rc5-mm1 sata_sil regression
+References: <4396CB79.5040408@bootc.net>
+In-Reply-To: <4396CB79.5040408@bootc.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 7 Dec 2005, Nick Piggin wrote:
-
-> Sure... hmm, the names timeout and timer themselves have something
-> vagely wrong about them, but I can't quite place my finger on it,
-> not a real worry though...
+Chris Boot wrote:
+> Hi all,
 > 
-> Maybe it is that timeout is an end result, but timer is a mechanism.
-> So maybe it should be 'struct interval', 'struct timeout';
-> or 'struct timer', 'struct timeout_timer'.
+> I just upgraded to 2.6.15-rc5-mm1 from 2.6.15-rc2-mm1 and sata_sil 
+> refused to recognise the two SATA drives that are connected to it:
 > 
-> But I don't know really, it isn't a big deal.
 
-Nick, thanks for speaking up about this.
-My mistake was to make a big deal out of it, because I knew it would 
-confuse more people. After I got the heat for this, it seems nobody else 
-want to get flamed for it.
+The sata_sil driver in the current ALL branch doesn't work due to the 
+collision between pio changes and sata_sil irq handling improvements.
 
-bye, Roman
+Jeff, maybe the sil branch shouldn't be merged into ALL for the time being?
+
+-- 
+tejun

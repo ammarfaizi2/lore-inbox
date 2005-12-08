@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbVLHQOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbVLHQP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbVLHQOr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 11:14:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVLHQOr
+	id S932191AbVLHQP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 11:15:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbVLHQP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 11:14:47 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:61143 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751213AbVLHQOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 11:14:46 -0500
-Subject: Re: How to enable/disable security features on mmap() ?
-From: Arjan van de Ven <arjan@infradead.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Emmanuel Fleury <emmanuel.fleury@labri.fr>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0512081051250.13997@chaos.analogic.com>
-References: <43983EBE.2080604@labri.fr>
-	 <1134051272.2867.63.camel@laptopd505.fenrus.org>
-	 <43984154.5050502@labri.fr>  <43984595.1090406@labri.fr>
-	 <1134053349.2867.65.camel@laptopd505.fenrus.org> <4398493E.50508@labri.fr>
-	 <Pine.LNX.4.61.0512081011020.32448@chaos.analogic.com>
-	 <1134056272.2867.73.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0512081051250.13997@chaos.analogic.com>
-Content-Type: text/plain
-Date: Thu, 08 Dec 2005 17:14:41 +0100
-Message-Id: <1134058481.2867.85.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 8 Dec 2005 11:15:28 -0500
+Received: from web34104.mail.mud.yahoo.com ([66.163.178.102]:53390 "HELO
+	web34104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932191AbVLHQP0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 11:15:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=mM88Z4W9KJMl1LZfHcqG0uErBuQu3pfJOdRqKu/PhGoMW5rmVfOMxo1qyN3XgzOzyn9VFFA/VsGhQHe3l25srliUjl235KO4stYuWI7hOWrZsuXXEhAfHc/D6kwjwGmnyOvOa/axpqkvDmicFYtRfKlR9HYjV5Elr1DF5ZINLoA=  ;
+Message-ID: <20051208161525.88155.qmail@web34104.mail.mud.yahoo.com>
+Date: Thu, 8 Dec 2005 08:15:25 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: Re: nfs question - ftruncate vs pwrite
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Peter Staubach <staubach@redhat.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1134017608.8002.55.camel@lade.trondhjem.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> 0xbfbb6d74	Stack
-> 0xb7e97008	Heap
-> 0x080495e8	_end[]
+--- Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> That is as expected. The ftruncate() causes an immediate change in
+> length of the file on the server, and so reads will. In the case of
+> pwrite(), that is cached on the client until you fsync/close, and so the
+> server returns short reads.
 > 
+> > Since this is using the buffer cache (not opened with O_DIRECT), and since we know we are
+> > extending the file... is it strictly necessary to read in pages of 0's from the server?
+> 
+> Possibly not, but is this a common case that is worth optimising for?
 
-there is still a HUGE gap there....
+I am attempting to write a low-latency logger.  'Low' meaning a system call is too slow (measured
+at 0.3 microseconds) for each message.  So I am trying to use the page cache to handle the
+background scheduling of bulk writes to the server, and as an extra layer of reliability in the
+event of a program crash.  The use of pwrite seems to be the best option at this time as spending
+a few milliseconds for an ftruncate to a show-stopper.
+
+I could also just write locally into a shared memory region, and have my own background copy to
+the server, but this seems a bit wasteful when the page cache does most of this already, and can
+optimize page-sized writes.
+
+-Kenny
 
 
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

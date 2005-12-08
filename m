@@ -1,257 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbVLHDCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030389AbVLHDG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965059AbVLHDCt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 22:02:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbVLHDCt
+	id S1030389AbVLHDG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 22:06:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbVLHDG4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 22:02:49 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:14056 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S965055AbVLHDCs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 22:02:48 -0500
-Date: Thu, 8 Dec 2005 03:02:42 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: randy_d_dunlap@linux.intel.com, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: RFC: ACPI/scsi/libata integration and hotswap
-Message-ID: <20051208030242.GA19923@srcf.ucam.org>
-Mime-Version: 1.0
+	Wed, 7 Dec 2005 22:06:56 -0500
+Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:57484 "EHLO
+	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
+	id S1030389AbVLHDGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 22:06:55 -0500
+From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Message-Id: <200512080302.jB832PLx008014@sprite.physics.adelaide.edu.au>
+Subject: Re: 2.6.14-rt21: slow-running clock
+To: johnstul@us.ibm.com (john stultz)
+Date: Thu, 8 Dec 2005 13:32:25 +1030 (CST)
+Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1134009933.10613.73.camel@cog.beaverton.ibm.com> from "john stultz" at Dec 07, 2005 06:45:33 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> On Thu, 2005-12-08 at 09:24 +1030, Jonathan Woithe wrote:
+> > > Odd. I'm not sure why the acpi_pm wasn't chosen by default if it was
+> > > available and the TSC fell back to the c3tsc. It might be something in
+> > > the -RT tree that's changed that bit. Could you try the following and
+> > > see if it doesn't resolve the timekeeping problems you're seeing?
+> > > 
+> > > echo "acpi_pm" >  /sys/devices/system/clocksource/clocksource0/current_clocksource
+> > 
+> > Upon executing the above command the system time started behaving correctly
+> > once more.
+> Ok, something in the -rt patches is probably changing the selection
+> order.
 
-The included patch does three things:
+Is there any way to change the clock source in a normal 2.6.14 kernel?  If
+there was I could force the source to c3tsc in that and see if the problem
+affects the c3tsc in vanilla kernels.
 
-1) It adds basic support for binding SCSI and SATA devices to ACPI 
-device handles. At the moment this is limited to hosts, and in practice 
-it's probably limited to SATA ones (ACPI doesn't spec how SCSI devices 
-should appear in the DSDT, so I'm guessing that in general they don't). 
-Given a host, you can DEVICE_ACPI_HANDLE(dev) it to get the handle to 
-the ACPI device - this should be handy for implementing suspend 
-functions, since the methods should be in a standard location underneath 
-this.
+> > I'm also wondering whether this might be related to one other thing I
+> > noticed a week or so back (also reported to the list, but thus far no
+> > followups). If I enabled the (new) "High resolution timers" feature (as
+> > distinct from HPET), things like /usr/bin/sleep run for far longer than
+> > they should irrespective of machine load.  For example, "sleep 1" from bash
+> > actually delays 38 seconds, not 1 second as expected.
+> 
+> Does disabling the "High resolution timers" feature change the behavior
+> all?
 
-Support for binding the devices hasn't been implemented yet. I'm not 
-entire sure where they should be bound (the target, presumably?), and I 
-haven't actually got it to work...
+I should clarify.  Everything I've given you thus far has been with the
+"high resolution timers" feature disabled.  Two or so weeks ago I tried
+enabling it and that's when "sleep 1" took 38 seconds to complete. 
+Disabling "high resoltion timers" at least made "sleep 1" behave somewhat
+saner.  I don't know if having the high res timers enabled affects the
+accuracy of the system clock however.  I'll test this tonight.
 
-2) It adds support for attaching notification events to the host. These 
-can be host-driver specific (they're just part of the host template). 
-Whenever the hardware generates an event on that bus, the host will be 
-called. I've added one of these to ata_piix (since that's what I have), 
-which should really be implemented in the host and only call the generic 
-one when appropriate. But still.
+> > In other words, c3tsc wasn't there but tsc was.  In terms of time accuracy
+> > it seemed that with idle=poll the system time was kept accurately in this
+> > case as well.  I also noted in dmesg output the following:
+> > 
+> >   Time: tsc clocksource has been installed.
+> > 
+> > Unlike the normal case (where idle=poll was not specified) there was no
+> > mention of a "fallback" to a "C3-safe tsc".
+> 
+> Thats very interesting that idle=poll worked around the issue. More
+> digging will be necessary.
 
-3) Adds a generic libata notification handler that currently treats all 
-notifications as drive removal/insertion. It then calls Lukasz 
-Kosewski's hotplug code to remove/add the drive as appropriate.
+It possibly suggests that it's the c3tsc timer which is faulty as opposed to
+the tsc timer (or maybe it's just a mode thing).  Note that even with
+idle=poll it was the tsc timer (instead of the acpi_pm timer) which was
+selected, so "idle=poll" doesn't work around the timer selection issue.  It
+seems that there might be two separate problems: timer source selection and
+c3tsc accuracy.  Whether they are both present in vanilla 2.6.14 (or simply
+masked due to selection of acpi_pm) is not clear.
 
-Most laptops generate ACPI notifications requesting bus rescans whenever 
-a bay drive is inserted or removed. This handles the event 
-appropriately. On my Dell d610, removing or plugging the drive results 
-in it appearing or disappearing from /proc/scsi/scsi as appropriate.
-
-Patch:
-
-diff -u drivers/scsi/ata_piix.c /tmp/drivers/scsi/ata_piix.c
---- drivers/scsi/ata_piix.c	2005-12-05 14:30:58 +0000
-+++ /tmp/drivers/scsi/ata_piix.c	2005-12-08 02:16:59 +0000
-@@ -148,6 +148,7 @@
- 	.ordered_flush		= 1,
- 	.resume			= ata_scsi_device_resume,
- 	.suspend		= ata_scsi_device_suspend,
-+	.acpi_notify		= ata_acpi_notify,
- };
- 
- static const struct ata_port_operations piix_pata_ops = {
-diff -u drivers/scsi/libata-core.c /tmp/drivers/scsi/libata-core.c
---- drivers/scsi/libata-core.c	2005-12-08 02:27:02 +0000
-+++ /tmp/drivers/scsi/libata-core.c	2005-12-08 02:16:50 +0000
-@@ -50,6 +50,7 @@
- #include <linux/workqueue.h>
- #include <linux/jiffies.h>
- #include <linux/scatterlist.h>
-+#include <linux/acpi.h>
- #include <scsi/scsi.h>
- #include "scsi_priv.h"
- #include <scsi/scsi_cmnd.h>
-@@ -75,9 +76,11 @@
- 				unsigned int *xfer_shift_out);
- static void __ata_qc_complete(struct ata_queued_cmd *qc);
- static void ata_pio_error(struct ata_port *ap);
-+static int ata_bus_probe(struct ata_port *ap);
- 
- static unsigned int ata_unique_id = 1;
- static struct workqueue_struct *ata_wq;
-+static struct workqueue_struct *ata_hotplug_wq;
- 
- int atapi_enabled = 1;
- module_param(atapi_enabled, int, 0444);
-@@ -88,6 +91,17 @@
- MODULE_LICENSE("GPL");
- MODULE_VERSION(DRV_VERSION);
- 
-+void ata_acpi_notify(acpi_handle device, u32 type, void *data) {
-+	struct device *dev = acpi_get_physical_device(device);
-+	struct Scsi_Host *shost =  dev_to_shost(dev);
-+	struct ata_port *ap = (struct ata_port *) &shost->hostdata[0];
-+	
-+	if (!ata_bus_probe(ap))
-+		ata_hotplug_plug(ap);
-+	else
-+		ata_hotplug_unplug(ap);
-+}
-+
- /**
-  *	ata_tf_load_pio - send taskfile registers to host controller
-  *	@ap: Port to which output is sent
-diff -u drivers/scsi/scsi.c /tmp/drivers/scsi/scsi.c
---- drivers/scsi/scsi.c	2005-12-04 16:48:07 +0000
-+++ /tmp/drivers/scsi/scsi.c	2005-12-08 02:16:28 +0000
-@@ -55,6 +55,7 @@
- #include <linux/interrupt.h>
- #include <linux/notifier.h>
- #include <linux/cpu.h>
-+#include <linux/acpi.h>
- 
- #include <scsi/scsi.h>
- #include <scsi/scsi_cmnd.h>
-@@ -1305,6 +1306,48 @@
- #define unregister_scsi_cpu()
- #endif /* CONFIG_HOTPLUG_CPU */
- 
-+#ifdef CONFIG_ACPI
-+static int scsi_acpi_find_device(struct device *dev, acpi_handle *handle)
-+{
-+	return -ENODEV;
-+}
-+
-+void ata_acpi_notify(acpi_handle handle, u32 type, void *data);
-+
-+static int scsi_acpi_find_channel(struct device *dev, acpi_handle *handle)
-+{
-+	int i;
-+	struct Scsi_Host *shost;
-+	
-+	if (sscanf(dev->bus_id, "host%u", &i) != 1) {
-+		return -ENODEV;
-+	}
-+
-+	*handle = acpi_get_child(DEVICE_ACPI_HANDLE(dev->parent), (acpi_integer) i);	
-+	if (!*handle)
-+		return -ENODEV;
-+
-+	shost = dev_to_shost(dev);
-+	
-+	if (shost->hostt->acpi_notify) { 
-+		acpi_install_notify_handler(*handle, ACPI_ALL_NOTIFY, &ata_acpi_notify, (void *)i);
-+	}
-+	
-+	return 0;
-+}
-+
-+static struct acpi_bus_type scsi_acpi_bus = {
-+	.bus = &scsi_bus_type,
-+	.find_bridge = scsi_acpi_find_channel,
-+	.find_device = scsi_acpi_find_device,
-+};
-+
-+static __init int scsi_acpi_register(void)
-+{
-+	return register_acpi_bus_type(&scsi_acpi_bus);
-+}
-+#endif /* CONFIG_ACPI */
-+
- MODULE_DESCRIPTION("SCSI core");
- MODULE_LICENSE("GPL");
- 
-@@ -1333,6 +1376,11 @@
- 	error = scsi_sysfs_register();
- 	if (error)
- 		goto cleanup_sysctl;
-+#ifdef CONFIG_ACPI
-+	error = scsi_acpi_register();
-+	if (error)
-+		goto cleanup_sysfs;
-+#endif
- 
- 	for (i = 0; i < NR_CPUS; i++)
- 		INIT_LIST_HEAD(&per_cpu(scsi_done_q, i));
-@@ -1343,6 +1391,8 @@
- 	printk(KERN_NOTICE "SCSI subsystem initialized\n");
- 	return 0;
- 
-+cleanup_sysfs:
-+	scsi_sysfs_unregister();
- cleanup_sysctl:
- 	scsi_exit_sysctl();
- cleanup_hosts:
---- include/linux/libata.h	2005-12-05 14:32:50 +0000
-+++ /tmp/include/linux/libata.h	2005-12-08 02:35:59 +0000
-@@ -453,7 +468,9 @@
- extern int ata_scsi_device_suspend(struct scsi_device *);
- extern int ata_device_resume(struct ata_port *, struct ata_device *);
- extern int ata_device_suspend(struct ata_port *, struct ata_device *);
--
-+#ifdef CONFIG_ACPI
-+extern void ata_acpi_notify(acpi_handle device, u32 type, void *data);
-+#endif
- /*
-  * Default driver ops implementations
-  */
-diff -u include/linux/libata.h /tmp/include/linux/libata.h
---- include/linux/libata.h	2005-12-05 14:32:50 +0000
-+++ /tmp/include/linux/libata.h	2005-12-08 02:10:03 +0000
-@@ -448,12 +463,16 @@
- extern int ata_scsi_error(struct Scsi_Host *host);
- extern int ata_scsi_release(struct Scsi_Host *host);
- extern unsigned int ata_host_intr(struct ata_port *ap, struct ata_queued_cmd *qc);
-+extern void ata_hotplug_unplug(struct ata_port *ap);
-+extern void ata_hotplug_plug(struct ata_port *ap);
- extern int ata_ratelimit(void);
- extern int ata_scsi_device_resume(struct scsi_device *);
- extern int ata_scsi_device_suspend(struct scsi_device *);
- extern int ata_device_resume(struct ata_port *, struct ata_device *);
- extern int ata_device_suspend(struct ata_port *, struct ata_device *);
--
-+#ifdef CONFIG_ACPI
-+extern void ata_acpi_notify(acpi_handle device, u32 type, void *data);
-+#endif
- /*
-  * Default driver ops implementations
-  */
-diff -u include/scsi/scsi_host.h /tmp/include/scsi/scsi_host.h
---- include/scsi/scsi_host.h	2005-11-14 14:57:13 +0000
-+++ /tmp/include/scsi/scsi_host.h	2005-12-08 02:12:14 +0000
-@@ -5,6 +5,7 @@
- #include <linux/list.h>
- #include <linux/types.h>
- #include <linux/workqueue.h>
-+#include <linux/acpi.h>
- 
- struct block_device;
- struct completion;
-@@ -300,6 +301,13 @@
- 	 */
- 	int (*resume)(struct scsi_device *);
- 	int (*suspend)(struct scsi_device *);
-+	
-+#ifdef CONFIG_ACPI
-+	/*
-+	 * ACPI notification handler
-+	 */
-+	void (*acpi_notify)(acpi_handle device, u32 type, void *data); 
-+#endif
- 
- 	/*
- 	 * Name of proc directory
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Regards
+  jonathan

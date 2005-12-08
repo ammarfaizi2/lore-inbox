@@ -1,102 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932658AbVLHWef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932681AbVLHWfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932658AbVLHWef (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 17:34:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932662AbVLHWee
+	id S932681AbVLHWfa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 17:35:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932673AbVLHWfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 17:34:34 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:63430 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932658AbVLHWee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 17:34:34 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: discuss@x86-64.org
-Subject: Re: 2.6.15-rc5-mm1 (x86_64-hpet-overflow.patch breaks resume from disk)
-Date: Thu, 8 Dec 2005 23:35:49 +0100
+	Thu, 8 Dec 2005 17:35:30 -0500
+Received: from uproxy.gmail.com ([66.249.92.196]:20082 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932681AbVLHWf3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 17:35:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:content-type:content-transfer-encoding:message-id;
+        b=UII5I13HcgnB10Ey6Pk37jRKfOvx3udm3FNDObkyUQ2PsQ/e8VgMv05cmhSUTBFJMSbgo2RNf77dzh+px55mCUp1Vn1W9LaUG2nCk1Ghrg5y93csuXxXZRkupmFe34btEqGt2hPkMp896XOT9FJ4BXKH/b1TQg6/0/5KeFFJZ34=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Decrease number of pointer derefs in flexcop-fe-tuner.c
+Date: Thu, 8 Dec 2005 23:35:55 +0100
 User-Agent: KMail/1.9
-Cc: "Jan Beulich" <JBeulich@novell.com>, "Andrew Morton" <akpm@osdl.org>,
-       "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <20051204232153.258cd554.akpm@osdl.org> <43980058.76F0.0078.0@novell.com> <200512081153.51397.rjw@sisk.pl>
-In-Reply-To: <200512081153.51397.rjw@sisk.pl>
+Cc: Patrick Boettcher <patrick.boettcher@desy.de>,
+       Andrew Morton <akpm@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200512082335.50417.rjw@sisk.pl>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200512082335.55331.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Update:
+Hi,
 
-On Thursday, 8 December 2005 11:53, Rafael J. Wysocki wrote:
-> On Thursday, 8 December 2005 09:43, Jan Beulich wrote:
-> > I don't know how resume normally handles the re-syncing of the wall
-> > clock, but the problem here is obvious: do_timer runs a loop to
-> > increment jiffies, which may require significant amounts of time
-> > (depending how long the system was sleeping).
-> > 
-> > Whatever mechanism was previously used to adjust the wall clock during
-> > resume, this (a) has to happen before enabling interrupts and (b) has to
-> > communicate to the timer interrupt handler to adjust its last time stamp
-> > taken (to compare against in the next run). Clearly, the code was broken
-> > already before, as it doesn't handle the resume case (where the HPET
-> > value read is entirely unrelated to the one read during the last timer
-> > interrupt before suspend) at all, and even in the TSC timer case it
-> > simply checks whether the TSC delta is negative (which is not a valid
-> > condition, as, between the booting of the system and the OS resume there
-> > may elapse more time than the system was running altogether prior to
-> > suspend).
-> 
-> Well, I'm not an expert, but I think I understand your argumentation.
-> However, the problem is that resume _works_ without the patch
-> and doesn't work with it, which is a regression.  (BTW, without
-> the patch the wall clock is evidently correct after resume.)
-> 
-> Frankly I don't know who should fix the broken code,
+Here's a small patch to decrease the number of pointer derefs in
+drivers/media/dvb/b2c2/flexcop-fe-tuner.c
 
-FWIW, I have tried to fix it myself.
+Benefits of the patch:
+ - Fewer pointer dereferences should make the code slightly faster.
+ - Size of generated code is smaller
+ - Improved readability
 
-The appended patch seems to work on my box, but I'm afraid
-it's not the right fix (at least in general).  Please advise.
-
-Greetings,
-Rafael
+Please consider applying.
 
 
- arch/x86_64/kernel/time.c |   15 +++++++++++++++
- 1 files changed, 15 insertions(+)
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-Index: linux-2.6.15-rc5-mm1/arch/x86_64/kernel/time.c
-===================================================================
---- linux-2.6.15-rc5-mm1.orig/arch/x86_64/kernel/time.c	2005-12-08 21:39:29.000000000 +0100
-+++ linux-2.6.15-rc5-mm1/arch/x86_64/kernel/time.c	2005-12-08 22:44:48.000000000 +0100
-@@ -1117,6 +1117,7 @@
- 	unsigned long sec;
- 	unsigned long ctime = get_cmos_time();
- 	unsigned long sleep_length = (ctime - sleep_start) * HZ;
-+	long offset = 0;
- 
- 	if (vxtime.hpet_address)
- 		hpet_reenable();
-@@ -1125,6 +1126,20 @@
- 
- 	sec = ctime + clock_cmos_diff;
- 	write_seqlock_irqsave(&xtime_lock,flags);
-+	if (vxtime.hpet_address)
-+		offset = hpet_readl(HPET_COUNTER);
-+	if (hpet_use_timer) {
-+		unsigned int hi1 = hpet64 > 0 ? hpet_readl(HPET_COUNTER+4) : 0;
+ drivers/media/dvb/b2c2/flexcop-fe-tuner.c |   31 ++++++++++++++++++------------
+ 1 files changed, 19 insertions(+), 12 deletions(-)
+
+orig:
+   text    data     bss     dec     hex filename
+   3072     424       0    3496     da8 drivers/media/dvb/b2c2/flexcop-fe-tuner.o
+
+patched:
+   text    data     bss     dec     hex filename
+   3041     424       0    3465     d89 drivers/media/dvb/b2c2/flexcop-fe-tuner.o
+
+--- linux-2.6.15-rc5-git1-orig/drivers/media/dvb/b2c2/flexcop-fe-tuner.c	2005-12-04 18:47:50.000000000 +0100
++++ linux-2.6.15-rc5-git1/drivers/media/dvb/b2c2/flexcop-fe-tuner.c	2005-12-08 22:14:16.000000000 +0100
+@@ -485,12 +485,16 @@ static struct stv0297_config alps_tdee4_
+ /* try to figure out the frontend, each card/box can have on of the following list */
+ int flexcop_frontend_init(struct flexcop_device *fc)
+ {
++	struct dvb_frontend_ops *ops;
 +
-+		offset = hpet_readl(HPET_T0_CMP) - hpet_tick;
-+		if (hpet64 > 0)
-+			offset += (long)(offset >= 0 ? hi1 : hpet_readl(HPET_COUNTER+4)) << 32;
-+		else
-+			offset = (unsigned int)offset;
-+	}
-+	if (vxtime.mode == VXTIME_HPET)
-+		vxtime.last = offset;
-+	rdtscll_sync(&vxtime.last_tsc);
- 	xtime.tv_sec = sec;
- 	xtime.tv_nsec = 0;
- 	write_sequnlock_irqrestore(&xtime_lock,flags);
+ 	/* try the sky v2.6 (stv0299/Samsung tbmu24112(sl1935)) */
+ 	if ((fc->fe = stv0299_attach(&samsung_tbmu24112_config, &fc->i2c_adap)) != NULL) {
+-		fc->fe->ops->set_voltage = flexcop_set_voltage;
++		ops = fc->fe->ops;
++		
++		ops->set_voltage = flexcop_set_voltage;
+ 
+-		fc->fe_sleep             = fc->fe->ops->sleep;
+-		fc->fe->ops->sleep       = flexcop_sleep;
++		fc->fe_sleep             = ops->sleep;
++		ops->sleep               = flexcop_sleep;
+ 
+ 		fc->dev_type          = FC_SKY;
+ 		info("found the stv0299 at i2c address: 0x%02x",samsung_tbmu24112_config.demod_address);
+@@ -522,15 +526,17 @@ int flexcop_frontend_init(struct flexcop
+ 	} else
+ 	/* try the sky v2.3 (vp310/Samsung tbdu18132(tsa5059)) */
+ 	if ((fc->fe = vp310_attach(&skystar23_samsung_tbdu18132_config, &fc->i2c_adap)) != NULL) {
+-		fc->fe->ops->diseqc_send_master_cmd = flexcop_diseqc_send_master_cmd;
+-		fc->fe->ops->diseqc_send_burst      = flexcop_diseqc_send_burst;
+-		fc->fe->ops->set_tone               = flexcop_set_tone;
+-		fc->fe->ops->set_voltage            = flexcop_set_voltage;
++		ops = fc->fe->ops;
++		
++		ops->diseqc_send_master_cmd = flexcop_diseqc_send_master_cmd;
++		ops->diseqc_send_burst      = flexcop_diseqc_send_burst;
++		ops->set_tone               = flexcop_set_tone;
++		ops->set_voltage            = flexcop_set_voltage;
+ 
+-		fc->fe_sleep                        = fc->fe->ops->sleep;
+-		fc->fe->ops->sleep                  = flexcop_sleep;
++		fc->fe_sleep                = ops->sleep;
++		ops->sleep                  = flexcop_sleep;
+ 
+-		fc->dev_type                        = FC_SKY_OLD;
++		fc->dev_type                = FC_SKY_OLD;
+ 		info("found the vp310 (aka mt312) at i2c address: 0x%02x",skystar23_samsung_tbdu18132_config.demod_address);
+ 	}
+ 
+@@ -540,8 +546,9 @@ int flexcop_frontend_init(struct flexcop
+ 	} else {
+ 		if (dvb_register_frontend(&fc->dvb_adapter, fc->fe)) {
+ 			err("frontend registration failed!");
+-			if (fc->fe->ops->release != NULL)
+-				fc->fe->ops->release(fc->fe);
++			ops = fc->fe->ops;
++			if (ops->release != NULL)
++				ops->release(fc->fe);
+ 			fc->fe = NULL;
+ 			return -EINVAL;
+ 		}
+
+
+

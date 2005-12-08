@@ -1,73 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbVLHLsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbVLHMHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750937AbVLHLsw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 06:48:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbVLHLsw
+	id S1751165AbVLHMHy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 07:07:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbVLHMHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 06:48:52 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:59230 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750937AbVLHLsv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 06:48:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iVd5TGlG1IeEXO+91ZZoy0mSiHkiGsNtFmhKfJ1YnoR9eUUvjjoDLxGZdhZfIYU+HBxU0eArmtIsbvbIzOZ130OhIEtglFBMObNtJ+H1/1Amr6OUVrmuERE3UxqX/ln6lLvjTla05FB3OkLvkudx8Pw6XVE1IM7YWVKAWu7n3Mc=
-Message-ID: <5a2cf1f60512080348l408aa3fal5a6f50e4ca37390@mail.gmail.com>
-Date: Thu, 8 Dec 2005 12:48:50 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Felix Oxley <lkml@oxley.org>
-Subject: Re: Runs with Linux (tm)
-Cc: Benjamin LaHaise <bcrl@kvack.org>, Dirk Steuwer <dirk@steuwer.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <B232B187-7141-427B-90BF-AAC2C0A8809B@oxley.org>
-MIME-Version: 1.0
+	Thu, 8 Dec 2005 07:07:54 -0500
+Received: from styx.suse.cz ([82.119.242.94]:51168 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1751090AbVLHMHx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 07:07:53 -0500
+Date: Thu, 8 Dec 2005 13:07:51 +0100
+From: Jiri Benc <jbenc@suse.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Joseph Jezak <josejx@gentoo.org>, mbuesch@freenet.de,
+       linux-kernel@vger.kernel.org, bcm43xx-dev@lists.berlios.de,
+       NetDev <netdev@vger.kernel.org>, Jouni Malinen <jkmaline@cc.hut.fi>
+Subject: Re: Broadcom 43xx first results
+Message-ID: <20051208130751.6586c59d@griffin.suse.cz>
+In-Reply-To: <4394902C.8060100@pobox.com>
+References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>
+	<20051205190038.04b7b7c1@griffin.suse.cz>
+	<4394892D.2090100@gentoo.org>
+	<20051205195543.5a2e2a8d@griffin.suse.cz>
+	<4394902C.8060100@pobox.com>
+X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <20051205121851.GC2838@holomorphy.com>
-	 <20051206011844.GO28539@opteron.random>
-	 <43944F42.2070207@didntduck.org>
-	 <loom.20051206T094816-40@post.gmane.org>
-	 <20051206104652.GB3354@favonius>
-	 <loom.20051206T173458-358@post.gmane.org>
-	 <20051207141720.GA533@kvack.org>
-	 <5a2cf1f60512080142j175bc79eq1b95182d22268b6b@mail.gmail.com>
-	 <B232B187-7141-427B-90BF-AAC2C0A8809B@oxley.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[...]
-> With a logo a PC vendor such as Dell can stick the logo on their PCs
-> if and only if every component in the machine is certified.
-> (Including motherboard, on-board graphics, on-boad-sound, on-board
-> raid etc. etc.)
->
-> This means you or I don't have to try to find out the exact machine
-> specification from Dell and then individually check each part against
-> the hardware database.
+On Mon, 05 Dec 2005 14:08:28 -0500, Jeff Garzik wrote:
+> > Unfortunately, the only long-term solution is to rewrite completely the
+> > current in-kernel ieee80211 code (I would not call it a "stack") or
+> > replace it with something another. The current code was written for
+> > Intel devices and it doesn't support anything else - so every developer
+> 
+> Patently false.
 
-I completely agree with all your arguments. My point is that your
-solution is a long term one. It depends on demand being there, on
-hardware vendors to be educated/lobbied/pressured, on both part
-vendors and part assemblers to use the logos (as a good side effect
-creating the logo might enforce the existance of Linux/Free OS
-specialized hardware companies).
+Maybe some explanation why current in-kernel ieee80211 code needs to be
+rewritten will be useful.
 
-This is a good but long term shot. It will take years before such a
-framework becomes effective for the user.
+1. To support WDS and devices capable to associate with multiple
+networks, ieee80211_device needs to be separated to two (or even more,
+see below) structures - one hardware dependent (channel and so) and one
+link dependent (BSSID etc.).
 
-For example. If I have to buy a laptop today, I will have a hard time
-finding a computer fully supported under Linux using Free drivers.
+2. To support AP mode, you need to keep a list of associated stations.
+No such list exists now. Furthermore, that list (or that structure) can
+be reused also by a client to store information about AP it is
+associated to. And - possibly - for a list of APs it can associate to,
+i. e. list of found networks. Currently, informations about AP are
+hardwired into ieee80211_device structure.
 
-Let's say that the laptop of my dreams contains a non supported wifi
-driver. I already have a supported exteranl Wifi card. In that case,
-I'd rather pick the tool almost good for the job that shows me as
-profficient under Linux (non certified), than a fully certified laptop
-but that doesn't make me as effective.
+3. Most of WE calls can be handled by ieee80211 itself. The rest should
+be propagated to a driver in some easier way than requiring driver to
+deal with the whole WE stuff itself. Also, exporting callbacks from
+ieee80211 that driver has to set as particular WE handlers seems to be
+unnecessary complicated.
 
-We probably need both the logo/certification and the centralized
-hardware database, but the later might be effective sooner.
+4. Callbacks like handle_auth() that were added some time ago are not
+needed (for explanation, see corresponding thread on netdev).
 
-Jerome
+5. Some less important things, e. g. current very inefficient code which
+deals with found networks.
+
+
+-- 
+Jiri Benc
+SUSE Labs

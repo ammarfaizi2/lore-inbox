@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVLHIV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVLHI3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbVLHIV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 03:21:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbVLHIV0
+	id S1750724AbVLHI3S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 03:29:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbVLHI3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 03:21:26 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:30946 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750746AbVLHIV0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 03:21:26 -0500
-Message-ID: <4397EDDA.5040504@aitel.hist.no>
-Date: Thu, 08 Dec 2005 09:24:58 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Thu, 8 Dec 2005 03:29:18 -0500
+Received: from krusty.dt.E-Technik.uni-dortmund.de ([129.217.163.1]:23430 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S1750724AbVLHI3R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 03:29:17 -0500
+Date: Thu, 8 Dec 2005 09:29:11 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051208082911.GA14325@merlin.emma.line.org>
+Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
+	linux-kernel@vger.kernel.org
+References: <20051203135608.GJ31395@stusta.de> <d120d5000512060845l1d035f46ub8d9334b6936f9e7@mail.gmail.com> <20051207112909.GA4012@merlin.emma.line.org> <200512072229.42335.dtor_core@ameritech.net>
 MIME-Version: 1.0
-To: Chase Venters <chase.venters@clientec.com>
-CC: Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <1133996869.544.112.camel@localhost.localdomain> <9e4733910512071541s1a6215d9pb166bb27e2c579f9@mail.gmail.com> <200512071759.14958.chase.venters@clientec.com>
-In-Reply-To: <200512071759.14958.chase.venters@clientec.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200512072229.42335.dtor_core@ameritech.net>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chase Venters wrote:
+On Wed, 07 Dec 2005, Dmitry Torokhov wrote:
 
->On Wednesday 07 December 2005 05:41 pm, Jon Smirl wrote:
->  
->
->>Can the Linux community justify using ruthless means to force
->>documentation out of vendors? Asking politely doesn't seem to be
->>working -  I suspect it may take something of this magnitude to force
->>a change out of NVidia/ATI.
->>    
->>
->
->Is this a vote? Cause you have mine. :)
->
->Seriously, there is a danger in the move being seen by the press as too 
->adversarial, but with everything I've been reading and seeing lately, I'm 
->starting to think that the NVidia/ATI situation may be the single largest 
->danger to Linux.
->
-This is a win-win situation.  for us, it is NOT a problem if the press
-see the move as too adversarial.  In fact - that would be the best
-outcome of all because then we have the press and general opinion
-against dumb patents.
+> On Wednesday 07 December 2005 06:29, Matthias Andree wrote:
+> > What I'm saying is that people (maintainer) should have a selected
+> > number of people (users) test the patches before they are merged.
+> 
+> And we try. Take for example psmouse_resync patch that is now in -mm.
+> I got about 30 reports that it worked and fixed people's problems before
+> I got it to Andrew. And still as soon as it got to -mm I got a complaint
+> that it failed on one of boxes ;(
 
-Putting an end to stupid patents in general (and software patents
-specifically) is even better than bogging a difficult hw company
-down with lawsuits.
+The important thing is to get these failing boxes into the regular test
+set. I know that's not always easy, because end users tend to go away as
+soon as it works again for them.
 
-If they think the move is too nasty - then it must be because the
-move itself is a bad thing - an opportunity that shouldn't exist, right?
-
-Helge Hafting
-
+-- 
+Matthias Andree

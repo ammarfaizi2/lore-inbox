@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbVLHNju@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbVLHNmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbVLHNju (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 08:39:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751195AbVLHNju
+	id S932096AbVLHNmn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 08:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVLHNmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 08:39:50 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:21897 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1751184AbVLHNjt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 08:39:49 -0500
-Date: Thu, 8 Dec 2005 13:39:45 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Christoph Hellwig <hch@infradead.org>, randy_d_dunlap@linux.intel.com,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-Message-ID: <20051208133945.GA21633@srcf.ucam.org>
-References: <20051208030242.GA19923@srcf.ucam.org> <20051208091542.GA9538@infradead.org> <20051208132657.GA21529@srcf.ucam.org> <20051208133308.GA13267@infradead.org>
+	Thu, 8 Dec 2005 08:42:43 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:24995 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932089AbVLHNmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 08:42:42 -0500
+Date: Thu, 8 Dec 2005 13:42:39 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>, michaelc@cs.wisc.edu,
+       hch@infradead.org, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, open-iscsi@googlegroups.com,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: allowed pages in the block later, was Re: [Ext2-devel] [PATCH] ext3: avoid sending down non-refcounted pages
+Message-ID: <20051208134239.GA13376@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>,
+	michaelc@cs.wisc.edu, linux-fsdevel@vger.kernel.org,
+	ext2-devel@lists.sourceforge.net, open-iscsi@googlegroups.com,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <20051208180900T.fujita.tomonori@lab.ntt.co.jp> <20051208101833.GM14509@schatzie.adilger.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051208133308.GA13267@infradead.org>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+In-Reply-To: <20051208101833.GM14509@schatzie.adilger.int>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 08, 2005 at 01:33:08PM +0000, Christoph Hellwig wrote:
+On Thu, Dec 08, 2005 at 03:18:33AM -0700, Andreas Dilger wrote:
+> What happens on 1kB or 2kB block filesystems (i.e. b_size != PAGE_SIZE)?
+> This will allocate a whole page for each block (which may be considerable
+> overhead on e.g. a 64kB PAGE_SIZE ia64 or PPC system).
 
-> Don't do it at all.  We don't need to fuck up every layer and driver for
-> intels braindamage.
+Yes.  How often do we trigger this codepath?
 
-Doing SATA suspend/resume properly on x86 depends on knowing the ACPI 
-object that corresponds to a host or target. It's also the only way to 
-support hotswap on this hardware[1], since there's no way for userspace 
-to know which device a notification refers to.
+The problem we're trying to solve here is how do implement network block
+devices (nbd, iscsi) efficiently.  The zero copy codepath in the networking
+layer does need to grab additional references to pages.  So to use sendpage
+we need a refcountable page.  pages used by the slab allocator are not
+normally refcounted so try to do get_page/pub_page on them will break.
 
-[1] ie, most laptops sold nowadays
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+One way to work around that would be to detect kmalloced pages and use
+a slowpath for that.  The major issues with that is that we don't have a
+reliable way to detect if a given struct page comes from the slab allocator
+or not.  The minor problem is that even with such an indicator it means
+having a separate and lightly tested slowpath for this rare case.
+
+All in all I think we should document that the block layer only accepts
+properly refcounted pages, which is everything but kmalloced pages (even
+vmalloc is totally fine)
+

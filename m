@@ -1,58 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbVLHXR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932706AbVLHXSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbVLHXR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 18:17:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932602AbVLHXR1
+	id S932706AbVLHXSn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 18:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbVLHXSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 18:17:27 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60434 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932299AbVLHXR1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 18:17:27 -0500
-Date: Thu, 8 Dec 2005 23:17:17 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Minor change to platform_device_register_simple prototype
-Message-ID: <20051208231717.GB9357@flint.arm.linux.org.uk>
-Mail-Followup-To: Jean Delvare <khali@linux-fr.org>,
-	Greg KH <greg@kroah.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com> <20051207180842.GG6793@flint.arm.linux.org.uk> <d120d5000512071023u151c42f4lcc40862b2debad73@mail.gmail.com> <20051207190352.GI6793@flint.arm.linux.org.uk> <d120d5000512071418q521d2155r81759ef8993000d8@mail.gmail.com> <20051207225126.GA648@kroah.com> <d120d5000512071459s9b461d8ye7abc41d0e1950fd@mail.gmail.com> <20051207230615.GB742@kroah.com> <20051207232105.GO6793@flint.arm.linux.org.uk> <20051208215815.3d001dab.khali@linux-fr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051208215815.3d001dab.khali@linux-fr.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 8 Dec 2005 18:18:42 -0500
+Received: from fmr19.intel.com ([134.134.136.18]:39823 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932706AbVLHXSm convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 18:18:42 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [ACPI] ACPI owner_id limit too low
+Date: Thu, 8 Dec 2005 15:18:30 -0800
+Message-ID: <971FCB6690CD0E4898387DBF7552B90E03A96A14@orsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] ACPI owner_id limit too low
+thread-index: AcX8Rb6zycWndh6dSwiLQaQOPmSVvgAB5Omg
+From: "Moore, Robert" <robert.moore@intel.com>
+To: "Alex Williamson" <alex.williamson@hp.com>
+Cc: "Brown, Len" <len.brown@intel.com>, <linux-kernel@vger.kernel.org>,
+       <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 08 Dec 2005 23:18:33.0062 (UTC) FILETIME=[B5146060:01C5FC4D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 08, 2005 at 09:58:15PM +0100, Jean Delvare wrote:
-> Hi Russell,
+If you felt ambitious, you could take a look at making the change to not
+allocate owner IDs for the static tables (tables that cannot be
+unloaded). This would really take the pressure off the Owner ID.
+Requires a change to the shutdown mechanism to make sure that the
+namespace is completely deleted.
+
+
+> -----Original Message-----
+> From: Alex Williamson [mailto:alex.williamson@hp.com]
+> Sent: Thursday, December 08, 2005 2:21 PM
+> To: Moore, Robert
+> Cc: Brown, Len; linux-kernel@vger.kernel.org; acpi-
+> devel@lists.sourceforge.net
+> Subject: RE: [ACPI] ACPI owner_id limit too low
 > 
-> > On Wed, Dec 07, 2005 at 03:06:15PM -0800, Greg KH wrote:
-> > > Ok, that's fine with me.  Russell, any objections?
-> > 
-> > None what so ever - that's mostly what I envisioned with the patch
-> > with the _del method.  However, I didn't have an existing user for it.
+> On Thu, 2005-12-08 at 14:03 -0800, Moore, Robert wrote:
+> > We have increased the number of owner IDs to 255 in the most recent
+> > version of ACPICA, 20051202. This should hit Linux soon.
+> >
+> > Additionally, we plan to conserve OwnerIDs by not using them for
+tables
+> > that can never be unloaded, to be implemented in a future release.
+> > However, 255 Ids should be plenty for now.
+> >
+> > Here is the text from the release memo:
+> >
+> > Increased the number of available Owner Ids for namespace object
+> > tracking from 32 to 255. This should eliminate the OWNER_ID_LIMIT
+> > exceptions seen on some machines with a large number of ACPI tables
+> > (either static or dynamic).
 > 
-> Do you mean you have the code already? If it is so, could you please
-> provide a patch Dmitry and I can give a try to?
+> Hi Bob,
+> 
+>    Sorry if I wasn't clear, I'm worried about what happens in the
+> interim.  The problem will be fixed in ACPICA 20051202, but we have at
+> least one, likely two stable kernels that will be tagged before that
+> ACPICA version hits the upstream kernel.  We can hit the owner_id
+limit
+> fairly easily on a few development systems.  How many stable kernels
+do
+> we want out in the wild with such a low owner_id limit?  Bumping it up
+> to 64, while not ideal, is sufficient for our current usage, and I
+think
+> the patch is trivial enough that it could be included quickly.
+Thanks,
+> 
+> 	Alex
+> 
+> --
+> Alex Williamson                             HP Linux & Open Source Lab
 
-No; I mean I _had_ the code, and it could probably be dug out, but
-subsequent patch revisions removed it.  It's probably archived in a
-mail somewhere.
-
-> If not, I am willing to give it a try, if you provide some guidance. I
-> think I understand that platform_device_del would be the first half of
-> platform_device_unregister, but do we then want to rebuild
-> platform_device_unregister on top of platform_device_del so as to avoid
-> code duplication, or not?
-
-Yes on all counts.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

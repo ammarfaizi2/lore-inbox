@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVLHTdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbVLHTet@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbVLHTdd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 14:33:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVLHTdd
+	id S932284AbVLHTet (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 14:34:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVLHTet
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 14:33:33 -0500
-Received: from gold.veritas.com ([143.127.12.110]:45129 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932280AbVLHTdc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 14:33:32 -0500
-Date: Thu, 8 Dec 2005 19:33:16 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: Badari Pulavarty <pbadari@us.ibm.com>, Andy Whitcroft <andyw@uk.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>, dwg@au1.ibm.com,
-       "ADAM G. LITKE [imap]" <agl@us.ibm.com>
-Subject: Re: 2.6.15-rc4 panic in __nr_to_section() with CONFIG_SPARSEMEM
-In-Reply-To: <1134069335.6159.21.camel@localhost>
-Message-ID: <Pine.LNX.4.61.0512081930340.11944@goblin.wat.veritas.com>
-References: <1133995060.21841.56.camel@localhost.localdomain> 
- <43976AA4.2060606@uk.ibm.com>  <1133997772.21841.62.camel@localhost.localdomain>
-  <1134002888.30387.82.camel@localhost>  <1134058055.21841.70.camel@localhost.localdomain>
- <1134069335.6159.21.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 08 Dec 2005 19:33:21.0946 (UTC) FILETIME=[3FD3AFA0:01C5FC2E]
+	Thu, 8 Dec 2005 14:34:49 -0500
+Received: from serv01.siteground.net ([70.85.91.68]:43697 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S932284AbVLHTet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 14:34:49 -0500
+Date: Thu, 8 Dec 2005 11:34:39 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: pcibus_to_node value when no pxm info is present for the pci bus
+Message-ID: <20051208193439.GB3776@localhost.localdomain>
+References: <20051207223414.GA4493@localhost.localdomain> <Pine.LNX.4.62.0512081104280.29958@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0512081104280.29958@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Dec 2005, Dave Hansen wrote:
-> On Thu, 2005-12-08 at 08:07 -0800, Badari Pulavarty wrote:
-> > No. It doesn't help. It looks like ppc pmd_huge() always returns 0.
-> > Don't know why ? :(
+On Thu, Dec 08, 2005 at 11:05:24AM -0800, Christoph Lameter wrote:
+> On Wed, 7 Dec 2005, Ravikiran G Thirumalai wrote:
 > 
-> The ppc64 hugetlb pages don't line up on PMD boundaries like they do on
-> i386.  The entries are stored in regular old PTEs.  
+> > Most of the arches seem to return -1 for pcibus_to_node if there is no pxm
+> > kind of proximity information for the pci busses.  Arch specific code on
+> > those arches check if nodeid >= 0  before using the nodeid for kmalloc_node
+> > etc. But some code paths in x86_64/i386 does not doe this --
+> > x86_64/dma_alloc_pages() and e1000 node local descriptor (I am to blame for 
+> > the second one).  Also, pcibus_to_node seems to be 0 when there is no pxm 
+> > info available.
 > 
-> I really don't like coding the two different hugetlb cases, but I can't
-> think of a better way to do it.  Anyone care to test on ppc64?
+> kmalloc_node falls back to kmalloc for node == -1. So there does not need 
+> to be a check.
 
-Oh, it isn't worth that effort, just test is_vm_hugetlb_page(vma)
-in show_smap, and skip it if so - or make up appropriate numbers
-from (vm_end - vm_start) in that case if you like.
+Ah! yes,
 
-Hugh
+>  
+> > The question is, what should be the default pcibus_to_node if there is no
+> > pxm info? Answer seems like -1 -- in which case dma_alloc_pages and e1000
+> > driver has to be fixed.
+> 
+> Why would they have to be fixed?
+
+alloc_pages_node (used  by dma_alloc_pages) does not seem to do the check 
+though.  I guess alloc_pages_node needs to be fixed then.
+
+Thanks,
+Kiran

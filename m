@@ -1,81 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVLHQIu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbVLHQKw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbVLHQIu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 11:08:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbVLHQIu
+	id S932179AbVLHQKw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 11:10:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVLHQKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 11:08:50 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:49673 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751212AbVLHQIt convert rfc822-to-8bit (ORCPT
+	Thu, 8 Dec 2005 11:10:52 -0500
+Received: from mail3.netbeat.de ([193.254.185.27]:3519 "HELO mail3.netbeat.de")
+	by vger.kernel.org with SMTP id S1751222AbVLHQKw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 11:08:49 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <1134056272.2867.73.camel@laptopd505.fenrus.org>
-X-OriginalArrivalTime: 08 Dec 2005 16:08:47.0821 (UTC) FILETIME=[ABE0D7D0:01C5FC11]
-Content-class: urn:content-classes:message
-Subject: Re: How to enable/disable security features on mmap() ?
-Date: Thu, 8 Dec 2005 11:08:47 -0500
-Message-ID: <Pine.LNX.4.61.0512081051250.13997@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to enable/disable security features on mmap() ?
-Thread-Index: AcX8Eavozjt1JgdZQmu4OpOmTE9R3g==
-References: <43983EBE.2080604@labri.fr> <1134051272.2867.63.camel@laptopd505.fenrus.org> <43984154.5050502@labri.fr>  <43984595.1090406@labri.fr> <1134053349.2867.65.camel@laptopd505.fenrus.org> <4398493E.50508@labri.fr> <Pine.LNX.4.61.0512081011020.32448@chaos.analogic.com> <1134056272.2867.73.camel@laptopd505.fenrus.org>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: "Emmanuel Fleury" <emmanuel.fleury@labri.fr>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Thu, 8 Dec 2005 11:10:52 -0500
+Subject: Problem with using spinlocks when kernel is compiled without
+	smp-support
+From: Dirk Henning Gerdes <mail@dirk-gerdes.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 08 Dec 2005 17:10:09 +0100
+Message-Id: <1134058209.24458.10.camel@noti>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello Andrew!
 
-On Thu, 8 Dec 2005, Arjan van de Ven wrote:
+I have the following problem on 2.6.15-rc5-mm1
 
->
->> Isn't this too much?  I thought the random-stack patch was
->> only supposed to vary it a page or 64k at most. This looks
->> like some broken logic because it varies almost 8 megabytes!
->
-> that is correct; the 64k was only there for one patch proposal; linus'
-> tree had 8 Mb randomisation from the start
->
->> No wonder some of my user's database programs sometimes seg-fault
->> and other times work perfectly fine. I think this is incorrect
->> and shows a serious bug (misbehavior).
->
-> eh how? This 8Mb isn't eaten from the stack rlimit; the entire stack is
-> moved, and the rlimit applies to the size not the position.
+When compiling a module using spinlocks I get the following
+error-message, when SMP is disabled in my Kernel-config:
 
-The stack moves down! It cannot go below the heap without destroying
-malloc()ed buffers. I note that the heap also was "dynamically" moved
-down to accommodate this, but its lower limit can't interfere with
-_end[], the end of initialized data (fixed by the compiler and
-data-size in the program).
 
-0xbfbb6d74	Stack
-0xb7e97008	Heap
-0x80495e8	_end[]
 
-An 8 megabyte variation is absolutely insane. It follows the "If a
-little is good, more must be better..." theory. The purpose of
-the random stack start, initially proposed by me BTW, was to
-prevent stack-exploit code from being able to hard-code addresses
-on the stack. Being off by one byte is enough, 8192 was originally
-discussed and, I thought, adopted. Eight megabytes is absurd and has
-no technical basis.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
+In file included from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:7:
+include/asm/spinlock.h:21:1: warning: "__raw_spin_is_locked" redefined
+In file included from include/linux/spinlock.h:90,
+                 from include/linux/kobject.h:23,
+                 from include/linux/device.h:16,
+                 from include/linux/genhd.h:15,
+                 from include/linux/blkdev.h:6,
+                 from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:1:
+include/linux/spinlock_up.h:61:1: warning: this is the location of the
+previous definition
+In file included from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:7:
+include/asm/spinlock.h:51: error: syntax error before 'do'
+include/asm/spinlock.h: In function '__raw_spin_lock_flags':
+include/asm/spinlock.h:62: error: 'struct <anonymous>' has no member
+named 'slock'
+include/asm/spinlock.h:60: error: invalid lvalue in asm output 0
+include/asm/spinlock.h: At top level:
+include/asm/spinlock.h:65: error: syntax error before '{' token
+include/asm/spinlock.h:89: error: syntax error before 'do'
+In file included from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:7:
+include/asm/spinlock.h:114:1: warning: "__raw_spin_unlock_wait"
+redefined
+In file included from include/linux/spinlock.h:90,
+                 from include/linux/kobject.h:23,
+                 from include/linux/device.h:16,
+                 from include/linux/genhd.h:15,
+                 from include/linux/blkdev.h:6,
+                 from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:1:
+include/linux/spinlock_up.h:71:1: warning: this is the location of the
+previous definition
+In file included from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:7:
+include/asm/spinlock.h:142:1: warning: "__raw_read_can_lock" redefined
+In file included from include/linux/spinlock.h:90,
+                 from include/linux/kobject.h:23,
+                 from include/linux/device.h:16,
+                 from include/linux/genhd.h:15,
+                 from include/linux/blkdev.h:6,
+                 from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:1:
+include/linux/spinlock_up.h:68:1: warning: this is the location of the
+previous definition
+In file included from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:7:
+include/asm/spinlock.h:148:1: warning: "__raw_write_can_lock" redefined
+In file included from include/linux/spinlock.h:90,
+                 from include/linux/kobject.h:23,
+                 from include/linux/device.h:16,
+                 from include/linux/genhd.h:15,
+                 from include/linux/blkdev.h:6,
+                 from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:1:
+include/linux/spinlock_up.h:69:1: warning: this is the location of the
+previous definition
+include/asm/spinlock.h: In function '__raw_read_unlock':
+include/asm/spinlock.h:181: error: 'struct <anonymous>' has no member
+named 'lock'
+include/asm/spinlock.h:181: error: invalid lvalue in asm output 0
+include/asm/spinlock.h: In function '__raw_write_unlock':
+include/asm/spinlock.h:187: error: 'struct <anonymous>' has no member
+named 'lock'
+include/asm/spinlock.h:186: error: invalid lvalue in asm output 0
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-Thank you.
+
+shouldn't it be possible to use spinlocks in my code even if I don't
+support SMP for compatiblity ?
+
+
+Dirk 
+

@@ -1,82 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030389AbVLHDG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030405AbVLHDJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030389AbVLHDG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 22:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbVLHDG4
+	id S1030405AbVLHDJg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 22:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030411AbVLHDJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 22:06:56 -0500
-Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:57484 "EHLO
-	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
-	id S1030389AbVLHDGz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 22:06:55 -0500
-From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
-Message-Id: <200512080302.jB832PLx008014@sprite.physics.adelaide.edu.au>
-Subject: Re: 2.6.14-rt21: slow-running clock
-To: johnstul@us.ibm.com (john stultz)
-Date: Thu, 8 Dec 2005 13:32:25 +1030 (CST)
-Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1134009933.10613.73.camel@cog.beaverton.ibm.com> from "john stultz" at Dec 07, 2005 06:45:33 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Wed, 7 Dec 2005 22:09:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:53191 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030405AbVLHDJf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 22:09:35 -0500
+Date: Wed, 7 Dec 2005 22:09:16 -0500
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Xavier Bestel <xavier.bestel@free.fr>, Jason Dravet <dravet@hotmail.com>,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: wrong number of serial port detected
+Message-ID: <20051208030916.GC14569@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org, Xavier Bestel <xavier.bestel@free.fr>,
+	Jason Dravet <dravet@hotmail.com>, rmk+lkml@arm.linux.org.uk
+References: <20051207155034.GB6793@flint.arm.linux.org.uk> <BAY103-F32F90C9849D407E9336826DF430@phx.gbl> <20051207211551.GL6793@flint.arm.linux.org.uk> <1133990886.6184.2.camel@bip.parateam.prv> <20051207213128.GM6793@flint.arm.linux.org.uk> <20051207213856.GN6793@flint.arm.linux.org.uk> <20051207230302.GD22690@redhat.com> <20051207234603.GQ6793@flint.arm.linux.org.uk> <20051208005040.GB3664@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20051208005040.GB3664@redhat.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 2005-12-08 at 09:24 +1030, Jonathan Woithe wrote:
-> > > Odd. I'm not sure why the acpi_pm wasn't chosen by default if it was
-> > > available and the TSC fell back to the c3tsc. It might be something in
-> > > the -RT tree that's changed that bit. Could you try the following and
-> > > see if it doesn't resolve the timekeeping problems you're seeing?
-> > > 
-> > > echo "acpi_pm" >  /sys/devices/system/clocksource/clocksource0/current_clocksource
-> > 
-> > Upon executing the above command the system time started behaving correctly
-> > once more.
-> Ok, something in the -rt patches is probably changing the selection
-> order.
+On Wed, Dec 07, 2005 at 07:50:40PM -0500, Dave Jones wrote:
 
-Is there any way to change the clock source in a normal 2.6.14 kernel?  If
-there was I could force the source to c3tsc in that and see if the problem
-affects the c3tsc in vanilla kernels.
+ > Here's another iteration. I'll boot test this in a bit, and if it
+ > does the right thing, I'll add the documenation and a sign-off
+ > and send it your way.
 
-> > I'm also wondering whether this might be related to one other thing I
-> > noticed a week or so back (also reported to the list, but thus far no
-> > followups). If I enabled the (new) "High resolution timers" feature (as
-> > distinct from HPET), things like /usr/bin/sleep run for far longer than
-> > they should irrespective of machine load.  For example, "sleep 1" from bash
-> > actually delays 38 seconds, not 1 second as expected.
-> 
-> Does disabling the "High resolution timers" feature change the behavior
-> all?
+Seems to the right thing.
 
-I should clarify.  Everything I've given you thus far has been with the
-"high resolution timers" feature disabled.  Two or so weeks ago I tried
-enabling it and that's when "sleep 1" took 38 seconds to complete. 
-Disabling "high resoltion timers" at least made "sleep 1" behave somewhat
-saner.  I don't know if having the high res timers enabled affects the
-accuracy of the system clock however.  I'll test this tonight.
+		Dave
 
-> > In other words, c3tsc wasn't there but tsc was.  In terms of time accuracy
-> > it seemed that with idle=poll the system time was kept accurately in this
-> > case as well.  I also noted in dmesg output the following:
-> > 
-> >   Time: tsc clocksource has been installed.
-> > 
-> > Unlike the normal case (where idle=poll was not specified) there was no
-> > mention of a "fallback" to a "C3-safe tsc".
-> 
-> Thats very interesting that idle=poll worked around the issue. More
-> digging will be necessary.
 
-It possibly suggests that it's the c3tsc timer which is faulty as opposed to
-the tsc timer (or maybe it's just a mode thing).  Note that even with
-idle=poll it was the tsc timer (instead of the acpi_pm timer) which was
-selected, so "idle=poll" doesn't work around the timer selection issue.  It
-seems that there might be two separate problems: timer source selection and
-c3tsc accuracy.  Whether they are both present in vanilla 2.6.14 (or simply
-masked due to selection of acpi_pm) is not clear.
+Make the number of UARTs registered configurable.
+Also add a nr_uarts module option to the 8250 code
+to override this, up to a maximum of CONFIG_SERIAL_8250_NR_UARTS
 
-Regards
-  jonathan
+This should appease people who complain about a proliferation
+of /dev/ttyS & /sysfs nodes whilst at the same time allowing
+a single kernel image to support the rarer occasions of
+lots of devices.
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+diff -urpN --exclude-from=/home/davej/.exclude vanilla/drivers/serial/8250.c serial/drivers/serial/8250.c
+--- vanilla/drivers/serial/8250.c	2005-10-27 20:02:08.000000000 -0400
++++ serial/drivers/serial/8250.c	2005-12-07 20:00:16.000000000 -0500
+@@ -53,6 +53,8 @@
+  */
+ static unsigned int share_irqs = SERIAL8250_SHARE_IRQS;
+ 
++static unsigned int nr_uarts = CONFIG_SERIAL_8250_RUNTIME_UARTS;
++
+ /*
+  * Debugging.
+  */
+@@ -2047,7 +2049,7 @@ static void __init serial8250_isa_init_p
+ 		return;
+ 	first = 0;
+ 
+-	for (i = 0; i < UART_NR; i++) {
++	for (i = 0; i < nr_uarts; i++) {
+ 		struct uart_8250_port *up = &serial8250_ports[i];
+ 
+ 		up->port.line = i;
+@@ -2066,7 +2068,7 @@ static void __init serial8250_isa_init_p
+ 	}
+ 
+ 	for (i = 0, up = serial8250_ports;
+-	     i < ARRAY_SIZE(old_serial_port) && i < UART_NR;
++	     i < ARRAY_SIZE(old_serial_port) && i < nr_uarts;
+ 	     i++, up++) {
+ 		up->port.iobase   = old_serial_port[i].port;
+ 		up->port.irq      = irq_canonicalize(old_serial_port[i].irq);
+@@ -2088,7 +2090,7 @@ serial8250_register_ports(struct uart_dr
+ 
+ 	serial8250_isa_init_ports();
+ 
+-	for (i = 0; i < UART_NR; i++) {
++	for (i = 0; i < nr_uarts; i++) {
+ 		struct uart_8250_port *up = &serial8250_ports[i];
+ 
+ 		up->port.dev = dev;
+@@ -2189,7 +2191,7 @@ static int serial8250_console_setup(stru
+ 	 * if so, search for the first available port that does have
+ 	 * console support.
+ 	 */
+-	if (co->index >= UART_NR)
++	if (co->index >= nr_uarts)
+ 		co->index = 0;
+ 	port = &serial8250_ports[co->index].port;
+ 	if (!port->iobase && !port->membase)
+@@ -2225,7 +2227,7 @@ static int __init find_port(struct uart_
+ 	int line;
+ 	struct uart_port *port;
+ 
+-	for (line = 0; line < UART_NR; line++) {
++	for (line = 0; line < nr_uarts; line++) {
+ 		port = &serial8250_ports[line].port;
+ 		if (p->iotype == port->iotype &&
+ 		    p->iobase == port->iobase &&
+@@ -2349,7 +2351,7 @@ static int __devexit serial8250_remove(s
+ {
+ 	int i;
+ 
+-	for (i = 0; i < UART_NR; i++) {
++	for (i = 0; i < nr_uarts; i++) {
+ 		struct uart_8250_port *up = &serial8250_ports[i];
+ 
+ 		if (up->port.dev == dev)
+@@ -2365,7 +2367,7 @@ static int serial8250_suspend(struct dev
+ 	if (level != SUSPEND_DISABLE)
+ 		return 0;
+ 
+-	for (i = 0; i < UART_NR; i++) {
++	for (i = 0; i < nr_uarts; i++) {
+ 		struct uart_8250_port *up = &serial8250_ports[i];
+ 
+ 		if (up->port.type != PORT_UNKNOWN && up->port.dev == dev)
+@@ -2382,7 +2384,7 @@ static int serial8250_resume(struct devi
+ 	if (level != RESUME_ENABLE)
+ 		return 0;
+ 
+-	for (i = 0; i < UART_NR; i++) {
++	for (i = 0; i < nr_uarts; i++) {
+ 		struct uart_8250_port *up = &serial8250_ports[i];
+ 
+ 		if (up->port.type != PORT_UNKNOWN && up->port.dev == dev)
+@@ -2421,7 +2423,7 @@ static struct uart_8250_port *serial8250
+ 	/*
+ 	 * First, find a port entry which matches.
+ 	 */
+-	for (i = 0; i < UART_NR; i++)
++	for (i = 0; i < nr_uarts; i++)
+ 		if (uart_match_port(&serial8250_ports[i].port, port))
+ 			return &serial8250_ports[i];
+ 
+@@ -2430,7 +2432,7 @@ static struct uart_8250_port *serial8250
+ 	 * free entry.  We look for one which hasn't been previously
+ 	 * used (indicated by zero iobase).
+ 	 */
+-	for (i = 0; i < UART_NR; i++)
++	for (i = 0; i < nr_uarts; i++)
+ 		if (serial8250_ports[i].port.type == PORT_UNKNOWN &&
+ 		    serial8250_ports[i].port.iobase == 0)
+ 			return &serial8250_ports[i];
+@@ -2439,7 +2441,7 @@ static struct uart_8250_port *serial8250
+ 	 * That also failed.  Last resort is to find any entry which
+ 	 * doesn't have a real port associated with it.
+ 	 */
+-	for (i = 0; i < UART_NR; i++)
++	for (i = 0; i < nr_uarts; i++)
+ 		if (serial8250_ports[i].port.type == PORT_UNKNOWN)
+ 			return &serial8250_ports[i];
+ 
+@@ -2524,8 +2526,11 @@ static int __init serial8250_init(void)
+ {
+ 	int ret, i;
+ 
++	if (nr_uarts > UART_NR)
++		nr_uarts = UART_NR;
++
+ 	printk(KERN_INFO "Serial: 8250/16550 driver $Revision: 1.90 $ "
+-		"%d ports, IRQ sharing %sabled\n", (int) UART_NR,
++		"%d ports, IRQ sharing %sabled\n", nr_uarts,
+ 		share_irqs ? "en" : "dis");
+ 
+ 	for (i = 0; i < NR_IRQS; i++)
+@@ -2585,6 +2590,9 @@ module_param(share_irqs, uint, 0644);
+ MODULE_PARM_DESC(share_irqs, "Share IRQs with other non-8250/16x50 devices"
+ 	" (unsafe)");
+ 
++module_param(nr_uarts, uint, 0644);
++MODULE_PARM_DESC(nr_uarts, "Maximum number of UARTs supported. (1-" __MODULE_STRING(CONFIG_SERIAL_8250_NR_UARTS) ")");
++
+ #ifdef CONFIG_SERIAL_8250_RSA
+ module_param_array(probe_rsa, ulong, &probe_rsa_count, 0444);
+ MODULE_PARM_DESC(probe_rsa, "Probe I/O ports for RSA");
+diff -urpN --exclude-from=/home/davej/.exclude vanilla/drivers/serial/Kconfig serial/drivers/serial/Kconfig
+--- vanilla/drivers/serial/Kconfig	2005-10-27 20:02:08.000000000 -0400
++++ serial/drivers/serial/Kconfig	2005-12-07 19:24:11.000000000 -0500
+@@ -95,6 +95,16 @@ config SERIAL_8250_NR_UARTS
+ 	  PCI enumeration and any ports that may be added at run-time
+ 	  via hot-plug, or any ISA multi-port serial cards.
+ 
++config SERIAL_8250_RUNTIME_UARTS
++	int "Number of 8250/16550 serial ports to register at runtime"
++	depends on SERIAL_8250
++	default "4"
++	help
++	  Set this to the maximum number of serial ports you want
++	  the kernel to register at boot time.  This can be overriden
++	  with the module parameter "nr_uarts", or boot-time parameter
++	  8250.nr_uarts
++
+ config SERIAL_8250_EXTENDED
+ 	bool "Extended 8250/16550 serial driver options"
+ 	depends on SERIAL_8250
+--- serial/Documentation/kernel-parameters.txt~	2005-12-07 20:16:18.000000000 -0500
++++ serial/Documentation/kernel-parameters.txt	2005-12-07 20:17:44.000000000 -0500
+@@ -982,6 +982,8 @@ running once the system is up.
+ 
+ 	nowb		[ARM]
+ 
++	nr_uarts=	[SERIAL] maximum number of UARTs to be registered.
++
+ 	opl3=		[HW,OSS]
+ 			Format: <io>
+ 

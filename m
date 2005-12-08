@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030452AbVLHEPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030457AbVLHEx5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030452AbVLHEPR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 23:15:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030454AbVLHEPQ
+	id S1030457AbVLHEx5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 23:53:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030458AbVLHEx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 23:15:16 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:53976 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030452AbVLHEPP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 23:15:15 -0500
-Date: Thu, 8 Dec 2005 09:45:09 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Andi Kleen <ak@muc.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Morton Andrew Morton <akpm@osdl.org>, len.brown@intel.com
-Subject: [PATCH] x86_64: acpi map table fix
-Message-ID: <20051208041509.GA4841@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
+	Wed, 7 Dec 2005 23:53:56 -0500
+Received: from pat.uio.no ([129.240.130.16]:7145 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030457AbVLHEx4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 23:53:56 -0500
+Subject: Re: nfs question - ftruncate vs pwrite
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Kenny Simpson <theonetruekenny@yahoo.com>
+Cc: Peter Staubach <staubach@redhat.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051207215040.15310.qmail@web34106.mail.mud.yahoo.com>
+References: <20051207215040.15310.qmail@web34106.mail.mud.yahoo.com>
+Content-Type: text/plain
+Date: Wed, 07 Dec 2005 23:53:28 -0500
+Message-Id: <1134017608.8002.55.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.002, required 12,
+	autolearn=disabled, AWL 1.81, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-12-07 at 13:50 -0800, Kenny Simpson wrote:
+> --- Peter Staubach <staubach@redhat.com> wrote:
+> > You might use tcpdump or etherreal to see what the different traffic looks
+> > like.  I suspect that ftruncate() leads a SETATTR operation while pwrite()
+> > leads to a WRITE operation.
+> 
+> Ethereal results interpreted with wild speculation:
+> The pwrite case:
+>   This does a bunch of reads, but the server always returns a short read responding with EOF.  It
+> seems that a pwrite does cause a getattr call, but that's it.
+>   Once memory is exhausted, the pages are written out.
+> 
+> The ftruncate case:
+>   This does a setattr, then does a read - this time the server responds with a large amount of
+> 0's.
 
+That is as expected. The ftruncate() causes an immediate change in
+length of the file on the server, and so reads will. In the case of
+pwrite(), that is cached on the client until you fsync/close, and so the
+server returns short reads.
 
-o Memory till end_pfn_map has been directly mapped. So all the memory
-  references to the last page (represented by end_pfn_map) should be
-  valid.
+> Since this is using the buffer cache (not opened with O_DIRECT), and since we know we are
+> extending the file... is it strictly necessary to read in pages of 0's from the server?
 
-o I run into problem with kdump when I use memmap=exactmap option and also
-  pass memmap=X#Y to directly map acpi tables. ACPI initialization in second
-  kernel fails because some of the valid ACPI memory is not accessible.
+Possibly not, but is this a common case that is worth optimising for?
+Note that use of the standard write() syscall as opposed to mmap() will
+not trigger this avalanche of page-ins.
 
-o /proc/iomem shows ACPI tables at c7fcb940-c7fcf7ff : ACPI Tables. Here
-  end_pfn_map is set to c7fcf000. But c7fcf700 should also be a valid access.  
+Cheers,
+  Trond
 
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
-
-diff -puN arch/i386/kernel/acpi/boot.c~acpi-map-address-fix arch/i386/kernel/acpi/boot.c
---- linux-2.6.15-rc5-mm1-16M/arch/i386/kernel/acpi/boot.c~acpi-map-address-fix	2005-12-07 15:56:33.000000000 +0530
-+++ linux-2.6.15-rc5-mm1-16M-root/arch/i386/kernel/acpi/boot.c	2005-12-07 15:58:04.000000000 +0530
-@@ -108,7 +108,7 @@ char *__acpi_map_table(unsigned long phy
- 	if (!phys_addr || !size)
- 		return NULL;
- 
--	if (phys_addr < (end_pfn_map << PAGE_SHIFT))
-+	if (phys_addr < ((end_pfn_map << PAGE_SHIFT) + PAGE_SIZE))
- 		return __va(phys_addr);
- 
- 	return NULL;
-_

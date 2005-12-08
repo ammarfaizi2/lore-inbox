@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVLHWRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVLHWVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbVLHWRv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 17:17:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVLHWRu
+	id S932322AbVLHWVY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 17:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbVLHWVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 17:17:50 -0500
-Received: from gate.crashing.org ([63.228.1.57]:33452 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751247AbVLHWRu (ORCPT
+	Thu, 8 Dec 2005 17:21:24 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:56193 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S932322AbVLHWVX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 17:17:50 -0500
-Date: Thu, 8 Dec 2005 16:13:52 -0600 (CST)
-From: Kumar Gala <galak@gate.crashing.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Grover <andrew.grover@intel.com>, <netdev@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <john.ronciak@intel.com>,
-       <christopher.leech@intel.com>
-Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
-In-Reply-To: <4384F3AD.4080105@pobox.com>
-Message-ID: <Pine.LNX.4.44.0512081606060.24134-100000@gate.crashing.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 8 Dec 2005 17:21:23 -0500
+Subject: RE: [ACPI] ACPI owner_id limit too low
+From: Alex Williamson <alex.williamson@hp.com>
+To: "Moore, Robert" <robert.moore@intel.com>
+Cc: "Brown, Len" <len.brown@intel.com>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+In-Reply-To: <971FCB6690CD0E4898387DBF7552B90E03A96856@orsmsx403.amr.corp.intel.com>
+References: <971FCB6690CD0E4898387DBF7552B90E03A96856@orsmsx403.amr.corp.intel.com>
+Content-Type: text/plain
+Organization: LOSL
+Date: Thu, 08 Dec 2005 15:21:10 -0700
+Message-Id: <1134080471.2476.9.camel@tdi>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Nov 2005, Jeff Garzik wrote:
-
-> Alan Cox wrote:
-> >>Additionally, current IOAT is memory->memory.  I would love to be able 
-> >>to convince Intel to add transforms and checksums, 
-> > 
-> > 
-> > Not just transforms but also masks and maybe even merges and textures
-> > would be rather handy 8)
+On Thu, 2005-12-08 at 14:03 -0800, Moore, Robert wrote: 
+> We have increased the number of owner IDs to 255 in the most recent
+> version of ACPICA, 20051202. This should hit Linux soon.
 > 
+> Additionally, we plan to conserve OwnerIDs by not using them for tables
+> that can never be unloaded, to be implemented in a future release.
+> However, 255 Ids should be plenty for now.
 > 
-> Ah yes:  I totally forgot to mention XOR.
+> Here is the text from the release memo:
 > 
-> Software RAID would love that.
+> Increased the number of available Owner Ids for namespace object
+> tracking from 32 to 255. This should eliminate the OWNER_ID_LIMIT
+> exceptions seen on some machines with a large number of ACPI tables
+> (either static or dynamic).
 
-A number of embedded processors already have HW that does these kinda of
-things.  On Freescale PPC processors there have been general purpose DMA
-engines for mem<->mem and more recently and additional crypto engines that
-allow for hashing, XOR, and security.
+Hi Bob,
 
-I'm actually searching for any examples of drivers that deal with the 
-issues related to DMA'ng directly two and from user space memory.
+   Sorry if I wasn't clear, I'm worried about what happens in the
+interim.  The problem will be fixed in ACPICA 20051202, but we have at
+least one, likely two stable kernels that will be tagged before that
+ACPICA version hits the upstream kernel.  We can hit the owner_id limit
+fairly easily on a few development systems.  How many stable kernels do
+we want out in the wild with such a low owner_id limit?  Bumping it up
+to 64, while not ideal, is sufficient for our current usage, and I think
+the patch is trivial enough that it could be included quickly.  Thanks,
 
-I have an ioctl based driver that does copies back and forth between user 
-and kernel space and would like to remove that since the crypto engine has 
-full scatter/gather capability.
+	Alex
 
-The only significant effort I've come across is Peter Chubb's work for 
-user mode drivers which has some code for handling pinning of the user 
-space memory and what looks like generation of a scatter list.
-
-- kumar
+-- 
+Alex Williamson                             HP Linux & Open Source Lab
 

@@ -1,92 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbVLHVeQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbVLHVfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbVLHVeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 16:34:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVLHVeQ
+	id S932369AbVLHVfB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 16:35:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932362AbVLHVfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 16:34:16 -0500
-Received: from buffy.ijichi.org ([213.161.76.94]:48332 "EHLO buffy.ijichi.org")
-	by vger.kernel.org with ESMTP id S932299AbVLHVeO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 16:34:14 -0500
-Message-ID: <1134077643.4398a6cb5bc78@www.ijichi.org>
-Date: Thu, 08 Dec 2005 21:34:03 +0000
-From: Dominic Ijichi <dom@ijichi.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Erik Slagter <erik@slagter.name>, Christoph Hellwig <hch@infradead.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, randy_d_dunlap@linux.intel.com,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-References: <20051208030242.GA19923@srcf.ucam.org>  <20051208091542.GA9538@infradead.org>  <20051208132657.GA21529@srcf.ucam.org>  <20051208133308.GA13267@infradead.org>  <20051208133945.GA21633@srcf.ucam.org>  <20051208134438.GA13507@infradead.org> <1134062330.1732.9.camel@localhost.localdomain> <43989B00.5040503@pobox.com> <1134075808.43989fa0e0404@www.ijichi.org> <4398A0F9.9050900@pobox.com>
-In-Reply-To: <4398A0F9.9050900@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Content-Disposition: inline
+	Thu, 8 Dec 2005 16:35:00 -0500
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:47888 "EHLO
+	mallaury.nerim.net") by vger.kernel.org with ESMTP id S932352AbVLHVfA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 16:35:00 -0500
+Date: Thu, 8 Dec 2005 22:37:05 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Greg KH <greg@kroah.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Minor change to platform_device_register_simple
+ prototype
+Message-Id: <20051208223705.6d375083.khali@linux-fr.org>
+In-Reply-To: <d120d5000512081321p36c422cdg4d360263d89fa826@mail.gmail.com>
+References: <20051205212337.74103b96.khali@linux-fr.org>
+	<20051205202707.GH15201@flint.arm.linux.org.uk>
+	<200512070105.40169.dtor_core@ameritech.net>
+	<20051207170426.GB28414@kroah.com>
+	<d120d5000512081321p36c422cdg4d360263d89fa826@mail.gmail.com>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) 4.0-cvs
-X-Priority: 3 (Normal)
-X-Originating-IP: 81.178.118.57
-X-DSPAM-Result: Innocent
-X-DSPAM-Confidence: 0.9997
-X-DSPAM-Probability: 0.0000
-X-DSPAM-Signature: 4398a6cf10811596913434
-X-DSPAM-Factors: 27,
-X-Spam-Score: -2.453
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Jeff Garzik <jgarzik@pobox.com>:
+Hi Dmitry,
 
-> Dominic Ijichi wrote:
-> > Quoting Jeff Garzik <jgarzik@pobox.com>:
-> >
-> >
-> >>Erik Slagter wrote:
-> >>
-> >>>'guess You're not interested in having suspend/resume actually work on
-> >>>laptops (or other PC's). That's your prerogative but imho it's a bit
-> >>>narrow-minded to withhold this functionality from other people who
-> >>>actually would like to have this working, just because you happen to not
-> >>>like ACPI.
-> >>
-> >>It works just fine on laptops, with Jens' suspend/resume patch.
-> >
-> >
-> > not on my fujitsu sonoma/ih6 based laptop it doesn't.  in my travels trying
-> to
-> > fix this problem it appears there are many others it doesnt work for
-> either.
-> > suspend/resume is incredibly important for day-to-day practical use of a
-> laptop,
-> > particularly using linux. the sole reason i still have a windows partition
-> is
-> > because suspend doesnt work in linux and i'm sick of firing everything up
-> again
-> > 3 times a day.
-> >
-> > thank you very much to all on this list who are pursuing a solution
-> sensibly and
-> > not making unhelpful blanket statements against the most widely used laptop
-> > chipset maker - *particularly* when they are actively contributing to
-> > development on this list.  we (laptop users) dont care about religious
-> > standpoints, we just want it to work.
+> Another thing - bunch of input code currently creates platform devices
+> but does not create corresponding platform drivers (because they don't
+> support suspend/resume or shutdown and probing is done right there in
+> module init function).
 > 
-> I've personally tested it on fuji ich5 and ich6 laptops.  What model do
-> you have?  What kernel version did you test?  When did you apply the
-> suspend/resume patch?
+> What is the general policy on platform devices? Should they always have
+> a corresponding driver or is it OK to leave them without one?
 
-N3510, 60gb sata model.  2.6.14,2.6.15-rc[1..5], with and without mm patches,
-and various suspend patches sent to me by people on the linux-ide list.  in
-particular, Jens Axboe's libata_suspend.patch and Randy Dunlap's patches here:
-http://www.xenotime.net/linux/SATA/2.6.15-rc/, plus patches from your site:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/.  every
-permutation and combination tried!  all with same result - laptop resumes but
-hangs on first disk access.
+If it wasn't OK, I'd expect platform_device_alloc and
+platform_device_register to fail when no matching driver is found.
+Since they do not, I'd guess it is considered OK not to have a matching
+driver. But that's really only a guess and not a replacement for
+Russell's (or Greg's) authoritative answer.
 
-cheers
-dom
+Reciprocally, if it is finally decided that it is *not* OK to have a
+platform device without a driver, they we want to make both functions
+mentioned above fail when no match is found.
 
+I am interested in the answer myself, as I am just realizing that my
+own driver registers a platform driver but doesn't use it at all, just
+like Dmitry described for his input drivers - so if I am allowed not to
+register this platform driver I may just drop that part.
 
-------------------------------------------
-This message was penned by the hand of Dom
+Thanks,
+-- 
+Jean Delvare

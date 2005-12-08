@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbVLHOOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbVLHORG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbVLHOOg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 09:14:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbVLHOOg
+	id S932114AbVLHORG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 09:17:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbVLHORE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 09:14:36 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:21163 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932134AbVLHOOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 09:14:35 -0500
-Subject: Re: How to enable/disable security features on mmap() ?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Emmanuel Fleury <emmanuel.fleury@labri.fr>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43983EBE.2080604@labri.fr>
-References: <43983EBE.2080604@labri.fr>
-Content-Type: text/plain
-Date: Thu, 08 Dec 2005 15:14:32 +0100
-Message-Id: <1134051272.2867.63.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 8 Dec 2005 09:17:04 -0500
+Received: from gold.veritas.com ([143.127.12.110]:22338 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S932114AbVLHORD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 09:17:03 -0500
+Date: Thu, 8 Dec 2005 14:16:11 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Magnus Damm <magnus@valinux.co.jp>
+cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: [PATCH 00/07][RFC] Remove mapcount from struct page
+In-Reply-To: <20051208112940.6309.39428.sendpatchset@cherry.local>
+Message-ID: <Pine.LNX.4.61.0512081352530.8950@goblin.wat.veritas.com>
+References: <20051208112940.6309.39428.sendpatchset@cherry.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 08 Dec 2005 14:16:14.0480 (UTC) FILETIME=[F292C900:01C5FC01]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-08 at 15:10 +0100, Emmanuel Fleury wrote:
-> Hi,
-> 
-> For educational purpose (I'm teaching software security) I would like to
-> be able to compile several kernels with or without features such as:
-> 
-> * Non-executable stack
-> * Stack address randomization
-> * Environment address randomization (char **envp)
-> * Dynamic library randomization (cat /proc/self/map)
-> 
-> So, is there a way to do such thing easily, or should I write patches by
-> myself ?
+On Thu, 8 Dec 2005, Magnus Damm wrote:
+> This patchset tries to remove page->_mapcount.
 
-realistically the first one is easy if your hw supports the NX bit
-(x86/x86-64). Some of the other randomisations are present in the 2.6.x
-kernels.
+Interesting.  I share your feeling that it ought to be possible to
+get along without page->_mapcount, but I've not succeeded yet.  And
+perhaps the system without page->_mapcount would perform worse.
 
-Or run a kernel from Fedora Core, or a kernel with the PaX patches to
-get all you're asking for.
+Unfortunately, I don't have time to study your patches at the moment,
+nor get into a discussion on them.  Sorry if that sounds dismissive:
+not my intention, I hope others will take up the discussion instead.
 
+But it looked to me as if you've done the easy part without doing the
+hard part yet: vmscanning can get along very well with an approximate
+idea of page_mapped, but can_share_swap_page really needs to know.
 
+At present you're just saying "no" there, which appears safe but
+slow; but there's a get_user_pages fork case where it's very bad
+for it to say "no" when it should say "yes".  See try_to_unmap_one
+comment on get_user_pages in 2.6.12 mm/rmap.c.
+
+It looked as if you were doing a separate scan to update PG_mapped,
+which would better be incorporated in the page_referenced scan.
+I found locking to be a problem.  lock_page is held at many of
+the right points, but not all, and may be bad to extend its use.
+
+Your patches looked over-split to me (a rare criticism!): you don't
+need a separate patch to delete each little thing that's no longer
+used, nor a separate patch to introduce each new definition before
+it's used.
+
+Hugh

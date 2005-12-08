@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932698AbVLHXB6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932699AbVLHXCH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932698AbVLHXB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 18:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932699AbVLHXB6
+	id S932699AbVLHXCH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 18:02:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbVLHXCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 18:01:58 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:46782 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932698AbVLHXBz convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 18:01:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=lMd5Qs4Bngw67FKNIWwg/llbM6+M7Lysf1rBbSKqVj31KMNXiDN1dD5sE9Uy90gBRrjmNF6Y6AbQUY2PxfmniWmyix27arXrKL7ClGHfG6klbHVK5K182vTODP6ylK0JdL/PSBWwQHa9YbsHfRgpjXlCO4sLViNY/ySc3Y/B9LI=
-Message-ID: <d120d5000512081501q6537401dn68fa1a15160559ea@mail.gmail.com>
-Date: Thu, 8 Dec 2005 18:01:54 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Greg KH <gregkh@suse.de>
-Subject: Re: Driver bind/unbind and __devinit
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051208222618.GA26295@suse.de>
+	Thu, 8 Dec 2005 18:02:07 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65295 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932699AbVLHXCF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 18:02:05 -0500
+Date: Fri, 9 Dec 2005 00:02:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Badari Pulavarty <pbadari@gmail.com>, Jaroslav Kysela <perex@suse.cz>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       alsa-devel@alsa-project.org
+Subject: Re: 2.6.15-rc5-mm1
+Message-ID: <20051208230203.GA23349@stusta.de>
+References: <20051204232153.258cd554.akpm@osdl.org> <1134068983.21841.71.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <d120d5000512081314r6b574eb3jf5516ef5bc28730d@mail.gmail.com>
-	 <20051208215522.GA25925@suse.de>
-	 <d120d5000512081422r650815dewb174119b743e87c4@mail.gmail.com>
-	 <20051208222618.GA26295@suse.de>
+In-Reply-To: <1134068983.21841.71.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/8/05, Greg KH <gregkh@suse.de> wrote:
-> On Thu, Dec 08, 2005 at 05:22:12PM -0500, Dmitry Torokhov wrote:
-> > On 12/8/05, Greg KH <gregkh@suse.de> wrote:
-> > > On Thu, Dec 08, 2005 at 04:14:58PM -0500, Dmitry Torokhov wrote:
-> > > > Hi,
-> > > >
-> > > > Many drivers have their probe routines declared as __devinit which is
-> > > > a no-op unless CONFIG_HOTPLUG is set. However driver's bind/unbind
-> > > > attributes are created unconditionally, as fas as I can see. Would not
-> > > > it cause an oops if someone tries to use these attributes with
-> > > > CONFIG_HOTPLUG=N? Am I missing something?
-> > >
-> > > You are missing the CONFIG_HOTPLUG checks around the functions that add
-> > > and check the device ids from these sysfs files.  If CONFIG_HOTPLUG is
-> > > not enabled, those files do not do anything.
-> > >
-> >
-> > I am slow today... I don't see any dependencies on CONFIG_HOTPLUG in
-> > drivers/base... Or you talking about one particular subsystem that
-> > handles this correctly?
->
-> Ugh, very sorry about that, I was thinking of the USB and PCI new_id
-> stuff.  You are right.
->
-> Yes, bind happening after the __init data section is thrown away, if
-> CONFIG_HOTPLUG is not enabled would be a bad thing.  But unbind can
-> stay.  I'll go make up a patch for that.
->
+On Thu, Dec 08, 2005 at 11:09:43AM -0800, Badari Pulavarty wrote:
+> On Sun, 2005-12-04 at 23:21 -0800, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm1/
+> 
+> In file included from sound/pci/ens1371.c:2:
+> sound/pci/ens1370.c: In function `snd_audiopci_probe':
+> sound/pci/ens1370.c:2462: error: `spdif' undeclared (first use in this
+> function)sound/pci/ens1370.c:2462: error: (Each undeclared identifier is
+> reported only once
+> sound/pci/ens1370.c:2462: error: for each function it appears in.)
+> sound/pci/ens1370.c:2462: error: `lineio' undeclared (first use in this
+> function)
+> make[2]: *** [sound/pci/ens1371.o] Error 1
+> make[2]: *** Waiting for unfinished jobs....
 
-Unbind may invoke ->remove code which is __devexit[_p] and may be also
-discarded if !MODULE && !HOTPLUG.
+Jaroslav, this seems to come from your
 
-> > > > Also, unbind implementation does not seem safe - we check the driver
-> > > > before taking device's semaphore so we risk unbinding wrong driver (in
-> > > > the unlikely event that we manage to unbind and bind another driver in
-> > > > another thread).
-> > >
-> > > Do you have a suggestion as to how to fix this?
-> > >
-> >
-> > I think we could take the semaphore before checking driver and then
-> > use __device_release_driver(). But we'd need to make it global or move
-> > bind/unbind code into drivers/base/dd.c
->
-> I don't have a problem moving the code if it makes it easier.  Have a
-> patch?  :)
->
+  [ALSA] ens1371: added spdif and lineio module option
 
-Just handwaving for now ;)
+patch in the ALSA git tree if SUPPORT_JOYSTICK=n.
 
---
-Dmitry
+> Thanks,
+> Badari
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

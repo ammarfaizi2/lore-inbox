@@ -1,113 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbVLHJmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbVLHJw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbVLHJmM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 04:42:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbVLHJmM
+	id S1751017AbVLHJw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 04:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbVLHJwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 04:42:12 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:45319 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750993AbVLHJmM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 04:42:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cu+VA4kXQACQpqvpWuzAyOOPsDBAUDbUvWUEOEVzvIfbjTrl0tTg8MdzdDLkkdtK6I+0UzHJr5B7OLA3S1anl/itKFYvJ6iP7OtDn5n8YyQBZJwwdDZaygQeumrnJbv74IXollUPoRo4ROKj2thy4NIDf8xPC5eDorOaSW0um0E=
-Message-ID: <5a2cf1f60512080142j175bc79eq1b95182d22268b6b@mail.gmail.com>
-Date: Thu, 8 Dec 2005 10:42:11 +0100
-From: jerome lacoste <jerome.lacoste@gmail.com>
-To: Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: Runs with Linux (tm)
-Cc: Dirk Steuwer <dirk@steuwer.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051207141720.GA533@kvack.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 8 Dec 2005 04:52:55 -0500
+Received: from styx.suse.cz ([82.119.242.94]:2508 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1751017AbVLHJwz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 04:52:55 -0500
+Date: Thu, 8 Dec 2005 10:34:04 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       Chris McDermott <lcm@us.ibm.com>
+Subject: Re: [RFC][PATCH] x86_64:  Fix collision between pmtimer and pit/hpet timekeeping
+Message-ID: <20051208093403.GA7445@midnight>
+References: <1133931639.10613.39.camel@cog.beaverton.ibm.com> <20051207175338.GB11190@wotan.suse.de> <1133978430.18188.3.camel@leatherman>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
-	 <20051205121851.GC2838@holomorphy.com>
-	 <20051206011844.GO28539@opteron.random>
-	 <43944F42.2070207@didntduck.org>
-	 <loom.20051206T094816-40@post.gmane.org>
-	 <20051206104652.GB3354@favonius>
-	 <loom.20051206T173458-358@post.gmane.org>
-	 <20051207141720.GA533@kvack.org>
+In-Reply-To: <1133978430.18188.3.camel@leatherman>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/05, Benjamin LaHaise <bcrl@kvack.org> wrote:
-> On Tue, Dec 06, 2005 at 04:41:44PM +0000, Dirk Steuwer wrote:
-> > Yes, but there isn't and won't be much recognition - every company does
-> > its own thing. And how many people buy online all the time? But even then,
-> > a genery "runs with Linux" Logo would be great. If a company's product
-> > is not certified, its not considered by Linux customers.
->
-> This is something I've wanted to see for years now.  Linux distributions
-> do not have the motivation to work out the hardware certification issues
-> on the community level, as it interferes with their value add of branding.
-> I have always wished that when I see hardware advertising Linux support
-> that it has a meaning: open source, supportable drivers.  Maybe it's time
-> to get such a project moving.
+On Wed, Dec 07, 2005 at 10:00:30AM -0800, john stultz wrote:
+> On Wed, 2005-12-07 at 18:53 +0100, Andi Kleen wrote:
+> > On Tue, Dec 06, 2005 at 09:00:39PM -0800, john stultz wrote:
+> > > Hello,
+> > > 	I thought I had caught all the problems when the no-legacy HPET support
+> > > landed close to the time that the ACPI PM timer support landed, but
+> > > apparently not. :(
+> > > 
+> > > On systems that do not support the HPET legacy functions (basically the
+> > > IBM x460, but there could be others), in time_init() we accidentally
+> > > fall into a PM timer conditional and set the vxtime_hz value to the PM
+> > > timer's frequency. We then use this value with the HPET for timekeeping.
+> > > 
+> > > This patch (which mimics the behavior in time_init_gtod) corrects the
+> > > collision.
+> > > 
+> > > Andi, any objections or suggestions for a better way?
+> > 
+> > Ok. I will apply it.
+> > 
+> > But I never quite got why you fall back to the PIT on these systems
+> > anyways - if LEGSUP is not set it just means that the HPET interrupt
+> > cannot be routed to irq 0, right? It should be quite easy to change
+> > the timer code to accept timer interrupts on other irqs. 
+> > 
+> > You just need to allocate the other interrupt and possibly coordinate
+> > that with the hpet char driver (or rather move the code for that
+> > from there to time.c). I think implementing that would be a better
+> > solution.
+> 
+> Indeed that does sound like a decent cleanup. I can't promise anything
+> in the near future, but its on my list.
+> 
+> Would you then want to move all systems to use the non-legacy HPET
+> interrupt?
+ 
+Yes, that'd be very cool. The problem with doing it is that HPET is
+initialized at a very early stage of boot where it isn't at all clear
+which APIC pins will be free to take the HPET interrupt(s).
 
-I've read that thread with interest and would like to share some of my thoughts.
-
-What are the issues with a "run with Linux" sticker?
-
-- supported by who? kernel.org? a distribution? the vendor?
-
-- accredited by who? the entity that supports? an external entity?
-
-- support which features? If the in-kernel driver contains the bare
-minimum number of features, but no support for the advanced features,
-what does the support claim mean? E.g. with all the OSS/ALSA, APM/ACPI
-debates, I wonder what happens whenever a hardware is 'half'
-supported.
-
-- which Linux version? Some people mention restricting support to a
-particular linux version or time periods. I find this not very
-practical. How can you guarantee that in the next 2 years (or even 6
-months)? With non stable API/ABI, how do you want to sell the idea of
-unknown unforecastable development costs to the hardware maker?
-
-- I still see people saying supported on "Linux 9.1" (aka Red Hat/Suse
-or whatever)...
-
-- it requires the manufacturer to care about putting the sticker in
-place. If they start to advertise support, they will have more costs,
-even if the support is handled by an external entity.
-
-- what happens when a different revision of the 'same' hardware is not
-supported anymore? It happened with one my webcam.
-
-- how does that work when online? You will have a particular hardware
-saying "Runs With Linux" and another one fully supported by the maker,
-or fully unsupported use-ndiswrapper-like saying "Runs On Linux" or
-"Works on Linux". How does the sticker help me to decide?
-
-
-Because of all these reasons, I don't think we will ever have half of
-the really supported hardware even display the sticker. What does that
-mean for me as a user? I will still need to search for information
-about the other part.
-
-How to identify the other part?
-
-I'd rather want to know this information from the community. The
-community, in help with the distribution vendors, should come up with
-a big database that contains all this information. I don't want to go
-on the ALSA web site to check if my sound card is supported, then on
-the SATA one for my disk controller, then on linux-usb etc...
-
-I want tools to help us feed that database, like the Ubuntu Device
-Database client. But I want that at the Linux scale not the
-distribution one.
-* The client software would be used to report functional state of
-hardware elements or access information about a particular hardware
-present on the machine.
-* There should be an easy way to have a Live distro with the latest
-kernel that contains the minimal set of programs required to run this
-Hardware Database client.
-
-Cheers,
-
-Jerome
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932255AbVLHTJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932274AbVLHTNr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932255AbVLHTJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 14:09:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbVLHTJ1
+	id S932274AbVLHTNr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 14:13:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbVLHTNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 14:09:27 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:48626 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932255AbVLHTJ1 (ORCPT
+	Thu, 8 Dec 2005 14:13:47 -0500
+Received: from [85.206.165.195] ([85.206.165.195]:54800 "HELO 8ea4ad60874")
+	by vger.kernel.org with SMTP id S932269AbVLHTNq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 14:09:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=eQ2s2dQ/HUt5b6UKV+Ty9cYTm5QhS2jNMMzrgg7wCRfWO1HEpHmt6QjF14Um5xtfo3lucbrkILWjvJ3WdsLcTkraeLReksPTOKylfQXQCGnKFNEZW/rKWAahmwrlHvAKGqPdrhmiLmEjf39QYk3imZizqpYO+XcLU+r7HMojiAk=
-Subject: Re: 2.6.15-rc5-mm1
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051204232153.258cd554.akpm@osdl.org>
-References: <20051204232153.258cd554.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 08 Dec 2005 11:09:43 -0800
-Message-Id: <1134068983.21841.71.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Thu, 8 Dec 2005 14:13:46 -0500
+Date: Thu, 8 Dec 2005 19:13:42 +0000
+Message-ID: <0002$01e4a28c$08443ae5@8ea4ad60874>
+To: linux-kernel@vger.kernel.org
+Subject: News for linux-kernel@vger.kernel.org
+From: "Swan" <cnwzenyh@cranecomputers.com>
+MIME-Version: 1.0
+	charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-12-04 at 23:21 -0800, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm1/
+   Cash Now Corporation,
+   Symbol: CHNW.PK
+   Price: .11
+   already up 5 cents from Friday Dec 2nd
+   Active (strong)
 
-In file included from sound/pci/ens1371.c:2:
-sound/pci/ens1370.c: In function `snd_audiopci_probe':
-sound/pci/ens1370.c:2462: error: `spdif' undeclared (first use in this
-function)sound/pci/ens1370.c:2462: error: (Each undeclared identifier is
-reported only once
-sound/pci/ens1370.c:2462: error: for each function it appears in.)
-sound/pci/ens1370.c:2462: error: `lineio' undeclared (first use in this
-function)
-make[2]: *** [sound/pci/ens1371.o] Error 1
-make[2]: *** Waiting for unfinished jobs....
+   Volume Has Been Pretty Good Lately With Two Sessions Where Over 10 Million
+   Shares Traded. PR Program This Weekend Apprising Potential Investors of This
+   One. A new PR campiagn will start Thursday.
+   Get in before this starts for the best gains
 
+   News
+   Great news just released. This should really start to move!
 
-Thanks,
-Badari
+   The News
+   Payday Loan Leader Cash Now Re-Launches Infomercials, Fueling Expansion
+   of Licensees and Further Organic Growth Market Wire (Wed 10:00am)
 
+   Payday Loan Leader Cash Now Strengthens Infrastructure to Handle Increase
+   in Business -- 'Scaling for the Future' Market Wire (Wed 10:00am)

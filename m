@@ -1,73 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVLHK06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbVLHK1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbVLHK06 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 05:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbVLHK06
+	id S1751114AbVLHK1n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 05:27:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbVLHK1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 05:26:58 -0500
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:263 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751129AbVLHK05 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 05:26:57 -0500
-In-Reply-To: <4397E427.2070702@laposte.net>
-References: <6DAD0850-4943-416E-9E7B-095C6B412DD0@oxley.org> <4397E427.2070702@laposte.net>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <6A700AF6-1E1B-49A7-A565-336700882097@oxley.org>
-Cc: linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Jesse Barnes <jesse.barnes@intel.com>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       Jon Masters <jonmasters@gmail.com>,
-       Grahame White <grahame@regress.homelinux.org>,
-       Benjamin LaHaise <bcrl@kvack.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, Lars Marowsky-Bree <lmb@suse.de>,
-       "linux-os ((Dick Johnson))" <linux-os@analogic.com>,
-       Rik van Riel <riel@redhat.com>, Dirk Steuwer <dirk@steuwer.de>,
-       Andrea Arcangeli <andrea@suse.de>, Lee Revell <rlrevell@joe-job.com>
-Content-Transfer-Encoding: 7bit
-From: Felix Oxley <lkml@oxley.org>
-Subject: Re: Linux Hardware Quality Labs (was: Linux in a binary world... a doomsday scenario)
-Date: Thu, 8 Dec 2005 10:26:53 +0000
-To: Nicolas Mailhot <nicolas.mailhot@laposte.net>
-X-Mailer: Apple Mail (2.746.2)
+	Thu, 8 Dec 2005 05:27:43 -0500
+Received: from mx.laposte.net ([81.255.54.11]:42849 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S1751114AbVLHK1m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 05:27:42 -0500
+Message-ID: <35082.192.54.193.25.1134037636.squirrel@rousalka.dyndns.org>
+Date: Thu, 8 Dec 2005 11:27:16 +0100 (CET)
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
+To: "Kasper Sandberg" <lkml@metanurb.dk>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.6 [CVS]-0.cvs20051204.1.fc5.1.nim
+MIME-Version: 1.0
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 8 Dec 2005, at 07:43, Nicolas Mailhot wrote:
+On Jeu 8 décembre 2005 01:58, Kasper Sandberg wrote:
+> On Tue, 2005-12-06 at 21:39 +0000, Nicolas Mailhot wrote:
+>> Arjan van de Ven <arjan <at> infradead.org> writes:
+>>
+>> > There are lots of opportunities to put pressure on vendors, either
+>> > direct or indirect. Nvidia has a support department. If they get
+>> enough
+>> > calls / letters about their solution not being good enough, they're
+>> more
+>> > likely to consider the rearchtect solution.
+
+>> Right now getting hardware advice is a long and painful process.
+>> Hardware that
+>> works is only semi-documented. Hardware which doesn't isn't at all.
+>> Users have
+>> to comb numerous on-line databases and mail archives (full of
+>> obsolete/wrong
+>> info) to spec a single linux-friendly system. Few people bother to
+>> answer
+>> hardware advice requests on mailing lists.
+
+> i disagree, you make it sound like it takes we
+eks of effort to find out
+> which stuff works on linux, and that basically you have to be lucky to
+> find it at all...
 >
-> I think the current focus on the logo idea is pretty sad. The only  
-> real
-> "feature" a logo adds is it will have to be maintained by Someone  
-> Else.
-> Which is always nice. Except when the real info is in the kernel
-> maintainers heads, as is the real love of free software, being
-> maintained by Someone Else means it'll fail.
->
-> A good exhaustive online centralised hardware database, blessed and
-> maintained by kernel people, will have influence with or without a  
-> logo.
->
+> basically the only thing that doesent work (i dont count binary-only
+> solutions working) is nvidia and ati.
 
-The benefits of a 'paper' logo are as follows:
+I agree you can get most systems working. If you don't care about advanced
+features (PM management, hardware-specific optimizations...), the means
+(nsdiswrapper, specific kernel version...) and limit yourself to very
+mainstream hardware (ie two-years-old perf when windows users get the
+latest enhancements).
 
-1. It builds 'brand' awareness
-2. It means that when you take a piece of hardware of the shelf in  
-the store you don't need to check an online database for compatibility.
+But that's exactly the point Arjan made. Because we do not discriminate
+based on support quality, whole classes of devices are choosing minimalist
+support (-> erosion). Graphic cards and wireless cards are only those who
+pushed this logic to its extreme.
 
-> their faith in a paper logo. Which is pretty ridiculous. Give users a
-> good database and they won't need the paper thingy (not to mention
-> drivers are completed after hardware ships, so all the already- 
-> packaged
-> hardware won't get a linux logo by magic)
+If you trust blind luck and good enough, you don't have any purchasing
+influence, and things will degenerate as they are doing now.
 
-I presume that drivers will be developed alongside the hardware  
-because you can't sell the kit until the drivers are on the CD in the  
-nice box with the instruction manual.
-Also you can't test the hardware properly unless you have drivers for  
-it.
+This is BTW why the logo idea is stupid. Logo is a boolean stuff. Either
+you only give it to perfectly friendly hardware, and almost no one will
+get it, or you accept all sorts of compromises, and harware makers will
+only aim for the minimal requirements needed for the logo and nothing
+else.
 
-regards,
-Felix
+Much better a notation on a web site, showing in real time how individual
+hardware/hardware makers are progressing from red to green (with shades of
+orange between) or the other way.
+
+This is what linuxprinting does, what alsa tries to (and fails somewhat,
+sorry Lee) etc, etc. If a single system was used and more effort expanded
+to have exhaustive hardware lists I assure you its effects would be felt
+by hardware makers. Every single hardware review site could complete its
+coverage for free by linking the official linux kernel hardware assessment
+to its review. Right now they have no idea if a piece of hardware works
+well or not, and because it's a lot of work to get the info they don't
+bother. Which means kernel people opinion is worth next to nothing (as
+Arjan complains).
+
+Some people have proposed a wiki. A wiki is good but that's an
+half-measure. Do it the full way - choose one of the FOSS ecommerce
+stacks, replace the its comparison parameters by things we care about,
+feed the underlying DB and just watch as people buy based on your
+notation.
+
+People do not follow the recommendations of every review web site because
+they trust them. They follow the recommendations because it's the ones
+easiest to get, and they don't want to bother with official (but difficult
+to reach) sources.
+
+Regards,
+
+-- 
+Nicolas Mailhot
 

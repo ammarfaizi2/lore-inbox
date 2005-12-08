@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVLHPh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbVLHPjM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbVLHPh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 10:37:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbVLHPh4
+	id S932181AbVLHPjM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 10:39:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVLHPjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 10:37:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:59875 "EHLO
+	Thu, 8 Dec 2005 10:39:12 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:61923 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932174AbVLHPhz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 10:37:55 -0500
+	id S932181AbVLHPjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 10:39:10 -0500
 Subject: Re: How to enable/disable security features on mmap() ?
 From: Arjan van de Ven <arjan@infradead.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Emmanuel Fleury <emmanuel.fleury@labri.fr>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0512081011020.32448@chaos.analogic.com>
+To: Emmanuel Fleury <emmanuel.fleury@labri.fr>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4398516F.1020101@labri.fr>
 References: <43983EBE.2080604@labri.fr>
 	 <1134051272.2867.63.camel@laptopd505.fenrus.org>
 	 <43984154.5050502@labri.fr>  <43984595.1090406@labri.fr>
 	 <1134053349.2867.65.camel@laptopd505.fenrus.org> <4398493E.50508@labri.fr>
 	 <Pine.LNX.4.61.0512081011020.32448@chaos.analogic.com>
+	 <4398516F.1020101@labri.fr>
 Content-Type: text/plain
-Date: Thu, 08 Dec 2005 16:37:51 +0100
-Message-Id: <1134056272.2867.73.camel@laptopd505.fenrus.org>
+Date: Thu, 08 Dec 2005 16:39:07 +0100
+Message-Id: <1134056348.2867.76.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -41,18 +41,16 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Isn't this too much?  I thought the random-stack patch was
-> only supposed to vary it a page or 64k at most. This looks
-> like some broken logic because it varies almost 8 megabytes!
+> Well, there are some other strangeness (especially when running on a
+> x86_64 architecture). See:
 
-that is correct; the 64k was only there for one patch proposal; linus'
-tree had 8 Mb randomisation from the start
+x86-64 does not have all the randomisation patches yet in mainline,
+waiting on Andi to approve ;)
 
-> No wonder some of my user's database programs sometimes seg-fault
-> and other times work perfectly fine. I think this is incorrect
-> and shows a serious bug (misbehavior).
+> Moreover, the libc location (and all other dynamic libs) is not
+> randomized under x86_64. I have no explanation for this. :-/
 
-eh how? This 8Mb isn't eaten from the stack rlimit; the entire stack is
-moved, and the rlimit applies to the size not the position.
+see above; in addition prelink may be interfering with this.
+
 
 

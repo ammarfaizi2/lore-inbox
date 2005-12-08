@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbVLHIjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbVLHIhQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbVLHIjh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 03:39:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbVLHIjh
+	id S1750785AbVLHIhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 03:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVLHIhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 03:39:37 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:6544 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750818AbVLHIjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 03:39:36 -0500
-Message-ID: <4397F078.9060208@jp.fujitsu.com>
-Date: Thu, 08 Dec 2005 17:36:08 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@engr.sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [Lhms-devel] Re: [PATCH] swap migration: Fix lru drain
-References: <Pine.LNX.4.62.0512071351010.25527@schroedinger.engr.sgi.com> <20051207161319.6ada5c33.akpm@osdl.org> <Pine.LNX.4.62.0512071635250.26288@schroedinger.engr.sgi.com> <20051207165730.02dc591e.akpm@osdl.org> <Pine.LNX.4.62.0512071706001.26471@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0512071706001.26471@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Dec 2005 03:37:15 -0500
+Received: from colin.muc.de ([193.149.48.1]:270 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1750785AbVLHIhO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 03:37:14 -0500
+Date: 8 Dec 2005 09:37:09 +0100
+Date: Thu, 8 Dec 2005 09:37:09 +0100
+From: Andi Kleen <ak@muc.de>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Morton Andrew Morton <akpm@osdl.org>, len.brown@intel.com
+Subject: Re: [PATCH] x86_64: acpi map table fix
+Message-ID: <20051208083709.GA87750@muc.de>
+References: <20051208041509.GA4841@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051208041509.GA4841@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Wed, 7 Dec 2005, Andrew Morton wrote:
+On Thu, Dec 08, 2005 at 09:45:09AM +0530, Vivek Goyal wrote:
 > 
 > 
->>I'll change this to return 0 on success, or -ENOMEM.  Bit more
->>conventional, no?
+> o Memory till end_pfn_map has been directly mapped. So all the memory
+>   references to the last page (represented by end_pfn_map) should be
+>   valid.
 > 
-> 
-> Ok. That also allows the addition of other error conditions in the future.
-> Need to revise isolate_lru_page to reflect that.
-> 
-This patch was needed to compile.
+I think the correct test is
 
--- Kame
-==
-Index: hotremove-2.6.15-rc5-mm1/include/linux/workqueue.h
-===================================================================
---- hotremove-2.6.15-rc5-mm1.orig/include/linux/workqueue.h	2005-12-08 17:32:18.000000000 +0900
-+++ hotremove-2.6.15-rc5-mm1/include/linux/workqueue.h	2005-12-08 17:32:43.000000000 +0900
-@@ -65,7 +65,7 @@
-  extern int FASTCALL(schedule_delayed_work(struct work_struct *work, unsigned long delay));
+    if (phys_addr+size <= (end_pfn_map << PAGE_SHIFT) + PAGE_SIZE)
+                return __va(phys_addr);
 
-  extern int schedule_delayed_work_on(int cpu, struct work_struct *work, unsigned long delay);
--extern void schedule_on_each_cpu(void (*func)(void *info), void *info);
-+extern int schedule_on_each_cpu(void (*func)(void *info), void *info);
-  extern void flush_scheduled_work(void);
-  extern int current_is_keventd(void);
-  extern int keventd_up(void);
 
+I changed it to that. Thanks.
+
+-Andi

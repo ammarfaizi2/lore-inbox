@@ -1,74 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbVLHEKE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030446AbVLHEPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbVLHEKE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 23:10:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVLHEKE
+	id S1030446AbVLHEPm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 23:15:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030455AbVLHEPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 23:10:04 -0500
-Received: from gepetto.dc.ltu.se ([130.240.42.40]:54403 "EHLO
-	gepetto.dc.ltu.se") by vger.kernel.org with ESMTP id S1751007AbVLHEKB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 23:10:01 -0500
-Message-ID: <4397B348.7070205@student.ltu.se>
-Date: Thu, 08 Dec 2005 05:15:04 +0100
-From: Richard Knutsson <ricknu-0@student.ltu.se>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Wed, 7 Dec 2005 23:15:42 -0500
+Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:46479 "EHLO
+	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
+	id S1030446AbVLHEPl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 23:15:41 -0500
+From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Message-Id: <200512080411.jB84BAPX010214@sprite.physics.adelaide.edu.au>
+Subject: Re: 2.6.14-rt21: slow-running clock
+To: johnstul@us.ibm.com (john stultz)
+Date: Thu, 8 Dec 2005 14:41:10 +1030 (CST)
+Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1134012141.10613.81.camel@cog.beaverton.ibm.com> from "john stultz" at Dec 07, 2005 07:22:21 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Benjamin LaHaise <bcrl@kvack.org>
-CC: Dirk Steuwer <dirk@steuwer.de>, linux-kernel@vger.kernel.org
-Subject: Re: Runs with Linux (tm)
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org> <loom.20051206T094816-40@post.gmane.org> <20051206104652.GB3354@favonius> <loom.20051206T173458-358@post.gmane.org> <20051207141720.GA533@kvack.org> <43979569.5090805@student.ltu.se> <20051208023816.GA7184@kvack.org>
-In-Reply-To: <20051208023816.GA7184@kvack.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin LaHaise wrote:
+> On Thu, 2005-12-08 at 13:32 +1030, Jonathan Woithe wrote:
+> > > > I'm also wondering whether this might be related to one other thing I
+> > > > noticed a week or so back (also reported to the list, but thus far no
+> > > > followups). If I enabled the (new) "High resolution timers" feature (as
+> > > > distinct from HPET), things like /usr/bin/sleep run for far longer than
+> > > > they should irrespective of machine load.  For example, "sleep 1" from bash
+> > > > actually delays 38 seconds, not 1 second as expected.
+> > > 
+> > > Does disabling the "High resolution timers" feature change the behavior
+> > > all?
+> > 
+> > I should clarify.  Everything I've given you thus far has been with the
+> > "high resolution timers" feature disabled.  Two or so weeks ago I tried
+> > enabling it and that's when "sleep 1" took 38 seconds to complete. 
+> > Disabling "high resoltion timers" at least made "sleep 1" behave somewhat
+> > saner.  I don't know if having the high res timers enabled affects the
+> > accuracy of the system clock however.  I'll test this tonight.
+> 
+> Ok. I think I've reproduced the issue on my laptop as well. It seems to
+> be a -rt issue only (I need to go back and test HRT too) as I do not see
+> the problem w/ my B13 patchset. 
+> 
+> Possibly we are getting preempted before entering or exiting C3 mode?
+> I'll need to look further. It isn't directly related to cpu load or
+> idleness (a cpu pegged box doesn't drift that badly), but it might be
+> io-related. 
 
->On Thu, Dec 08, 2005 at 03:07:37AM +0100, Richard Knutsson wrote:
->  
->
->>Why not something more of "Runs on Open Drivers", which also gives us a 
->>chance to "teach" people why to use an open OS without the replies:
->>"Windows is pretty" (actually, it was a guy who told me that)
->>    
->>
->
->What does something like that say about the state of the drivers?  If one 
->of the open OSes doesn't merge the driver, do they get to use the logo?  
->  
->
-Good point, the questions already for the "Runs on Linux" (have not seen 
-any answers to them yet):
-* is all drivers going to be runnable for all series and if not, how is 
-that going to show?
-* do the logo mean "only guarantied with the latest version (in the 
-serie)"? some sort of time stamp on the logo?
+Being IO-related is believable based on what I've seen.  In the fault
+condition, the system clock averages 5 seconds behind the CMOS clock
+immediately after the system has booted (which requires a large amount of
+IO).  If the system sits idle not doing anything the drift is almost
+non-existant.  Jackd is really good at slowing the system clock down though,
+but then again jackd is doing a lot of IO.
 
-The reason for my "suggestion" is:
-* is there no risk to scare off people not interested in Linux?
-* more likely it would get help from other OS-users too.
-* is this about open drivers or the OS? (possible idea is to not 
-verbally say Linux but having Tux on the logo) (think there is to much 
-focus on the OS, ex: have seen "run on all Windows versions" for 
-IDE->SATA-converters).
+All this seems to confirm earlier idea that there are two issues: a slowdown
+in the c3tsc timer, and something in RT which causes the selection of the
+c3tsc timer ahead of the acpi_pm timer.
 
->The more you dilute something, the harder the whole process becomes.
->  
->
-True! I hope I did not do so by suggesting/writing this.
-
->		-ben
->  
->
-Thank you, for answering.
-
-/Richard
-
-PS
-Don't get me wrong! If I see a "Runs on Linux"-logo in the future, I 
-will be thrilled. No doubt about that!
-DS
-
+Regards
+  jonathan

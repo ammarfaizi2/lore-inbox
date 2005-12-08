@@ -1,27 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVLHUmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbVLHUn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbVLHUmm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 15:42:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVLHUmm
+	id S932382AbVLHUn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 15:43:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVLHUn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 15:42:42 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:4523 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932326AbVLHUml (ORCPT
+	Thu, 8 Dec 2005 15:43:59 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:6827 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932373AbVLHUn5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 15:42:41 -0500
-Message-ID: <43989AB9.60203@pobox.com>
-Date: Thu, 08 Dec 2005 15:42:33 -0500
+	Thu, 8 Dec 2005 15:43:57 -0500
+Message-ID: <43989B00.5040503@pobox.com>
+Date: Thu, 08 Dec 2005 15:43:44 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Daniel Drake <dsd@gentoo.org>
-CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RESEND] via82cxxx IDE: Add VT8251 ISA bridge
-References: <43988D11.80809@gentoo.org>
-In-Reply-To: <43988D11.80809@gentoo.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: Erik Slagter <erik@slagter.name>
+CC: Christoph Hellwig <hch@infradead.org>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, randy_d_dunlap@linux.intel.com,
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
+References: <20051208030242.GA19923@srcf.ucam.org>	 <20051208091542.GA9538@infradead.org>	 <20051208132657.GA21529@srcf.ucam.org>	 <20051208133308.GA13267@infradead.org>	 <20051208133945.GA21633@srcf.ucam.org>	 <20051208134438.GA13507@infradead.org> <1134062330.1732.9.camel@localhost.localdomain>
+In-Reply-To: <1134062330.1732.9.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: 0.1 (/)
 X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
@@ -29,13 +31,11 @@ X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", 
 	has been attached to this so you can view it (if it isn't spam) or label
 	similar future email.  If you have any questions, see
 	the administrator of that system for details.
-	Content preview:  Daniel Drake wrote: > Some motherboards (such as the
-	Asus P5V800-MX) ship a > PCI_DEVICE_ID_VIA_82C586_1 IDE controller
-	alongside a VT8251 southbridge. > > This southbridge is currently
-	unrecognised in the via82cxxx IDE driver, > preventing those users from
-	getting DMA access to disks. > > Signed-off-by: Daniel Drake
-	<dsd@gentoo.org> > > -- > > Bart, I submitted this 2 weeks ago but sent
-	it to your old pw.edu.pl > address by accident. Sorry about that! [...] 
+	Content preview:  Erik Slagter wrote: > 'guess You're not interested in
+	having suspend/resume actually work on > laptops (or other PC's).
+	That's your prerogative but imho it's a bit > narrow-minded to withhold
+	this functionality from other people who > actually would like to have
+	this working, just because you happen to not > like ACPI. [...] 
 	Content analysis details:   (0.1 points, 5.0 required)
 	pts rule name              description
 	---- ---------------------- --------------------------------------------------
@@ -44,25 +44,15 @@ X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Drake wrote:
-> Some motherboards (such as the Asus P5V800-MX) ship a
-> PCI_DEVICE_ID_VIA_82C586_1 IDE controller alongside a VT8251 southbridge.
-> 
-> This southbridge is currently unrecognised in the via82cxxx IDE driver,
-> preventing those users from getting DMA access to disks.
-> 
-> Signed-off-by: Daniel Drake <dsd@gentoo.org>
-> 
-> -- 
-> 
-> Bart, I submitted this 2 weeks ago but sent it to your old pw.edu.pl 
-> address by accident. Sorry about that!
+Erik Slagter wrote:
+> 'guess You're not interested in having suspend/resume actually work on
+> laptops (or other PC's). That's your prerogative but imho it's a bit
+> narrow-minded to withhold this functionality from other people who
+> actually would like to have this working, just because you happen to not
+> like ACPI.
 
-ACK.
-
-VIA sent me the same patch, privately.
+It works just fine on laptops, with Jens' suspend/resume patch.
 
 	Jeff
-
 
 

@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030470AbVLHGQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbVLHG1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030470AbVLHGQz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 01:16:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030471AbVLHGQz
+	id S1161001AbVLHG1y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 01:27:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030473AbVLHG1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 01:16:55 -0500
-Received: from cantor.suse.de ([195.135.220.2]:56493 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030470AbVLHGQy (ORCPT
+	Thu, 8 Dec 2005 01:27:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19145 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030472AbVLHG1x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 01:16:54 -0500
-Date: Thu, 8 Dec 2005 07:16:48 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ren? Rebe <rene@exactcode.de>
-Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: [PATCH] x86_64: Test patch for ATI/Nvidia timer problems
-Message-ID: <20051208061648.GI11190@wotan.suse.de>
-References: <20051126142030.GA26449@wotan.suse.de> <200511271502.18782.rene@exactcode.de> <20051127141155.GI20775@brahms.suse.de> <200512051614.52620.rene@exactcode.de>
+	Thu, 8 Dec 2005 01:27:53 -0500
+Date: Thu, 8 Dec 2005 01:27:21 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+Subject: Re: for_each_online_cpu broken ?
+Message-ID: <20051208062721.GE28201@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+	"David S. Miller" <davem@davemloft.net>,
+	linux-kernel@vger.kernel.org
+References: <20051208050738.GE24356@redhat.com> <20051208052632.GF11190@wotan.suse.de> <20051208053302.GA28201@redhat.com> <20051207.213825.27890558.davem@davemloft.net> <20051208061211.GG11190@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200512051614.52620.rene@exactcode.de>
+In-Reply-To: <20051208061211.GG11190@wotan.suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 05, 2005 at 04:14:48PM +0100, Ren? Rebe wrote:
-> Hi,
-> 
-> On Sunday 27 November 2005 15:11, Andi Kleen wrote:
-> 
-> > > > But it worked properly before suspend/resume without noapic? 
-> > > 
-> > > Without noapic the timer has about the 2x speed compared to real-time. I
-> > > only used the machien with noapic since otherwise it is barely useful.
-> > 
-> > It has that still with the patch applied? The patch was supposed
-> > to fix that at least part of that problem on ATI systems
-> > (there seems to be also a timer miscalibration problem on some other
-> > laptops) 
-> 
-> Sorry for the late reply, just too much to do ... It appears my MSI Megabook
-> S270 with Ati chipset and AMD Turion freezes on boot with your patch applied
-> to 2.6.14.2 after the io schedulers are registered. Without the patch it boots
-> up fine.
+On Thu, Dec 08, 2005 at 07:12:12AM +0100, Andi Kleen wrote:
+ > On Wed, Dec 07, 2005 at 09:38:25PM -0800, David S. Miller wrote:
+ > > From: Dave Jones <davej@redhat.com>
+ > > Date: Thu, 8 Dec 2005 00:33:02 -0500
+ > > 
+ > > > On Thu, Dec 08, 2005 at 06:26:32AM +0100, Andi Kleen wrote:
+ > > > 
+ > > >  > The possible map is fixed kind of BTW in 2.6.15rc*. It was a side effect
+ > > >  > of CPU hotplug, which now uses a better algorithm to guess the 
+ > > >  > number of possible CPUs. In 2.6.15 you will just get half the number
+ > > >  > of available CPUs in addition by default
+ > > > 
+ > > > Yep, I noticed it offers a maximum of 6 cpus on my way.
+ > > > As a sidenote, seems kinda funny (and wasteful maybe?), doing this
+ > > > on a lot of hardware that isn't hotplug capable. (Whilst I could
+ > > > disable cpu hotplug in my local build, this isn't an answer for
+ > > > a generic distro kernel).
+ > 
+ > If you can figure out a way to detect this please share.
+ > The ACPI designers unfortunately didn't think that far
+ > (they did it right for memory hotplug, but not for CPU) 
+ > 
+ > I invented an ACPI extensin for it, but it's non standard
+ > so the half of CPUs is used as a default unless overwritten
+ > (additional_cpus=NUM) 
+ > 
+ > Anyways I changed it earlier to 1 additional CPU by default.
 
-Ok thanks. 
+Just guessing seems to be pretty guaranteed to give the wrong answer.
+I think it makes more sense to say "if your BIOS doesn't give
+the relevant info (as is usually the case), boot with additional_cpus)
 
-Does it work when booted with acpi_skip_timer_override ? 
+Penalising the many for the needs of the few just seems wrong.
+		
+		Dave
 
-I sometimes wish this ATI chipset wouldn't exist - its timers are an endless
-headache. Admittedly the Linux code for this is somewhat screwy too, but
-their hardware also doesn't seem to be quite kosher.
-
--Andi

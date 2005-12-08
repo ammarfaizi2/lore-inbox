@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbVLHEvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030458AbVLHFA2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030456AbVLHEvF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 23:51:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751720AbVLHEvE
+	id S1030458AbVLHFA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 00:00:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVLHFA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 23:51:04 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:51605 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751244AbVLHEvC (ORCPT
+	Thu, 8 Dec 2005 00:00:28 -0500
+Received: from pat.uio.no ([129.240.130.16]:15599 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030458AbVLHFA1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 23:51:02 -0500
-Date: Wed, 7 Dec 2005 23:50:48 -0500
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: axboe@suse.de
-Subject: 2.6.15rc5git1 cfq related spinlock bad magic
-Message-ID: <20051208045048.GC24356@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org, axboe@suse.de
+	Thu, 8 Dec 2005 00:00:27 -0500
+Subject: Re: nfs question - ftruncate vs pwrite
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Kenny Simpson <theonetruekenny@yahoo.com>
+Cc: Peter Staubach <staubach@redhat.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1134017608.8002.55.camel@lade.trondhjem.org>
+References: <20051207215040.15310.qmail@web34106.mail.mud.yahoo.com>
+	 <1134017608.8002.55.camel@lade.trondhjem.org>
+Content-Type: text/plain
+Date: Thu, 08 Dec 2005 00:00:00 -0500
+Message-Id: <1134018000.8002.58.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-2.971, required 12,
+	autolearn=disabled, AWL 1.84, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just as I shutdown my desktop, this popped out..
+On Wed, 2005-12-07 at 23:53 -0500, Trond Myklebust wrote:
+> On Wed, 2005-12-07 at 13:50 -0800, Kenny Simpson wrote:
+> > --- Peter Staubach <staubach@redhat.com> wrote:
+> > > You might use tcpdump or etherreal to see what the different traffic looks
+> > > like.  I suspect that ftruncate() leads a SETATTR operation while pwrite()
+> > > leads to a WRITE operation.
+> > 
+> > Ethereal results interpreted with wild speculation:
+> > The pwrite case:
+> >   This does a bunch of reads, but the server always returns a short read responding with EOF.  It
+> > seems that a pwrite does cause a getattr call, but that's it.
+> >   Once memory is exhausted, the pages are written out.
+> > 
+> > The ftruncate case:
+> >   This does a setattr, then does a read - this time the server responds with a large amount of
+> > 0's.
+> 
+> That is as expected. The ftruncate() causes an immediate change in
+> length of the file on the server, and so reads will.
 
-[311578.273186] BUG: spinlock bad magic on CPU#1, pdflush/30788 (Not tainted)
-[311578.293858] general protection fault: 0000 [1] SMP
-[311578.308773] CPU 1
-[311578.315046] Modules linked in: loop vfat fat radeon drm nfsd exportfs lockd nfs_acl ipv6 lp autofs4 rfcomm l2cap bluetooth suDec  6 03:05:39 nwo kernel: [311578.480129] Pid: 30788, comm: pdflush Not tainted 2.6.14-1.1735_FC5 #1
-[311578.499972] RIP: 0010:[<ffffffff8021f8bd>] <ffffffff8021f8bd>{spin_bug+138}
-[311578.520605] RSP: 0018:ffff8100307f1e68  EFLAGS: 00010082
-[311578.537316] RAX: 00000000c4be8326 RBX: e6491e0e0968bacd RCX: ffffffff804661d8
-[311578.558988] RDX: 0000000000000001 RSI: 0000000000000092 RDI: ffffffff804661c0
-[311578.580658] RBP: ffff810039fc2000 R08: 0000000000000002 R09: 0000000000000000
-[311578.602317] R10: 0000000000000000 R11: ffff810002aec808 R12: ffffffff8039e204
-[311578.623985] R13: ffff81003b2e7c48 R14: 0000000000000000 R15: ffffffff80152c90
-[311578.645643] FS:  0000000000000000(0000) GS:ffffffff805fd080(0000) knlGS:0000000000000000
-[311578.670184] CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-[311578.687672] CR2: 00002aaaaabe5093 CR3: 000000003d3f7000 CR4: 00000000000006e0
-[311578.709338] Process pdflush (pid: 30788, threadinfo ffff8100307f0000, task ffff81003dbc6780)
-[311578.734914] Stack: ffff810039fc2000 ffff81003edaa8b0 ffff8100031a00d0 ffffffff8021fbdb
-[311578.758699]        ffff81003c480630 ffffffff802174a4 ffff81003edaa8b0 ffff810004764928
-[311578.783015]        0000000000000286 ffffffff80217527
-[311578.798449] Call Trace:<ffffffff8021fbdb>{_raw_spin_lock+25} <ffffffff802174a4>{cfq_exit_single_io_context+85}
-[311578.828782]        <ffffffff80217527>{cfq_exit_io_context+33} <ffffffff8020d07d>{exit_io_context+137}
-[311578.856762]        <ffffffff8013f937>{do_exit+183} <ffffffff80152c90>{keventd_create_kthread+0}
-[311578.883192]        <ffffffff80110c25>{child_rip+15} <ffffffff80152c90>{keventd_create_kthread+0}
-[311578.909852]        <ffffffff80152d86>{kthread+0} <ffffffff80110c16>{child_rip+0}
-[311578.932353]
-[311578.939431]
-[311578.939432] Code: 44 8b 83 1c 01 00 00 48 8d 8b f8 02 00 00 8b 55 04 41 89 c1
+...Err... 
 
+...and so reads of the empty pages will succeed.
 
-Haven't managed to reproduce it since, but this came up a few weeks
-ago, just before we released Fedora Core 5 test1  (We defaulted to
-a different elevator for that test release just in case it blew up
-during installation), since flipping it back on, it's behaved, until now.
-
-		Dave
+>  In the case of
+> pwrite(), that is cached on the client until you fsync/close, and so the
+> server returns short reads.
+>
+> > Since this is using the buffer cache (not opened with O_DIRECT), and since we know we are
+> > extending the file... is it strictly necessary to read in pages of 0's from the server?
+> 
+> Possibly not, but is this a common case that is worth optimising for?
+> Note that use of the standard write() syscall as opposed to mmap() will
+> not trigger this avalanche of page-ins.
+> 
+> Cheers,
+>   Trond
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

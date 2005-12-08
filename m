@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVLHUVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVLHUX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbVLHUVt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 15:21:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVLHUVt
+	id S932337AbVLHUX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 15:23:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVLHUX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 15:21:49 -0500
-Received: from serv01.siteground.net ([70.85.91.68]:39652 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S932330AbVLHUVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 15:21:48 -0500
-Date: Thu, 8 Dec 2005 12:21:38 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org
-Subject: Re: [discuss] Re: pcibus_to_node value when no pxm info is present for the pci bus
-Message-ID: <20051208202138.GD3776@localhost.localdomain>
-References: <20051207223414.GA4493@localhost.localdomain> <Pine.LNX.4.62.0512081104280.29958@schroedinger.engr.sgi.com> <20051208193439.GB3776@localhost.localdomain> <20051208200440.GB15804@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051208200440.GB15804@wotan.suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Thu, 8 Dec 2005 15:23:28 -0500
+Received: from mail.gmx.de ([213.165.64.20]:35034 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932337AbVLHUX1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 15:23:27 -0500
+X-Authenticated: #26200865
+Message-ID: <4398963D.8040207@gmx.net>
+Date: Thu, 08 Dec 2005 21:23:25 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Alex Williamson <alex.williamson@hp.com>
+CC: len.brown@intel.com, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] ACPI owner_id limit too low
+References: <1134066095.32040.20.camel@tdi>
+In-Reply-To: <1134066095.32040.20.camel@tdi>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 08, 2005 at 09:04:40PM +0100, Andi Kleen wrote:
-> > > > The question is, what should be the default pcibus_to_node if there is no
-> > > > pxm info? Answer seems like -1 -- in which case dma_alloc_pages and e1000
-> > > > driver has to be fixed.
-> > > 
-> > > Why would they have to be fixed?
-> > 
-> > alloc_pages_node (used  by dma_alloc_pages) does not seem to do the check 
-> > though.  I guess alloc_pages_node needs to be fixed then.
+Alex Williamson schrieb:
+>    We've found recently that it's not very hard to bump into the limit
+> of the number of owner_ids that the ACPI subsystem can provide.
+> [...] Doubling the limit to 64 is a sufficient short term fix
+> and a fairly trivial patch, maybe even something that could go in before
+> 2.6.15.  Len, could we do something like the below patch to give us a
+> little more reasonable limit?  We could switch to a bitmap too, but
+> given how close the next kernel is to release this is less impact.
+> Thanks,
 > 
-> Or just fix the caller. I will do that and change the default to
+> 	Alex
+> 
+> 
+> Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+> ---
+> 
+> diff -r 03055821672a drivers/acpi/utilities/utmisc.c
+> --- a/drivers/acpi/utilities/utmisc.c	Mon Dec  5 01:00:10 2005
+> +++ b/drivers/acpi/utilities/utmisc.c	Wed Dec  7 14:55:58 2005
+> @@ -84,14 +84,14 @@
+>  
+>  	/* Find a free owner ID */
+>  
+> -	for (i = 0; i < 32; i++) {
+> -		if (!(acpi_gbl_owner_id_mask & (1 << i))) {
+> +	for (i = 0; i < 64; i++) {
+> +		if (!(acpi_gbl_owner_id_mask & (1UL << i))) {
 
-That was my thinking earlier too, but shouldn't we have uniformity in
-behaviour between kmalloc_node and alloc_pages_node wrt nodeid handling?  
-IMHO it would be less confusing that way. alloc_pages_node is not that much 
-of a fastpath routine anyways...
+Shouldn't this be 1ULL if you intend it to be 64 bit wide on a
+32 bit arch?
 
-Thanks,
-Kiran
+
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/

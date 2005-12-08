@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVLHSnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbVLHSru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbVLHSnL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 13:43:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbVLHSnL
+	id S932241AbVLHSru (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 13:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbVLHSru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 13:43:11 -0500
-Received: from ns1.heckrath.net ([213.239.205.18]:8074 "EHLO mail.heckrath.net")
-	by vger.kernel.org with ESMTP id S932195AbVLHSnK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 13:43:10 -0500
-Date: Thu, 8 Dec 2005 19:44:08 +0100
-From: Sebastian =?ISO-8859-15?Q?K=E4rgel?= <mailing@wodkahexe.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.{14,15-rc4} harddrive cache not detected
-Message-Id: <20051208194408.77e17f64.mailing@wodkahexe.de>
-X-Mailer: Sylpheed version 2.1.2 (GTK+ 2.6.7; i686-pc-linux-gnu)
+	Thu, 8 Dec 2005 13:47:50 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:63018 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S932241AbVLHSrt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 13:47:49 -0500
+Date: Thu, 8 Dec 2005 21:09:14 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: set_page_dirty vs set_page_dirty_lock
+Message-ID: <20051208190913.GA28482@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi!
+The comment at set_page_dirty_lock says:
 
-after installing a new harddrive, the kernel does no longer detect the
-harddrives cache.
+/*
+ * set_page_dirty() is racy if the caller has no reference against
+ * page->mapping->host, and if the page is unlocked.  This is because another
+ * CPU could truncate the page off the mapping and then free the mapping.
+ *
+ * Usually, the page _is_ locked, or the caller is a user-space process which
+ * holds a reference on the inode by having an open file.
+ *
+ * In other cases, the page should be locked before running set_page_dirty().
+ */
 
-Old one:
-ide0: BM-DMA at 0x1100-0x1107, BIOS settings: hda:DMA, hdb:pio
-hda: ST94019A, ATA DISK drive
-hda: 78140160 sectors (40007 MB) w/2048KiB Cache, CHS=16383/255/63, UDMA
-(33)
+Still, I wander whether it might be OK to use set_page_dirty
+in another case - if I previously got a reference to the page
+with get_user_pages?
+The page wouldnt be written back in this case, would it?
+What if I'm in the middle of a system call?
 
-New one:
-ide0: BM-DMA at 0x1100-0x1107, BIOS settings: hda:DMA, hdb:pio
-hda: TOSHIBA MK4025GAS, ATA DISK drive
-hda: 78140160 sectors (40007 MB), CHS=65535/16/63, UDMA(33)
+Thanks,
 
-Note, that there is nothing printed about the cache size.
-According to the manufactor the new harddrive should have 8mb cache.
-/proc/ide/ide0/hda/cache also show "0"
-
-hdparm gives the following:
-...
-BuffType=unknown, BuffSize=0kB
-...
-
-I verified this problem with 2.6.14 and 2.6.15-rc4.
-
-Thanks for your help,
-Sebastian
+-- 
+MST

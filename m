@@ -1,70 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932264AbVLHTUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVLHTUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932264AbVLHTUE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 14:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbVLHTUE
+	id S932262AbVLHTUg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 14:20:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbVLHTUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 14:20:04 -0500
-Received: from gold.veritas.com ([143.127.12.110]:21181 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S932264AbVLHTUC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 14:20:02 -0500
-Date: Thu, 8 Dec 2005 19:19:45 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-cc: Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: set_page_dirty vs set_page_dirty_lock
-In-Reply-To: <20051208190913.GA28482@mellanox.co.il>
-Message-ID: <Pine.LNX.4.61.0512081908530.11737@goblin.wat.veritas.com>
-References: <20051208190913.GA28482@mellanox.co.il>
+	Thu, 8 Dec 2005 14:20:36 -0500
+Received: from nproxy.gmail.com ([64.233.182.205]:39076 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932262AbVLHTUf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 14:20:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dz1f8p03k+8V9n4OMq/RhIIwlDr81msVswtnb0v1TBLTWnnmyQlGL/GqnpE98ALzMC+M8N2ZOMQ4sfUUhKCsOHNMM8FFKm/Z+h3YbSotKZ6Q3iPMVUs3iY3viU5FuF14u/km0X9vrR88ayoKX0jHeNCpptB6/vLVLOdKiZa1Eqs=
+Message-ID: <84144f020512081120u428ebd6eud0566a7d57a7726a@mail.gmail.com>
+Date: Thu, 8 Dec 2005 21:20:33 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Mike Christie <michaelc@cs.wisc.edu>
+Subject: Re: allowed pages in the block later, was Re: [Ext2-devel] [PATCH] ext3: avoid sending down non-refcounted pages
+Cc: open-iscsi@googlegroups.com, Christoph Hellwig <hch@infradead.org>,
+       FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>,
+       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <439879ED.5050706@cs.wisc.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 08 Dec 2005 19:19:52.0087 (UTC) FILETIME=[5D1D0270:01C5FC2C]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051208180900T.fujita.tomonori@lab.ntt.co.jp>
+	 <20051208101833.GM14509@schatzie.adilger.int>
+	 <20051208134239.GA13376@infradead.org> <439878E4.6060505@cs.wisc.edu>
+	 <439879ED.5050706@cs.wisc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Dec 2005, Michael S. Tsirkin wrote:
+Hi,
 
-> Hi!
-> The comment at set_page_dirty_lock says:
-> 
-> /*
->  * set_page_dirty() is racy if the caller has no reference against
->  * page->mapping->host, and if the page is unlocked.  This is because another
->  * CPU could truncate the page off the mapping and then free the mapping.
->  *
->  * Usually, the page _is_ locked, or the caller is a user-space process which
->  * holds a reference on the inode by having an open file.
->  *
->  * In other cases, the page should be locked before running set_page_dirty().
->  */
-> 
-> Still, I wander whether it might be OK to use set_page_dirty
-> in another case - if I previously got a reference to the page
-> with get_user_pages?
-> The page wouldnt be written back in this case, would it?
+On 12/8/05, Mike Christie <michaelc@cs.wisc.edu> wrote:
+> Or there is not a way to do kmalloc(GFP_BLK) that gives us the right
+> type of memory is there?
 
-It might be, there's no guarantee not.  So if it was written back just
-before you did your own dirtying of the page, you do need to set page dirty
-again after (usually when releasing the pages got).  And get_user_pages is
-a typical case when set_page_dirty_lock is really needed - you don't
-usually have any hold on the inode (if any) that backs those pages.
+The slab allocator uses page->lru for special purposes. See
+page_{set|get}_{cache|slab} in mm/slab.c. They are used by kfree(),
+ksize() and slab debugging code to lookup the cache and slab an void
+pointer belongs to.
 
-It can be very inconvenient (I don't know what to do for drivers/scsi/sg.c
-than set_page_dirty and hope for the best, since it cannot wait for a lock
-where it needs to).  But I'm afraid you do have the very case where
-set_page_dirty_lock is appropriate.
+But, if you just need put_page and get_page, couldn't you do something
+like the following?
 
-Many would be pleased if we could manage without set_page_dirty_lock.
+                                       Pekka
 
-> What if I'm in the middle of a system call?
+Index: 2.6/mm/swap.c
+===================================================================
+--- 2.6.orig/mm/swap.c
++++ 2.6/mm/swap.c
+@@ -36,6 +36,9 @@ int page_cluster;
 
-What if you are?
+ void put_page(struct page *page)
+ {
++	if (unlikely(PageSlab(page)))
++		return;
++
+ 	if (unlikely(PageCompound(page))) {
+ 		page = (struct page *)page_private(page);
+ 		if (put_page_testzero(page)) {
+Index: 2.6/include/linux/mm.h
+===================================================================
+--- 2.6.orig/include/linux/mm.h
++++ 2.6/include/linux/mm.h
+@@ -322,6 +322,9 @@ static inline int page_count(struct page
 
-Hugh
+ static inline void get_page(struct page *page)
+ {
++	if (unlikely(PageSlab(page)))
++		return;
++
+ 	if (unlikely(PageCompound(page)))
+ 		page = (struct page *)page_private(page);
+ 	atomic_inc(&page->_count);

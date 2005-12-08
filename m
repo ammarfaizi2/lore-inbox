@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932701AbVLHXEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932704AbVLHXLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932701AbVLHXEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 18:04:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932702AbVLHXEZ
+	id S932704AbVLHXLr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 18:11:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932705AbVLHXLr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 18:04:25 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:6056 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932701AbVLHXEY (ORCPT
+	Thu, 8 Dec 2005 18:11:47 -0500
+Received: from mail.suse.de ([195.135.220.2]:15034 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932704AbVLHXLr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 18:04:24 -0500
-Date: Fri, 9 Dec 2005 00:04:07 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: kernel list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
-Subject: Re: [RFC/RFT] suspend from userland
-Message-ID: <20051208230407.GB3970@elf.ucw.cz>
-References: <20051207011753.GA2526@elf.ucw.cz> <200512082352.07659.rjw@sisk.pl>
+	Thu, 8 Dec 2005 18:11:47 -0500
+Date: Fri, 9 Dec 2005 00:11:41 +0100
+From: Andi Kleen <ak@suse.de>
+To: Rohit Seth <rohit.seth@intel.com>
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, zach@vmware.com, shai@scalex86.org,
+       nippung@calsoftinc.com
+Subject: Re: [discuss] [patch] x86_64:  align and pad x86_64 GDT on page boundary
+Message-ID: <20051208231141.GX11190@wotan.suse.de>
+References: <20051208215514.GE3776@localhost.localdomain> <1134083357.7131.21.camel@akash.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200512082352.07659.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1134083357.7131.21.camel@akash.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > I'd like to get some testing and comments on this. I know that
-> > userland part is messy and will not work on x86-64 etc, and I should
-> > obviously remove some extra printk's... but otherwise it should be okay.
+On Thu, Dec 08, 2005 at 03:09:17PM -0800, Rohit Seth wrote:
+> On Thu, 2005-12-08 at 13:55 -0800, Ravikiran G Thirumalai wrote:
+> > On Thu, Dec 08, 2005 at 09:15:18PM +0100, Andi Kleen wrote:
+> > > On Thu, Dec 08, 2005 at 11:42:32AM -0800, Ravikiran G Thirumalai
+> > wrote:
+> > > > 
+> > > > -   .align  L1_CACHE_BYTES
+> > > > +   /* zero the remaining page */
+> > > > +   .fill PAGE_SIZE / 8 - GDT_ENTRIES,8,0
+> > > > +  
+> > > >  ENTRY(idt_table)  
+> > >
+> > > Why can't the IDT not be shared with the GDT page? It should be
+> > mostly
+> > > read only right and putting r-o data on that page should be ok,
+> > right?
 > > 
-> > Testing would be nice, too, but be a bit careful. It should not be
-> > more dangerous than /sys/power/resume, but... If you suspect something
-> > unusual, be sure to force fsck.
+> > Yes, you are right.  This should not have been a problem. 
+> > Some people reported this symbol (cpu_gdt) though.  Will have to go
+> > back and
+> > check.
 > 
-> Could we please postpone it for some time?
+> IIRC, Zach's patches for gdt alignment, moved the gdts from per_cpu data
+> structure to each secondary CPU dynamically allocating page for its gdt.
 
-Well, it is probably not going into -mm before your changes are in
-mainline. That means 2.6.17 earliest.
+Kiran's patch does this too.  Except for the BP GDT, which could
+be shared with the single IDT.
 
-> First, the patch doesn't apply to the current -mm and the userland part is
-> incompatible with the code there to the extent of a serious breakage
-> (let alone the x86-64 issue).
+-Andi (who actually plans to attack per CPU IDTs at some point
+so this could change later) 
 
-Of course I'm going to fix up breakage before the merge. At least all
-the kernel parts and enough userland to test that it still works.
-
-> Second, if I had some time to get my solution ready, we could compare the
-> alternatives instead of just discussing one of them.
-
-Well, I'm trying to gently push you. I'd like to get some solution in
-1-2 months timeframe, so that work on userland parts can start.
-									Pavel
--- 
-Thanks, Sharp!

@@ -1,80 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbVLJCQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbVLJCRX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbVLJCQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 21:16:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVLJCQ4
+	id S1751271AbVLJCRX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 21:17:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVLJCRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 21:16:56 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:33761
+	Fri, 9 Dec 2005 21:17:22 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:34273
 	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S1751301AbVLJCQz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 21:16:55 -0500
+	id S932297AbVLJCRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 21:17:19 -0500
 From: Rob Landley <rob@landley.net>
 Organization: Boundaries Unlimited
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Date: Fri, 9 Dec 2005 20:16:42 -0600
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Date: Thu, 8 Dec 2005 15:49:36 -0600
 User-Agent: KMail/1.8
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20051203152339.GK31395@stusta.de> <20051204232205.GF8914@kroah.com> <4395A72E.6030006@tmr.com>
-In-Reply-To: <4395A72E.6030006@tmr.com>
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512052122.02485.gene.heskett@verizon.net> <Pine.LNX.4.64.0512051954040.19959@montezuma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.64.0512051954040.19959@montezuma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200512092016.42825.rob@landley.net>
+Message-Id: <200512081549.36459.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 December 2005 08:58, Bill Davidsen wrote:
-> Greg KH wrote:
-> > On Sun, Dec 04, 2005 at 04:46:31AM +0000, Luke-Jr wrote:
-> >>Well, devfs does have some abilities udev doesn't: hotplug/udev
-> >>doesn't detect everything, and can result in rarer or non-PnP devices
-> >>not being automatically available;
-> >
-> > Are you sure about that today?  And udev wasn't created to do everything
-> > that devfs does.  And devfs can't do everything that udev can (by
-> > far...)
-> >
-> >>devfs has the effect of trying to load a module when a program looks
-> >>for the devices it provides-- while it can cause problems, it does
-> >>have a possibility to work better.
-> >
-> > Sorry, but that model of loading modules is very broken and it is good
-> > that we don't do that anymore (as you allude to.)
-> >
-> >>Interesting effects of switching my desktop from devfs to udev:
-> >>1. my DVD burners are left uninitialized until I manually modprobe ide-cd
-> >> or (more recently) ide-scsi
-> >
-> > Sounds like a broken distro configuration :)
-> >
-> >>2. my sound card is autodetected and the drivers loaded, but the OSS
-> >> emulation modules are omitted; with devfs, they would be autoloaded when
-> >> an app tried to use OSS
-> >
-> > Again, broken distro configuration :)
->
-> If a new udev config is needed with every new kernel, why isn't it in
-> the kernel tarball?
+On Monday 05 December 2005 21:56, Zwane Mwaikambo wrote:
+> Do you think this opensource hardware could keep up with nvidia and ati
+> hardware development? Joe sixpack is all about the fastest hardware.
 
-Why isn't inittab in the kernel tarball?
+Not really.  The early adopters and cutting edge gamers are, sure.  For 
+everybody else its price/performance and "good enough to run my games".  The 
+playstation 2 is how many years old now?  But it's still selling fresh 
+copies, and will until the PS3 comes out.  (And even then, people will still 
+play PS2 games.)
 
-I have a shell script that initializes /dev.  (I've posted it here a few 
-times, somebody ported it to C, and a micro-udev replacement will go into 
-busybox in 1.2.)
+Like everything else, this is application driven.  If it runs World of 
+Warcraft and City of Heroes, there's a market for it.  May be a cheap market, 
+but it's there.  Especially if it fits nicely in laptops, has low power 
+consumption, doesn't need a cooling fan...
 
-Why isn't there a command shell in the kernel tarball?  Kinda hard to use your 
-system without a shell...
+(Also, keep in mind that half of graphics performance is how much texture 
+memory the sucker has and how fast the ram it talks to is.)
 
-As far as I can tell, what broke with udev was their embedded version of 
-"libsysfs", which is an abstraction layer I've _never_ understood the point 
-of.  (Because opening single value files in /sys is just too hard.  Nobody 
-needed a "libproc", the parsing of which is actual work, but they felt a need 
-a libsysfs.  Uh-huh...)
+(I remember the days when games had a selection menu so you could tell it what 
+kind of sound card you had.  3D video cards are still there.  Won't last 
+forever.)
 
 Rob
 -- 

@@ -1,55 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbVLHOyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbVLHO4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbVLHOyi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 09:54:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbVLHOyi
+	id S932171AbVLHO4T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 09:56:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbVLHO4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 09:54:38 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:2468 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932149AbVLHOyh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 09:54:37 -0500
-Subject: Re: [ACPI] Re: RFC: ACPI/scsi/libata integration and hotswap
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       randy_d_dunlap@linux.intel.com, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-In-Reply-To: <20051208144329.GA21946@srcf.ucam.org>
-References: <20051208030242.GA19923@srcf.ucam.org>
-	 <20051208091542.GA9538@infradead.org>
-	 <20051208132657.GA21529@srcf.ucam.org>
-	 <20051208133308.GA13267@infradead.org>
-	 <20051208133945.GA21633@srcf.ucam.org>
-	 <20051208135225.GA13122@havoc.gtf.org>
-	 <1134050863.17102.5.camel@localhost.localdomain>
-	 <43983FC6.6050108@pobox.com>
-	 <1134052257.17102.13.camel@localhost.localdomain>
-	 <20051208144329.GA21946@srcf.ucam.org>
-Content-Type: text/plain
+	Thu, 8 Dec 2005 09:56:18 -0500
+Received: from iona.labri.fr ([147.210.8.143]:65493 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S932171AbVLHO4S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 09:56:18 -0500
+Message-ID: <4398493E.50508@labri.fr>
+Date: Thu, 08 Dec 2005 15:54:54 +0100
+From: Emmanuel Fleury <emmanuel.fleury@labri.fr>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How to enable/disable security features on mmap() ?
+References: <43983EBE.2080604@labri.fr>	 <1134051272.2867.63.camel@laptopd505.fenrus.org>	 <43984154.5050502@labri.fr>  <43984595.1090406@labri.fr> <1134053349.2867.65.camel@laptopd505.fenrus.org>
+In-Reply-To: <1134053349.2867.65.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Thu, 08 Dec 2005 14:53:17 +0000
-Message-Id: <1134053597.17102.31.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-12-08 at 14:43 +0000, Matthew Garrett wrote:
-> ACPI methods belong to SATA/PATA targets, not PCI devices. The 
-> notification you get is something of the form
+Arjan van de Ven wrote:
 > 
-> \SB.PCI.IDE0.SEC.MASTER
+> well it's a /proc/ variable already! So you can just turn it off
+> entirely at runtime. (what is better is that you use the setarch program
+> to turn it off for selected programs though...)
 
+I knew it was a stupid question ! I fooled myself once more ! ;-)
+I'll take a look at this familly of variables and at the proc entries.
 
-That is fine. Given struct ata_port * you can get
+Thanks a lot !
+-- 
+Emmanuel Fleury
 
-channel = ap->hard_port_no
-pci device ptr = to_pci(ap->host_set->dev)
-
-And from the struct ata_device *
-
-slave = (adev->devno == 1)
-
-
+When the gods wish to punish us they answer our prayers.
+  -- Oscar Wilde

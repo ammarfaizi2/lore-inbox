@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVLHSx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbVLHTFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbVLHSx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 13:53:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbVLHSx2
+	id S932252AbVLHTFc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 14:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbVLHTFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 13:53:28 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:34967 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932158AbVLHSx1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 13:53:27 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 8 Dec 2005 14:05:32 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:24803 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932252AbVLHTFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 14:05:31 -0500
+Date: Thu, 8 Dec 2005 11:05:24 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: pcibus_to_node value when no pxm info is present for the pci
+ bus
+In-Reply-To: <20051207223414.GA4493@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0512081104280.29958@schroedinger.engr.sgi.com>
+References: <20051207223414.GA4493@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="GB2312"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [BUG] Variable stopmachine_state should be volatile
-Date: Thu, 8 Dec 2005 10:53:14 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0526C57B@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BUG] Variable stopmachine_state should be volatile
-Thread-Index: AcX3FyKnyRKZ1LJdR+WciiNOD370YgEf3qogACRx4pA=
-From: "Luck, Tony" <tony.luck@intel.com>
-To: "Zhang, Yanmin" <yanmin.zhang@intel.com>,
-       "Arjan van de Ven" <arjan@infradead.org>, "Pavel Machek" <pavel@ucw.cz>
-Cc: <linux-kernel@vger.kernel.org>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Shah, Rajesh" <rajesh.shah@intel.com>, <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 08 Dec 2005 18:53:15.0230 (UTC) FILETIME=[A54FF7E0:01C5FC28]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The right approach is to define ia64_hint to ia64_barrier in file
-> include/asm-ia64/intel_intrin.h. I tested the new approach and it
-> does work.
+On Wed, 7 Dec 2005, Ravikiran G Thirumalai wrote:
 
-Does that get you a "hint@pause" instruction inside the loop?  If not, then
-it isn't all the way to the "right" approach.
+> Most of the arches seem to return -1 for pcibus_to_node if there is no pxm
+> kind of proximity information for the pci busses.  Arch specific code on
+> those arches check if nodeid >= 0  before using the nodeid for kmalloc_node
+> etc. But some code paths in x86_64/i386 does not doe this --
+> x86_64/dma_alloc_pages() and e1000 node local descriptor (I am to blame for 
+> the second one).  Also, pcibus_to_node seems to be 0 when there is no pxm 
+> info available.
 
--Tony
+kmalloc_node falls back to kmalloc for node == -1. So there does not need 
+to be a check.
+ 
+> The question is, what should be the default pcibus_to_node if there is no
+> pxm info? Answer seems like -1 -- in which case dma_alloc_pages and e1000
+> driver has to be fixed.
+
+Why would they have to be fixed?
+

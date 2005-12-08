@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbVLHLeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbVLHLjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750934AbVLHLeW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 06:34:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbVLHLeW
+	id S932074AbVLHLjG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 06:39:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbVLHLjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 06:34:22 -0500
-Received: from smtp1-g19.free.fr ([212.27.42.27]:13529 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S1750933AbVLHLeV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 06:34:21 -0500
-Message-ID: <439819FF.5020704@droids-corp.org>
-Date: Thu, 08 Dec 2005 12:33:19 +0100
-From: Olivier MATZ <zer0@droids-corp.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051001)
-X-Accept-Language: en-us, en
+	Thu, 8 Dec 2005 06:39:06 -0500
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:33420 "EHLO
+	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S932074AbVLHLjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 06:39:05 -0500
+Message-ID: <02ab01c5fbeb$faf7d740$4168010a@bsd.tnes.nec.co.jp>
+From: "Takashi Sato" <sho@bsd.tnes.nec.co.jp>
+To: "Dave Kleikamp" <shaggy@austin.ibm.com>
+Cc: "'Andreas Dilger'" <adilger@clusterfs.com>, <linux-kernel@vger.kernel.org>,
+       <linux-fsdevel@vger.kernel.org>,
+       "Trond Myklebust" <trond.myklebust@fys.uio.no>
+References: <000001c5fb1d$0a27c8d0$4168010a@bsd.tnes.nec.co.jp> <1133963528.27373.4.camel@lade.trondhjem.org> <1133967716.8910.5.camel@kleikamp.austin.ibm.com> <1133969671.27373.47.camel@lade.trondhjem.org> <1133973247.8907.33.camel@kleikamp.austin.ibm.com>
+Subject: Re: stat64 for over 2TB file returned invalid st_blocks
+Date: Thu, 8 Dec 2005 20:38:54 +0900
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] asm-i386 : config.h should not be included out of kernel
-References: <4395F405.9010107@droids-corp.org> <200512062211.40142.arnd@arndb.de> <43971BD5.6040601@droids-corp.org> <20051207191030.GA7585@mars.ravnborg.org> <4397418E.3070400@droids-corp.org> <20051207213245.GA7575@mars.ravnborg.org>
-In-Reply-To: <20051207213245.GA7575@mars.ravnborg.org>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-2";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
->>>If you look at the commandline passed to gcc you will notice -include
->>>include/linux/autoconf.h which tell gcc to pull in autoconf.h.
->>>So it is no longer required to include config.h.
->>
->>I'm not sure. On my 2.6.14.3, this is a compilation line 
+> On Wed, 2005-12-07 at 10:34 -0500, Trond Myklebust wrote:
+>> If you really want a variable size type here, then the right thing to do
+>> is to define a __kernel_blkcnt_t or some such thing, and hide the
+>> configuration knob for it somewhere in the arch-specific Kconfigs.
 > 
-> Ok, I was speaking on the 2.6.15-rc kernels. I was added when 2.6.15
-> opened up and will first appear in a 'relased' kernel as of 2.6.15.
+> Takashi's patch does improve on what currently exists.  Maybe someone
+> can create a separate patch to replace sector_t with blkcnt_t where it
+> makes sense.
 
-I have one more question about dependancies : in 2.6.15-rc, if we modify
-the config, do we have to recompile everything ?
+I prefer sector_t for i_blocks rather than newly defined blkcnt_t.
+The reasons are:
 
-Olivier
+  - Both i_blocks and common sector_t are for on-disk 512-byte unit.
+    In this point of view, they have the same character.
+
+  - If we created the type blkcnt_t newly, the patch would have to
+    touch a lot of files as follows, like sector_t does.
+        block/Kconfig, asm-i386/types.h, asm-x86_64/types.h,
+        asm-ppc/types.h, asm-s390/types.h, asm-sh/types.h,
+        asm-h8300/types.h, asm-mips/types.h
+    It will be simple if we use sector_t for i_blocks.
+
+Also, I cannot imagine the situation that > 2TB files are used over
+network with CONFIG_LBD disabled kernel.  Is there such a thing
+realistically?
+
+-- Takashi Sato

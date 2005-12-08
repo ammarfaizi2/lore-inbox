@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932697AbVLHWwJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbVLHW7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932697AbVLHWwJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 17:52:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbVLHWwJ
+	id S932694AbVLHW7G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 17:59:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932698AbVLHW7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 17:52:09 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:30098
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932699AbVLHWwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 17:52:07 -0500
-Date: Thu, 08 Dec 2005 14:51:48 -0800 (PST)
-Message-Id: <20051208.145148.36886043.davem@davemloft.net>
-To: jesper.juhl@gmail.com
-Cc: linux-kernel@vger.kernel.org, coreteam@netfilter.org,
-       jmorris@intercode.com.au, laforge@netfilter.org, akpm@osdl.org
-Subject: Re: [PATCH] Decrease number of pointer derefs in nfnetlink_queue.c
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200512082336.01678.jesper.juhl@gmail.com>
-References: <200512082336.01678.jesper.juhl@gmail.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 8 Dec 2005 17:59:06 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:16327 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932694AbVLHW7E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 17:59:04 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: [discuss] Re: 2.6.15-rc5-mm1 (x86_64-hpet-overflow.patch breaks resume from disk)
+Date: Fri, 9 Dec 2005 00:00:21 +0100
+User-Agent: KMail/1.9
+Cc: Jan Beulich <JBeulich@novell.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Discuss x86-64 <discuss@x86-64.org>
+References: <20051204232153.258cd554.akpm@osdl.org> <43980058.76F0.0078.0@novell.com> <20051208224735.GV11190@wotan.suse.de>
+In-Reply-To: <20051208224735.GV11190@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512090000.22103.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Date: Thu, 8 Dec 2005 23:36:01 +0100
+Hi,
 
-> Here's a small patch to decrease the number of pointer derefs in
-> net/netfilter/nfnetlink_queue.c
+On Thursday, 8 December 2005 23:47, Andi Kleen wrote:
+> On Thu, Dec 08, 2005 at 09:43:52AM +0100, Jan Beulich wrote:
+> > I don't know how resume normally handles the re-syncing of the wall
+> > clock, but the problem here is obvious: do_timer runs a loop to
+> > increment jiffies, which may require significant amounts of time
+> > (depending how long the system was sleeping).
 > 
-> Benefits of the patch:
->  - Fewer pointer dereferences should make the code slightly faster.
->  - Size of generated code is smaller
->  - improved readability
+> It would be good if someone could submit a patch to fix
+> this up properly. It indeed sounds wrong.
 
-And you verified the compiler isn't making these transformations
-already?  It should be doing so via Common Subexpression Elimination
-unless the derefs are scattered around with interspersed function
-calls in which case the compiler cannot prove that the memory
-behind the pointer does not change.
+Well, timer_resume() does adjust jiffies and wall_jiffies.
+
+The problem seems to be that vxtime.last and/or vxtime.last_tsc are not
+adjusted by it which makes the timer interrupt handler unhappy (with the
+hpet-overflow patch applied, that is).
+
+Greetings,
+Rafael
+
+
+-- 
+Beer is proof that God loves us and wants us to be happy - Benjamin Franklin

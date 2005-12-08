@@ -1,78 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVLHIMU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVLHIV0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbVLHIMU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 03:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbVLHIMU
+	id S1750746AbVLHIV0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 03:21:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbVLHIV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 03:12:20 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:3286 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750803AbVLHIMT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 03:12:19 -0500
-Date: Thu, 8 Dec 2005 09:12:17 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Paul Jackson <pj@sgi.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, rostedt@goodmis.org,
-       johnstul@us.ibm.com
-Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
-Message-ID: <20051208081217.GA21696@elte.hu>
-References: <20051206000126.589223000@tglx.tec.linutronix.de> <Pine.LNX.4.61.0512061628050.1610@scrub.home> <20051206190713.GA8363@elte.hu> <Pine.LNX.4.61.0512062030570.1610@scrub.home> <20051207211834.7fa03903.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051207211834.7fa03903.pj@sgi.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.6 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 8 Dec 2005 03:21:26 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:30946 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750746AbVLHIV0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 03:21:26 -0500
+Message-ID: <4397EDDA.5040504@aitel.hist.no>
+Date: Thu, 08 Dec 2005 09:24:58 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chase Venters <chase.venters@clientec.com>
+CC: Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <1133996869.544.112.camel@localhost.localdomain> <9e4733910512071541s1a6215d9pb166bb27e2c579f9@mail.gmail.com> <200512071759.14958.chase.venters@clientec.com>
+In-Reply-To: <200512071759.14958.chase.venters@clientec.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chase Venters wrote:
 
-* Paul Jackson <pj@sgi.com> wrote:
+>On Wednesday 07 December 2005 05:41 pm, Jon Smirl wrote:
+>  
+>
+>>Can the Linux community justify using ruthless means to force
+>>documentation out of vendors? Asking politely doesn't seem to be
+>>working -  I suspect it may take something of this magnitude to force
+>>a change out of NVidia/ATI.
+>>    
+>>
+>
+>Is this a vote? Cause you have mine. :)
+>
+>Seriously, there is a danger in the move being seen by the press as too 
+>adversarial, but with everything I've been reading and seeing lately, I'm 
+>starting to think that the NVidia/ATI situation may be the single largest 
+>danger to Linux.
+>
+This is a win-win situation.  for us, it is NOT a problem if the press
+see the move as too adversarial.  In fact - that would be the best
+outcome of all because then we have the press and general opinion
+against dumb patents.
 
-> So just take all descriptions of other persons, and flip them around, 
-> pretending to describe yourself.  It will be a bold faced lie, and 
-> totally illogical ... but that's typical in the realm of human 
-> emotions.  The human species is definitely one dorked up bunch.
+Putting an end to stupid patents in general (and software patents
+specifically) is even better than bogging a difficult hw company
+down with lawsuits.
 
-> "sorry for being such a stupid git, but ...".
+If they think the move is too nasty - then it must be because the
+move itself is a bad thing - an opportunity that shouldn't exist, right?
 
-it does not matter that it's a bold faced lie, people technically 'lie' 
-about little things all the time and for a good reason - the human 
-species (especially males) are way to agressive by default, so a certain 
-conscious buffer zone is needed to even that out. (It is in fact a 
-medical condition if that buffer-zone does not exist.)
+Helge Hafting
 
-But there's a crutial difference. A statement from Linus (or you) like 
-the one above also shows three more things that are important:
-
-1) that you have a sense of humor, and that you dont take things too
-   seriously :) Humor goes a long way defusing differences.
-
-2) that you actually entertain the possibility of being wrong and that
-   you do not just want to steamroll the other side with your opinion.
-
-3) that you actually care about the other person. This matters alot.
-   There's a reason why hundreds of people who never met each other join
-   on a mailing list and write code, and the reason is definitely not to
-   have others piss on their code.
-
-> Thanks, by the way, for your help back then on cpuset locking.  It was 
-> invaluable.
-
-i took some time and re-read your thread with Roman about cpusets back 
-in September. It was like fresh air! Roman was totally reasonable and 
-positive in that thread - so i dont think it's me or Thomas misreading 
-his style in this case or something.
-
-anyway, the reason i confronted Roman with the situation was in the 
-renewed hope to improve direct communication. I'm still hopeful :)
-
-	Ingo

@@ -1,59 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVLHOtP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbVLHOvA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbVLHOtP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 09:49:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVLHOtP
+	id S932169AbVLHOvA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 09:51:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbVLHOu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 09:49:15 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:19093 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932088AbVLHOtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 09:49:14 -0500
-Subject: Re: How to enable/disable security features on mmap() ?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Emmanuel Fleury <emmanuel.fleury@labri.fr>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43984595.1090406@labri.fr>
-References: <43983EBE.2080604@labri.fr>
-	 <1134051272.2867.63.camel@laptopd505.fenrus.org>
-	 <43984154.5050502@labri.fr>  <43984595.1090406@labri.fr>
+	Thu, 8 Dec 2005 09:50:59 -0500
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:35791 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S932115AbVLHOu6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 09:50:58 -0500
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: stat64 for over 2TB file returned invalid st_blocks
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Takashi Sato <sho@bsd.tnes.nec.co.jp>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       "'Andreas Dilger'" <adilger@clusterfs.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <1134052043.7998.26.camel@lade.trondhjem.org>
+References: <000001c5fb1d$0a27c8d0$4168010a@bsd.tnes.nec.co.jp>
+	 <1133963528.27373.4.camel@lade.trondhjem.org>
+	 <1133967716.8910.5.camel@kleikamp.austin.ibm.com>
+	 <1133969671.27373.47.camel@lade.trondhjem.org>
+	 <1133973247.8907.33.camel@kleikamp.austin.ibm.com>
+	 <02ab01c5fbeb$faf7d740$4168010a@bsd.tnes.nec.co.jp>
+	 <1134052043.7998.26.camel@lade.trondhjem.org>
 Content-Type: text/plain
-Date: Thu, 08 Dec 2005 15:49:09 +0100
-Message-Id: <1134053349.2867.65.camel@laptopd505.fenrus.org>
+Organization: Computing Service, University of Cambridge, UK
+Date: Thu, 08 Dec 2005 14:50:46 +0000
+Message-Id: <1134053446.17436.51.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-08 at 15:39 +0100, Emmanuel Fleury wrote:
-> I guess that setting the variable randomize_va_space to 0 just remove
-> the stack pointer (sp) randomization.
+On Thu, 2005-12-08 at 09:27 -0500, Trond Myklebust wrote:
+> On Thu, 2005-12-08 at 20:38 +0900, Takashi Sato wrote:
 > 
-> Seen in arch/i386/kernel/process.c:
+> > I prefer sector_t for i_blocks rather than newly defined blkcnt_t.
+> > The reasons are:
+> > 
+> >   - Both i_blocks and common sector_t are for on-disk 512-byte unit.
+> >     In this point of view, they have the same character.
 > 
-> unsigned long arch_align_stack(unsigned long sp)
-> {
->         if (randomize_va_space)
->                 sp -= get_random_int() % 8192;
->         return sp & ~0xf;
-> }
+> One is a count of the number of blocks used by a file, and exists only
+> in order to help filesystems cache this value. The other is a handle to
+> a block. How is that the same?
 > 
-> Why not having defined this as a CONFIG_STACK_RANDOMIZATION variables
+> >   - If we created the type blkcnt_t newly, the patch would have to
+> >     touch a lot of files as follows, like sector_t does.
+> >         block/Kconfig, asm-i386/types.h, asm-x86_64/types.h,
+> >         asm-ppc/types.h, asm-s390/types.h, asm-sh/types.h,
+> >         asm-h8300/types.h, asm-mips/types.h
+> >     It will be simple if we use sector_t for i_blocks.
+> 
+> That is not a particularly good reason.
+> 
+> > Also, I cannot imagine the situation that > 2TB files are used over
+> > network with CONFIG_LBD disabled kernel.  Is there such a thing
+> > realistically?
+> 
+> Apart from this and the kstat wart, there is no reason to set CONFIG_LBD
+> for a networked filesystem. Why would you want to buy a > 2TB local disk
+> on an HPC cluster node if you already have a server?
+> 
+> I suppose we can make NFS use a private field instead, and just set
+> i_blocks to 0, but that's unnecessarily wasteful too.
 
-well it's a /proc/ variable already! So you can just turn it off
-entirely at runtime. (what is better is that you use the setarch program
-to turn it off for selected programs though...)
+And it breaks applications, too (e.g. du will then report all your files
+to be zero size)...
 
+Best regards,
+
+        Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

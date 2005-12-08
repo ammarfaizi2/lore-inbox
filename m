@@ -1,71 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbVLHO1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbVLHOc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932153AbVLHO1y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 09:27:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVLHO1y
+	id S932087AbVLHOc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 09:32:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbVLHOc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 09:27:54 -0500
-Received: from pat.uio.no ([129.240.130.16]:6551 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932152AbVLHO1w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 09:27:52 -0500
-Subject: Re: stat64 for over 2TB file returned invalid st_blocks
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Takashi Sato <sho@bsd.tnes.nec.co.jp>
-Cc: Dave Kleikamp <shaggy@austin.ibm.com>,
-       "'Andreas Dilger'" <adilger@clusterfs.com>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <02ab01c5fbeb$faf7d740$4168010a@bsd.tnes.nec.co.jp>
-References: <000001c5fb1d$0a27c8d0$4168010a@bsd.tnes.nec.co.jp>
-	 <1133963528.27373.4.camel@lade.trondhjem.org>
-	 <1133967716.8910.5.camel@kleikamp.austin.ibm.com>
-	 <1133969671.27373.47.camel@lade.trondhjem.org>
-	 <1133973247.8907.33.camel@kleikamp.austin.ibm.com>
-	 <02ab01c5fbeb$faf7d740$4168010a@bsd.tnes.nec.co.jp>
+	Thu, 8 Dec 2005 09:32:27 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:15533 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932087AbVLHOcZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 09:32:25 -0500
+Subject: Re: [ACPI] Re: RFC: ACPI/scsi/libata integration and hotswap
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
+       Christoph Hellwig <hch@infradead.org>, randy_d_dunlap@linux.intel.com,
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+In-Reply-To: <43983FC6.6050108@pobox.com>
+References: <20051208030242.GA19923@srcf.ucam.org>
+	 <20051208091542.GA9538@infradead.org>
+	 <20051208132657.GA21529@srcf.ucam.org>
+	 <20051208133308.GA13267@infradead.org>
+	 <20051208133945.GA21633@srcf.ucam.org>
+	 <20051208135225.GA13122@havoc.gtf.org>
+	 <1134050863.17102.5.camel@localhost.localdomain>
+	 <43983FC6.6050108@pobox.com>
 Content-Type: text/plain
-Date: Thu, 08 Dec 2005 09:27:23 -0500
-Message-Id: <1134052043.7998.26.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.004, required 12,
-	autolearn=disabled, AWL 1.81, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+Date: Thu, 08 Dec 2005 14:30:57 +0000
+Message-Id: <1134052257.17102.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-08 at 20:38 +0900, Takashi Sato wrote:
+On Iau, 2005-12-08 at 09:14 -0500, Jeff Garzik wrote:
+> These are only for PATA.  We don't care about _GTM/_STM on SATA.
 
-> I prefer sector_t for i_blocks rather than newly defined blkcnt_t.
-> The reasons are:
+Even your piix driver supports PATA. Put the foaming (justified ;))
+hatred for ACPI aside for a moment and take a look at the real world as
+it unfortunately is right now.
+
+> Further, SATA completely resets and re-initializes the device as if from 
+> a hardware reset (except on ata_piix, which doesn't support COMRESET, 
+> and PATA).  This makes _GTF uninteresting, as well.
+
+You don't know what the sequences the resume method is concerned about
+actually are.
+
+> suspend/resume works just fine with Jens' out-of-tree patch.
+
+Only on some systems.
+
+> > If you don't run the resume methods your disk subsystem status after a
+> > resume is simply undefined and unsafe.
 > 
->   - Both i_blocks and common sector_t are for on-disk 512-byte unit.
->     In this point of view, they have the same character.
+> I initialize the hardware to a defined state.
 
-One is a count of the number of blocks used by a file, and exists only
-in order to help filesystems cache this value. The other is a handle to
-a block. How is that the same?
+Sure, but sometimes the *wrong* defined state. The BIOS ACPI methods
+include things like unlocking drive passwords on restore with some
+systems. You don't handle that at all.
 
->   - If we created the type blkcnt_t newly, the patch would have to
->     touch a lot of files as follows, like sector_t does.
->         block/Kconfig, asm-i386/types.h, asm-x86_64/types.h,
->         asm-ppc/types.h, asm-s390/types.h, asm-sh/types.h,
->         asm-h8300/types.h, asm-mips/types.h
->     It will be simple if we use sector_t for i_blocks.
+Having said that I still think ACPI awareness doesn't belong in libata
+or scsi because we'd then have awareness of every pm scheme in the wrong
+layer and a dozen pm systems all with scsi hooks. Gak...
 
-That is not a particularly good reason.
+SCSI/libata can go easily from ata channel to pci device to device. The
+rest of the logic belongs outside of scsi/libata.
 
-> Also, I cannot imagine the situation that > 2TB files are used over
-> network with CONFIG_LBD disabled kernel.  Is there such a thing
-> realistically?
-
-Apart from this and the kstat wart, there is no reason to set CONFIG_LBD
-for a networked filesystem. Why would you want to buy a > 2TB local disk
-on an HPC cluster node if you already have a server?
-
-I suppose we can make NFS use a private field instead, and just set
-i_blocks to 0, but that's unnecessarily wasteful too.
-
-Cheers,
-  Trond
+Alan
 

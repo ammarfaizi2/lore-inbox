@@ -1,50 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbVLHFic@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965065AbVLHFiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965014AbVLHFic (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 00:38:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965065AbVLHFic
+	id S965065AbVLHFiw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 00:38:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965080AbVLHFiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 00:38:32 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:58811
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965014AbVLHFic (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 00:38:32 -0500
-Date: Wed, 07 Dec 2005 21:38:25 -0800 (PST)
-Message-Id: <20051207.213825.27890558.davem@davemloft.net>
-To: davej@redhat.com
-Cc: ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: for_each_online_cpu broken ?
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051208053302.GA28201@redhat.com>
-References: <20051208050738.GE24356@redhat.com>
-	<20051208052632.GF11190@wotan.suse.de>
-	<20051208053302.GA28201@redhat.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Dec 2005 00:38:51 -0500
+Received: from cantor.suse.de ([195.135.220.2]:44458 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965065AbVLHFiu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 00:38:50 -0500
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>, Paul Jackson <pj@sgi.com>
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+References: <20051114212341.724084000@sergelap>
+	<m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
+	<1133977623.24344.31.camel@localhost>
+	<m1hd9kd89y.fsf@ebiederm.dsl.xmission.com>
+	<1133991650.30387.17.camel@localhost>
+	<m18xuwd015.fsf@ebiederm.dsl.xmission.com>
+	<1133994685.30387.47.camel@localhost>
+From: Andi Kleen <ak@suse.de>
+Date: 08 Dec 2005 03:09:11 -0700
+In-Reply-To: <1133994685.30387.47.camel@localhost>
+Message-ID: <p73bqzr6gu0.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dave Jones <davej@redhat.com>
-Date: Thu, 8 Dec 2005 00:33:02 -0500
-
-> On Thu, Dec 08, 2005 at 06:26:32AM +0100, Andi Kleen wrote:
+Dave Hansen <haveblue@us.ibm.com> writes:
 > 
->  > The possible map is fixed kind of BTW in 2.6.15rc*. It was a side effect
->  > of CPU hotplug, which now uses a better algorithm to guess the 
->  > number of possible CPUs. In 2.6.15 you will just get half the number
->  > of available CPUs in addition by default
-> 
-> Yep, I noticed it offers a maximum of 6 cpus on my way.
-> As a sidenote, seems kinda funny (and wasteful maybe?), doing this
-> on a lot of hardware that isn't hotplug capable. (Whilst I could
-> disable cpu hotplug in my local build, this isn't an answer for
-> a generic distro kernel).
+> Can you think of any?
 
-This can be dangerous btw, as some subsystem such as netfilter
-allocate enormous datastructures based upon the largest possible
-cpu number in the system.
+qemu can afaik. I've also heard about simnow in qemu and 
+Xen in qemu, although that's not true recursion.  And VMware/qemu/
+simnow/UML/... will all probably run fine in Xen native guests.
+I wouldn't be surprised if UML supported true recursion too.
 
-In 2.6.16 it will use something a bit more intelligent, but
-overestimating the possible cpu set can be quite a waste.
+But then for what do you really need recursion? It might be nice
+theory, but in practice it's probably not too relevant.  I guess it
+was useful long ago for debugging VM itself when mainframes were
+really expensive so you couldn't just buy a development machine and
+test your VM on raw iron. But that's not really true today anymore.
+
+Ok one weak reason to still use it might be if your test machine takes
+too long to reboot.  But then Hypervisor hackers are a pretty narrow
+target group for features like this.
+
+-Andi

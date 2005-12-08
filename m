@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbVLHQfv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbVLHQnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbVLHQfv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 11:35:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbVLHQfu
+	id S932208AbVLHQnI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 11:43:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbVLHQnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 11:35:50 -0500
-Received: from moutng.kundenserver.de ([212.227.126.184]:30919 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932207AbVLHQfu convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 11:35:50 -0500
-Message-Id: <10607050.147171134059741405.JavaMail.servlet@kundenserver>
-From: dirk@steuwer.de
-To: <rdunlap@xenotime.net>
-To: <riel@redhat.com>
-To: <wli@holomorphy.com>
-To: <linux-kernel@vger.kernel.org>
-To: <arjan@infradead.org>
-To: <diegocg@gmail.com>
-Subject: AW: Re: Linux in a binary world... a doomsday scenario
+	Thu, 8 Dec 2005 11:43:08 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:31758 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932208AbVLHQnH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 11:43:07 -0500
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Emmanuel Fleury <emmanuel.fleury@labri.fr>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How to enable/disable security features on mmap() ?
+References: <43983EBE.2080604@labri.fr>
+	<1134051272.2867.63.camel@laptopd505.fenrus.org>
+	<43984154.5050502@labri.fr> <43984595.1090406@labri.fr>
+	<1134053349.2867.65.camel@laptopd505.fenrus.org>
+	<4398493E.50508@labri.fr>
+	<Pine.LNX.4.61.0512081011020.32448@chaos.analogic.com>
+	<4398516F.1020101@labri.fr>
+	<1134056348.2867.76.camel@laptopd505.fenrus.org>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: if SIGINT doesn't work, try a tranquilizer.
+Date: Thu, 08 Dec 2005 16:42:55 +0000
+In-Reply-To: <1134056348.2867.76.camel@laptopd505.fenrus.org> (Arjan van de
+ Ven's message of "8 Dec 2005 15:39:50 -0000")
+Message-ID: <8764pzv8ts.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3
-X-Binford: 6100 (more power)
-X-Mailer: Webmail
-X-Originating-From: 5356033
-X-Routing: DE
-X-Message-Id: <5356033$1134059741405172.23.4.15316314492@pustefix153.kundenserver.de--1665161179>
-Date: Thu, 08 Dec 2005 17:35:41 +0100
-X-Provags-ID: kundenserver.de abuse@kundenserver.de ident:@172.23.4.153
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->El Thu, 08 Dec 2005 16:49:46 +0100,
->dirk@steuwer.de escribió:
->
->> How about interconnecting it with the bugtracker?
->
->bugzilla is probably the best example of why human-managed "databases"
->are never 100% accurate and need lots of mainteinance 8) (take a look
->at mozilla's or kernel's bugzilla...). I'm tracking manually some 
->of the new devices supported in http://wiki.kernelnewbies.org/LinuxChanges
->but there're so many changes under drivers/* that god knows how many
->things I am missing. Expecting that people will maintain a wiki or a
->buzgilla or anything similar properly is like expecting that people
->will document or compile-test their patches before submitting them :P
->
->I think that the infrastructure for building such database automatically
->is already there: In the same way MODULE_DEVICE_TABLE is used by hotplug
->& friends to load the right module you can use MODULE_DEVICE_TABLE to
->build a database of the devices supported by a kernel compiled with
->"make allmodconfig", parse it and put it in a web page.
+On 8 Dec 2005, Arjan van de Ven yowled:
+>> Moreover, the libc location (and all other dynamic libs) is not
+>> randomized under x86_64. I have no explanation for this. :-/
+> 
+> see above; in addition prelink may be interfering with this.
 
+Indeed; prelinked stuff is not randomized. If you want both, prelink
+with -R gives the same benefits as ASLR of the shared library location,
+pretty much (obviously the libraries have the same address in every
+process --- that's kind of the point --- but what that address is is
+randomly selected at prelink time).
 
-OK this would get all device ids into the database, but it would not say anything about how well the device is supported. It could be anything from the moment you add it / partial support /  pick this - excellent hardware choice random for newbie
+Prelinking should not affect stack layout randomization.
 
-So how about the kernel testing discussion months ago. Should there be a progam that people/developers could run, if they wanted to, that collects information from the current kernel and before sending it to kernel.org it asks the user about how happy he is with the hardware currently connected/installed to the machine.
+-- 
+`Don't confuse the shark with the remoras.' --- Rob Landley
 
-Alternatively/Additionally you have an automated database and people keep adding things in a wikimanner to it, with some apropriate structure to it.
-
-But still, if even bugzilla is not the perfect tool, can it be improved?
-
-regards,
-Dirk

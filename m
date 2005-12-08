@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932723AbVLHXlB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932749AbVLHXnW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932723AbVLHXlB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 18:41:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932733AbVLHXlB
+	id S932749AbVLHXnW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 18:43:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932741AbVLHXnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 18:41:01 -0500
-Received: from mx2.suse.de ([195.135.220.15]:46571 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932723AbVLHXlA (ORCPT
+	Thu, 8 Dec 2005 18:43:22 -0500
+Received: from mx2.suse.de ([195.135.220.15]:11756 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932733AbVLHXnW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 18:41:00 -0500
-Date: Fri, 9 Dec 2005 00:40:58 +0100
+	Thu, 8 Dec 2005 18:43:22 -0500
+Date: Fri, 9 Dec 2005 00:43:20 +0100
 From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org,
-       Christoph Hellwig <hch@infradead.org>, linux-ia64@vger.kernel.org,
-       steiner@sgi.com, linux-kernel@vger.kernel.org,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>, discuss@x86-64.org
-Subject: Re: [discuss] Re: [PATCH 1/3] Zone reclaim V3: main patch
-Message-ID: <20051208234058.GA11190@wotan.suse.de>
-References: <20051208203707.30456.57439.sendpatchset@schroedinger.engr.sgi.com> <20051208210850.GS11190@wotan.suse.de> <Pine.LNX.4.62.0512081320200.30786@schroedinger.engr.sgi.com> <20051208225102.GW11190@wotan.suse.de> <Pine.LNX.4.62.0512081514510.31246@schroedinger.engr.sgi.com> <20051208232827.GZ11190@wotan.suse.de> <Pine.LNX.4.62.0512081531150.31342@schroedinger.engr.sgi.com>
+To: Rohit Seth <rohit.seth@intel.com>
+Cc: Andi Kleen <ak@suse.de>, Ravikiran G Thirumalai <kiran@scalex86.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, zach@vmware.com, shai@scalex86.org,
+       nippung@calsoftinc.com
+Subject: Re: [discuss] [patch] x86_64:  align and pad x86_64 GDT on page boundary
+Message-ID: <20051208234320.GB11190@wotan.suse.de>
+References: <20051208215514.GE3776@localhost.localdomain> <1134083357.7131.21.camel@akash.sc.intel.com> <20051208231141.GX11190@wotan.suse.de> <1134084367.7131.32.camel@akash.sc.intel.com> <20051208232610.GY11190@wotan.suse.de> <1134085511.7131.53.camel@akash.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0512081531150.31342@schroedinger.engr.sgi.com>
+In-Reply-To: <1134085511.7131.53.camel@akash.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 08, 2005 at 03:35:05PM -0800, Christoph Lameter wrote:
-> On Fri, 9 Dec 2005, Andi Kleen wrote:
+On Thu, Dec 08, 2005 at 03:45:11PM -0800, Rohit Seth wrote:
+> On Fri, 2005-12-09 at 00:26 +0100, Andi Kleen wrote:
 > 
-> > > My experience is that at 20 systems do not need zone reclaim yet.
+> > Well if the Xen people have such requirements they can submit
+> > separate patches. Currently they don't seem to be interested
+> > at all in submitting patches to mainline, so we must work
+> > with the VM hackers who are interested in this (scalex86, VMware) 
+> > And AFAIK they only care about not having false sharing in there.
 > > 
-> > I really cannot confirm your experience here.
 > 
-> Maybe the meaning of these numbers varies? I know that 10 is a local 
-> access but the assumption in include/linux/numa.h that 20 is a remote 
-> access is probably already a guess.
+> 
+> Agreed.  
+> 
+> Though do we need to have full page allocated for each gdt (256 bytes)
+> then? ...possibly use kmalloc.
 
-The spec seems to suggest it's roughly the NUMA factor scaled (so for 1.4
-you would get 14). But I haven't actually seen a Opteron with correct
-SLIT yet so I don't know what they use ...
+For scalex I think it needs to be page aligned because that is what
+the effective cacheline size for remote nodes is in their setup. 
+That would be difficult for kmalloc because it cannot guarantee that
+alignment nor avoid false sharing. For the BP case it's ok as 
+long as the beginning is correctly aligned and the rest 
+is read-only.
 
-> I know that our Altix machines seem to use 10 for a local and 20 for 
-> nonlocal but same box. The distances then increase from there.
-
-Unless non local same box is 2 times as slow as the local I wouldn't
-consider that correct.  (I would expect the Altix to do better than that) 
 -Andi
+

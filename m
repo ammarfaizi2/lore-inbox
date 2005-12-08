@@ -1,75 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbVLHMVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbVLHMYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750990AbVLHMVn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 07:21:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbVLHMVn
+	id S1750978AbVLHMYA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 07:24:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbVLHMYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 07:21:43 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:51927 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1750978AbVLHMVn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 07:21:43 -0500
-Date: Thu, 8 Dec 2005 13:19:02 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Michele <vo.sinh@gmail.com>
-cc: Denis Vlasenko <vda@ilport.com.ua>, Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Linux in a binary world... a doomsday scenario
-In-Reply-To: <f0cc38560512071322m1d370589vd9f8a7684fa2ee1d@mail.gmail.com>
-Message-ID: <Pine.LNX.4.62.0512081144010.27563@pademelon.sonytel.be>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
- <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random>
- <200512061426.37287.vda@ilport.com.ua> <Pine.LNX.4.62.0512072109360.24915@pademelon.sonytel.be>
- <f0cc38560512071322m1d370589vd9f8a7684fa2ee1d@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 8 Dec 2005 07:24:00 -0500
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:32273 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id S1750967AbVLHMX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 07:23:59 -0500
+In-Reply-To: <5a2cf1f60512080348l408aa3fal5a6f50e4ca37390@mail.gmail.com>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org> <loom.20051206T094816-40@post.gmane.org> <20051206104652.GB3354@favonius> <loom.20051206T173458-358@post.gmane.org> <20051207141720.GA533@kvack.org> <5a2cf1f60512080142j175bc79eq1b95182d22268b6b@mail.gmail.com> <B232B187-7141-427B-90BF-AAC2C0A8809B@oxley.org> <5a2cf1f60512080348l408aa3fal5a6f50e4ca37390@mail.gmail.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <B6908AB2-AE96-45CA-8BA0-5678D0BCDD06@oxley.org>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, Dirk Steuwer <dirk@steuwer.de>,
+       linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Felix Oxley <lkml@oxley.org>
+Subject: Re: Runs with Linux (tm)
+Date: Thu, 8 Dec 2005 12:23:49 +0000
+To: jerome lacoste <jerome.lacoste@gmail.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Dec 2005, Michele wrote:
-> On 12/7/05, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > On Tue, 6 Dec 2005, Denis Vlasenko wrote:
-> > > On Tuesday 06 December 2005 03:18, Andrea Arcangeli wrote:
-> > > > On Mon, Dec 05, 2005 at 04:18:51AM -0800, William Lee Irwin III wrote:
-> > > > > The December 6 event is extraordinarily unlikely. What's vastly more
-> > > > > likely is consistent "erosion" over time. First the 3D video
-> > drivers,
-> > > > > then the wireless network drivers, then the fakeraid drivers, and so
-> > on.
-> > > >
-> > > > I agree about the erosion.
-> > > >
-> > > > I am convinced that the only way to stop the erosion is to totally
-> > stop
-> > > > buying hardware that has only binary only drivers (unless you buy it
-> > to
-> > > > create an open source driver or to reverse engineer the binary only
-> > > > driver of course! ;).
-> > >
-> > > I'm afraid there is not enough Linux users in desktop/laptop market
-> > > for vendors to notice.
-> > >
-> > > How about refusing binary-only modules instead? I mean, maybe
-> >
-> > You mean, call panic() if module license not acceptable? Nice!
-> 
-> This can only be defined a GPL-integralist approach. You are ignoring closed
-> SDK used by almost every one who uses linux on embedded platforms...from
-> Linksys routers and access points to media stations to STB with hardware a/v
-> decoders. You cant really think linux could influence nearly the whole IT
-> market, especially if they make money selling closed source SDK.
 
-If you post in HTML, you're message will never make it to the list.
+On 8 Dec 2005, at 11:48, jerome lacoste wrote:
 
-Gr{oetje,eeting}s,
+> [...]
+>> With a logo a PC vendor such as Dell can stick the logo on their PCs
+>> if and only if every component in the machine is certified.
+>> (Including motherboard, on-board graphics, on-boad-sound, on-board
+>> raid etc. etc.)
+>>
+>> This means you or I don't have to try to find out the exact machine
+>> specification from Dell and then individually check each part against
+>> the hardware database.
+>
+> I completely agree with all your arguments. My point is that your
+> solution is a long term one. It depends on demand being there, on
+> hardware vendors to be educated/lobbied/pressured, on both part
+> vendors and part assemblers to use the logos (as a good side effect
+> creating the logo might enforce the existance of Linux/Free OS
+> specialized hardware companies).
+>
+> This is a good but long term shot. It will take years before such a
+> framework becomes effective for the user.
+>
 
-						Geert
+I am not trying to address the immediate problem.
+This is a strategy to prevent the "Doomsday Scenario" outlined by  
+Arjan which ends up with most drivers being closed source.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+I said in my other thread (http://lkml.org/lkml/2005/12/7/391):
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+>> The primary motivation for this is that it leverages the  
+>> individual power of each purchaser (of a system or individual  
+>> piece of hardware) be they a consumer, SME, system builder, tier 1  
+>> or 2 PC manufacturer, government dept., or Linux distro company,  
+>> into a single point of pressure that can be applied to OEMs to  
+>> ensure that they provide open source drivers.
+
+regards,
+Felix

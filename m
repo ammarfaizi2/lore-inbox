@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030392AbVLHA7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030386AbVLHBFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030392AbVLHA7q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 19:59:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbVLHA7q
+	id S1030386AbVLHBFF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 20:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030389AbVLHBFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 19:59:46 -0500
-Received: from ihug-mail.icp-qv1-irony5.iinet.net.au ([203.59.1.199]:33118
-	"EHLO mail-ihug.icp-qv1-irony5.iinet.net.au") by vger.kernel.org
-	with ESMTP id S1030392AbVLHA7p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 19:59:45 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAA==
-Message-ID: <4397857D.8040604@cyberone.com.au>
-Date: Thu, 08 Dec 2005 11:59:41 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Lameter <clameter@engr.sgi.com>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       lhms-devel@lists.sourceforge.net
-Subject: Re: [PATCH] swap migration: Fix lru drain
-References: <Pine.LNX.4.62.0512071351010.25527@schroedinger.engr.sgi.com> <43976FD4.8060404@cyberone.com.au> <Pine.LNX.4.62.0512071641080.26288@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0512071641080.26288@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 7 Dec 2005 20:05:05 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:22571 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1030386AbVLHBFE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 20:05:04 -0500
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051206210039.GA3425@electric-eye.fr.zoreil.com>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	 <20051205121851.GC2838@holomorphy.com>
+	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
+	 <20051206030828.GA823@opteron.random>
+	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
+	 <1133869465.4836.11.camel@laptopd505.fenrus.org>
+	 <4394ECA7.80808@didntduck.org>
+	 <20051206210039.GA3425@electric-eye.fr.zoreil.com>
+Content-Type: text/plain
+Date: Thu, 08 Dec 2005 02:04:56 +0100
+Message-Id: <1134003896.8162.5.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-
->On Thu, 8 Dec 2005, Nick Piggin wrote:
->
->
->>Do we need a lock_cpu_hotplug() around here?
->>
->
->Well, then we may need that lock for each "for_each_online_cpu" use?
->
-
-I think it depends on where and how it is used?
-
-eg. for statistics gathering it doesn't matter so much. In this
-case it would seem that you do want an actual online CPU... though
-on looking at the workqueue code it seems that some of it would be
-racy in a similar way, so perhaps this is handled elsewhere (I
-can't see how, though).
-
+On Tue, 2005-12-06 at 22:00 +0100, Francois Romieu wrote:
+> Brian Gerst <bgerst@didntduck.org> :
+> [...]
+> > walk into a computer store and find anything else (I don't count 
+> > integrated video on the motherboard as a solution, since only Intel 
+> > boards have it, sorry AMD users).
 > 
->
->>Can't this deadlock if 2 CPUs each send work to the other
->>
->
->Then we would need to fix the workqueue flushing function.
->
->
+> Some SiS based motherboards offer both an integrated video and AMD
+> processor support.
+> 
+unfortunately that sis chip has a hardware bug (or so the xorg module
+tells me) which makes dri impossible, and video overlay extremely bad..
 
-Oh, you're right.
+> --
+> Ueimor
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbVLHOno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVLHOtP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbVLHOno (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 09:43:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVLHOno
+	id S932088AbVLHOtP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 09:49:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVLHOtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 09:43:44 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:4519 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S932160AbVLHOnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 09:43:43 -0500
-Date: Thu, 8 Dec 2005 14:43:29 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       randy_d_dunlap@linux.intel.com, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: RFC: ACPI/scsi/libata integration and hotswap
-Message-ID: <20051208144329.GA21946@srcf.ucam.org>
-References: <20051208030242.GA19923@srcf.ucam.org> <20051208091542.GA9538@infradead.org> <20051208132657.GA21529@srcf.ucam.org> <20051208133308.GA13267@infradead.org> <20051208133945.GA21633@srcf.ucam.org> <20051208135225.GA13122@havoc.gtf.org> <1134050863.17102.5.camel@localhost.localdomain> <43983FC6.6050108@pobox.com> <1134052257.17102.13.camel@localhost.localdomain>
+	Thu, 8 Dec 2005 09:49:15 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:19093 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932088AbVLHOtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 09:49:14 -0500
+Subject: Re: How to enable/disable security features on mmap() ?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Emmanuel Fleury <emmanuel.fleury@labri.fr>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43984595.1090406@labri.fr>
+References: <43983EBE.2080604@labri.fr>
+	 <1134051272.2867.63.camel@laptopd505.fenrus.org>
+	 <43984154.5050502@labri.fr>  <43984595.1090406@labri.fr>
+Content-Type: text/plain
+Date: Thu, 08 Dec 2005 15:49:09 +0100
+Message-Id: <1134053349.2867.65.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1134052257.17102.13.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 08, 2005 at 02:30:57PM +0000, Alan Cox wrote:
+On Thu, 2005-12-08 at 15:39 +0100, Emmanuel Fleury wrote:
+> I guess that setting the variable randomize_va_space to 0 just remove
+> the stack pointer (sp) randomization.
+> 
+> Seen in arch/i386/kernel/process.c:
+> 
+> unsigned long arch_align_stack(unsigned long sp)
+> {
+>         if (randomize_va_space)
+>                 sp -= get_random_int() % 8192;
+>         return sp & ~0xf;
+> }
+> 
+> Why not having defined this as a CONFIG_STACK_RANDOMIZATION variables
 
-> SCSI/libata can go easily from ata channel to pci device to device. The
-> rest of the logic belongs outside of scsi/libata.
+well it's a /proc/ variable already! So you can just turn it off
+entirely at runtime. (what is better is that you use the setarch program
+to turn it off for selected programs though...)
 
-ACPI methods belong to SATA/PATA targets, not PCI devices. The 
-notification you get is something of the form
 
-\SB.PCI.IDE0.SEC.MASTER
-
-on sensible devices, and
-
-\SB.C043.C438.C222.C223
-
-on anything from HP[1]. Somehow, you have to get from there to a 
-specific SCSI host and target. By far the easiest way of doing that is 
-to register them at device add time, which needs a small amount of 
-cooperation from the SCSI or libata layers. And to register the 
-notifications in the first place, you need to know the ACPI handles.
-
-[1] Thanks, HP
--- 
-Matthew Garrett | mjg59@srcf.ucam.org

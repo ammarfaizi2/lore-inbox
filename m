@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVLHUX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVLHU0A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbVLHUX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 15:23:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVLHUX2
+	id S932342AbVLHU0A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 15:26:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVLHU0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 15:23:28 -0500
-Received: from mail.gmx.de ([213.165.64.20]:35034 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932337AbVLHUX1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 15:23:27 -0500
-X-Authenticated: #26200865
-Message-ID: <4398963D.8040207@gmx.net>
-Date: Thu, 08 Dec 2005 21:23:25 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Alex Williamson <alex.williamson@hp.com>
-CC: len.brown@intel.com, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] ACPI owner_id limit too low
-References: <1134066095.32040.20.camel@tdi>
-In-Reply-To: <1134066095.32040.20.camel@tdi>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 8 Dec 2005 15:26:00 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:31909 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932342AbVLHUZ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 15:25:59 -0500
+Subject: Re: AW: Re: Linux in a binary world... a doomsday scenario
+From: Lee Revell <rlrevell@joe-job.com>
+To: Dave Neuer <mr.fred.smoothie@pobox.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <161717d50512081213oab71f63ncd9ecb3d721c83fc@mail.gmail.com>
+References: <6798653.142371134056986823.JavaMail.servlet@kundenserver>
+	 <1134070683.3919.26.camel@mindpipe>
+	 <161717d50512081213oab71f63ncd9ecb3d721c83fc@mail.gmail.com>
+Content-Type: text/plain
+Date: Thu, 08 Dec 2005 15:26:27 -0500
+Message-Id: <1134073587.5149.4.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Williamson schrieb:
->    We've found recently that it's not very hard to bump into the limit
-> of the number of owner_ids that the ACPI subsystem can provide.
-> [...] Doubling the limit to 64 is a sufficient short term fix
-> and a fairly trivial patch, maybe even something that could go in before
-> 2.6.15.  Len, could we do something like the below patch to give us a
-> little more reasonable limit?  We could switch to a bitmap too, but
-> given how close the next kernel is to release this is less impact.
-> Thanks,
+On Thu, 2005-12-08 at 15:13 -0500, Dave Neuer wrote:
+> On 12/8/05, Lee Revell <rlrevell@joe-job.com> wrote:
+> > On Thu, 2005-12-08 at 16:49 +0100, dirk@steuwer.de wrote:
+> > > Yes, i can see the problem.
+> > > How about interconnecting it with the bugtracker?
+> > > If there is a bug, and if it is related to some hardware, it is logged
+> > > in the database as broken for that kernel version. If the bug is
+> > > fixed, support status is ok again.
+> > > All that needs to be done is entering the device once into the
+> > > database, status is broken by default, and take it from there?
+> > > Then it gets some goals (similar to bugs) assigned if it is a complex
+> > > device. i.e. for a graphic device:
+> > > * 2d graphic support
+> > > * 3d graphic support
+> > > * framebuffer
+> > > * vesa
+> >
+> > If we followed your scheme 95% of supported hardware would be listed as
+> > broken.
+> >
+> > Lee
 > 
-> 	Alex
+> Well, let's start proposing solutions that will work then.
 > 
-> 
-> Signed-off-by: Alex Williamson <alex.williamson@hp.com>
-> ---
-> 
-> diff -r 03055821672a drivers/acpi/utilities/utmisc.c
-> --- a/drivers/acpi/utilities/utmisc.c	Mon Dec  5 01:00:10 2005
-> +++ b/drivers/acpi/utilities/utmisc.c	Wed Dec  7 14:55:58 2005
-> @@ -84,14 +84,14 @@
->  
->  	/* Find a free owner ID */
->  
-> -	for (i = 0; i < 32; i++) {
-> -		if (!(acpi_gbl_owner_id_mask & (1 << i))) {
-> +	for (i = 0; i < 64; i++) {
-> +		if (!(acpi_gbl_owner_id_mask & (1UL << i))) {
 
-Shouldn't this be 1ULL if you intend it to be 64 bit wide on a
-32 bit arch?
+I like the idea of a centralized database, split up by subsystem, that's
+maintained by the developers in a similar way to the ALSA soundcard
+matrix.  If a user finds an inaccuracy in the soundcard matrix or
+discovers a new hardware model that works they submit a bug report
+against the soundcard matrix, ideally containing a patch against the
+XML.
 
+It HAS to live alongside the code in the same version control system as
+the code itself so it won't drift.
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+Lee
+

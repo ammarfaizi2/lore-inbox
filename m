@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030468AbVLHGQA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030470AbVLHGQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030468AbVLHGQA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 01:16:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030470AbVLHGQA
+	id S1030470AbVLHGQz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 01:16:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030471AbVLHGQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 01:16:00 -0500
-Received: from fsmlabs.com ([168.103.115.128]:17821 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1030468AbVLHGP7 (ORCPT
+	Thu, 8 Dec 2005 01:16:55 -0500
+Received: from cantor.suse.de ([195.135.220.2]:56493 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030470AbVLHGQy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 01:15:59 -0500
-X-ASG-Debug-ID: 1134022557-28702-28-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Wed, 7 Dec 2005 22:21:31 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Diego Calleja <diegocg@gmail.com>
-cc: Kasper Sandberg <lkml@metanurb.dk>, nicolas.mailhot@laposte.net,
-       linux-kernel@vger.kernel.org
-X-ASG-Orig-Subj: Re: Linux in a binary world... a doomsday scenario
-Subject: Re: Linux in a binary world... a doomsday scenario
-In-Reply-To: <20051208032404.8bad585a.diegocg@gmail.com>
-Message-ID: <Pine.LNX.4.64.0512072218050.2123@montezuma.fsmlabs.com>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
- <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random>
- <43944F42.2070207@didntduck.org> <20051206030828.GA823@opteron.random>
- <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
- <1133869465.4836.11.camel@laptopd505.fenrus.org> <4394ECA7.80808@didntduck.org>
- <1133880581.4836.37.camel@laptopd505.fenrus.org> <loom.20051206T220254-691@post.gmane.org>
- <1134003536.8162.4.camel@localhost> <20051208032404.8bad585a.diegocg@gmail.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463810560-1998118219-1134022891=:2123"
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6092
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+	Thu, 8 Dec 2005 01:16:54 -0500
+Date: Thu, 8 Dec 2005 07:16:48 +0100
+From: Andi Kleen <ak@suse.de>
+To: Ren? Rebe <rene@exactcode.de>
+Cc: Andi Kleen <ak@suse.de>, discuss@x86-64.org, linux-kernel@vger.kernel.org
+Subject: Re: [discuss] Re: [PATCH] x86_64: Test patch for ATI/Nvidia timer problems
+Message-ID: <20051208061648.GI11190@wotan.suse.de>
+References: <20051126142030.GA26449@wotan.suse.de> <200511271502.18782.rene@exactcode.de> <20051127141155.GI20775@brahms.suse.de> <200512051614.52620.rene@exactcode.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200512051614.52620.rene@exactcode.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Mon, Dec 05, 2005 at 04:14:48PM +0100, Ren? Rebe wrote:
+> Hi,
+> 
+> On Sunday 27 November 2005 15:11, Andi Kleen wrote:
+> 
+> > > > But it worked properly before suspend/resume without noapic? 
+> > > 
+> > > Without noapic the timer has about the 2x speed compared to real-time. I
+> > > only used the machien with noapic since otherwise it is barely useful.
+> > 
+> > It has that still with the patch applied? The patch was supposed
+> > to fix that at least part of that problem on ATI systems
+> > (there seems to be also a timer miscalibration problem on some other
+> > laptops) 
+> 
+> Sorry for the late reply, just too much to do ... It appears my MSI Megabook
+> S270 with Ati chipset and AMD Turion freezes on boot with your patch applied
+> to 2.6.14.2 after the io schedulers are registered. Without the patch it boots
+> up fine.
 
----1463810560-1998118219-1134022891=:2123
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Ok thanks. 
 
-On Thu, 8 Dec 2005, Diego Calleja wrote:
+Does it work when booted with acpi_skip_timer_override ? 
 
-> El Thu, 08 Dec 2005 01:58:56 +0100,
-> Kasper Sandberg <lkml@metanurb.dk> escribi=F3:
->=20
-> Many times Windows XP requires inserting the CDs with 3rd party drivers.
->=20
-> IMO the way linux is doing things is the Right Way: Hardware should
-> work out of the box, and things like the windows' panel control driver
-> dialogs are a failure because users should't care about low-level
-> things like installing drivers. The "works under linux logo" is
+I sometimes wish this ATI chipset wouldn't exist - its timers are an endless
+headache. Admittedly the Linux code for this is somewhat screwy too, but
+their hardware also doesn't seem to be quite kosher.
 
-Lets be objective at least, Windows XP was released in 2002, have you=20
-tried Linux distros from 2002 on said laptops?
----1463810560-1998118219-1134022891=:2123--
+-Andi

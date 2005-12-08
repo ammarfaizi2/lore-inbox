@@ -1,89 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbVLHUhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbVLHUg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbVLHUhg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 15:37:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbVLHUhf
+	id S932308AbVLHUg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 15:36:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbVLHUg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 15:37:35 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:24203 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932348AbVLHUhe (ORCPT
+	Thu, 8 Dec 2005 15:36:59 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:50594 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S932308AbVLHUg5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 15:37:34 -0500
-Date: Thu, 8 Dec 2005 12:37:12 -0800 (PST)
-From: Christoph Lameter <clameter@sgi.com>
-To: akpm@osdl.org
-Cc: Christoph Hellwig <hch@infradead.org>, linux-ia64@vger.kernel.org,
-       steiner@sgi.com, linux-kernel@vger.kernel.org, ak@suse.de,
-       Wu Fengguang <wfg@mail.ustc.edu.cn>,
-       Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051208203712.30456.49833.sendpatchset@schroedinger.engr.sgi.com>
-In-Reply-To: <20051208203707.30456.57439.sendpatchset@schroedinger.engr.sgi.com>
-References: <20051208203707.30456.57439.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 2/3] Zone reclaim V3: Remove debris from old zone reclaim
+	Thu, 8 Dec 2005 15:36:57 -0500
+Subject: Re: [ACPI] ACPI owner_id limit too low
+From: Alex Williamson <alex.williamson@hp.com>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+Cc: len.brown@intel.com, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+In-Reply-To: <4398963D.8040207@gmx.net>
+References: <1134066095.32040.20.camel@tdi>  <4398963D.8040207@gmx.net>
+Content-Type: text/plain
+Organization: LOSL
+Date: Thu, 08 Dec 2005 13:36:48 -0700
+Message-Id: <1134074208.1907.6.camel@tdi>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove debris of old zone reclaim
+On Thu, 2005-12-08 at 21:23 +0100, Carl-Daniel Hailfinger wrote:
 
-Removes the leftovers from prior attempts to implement Zone reclaim.
+> > -	for (i = 0; i < 32; i++) {
+> > -		if (!(acpi_gbl_owner_id_mask & (1 << i))) {
+> > +	for (i = 0; i < 64; i++) {
+> > +		if (!(acpi_gbl_owner_id_mask & (1UL << i))) {
+> 
+> Shouldn't this be 1ULL if you intend it to be 64 bit wide on a
+> 32 bit arch?
 
-sys_set_zone_reclaim is not rechable in 2.6.14.
+   Yes, sorry I overlooked that.  Here's an updated patch.  Thanks,
 
-The reclaim_pages field in struct zone is only used by sys_set_zone_reclaim.
+	Alex
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
+Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+---
 
-Index: linux-2.6.15-rc4/include/linux/mmzone.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/linux/mmzone.h	2005-11-30 22:25:15.000000000 -0800
-+++ linux-2.6.15-rc4/include/linux/mmzone.h	2005-12-08 09:35:29.000000000 -0800
-@@ -150,11 +150,6 @@ struct zone {
- 	unsigned long		pages_scanned;	   /* since last reclaim */
- 	int			all_unreclaimable; /* All pages pinned */
+diff -r 03055821672a drivers/acpi/utilities/utmisc.c
+--- a/drivers/acpi/utilities/utmisc.c	Mon Dec  5 01:00:10 2005
++++ b/drivers/acpi/utilities/utmisc.c	Wed Dec  7 14:55:58 2005
+@@ -84,14 +84,14 @@
  
--	/*
--	 * Does the allocator try to reclaim pages from the zone as soon
--	 * as it fails a watermark_ok() in __alloc_pages?
--	 */
--	int			reclaim_pages;
- 	/* A count of how many reclaimers are scanning this zone */
- 	atomic_t		reclaim_in_progress;
+ 	/* Find a free owner ID */
  
-Index: linux-2.6.15-rc4/mm/vmscan.c
-===================================================================
---- linux-2.6.15-rc4.orig/mm/vmscan.c	2005-12-08 09:23:59.000000000 -0800
-+++ linux-2.6.15-rc4/mm/vmscan.c	2005-12-08 09:35:29.000000000 -0800
-@@ -1402,33 +1402,3 @@ int zone_reclaim(struct zone *zone, gfp_
- }
- #endif
+-	for (i = 0; i < 32; i++) {
+-		if (!(acpi_gbl_owner_id_mask & (1 << i))) {
++	for (i = 0; i < 64; i++) {
++		if (!(acpi_gbl_owner_id_mask & (1ULL << i))) {
+ 			ACPI_DEBUG_PRINT((ACPI_DB_VALUES,
+-					  "Current owner_id mask: %8.8X New ID: %2.2X\n",
++					  "Current owner_id mask: %16.16lX New ID: %2.2X\n",
+ 					  acpi_gbl_owner_id_mask,
+ 					  (unsigned int)(i + 1)));
  
--asmlinkage long sys_set_zone_reclaim(unsigned int node, unsigned int zone,
--				     unsigned int state)
--{
--	struct zone *z;
--	int i;
--
--	if (!capable(CAP_SYS_ADMIN))
--		return -EACCES;
--
--	if (node >= MAX_NUMNODES || !node_online(node))
--		return -EINVAL;
--
--	/* This will break if we ever add more zones */
--	if (!(zone & (1<<ZONE_DMA|1<<ZONE_NORMAL|1<<ZONE_HIGHMEM)))
--		return -EINVAL;
--
--	for (i = 0; i < MAX_NR_ZONES; i++) {
--		if (!(zone & 1<<i))
--			continue;
--
--		z = &NODE_DATA(node)->node_zones[i];
--
--		if (state)
--			z->reclaim_pages = 1;
--		else
--			z->reclaim_pages = 0;
--	}
--
--	return 0;
--}
+-			acpi_gbl_owner_id_mask |= (1 << i);
++			acpi_gbl_owner_id_mask |= (1ULL << i);
+ 			*owner_id = (acpi_owner_id) (i + 1);
+ 			goto exit;
+ 		}
+@@ -106,7 +106,7 @@
+ 	 */
+ 	*owner_id = 0;
+ 	status = AE_OWNER_ID_LIMIT;
+-	ACPI_REPORT_ERROR(("Could not allocate new owner_id (32 max), AE_OWNER_ID_LIMIT\n"));
++	ACPI_REPORT_ERROR(("Could not allocate new owner_id (64 max), AE_OWNER_ID_LIMIT\n"));
+ 
+       exit:
+ 	(void)acpi_ut_release_mutex(ACPI_MTX_CACHES);
+@@ -123,7 +123,7 @@
+  *              control method or unloading a table. Either way, we would
+  *              ignore any error anyway.
+  *
+- * DESCRIPTION: Release a table or method owner ID.  Valid IDs are 1 - 32
++ * DESCRIPTION: Release a table or method owner ID.  Valid IDs are 1 - 64
+  *
+  ******************************************************************************/
+ 
+@@ -140,7 +140,7 @@
+ 
+ 	/* Zero is not a valid owner_iD */
+ 
+-	if ((owner_id == 0) || (owner_id > 32)) {
++	if ((owner_id == 0) || (owner_id > 64)) {
+ 		ACPI_REPORT_ERROR(("Invalid owner_id: %2.2X\n", owner_id));
+ 		return_VOID;
+ 	}
+@@ -158,8 +158,8 @@
+ 
+ 	/* Free the owner ID only if it is valid */
+ 
+-	if (acpi_gbl_owner_id_mask & (1 << owner_id)) {
+-		acpi_gbl_owner_id_mask ^= (1 << owner_id);
++	if (acpi_gbl_owner_id_mask & (1ULL << owner_id)) {
++		acpi_gbl_owner_id_mask ^= (1ULL << owner_id);
+ 	}
+ 
+ 	(void)acpi_ut_release_mutex(ACPI_MTX_CACHES);
+diff -r 03055821672a include/acpi/acglobal.h
+--- a/include/acpi/acglobal.h	Mon Dec  5 01:00:10 2005
++++ b/include/acpi/acglobal.h	Wed Dec  7 14:55:58 2005
+@@ -211,7 +211,7 @@
+ ACPI_EXTERN u32 acpi_gbl_rsdp_original_location;
+ ACPI_EXTERN u32 acpi_gbl_ns_lookup_count;
+ ACPI_EXTERN u32 acpi_gbl_ps_find_count;
+-ACPI_EXTERN u32 acpi_gbl_owner_id_mask;
++ACPI_EXTERN u64 acpi_gbl_owner_id_mask;
+ ACPI_EXTERN u16 acpi_gbl_pm1_enable_register_save;
+ ACPI_EXTERN u16 acpi_gbl_global_lock_handle;
+ ACPI_EXTERN u8 acpi_gbl_debugger_configuration;
+
+

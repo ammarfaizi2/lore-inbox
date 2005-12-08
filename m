@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932737AbVLHXfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932740AbVLHXf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932737AbVLHXfu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 18:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932743AbVLHXfu
+	id S932740AbVLHXf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 18:35:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932737AbVLHXfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 18:35:50 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19216 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932737AbVLHXft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 18:35:49 -0500
-Date: Fri, 9 Dec 2005 00:35:47 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Raiden Anderson <d3vic3@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] include/asm-i386/acpi.h put missing header cousing build error
-Message-ID: <20051208233547.GB23349@stusta.de>
-References: <5022ae630512050429i461fded9h728d3cbb6ccf49aa@mail.gmail.com>
+	Thu, 8 Dec 2005 18:35:25 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:8108 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932695AbVLHXfY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 18:35:24 -0500
+Date: Thu, 8 Dec 2005 15:35:05 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: akpm@osdl.org, Christoph Hellwig <hch@infradead.org>,
+       linux-ia64@vger.kernel.org, steiner@sgi.com,
+       linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>,
+       discuss@x86-64.org
+Subject: Re: [discuss] Re: [PATCH 1/3] Zone reclaim V3: main patch
+In-Reply-To: <20051208232827.GZ11190@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0512081531150.31342@schroedinger.engr.sgi.com>
+References: <20051208203707.30456.57439.sendpatchset@schroedinger.engr.sgi.com>
+ <20051208210850.GS11190@wotan.suse.de> <Pine.LNX.4.62.0512081320200.30786@schroedinger.engr.sgi.com>
+ <20051208225102.GW11190@wotan.suse.de> <Pine.LNX.4.62.0512081514510.31246@schroedinger.engr.sgi.com>
+ <20051208232827.GZ11190@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5022ae630512050429i461fded9h728d3cbb6ccf49aa@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 05, 2005 at 02:29:38PM +0200, Raiden Anderson wrote:
+On Fri, 9 Dec 2005, Andi Kleen wrote:
 
-> There is a missing header in that file cousing a build failure
->...
+> > My experience is that at 20 systems do not need zone reclaim yet.
+> 
+> I really cannot confirm your experience here.
 
-Please send your .config and the build error.
+Maybe the meaning of these numbers varies? I know that 10 is a local 
+access but the assumption in include/linux/numa.h that 20 is a remote 
+access is probably already a guess.
 
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+I know that our Altix machines seem to use 10 for a local and 20 for 
+nonlocal but same box. The distances then increase from there.
 

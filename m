@@ -1,94 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbVLHOOw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbVLHOOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbVLHOOw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 09:14:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVLHOOw
+	id S932134AbVLHOOg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 09:14:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbVLHOOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 09:14:52 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:22952 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932131AbVLHOOt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 09:14:49 -0500
-Message-ID: <43983FC6.6050108@pobox.com>
-Date: Thu, 08 Dec 2005 09:14:30 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Matthew Garrett <mjg59@srcf.ucam.org>,
-       Christoph Hellwig <hch@infradead.org>, randy_d_dunlap@linux.intel.com,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: RFC: ACPI/scsi/libata integration and hotswap
-References: <20051208030242.GA19923@srcf.ucam.org>	 <20051208091542.GA9538@infradead.org>	 <20051208132657.GA21529@srcf.ucam.org>	 <20051208133308.GA13267@infradead.org>	 <20051208133945.GA21633@srcf.ucam.org>	 <20051208135225.GA13122@havoc.gtf.org> <1134050863.17102.5.camel@localhost.localdomain>
-In-Reply-To: <1134050863.17102.5.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 8 Dec 2005 09:14:36 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:21163 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932134AbVLHOOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 09:14:35 -0500
+Subject: Re: How to enable/disable security features on mmap() ?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Emmanuel Fleury <emmanuel.fleury@labri.fr>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43983EBE.2080604@labri.fr>
+References: <43983EBE.2080604@labri.fr>
+Content-Type: text/plain
+Date: Thu, 08 Dec 2005 15:14:32 +0100
+Message-Id: <1134051272.2867.63.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Alan Cox wrote: > On Iau, 2005-12-08 at 08:52 -0500,
-	Jeff Garzik wrote: > >>On Thu, Dec 08, 2005 at 01:39:45PM +0000,
-	Matthew Garrett wrote: >> >>>On Thu, Dec 08, 2005 at 01:33:08PM +0000,
-	Christoph Hellwig wrote: >>> >>> >>>>Don't do it at all. We don't need
-	to fuck up every layer and driver for >>>>intels braindamage. >>>
-	>>>Doing SATA suspend/resume properly on x86 depends on knowing the
-	ACPI >>>object that corresponds to a host or target. >> >>Not true. > >
-	> > Actually he is right. You have to know the ACPI object in order to
-	run > the _GTM/_STM etc functions. If you don't run those your
-	suspend/resume [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
 	pts rule name              description
 	---- ---------------------- --------------------------------------------------
 	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Iau, 2005-12-08 at 08:52 -0500, Jeff Garzik wrote:
+On Thu, 2005-12-08 at 15:10 +0100, Emmanuel Fleury wrote:
+> Hi,
 > 
->>On Thu, Dec 08, 2005 at 01:39:45PM +0000, Matthew Garrett wrote:
->>
->>>On Thu, Dec 08, 2005 at 01:33:08PM +0000, Christoph Hellwig wrote:
->>>
->>>
->>>>Don't do it at all.  We don't need to fuck up every layer and driver for
->>>>intels braindamage.
->>>
->>>Doing SATA suspend/resume properly on x86 depends on knowing the ACPI 
->>>object that corresponds to a host or target.
->>
->>Not true.
+> For educational purpose (I'm teaching software security) I would like to
+> be able to compile several kernels with or without features such as:
 > 
+> * Non-executable stack
+> * Stack address randomization
+> * Environment address randomization (char **envp)
+> * Dynamic library randomization (cat /proc/self/map)
 > 
-> 
-> Actually he is right. You have to know the ACPI object in order to run
-> the _GTM/_STM etc functions. If you don't run those your suspend/resume
+> So, is there a way to do such thing easily, or should I write patches by
+> myself ?
 
-These are only for PATA.  We don't care about _GTM/_STM on SATA.
+realistically the first one is easy if your hw supports the NX bit
+(x86/x86-64). Some of the other randomisations are present in the 2.6.x
+kernels.
 
-Further, SATA completely resets and re-initializes the device as if from 
-a hardware reset (except on ata_piix, which doesn't support COMRESET, 
-and PATA).  This makes _GTF uninteresting, as well.
-
-
-> may not work, may corrupt and so on. The only safe alternative is to
-> disable acpi which, while it would have been a good idea before the spec
-> ever got out, is a bit late now.
-
-suspend/resume works just fine with Jens' out-of-tree patch.
-
-
-> If you don't run the resume methods your disk subsystem status after a
-> resume is simply undefined and unsafe.
-
-I initialize the hardware to a defined state.
-
-	Jeff
+Or run a kernel from Fedora Core, or a kernel with the PaX patches to
+get all you're asking for.
 
 

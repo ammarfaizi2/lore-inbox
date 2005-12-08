@@ -1,124 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbVLHSVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932233AbVLHSXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbVLHSVl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 13:21:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbVLHSVk
+	id S932233AbVLHSXA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 13:23:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbVLHSXA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 13:21:40 -0500
-Received: from atlrel7.hp.com ([156.153.255.213]:2222 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S932166AbVLHSVk (ORCPT
+	Thu, 8 Dec 2005 13:23:00 -0500
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:8677 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S932228AbVLHSW7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 13:21:40 -0500
-Subject: ACPI owner_id limit too low
-From: Alex Williamson <alex.williamson@hp.com>
-To: len.brown@intel.com
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Content-Type: text/plain
-Organization: LOSL
-Date: Thu, 08 Dec 2005 11:21:35 -0700
-Message-Id: <1134066095.32040.20.camel@tdi>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Thu, 8 Dec 2005 13:22:59 -0500
+Message-ID: <439879ED.5050706@cs.wisc.edu>
+Date: Thu, 08 Dec 2005 12:22:37 -0600
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: open-iscsi@googlegroups.com
+CC: Christoph Hellwig <hch@infradead.org>,
+       FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>,
+       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: allowed pages in the block later, was Re: [Ext2-devel] [PATCH]
+ ext3: avoid sending down non-refcounted pages
+References: <20051208180900T.fujita.tomonori@lab.ntt.co.jp> <20051208101833.GM14509@schatzie.adilger.int> <20051208134239.GA13376@infradead.org> <439878E4.6060505@cs.wisc.edu>
+In-Reply-To: <439878E4.6060505@cs.wisc.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Christie wrote:
+> 
+> Christoph Hellwig wrote:
+> 
+>> On Thu, Dec 08, 2005 at 03:18:33AM -0700, Andreas Dilger wrote:
+>>
+>>> What happens on 1kB or 2kB block filesystems (i.e. b_size != PAGE_SIZE)?
+>>> This will allocate a whole page for each block (which may be 
+>>> considerable
+>>> overhead on e.g. a 64kB PAGE_SIZE ia64 or PPC system).
+>>
+>>
+>>
+>> Yes.  How often do we trigger this codepath?
+>>
+>> The problem we're trying to solve here is how do implement network block
+>> devices (nbd, iscsi) efficiently.  The zero copy codepath in the 
+>> networking
+>> layer does need to grab additional references to pages.  So to use 
+>> sendpage
+>> we need a refcountable page.  pages used by the slab allocator are not
+>> normally refcounted so try to do get_page/pub_page on them will break.
+>>
+>> One way to work around that would be to detect kmalloced pages and use
+>> a slowpath for that.  The major issues with that is that we don't have a
+>> reliable way to detect if a given struct page comes from the slab 
+>> allocator
+>> or not.  The minor problem is that even with such an indicator it means
+>> having a separate and lightly tested slowpath for this rare case.
+>>
+>> All in all I think we should document that the block layer only accepts
+>> properly refcounted pages, which is everything but kmalloced pages (even
+>> vmalloc is totally fine)
+> 
+> 
+> Is it anytime kmalloc is used? For scsi when it uses scsi_execute* for 
+> something like scanning (report luns result is kmallocd) would this be a 
+> problem?
+> 
+> If PageSlab() does work, then could we have a request queue flag that 
+> bounces those pages for all block layer drivers. Pretty slow and yucky 
+> but if we have to convert SCSI and maybe other parts of the block layer 
+> maybe it will be easiest for now.
+> 
 
-   We've found recently that it's not very hard to bump into the limit
-of the number of owner_ids that the ACPI subsystem can provide.  This is
-not because of leaks or complicated method execution, but simply because
-our ACPI namespace is describing a complicated system and includes a
-large number of SSDT tables.  We end up using far more than half the
-owner_ids statically allocated for these tables.  The ACPI subsystem has
-a limit of 256 ACPI tables, but we'd have a hard time getting within an
-order of magnitude of that number and still have enough owner_ids
-available for method execution.  I hear rumor that the next CA release
-increases this limit, but given that the in kernel CA revision often
-lags by several months, I'm wondering if we can bump up this limit in
-the interim.  Doubling the limit to 64 is a sufficient short term fix
-and a fairly trivial patch, maybe even something that could go in before
-2.6.15.  Len, could we do something like the below patch to give us a
-little more reasonable limit?  We could switch to a bitmap too, but
-given how close the next kernel is to release this is less impact.
-Thanks,
-
-	Alex
-
-
-Signed-off-by: Alex Williamson <alex.williamson@hp.com>
----
-
-diff -r 03055821672a drivers/acpi/utilities/utmisc.c
---- a/drivers/acpi/utilities/utmisc.c	Mon Dec  5 01:00:10 2005
-+++ b/drivers/acpi/utilities/utmisc.c	Wed Dec  7 14:55:58 2005
-@@ -84,14 +84,14 @@
- 
- 	/* Find a free owner ID */
- 
--	for (i = 0; i < 32; i++) {
--		if (!(acpi_gbl_owner_id_mask & (1 << i))) {
-+	for (i = 0; i < 64; i++) {
-+		if (!(acpi_gbl_owner_id_mask & (1UL << i))) {
- 			ACPI_DEBUG_PRINT((ACPI_DB_VALUES,
--					  "Current owner_id mask: %8.8X New ID: %2.2X\n",
-+					  "Current owner_id mask: %16.16lX New ID: %2.2X\n",
- 					  acpi_gbl_owner_id_mask,
- 					  (unsigned int)(i + 1)));
- 
--			acpi_gbl_owner_id_mask |= (1 << i);
-+			acpi_gbl_owner_id_mask |= (1UL << i);
- 			*owner_id = (acpi_owner_id) (i + 1);
- 			goto exit;
- 		}
-@@ -106,7 +106,7 @@
- 	 */
- 	*owner_id = 0;
- 	status = AE_OWNER_ID_LIMIT;
--	ACPI_REPORT_ERROR(("Could not allocate new owner_id (32 max), AE_OWNER_ID_LIMIT\n"));
-+	ACPI_REPORT_ERROR(("Could not allocate new owner_id (64 max), AE_OWNER_ID_LIMIT\n"));
- 
-       exit:
- 	(void)acpi_ut_release_mutex(ACPI_MTX_CACHES);
-@@ -123,7 +123,7 @@
-  *              control method or unloading a table. Either way, we would
-  *              ignore any error anyway.
-  *
-- * DESCRIPTION: Release a table or method owner ID.  Valid IDs are 1 - 32
-+ * DESCRIPTION: Release a table or method owner ID.  Valid IDs are 1 - 64
-  *
-  ******************************************************************************/
- 
-@@ -140,7 +140,7 @@
- 
- 	/* Zero is not a valid owner_iD */
- 
--	if ((owner_id == 0) || (owner_id > 32)) {
-+	if ((owner_id == 0) || (owner_id > 64)) {
- 		ACPI_REPORT_ERROR(("Invalid owner_id: %2.2X\n", owner_id));
- 		return_VOID;
- 	}
-@@ -158,8 +158,8 @@
- 
- 	/* Free the owner ID only if it is valid */
- 
--	if (acpi_gbl_owner_id_mask & (1 << owner_id)) {
--		acpi_gbl_owner_id_mask ^= (1 << owner_id);
-+	if (acpi_gbl_owner_id_mask & (1UL << owner_id)) {
-+		acpi_gbl_owner_id_mask ^= (1UL << owner_id);
- 	}
- 
- 	(void)acpi_ut_release_mutex(ACPI_MTX_CACHES);
-diff -r 03055821672a include/acpi/acglobal.h
---- a/include/acpi/acglobal.h	Mon Dec  5 01:00:10 2005
-+++ b/include/acpi/acglobal.h	Wed Dec  7 14:55:58 2005
-@@ -211,7 +211,7 @@
- ACPI_EXTERN u32 acpi_gbl_rsdp_original_location;
- ACPI_EXTERN u32 acpi_gbl_ns_lookup_count;
- ACPI_EXTERN u32 acpi_gbl_ps_find_count;
--ACPI_EXTERN u32 acpi_gbl_owner_id_mask;
-+ACPI_EXTERN u64 acpi_gbl_owner_id_mask;
- ACPI_EXTERN u16 acpi_gbl_pm1_enable_register_save;
- ACPI_EXTERN u16 acpi_gbl_global_lock_handle;
- ACPI_EXTERN u8 acpi_gbl_debugger_configuration;
-
-
+Or there is not a way to do kmalloc(GFP_BLK) that gives us the right 
+type of memory is there?

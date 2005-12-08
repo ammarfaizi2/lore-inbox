@@ -1,60 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVLHO6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbVLHPD5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbVLHO6X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 09:58:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbVLHO6X
+	id S932185AbVLHPD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 10:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVLHPD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 09:58:23 -0500
-Received: from ns.suse.de ([195.135.220.2]:30441 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932176AbVLHO6X (ORCPT
+	Thu, 8 Dec 2005 10:03:56 -0500
+Received: from iona.labri.fr ([147.210.8.143]:36822 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S932185AbVLHPDz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 09:58:23 -0500
-Date: Thu, 8 Dec 2005 15:58:21 +0100
-From: Olaf Hering <olh@suse.de>
-To: linux-kernel@vger.kernel.org, Sachin Sant <sachinp@in.ibm.com>
-Subject: Re: [RFC] [PATCH] Adding ctrl-o sysrq hack support to 8250 driver
-Message-ID: <20051208145821.GA15169@suse.de>
-References: <438D8A3A.9030400@in.ibm.com> <20051130130429.GB25032@flint.arm.linux.org.uk> <43953440.9070102@in.ibm.com> <20051206171633.GB19664@flint.arm.linux.org.uk> <20051207222246.GA22558@suse.de> <20051207233911.GP6793@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20051207233911.GP6793@flint.arm.linux.org.uk>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Thu, 8 Dec 2005 10:03:55 -0500
+Message-ID: <43984AF7.9000201@labri.fr>
+Date: Thu, 08 Dec 2005 16:02:15 +0100
+From: Emmanuel Fleury <emmanuel.fleury@labri.fr>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How to enable/disable security features on mmap() ?
+References: <43983EBE.2080604@labri.fr>	 <1134051272.2867.63.camel@laptopd505.fenrus.org>	 <43984154.5050502@labri.fr>  <43984595.1090406@labri.fr> <1134053349.2867.65.camel@laptopd505.fenrus.org> <4398493E.50508@labri.fr>
+In-Reply-To: <4398493E.50508@labri.fr>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Dec 07, Russell King wrote:
+Well,
 
-> Easily.  Have a look at the internals of uart_handle_break() in
-> include/linux/serial_core.h
+The problem is that is shutdown every randomization at once. But, at
+least I have some hints were to look now.
 
-This one works for me, tested with 2.6.5.
-
-
- drivers/serial/8250.c |    7 +++++++
- 1 files changed, 7 insertions(+)
-
-Index: linux-2.6.15-rc5-olh/drivers/serial/8250.c
-===================================================================
---- linux-2.6.15-rc5-olh.orig/drivers/serial/8250.c
-+++ linux-2.6.15-rc5-olh/drivers/serial/8250.c
-@@ -1154,6 +1154,13 @@ receive_chars(struct uart_8250_port *up,
- 			 */
- 		}
- 		ch = serial_inp(up, UART_RX);
-+
-+#if defined(CONFIG_MAGIC_SYSRQ) && defined(CONFIG_SERIAL_CORE_CONSOLE)
-+		/* Handle the SysRq ^O Hack, but only on the system console */
-+		if (ch == '\x0f' && uart_handle_break(&up->port))
-+			goto ignore_char;
-+#endif
-+
- 		flag = TTY_NORMAL;
- 		up->port.icount.rx++;
- 
-
+Thanks again
 -- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Emmanuel Fleury
+
+Discontent is the first step in the progress of a man or a nation.
+  -- Oscar Wilde

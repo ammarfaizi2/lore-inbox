@@ -1,52 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161013AbVLHHOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161014AbVLHHMD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161013AbVLHHOU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 02:14:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161017AbVLHHOU
+	id S1161014AbVLHHMD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 02:12:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbVLHHMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 02:14:20 -0500
-Received: from gw.indranet.co.nz ([203.167.203.10]:44041 "EHLO
-	enso.acheron.indranet.co.nz") by vger.kernel.org with ESMTP
-	id S1161013AbVLHHOT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 02:14:19 -0500
-In-Reply-To: <43944F42.2070207@didntduck.org>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <E680A9FE-EBF5-468A-88A0-61D9C10937AA@indranet.co.nz>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Andrew McGregor <andrew@indranet.co.nz>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Thu, 8 Dec 2005 20:14:22 +1300
-To: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Apple Mail (2.746.2)
+	Thu, 8 Dec 2005 02:12:03 -0500
+Received: from main.gmane.org ([80.91.229.2]:54493 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1161014AbVLHHMC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 02:12:02 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: previa.bbs@bbs.csie.ncue.edu.tw (Southern Cross)
+Subject: tse
+Date: 08 Dec 2005 06:49:24 GMT
+Organization: Legend
+Message-ID: <A11PFLRK$P_Previa@bbs.csie.ncue.edu.tw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: bbs.ncue.edu.tw
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+SIEMENS
+http://www.plug-n-play-technologies.com/downloads.html
+http://mnet.cs.nthu.edu.tw/~course/CN_Project/06_ServiceDiscovery.pdf
+http://jan.netcomp.monash.edu.au/internetdevices/upnp/upnp.html
 
-On 6/12/2005, at 3:31 AM, Brian Gerst wrote:
 
-> Andrea Arcangeli wrote:
->>
->> When we don't buy hardware without open source drivers, we send the
->> message to the shareholders that the management is causing them a  
->> loss.
->
-> The problem with this statement is that Linux users are a drop in  
-> the bucket of sales for this hardware.  Boycotting doesn't cost the  
-> vendors enough to make them care.  And this does nothing for people  
-> who are converting over to Linux, and didn't buy hardware with that  
-> consideration in mind.
-
-I happen to know of an orphaned wireless chip that might be revived  
-if we can orchestrate orders for a few thousand cards.  It has a nice  
-Linux driver that could be open sourced very easily, as so far as I  
-can tell it doesn't derive from anything that wasn't BSD licensed in  
-the first place... and the hardware performance is exemplary.  Anyone  
-with significant purchasing capacity reading this?
-
-Andrew
+--
+ [1;41m¡÷[44m¡õ[m O[1mri[30mgi[mn: [1;43m Alpha_Project£»ªüº¸µo´ú¸Õ­p¹º [47m bbs.csie.ncue.edu.tw [m
+ [1;45m¡ô[42m¡ö[m Au[1mt[30mho[mr: [1;33mprevia[m ±q [1;34m218-170-136-64.dynamic.hinet.net[m µoªí
 

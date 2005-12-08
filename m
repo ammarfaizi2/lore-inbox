@@ -1,102 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbVLHQKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbVLHQOr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbVLHQKw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 11:10:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVLHQKw
+	id S1751213AbVLHQOr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 11:14:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbVLHQOr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 11:10:52 -0500
-Received: from mail3.netbeat.de ([193.254.185.27]:3519 "HELO mail3.netbeat.de")
-	by vger.kernel.org with SMTP id S1751222AbVLHQKw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 11:10:52 -0500
-Subject: Problem with using spinlocks when kernel is compiled without
-	smp-support
-From: Dirk Henning Gerdes <mail@dirk-gerdes.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
+	Thu, 8 Dec 2005 11:14:47 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:61143 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751213AbVLHQOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 11:14:46 -0500
+Subject: Re: How to enable/disable security features on mmap() ?
+From: Arjan van de Ven <arjan@infradead.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Emmanuel Fleury <emmanuel.fleury@labri.fr>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0512081051250.13997@chaos.analogic.com>
+References: <43983EBE.2080604@labri.fr>
+	 <1134051272.2867.63.camel@laptopd505.fenrus.org>
+	 <43984154.5050502@labri.fr>  <43984595.1090406@labri.fr>
+	 <1134053349.2867.65.camel@laptopd505.fenrus.org> <4398493E.50508@labri.fr>
+	 <Pine.LNX.4.61.0512081011020.32448@chaos.analogic.com>
+	 <1134056272.2867.73.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.61.0512081051250.13997@chaos.analogic.com>
 Content-Type: text/plain
-Date: Thu, 08 Dec 2005 17:10:09 +0100
-Message-Id: <1134058209.24458.10.camel@noti>
+Date: Thu, 08 Dec 2005 17:14:41 +0100
+Message-Id: <1134058481.2867.85.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew!
 
-I have the following problem on 2.6.15-rc5-mm1
+> 0xbfbb6d74	Stack
+> 0xb7e97008	Heap
+> 0x080495e8	_end[]
+> 
 
-When compiling a module using spinlocks I get the following
-error-message, when SMP is disabled in my Kernel-config:
+there is still a HUGE gap there....
 
-
-
-
-In file included from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:7:
-include/asm/spinlock.h:21:1: warning: "__raw_spin_is_locked" redefined
-In file included from include/linux/spinlock.h:90,
-                 from include/linux/kobject.h:23,
-                 from include/linux/device.h:16,
-                 from include/linux/genhd.h:15,
-                 from include/linux/blkdev.h:6,
-                 from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:1:
-include/linux/spinlock_up.h:61:1: warning: this is the location of the
-previous definition
-In file included from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:7:
-include/asm/spinlock.h:51: error: syntax error before 'do'
-include/asm/spinlock.h: In function '__raw_spin_lock_flags':
-include/asm/spinlock.h:62: error: 'struct <anonymous>' has no member
-named 'slock'
-include/asm/spinlock.h:60: error: invalid lvalue in asm output 0
-include/asm/spinlock.h: At top level:
-include/asm/spinlock.h:65: error: syntax error before '{' token
-include/asm/spinlock.h:89: error: syntax error before 'do'
-In file included from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:7:
-include/asm/spinlock.h:114:1: warning: "__raw_spin_unlock_wait"
-redefined
-In file included from include/linux/spinlock.h:90,
-                 from include/linux/kobject.h:23,
-                 from include/linux/device.h:16,
-                 from include/linux/genhd.h:15,
-                 from include/linux/blkdev.h:6,
-                 from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:1:
-include/linux/spinlock_up.h:71:1: warning: this is the location of the
-previous definition
-In file included from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:7:
-include/asm/spinlock.h:142:1: warning: "__raw_read_can_lock" redefined
-In file included from include/linux/spinlock.h:90,
-                 from include/linux/kobject.h:23,
-                 from include/linux/device.h:16,
-                 from include/linux/genhd.h:15,
-                 from include/linux/blkdev.h:6,
-                 from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:1:
-include/linux/spinlock_up.h:68:1: warning: this is the location of the
-previous definition
-In file included from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:7:
-include/asm/spinlock.h:148:1: warning: "__raw_write_can_lock" redefined
-In file included from include/linux/spinlock.h:90,
-                 from include/linux/kobject.h:23,
-                 from include/linux/device.h:16,
-                 from include/linux/genhd.h:15,
-                 from include/linux/blkdev.h:6,
-                 from /home/dirk/Masterarbeit/mynoop/test/mynoop.c:1:
-include/linux/spinlock_up.h:69:1: warning: this is the location of the
-previous definition
-include/asm/spinlock.h: In function '__raw_read_unlock':
-include/asm/spinlock.h:181: error: 'struct <anonymous>' has no member
-named 'lock'
-include/asm/spinlock.h:181: error: invalid lvalue in asm output 0
-include/asm/spinlock.h: In function '__raw_write_unlock':
-include/asm/spinlock.h:187: error: 'struct <anonymous>' has no member
-named 'lock'
-include/asm/spinlock.h:186: error: invalid lvalue in asm output 0
-
-
-
-shouldn't it be possible to use spinlocks in my code even if I don't
-support SMP for compatiblity ?
-
-
-Dirk 
 

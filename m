@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbVLHUp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbVLHUrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbVLHUp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 15:45:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbVLHUp7
+	id S932366AbVLHUrb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 15:47:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbVLHUra
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 15:45:59 -0500
-Received: from quelen.inf.utfsm.cl ([200.1.19.194]:15752 "EHLO
-	quelen.inf.utfsm.cl") by vger.kernel.org with ESMTP id S932360AbVLHUp6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 15:45:58 -0500
-Message-Id: <200512082028.jB8KSsgp020672@pincoya.inf.utfsm.cl>
-To: Diego Calleja <diegocg@gmail.com>
-cc: dirk@steuwer.de, rdunlap@xenotime.net, wli@holomorphy.com, riel@redhat.com,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: Linux in a binary world... a doomsday scenario 
-In-Reply-To: Message from Diego Calleja <diegocg@gmail.com> 
-   of "Thu, 08 Dec 2005 17:14:44 BST." <20051208171444.511b2567.diegocg@gmail.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Thu, 08 Dec 2005 17:28:54 -0300
-From: Horst von Brand <vonbrand@pincoya.inf.utfsm.cl>
+	Thu, 8 Dec 2005 15:47:30 -0500
+Received: from cantor.suse.de ([195.135.220.2]:20649 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932372AbVLHUra (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 15:47:30 -0500
+Date: Thu, 8 Dec 2005 21:47:28 +0100
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: [discuss] Re: pcibus_to_node value when no pxm info is present for the pci bus
+Message-ID: <20051208204728.GQ11190@wotan.suse.de>
+References: <20051207223414.GA4493@localhost.localdomain> <Pine.LNX.4.62.0512081104280.29958@schroedinger.engr.sgi.com> <20051208193439.GB3776@localhost.localdomain> <20051208200440.GB15804@wotan.suse.de> <20051208202138.GD3776@localhost.localdomain> <Pine.LNX.4.62.0512081241180.30546@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0512081241180.30546@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja <diegocg@gmail.com> wrote:
+On Thu, Dec 08, 2005 at 12:41:28PM -0800, Christoph Lameter wrote:
+> On Thu, 8 Dec 2005, Ravikiran G Thirumalai wrote:
+> 
+> > That was my thinking earlier too, but shouldn't we have uniformity in
+> > behaviour between kmalloc_node and alloc_pages_node wrt nodeid handling?  
+> > IMHO it would be less confusing that way. alloc_pages_node is not that much 
+> > of a fastpath routine anyways...
+> 
+> I agree.
 
-[...]
+Ok I will submit a patch.
 
-> I think that the infrastructure for building such database automatically
-> is already there: In the same way MODULE_DEVICE_TABLE is used by hotplug
-> & friends to load the right module you can use MODULE_DEVICE_TABLE to
-> build a database of the devices supported by a kernel compiled with
-> "make allmodconfig", parse it and put it in a web page.
-
-What use is it to me when I'm going to buy ShinyCard-9900, and the database
-tells me that RandomChip 2530a is supported? The packages rarely tell you
-what chips are in the cards, moreover there have been cases of /very
-similar/ card versions (i.e., SomeThing-990 and SomeThing-990+, or
-Card-897a and Card-897b) being /totally/ different inside). The only
-reliable way to find out if it works is a test drive. Distributions like
-Ubuntu are invaluable here.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+-Andi
 

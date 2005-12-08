@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932675AbVLHWfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932662AbVLHWfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932675AbVLHWfX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 17:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932681AbVLHWfX
+	id S932662AbVLHWfz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 17:35:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932686AbVLHWfz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 17:35:23 -0500
+	Thu, 8 Dec 2005 17:35:55 -0500
 Received: from uproxy.gmail.com ([66.249.92.196]:20082 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932675AbVLHWfW (ORCPT
+	by vger.kernel.org with ESMTP id S932662AbVLHWfu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 17:35:22 -0500
+	Thu, 8 Dec 2005 17:35:50 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:content-type:content-transfer-encoding:message-id;
-        b=m4Cl6qHmkgKXOxBANCWLlseoOgS9WhLVZSXfbVRXAAP/EqdDkfcQ/Y6LE4pirccQF5OeQFs/kt9WGMqqrXN4r0AdoT9sPSUxjvv2mY3RDjb4zfgXg1rEZGVRHUB0FdsLHD+2YT08ToTGPYgON4/hVu0l5I9PNs48vam+ZrhWu9E=
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:message-id:content-type:content-transfer-encoding;
+        b=e8C1c/Svr7QycbnFllNoNXf+xvnQMVj5g/RvJUOHaSSBGTMNi9ENsu3OhtoWYNPJla7t8zhnOVY7MnvjYzQBhYuD+Yu+5CW9pUUukFFmLhUA84qaJPRGwvYiYCj2k71U36lHEZ4WdYM7WYjPqZqRLJLS6k3zrrpwlyy/W4Dr5Lo=
 From: Jesper Juhl <jesper.juhl@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Decrease number of pointer derefs in exit.c
-Date: Thu, 8 Dec 2005 23:35:42 +0100
+Subject: [PATCH] Decrease number of pointer derefs in nf_conntrack_core.c
+Date: Thu, 8 Dec 2005 23:36:19 +0100
 User-Agent: KMail/1.9
-Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Netfilter Core Team <coreteam@netfilter.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
+Message-Id: <200512082336.19695.jesper.juhl@gmail.com>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200512082335.42811.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
 Here's a small patch to decrease the number of pointer derefs in
-kernel/exit.c
+net/netfilter/nf_conntrack_core.c
 
 Benefits of the patch:
  - Fewer pointer dereferences should make the code slightly faster.
@@ -43,71 +44,42 @@ Please consider applying.
 
 
 Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-Acked-by: Ingo Molnar <mingo@elte.hu>
 ---
 
- kernel/exit.c |   37 +++++++++++++++++++++----------------
- 1 files changed, 21 insertions(+), 16 deletions(-)
 
+ net/netfilter/nf_conntrack_core.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
+
+orig:
    text    data     bss     dec     hex filename
- 11077       0       0   11077    2b45 exit.o.orig
- 10997       0       0   10997    2af5 exit.o
+  12636      49     760   13445    3485 net/netfilter/nf_conntrack_core.o
 
---- linux-2.6.15-rc5-git1-orig/kernel/exit.c	2005-12-04 18:48:53.000000000 +0100
-+++ linux-2.6.15-rc5-git1/kernel/exit.c	2005-12-06 22:11:17.000000000 +0100
-@@ -1068,6 +1068,9 @@ static int wait_task_zombie(task_t *p, i
- 	}
- 
- 	if (likely(p->real_parent == p->parent) && likely(p->signal)) {
-+		struct signal_struct *psig;
-+		struct signal_struct *sig;
-+		
- 		/*
- 		 * The resource counters for the group leader are in its
- 		 * own task_struct.  Those for dead threads in the group
-@@ -1084,24 +1087,26 @@ static int wait_task_zombie(task_t *p, i
- 		 * here reaping other children at the same time.
- 		 */
- 		spin_lock_irq(&p->parent->sighand->siglock);
--		p->parent->signal->cutime =
--			cputime_add(p->parent->signal->cutime,
-+		psig = p->parent->signal;
-+		sig = p->signal;
-+		psig->cutime =
-+			cputime_add(psig->cutime,
- 			cputime_add(p->utime,
--			cputime_add(p->signal->utime,
--				    p->signal->cutime)));
--		p->parent->signal->cstime =
--			cputime_add(p->parent->signal->cstime,
-+			cputime_add(sig->utime,
-+				    sig->cutime)));
-+		psig->cstime =
-+			cputime_add(psig->cstime,
- 			cputime_add(p->stime,
--			cputime_add(p->signal->stime,
--				    p->signal->cstime)));
--		p->parent->signal->cmin_flt +=
--			p->min_flt + p->signal->min_flt + p->signal->cmin_flt;
--		p->parent->signal->cmaj_flt +=
--			p->maj_flt + p->signal->maj_flt + p->signal->cmaj_flt;
--		p->parent->signal->cnvcsw +=
--			p->nvcsw + p->signal->nvcsw + p->signal->cnvcsw;
--		p->parent->signal->cnivcsw +=
--			p->nivcsw + p->signal->nivcsw + p->signal->cnivcsw;
-+			cputime_add(sig->stime,
-+				    sig->cstime)));
-+		psig->cmin_flt +=
-+			p->min_flt + sig->min_flt + sig->cmin_flt;
-+		psig->cmaj_flt +=
-+			p->maj_flt + sig->maj_flt + sig->cmaj_flt;
-+		psig->cnvcsw +=
-+			p->nvcsw + sig->nvcsw + sig->cnvcsw;
-+		psig->cnivcsw +=
-+			p->nivcsw + sig->nivcsw + sig->cnivcsw;
- 		spin_unlock_irq(&p->parent->sighand->siglock);
- 	}
- 
+patched:
+   text    data     bss     dec     hex filename
+  11825     183     632   12640    3160 net/netfilter/nf_conntrack_core.o
 
+--- linux-2.6.15-rc5-git1-orig/net/netfilter/nf_conntrack_core.c	2005-12-04 18:48:58.000000000 +0100
++++ linux-2.6.15-rc5-git1/net/netfilter/nf_conntrack_core.c	2005-12-08 20:13:03.000000000 +0100
+@@ -1129,6 +1129,7 @@ static inline int refresh_timer(struct n
+ int nf_conntrack_expect_related(struct nf_conntrack_expect *expect)
+ {
+ 	struct nf_conntrack_expect *i;
++	struct nf_conn *master = expect->master;
+ 	int ret;
+ 
+ 	DEBUGP("nf_conntrack_expect_related %p\n", related_to);
+@@ -1149,9 +1150,9 @@ int nf_conntrack_expect_related(struct n
+ 		}
+ 	}
+ 	/* Will be over limit? */
+-	if (expect->master->helper->max_expected && 
+-	    expect->master->expecting >= expect->master->helper->max_expected)
+-		evict_oldest_expect(expect->master);
++	if (master->helper->max_expected && 
++	    master->expecting >= master->helper->max_expected)
++		evict_oldest_expect(master);
+ 
+ 	nf_conntrack_expect_insert(expect);
+ 	nf_conntrack_expect_event(IPEXP_NEW, expect);
 
 

@@ -1,76 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbVLHIwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbVLHIxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbVLHIwx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 03:52:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750859AbVLHIwx
+	id S1750854AbVLHIxV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 03:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbVLHIxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 03:52:53 -0500
-Received: from main.gmane.org ([80.91.229.2]:15278 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750842AbVLHIwx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 03:52:53 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Dirk Steuwer <dirk@steuwer.de>
-Subject: Re: free Driver proposal (tm)
-Date: Thu, 8 Dec 2005 08:50:21 +0000 (UTC)
-Message-ID: <loom.20051208T092818-441@post.gmane.org>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org> <loom.20051206T094816-40@post.gmane.org> <20051206104652.GB3354@favonius> <loom.20051206T173458-358@post.gmane.org> <20051207141720.GA533@kvack.org> <43979569.5090805@student.ltu.se> <20051208023816.GA7184@kvack.org> <4397B348.7070205@student.ltu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 213.61.178.52 (Mozilla/5.0 (Windows; U; Windows NT 5.0; de-DE; rv:1.7.12) Gecko/20050919 Firefox/1.0.7)
+	Thu, 8 Dec 2005 03:53:20 -0500
+Received: from mail22.sea5.speakeasy.net ([69.17.117.24]:63692 "EHLO
+	mail22.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1750854AbVLHIxT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 03:53:19 -0500
+Date: Thu, 8 Dec 2005 00:53:19 -0800 (PST)
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Nicolas Mailhot <nicolas.mailhot@laposte.net>
+cc: Felix Oxley <lkml@oxley.org>, linux-kernel@vger.kernel.org,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Jesse Barnes <jesse.barnes@intel.com>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Jon Masters <jonmasters@gmail.com>,
+       Grahame White <grahame@regress.homelinux.org>,
+       Benjamin LaHaise <bcrl@kvack.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, Lars Marowsky-Bree <lmb@suse.de>,
+       "linux-os ((Dick Johnson))" <linux-os@analogic.com>,
+       Rik van Riel <riel@redhat.com>, Dirk Steuwer <dirk@steuwer.de>,
+       Andrea Arcangeli <andrea@suse.de>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: Linux Hardware Quality Labs (was: Linux in a binary world... a
+ doomsday scenario)
+In-Reply-To: <4397E427.2070702@laposte.net>
+Message-ID: <Pine.LNX.4.58.0512080044350.28203@shell4.speakeasy.net>
+References: <6DAD0850-4943-416E-9E7B-095C6B412DD0@oxley.org>
+ <4397E427.2070702@laposte.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Knutsson <ricknu-0 <at> student.ltu.se> writes:
+On Thu, 8 Dec 2005, Nicolas Mailhot wrote:
 
-> 
-> Benjamin LaHaise wrote:
-> 
-> >On Thu, Dec 08, 2005 at 03:07:37AM +0100, Richard Knutsson wrote:
-> >  
-> >
-> >>Why not something more of "Runs on Open Drivers", which also gives us a 
-> >>chance to "teach" people why to use an open OS without the replies:
-> >>"Windows is pretty" (actually, it was a guy who told me that)
-> >>    
-> >>
+> Felix Oxley wrote:
+> A good exhaustive online centralised hardware database, blessed and
+> maintained by kernel people, will have influence with or without a logo.
 
-Yes, i was thinking purely about openDrivers. 
-Lets do it this way:
+I don't think this is quite right.
 
-- get all open operating system folks to join
-- have an approval organisation, that everyone is happy with
-- lets call it "free driver" support
-- create apropriate Logos for each operating system i.e. "Penguin-Logo" 
-with "free driver since kernel-a.b.c.d" or "BSD-Daemon-Logo" with "free driver
-since a.b"
-- the hardware version numer (usb-device id, pci-id)? will be held in a
-database. 
-If in doubt people can look it up there. In case future kernels will
-drop support, it can be marked there as well. 
-A yearly logo is too much
-confusion, since hardware support for open drivers stays pretty long in 
-the kernel. (Imagine you license in december - you only got a month...)
-Maybe educate people that support for kernel 2.6.x.y series means a 
-penguin logo on blue ground. 
-If dramatic changes to the kernel are introduced, which all
-drivers affect call the kernel 2.8.x.y an educate people about a new linux 
-in town and create a penguin logo on yellow ground
+The beauty of having a simple and easily-recognizable logo plastered on
+a website or product box or what have you is exactly that -- simplicity.
+That's a good thing, because it means that the person looking to
+purchase some bit of hardware can merely look for that one sign, and
+it'll be "guaranteed" to work.
 
-- hardware vendors pay someone, or provide source code themselves 
-to be reviewed by apropriate kernel folks/bsd board...
+Simplicity is a very good thing, in this case -- the easier it is for a
+consumer to check/notice/comprehend something, the more likely they are
+to use it and put value into that process. This leads to greater
+mindshare for that logo. And besides, there are some cases where an
+online database does not help you much: for example, if you find
+yourself shopping in a brick-and-mortar store.
 
-- small licence fee and endless advertising possiblilities pay for 
-organisation folks and hosting. 
-Keeping up database records could help kernel developers.
-There could be a log file attached to each device stating the 
-current affairs about support in varying OSs
+An online database is definitely a very useful thing to have, for those
+who know to look for it, and who can look at it. But aside from that, a
+simple logo is what the vast majority of people wishing to purchase
+hardware would benefit from the most.
 
+> Regards,
+>
+> --
+> Nicolas Mailhot
+> -
 
-Dirk
-
+-Vadim Lobanov

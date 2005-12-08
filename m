@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbVLHU4R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbVLHVDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751059AbVLHU4R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 15:56:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVLHU4R
+	id S1751236AbVLHVDu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 16:03:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbVLHVDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 15:56:17 -0500
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:43788 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S1751059AbVLHU4Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 15:56:16 -0500
-Date: Thu, 8 Dec 2005 21:58:15 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Minor change to platform_device_register_simple
- prototype
-Message-Id: <20051208215815.3d001dab.khali@linux-fr.org>
-In-Reply-To: <20051207232105.GO6793@flint.arm.linux.org.uk>
-References: <20051205202707.GH15201@flint.arm.linux.org.uk>
-	<200512070105.40169.dtor_core@ameritech.net>
-	<d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com>
-	<20051207180842.GG6793@flint.arm.linux.org.uk>
-	<d120d5000512071023u151c42f4lcc40862b2debad73@mail.gmail.com>
-	<20051207190352.GI6793@flint.arm.linux.org.uk>
-	<d120d5000512071418q521d2155r81759ef8993000d8@mail.gmail.com>
-	<20051207225126.GA648@kroah.com>
-	<d120d5000512071459s9b461d8ye7abc41d0e1950fd@mail.gmail.com>
-	<20051207230615.GB742@kroah.com>
-	<20051207232105.GO6793@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 8 Dec 2005 16:03:50 -0500
+Received: from buffy.ijichi.org ([213.161.76.94]:56011 "EHLO buffy.ijichi.org")
+	by vger.kernel.org with ESMTP id S1751231AbVLHVDs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 16:03:48 -0500
+Message-ID: <1134075808.43989fa0e0404@www.ijichi.org>
+Date: Thu, 08 Dec 2005 21:03:28 +0000
+From: Dominic Ijichi <dom@ijichi.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Erik Slagter <erik@slagter.name>, Christoph Hellwig <hch@infradead.org>,
+       Matthew Garrett <mjg59@srcf.ucam.org>, randy_d_dunlap@linux.intel.com,
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
+References: <20051208030242.GA19923@srcf.ucam.org>  <20051208091542.GA9538@infradead.org>  <20051208132657.GA21529@srcf.ucam.org>  <20051208133308.GA13267@infradead.org>  <20051208133945.GA21633@srcf.ucam.org>  <20051208134438.GA13507@infradead.org> <1134062330.1732.9.camel@localhost.localdomain> <43989B00.5040503@pobox.com>
+In-Reply-To: <43989B00.5040503@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+X-Priority: 3 (Normal)
+X-Originating-IP: 81.178.118.57
+X-DSPAM-Result: Innocent
+X-DSPAM-Confidence: 0.9997
+X-DSPAM-Probability: 0.0000
+X-DSPAM-Signature: 43989fa49371608514595
+X-DSPAM-Factors: 27,
+X-Spam-Score: -2.453
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
+Quoting Jeff Garzik <jgarzik@pobox.com>:
 
-> On Wed, Dec 07, 2005 at 03:06:15PM -0800, Greg KH wrote:
-> > Ok, that's fine with me.  Russell, any objections?
+> Erik Slagter wrote:
+> > 'guess You're not interested in having suspend/resume actually work on
+> > laptops (or other PC's). That's your prerogative but imho it's a bit
+> > narrow-minded to withhold this functionality from other people who
+> > actually would like to have this working, just because you happen to not
+> > like ACPI.
 > 
-> None what so ever - that's mostly what I envisioned with the patch
-> with the _del method.  However, I didn't have an existing user for it.
+> It works just fine on laptops, with Jens' suspend/resume patch.
 
-Do you mean you have the code already? If it is so, could you please
-provide a patch Dmitry and I can give a try to?
+not on my fujitsu sonoma/ih6 based laptop it doesn't.  in my travels trying to
+fix this problem it appears there are many others it doesnt work for either. 
+suspend/resume is incredibly important for day-to-day practical use of a laptop,
+particularly using linux. the sole reason i still have a windows partition is
+because suspend doesnt work in linux and i'm sick of firing everything up again
+3 times a day.
 
-If not, I am willing to give it a try, if you provide some guidance. I
-think I understand that platform_device_del would be the first half of
-platform_device_unregister, but do we then want to rebuild
-platform_device_unregister on top of platform_device_del so as to avoid
-code duplication, or not?
+thank you very much to all on this list who are pursuing a solution sensibly and
+not making unhelpful blanket statements against the most widely used laptop
+chipset maker - *particularly* when they are actively contributing to
+development on this list.  we (laptop users) dont care about religious
+standpoints, we just want it to work.
 
-Thanks,
--- 
-Jean Delvare
+dom
+
+
+> 
+> 	Jeff
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+
+------------------------------------------
+This message was penned by the hand of Dom

@@ -1,56 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbVLHD3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbVLHDjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030448AbVLHD3s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 22:29:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030447AbVLHD3r
+	id S1030449AbVLHDjD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 22:39:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030452AbVLHDjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 22:29:47 -0500
-Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:19897 "HELO
-	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030448AbVLHD3r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 22:29:47 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Date: Wed, 7 Dec 2005 22:29:42 -0500
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org
-References: <20051203135608.GJ31395@stusta.de> <d120d5000512060845l1d035f46ub8d9334b6936f9e7@mail.gmail.com> <20051207112909.GA4012@merlin.emma.line.org>
-In-Reply-To: <20051207112909.GA4012@merlin.emma.line.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Dec 2005 22:39:03 -0500
+Received: from mail.kroah.org ([69.55.234.183]:36043 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030449AbVLHDjB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 22:39:01 -0500
+Date: Wed, 7 Dec 2005 19:38:41 -0800
+From: Greg KH <greg@kroah.com>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, stable@kernel.org,
+       acpi-devel <acpi-devel@lists.sourceforge.net>
+Subject: Re: [stable] [PATCH] Fix oops in asus_acpi.c on Samsung P30/P35 Laptops
+Message-ID: <20051208033841.GA25008@kroah.com>
+References: <4395D945.6080108@gmx.net> <20051206192136.GA22615@kroah.com> <4395F0AB.1080408@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512072229.42335.dtor_core@ameritech.net>
+In-Reply-To: <4395F0AB.1080408@gmx.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 07 December 2005 06:29, Matthias Andree wrote:
-> On Tue, 06 Dec 2005, Dmitry Torokhov wrote:
+On Tue, Dec 06, 2005 at 09:12:27PM +0100, Carl-Daniel Hailfinger wrote:
+> Greg KH schrieb:
+> >On Tue, Dec 06, 2005 at 07:32:37PM +0100, Carl-Daniel Hailfinger wrote:
+> >
+> >>Hi,
+> >>
+> >>on insmod of asus_acpi on my Samsung P35 laptop I get the following
+> >>Oops (perfectly reproducible):
+> >>
+> >>Asus Laptop ACPI Extras version 0.29
+> >>Unable to handle kernel NULL pointer dereference at virtual address 
+> >>00000000
+> >>printing eip:
+> >>e1dfc362
+> >>*pde = 00000000
+> >>Oops: 0000 [#1]
+> >>Modules linked in: asus_acpi thermal processor fan button battery ac 
+> >>snd_pcm_oss snd_mixer_oss snd_intel8x0 snd_ac97_codec snd_ac97_bus 
+> >>snd_pcm snd_timer snd soundcore
+> >>snd_page_alloc ipt_TOS ipt_LOG ipt_limit ipt_pkttype pcmcia 
+> >>firmware_class ipt_state ip6t_REJECT ipt_REJECT iptable_mangle 
+> >>iptable_nat iptable_filter ip6table_mangle
+> >>ip_nat_ftp ip_nat ip_conntrack_ftp ip_conntrack nfnetlink ip_tables 
+> >>ip6table_filter ip6_tables ipv6 evdev sg sd_mod sr_mod scsi_mod intel_agp 
+> >>agpgart ohci1394 ieee1394
+> >>yenta_socket rsrc_nonstatic pcmcia_core ehci_hcd uhci_hcd i2c_i801 joydev 
+> >>dm_mod usbcore 8139too mii reiserfs ide_cd cdrom ide_disk piix ide_core
+> >>CPU:    0
+> >>EIP:    0060:[<e1dfc362>]    Not tainted VLI
+> >>EFLAGS: 00010203   (2.6.15-rc5)
+> >>EIP is at asus_hotk_get_info+0x17f/0x76c [asus_acpi]
+> >>eax: def75000   ebx: de8aaf54   ecx: 00000002   edx: 00000003
+> >>esi: 00000000   edi: e1e82a9c   ebp: dde2fea0   esp: de8aaf48
+> >>ds: 007b   es: 007b   ss: 0068
+> >>Process modprobe (pid: 6566, threadinfo=de8aa000 task=ddac05b0)
+> >>Stack: 00000000 00005105 deef8000 00000010 dde2fea0 dfeddc00 e1e83196 
+> >>dfeddc84
+> >>      dfedd820 e1dfc982 e1dfca11 dfeddc00 e1e849e0 00000000 c021c2fa 
+> >>      dfeddc00
+> >>      e1e849e0 c021c39e e1e84b00 0805bc08 00000028 de8aa000 e1dfcb20 
+> >>      c0133b32
+> >>Call Trace:
+> >>[<e1dfc982>] asus_hotk_check+0x33/0x34 [asus_acpi]
+> >>[<e1dfca11>] asus_hotk_add+0x8e/0x148 [asus_acpi]
+> >>[<c021c2fa>] acpi_bus_driver_init+0x2e/0x57
+> >>[<c021c39e>] acpi_driver_attach+0x3e/0x63
+> >>[<e1dfcb20>] asus_acpi_init+0x55/0x7d [asus_acpi]
+> >>[<c0133b32>] sys_init_module+0xf2/0x180
+> >>[<c0102e6f>] sysenter_past_esp+0x54/0x75
+> >>Code: 08 68 7f 30 e8 e1 e8 0e f2 31 de 58 5a a1 10 4d e8 e1 ba 03 00 00 
+> >>00 bf 9c 2a e8 e1 89 d1 c7 40 14 12 00 00 00 8b 75 08 49 78 08 <ac> ae 75 
+> >>08 84 c0 75 f5 31 c0 eb 04
+> >>19 c0 0c 01 85 c0 75 11 a1
+> >>
+> >>
+> >>This oops affects all kernels since 2.6.12. Patch follows.
+> >>Please apply.
+> >
+> >
+> >Is this patch accepted by the acpi maintainers yet?
 > 
-> > On 12/6/05, Matthias Andree <matthias.andree@gmx.de> wrote:
-> > >
-> > > QA has to happen at all levels if it is supposed to be affordable or
-> > > scalable. The development process was scaled up, but QA wasn't.
-> > >
-> > > How about the Signed-off-by: lines? Those people who pass on the changes
-> > > also pass on the bugs, and they are responsible for the code - not only
-> > > license-wise, but also quality-wise. That's the latest point where
-> > > regression tests MUST happen.
-> > 
-> > People who pass the changes can only test ones they have hardware for.
-> > For the rest they can try to validate the code by reading patches but
-> > have to rely on the submitter wrt to the patch actually working.
+> No, although it was posted to acpi-devel, it did not generate any
+> comment. The problem itself has been posted to acpi-devel many times
+> over. The first patch by Christian Aichinger did generate some
+> feedback and the patch I sent was his newest version which nobody
+> commented upon. This patch is also the last patch from
+> http://bugzilla.kernel.org/show_bug.cgi?id=5067
+> Only users commented on the patch, not any maintainer.
 > 
-> What I'm saying is that people (maintainer) should have a selected
-> number of people (users) test the patches before they are merged.
-> 
+> However, since this oops has been unfixed for over 5 months and
+> nobody seems to care, I submitted the patch to stable@ in the
+> hope somebody would at least look at it.
 
-And we try. Take for example psmouse_resync patch that is now in -mm.
-I got about 30 reports that it worked and fixed people's problems before
-I got it to Andrew. And still as soon as it got to -mm I got a complaint
-that it failed on one of boxes ;(
+I'd recommend bugging the acpi maintainers, as they are the ones who can
+comment on this the best.  Have you sent it to them yet?
 
--- 
-Dmitry
+thanks,
+
+greg k-h

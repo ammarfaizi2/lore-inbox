@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVLHN6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVLHODl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbVLHN6t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 08:58:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVLHN6s
+	id S932117AbVLHODl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 09:03:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbVLHODl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 08:58:48 -0500
-Received: from nproxy.gmail.com ([64.233.182.200]:36414 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932111AbVLHN6r convert rfc822-to-8bit
+	Thu, 8 Dec 2005 09:03:41 -0500
+Received: from xproxy.gmail.com ([66.249.82.204]:60327 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932117AbVLHODk convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 08:58:47 -0500
+	Thu, 8 Dec 2005 09:03:40 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YZ1xPWPRlChVO5lNK+L3ehp/ugvntSThcX6zjDVz49PNbyxytPV22WpetVjqsfbTGvFAGd/fVcFopJuTeh0EGPRgw1DYkk98fTeHfMJpr5oLz3cpqNbXnk7yePlC/yudDogokzLKtRltCDfLmi46u5obPkNcFNXkvc7qCxeciqo=
-Message-ID: <84144f020512080558tb9bb6bbjf91e72ad3d9ccaa6@mail.gmail.com>
-Date: Thu, 8 Dec 2005 15:58:46 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Christoph Hellwig <hch@infradead.org>,
-       FUJITA Tomonori <fujita.tomonori@lab.ntt.co.jp>, michaelc@cs.wisc.edu,
-       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-       open-iscsi@googlegroups.com, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: allowed pages in the block later, was Re: [Ext2-devel] [PATCH] ext3: avoid sending down non-refcounted pages
-In-Reply-To: <20051208134239.GA13376@infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051208180900T.fujita.tomonori@lab.ntt.co.jp>
-	 <20051208101833.GM14509@schatzie.adilger.int>
-	 <20051208134239.GA13376@infradead.org>
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=tp1S4iBq1d5yY4V/Yy9qALcHp+jkD/LWMlQJGQQtxW0Pw6HLpXkexQc6cx4YZDQxNAuCGZVW9ssxk7IVZN8qROpO8fOnPxyj6QWKVubvE/esoRemMyzufg6U1KEhlKxnimSfdS68aRBrqVCpH6GZJYtX2u/8WAk8RR00fGZA0mw=
+Date: Thu, 8 Dec 2005 15:03:16 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: Dirk Steuwer <dirk@steuwer.de>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, Rik van Riel <riel@redhat.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Message-Id: <20051208150316.26838909.diegocg@gmail.com>
+In-Reply-To: <loom.20051208T140839-587@post.gmane.org>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	<20051205121851.GC2838@holomorphy.com>
+	<20051206011844.GO28539@opteron.random>
+	<1133857767.2858.25.camel@laptopd505.fenrus.org>
+	<Pine.LNX.4.63.0512071337560.17172@cuia.boston.redhat.com>
+	<Pine.LNX.4.58.0512071041420.17648@shark.he.net>
+	<1133981708.2869.54.camel@laptopd505.fenrus.org>
+	<20051207201612.GV28539@opteron.random>
+	<1133986742.2869.65.camel@laptopd505.fenrus.org>
+	<20051207204029.GW28539@opteron.random>
+	<loom.20051208T140839-587@post.gmane.org>
+X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.3; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Christoph,
+El Thu, 8 Dec 2005 13:23:11 +0000 (UTC),
+Dirk Steuwer <dirk@steuwer.de> escribió:
 
-On 12/8/05, Christoph Hellwig <hch@infradead.org> wrote:
-> One way to work around that would be to detect kmalloced pages and use
-> a slowpath for that.  The major issues with that is that we don't have a
-> reliable way to detect if a given struct page comes from the slab allocator
-> or not.
 
-Why doesn't PageSlab work for you?
+> For a hardwaredatabase i like to see a structure. Kernel developers are 
+> required to enter the support into the database, when submitting the driver.
+> Ongoing status will be logged there as well. Status and devices can only be 
+> entered by kernel developers.
 
-                                                          Pekka
+[Please don't remove the CC list]
+
+This sounds like the typical nightmare that never is 100% accurate and
+needs lots of mainteinance (developers not updating the wiki, etc) as
+Lee Revell pointed out.
+
+IMO the one way of creating such database is automating it. If you
+could get a list of the device IDs supported by drivers you 
+could (?) use the pciid/usbid/whatever list to build a user-readable
+database of the devices supported by the linux tree. Maybe it won't
+100% perfect but...

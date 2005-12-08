@@ -1,61 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932587AbVLHBhn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751661AbVLHCAB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932587AbVLHBhn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 20:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932548AbVLHBhn
+	id S1751661AbVLHCAB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 21:00:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751657AbVLHCAB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 20:37:43 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:29389 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932464AbVLHBhm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 20:37:42 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 7 Dec 2005 21:00:01 -0500
+Received: from smtp101.sbc.mail.mud.yahoo.com ([68.142.198.200]:3463 "HELO
+	smtp101.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751183AbVLHCAA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 21:00:00 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Vitaly Wool <vwool@ru.mvista.com>
+Subject: Re: [PATCH 2.6-git] SPI core refresh
+Date: Wed, 7 Dec 2005 17:59:55 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
+       greg@kroah.com, basicmark@yahoo.com, komal_shah802003@yahoo.com,
+       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
+       Joachim_Jaeger@digi.com
+References: <20051201191109.40f2d04b.vwool@ru.mvista.com> <20051205210110.44a3ba4c.vwool@ru.mvista.com>
+In-Reply-To: <20051205210110.44a3ba4c.vwool@ru.mvista.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [BUG] Variable stopmachine_state should be volatile
-Date: Thu, 8 Dec 2005 09:37:30 +0800
-Message-ID: <8126E4F969BA254AB43EA03C59F44E8404210E76@pdsmsx404>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BUG] Variable stopmachine_state should be volatile
-Thread-Index: AcX3FyKnyRKZ1LJdR+WciiNOD370YgEf3qog
-From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
-To: "Arjan van de Ven" <arjan@infradead.org>, "Pavel Machek" <pavel@ucw.cz>
-Cc: <linux-kernel@vger.kernel.org>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       "Shah, Rajesh" <rajesh.shah@intel.com>, <linux-ia64@vger.kernel.org>
-X-OriginalArrivalTime: 08 Dec 2005 01:37:31.0842 (UTC) FILETIME=[F4F77A20:01C5FB97]
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512071759.56782.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>-----Original Message-----
->>From: Arjan van de Ven [mailto:arjan@infradead.org]
->>Sent: 2005Äê12ÔÂ2ÈÕ 16:04
->>To: Zhang, Yanmin
->>Cc: linux-kernel@vger.kernel.org; Pallipadi, Venkatesh; Shah, Rajesh
->>Subject: Re: [BUG] Variable stopmachine_state should be volatile
->>
->>On Wed, 2005-11-30 at 10:04 +0800, Zhang, Yanmin wrote:
->>> The model to access variable stopmachine_state is that a main thread
->>> writes it and other threads read it. Its declaration has no sign
->>> volatile. In the while loop in function stopmachine, this variable is
->>> read, and compiler might optimize it by reading it once before the loop
->>> and not reading it again in the loop, so the thread might enter dead
->>> loop.
->>
->>cpu_relax() includes a compiler barier..... so... what's wrong with the
->>compiler that it ignores such barriers?
+On Monday 05 December 2005 10:01 am, Vitaly Wool wrote:
+> 
+> Again, some advantages of our core compared to David's I'd like to mention
+> 
+> - it can be compiled as a module (as opposed to basic David's core w/o Mark Underwood's patch)
+> - it is less priority inversion-exposed
 
-You are right. I hit the problem when I compiled kernel 2.6.9 on IA64 by intel compiler.
-cpu_relax has the compiler barrier if we use gcc, but cpu_relax becomes just ia64_hint which is null when I use intel compiler to compile kernel on ia64. file include/asm-ia64/intel_intrin.h defines ia64_hint as null.
+These are actually minor issues, with almost trivial fixes.  (Pending.)
 
-Function stopmachine in kernel/stop_machine.c uses cpu_relax to prevent compiler from moving the reading of stopmachine_state out of the while loop. But when we use intel compiler, cpu_relax doesn't work because it is just null.
+And I'd argue about the priority inversion thing ... the inversions in
+your stuff come from the API, not the implementation.  Which makes the
+problems inherent, rather than fixable:  "more" exposed, not "less".
 
-The right approach is to define ia64_hint to ia64_barrier in file include/asm-ia64/intel_intrin.h. I tested the new approach and it does work.
 
-Thank Arjan, Pavel, and Venki.
+> - it can gain more performance with multiple controllers
+
+If this isn't a repeat of that priority-inversion case (fix available),
+then I don't see what you're implying.  I have a hard time seeing any
+potential for an issue there, since the I/O request path just shortcuts
+to the controller driver.  It can't exactly get in the way!
+
+
+> - it's more adapted for use in real-time environments
+
+I think you still haven't explained what you mean by this, other than
+maybe reminding that PREEMPT_RT interacts with some implementations.
+
+
+> Well, what else? 
+> 1. Now thw footprint of the pure (i. e. w/o device interface and thread-based
+> handling) .text section is _less_ than 2k for ARM.
+
+Hey, I started from that size *including* device interface etc.  If it's
+exceeded now, it's because of the extra overhead from wrapping device_driver
+with some spi_driver code.  ;)
+
+
+> 2. We still think that thread-based async messages processing will be the most
+> commonly used option so we didn't remove it from core but made it a compication
+> option whether to include it or not. In any case it can be overridden by a
+> specific bus driver, so even when compiled in, thread-based handling won't
+> necessarily _start_ the threads, so the overhead is minimal even in that case.    
+
+Whereas I've just said such threading policies don't belong in a "core" at
+all.  You may have noticed the bitbanging adapter I posted ... oddly, that
+implementation allocates a thread.  Hmm ...
+
+That is:  you're not talking about capabilities that aren't already in
+the SPI patches already circulating in 2.6.15-rc5-mm1 (from Sunday).
+They're just layered differently ... the core is _minimal_ and those
+implementation policies can be chosen without adding to the core.
+(Or impacting drivers that want different implementation policies.)
+
+
+> 3. We still don't feel comportable with complicated structure of SPI message in
+> David's core being exposed to all over the world. On the other hand, chaining
+> SPI messages can really be helpful,
+
+The point has been made that such chaining is actually "essential", since
+device interaction protocols have constraints like "chipselect must be
+asserted during all these transfers" or contrariwise "between these transfers,
+chipselect must be dropped for N microseconds".  If the async messages didn't
+cover such linked message, then two activities could interfere with each other
+quite badly ... they'd break hardware protocol requirements.
+
+
+> so we added this option to our core (yeeeep, 
+> convergence is gong on :)) but
+
+My preferred level of convergence would be changes to make your code look
+more like mine, especially where you're providing a mechanism that's been
+in mine all along ... hmm, like spi_driver is the same now.  I made one
+such change; maybe it's your turn now.  ;)
+
+- Dave
 

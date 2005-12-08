@@ -1,114 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVLHQpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbVLHQzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbVLHQpi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 11:45:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVLHQpi
+	id S932205AbVLHQzr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 11:55:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbVLHQzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 11:45:38 -0500
-Received: from rtsoft3.corbina.net ([85.21.88.6]:5448 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S932212AbVLHQph (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 11:45:37 -0500
-Message-ID: <439862F9.6000407@ru.mvista.com>
-Date: Thu, 08 Dec 2005 19:44:41 +0300
-From: Valentine Barshak <vbarshak@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] posix_fadvise bug (unexpected success on FIFO/pipe)
-Content-Type: multipart/mixed;
- boundary="------------040405090707000405090104"
+	Thu, 8 Dec 2005 11:55:46 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:1919 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S932205AbVLHQzq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 11:55:46 -0500
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>, nicolas.mailhot@laposte.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051208133143.6a24d560.diegocg@gmail.com>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	 <20051205121851.GC2838@holomorphy.com>
+	 <20051206011844.GO28539@opteron.random> <43944F42.2070207@didntduck.org>
+	 <20051206030828.GA823@opteron.random>
+	 <f0cc38560512060307m2ccc6db8xd9180c2a1a926c5c@mail.gmail.com>
+	 <1133869465.4836.11.camel@laptopd505.fenrus.org>
+	 <4394ECA7.80808@didntduck.org>
+	 <1133880581.4836.37.camel@laptopd505.fenrus.org>
+	 <loom.20051206T220254-691@post.gmane.org>
+	 <1134003536.8162.4.camel@localhost>
+	 <20051208032404.8bad585a.diegocg@gmail.com>
+	 <Pine.LNX.4.64.0512072218050.2123@montezuma.fsmlabs.com>
+	 <20051208133143.6a24d560.diegocg@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Thu, 08 Dec 2005 17:55:33 +0100
+Message-Id: <1134060933.15056.1.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040405090707000405090104
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2005-12-08 at 13:31 +0100, Diego Calleja wrote:
+> El Wed, 7 Dec 2005 22:21:31 -0800 (PST),
+> Zwane Mwaikambo <zwane@arm.linux.org.uk> escribió:
+> 
+> > Lets be objective at least, Windows XP was released in 2002, have you 
+> > tried Linux distros from 2002 on said laptops?
+well true, but really there are no newer windows release available to
+buy, so this must be what they want us to use! (xp with sp2 embedded
+still have problems with alot stuff)
 
-Hello, all.
-I have the following problem with posix_fadvise :
-the system call succeeds on a pipe or FIFO, although it has to fail with 
-ESPIPE (EINVAL on linux) return value.
-Looks like a kernel bug.
-I've attached a small test for posix_fadvise and a patch for linux 
-kernel 2.6.14 that fixes the problem.
-The patch makes posix_fadvise return ESPIPE on FIFO/pipe in order to be 
-fully POSIX-compliant.
-Please, take a look at these.
-Thanks.
+> 
+> Indeed windows xp was released in 2002, but Microsoft don't seem
+> to add new drivers in the service packs (which is something they
+> could do).
+> 
 
---------------040405090707000405090104
-Content-Type: text/x-csrc;
- name="posix_fadvise_test.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="posix_fadvise_test.c"
-
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <errno.h>
-
-int main()
-{
-	int retval, fd;
-
-	if (mkfifo("fifo", 0666) < 0) {
-		printf("create fifo error\n");
-		return 1;
-	}
-	
-	fd = open("fifo", O_RDWR);
-	if (fd < 0) {
-		printf("open fifo error\n");
-		remove("fifo");
-		return 1;
-	}
-	
-	retval = posix_fadvise(fd, 0, 0, POSIX_FADV_NORMAL);
-	if (retval) {
-		printf("Expected fail - The fd argument is associated with a pipe or FIFO.\n");
-		if (retval != ESPIPE)
-			printf("Unexpected ERRNO %d (Expected %d)\n", retval, ESPIPE);
-	} else
-		printf("Unexpected success  - The fd argument is associated with a pipe or FIFO.\n");
-
-	close(fd);
-	remove("fifo");
-
-	if (retval)
-		return 0;
-	return 1;
-}
-
---------------040405090707000405090104
-Content-Type: text/x-patch;
- name="fadv.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fadv.patch"
-
---- a/mm/fadvise.c 2005-10-10 22:54:29.000000000 +0400
-+++ b/mm/fadvise.c 2005-12-06 23:04:19.980711464 +0300
-@@ -37,6 +37,11 @@
-        if (!file)
-                return -EBADF;
- 
-+       if (S_ISFIFO(file->f_dentry->d_inode->i_mode)) {
-+               ret = -ESPIPE;
-+               goto out;
-+       }
-+
-        mapping = file->f_mapping;
-        if (!mapping || len < 0) {
-                ret = -EINVAL;
-
-
---------------040405090707000405090104--

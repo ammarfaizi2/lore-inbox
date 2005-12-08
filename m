@@ -1,106 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbVLHBgc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932273AbVLHBik@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932260AbVLHBgc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Dec 2005 20:36:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbVLHBgc
+	id S932273AbVLHBik (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Dec 2005 20:38:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbVLHBij
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Dec 2005 20:36:32 -0500
-Received: from gambit.vianw.pt ([195.22.31.34]:5065 "EHLO gambit.vianw.pt")
-	by vger.kernel.org with ESMTP id S932260AbVLHBgb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Dec 2005 20:36:31 -0500
-Message-ID: <43978E04.7030000@esoterica.pt>
-Date: Thu, 08 Dec 2005 01:36:04 +0000
-From: Paulo da Silva <psdasilva@esoterica.pt>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Dike <jdike@addtoit.com>
-CC: linux-kernel@vger.kernel.org
-Subject: STILL Cannot run linux 2.6.14.3 UML on a x86_64
-References: <43924B2C.9000300@esoterica.pt> <20051204043205.GA15425@ccure.user-mode-linux.org> <43926CC8.2030902@esoterica.pt> <20051204162732.GA3692@ccure.user-mode-linux.org>
-In-Reply-To: <20051204162732.GA3692@ccure.user-mode-linux.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 7 Dec 2005 20:38:39 -0500
+Received: from ruth.realtime.net ([205.238.132.69]:64777 "EHLO
+	ruth.realtime.net") by vger.kernel.org with ESMTP id S932273AbVLHBij
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Dec 2005 20:38:39 -0500
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <5ea338375b299708162887d8854df3ff@bga.com>
 Content-Transfer-Encoding: 7bit
+Cc: Russell King <rmkl@arm.linux.org.uk>, Olaf Hering <olh@suse.de>,
+       Sachin Sant <sachinp@in.ibm.com>
+From: Milton Miller <miltonm@bga.com>
+Subject: Re: [RFC] [PATCH] Adding ctrl-o sysrq hack support to 8250 driver
+Date: Wed, 7 Dec 2005 19:38:55 -0600
+To: LKML <linux-kernel@vger.kernel.org>
+X-Mailer: Apple Mail (2.623)
+X-Server: High Performance Mail Server - http://surgemail.com r=-224271992
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike wrote:
+On Wed Dec 07 2005 - 18:38:41 EST, Russell King wrote:
+> On Wed, Dec 07, 2005 at 11:22:46PM +0100, Olaf Hering wrote:
+> > On Tue, Dec 06, Russell King wrote:
+> >
+> > > I'm still highly concerned about this whole idea. Applying this 
+> patch
+> > > _will_ without doubt inconvenience a lot of people who expect ^O 
+> to be
+> > > received as normal.
+> >
+> > If one boots with 'console=ttyS0', the 'ctrl o' should be handled 
+> only
+> > on ttyS0. However, I'm not sure if anyone uses ^O in this situation 
+> via
+> > the system console. In our case, ttyS0 is automatically activated via
+> > add_preferred_console in arch/powerpc/kernel/setup-common.c.
+> > If there is a clever way to handle ^O only for the system console, 
+> would
+> > such a patch be accepted? I'm currently looking through the code to 
+> see
+> > how it could be done.
+>
+> Easily. Have a look at the internals of uart_handle_break() in
+> include/linux/serial_core.h
+>
+> However, please be aware that ^O is the default control character for
+> "flush output" which I think is something you may want to use with a
+> serial console. Eg:
+>
+> speed 38400 baud; rows 0; columns 0; line = 1;
+> intr = ^C; quit = ^\; erase = ^?; kill = ^U; eof = ^D; eol = <undef>;
+> eol2 = <undef>; start = ^Q; stop = ^S; susp = ^Z; rprnt = ^R; werase = 
+> ^W;
+> lnext = ^V; flush = ^O; min = 1; time = 0;
+> ^^^^^^^^^^^
+>
+> Hence it's a poor choice. Maybe picking a character which isn't
+> already used by default for another purpose would be appropriate?
+> '^]', the classic telnet escape character maybe?
 
->On Sun, Dec 04, 2005 at 04:12:56AM +0000, Paulo da Silva wrote:
->  
->
-> ...
->
->It works.  I have never really tested tt mode on x86_64.
->
->  
->
-Cannot get it running !!!
-It stops, consuming variable amounts of cpu.
-The same configuration works perfectly on a 32 bits system.
+Aaarrrrhh NO!
 
-Here is the console output.
+Don't you ever login to a box to telent somewhere else?
 
-Checking PROT_EXEC mmap in /tmp...OK
-Checking for /proc/mm...not found
-Checking for the skas3 patch in the host...not found
-UML running in SKAS0 mode
-[42949372.960000] Checking that ptrace can change system call numbers...OK
-[42949372.960000] Checking syscall emulation patch for ptrace...missing
-[42949372.960000] Linux version 2.6.14.3 (psergio@Gandalf) (gcc version 
-3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)) #1 Thu Dec 8 01:13:35 
-WET 2005
-[42949372.960000] Built 1 zonelists
-[42949372.960000] Kernel command line: ubd0=/VMs/UML/UML1 mem=250M 
-eth0=tuntap,,,192.168.1.100 root=98:0
-[42949372.960000] PID hash table entries: 1024 (order: 10, 32768 bytes)
-[42949372.960000] Dentry cache hash table entries: 32768 (order: 6, 
-262144 bytes)
-[42949372.960000] Inode-cache hash table entries: 16384 (order: 5, 
-131072 bytes)
-[42949372.960000] Memory: 243712k available
-[42949373.180000] Mount-cache hash table entries: 256
-[42949373.180000] Checking that host ptys support output SIGIO...Yes
-[42949373.180000] Checking that host ptys support SIGIO on close...No, 
-enabling workaround
-[42949373.180000] Checking for /dev/anon on the host...Not available 
-(open failed with errno 2)
-[42949373.180000] softlockup thread 0 started up.
-[42949373.180000] Using 2.6 host AIO
-[42949373.180000] NET: Registered protocol family 16
-[42949373.180000] mconsole (version 2) initialized on 
-/home/psergio/.uml/Pulga/mconsole
-[42949373.180000] Netdevice 0 : TUN/TAP backend - IP = 192.168.1.100
-[42949373.180000] Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-[42949373.180000] Initializing Cryptographic API
-[42949373.230000] io scheduler noop registered
-[42949373.230000] io scheduler anticipatory registered
-[42949373.230000] io scheduler deadline registered
-[42949373.230000] io scheduler cfq registered
-[42949373.230000] RAMDISK driver initialized: 16 RAM disks of 4096K size 
-1024 blocksize
-[42949373.250000] loop: loaded (max 8 devices)
-[42949373.250000] NET: Registered protocol family 2
-[42949373.390000] IP route cache hash table entries: 2048 (order: 2, 
-16384 bytes)
-[42949373.390000] TCP established hash table entries: 8192 (order: 4, 
-65536 bytes)
-[42949373.390000] TCP bind hash table entries: 8192 (order: 4, 65536 bytes)
-[42949373.390000] TCP: Hash tables configured (established 8192 bind 8192)
-[42949373.390000] TCP reno registered
-[42949373.390000] TCP bic registered
-[42949373.390000] NET: Registered protocol family 1
-[42949373.390000] NET: Registered protocol family 17
-[42949373.390000] NET: Registered protocol family 15
-[42949373.390000] Initialized stdio console driver
-[42949373.390000] Console initialized on /dev/tty0
-[42949373.390000] Initializing software serial port version 1
-[42949373.390000]  ubda: unknown partition table
-[42949373.390000] VFS: Mounted root (ext2 filesystem) readonly.
-[42949373.490000] request_module: runaway loop modprobe binfmt-464c
-[42949373.490000] request_module: runaway loop modprobe binfmt-464c
-[42949373.490000] request_module: runaway loop modprobe binfmt-464c
-[42949373.490000] request_module: runaway loop modprobe binfmt-464c
-[42949373.490000] request_module: runaway loop modprobe binfmt-464c
+I don't want to way 5 seconds to disconnect my telnet from the
+hung remote machine (or do a saK either).
+
+If this goes in, perhaps a parameter (which automatically shows
+up in sysfs) to change it on the fly?  (ok, something tied to
+the class device rather than the serial module would be nicer).
+
+milton
+
+[Hopefully I got all the cc's, I'm not subscribed]
 

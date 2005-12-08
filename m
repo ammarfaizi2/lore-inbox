@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVLHPhq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVLHPh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbVLHPhq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 10:37:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVLHPhq
+	id S932174AbVLHPh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 10:37:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbVLHPh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 10:37:46 -0500
-Received: from nproxy.gmail.com ([64.233.182.195]:6242 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932170AbVLHPhp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 10:37:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=HCFnmgqZFBMPwaNs+3P/XvFtDDWcouplwd12wo6V+dpPEI/Ut1MRW4rAJvpQEfChfLt9+hCdkOTRVnrLKLzpfh7Wg1nhIFJhUcAou25SByR82ZjuObk4K23A1wpLrVf4l2d8NeBbK6AEKSiGu0cDUo+YSktli32WMmxx3scRf90=
-Message-ID: <6278d2220512080737t30a83011k11e88e85c0974a11@mail.gmail.com>
-Date: Thu, 8 Dec 2005 15:37:43 +0000
-From: Daniel J Blueman <daniel.blueman@gmail.com>
-To: tripperda@nvidia.com
-Subject: Re: PAT status?
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, ak@suse.de, jgarzik@pobox.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Thu, 8 Dec 2005 10:37:56 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:59875 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932174AbVLHPhz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 10:37:55 -0500
+Subject: Re: How to enable/disable security features on mmap() ?
+From: Arjan van de Ven <arjan@infradead.org>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: Emmanuel Fleury <emmanuel.fleury@labri.fr>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0512081011020.32448@chaos.analogic.com>
+References: <43983EBE.2080604@labri.fr>
+	 <1134051272.2867.63.camel@laptopd505.fenrus.org>
+	 <43984154.5050502@labri.fr>  <43984595.1090406@labri.fr>
+	 <1134053349.2867.65.camel@laptopd505.fenrus.org> <4398493E.50508@labri.fr>
+	 <Pine.LNX.4.61.0512081011020.32448@chaos.analogic.com>
+Content-Type: text/plain
+Date: Thu, 08 Dec 2005 16:37:51 +0100
+Message-Id: <1134056272.2867.73.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terence Ripperda wrote:
-> Hi Jeff,
->
-> I unfortunately haven't had much time to look at the status of the PAT
-> code I had been working on. there are really 2 steps to the code:
->
-> the first is enabling and configuring the PAT registers. this then
-> allows a page table entry define that can be passed to traditional
-> interfaces, such as remap_page_range or change_page_attr. this is
-> pretty simple and we've been using a similar interface in our driver
-> for some time now.
->
-> the second part was to make sure we didn't create any cache aliasing
-> via duplicate mappings. this part is a bit more involved and what was
-> holding everything back. I've been meaning to get back to looking at
-> this, but really haven't had the time.
 
-If you mean aliasing by the way of having MTRR entries conflicting
-with PAT page flags, then is this better dealt with by in-kernel
-drivers being changed to use PAT rather than the MTRR interface? One
-day, the kernel MTRR interface will be deprecated and unusable
-(modules could still program the MTRRs as PAT is done today in a
-number of drivers).
+> Isn't this too much?  I thought the random-stack patch was
+> only supposed to vary it a page or 64k at most. This looks
+> like some broken logic because it varies almost 8 megabytes!
 
-> I don't know if you still want to limit the additional of the first
-> step, based on completion of the second step. I can try to set time
-> aside over the next month to try and sync up and take a look at where
-> we stand w/ the cachemap portion of the code. I think there where
-> still issues with gathering/passing in the correct attributes.
->
-> Thanks,
-> Terence
+that is correct; the 64k was only there for one patch proposal; linus'
+tree had 8 Mb randomisation from the start
 
-Presumably, the aliasing will only bite where eg the X server sets up
-MTRRs and PAT is used for the region also. For x86_64 and IA32, the
-Intel IA32 system guides tell us that strong store ordering (ie
-write-through) takes precendence over weaker store ordering (eg
-write-combining), so we should be safe. For processors with known
-errata with PAT etc, we can disable PAT support.
+> No wonder some of my user's database programs sometimes seg-fault
+> and other times work perfectly fine. I think this is incorrect
+> and shows a serious bug (misbehavior).
 
-Would it be useful to get a rough patch covering point #1 onto LKML
-for discussion?
-___
-Daniel J Blueman
+eh how? This 8Mb isn't eaten from the stack rlimit; the entire stack is
+moved, and the rlimit applies to the size not the position.
+
+

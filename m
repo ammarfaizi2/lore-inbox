@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbVLHMMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbVLHMVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbVLHMMy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 07:12:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbVLHMMy
+	id S1750990AbVLHMVn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 07:21:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbVLHMVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 07:12:54 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:24038 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750898AbVLHMMx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 07:12:53 -0500
-Subject: Re: Broadcom 43xx first results
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jiri Benc <jbenc@suse.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Joseph Jezak <josejx@gentoo.org>,
-       mbuesch@freenet.de, linux-kernel@vger.kernel.org,
-       bcm43xx-dev@lists.berlios.de, NetDev <netdev@vger.kernel.org>,
-       Jouni Malinen <jkmaline@cc.hut.fi>
-In-Reply-To: <20051208130751.6586c59d@griffin.suse.cz>
-References: <E1Eiyw4-0003Ab-FW@www1.emo.freenet-rz.de>
-	 <20051205190038.04b7b7c1@griffin.suse.cz> <4394892D.2090100@gentoo.org>
-	 <20051205195543.5a2e2a8d@griffin.suse.cz> <4394902C.8060100@pobox.com>
-	 <20051208130751.6586c59d@griffin.suse.cz>
-Content-Type: text/plain
-Date: Thu, 08 Dec 2005 13:12:44 +0100
-Message-Id: <1134043965.2867.45.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[213.93.14.173 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[213.93.14.173 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 8 Dec 2005 07:21:43 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:51927 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1750978AbVLHMVn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 07:21:43 -0500
+Date: Thu, 8 Dec 2005 13:19:02 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Michele <vo.sinh@gmail.com>
+cc: Denis Vlasenko <vda@ilport.com.ua>, Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux in a binary world... a doomsday scenario
+In-Reply-To: <f0cc38560512071322m1d370589vd9f8a7684fa2ee1d@mail.gmail.com>
+Message-ID: <Pine.LNX.4.62.0512081144010.27563@pademelon.sonytel.be>
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+ <20051205121851.GC2838@holomorphy.com> <20051206011844.GO28539@opteron.random>
+ <200512061426.37287.vda@ilport.com.ua> <Pine.LNX.4.62.0512072109360.24915@pademelon.sonytel.be>
+ <f0cc38560512071322m1d370589vd9f8a7684fa2ee1d@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 7 Dec 2005, Michele wrote:
+> On 12/7/05, Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> > On Tue, 6 Dec 2005, Denis Vlasenko wrote:
+> > > On Tuesday 06 December 2005 03:18, Andrea Arcangeli wrote:
+> > > > On Mon, Dec 05, 2005 at 04:18:51AM -0800, William Lee Irwin III wrote:
+> > > > > The December 6 event is extraordinarily unlikely. What's vastly more
+> > > > > likely is consistent "erosion" over time. First the 3D video
+> > drivers,
+> > > > > then the wireless network drivers, then the fakeraid drivers, and so
+> > on.
+> > > >
+> > > > I agree about the erosion.
+> > > >
+> > > > I am convinced that the only way to stop the erosion is to totally
+> > stop
+> > > > buying hardware that has only binary only drivers (unless you buy it
+> > to
+> > > > create an open source driver or to reverse engineer the binary only
+> > > > driver of course! ;).
+> > >
+> > > I'm afraid there is not enough Linux users in desktop/laptop market
+> > > for vendors to notice.
+> > >
+> > > How about refusing binary-only modules instead? I mean, maybe
+> >
+> > You mean, call panic() if module license not acceptable? Nice!
+> 
+> This can only be defined a GPL-integralist approach. You are ignoring closed
+> SDK used by almost every one who uses linux on embedded platforms...from
+> Linksys routers and access points to media stations to STB with hardware a/v
+> decoders. You cant really think linux could influence nearly the whole IT
+> market, especially if they make money selling closed source SDK.
 
-> 3. Most of WE calls can be handled by ieee80211 itself. The rest should
-> be propagated to a driver in some easier way than requiring driver to
-> deal with the whole WE stuff itself. Also, exporting callbacks from
-> ieee80211 that driver has to set as particular WE handlers seems to be
-> unnecessary complicated.
+If you post in HTML, you're message will never make it to the list.
 
-this argument is analogue to the adaptec SAS driver one about the scsi
-host structure. ieee80211 should be a LIBRARY of functions that can do
-things, the driver should be able to use the library or not at its own
-choice. forcibly making the ieee80211 layer deal with the WE's is the
-wrong way for this kind of thing, especially since several layers of the
-stack will be optional, so it has to be possible for drivers to go
-"until this layer I use the ieee80211 library functions, below that my
-own".
+Gr{oetje,eeting}s,
 
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

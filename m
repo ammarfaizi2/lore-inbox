@@ -1,77 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbVLHVDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbVLHVGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbVLHVDu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 16:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbVLHVDu
+	id S932305AbVLHVGD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 16:06:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932306AbVLHVGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 16:03:50 -0500
-Received: from buffy.ijichi.org ([213.161.76.94]:56011 "EHLO buffy.ijichi.org")
-	by vger.kernel.org with ESMTP id S1751231AbVLHVDs (ORCPT
+	Thu, 8 Dec 2005 16:06:03 -0500
+Received: from mail.macqel.be ([194.78.208.39]:17415 "EHLO mail.macqel.be")
+	by vger.kernel.org with ESMTP id S932305AbVLHVGB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 16:03:48 -0500
-Message-ID: <1134075808.43989fa0e0404@www.ijichi.org>
-Date: Thu, 08 Dec 2005 21:03:28 +0000
-From: Dominic Ijichi <dom@ijichi.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Erik Slagter <erik@slagter.name>, Christoph Hellwig <hch@infradead.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, randy_d_dunlap@linux.intel.com,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-References: <20051208030242.GA19923@srcf.ucam.org>  <20051208091542.GA9538@infradead.org>  <20051208132657.GA21529@srcf.ucam.org>  <20051208133308.GA13267@infradead.org>  <20051208133945.GA21633@srcf.ucam.org>  <20051208134438.GA13507@infradead.org> <1134062330.1732.9.camel@localhost.localdomain> <43989B00.5040503@pobox.com>
-In-Reply-To: <43989B00.5040503@pobox.com>
+	Thu, 8 Dec 2005 16:06:01 -0500
+Message-Id: <200512082105.jB8L5xW12712@mail.macqel.be>
+Subject: [PATCH 2.6.15-rc5] media/video/bttv : enhance ioctl debug
+To: linux-kernel@vger.kernel.org
+Date: Thu, 8 Dec 2005 22:05:58 +0100 (CET)
+From: "Philippe De Muyter" <phdm@macqel.be>
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) 4.0-cvs
-X-Priority: 3 (Normal)
-X-Originating-IP: 81.178.118.57
-X-DSPAM-Result: Innocent
-X-DSPAM-Confidence: 0.9997
-X-DSPAM-Probability: 0.0000
-X-DSPAM-Signature: 43989fa49371608514595
-X-DSPAM-Factors: 27,
-X-Spam-Score: -2.453
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Jeff Garzik <jgarzik@pobox.com>:
+This patch adds the current process name in the media/video/bttv ioctl debug.
 
-> Erik Slagter wrote:
-> > 'guess You're not interested in having suspend/resume actually work on
-> > laptops (or other PC's). That's your prerogative but imho it's a bit
-> > narrow-minded to withhold this functionality from other people who
-> > actually would like to have this working, just because you happen to not
-> > like ACPI.
-> 
-> It works just fine on laptops, with Jens' suspend/resume patch.
+Signed-off-by: Philippe De Muyter <phdm@macqel.be>
 
-not on my fujitsu sonoma/ih6 based laptop it doesn't.  in my travels trying to
-fix this problem it appears there are many others it doesnt work for either. 
-suspend/resume is incredibly important for day-to-day practical use of a laptop,
-particularly using linux. the sole reason i still have a windows partition is
-because suspend doesnt work in linux and i'm sick of firing everything up again
-3 times a day.
+---
 
-thank you very much to all on this list who are pursuing a solution sensibly and
-not making unhelpful blanket statements against the most widely used laptop
-chipset maker - *particularly* when they are actively contributing to
-development on this list.  we (laptop users) dont care about religious
-standpoints, we just want it to work.
-
-dom
-
-
-> 
-> 	Jeff
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
-------------------------------------------
-This message was penned by the hand of Dom
+--- linux/drivers/media/video/bttv-driver.c.orig	2005-08-29 01:41:01.000000000 +0200
++++ linux/drivers/media/video/bttv-driver.c	2005-12-08 20:59:45.000000000 +0100
+@@ -2181,19 +2182,19 @@ static int bttv_do_ioctl(struct inode *i
+ 	int retval = 0;
+ 
+ 	if (bttv_debug > 1) {
++		printk("bttv%d: %s: ioctl 0x%x ", btv->c.nr, current->comm,
++			cmd);
+ 		switch (_IOC_TYPE(cmd)) {
+ 		case 'v':
+-			printk("bttv%d: ioctl 0x%x (v4l1, VIDIOC%s)\n",
+-			       btv->c.nr, cmd, (_IOC_NR(cmd) < V4L1_IOCTLS) ?
++			printk("(v4l1, VIDIOC%s)\n",
++			       (_IOC_NR(cmd) < V4L1_IOCTLS) ?
+ 			       v4l1_ioctls[_IOC_NR(cmd)] : "???");
+ 			break;
+ 		case 'V':
+-			printk("bttv%d: ioctl 0x%x (v4l2, %s)\n",
+-			       btv->c.nr, cmd,  v4l2_ioctl_names[_IOC_NR(cmd)]);
++			printk("(v4l2, %s)\n", v4l2_ioctl_names[_IOC_NR(cmd)]);
+ 			break;
+ 		default:
+-			printk("bttv%d: ioctl 0x%x (???)\n",
+-			       btv->c.nr, cmd);
++			printk("(???)\n");
+ 		}
+ 	}
+ 	if (btv->errors)

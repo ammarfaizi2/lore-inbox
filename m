@@ -1,124 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbVLIL55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVLIL6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbVLIL55 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 06:57:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbVLIL55
+	id S932216AbVLIL6w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 06:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbVLIL6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 06:57:57 -0500
-Received: from host-87-74-42-126.bulldogdsl.com ([87.74.42.126]:34509 "EHLO
-	shell.skyblue.eu.org") by vger.kernel.org with ESMTP
-	id S932071AbVLIL54 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 06:57:56 -0500
-X-Antivirus-SKYBLUE-Mail-From: brent@skyblue.eu.org via shell
-X-Antivirus-SKYBLUE: 1.25-st-qms (Clear:RC:1(82.211.73.82):. Processed in 0.045664 secs Process 20630)
-From: "Brent" <brent@skyblue.eu.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: High load since upgrade
-Date: Fri, 9 Dec 2005 11:57:37 -0000
-Message-ID: <000001c5fcb7$c006e820$030c0b0a@mforma.com>
+	Fri, 9 Dec 2005 06:58:52 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:29104 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932116AbVLIL6u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 06:58:50 -0500
+Message-ID: <43997171.9060105@pobox.com>
+Date: Fri, 09 Dec 2005 06:58:41 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+CC: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       randy_d_dunlap@linux.intel.com, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
+References: <20051208132657.GA21529@srcf.ucam.org> <20051208133308.GA13267@infradead.org> <20051208133945.GA21633@srcf.ucam.org> <1134050498.17102.2.camel@localhost.localdomain> <20051208141811.GB21715@srcf.ucam.org> <1134052433.17102.17.camel@localhost.localdomain> <20051208145257.GB21946@srcf.ucam.org> <20051208171901.GA22451@srcf.ucam.org> <20051209114246.GB16945@infradead.org> <20051209114944.GA1068@havoc.gtf.org> <20051209115235.GB25771@srcf.ucam.org>
+In-Reply-To: <20051209115235.GB25771@srcf.ucam.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: AcX8t782dvjk1ENOSJiy6uGB1UmRaA==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Matthew Garrett wrote: > On Fri, Dec 09, 2005 at
+	06:49:44AM -0500, Jeff Garzik wrote: > > >>If this is just for libata,
+	it's still at the wrong level. >> >>libata will eventually make the
+	SCSI simulator optional, which means >>any acpi_scsi_init() or whatnot
+	won't work for libata. > > > It depends on notification whenever a
+	device is added to the scsi bus > class, so it needs access to
+	scsi_bus_type. While that could be put in > the libata layer, it seems
+	cleaner to leave it in scsi and then add > another callback for libata
+	when it moves to its own bus class. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-Hope this is the right list I'm posting to but here goes.
+Matthew Garrett wrote:
+> On Fri, Dec 09, 2005 at 06:49:44AM -0500, Jeff Garzik wrote:
+> 
+> 
+>>If this is just for libata, it's still at the wrong level.
+>>
+>>libata will eventually make the SCSI simulator optional, which means
+>>any acpi_scsi_init() or whatnot won't work for libata.
+> 
+> 
+> It depends on notification whenever a device is added to the scsi bus 
+> class, so it needs access to scsi_bus_type. While that could be put in 
+> the libata layer, it seems cleaner to leave it in scsi and then add 
+> another callback for libata when it moves to its own bus class.
 
-I recently upgraded 3 servers to the stock 2.6.14.3 kernels from an older
-2.4.28 kernel, all identical running debian stable and all up to date with
-no outstandng updates needed to the OS.
-As from these 3 graphs (all servers almost identical hardware), PIII 900, 1G
-RAM, you can quite clearly see when the upgrades where made and sending the
-load avg up way above the previous averages.
-http://pics.skyblue.eu.org/graphs/
+If this is for hotswap, as I noted, libata doesn't need this at all.
 
-All these servers are only running; shorewall, squid and ntop as their
-primary functions.
+If the hardware supports it, then libata will support it directly. 
+There is no ACPI-specific magic, because ACPI does nothing but talk to 
+the same hardware libata is talking to.
 
-Before I go pasting my .config etc etc I wanted to know first off what
-anyone would really like so I don't paste too much to create a really large
-post. Also if it's a known issue?
-
-But here is a quick vmstat and as can see the 'in' is rather larger than
-normal I would think?
-Top is not reporting anything usefull really.
-
-/usr/src/linux-2.6.14.3# vmstat -n 1 
-procs -----------memory---------- ---swap-- -----io---- --system--
-----cpu----
- r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-wa
- 0  0      0     26    231    364    0    0     0    13   13     4  1  2 97
-0
- 0  0      0     26    231    364    0    0     0     0  272    42  0  0 100
-0
- 0  0      0     26    231    364    0    0     0     0  265    35  0  0 100
-0
- 0  0      0     26    231    364    0    0     0     0  276    46  0  0 100
-0
- 0  0      0     26    231    364    0    0     0    36  290    70  0  0 100
-0
- 0  0      0     26    231    364    0    0     0    48  276    64  0  0 100
-0
- 0  0      0     26    231    364    0    0     0     0  291    69  0  0 100
-0
- 0  0      0     26    231    364    0    0     0    12  266    37  0  0 100
-0
- 0  0      0     26    231    364    0    0     0     0  315   120  0  0 100
-0
- 0  0      0     26    231    364    0    0     0     4  322   116  0  0 100
-0
- 0  0      0     26    231    364    0    0     0     0  313    99  0  0 100
-0
- 0  0      0     26    231    364    0    0     0     0  301    92  0  0 100
-0
- 0  0      0     26    231    364    0    0     0     0  279    49  0  0 100
-0
- 0  0      0     26    231    364    0    0     0     0  298    77  0  0 100
-0
- 0  0      0     26    231    364    0    0     0     0  315    93  0  0 100
-0
- 0  0      0     26    231    364    0    0     0    36  300    74  0  0 100
-0
- 0  0      0     26    231    364    0    0     0     0  283    45  0  0 100
-0
-
-A list of the hardware is from lspci is:
-
-0000:00:00.0 Host bridge: ServerWorks CNB20HE Host Bridge (rev 23)
-0000:00:00.1 Host bridge: ServerWorks CNB20HE Host Bridge (rev 01)
-0000:00:00.2 Host bridge: ServerWorks CNB20HE Host Bridge (rev 01)
-0000:00:00.3 Host bridge: ServerWorks CNB20HE Host Bridge (rev 01)
-0000:00:01.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100]
-(rev 08)
-0000:00:02.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100]
-(rev 08)
-0000:00:03.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev
-27)
-0000:00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 50)
-0000:00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
-0000:00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev
-04)
-0000:01:04.0 PCI bridge: Digital Equipment Corporation DECchip 21154 (rev
-05)
-0000:02:00.0 PCI bridge: Digital Equipment Corporation DECchip 21154 (rev
-05)
-0000:02:01.0 SCSI storage controller: QLogic Corp. ISP12160 Dual Channel
-Ultra3 SCSI Processor (rev 06)
-0000:03:00.0 RAID bus controller: American Megatrends Inc. MegaRAID (rev 20)
-0000:04:05.0 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
-0000:04:05.1 SCSI storage controller: Adaptec AIC-7899P U160/m (rev 01)
-0000:04:06.0 Ethernet controller: Intel Corp. 82546GB Gigabit Ethernet
-Controller (rev 03)
-0000:04:06.1 Ethernet controller: Intel Corp. 82546GB Gigabit Ethernet
-Controller (rev 03)
-
-
+	Jeff
 
 
 

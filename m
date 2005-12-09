@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbVLIPp7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbVLIPsY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbVLIPp7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 10:45:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVLIPp6
+	id S964783AbVLIPsY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 10:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbVLIPsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 10:45:58 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:65237 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932403AbVLIPp6 (ORCPT
+	Fri, 9 Dec 2005 10:48:24 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:17878 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964783AbVLIPsX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 10:45:58 -0500
-Message-ID: <4399A68D.50504@suse.de>
-Date: Fri, 09 Dec 2005 16:45:17 +0100
+	Fri, 9 Dec 2005 10:48:23 -0500
+Message-ID: <4399A737.40809@suse.de>
+Date: Fri, 09 Dec 2005 16:48:07 +0100
 From: Stefan Seyfried <seife@suse.de>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050715 Thunderbird/1.0.6 Mnenhy/0.7.2.0
 X-Accept-Language: en-us, en

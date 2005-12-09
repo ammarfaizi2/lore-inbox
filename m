@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbVLIW7X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbVLIXGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbVLIW7X (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 17:59:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbVLIW7X
+	id S932485AbVLIXGx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 18:06:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbVLIXGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 17:59:23 -0500
-Received: from ns.suse.de ([195.135.220.2]:13441 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964894AbVLIW7W (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 17:59:22 -0500
-Date: Fri, 9 Dec 2005 23:59:21 +0100
-From: Andi Kleen <ak@suse.de>
-To: Rohit Seth <rohit.seth@intel.com>
-Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, zach@vmware.com, shai@scalex86.org,
-       nippung@calsoftinc.com
-Subject: Re: [discuss] [patch] x86_64:  align and pad x86_64 GDT on page boundary
-Message-ID: <20051209225921.GO11190@wotan.suse.de>
-References: <20051208215514.GE3776@localhost.localdomain> <1134083357.7131.21.camel@akash.sc.intel.com> <20051208231141.GX11190@wotan.suse.de> <1134084367.7131.32.camel@akash.sc.intel.com> <20051208232610.GY11190@wotan.suse.de> <1134085511.7131.53.camel@akash.sc.intel.com> <20051208234320.GB11190@wotan.suse.de> <20051209221922.GA3676@localhost.localdomain> <1134169287.21462.7.camel@akash.sc.intel.com>
+	Fri, 9 Dec 2005 18:06:53 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:61084 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932485AbVLIXGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 18:06:53 -0500
+Date: Fri, 9 Dec 2005 15:06:24 -0800
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Rohit Seth <rohit.seth@intel.com>, Len Brown <len.brown@intel.com>
+Subject: Re: [RFC][PATCH 2/3]i386,x86-64 Handle missing local APIC timer interrupts on C3 state
+Message-ID: <20051209150624.A19415@unix-os.sc.intel.com>
+References: <20051208181040.C32524@unix-os.sc.intel.com> <Pine.LNX.4.64.0512090003460.26307@montezuma.fsmlabs.com> <20051209044938.A26619@unix-os.sc.intel.com> <Pine.LNX.4.64.0512090933540.26307@montezuma.fsmlabs.com> <20051209095243.A22139@unix-os.sc.intel.com> <20051209180739.GH11190@wotan.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1134169287.21462.7.camel@akash.sc.intel.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20051209180739.GH11190@wotan.suse.de>; from ak@suse.de on Fri, Dec 09, 2005 at 07:07:39PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 03:01:27PM -0800, Rohit Seth wrote:
-> > > For the BP case it's ok as 
-> > > long as the beginning is correctly aligned and the rest 
-> > > is read-only.
-> > 
-> > Just that any writes on the bp GDT will invalidate the idt_table cacheline,
-> > which is read mostly (as Nippun pointed out).  So could we keep the padding
-> > as it is for the BP too? 
-> > 
+On Fri, Dec 09, 2005 at 07:07:39PM +0100, Andi Kleen wrote:
+> Just a quick comment - didn't review the full patch.
 > 
-> Do you write into GDT often for this to be an issue.  The reason I'm
+> > +#ifdef ARCH_APICTIMER_STOPS_ON_C3
+> > +			if (c->x86_vendor == X86_VENDOR_INTEL) {
+> > +				on_each_cpu(switch_APIC_timer_to_ipi, 
+> > +						&mask, 1, 1);
+> > +			}
+> > +#endif
+> 
+> Better make it a runtime variable instead of an ifdef with a boot option.
+> I found at least one non Intel system so far with the same issue
+> (although it wasn't multi processor) 
 
-The context switch writes into the GDT to switch around the TLS segments
-when they are <4GB. Or in pre NPTL the same would be done for the LDT
-also used for TLS.
+Actually, that particular ifdef ARCH_APICTIMER_STOPS_ON_C3 is always set for
+i386 and x86-64 and local APIC is enabled. I only added that ifdef to skip 
+this code for IA-64, which can also use acpi processor_idle.c.
 
-> asking this because the per-cpu IDTs that Andi refered in the future.
-> If we are really not using too many bytes in GDT then rest of the page
-> can be used for IDT and such mostly RO data.
+For any other CPU in i386 or x86-64, we can just add runtime check along with
+VENDOR_INTEL. 
 
-Once I implement that it can be shared with that page.
+Thanks,
+Venki
 
--Andi
 

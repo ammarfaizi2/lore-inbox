@@ -1,28 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbVLIKBx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbVLIKH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbVLIKBx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 05:01:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVLIKBx
+	id S1751294AbVLIKH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 05:07:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVLIKH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 05:01:53 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:48313 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751305AbVLIKBw (ORCPT
+	Fri, 9 Dec 2005 05:07:57 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:1260 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751294AbVLIKH4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 05:01:52 -0500
-Date: Fri, 9 Dec 2005 11:55:02 +0100
+	Fri, 9 Dec 2005 05:07:56 -0500
+Date: Fri, 9 Dec 2005 12:01:29 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: JANAK DESAI <janak@us.ibm.com>
-Cc: chrisw@osdl.org, viro@ftp.linux.org.uk, dwmw2@infradead.org,
-       jamie@shareable.org, serue@us.ibm.com, linuxram@us.ibm.com,
-       jmorris@namei.org, sds@tycho.nsa.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 1/5] New system call, unshare
-Message-ID: <20051209105502.GA20314@elte.hu>
-References: <1134079791.5476.8.camel@hobbs.atlanta.ibm.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Miguel de Icaza <miguel@nuclecu.unam.mx>,
+       Gadi Oxman <gadio@netvision.net.il>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Decrease number of pointer derefs in multipath.c
+Message-ID: <20051209110129.GB20314@elte.hu>
+References: <200512082336.30194.jesper.juhl@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1134079791.5476.8.camel@hobbs.atlanta.ibm.com>
+In-Reply-To: <200512082336.30194.jesper.juhl@gmail.com>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: -1.6
 X-ELTE-SpamLevel: 
@@ -36,15 +35,25 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* JANAK DESAI <janak@us.ibm.com> wrote:
+* Jesper Juhl <jesper.juhl@gmail.com> wrote:
 
-> [PATCH -mm 1/5] unshare system call: System call handler function 
-> sys_unshare
+> Hi,
+> 
+> Here's a small patch to decrease the number of pointer derefs in
+> drivers/md/multipath.c
+> 
+> Benefits of the patch:
+>  - Fewer pointer dereferences should make the code slightly faster.
+>  - Size of generated code is smaller
+>  - improved readability
+> 
+> Please consider applying.
+> 
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 
->+       if (unshare_flags & ~(CLONE_NEWNS | CLONE_VM))
->+               goto errout;
+looks good to me.
 
-just curious, did you consider all the other CLONE_* flags as well, to 
-see whether it makes sense to add unshare support for them?
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
 	Ingo

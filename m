@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbVLIHPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVLIIBI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932401AbVLIHPp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 02:15:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbVLIHPp
+	id S932466AbVLIIBI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 03:01:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbVLIIBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 02:15:45 -0500
-Received: from gate.perex.cz ([85.132.177.35]:29329 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S932397AbVLIHPo (ORCPT
+	Fri, 9 Dec 2005 03:01:08 -0500
+Received: from fsmlabs.com ([168.103.115.128]:65200 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S932466AbVLIIBG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 02:15:44 -0500
-Date: Fri, 9 Dec 2005 08:15:42 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103.perex-int.cz
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Badari Pulavarty <pbadari@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, alsa-devel@alsa-project.org
-Subject: Re: [Alsa-devel] Re: 2.6.15-rc5-mm1
-In-Reply-To: <20051208230203.GA23349@stusta.de>
-Message-ID: <Pine.LNX.4.61.0512090814400.9355@tm8103.perex-int.cz>
-References: <20051204232153.258cd554.akpm@osdl.org>
- <1134068983.21841.71.camel@localhost.localdomain> <20051208230203.GA23349@stusta.de>
+	Fri, 9 Dec 2005 03:01:06 -0500
+X-ASG-Debug-ID: 1134115262-12458-147-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Fri, 9 Dec 2005 00:06:35 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Rohit Seth <rohit.seth@intel.com>,
+       Len Brown <len.brown@intel.com>
+X-ASG-Orig-Subj: Re: [RFC][PATCH 2/3]i386,x86-64 Handle missing local APIC timer
+ interrupts on C3 state
+Subject: Re: [RFC][PATCH 2/3]i386,x86-64 Handle missing local APIC timer
+ interrupts on C3 state
+In-Reply-To: <20051208181040.C32524@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0512090003460.26307@montezuma.fsmlabs.com>
+References: <20051208181040.C32524@unix-os.sc.intel.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6153
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Dec 2005, Adrian Bunk wrote:
+On Thu, 8 Dec 2005, Venkatesh Pallipadi wrote:
 
-> On Thu, Dec 08, 2005 at 11:09:43AM -0800, Badari Pulavarty wrote:
-> > On Sun, 2005-12-04 at 23:21 -0800, Andrew Morton wrote:
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm1/
-> > 
-> > In file included from sound/pci/ens1371.c:2:
-> > sound/pci/ens1370.c: In function `snd_audiopci_probe':
-> > sound/pci/ens1370.c:2462: error: `spdif' undeclared (first use in this
-> > function)sound/pci/ens1370.c:2462: error: (Each undeclared identifier is
-> > reported only once
-> > sound/pci/ens1370.c:2462: error: for each function it appears in.)
-> > sound/pci/ens1370.c:2462: error: `lineio' undeclared (first use in this
-> > function)
-> > make[2]: *** [sound/pci/ens1371.o] Error 1
-> > make[2]: *** Waiting for unfinished jobs....
-> 
-> Jaroslav, this seems to come from your
-> 
->   [ALSA] ens1371: added spdif and lineio module option
-> 
-> patch in the ALSA git tree if SUPPORT_JOYSTICK=n.
+> Whenever we see that a CPU is capable of C3 (during ACPI cstate init), we 
+> disable local APIC timer and switch to using a broadcast from external timer
+> interrupt (IRQ 0).
+>
+> Index: linux-2.6.15-rc3/include/asm-i386/apic.h
+> ===================================================================
+> --- linux-2.6.15-rc3.orig/include/asm-i386/apic.h
+> +++ linux-2.6.15-rc3/include/asm-i386/apic.h
+> @@ -132,6 +132,11 @@ extern unsigned int nmi_watchdog;
+>  
+>  extern int disable_timer_pin_1;
+>  
+> +void smp_send_timer_broadcast_ipi(struct pt_regs *regs);
+> +void switch_APIC_timer_to_ipi(void *cpumask);
+> +void switch_ipi_to_APIC_timer(void *cpumask);
 
-It's already fixed in ALSA git tree:
-
-    [ALSA] ens1371: fix compilation without SUPPORT_JOYSTICK
-
-    Modules: ENS1370/1+ driver
-
-    Move the spdif and lineio parameters around so that they are compiled
-    even when SUPPORT_JOYSTICK isn't set.
-
-    Signed-off-by: Clemens Ladisch <clemens@ladisch.de>
-
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+When is this used?

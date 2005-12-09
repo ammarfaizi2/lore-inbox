@@ -1,73 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbVLIVNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbVLIVQ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932399AbVLIVNy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 16:13:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbVLIVNy
+	id S932434AbVLIVQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 16:16:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVLIVQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 16:13:54 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:24844 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932399AbVLIVNy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 16:13:54 -0500
-Date: Fri, 9 Dec 2005 22:13:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       acpi-devel <acpi-devel@lists.sourceforge.net>,
-       linux-usb-devel@lists.sourceforge.net, pavel@suse.cz, linux-pm@osdl.org
-Subject: Re: usblp suspend failure with 2.6.15-rc5
-Message-ID: <20051209211351.GF23349@stusta.de>
-References: <438F3A2F.5090207@gmx.net> <4395DE67.4050101@gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4395DE67.4050101@gmx.net>
-User-Agent: Mutt/1.5.11
+	Fri, 9 Dec 2005 16:16:27 -0500
+Received: from main.gmane.org ([80.91.229.2]:8601 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932434AbVLIVQ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 16:16:26 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Orion Poplawski <orion@cora.nwra.com>
+Subject: Please help with kernel BUG at include/linux/gfp.h:80 with ndiswrapper
+ on x86_64
+Date: Fri, 09 Dec 2005 14:13:13 -0700
+Message-ID: <dncs1c$8e5$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: inferno.cora.nwra.com
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+X-Enigmail-Version: 0.93.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 06, 2005 at 07:54:31PM +0100, Carl-Daniel Hailfinger wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Hi,
+With kernel 2.6.15-rc5, gfp_zone has the following BUG_ON:
 
-Hi Carl-Daniel,
+static inline int gfp_zone(gfp_t gfp)
+{
+        int zone = GFP_ZONEMASK & (__force int) gfp;
+        BUG_ON(zone >= GFP_ZONETYPES);
+        return zone;
+}
 
-> since I switched to 2.6.15-rc2-git6, my machine is not able to suspend
-> anymore if my USB printer is plugged in. The problem is reproducible.
-> 
-> usb 1-2: new full speed USB device using uhci_hcd and address 3
-> drivers/usb/class/usblp.c: usblp0: USB Bidirectional printer dev 3 if 0 alt 
-> 0 proto 2 vid 0x04E8 pid 0x3242
-> usbcore: registered new driver usblp
-> drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
-> PM: Preparing system for mem sleep
-> Stopping tasks: ==================================================|
-> usblp 1-2:1.0: no suspend?
-> Could not suspend device 1-2: error -16
-> Some devices failed to suspend
-> Restarting tasks... done
-> 
-> 
-> Earlier kernels (2.6.14.2 and before) worked just fine.
-> 
-> A first search suggests this problem was introduced between
-> 2.6.14 and 2.6.15-rc2-git6. Should I try to narrow it down further?
+This is being tripped by ndiswrapper on x86_64 when it calls:
 
-yes, that would be good.
+dma_alloc_coherent(&pci_dev->dev,size,dma_handle, \
+                           GFP_KERNEL | __GFP_REPEAT | GFP_DMA)
 
-In this case, it would also help if you'd open a bug at 
-bugzilla.kernel.org.
+because dma_alloc_coherent does:
 
-> Regards,
-> Carl-Daniel
+        dma_mask = dev->coherent_dma_mask;
+        if (dma_mask == 0)
+                dma_mask = 0xffffffff;
 
-TIA
-Adrian
+        /* Kludge to make it bug-to-bug compatible with i386. i386
+           uses the normal dma_mask for alloc_coherent. */
+        dma_mask &= *dev->dma_mask;
 
--- 
+        /* Why <=? Even when the mask is smaller than 4GB it is often larger
+           than 16MB and in this case we have a chance of finding
+fitting memory
+           in the next higher zone first. If not retry with true
+GFP_DMA. -AK */
+        if (dma_mask <= 0xffffffff)
+                gfp |= GFP_DMA32;
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+again:
+        memory = dma_alloc_pages(dev, gfp, get_order(size));
+
+
+so it appears that gfp becomes GFP_DMA | GFP_DMA32 = 5 and triggers the BUG.
+
+So, what should ndiswrapper be using in it's call to dma_alloc_coherent?
+ GFP_DMA32?
+
+Thanks!
+
+  Orion Poplawski
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDmfNoORnzrtFC2/sRAsp2AKCiK/VAMoIGvxn3uvSuapcop7GUCwCgq9U+
+HZShybTsF7LZyG1yXSJceFo=
+=iInr
+-----END PGP SIGNATURE-----
 

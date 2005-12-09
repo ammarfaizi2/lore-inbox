@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbVLIRtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbVLIRvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964813AbVLIRtT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 12:49:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbVLIRtT
+	id S964825AbVLIRvj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 12:51:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbVLIRvj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 12:49:19 -0500
-Received: from ns1.suse.de ([195.135.220.2]:22729 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964813AbVLIRtS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 12:49:18 -0500
-Date: Fri, 9 Dec 2005 18:49:04 +0100
-From: Andi Kleen <ak@suse.de>
-To: Andi Kleen <ak@muc.de>
-Cc: Matt Tolentino <metolent@cs.vt.edu>, akpm@osdl.org, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, matthew.e.tolentino@intel.com
-Subject: Re: [discuss] Re: [patch 3/3] add x86-64 support for memory hot-add II
-Message-ID: <20051209174904.GA30117@brahms.suse.de>
-References: <200512091523.jB9FNn5J006697@ap1.cs.vt.edu> <20051209173249.GA54033@muc.de>
+	Fri, 9 Dec 2005 12:51:39 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:24517 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S964825AbVLIRvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 12:51:38 -0500
+Subject: Re: [PATCH]: Making high and batch sizes of per_cpu_pagelists
+	configurable
+From: Rohit Seth <rohit.seth@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20051208192032.6387f638.akpm@osdl.org>
+References: <20051208192032.6387f638.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Intel 
+Date: Fri, 09 Dec 2005 09:58:05 -0800
+Message-Id: <1134151085.7131.66.camel@akash.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051209173249.GA54033@muc.de>
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Dec 2005 17:51:10.0996 (UTC) FILETIME=[23E8B540:01C5FCE9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In general SRAT has a hotplug memory bit so it's possible
-> to predict how much memory there will be in advance. Since
-> the overhead of the kernel page tables should be very
-> low I would prefer if you just used instead.
+On Thu, 2005-12-08 at 19:20 -0800, Andrew Morton wrote:
+> Rohit Seth <rohit.seth@intel.com> wrote:
+> >
+> > +     if ((high/4) > (PAGE_SHIFT * 8))
+> >  +            pcp->batch = PAGE_SHIFT * 8;
 > 
-> (i.e. instead of extending the kernel mapping preallocate
-> the direct mapping and just clear the P bits) 
+> hm.  What relationship is there between log2(PAGE_SIZE) and the batch
+> quantity?  I'd have thought that if anything, we'd want to make the
+> batch sizes smaller for larger PAGE_SIZE.  Or something.
 > 
-> That should be much simpler.
+There is really no relationship between batch with either
+log2(PAGE_SIZE) or PAGE_SIZE.  Larger page size machines typically go
+with larger memory configs so it is okay to have bigger batch count for
+those.  But this can be worked either way.  It is just a number of pages
+that will get pulled (and in some cases pushed back) from buddy
+allocator at any time.  My initial attempts to make this some function
+of power of 2 and such have not gone anywhere.
 
-Looking at it again - accessing SRAT currently relies on the 
-direct mapping already. Untangling that would be possible,
-but require an bt_ioremap which would also add lots of code.
+> >  +    for_each_zone(zone) {
+> >  +            for_each_online_cpu(cpu) {
+> >  +                    unsigned long  high;
+> >  +                    high = zone->present_pages /
+> percpu_pagelist_fraction;
+> >  +                    setup_pagelist_highmark(zone_pcp(zone, cpu),
+> high);
+> 
+> What happens if a CPU comes online afterwards?
+> 
+> 
 
-Ok I retract that objection. I guess your way is better
-for now.
+Good point.  Right now the new cpu will use the original boot settings
+for the pagelist.  I will send you a smaller patch to correct that.
+Basically check at the setup time if the percpu_pagelist_fraction is set
+or not and build the pagelist accordingly.
 
-In addition to the __cpuinit comment
+Thanks,
+-rohit
 
-+if (after_bootmem) spin_unlock(&init_mm.page_table_lock);
-
-Conditional locking is evil. spinlocking in the boot
-case should just work too I think.
-
-The EXPORTs should be probably EXPORT_SYMBOL_GPL.
-
-With these changes it would look ok for me.
-
--Andi

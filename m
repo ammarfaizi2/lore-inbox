@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbVLIVa0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbVLIVeH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932470AbVLIVa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 16:30:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbVLIVa0
+	id S964879AbVLIVeH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 16:34:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbVLIVeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 16:30:26 -0500
-Received: from mta08-winn.ispmail.ntl.com ([81.103.221.48]:4518 "EHLO
-	mta08-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932470AbVLIVaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 16:30:25 -0500
-Date: Fri, 9 Dec 2005 21:30:21 +0000 (GMT)
-From: Ken Moffat <zarniwhoop@ntlworld.com>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Ken Moffat <zarniwhoop@ntlworld.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
+	Fri, 9 Dec 2005 16:34:07 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:19384 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964879AbVLIVeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 16:34:05 -0500
 Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
-In-Reply-To: <1134158342.18432.1.camel@mindpipe>
-Message-ID: <Pine.LNX.4.63.0512092121080.23848@deepthought.mydomain>
-References: <1134154208.14363.8.camel@mindpipe> 
- <Pine.LNX.4.63.0512091930440.19998@deepthought.mydomain>
- <1134158342.18432.1.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463809536-562600463-1134163821=:23848"
+From: Lee Revell <rlrevell@joe-job.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Kyle McMartin <kyle@mcmartin.ca>
+In-Reply-To: <1134163506.5238.18.camel@localhost.localdomain>
+References: <1134154208.14363.8.camel@mindpipe>
+	 <20051209195816.GF32168@quicksilver.road.mcmartin.ca>
+	 <1134159677.18432.7.camel@mindpipe>
+	 <20051209204151.GH32168@quicksilver.road.mcmartin.ca>
+	 <1134161906.18432.15.camel@mindpipe>
+	 <1134163506.5238.18.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 09 Dec 2005 16:35:33 -0500
+Message-Id: <1134164133.18432.28.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Fri, 2005-12-09 at 16:25 -0500, Steven Rostedt wrote:
+> For my x86_64, I gave up on trying to do it through the normal path
+> (having a plain debian unstable system), and finally just downloaded
+> the gcc toolchain (gcc, binutils, and glibc) and built them as cross
+> compilers with the prefix x86_64-linux-
+> 
 
----1463809536-562600463-1134163821=:23848
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; format=flowed
-Content-Transfer-Encoding: 8BIT
+I was trying to avoid that, as the gcc-4.0-x86-64 package has an
+unfortunate dependency on a 70MB glibc-cross-x86-64 package which I
+almost certainly don't really need to compile the kernel.
 
-On Fri, 9 Dec 2005, Lee Revell wrote:
+So I guess this is a bug in the Ubuntu 5.10 gcc, I'll report it as such.
 
->
-> $ file init/built-in.o
-> init/built-in.o: ELF 64-bit LSB relocatable, AMD x86-64, version 1
-> (SYSV), not stripped
->
->> From man gcc, i386 section:
->
-> -m32
-> -m64
->    Generate code for a 32-bit or 64-bit environment.  The 32-bit
->    environment sets int, long and pointer to 32
->    bits and generates code that runs on any i386 system.  The
->    64-bit environment sets int to 32 bits and long
->    and pointer to 64 bits and generates code for AMD's x86-64
->    architecture.
->
-> Lee
->
+Thanks,
 
-  Yes, file shows your gcc does indeed do the right thing with -m64, and 
-thank you, but I was already familiar with -m64 (to say nothing of 
-passing LDEMULATION to userspace compilations [info binutils, if you 
-need to know]).
+Lee
 
-  So, do you have some sort of religious objection to using 
-CROSS_COMPILE= when building for a processor that doesn't match the 
-userspace ?  And I repeat, messing with CFLAGS should NOT be necessary.
-
-Ken
--- 
-  das eine Mal als Tragödie, das andere Mal als Farce
-
----1463809536-562600463-1134163821=:23848--

@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbVLIC43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbVLIDMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbVLIC43 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 21:56:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751248AbVLIC43
+	id S1751250AbVLIDMd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 22:12:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVLIDMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 21:56:29 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:54689 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751246AbVLIC42
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 21:56:28 -0500
-Date: Fri, 9 Dec 2005 08:26:54 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix RCU race in access of nohz_cpu_mask
-Message-ID: <20051209025654.GA29806@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <439889FA.BB08E5E1@tv-sign.ru>
-Mime-Version: 1.0
+	Thu, 8 Dec 2005 22:12:33 -0500
+Received: from ozlabs.org ([203.10.76.45]:25728 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751250AbVLIDMd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 22:12:33 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <439889FA.BB08E5E1@tv-sign.ru>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17304.62700.697323.531625@cargo.ozlabs.ibm.com>
+Date: Fri, 9 Dec 2005 14:07:24 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: janak@us.ibm.com
+Cc: chrisw@osdl.org, viro@ftp.linux.org.uk, dwmw2@infradead.org,
+       jamie@shareable.org, serue@us.ibm.com, linuxram@us.ibm.com,
+       jmorris@namei.org, sds@tycho.nsa.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm 3/5] New system call, unshare (powerpc)
+In-Reply-To: <1134079969.5476.14.camel@hobbs.atlanta.ibm.com>
+References: <1134079969.5476.14.camel@hobbs.atlanta.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 08, 2005 at 10:31:06PM +0300, Oleg Nesterov wrote:
-> I think cpu should call cpu_quiet() after adding itself to nohz mask
-> to eliminate this race.
+JANAK DESAI writes:
 
-That would require rsp->lock to be taken on every idle CPU that wishes to go
-tickless. IMO that may not be a good idea.
+> --- 2.6.15-rc5-mm1/include/asm-powerpc/unistd.h	2005-12-06
+> 21:06:19.000000000 +0000
+> +++
+> 2.6.15-rc5-mm1+unshare-powerpc/include/asm-powerpc/unistd.h	2005-12-08
+> 19:11:21.000000000 +0000
+> @@ -296,8 +296,9 @@
+>  #define __NR_inotify_init	275
+>  #define __NR_inotify_add_watch	276
+>  #define __NR_inotify_rm_watch	277
+> +#define __NR_unshare		278
 
--- 
+How does this apply against 2.6.15-rc5-mm1, which adds spu_run and
+spu_create as syscalls 278 and 279?
 
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+Paul.

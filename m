@@ -1,74 +1,170 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVLIPZh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbVLIP0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932316AbVLIPZh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 10:25:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVLIPZh
+	id S932329AbVLIP0r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 10:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVLIP0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 10:25:37 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:25690 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S932356AbVLIPZe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 10:25:34 -0500
-Date: Fri, 9 Dec 2005 16:25:31 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Olaf Hering <olh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Sachin Sant <sachinp@in.ibm.com>
-Subject: Re: [PATCH] Adding ctrl-o sysrq hack support to 8250 driver
-Message-ID: <20051209152530.GE15372@harddisk-recovery.com>
-References: <20051209140559.GA23868@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051209140559.GA23868@suse.de>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+	Fri, 9 Dec 2005 10:26:47 -0500
+Received: from pin.if.uz.zgora.pl ([212.109.128.251]:52680 "EHLO
+	pin.if.uz.zgora.pl") by vger.kernel.org with ESMTP id S932329AbVLIP0p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 10:26:45 -0500
+Message-ID: <4399B195.9050801@pin.if.uz.zgora.pl>
+Date: Fri, 09 Dec 2005 17:32:21 +0100
+From: Jacek Luczak <difrost@pin.if.uz.zgora.pl>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.15-rc5 and Alsa 1.0.10
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 03:05:59PM +0100, Olaf Hering wrote:
-> a POWER4 system in 'full-system-partition' mode has the console device
-> on ttyS0. But the user interface to the Linux system console may still
-> be on the hardware management console (HMC). If this is the case, there
-> is no way to send a break to trigger a sysrq.
-> Other setups do already use 'ctrl o' to trigger sysrq. This includes iSeries
-> virtual console on tty1, and pSeries LPAR console on hvc0 or hvsi0.
 
-So it's a POWER4 problem.
+Hi
 
-> 'ctrl o' is currently mapped to 'flush output', see 'stty -a'
+I'm using now 2.6.15-rc5 kernel with latest Alsa 1.0.10 and I received a 
+lot of 'bad page state at free_hot_cold_page' (see example below) 
+messages. Is this kernel or alsa error?
 
-Eww... If you can't use a serial break, why can't you use an
-established control character like ctrl-] (telnet) or [enter]~ (ssh) ?
+System:
+Slackware Linux, GCC 3.4.4, Binutils 2.16.1.
+CPU: Pentium 4 3Ghz HT
+Sound card: CMI9880 (HDA)
 
-If you really want to use ctrl-o, could you make a way that pressing
-ctrl-o twice sends a single ctrl-o to the process attached to the
-console?
+Regards
 
-> Signed-off-by: Olaf Hering <olh@suse.de>
-> 
->  drivers/serial/8250.c |    7 +++++++
->  1 files changed, 7 insertions(+)
-> 
-> Index: linux-2.6.15-rc5-olh/drivers/serial/8250.c
-> ===================================================================
-> --- linux-2.6.15-rc5-olh.orig/drivers/serial/8250.c
-> +++ linux-2.6.15-rc5-olh/drivers/serial/8250.c
-> @@ -1154,6 +1154,13 @@ receive_chars(struct uart_8250_port *up,
->  			 */
->  		}
->  		ch = serial_inp(up, UART_RX);
-> +
-> +#if defined(CONFIG_MAGIC_SYSRQ) && defined(CONFIG_SERIAL_CORE_CONSOLE)
+	Jacek Luczak
 
-If it is a POWER4-only problem, why isn't there a dependency on
-CONFIG_POWER4 over here? I don't like to have the ctrl-o sysrq stuff
-enabled on my regular PC if it only matters to some rare (in absolute
-numbers) system.
+---------------
 
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+Dec  9 16:53:20 slawek kernel: Bad page state at free_hot_cold_page (in 
+process 'xmms', page c12da9c0)
+Dec  9 16:53:20 slawek kernel: flags:0x80000414 mapping:00000000 
+mapcount:0 count:0
+Dec  9 16:53:20 slawek kernel: Backtrace:
+Dec  9 16:53:20 slawek kernel:  [<c013f2de>] bad_page+0x84/0xbc
+Dec  9 16:53:20 slawek kernel:  [<c013fabc>] free_hot_cold_page+0x55/0x144
+Dec  9 16:53:20 slawek kernel:  [<c014032c>] __pagevec_free+0x16/0x1e
+Dec  9 16:53:20 slawek kernel:  [<c0145e31>] release_pages+0x112/0x16b
+Dec  9 16:53:20 slawek kernel:  [<c01526a1>] 
+free_pages_and_swap_cache+0x5d/0x83
+Dec  9 16:53:20 slawek kernel:  [<c014e9c4>] unmap_region+0x122/0x138
+Dec  9 16:53:20 slawek kernel:  [<c014eca7>] do_munmap+0x10f/0x179
+Dec  9 16:53:20 slawek kernel:  [<c014ed5b>] sys_munmap+0x4a/0x6b
+Dec  9 16:53:20 slawek kernel:  [<c0102de9>] syscall_call+0x7/0xb
+Dec  9 16:53:20 slawek kernel: Trying to fix it up, but a reboot is needed
+Dec  9 16:53:20 slawek kernel: Bad page state at free_hot_cold_page (in 
+process 'xmms', page c12da9a0)
+Dec  9 16:53:20 slawek kernel: flags:0x80000414 mapping:00000000 
+mapcount:0 count:0
+Dec  9 16:53:20 slawek kernel: Backtrace:
+Dec  9 16:53:20 slawek kernel:  [<c013f2de>] bad_page+0x84/0xbc
+Dec  9 16:53:20 slawek kernel:  [<c013fabc>] free_hot_cold_page+0x55/0x144
+Dec  9 16:53:20 slawek kernel:  [<c014032c>] __pagevec_free+0x16/0x1e
+Dec  9 16:53:20 slawek kernel:  [<c0145e31>] release_pages+0x112/0x16b
+Dec  9 16:53:20 slawek kernel:  [<c01526a1>] 
+free_pages_and_swap_cache+0x5d/0x83
+Dec  9 16:53:20 slawek kernel:  [<c014e9c4>] unmap_region+0x122/0x138
+Dec  9 16:53:20 slawek kernel:  [<c014eca7>] do_munmap+0x10f/0x179
+Dec  9 16:53:20 slawek kernel:  [<c014ed5b>] sys_munmap+0x4a/0x6b
+Dec  9 16:53:20 slawek kernel:  [<c0102de9>] syscall_call+0x7/0xb
+Dec  9 16:53:20 slawek kernel: Trying to fix it up, but a reboot is needed
+Dec  9 16:53:20 slawek kernel: Bad page state at free_hot_cold_page (in 
+process 'xmms', page c12da980)
+Dec  9 16:53:20 slawek kernel: flags:0x80000414 mapping:00000000 
+mapcount:0 count:0
+Dec  9 16:53:20 slawek kernel: Backtrace:
+Dec  9 16:53:20 slawek kernel:  [<c013f2de>] bad_page+0x84/0xbc
+Dec  9 16:53:20 slawek kernel:  [<c013fabc>] free_hot_cold_page+0x55/0x144
+Dec  9 16:53:20 slawek kernel:  [<c014032c>] __pagevec_free+0x16/0x1e
+Dec  9 16:53:20 slawek kernel:  [<c0145e31>] release_pages+0x112/0x16b
+Dec  9 16:53:20 slawek kernel:  [<c01526a1>] 
+free_pages_and_swap_cache+0x5d/0x83
+Dec  9 16:53:20 slawek kernel:  [<c014e9c4>] unmap_region+0x122/0x138
+Dec  9 16:53:20 slawek kernel:  [<c014eca7>] do_munmap+0x10f/0x179
+Dec  9 16:53:20 slawek kernel:  [<c014ed5b>] sys_munmap+0x4a/0x6b
+Dec  9 16:53:20 slawek kernel:  [<c0102de9>] syscall_call+0x7/0xb
+Dec  9 16:53:20 slawek kernel: Trying to fix it up, but a reboot is needed
+Dec  9 16:53:20 slawek kernel: Bad page state at free_hot_cold_page (in 
+process 'xmms', page c12da960)
+Dec  9 16:53:20 slawek kernel: flags:0x80000414 mapping:00000000 
+mapcount:0 count:0
+Dec  9 16:53:20 slawek kernel: Backtrace:
+Dec  9 16:53:20 slawek kernel:  [<c013f2de>] bad_page+0x84/0xbc
+Dec  9 16:53:20 slawek kernel:  [<c013fabc>] free_hot_cold_page+0x55/0x144
+Dec  9 16:53:20 slawek kernel:  [<c014032c>] __pagevec_free+0x16/0x1e
+Dec  9 16:53:20 slawek kernel:  [<c0145e31>] release_pages+0x112/0x16b
+Dec  9 16:53:20 slawek kernel:  [<c01526a1>] 
+free_pages_and_swap_cache+0x5d/0x83
+Dec  9 16:53:20 slawek kernel:  [<c014e9c4>] unmap_region+0x122/0x138
+Dec  9 16:53:20 slawek kernel:  [<c014eca7>] do_munmap+0x10f/0x179
+Dec  9 16:53:20 slawek kernel:  [<c014ed5b>] sys_munmap+0x4a/0x6b
+Dec  9 16:53:20 slawek kernel:  [<c0102de9>] syscall_call+0x7/0xb
+Dec  9 16:53:20 slawek kernel: Trying to fix it up, but a reboot is needed
+Dec  9 16:53:20 slawek kernel: Bad page state at free_hot_cold_page (in 
+process 'xmms', page c12da940)
+Dec  9 16:53:20 slawek kernel: flags:0x80000414 mapping:00000000 
+mapcount:0 count:0
+Dec  9 16:53:20 slawek kernel: Backtrace:
+Dec  9 16:53:20 slawek kernel:  [<c013f2de>] bad_page+0x84/0xbc
+Dec  9 16:53:20 slawek kernel:  [<c013fabc>] free_hot_cold_page+0x55/0x144
+Dec  9 16:53:20 slawek kernel:  [<c014032c>] __pagevec_free+0x16/0x1e
+Dec  9 16:53:20 slawek kernel:  [<c0145e31>] release_pages+0x112/0x16b
+Dec  9 16:53:20 slawek kernel:  [<c01526a1>] 
+free_pages_and_swap_cache+0x5d/0x83
+Dec  9 16:53:20 slawek kernel:  [<c014e9c4>] unmap_region+0x122/0x138
+Dec  9 16:53:20 slawek kernel:  [<c014eca7>] do_munmap+0x10f/0x179
+Dec  9 16:53:20 slawek kernel:  [<c014ed5b>] sys_munmap+0x4a/0x6b
+Dec  9 16:53:20 slawek kernel:  [<c0102de9>] syscall_call+0x7/0xb
+Dec  9 16:53:20 slawek kernel: Trying to fix it up, but a reboot is needed
+Dec  9 16:53:20 slawek kernel: Bad page state at free_hot_cold_page (in 
+process 'xmms', page c12da920)
+Dec  9 16:53:20 slawek kernel: flags:0x80000414 mapping:00000000 
+mapcount:0 count:0
+Dec  9 16:53:20 slawek kernel: Backtrace:
+Dec  9 16:53:20 slawek kernel:  [<c013f2de>] bad_page+0x84/0xbc
+Dec  9 16:53:20 slawek kernel:  [<c013fabc>] free_hot_cold_page+0x55/0x144
+Dec  9 16:53:20 slawek kernel:  [<c014032c>] __pagevec_free+0x16/0x1e
+Dec  9 16:53:20 slawek kernel:  [<c0145e31>] release_pages+0x112/0x16b
+Dec  9 16:53:20 slawek kernel:  [<c01526a1>] 
+free_pages_and_swap_cache+0x5d/0x83
+Dec  9 16:53:20 slawek kernel:  [<c014e9c4>] unmap_region+0x122/0x138
+Dec  9 16:53:20 slawek kernel:  [<c014eca7>] do_munmap+0x10f/0x179
+Dec  9 16:53:20 slawek kernel:  [<c014ed5b>] sys_munmap+0x4a/0x6b
+Dec  9 16:53:20 slawek kernel:  [<c0102de9>] syscall_call+0x7/0xb
+Dec  9 16:53:20 slawek kernel: Trying to fix it up, but a reboot is needed
+Dec  9 16:53:20 slawek kernel: Bad page state at free_hot_cold_page (in 
+process 'xmms', page c12da900)
+Dec  9 16:53:20 slawek kernel: flags:0x80000414 mapping:00000000 
+mapcount:0 count:0
+Dec  9 16:53:20 slawek kernel: Backtrace:
+Dec  9 16:53:20 slawek kernel:  [<c013f2de>] bad_page+0x84/0xbc
+Dec  9 16:53:20 slawek kernel:  [<c013fabc>] free_hot_cold_page+0x55/0x144
+Dec  9 16:53:20 slawek kernel:  [<c014032c>] __pagevec_free+0x16/0x1e
+Dec  9 16:53:20 slawek kernel:  [<c0145e31>] release_pages+0x112/0x16b
+Dec  9 16:53:20 slawek kernel:  [<c01526a1>] 
+free_pages_and_swap_cache+0x5d/0x83
+Dec  9 16:53:20 slawek kernel:  [<c014e9c4>] unmap_region+0x122/0x138
+Dec  9 16:53:20 slawek kernel:  [<c014eca7>] do_munmap+0x10f/0x179
+Dec  9 16:53:21 slawek kernel:  [<c014ed5b>] sys_munmap+0x4a/0x6b
+Dec  9 16:53:21 slawek kernel:  [<c0102de9>] syscall_call+0x7/0xb
+Dec  9 16:53:21 slawek kernel: Trying to fix it up, but a reboot is needed
+Dec  9 16:53:21 slawek kernel: Bad page state at free_hot_cold_page (in 
+process 'xmms', page c12da8e0)
+Dec  9 16:53:21 slawek kernel: flags:0x80000414 mapping:00000000 
+mapcount:0 count:0
+Dec  9 16:53:21 slawek kernel: Backtrace:
+Dec  9 16:53:21 slawek kernel:  [<c013f2de>] bad_page+0x84/0xbc
+Dec  9 16:53:21 slawek kernel:  [<c013fabc>] free_hot_cold_page+0x55/0x144
+Dec  9 16:53:21 slawek kernel:  [<c014032c>] __pagevec_free+0x16/0x1e
+Dec  9 16:53:21 slawek kernel:  [<c0145e31>] release_pages+0x112/0x16b
+Dec  9 16:53:21 slawek kernel:  [<c01526a1>] 
+free_pages_and_swap_cache+0x5d/0x83
+Dec  9 16:53:21 slawek kernel:  [<c014e9c4>] unmap_region+0x122/0x138
+Dec  9 16:53:21 slawek kernel:  [<c014eca7>] do_munmap+0x10f/0x179
+Dec  9 16:53:21 slawek kernel:  [<c014ed5b>] sys_munmap+0x4a/0x6b
+Dec  9 16:53:21 slawek kernel:  [<c0102de9>] syscall_call+0x7/0xb
+Dec  9 16:53:21 slawek kernel: Trying to fix it up, but a reboot is needed

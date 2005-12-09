@@ -1,46 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbVLIDMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751256AbVLIDUu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbVLIDMd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 22:12:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVLIDMd
+	id S1751256AbVLIDUu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 22:20:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbVLIDUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 22:12:33 -0500
-Received: from ozlabs.org ([203.10.76.45]:25728 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751250AbVLIDMd (ORCPT
+	Thu, 8 Dec 2005 22:20:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:48587 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751256AbVLIDUu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 22:12:33 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 8 Dec 2005 22:20:50 -0500
+Date: Thu, 8 Dec 2005 19:20:32 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Rohit Seth <rohit.seth@intel.com>
+Cc: torvalds@osdl.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: Making high and batch sizes of per_cpu_pagelists
+ configurable
+Message-Id: <20051208192032.6387f638.akpm@osdl.org>
+In-Reply-To: <20051208190016.A3975@unix-os.sc.intel.com>
+References: <20051208190016.A3975@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17304.62700.697323.531625@cargo.ozlabs.ibm.com>
-Date: Fri, 9 Dec 2005 14:07:24 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: janak@us.ibm.com
-Cc: chrisw@osdl.org, viro@ftp.linux.org.uk, dwmw2@infradead.org,
-       jamie@shareable.org, serue@us.ibm.com, linuxram@us.ibm.com,
-       jmorris@namei.org, sds@tycho.nsa.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 3/5] New system call, unshare (powerpc)
-In-Reply-To: <1134079969.5476.14.camel@hobbs.atlanta.ibm.com>
-References: <1134079969.5476.14.camel@hobbs.atlanta.ibm.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-JANAK DESAI writes:
+Rohit Seth <rohit.seth@intel.com> wrote:
+>
+> +	if ((high/4) > (PAGE_SHIFT * 8))
+>  +		pcp->batch = PAGE_SHIFT * 8;
 
-> --- 2.6.15-rc5-mm1/include/asm-powerpc/unistd.h	2005-12-06
-> 21:06:19.000000000 +0000
-> +++
-> 2.6.15-rc5-mm1+unshare-powerpc/include/asm-powerpc/unistd.h	2005-12-08
-> 19:11:21.000000000 +0000
-> @@ -296,8 +296,9 @@
->  #define __NR_inotify_init	275
->  #define __NR_inotify_add_watch	276
->  #define __NR_inotify_rm_watch	277
-> +#define __NR_unshare		278
+hm.  What relationship is there between log2(PAGE_SIZE) and the batch
+quantity?  I'd have thought that if anything, we'd want to make the batch
+sizes smaller for larger PAGE_SIZE.  Or something.
 
-How does this apply against 2.6.15-rc5-mm1, which adds spu_run and
-spu_create as syscalls 278 and 279?
+>  +}
+>  +
+>  +/*
+>  + * percpu_pagelist_fraction - changes the pcp->high for each zone on each
+>  + * cpu.  It is the fraction of total pages in each zone that a hot per cpu pagelist
+>  + * can have before it gets flushed back to buddy allocator.
+>  + */
+>  +
+>  +int percpu_pagelist_fraction_sysctl_handler(ctl_table *table, int write,
+>  +	struct file *file, void __user *buffer, size_t *length, loff_t *ppos)
+>  +{
+>  +	struct zone *zone;
+>  +	unsigned int cpu;
+>  +	int ret;
+>  +
+>  +	ret = proc_dointvec_minmax(table, write, file, buffer, length, ppos);
+>  +	if (!write || (ret == -EINVAL))
+>  +		return ret;
+>  +	for_each_zone(zone) {
+>  +		for_each_online_cpu(cpu) {
+>  +			unsigned long  high;
+>  +			high = zone->present_pages / percpu_pagelist_fraction;
+>  +			setup_pagelist_highmark(zone_pcp(zone, cpu), high);
 
-Paul.
+What happens if a CPU comes online afterwards?

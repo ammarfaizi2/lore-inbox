@@ -1,75 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932760AbVLIAJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932758AbVLIAKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932760AbVLIAJK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 19:09:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932761AbVLIAJK
+	id S932758AbVLIAKp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 19:10:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932762AbVLIAKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 19:09:10 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:32940 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932760AbVLIAJI (ORCPT
+	Thu, 8 Dec 2005 19:10:44 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:24235 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932758AbVLIAKn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 19:09:08 -0500
-Message-ID: <4398CB14.6020508@pobox.com>
-Date: Thu, 08 Dec 2005 19:08:52 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 8 Dec 2005 19:10:43 -0500
+Date: Thu, 8 Dec 2005 16:10:20 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: steiner@sgi.com
+cc: akpm@osdl.org, Christoph Hellwig <hch@infradead.org>,
+       linux-ia64@vger.kernel.org, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, Wu Fengguang <wfg@mail.ustc.edu.cn>,
+       discuss@x86-64.org
+Subject: Re: [discuss] Re: [PATCH 1/3] Zone reclaim V3: main patch
+In-Reply-To: <20051208234058.GA11190@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0512081609400.31444@schroedinger.engr.sgi.com>
+References: <20051208203707.30456.57439.sendpatchset@schroedinger.engr.sgi.com>
+ <20051208210850.GS11190@wotan.suse.de> <Pine.LNX.4.62.0512081320200.30786@schroedinger.engr.sgi.com>
+ <20051208225102.GW11190@wotan.suse.de> <Pine.LNX.4.62.0512081514510.31246@schroedinger.engr.sgi.com>
+ <20051208232827.GZ11190@wotan.suse.de> <Pine.LNX.4.62.0512081531150.31342@schroedinger.engr.sgi.com>
+ <20051208234058.GA11190@wotan.suse.de>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
-       coreteam@netfilter.org, jmorris@intercode.com.au, laforge@netfilter.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] Decrease number of pointer derefs in nfnetlink_queue.c
-References: <200512082336.01678.jesper.juhl@gmail.com> <20051208.145148.36886043.davem@davemloft.net>
-In-Reply-To: <20051208.145148.36886043.davem@davemloft.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  David S. Miller wrote: > From: Jesper Juhl
-	<jesper.juhl@gmail.com> > Date: Thu, 8 Dec 2005 23:36:01 +0100 > >
-	>>Here's a small patch to decrease the number of pointer derefs in
-	>>net/netfilter/nfnetlink_queue.c >> >>Benefits of the patch: >> -
-	Fewer pointer dereferences should make the code slightly faster. >> -
-	Size of generated code is smaller >> - improved readability > > > And
-	you verified the compiler isn't making these transformations > already?
-	[...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
-> From: Jesper Juhl <jesper.juhl@gmail.com>
-> Date: Thu, 8 Dec 2005 23:36:01 +0100
-> 
-> 
->>Here's a small patch to decrease the number of pointer derefs in
->>net/netfilter/nfnetlink_queue.c
->>
->>Benefits of the patch:
->> - Fewer pointer dereferences should make the code slightly faster.
->> - Size of generated code is smaller
->> - improved readability
-> 
-> 
-> And you verified the compiler isn't making these transformations
-> already?
+On Fri, 9 Dec 2005, Andi Kleen wrote:
 
-Didn't the provided size(1) output would verify this?
+> Unless non local same box is 2 times as slow as the local I wouldn't
+> consider that correct.  (I would expect the Altix to do better than that) 
 
-In any case, I like the changes because it makes the code more readable, 
-with the smaller code size as a pleasant side effect.  Due to increase 
-readability, I would only be inclined to NAK if the code 
-performance/size was adversely effected.
-
-	Jeff
-
+Maybe Jack could give us a hint how these slit numbers relate to 
+reality?
 

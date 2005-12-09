@@ -1,47 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbVLII5G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbVLIJIE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbVLII5G (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 03:57:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbVLII5G
+	id S1751295AbVLIJIE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 04:08:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbVLIJIC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 03:57:06 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:38961 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751293AbVLII5F convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 03:57:05 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=svkZDgn9N+jcHD2vovOseuUN3QRi8nBfH8Ge1ujAHAEpzaCTma9smIZxbHYcRW+sqOra5IA2YP0n/bP3XcjaVOP07leetI/bLIOij8Tou3gUK+oYe/U83B1hD0OcYljnowN8V6g0tw4saBtHFuD4cUxwOBpdHANaFYr+HUgLiBQ=
-Message-ID: <7a37e95e0512090057v5c2ab4cdwf1711144058cc77f@mail.gmail.com>
-Date: Fri, 9 Dec 2005 14:27:04 +0530
-From: Deven Balani <devenbalani@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: recording with out getting into user space.
-MIME-Version: 1.0
+	Fri, 9 Dec 2005 04:08:02 -0500
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:36968
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S1751295AbVLIJIB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 04:08:01 -0500
+Message-Id: <439957A7.76F0.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0 
+Date: Fri, 09 Dec 2005 10:08:39 +0100
+From: "Jan Beulich" <JBeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: "Andrew Morton" <akpm@osdl.org>, "Rafael Wysocki" <rjw@sisk.pl>,
+       <linux-kernel@vger.kernel.org>, "Discuss x86-64" <discuss@x86-64.org>
+Subject: Re: [discuss] Re: 2.6.15-rc5-mm1 (x86_64-hpet-overflow.patch
+	breaks resume from disk)
+References: <20051204232153.258cd554.akpm@osdl.org>  <200512070146.50221.rjw@sisk.pl>  <200512080015.01444.rjw@sisk.pl>  <43980058.76F0.0078.0@novell.com> <20051208224735.GV11190@wotan.suse.de>
+In-Reply-To: <20051208224735.GV11190@wotan.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+>>> Andi Kleen <ak@suse.de> 08.12.05 23:47:35 >>>
+>On Thu, Dec 08, 2005 at 09:43:52AM +0100, Jan Beulich wrote:
+>> I don't know how resume normally handles the re-syncing of the wall
+>> clock, but the problem here is obvious: do_timer runs a loop to
+>> increment jiffies, which may require significant amounts of time
+>> (depending how long the system was sleeping).
+>
+>It would be good if someone could submit a patch to fix
+>this up properly. It indeed sounds wrong.
 
-I am writing a libata-complaint SATA driver for an ARM board.
+With the nlkd patches I actually submitted code that does deal with the
+calculation when significant amounts of ticks have been missed. However,
+this is only part of the problem. What is more important first is for
+the resume code to tell the timer interrupt handlers that it shouldn't
+consider the last TSC (or other time stamp) value read prior to suspend,
+but rather start anew.
 
-I want to do data streaming from a tuner into the SATA hard disk.
+>The HPET patch seems to be generally unhappy. With it applied
+>I get lots of obviously wrong softlockup warnings from the
+>softlockup watchdog thread on a dual NForce4 system. So something
+>goes wrong with the timing there. The strange thing 
+>is that the system doesn't even have a HPET table so HPET code
+shouldn't
+>be executed - but it goes away when I revert the patch. Very
+>mysterious.
 
-In other words, I am getting a buffer of stream in kernel space, which
-I had to store it in SATA hard disk.
+It doesn't only change the HPET code, the TSC code was suffering from
+overflow problems, too, which the patch also tries to address. I can't,
+however, see where or how it would cause softlockup reports. Do the
+printed call stacks provide any useful information?
 
-Can I use filesystem (eg., XFS) to put the buffer into the SATA hard
-disk without getting into user space.
+>Also I think vgettimeofday doesn't handle 64bit HPET correctly
+>yet. Also why does it not use hpet_readq? 
 
-What I mean, can I write an Linux Kernel Module to route data stream
-from one device into SATA hard disk.
+For the simple reason that there is no way to know whether the entire
+interconnect from CPU to HPET is (at least) 64 bits wide. At least
+theoretically implementations are permitted to use 32-bit components;
+the HPET spec specifically warns about that.
 
-Thanks,
-deven
+>I suspect the 64bit HPET patch needs some more cooking. I think
+>I will drop it for now.
+>
+>I would suggest you submit the cleanups in there separately
+>(without changing semantics yet) 
+>then it will be easier to test in the future too.
 
---
-"A smile confuses an approaching frown..."
+What cleanups are you referring to here?
+
+Jan
+

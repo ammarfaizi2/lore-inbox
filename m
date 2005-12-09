@@ -1,55 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbVLIXGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932515AbVLIXHM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbVLIXGx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 18:06:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbVLIXGx
+	id S932515AbVLIXHM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 18:07:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbVLIXHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 18:06:53 -0500
-Received: from fmr24.intel.com ([143.183.121.16]:61084 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932485AbVLIXGx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 18:06:53 -0500
-Date: Fri, 9 Dec 2005 15:06:24 -0800
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Rohit Seth <rohit.seth@intel.com>, Len Brown <len.brown@intel.com>
-Subject: Re: [RFC][PATCH 2/3]i386,x86-64 Handle missing local APIC timer interrupts on C3 state
-Message-ID: <20051209150624.A19415@unix-os.sc.intel.com>
-References: <20051208181040.C32524@unix-os.sc.intel.com> <Pine.LNX.4.64.0512090003460.26307@montezuma.fsmlabs.com> <20051209044938.A26619@unix-os.sc.intel.com> <Pine.LNX.4.64.0512090933540.26307@montezuma.fsmlabs.com> <20051209095243.A22139@unix-os.sc.intel.com> <20051209180739.GH11190@wotan.suse.de>
+	Fri, 9 Dec 2005 18:07:09 -0500
+Received: from d36-15-41.home1.cgocable.net ([24.36.15.41]:45283 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S932513AbVLIXHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 18:07:08 -0500
+Subject: Re: [patch] add two inotify_add_watch flags
+From: John McCutchan <ttb@tentacle.dhs.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, rml@novell.com
+In-Reply-To: <20051209145144.4b118f09.akpm@osdl.org>
+References: <1133927688.20396.8.camel@localhost.localdomain>
+	 <20051209145144.4b118f09.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 09 Dec 2005 18:07:09 -0500
+Message-Id: <1134169629.18310.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20051209180739.GH11190@wotan.suse.de>; from ak@suse.de on Fri, Dec 09, 2005 at 07:07:39PM +0100
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 07:07:39PM +0100, Andi Kleen wrote:
-> Just a quick comment - didn't review the full patch.
+On Fri, 2005-09-12 at 14:51 -0800, Andrew Morton wrote:
+> John McCutchan <ttb@tentacle.dhs.org> wrote:
+> >
+> > -static int find_inode(const char __user *dirname, struct nameidata *nd)
+> > +static int find_inode(const char __user *dirname, struct nameidata *nd,
+> > +		      int only_dir, int dont_follow_symlink)
+> >  {
+> >  	int error;
+> > +	unsigned flags = 0;
+> >  
+> > -	error = __user_walk(dirname, LOOKUP_FOLLOW, nd);
+> > +	if (!dont_follow_symlink)
+> > +		flags |= LOOKUP_FOLLOW;
+> > +	if (only_dir)
+> > +		flags |= LOOKUP_DIRECTORY;
+> > +
+> > +	error = __user_walk(dirname, flags, nd);
+> >  	if (error)
+> >  		return error;
+> >  	/* you can only watch an inode if you have read permissions on it */
+> > @@ -943,7 +950,7 @@
+> >  		goto fput_and_out;
+> >  	}
+> >  
+> > -	ret = find_inode(path, &nd);
+> > +	ret = find_inode(path, &nd, mask & IN_ONLYDIR, mask & IN_DONT_FOLLOW);
+> >  	if (unlikely(ret))
+> >  		goto fput_and_out;
 > 
-> > +#ifdef ARCH_APICTIMER_STOPS_ON_C3
-> > +			if (c->x86_vendor == X86_VENDOR_INTEL) {
-> > +				on_each_cpu(switch_APIC_timer_to_ipi, 
-> > +						&mask, 1, 1);
-> > +			}
-> > +#endif
-> 
-> Better make it a runtime variable instead of an ifdef with a boot option.
-> I found at least one non Intel system so far with the same issue
-> (although it wasn't multi processor) 
+> I'd have thought that it'd be more general to pass the __user_walk flags
+> into find_inode(), rather than calculating them in the callee.  Slightly
+> more efficient too.  
 
-Actually, that particular ifdef ARCH_APICTIMER_STOPS_ON_C3 is always set for
-i386 and x86-64 and local APIC is enabled. I only added that ifdef to skip 
-this code for IA-64, which can also use acpi processor_idle.c.
+Makes sense.
 
-For any other CPU in i386 or x86-64, we can just add runtime check along with
-VENDOR_INTEL. 
+Signed-off-by: John McCutchan <ttb@tentacle.dhs.org>
 
-Thanks,
-Venki
-
+Index: linux-2.6.14-rc5/fs/inotify.c
+===================================================================
+--- linux-2.6.14-rc5.orig/fs/inotify.c	2005-12-09 17:59:10.000000000 -0500
++++ linux-2.6.14-rc5/fs/inotify.c	2005-12-09 18:04:22.000000000 -0500
+@@ -363,11 +363,12 @@
+ /*
+  * find_inode - resolve a user-given path to a specific inode and return a nd
+  */
+-static int find_inode(const char __user *dirname, struct nameidata *nd)
++static int find_inode(const char __user *dirname, struct nameidata *nd, 
++		      unsigned flags)
+ {
+ 	int error;
+ 
+-	error = __user_walk(dirname, LOOKUP_FOLLOW, nd);
++	error = __user_walk(dirname, flags, nd);
+ 	if (error)
+ 		return error;
+ 	/* you can only watch an inode if you have read permissions on it */
+@@ -932,6 +933,7 @@
+ 	struct file *filp;
+ 	int ret, fput_needed;
+ 	int mask_add = 0;
++	unsigned flags = 0;
+ 
+ 	filp = fget_light(fd, &fput_needed);
+ 	if (unlikely(!filp))
+@@ -943,7 +945,12 @@
+ 		goto fput_and_out;
+ 	}
+ 
+-	ret = find_inode(path, &nd);
++	if (!(mask & IN_DONT_FOLLOW))
++		flags |= LOOKUP_FOLLOW;
++	if (mask & IN_ONLYDIR)
++		flags |= LOOKUP_DIRECTORY;
++
++	ret = find_inode(path, &nd, flags);
+ 	if (unlikely(ret))
+ 		goto fput_and_out;
+ 
+Index: linux-2.6.14-rc5/include/linux/inotify.h
+===================================================================
+--- linux-2.6.14-rc5.orig/include/linux/inotify.h	2005-12-09 17:59:10.000000000 -0500
++++ linux-2.6.14-rc5/include/linux/inotify.h	2005-12-09 18:00:49.000000000 -0500
+@@ -47,6 +47,8 @@
+ #define IN_MOVE			(IN_MOVED_FROM | IN_MOVED_TO) /* moves */
+ 
+ /* special flags */
++#define IN_ONLYDIR		0x01000000	/* only watch the path if it is a directory */
++#define IN_DONT_FOLLOW		0x02000000	/* don't follow a sym link */
+ #define IN_MASK_ADD		0x20000000	/* add to the mask of an already existing watch */
+ #define IN_ISDIR		0x40000000	/* event occurred against dir */
+ #define IN_ONESHOT		0x80000000	/* only send event once */
 

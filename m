@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbVLIESd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVLIEZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751273AbVLIESd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 23:18:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751276AbVLIESd
+	id S1751265AbVLIEZa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 23:25:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbVLIEZ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 23:18:33 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:48035 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751273AbVLIESc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 23:18:32 -0500
-Message-ID: <43990598.4080401@us.ibm.com>
-Date: Thu, 08 Dec 2005 23:18:32 -0500
-From: JANAK DESAI <janak@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922
+	Thu, 8 Dec 2005 23:25:29 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:63805 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751265AbVLIEZ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 23:25:29 -0500
+Date: Thu, 08 Dec 2005 22:24:58 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Problem with using spinlocks when kernel is compiled without
+ smp-support
+In-reply-to: <5hwF1-kN-17@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <4399071A.10308@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Paul Mackerras <paulus@samba.org>
-CC: chrisw@osdl.org, viro@ftp.linux.org.uk, dwmw2@infradead.org,
-       jamie@shareable.org, serue@us.ibm.com, linuxram@us.ibm.com,
-       jmorris@namei.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 3/5] New system call, unshare (powerpc)
-References: <1134079969.5476.14.camel@hobbs.atlanta.ibm.com> <17304.62700.697323.531625@cargo.ozlabs.ibm.com>
-In-Reply-To: <17304.62700.697323.531625@cargo.ozlabs.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <5hwF1-kN-17@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dirk Henning Gerdes wrote:
+> Hello Andrew!
+> 
+> I have the following problem on 2.6.15-rc5-mm1
+> 
+> When compiling a module using spinlocks I get the following
+> error-message, when SMP is disabled in my Kernel-config:
 
-Sorry, I messed up. I created this against 2.6.15-rc5 and not rc5-mm1. I 
-will do a new
-build, unit test and post updated patches tomorrow.
+..
 
--Janak
+> shouldn't it be possible to use spinlocks in my code even if I don't
+> support SMP for compatiblity ?
 
-Paul Mackerras wrote:
+Yes, it is, something must be set up wrong in your compilation. In 
+particular, are you trying to use old 2.4-style makefiles to build 
+instead of one that calls the kernel's build system? If so, don't, it 
+doesn't work..
 
->JANAK DESAI writes:
->
->  
->
->>--- 2.6.15-rc5-mm1/include/asm-powerpc/unistd.h	2005-12-06
->>21:06:19.000000000 +0000
->>+++
->>2.6.15-rc5-mm1+unshare-powerpc/include/asm-powerpc/unistd.h	2005-12-08
->>19:11:21.000000000 +0000
->>@@ -296,8 +296,9 @@
->> #define __NR_inotify_init	275
->> #define __NR_inotify_add_watch	276
->> #define __NR_inotify_rm_watch	277
->>+#define __NR_unshare		278
->>    
->>
->
->How does this apply against 2.6.15-rc5-mm1, which adds spu_run and
->spu_create as syscalls 278 and 279?
->
->Paul.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

@@ -1,55 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVLISud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbVLISxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbVLISud (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 13:50:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVLISuc
+	id S932409AbVLISxm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 13:53:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbVLISxm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 13:50:32 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:62373 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964873AbVLISuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 13:50:32 -0500
-Subject: i386 -> x86_64 cross compile failure (binutils bug?)
-From: Lee Revell <rlrevell@joe-job.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 09 Dec 2005 13:50:08 -0500
-Message-Id: <1134154208.14363.8.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Dec 2005 13:53:42 -0500
+Received: from ns.suse.de ([195.135.220.2]:51152 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932409AbVLISxl (ORCPT
+	<rfc822;linux-kerneL@vger.kernel.org>);
+	Fri, 9 Dec 2005 13:53:41 -0500
+To: Ross Biro <ross.biro@gmail.com>
+Cc: linux-kerneL@vger.kernel.org
+Subject: Re: [PATCH 2.6.14] X86_64 delay resolution
+References: <8783be660512090834l40b5c051p6c58676bccc834fc@mail.gmail.com>
+From: Andi Kleen <ak@suse.de>
+Date: 09 Dec 2005 16:24:26 -0700
+In-Reply-To: <8783be660512090834l40b5c051p6c58676bccc834fc@mail.gmail.com>
+Message-ID: <p73slt1q2fp.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to build an x66-64 kernel on a 32 bit system (Ubuntu 5.10).
-I added -m64 to the CFLAGS as per the gcc docs.  But the build fails
-with:
+Ross Biro <ross.biro@gmail.com> writes:
 
-$ make ARCH=x86_64
-  [...]
-  CC      init/initramfs.o
-  CC      init/calibrate.o
-  LD      init/built-in.o
-  CHK     usr/initramfs_list
-  CC      arch/x86_64/kernel/process.o
-  CC      arch/x86_64/kernel/signal.o
-  AS      arch/x86_64/kernel/entry.o
-arch/x86_64/kernel/entry.S: Assembler messages:
-arch/x86_64/kernel/entry.S:204: Error: cannot represent relocation type BFD_RELOC_X86_64_32S
-arch/x86_64/kernel/entry.S:275: Error: cannot represent relocation type BFD_RELOC_X86_64_32S
-arch/x86_64/kernel/entry.S:762: Error: cannot represent relocation type BFD_RELOC_X86_64_32S
-arch/x86_64/kernel/entry.S:815: Error: cannot represent relocation type BFD_RELOC_X86_64_32S
-arch/x86_64/kernel/entry.S:536: Error: cannot represent relocation type BFD_RELOC_64
-arch/x86_64/kernel/entry.S:536: Error: cannot represent relocation type BFD_RELOC_64
-arch/x86_64/kernel/entry.S:785: Error: cannot represent relocation type BFD_RELOC_64
-arch/x86_64/kernel/entry.S:785: Error: cannot represent relocation type BFD_RELOC_64
-make[1]: *** [arch/x86_64/kernel/entry.o] Error 1
-make: *** [arch/x86_64/kernel] Error 2
+> On x86_64 smp systems, we noticed that the amount of time udelay would
+> spin for varied from cpu to cpu.  In our test case, udelay(10) would
+> only delay for 9.7us on some cpus while on others it would delay for
+> the full 10us.  We tracked the problem down to an unnecessary attempt
+> to avoid arithmetic overflow.  Here's a fix complete with an overly
+> verbose comment.
 
-Is this a known toolchain bug?
+I applied it without the comment and without the extra sets
+of brackets. Please submit future x86-64 patches directly
+to me and also Signed them off and use toplevel diffs.
 
-$ as --version
-GNU assembler 2.16.1 Debian GNU/Linux
-
-Lee
-
+Thanks,
+-Andi

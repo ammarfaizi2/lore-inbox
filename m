@@ -1,74 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932765AbVLIAYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbVLIBEI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932765AbVLIAYU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 19:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932766AbVLIAYU
+	id S1750736AbVLIBEI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 20:04:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbVLIBEI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 19:24:20 -0500
-Received: from xproxy.gmail.com ([66.249.82.204]:13370 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932765AbVLIAYU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 19:24:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=sPLJFRfj6iUa6ftYyJDRbEzx7ZosMelDHWTk6/NAjNF3d6m0e7ardhE2+pd6b4vaJ1f9oBykSRV7pbWxg7cOAGXPnClto8r2CakPbINMcGptXOYn+H1wC2Qug0CJy74rDR/30dCHArmI0zaf5hF2PpxHymZoHHOvrvlvII5eMEE=
-Message-ID: <4398CEAF.9050303@gmail.com>
-Date: Fri, 09 Dec 2005 08:24:15 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051025)
-MIME-Version: 1.0
-To: Knut Petersen <Knut_Petersen@t-online.de>
-CC: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/1 2.6.15-rc4-git1] Fix switching to KD_TEXT
-References: <4398B888.50005@t-online.de>
-In-Reply-To: <4398B888.50005@t-online.de>
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 8 Dec 2005 20:04:08 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:50117 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750736AbVLIBEG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 20:04:06 -0500
+Subject: Re: 2.6.14-rt15: cannot build with !PREEMPT_RT
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       david singleton <dsingleton@mvista.com>
+In-Reply-To: <20051129093231.GA5028@elte.hu>
+References: <1133031912.5904.12.camel@mindpipe>
+	 <1133034406.32542.308.camel@tglx.tec.linutronix.de>
+	 <20051127123052.GA22807@elte.hu> <1133141224.4909.1.camel@mindpipe>
+	 <20051128114852.GA3391@elte.hu> <1133189789.5228.7.camel@mindpipe>
+	 <20051128160052.GA29540@elte.hu> <1133217651.4678.2.camel@mindpipe>
+	 <1133230103.5640.0.camel@mindpipe> <20051129072922.GA21696@elte.hu>
+	 <20051129093231.GA5028@elte.hu>
+Content-Type: text/plain
+Date: Thu, 08 Dec 2005 20:05:15 -0500
+Message-Id: <1134090316.11053.3.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Knut Petersen wrote:
->  Every framebuffer driver relies on the assumption that the set_par()
-> function
-> of the driver is called before drawing functions and other functions
-> dependent
-> on the hardware state are executed.
+On Tue, 2005-11-29 at 10:32 +0100, Ingo Molnar wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> This assumption is false in two cases, and one is a genuine linux
-> bug:
+> > * Lee Revell <rlrevell@joe-job.com> wrote:
+> > 
+> > > On Mon, 2005-11-28 at 17:40 -0500, Lee Revell wrote:
+> > > > 2.6.11-RT-V0.7.40-04 works
+> > > 
+> > > and 2.6.12-RT-V0.7.51-28 does not.
+> > 
+> > thanks. I have further narrowed it down from this point: your .config 
+> > breaks from the 51-01 to the 51-02 kernel (on my testbox).
 > 
->    1: Whenever you switch from X to a framebuffer console for the very
->        first time, there is a chance that a broken X system has _not_ set
->        the mode to KD_GRAPHICS, thus the vt and framebuffer code
->        executes a screen redraw and several other functions before a
->        set_par() is executed. This is believed to be not a bug of linux
->        but a bug of X/xdm.
+> ok, fixed this one, it was the CURRENT_PTR optimization on UP that broke 
+> if 4K stacks were enabled. (i disabled the optimization for now)
 > 
->    2: Whenever a switch from X to a framebuffer console occures,
->         the pan_display() function of the driver is called once before
->         the set_par() function of the driver is called. Code path:
->         complete_change_console -> redraw_screen -> fbcon_switch ->
->         bit_update_start-> fb_pan_display -> xyz_pan_display.
->         This is clearly a bug of linux.
+> But interestingly, your .config unearthed 2 other serious bugs (!) as 
+> well: the spin_unlock_irq() upon printk was incorrect for !PREEMPT_RT, 
+> and there was an assert introduced by the get-rid-of-bitlocks ext3 
+> patches which was invalid on UP && !PREEMPT_RT. We had these bugs for 
+> quite some time.
+> 
+> I've released -rt21 with these fixes, does it work better for you?
 
-This part, #2, can be easily fixed.
+Ingo,
 
-> 
-> Although our primary goal must be to fix linux bugs and not to work
-> around bugs of X, the patch fixes both of the cases.
-> 
-> The advantage and correctness of this patch should be obvious. Yes, it
-> does add a possibly slow call to the fb_set_par() function, but at this
-> point it is necessary.
-> 
-> Signed-off-by: Knut Petersen <Knut_Petersen@t-online.de>
+We are unable to build a similar .config (PREEMPT_DESKTOP with soft and
+hardirq preemption disabled) on x86-64:
 
-Sorry, NAK for now.  Unless other people agree that it is okay for them
-to have an unconditional call to set_par() for every console switch. Note
-that the set_par() in some drivers is terribly slow (several seconds at least).
+In file included from include/linux/mm.h:15,
+                 from kernel/printk.c:20:
+include/linux/fs.h: In function `lock_super':
+include/linux/fs.h:849: warning: implicit declaration of function `down'
+include/linux/fs.h: In function `unlock_super':
+include/linux/fs.h:855: warning: implicit declaration of function `up'
 
-Let's wait a few days, if nobody disagrees with you, so be it.
+Let me know if you need the exact .config
 
-Tony 
+Lee
+

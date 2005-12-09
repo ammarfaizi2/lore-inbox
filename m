@@ -1,56 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbVLIQip@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbVLIQjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbVLIQip (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 11:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932464AbVLIQio
+	id S932483AbVLIQjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 11:39:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932461AbVLIQjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 11:38:44 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:54806 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S932461AbVLIQio
+	Fri, 9 Dec 2005 11:39:16 -0500
+Received: from smtpout.mac.com ([17.250.248.85]:26071 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932483AbVLIQjP convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 11:38:44 -0500
-Message-ID: <4395EB14.60802@tmr.com>
-Date: Tue, 06 Dec 2005 14:48:36 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Fri, 9 Dec 2005 11:39:15 -0500
+Date: Fri,  9 Dec 2005 10:39:14 -0600
+From: Mark Rustad <MRustad@mac.com>
+Subject: [PATCH 2.6.15-rc5] hugetlb: make make_huge_pte global and fix coding style
+To: linux-kernel@vger.kernel.org
+X-Priority: 3
+Message-ID: <r02010500-1043-55BAAD4668D211DA98840011248907EC@[10.64.61.57]>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-References: <20051203135608.GJ31395@stusta.de> <1133620264.2171.14.camel@localhost.localdomain> <4394C745.2020802@tmr.com> <4394EDDE.30605@pobox.com>
-In-Reply-To: <4394EDDE.30605@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Mailsmith 2.1.5 (Blindsider)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Bill Davidsen wrote:
-> 
->> I do think the old model was better; by holding down major changes for 
->> six months or so after a new even release came out, people had a 
->> chance to polich the stable release, and developers had time to 
->> recharge their batteries so to speak, and to sit and think about what 
->> they wanted to do, without feeling the pressure to write code and 
->> submit it right away. Knowing that there's no place to send code for 
->> six months is a great aid to generating GOOD code.
-> 
-> 
-> It never worked that way, which is why the model changed.
-> 
-> Like it or not, developers would only focus on one release.  In the old 
-> model, unstable things would get shoved into the stable kernel, because 
-> people didn't want to wait six months.  And for the unstable kernel, it 
-> would often be so horribly broken that even developers couldn't use it 
-> for development (think 2.5.x IDE).
 
-I was actually thinking of Rusty's module code... I do every time I have 
-to build an initrd file by hand "Although the syntax is similar to the 
-older /etc/modules.conf, there are many features missing."
+This patch makes the function make_huge_pte non-static, so it can be used
+by drivers that want to mmap huge pages. Consequently, a prototype for the
+function is added to hugetlb.h. Since I was looking here, I noticed some
+coding style problems in the function and fix them with this patch.
 
+Signed-off-by: Mark Rustad <MRustad@mac.com>
+
+ include/linux/hugetlb.h |    1 +
+ mm/hugetlb.c            |   13 ++++++-------
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+--- a/include/linux/hugetlb.h	2005-11-28 15:58:37.000000000 -0600
++++ b/include/linux/hugetlb.h	2005-12-08 10:38:36.099028314 -0600
+@@ -24,6 +24,7 @@ int is_hugepage_mem_enough(size_t);
+ unsigned long hugetlb_total_pages(void);
+ struct page *alloc_huge_page(void);
+ void free_huge_page(struct page *);
++pte_t make_huge_pte(struct vm_area_struct *vma, struct page *page);
+ int hugetlb_fault(struct mm_struct *mm, struct vm_area_struct *vma,
+ 			unsigned long address, int write_access);
+ 
+--- a/mm/hugetlb.c	2005-11-29 12:11:43.794928597 -0600
++++ b/mm/hugetlb.c	2005-12-08 10:43:43.983294767 -0600
+@@ -261,16 +261,15 @@ struct vm_operations_struct hugetlb_vm_o
+ 	.nopage = hugetlb_nopage,
+ };
+ 
+-static pte_t make_huge_pte(struct vm_area_struct *vma, struct page *page)
++pte_t make_huge_pte(struct vm_area_struct *vma, struct page *page)
+ {
+ 	pte_t entry;
+ 
+-	if (vma->vm_flags & VM_WRITE) {
+-		entry =
+-		    pte_mkwrite(pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
+-	} else {
+-		entry = pte_wrprotect(mk_pte(page, vma->vm_page_prot));
+-	}
++	entry = mk_pte(page, vma->vm_page_prot);
++	if (vma->vm_flags & VM_WRITE)
++		entry = pte_mkwrite(pte_mkdirty(entry));
++	else
++		entry = pte_wrprotect(entry);
+ 	entry = pte_mkyoung(entry);
+ 	entry = pte_mkhuge(entry);
+ 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
-
+Mark Rustad, mrustad@mac.com

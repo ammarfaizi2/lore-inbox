@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbVLIOK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbVLIOLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751335AbVLIOK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 09:10:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbVLIOK7
+	id S1751336AbVLIOLE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 09:11:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbVLIOLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 09:10:59 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19466 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751335AbVLIOK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 09:10:58 -0500
-Date: Fri, 9 Dec 2005 14:10:49 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Olaf Hering <olh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Sachin Sant <sachinp@in.ibm.com>
-Subject: Re: [PATCH] Adding ctrl-o sysrq hack support to 8250 driver
-Message-ID: <20051209141049.GA31708@flint.arm.linux.org.uk>
-Mail-Followup-To: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Sachin Sant <sachinp@in.ibm.com>
-References: <20051209140559.GA23868@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051209140559.GA23868@suse.de>
-User-Agent: Mutt/1.4.1i
+	Fri, 9 Dec 2005 09:11:03 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:62691 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751336AbVLIOLC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 09:11:02 -0500
+Date: Fri, 9 Dec 2005 15:10:59 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Mouse button swapping
+Message-ID: <Pine.LNX.4.61.0512091508250.8080@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 03:05:59PM +0100, Olaf Hering wrote:
-> 
-> If you can queue this up in -mm for a decade or two, just to make sure
-> it doesnt make some setup unhappy.
-> 
-> 
-> a POWER4 system in 'full-system-partition' mode has the console device
-> on ttyS0. But the user interface to the Linux system console may still
-> be on the hardware management console (HMC). If this is the case, there
-> is no way to send a break to trigger a sysrq.
-> Other setups do already use 'ctrl o' to trigger sysrq. This includes iSeries
-> virtual console on tty1, and pSeries LPAR console on hvc0 or hvsi0.
-> 
-> 'ctrl o' is currently mapped to 'flush output', see 'stty -a'
+Hi,
 
-I still strongly disagree with the idea of using a well defined
-control character which already has an expected purpose for this.
 
+I produced a small patch that allows one to flip the mouse buttons at the 
+kernel level. This is useful for changing it on a per-system basis, i.e. it 
+will affect gpm, X and VMware all at once. It is changeable through
+/sys/module/mousedev/swap_buttons at runtime. Is this something mainline would
+be interested in?
+
+diff -dpru a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+--- a/drivers/input/mousedev.c	2005-10-22 20:59:22.000000000 +0200
++++ b/drivers/input/mousedev.c	2005-11-22 19:32:01.000000000 +0100
+@@ -40,6 +40,10 @@ MODULE_LICENSE("GPL");
+ #define CONFIG_INPUT_MOUSEDEV_SCREEN_Y	768
+ #endif
+ 
++static unsigned int swap_buttons = 0;
++module_param(swap_buttons, uint, 0644);
++MODULE_PARM_DESC(swap_buttons, "Swap left and right mouse buttons");
++
+ static int xres = CONFIG_INPUT_MOUSEDEV_SCREEN_X;
+ module_param(xres, uint, 0);
+ MODULE_PARM_DESC(xres, "Horizontal screen resolution");
+@@ -191,10 +195,10 @@ static void mousedev_key_event(struct mo
+ 		case BTN_TOUCH:
+ 		case BTN_0:
+ 		case BTN_FORWARD:
+-		case BTN_LEFT:		index = 0; break;
++		case BTN_LEFT:		index = !!swap_buttons; break;
+ 		case BTN_STYLUS:
+ 		case BTN_1:
+-		case BTN_RIGHT:		index = 1; break;
++		case BTN_RIGHT:		index = !swap_buttons; break;
+ 		case BTN_2:
+ 		case BTN_STYLUS2:
+ 		case BTN_MIDDLE:	index = 2; break;
+# eof
+
+
+Jan Engelhardt
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

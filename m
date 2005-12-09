@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbVLIRzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbVLIR4x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbVLIRzW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 12:55:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVLIRzW
+	id S964830AbVLIR4x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 12:56:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbVLIR4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 12:55:22 -0500
-Received: from smtpout.mac.com ([17.250.248.86]:38611 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S964833AbVLIRzV (ORCPT
+	Fri, 9 Dec 2005 12:56:53 -0500
+Received: from mail.kroah.org ([69.55.234.183]:25500 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964835AbVLIR4w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 12:55:21 -0500
-In-Reply-To: <1134148609.30856.22.camel@localhost>
-References: <r02010500-1043-55BAAD4668D211DA98840011248907EC@[10.64.61.57]> <1134148609.30856.22.camel@localhost>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <E4ECF4F0-9442-4FFE-BE55-3EF7A1CC40F4@mac.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Mark Rustad <mrustad@mac.com>
-Subject: Re: [PATCH 2.6.15-rc5] hugetlb: make make_huge_pte global and fix coding style
-Date: Fri, 9 Dec 2005 11:55:19 -0600
-To: Dave Hansen <haveblue@us.ibm.com>
-X-Mailer: Apple Mail (2.746.2)
+	Fri, 9 Dec 2005 12:56:52 -0500
+Date: Fri, 9 Dec 2005 09:55:55 -0800
+From: Greg KH <greg@kroah.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14.3 - sysfs duplicated dentry bug
+Message-ID: <20051209175555.GA9761@kroah.com>
+References: <200512091848.42297.blaisorblade@yahoo.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200512091848.42297.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 9, 2005, at 11:16 AM, Dave Hansen wrote:
+On Fri, Dec 09, 2005 at 06:48:41PM +0100, Blaisorblade wrote:
+> Q: Since when is a directory entry allowed to be duplicate?
+> A: Since Linux 2.6.14!
+> 
+> $ uname -r
+> 2.6.14.3-bs2-mroute
+> 
+> The only sysfs-related change is the use of a custom DSDT, which is new to 
+> this kernel.
 
-> What driver needs to map huge pages?  Is it in the kernel tree  
-> now?  If
-> not, can you post the source, please?
+Known bug, fixed in the 2.6.15-rc kernel tree.  It was a timer
+registering with the same name in two places :(
 
-It is a funky driver for an embedded system. I can't imagine it ever  
-being in the kernel tree, because not many people want to share 768M  
-of contiguous physical memory.
+And yes, we should have more sysfs checks for stuff like this, any
+patches in this area would be greatly appreciated.
 
-I can post the source, but it really is a bunch of random stuff for  
-am embedded application. We do make it available as part of our GPL  
-source release to customers.
+thanks,
 
--- 
-Mark Rustad, MRustad@mac.com
-
+greg k-h

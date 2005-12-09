@@ -1,76 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbVLISCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbVLISHl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbVLISCo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 13:02:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVLISCo
+	id S964820AbVLISHl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 13:07:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVLISHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 13:02:44 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:26569 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751283AbVLISCn (ORCPT
+	Fri, 9 Dec 2005 13:07:41 -0500
+Received: from mail.suse.de ([195.135.220.2]:31179 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964820AbVLISHk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 13:02:43 -0500
-Message-ID: <4399D852.47E0BB4E@tv-sign.ru>
-Date: Fri, 09 Dec 2005 22:17:38 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: vatsa@in.ibm.com
-Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Fix RCU race in access of nohz_cpu_mask
-References: <439889FA.BB08E5E1@tv-sign.ru> <20051209024623.GA14844@in.ibm.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Dec 2005 13:07:40 -0500
+Date: Fri, 9 Dec 2005 19:07:39 +0100
+From: Andi Kleen <ak@suse.de>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Rohit Seth <rohit.seth@intel.com>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: [RFC][PATCH 2/3]i386,x86-64 Handle missing local APIC timer interrupts on C3 state
+Message-ID: <20051209180739.GH11190@wotan.suse.de>
+References: <20051208181040.C32524@unix-os.sc.intel.com> <Pine.LNX.4.64.0512090003460.26307@montezuma.fsmlabs.com> <20051209044938.A26619@unix-os.sc.intel.com> <Pine.LNX.4.64.0512090933540.26307@montezuma.fsmlabs.com> <20051209095243.A22139@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051209095243.A22139@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri wrote:
-> 
-> On Thu, Dec 08, 2005 at 10:31:06PM +0300, Oleg Nesterov wrote:
-> > I can't see how this change can prevent idle cpus to be included in
-> > ->cpumask, cpu can add itself to nohz_cpu_mask right after some other
-> > cpu started new grace period.
-> 
-> Yes that can happen, but if they check for rcu_pending right after that
-> it will prevent them from going tickless atleast (which will prevent grace
-> periods from being unnecessarily extended). Something like below:
-> 
->         CPU0                                    CPU1
-> 
->         rcp->cur++;     /* New GP */
-> 
->         smp_mb();
+Just a quick comment - didn't review the full patch.
 
-I think I need some education on memory barriers.
+> +#ifdef ARCH_APICTIMER_STOPS_ON_C3
+> +			if (c->x86_vendor == X86_VENDOR_INTEL) {
+> +				on_each_cpu(switch_APIC_timer_to_ipi, 
+> +						&mask, 1, 1);
+> +			}
+> +#endif
 
-Does this mb() garantees that the new value of ->cur will be visible
-on other cpus immediately after smp_mb() (so that rcu_pending() will
-notice it) ?
+Better make it a runtime variable instead of an ifdef with a boot option.
+I found at least one non Intel system so far with the same issue
+(although it wasn't multi processor) 
 
-My understanding is that it only garantees that all stores before it
-must be visible before any store after mb. (yes, mb implies rmb, but
-I think it does not matter if CPU1 adds itself to nonhz mask after
-CPU0 reads nohz_cpu_mask). This means that CPU1 can read the stale
-value of ->cur. I guess I am wrong, but I can't prove it to myself.
-
-Could you please clarify this?
-
-Even simpler question:
-
-CPU0
-	var = 1;
-	wmb();
-
-after that CPU1 does rmb().
-
-Does it garantees that CPU1 will see the new value of var?
-
-> Ideally we would have needed a smp_mb() in CPU1 also between setting CPU1
-> in nohz_cpu_mask and checking for rcu_pending(), but I guess it is not needed
-> in s390 because of its strong ordering?
-
-I don't know, but please note that s390's definition of smp_mb__after_atomic_inc()
-is not a 'nop'.
-
-Oleg.
+-Andi 

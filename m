@@ -1,59 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbVLISpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbVLISto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbVLISpm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 13:45:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbVLISpl
+	id S964871AbVLISto (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 13:49:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbVLISto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 13:45:41 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:51881 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932513AbVLISpl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 13:45:41 -0500
-Date: Fri, 9 Dec 2005 13:45:17 -0500
-From: Dave Jones <davej@redhat.com>
-To: Daniel J Blueman <daniel.blueman@gmail.com>
-Cc: tripperda@nvidia.com, Linux Kernel <linux-kernel@vger.kernel.org>,
-       ak@suse.de, jgarzik@pobox.com
-Subject: Re: PAT status?
-Message-ID: <20051209184517.GB7473@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Daniel J Blueman <daniel.blueman@gmail.com>, tripperda@nvidia.com,
-	Linux Kernel <linux-kernel@vger.kernel.org>, ak@suse.de,
-	jgarzik@pobox.com
-References: <6278d2220512080737t30a83011k11e88e85c0974a11@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6278d2220512080737t30a83011k11e88e85c0974a11@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 9 Dec 2005 13:49:44 -0500
+Received: from mail3.aventail.com ([64.94.142.143]:43793 "HELO
+	mail3.aventail.com") by vger.kernel.org with SMTP id S932513AbVLIStn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 13:49:43 -0500
+Message-ID: <4399D1B0.8030906@aventail.com>
+Date: Fri, 09 Dec 2005 10:49:20 -0800
+From: Steve Work <swork@aventail.com>
+User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [REPOST] Multi-thread corefiles broken since April
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 08, 2005 at 03:37:43PM +0000, Daniel J Blueman wrote:
- > Terence Ripperda wrote:
- > > Hi Jeff,
- > >
- > > I unfortunately haven't had much time to look at the status of the PAT
- > > code I had been working on. there are really 2 steps to the code:
- > >
- > > the first is enabling and configuring the PAT registers. this then
- > > allows a page table entry define that can be passed to traditional
- > > interfaces, such as remap_page_range or change_page_attr. this is
- > > pretty simple and we've been using a similar interface in our driver
- > > for some time now.
- > 
- > Presumably, the aliasing will only bite where eg the X server sets up
- > MTRRs and PAT is used for the region also. For x86_64 and IA32, the
- > Intel IA32 system guides tell us that strong store ordering (ie
- > write-through) takes precendence over weaker store ordering (eg
- > write-combining), so we should be safe. For processors with known
- > errata with PAT etc, we can disable PAT support.
- > 
- > Would it be useful to get a rough patch covering point #1 onto LKML
- > for discussion?
+Q: When did *all* multi-thread userspace coredumps break?
+A: 2.6.12-rc3, specifically April 16; and they're still broken (really!) 
+  Config does not appear to matter.  Not a race: highly reproduceable, 
+see below.
 
-http://lwn.net/Articles/135883/ is Terrence's last patch
-rediffed against 2.6.12 patch.
+-------- Original Message --------
+Subject: Multi-thread corefiles broken since April
+Date: Wed, 07 Dec 2005 22:52:52 -0800
+From: Steve Work <swork@aventail.com>
+To: linux-kernel@vger.kernel.org
 
-		Dave
+Coredumps from programs with more than one thread show garbage
+information for all threads except the primary.  The problem was
+introduced with:
 
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=5df240826c90afdc7956f55a004ea6b702df9203
+
+on Apr 16 ("fix crash in entry.S restore_all") and is still present in
+current builds.
+
+"kill -SEGV" this program and "info threads" the resulting corefile to
+see the problem:
+
+#include <pthread.h>
+static void* thread_sleep(void* x) { while (1) sleep(30); }
+int main(int c, char** v) {
+     const static int tcount = 5;
+     pthread_t thr[tcount];
+     int i;
+     for (i=0; i<tcount; ++i)
+         pthread_create(&thr[i], NULL, thread_sleep, NULL);
+     while (1)
+         sleep(30);
+     return 0;
+}
+
+(gdb) info threads
+   7 process 18138  0x00000246 in ?? ()
+   6 process 18139  0x00000246 in ?? ()
+   5 process 18140  0x00000246 in ?? ()
+   4 process 18141  0x00000246 in ?? ()
+   3 process 18142  0x00000246 in ?? ()
+   2 process 18143  0x00000246 in ?? ()
+* 1 process 18137  0xb7e69db6 in nanosleep () from /lib/tls/libc.so.6
+(gdb)
+
+All these threads should show a legitimate location (the same spot in
+nanosleep) and do on kernels prior to the commit named above.  (Notice
+one too many threads listed here also -- is this a related problem?)
+
+Commenting out this line (in asm/i386/kernel/process.c:copy_thread)
+fixes the corefiles:
+
+   childregs = (struct pt_regs *) ((unsigned long) childregs - 8);
+
+but presumably re-introduces the crash the original patch was intended
+to fix.  Should this line be conditioned somehow?  Or do the corefile
+write routines need to know about this adjusted offset?
+
+Steve Work
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

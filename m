@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVLIIBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbVLIIOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbVLIIBI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 03:01:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932467AbVLIIBI
+	id S932502AbVLIIOV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 03:14:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbVLIIOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 03:01:08 -0500
-Received: from fsmlabs.com ([168.103.115.128]:65200 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932466AbVLIIBG (ORCPT
+	Fri, 9 Dec 2005 03:14:21 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:62642 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S932502AbVLIIOU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 03:01:06 -0500
-X-ASG-Debug-ID: 1134115262-12458-147-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Fri, 9 Dec 2005 00:06:35 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, Rohit Seth <rohit.seth@intel.com>,
-       Len Brown <len.brown@intel.com>
-X-ASG-Orig-Subj: Re: [RFC][PATCH 2/3]i386,x86-64 Handle missing local APIC timer
- interrupts on C3 state
-Subject: Re: [RFC][PATCH 2/3]i386,x86-64 Handle missing local APIC timer
- interrupts on C3 state
-In-Reply-To: <20051208181040.C32524@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.64.0512090003460.26307@montezuma.fsmlabs.com>
-References: <20051208181040.C32524@unix-os.sc.intel.com>
+	Fri, 9 Dec 2005 03:14:20 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Matt Mackall <mpm@selenic.com>
+Subject: Re: [RFC][PATCH] Reduce number of pointer derefs in various files (kernel/exit.c used as example)
+Date: Fri, 9 Dec 2005 09:14:21 +0100
+User-Agent: KMail/1.8
+Cc: Ingo Molnar <mingo@elte.hu>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <200512062302.06933.jesper.juhl@gmail.com> <20051206221528.GA12358@elte.hu> <20051209014658.GA11856@waste.org>
+In-Reply-To: <20051209014658.GA11856@waste.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6153
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512090914.21436.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Dec 2005, Venkatesh Pallipadi wrote:
+Am Freitag, 9. Dezember 2005 02:46 schrieb Matt Mackall:
+> On Tue, Dec 06, 2005 at 11:15:28PM +0100, Ingo Molnar wrote:
+> > 
+> > * Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> > 
+> > > Ohh, and before I forget, besides the fact that this should speed 
+> > > things up a little bit it also has the added benefit of reducing the 
+> > > size of the generated code. The original kernel/exit.o file was 19604 
+> > > bytes in size, the patched one is 19508 bytes in size.
+> > 
+> > nice. Just to underline your point, on x86, with gcc 4.0.2, i'm getting 
+> > this with your patch:
+> > 
+> >    text    data     bss     dec     hex filename
+> >   11077       0       0   11077    2b45 exit.o.orig
+> >   10997       0       0   10997    2af5 exit.o
+> > 
+> > so 80 bytes shaved off. I think such patches also increase readability.
+> 
+> Readability improved: good.
+> 37 lines of patch for 80-100 bytes saved: not so good.
+> 
+> So while this is a good style direction, I don't think it's worth the
+> churn. And unlike kzalloc and the like, this particular optimization
+> is perfectly doable by a compiler. So I'd rather wait for the compiler
+> to get smarter than change code for such modest improvements.
 
-> Whenever we see that a CPU is capable of C3 (during ACPI cstate init), we 
-> disable local APIC timer and switch to using a broadcast from external timer
-> interrupt (IRQ 0).
->
-> Index: linux-2.6.15-rc3/include/asm-i386/apic.h
-> ===================================================================
-> --- linux-2.6.15-rc3.orig/include/asm-i386/apic.h
-> +++ linux-2.6.15-rc3/include/asm-i386/apic.h
-> @@ -132,6 +132,11 @@ extern unsigned int nmi_watchdog;
->  
->  extern int disable_timer_pin_1;
->  
-> +void smp_send_timer_broadcast_ipi(struct pt_regs *regs);
-> +void switch_APIC_timer_to_ipi(void *cpumask);
-> +void switch_ipi_to_APIC_timer(void *cpumask);
+How can the compiler do it? If a function call is between two evaluations
+of a pointer chain, the compiler would have to make sure no pointer in
+the chain is touched. For the case of a computed function call, it is
+impossible in principle.
 
-When is this used?
+	Regards
+		Oliver

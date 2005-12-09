@@ -1,78 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbVLINWe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbVLIOGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbVLINWe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 08:22:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751332AbVLINWe
+	id S1751332AbVLIOGD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 09:06:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751334AbVLIOGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 08:22:34 -0500
-Received: from nproxy.gmail.com ([64.233.182.198]:26612 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751325AbVLINWd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 08:22:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PJ6AOzNbaY4WJAPHhhYCWIs/L/HtKQrGweHVUjaPp3Q0ilQqgFdvlLrIqX3BC9x5RydEXyBJDDfq+/7MvMWh+015a0JQH/OWeuN6jsZ+6CDQwTzvAZTv+5y2x10op5/fvD63MFHdd1TSRZDd5j7rSJTK1x7s6AcmDI3e2e/aTwU=
-Message-ID: <58cb370e0512090522h1e6a2c94r45ed652fd3a30da3@mail.gmail.com>
-Date: Fri, 9 Dec 2005 14:22:31 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-Cc: Jens Axboe <axboe@suse.de>, Erik Slagter <erik@slagter.name>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       Randy Dunlap <randy_d_dunlap@linux.intel.com>, hch@infradead.org,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-In-Reply-To: <20051209115511.GA25842@srcf.ucam.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 9 Dec 2005 09:06:03 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:52169 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751332AbVLIOGB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 09:06:01 -0500
+Date: Fri, 9 Dec 2005 15:05:59 +0100
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Sachin Sant <sachinp@in.ibm.com>
+Subject: [PATCH] Adding ctrl-o sysrq hack support to 8250 driver
+Message-ID: <20051209140559.GA23868@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <20051208134438.GA13507@infradead.org> <43989B00.5040503@pobox.com>
-	 <20051208133144.0f39cb37.randy_d_dunlap@linux.intel.com>
-	 <1134121522.27633.7.camel@localhost.localdomain>
-	 <20051209103937.GE26185@suse.de>
-	 <1134125145.27633.32.camel@localhost.localdomain>
-	 <43996A26.8060700@pobox.com>
-	 <1134128127.27633.39.camel@localhost.localdomain>
-	 <20051209114641.GH26185@suse.de>
-	 <20051209115511.GA25842@srcf.ucam.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/9/05, Matthew Garrett <mjg59@srcf.ucam.org> wrote:
-> On Fri, Dec 09, 2005 at 12:46:42PM +0100, Jens Axboe wrote:
-> > On Fri, Dec 09 2005, Erik Slagter wrote:
-> > > I case this (still) isn't clear, I am addressing the attitude of "It's
-> > > ACPI so it's not going to be used, period".
-> >
-> > The problem seems to be that you are misunderstanding the 'attitude',
-> > which was mainly based on the initial patch sent out which stuffs acpi
-> > directly in everywhere. That seems to be a good trigger for curt/direct
-> > replies.
->
-> I was just following the example set by the ide acpi suspend/resume
-> patch, which people didn't seem to object to nearly as much. I guess
-> IDE's such a hack anyway that people aren't as worried :) I'll try
-> produce a patch that just inserts platform-independent code into scsi
-> around the start of next week.
 
-Sigh, it seems this is what you get for being nice... ;)
+If you can queue this up in -mm for a decade or two, just to make sure
+it doesnt make some setup unhappy.
 
-Don't get it wrong IDE people (at least me) are also worried but
-they know that there are cases in which ACPI support will help
-(even if the main method should be talking to hardware directly)
-NOW not in X years when we will have proper, architecture
-independent suspend/resume handling (we can live with
-"ide_acpi=on" kernel parameter before it happens happily).
 
-I also pointed out that I would like to have generic code which
-can be shared between libata and IDE drivers (after all both
-can provide you with struct pci_dev * and port/device number).
+a POWER4 system in 'full-system-partition' mode has the console device
+on ttyS0. But the user interface to the Linux system console may still
+be on the hardware management console (HMC). If this is the case, there
+is no way to send a break to trigger a sysrq.
+Other setups do already use 'ctrl o' to trigger sysrq. This includes iSeries
+virtual console on tty1, and pSeries LPAR console on hvc0 or hvsi0.
 
-It would be even better if this code will stay in drivers/acpi/ata.c
-(?) and libata/IDE will just use the same functions (which will turn
-to NOP if CONFIG_ACPI=n) for PATA.
+'ctrl o' is currently mapped to 'flush output', see 'stty -a'
 
-Thanks,
-Bartlomiej
+Signed-off-by: Olaf Hering <olh@suse.de>
+
+ drivers/serial/8250.c |    7 +++++++
+ 1 files changed, 7 insertions(+)
+
+Index: linux-2.6.15-rc5-olh/drivers/serial/8250.c
+===================================================================
+--- linux-2.6.15-rc5-olh.orig/drivers/serial/8250.c
++++ linux-2.6.15-rc5-olh/drivers/serial/8250.c
+@@ -1154,6 +1154,13 @@ receive_chars(struct uart_8250_port *up,
+ 			 */
+ 		}
+ 		ch = serial_inp(up, UART_RX);
++
++#if defined(CONFIG_MAGIC_SYSRQ) && defined(CONFIG_SERIAL_CORE_CONSOLE)
++		/* Handle the SysRq ^O Hack, but only on the system console */
++		if (ch == '\x0f' && uart_handle_break(&up->port))
++			goto ignore_char;
++#endif
++
+ 		flag = TTY_NORMAL;
+ 		up->port.icount.rx++;
+ 
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbVLIWxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbVLIWzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932497AbVLIWxf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 17:53:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932500AbVLIWxf
+	id S932504AbVLIWzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 17:55:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbVLIWzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 17:53:35 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7891 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932497AbVLIWxe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 17:53:34 -0500
-Date: Fri, 9 Dec 2005 23:53:12 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: spitz: Real time clock?
-Message-ID: <20051209225312.GF4658@elf.ucw.cz>
-References: <20051209212850.GE4658@elf.ucw.cz> <1134167947.8092.116.camel@localhost.localdomain>
+	Fri, 9 Dec 2005 17:55:25 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:30679 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932504AbVLIWzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 17:55:24 -0500
+Subject: Re: [discuss] [patch] x86_64:  align and pad x86_64 GDT on page
+	boundary
+From: Rohit Seth <rohit.seth@intel.com>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org, zach@vmware.com,
+       shai@scalex86.org, nippung@calsoftinc.com
+In-Reply-To: <20051209221922.GA3676@localhost.localdomain>
+References: <20051208215514.GE3776@localhost.localdomain>
+	 <1134083357.7131.21.camel@akash.sc.intel.com>
+	 <20051208231141.GX11190@wotan.suse.de>
+	 <1134084367.7131.32.camel@akash.sc.intel.com>
+	 <20051208232610.GY11190@wotan.suse.de>
+	 <1134085511.7131.53.camel@akash.sc.intel.com>
+	 <20051208234320.GB11190@wotan.suse.de>
+	 <20051209221922.GA3676@localhost.localdomain>
+Content-Type: text/plain
+Organization: Intel 
+Date: Fri, 09 Dec 2005 15:01:27 -0800
+Message-Id: <1134169287.21462.7.camel@akash.sc.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1134167947.8092.116.camel@localhost.localdomain>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Dec 2005 22:54:37.0674 (UTC) FILETIME=[87EF4CA0:01C5FD13]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Pá 09-12-05 22:39:06, Richard Purdie wrote:
-> On Fri, 2005-12-09 at 22:28 +0100, Pavel Machek wrote:
-> > Is there driver for real time clock for spitz? I seem to get default
-> > time each time I boot. (And thats bad because means fsck "too much time
-> > since last check, check forced).
+On Fri, 2005-12-09 at 14:19 -0800, Ravikiran G Thirumalai wrote:
+> On Fri, Dec 09, 2005 at 12:43:20AM +0100, Andi Kleen wrote:
+> >
+> > For scalex I think it needs to be page aligned because that is what
+> > the effective cacheline size for remote nodes is in their setup. 
+> > That would be difficult for kmalloc because it cannot guarantee that
+> > alignment nor avoid false sharing. 
 > 
-> There is but its already included with the kernels you have. It doesn't
-> survive reboots and this is a limitation of the PXA processor. There's
-> not a lot we can do about it I'm afraid.
+> Exactly.
+> 
 
-Ouch, that's bad :-(. So PXA can't keep time properly... could we do
-something like storing time on system shutdown and restoring it on
-bootup? That way at least time will be monotonic... Ok, that's
-userland problem.
+Are you saying remote node will cache a whole page for every byte access
+on that page.
 
-Is there way to reboot without "really" rebooting? That would help at
-least in my usage case. (Also reboot really does poweroff, not reboot,
-but...)
+> > For the BP case it's ok as 
+> > long as the beginning is correctly aligned and the rest 
+> > is read-only.
+> 
+> Just that any writes on the bp GDT will invalidate the idt_table cacheline,
+> which is read mostly (as Nippun pointed out).  So could we keep the padding
+> as it is for the BP too? 
+> 
 
-								Pavel
--- 
-Thanks, Sharp!
+Do you write into GDT often for this to be an issue.  The reason I'm
+asking this because the per-cpu IDTs that Andi refered in the future.
+If we are really not using too many bytes in GDT then rest of the page
+can be used for IDT and such mostly RO data.
+
+-rohit
+

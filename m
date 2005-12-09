@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbVLIMlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbVLIMuJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbVLIMlO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 07:41:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVLIMlO
+	id S1751110AbVLIMuJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 07:50:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbVLIMuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 07:41:14 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:52368
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1751219AbVLIMlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 07:41:14 -0500
-Message-Id: <439989A7.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Fri, 09 Dec 2005 13:41:59 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Rafael Wysocki" <rjw@sisk.pl>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Andi Kleen" <ak@suse.de>,
-       <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Subject: Re: 2.6.15-rc5-mm1 (x86_64-hpet-overflow.patch breaks resume
-	from disk)
-References: <20051204232153.258cd554.akpm@osdl.org>  <200512082335.50417.rjw@sisk.pl>  <43995957.76F0.0078.0@novell.com> <200512091220.06060.rjw@sisk.pl>
-In-Reply-To: <200512091220.06060.rjw@sisk.pl>
+	Fri, 9 Dec 2005 07:50:09 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:51653 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1751110AbVLIMuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 07:50:07 -0500
+Date: Fri, 9 Dec 2005 04:49:39 -0800
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Rohit Seth <rohit.seth@intel.com>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: [RFC][PATCH 2/3]i386,x86-64 Handle missing local APIC timer interrupts on C3 state
+Message-ID: <20051209044938.A26619@unix-os.sc.intel.com>
+References: <20051208181040.C32524@unix-os.sc.intel.com> <Pine.LNX.4.64.0512090003460.26307@montezuma.fsmlabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.64.0512090003460.26307@montezuma.fsmlabs.com>; from zwane@arm.linux.org.uk on Fri, Dec 09, 2005 at 12:06:35AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>> "Rafael J. Wysocki" <rjw@sisk.pl> 09.12.05 12:20:05 >>>
->On Friday, 9 December 2005 10:15, Jan Beulich wrote:
->> It's a possible way to address this, but I'd rather just set a flag
->> indicating that the last-whatever values should not be considered
-(to
->> get into a state just like after initial boot). Jan
->
->OK, but what is the interrupt handler supposed to do if the
->vxtime.last* values are invalid?  I guess assume delta = 0?
+On Fri, Dec 09, 2005 at 12:06:35AM -0800, Zwane Mwaikambo wrote:
+> On Thu, 8 Dec 2005, Venkatesh Pallipadi wrote:
+> 
+> > Whenever we see that a CPU is capable of C3 (during ACPI cstate init), we 
+> > disable local APIC timer and switch to using a broadcast from external timer
+> > interrupt (IRQ 0).
+> >
+> > +void smp_send_timer_broadcast_ipi(struct pt_regs *regs);
+> > +void switch_APIC_timer_to_ipi(void *cpumask);
+> > +void switch_ipi_to_APIC_timer(void *cpumask);
+> 
+> When is this used?
 
-As I said, the state should be (re)set to whatever is in effect at
-boot.
++void smp_send_timer_broadcast_ipi(struct pt_regs *regs);
+This is called by the IRQ0 timer interrupt handler, to check whether any CPUs 
+have enrolled for this broadcast.
 
->BTW, in the interrupt handler there is:
->
->		__asm__("mulq %1\n\t"
->		        "shrdq $32, %%rdx, %0"
->		        : "+a" (delta)
->		        : "rm" (vxtime.tsc_quot)
->		        : "rdx");
->
->Is the "+a" a typo?
++void switch_APIC_timer_to_ipi(void *cpumask);
+Called by acpi processor driver when it find out that a particular CPU can
+support C3 state (and it is an Intel CPU).
 
-Why would you think so?
++void switch_ipi_to_APIC_timer(void *cpumask);
+Called by acpi processor driver again to reset to APIC_timer when C3 is not 
+supported by the CPU.
 
-Jan
+The acpi processor driver calls can be at the boot time, or can be at run time
+if BIOS enables/disables C3 at run time.
+
+Thanks,
+Venki
+

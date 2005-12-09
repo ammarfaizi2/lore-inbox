@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbVLIP3I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964796AbVLIPaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbVLIP3I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 10:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbVLIP3H
+	id S964796AbVLIPaY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 10:30:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbVLIPaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 10:29:07 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:32194 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S964776AbVLIP2l
+	Fri, 9 Dec 2005 10:30:22 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:52932 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S964796AbVLIPaO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 10:28:41 -0500
-Date: Fri, 9 Dec 2005 16:28:29 +0100
+	Fri, 9 Dec 2005 10:30:14 -0500
+Date: Fri, 9 Dec 2005 16:30:02 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: akpm@osdl.org, cohuck@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: [patch 13/17] s390: introduce for_each_subchannel.
-Message-ID: <20051209152829.GN6532@skybase.boeblingen.de.ibm.com>
+To: akpm@osdl.org, edrossma@us.ibm.com, cohuck@de.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: [patch 17/17] s390: add support for cex2a crypto cards.
+Message-ID: <20051209153002.GR6532@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,857 +22,758 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cohuck@de.ibm.com>
+From: Eric Rossman <edrossma@us.ibm.com>
 
-[patch 13/17] s390: introduce for_each_subchannel.
+[patch 17/17] s390: add support for cex2a crypto cards.
 
-for_each_subchannel() is an iterator calling a function for every
-possible subchannel id until non-zero is returned. Convert the
-current iterating functions to it.
-
-Signed-off-by: Cornelia Huck <cohuck@de.ibm.com>
+Signed-off-by: Eric Rossman <edrossma@us.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 ---
 
- drivers/s390/cio/blacklist.c |   46 ++---
- drivers/s390/cio/chsc.c      |  372 ++++++++++++++++++++++---------------------
- drivers/s390/cio/cio.c       |   79 ++++-----
- drivers/s390/cio/css.c       |  110 ++++++------
- drivers/s390/cio/css.h       |    1 
- 5 files changed, 318 insertions(+), 290 deletions(-)
+ drivers/s390/crypto/z90common.h   |    9 -
+ drivers/s390/crypto/z90crypt.h    |   13 +
+ drivers/s390/crypto/z90hardware.c |  301 ++++++++++++++++++++++++++++++++++++--
+ drivers/s390/crypto/z90main.c     |  111 +++++++++-----
+ 4 files changed, 383 insertions(+), 51 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/cio/blacklist.c linux-2.6-patched/drivers/s390/cio/blacklist.c
---- linux-2.6/drivers/s390/cio/blacklist.c	2005-12-09 14:25:56.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/cio/blacklist.c	2005-12-09 14:25:56.000000000 +0100
-@@ -219,6 +219,27 @@ is_blacklisted (int devno)
- }
- 
- #ifdef CONFIG_PROC_FS
-+static int
-+__s390_redo_validation(struct subchannel_id schid, void *data)
-+{
-+	int ret;
-+	struct subchannel *sch;
-+
-+	sch = get_subchannel_by_schid(schid);
-+	if (sch) {
-+		/* Already known. */
-+		put_device(&sch->dev);
-+		return 0;
-+	}
-+	ret = css_probe_device(schid);
-+	if (ret == -ENXIO)
-+		return ret; /* We're through. */
-+	if (ret == -ENOMEM)
-+		/* Stop validation for now. Bad, but no need for a panic. */
-+		return ret;
-+	return 0;
-+}
-+
+diff -urpN linux-2.6/drivers/s390/crypto/z90common.h linux-2.6-patched/drivers/s390/crypto/z90common.h
+--- linux-2.6/drivers/s390/crypto/z90common.h	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6-patched/drivers/s390/crypto/z90common.h	2005-12-09 14:26:07.000000000 +0100
+@@ -1,9 +1,9 @@
  /*
-  * Function: s390_redo_validation
-  * Look for no longer blacklisted devices
-@@ -226,30 +247,9 @@ is_blacklisted (int devno)
- static inline void
- s390_redo_validation (void)
- {
--	struct subchannel_id schid;
--
- 	CIO_TRACE_EVENT (0, "redoval");
--	init_subchannel_id(&schid);
--	do {
--		int ret;
--		struct subchannel *sch;
--
--		sch = get_subchannel_by_schid(schid);
--		if (sch) {
--			/* Already known. */
--			put_device(&sch->dev);
--			continue;
--		}
--		ret = css_probe_device(schid);
--		if (ret == -ENXIO)
--			break; /* We're through. */
--		if (ret == -ENOMEM)
--			/*
--			 * Stop validation for now. Bad, but no need for a
--			 * panic.
--			 */
--			break;
--	} while (schid.sch_no++ < __MAX_SUBCHANNEL);
-+
-+	for_each_subchannel(__s390_redo_validation, NULL);
- }
+  *  linux/drivers/s390/crypto/z90common.h
+  *
+- *  z90crypt 1.3.2
++ *  z90crypt 1.3.3
+  *
+- *  Copyright (C)  2001, 2004 IBM Corporation
++ *  Copyright (C)  2001, 2005 IBM Corporation
+  *  Author(s): Robert Burroughs (burrough@us.ibm.com)
+  *             Eric Rossman (edrossma@us.ibm.com)
+  *
+@@ -91,12 +91,13 @@ enum hdstat {
+ #define TSQ_FATAL_ERROR 34
+ #define RSQ_FATAL_ERROR 35
  
- /*
-diff -urpN linux-2.6/drivers/s390/cio/chsc.c linux-2.6-patched/drivers/s390/cio/chsc.c
---- linux-2.6/drivers/s390/cio/chsc.c	2005-12-09 14:25:56.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/cio/chsc.c	2005-12-09 14:25:56.000000000 +0100
-@@ -310,9 +310,14 @@ s390_set_chpid_offline( __u8 chpid)
- 		queue_work(slow_path_wq, &slow_path_work);
- }
- 
-+struct res_acc_data {
-+	struct channel_path *chp;
-+	u32 fla_mask;
-+	u16 fla;
-+};
-+
- static int
--s390_process_res_acc_sch(u8 chpid, __u16 fla, u32 fla_mask,
--			 struct subchannel *sch)
-+s390_process_res_acc_sch(struct res_acc_data *res_data, struct subchannel *sch)
- {
- 	int found;
- 	int chp;
-@@ -324,8 +329,9 @@ s390_process_res_acc_sch(u8 chpid, __u16
- 		 * check if chpid is in information updated by ssd
- 		 */
- 		if (sch->ssd_info.valid &&
--		    sch->ssd_info.chpid[chp] == chpid &&
--		    (sch->ssd_info.fla[chp] & fla_mask) == fla) {
-+		    sch->ssd_info.chpid[chp] == res_data->chp->id &&
-+		    (sch->ssd_info.fla[chp] & res_data->fla_mask)
-+		    == res_data->fla) {
- 			found = 1;
- 			break;
- 		}
-@@ -345,18 +351,80 @@ s390_process_res_acc_sch(u8 chpid, __u16
- 	return 0x80 >> chp;
- }
- 
-+static inline int
-+s390_process_res_acc_new_sch(struct subchannel_id schid)
-+{
-+	struct schib schib;
-+	int ret;
-+	/*
-+	 * We don't know the device yet, but since a path
-+	 * may be available now to the device we'll have
-+	 * to do recognition again.
-+	 * Since we don't have any idea about which chpid
-+	 * that beast may be on we'll have to do a stsch
-+	 * on all devices, grr...
-+	 */
-+	if (stsch(schid, &schib))
-+		/* We're through */
-+		return need_rescan ? -EAGAIN : -ENXIO;
-+
-+	/* Put it on the slow path. */
-+	ret = css_enqueue_subchannel_slow(schid);
-+	if (ret) {
-+		css_clear_subchannel_slow_list();
-+		need_rescan = 1;
-+		return -EAGAIN;
-+	}
-+	return 0;
-+}
-+
- static int
--s390_process_res_acc (u8 chpid, __u16 fla, u32 fla_mask)
-+__s390_process_res_acc(struct subchannel_id schid, void *data)
- {
-+	int chp_mask, old_lpm;
-+	struct res_acc_data *res_data;
- 	struct subchannel *sch;
-+
-+	res_data = (struct res_acc_data *)data;
-+	sch = get_subchannel_by_schid(schid);
-+	if (!sch)
-+		/* Check if a subchannel is newly available. */
-+		return s390_process_res_acc_new_sch(schid);
-+
-+	spin_lock_irq(&sch->lock);
-+
-+	chp_mask = s390_process_res_acc_sch(res_data, sch);
-+
-+	if (chp_mask == 0) {
-+		spin_unlock_irq(&sch->lock);
-+		return 0;
-+	}
-+	old_lpm = sch->lpm;
-+	sch->lpm = ((sch->schib.pmcw.pim &
-+		     sch->schib.pmcw.pam &
-+		     sch->schib.pmcw.pom)
-+		    | chp_mask) & sch->opm;
-+	if (!old_lpm && sch->lpm)
-+		device_trigger_reprobe(sch);
-+	else if (sch->driver && sch->driver->verify)
-+		sch->driver->verify(&sch->dev);
-+
-+	spin_unlock_irq(&sch->lock);
-+	put_device(&sch->dev);
-+	return (res_data->fla_mask == 0xffff) ? -ENODEV : 0;
-+}
-+
-+
-+static int
-+s390_process_res_acc (struct res_acc_data *res_data)
-+{
- 	int rc;
--	struct subchannel_id schid;
- 	char dbf_txt[15];
- 
--	sprintf(dbf_txt, "accpr%x", chpid);
-+	sprintf(dbf_txt, "accpr%x", res_data->chp->id);
- 	CIO_TRACE_EVENT( 2, dbf_txt);
--	if (fla != 0) {
--		sprintf(dbf_txt, "fla%x", fla);
-+	if (res_data->fla != 0) {
-+		sprintf(dbf_txt, "fla%x", res_data->fla);
- 		CIO_TRACE_EVENT( 2, dbf_txt);
- 	}
- 
-@@ -367,71 +435,11 @@ s390_process_res_acc (u8 chpid, __u16 fl
- 	 * The more information we have (info), the less scanning
- 	 * will we have to do.
- 	 */
--
--	if (!get_chp_status(chpid))
--		return 0; /* no need to do the rest */
--
--	rc = 0;
--	init_subchannel_id(&schid);
--	do {
--		int chp_mask, old_lpm;
--
--		sch = get_subchannel_by_schid(schid);
--		if (!sch) {
--			struct schib schib;
--			int ret;
--			/*
--			 * We don't know the device yet, but since a path
--			 * may be available now to the device we'll have
--			 * to do recognition again.
--			 * Since we don't have any idea about which chpid
--			 * that beast may be on we'll have to do a stsch
--			 * on all devices, grr...
--			 */
--			if (stsch(schid, &schib)) {
--				/* We're through */
--				if (need_rescan)
--					rc = -EAGAIN;
--				break;
--			}
--			if (need_rescan) {
--				rc = -EAGAIN;
--				continue;
--			}
--			/* Put it on the slow path. */
--			ret = css_enqueue_subchannel_slow(schid);
--			if (ret) {
--				css_clear_subchannel_slow_list();
--				need_rescan = 1;
--			}
--			rc = -EAGAIN;
--			continue;
--		}
--	
--		spin_lock_irq(&sch->lock);
--
--		chp_mask = s390_process_res_acc_sch(chpid, fla, fla_mask, sch);
--
--		if (chp_mask == 0) {
--
--			spin_unlock_irq(&sch->lock);
--			continue;
--		}
--		old_lpm = sch->lpm;
--		sch->lpm = ((sch->schib.pmcw.pim &
--			     sch->schib.pmcw.pam &
--			     sch->schib.pmcw.pom)
--			    | chp_mask) & sch->opm;
--		if (!old_lpm && sch->lpm)
--			device_trigger_reprobe(sch);
--		else if (sch->driver && sch->driver->verify)
--			sch->driver->verify(&sch->dev);
--
--		spin_unlock_irq(&sch->lock);
--		put_device(&sch->dev);
--		if (fla_mask == 0xffff)
--			break;
--	} while (schid.sch_no++ < __MAX_SUBCHANNEL);
-+	rc = for_each_subchannel(__s390_process_res_acc, res_data);
-+	if (css_slow_subchannels_exist())
-+		rc = -EAGAIN;
-+	else if (rc != -EAGAIN)
-+		rc = 0;
- 	return rc;
- }
- 
-@@ -469,6 +477,7 @@ int
- chsc_process_crw(void)
- {
- 	int chpid, ret;
-+	struct res_acc_data res_data;
- 	struct {
- 		struct chsc_header request;
- 		u32 reserved1;
-@@ -503,7 +512,7 @@ chsc_process_crw(void)
- 	do {
- 		int ccode, status;
- 		memset(sei_area, 0, sizeof(*sei_area));
--
-+		memset(&res_data, 0, sizeof(struct res_acc_data));
- 		sei_area->request = (struct chsc_header) {
- 			.length = 0x0010,
- 			.code   = 0x000e,
-@@ -576,26 +585,23 @@ chsc_process_crw(void)
- 			if (status < 0)
- 				new_channel_path(sei_area->rsid);
- 			else if (!status)
--				return 0;
--			if ((sei_area->vf & 0x80) == 0) {
--				pr_debug("chpid: %x\n", sei_area->rsid);
--				ret = s390_process_res_acc(sei_area->rsid,
--							   0, 0);
--			} else if ((sei_area->vf & 0xc0) == 0x80) {
--				pr_debug("chpid: %x link addr: %x\n",
--					 sei_area->rsid, sei_area->fla);
--				ret = s390_process_res_acc(sei_area->rsid,
--							   sei_area->fla,
--							   0xff00);
--			} else if ((sei_area->vf & 0xc0) == 0xc0) {
--				pr_debug("chpid: %x full link addr: %x\n",
--					 sei_area->rsid, sei_area->fla);
--				ret = s390_process_res_acc(sei_area->rsid,
--							   sei_area->fla,
--							   0xffff);
-+				break;
-+			res_data.chp = chps[sei_area->rsid];
-+			pr_debug("chpid: %x", sei_area->rsid);
-+			if ((sei_area->vf & 0xc0) != 0) {
-+				res_data.fla = sei_area->fla;
-+				if ((sei_area->vf & 0xc0) == 0xc0) {
-+					pr_debug(" full link addr: %x",
-+						 sei_area->fla);
-+					res_data.fla_mask = 0xffff;
-+				} else {
-+					pr_debug(" link addr: %x",
-+						 sei_area->fla);
-+					res_data.fla_mask = 0xff00;
-+				}
- 			}
--			pr_debug("\n");
--			
-+			ret = s390_process_res_acc(&res_data);
-+			pr_debug("\n\n");
- 			break;
- 			
- 		default: /* other stuff */
-@@ -607,12 +613,70 @@ chsc_process_crw(void)
- 	return ret;
- }
- 
-+static inline int
-+__chp_add_new_sch(struct subchannel_id schid)
-+{
-+	struct schib schib;
-+	int ret;
-+
-+	if (stsch(schid, &schib))
-+		/* We're through */
-+		return need_rescan ? -EAGAIN : -ENXIO;
-+
-+	/* Put it on the slow path. */
-+	ret = css_enqueue_subchannel_slow(schid);
-+	if (ret) {
-+		css_clear_subchannel_slow_list();
-+		need_rescan = 1;
-+		return -EAGAIN;
-+	}
-+	return 0;
-+}
-+
-+
- static int
--chp_add(int chpid)
-+__chp_add(struct subchannel_id schid, void *data)
- {
-+	int i;
-+	struct channel_path *chp;
- 	struct subchannel *sch;
--	int ret, rc;
--	struct subchannel_id schid;
-+
-+	chp = (struct channel_path *)data;
-+	sch = get_subchannel_by_schid(schid);
-+	if (!sch)
-+		/* Check if the subchannel is now available. */
-+		return __chp_add_new_sch(schid);
-+	spin_lock(&sch->lock);
-+	for (i=0; i<8; i++)
-+		if (sch->schib.pmcw.chpid[i] == chp->id) {
-+			if (stsch(sch->schid, &sch->schib) != 0) {
-+				/* Endgame. */
-+				spin_unlock(&sch->lock);
-+				return -ENXIO;
-+			}
-+			break;
-+		}
-+	if (i==8) {
-+		spin_unlock(&sch->lock);
-+		return 0;
-+	}
-+	sch->lpm = ((sch->schib.pmcw.pim &
-+		     sch->schib.pmcw.pam &
-+		     sch->schib.pmcw.pom)
-+		    | 0x80 >> i) & sch->opm;
-+
-+	if (sch->driver && sch->driver->verify)
-+		sch->driver->verify(&sch->dev);
-+
-+	spin_unlock(&sch->lock);
-+	put_device(&sch->dev);
-+	return 0;
-+}
-+
-+static int
-+chp_add(int chpid)
-+{
-+	int rc;
- 	char dbf_txt[15];
- 
- 	if (!get_chp_status(chpid))
-@@ -621,60 +685,11 @@ chp_add(int chpid)
- 	sprintf(dbf_txt, "cadd%x", chpid);
- 	CIO_TRACE_EVENT(2, dbf_txt);
- 
--	rc = 0;
--	init_subchannel_id(&schid);
--	do {
--		int i;
--
--		sch = get_subchannel_by_schid(schid);
--		if (!sch) {
--			struct schib schib;
--
--			if (stsch(schid, &schib)) {
--				/* We're through */
--				if (need_rescan)
--					rc = -EAGAIN;
--				break;
--			}
--			if (need_rescan) {
--				rc = -EAGAIN;
--				continue;
--			}
--			/* Put it on the slow path. */
--			ret = css_enqueue_subchannel_slow(schid);
--			if (ret) {
--				css_clear_subchannel_slow_list();
--				need_rescan = 1;
--			}
--			rc = -EAGAIN;
--			continue;
--		}
--	
--		spin_lock(&sch->lock);
--		for (i=0; i<8; i++)
--			if (sch->schib.pmcw.chpid[i] == chpid) {
--				if (stsch(sch->schid, &sch->schib) != 0) {
--					/* Endgame. */
--					spin_unlock(&sch->lock);
--					return rc;
--				}
--				break;
--			}
--		if (i==8) {
--			spin_unlock(&sch->lock);
--			return rc;
--		}
--		sch->lpm = ((sch->schib.pmcw.pim &
--			     sch->schib.pmcw.pam &
--			     sch->schib.pmcw.pom)
--			    | 0x80 >> i) & sch->opm;
--
--		if (sch->driver && sch->driver->verify)
--			sch->driver->verify(&sch->dev);
--
--		spin_unlock(&sch->lock);
--		put_device(&sch->dev);
--	} while (schid.sch_no++ < __MAX_SUBCHANNEL);
-+	rc = for_each_subchannel(__chp_add, chps[chpid]);
-+	if (css_slow_subchannels_exist())
-+		rc = -EAGAIN;
-+	if (rc != -EAGAIN)
-+		rc = 0;
- 	return rc;
- }
- 
-@@ -786,6 +801,29 @@ s390_subchannel_vary_chpid_on(struct dev
- 	return 0;
- }
- 
-+static int
-+__s390_vary_chpid_on(struct subchannel_id schid, void *data)
-+{
-+	struct schib schib;
-+	struct subchannel *sch;
-+
-+	sch = get_subchannel_by_schid(schid);
-+	if (sch) {
-+		put_device(&sch->dev);
-+		return 0;
-+	}
-+	if (stsch(schid, &schib))
-+		/* We're through */
-+		return -ENXIO;
-+	/* Put it on the slow path. */
-+	if (css_enqueue_subchannel_slow(schid)) {
-+		css_clear_subchannel_slow_list();
-+		need_rescan = 1;
-+		return -EAGAIN;
-+	}
-+	return 0;
-+}
-+
- /*
-  * Function: s390_vary_chpid
-  * Varies the specified chpid online or offline
-@@ -794,9 +832,7 @@ static int
- s390_vary_chpid( __u8 chpid, int on)
- {
- 	char dbf_text[15];
--	int status, ret;
--	struct subchannel_id schid;
--	struct subchannel *sch;
-+	int status;
- 
- 	sprintf(dbf_text, on?"varyon%x":"varyoff%x", chpid);
- 	CIO_TRACE_EVENT( 2, dbf_text);
-@@ -821,31 +857,9 @@ s390_vary_chpid( __u8 chpid, int on)
- 	bus_for_each_dev(&css_bus_type, NULL, &chpid, on ?
- 			 s390_subchannel_vary_chpid_on :
- 			 s390_subchannel_vary_chpid_off);
--	if (!on)
--		goto out;
--	/* Scan for new devices on varied on path. */
--	init_subchannel_id(&schid);
--	do {
--		struct schib schib;
--
--		if (need_rescan)
--			break;
--		sch = get_subchannel_by_schid(schid);
--		if (sch) {
--			put_device(&sch->dev);
--			continue;
--		}
--		if (stsch(schid, &schib))
--			/* We're through */
--			break;
--		/* Put it on the slow path. */
--		ret = css_enqueue_subchannel_slow(schid);
--		if (ret) {
--			css_clear_subchannel_slow_list();
--			need_rescan = 1;
--		}
--	} while (schid.sch_no++ < __MAX_SUBCHANNEL);
--out:
-+	if (on)
-+		/* Scan for new devices on varied on path. */
-+		for_each_subchannel(__s390_vary_chpid_on, NULL);
- 	if (need_rescan || css_slow_subchannels_exist())
- 		queue_work(slow_path_wq, &slow_path_work);
- 	return 0;
-diff -urpN linux-2.6/drivers/s390/cio/cio.c linux-2.6-patched/drivers/s390/cio/cio.c
---- linux-2.6/drivers/s390/cio/cio.c	2005-12-09 14:25:56.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/cio/cio.c	2005-12-09 14:25:56.000000000 +0100
-@@ -691,7 +691,22 @@ wait_cons_dev (void)
- }
- 
- static int
--cio_console_irq(void)
-+cio_test_for_console(struct subchannel_id schid, void *data)
-+{
-+	if (stsch(schid, &console_subchannel.schib) != 0)
-+		return -ENXIO;
-+	if (console_subchannel.schib.pmcw.dnv &&
-+	    console_subchannel.schib.pmcw.dev ==
-+	    console_devno) {
-+		console_irq = schid.sch_no;
-+		return 1; /* found */
-+	}
-+	return 0;
-+}
-+
-+
-+static int
-+cio_get_console_sch_no(void)
- {
- 	struct subchannel_id schid;
- 	
-@@ -705,16 +720,7 @@ cio_console_irq(void)
- 		console_devno = console_subchannel.schib.pmcw.dev;
- 	} else if (console_devno != -1) {
- 		/* At least the console device number is known. */
--		do {
--			if (stsch(schid, &console_subchannel.schib) != 0)
--				break;
--			if (console_subchannel.schib.pmcw.dnv &&
--			    console_subchannel.schib.pmcw.dev ==
--			    console_devno) {
--				console_irq = schid.sch_no;
--				break;
--			}
--		} while (schid.sch_no++ < __MAX_SUBCHANNEL);
-+		for_each_subchannel(cio_test_for_console, NULL);
- 		if (console_irq == -1)
- 			return -1;
- 	} else {
-@@ -730,19 +736,19 @@ cio_console_irq(void)
- struct subchannel *
- cio_probe_console(void)
- {
--	int irq, ret;
-+	int sch_no, ret;
- 	struct subchannel_id schid;
- 
- 	if (xchg(&console_subchannel_in_use, 1) != 0)
- 		return ERR_PTR(-EBUSY);
--	irq = cio_console_irq();
--	if (irq == -1) {
-+	sch_no = cio_get_console_sch_no();
-+	if (sch_no == -1) {
- 		console_subchannel_in_use = 0;
- 		return ERR_PTR(-ENODEV);
- 	}
- 	memset(&console_subchannel, 0, sizeof(struct subchannel));
- 	init_subchannel_id(&schid);
--	schid.sch_no = irq;
-+	schid.sch_no = sch_no;
- 	ret = cio_validate_subchannel(&console_subchannel, schid);
- 	if (ret) {
- 		console_subchannel_in_use = 0;
-@@ -830,32 +836,33 @@ __clear_subchannel_easy(struct subchanne
- }
- 
- extern void do_reipl(unsigned long devno);
-+static int
-+__shutdown_subchannel_easy(struct subchannel_id schid, void *data)
-+{
-+	struct schib schib;
-+
-+	if (stsch(schid, &schib))
-+		return -ENXIO;
-+	if (!schib.pmcw.ena)
-+		return 0;
-+	switch(__disable_subchannel_easy(schid, &schib)) {
-+	case 0:
-+	case -ENODEV:
-+		break;
-+	default: /* -EBUSY */
-+		if (__clear_subchannel_easy(schid))
-+			break; /* give up... */
-+		stsch(schid, &schib);
-+		__disable_subchannel_easy(schid, &schib);
-+	}
-+	return 0;
-+}
- 
--/* Clear all subchannels. */
- void
- clear_all_subchannels(void)
- {
--	struct subchannel_id schid;
--
- 	local_irq_disable();
--	init_subchannel_id(&schid);
--	do {
--		struct schib schib;
--		if (stsch(schid, &schib))
--			break; /* break out of the loop */
--		if (!schib.pmcw.ena)
--			continue;
--		switch(__disable_subchannel_easy(schid, &schib)) {
--		case 0:
--		case -ENODEV:
--			break;
--		default: /* -EBUSY */
--			if (__clear_subchannel_easy(schid))
--				break; /* give up... jump out of switch */
--			stsch(schid, &schib);
--			__disable_subchannel_easy(schid, &schib);
--		}
--	} while (schid.sch_no++ < __MAX_SUBCHANNEL);
-+	for_each_subchannel(__shutdown_subchannel_easy, NULL);
- }
- 
- /* Make sure all subchannels are quiet before we re-ipl an lpar. */
-diff -urpN linux-2.6/drivers/s390/cio/css.c linux-2.6-patched/drivers/s390/cio/css.c
---- linux-2.6/drivers/s390/cio/css.c	2005-12-09 14:25:56.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/cio/css.c	2005-12-09 14:25:56.000000000 +0100
-@@ -21,7 +21,6 @@
- #include "ioasm.h"
- #include "chsc.h"
- 
--unsigned int highest_subchannel;
- int need_rescan = 0;
- int css_init_done = 0;
- 
-@@ -32,6 +31,22 @@ struct device css_bus_device = {
- 	.bus_id = "css0",
+-#define Z90CRYPT_NUM_TYPES	5
++#define Z90CRYPT_NUM_TYPES	6
+ #define PCICA		0
+ #define PCICC		1
+ #define PCIXCC_MCL2	2
+ #define PCIXCC_MCL3	3
+ #define CEX2C		4
++#define CEX2A		5
+ #define NILDEV		-1
+ #define ANYDEV		-1
+ #define PCIXCC_UNK	-2
+@@ -105,7 +106,7 @@ enum hdevice_type {
+ 	PCICC_HW  = 3,
+ 	PCICA_HW  = 4,
+ 	PCIXCC_HW = 5,
+-	OTHER_HW  = 6,
++	CEX2A_HW  = 6,
+ 	CEX2C_HW  = 7
  };
  
-+inline int
-+for_each_subchannel(int(*fn)(struct subchannel_id, void *), void *data)
-+{
-+	struct subchannel_id schid;
-+	int ret;
+diff -urpN linux-2.6/drivers/s390/crypto/z90crypt.h linux-2.6-patched/drivers/s390/crypto/z90crypt.h
+--- linux-2.6/drivers/s390/crypto/z90crypt.h	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6-patched/drivers/s390/crypto/z90crypt.h	2005-12-09 14:26:07.000000000 +0100
+@@ -1,9 +1,9 @@
+ /*
+  *  linux/drivers/s390/crypto/z90crypt.h
+  *
+- *  z90crypt 1.3.2
++ *  z90crypt 1.3.3
+  *
+- *  Copyright (C)  2001, 2004 IBM Corporation
++ *  Copyright (C)  2001, 2005 IBM Corporation
+  *  Author(s): Robert Burroughs (burrough@us.ibm.com)
+  *             Eric Rossman (edrossma@us.ibm.com)
+  *
+@@ -29,11 +29,11 @@
+ 
+ #include <linux/ioctl.h>
+ 
+-#define VERSION_Z90CRYPT_H "$Revision: 1.11 $"
++#define VERSION_Z90CRYPT_H "$Revision: 1.2.2.4 $"
+ 
+ #define z90crypt_VERSION 1
+ #define z90crypt_RELEASE 3	// 2 = PCIXCC, 3 = rewrite for coding standards
+-#define z90crypt_VARIANT 2	// 2 = added PCIXCC MCL3 and CEX2C support
++#define z90crypt_VARIANT 3	// 3 = CEX2A support
+ 
+ /**
+  * struct ica_rsa_modexpo
+@@ -122,6 +122,9 @@ struct ica_rsa_modexpo_crt {
+  *   Z90STAT_CEX2CCOUNT
+  *     Return an integer count of all CEX2Cs.
+  *
++ *   Z90STAT_CEX2ACOUNT
++ *     Return an integer count of all CEX2As.
++ *
+  *   Z90STAT_REQUESTQ_COUNT
+  *     Return an integer count of the number of entries waiting to be
+  *     sent to a device.
+@@ -144,6 +147,7 @@ struct ica_rsa_modexpo_crt {
+  *       0x03: PCIXCC_MCL2
+  *       0x04: PCIXCC_MCL3
+  *       0x05: CEX2C
++ *       0x06: CEX2A
+  *       0x0d: device is disabled via the proc filesystem
+  *
+  *   Z90STAT_QDEPTH_MASK
+@@ -199,6 +203,7 @@ struct ica_rsa_modexpo_crt {
+ #define Z90STAT_PCIXCCMCL2COUNT	_IOR(Z90_IOCTL_MAGIC, 0x4b, int)
+ #define Z90STAT_PCIXCCMCL3COUNT	_IOR(Z90_IOCTL_MAGIC, 0x4c, int)
+ #define Z90STAT_CEX2CCOUNT	_IOR(Z90_IOCTL_MAGIC, 0x4d, int)
++#define Z90STAT_CEX2ACOUNT	_IOR(Z90_IOCTL_MAGIC, 0x4e, int)
+ #define Z90STAT_REQUESTQ_COUNT	_IOR(Z90_IOCTL_MAGIC, 0x44, int)
+ #define Z90STAT_PENDINGQ_COUNT	_IOR(Z90_IOCTL_MAGIC, 0x45, int)
+ #define Z90STAT_TOTALOPEN_COUNT _IOR(Z90_IOCTL_MAGIC, 0x46, int)
+diff -urpN linux-2.6/drivers/s390/crypto/z90hardware.c linux-2.6-patched/drivers/s390/crypto/z90hardware.c
+--- linux-2.6/drivers/s390/crypto/z90hardware.c	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6-patched/drivers/s390/crypto/z90hardware.c	2005-12-09 14:26:07.000000000 +0100
+@@ -1,9 +1,9 @@
+ /*
+  *  linux/drivers/s390/crypto/z90hardware.c
+  *
+- *  z90crypt 1.3.2
++ *  z90crypt 1.3.3
+  *
+- *  Copyright (C)  2001, 2004 IBM Corporation
++ *  Copyright (C)  2001, 2005 IBM Corporation
+  *  Author(s): Robert Burroughs (burrough@us.ibm.com)
+  *             Eric Rossman (edrossma@us.ibm.com)
+  *
+@@ -648,6 +648,87 @@ static struct cca_public_sec static_cca_
+ #define RESPONSE_CPRB_SIZE  0x000006B8
+ #define RESPONSE_CPRBX_SIZE 0x00000724
+ 
++struct type50_hdr {
++	u8    reserved1;
++	u8    msg_type_code;
++	u16   msg_len;
++	u8    reserved2;
++	u8    ignored;
++	u16   reserved3;
++};
 +
-+	init_subchannel_id(&schid);
-+	ret = -ENODEV;
-+	do {
-+		ret = fn(schid, data);
-+		if (ret)
-+			break;
-+	} while (schid.sch_no++ < __MAX_SUBCHANNEL);
-+	return ret;
-+}
++#define TYPE50_TYPE_CODE 0x50
 +
- static struct subchannel *
- css_alloc_subchannel(struct subchannel_id schid)
- {
-@@ -280,25 +295,10 @@ css_evaluate_subchannel(struct subchanne
- 	return ret;
++#define TYPE50_MEB1_LEN (sizeof(struct type50_meb1_msg))
++#define TYPE50_MEB2_LEN (sizeof(struct type50_meb2_msg))
++#define TYPE50_CRB1_LEN (sizeof(struct type50_crb1_msg))
++#define TYPE50_CRB2_LEN (sizeof(struct type50_crb2_msg))
++
++#define TYPE50_MEB1_FMT 0x0001
++#define TYPE50_MEB2_FMT 0x0002
++#define TYPE50_CRB1_FMT 0x0011
++#define TYPE50_CRB2_FMT 0x0012
++
++struct type50_meb1_msg {
++	struct type50_hdr	header;
++	u16			keyblock_type;
++	u8			reserved[6];
++	u8			exponent[128];
++	u8			modulus[128];
++	u8			message[128];
++};
++
++struct type50_meb2_msg {
++	struct type50_hdr	header;
++	u16			keyblock_type;
++	u8			reserved[6];
++	u8			exponent[256];
++	u8			modulus[256];
++	u8			message[256];
++};
++
++struct type50_crb1_msg {
++	struct type50_hdr	header;
++	u16			keyblock_type;
++	u8			reserved[6];
++	u8			p[64];
++	u8			q[64];
++	u8			dp[64];
++	u8			dq[64];
++	u8			u[64];
++	u8			message[128];
++};
++
++struct type50_crb2_msg {
++	struct type50_hdr	header;
++	u16			keyblock_type;
++	u8			reserved[6];
++	u8			p[128];
++	u8			q[128];
++	u8			dp[128];
++	u8			dq[128];
++	u8			u[128];
++	u8			message[256];
++};
++
++union type50_msg {
++	struct type50_meb1_msg meb1;
++	struct type50_meb2_msg meb2;
++	struct type50_crb1_msg crb1;
++	struct type50_crb2_msg crb2;
++};
++
++struct type80_hdr {
++	u8	reserved1;
++	u8	type;
++	u16	len;
++	u8	code;
++	u8	reserved2[3];
++	u8	reserved3[8];
++};
++
++#define TYPE80_RSP_CODE 0x80
++
+ struct error_hdr {
+ 	unsigned char reserved1;
+ 	unsigned char type;
+@@ -657,6 +738,7 @@ struct error_hdr {
+ };
+ 
+ #define TYPE82_RSP_CODE 0x82
++#define TYPE88_RSP_CODE 0x88
+ 
+ #define REP82_ERROR_MACHINE_FAILURE  0x10
+ #define REP82_ERROR_PREEMPT_FAILURE  0x12
+@@ -679,6 +761,22 @@ struct error_hdr {
+ #define REP82_ERROR_PACKET_TRUNCATED 0xA0
+ #define REP82_ERROR_ZERO_BUFFER_LEN  0xB0
+ 
++#define REP88_ERROR_MODULE_FAILURE   0x10
++#define REP88_ERROR_MODULE_TIMEOUT   0x11
++#define REP88_ERROR_MODULE_NOTINIT   0x13
++#define REP88_ERROR_MODULE_NOTAVAIL  0x14
++#define REP88_ERROR_MODULE_DISABLED  0x15
++#define REP88_ERROR_MODULE_IN_DIAGN  0x17
++#define REP88_ERROR_FASTPATH_DISABLD 0x19
++#define REP88_ERROR_MESSAGE_TYPE     0x20
++#define REP88_ERROR_MESSAGE_MALFORMD 0x22
++#define REP88_ERROR_MESSAGE_LENGTH   0x23
++#define REP88_ERROR_RESERVED_FIELD   0x24
++#define REP88_ERROR_KEY_TYPE         0x34
++#define REP88_ERROR_INVALID_KEY      0x82
++#define REP88_ERROR_OPERAND          0x84
++#define REP88_ERROR_OPERAND_EVEN_MOD 0x85
++
+ #define CALLER_HEADER 12
+ 
+ static inline int
+@@ -1029,10 +1127,6 @@ query_online(int deviceNr, int cdx, int 
+ 			stat = HD_ONLINE;
+ 			*q_depth = t_depth + 1;
+ 			switch (t_dev_type) {
+-			case OTHER_HW:
+-				stat = HD_NOT_THERE;
+-				*dev_type = NILDEV;
+-				break;
+ 			case PCICA_HW:
+ 				*dev_type = PCICA;
+ 				break;
+@@ -1045,6 +1139,9 @@ query_online(int deviceNr, int cdx, int 
+ 			case CEX2C_HW:
+ 				*dev_type = CEX2C;
+ 				break;
++			case CEX2A_HW:
++				*dev_type = CEX2A;
++				break;
+ 			default:
+ 				*dev_type = NILDEV;
+ 				break;
+@@ -2029,6 +2126,177 @@ ICACRT_msg_to_type6CRT_msgX(struct ica_r
+ 	return 0;
  }
  
--static void
--css_rescan_devices(void)
 +static int
-+css_rescan_devices(struct subchannel_id schid, void *data)
- {
--	int ret;
--	struct subchannel_id schid;
--
--	init_subchannel_id(&schid);
--	do {
--		ret = css_evaluate_subchannel(schid, 1);
--		/* No more memory. It doesn't make sense to continue. No
--		 * panic because this can happen in midflight and just
--		 * because we can't use a new device is no reason to crash
--		 * the system. */
--		if (ret == -ENOMEM)
--			break;
--		/* -ENXIO indicates that there are no more subchannels. */
--		if (ret == -ENXIO)
--			break;
--	} while (schid.sch_no++ < __MAX_SUBCHANNEL);
-+	return css_evaluate_subchannel(schid, 1);
- }
- 
- struct slow_subchannel {
-@@ -316,7 +316,7 @@ css_trigger_slow_path(void)
- 
- 	if (need_rescan) {
- 		need_rescan = 0;
--		css_rescan_devices();
-+		for_each_subchannel(css_rescan_devices, NULL);
- 		return;
- 	}
- 
-@@ -383,6 +383,43 @@ css_process_crw(int irq)
- 	return ret;
- }
- 
-+static int __init
-+__init_channel_subsystem(struct subchannel_id schid, void *data)
++ICAMEX_msg_to_type50MEX_msg(struct ica_rsa_modexpo *icaMex_p, int *z90cMsg_l_p,
++			    union type50_msg *z90cMsg_p)
 +{
-+	struct subchannel *sch;
-+	int ret;
++	int mod_len, msg_size, mod_tgt_len, exp_tgt_len, inp_tgt_len;
++	unsigned char *mod_tgt, *exp_tgt, *inp_tgt;
++	union type50_msg *tmp_type50_msg;
 +
-+	if (cio_is_console(schid))
-+		sch = cio_get_console_subchannel();
-+	else {
-+		sch = css_alloc_subchannel(schid);
-+		if (IS_ERR(sch))
-+			ret = PTR_ERR(sch);
-+		else
-+			ret = 0;
-+		switch (ret) {
-+		case 0:
-+			break;
-+		case -ENOMEM:
-+			panic("Out of memory in init_channel_subsystem\n");
-+		/* -ENXIO: no more subchannels. */
-+		case -ENXIO:
-+			return ret;
-+		default:
-+			return 0;
-+		}
++	mod_len = icaMex_p->inputdatalength;
++
++	msg_size = ((mod_len <= 128) ? TYPE50_MEB1_LEN : TYPE50_MEB2_LEN) +
++		    CALLER_HEADER;
++
++	memset(z90cMsg_p, 0, msg_size);
++
++	tmp_type50_msg = (union type50_msg *)
++		((unsigned char *) z90cMsg_p + CALLER_HEADER);
++
++	tmp_type50_msg->meb1.header.msg_type_code = TYPE50_TYPE_CODE;
++
++	if (mod_len <= 128) {
++		tmp_type50_msg->meb1.header.msg_len = TYPE50_MEB1_LEN;
++		tmp_type50_msg->meb1.keyblock_type = TYPE50_MEB1_FMT;
++		mod_tgt = tmp_type50_msg->meb1.modulus;
++		mod_tgt_len = sizeof(tmp_type50_msg->meb1.modulus);
++		exp_tgt = tmp_type50_msg->meb1.exponent;
++		exp_tgt_len = sizeof(tmp_type50_msg->meb1.exponent);
++		inp_tgt = tmp_type50_msg->meb1.message;
++		inp_tgt_len = sizeof(tmp_type50_msg->meb1.message);
++	} else {
++		tmp_type50_msg->meb2.header.msg_len = TYPE50_MEB2_LEN;
++		tmp_type50_msg->meb2.keyblock_type = TYPE50_MEB2_FMT;
++		mod_tgt = tmp_type50_msg->meb2.modulus;
++		mod_tgt_len = sizeof(tmp_type50_msg->meb2.modulus);
++		exp_tgt = tmp_type50_msg->meb2.exponent;
++		exp_tgt_len = sizeof(tmp_type50_msg->meb2.exponent);
++		inp_tgt = tmp_type50_msg->meb2.message;
++		inp_tgt_len = sizeof(tmp_type50_msg->meb2.message);
 +	}
-+	/*
-+	 * We register ALL valid subchannels in ioinfo, even those
-+	 * that have been present before init_channel_subsystem.
-+	 * These subchannels can't have been registered yet (kmalloc
-+	 * not working) so we do it now. This is true e.g. for the
-+	 * console subchannel.
-+	 */
-+	css_register_subchannel(sch);
++
++	mod_tgt += (mod_tgt_len - mod_len);
++	if (copy_from_user(mod_tgt, icaMex_p->n_modulus, mod_len))
++		return SEN_RELEASED;
++	if (is_empty(mod_tgt, mod_len))
++		return SEN_USER_ERROR;
++	exp_tgt += (exp_tgt_len - mod_len);
++	if (copy_from_user(exp_tgt, icaMex_p->b_key, mod_len))
++		return SEN_RELEASED;
++	if (is_empty(exp_tgt, mod_len))
++		return SEN_USER_ERROR;
++	inp_tgt += (inp_tgt_len - mod_len);
++	if (copy_from_user(inp_tgt, icaMex_p->inputdata, mod_len))
++		return SEN_RELEASED;
++	if (is_empty(inp_tgt, mod_len))
++		return SEN_USER_ERROR;
++
++	*z90cMsg_l_p = msg_size - CALLER_HEADER;
++
 +	return 0;
 +}
 +
- static void __init
- css_generate_pgid(void)
- {
-@@ -410,7 +447,6 @@ static int __init
- init_channel_subsystem (void)
- {
- 	int ret;
--	struct subchannel_id schid;
++static int
++ICACRT_msg_to_type50CRT_msg(struct ica_rsa_modexpo_crt *icaMsg_p,
++			    int *z90cMsg_l_p, union type50_msg *z90cMsg_p)
++{
++	int mod_len, short_len, long_len, tmp_size, p_tgt_len, q_tgt_len,
++	    dp_tgt_len, dq_tgt_len, u_tgt_len, inp_tgt_len, long_offset;
++	unsigned char *p_tgt, *q_tgt, *dp_tgt, *dq_tgt, *u_tgt, *inp_tgt,
++		      temp[8];
++	union type50_msg *tmp_type50_msg;
++
++	mod_len = icaMsg_p->inputdatalength;
++	short_len = mod_len / 2;
++	long_len = mod_len / 2 + 8;
++	long_offset = 0;
++
++	if (long_len > 128) {
++		memset(temp, 0x00, sizeof(temp));
++		if (copy_from_user(temp, icaMsg_p->np_prime, long_len-128))
++			return SEN_RELEASED;
++		if (!is_empty(temp, 8))
++			return SEN_NOT_AVAIL;
++		if (copy_from_user(temp, icaMsg_p->bp_key, long_len-128))
++			return SEN_RELEASED;
++		if (!is_empty(temp, 8))
++			return SEN_NOT_AVAIL;
++		if (copy_from_user(temp, icaMsg_p->u_mult_inv, long_len-128))
++			return SEN_RELEASED;
++		if (!is_empty(temp, 8))
++			return SEN_NOT_AVAIL;
++		long_offset = long_len - 128;
++		long_len = 128;
++	}
++
++	tmp_size = ((mod_len <= 128) ? TYPE50_CRB1_LEN : TYPE50_CRB2_LEN) +
++		    CALLER_HEADER;
++
++	memset(z90cMsg_p, 0, tmp_size);
++
++	tmp_type50_msg = (union type50_msg *)
++		((unsigned char *) z90cMsg_p + CALLER_HEADER);
++
++	tmp_type50_msg->crb1.header.msg_type_code = TYPE50_TYPE_CODE;
++	if (long_len <= 64) {
++		tmp_type50_msg->crb1.header.msg_len = TYPE50_CRB1_LEN;
++		tmp_type50_msg->crb1.keyblock_type = TYPE50_CRB1_FMT;
++		p_tgt = tmp_type50_msg->crb1.p;
++		p_tgt_len = sizeof(tmp_type50_msg->crb1.p);
++		q_tgt = tmp_type50_msg->crb1.q;
++		q_tgt_len = sizeof(tmp_type50_msg->crb1.q);
++		dp_tgt = tmp_type50_msg->crb1.dp;
++		dp_tgt_len = sizeof(tmp_type50_msg->crb1.dp);
++		dq_tgt = tmp_type50_msg->crb1.dq;
++		dq_tgt_len = sizeof(tmp_type50_msg->crb1.dq);
++		u_tgt = tmp_type50_msg->crb1.u;
++		u_tgt_len = sizeof(tmp_type50_msg->crb1.u);
++		inp_tgt = tmp_type50_msg->crb1.message;
++		inp_tgt_len = sizeof(tmp_type50_msg->crb1.message);
++	} else {
++		tmp_type50_msg->crb2.header.msg_len = TYPE50_CRB2_LEN;
++		tmp_type50_msg->crb2.keyblock_type = TYPE50_CRB2_FMT;
++		p_tgt = tmp_type50_msg->crb2.p;
++		p_tgt_len = sizeof(tmp_type50_msg->crb2.p);
++		q_tgt = tmp_type50_msg->crb2.q;
++		q_tgt_len = sizeof(tmp_type50_msg->crb2.q);
++		dp_tgt = tmp_type50_msg->crb2.dp;
++		dp_tgt_len = sizeof(tmp_type50_msg->crb2.dp);
++		dq_tgt = tmp_type50_msg->crb2.dq;
++		dq_tgt_len = sizeof(tmp_type50_msg->crb2.dq);
++		u_tgt = tmp_type50_msg->crb2.u;
++		u_tgt_len = sizeof(tmp_type50_msg->crb2.u);
++		inp_tgt = tmp_type50_msg->crb2.message;
++		inp_tgt_len = sizeof(tmp_type50_msg->crb2.message);
++	}
++
++	p_tgt += (p_tgt_len - long_len);
++	if (copy_from_user(p_tgt, icaMsg_p->np_prime + long_offset, long_len))
++		return SEN_RELEASED;
++	if (is_empty(p_tgt, long_len))
++		return SEN_USER_ERROR;
++	q_tgt += (q_tgt_len - short_len);
++	if (copy_from_user(q_tgt, icaMsg_p->nq_prime, short_len))
++		return SEN_RELEASED;
++	if (is_empty(q_tgt, short_len))
++		return SEN_USER_ERROR;
++	dp_tgt += (dp_tgt_len - long_len);
++	if (copy_from_user(dp_tgt, icaMsg_p->bp_key + long_offset, long_len))
++		return SEN_RELEASED;
++	if (is_empty(dp_tgt, long_len))
++		return SEN_USER_ERROR;
++	dq_tgt += (dq_tgt_len - short_len);
++	if (copy_from_user(dq_tgt, icaMsg_p->bq_key, short_len))
++		return SEN_RELEASED;
++	if (is_empty(dq_tgt, short_len))
++		return SEN_USER_ERROR;
++	u_tgt += (u_tgt_len - long_len);
++	if (copy_from_user(u_tgt, icaMsg_p->u_mult_inv + long_offset, long_len))
++		return SEN_RELEASED;
++	if (is_empty(u_tgt, long_len))
++		return SEN_USER_ERROR;
++	inp_tgt += (inp_tgt_len - mod_len);
++	if (copy_from_user(inp_tgt, icaMsg_p->inputdata, mod_len))
++		return SEN_RELEASED;
++	if (is_empty(inp_tgt, mod_len))
++		return SEN_USER_ERROR;
++
++	*z90cMsg_l_p = tmp_size - CALLER_HEADER;
++
++	return 0;
++}
++
+ int
+ convert_request(unsigned char *buffer, int func, unsigned short function,
+ 		int cdx, int dev_type, int *msg_l_p, unsigned char *msg_p)
+@@ -2071,6 +2339,16 @@ convert_request(unsigned char *buffer, i
+ 				cdx, msg_l_p, (struct type6_msg *) msg_p,
+ 				dev_type);
+ 	}
++	if (dev_type == CEX2A) {
++		if (func == ICARSACRT)
++			return ICACRT_msg_to_type50CRT_msg(
++				(struct ica_rsa_modexpo_crt *) buffer,
++				msg_l_p, (union type50_msg *) msg_p);
++		else
++			return ICAMEX_msg_to_type50MEX_msg(
++				(struct ica_rsa_modexpo *) buffer,
++				msg_l_p, (union type50_msg *) msg_p);
++	}
  
- 	if (chsc_determine_css_characteristics() == 0)
- 		css_characteristics_avail = 1;
-@@ -426,38 +462,8 @@ init_channel_subsystem (void)
- 
- 	ctl_set_bit(6, 28);
- 
--	init_subchannel_id(&schid);
--	do {
--		struct subchannel *sch;
--
--		if (cio_is_console(schid))
--			sch = cio_get_console_subchannel();
--		else {
--			sch = css_alloc_subchannel(schid);
--			if (IS_ERR(sch))
--				ret = PTR_ERR(sch);
--			else
--				ret = 0;
--			if (ret == -ENOMEM)
--				panic("Out of memory in "
--				      "init_channel_subsystem\n");
--			/* -ENXIO: no more subchannels. */
--			if (ret == -ENXIO)
--				break;
--			if (ret)
--				continue;
--		}
--		/*
--		 * We register ALL valid subchannels in ioinfo, even those
--		 * that have been present before init_channel_subsystem.
--		 * These subchannels can't have been registered yet (kmalloc
--		 * not working) so we do it now. This is true e.g. for the
--		 * console subchannel.
--		 */
--		css_register_subchannel(sch);
--	} while (schid.sch_no++ < __MAX_SUBCHANNEL);
-+	for_each_subchannel(__init_channel_subsystem, NULL);
  	return 0;
--
- out_bus:
- 	bus_unregister(&css_bus_type);
- out:
-diff -urpN linux-2.6/drivers/s390/cio/css.h linux-2.6-patched/drivers/s390/cio/css.h
---- linux-2.6/drivers/s390/cio/css.h	2005-12-09 14:25:56.000000000 +0100
-+++ linux-2.6-patched/drivers/s390/cio/css.h	2005-12-09 14:25:56.000000000 +0100
-@@ -126,6 +126,7 @@ extern struct css_driver io_subchannel_d
- extern int css_probe_device(struct subchannel_id);
- extern struct subchannel * get_subchannel_by_schid(struct subchannel_id);
- extern int css_init_done;
-+extern int for_each_subchannel(int(*fn)(struct subchannel_id, void *), void *);
+ }
+@@ -2081,8 +2359,8 @@ unset_ext_bitlens(void)
+ {
+ 	if (!ext_bitlens_msg_count) {
+ 		PRINTK("Unable to use coprocessors for extended bitlengths. "
+-		       "Using PCICAs (if present) for extended bitlengths. "
+-		       "This is not an error.\n");
++		       "Using PCICAs/CEX2As (if present) for extended "
++		       "bitlengths. This is not an error.\n");
+ 		ext_bitlens_msg_count++;
+ 	}
+ 	ext_bitlens = 0;
+@@ -2094,6 +2372,7 @@ convert_response(unsigned char *response
+ {
+ 	struct ica_rsa_modexpo *icaMsg_p = (struct ica_rsa_modexpo *) buffer;
+ 	struct error_hdr *errh_p = (struct error_hdr *) response;
++	struct type80_hdr *t80h_p = (struct type80_hdr *) response;
+ 	struct type84_hdr *t84h_p = (struct type84_hdr *) response;
+ 	struct type86_fmt2_msg *t86m_p =  (struct type86_fmt2_msg *) response;
+ 	int reply_code, service_rc, service_rs, src_l;
+@@ -2108,6 +2387,7 @@ convert_response(unsigned char *response
+ 	src_l = 0;
+ 	switch (errh_p->type) {
+ 	case TYPE82_RSP_CODE:
++	case TYPE88_RSP_CODE:
+ 		reply_code = errh_p->reply_code;
+ 		src_p = (unsigned char *)errh_p;
+ 		PRINTK("Hardware error: Type %02X Message Header: "
+@@ -2116,6 +2396,10 @@ convert_response(unsigned char *response
+ 		       src_p[0], src_p[1], src_p[2], src_p[3],
+ 		       src_p[4], src_p[5], src_p[6], src_p[7]);
+ 		break;
++	case TYPE80_RSP_CODE:
++		src_l = icaMsg_p->outputdatalength;
++		src_p = response + (int)t80h_p->len - src_l;
++		break;
+ 	case TYPE84_RSP_CODE:
+ 		src_l = icaMsg_p->outputdatalength;
+ 		src_p = response + (int)t84h_p->len - src_l;
+@@ -2202,6 +2486,7 @@ convert_response(unsigned char *response
+ 	if (reply_code)
+ 		switch (reply_code) {
+ 		case REP82_ERROR_OPERAND_INVALID:
++		case REP88_ERROR_MESSAGE_MALFORMD:
+ 			return REC_OPERAND_INV;
+ 		case REP82_ERROR_OPERAND_SIZE:
+ 			return REC_OPERAND_SIZE;
+diff -urpN linux-2.6/drivers/s390/crypto/z90main.c linux-2.6-patched/drivers/s390/crypto/z90main.c
+--- linux-2.6/drivers/s390/crypto/z90main.c	2005-12-09 14:21:46.000000000 +0100
++++ linux-2.6-patched/drivers/s390/crypto/z90main.c	2005-12-09 14:26:08.000000000 +0100
+@@ -229,7 +229,7 @@ struct device_x {
+  */
+ struct device {
+ 	int		 dev_type;	    // PCICA, PCICC, PCIXCC_MCL2,
+-					    // PCIXCC_MCL3, CEX2C
++					    // PCIXCC_MCL3, CEX2C, CEX2A
+ 	enum devstat	 dev_stat;	    // current device status
+ 	int		 dev_self_x;	    // Index in array
+ 	int		 disabled;	    // Set when device is in error
+@@ -296,26 +296,30 @@ struct caller {
+ /**
+  * Function prototypes from z90hardware.c
+  */
+-enum hdstat query_online(int, int, int, int *, int *);
+-enum devstat reset_device(int, int, int);
+-enum devstat send_to_AP(int, int, int, unsigned char *);
+-enum devstat receive_from_AP(int, int, int, unsigned char *, unsigned char *);
+-int convert_request(unsigned char *, int, short, int, int, int *,
+-		    unsigned char *);
+-int convert_response(unsigned char *, unsigned char *, int *, unsigned char *);
++enum hdstat query_online(int deviceNr, int cdx, int resetNr, int *q_depth,
++			 int *dev_type);
++enum devstat reset_device(int deviceNr, int cdx, int resetNr);
++enum devstat send_to_AP(int dev_nr, int cdx, int msg_len, unsigned char *msg_ext);
++enum devstat receive_from_AP(int dev_nr, int cdx, int resplen,
++			     unsigned char *resp, unsigned char *psmid);
++int convert_request(unsigned char *buffer, int func, unsigned short function,
++		    int cdx, int dev_type, int *msg_l_p, unsigned char *msg_p);
++int convert_response(unsigned char *response, unsigned char *buffer,
++		     int *respbufflen_p, unsigned char *resp_buff);
  
- #define __MAX_SUBCHANNEL 65535
+ /**
+  * Low level function prototypes
+  */
+-static int create_z90crypt(int *);
+-static int refresh_z90crypt(int *);
+-static int find_crypto_devices(struct status *);
+-static int create_crypto_device(int);
+-static int destroy_crypto_device(int);
++static int create_z90crypt(int *cdx_p);
++static int refresh_z90crypt(int *cdx_p);
++static int find_crypto_devices(struct status *deviceMask);
++static int create_crypto_device(int index);
++static int destroy_crypto_device(int index);
+ static void destroy_z90crypt(void);
+-static int refresh_index_array(struct status *, struct device_x *);
+-static int probe_device_type(struct device *);
+-static int probe_PCIXCC_type(struct device *);
++static int refresh_index_array(struct status *status_str,
++			       struct device_x *index_array);
++static int probe_device_type(struct device *devPtr);
++static int probe_PCIXCC_type(struct device *devPtr);
+ 
+ /**
+  * proc fs definitions
+@@ -426,7 +430,7 @@ static struct miscdevice z90crypt_misc_d
+ MODULE_AUTHOR("zSeries Linux Crypto Team: Robert H. Burroughs, Eric D. Rossman"
+ 	      "and Jochen Roehrig");
+ MODULE_DESCRIPTION("zSeries Linux Cryptographic Coprocessor device driver, "
+-		   "Copyright 2001, 2004 IBM Corporation");
++		   "Copyright 2001, 2005 IBM Corporation");
+ MODULE_LICENSE("GPL");
+ module_param(domain, int, 0);
+ MODULE_PARM_DESC(domain, "domain index for device");
+@@ -861,6 +865,12 @@ get_status_CEX2Ccount(void)
+ }
+ 
+ static inline int
++get_status_CEX2Acount(void)
++{
++	return z90crypt.hdware_info->type_mask[CEX2A].st_count;
++}
++
++static inline int
+ get_status_requestq_count(void)
+ {
+ 	return requestq_count;
+@@ -1009,11 +1019,13 @@ static inline int
+ select_device_type(int *dev_type_p, int bytelength)
+ {
+ 	static int count = 0;
+-	int PCICA_avail, PCIXCC_MCL3_avail, CEX2C_avail, index_to_use;
++	int PCICA_avail, PCIXCC_MCL3_avail, CEX2C_avail, CEX2A_avail,
++	    index_to_use;
+ 	struct status *stat;
+ 	if ((*dev_type_p != PCICC) && (*dev_type_p != PCICA) &&
+ 	    (*dev_type_p != PCIXCC_MCL2) && (*dev_type_p != PCIXCC_MCL3) &&
+-	    (*dev_type_p != CEX2C) && (*dev_type_p != ANYDEV))
++	    (*dev_type_p != CEX2C) && (*dev_type_p != CEX2A) &&
++	    (*dev_type_p != ANYDEV))
+ 		return -1;
+ 	if (*dev_type_p != ANYDEV) {
+ 		stat = &z90crypt.hdware_info->type_mask[*dev_type_p];
+@@ -1023,7 +1035,13 @@ select_device_type(int *dev_type_p, int 
+ 		return -1;
+ 	}
+ 
+-	/* Assumption: PCICA, PCIXCC_MCL3, and CEX2C are all similar in speed */
++	/**
++	 * Assumption: PCICA, PCIXCC_MCL3, CEX2C, and CEX2A are all similar in
++	 * speed.
++	 *
++	 * PCICA and CEX2A do NOT co-exist, so it would be either one or the
++	 * other present.
++	 */
+ 	stat = &z90crypt.hdware_info->type_mask[PCICA];
+ 	PCICA_avail = stat->st_count -
+ 			(stat->disabled_count + stat->user_disabled_count);
+@@ -1033,29 +1051,38 @@ select_device_type(int *dev_type_p, int 
+ 	stat = &z90crypt.hdware_info->type_mask[CEX2C];
+ 	CEX2C_avail = stat->st_count -
+ 			(stat->disabled_count + stat->user_disabled_count);
+-	if (PCICA_avail || PCIXCC_MCL3_avail || CEX2C_avail) {
++	stat = &z90crypt.hdware_info->type_mask[CEX2A];
++	CEX2A_avail = stat->st_count -
++			(stat->disabled_count + stat->user_disabled_count);
++	if (PCICA_avail || PCIXCC_MCL3_avail || CEX2C_avail || CEX2A_avail) {
+ 		/**
+-		 * bitlength is a factor, PCICA is the most capable, even with
+-		 * the new MCL for PCIXCC.
++		 * bitlength is a factor, PCICA or CEX2A are the most capable,
++		 * even with the new MCL for PCIXCC.
+ 		 */
+ 		if ((bytelength < PCIXCC_MIN_MOD_SIZE) ||
+ 		    (!ext_bitlens && (bytelength < OLD_PCIXCC_MIN_MOD_SIZE))) {
+-			if (!PCICA_avail)
+-				return -1;
+-			else {
++			if (PCICA_avail) {
+ 				*dev_type_p = PCICA;
+ 				return 0;
+ 			}
++			if (CEX2A_avail) {
++				*dev_type_p = CEX2A;
++				return 0;
++			}
++			return -1;
+ 		}
+ 
+ 		index_to_use = count % (PCICA_avail + PCIXCC_MCL3_avail +
+-					CEX2C_avail);
++					CEX2C_avail + CEX2A_avail);
+ 		if (index_to_use < PCICA_avail)
+ 			*dev_type_p = PCICA;
+ 		else if (index_to_use < (PCICA_avail + PCIXCC_MCL3_avail))
+ 			*dev_type_p = PCIXCC_MCL3;
+-		else
++		else if (index_to_use < (PCICA_avail + PCIXCC_MCL3_avail +
++					 CEX2C_avail))
+ 			*dev_type_p = CEX2C;
++		else
++			*dev_type_p = CEX2A;
+ 		count++;
+ 		return 0;
+ 	}
+@@ -1360,7 +1387,7 @@ build_caller(struct work_element *we_p, 
+ 
+ 	if ((we_p->devtype != PCICC) && (we_p->devtype != PCICA) &&
+ 	    (we_p->devtype != PCIXCC_MCL2) && (we_p->devtype != PCIXCC_MCL3) &&
+-	    (we_p->devtype != CEX2C))
++	    (we_p->devtype != CEX2C) && (we_p->devtype != CEX2A))
+ 		return SEN_NOT_AVAIL;
+ 
+ 	memcpy(caller_p->caller_id, we_p->caller_id,
+@@ -1429,7 +1456,8 @@ get_crypto_request_buffer(struct work_el
+ 
+ 	if ((we_p->devtype != PCICA) && (we_p->devtype != PCICC) &&
+ 	    (we_p->devtype != PCIXCC_MCL2) && (we_p->devtype != PCIXCC_MCL3) &&
+-	    (we_p->devtype != CEX2C) && (we_p->devtype != ANYDEV)) {
++	    (we_p->devtype != CEX2C) && (we_p->devtype != CEX2A) &&
++	    (we_p->devtype != ANYDEV)) {
+ 		PRINTK("invalid device type\n");
+ 		return SEN_USER_ERROR;
+ 	}
+@@ -1504,8 +1532,9 @@ get_crypto_request_buffer(struct work_el
+ 
+ 	function = PCI_FUNC_KEY_ENCRYPT;
+ 	switch (we_p->devtype) {
+-	/* PCICA does everything with a simple RSA mod-expo operation */
++	/* PCICA and CEX2A do everything with a simple RSA mod-expo operation */
+ 	case PCICA:
++	case CEX2A:
+ 		function = PCI_FUNC_KEY_ENCRYPT;
+ 		break;
+ 	/**
+@@ -1663,7 +1692,8 @@ z90crypt_rsa(struct priv_data *private_d
+ 		 * trigger a fallback to software.
+ 		 */
+ 		case -EINVAL:
+-			if (we_p->devtype != PCICA)
++			if ((we_p->devtype != PCICA) &&
++			    (we_p->devtype != CEX2A))
+ 				rv = -EGETBUFF;
+ 			break;
+ 		case -ETIMEOUT:
+@@ -1780,6 +1810,12 @@ z90crypt_unlocked_ioctl(struct file *fil
+ 			ret = -EFAULT;
+ 		break;
+ 
++	case Z90STAT_CEX2ACOUNT:
++		tempstat = get_status_CEX2Acount();
++		if (copy_to_user((int __user *)arg, &tempstat, sizeof(int)) != 0)
++			ret = -EFAULT;
++		break;
++
+ 	case Z90STAT_REQUESTQ_COUNT:
+ 		tempstat = get_status_requestq_count();
+ 		if (copy_to_user((int __user *)arg, &tempstat, sizeof(int)) != 0)
+@@ -2020,6 +2056,8 @@ z90crypt_status(char *resp_buff, char **
+ 		get_status_PCIXCCMCL3count());
+ 	len += sprintf(resp_buff+len, "CEX2C count: %d\n",
+ 		get_status_CEX2Ccount());
++	len += sprintf(resp_buff+len, "CEX2A count: %d\n",
++		get_status_CEX2Acount());
+ 	len += sprintf(resp_buff+len, "requestq count: %d\n",
+ 		get_status_requestq_count());
+ 	len += sprintf(resp_buff+len, "pendingq count: %d\n",
+@@ -2027,8 +2065,8 @@ z90crypt_status(char *resp_buff, char **
+ 	len += sprintf(resp_buff+len, "Total open handles: %d\n\n",
+ 		get_status_totalopen_count());
+ 	len += sprinthx(
+-		"Online devices: 1: PCICA, 2: PCICC, 3: PCIXCC (MCL2), "
+-		"4: PCIXCC (MCL3), 5: CEX2C",
++		"Online devices: 1=PCICA 2=PCICC 3=PCIXCC(MCL2) "
++		"4=PCIXCC(MCL3) 5=CEX2C 6=CEX2A",
+ 		resp_buff+len,
+ 		get_status_status_mask(workarea),
+ 		Z90CRYPT_NUM_APS);
+@@ -2141,6 +2179,7 @@ z90crypt_status_write(struct file *file,
+ 		case '3':	// PCIXCC_MCL2
+ 		case '4':	// PCIXCC_MCL3
+ 		case '5':	// CEX2C
++		case '6':       // CEX2A
+ 			j++;
+ 			break;
+ 		case 'd':
+@@ -3008,7 +3047,9 @@ create_crypto_device(int index)
+ 			z90crypt.hdware_info->device_type_array[index] = 4;
+ 		else if (deviceType == CEX2C)
+ 			z90crypt.hdware_info->device_type_array[index] = 5;
+-		else
++		else if (deviceType == CEX2A)
++			z90crypt.hdware_info->device_type_array[index] = 6;
++		else // No idea how this would happen.
+ 			z90crypt.hdware_info->device_type_array[index] = -1;
+ 	}
  

@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbVLIGMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVLIGSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbVLIGMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 01:12:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbVLIGMQ
+	id S1751284AbVLIGSS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 01:18:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbVLIGSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 01:12:16 -0500
-Received: from ns2.lanforge.com ([66.165.47.211]:28060 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S1751278AbVLIGMP (ORCPT
+	Fri, 9 Dec 2005 01:18:18 -0500
+Received: from ns2.lanforge.com ([66.165.47.211]:53407 "EHLO ns2.lanforge.com")
+	by vger.kernel.org with ESMTP id S1751284AbVLIGSR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 01:12:15 -0500
-Message-ID: <4399203C.6030401@candelatech.com>
-Date: Thu, 08 Dec 2005 22:12:12 -0800
+	Fri, 9 Dec 2005 01:18:17 -0500
+Message-ID: <43992189.9060108@candelatech.com>
+Date: Thu, 08 Dec 2005 22:17:45 -0800
 From: Ben Greear <greearb@candelatech.com>
 Organization: Candela Technologies
 User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: linux-kernel@vger.kernel.org
+To: Horst von Brand <vonbrand@pincoya.inf.utfsm.cl>
+CC: "Randy.Dunlap" <rdunlap@xenotime.net>, Rik van Riel <riel@redhat.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrea Arcangeli <andrea@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Linux in a binary world... a doomsday scenario
-References: <200512081932.jB8JWkfN020116@pincoya.inf.utfsm.cl> <Pine.LNX.4.61.0512081606280.15436@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0512081606280.15436@chaos.analogic.com>
+References: <200512072317.jB7NHZ30003827@pincoya.inf.utfsm.cl>
+In-Reply-To: <200512072317.jB7NHZ30003827@pincoya.inf.utfsm.cl>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
 
-> Talk about rock-bottom stuff, does anybody know if I can build
-> a file-system on a CompactFlash card that plugs into a USB adapter
-> from Linux (like those marketed by Kodak) ??
+With Mr. Hemminger's permission, I've started a Hardware WIKI catagory on
+the linux-net wiki:   http://linux-net.osdl.org/index.php/Main_Page (bottom of first column)
 
-If you're talking about one of those 15-in-one card readers...
-
-Yes..it shows up like a normal USB storage block device.  I use one of
-those things to copy 512MB CF disks using 'dd' often...
+I plan to add my notes on NICs and motherboards (that I use primarily for
+network traffic applications) to this page.  I don't plan to try to make
+it exhaustive (though others can contribute, of course).  I do plan to
+add notes and work-arounds as I find them...and I seem to have some luck
+finding issues since I often stretch the networking side of the hardware...
 
 Thanks,
 Ben

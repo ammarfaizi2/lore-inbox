@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbVLILSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbVLIL1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751311AbVLILSu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 06:18:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbVLILSu
+	id S932090AbVLIL1J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 06:27:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVLIL1I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 06:18:50 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:18378 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1751311AbVLILSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 06:18:49 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: "Jan Beulich" <JBeulich@novell.com>
-Subject: Re: 2.6.15-rc5-mm1 (x86_64-hpet-overflow.patch breaks resume from disk)
-Date: Fri, 9 Dec 2005 12:20:05 +0100
-User-Agent: KMail/1.9
-Cc: discuss@x86-64.org, "Andrew Morton" <akpm@osdl.org>,
-       "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <20051204232153.258cd554.akpm@osdl.org> <200512082335.50417.rjw@sisk.pl> <43995957.76F0.0078.0@novell.com>
-In-Reply-To: <43995957.76F0.0078.0@novell.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512091220.06060.rjw@sisk.pl>
+	Fri, 9 Dec 2005 06:27:08 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:63717 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932090AbVLIL1H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 06:27:07 -0500
+Date: Fri, 9 Dec 2005 03:27:01 -0800 (PST)
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: nickpiggin@yahoo.com.au, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org
+Message-Id: <20051209112701.2500.11232.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] sparc atomic_clear_mask build fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 9 December 2005 10:15, Jan Beulich wrote:
-> It's a possible way to address this, but I'd rather just set a flag
-> indicating that the last-whatever values should not be considered (to
-> get into a state just like after initial boot). Jan
+This fixes one build error introduced in sparc with the patch
+of Oct 30, resent Nov 4 "[patch 3/5] atomic: atomic_inc_not_zero"
+I still can't get sparc to build, but at least it gets further
+after I remove this line.  Apparently, this change was agreed to
+by Andrew and Nick on Nov 14, but everyone thought someone else
+was doing it.
 
-OK, but what is the interrupt handler supposed to do if the
-vxtime.last* values are invalid?  I guess assume delta = 0?
+Signed-of-by: Paul Jackson <pj@sgi.com>
 
-BTW, in the interrupt handler there is:
-
-		__asm__("mulq %1\n\t"
-		        "shrdq $32, %%rdx, %0"
-		        : "+a" (delta)
-		        : "rm" (vxtime.tsc_quot)
-		        : "rdx");
-
-Is the "+a" a typo?
-
-Rafael
-
+--- 2.6.15-rc3-mm1.orig/arch/sparc/lib/atomic32.c	2005-12-04 01:42:17.636291946 -0800
++++ 2.6.15-rc3-mm1/arch/sparc/lib/atomic32.c	2005-12-09 02:52:45.420360103 -0800
+@@ -66,7 +66,6 @@ int atomic_add_unless(atomic_t *v, int a
+ 	return ret != u;
+ }
+ 
+-static inline void atomic_clear_mask(unsigned long mask, unsigned long *addr)
+ /* Atomic operations are already serializing */
+ void atomic_set(atomic_t *v, int i)
+ {
 
 -- 
-Beer is proof that God loves us and wants us to be happy - Benjamin Franklin
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

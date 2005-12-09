@@ -1,67 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbVLITRx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbVLITZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932415AbVLITRx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 14:17:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVLITRx
+	id S932416AbVLITZO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 14:25:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVLITZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 14:17:53 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10377 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751315AbVLITRx (ORCPT
+	Fri, 9 Dec 2005 14:25:14 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:3296 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932416AbVLITZM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 14:17:53 -0500
-Date: Fri, 9 Dec 2005 20:17:35 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Stefan Seyfried <seife@suse.de>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][mm] swsusp: limit image size
-Message-ID: <20051209191735.GB4658@elf.ucw.cz>
-References: <200512072246.06222.rjw@sisk.pl> <4399A737.40809@suse.de> <200512091804.22397.rjw@sisk.pl> <4399CD28.9080000@suse.de>
+	Fri, 9 Dec 2005 14:25:12 -0500
+Date: Fri, 9 Dec 2005 11:24:25 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       Noone Important <nxhxzi702@sneakemail.com>
+Cc: linux-kernel@vger.kernel.org, mchehab@infradead.org, js@linuxtv.org,
+       linux-dvb-maintainer@linuxtv.org, o.endriss@gmx.de,
+       mchehab@brturbo.com.br
+Subject: Re: [PATCH 29/56] DVB (2390) Adds a time-delay to IR remote button
+ presses for av7110 ir input,
+Message-Id: <20051209112425.58264fda.akpm@osdl.org>
+In-Reply-To: <1134137813.10677.7.camel@localhost>
+References: <1134137813.10677.7.camel@localhost>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4399CD28.9080000@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Mauro Carvalho Chehab <mchehab@brturbo.com.br> wrote:
+>
+> Signed-off-by: Noone Important <nxhxzi702 at sneakemail.com>
+>
 
-> >> What happens if IMAGE_SIZE is bigger than free swap? Do we "try harder"
-> >> or do we fail?
-> > 
-> > First, with swsusp the image can't be bigger than 1/2 of lowmem (1/2 of RAM
-> > on x86-64) and the too great values of IMAGE_SIZE have no effect.  Still, if
-> > the amount of free swap is smaller than 1/2 of RAM and the image happens
-> > to be bigger, we will fail.
-> 
-> ok. This is not nice since we might fail without any _real_ need. Can we
-> make this parameter userspace-tweakable, so that my userspace app can do
-> something like (pseudocode):
-> 
->     echo 500 > /sys/power/swsusp/imagesize
->     echo disk > /sys/power/state
->     R=$?
->     if [ $R -eq $ENOMEM ]; then
->         echo 100 > /sys/power/swsusp/imagesize # try again
+Anonymous contributions rather defeat the purpose of signing off patches. 
+I'm OK with it for small patches like this, but I'd be reluctant to accept
+a more subsantial piece of work on such a basis.
 
-You can do 'echo 0' -- as small as possible.
-
->         echo disk > /sys/power/state
->         R=$?
->     fi
->     if [ $R -ne 0 ]; then
->         pop_up_some_loud_beeping_window "suspend failed!"
->     fi
-> 
-> This would at least give us a chance for a second try. I know that Pavel
-> dislikes userspace tunables, but i dislike failing suspends ;-)
-
-Can we do that when we start seeing failed suspends? I think it will
-not happen. If we have reasonably-sized swap partition, it should be
-ok.
-
-							Pavel
--- 
-Thanks, Sharp!

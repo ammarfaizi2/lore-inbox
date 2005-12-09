@@ -1,81 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVLIVI2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVLIVKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbVLIVI2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 16:08:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVLIVI2
+	id S932431AbVLIVKy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 16:10:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVLIVKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 16:08:28 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:37308 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932187AbVLIVI1 convert rfc822-to-8bit
+	Fri, 9 Dec 2005 16:10:53 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:61833 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932393AbVLIVKw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 16:08:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WYvVOo1Wf8xc0HDmKJPLZvs9cPQONSYF3BnAqtylc1t2XICXOpqo0wFoy3leJwTQfXbgzkeZ+YG6OfuwiuCCosvQ9QTNPjCt199SR8JrFE3cuATQXSqbs1l2K6r3+Mu59rUhpNKYP4z3KRaO9MmNl6zbZDf6LiNJYC3RT5p07hE=
-Message-ID: <d120d5000512091308lb633c0an34dee39af7f498ad@mail.gmail.com>
-Date: Fri, 9 Dec 2005 16:08:26 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Nicolas Pitre <nico@cam.org>
-Subject: Re: [PATCH] input: fix ucb1x00-ts breakage after conversion to dynamic input_dev allocation
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Russell King <rmk@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0512091520000.26663@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0512091520000.26663@localhost.localdomain>
+	Fri, 9 Dec 2005 16:10:52 -0500
+Subject: [RFC][PATCH] Support for preadv()/pwritev()
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>
+Cc: Zach Brown <zach.brown@oracle.com>, Christoph Hellwig <hch@infradead.org>,
+       akpm@osdl.org
+Content-Type: multipart/mixed; boundary="=-1UejhAfHaf7SpjCwLKro"
+Date: Fri, 09 Dec 2005 13:11:04 -0800
+Message-Id: <1134162664.16646.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/9/05, Nicolas Pitre <nico@cam.org> wrote:
-> The bd622663192e8ebebb27dc1d9397f352a82d2495 commit broke the UCB1x00
-> touchscreen driver since the idev structure was assumed to be into the
-> ts structure, simply casting the former to the later in a couple places.
->
-> This patch fixes those, and also cache the idev pointer between multiple
-> calls to input_report_abs() to avoid growing the compiled code
-> needlessly.
->
-> Signed-off-by: Nicolas Pitre <nico@cam.org>
->
-> ---
->
-> diff --git a/drivers/mfd/ucb1x00-ts.c b/drivers/mfd/ucb1x00-ts.c
-> index a984c0e..e0794c2 100644
-> --- a/drivers/mfd/ucb1x00-ts.c
-> +++ b/drivers/mfd/ucb1x00-ts.c
-> @@ -59,16 +59,18 @@ static int adcsync;
->
->  static inline void ucb1x00_ts_evt_add(struct ucb1x00_ts *ts, u16 pressure, u16 x, u16 y)
->  {
-> -       input_report_abs(ts->idev, ABS_X, x);
-> -       input_report_abs(ts->idev, ABS_Y, y);
-> -       input_report_abs(ts->idev, ABS_PRESSURE, pressure);
-> -       input_sync(ts->idev);
-> +       struct input_dev *idev = ts->idev;
-> +       input_report_abs(idev, ABS_X, x);
-> +       input_report_abs(idev, ABS_Y, y);
-> +       input_report_abs(idev, ABS_PRESSURE, pressure);
-> +       input_sync(idev);
->  }
->
->  static inline void ucb1x00_ts_event_release(struct ucb1x00_ts *ts)
->  {
-> -       input_report_abs(ts->idev, ABS_PRESSURE, 0);
-> -       input_sync(ts->idev);
-> +       struct input_dev *idev = ts->idev;
-> +       input_report_abs(idev, ABS_PRESSURE, 0);
-> +       input_sync(idev);
->  }
->
 
-The changes above are not really needed. The rest is good and we
-should get it int before 2.6.15 I think.
+--=-1UejhAfHaf7SpjCwLKro
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thanks!
+Hi,
 
---
-Dmitry
+Some of the database folks are looking going towards "threaded"
+database model and wants support for preadv() and pwritev() -
+so that they have a way of doing lseek() followed by readv/writev()
+in the thread-safe way.
+
+Here is the patch I cooked up and looking for feedback. I really
+don't like adding new syscalls for this, but I don't see a way out.
+
+Of course, database folks want aio_readv/aio_writev() support also,
+which Zack is working on.
+
+Comments ? Suggestions ? 
+
+Thanks,
+Badari
+
+
+
+
+--=-1UejhAfHaf7SpjCwLKro
+Content-Disposition: attachment; filename=preadv-pwritev.patch
+Content-Type: text/x-patch; name=preadv-pwritev.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -Narup -X dontdiff linux-2.6.15-rc5/arch/i386/kernel/syscall_table.S linux-2.6.15-rc5.preadv/arch/i386/kernel/syscall_table.S
+--- linux-2.6.15-rc5/arch/i386/kernel/syscall_table.S	2005-12-03 21:10:42.000000000 -0800
++++ linux-2.6.15-rc5.preadv/arch/i386/kernel/syscall_table.S	2005-12-09 08:01:22.465116256 -0800
+@@ -294,3 +294,5 @@ ENTRY(sys_call_table)
+ 	.long sys_inotify_init
+ 	.long sys_inotify_add_watch
+ 	.long sys_inotify_rm_watch
++	.long sys_preadv
++	.long sys_pwritev
+diff -Narup -X dontdiff linux-2.6.15-rc5/fs/read_write.c linux-2.6.15-rc5.preadv/fs/read_write.c
+--- linux-2.6.15-rc5/fs/read_write.c	2005-12-03 21:10:42.000000000 -0800
++++ linux-2.6.15-rc5.preadv/fs/read_write.c	2005-12-09 08:02:43.590783280 -0800
+@@ -622,6 +622,46 @@ sys_writev(unsigned long fd, const struc
+ 	return ret;
+ }
+ 
++asmlinkage ssize_t sys_preadv(unsigned int fd, const struct iovec __user *vec,
++			     unsigned long vlen, loff_t pos)
++{
++	struct file *file;
++	ssize_t ret = -EBADF;
++	int fput_needed;
++
++	if (pos < 0)
++		return -EINVAL;
++
++	file = fget_light(fd, &fput_needed);
++	if (file) {
++		ret = -ESPIPE;
++		if (file->f_mode & FMODE_PREAD)
++			ret = vfs_readv(file, vec, vlen, &pos);
++		fput_light(file, fput_needed);
++	}
++	return ret;
++}
++
++asmlinkage ssize_t sys_pwritev(unsigned int fd, const struct iovec __user *vec,
++			     unsigned long vlen, loff_t pos)
++{
++	struct file *file;
++	ssize_t ret = -EBADF;
++	int fput_needed;
++
++	if (pos < 0)
++		return -EINVAL;
++
++	file = fget_light(fd, &fput_needed);
++	if (file) {
++		ret = -ESPIPE;
++		if (file->f_mode & FMODE_PWRITE)  
++			ret = vfs_writev(file, vec, vlen, &pos);
++		fput_light(file, fput_needed);
++	}
++	return ret;
++}
++
+ static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
+ 			   size_t count, loff_t max)
+ {
+
+--=-1UejhAfHaf7SpjCwLKro--
+

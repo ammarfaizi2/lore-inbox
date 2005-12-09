@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbVLIRql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964813AbVLIRtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964806AbVLIRql (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 12:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbVLIRql
+	id S964813AbVLIRtT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 12:49:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbVLIRtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 12:46:41 -0500
-Received: from [67.137.28.188] ([67.137.28.188]:27777 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S964806AbVLIRqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 12:46:40 -0500
-Message-ID: <4399AE4A.8050603@wolfmountaingroup.com>
-Date: Fri, 09 Dec 2005 09:18:18 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Wolf Mountain File System Archives and Releases
-References: <438E3F65.8020605@wolfmountaingroup.com> <1133429704.2853.20.camel@laptopd505.fenrus.org> <438F2746.8030904@wolfmountaingroup.com> <Pine.LNX.4.61.0512091533410.8080@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0512091533410.8080@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Dec 2005 12:49:19 -0500
+Received: from ns1.suse.de ([195.135.220.2]:22729 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964813AbVLIRtS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 12:49:18 -0500
+Date: Fri, 9 Dec 2005 18:49:04 +0100
+From: Andi Kleen <ak@suse.de>
+To: Andi Kleen <ak@muc.de>
+Cc: Matt Tolentino <metolent@cs.vt.edu>, akpm@osdl.org, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, matthew.e.tolentino@intel.com
+Subject: Re: [discuss] Re: [patch 3/3] add x86-64 support for memory hot-add II
+Message-ID: <20051209174904.GA30117@brahms.suse.de>
+References: <200512091523.jB9FNn5J006697@ap1.cs.vt.edu> <20051209173249.GA54033@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051209173249.GA54033@muc.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
+> In general SRAT has a hotplug memory bit so it's possible
+> to predict how much memory there will be in advance. Since
+> the overhead of the kernel page tables should be very
+> low I would prefer if you just used instead.
+> 
+> (i.e. instead of extending the kernel mapping preallocate
+> the direct mapping and just clear the P bits) 
+> 
+> That should be much simpler.
 
->>>>The Wolf Mountain File System and NWFS File System project archives for
->>>>Linux are now online at www.wolfmountaingroup.org.  All future updates
->>>>and patches to Linux which are related to these projects are now
->>>>available at this site.   
->>>>        
->>>>
->
->  
->
->>>the website is empty though; no code anywhere
->>>
->>>      
->>>
->>There's code there, go look again.
->>    
->>
->
->http://www.wolfmountaingroup.org/pub/wmfs/ is empty.
->
->
->
->Jan Engelhardt
->  
->
-OS Goes up first. The first component is a loader/debugger that boots 
-from grub. I have a large portion of the FS completed, but I am
-working on another project which is first in line at present. Please be 
-patient, it's coming.
+Looking at it again - accessing SRAT currently relies on the 
+direct mapping already. Untangling that would be possible,
+but require an bt_ioremap which would also add lots of code.
 
-Jeff
+Ok I retract that objection. I guess your way is better
+for now.
+
+In addition to the __cpuinit comment
+
++if (after_bootmem) spin_unlock(&init_mm.page_table_lock);
+
+Conditional locking is evil. spinlocking in the boot
+case should just work too I think.
+
+The EXPORTs should be probably EXPORT_SYMBOL_GPL.
+
+With these changes it would look ok for me.
+
+-Andi

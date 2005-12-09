@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbVLIOLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbVLIOOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbVLIOLE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 09:11:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbVLIOLD
+	id S932080AbVLIOOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 09:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbVLIOOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 09:11:03 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:62691 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751336AbVLIOLC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 09:11:02 -0500
-Date: Fri, 9 Dec 2005 15:10:59 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Mouse button swapping
-Message-ID: <Pine.LNX.4.61.0512091508250.8080@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Dec 2005 09:14:09 -0500
+Received: from gw01.mail.saunalahti.fi ([195.197.172.115]:45705 "EHLO
+	gw01.mail.saunalahti.fi") by vger.kernel.org with ESMTP
+	id S932080AbVLIOOI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 09:14:08 -0500
+Date: Fri, 9 Dec 2005 16:14:01 +0200
+From: Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <syrjala@sci.fi>
+To: linux-fbdev-devel@lists.sourceforge.net
+Cc: "Antonino A. Daplas" <adaplas@gmail.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH 1/1 2.6.15-rc4-git1] Fix switching to KD_TEXT
+Message-ID: <20051209141401.GA2724@sci.fi>
+Mail-Followup-To: linux-fbdev-devel@lists.sourceforge.net,
+	"Antonino A. Daplas" <adaplas@gmail.com>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <4398B888.50005@t-online.de> <4398CEAF.9050303@gmail.com> <43997037.4020206@t-online.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <43997037.4020206@t-online.de>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Dec 09, 2005 at 12:53:27PM +0100, Knut Petersen wrote:
+> And please don´t argue that X or certain releases are broken. That is 
+> true, but ordinary
+> users will use those broken versions for years.
 
+Then they should just keep using vgacon.
 
-I produced a small patch that allows one to flip the mouse buttons at the 
-kernel level. This is useful for changing it on a per-system basis, i.e. it 
-will affect gpm, X and VMware all at once. It is changeable through
-/sys/module/mousedev/swap_buttons at runtime. Is this something mainline would
-be interested in?
+However if you're really going to add more uneccessary set_par() calls 
+please make them configurable (eg. CONFIG_BROKEN_X). I'll go crazy if my 
+CRT is going to start resyncing on every vt switch.
 
-diff -dpru a/drivers/input/mousedev.c b/drivers/input/mousedev.c
---- a/drivers/input/mousedev.c	2005-10-22 20:59:22.000000000 +0200
-+++ b/drivers/input/mousedev.c	2005-11-22 19:32:01.000000000 +0100
-@@ -40,6 +40,10 @@ MODULE_LICENSE("GPL");
- #define CONFIG_INPUT_MOUSEDEV_SCREEN_Y	768
- #endif
- 
-+static unsigned int swap_buttons = 0;
-+module_param(swap_buttons, uint, 0644);
-+MODULE_PARM_DESC(swap_buttons, "Swap left and right mouse buttons");
-+
- static int xres = CONFIG_INPUT_MOUSEDEV_SCREEN_X;
- module_param(xres, uint, 0);
- MODULE_PARM_DESC(xres, "Horizontal screen resolution");
-@@ -191,10 +195,10 @@ static void mousedev_key_event(struct mo
- 		case BTN_TOUCH:
- 		case BTN_0:
- 		case BTN_FORWARD:
--		case BTN_LEFT:		index = 0; break;
-+		case BTN_LEFT:		index = !!swap_buttons; break;
- 		case BTN_STYLUS:
- 		case BTN_1:
--		case BTN_RIGHT:		index = 1; break;
-+		case BTN_RIGHT:		index = !swap_buttons; break;
- 		case BTN_2:
- 		case BTN_STYLUS2:
- 		case BTN_MIDDLE:	index = 2; break;
-# eof
-
-
-Jan Engelhardt
 -- 
+Ville Syrjälä
+syrjala@sci.fi
+http://www.sci.fi/~syrjala/

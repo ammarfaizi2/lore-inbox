@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVLIULa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbVLIUSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbVLIULa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 15:11:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVLIULa
+	id S932443AbVLIUSL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 15:18:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVLIUSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 15:11:30 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65035 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932439AbVLIULa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 15:11:30 -0500
-Date: Fri, 9 Dec 2005 21:11:28 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-ia64@ver.kernel.org, ak@suse.de
-Subject: Re: [RFC] Introduce atomic_long_t
-Message-ID: <20051209201127.GE23349@stusta.de>
-References: <Pine.LNX.4.62.0512091053260.2656@schroedinger.engr.sgi.com>
+	Fri, 9 Dec 2005 15:18:11 -0500
+Received: from xproxy.gmail.com ([66.249.82.198]:12637 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932443AbVLIUSK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 15:18:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:from:to:subject:date:mime-version:content-type:content-transfer-encoding:x-priority:x-msmail-priority:x-mailer:disposition-notification-to:x-mimeole;
+        b=F8W3nFYTBP9KmtZO/0BHzh/3U0VgGNsldeTxkwQsThPt2qyFn3I6ijUHxiz8q9aqgiKjCYqMGWVIoZJkcIgyG4/rB21Zmdu5pKyj5gv8rCWsE0FECTeqZbTcr2YWeT+4fxesIz/IS3ln7+5FFVG6h0YiSr8eh0ZmI7nHYuF5H5s=
+Message-ID: <021301c5fd06$124ceeb0$152116ac@Thiago>
+From: "Thiago Moraes" <moraesthiago@gmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel Error......
+Date: Fri, 9 Dec 2005 18:18:14 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0512091053260.2656@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=response
+Content-Transfer-Encoding: 7bit
+X-Priority: 1
+X-MSMail-Priority: High
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 10:58:40AM -0800, Christoph Lameter wrote:
+Hi,
 
-> Several counters already have the need to use 64 atomic variables on 64
-> bit platforms (see mm_counter_t in sched.h). We have to do ugly ifdefs to
-> fall back to 32 bit atomic on 32 bit platforms.
-> 
-> The VM statistics patch that I am working on will also need to make more 
-> extensive use of 64 bit counters when available.
-> 
-> This patch introduces a new type atomic_long_t that works similar to the c
-> "long" type. Its 32 bits on 32 bit platforms and 64 bits on 64 bit platforms.
-> 
-> The patch uses atomic_long_t to clean up the mess in include/linux/sched.h.
-> Implementations for all arches provided but only tested on ia64.
->...
+I've trying to compile my kernel on Slackware 10.2, so, when i
+select NETWORKING OPTIONS menu is closed, and return to bash....
 
-The idea looks good, but the amount of code duplication is ugly.
+I saved the showed information and collate here to you...
 
-What about creating an include/linux/atomic.h [1] that contains both 
-this new code and other common code like the atomic_t typedef (unless 
-there's a good reason why counter isn't volatile on h8300 and v850...).
+Can you helpe with this issue ???
 
-cu
-Adrian
+Tks,
 
-[1] include/asm-generic/atomic.h would be another solution, but for
-    an API that should be available on all architectures, include/linux/
-    seems to be the more logical place
+Thiago Moraes
+thiago@igen.epm.br
+I.T. - Brazil
 
--- 
+=====================================================
+root@draco:/usr/src/linux# make menuconfig
+rm -f include/asm
+( cd include ; ln -sf asm-i386 asm)
+make -C scripts/lxdialog all
+make[1]: Entering directory `/usr/src/linux-2.4.31/scripts/lxdialog'
+make[1]: Leaving directory `/usr/src/linux-2.4.31/scripts/lxdialog'
+/bin/sh scripts/Menuconfig arch/i386/config.in
+Using defaults found in .config
+Preparing scripts: functions, parsing............./MCmenu19: line 149: 
+syntax error near unexpected token `fi'
+./MCmenu19: line 149: `fi'
+......................................................................done.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
 
+ Q> scripts/Menuconfig: line 832: MCmenu19: command not found
+
+Please report this to the maintainer <mec@shout.net>.  You may also
+send a problem report to <linux-kernel@vger.kernel.org>.
+
+Please indicate the kernel version you are trying to configure and
+which menu you were trying to enter when this error occurred.
+
+make: *** [menuconfig] Error 1
+===================================================== 

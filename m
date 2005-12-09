@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbVLIRuJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbVLIRql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964827AbVLIRuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 12:50:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbVLIRuJ
+	id S964806AbVLIRql (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 12:46:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbVLIRql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 12:50:09 -0500
-Received: from smtpout.mac.com ([17.250.248.87]:52715 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S964827AbVLIRuH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 12:50:07 -0500
-In-Reply-To: <1134147943.25408.36.camel@localhost.localdomain>
-References: <r02010500-1043-55BAAD4668D211DA98840011248907EC@[10.64.61.57]> <1134147943.25408.36.camel@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <1125CAFD-A7C2-4F8A-9CBB-82D7EC7D51B8@mac.com>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 9 Dec 2005 12:46:41 -0500
+Received: from [67.137.28.188] ([67.137.28.188]:27777 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S964806AbVLIRqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 12:46:40 -0500
+Message-ID: <4399AE4A.8050603@wolfmountaingroup.com>
+Date: Fri, 09 Dec 2005 09:18:18 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Wolf Mountain File System Archives and Releases
+References: <438E3F65.8020605@wolfmountaingroup.com> <1133429704.2853.20.camel@laptopd505.fenrus.org> <438F2746.8030904@wolfmountaingroup.com> <Pine.LNX.4.61.0512091533410.8080@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0512091533410.8080@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Mark Rustad <mrustad@mac.com>
-Subject: Re: [PATCH 2.6.15-rc5] hugetlb: make make_huge_pte global and fix coding style
-Date: Fri, 9 Dec 2005 11:50:01 -0600
-To: Adam Litke <agl@us.ibm.com>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 9, 2005, at 11:05 AM, Adam Litke wrote:
+Jan Engelhardt wrote:
 
-> On Fri, 2005-12-09 at 10:39 -0600, Mark Rustad wrote:
->> This patch makes the function make_huge_pte non-static, so it can  
->> be used
->> by drivers that want to mmap huge pages. Consequently, a prototype  
->> for the
->> function is added to hugetlb.h. Since I was looking here, I  
->> noticed some
->> coding style problems in the function and fix them with this patch.
->>
->> Signed-off-by: Mark Rustad <MRustad@mac.com>
+>>>>The Wolf Mountain File System and NWFS File System project archives for
+>>>>Linux are now online at www.wolfmountaingroup.org.  All future updates
+>>>>and patches to Linux which are related to these projects are now
+>>>>available at this site.   
+>>>>        
+>>>>
 >
-> Call me crazy, but I cringe when I think of any old driver directly
-> mucking with huge_ptes.  Forgive me if I am missing something, but why
-> can't you just call do_mmap with a hugetlbfs file like everyone else?
-> Otherwise, the CodingStyle cleanups look alright.
+>  
+>
+>>>the website is empty though; no code anywhere
+>>>
+>>>      
+>>>
+>>There's code there, go look again.
+>>    
+>>
+>
+>http://www.wolfmountaingroup.org/pub/wmfs/ is empty.
+>
+>
+>
+>Jan Engelhardt
+>  
+>
+OS Goes up first. The first component is a loader/debugger that boots 
+from grub. I have a large portion of the FS completed, but I am
+working on another project which is first in line at present. Please be 
+patient, it's coming.
 
-That would be nice, but we need multiple, contiguous huge pages.  
-Actually, about 768M worth. Yeah, I guess I'll stipulate that what  
-we're doing is pretty crazy, but it works well. I figure if I can  
-call alloc_huge_page, I should be able to remap such a page.  
-Actually, I would prefer an explicit remap call for this purpose, but  
-in doing my own I found that I needed precisely the code that was  
-already in make_huge_pte.
-
-I don't have any strong feeling about whether this is accepted or  
-not. I just thought that I should share a change that might be useful  
-to others.
-
--- 
-Mark Rustad, MRustad@mac.com
-
+Jeff

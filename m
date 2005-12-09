@@ -1,124 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVLIKqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbVLIKtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbVLIKqE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 05:46:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbVLIKqE
+	id S1751313AbVLIKtU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 05:49:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbVLIKtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 05:46:04 -0500
-Received: from erik-slagter.demon.nl ([83.161.107.130]:1960 "EHLO
-	artemis.slagter.name") by vger.kernel.org with ESMTP
-	id S932083AbVLIKqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 05:46:02 -0500
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-From: Erik Slagter <erik@slagter.name>
-To: Jens Axboe <axboe@suse.de>
-Cc: Randy Dunlap <randy_d_dunlap@linux.intel.com>,
-       Jeff Garzik <jgarzik@pobox.com>, hch@infradead.org, mjg59@srcf.ucam.org,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-In-Reply-To: <20051209103937.GE26185@suse.de>
-References: <20051208030242.GA19923@srcf.ucam.org>
-	 <20051208091542.GA9538@infradead.org>
-	 <20051208132657.GA21529@srcf.ucam.org>
-	 <20051208133308.GA13267@infradead.org>
-	 <20051208133945.GA21633@srcf.ucam.org>
-	 <20051208134438.GA13507@infradead.org>
-	 <1134062330.1732.9.camel@localhost.localdomain>
-	 <43989B00.5040503@pobox.com>
-	 <20051208133144.0f39cb37.randy_d_dunlap@linux.intel.com>
-	 <1134121522.27633.7.camel@localhost.localdomain>
-	 <20051209103937.GE26185@suse.de>
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-zVPFfpSIofJFQa0dLvEJ"
-Date: Fri, 09 Dec 2005 11:45:45 +0100
-Message-Id: <1134125145.27633.32.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-3.fc4) 
+	Fri, 9 Dec 2005 05:49:20 -0500
+Received: from cassiel.sirena.org.uk ([80.68.93.111]:35337 "EHLO
+	cassiel.sirena.org.uk") by vger.kernel.org with ESMTP
+	id S1750720AbVLIKtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 05:49:19 -0500
+Date: Fri, 9 Dec 2005 10:48:33 +0000
+From: Mark Brown <broonie@sirena.org.uk>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Tim Hockin <thockin@hockin.org>,
+       Harald Welte <laforge@gnumonks.org>, netdev@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] natsemi: NAPI support
+Message-ID: <20051209104832.GA3677@sirena.org.uk>
+Mail-Followup-To: Francois Romieu <romieu@fr.zoreil.com>,
+	Jeff Garzik <jgarzik@pobox.com>, Tim Hockin <thockin@hockin.org>,
+	Harald Welte <laforge@gnumonks.org>, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20051204224734.GA12962@sirena.org.uk> <20051204231209.GA28949@electric-eye.fr.zoreil.com> <20051205232301.GA4551@sirena.org.uk> <20051206001934.GA18329@electric-eye.fr.zoreil.com> <20051206211729.GB3709@sirena.org.uk> <20051206215619.GB3425@electric-eye.fr.zoreil.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
+Content-Disposition: inline
+In-Reply-To: <20051206215619.GB3425@electric-eye.fr.zoreil.com>
+X-Cookie: <doogie> dpkg has bugs?  no way!
+User-Agent: Mutt/1.5.11
+X-Spam-Score: -2.4 (--)
+X-Spam-Report: Spam detection software, running on the system "cassiel.sirena.org.uk", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  On Tue, Dec 06, 2005 at 10:56:19PM +0100, Francois 
+	Romieu wrote: > netif_rx_schedule_prep return netif_running(dev) && > 
+	dev_close clear_bit(__LINK_STATE_START, &dev->state); Oh, of course - 
+	thanks for bearing wth me. Will fix that too and resubmit. [...] 
+	Content analysis details:   (-2.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.6 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+	[score: 0.0000]
+	0.2 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-zVPFfpSIofJFQa0dLvEJ
-Content-Type: text/plain
+--2oS5YaxWCcQjTEyO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2005-12-09 at 11:39 +0100, Jens Axboe wrote:
+On Tue, Dec 06, 2005 at 10:56:19PM +0100, Francois Romieu wrote:
 
-> > IMHO available infrastructure (and hardware abstraction!) should be use=
-d
-> > instead of being stubborn and pretend we know everything about any
-> > hardware.
->=20
-> It's not about being stubborn, it's about maintaining and working on a
-> clean design. The developers have to do that, not the users. So forgive
-> people for being a little cautious about shuffling all sorts of ACPI
-> into the scsi core and/or drivers. We always need to think long term
-> here.
->=20
-> Users don't care about the maintainability and cleanliness of the code,
-> they really just want it to work. Which is perfectly understandable.
+> netif_rx_schedule_prep return netif_running(dev) &&
+> dev_close              clear_bit(__LINK_STATE_START, &dev->state);
 
-I perfectly understand that, what I do object against, is rejecting a
-concept (like this) totally because the developers(?) do not like the
-mechanism that's used (although ACPI is used everywhere else in the
-kernel). At least there might be some discussion where this sort of code
-belongs to make the design clean and easily maintainable, instead of
-instantly completely rejecting the concept, because OP simply doesn't
-like acpi.
+Oh, of course - thanks for bearing wth me.  Will fix that too and
+resubmit.
 
---=-zVPFfpSIofJFQa0dLvEJ
-Content-Type: application/x-pkcs7-signature; name=smime.p7s
-Content-Disposition: attachment; filename=smime.p7s
-Content-Transfer-Encoding: base64
+--=20
+"You grabbed my hand and we fell into it, like a daydream - or a fever."
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIILzCCAnIw
-ggHboAMCAQICAw/xBDANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
-d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
-YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI5MTc0MTQ0WhcNMDYxMTI5MTc0MTQ0WjBqMRAwDgYDVQQE
-EwdTbGFndGVyMRUwEwYDVQQqEwxFcmlrIE1hcnRpam4xHTAbBgNVBAMTFEVyaWsgTWFydGlqbiBT
-bGFndGVyMSAwHgYJKoZIhvcNAQkBFhFlcmlrQHNsYWd0ZXIubmFtZTCBnzANBgkqhkiG9w0BAQEF
-AAOBjQAwgYkCgYEAtYqGuTSGbsTHZPiKQnNmvpVaxVuBZS6rV5xuKD47J9hz8Vq3Xh4PpuGYNW5L
-vevp80oj6sYAhNuU380UNRqALFaer8MtG6fXpvBgq+MCxVQzMyYxAnopqWlZQIUQNQX9wZmI0gVv
-gY6vwcXRBXkMyrzm41dy4oFwh+PTj3U+xwcCAwEAAaMuMCwwHAYDVR0RBBUwE4ERZXJpa0BzbGFn
-dGVyLm5hbWUwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQQFAAOBgQCf5+l4khcSjUOL8WcuJ7Q1
-eXhSPe0VJEsHSfVJCNFmfFZFiGZNwQRliOuGFxSy+uPb8ZVIZ3cBIen/K0k2hWS6pCiDm3xNdkFU
-mhWsibmyMoc91I0Re2ZWPmL6isxiyr56Qv7vNz2UHSinLJr/QtsvRv/RKFlcO1gm1wsCOPkyITCC
-AnIwggHboAMCAQICAw/xBDANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMc
-VGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZy
-ZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI5MTc0MTQ0WhcNMDYxMTI5MTc0MTQ0WjBqMRAwDgYD
-VQQEEwdTbGFndGVyMRUwEwYDVQQqEwxFcmlrIE1hcnRpam4xHTAbBgNVBAMTFEVyaWsgTWFydGlq
-biBTbGFndGVyMSAwHgYJKoZIhvcNAQkBFhFlcmlrQHNsYWd0ZXIubmFtZTCBnzANBgkqhkiG9w0B
-AQEFAAOBjQAwgYkCgYEAtYqGuTSGbsTHZPiKQnNmvpVaxVuBZS6rV5xuKD47J9hz8Vq3Xh4PpuGY
-NW5Lvevp80oj6sYAhNuU380UNRqALFaer8MtG6fXpvBgq+MCxVQzMyYxAnopqWlZQIUQNQX9wZmI
-0gVvgY6vwcXRBXkMyrzm41dy4oFwh+PTj3U+xwcCAwEAAaMuMCwwHAYDVR0RBBUwE4ERZXJpa0Bz
-bGFndGVyLm5hbWUwDAYDVR0TAQH/BAIwADANBgkqhkiG9w0BAQQFAAOBgQCf5+l4khcSjUOL8Wcu
-J7Q1eXhSPe0VJEsHSfVJCNFmfFZFiGZNwQRliOuGFxSy+uPb8ZVIZ3cBIen/K0k2hWS6pCiDm3xN
-dkFUmhWsibmyMoc91I0Re2ZWPmL6isxiyr56Qv7vNz2UHSinLJr/QtsvRv/RKFlcO1gm1wsCOPky
-ITCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEFBQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQI
-EwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1
-bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMT
-G1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJl
-ZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAwMDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNV
-BAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNU
-aGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAw
-gYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNa
-LIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUq
-VIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCBkTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1Ud
-HwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3RlLmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWls
-Q0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAgpB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVs
-Mi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPqCy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYf
-qi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUaC4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa
-9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx0x1G/11fZU8xggJmMIICYgIBATBpMGIxCzAJ
-BgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQD
-EyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQQIDD/EEMAkGBSsOAwIaBQCgggFT
-MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTA1MTIwOTEwNDU0NVow
-IwYJKoZIhvcNAQkEMRYEFHaT1K/FrW7uKmPzVRJjpKNCtw4gMHgGCSsGAQQBgjcQBDFrMGkwYjEL
-MAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNV
-BAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBAgMP8QQwegYLKoZIhvcNAQkQ
-Agsxa6BpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBM
-dGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQQIDD/EEMA0G
-CSqGSIb3DQEBAQUABIGAljJ+cUyjDa721eAAMjeAZApKH6iKOnsAnW2hMV229FLKGSPKDDWtCcrh
-X+lmlf1ZAILXvzQC+5mIAdsIMU2nWfJ7oSEsNQDpjtMol4x3P6467LwTldN9dQUa7Opt39RkRMXZ
-ursKoxkMZhSJ5O1H40Mr5NnXekJMLnPT86dhY3IAAAAAAAA=
+--2oS5YaxWCcQjTEyO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
---=-zVPFfpSIofJFQa0dLvEJ--
+iQCVAwUBQ5lg6w2erOLNe+68AQIFjwP/eWx8Hmf+TZDpG49Be7qOCO+5+2GNdy+q
+NDG5r4NKd04teLxW1Y+coYE0ap3sByMT/nyB52jiORTKb3/0gaQb8bmkL+9WJvms
+SnFfuUhGfLTeWVIWZhFewHzFnafjjHqJTsoE2ImuMaG4fSKB2K8Z/wJTmSa/0Qu1
+b5PpT/ETCXo=
+=+tvS
+-----END PGP SIGNATURE-----
+
+--2oS5YaxWCcQjTEyO--

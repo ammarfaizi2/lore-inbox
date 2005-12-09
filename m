@@ -1,86 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbVLIVQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbVLIVSn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbVLIVQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 16:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVLIVQ1
+	id S932435AbVLIVSn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 16:18:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVLIVSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 16:16:27 -0500
-Received: from main.gmane.org ([80.91.229.2]:8601 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932434AbVLIVQ0 (ORCPT
+	Fri, 9 Dec 2005 16:18:43 -0500
+Received: from smtpout.mac.com ([17.250.248.83]:48350 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932435AbVLIVSm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 16:16:26 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Orion Poplawski <orion@cora.nwra.com>
-Subject: Please help with kernel BUG at include/linux/gfp.h:80 with ndiswrapper
- on x86_64
-Date: Fri, 09 Dec 2005 14:13:13 -0700
-Message-ID: <dncs1c$8e5$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 9 Dec 2005 16:18:42 -0500
+In-Reply-To: <Pine.LNX.4.61.0512092034510.28318@goblin.wat.veritas.com>
+References: <r02010500-1043-55BAAD4668D211DA98840011248907EC@[10.64.61.57]> <1134148609.30856.22.camel@localhost> <E4ECF4F0-9442-4FFE-BE55-3EF7A1CC40F4@mac.com> <1134151696.3278.2.camel@localhost> <DB1A6A43-DA12-4C5B-B195-5C01DED4CF3E@mac.com> <Pine.LNX.4.61.0512092034510.28318@goblin.wat.veritas.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <A699737E-EE3B-4521-B68C-F7D90C018CFB@mac.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: inferno.cora.nwra.com
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-X-Enigmail-Version: 0.93.0.0
+From: Mark Rustad <mrustad@mac.com>
+Subject: Re: [PATCH 2.6.15-rc5] hugetlb: make make_huge_pte global and fix coding style
+Date: Fri, 9 Dec 2005 15:18:38 -0600
+To: Hugh Dickins <hugh@veritas.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Dec 9, 2005, at 2:37 PM, Hugh Dickins wrote:
 
-With kernel 2.6.15-rc5, gfp_zone has the following BUG_ON:
+> On Fri, 9 Dec 2005, Mark Rustad wrote:
+>>
+>> If hugetlbfs could be guaranteed to provide contiguous memory for  
+>> a file, that
+>> could be used in this application. We used to use remap_pfn_range  
+>> in our
+>> driver, but recent changes there made that not work for this  
+>> application, so I
+>
+> You're not the only one to have trouble with recent remap_pfn_range  
+> changes.
+> Would you let us know what you were doing, that you can no longer do?
+> Some of the change may need to be reverted.
 
-static inline int gfp_zone(gfp_t gfp)
-{
-        int zone = GFP_ZONEMASK & (__force int) gfp;
-        BUG_ON(zone >= GFP_ZONETYPES);
-        return zone;
-}
+Well, our driver had been allocating two 320MB and one 128MB range of  
+memory, each of the three being contiguous. These were allocated by  
+allocating lots of 1MB groups of pages until we got a contiguous  
+range, then the unneeded pages were freed.
 
-This is being tripped by ndiswrapper on x86_64 when it calls:
+These areas were then mapped into the application with  
+remap_pfn_range. We have been running on a SuSE kernel derived from  
+2.6.5 for a long time where this worked fine, even for gdb to access  
+during debugging. Now that we are moving to a more current kernel,  
+changes were needed mainly to allow gdb to access these shared memory  
+areas.
 
-dma_alloc_coherent(&pci_dev->dev,size,dma_handle, \
-                           GFP_KERNEL | __GFP_REPEAT | GFP_DMA)
+I had messed with simply taking the large memory by restricting the  
+kernel's memory range with mem=, but gdb still can't get to the pages  
+because it believes that they are for I/O (there would be no struct  
+page in that case).
 
-because dma_alloc_coherent does:
+Given the situation, using hugepages seemed more attractive anyway,  
+so I just decided to go that way and specify hugepages=192 on the  
+kernel command line.
 
-        dma_mask = dev->coherent_dma_mask;
-        if (dma_mask == 0)
-                dma_mask = 0xffffffff;
+We also have a single page shared between our processes and the  
+driver, but we now use the new insert_single_page call for that,  
+which works nicely. It seemed to me that calling that for the each of  
+the single pages in our 768M of shared memory was silly, so I went  
+the hugepage route, and that proved to be less trouble than I had  
+expected. I feel like things now are really where they should have  
+been all along.
 
-        /* Kludge to make it bug-to-bug compatible with i386. i386
-           uses the normal dma_mask for alloc_coherent. */
-        dma_mask &= *dev->dma_mask;
-
-        /* Why <=? Even when the mask is smaller than 4GB it is often larger
-           than 16MB and in this case we have a chance of finding
-fitting memory
-           in the next higher zone first. If not retry with true
-GFP_DMA. -AK */
-        if (dma_mask <= 0xffffffff)
-                gfp |= GFP_DMA32;
-
-again:
-        memory = dma_alloc_pages(dev, gfp, get_order(size));
-
-
-so it appears that gfp becomes GFP_DMA | GFP_DMA32 = 5 and triggers the BUG.
-
-So, what should ndiswrapper be using in it's call to dma_alloc_coherent?
- GFP_DMA32?
-
-Thanks!
-
-  Orion Poplawski
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFDmfNoORnzrtFC2/sRAsp2AKCiK/VAMoIGvxn3uvSuapcop7GUCwCgq9U+
-HZShybTsF7LZyG1yXSJceFo=
-=iInr
------END PGP SIGNATURE-----
+-- 
+Mark Rustad, MRustad@mac.com
 

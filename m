@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbVLIPNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbVLIPSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbVLIPNx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 10:13:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbVLIPNx
+	id S932223AbVLIPSb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 10:18:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbVLIPSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 10:13:53 -0500
-Received: from nevyn.them.org ([66.93.172.17]:21184 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S932108AbVLIPNx (ORCPT
+	Fri, 9 Dec 2005 10:18:31 -0500
+Received: from ap1.cs.vt.edu ([128.173.40.39]:57557 "EHLO ap1.cs.vt.edu")
+	by vger.kernel.org with ESMTP id S932223AbVLIPSa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 10:13:53 -0500
-Date: Fri, 9 Dec 2005 10:13:48 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Sachin Sant <sachinp@in.ibm.com>
-Subject: Re: [PATCH] Adding ctrl-o sysrq hack support to 8250 driver
-Message-ID: <20051209151348.GA12815@nevyn.them.org>
-Mail-Followup-To: Olaf Hering <olh@suse.de>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Sachin Sant <sachinp@in.ibm.com>
-References: <20051209140559.GA23868@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051209140559.GA23868@suse.de>
-User-Agent: Mutt/1.5.8i
+	Fri, 9 Dec 2005 10:18:30 -0500
+Date: Fri, 9 Dec 2005 10:18:11 -0500
+From: Matt Tolentino <metolent@cs.vt.edu>
+Message-Id: <200512091518.jB9FIBTk006637@ap1.cs.vt.edu>
+To: ak@muc.de, akpm@osdl.org
+Subject: [patch 1/3] remove unused pgdat in sparsemem add_section
+Cc: apw@shadowen.org, linux-kernel@vger.kernel.org,
+       matthew.e.tolentino@intel.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 03:05:59PM +0100, Olaf Hering wrote:
-> 
-> If you can queue this up in -mm for a decade or two, just to make sure
-> it doesnt make some setup unhappy.
-> 
-> 
-> a POWER4 system in 'full-system-partition' mode has the console device
-> on ttyS0. But the user interface to the Linux system console may still
-> be on the hardware management console (HMC). If this is the case, there
-> is no way to send a break to trigger a sysrq.
-> Other setups do already use 'ctrl o' to trigger sysrq. This includes iSeries
-> virtual console on tty1, and pSeries LPAR console on hvc0 or hvsi0.
-> 
-> 'ctrl o' is currently mapped to 'flush output', see 'stty -a'
+Trivial patch to remove an used variable in the __add_section 
+function.  Looks like pgdat updating was moved into a subfunction.  
 
-And... you're going to make it impossible to run ppp over the serial
-console port.  For everyone, not just your big POWER4 boxes.  As far as
-I know, if you turn off the printk log level, this should work just
-fine today.
+Signed-off-by: Matt Tolentino <matthew.e.tolentino@intel.com>
+---
 
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+diff -urNp linux-2.6.15-rc5/mm/memory_hotplug.c linux-2.6.15-rc5-mt/mm/memory_hotplug.c
+--- linux-2.6.15-rc5/mm/memory_hotplug.c	2005-12-04 00:10:42.000000000 -0500
++++ linux-2.6.15-rc5-mt/mm/memory_hotplug.c	2005-12-08 15:41:46.000000000 -0500
+@@ -42,7 +42,6 @@ extern int sparse_add_one_section(struct
+ 				  int nr_pages);
+ static int __add_section(struct zone *zone, unsigned long phys_start_pfn)
+ {
+-	struct pglist_data *pgdat = zone->zone_pgdat;
+ 	int nr_pages = PAGES_PER_SECTION;
+ 	int ret;
+ 

@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbVLIRc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbVLIReF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbVLIRc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 12:32:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbVLIRc6
+	id S932509AbVLIReF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 12:34:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbVLIReF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 12:32:58 -0500
-Received: from colin.muc.de ([193.149.48.1]:11012 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932455AbVLIRc5 (ORCPT
+	Fri, 9 Dec 2005 12:34:05 -0500
+Received: from cantor.suse.de ([195.135.220.2]:56263 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932515AbVLIReD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 12:32:57 -0500
-Date: 9 Dec 2005 18:32:49 +0100
-Date: Fri, 9 Dec 2005 18:32:49 +0100
-From: Andi Kleen <ak@muc.de>
-To: Matt Tolentino <metolent@cs.vt.edu>
-Cc: akpm@osdl.org, discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       matthew.e.tolentino@intel.com
-Subject: Re: [patch 3/3] add x86-64 support for memory hot-add
-Message-ID: <20051209173249.GA54033@muc.de>
-References: <200512091523.jB9FNn5J006697@ap1.cs.vt.edu>
+	Fri, 9 Dec 2005 12:34:03 -0500
+Date: Fri, 9 Dec 2005 18:34:01 +0100
+From: Andi Kleen <ak@suse.de>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Rohit Seth <rohit.seth@intel.com>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: [RFC][PATCH 2/3]i386,x86-64 Handle missing local APIC timer interrupts on C3 state
+Message-ID: <20051209173401.GG11190@wotan.suse.de>
+References: <20051208181040.C32524@unix-os.sc.intel.com> <Pine.LNX.4.64.0512090003460.26307@montezuma.fsmlabs.com> <20051209044938.A26619@unix-os.sc.intel.com> <Pine.LNX.4.64.0512090933540.26307@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200512091523.jB9FNn5J006697@ap1.cs.vt.edu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.64.0512090933540.26307@montezuma.fsmlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 10:23:49AM -0500, Matt Tolentino wrote:
-> --- linux-2.6.15-rc5/arch/x86_64/mm/init.c	2005-12-04 00:10:42.000000000 -0500
-> +++ linux-2.6.15-rc5-matt/arch/x86_64/mm/init.c	2005-12-08 15:02:30.000000000 -0500
-> @@ -23,6 +23,8 @@
->  #include <linux/bootmem.h>
->  #include <linux/proc_fs.h>
->  #include <linux/pci.h>
-> +#include <linux/module.h>
-> +#include <linux/memory_hotplug.h>
->  
->  #include <asm/processor.h>
->  #include <asm/system.h>
-> @@ -174,13 +176,19 @@ static  struct temp_map { 
->  	{}
->  }; 
->  
-> -static __init void *alloc_low_page(int *index, unsigned long *phys) 
-> +static __devinit void *alloc_low_page(int *index, unsigned long *phys) 
+> 
+> zwane@montezuma linux-2.6-hg-x86_64 {0:1} grep switch_ipi_to_APIC_timer /tmp/patch[1234]
+> /tmp/patch2:+void switch_ipi_to_APIC_timer(void *cpumask);
+> /tmp/patch2:+void switch_ipi_to_APIC_timer(void *cpumask)
+> /tmp/patch2:+EXPORT_SYMBOL(switch_ipi_to_APIC_timer);
+> /tmp/patch4:+void switch_ipi_to_APIC_timer(void *cpumask)
+> /tmp/patch4:+EXPORT_SYMBOL(switch_ipi_to_APIC_timer);
+> /tmp/patch4:+void switch_ipi_to_APIC_timer(void *cpumask);
+> 
+> Or will it only be used in future?
 
-These should be all __cpuinit.
-
-In general SRAT has a hotplug memory bit so it's possible
-to predict how much memory there will be in advance. Since
-the overhead of the kernel page tables should be very
-low I would prefer if you just used instead.
-
-(i.e. instead of extending the kernel mapping preallocate
-the direct mapping and just clear the P bits) 
-
-That should be much simpler.
+It should be used in drivers/acpi/processor_* before enabling C3.
+Or at least it was that way in some earlier patches Venki sent
+around.
 
 -Andi
-

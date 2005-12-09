@@ -1,109 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbVLIOQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVLIOXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbVLIOQF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 09:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVLIOQE
+	id S932149AbVLIOXE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 09:23:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbVLIOXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 09:16:04 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:12773 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932131AbVLIOQC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 09:16:02 -0500
-Message-ID: <43999199.70608@us.ibm.com>
-Date: Fri, 09 Dec 2005 09:15:53 -0500
-From: JANAK DESAI <janak@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922
-X-Accept-Language: en-us, en
+	Fri, 9 Dec 2005 09:23:04 -0500
+Received: from ihemail1.lucent.com ([192.11.222.161]:38350 "EHLO
+	ihemail1.lucent.com") by vger.kernel.org with ESMTP id S932108AbVLIOXB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 09:23:01 -0500
+Message-ID: <0C6AA2145B810F499C69B0947DC5078105F7959B@oh0012exch001p.cb.lucent.com>
+From: "Gupta, Deepak (Deepak)" <deepakgupta@lucent.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Linux 2.6 Partition Compat Bug??
+Date: Fri, 9 Dec 2005 09:22:59 -0500 
 MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: Ingo Molnar <mingo@elte.hu>, chrisw@osdl.org, dwmw2@infradead.org,
-       jamie@shareable.org, serue@us.ibm.com, linuxram@us.ibm.com,
-       jmorris@namei.org, sds@tycho.nsa.gov, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 1/5] New system call, unshare
-References: <1134079791.5476.8.camel@hobbs.atlanta.ibm.com> <20051209105502.GA20314@elte.hu> <20051209120244.GL27946@ftp.linux.org.uk>
-In-Reply-To: <20051209120244.GL27946@ftp.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
 
->On Fri, Dec 09, 2005 at 11:55:02AM +0100, Ingo Molnar wrote:
->  
->
->>* JANAK DESAI <janak@us.ibm.com> wrote:
->>
->>    
->>
->>>[PATCH -mm 1/5] unshare system call: System call handler function 
->>>sys_unshare
->>>      
->>>
->>>+       if (unshare_flags & ~(CLONE_NEWNS | CLONE_VM))
->>>+               goto errout;
->>>      
->>>
->>just curious, did you consider all the other CLONE_* flags as well, to 
->>see whether it makes sense to add unshare support for them?
->>    
->>
->
->IMO the right thing to do is
->	* accept *all* flags from the very beginning
->	* check constraints ("CLONE_NEWNS must be accompanied by CLONE_FS")
->and either -EINVAL if they are not satisfied or silently force them.
->	* for each unimplemented flag check if we corresponding thing
->is shared; -EINVAL otherwise.
->
->Then for each flag we care to implement we should replace such check with
->actual unsharing - a patch per flag.
->
->CLONE_FS and CLONE_FILES are *definitely* worth implementing and are
->trivial to implement.  The only thing we must take care of is doing
->all replacements under task_lock, without dropping it between updates.
->  
->
 
-Ok, thanks. I will restructure code and reorganize patches accordingly 
-and post
-updated patches.
+All,
 
-To answer Ingo's question, we did look at other flags when I started. 
-However,
-I wanted to keep the system call simple enough, with atleast namespace 
-unsharing,
-so it would get accepted. In the original discussion on fsdevel, 
-unsharing of vm
-was mentioned as useful so I added that in addition to namespace unsharing.
+I am trying to mount UnixWare slices on Linux 2.6 and I see that the kernel I am running has the following configured:
 
->I would say that CLONE_SIGHAND is also an obvious candidate for adding.
->  
->
-I did have signal handler unsharing in one of the earlier incarnation of 
-the patch,
-however Chris Wright alerted me (on IRC) to a possible problem with posix
-real time signals if we allow unsharing of signal handlers. He pointed 
-me to the
-way send_sigqueue is stashing sighand lock for later use and since 
-timers are
-flushed on exec and exit, it may lead to an oops. Since my primary 
-interest was
-in namespace unsharing, I disallowed unsharing of signal handler. I will 
-take a
-look at it more detail and come back with specific issues with sighand
-unsharing.
+CONFIG_UNIXWARE_DISKLABEL=y
 
-Thanks.
+My system currently has a few logical disks which have UnixWare slices on them (vxfs), and when I try to mount these, I only see a single partition (sdd4 for e.g.) that says GNU HURD or SYSV (which is expected).  And I do not see any other device under /dev that might pertain to the UnixWare slices.  My questions:
 
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
+1.   What does configuring in the unixware slice support in Linux mean?  Is this a bug that compatibility is claimed but does not actually exist?
 
+Many thanks for your time,
+
+-Deepak
+
+ 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html

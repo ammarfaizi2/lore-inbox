@@ -1,96 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbVLITzO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbVLIT4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964875AbVLITzO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 14:55:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVLITzO
+	id S932423AbVLIT4a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 14:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbVLIT4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 14:55:14 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:59105 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932423AbVLITzM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 14:55:12 -0500
-From: Jesse Barnes <jesse.barnes@intel.com>
-To: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       Ian Romanick <idr@us.ibm.com>
-Subject: [PATCH] document sysfs rom file interface
-Date: Fri, 9 Dec 2005 11:55:03 -0800
-User-Agent: KMail/1.9
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_XEemDuJjIGAKH0r"
-Message-Id: <200512091155.03552.jesse.barnes@intel.com>
+	Fri, 9 Dec 2005 14:56:30 -0500
+Received: from natblindhugh.rzone.de ([81.169.145.175]:8367 "EHLO
+	natblindhugh.rzone.de") by vger.kernel.org with ESMTP
+	id S932423AbVLIT4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 14:56:30 -0500
+Subject: Re: [PATCH] x86_64: Display HPET timer option
+From: Erwin Rol <mailinglists@erwinrol.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051201211848.GE997@wotan.suse.de>
+References: <Pine.LNX.4.64.0512011143350.13220@montezuma.fsmlabs.com>
+	 <Pine.LNX.4.64.0512011150110.3099@g5.osdl.org>
+	 <Pine.LNX.4.64.0512011216200.13220@montezuma.fsmlabs.com>
+	 <20051201204339.GC997@wotan.suse.de>
+	 <1133471197.3604.3.camel@xpc.home.erwinrol.com>
+	 <20051201211848.GE997@wotan.suse.de>
+Content-Type: text/plain
+Date: Fri, 09 Dec 2005 20:56:17 +0100
+Message-Id: <1134158178.3686.2.camel@xpc.home.erwinrol.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.5.2 (2.5.2-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_XEemDuJjIGAKH0r
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hey Andi,
 
-idr gently pointed out today that not only is the sysfs rom file 
-interface somewhat unintuitive (despite my efforts and initial 
-implementation), but it's also undocumented!  This patch to 
-Documentation/filesystems/sysfs-pci.txt corrects the latter problem; the 
-former is a userland ABI now though, so we're stuck with it for awhile 
-at least.
+I looked a bit better at what happens (by adding a bunch of printk's in
+drivers/char/hpet.c) and it seems that read_counter(&hpet->hpet_mc);
+always returns -1 and that causes the following loop in 
+static unsigned long hpet_calibrate(struct hpets *hpetp)
+to endlessly loop while having local_irq_save(flags).
 
-Signed-off-by: Jesse Barnes <jbarnes@virtuousgeek.org>
+do {
+	m = read_counter(&hpet->hpet_mc);
+        write_counter(t + m + hpetp->hp_delta, &timer->hpet_compare);
+} while (i++, (m - start) < count);
+
+count is 0xe9 and start and (m - start) is 0. 
+
+What could be the reason that read_counter(&hpet->hpet_mc) is and stays
+-1 ?
 
 
---Boundary-00=_XEemDuJjIGAKH0r
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="sysfs-rom-file-documentation.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="sysfs-rom-file-documentation.patch"
+- Erwin 
 
-diff --git a/Documentation/filesystems/sysfs-pci.txt b/Documentation/filesystems/sysfs-pci.txt
-index 988a62f..7ba2baa 100644
---- a/Documentation/filesystems/sysfs-pci.txt
-+++ b/Documentation/filesystems/sysfs-pci.txt
-@@ -1,4 +1,5 @@
- Accessing PCI device resources through sysfs
-+--------------------------------------------
- 
- sysfs, usually mounted at /sys, provides access to PCI resources on platforms
- that support it.  For example, a given bus might look like this:
-@@ -47,14 +48,21 @@ files, each with their own function.
-   binary - file contains binary data
-   cpumask - file contains a cpumask type
- 
--The read only files are informational, writes to them will be ignored.
--Writable files can be used to perform actions on the device (e.g. changing
--config space, detaching a device).  mmapable files are available via an
--mmap of the file at offset 0 and can be used to do actual device programming
--from userspace.  Note that some platforms don't support mmapping of certain
--resources, so be sure to check the return value from any attempted mmap.
-+The read only files are informational, writes to them will be ignored, with
-+the exception of the 'rom' file.  Writable files can be used to perform
-+actions on the device (e.g. changing config space, detaching a device).
-+mmapable files are available via an mmap of the file at offset 0 and can be
-+used to do actual device programming from userspace.  Note that some platforms
-+don't support mmapping of certain resources, so be sure to check the return
-+value from any attempted mmap.
-+
-+The 'rom' file is special in that it provides read-only access to the device's
-+ROM file, if available.  It's disabled by default, however, so applications
-+should write the string "1" to the file to enable it before attempting a read
-+call, and disable it following the access by writing "0" to the file.
- 
- Accessing legacy resources through sysfs
-+----------------------------------------
- 
- Legacy I/O port and ISA memory resources are also provided in sysfs if the
- underlying platform supports them.  They're located in the PCI class heirarchy,
-@@ -75,6 +83,7 @@ simply dereference the returned pointer 
- to access legacy memory space.
- 
- Supporting PCI access on new platforms
-+--------------------------------------
- 
- In order to support PCI resource mapping as described above, Linux platform
- code must define HAVE_PCI_MMAP and provide a pci_mmap_page_range function.
+On Thu, 2005-12-01 at 22:18 +0100, Andi Kleen wrote: 
+> On Thu, Dec 01, 2005 at 10:06:37PM +0100, Erwin Rol wrote:
+> > On Thu, 2005-12-01 at 21:43 +0100, Andi Kleen wrote:
+> > > On Thu, Dec 01, 2005 at 12:30:03PM -0800, Zwane Mwaikambo wrote:
+> > > > On Thu, 1 Dec 2005, Linus Torvalds wrote:
+> > > > 
+> > > > > On Thu, 1 Dec 2005, Zwane Mwaikambo wrote:
+> > > > > >
+> > > > > > Currently the HPET timer option isn't visible in menuconfig.
+> > > > > 
+> > > > > Do you want it to?
+> > > > > 
+> > > > > Why would you ever compile it out?
+> > > > 
+> > > > For timer testing purposes i sometimes would like not to use the HPET. 
+> > > > Would a runtime switch be preferred?
+> > > 
+> > > nohpet already exists.
+> > > 
+> > 
+> > And luckily it does cause without "nohpet" i can't boot my shuttle
+> > ST20G5, the NMI watchdog kills it because ti hangs when initializing the
+> > hpet. If the nmi watchdog is off it just hangs for ever. 
+> 
+> Can you give details on the machine? lspci, dmidecode, acpidmp output,
+> boot log from the hang case?
+> 
+> Then perhaps it can be blacklisted or the failure otherwise avoided.
+> 
+> [Looks like I finally need to add DMI decode support to x86-64 too :-/]
+> 
+> -Andi
+> 
+> 
 
---Boundary-00=_XEemDuJjIGAKH0r--

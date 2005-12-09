@@ -1,86 +1,219 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbVLIBw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbVLICKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750965AbVLIBw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 20:52:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbVLIBw5
+	id S1750901AbVLICKL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 21:10:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbVLICKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 20:52:57 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:54956 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750961AbVLIBw4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 20:52:56 -0500
-Message-ID: <4398E364.6050605@pobox.com>
-Date: Thu, 08 Dec 2005 20:52:36 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: 2.6.15-rc5-mm1
-References: <20051204232153.258cd554.akpm@osdl.org> <4398D967.4020309@ums.usu.ru>
-In-Reply-To: <4398D967.4020309@ums.usu.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Alexander E. Patrakov wrote: > Andrew Morton wrote: >
-	>>
-	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm1/
-	>> > > > I just noticed (maybe too late) that this kernel has the
-	"pata_via" > driver and decided to try it. It works here, but has one
-	drawback: it is > slower than the old "via82cxxx" IDE driver. > > My
-	configuration with the via82cxxx driver: > > /dev/hda = disk, QUANTUM
-	FIREBALLlct20 > Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1 > >
-	/dev/hdb = SAMSUNG CD-ROM SC-148F > Drive is old, supports only mdma2 >
-	> There are also /dev/hdc and /dev/hdd, irrelevant here. > > With the
-	via82cxxx driver, I can get speed around 20 MB/s from /dev/hda. > The
-	pata_via driver downgrades this to 7 MB/s because it needlessly > drops
-	the disk to MWDMA2 mode. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+	Thu, 8 Dec 2005 21:10:11 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:18056 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750901AbVLICKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 21:10:09 -0500
+Date: Thu, 8 Dec 2005 18:09:56 -0800
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Rohit Seth <rohit.seth@intel.com>,
+       Len Brown <len.brown@intel.com>
+Subject: [RFC][PATCH 1/3]i386,x86-64 Handle missing local APIC timer interrupts on C3 state
+Message-ID: <20051208180956.B32524@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander E. Patrakov wrote:
-> Andrew Morton wrote:
-> 
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm1/ 
->>
-> 
-> 
-> I just noticed (maybe too late) that this kernel has the "pata_via" 
-> driver and decided to try it. It works here, but has one drawback: it is 
-> slower than the old "via82cxxx" IDE driver.
-> 
-> My configuration with the via82cxxx driver:
-> 
-> /dev/hda = disk, QUANTUM FIREBALLlct20
-> Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1
-> 
-> /dev/hdb = SAMSUNG CD-ROM SC-148F
-> Drive is old, supports only mdma2
-> 
-> There are also /dev/hdc and /dev/hdd, irrelevant here.
-> 
-> With the via82cxxx driver, I can get speed around 20 MB/s from /dev/hda. 
-> The pata_via driver downgrades this to 7 MB/s because it needlessly 
-> drops the disk to MWDMA2 mode.
 
-That's expected, as libata currently limits all drives on a bus to the 
-maximum speed of the slowest drive.  That's needed by some controllers, 
-but not all.
+Remove the finer control of local APIC timer. We cannot provide a sub-jiffy
+control like this when we use broadcast from external timer in place of 
+local APIC. Instead of removing this only on systems that may end up using 
+broadcast from external timer (due to C3), I am going the
+"I'm feeling lucky" way to remove this fully. Basically, I am not sure about
+usefulness of this code today. Few other architectures also don't seem to 
+support this today. 
 
-I'm pretty sure Alan plans to fix that (at least ISTR him mentioning it).
+If you are using profiling and fine grained control and don't like this going
+away in normal case, yell at me right now.
 
-	Jeff
+Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
 
-
+Index: linux-2.6.15-rc3/arch/x86_64/kernel/apic.c
+===================================================================
+--- linux-2.6.15-rc3.orig/arch/x86_64/kernel/apic.c
++++ linux-2.6.15-rc3/arch/x86_64/kernel/apic.c
+@@ -41,10 +41,6 @@ int disable_apic_timer __initdata;
+ /* Using APIC to generate smp_local_timer_interrupt? */
+ int using_apic_timer = 0;
+ 
+-static DEFINE_PER_CPU(int, prof_multiplier) = 1;
+-static DEFINE_PER_CPU(int, prof_old_multiplier) = 1;
+-static DEFINE_PER_CPU(int, prof_counter) = 1;
+-
+ static void apic_pm_activate(void);
+ 
+ void enable_NMI_through_LVT0 (void * dummy)
+@@ -805,32 +801,9 @@ void enable_APIC_timer(void)
+ 	}
+ }
+ 
+-/*
+- * the frequency of the profiling timer can be changed
+- * by writing a multiplier value into /proc/profile.
+- */
+ int setup_profiling_timer(unsigned int multiplier)
+ {
+-	int i;
+-
+-	/*
+-	 * Sanity check. [at least 500 APIC cycles should be
+-	 * between APIC interrupts as a rule of thumb, to avoid
+-	 * irqs flooding us]
+-	 */
+-	if ( (!multiplier) || (calibration_result/multiplier < 500))
+-		return -EINVAL;
+-
+-	/* 
+-	 * Set the new multiplier for each CPU. CPUs don't start using the
+-	 * new values until the next timer interrupt in which they do process
+-	 * accounting. At that time they also adjust their APIC timers
+-	 * accordingly.
+-	 */
+-	for (i = 0; i < NR_CPUS; ++i)
+-		per_cpu(prof_multiplier, i) = multiplier;
+-
+-	return 0;
++	return -EINVAL;
+ }
+ 
+ #ifdef CONFIG_X86_MCE_AMD
+@@ -857,32 +830,10 @@ void setup_threshold_lvt(unsigned long l
+ 
+ void smp_local_timer_interrupt(struct pt_regs *regs)
+ {
+-	int cpu = smp_processor_id();
+-
+ 	profile_tick(CPU_PROFILING, regs);
+-	if (--per_cpu(prof_counter, cpu) <= 0) {
+-		/*
+-		 * The multiplier may have changed since the last time we got
+-		 * to this point as a result of the user writing to
+-		 * /proc/profile. In this case we need to adjust the APIC
+-		 * timer accordingly.
+-		 *
+-		 * Interrupts are already masked off at this point.
+-		 */
+-		per_cpu(prof_counter, cpu) = per_cpu(prof_multiplier, cpu);
+-		if (per_cpu(prof_counter, cpu) != 
+-		    per_cpu(prof_old_multiplier, cpu)) {
+-			__setup_APIC_LVTT(calibration_result/
+-					per_cpu(prof_counter, cpu));
+-			per_cpu(prof_old_multiplier, cpu) =
+-				per_cpu(prof_counter, cpu);
+-		}
+-
+ #ifdef CONFIG_SMP
+-		update_process_times(user_mode(regs));
++	update_process_times(user_mode(regs));
+ #endif
+-	}
+-
+ 	/*
+ 	 * We take the 'long' return path, and there every subsystem
+ 	 * grabs the appropriate locks (kernel lock/ irq lock).
+Index: linux-2.6.15-rc3/arch/i386/kernel/apic.c
+===================================================================
+--- linux-2.6.15-rc3.orig/arch/i386/kernel/apic.c
++++ linux-2.6.15-rc3/arch/i386/kernel/apic.c
+@@ -92,10 +92,6 @@ void __init apic_intr_init(void)
+ /* Using APIC to generate smp_local_timer_interrupt? */
+ int using_apic_timer = 0;
+ 
+-static DEFINE_PER_CPU(int, prof_multiplier) = 1;
+-static DEFINE_PER_CPU(int, prof_old_multiplier) = 1;
+-static DEFINE_PER_CPU(int, prof_counter) = 1;
+-
+ static int enabled_via_apicbase;
+ 
+ void enable_NMI_through_LVT0 (void * dummy)
+@@ -1092,34 +1088,6 @@ void enable_APIC_timer(void)
+ 	}
+ }
+ 
+-/*
+- * the frequency of the profiling timer can be changed
+- * by writing a multiplier value into /proc/profile.
+- */
+-int setup_profiling_timer(unsigned int multiplier)
+-{
+-	int i;
+-
+-	/*
+-	 * Sanity check. [at least 500 APIC cycles should be
+-	 * between APIC interrupts as a rule of thumb, to avoid
+-	 * irqs flooding us]
+-	 */
+-	if ( (!multiplier) || (calibration_result/multiplier < 500))
+-		return -EINVAL;
+-
+-	/* 
+-	 * Set the new multiplier for each CPU. CPUs don't start using the
+-	 * new values until the next timer interrupt in which they do process
+-	 * accounting. At that time they also adjust their APIC timers
+-	 * accordingly.
+-	 */
+-	for (i = 0; i < NR_CPUS; ++i)
+-		per_cpu(prof_multiplier, i) = multiplier;
+-
+-	return 0;
+-}
+-
+ #undef APIC_DIVISOR
+ 
+ /*
+@@ -1134,32 +1102,10 @@ int setup_profiling_timer(unsigned int m
+ 
+ inline void smp_local_timer_interrupt(struct pt_regs * regs)
+ {
+-	int cpu = smp_processor_id();
+-
+ 	profile_tick(CPU_PROFILING, regs);
+-	if (--per_cpu(prof_counter, cpu) <= 0) {
+-		/*
+-		 * The multiplier may have changed since the last time we got
+-		 * to this point as a result of the user writing to
+-		 * /proc/profile. In this case we need to adjust the APIC
+-		 * timer accordingly.
+-		 *
+-		 * Interrupts are already masked off at this point.
+-		 */
+-		per_cpu(prof_counter, cpu) = per_cpu(prof_multiplier, cpu);
+-		if (per_cpu(prof_counter, cpu) !=
+-					per_cpu(prof_old_multiplier, cpu)) {
+-			__setup_APIC_LVTT(
+-					calibration_result/
+-					per_cpu(prof_counter, cpu));
+-			per_cpu(prof_old_multiplier, cpu) =
+-						per_cpu(prof_counter, cpu);
+-		}
+-
+ #ifdef CONFIG_SMP
+-		update_process_times(user_mode_vm(regs));
++	update_process_times(user_mode_vm(regs));
+ #endif
+-	}
+ 
+ 	/*
+ 	 * We take the 'long' return path, and there every subsystem
+@@ -1206,6 +1152,11 @@ fastcall void smp_apic_timer_interrupt(s
+ 	irq_exit();
+ }
+ 
++int setup_profiling_timer(unsigned int multiplier)
++{
++	return -EINVAL;
++}
++
+ /*
+  * This interrupt should _never_ happen with our APIC/SMP architecture
+  */

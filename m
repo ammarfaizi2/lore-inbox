@@ -1,73 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbVLIHMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbVLIHPp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932269AbVLIHMm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 02:12:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVLIHMm
+	id S932401AbVLIHPp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 02:15:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbVLIHPp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 02:12:42 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:16864 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S932269AbVLIHMl (ORCPT
+	Fri, 9 Dec 2005 02:15:45 -0500
+Received: from gate.perex.cz ([85.132.177.35]:29329 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S932397AbVLIHPo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 02:12:41 -0500
-Date: Fri, 9 Dec 2005 10:12:28 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Kumar Gala <galak@gate.crashing.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Grover <andrew.grover@intel.com>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       john.ronciak@intel.com, christopher.leech@intel.com
-Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
-Message-ID: <20051209071228.GB19920@2ka.mipt.ru>
-References: <4384F3AD.4080105@pobox.com> <Pine.LNX.4.44.0512081606060.24134-100000@gate.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0512081606060.24134-100000@gate.crashing.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 09 Dec 2005 10:12:29 +0300 (MSK)
+	Fri, 9 Dec 2005 02:15:44 -0500
+Date: Fri, 9 Dec 2005 08:15:42 +0100 (CET)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@tm8103.perex-int.cz
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Badari Pulavarty <pbadari@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, alsa-devel@alsa-project.org
+Subject: Re: [Alsa-devel] Re: 2.6.15-rc5-mm1
+In-Reply-To: <20051208230203.GA23349@stusta.de>
+Message-ID: <Pine.LNX.4.61.0512090814400.9355@tm8103.perex-int.cz>
+References: <20051204232153.258cd554.akpm@osdl.org>
+ <1134068983.21841.71.camel@localhost.localdomain> <20051208230203.GA23349@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 08, 2005 at 04:13:52PM -0600, Kumar Gala (galak@gate.crashing.org) wrote:
-> On Wed, 23 Nov 2005, Jeff Garzik wrote:
-> 
-> > Alan Cox wrote:
-> > >>Additionally, current IOAT is memory->memory.  I would love to be able 
-> > >>to convince Intel to add transforms and checksums, 
-> > > 
-> > > 
-> > > Not just transforms but also masks and maybe even merges and textures
-> > > would be rather handy 8)
-> > 
-> > 
-> > Ah yes:  I totally forgot to mention XOR.
-> > 
-> > Software RAID would love that.
-> 
-> A number of embedded processors already have HW that does these kinda of
-> things.  On Freescale PPC processors there have been general purpose DMA
-> engines for mem<->mem and more recently and additional crypto engines that
-> allow for hashing, XOR, and security.
-> 
-> I'm actually searching for any examples of drivers that deal with the 
-> issues related to DMA'ng directly two and from user space memory.
-> 
-> I have an ioctl based driver that does copies back and forth between user 
-> and kernel space and would like to remove that since the crypto engine has 
-> full scatter/gather capability.
-> 
-> The only significant effort I've come across is Peter Chubb's work for 
-> user mode drivers which has some code for handling pinning of the user 
-> space memory and what looks like generation of a scatter list.
+On Fri, 9 Dec 2005, Adrian Bunk wrote:
 
-Acrypto supports crypto processing directly in userspace pages.
-In 2.6 it is quite easy using get_user_pages().
-
-> - kumar
+> On Thu, Dec 08, 2005 at 11:09:43AM -0800, Badari Pulavarty wrote:
+> > On Sun, 2005-12-04 at 23:21 -0800, Andrew Morton wrote:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm1/
+> > 
+> > In file included from sound/pci/ens1371.c:2:
+> > sound/pci/ens1370.c: In function `snd_audiopci_probe':
+> > sound/pci/ens1370.c:2462: error: `spdif' undeclared (first use in this
+> > function)sound/pci/ens1370.c:2462: error: (Each undeclared identifier is
+> > reported only once
+> > sound/pci/ens1370.c:2462: error: for each function it appears in.)
+> > sound/pci/ens1370.c:2462: error: `lineio' undeclared (first use in this
+> > function)
+> > make[2]: *** [sound/pci/ens1371.o] Error 1
+> > make[2]: *** Waiting for unfinished jobs....
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Jaroslav, this seems to come from your
+> 
+>   [ALSA] ens1371: added spdif and lineio module option
+> 
+> patch in the ALSA git tree if SUPPORT_JOYSTICK=n.
 
--- 
-	Evgeniy Polyakov
+It's already fixed in ALSA git tree:
+
+    [ALSA] ens1371: fix compilation without SUPPORT_JOYSTICK
+
+    Modules: ENS1370/1+ driver
+
+    Move the spdif and lineio parameters around so that they are compiled
+    even when SUPPORT_JOYSTICK isn't set.
+
+    Signed-off-by: Clemens Ladisch <clemens@ladisch.de>
+
+
+						Jaroslav
+
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

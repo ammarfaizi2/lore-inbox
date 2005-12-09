@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbVLIR4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbVLIR5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbVLIR4x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 12:56:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbVLIR4x
+	id S964835AbVLIR5k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 12:57:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbVLIR5j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 12:56:53 -0500
-Received: from mail.kroah.org ([69.55.234.183]:25500 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964835AbVLIR4w (ORCPT
+	Fri, 9 Dec 2005 12:57:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:53706 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964849AbVLIR5i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 12:56:52 -0500
-Date: Fri, 9 Dec 2005 09:55:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14.3 - sysfs duplicated dentry bug
-Message-ID: <20051209175555.GA9761@kroah.com>
-References: <200512091848.42297.blaisorblade@yahoo.it>
+	Fri, 9 Dec 2005 12:57:38 -0500
+Date: Fri, 9 Dec 2005 09:57:33 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: 2.6.15-rc5 spits oodles of hw csum failures
+Message-ID: <20051209095733.7faf8e13@unknown-222.office.pdx.osdl.net>
+In-Reply-To: <20051209121220.GJ26185@suse.de>
+References: <20051209121220.GJ26185@suse.de>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512091848.42297.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 06:48:41PM +0100, Blaisorblade wrote:
-> Q: Since when is a directory entry allowed to be duplicate?
-> A: Since Linux 2.6.14!
-> 
-> $ uname -r
-> 2.6.14.3-bs2-mroute
-> 
-> The only sysfs-related change is the use of a custom DSDT, which is new to 
-> this kernel.
+You missed this patch that I posted just after Linus left for parts unknown.
 
-Known bug, fixed in the 2.6.15-rc kernel tree.  It was a timer
-registering with the same name in two places :(
-
-And yes, we should have more sysfs checks for stuff like this, any
-patches in this area would be greatly appreciated.
-
-thanks,
-
-greg k-h
+Index: linux-2.6/drivers/net/sk98lin/skge.c
+===================================================================
+--- linux-2.6.orig/drivers/net/sk98lin/skge.c
++++ linux-2.6/drivers/net/sk98lin/skge.c
+@@ -818,7 +818,7 @@ uintptr_t VNextDescr;	/* the virtual bus
+ 		/* set the pointers right */
+ 		pDescr->VNextRxd = VNextDescr & 0xffffffffULL;
+ 		pDescr->pNextRxd = pNextDescr;
+-		pDescr->TcpSumStarts = 0;
++		if (!IsTx) pDescr->TcpSumStarts = ETH_HLEN << 16 | ETH_HLEN;
+ 
+ 		/* advance one step */
+ 		pPrevDescr = pDescr;
+@@ -2169,7 +2169,7 @@ rx_start:	
+ 		} /* frame > SK_COPY_TRESHOLD */
+ 
+ #ifdef USE_SK_RX_CHECKSUM
+-		pMsg->csum = pRxd->TcpSums;
++		pMsg->csum = pRxd->TcpSums & 0xffff;
+ 		pMsg->ip_summed = CHECKSUM_HW;
+ #else
+ 		pMsg->ip_summed = CHECKSUM_NONE;

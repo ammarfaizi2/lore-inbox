@@ -1,89 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbVLIOPa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbVLIOQF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbVLIOPa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 09:15:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVLIOPa
+	id S932131AbVLIOQF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 09:16:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbVLIOQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 09:15:30 -0500
-Received: from smtp2.brturbo.com.br ([200.199.201.158]:27525 "EHLO
-	smtp2.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S932116AbVLIOP3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 09:15:29 -0500
-Subject: Re: [STABLE PATCH] V4L/DVB: Fix analog NTSC for Thomson DTT 761X
-	hybrid tuner
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: Michael Krufky <mkrufky@gmail.com>
-Cc: stable@kernel.org, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <43991E34.60503@gmail.com>
-References: <43991E34.60503@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 09 Dec 2005 11:57:29 -0200
-Message-Id: <1134136649.10677.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2-1mdk 
-Content-Transfer-Encoding: 8bit
+	Fri, 9 Dec 2005 09:16:04 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:12773 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932131AbVLIOQC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 09:16:02 -0500
+Message-ID: <43999199.70608@us.ibm.com>
+Date: Fri, 09 Dec 2005 09:15:53 -0500
+From: JANAK DESAI <janak@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: Ingo Molnar <mingo@elte.hu>, chrisw@osdl.org, dwmw2@infradead.org,
+       jamie@shareable.org, serue@us.ibm.com, linuxram@us.ibm.com,
+       jmorris@namei.org, sds@tycho.nsa.gov, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm 1/5] New system call, unshare
+References: <1134079791.5476.8.camel@hobbs.atlanta.ibm.com> <20051209105502.GA20314@elte.hu> <20051209120244.GL27946@ftp.linux.org.uk>
+In-Reply-To: <20051209120244.GL27946@ftp.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sex, 2005-12-09 às 01:03 -0500, Michael Krufky escreveu:
-> he following bugfix is already in 2.6.15-git1.  Please queue this up 
-> for 2.6.14.4
-> 
-> Thank you,
-> 
-> Michael Krufky
+Al Viro wrote:
 
+>On Fri, Dec 09, 2005 at 11:55:02AM +0100, Ingo Molnar wrote:
+>  
+>
+>>* JANAK DESAI <janak@us.ibm.com> wrote:
+>>
+>>    
+>>
+>>>[PATCH -mm 1/5] unshare system call: System call handler function 
+>>>sys_unshare
+>>>      
+>>>
+>>>+       if (unshare_flags & ~(CLONE_NEWNS | CLONE_VM))
+>>>+               goto errout;
+>>>      
+>>>
+>>just curious, did you consider all the other CLONE_* flags as well, to 
+>>see whether it makes sense to add unshare support for them?
+>>    
+>>
+>
+>IMO the right thing to do is
+>	* accept *all* flags from the very beginning
+>	* check constraints ("CLONE_NEWNS must be accompanied by CLONE_FS")
+>and either -EINVAL if they are not satisfied or silently force them.
+>	* for each unimplemented flag check if we corresponding thing
+>is shared; -EINVAL otherwise.
+>
+>Then for each flag we care to implement we should replace such check with
+>actual unsharing - a patch per flag.
+>
+>CLONE_FS and CLONE_FILES are *definitely* worth implementing and are
+>trivial to implement.  The only thing we must take care of is doing
+>all replacements under task_lock, without dropping it between updates.
+>  
+>
 
-> 
-> 
-> 
-> 
-> 
-> anexo Diferenças
-> entre arquivos
-> (thomson-dtt761x-tda9887-fix-ntsc.patch)
-> 
-> [PATCH] V4L/DVB: Fix analog NTSC for Thomson DTT 761X hybrid tuner
-> 
-> - Enable tda9887 on the following cx88 boards:
->   pcHDTV 3000
->   FusionHDTV3 Gold-T
-> - This ensures that analog NTSC video will function properly, without 
->   this patch, the tuner may appear to be broken.
-> 
-> Signed-off-by: Michael Krufky <mkrufky@m1k.net>
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Ok, thanks. I will restructure code and reorganize patches accordingly 
+and post
+updated patches.
 
-Acked-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-> ---
-> 
->  cx88-cards.c |    2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff -upr linux-2.6.14.3/drivers/media/video/cx88/cx88-cards.c
-> linux/drivers/media/video/cx88/cx88-cards.c
-> ---
-> linux-2.6.14.3/drivers/media/video/cx88/cx88-cards.c        2005-10-27
-> 20:02:08.000000000 -0400
-> +++ linux/drivers/media/video/cx88/cx88-cards.c 2005-12-09
-> 00:44:22.000000000 -0500
-> @@ -567,6 +567,7 @@ struct cx88_board cx88_boards[] = {
->                 .radio_type     = UNSET,
->                 .tuner_addr     = ADDR_UNSET,
->                 .radio_addr     = ADDR_UNSET,
-> +               .tda9887_conf   = TDA9887_PRESENT,
->                 .input          = {{
->                         .type   = CX88_VMUX_TELEVISION,
->                         .vmux   = 0,
-> @@ -711,6 +712,7 @@ struct cx88_board cx88_boards[] = {
->                 .radio_type     = UNSET,
->                 .tuner_addr     = ADDR_UNSET,
->                 .radio_addr     = ADDR_UNSET,
-> +               .tda9887_conf   = TDA9887_PRESENT,
->                 .input          = {{
->                          .type   = CX88_VMUX_TELEVISION,
->                          .vmux   = 0,
-> 
-Cheers, 
-Mauro.
+To answer Ingo's question, we did look at other flags when I started. 
+However,
+I wanted to keep the system call simple enough, with atleast namespace 
+unsharing,
+so it would get accepted. In the original discussion on fsdevel, 
+unsharing of vm
+was mentioned as useful so I added that in addition to namespace unsharing.
+
+>I would say that CLONE_SIGHAND is also an obvious candidate for adding.
+>  
+>
+I did have signal handler unsharing in one of the earlier incarnation of 
+the patch,
+however Chris Wright alerted me (on IRC) to a possible problem with posix
+real time signals if we allow unsharing of signal handlers. He pointed 
+me to the
+way send_sigqueue is stashing sighand lock for later use and since 
+timers are
+flushed on exec and exit, it may lead to an oops. Since my primary 
+interest was
+in namespace unsharing, I disallowed unsharing of signal handler. I will 
+take a
+look at it more detail and come back with specific issues with sighand
+unsharing.
+
+Thanks.
+
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
 

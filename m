@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbVLIMZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbVLIM25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbVLIMZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 07:25:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVLIMZJ
+	id S1751196AbVLIM25 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 07:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751219AbVLIM25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 07:25:09 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:52958 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1751027AbVLIMZH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 07:25:07 -0500
-Date: Fri, 9 Dec 2005 12:24:57 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       randy_d_dunlap@linux.intel.com, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-Message-ID: <20051209122457.GB26070@srcf.ucam.org>
-References: <20051208141811.GB21715@srcf.ucam.org> <1134052433.17102.17.camel@localhost.localdomain> <20051208145257.GB21946@srcf.ucam.org> <20051208171901.GA22451@srcf.ucam.org> <20051209114246.GB16945@infradead.org> <20051209114944.GA1068@havoc.gtf.org> <20051209115235.GB25771@srcf.ucam.org> <43997171.9060105@pobox.com> <20051209121124.GA25974@srcf.ucam.org> <439975AB.5000902@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 Dec 2005 07:28:57 -0500
+Received: from nproxy.gmail.com ([64.233.182.192]:20175 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751196AbVLIM24 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 07:28:56 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jkFDdBzL3+CbL+2lwNb5se62Q5lo5PB8hO+DagNGOm834N261fM0IU52cSJSFjQYdX3cguP6nQm9cKTbTzf4H/XSqD8ZnZr50LuyLIlG6/4FOUzSFFmdxglAgcIsdUessMXLt2NTSlPK53xE77k2siB9qL/WCep4NTpPEXZXazM=
+Message-ID: <81b0412b0512090428y4d525b54lf4cd7a7048107cb2@mail.gmail.com>
+Date: Fri, 9 Dec 2005 13:28:55 +0100
+From: Alex Riesen <raa.lkml@gmail.com>
+To: Deven Balani <devenbalani@gmail.com>
+Subject: Re: recording with out getting into user space.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <7a37e95e0512090057v5c2ab4cdwf1711144058cc77f@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <439975AB.5000902@pobox.com>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+References: <7a37e95e0512090057v5c2ab4cdwf1711144058cc77f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 07:16:43AM -0500, Jeff Garzik wrote:
+On 12/9/05, Deven Balani <devenbalani@gmail.com> wrote:
+> I am writing a libata-complaint SATA driver for an ARM board.
+>
+> I want to do data streaming from a tuner into the SATA hard disk.
+>
+> In other words, I am getting a buffer of stream in kernel space, which
+> I had to store it in SATA hard disk.
 
-> libata will immediately notice the ejection without ACPI's help.
+can this be of interest:
 
-http://linux.yyz.us/sata/sata-status.html claims that ICH6 doesn't 
-support hotswap. The Intel docs seem to say the same thing. Pulling the 
-drive out generates an ACPI interrupt but not a PCI one. I'm really 
-happy to be wrong here, it's just that everything I've been able to find 
-so far suggests that ACPI is the only way to get a notification that the 
-drive has gone missing :)
-
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+http://groups.google.de/group/fa.linux.kernel/browse_frm/thread/21b2b3215f35e21a/bcbc00b7a0151afd?tvc=1&q=linux-kernel+Make+pipe+data+structure+be+a+circular+list+of+pages#bcbc00b7a0151afd

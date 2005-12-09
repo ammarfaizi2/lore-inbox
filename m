@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932754AbVLHX4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbVLIAG6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932754AbVLHX4v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 18:56:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932756AbVLHX4u
+	id S932120AbVLIAG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 19:06:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932760AbVLIAG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 18:56:50 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:50169 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932754AbVLHX4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 18:56:50 -0500
-Subject: Re: [PATCH] Decrease number of pointer derefs in nfnetlink_queue.c
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: akpm@osdl.org, laforge@netfilter.org, jmorris@intercode.com.au,
-       coreteam@netfilter.org, linux-kernel@vger.kernel.org,
-       jesper.juhl@gmail.com
-In-Reply-To: <20051208.145148.36886043.davem@davemloft.net>
-References: <200512082336.01678.jesper.juhl@gmail.com>
-	 <20051208.145148.36886043.davem@davemloft.net>
+	Thu, 8 Dec 2005 19:06:58 -0500
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:58282 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S932120AbVLIAG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 19:06:58 -0500
+Subject: Re: for_each_online_cpu broken ?
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Dave Jones <DaveJ@redhat.com>
+Cc: Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051208062844.GF28201@redhat.com>
+References: <20051208050738.GE24356@redhat.com>
+	 <20051208052632.GF11190@wotan.suse.de> <20051208053302.GA28201@redhat.com>
+	 <1134022925.7235.28.camel@localhost>  <20051208062844.GF28201@redhat.com>
 Content-Type: text/plain
-Date: Thu, 08 Dec 2005 18:56:25 -0500
-Message-Id: <1134086185.6279.47.camel@localhost.localdomain>
+Organization: Cyclades
+Message-Id: <1134076293.7235.51.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 09 Dec 2005 10:03:30 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-08 at 14:51 -0800, David S. Miller wrote:
-> From: Jesper Juhl <jesper.juhl@gmail.com>
-> Date: Thu, 8 Dec 2005 23:36:01 +0100
+Hi.
+
+On Thu, 2005-12-08 at 16:28, Dave Jones wrote:
+> On Thu, Dec 08, 2005 at 04:22:05PM +1000, Nigel Cunningham wrote:
 > 
-> > Here's a small patch to decrease the number of pointer derefs in
-> > net/netfilter/nfnetlink_queue.c
-> > 
-> > Benefits of the patch:
-> >  - Fewer pointer dereferences should make the code slightly faster.
-> >  - Size of generated code is smaller
-> >  - improved readability
+>  > > Yep, I noticed it offers a maximum of 6 cpus on my way.
+>  > > As a sidenote, seems kinda funny (and wasteful maybe?), doing this
+>  > > on a lot of hardware that isn't hotplug capable. (Whilst I could
+>  > > disable cpu hotplug in my local build, this isn't an answer for
+>  > > a generic distro kernel).
+>  > 
+>  > Both suspend to disk (and suspend to ram?) implementations now depend on
+>  > hotplug_cpu to enable extra cpus, so there is at least one reason for
+>  > them to want hotplug support in a generic kernel.
 > 
-> And you verified the compiler isn't making these transformations
-> already?  It should be doing so via Common Subexpression Elimination
-> unless the derefs are scattered around with interspersed function
-> calls in which case the compiler cannot prove that the memory
-> behind the pointer does not change.
+> You mean suspend -> plug in a new cpu -> resume transitions ?
+> That sounds *terrifying*.
 
-Even if point one and two are not true, if it doesn't hurt size or
-performance, point three (improved readability) is definitely worth
-adding.
+Andi is right, it's just a logical unplug. But having said that, I
+suppose extra cpus could be plugged/unplugged during a suspend to disk.
+Not that I've ever tried it. I have a real SMP mobo, but haven't had the
+opportunity to fire it up.
 
--- Steve
+Regards,
 
+Nigel
 

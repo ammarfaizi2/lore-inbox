@@ -1,54 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbVLISDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbVLISCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964844AbVLISDI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 13:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbVLISDI
+	id S1751283AbVLISCo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 13:02:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbVLISCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 13:03:08 -0500
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:47438 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S964839AbVLISDG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 13:03:06 -0500
-X-IronPort-AV: i="3.99,235,1131343200"; 
-   d="scan'208"; a="11811069:sNHT27904012"
-Date: Fri, 9 Dec 2005 12:03:05 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Cc: minyard@acm.org
-Subject: [PATCH 2.6] ipmi: panic generator ID
-Message-ID: <20051209180305.GB29231@lists.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Fri, 9 Dec 2005 13:02:44 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:26569 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751283AbVLISCn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 13:02:43 -0500
+Message-ID: <4399D852.47E0BB4E@tv-sign.ru>
+Date: Fri, 09 Dec 2005 22:17:38 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: vatsa@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Fix RCU race in access of nohz_cpu_mask
+References: <439889FA.BB08E5E1@tv-sign.ru> <20051209024623.GA14844@in.ibm.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The IPMI specifcation says the generator ID is 0x20, but that is for
-bits 7-1.  Bit 0 is set to specify it is a software event.  The
-correct value is 0x41.  Without this fix, panic events written into
-the System Event Log appear to come from an "unknown" generator,
-rather than from the kernel.
+Srivatsa Vaddagiri wrote:
+> 
+> On Thu, Dec 08, 2005 at 10:31:06PM +0300, Oleg Nesterov wrote:
+> > I can't see how this change can prevent idle cpus to be included in
+> > ->cpumask, cpu can add itself to nohz_cpu_mask right after some other
+> > cpu started new grace period.
+> 
+> Yes that can happen, but if they check for rcu_pending right after that
+> it will prevent them from going tickless atleast (which will prevent grace
+> periods from being unnecessarily extended). Something like below:
+> 
+>         CPU0                                    CPU1
+> 
+>         rcp->cur++;     /* New GP */
+> 
+>         smp_mb();
 
-Signed-off-by: Jordan Hargrave <Jordan_Hargrave@dell.com>
-Signed-off-by: Matt Domsch <Matt_Domsch@dell.com>
-Ack'd-by: Corey Minyard <minyard@acm.org>
+I think I need some education on memory barriers.
 
+Does this mb() garantees that the new value of ->cur will be visible
+on other cpus immediately after smp_mb() (so that rcu_pending() will
+notice it) ?
 
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+My understanding is that it only garantees that all stores before it
+must be visible before any store after mb. (yes, mb implies rmb, but
+I think it does not matter if CPU1 adds itself to nonhz mask after
+CPU0 reads nohz_cpu_mask). This means that CPU1 can read the stale
+value of ->cur. I guess I am wrong, but I can't prove it to myself.
 
---- linux-2.6/drivers/char/ipmi/ipmi_msghandler.c	Tue Dec  6 12:53:19 2005
-+++ linux-2.6/drivers/char/ipmi/ipmi_msghandler.c	Fri Dec  9 10:27:42 2005
-@@ -2986,7 +2986,7 @@ static void send_panic_events(char *str)
- 	msg.cmd = 2; /* Platform event command. */
- 	msg.data = data;
- 	msg.data_len = 8;
--	data[0] = 0x21; /* Kernel generator ID, IPMI table 5-4 */
-+	data[0] = 0x41; /* Kernel generator ID, IPMI table 5-4 */
- 	data[1] = 0x03; /* This is for IPMI 1.0. */
- 	data[2] = 0x20; /* OS Critical Stop, IPMI table 36-3 */
- 	data[4] = 0x6f; /* Sensor specific, IPMI table 36-1 */
+Could you please clarify this?
+
+Even simpler question:
+
+CPU0
+	var = 1;
+	wmb();
+
+after that CPU1 does rmb().
+
+Does it garantees that CPU1 will see the new value of var?
+
+> Ideally we would have needed a smp_mb() in CPU1 also between setting CPU1
+> in nohz_cpu_mask and checking for rcu_pending(), but I guess it is not needed
+> in s390 because of its strong ordering?
+
+I don't know, but please note that s390's definition of smp_mb__after_atomic_inc()
+is not a 'nop'.
+
+Oleg.

@@ -1,70 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbVLIVv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbVLIVwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932475AbVLIVv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 16:51:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbVLIVvz
+	id S964890AbVLIVwa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 16:52:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964882AbVLIVw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 16:51:55 -0500
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:33320 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S932453AbVLIVvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 16:51:54 -0500
+	Fri, 9 Dec 2005 16:52:27 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:56955 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S964884AbVLIVwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 16:52:13 -0500
 X-IronPort-AV: i="3.99,235,1131350400"; 
-   d="scan'208"; a="239406836:sNHT33273292"
-Subject: [git patch review 2/5] IB/cm: correct reported reject code
+   d="scan'208"; a="376315020:sNHT35474004534"
+Subject: [git patch review 5/5] IB/mthca: fix memory user DB table leak
 From: Roland Dreier <rolandd@cisco.com>
 Date: Fri, 09 Dec 2005 21:51:50 +0000
 To: linux-kernel@vger.kernel.org, openib-general@openib.org
 X-Mailer: IB-patch-reviewer
 Content-Transfer-Encoding: 8bit
-Message-ID: <1134165110300-7a2e27ea7ca96ec0@cisco.com>
-In-Reply-To: <1134165110300-0a7b2146d584150e@cisco.com>
-X-OriginalArrivalTime: 09 Dec 2005 21:51:51.0398 (UTC) FILETIME=[C30F3060:01C5FD0A]
+Message-ID: <1134165110301-b5d3e449a24a06fe@cisco.com>
+In-Reply-To: <1134165110301-ac635a95a66180bb@cisco.com>
+X-OriginalArrivalTime: 09 Dec 2005 21:51:51.0409 (UTC) FILETIME=[C310DE10:01C5FD0A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change reject code from TIMEOUT to CONSUMER_REJECT when destroying a
-cm_id in the process of connecting.
+Free the memory allocated in mthca_init_user_db_tab() when releasing
+the db_tab in mthca_cleanup_user_db_tab().
 
-Signed-off-by: Sean Hefty <sean.hefty@intel.com>
+Signed-off-by: Jack Morgenstein <jackm@mellanox.co.il>
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
 Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
 ---
 
- drivers/infiniband/core/cm.c |   13 +++++++++----
- 1 files changed, 9 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/mthca/mthca_memfree.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-227eca83690da7dcbd698d3268e29402e0571723
-diff --git a/drivers/infiniband/core/cm.c b/drivers/infiniband/core/cm.c
-index 02110e0..1fe2186 100644
---- a/drivers/infiniband/core/cm.c
-+++ b/drivers/infiniband/core/cm.c
-@@ -684,6 +684,13 @@ retest:
- 		cm_reject_sidr_req(cm_id_priv, IB_SIDR_REJECT);
- 		break;
- 	case IB_CM_REQ_SENT:
-+		ib_cancel_mad(cm_id_priv->av.port->mad_agent, cm_id_priv->msg);
-+		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
-+		ib_send_cm_rej(cm_id, IB_CM_REJ_TIMEOUT,
-+			       &cm_id_priv->av.port->cm_dev->ca_guid,
-+			       sizeof cm_id_priv->av.port->cm_dev->ca_guid,
-+			       NULL, 0);
-+		break;
- 	case IB_CM_MRA_REQ_RCVD:
- 	case IB_CM_REP_SENT:
- 	case IB_CM_MRA_REP_RCVD:
-@@ -694,10 +701,8 @@ retest:
- 	case IB_CM_REP_RCVD:
- 	case IB_CM_MRA_REP_SENT:
- 		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
--		ib_send_cm_rej(cm_id, IB_CM_REJ_TIMEOUT,
--			       &cm_id_priv->av.port->cm_dev->ca_guid,
--			       sizeof cm_id_priv->av.port->cm_dev->ca_guid,
--			       NULL, 0);
-+		ib_send_cm_rej(cm_id, IB_CM_REJ_CONSUMER_DEFINED,
-+			       NULL, 0, NULL, 0);
- 		break;
- 	case IB_CM_ESTABLISHED:
- 		spin_unlock_irqrestore(&cm_id_priv->lock, flags);
+52d0df153c987e4ad57d15f5df91848f65858e5d
+diff --git a/drivers/infiniband/hw/mthca/mthca_memfree.c b/drivers/infiniband/hw/mthca/mthca_memfree.c
+index d72fe95..5798ed0 100644
+--- a/drivers/infiniband/hw/mthca/mthca_memfree.c
++++ b/drivers/infiniband/hw/mthca/mthca_memfree.c
+@@ -485,6 +485,8 @@ void mthca_cleanup_user_db_tab(struct mt
+ 			put_page(db_tab->page[i].mem.page);
+ 		}
+ 	}
++
++	kfree(db_tab);
+ }
+ 
+ int mthca_alloc_db(struct mthca_dev *dev, enum mthca_db_type type,
 -- 
 0.99.9l

@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVLIQqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932461AbVLIQvx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbVLIQqB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 11:46:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbVLIQqB
+	id S932461AbVLIQvx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 11:51:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbVLIQvx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 11:46:01 -0500
-Received: from pin.if.uz.zgora.pl ([212.109.128.251]:55268 "EHLO
-	pin.if.uz.zgora.pl") by vger.kernel.org with ESMTP id S964789AbVLIQqA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 11:46:00 -0500
-Message-ID: <4399B619.1090508@pin.if.uz.zgora.pl>
-Date: Fri, 09 Dec 2005 17:51:37 +0100
-From: Jacek Luczak <difrost@pin.if.uz.zgora.pl>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: pl, en-us, en
+	Fri, 9 Dec 2005 11:51:53 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3594 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932283AbVLIQvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 11:51:52 -0500
+Date: Fri, 9 Dec 2005 17:51:50 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: akpm@osdl.org, cotte@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 3/17] s390: move s390_root_dev_* out of the cio layer.
+Message-ID: <20051209165150.GD23349@stusta.de>
+References: <20051209152345.GD6532@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.15-rc5 and Alsa 1.0.10
-References: <4399B195.9050801@pin.if.uz.zgora.pl> <Pine.LNX.4.61.0512091610160.24942@goblin.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.61.0512091610160.24942@goblin.wat.veritas.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051209152345.GD6532@skybase.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins napisał(a):
-> On Fri, 9 Dec 2005, Jacek Luczak wrote:
-> 
->>I'm using now 2.6.15-rc5 kernel with latest Alsa 1.0.10 and I received a lot
->>of 'bad page state at free_hot_cold_page' (see example below) messages. Is
->>this kernel or alsa error?
->>
->>System:
->>Slackware Linux, GCC 3.4.4, Binutils 2.16.1.
->>CPU: Pentium 4 3Ghz HT
->>Sound card: CMI9880 (HDA)
->>
->>Dec  9 16:53:20 slawek kernel: Bad page state at free_hot_cold_page (in
->>process 'xmms', page c12da9c0)
->>Dec  9 16:53:20 slawek kernel: flags:0x80000414 mapping:00000000 mapcount:0
->>count:0
-> 
-> 
-> I think that means you have a mismatch: that you're using core/memalloc.c
-> from alsa-driver-1.0.10/alsa-kernel rather than from 2.6.15-rc5/sound.
-> Applying the update below should eliminate your "Bad page state"s:
-> I've no idea whether there are other mismatches, quite possibly not.
-> 
-> Hugh
-> 
+On Fri, Dec 09, 2005 at 04:23:45PM +0100, Martin Schwidefsky wrote:
+>...
+> --- linux-2.6/drivers/s390/s390_rdev.c	1970-01-01 01:00:00.000000000 +0100
+> +++ linux-2.6-patched/drivers/s390/s390_rdev.c	2005-12-09 14:24:22.000000000 +0100
+>...
+> +static void
+> +s390_root_dev_release(struct device *dev)
+> +{
+> +	kfree(dev);
+> +}
+>...
+> +void
+> +s390_root_dev_unregister(struct device *dev)
+> +{
+> +	if (dev)
+> +		device_unregister(dev);
+> +}
+>...
+> --- linux-2.6/include/asm-s390/s390_rdev.h	1970-01-01 01:00:00.000000000 +0100
+> +++ linux-2.6-patched/include/asm-s390/s390_rdev.h	2005-12-09 14:24:22.000000000 +0100
+>...
+> +extern struct device *s390_root_dev_register(const char *);
+> +extern void s390_root_dev_unregister(struct device *);
+>...
 
-[snip]
+If you do _really_ need these wrappers, simply make them
+"static inline"'s in the header file.
 
-Big thanks!!! It really helped.
+cu
+Adrian
 
-	J.L.
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

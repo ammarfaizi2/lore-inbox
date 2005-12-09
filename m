@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbVLIEcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbVLIEvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbVLIEcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 23:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbVLIEcZ
+	id S1751280AbVLIEvN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 23:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbVLIEvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 23:32:25 -0500
-Received: from fmr16.intel.com ([192.55.52.70]:36047 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751277AbVLIEcY convert rfc822-to-8bit (ORCPT
+	Thu, 8 Dec 2005 23:51:13 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:34991 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751280AbVLIEvM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 23:32:24 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: ACPI owner_id limit too low
-Date: Thu, 8 Dec 2005 23:32:13 -0500
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30055EA5DF@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: ACPI owner_id limit too low
-Thread-Index: AcX8JEdkD3GBZiIASBK4qsgKxfzc5AAU7Mug
-From: "Brown, Len" <len.brown@intel.com>
-To: "Alex Williamson" <alex.williamson@hp.com>
-Cc: <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 09 Dec 2005 04:32:16.0225 (UTC) FILETIME=[888F1D10:01C5FC79]
+	Thu, 8 Dec 2005 23:51:12 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Alan Stern <stern@rowland.harvard.edu>, sekharan@us.ibm.com, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/7]: Fix for unsafe notifier chain 
+In-reply-to: Your message of "Wed, 07 Dec 2005 15:36:12 -0800."
+             <20051207153612.0de2ce38.akpm@osdl.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 09 Dec 2005 15:50:46 +1100
+Message-ID: <7821.1134103846@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alex,
+On Wed, 7 Dec 2005 15:36:12 -0800, 
+Andrew Morton <akpm@osdl.org> wrote:
+>As for the NMIs and RCU: I suspect it was simply a mistake to try to use
+>notifier chains for NMI registration in the first place - they are simply
+>too complex a data structure for this.  I think I previously suggested
+>removing that code and using just a fixed-size array of function pointers.
 
-Yes, ACPICA 20051202 upped the limit to 255 from 32,
-but as it is mixed in with some other large changes,
-I'm thinking I'll that release soak until the opening
-of 2.6.17.
+The notifier chain is a priority ordered list.  Registration and
+unregistration must be able to insert and delete anywhere in the list,
+which does not fit with a fixed-size array of pointers.
 
-So if you need a higher limit in 2.6.15 we can
-push this simpler patch, of if Linus shuts down
-2.6.15 when we returns we can send it to stable to
-get into 2.6.15.*
+There is also the problem that unregister must not return to its caller
+if any NMI type callback is running on any cpu.  The list and function
+body are held in caller defined storage and if unregistration returns
+too soon then the storage could be freed while the callback is still
+executing.
 
-thanks,
--Len
+I do not understand why people think that NMI callbacks are a hard
+problem to solve.  Besides RCU type solutions, there is also a patch
+based on an idea by Corey Minyard, see
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113392370322545&w=2.
+

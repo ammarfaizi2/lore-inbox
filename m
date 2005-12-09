@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbVLIKH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVLIKK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbVLIKH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 05:07:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVLIKH5
+	id S1751163AbVLIKK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 05:10:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbVLIKK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 05:07:57 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:1260 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751294AbVLIKH4 (ORCPT
+	Fri, 9 Dec 2005 05:10:26 -0500
+Received: from smtp1.wanadoo.fr ([193.252.22.30]:57637 "EHLO smtp1.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S1751163AbVLIKK0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 05:07:56 -0500
-Date: Fri, 9 Dec 2005 12:01:29 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Miguel de Icaza <miguel@nuclecu.unam.mx>,
-       Gadi Oxman <gadio@netvision.net.il>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Decrease number of pointer derefs in multipath.c
-Message-ID: <20051209110129.GB20314@elte.hu>
-References: <200512082336.30194.jesper.juhl@gmail.com>
+	Fri, 9 Dec 2005 05:10:26 -0500
+X-ME-UUID: 20051209101024832.CB2C01C00256@mwinf0101.wanadoo.fr
+Date: Fri, 9 Dec 2005 11:08:58 +0100
+To: yaird-devel@lists.alioth.debian.org,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Yaird-devel] [ANNOUNCE] yaird 0.0.12, a mkinitrd based on hotplug concepts
+Message-ID: <20051209100858.GA26472@localhost.localdomain>
+References: <20051209002235.A16206@banaan.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200512082336.30194.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.6
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.6 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20051209002235.A16206@banaan.localdomain>
+User-Agent: Mutt/1.5.9i
+From: Sven Luther <sven.luther@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 09, 2005 at 12:22:35AM +0100, Erik van Konijnenburg wrote:
+> Hmm, now that hotplug is being replaced with udev, it's time to come up
+> with a new blurb ...
 
-* Jesper Juhl <jesper.juhl@gmail.com> wrote:
+Notice that hotplug or udev or whatever are just the userland tools used to
+handle the kernel-side hotplug events, so it is a story of two names, a bit
+like initramfs-tools and initramfs :)
 
-> Hi,
-> 
-> Here's a small patch to decrease the number of pointer derefs in
-> drivers/md/multipath.c
-> 
-> Benefits of the patch:
->  - Fewer pointer dereferences should make the code slightly faster.
->  - Size of generated code is smaller
->  - improved readability
-> 
-> Please consider applying.
-> 
-> 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+Friendly,
 
-looks good to me.
+Sven Luther
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo

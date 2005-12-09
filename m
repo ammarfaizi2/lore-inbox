@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbVLIUSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932444AbVLIUVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbVLIUSL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 15:18:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbVLIUSL
+	id S932444AbVLIUVT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 15:21:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVLIUVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 15:18:11 -0500
-Received: from xproxy.gmail.com ([66.249.82.198]:12637 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932443AbVLIUSK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 15:18:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:from:to:subject:date:mime-version:content-type:content-transfer-encoding:x-priority:x-msmail-priority:x-mailer:disposition-notification-to:x-mimeole;
-        b=F8W3nFYTBP9KmtZO/0BHzh/3U0VgGNsldeTxkwQsThPt2qyFn3I6ijUHxiz8q9aqgiKjCYqMGWVIoZJkcIgyG4/rB21Zmdu5pKyj5gv8rCWsE0FECTeqZbTcr2YWeT+4fxesIz/IS3ln7+5FFVG6h0YiSr8eh0ZmI7nHYuF5H5s=
-Message-ID: <021301c5fd06$124ceeb0$152116ac@Thiago>
-From: "Thiago Moraes" <moraesthiago@gmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Kernel Error......
-Date: Fri, 9 Dec 2005 18:18:14 -0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
+	Fri, 9 Dec 2005 15:21:19 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:10160 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932444AbVLIUVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 15:21:19 -0500
+Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Kyle McMartin <kyle@mcmartin.ca>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051209195816.GF32168@quicksilver.road.mcmartin.ca>
+References: <1134154208.14363.8.camel@mindpipe>
+	 <20051209195816.GF32168@quicksilver.road.mcmartin.ca>
+Content-Type: text/plain
+Date: Fri, 09 Dec 2005 15:21:16 -0500
+Message-Id: <1134159677.18432.7.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-Priority: 1
-X-MSMail-Priority: High
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2005-12-09 at 14:58 -0500, Kyle McMartin wrote:
+> On Fri, Dec 09, 2005 at 01:50:08PM -0500, Lee Revell wrote:
+> > I'm trying to build an x66-64 kernel on a 32 bit system (Ubuntu 5.10).
+> > I added -m64 to the CFLAGS as per the gcc docs.  But the build fails
+> > with:
+> > 
+> > $ make ARCH=x86_64
+> > arch/x86_64/kernel/entry.S:785: Error: cannot represent relocation type BFD_RELOC_64
+> 
+> Ubuntu/Debian provide a biarch gcc, but do not (did not?) provide a biarch
+> assembler. Building binutils for target x86_64-pc-linux-gnu should help.
+> 
 
-I've trying to compile my kernel on Slackware 10.2, so, when i
-select NETWORKING OPTIONS menu is closed, and return to bash....
+I thought that might be the problem so I installed an x86-64 binutils
+from:
 
-I saved the showed information and collate here to you...
+http://debian.speedblue.org
 
-Can you helpe with this issue ???
+I tried with CROSS_COMPILE="/usr/x86_64/bin/x86_64-linux-", but edited
+the Makefile to set CC to /use/bin/gcc.  Same error.
 
-Tks,
+Lee
 
-Thiago Moraes
-thiago@igen.epm.br
-I.T. - Brazil
-
-=====================================================
-root@draco:/usr/src/linux# make menuconfig
-rm -f include/asm
-( cd include ; ln -sf asm-i386 asm)
-make -C scripts/lxdialog all
-make[1]: Entering directory `/usr/src/linux-2.4.31/scripts/lxdialog'
-make[1]: Leaving directory `/usr/src/linux-2.4.31/scripts/lxdialog'
-/bin/sh scripts/Menuconfig arch/i386/config.in
-Using defaults found in .config
-Preparing scripts: functions, parsing............./MCmenu19: line 149: 
-syntax error near unexpected token `fi'
-./MCmenu19: line 149: `fi'
-......................................................................done.
-
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
-
- Q> scripts/Menuconfig: line 832: MCmenu19: command not found
-
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
-
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
-
-make: *** [menuconfig] Error 1
-===================================================== 

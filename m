@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbVLITu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbVLITwD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932404AbVLITu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 14:50:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbVLITu4
+	id S964770AbVLITwD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 14:52:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbVLITwD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 14:50:56 -0500
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:17904 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932404AbVLITu4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 14:50:56 -0500
-Date: Fri, 9 Dec 2005 19:50:52 +0000 (GMT)
-From: Ken Moffat <zarniwhoop@ntlworld.com>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
-In-Reply-To: <1134154208.14363.8.camel@mindpipe>
-Message-ID: <Pine.LNX.4.63.0512091930440.19998@deepthought.mydomain>
-References: <1134154208.14363.8.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463809536-1381318133-1134157722=:19998"
-Content-ID: <Pine.LNX.4.63.0512091949060.19998@deepthought.mydomain>
+	Fri, 9 Dec 2005 14:52:03 -0500
+Received: from smtpout.mac.com ([17.250.248.73]:12503 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932424AbVLITwA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 14:52:00 -0500
+In-Reply-To: <1134151696.3278.2.camel@localhost>
+References: <r02010500-1043-55BAAD4668D211DA98840011248907EC@[10.64.61.57]> <1134148609.30856.22.camel@localhost> <E4ECF4F0-9442-4FFE-BE55-3EF7A1CC40F4@mac.com> <1134151696.3278.2.camel@localhost>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <DB1A6A43-DA12-4C5B-B195-5C01DED4CF3E@mac.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Mark Rustad <mrustad@mac.com>
+Subject: Re: [PATCH 2.6.15-rc5] hugetlb: make make_huge_pte global and fix coding style
+Date: Fri, 9 Dec 2005 13:51:55 -0600
+To: Dave Hansen <haveblue@us.ibm.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Dec 9, 2005, at 12:08 PM, Dave Hansen wrote:
 
----1463809536-1381318133-1134157722=:19998
-Content-Type: TEXT/PLAIN; CHARSET=X-UNKNOWN; FORMAT=flowed
-Content-Transfer-Encoding: 8BIT
-Content-ID: <Pine.LNX.4.63.0512091949061.19998@deepthought.mydomain>
-
-On Fri, 9 Dec 2005, Lee Revell wrote:
-
-> I'm trying to build an x66-64 kernel on a 32 bit system (Ubuntu 5.10).
-> I added -m64 to the CFLAGS as per the gcc docs.  But the build fails
-> with:
+> On Fri, 2005-12-09 at 11:55 -0600, Mark Rustad wrote:
+>> On Dec 9, 2005, at 11:16 AM, Dave Hansen wrote:
+>>
+>>> What driver needs to map huge pages?  Is it in the kernel tree
+>>> now?  If
+>>> not, can you post the source, please?
+>>
+>> It is a funky driver for an embedded system. I can't imagine it ever
+>> being in the kernel tree, because not many people want to share 768M
+>> of contiguous physical memory.
+>>
+>> I can post the source, but it really is a bunch of random stuff for
+>> am embedded application. We do make it available as part of our GPL
+>> source release to customers.
 >
-> $ make ARCH=x86_64
->  [...]
->  CC      init/initramfs.o
->  CC      init/calibrate.o
->  LD      init/built-in.o
->  CHK     usr/initramfs_list
->  CC      arch/x86_64/kernel/process.o
->  CC      arch/x86_64/kernel/signal.o
->  AS      arch/x86_64/kernel/entry.o
-> arch/x86_64/kernel/entry.S: Assembler messages:
-> arch/x86_64/kernel/entry.S:204: Error: cannot represent relocation type BFD_RELOC_X86_64_32S
+> You'd be surprised.  If we know what you're actually trying to do, we
+> might be able to suggest another option.  As Adam said, having  
+> userspace
+> mmap a hugetlb area, then hand it to the driver would certainly keep
+> your kernel modifications to a minimum.
 
-  Unless ubuntu provides a biarch toolchain (and the fact gcc accepts 
-'-m64' means nothing - use 'file' on init/built-in.o), you have to build 
-a cross toolchain, (just binutils and gcc), put that on your path, and 
-use
+Actually, the driver never touches any of the memory at all either  
+directly or indirectly - it simply maps the memory for the processes  
+that use it. Those processes actually contain PCI device drivers  
+which do DMA on much of the memory. The same memory also holds data  
+structures shared by those processes. If hugetlbfs could be  
+guaranteed to provide contiguous memory for a file, that could be  
+used in this application. We used to use remap_pfn_range in our  
+driver, but recent changes there made that not work for this  
+application, so I figured I may as well switch to huge pages for  
+these monster areas. At least, gdb was unable to access these large  
+shared areas, which is a deal-breaker for our developers.
 
-make ARCH=x86_64 CROSS_COMPILE=x86_64-pc-linux-gnu-
+In case you are wondering, these processes were ported onto Linux  
+from a different, non-x86-based, system that had three cpus which  
+could directly address each other's memory. They have now been  
+running happily on top of x86 Linux now for well over a year.
 
-  so that the build will use x86_64-pc-linux-gnu-as and friends.  You 
-should not need to mess with the CFLAGS.
-
-Ken
 -- 
-  das eine Mal als Tragödie, das andere Mal als Farce
----1463809536-1381318133-1134157722=:19998--
+Mark Rustad, MRustad@mac.com
+

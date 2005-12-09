@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbVLIPeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbVLIPp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932243AbVLIPeg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 10:34:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932373AbVLIPeg
+	id S932403AbVLIPp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 10:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVLIPp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 10:34:36 -0500
-Received: from ns2.suse.de ([195.135.220.15]:37075 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932243AbVLIPef (ORCPT
+	Fri, 9 Dec 2005 10:45:58 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:65237 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932403AbVLIPp6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 10:34:35 -0500
-Date: Fri, 9 Dec 2005 16:34:33 +0100
-From: Olaf Hering <olh@suse.de>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Sachin Sant <sachinp@in.ibm.com>
-Subject: Re: [PATCH] Adding ctrl-o sysrq hack support to 8250 driver
-Message-ID: <20051209153433.GB26963@suse.de>
-References: <20051209140559.GA23868@suse.de> <20051209152530.GE15372@harddisk-recovery.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20051209152530.GE15372@harddisk-recovery.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Fri, 9 Dec 2005 10:45:58 -0500
+Message-ID: <4399A68D.50504@suse.de>
+Date: Fri, 09 Dec 2005 16:45:17 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050715 Thunderbird/1.0.6 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][mm] swsusp: limit image size
+References: <200512072246.06222.rjw@sisk.pl>
+In-Reply-To: <200512072246.06222.rjw@sisk.pl>
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Fri, Dec 09, Erik Mouw wrote:
+Rafael J. Wysocki wrote:
 
-> > 'ctrl o' is currently mapped to 'flush output', see 'stty -a'
+> The following patch limits the size of the suspend image to approx. 500 MB,
+> which should improve the overall performance of swsusp on systems with
+> more than 1 GB of RAM.
 > 
-> Eww... If you can't use a serial break, why can't you use an
-> established control character like ctrl-] (telnet) or [enter]~ (ssh) ?
+> It introduces the constant IMAGE_SIZE that can be set to the preferred size
+> of the image (in MB) and modifies the memory-shrinking part of
+> swsusp to take this constant into account (500 is the default value
+> of IMAGE_SIZE).
 
-There are many ways to get to the console session on the HMC. One is
-ssh. But maybe this would work somehow.
-
-> If you really want to use ctrl-o, could you make a way that pressing
-> ctrl-o twice sends a single ctrl-o to the process attached to the
-> console?
-
-Sounds good. Have to check how to handle that. 
-
-> If it is a POWER4-only problem, why isn't there a dependency on
-> CONFIG_POWER4 over here? I don't like to have the ctrl-o sysrq stuff
-> enabled on my regular PC if it only matters to some rare (in absolute
-> numbers) system.
-
-More CONFIG_PPC_PSERIES, the mentioned option is for gcc optimization.
-
+What happens if IMAGE_SIZE is bigger than free swap? Do we "try harder"
+or do we fail?
 -- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen

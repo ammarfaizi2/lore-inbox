@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVLIK4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbVLILSu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbVLIK4o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 05:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVLIK4o
+	id S1751311AbVLILSu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 06:18:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbVLILSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 05:56:44 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:53630
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S932107AbVLIK4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 05:56:43 -0500
-Message-Id: <4399712A.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Fri, 09 Dec 2005 11:57:30 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Andi Kleen" <ak@suse.de>
-Cc: "Andrew Morton" <akpm@osdl.org>, "Rafael Wysocki" <rjw@sisk.pl>,
-       <linux-kernel@vger.kernel.org>, "Discuss x86-64" <discuss@x86-64.org>
-Subject: Re: [discuss] Re: 2.6.15-rc5-mm1 (x86_64-hpet-overflow.patch
-	breaks resume from disk)
-References: <20051204232153.258cd554.akpm@osdl.org>  <200512070146.50221.rjw@sisk.pl>  <200512080015.01444.rjw@sisk.pl>  <43980058.76F0.0078.0@novell.com>  <20051208224735.GV11190@wotan.suse.de>  <439957A7.76F0.0078.0@novell.com> <20051209091605.GE11190@wotan.suse.de>
-In-Reply-To: <20051209091605.GE11190@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 Dec 2005 06:18:50 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:18378 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1751311AbVLILSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 06:18:49 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: "Jan Beulich" <JBeulich@novell.com>
+Subject: Re: 2.6.15-rc5-mm1 (x86_64-hpet-overflow.patch breaks resume from disk)
+Date: Fri, 9 Dec 2005 12:20:05 +0100
+User-Agent: KMail/1.9
+Cc: discuss@x86-64.org, "Andrew Morton" <akpm@osdl.org>,
+       "Andi Kleen" <ak@suse.de>, linux-kernel@vger.kernel.org
+References: <20051204232153.258cd554.akpm@osdl.org> <200512082335.50417.rjw@sisk.pl> <43995957.76F0.0078.0@novell.com>
+In-Reply-To: <43995957.76F0.0078.0@novell.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200512091220.06060.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >Also I think vgettimeofday doesn't handle 64bit HPET correctly
->> >yet. Also why does it not use hpet_readq? 
->> 
->> For the simple reason that there is no way to know whether the
-entire
->> interconnect from CPU to HPET is (at least) 64 bits wide. At least
->> theoretically implementations are permitted to use 32-bit
-components;
->> the HPET spec specifically warns about that.
->
->Doesn't that refer to the CPUs ? 
+On Friday, 9 December 2005 10:15, Jan Beulich wrote:
+> It's a possible way to address this, but I'd rather just set a flag
+> indicating that the last-whatever values should not be considered (to
+> get into a state just like after initial boot). Jan
 
-No, all bus components and other chips between CPU and the implementing
-chip (including the latter) must have 64-bit data paths and guarantee
-not to break up 64-bit reads into pairs of 32-bit ones. Actually, it's
-the other way around - since most modern 32-but x86 CPUs have (as far as
-I know) 64-bit data busses, it is normally not the CPU that restricts
-accesses to 32 bits.
+OK, but what is the interrupt handler supposed to do if the
+vxtime.last* values are invalid?  I guess assume delta = 0?
 
-Jan
+BTW, in the interrupt handler there is:
+
+		__asm__("mulq %1\n\t"
+		        "shrdq $32, %%rdx, %0"
+		        : "+a" (delta)
+		        : "rm" (vxtime.tsc_quot)
+		        : "rdx");
+
+Is the "+a" a typo?
+
+Rafael
+
+
+-- 
+Beer is proof that God loves us and wants us to be happy - Benjamin Franklin

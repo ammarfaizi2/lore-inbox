@@ -1,118 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVLIVKy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932399AbVLIVNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbVLIVKy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 16:10:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVLIVKx
+	id S932399AbVLIVNy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 16:13:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbVLIVNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 16:10:53 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:61833 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932393AbVLIVKw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 16:10:52 -0500
-Subject: [RFC][PATCH] Support for preadv()/pwritev()
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Cc: Zach Brown <zach.brown@oracle.com>, Christoph Hellwig <hch@infradead.org>,
-       akpm@osdl.org
-Content-Type: multipart/mixed; boundary="=-1UejhAfHaf7SpjCwLKro"
-Date: Fri, 09 Dec 2005 13:11:04 -0800
-Message-Id: <1134162664.16646.22.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Fri, 9 Dec 2005 16:13:54 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:24844 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932399AbVLIVNy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 16:13:54 -0500
+Date: Fri, 9 Dec 2005 22:13:52 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       acpi-devel <acpi-devel@lists.sourceforge.net>,
+       linux-usb-devel@lists.sourceforge.net, pavel@suse.cz, linux-pm@osdl.org
+Subject: Re: usblp suspend failure with 2.6.15-rc5
+Message-ID: <20051209211351.GF23349@stusta.de>
+References: <438F3A2F.5090207@gmx.net> <4395DE67.4050101@gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4395DE67.4050101@gmx.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 06, 2005 at 07:54:31PM +0100, Carl-Daniel Hailfinger wrote:
 
---=-1UejhAfHaf7SpjCwLKro
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> Hi,
 
-Hi,
+Hi Carl-Daniel,
 
-Some of the database folks are looking going towards "threaded"
-database model and wants support for preadv() and pwritev() -
-so that they have a way of doing lseek() followed by readv/writev()
-in the thread-safe way.
+> since I switched to 2.6.15-rc2-git6, my machine is not able to suspend
+> anymore if my USB printer is plugged in. The problem is reproducible.
+> 
+> usb 1-2: new full speed USB device using uhci_hcd and address 3
+> drivers/usb/class/usblp.c: usblp0: USB Bidirectional printer dev 3 if 0 alt 
+> 0 proto 2 vid 0x04E8 pid 0x3242
+> usbcore: registered new driver usblp
+> drivers/usb/class/usblp.c: v0.13: USB Printer Device Class driver
+> PM: Preparing system for mem sleep
+> Stopping tasks: ==================================================|
+> usblp 1-2:1.0: no suspend?
+> Could not suspend device 1-2: error -16
+> Some devices failed to suspend
+> Restarting tasks... done
+> 
+> 
+> Earlier kernels (2.6.14.2 and before) worked just fine.
+> 
+> A first search suggests this problem was introduced between
+> 2.6.14 and 2.6.15-rc2-git6. Should I try to narrow it down further?
 
-Here is the patch I cooked up and looking for feedback. I really
-don't like adding new syscalls for this, but I don't see a way out.
+yes, that would be good.
 
-Of course, database folks want aio_readv/aio_writev() support also,
-which Zack is working on.
+In this case, it would also help if you'd open a bug at 
+bugzilla.kernel.org.
 
-Comments ? Suggestions ? 
+> Regards,
+> Carl-Daniel
 
-Thanks,
-Badari
+TIA
+Adrian
 
+-- 
 
-
-
---=-1UejhAfHaf7SpjCwLKro
-Content-Disposition: attachment; filename=preadv-pwritev.patch
-Content-Type: text/x-patch; name=preadv-pwritev.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-diff -Narup -X dontdiff linux-2.6.15-rc5/arch/i386/kernel/syscall_table.S linux-2.6.15-rc5.preadv/arch/i386/kernel/syscall_table.S
---- linux-2.6.15-rc5/arch/i386/kernel/syscall_table.S	2005-12-03 21:10:42.000000000 -0800
-+++ linux-2.6.15-rc5.preadv/arch/i386/kernel/syscall_table.S	2005-12-09 08:01:22.465116256 -0800
-@@ -294,3 +294,5 @@ ENTRY(sys_call_table)
- 	.long sys_inotify_init
- 	.long sys_inotify_add_watch
- 	.long sys_inotify_rm_watch
-+	.long sys_preadv
-+	.long sys_pwritev
-diff -Narup -X dontdiff linux-2.6.15-rc5/fs/read_write.c linux-2.6.15-rc5.preadv/fs/read_write.c
---- linux-2.6.15-rc5/fs/read_write.c	2005-12-03 21:10:42.000000000 -0800
-+++ linux-2.6.15-rc5.preadv/fs/read_write.c	2005-12-09 08:02:43.590783280 -0800
-@@ -622,6 +622,46 @@ sys_writev(unsigned long fd, const struc
- 	return ret;
- }
- 
-+asmlinkage ssize_t sys_preadv(unsigned int fd, const struct iovec __user *vec,
-+			     unsigned long vlen, loff_t pos)
-+{
-+	struct file *file;
-+	ssize_t ret = -EBADF;
-+	int fput_needed;
-+
-+	if (pos < 0)
-+		return -EINVAL;
-+
-+	file = fget_light(fd, &fput_needed);
-+	if (file) {
-+		ret = -ESPIPE;
-+		if (file->f_mode & FMODE_PREAD)
-+			ret = vfs_readv(file, vec, vlen, &pos);
-+		fput_light(file, fput_needed);
-+	}
-+	return ret;
-+}
-+
-+asmlinkage ssize_t sys_pwritev(unsigned int fd, const struct iovec __user *vec,
-+			     unsigned long vlen, loff_t pos)
-+{
-+	struct file *file;
-+	ssize_t ret = -EBADF;
-+	int fput_needed;
-+
-+	if (pos < 0)
-+		return -EINVAL;
-+
-+	file = fget_light(fd, &fput_needed);
-+	if (file) {
-+		ret = -ESPIPE;
-+		if (file->f_mode & FMODE_PWRITE)  
-+			ret = vfs_writev(file, vec, vlen, &pos);
-+		fput_light(file, fput_needed);
-+	}
-+	return ret;
-+}
-+
- static ssize_t do_sendfile(int out_fd, int in_fd, loff_t *ppos,
- 			   size_t count, loff_t max)
- {
-
---=-1UejhAfHaf7SpjCwLKro--
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

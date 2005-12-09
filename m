@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbVLISj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbVLISpm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964868AbVLISj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 13:39:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbVLISj7
+	id S964869AbVLISpm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 13:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbVLISpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 13:39:59 -0500
-Received: from waste.org ([64.81.244.121]:17063 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932513AbVLISj7 (ORCPT
+	Fri, 9 Dec 2005 13:45:41 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:51881 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932513AbVLISpl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 13:39:59 -0500
-Date: Fri, 9 Dec 2005 10:34:20 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] Reduce number of pointer derefs in various files (kernel/exit.c used as example)
-Message-ID: <20051209183420.GR8637@waste.org>
-References: <200512062302.06933.jesper.juhl@gmail.com> <20051206221528.GA12358@elte.hu> <20051209014658.GA11856@waste.org> <20051209102914.GA16164@elte.hu>
+	Fri, 9 Dec 2005 13:45:41 -0500
+Date: Fri, 9 Dec 2005 13:45:17 -0500
+From: Dave Jones <davej@redhat.com>
+To: Daniel J Blueman <daniel.blueman@gmail.com>
+Cc: tripperda@nvidia.com, Linux Kernel <linux-kernel@vger.kernel.org>,
+       ak@suse.de, jgarzik@pobox.com
+Subject: Re: PAT status?
+Message-ID: <20051209184517.GB7473@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Daniel J Blueman <daniel.blueman@gmail.com>, tripperda@nvidia.com,
+	Linux Kernel <linux-kernel@vger.kernel.org>, ak@suse.de,
+	jgarzik@pobox.com
+References: <6278d2220512080737t30a83011k11e88e85c0974a11@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051209102914.GA16164@elte.hu>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <6278d2220512080737t30a83011k11e88e85c0974a11@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 11:29:14AM +0100, Ingo Molnar wrote:
-> 
-> * Matt Mackall <mpm@selenic.com> wrote:
-> 
-> > > > Ohh, and before I forget, besides the fact that this should speed 
-> > > > things up a little bit it also has the added benefit of reducing the 
-> > > > size of the generated code. The original kernel/exit.o file was 19604 
-> > > > bytes in size, the patched one is 19508 bytes in size.
-> > > 
-> > > nice. Just to underline your point, on x86, with gcc 4.0.2, i'm getting 
-> > > this with your patch:
-> > > 
-> > >    text    data     bss     dec     hex filename
-> > >   11077       0       0   11077    2b45 exit.o.orig
-> > >   10997       0       0   10997    2af5 exit.o
-> > > 
-> > > so 80 bytes shaved off. I think such patches also increase readability.
-> > 
-> > Readability improved: good.
-> > 37 lines of patch for 80-100 bytes saved: not so good.
-> 
-> i'd take a 37 lines readability patch even if it didnt give us a byte of 
-> text back. The fact that it also reduces text size on the latest gcc in 
-> rawhide is an added bonus. (of course the patch is 2.6.16 material)
+On Thu, Dec 08, 2005 at 03:37:43PM +0000, Daniel J Blueman wrote:
+ > Terence Ripperda wrote:
+ > > Hi Jeff,
+ > >
+ > > I unfortunately haven't had much time to look at the status of the PAT
+ > > code I had been working on. there are really 2 steps to the code:
+ > >
+ > > the first is enabling and configuring the PAT registers. this then
+ > > allows a page table entry define that can be passed to traditional
+ > > interfaces, such as remap_page_range or change_page_attr. this is
+ > > pretty simple and we've been using a similar interface in our driver
+ > > for some time now.
+ > 
+ > Presumably, the aliasing will only bite where eg the X server sets up
+ > MTRRs and PAT is used for the region also. For x86_64 and IA32, the
+ > Intel IA32 system guides tell us that strong store ordering (ie
+ > write-through) takes precendence over weaker store ordering (eg
+ > write-combining), so we should be safe. For processors with known
+ > errata with PAT etc, we can disable PAT support.
+ > 
+ > Would it be useful to get a rough patch covering point #1 onto LKML
+ > for discussion?
 
-So long as we're primarily doing it for the former reason rather than
-the latter.
+http://lwn.net/Articles/135883/ is Terrence's last patch
+rediffed against 2.6.12 patch.
 
-> furthermore, i think that even if it's a small step, we should encourage 
-> every effort that reduces the kernel's text size. The 2.4 -> 2.6 
-> transition blew up the kernel by ~50%, and we've got to win back some of 
-> that. (Kernel size is one of the main disadvantages of Linux in the 
-> embedded market, compared to other OSs.)
+		Dave
 
-Boggle. You're telling /me/ this? You're the one who's been adding all
-the damn features!
-
--- 
-Mathematics is the supreme nostalgia of our time.

@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbVLIR5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbVLIR7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbVLIR5k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 12:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbVLIR5j
+	id S1751258AbVLIR7H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 12:59:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVLIR7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 12:57:39 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:53706 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964849AbVLIR5i (ORCPT
+	Fri, 9 Dec 2005 12:59:07 -0500
+Received: from fsmlabs.com ([168.103.115.128]:37304 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1751258AbVLIR7G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 12:57:38 -0500
-Date: Fri, 9 Dec 2005 09:57:33 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: 2.6.15-rc5 spits oodles of hw csum failures
-Message-ID: <20051209095733.7faf8e13@unknown-222.office.pdx.osdl.net>
-In-Reply-To: <20051209121220.GJ26185@suse.de>
-References: <20051209121220.GJ26185@suse.de>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Dec 2005 12:59:06 -0500
+X-ASG-Debug-ID: 1134151131-16418-28-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Fri, 9 Dec 2005 10:04:23 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+X-ASG-Orig-Subj: Re: [ANNOUNCE] Wolf Mountain File System Archives and Releases
+Subject: Re: [ANNOUNCE] Wolf Mountain File System Archives and Releases
+In-Reply-To: <4399AE4A.8050603@wolfmountaingroup.com>
+Message-ID: <Pine.LNX.4.64.0512091003470.26307@montezuma.fsmlabs.com>
+References: <438E3F65.8020605@wolfmountaingroup.com>
+ <1133429704.2853.20.camel@laptopd505.fenrus.org> <438F2746.8030904@wolfmountaingroup.com>
+ <Pine.LNX.4.61.0512091533410.8080@yvahk01.tjqt.qr> <4399AE4A.8050603@wolfmountaingroup.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6174
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You missed this patch that I posted just after Linus left for parts unknown.
+On Fri, 9 Dec 2005, Jeff V. Merkey wrote:
 
-Index: linux-2.6/drivers/net/sk98lin/skge.c
-===================================================================
---- linux-2.6.orig/drivers/net/sk98lin/skge.c
-+++ linux-2.6/drivers/net/sk98lin/skge.c
-@@ -818,7 +818,7 @@ uintptr_t VNextDescr;	/* the virtual bus
- 		/* set the pointers right */
- 		pDescr->VNextRxd = VNextDescr & 0xffffffffULL;
- 		pDescr->pNextRxd = pNextDescr;
--		pDescr->TcpSumStarts = 0;
-+		if (!IsTx) pDescr->TcpSumStarts = ETH_HLEN << 16 | ETH_HLEN;
- 
- 		/* advance one step */
- 		pPrevDescr = pDescr;
-@@ -2169,7 +2169,7 @@ rx_start:	
- 		} /* frame > SK_COPY_TRESHOLD */
- 
- #ifdef USE_SK_RX_CHECKSUM
--		pMsg->csum = pRxd->TcpSums;
-+		pMsg->csum = pRxd->TcpSums & 0xffff;
- 		pMsg->ip_summed = CHECKSUM_HW;
- #else
- 		pMsg->ip_summed = CHECKSUM_NONE;
+> >  
+> > > > the website is empty though; no code anywhere
+> > > > 
+> > > >      
+> > > There's code there, go look again.
+> > >    
+> > 
+> > http://www.wolfmountaingroup.org/pub/wmfs/ is empty.
+> > 
+> > Jan Engelhardt
+> >  
+> OS Goes up first. The first component is a loader/debugger that boots from
+> grub. I have a large portion of the FS completed, but I am
+> working on another project which is first in line at present. Please be
+> patient, it's coming.
+
+Wow an opensource content free press release. We're moving up in the 
+world.

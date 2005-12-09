@@ -1,66 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbVLIS2q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbVLISad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbVLIS2q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 13:28:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbVLIS2q
+	id S964864AbVLISad (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 13:30:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbVLISac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 13:28:46 -0500
-Received: from waste.org ([64.81.244.121]:29351 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S964851AbVLIS2p (ORCPT
+	Fri, 9 Dec 2005 13:30:32 -0500
+Received: from mx1.suse.de ([195.135.220.2]:60365 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964867AbVLISac (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 13:28:45 -0500
-Date: Fri, 9 Dec 2005 10:22:55 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Fri, 9 Dec 2005 13:30:32 -0500
+Message-ID: <4399CD28.9080000@suse.de>
+Date: Fri, 09 Dec 2005 19:30:00 +0100
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050715 Thunderbird/1.0.6 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC][PATCH] Reduce number of pointer derefs in various files (kernel/exit.c used as example)
-Message-ID: <20051209182255.GQ8637@waste.org>
-References: <200512062302.06933.jesper.juhl@gmail.com> <20051206221528.GA12358@elte.hu> <20051209014658.GA11856@waste.org> <200512090914.21436.oliver@neukum.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512090914.21436.oliver@neukum.org>
-User-Agent: Mutt/1.5.9i
+Subject: Re: [PATCH][mm] swsusp: limit image size
+References: <200512072246.06222.rjw@sisk.pl> <4399A737.40809@suse.de> <200512091804.22397.rjw@sisk.pl>
+In-Reply-To: <200512091804.22397.rjw@sisk.pl>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 09:14:21AM +0100, Oliver Neukum wrote:
-> Am Freitag, 9. Dezember 2005 02:46 schrieb Matt Mackall:
-> > On Tue, Dec 06, 2005 at 11:15:28PM +0100, Ingo Molnar wrote:
-> > > 
-> > > * Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> > > 
-> > > > Ohh, and before I forget, besides the fact that this should speed 
-> > > > things up a little bit it also has the added benefit of reducing the 
-> > > > size of the generated code. The original kernel/exit.o file was 19604 
-> > > > bytes in size, the patched one is 19508 bytes in size.
-> > > 
-> > > nice. Just to underline your point, on x86, with gcc 4.0.2, i'm getting 
-> > > this with your patch:
-> > > 
-> > >    text    data     bss     dec     hex filename
-> > >   11077       0       0   11077    2b45 exit.o.orig
-> > >   10997       0       0   10997    2af5 exit.o
-> > > 
-> > > so 80 bytes shaved off. I think such patches also increase readability.
-> > 
-> > Readability improved: good.
-> > 37 lines of patch for 80-100 bytes saved: not so good.
-> > 
-> > So while this is a good style direction, I don't think it's worth the
-> > churn. And unlike kzalloc and the like, this particular optimization
-> > is perfectly doable by a compiler. So I'd rather wait for the compiler
-> > to get smarter than change code for such modest improvements.
+Rafael J. Wysocki wrote:
+> On Friday, 9 December 2005 16:48, Stefan Seyfried wrote:
+>
+>> What happens if IMAGE_SIZE is bigger than free swap? Do we "try harder"
+>> or do we fail?
 > 
-> How can the compiler do it? If a function call is between two evaluations
-> of a pointer chain, the compiler would have to make sure no pointer in
-> the chain is touched. For the case of a computed function call, it is
-> impossible in principle.
+> First, with swsusp the image can't be bigger than 1/2 of lowmem (1/2 of RAM
+> on x86-64) and the too great values of IMAGE_SIZE have no effect.  Still, if
+> the amount of free swap is smaller than 1/2 of RAM and the image happens
+> to be bigger, we will fail.
 
-Excellent point. It'd require marking functions const, which might not
-be a bad idea.
+ok. This is not nice since we might fail without any _real_ need. Can we
+make this parameter userspace-tweakable, so that my userspace app can do
+something like (pseudocode):
 
+    echo 500 > /sys/power/swsusp/imagesize
+    echo disk > /sys/power/state
+    R=$?
+    if [ $R -eq $ENOMEM ]; then
+        echo 100 > /sys/power/swsusp/imagesize # try again
+        echo disk > /sys/power/state
+        R=$?
+    fi
+    if [ $R -ne 0 ]; then
+        pop_up_some_loud_beeping_window "suspend failed!"
+    fi
+
+This would at least give us a chance for a second try. I know that Pavel
+dislikes userspace tunables, but i dislike failing suspends ;-)
+
+Best regards,
+
+    Stefan
 -- 
-Mathematics is the supreme nostalgia of our time.
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen

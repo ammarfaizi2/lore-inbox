@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbVLILue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbVLILvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751316AbVLILue (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 06:50:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVLILud
+	id S1751323AbVLILvc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 06:51:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbVLILvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 06:50:33 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:43213 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1750846AbVLILuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 06:50:32 -0500
-Date: Fri, 9 Dec 2005 11:50:09 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       randy_d_dunlap@linux.intel.com, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-Message-ID: <20051209115009.GA25771@srcf.ucam.org>
-References: <20051208091542.GA9538@infradead.org> <20051208132657.GA21529@srcf.ucam.org> <20051208133308.GA13267@infradead.org> <20051208133945.GA21633@srcf.ucam.org> <1134050498.17102.2.camel@localhost.localdomain> <20051208141811.GB21715@srcf.ucam.org> <1134052433.17102.17.camel@localhost.localdomain> <20051208145257.GB21946@srcf.ucam.org> <20051208171901.GA22451@srcf.ucam.org> <20051209114246.GB16945@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051209114246.GB16945@infradead.org>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+	Fri, 9 Dec 2005 06:51:32 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:7043 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751323AbVLILvb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 06:51:31 -0500
+Date: Fri, 9 Dec 2005 03:51:26 -0800 (PST)
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: sparclinux@vger.kernel.org, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org, wli@holomorphy.com
+Message-Id: <20051209115126.3286.25224.sendpatchset@jackhammer.engr.sgi.com>
+Subject: [PATCH] sparc32 block needed in final image link build fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 11:42:46AM +0000, Christoph Hellwig wrote:
+With this fix, sparc links vmlinuz again using crosstool.
+Without this fix, the final link fails missing several dozen
+dozen symbols, beginning with:
 
-> As a concept it's _much_ better.  Although it should be platform_scsi_init
-> and every architecture would provide an, in most cases noop, implementation.
+    kernel/built-in.o(.text+0x6fd0): In function `do_exit':
+    : undefined reference to `exit_io_context'
 
-How about
+(exit_io_context is defined in block/ll_rw_blk.c).
 
-if (platform_scsi_init)
-	platform_scsi_init(&scsi_bus_type);
+No further testing whatsoever was done after the link succeeded.
 
-? This is similar to how the platform_notify callback code is handled. 
-Making it per-arch isn't quite ideal, since x86 can be ACPI or APM and 
-kernels need support for both. On the other hand, I can't think of any 
-way that APM could do anything useful with the information, so per-arch 
-may be reasonable.
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+---
+
+ arch/sparc/Makefile |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- 2.6.15-rc3-mm1.orig/arch/sparc/Makefile	2005-12-04 01:42:16.842337555 -0800
++++ 2.6.15-rc3-mm1/arch/sparc/Makefile	2005-12-09 03:38:53.226046309 -0800
+@@ -34,7 +34,7 @@ libs-y += arch/sparc/prom/ arch/sparc/li
+ # Renaming is done to avoid confusing pattern matching rules in 2.5.45 (multy-)
+ INIT_Y		:= $(patsubst %/, %/built-in.o, $(init-y))
+ CORE_Y		:= $(core-y)
+-CORE_Y		+= kernel/ mm/ fs/ ipc/ security/ crypto/
++CORE_Y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/
+ CORE_Y		:= $(patsubst %/, %/built-in.o, $(CORE_Y))
+ DRIVERS_Y	:= $(patsubst %/, %/built-in.o, $(drivers-y))
+ NET_Y		:= $(patsubst %/, %/built-in.o, $(net-y))
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

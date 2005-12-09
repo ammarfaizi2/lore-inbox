@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVLIMHt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVLIMKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbVLIMHt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 07:07:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbVLIMHs
+	id S932300AbVLIMKt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 07:10:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbVLIMKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 07:07:48 -0500
-Received: from 1-1-3-46a.gml.gbg.bostream.se ([82.182.110.161]:55499 "EHLO
-	kotiaho.net") by vger.kernel.org with ESMTP id S932331AbVLIMHr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 07:07:47 -0500
-Date: Fri, 9 Dec 2005 13:07:26 +0100 (CET)
-From: "J.O. Aho" <trizt@iname.com>
-X-X-Sender: trizt@lai.local.lan
-To: "David S. Miller" <davem@davemloft.net>
-cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: Re: Sparc: Kernel 2.6.13 to 2.6.15-rc2 bug when running X11
-In-Reply-To: <20051207.133236.97581111.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.64.0512091306020.13268@lai.local.lan>
-References: <Pine.LNX.4.64.0512071203460.8861@localhost.localdomain>
- <20051207.123458.26771065.davem@davemloft.net> <Pine.LNX.4.64.0512072217580.24376@lai.local.lan>
- <20051207.133236.97581111.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 9 Dec 2005 07:10:49 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:47675 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932249AbVLIMKs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 07:10:48 -0500
+Date: Fri, 9 Dec 2005 13:12:21 +0100
+From: Jens Axboe <axboe@suse.de>
+To: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: 2.6.15-rc5 spits oodles of hw csum failures
+Message-ID: <20051209121220.GJ26185@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Dec 2005, David S. Miller wrote:
+Hi,
 
-> From: "J.O. Aho" <trizt@iname.com>
-> Date: Wed, 7 Dec 2005 22:22:42 +0100 (CET)
->
->> I'm using the sunffb driver, as I wish to get the output from my creator3d
->> card, so that I can see something displayed as the monitor requiers a 13W3
->> connector. So I assume from your reply that framebuffer isn't working in
->> kernel 2.6 for sparc, but for other archs like ppc?
->
-> No, that should work just fine.  Just make sure "sunffb" is specified
-> as the driver to use in the xorg.conf file.
->
-> I have an ultra60 with creator here and I'll try to reproduce your
-> problem.
+Just booted -rc5 on another one of my boxes, and I get literally tons of
+these everytime there's some network activity:
 
-That sounds nice, just in case if it would be of interest, I have made my 
-config file available and it can be found at 
-http://www.kotiaho.net/~trizt/tmpimg/u10_2.6.15rc5.config
+printk: 300 messages suppressed.
+<NULL>: hw csum failure.
+
+Call Trace: <IRQ> <ffffffff80357463>{__skb_checksum_complete+76}
+       <ffffffff80381e89>{tcp_rcv_established+1384}
+<ffffffff80388ee9>{tcp_v4_d}
+       <ffffffff8038a4ee>{tcp_v4_rcv+2285}
+<ffffffff8036f59f>{ip_local_deliver+}
+       <ffffffff8036f480>{ip_rcv+1043}
+<ffffffff8035bc0a>{netif_receive_skb+460}
+       <ffffffff8035bd08>{process_backlog+142}
+<ffffffff8035a8a5>{net_rx_action}
+       <ffffffff8013641e>{__do_softirq+100}
+<ffffffff8010ef9b>{call_softirq+31}
+       <ffffffff8011028c>{do_softirq+44} <ffffffff801102c4>{do_IRQ+52}
+       <ffffffff8010df9a>{ret_from_intr+0}  <EOI>
+<ffffffff8010c4a3>{default_id}
+       <ffffffff8010c547>{cpu_idle+97}
+<ffffffff806327d5>{start_kernel+389}
+       <ffffffff8063225e>{_sinittext+606} 
+
+The box is using the sk98lin driver.
 
 -- 
-      //Aho
+Jens Axboe
 
-  ------------------------------------------------------------------------
-   E-Mail: trizt@iname.com            URL: http://www.kotiaho.net/~trizt/
-      ICQ: 13696780
-   System: Linux System                        (PPC7447/1000 AMD K7A/2000)
-  ------------------------------------------------------------------------
-             EU forbids you to send spam without my permission
-  ------------------------------------------------------------------------

@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVLIMGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVLIMHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbVLIMGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 07:06:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbVLIMGQ
+	id S932301AbVLIMHt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 07:07:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbVLIMHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 07:06:16 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:28982 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932161AbVLIMGO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 07:06:14 -0500
-Date: Fri, 9 Dec 2005 13:07:31 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Erik Slagter <erik@slagter.name>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Randy Dunlap <randy_d_dunlap@linux.intel.com>, hch@infradead.org,
-       mjg59@srcf.ucam.org, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-Message-ID: <20051209120731.GI26185@suse.de>
-References: <1134062330.1732.9.camel@localhost.localdomain> <43989B00.5040503@pobox.com> <20051208133144.0f39cb37.randy_d_dunlap@linux.intel.com> <1134121522.27633.7.camel@localhost.localdomain> <20051209103937.GE26185@suse.de> <1134125145.27633.32.camel@localhost.localdomain> <43996A26.8060700@pobox.com> <1134128127.27633.39.camel@localhost.localdomain> <20051209114641.GH26185@suse.de> <1134129692.27633.58.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1134129692.27633.58.camel@localhost.localdomain>
+	Fri, 9 Dec 2005 07:07:48 -0500
+Received: from 1-1-3-46a.gml.gbg.bostream.se ([82.182.110.161]:55499 "EHLO
+	kotiaho.net") by vger.kernel.org with ESMTP id S932331AbVLIMHr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 07:07:47 -0500
+Date: Fri, 9 Dec 2005 13:07:26 +0100 (CET)
+From: "J.O. Aho" <trizt@iname.com>
+X-X-Sender: trizt@lai.local.lan
+To: "David S. Miller" <davem@davemloft.net>
+cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: Sparc: Kernel 2.6.13 to 2.6.15-rc2 bug when running X11
+In-Reply-To: <20051207.133236.97581111.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0512091306020.13268@lai.local.lan>
+References: <Pine.LNX.4.64.0512071203460.8861@localhost.localdomain>
+ <20051207.123458.26771065.davem@davemloft.net> <Pine.LNX.4.64.0512072217580.24376@lai.local.lan>
+ <20051207.133236.97581111.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09 2005, Erik Slagter wrote:
-> On Fri, 2005-12-09 at 12:46 +0100, Jens Axboe wrote:
-> > On Fri, Dec 09 2005, Erik Slagter wrote:
-> > > I case this (still) isn't clear, I am addressing the attitude of "It's
-> > > ACPI so it's not going to be used, period".
-> > 
-> > The problem seems to be that you are misunderstanding the 'attitude',
-> > which was mainly based on the initial patch sent out which stuffs acpi
-> > directly in everywhere. That seems to be a good trigger for curt/direct
-> > replies.
-> 
-> This is the post I object to:
-> [http://marc.theaimsgroup.com/?l=linux-scsi&m=113404894931377&w=2]
+On Wed, 7 Dec 2005, David S. Miller wrote:
 
-I would imagine, and that is what I'm explaining to you. Can we please
-just let this die? Thanks.
+> From: "J.O. Aho" <trizt@iname.com>
+> Date: Wed, 7 Dec 2005 22:22:42 +0100 (CET)
+>
+>> I'm using the sunffb driver, as I wish to get the output from my creator3d
+>> card, so that I can see something displayed as the monitor requiers a 13W3
+>> connector. So I assume from your reply that framebuffer isn't working in
+>> kernel 2.6 for sparc, but for other archs like ppc?
+>
+> No, that should work just fine.  Just make sure "sunffb" is specified
+> as the driver to use in the xorg.conf file.
+>
+> I have an ultra60 with creator here and I'll try to reproduce your
+> problem.
+
+That sounds nice, just in case if it would be of interest, I have made my 
+config file available and it can be found at 
+http://www.kotiaho.net/~trizt/tmpimg/u10_2.6.15rc5.config
 
 -- 
-Jens Axboe
+      //Aho
 
+  ------------------------------------------------------------------------
+   E-Mail: trizt@iname.com            URL: http://www.kotiaho.net/~trizt/
+      ICQ: 13696780
+   System: Linux System                        (PPC7447/1000 AMD K7A/2000)
+  ------------------------------------------------------------------------
+             EU forbids you to send spam without my permission
+  ------------------------------------------------------------------------

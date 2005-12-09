@@ -1,36 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbVLIT6a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVLIULa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932425AbVLIT6a (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 14:58:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVLIT63
+	id S932439AbVLIULa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 15:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVLIULa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 14:58:29 -0500
-Received: from fattire.cabal.ca ([134.117.69.58]:31725 "EHLO fattire.cabal.ca")
-	by vger.kernel.org with ESMTP id S932427AbVLIT63 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 14:58:29 -0500
-Date: Fri, 9 Dec 2005 14:58:16 -0500
-From: Kyle McMartin <kyle@mcmartin.ca>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
-Message-ID: <20051209195816.GF32168@quicksilver.road.mcmartin.ca>
-References: <1134154208.14363.8.camel@mindpipe>
-Mime-Version: 1.0
+	Fri, 9 Dec 2005 15:11:30 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65035 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932439AbVLIULa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 15:11:30 -0500
+Date: Fri, 9 Dec 2005 21:11:28 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       linux-ia64@ver.kernel.org, ak@suse.de
+Subject: Re: [RFC] Introduce atomic_long_t
+Message-ID: <20051209201127.GE23349@stusta.de>
+References: <Pine.LNX.4.62.0512091053260.2656@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1134154208.14363.8.camel@mindpipe>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <Pine.LNX.4.62.0512091053260.2656@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 01:50:08PM -0500, Lee Revell wrote:
-> I'm trying to build an x66-64 kernel on a 32 bit system (Ubuntu 5.10).
-> I added -m64 to the CFLAGS as per the gcc docs.  But the build fails
-> with:
-> 
-> $ make ARCH=x86_64
-> arch/x86_64/kernel/entry.S:785: Error: cannot represent relocation type BFD_RELOC_64
+On Fri, Dec 09, 2005 at 10:58:40AM -0800, Christoph Lameter wrote:
 
-Ubuntu/Debian provide a biarch gcc, but do not (did not?) provide a biarch
-assembler. Building binutils for target x86_64-pc-linux-gnu should help.
+> Several counters already have the need to use 64 atomic variables on 64
+> bit platforms (see mm_counter_t in sched.h). We have to do ugly ifdefs to
+> fall back to 32 bit atomic on 32 bit platforms.
+> 
+> The VM statistics patch that I am working on will also need to make more 
+> extensive use of 64 bit counters when available.
+> 
+> This patch introduces a new type atomic_long_t that works similar to the c
+> "long" type. Its 32 bits on 32 bit platforms and 64 bits on 64 bit platforms.
+> 
+> The patch uses atomic_long_t to clean up the mess in include/linux/sched.h.
+> Implementations for all arches provided but only tested on ia64.
+>...
+
+The idea looks good, but the amount of code duplication is ugly.
+
+What about creating an include/linux/atomic.h [1] that contains both 
+this new code and other common code like the atomic_t typedef (unless 
+there's a good reason why counter isn't volatile on h8300 and v850...).
+
+cu
+Adrian
+
+[1] include/asm-generic/atomic.h would be another solution, but for
+    an API that should be available on all architectures, include/linux/
+    seems to be the more logical place
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

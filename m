@@ -1,89 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbVLISto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbVLISud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbVLISto (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 13:49:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbVLISto
+	id S964872AbVLISud (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 13:50:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVLISuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 13:49:44 -0500
-Received: from mail3.aventail.com ([64.94.142.143]:43793 "HELO
-	mail3.aventail.com") by vger.kernel.org with SMTP id S932513AbVLIStn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 13:49:43 -0500
-Message-ID: <4399D1B0.8030906@aventail.com>
-Date: Fri, 09 Dec 2005 10:49:20 -0800
-From: Steve Work <swork@aventail.com>
-User-Agent: Mozilla Thunderbird 1.0.6 (Windows/20050716)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [REPOST] Multi-thread corefiles broken since April
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 9 Dec 2005 13:50:32 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:62373 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964873AbVLISuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 13:50:32 -0500
+Subject: i386 -> x86_64 cross compile failure (binutils bug?)
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 09 Dec 2005 13:50:08 -0500
+Message-Id: <1134154208.14363.8.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Q: When did *all* multi-thread userspace coredumps break?
-A: 2.6.12-rc3, specifically April 16; and they're still broken (really!) 
-  Config does not appear to matter.  Not a race: highly reproduceable, 
-see below.
+I'm trying to build an x66-64 kernel on a 32 bit system (Ubuntu 5.10).
+I added -m64 to the CFLAGS as per the gcc docs.  But the build fails
+with:
 
--------- Original Message --------
-Subject: Multi-thread corefiles broken since April
-Date: Wed, 07 Dec 2005 22:52:52 -0800
-From: Steve Work <swork@aventail.com>
-To: linux-kernel@vger.kernel.org
+$ make ARCH=x86_64
+  [...]
+  CC      init/initramfs.o
+  CC      init/calibrate.o
+  LD      init/built-in.o
+  CHK     usr/initramfs_list
+  CC      arch/x86_64/kernel/process.o
+  CC      arch/x86_64/kernel/signal.o
+  AS      arch/x86_64/kernel/entry.o
+arch/x86_64/kernel/entry.S: Assembler messages:
+arch/x86_64/kernel/entry.S:204: Error: cannot represent relocation type BFD_RELOC_X86_64_32S
+arch/x86_64/kernel/entry.S:275: Error: cannot represent relocation type BFD_RELOC_X86_64_32S
+arch/x86_64/kernel/entry.S:762: Error: cannot represent relocation type BFD_RELOC_X86_64_32S
+arch/x86_64/kernel/entry.S:815: Error: cannot represent relocation type BFD_RELOC_X86_64_32S
+arch/x86_64/kernel/entry.S:536: Error: cannot represent relocation type BFD_RELOC_64
+arch/x86_64/kernel/entry.S:536: Error: cannot represent relocation type BFD_RELOC_64
+arch/x86_64/kernel/entry.S:785: Error: cannot represent relocation type BFD_RELOC_64
+arch/x86_64/kernel/entry.S:785: Error: cannot represent relocation type BFD_RELOC_64
+make[1]: *** [arch/x86_64/kernel/entry.o] Error 1
+make: *** [arch/x86_64/kernel] Error 2
 
-Coredumps from programs with more than one thread show garbage
-information for all threads except the primary.  The problem was
-introduced with:
+Is this a known toolchain bug?
 
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=5df240826c90afdc7956f55a004ea6b702df9203
+$ as --version
+GNU assembler 2.16.1 Debian GNU/Linux
 
-on Apr 16 ("fix crash in entry.S restore_all") and is still present in
-current builds.
+Lee
 
-"kill -SEGV" this program and "info threads" the resulting corefile to
-see the problem:
-
-#include <pthread.h>
-static void* thread_sleep(void* x) { while (1) sleep(30); }
-int main(int c, char** v) {
-     const static int tcount = 5;
-     pthread_t thr[tcount];
-     int i;
-     for (i=0; i<tcount; ++i)
-         pthread_create(&thr[i], NULL, thread_sleep, NULL);
-     while (1)
-         sleep(30);
-     return 0;
-}
-
-(gdb) info threads
-   7 process 18138  0x00000246 in ?? ()
-   6 process 18139  0x00000246 in ?? ()
-   5 process 18140  0x00000246 in ?? ()
-   4 process 18141  0x00000246 in ?? ()
-   3 process 18142  0x00000246 in ?? ()
-   2 process 18143  0x00000246 in ?? ()
-* 1 process 18137  0xb7e69db6 in nanosleep () from /lib/tls/libc.so.6
-(gdb)
-
-All these threads should show a legitimate location (the same spot in
-nanosleep) and do on kernels prior to the commit named above.  (Notice
-one too many threads listed here also -- is this a related problem?)
-
-Commenting out this line (in asm/i386/kernel/process.c:copy_thread)
-fixes the corefiles:
-
-   childregs = (struct pt_regs *) ((unsigned long) childregs - 8);
-
-but presumably re-introduces the crash the original patch was intended
-to fix.  Should this line be conditioned somehow?  Or do the corefile
-write routines need to know about this adjusted offset?
-
-Steve Work
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbVLIAG6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932760AbVLIAJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbVLIAG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Dec 2005 19:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932760AbVLIAG6
+	id S932760AbVLIAJK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Dec 2005 19:09:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932761AbVLIAJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Dec 2005 19:06:58 -0500
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:58282 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S932120AbVLIAG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Dec 2005 19:06:58 -0500
-Subject: Re: for_each_online_cpu broken ?
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Dave Jones <DaveJ@redhat.com>
-Cc: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051208062844.GF28201@redhat.com>
-References: <20051208050738.GE24356@redhat.com>
-	 <20051208052632.GF11190@wotan.suse.de> <20051208053302.GA28201@redhat.com>
-	 <1134022925.7235.28.camel@localhost>  <20051208062844.GF28201@redhat.com>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1134076293.7235.51.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 09 Dec 2005 10:03:30 +1000
+	Thu, 8 Dec 2005 19:09:10 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:32940 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932760AbVLIAJI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Dec 2005 19:09:08 -0500
+Message-ID: <4398CB14.6020508@pobox.com>
+Date: Thu, 08 Dec 2005 19:08:52 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@davemloft.net>
+CC: jesper.juhl@gmail.com, linux-kernel@vger.kernel.org,
+       coreteam@netfilter.org, jmorris@intercode.com.au, laforge@netfilter.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] Decrease number of pointer derefs in nfnetlink_queue.c
+References: <200512082336.01678.jesper.juhl@gmail.com> <20051208.145148.36886043.davem@davemloft.net>
+In-Reply-To: <20051208.145148.36886043.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  David S. Miller wrote: > From: Jesper Juhl
+	<jesper.juhl@gmail.com> > Date: Thu, 8 Dec 2005 23:36:01 +0100 > >
+	>>Here's a small patch to decrease the number of pointer derefs in
+	>>net/netfilter/nfnetlink_queue.c >> >>Benefits of the patch: >> -
+	Fewer pointer dereferences should make the code slightly faster. >> -
+	Size of generated code is smaller >> - improved readability > > > And
+	you verified the compiler isn't making these transformations > already?
+	[...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Thu, 2005-12-08 at 16:28, Dave Jones wrote:
-> On Thu, Dec 08, 2005 at 04:22:05PM +1000, Nigel Cunningham wrote:
+David S. Miller wrote:
+> From: Jesper Juhl <jesper.juhl@gmail.com>
+> Date: Thu, 8 Dec 2005 23:36:01 +0100
 > 
->  > > Yep, I noticed it offers a maximum of 6 cpus on my way.
->  > > As a sidenote, seems kinda funny (and wasteful maybe?), doing this
->  > > on a lot of hardware that isn't hotplug capable. (Whilst I could
->  > > disable cpu hotplug in my local build, this isn't an answer for
->  > > a generic distro kernel).
->  > 
->  > Both suspend to disk (and suspend to ram?) implementations now depend on
->  > hotplug_cpu to enable extra cpus, so there is at least one reason for
->  > them to want hotplug support in a generic kernel.
 > 
-> You mean suspend -> plug in a new cpu -> resume transitions ?
-> That sounds *terrifying*.
+>>Here's a small patch to decrease the number of pointer derefs in
+>>net/netfilter/nfnetlink_queue.c
+>>
+>>Benefits of the patch:
+>> - Fewer pointer dereferences should make the code slightly faster.
+>> - Size of generated code is smaller
+>> - improved readability
+> 
+> 
+> And you verified the compiler isn't making these transformations
+> already?
 
-Andi is right, it's just a logical unplug. But having said that, I
-suppose extra cpus could be plugged/unplugged during a suspend to disk.
-Not that I've ever tried it. I have a real SMP mobo, but haven't had the
-opportunity to fire it up.
+Didn't the provided size(1) output would verify this?
 
-Regards,
+In any case, I like the changes because it makes the code more readable, 
+with the smaller code size as a pleasant side effect.  Due to increase 
+readability, I would only be inclined to NAK if the code 
+performance/size was adversely effected.
 
-Nigel
+	Jeff
+
 

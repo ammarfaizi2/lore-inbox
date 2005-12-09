@@ -1,69 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbVLIGgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932269AbVLIHMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbVLIGgN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 01:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbVLIGgN
+	id S932269AbVLIHMm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 02:12:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVLIHMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 01:36:13 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:33285 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751292AbVLIGgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 01:36:13 -0500
-Date: Fri, 9 Dec 2005 07:36:08 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Conio sandiago <coniodiago@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Urgent work ! please help
-Message-ID: <20051209063608.GD15993@alpha.home.local>
-References: <993d182d0512070225kbc4d926w5ab4255e4cdaea75@mail.gmail.com> <20051207213547.GA15993@alpha.home.local> <993d182d0512082152xd76065aydfc7548e9f51ed94@mail.gmail.com>
+	Fri, 9 Dec 2005 02:12:42 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:16864 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S932269AbVLIHMl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 02:12:41 -0500
+Date: Fri, 9 Dec 2005 10:12:28 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Kumar Gala <galak@gate.crashing.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Grover <andrew.grover@intel.com>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       john.ronciak@intel.com, christopher.leech@intel.com
+Subject: Re: [RFC] [PATCH 0/3] ioat: DMA engine support
+Message-ID: <20051209071228.GB19920@2ka.mipt.ru>
+References: <4384F3AD.4080105@pobox.com> <Pine.LNX.4.44.0512081606060.24134-100000@gate.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <993d182d0512082152xd76065aydfc7548e9f51ed94@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+In-Reply-To: <Pine.LNX.4.44.0512081606060.24134-100000@gate.crashing.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 09 Dec 2005 10:12:29 +0300 (MSK)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 11:22:47AM +0530, Conio sandiago wrote:
-> Hello Willy,
-> Thanks a lot for reply.
-> i have done some more investigation and now i have the following observation:-
+On Thu, Dec 08, 2005 at 04:13:52PM -0600, Kumar Gala (galak@gate.crashing.org) wrote:
+> On Wed, 23 Nov 2005, Jeff Garzik wrote:
 > 
+> > Alan Cox wrote:
+> > >>Additionally, current IOAT is memory->memory.  I would love to be able 
+> > >>to convince Intel to add transforms and checksums, 
+> > > 
+> > > 
+> > > Not just transforms but also masks and maybe even merges and textures
+> > > would be rather handy 8)
+> > 
+> > 
+> > Ah yes:  I totally forgot to mention XOR.
+> > 
+> > Software RAID would love that.
 > 
-> 1) When i analyse the packets using ethereal,
-> i saw some duplicate Acks from the reciever, after which
-> transmitter does fast -re transmission,
-> In this transmission i saw some TCP checksum incorrect messages.
+> A number of embedded processors already have HW that does these kinda of
+> things.  On Freescale PPC processors there have been general purpose DMA
+> engines for mem<->mem and more recently and additional crypto engines that
+> allow for hashing, XOR, and security.
 > 
+> I'm actually searching for any examples of drivers that deal with the 
+> issues related to DMA'ng directly two and from user space memory.
 > 
+> I have an ioctl based driver that does copies back and forth between user 
+> and kernel space and would like to remove that since the crypto engine has 
+> full scatter/gather capability.
 > 
-> 2) Now if i disbale the DCACHE in the system , And then do the ftp,
-> everything works well.
-> 
-> 
-> 
-> No my doubt is
-> 
-> a) When does a transmitte do Fast Retransmission,?
+> The only significant effort I've come across is Peter Chubb's work for 
+> user mode drivers which has some code for handling pinning of the user 
+> space memory and what looks like generation of a scatter list.
 
-when there is a high packet loss rate
+Acrypto supports crypto processing directly in userspace pages.
+In 2.6 it is quite easy using get_user_pages().
 
-> b) if i disbale the cache then system performance goes very slow,
-> thats why everything goes well,
+> - kumar
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-so probably you have a timeing problem in your driver. Maybe you
-has to wait milliseconds somewhere and you wait microseconds instead,
-or something like this.
-
-> c) what is the case of collsion in the ethernet driver??
-
-I don't understand your question. It's not the driver which makes
-ethernet collisions. Collisions happen when several ethernet
-transmitters send simultaneously on the same bus (hub).
- 
-> Please help
-> Thanks in advance
-> conio
-
-Willy
-
+-- 
+	Evgeniy Polyakov

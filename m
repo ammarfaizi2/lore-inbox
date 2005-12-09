@@ -1,45 +1,237 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbVLIPsY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbVLIP4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964783AbVLIPsY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 10:48:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbVLIPsY
+	id S964804AbVLIP4X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 10:56:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbVLIP4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 10:48:24 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:17878 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964783AbVLIPsX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 10:48:23 -0500
-Message-ID: <4399A737.40809@suse.de>
-Date: Fri, 09 Dec 2005 16:48:07 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050715 Thunderbird/1.0.6 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][mm] swsusp: limit image size
-References: <200512072246.06222.rjw@sisk.pl>
-In-Reply-To: <200512072246.06222.rjw@sisk.pl>
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+	Fri, 9 Dec 2005 10:56:23 -0500
+Received: from ccerelbas04.cce.hp.com ([161.114.21.107]:59341 "EHLO
+	ccerelbas04.cce.hp.com") by vger.kernel.org with ESMTP
+	id S964797AbVLIP4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 10:56:22 -0500
+Date: Fri, 9 Dec 2005 09:55:36 -0600
+From: mike.miller@hp.com
+To: axboe@suse.de, akpm@osdl.org, andrew.patterson@hp.com
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH 1/2] cciss: patch to add MSI/MSI-X support
+Message-ID: <20051209155536.GA23618@beardog.cca.cpqcorp.net>
+Reply-To: mikem@beardog.cca.cpqcorp.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
+This patch creates a new function cciss_interrupt_mode called from
+cciss_pci_init. This function determines what type of interrupt mode
+to use, i.e., MSI-X, MSI, or IO-APIC.
+One noticeable difference is changing the interrupt field of the
+controller struct to an array of 4 unsigned ints. The Smart Array HW
+is capable of generating 4 distinct interrupts depending on the transport
+method in use during operation. These are:
 
-> The following patch limits the size of the suspend image to approx. 500 MB,
-> which should improve the overall performance of swsusp on systems with
-> more than 1 GB of RAM.
-> 
-> It introduces the constant IMAGE_SIZE that can be set to the preferred size
-> of the image (in MB) and modifies the memory-shrinking part of
-> swsusp to take this constant into account (500 is the default value
-> of IMAGE_SIZE).
+#define DOORBELL_INT 0
+Used to notify the contoller of configuration updates. We only use
+this feature when in polling mode.
 
-What happens if IMAGE_SIZE is bigger than free swap? Do we "try harder"
-or do we fail?
--- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
+#define PERF_MODE_INT 1
+Used when the controller is in Performant Mode.
+
+#define SIMPLE_MODE_INT 2
+Used when the controller is in Simple Mode (current Linux implementation).
+
+#define MEMQ_MODE_INT 3
+Not used.
+
+When using IO-APIC interrupts these 4 lines are OR'ed together in hardware
+so when any one fires an interrupt an is generated. In MSI or MSI-X mode 
+this hardware OR'ing is ignored. We must register for our interrupt
+depending on what mode the controller is running. For Linux we use
+SIMPLE_MODE_INT exclusively at this time. That's the reason we request
+4 vectors and register the third.
+
+Please consider this for inclusion.
+
+Signed-off-by: Mike Miller <mike.miller@hp.com>
+--------------------------------------------------------------------------------
+ cciss.c      |   79 +++++++++++++++++++++++++++++++++++++++++++++++++++++------
+ cciss.h      |    8 +++++
+ cciss_scsi.c |    2 -
+ 3 files changed, 80 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+index e34104d..ede990f 100644
+--- a/drivers/block/cciss.c
++++ b/drivers/block/cciss.c
+@@ -166,7 +166,7 @@ static void cciss_geometry_inquiry(int c
+ 			unsigned int block_size, InquiryData_struct *inq_buff,
+ 			drive_info_struct *drv);
+ static void cciss_getgeometry(int cntl_num);
+-
++static void __devinit cciss_interrupt_mode(ctlr_info_t *, struct pci_dev *, __u32);
+ static void start_io( ctlr_info_t *h);
+ static int sendcmd( __u8 cmd, int ctlr, void *buff, size_t size,
+ 	unsigned int use_unit_num, unsigned int log_unit, __u8 page_code,
+@@ -282,7 +282,7 @@ static int cciss_proc_get_info(char *buf
+                 h->product_name,
+                 (unsigned long)h->board_id,
+ 		h->firm_ver[0], h->firm_ver[1], h->firm_ver[2], h->firm_ver[3],
+-                (unsigned int)h->intr,
++                (unsigned int)h->intr[SIMPLE_MODE_INT],
+                 h->num_luns, 
+ 		h->Qdepth, h->commands_outstanding,
+ 		h->maxQsinceinit, h->max_outstanding, h->maxSG);
+@@ -2659,6 +2659,60 @@ static int find_PCI_BAR_index(struct pci
+ 	return -1;
+ }
+ 
++/* If MSI/MSI-X is supported by the kernel we will try to enable it on
++ * controllers that are capable. If not, we use IO-APIC mode.
++ */
++
++static void __devinit cciss_interrupt_mode(ctlr_info_t *c, struct pci_dev *pdev, __u32 board_id)
++{
++#ifdef CONFIG_PCI_MSI
++        int err;
++        struct msix_entry cciss_msix_entries[4] = {{0,0}, {0,1},
++						   {0,2}, {0,3}};
++
++	/* Some boards advertise MSI but don't really support it */
++	if ((board_id == 0x40700E11) ||
++		(board_id == 0x40800E11) ||
++		(board_id == 0x40820E11) ||
++		(board_id == 0x40830E11))
++		goto default_int_mode;
++
++        if (pci_find_capability(pdev, PCI_CAP_ID_MSIX)) {
++                err = pci_enable_msix(pdev, cciss_msix_entries, 4);
++                if (!err) {
++                        c->intr[0] = cciss_msix_entries[0].vector;
++                        c->intr[1] = cciss_msix_entries[1].vector;
++                        c->intr[2] = cciss_msix_entries[2].vector;
++                        c->intr[3] = cciss_msix_entries[3].vector;
++                        c->msix_vector = 1;
++                        return;
++                }
++                if (err > 0) {
++                        printk(KERN_WARNING "cciss: only %d MSI-X vectors "
++                                        "available\n", err);
++                } else {
++                        printk(KERN_WARNING "cciss: MSI-X init failed %d\n",
++						err);
++                }
++        }
++        if (pci_find_capability(pdev, PCI_CAP_ID_MSI)) {
++                if (!pci_enable_msi(pdev)) {
++                        c->intr[SIMPLE_MODE_INT] = pdev->irq;
++                        c->msi_vector = 1;
++                        return;
++                } else {
++                        printk(KERN_WARNING "cciss: MSI init failed\n");
++        		c->intr[SIMPLE_MODE_INT] = pdev->irq;
++                        return;
++                }
++        }
++#endif /* CONFIG_PCI_MSI */
++	/* if we get here we're going to use the default interrupt mode */
++default_int_mode:
++        c->intr[SIMPLE_MODE_INT] = pdev->irq;
++	return;
++}
++
+ static int cciss_pci_init(ctlr_info_t *c, struct pci_dev *pdev)
+ {
+ 	ushort subsystem_vendor_id, subsystem_device_id, command;
+@@ -2719,7 +2773,10 @@ static int cciss_pci_init(ctlr_info_t *c
+ 	printk("board_id = %x\n", board_id);
+ #endif /* CCISS_DEBUG */ 
+ 
+-	c->intr = pdev->irq;
++/* If the kernel supports MSI/MSI-X we will try to enable that functionality,
++ * else we use the IO-APIC interrupt assigned to us by system ROM.
++ */
++	cciss_interrupt_mode(c, pdev, board_id);
+ 
+ 	/*
+ 	 * Memory base addr is first addr , the second points to the config
+@@ -3073,11 +3130,11 @@ static int __devinit cciss_init_one(stru
+ 
+ 	/* make sure the board interrupts are off */
+ 	hba[i]->access.set_intr_mask(hba[i], CCISS_INTR_OFF);
+-	if( request_irq(hba[i]->intr, do_cciss_intr, 
++	if( request_irq(hba[i]->intr[SIMPLE_MODE_INT], do_cciss_intr, 
+ 		SA_INTERRUPT | SA_SHIRQ | SA_SAMPLE_RANDOM, 
+ 			hba[i]->devname, hba[i])) {
+ 		printk(KERN_ERR "cciss: Unable to get irq %d for %s\n",
+-			hba[i]->intr, hba[i]->devname);
++			hba[i]->intr[SIMPLE_MODE_INT], hba[i]->devname);
+ 		goto clean2;
+ 	}
+ 	hba[i]->cmd_pool_bits = kmalloc(((NR_CMDS+BITS_PER_LONG-1)/BITS_PER_LONG)*sizeof(unsigned long), GFP_KERNEL);
+@@ -3183,7 +3240,7 @@ clean4:
+ 			NR_CMDS * sizeof( ErrorInfo_struct),
+ 			hba[i]->errinfo_pool,
+ 			hba[i]->errinfo_pool_dhandle);
+-	free_irq(hba[i]->intr, hba[i]);
++	free_irq(hba[i]->intr[SIMPLE_MODE_INT], hba[i]);
+ clean2:
+ 	unregister_blkdev(hba[i]->major, hba[i]->devname);
+ clean1:
+@@ -3224,7 +3281,15 @@ static void __devexit cciss_remove_one (
+ 		printk(KERN_WARNING "Error Flushing cache on controller %d\n", 
+ 			i);
+ 	}
+-	free_irq(hba[i]->intr, hba[i]);
++	free_irq(hba[i]->intr[2], hba[i]);
++
++#ifdef CONFIG_PCI_MSI
++        if (hba[i]->msix_vector)
++                pci_disable_msix(hba[i]->pdev);
++        else if (hba[i]->msi_vector)
++                pci_disable_msi(hba[i]->pdev);
++#endif /* CONFIG_PCI_MSI */
++
+ 	pci_set_drvdata(pdev, NULL);
+ 	iounmap(hba[i]->vaddr);
+ 	cciss_unregister_scsi(i);  /* unhook from SCSI subsystem */
+diff --git a/drivers/block/cciss.h b/drivers/block/cciss.h
+index 3b0858c..ad45e58 100644
+--- a/drivers/block/cciss.h
++++ b/drivers/block/cciss.h
+@@ -65,7 +65,6 @@ struct ctlr_info 
+ 	unsigned long io_mem_addr;
+ 	unsigned long io_mem_length;
+ 	CfgTable_struct __iomem *cfgtable;
+-	unsigned int intr;
+ 	int	interrupts_enabled;
+ 	int	major;
+ 	int 	max_commands;
+@@ -74,6 +73,13 @@ struct ctlr_info 
+ 	int	num_luns;
+ 	int 	highest_lun;
+ 	int	usage_count;  /* number of opens all all minor devices */
++#	define DOORBELL_INT	0
++#	define PERF_MODE_INT	1
++#	define SIMPLE_MODE_INT	2
++#	define MEMQ_MODE_INT	3
++	unsigned int intr[4];
++	unsigned int msix_vector;
++	unsigned int msi_vector;
+ 
+ 	// information about each logical volume
+ 	drive_info_struct drv[CISS_MAX_LUN];
+diff --git a/drivers/block/cciss_scsi.c b/drivers/block/cciss_scsi.c
+index 2942d32..9e35de0 100644
+--- a/drivers/block/cciss_scsi.c
++++ b/drivers/block/cciss_scsi.c
+@@ -714,7 +714,7 @@ cciss_scsi_detect(int ctlr)
+ 	((struct cciss_scsi_adapter_data_t *) 
+ 		hba[ctlr]->scsi_ctlr)->scsi_host = (void *) sh;
+ 	sh->hostdata[0] = (unsigned long) hba[ctlr];
+-	sh->irq = hba[ctlr]->intr;
++	sh->irq = hba[ctlr]->intr[SIMPLE_MODE_INT];
+ 	sh->unique_id = sh->irq;
+ 	error = scsi_add_host(sh, &hba[ctlr]->pdev->dev);
+ 	if (error)
+

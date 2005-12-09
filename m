@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVLIXtL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbVLIXwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbVLIXtL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 18:49:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbVLIXtL
+	id S932513AbVLIXwt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 18:52:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932518AbVLIXwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 18:49:11 -0500
-Received: from smtp1.Stanford.EDU ([171.67.16.123]:25484 "EHLO
-	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP id S964903AbVLIXtK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 18:49:10 -0500
-Subject: 2.6.14-rt22
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>
-Cc: nando@ccrma.Stanford.EDU
-Content-Type: text/plain
-Date: Fri, 09 Dec 2005 15:48:25 -0800
-Message-Id: <1134172105.12624.27.camel@cmn3.stanford.edu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 9 Dec 2005 18:52:49 -0500
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:54216 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932513AbVLIXws (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 18:52:48 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 00/56] V4L/DVB Patch series for -mm kernel
+Date: Sat, 10 Dec 2005 00:52:42 +0100
+User-Agent: KMail/1.7.2
+References: <1134084177.7047.179.camel@localhost>
+In-Reply-To: <1134084177.7047.179.camel@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512100052.42679.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all, I'm running 2.6.14-rt22 and just noticed something strange. I
-have not installed it in all machines yet, but in some of them (same
-hardware as others that seems to work fine) the TSC was selected as the
-main clock for the kernel. Remember this is one of the Athlon X2
-machines in which the TCS's drift...
+Hi,
 
-dmesg shows this:
-  PM-Timer running at invalid rate: 2172% of normal - aborting.
+On Friday 09 December 2005 00:20, mchehab@brturbo.com.br wrote:
+> 	This patch series is also available at:
+> 		 http://linuxtv.org/downloads/quilt.
+> 
+> 	This series does contain improvements intended to 2.6.16 kernels, 
+> and should be kept at -mm series for now.
+> 
 
-and after that the tsc is selected as the timing source.
-  Time: tsc clocksource has been installed.
+Would be nice, if put "References: " and "In-Reply-To: " headers
+into the emails, so people not interested in DVB could skip it
+by simply ignoring this thread.
 
-The strange thing is that this is the same hardware as on other
-machines. I have to install this kernel on more machines, will report
-then...
+People interested in DVB could view your changes in posting order and
+even have them close together and in context.
 
-This is what's available after the boot:
-# cat /sys/devices/system/clocksource/clocksource0/available_clocksource
-jiffies tsc pit
+Thanks in advance solving this issue!
 
-So I selected by hand:
-# cat /sys/devices/system/clocksource/clocksource0/current_clocksource
-pit
+Regards
 
-On the machine that's not selecting tsc the options are:
-# cat /sys/devices/system/clocksource/clocksource0/available_clocksource
-acpi_pm jiffies tsc pi
-(and acpi_pm is selected, of course).
-
-I think TSC's should never be selected on this hardware and it is known
-not to work. 
-
--- Fernando
-
+Ingo Oeser
 

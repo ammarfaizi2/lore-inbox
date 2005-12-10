@@ -1,303 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965053AbVLJME0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVLJM0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965053AbVLJME0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 07:04:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbVLJME0
+	id S932391AbVLJM0n (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 07:26:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932788AbVLJM0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 07:04:26 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:33287 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S965053AbVLJMEZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 07:04:25 -0500
-Date: Sat, 10 Dec 2005 13:06:26 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Ben Gardner <gardner.ben@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <lm-sensors@lm-sensors.org>
-Subject: Re: [lm-sensors] [PATCH 3/3] i386: CS5535 chip support - SMBus
-Message-Id: <20051210130626.603c8077.khali@linux-fr.org>
-In-Reply-To: <808c8e9d0512070934m25fb4a10pd0df8702b9228f2a@mail.gmail.com>
-References: <808c8e9d0512070934m25fb4a10pd0df8702b9228f2a@mail.gmail.com>
-Reply-To: LM Sensors <lm-sensors@lm-sensors.org>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Sat, 10 Dec 2005 07:26:43 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:32712 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932391AbVLJM0n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 07:26:43 -0500
+Date: Sat, 10 Dec 2005 13:25:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: hawkes@sgi.com
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Dinakar Guniguntala <dino@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Jack Steiner <steiner@sgi.com>,
+       Paul Jackson <pj@sgi.com>
+Subject: [patch -mm] scheduler cache hot autodetect, isolcpus fix
+Message-ID: <20051210122548.GB25065@elte.hu>
+References: <20051209205454.18325.46768.sendpatchset@tomahawk.engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051209205454.18325.46768.sendpatchset@tomahawk.engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.6
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.6 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
 
-> Index: linux-2.6.14/drivers/i2c/busses/Makefile
-> ===================================================================
+* hawkes@sgi.com <hawkes@sgi.com> wrote:
 
-If you are using quilt, please set QUILT_NO_DIFF_INDEX=1.
+> (3) For a cpu-exclusive cpuset cpu, the domain_distance() calculation 
+>     produces a legal value, but not a useful value.  That is to say,
+>     if cpu0 is isolated into a cpu-exclusive cpuset, then the semantic
+>     meaning of "domain distance" between cpu0 and another CPU outside of
+>     this cpu-exclusive is essentially undefined.  No load-balancing
+>     will occur in or out of this cpu-exclusive cpuset.  There is no
+>     need to measure_migration_cost() of any migrations in or out of
+>     a cpu-exclusive cpuset.
 
-> --- linux-2.6.14.orig/drivers/i2c/busses/Kconfig
-> +++ linux-2.6.14/drivers/i2c/busses/Kconfig
-> @@ -84,6 +84,17 @@ config I2C_AU1550
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-au1550.
->  
-> +config I2C_CS5535
-> +	tristate "AMD CS5535 SMBus (Geode GX)"
-> +	depends on I2C && CS5535 && EXPERIMENTAL
-> +	help
-> +	  Enable the use of the SMB controller on the CS5535 companion device.
+this is a bug in calibrate_migration_costs() - it should only consider 
+the cpu_map for which the domains are being built. Does the patch below 
+fix things for you?
 
-Please use "SMBus" rather than "SMB" which is something different.
+we _may_ want to do calibration for isolated domain trees too: if the 
+new domain tree exposes a domain-depth that was not covered yet. But in 
+any case, caching should work most of the time.
 
-> --- /dev/null
-> +++ linux-2.6.14/drivers/i2c/busses/i2c-cs5535.c
-> @@ -0,0 +1,553 @@
-> +/*  linux/drivers/i2c/i2c-cs5535.c
+in any case, i'm curious why none of the WARN_ON()s in domain_distance() 
+triggered: trying to measure the distance between two CPUs which have no 
+common span should have triggered the first WARN_ON() in 
+domain_distance().
 
-Redundant.
+> (4) The expense of the migration_cost() calculation can be sizeable.
+>     It can be reduced somewhat by changing the 5% increments into 10%
+>     or even higher.  That reduces the boot-time "calibration delay"
+>     from 50 seconds down to 20 seconds (for the 64p ia64/sn2) for
+>     three levels of sched domains, and the declaration of a single
+>     cpu0 cpu-exclusive dynamic sched domain from 6 seconds down to 5
+>     (all to calculate that unnecessary new domain_distance).
 
-> + *
-> + *  Copyright (c) 2005 Ben Gardner <bgardner@wabtec.com>
-> + *
-> + *  AMD CS5535 SMB support - mostly identical to
+an architecture can reduce the calibration costs by tuning the 
+max_cache_size variable down from the default 64MB. You can also do this 
+from the command-line, via: max_cache_size=33000000.
 
-SMBus.
+but otherwise, the calibration measurement is already a bit noisy, so 
+i'd not want to make it even more imprecise, at least for now.
 
-> + *  National Semiconductor SCx200 ACCESS.bus support
-> + *  except for the detection routine.
-> + *
-> + *  Based on scx200_acb.c which is:
-> + *      Copyright (c) 2001,2002 Christer Weinigel <wingel@nano-system.com>
+> (5) Besides, the migration cost between any two CPUs is something
+>     that can be calculated once at boot time and remembered
+>     thereafter.  I suspect the reason why the algorithm doesn't do
+>     this is that an exhaustive NxN calculation will be very slow for
+>     large NR_CPUS counts, which explains why the calculations are
+>     now done in the context of sched domains.
 
-Why not extend that driver then, rather than having a separate one?
+we do cache migration costs. This code in calibrate_migration_costs() 
+does it:
 
-> +#include <linux/config.h>
+                        /*
+                         * No result cached yet?
+                         */
+                        if (migration_cost[distance] == -1LL)
+                                migration_cost[distance] =
+                                        measure_migration_cost(cpu1, cpu2);
 
-This file should no more be included explicitely.
+i changed it from a NxN calculation to the domain-distance and added 
+caching, primarily because Altix guys complained about the excessive 
+output and excessive boot-time :-)
 
-> +#include <linux/pci.h>
+>     However, simply calculating the migration cost for each "domain
+>     distance" presupposes that the sched domain groupings accurately
+>     reflect true migration costs. [...]
 
-Why would you need this?
+yes, that is true. But obviously the migration costs are attached to the 
+domain structure, so going beyond that in calibration makes no sense - 
+we couldnt use the information. OTOH the domain tree on the overwhelming 
+majority of platforms depicts the true cache-hierarchy of the hardware.
 
-> +#include <linux/interrupt.h>
+>     [...] For platforms like the ia64/sn2 this is not true.  For 
+>     example, a 64p ia64/sn2 will have three sched domain levels:  
+>     level zero is each 2-CPU pair within a node; level one is an 
+>     SD_NODES_PER_DOMAIN-size arbitrary clump of 32 CPUs; level two is 
+>     all 64 CPUs.  Looking at that middle level, if I understand the 
+>     algorithm, there is one and only one migration_cost[1] calculation 
+>     made for an arbitrary choice of one CPU in a 32-CPU clump and 
+>     another CPU in that clump.  Reality is that there are various 
+>     migration costs for different pairs of CPUs in that set of 32.  
+>     This is yet another reason why I believe we don't need to do those 
+>     5% size increments to get really accurate timings.
 
-And this?
+the domain tree should match the true cache hierarchy as closely as 
+possible, to get optimal task migration _anyway_. It's not just about 
+cache-hot autodetection, this is a generic thing for other types of 
+migrations too.
 
-> +MODULE_DESCRIPTION("AMD CS5535 SMB Driver");
+one artificial simplification in the domain_distance() approach is the 
+assumption that the domain tree is fundamentally 'symmetric', i.e. a 
+domain 2 steps away from the bottom of the tree describes the same type 
+of cache, no matter from which CPU we do this. The moment someone adds 
+fundamental assymetry to the hardware, this approach has to be changed.
 
-SMBus :)
+in the SN2 case i'm not sure there's any true assymetry on the hardware 
+side, is there? Couldnt the domain tree be changed to match the hardware 
+more - if yes, would there be any disadvantages?
 
-> +/* Needed to see if the cs5535 is present */
-> +extern u32 cs5535_gpio_base;
+	Ingo
 
-Move this to a header file.
+-----
+limit scheduler migration calibration to the affected CPU map.
 
-> +#undef DEBUG
-> +
-> +#ifdef DEBUG
-> +#define DBG(x...) printk(KERN_DEBUG NAME ": " x)
-> +#else
-> +#define DBG(x...)
-> +#endif
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-No. We have a global configuration flag which enables debugging on i2c
-bus drivers (CONFIG_I2C_DEBUG_BUS). When enabled, DEBUG will be set for
-you. Then, use dev_dbg (preferably) and pr_debug.
+ include/linux/sched.h |    2 --
+ kernel/sched.c        |   10 +++++-----
+ 2 files changed, 5 insertions(+), 7 deletions(-)
 
-> +static void cs5535_smb_timeout(struct cs5535_smb_iface *iface)
-> +{
-> +	dev_err(&iface->adapter.dev, "timeout in state %s\n",
-> +		cs5535_smb_state_name[iface->state]);
-> +
-> +	iface->state = state_idle;
-> +	iface->result = -EIO;
-> +	iface->needs_reset = 1;
-> +}
-
-I see relatively little interest in having a separate function for
-this, when this really only is the error path of function
-cs5535_smb_poll below.
-
-> +static void cs5535_smb_poll(struct cs5535_smb_iface *iface)
-> +{
-> +	u8 status = 0;
-
-Useless initialization.
-
-> +	unsigned long timeout;
-> +
-> +	timeout = jiffies + POLL_TIMEOUT;
-> +	while (time_before(jiffies, timeout)) {
-> +
-
-No blank line at beginning of blocks please.
-
-> +		/* The i2c bus takes 9us per bit, 10 bits per transaction.
-> +		 * This amounts to ~100us per char. Since that time is quite
-> +		 * small and we can wait longer, we'll just yield.
-> +		 */
-
-Where do these figures come from? At 100kHz that would be 10us per bit,
-and it's more like 9 bits per byte transfered. The bit count of a
-transaction obviously depends on the transaction type (length), and can
-be generally expressed as 2+9*N where N is the number of transferred
-bytes (counting the address).
-
-It's always approximate anyway as start and stop conditions are not
-real bits, additional delays can occur between bytes, and slaves are
-free to slow down the clock if they want to.
-
-> +		yield();
-> +
-> +		status = smb_inb(SMBST);
-> +		if ((status & (SMBST_SDAST | SMBST_BER | SMBST_NEGACK)) != 0) {
-> +			cs5535_smb_machine(iface, status);
-> +			return;
-> +		}
-> +	}
-> +
-> +	cs5535_smb_timeout(iface);
-> +}
-
-> +static s32 cs5535_smb_smbus_xfer(struct i2c_adapter *adapter,
-> +				 u16 address, unsigned short flags,
-> +				 char rw, u8 command, int size,
-> +				 union i2c_smbus_data *data)
-> +{
-> (...)
-> +	case I2C_SMBUS_BYTE:
-> +		if (rw == I2C_SMBUS_READ) {
-> +			len = 1;
-> +			buffer = &data->byte;
-> +		} else {
-> +			len = 1;
-> +			buffer = &command;
-> +		}
-> +		break;
-
-You can refactor "len = 1".
-
-> +	DBG("size=%d, address=0x%x, command=0x%x, len=%d, read=%d\n",
-> +	    size, address, command, len, rw == I2C_SMBUS_READ);
-
-rw == I2C_SMBUS_READ can be simplified to just rw.
-
-> +	if (!len && rw == I2C_SMBUS_READ) {
-> +		dev_warn(&adapter->dev, "zero length read\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	if (len && !buffer) {
-> +		dev_warn(&adapter->dev, "nonzero length but no buffer\n");
-> +		return -EFAULT;
-> +	}
-
-These would be internal driver errors, right? If so, dev_warn is not
-appropriate. I'd make these dependent upon DEBUG, and use dev_dbg.
-
-> +	iface->address_byte = address << 1;
-> +	if (rw == I2C_SMBUS_READ)
-> +		iface->address_byte |= 1;
-
-Can be simplified to:
-	iface->address_byte = (address << 1) | rw;
-
-> +	iface->command = command;
-> +	iface->ptr = buffer;
-> +	iface->len = len;
-> +	iface->result = -EINVAL;
-> +	iface->needs_reset = 0;
-
-Wouldn't it be more efficient to have cs5535_smb_reset reset that flag
-rather that doing it on each and every transaction?
-
-> +static int __init cs5535_smb_create(int base, int index)
-> +{
-> +	struct cs5535_smb_iface *iface;
-> +	struct i2c_adapter *adapter;
-> +	int rc = 0;
-
-Useless initialization.
-
-> +	if (request_region(iface->base, SMB_IO_SIZE, adapter->name) == 0) {
-
-if (!request_region(...)) {
-
-> +	rc = cs5535_smb_probe(iface);
-> +	if (rc) {
-> +		dev_warn(&adapter->dev, "probe failed\n");
-> +		goto errout;
-> +	}
-
-You can't use dev_warn() before the adapter is added. adapter->dev is
-not defined at this point!
-
-> +
-> +	cs5535_smb_reset(iface);
-> +
-> +	if (i2c_add_adapter(adapter) < 0) {
-> +		dev_err(&adapter->dev, "failed to register\n");
-> +		rc = -ENODEV;
-> +		goto errout;
-> +	}
-
-Ditto.
-
-> +errout:
-> +	if (iface) {
-> +		if (iface->base)
-> +			release_region(iface->base, SMB_IO_SIZE);
-> +		kfree(iface);
-> +	}
-> +	return rc;
-> +}
-
-Please define more labels so that you do not have to test anything in
-the cleanup path. While doing so, you'll probably notice that your
-current cleanup code is not correct (if request_region fails you still
-call release_region).
-
-> +static int __init cs5535_smb_init(void)
-> +{
-> (...)
-> +	return cs5535_smb_create(smb_base, 0);
-> +}
-
-Why did you partly setup the driver architecture so that you could
-support several devices, and finally don't do it? It wouldn't work
-properly anyway, as you have a single slot to store the interface
-pointer. So maybe it would make more sense to simplify the code and
-explicitely only support one device.
-
-> +static void __exit cs5535_smb_cleanup(void)
-> +{
-> +	if (cs5535_iface != NULL) {
-> +		release_region(cs5535_iface->base, SMB_IO_SIZE);
-> +		i2c_del_adapter(&cs5535_iface->adapter);
-> +		kfree(cs5535_iface);
-> +	}
-> +}
-
-How could cs5535_iface be NULL at this point? Looks like a useless test
-to me. You are also not cleaning up in the proper order, bus
-deregistration should happen before region release, else you have
-(theoretical) room for access to a no more reserved region.
-
-> +
-> +module_init(cs5535_smb_init);
-> +module_exit(cs5535_smb_cleanup);
-> +
-
-No blank line at end of file please.
-
-> --- linux-2.6.14.orig/include/linux/i2c-id.h
-> +++ linux-2.6.14/include/linux/i2c-id.h
-> @@ -256,6 +256,7 @@
->  #define I2C_HW_SMBUS_OV518	0x04000f /* OV518(+) USB 1.1 webcam ICs */
->  #define I2C_HW_SMBUS_OV519	0x040010 /* OV519 USB 1.1 webcam IC */
->  #define I2C_HW_SMBUS_OVFX2	0x040011 /* Cypress/OmniVision FX2 webcam */
-> +#define I2C_HW_SMBUS_CS5535	0x040012
-
-Some comment would be welcome.
-
-Thanks,
--- 
-Jean Delvare
+Index: linux-mm.q/include/linux/sched.h
+===================================================================
+--- linux-mm.q.orig/include/linux/sched.h
++++ linux-mm.q/include/linux/sched.h
+@@ -650,8 +650,6 @@ extern void partition_sched_domains(cpum
+  */
+ extern unsigned int max_cache_size;
+ 
+-extern void calibrate_migration_costs(void);
+-
+ #endif	/* CONFIG_SMP */
+ 
+ 
+Index: linux-mm.q/kernel/sched.c
+===================================================================
+--- linux-mm.q.orig/kernel/sched.c
++++ linux-mm.q/kernel/sched.c
+@@ -5482,7 +5482,7 @@ static unsigned long long measure_migrat
+ 	return 2 * max_cost * migration_factor / MIGRATION_FACTOR_SCALE;
+ }
+ 
+-void calibrate_migration_costs(void)
++static void calibrate_migration_costs(const cpumask_t *cpu_map)
+ {
+ 	int cpu1 = -1, cpu2 = -1, cpu, orig_cpu = raw_smp_processor_id();
+ 	unsigned long j0, j1, distance, max_distance = 0;
+@@ -5493,8 +5493,8 @@ void calibrate_migration_costs(void)
+ 	/*
+ 	 * First pass - calculate the cacheflush times:
+ 	 */
+-	for_each_online_cpu(cpu1) {
+-		for_each_online_cpu(cpu2) {
++	for_each_cpu_mask(cpu1, *cpu_map) {
++		for_each_cpu_mask(cpu2, *cpu_map) {
+ 			if (cpu1 == cpu2)
+ 				continue;
+ 			distance = domain_distance(cpu1, cpu2);
+@@ -5511,7 +5511,7 @@ void calibrate_migration_costs(void)
+ 	 * Second pass - update the sched domain hierarchy with
+ 	 * the new cache-hot-time estimations:
+ 	 */
+-	for_each_online_cpu(cpu) {
++	for_each_cpu_mask(cpu, *cpu_map) {
+ 		distance = 0;
+ 		for_each_domain(cpu, sd) {
+ 			sd->cache_hot_time = migration_cost[distance];
+@@ -5924,7 +5924,7 @@ next_sg:
+ 	/*
+ 	 * Tune cache-hot values:
+ 	 */
+-	calibrate_migration_costs();
++	calibrate_migration_costs(cpu_map);
+ }
+ /*
+  * Set up scheduler domains and groups.  Callers must hold the hotplug lock.

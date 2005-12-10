@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbVLJC5t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbVLJDLK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbVLJC5t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 21:57:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbVLJC5t
+	id S964891AbVLJDLK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 22:11:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbVLJDLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 21:57:49 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:61109 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964792AbVLJC5s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 21:57:48 -0500
-Message-ID: <439A4422.3030808@pobox.com>
-Date: Fri, 09 Dec 2005 21:57:38 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 9 Dec 2005 22:11:10 -0500
+Received: from smtp2.Stanford.EDU ([171.67.16.125]:44489 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S964891AbVLJDLI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 22:11:08 -0500
+Date: Fri, 9 Dec 2005 19:10:39 -0800 (PST)
+From: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
+X-X-Sender: nando@cmn37.stanford.edu
+To: john stultz <johnstul@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, <cc@ccrma.Stanford.EDU>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.14-rt22 (acpi_pm vs tsc vs BIOS)
+In-Reply-To: <1134181887.4002.7.camel@leatherman>
+Message-ID: <Pine.LNX.4.44.0512091907220.11220-100000@cmn37.stanford.edu>
 MIME-Version: 1.0
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-CC: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       randy_d_dunlap@linux.intel.com, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-References: <20051209114246.GB16945@infradead.org> <20051209114944.GA1068@havoc.gtf.org> <20051209115235.GB25771@srcf.ucam.org> <43997171.9060105@pobox.com> <20051209121124.GA25974@srcf.ucam.org> <439975AB.5000902@pobox.com> <20051209122457.GB26070@srcf.ucam.org> <439A23E8.3080407@pobox.com> <20051210023426.GA31220@srcf.ucam.org> <439A4070.2000500@pobox.com> <20051210025004.GB31328@srcf.ucam.org>
-In-Reply-To: <20051210025004.GB31328@srcf.ucam.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Matthew Garrett wrote: > On Fri, Dec 09, 2005 at
-	09:41:52PM -0500, Jeff Garzik wrote: > > >>Do you even know if this
-	special case is applicable outside of Dell ICH5 >>boxes? And I thought
-	your previous messages were referring to ICH6? > > > Every laptop I
-	have access to, whether it's SATA or PATA, fires an ACPI > notification
-	when a drive is removed from a bay. The ICH5 case is > probably
-	somewhat special-cased, but when we move over to driving PATA > with
-	libata it's going to be a lot more useful. If ICH6 can be managed >
-	without resorting to ACPI, it's less necessary in the short term, but I
-	> think PATA support is going to require it in the end anyway
-	(especially > since we probably want to call the _GTM and _STM methods
-	on PATA > devices) [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Garrett wrote:
-> On Fri, Dec 09, 2005 at 09:41:52PM -0500, Jeff Garzik wrote:
+On Fri, 9 Dec 2005, john stultz wrote:
+> On Fri, 2005-12-09 at 17:21 -0800, Fernando Lopez-Lezcano wrote:
+> > On Fri, 2005-12-09 at 15:48 -0800, Fernando Lopez-Lezcano wrote:
+> > > Hi all, I'm running 2.6.14-rt22 and just noticed something strange. I
+> > > have not installed it in all machines yet, but in some of them (same
+> > > hardware as others that seems to work fine) the TSC was selected as the
+> > > main clock for the kernel. Remember this is one of the Athlon X2
+> > > machines in which the TCS's drift...
+> > > 
+> > > dmesg shows this:
+> > >   PM-Timer running at invalid rate: 2172% of normal - aborting.
+> > > 
+> > > and after that the tsc is selected as the timing source.
+> > >   Time: tsc clocksource has been installed.
+> > > 
+> > > The strange thing is that this is the same hardware as on other
+> > > machines. 
+> > 
+> > Aha! Yes but no. The BIOS makes a difference. The first BIOS that has
+> > support for the X2 processors on this particular motherboard works fine
+> > with regards to the acpi_pm clock source, subsequent ones make linux say
+> > things like:
+> >   PM-Timer running at invalid rate: 2159% of normal - aborting.
+> > and then tsc is selected as the clock source...
 > 
-> 
->>Do you even know if this special case is applicable outside of Dell ICH5 
->>boxes?  And I thought your previous messages were referring to ICH6?
-> 
-> 
-> Every laptop I have access to, whether it's SATA or PATA, fires an ACPI 
-> notification when a drive is removed from a bay. The ICH5 case is 
-> probably somewhat special-cased, but when we move over to driving PATA 
-> with libata it's going to be a lot more useful. If ICH6 can be managed 
-> without resorting to ACPI, it's less necessary in the short term, but I 
-> think PATA support is going to require it in the end anyway (especially 
-> since we probably want to call the _GTM and _STM methods on PATA 
-> devices)
+> So you're saying the newer BIOS detects the PM timer as running too fast
+> or is it the older ones?
 
-Yes, I do agree with this WRT PATA.  Randy Dunlap's ACPI stuff is 
-particularly interesting for this, though I haven't had time to review 
-it in depth.
+Yes, newer ones are apparently broken. This is a GA-K8NS Ultra-939
+(NForce3), acpi_pm is recognized with BIOS F7, gives an error with F8 or
+F9...
 
-I'm a bit more reluctant WRT SATA.
-
-	Jeff
-
+-- Fernando
 

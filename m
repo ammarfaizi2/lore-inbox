@@ -1,148 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbVLJNUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVLJNmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbVLJNUk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 08:20:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVLJNUk
+	id S932347AbVLJNmI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 08:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932393AbVLJNmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 08:20:40 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:55760 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S932158AbVLJNUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 08:20:39 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>, Stefan Seyfried <seife@suse.de>
-Subject: [RFC/RFT] swsusp: image size tunable (was: Re: [PATCH][mm] swsusp: limit image size)
-Date: Sat, 10 Dec 2005 14:21:57 +0100
-User-Agent: KMail/1.9
-Cc: LKML <linux-kernel@vger.kernel.org>, Andy Isaacson <adi@hexapodia.org>
-References: <200512072246.06222.rjw@sisk.pl> <20051209191735.GB4658@elf.ucw.cz> <200512092308.19644.rjw@sisk.pl>
-In-Reply-To: <200512092308.19644.rjw@sisk.pl>
+	Sat, 10 Dec 2005 08:42:08 -0500
+Received: from mail.tmr.com ([64.65.253.246]:4052 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S932347AbVLJNmH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 08:42:07 -0500
+Message-ID: <439ADAF3.9040705@tmr.com>
+Date: Sat, 10 Dec 2005 08:41:07 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Rob Landley <rob@landley.net>
+CC: Mark Lord <lkml@rtr.ca>, Adrian Bunk <bunk@stusta.de>,
+       David Ranson <david@unsolicited.net>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       Matthias Andree <matthias.andree@gmx.de>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+References: <20051203135608.GJ31395@stusta.de> <200512051158.06882.rob@landley.net> <4395DDA8.8000003@tmr.com> <200512071214.26574.rob@landley.net>
+In-Reply-To: <200512071214.26574.rob@landley.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512101421.57918.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Rob Landley wrote:
 
-On Friday, 9 December 2005 23:08, Rafael J. Wysocki wrote:
-}-- snip --{
-> > > 
-> > > This would at least give us a chance for a second try. I know that Pavel
-> > > dislikes userspace tunables, but i dislike failing suspends ;-)
-> > 
-> > Can we do that when we start seeing failed suspends? I think it will
-> > not happen. If we have reasonably-sized swap partition, it should be
-> > ok.
-> 
-> Yes.  Moreover, we can do something like that without a userspace
-> tunable, if we check for the free swap before we try to shrink memory.
-> This would take some time to implement, though, and I'd rather
-> like to do the userland interface first.
-> 
-> The tunable may be useful to people who'd like to achieve the
-> maximum efficiency of suspend/resume and it would be a nice
-> feature to have, I think, but let's say we'll try to implement it
-> in the future, if still needed/wanted.
+>
+>I'm under the impression the problem with cryptoloop is bad cryptography:
+>http://lwn.net/Articles/67216/
+>
+>Anybody actually using cryptography with an expoitable weakness needs all the 
+>wake-up calls they can get.  This is _not_ a case where you want to support 
+>old broken crap, that defeats the whole purpose of using cryptography in the 
+>first place.
+>
+>Especially the cryptoloop removal was an intentional decision that the kernel 
+>developers made.  People raised their objections at the time, and these were 
+>taken into consideration when making the decision:
+>http://kerneltrap.org/node/2433
+>
+>Re-raising the same objections over and over again when they've already been 
+>aired, considered, and rejections is called "whining".
+>
+Repeating the same information over and over until it sinks in is called 
+"rote learning." The question is not if cryptoloop is perfect, every 
+crypto seems to fail eventually, recently md5 was cracked, etc. But 
+people have used cryptoloop now, and removing it from the kernel will 
+lock them out of their own data, or prevent them from moving forward. 
+There's no replacement for cryptoloop, so I can't just reconfigure X and 
+still read my 147 DVDs full of business data, or access the current data 
+on 34 laptops around the country.
 
-Actually the tunable turned out to be quite easy to implement and I think
-I'll need it for userspace swsusp (the suspend-handling userspace
-process will need to tell the kernel how much space there is for the
-image).
+In most cases CL is not expected to protect against goverment agencies 
+but rather stolen laptops in airports (yes the pros have added MacOS and 
+Linux to their business model) or the occasional lost DVD in the mail. 
+Removing CL is not a hell of a lot better morally than these viruses 
+which encrypt your data and then hold it for ransom, with the price 
+being doing without security fixes in future kernels.
 
-Please give it a try.
+Given that CL has minimal (essentially no) maintenence cost, I wish the 
+ivory tower developers could understand that real people have invested 
+real money in it, and real data in the technology. Since there is no 
+alternative solution offered, CL is far better than no crypto at all, 
+and I wish there were a few more developers who had experience working 
+in the real word.
 
-Greetings,
-Rafael
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
 
-
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-
- kernel/power/disk.c   |   25 +++++++++++++++++++++++++
- kernel/power/power.h  |    6 ++++--
- kernel/power/swsusp.c |    4 +++-
- 3 files changed, 32 insertions(+), 3 deletions(-)
-
-Index: linux-2.6.15-rc5-mm1/kernel/power/disk.c
-===================================================================
---- linux-2.6.15-rc5-mm1.orig/kernel/power/disk.c	2005-12-10 13:12:18.000000000 +0100
-+++ linux-2.6.15-rc5-mm1/kernel/power/disk.c	2005-12-10 13:20:38.000000000 +0100
-@@ -367,9 +367,34 @@
- 
- power_attr(resume);
- 
-+static ssize_t image_size_show(struct subsystem * subsys, char *buf)
-+{
-+	return sprintf(buf, "%u\n", image_size);
-+}
-+
-+static ssize_t image_size_store(struct subsystem * subsys, const char * buf, size_t n)
-+{
-+	int len;
-+	char *p;
-+	unsigned int size;
-+
-+	p = memchr(buf, '\n', n);
-+	len = p ? p - buf : n;
-+
-+	if (sscanf(buf, "%u", &size) == 1) {
-+		image_size = size < MAX_IMAGE_SIZE ? size : MAX_IMAGE_SIZE;
-+		return n;
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+power_attr(image_size);
-+
- static struct attribute * g[] = {
- 	&disk_attr.attr,
- 	&resume_attr.attr,
-+	&image_size_attr.attr,
- 	NULL,
- };
- 
-Index: linux-2.6.15-rc5-mm1/kernel/power/power.h
-===================================================================
---- linux-2.6.15-rc5-mm1.orig/kernel/power/power.h	2005-12-10 13:12:18.000000000 +0100
-+++ linux-2.6.15-rc5-mm1/kernel/power/power.h	2005-12-10 13:20:46.000000000 +0100
-@@ -53,10 +53,12 @@
- extern struct pbe *pagedir_nosave;
- 
- /*
-- * Preferred image size in MB (set it to zero to get the smallest
-+ * Maximum image size in MB (set it to zero to get the smallest
-  * image possible)
-  */
--#define IMAGE_SIZE	500
-+#define MAX_IMAGE_SIZE	500
-+
-+extern unsigned int image_size;
- 
- extern asmlinkage int swsusp_arch_suspend(void);
- extern asmlinkage int swsusp_arch_resume(void);
-Index: linux-2.6.15-rc5-mm1/kernel/power/swsusp.c
-===================================================================
---- linux-2.6.15-rc5-mm1.orig/kernel/power/swsusp.c	2005-12-10 13:12:18.000000000 +0100
-+++ linux-2.6.15-rc5-mm1/kernel/power/swsusp.c	2005-12-10 13:20:42.000000000 +0100
-@@ -69,6 +69,8 @@
- 
- #include "power.h"
- 
-+unsigned int image_size = MAX_IMAGE_SIZE;
-+
- #ifdef CONFIG_HIGHMEM
- unsigned int count_highmem_pages(void);
- int save_highmem(void);
-@@ -647,7 +649,7 @@
- 			if (!tmp)
- 				return -ENOMEM;
- 			pages += tmp;
--		} else if (size > (IMAGE_SIZE * 1024 * 1024) / PAGE_SIZE) {
-+		} else if (size > (image_size * 1024 * 1024) / PAGE_SIZE) {
- 			tmp = shrink_all_memory(SHRINK_BITE);
- 			pages += tmp;
- 		}

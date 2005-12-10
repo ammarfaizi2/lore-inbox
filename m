@@ -1,39 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbVLJEBR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbVLJEVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964900AbVLJEBR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 23:01:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbVLJEBR
+	id S964906AbVLJEVX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 23:21:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbVLJEVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 23:01:17 -0500
-Received: from rtr.ca ([64.26.128.89]:54949 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S964906AbVLJEBQ (ORCPT
+	Fri, 9 Dec 2005 23:21:23 -0500
+Received: from main.gmane.org ([80.91.229.2]:50065 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964906AbVLJEVW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 23:01:16 -0500
-Message-ID: <439A530B.4090103@rtr.ca>
-Date: Fri, 09 Dec 2005 23:01:15 -0500
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Erik Slagter <erik@slagter.name>, Christoph Hellwig <hch@infradead.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>, randy_d_dunlap@linux.intel.com,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-References: <20051208030242.GA19923@srcf.ucam.org>	 <20051208091542.GA9538@infradead.org>	 <20051208132657.GA21529@srcf.ucam.org>	 <20051208133308.GA13267@infradead.org>	 <20051208133945.GA21633@srcf.ucam.org>	 <20051208134438.GA13507@infradead.org> <1134062330.1732.9.camel@localhost.localdomain> <43989B00.5040503@pobox.com> <4398F9E6.7000807@rtr.ca> <43996A84.5020307@pobox.com>
-In-Reply-To: <43996A84.5020307@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 9 Dec 2005 23:21:22 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Tom <harningt@gmail.com>
+Subject: Re: Linux 2.6.15-rc5: off-line for a week
+Date: Fri, 09 Dec 2005 23:07:47 -0500
+Message-ID: <dndkaj$27f$2@sea.gmane.org>
+References: <200512041526.19111.edmondo@eriadon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: harningt-2.user.msu.edu
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050721)
+X-Accept-Language: en-us, en
+In-Reply-To: <200512041526.19111.edmondo@eriadon.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
->
-> Patches welcome :)
+Edmondo Tommasina wrote:
+> :-)
+> 
+> Linux 2.6.15-rc5 compiles fine and works as expected here.
+> 
+> lbalrog edmondo # uname -a
+> Linux balrog 2.6.15-rc5 #1 SMP Sun Dec 4 14:42:04 CET 2005 x86_64
+> AMD Athlon(tm) 64 X2 Dual Core Processor 4400+ AuthenticAMD GNU/Linux
+> 
+> balrog edmondo # dmesg
+> Bootdata ok (command line is root=/dev/hda5)
+> Linux version 2.6.15-rc5 (root@balrog) (gcc version 4.0.2 (Gentoo 4.0.2-r1, pie-8.7.8)) #1 SMP Sun Dec 4 14:42:04 CET 2005
+> (...)
+> NVRM: loading NVIDIA Linux x86_64 NVIDIA Kernel Module  1.0-7676  Fri Jul 29 13:15:16 PDT 2005
+> X does an incomplete pfn remapping
+> Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
+>        <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
+>        <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
+>        <ffffffff8010dcaa>{system_call+126}
+> X does an incomplete pfn remapping
+> Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
+>        <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
+>        <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
+>        <ffffffff8010dcaa>{system_call+126}
+> X does an incomplete pfn remapping
+> Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
+>        <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
+>        <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
+>        <ffffffff8010dcaa>{system_call+126}
+> X does an incomplete pfn remapping
+> Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
+>        <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
+>        <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
+>        <ffffffff8010dcaa>{system_call+126}
+> (...)
 
-That's certainly *not* the impression that one is left with
-after reading the many responses to the patches that started
-this thread.
+I get that too... compiles and mostly works.
 
-Cheers
+That pfn issue seems to affect my pointer device (Synaptic).
+I've used both NVIDIA 7676 and the latest: 8174
+
+Versions between 2.6.13-rc3 - 2.6.15-rc5 haven't worked (well.. I
+hadn't tried out any 2.6.15 revisions until now).  I have 2.6.13-rc3
+sitting back in case this pfn issue causes too much trouble.
+
+
+Does anyone
+

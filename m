@@ -1,74 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbVLJBVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbVLJBee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932489AbVLJBVk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 20:21:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932507AbVLJBVk
+	id S964797AbVLJBee (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 20:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbVLJBee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 20:21:40 -0500
-Received: from smtp3.Stanford.EDU ([171.67.16.138]:48353 "EHLO
-	smtp3.Stanford.EDU") by vger.kernel.org with ESMTP id S932489AbVLJBVj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 20:21:39 -0500
-Subject: Re: 2.6.14-rt22 (acpi_pm vs tsc vs BIOS)
-From: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-To: linux-kernel@vger.kernel.org
-Cc: cc@ccrma.Stanford.EDU, nando@ccrma.Stanford.EDU,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>
-In-Reply-To: <1134172105.12624.27.camel@cmn3.stanford.edu>
-References: <1134172105.12624.27.camel@cmn3.stanford.edu>
+	Fri, 9 Dec 2005 20:34:34 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:54423 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964797AbVLJBee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 20:34:34 -0500
+Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <439A201D.7030103@mnsu.edu>
+References: <1134154208.14363.8.camel@mindpipe>  <439A0746.80208@mnsu.edu>
+	 <1134173138.18432.41.camel@mindpipe>  <439A201D.7030103@mnsu.edu>
 Content-Type: text/plain
-Date: Fri, 09 Dec 2005 17:21:11 -0800
-Message-Id: <1134177671.4811.4.camel@cmn3.stanford.edu>
+Date: Fri, 09 Dec 2005 20:28:12 -0500
+Message-Id: <1134178093.18432.51.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-09 at 15:48 -0800, Fernando Lopez-Lezcano wrote:
-> Hi all, I'm running 2.6.14-rt22 and just noticed something strange. I
-> have not installed it in all machines yet, but in some of them (same
-> hardware as others that seems to work fine) the TSC was selected as the
-> main clock for the kernel. Remember this is one of the Athlon X2
-> machines in which the TCS's drift...
+On Fri, 2005-12-09 at 18:23 -0600, Jeffrey Hundstad wrote:
+> Lee Revell wrote:
 > 
-> dmesg shows this:
->   PM-Timer running at invalid rate: 2172% of normal - aborting.
+> >On Fri, 2005-12-09 at 16:37 -0600, Jeffrey Hundstad wrote:
+> >  
+> >
+> >>Lee Revell wrote:
+> >>
+> >>    
+> >>
+> >>>I'm trying to build an x66-64 kernel on a 32 bit system (Ubuntu 5.10).
+> >>>I added -m64 to the CFLAGS as per the gcc docs.  But the build fails
+> >>>with:
+> >>>
+> >>>$ make ARCH=x86_64
+> >>> [...]
+> >>> CC      init/initramfs.o
+> >>>
+> >>>
+> >>>      
+> >>>
+> >>I have successfully done this using Debian/Sid.
+> >>
+> >>    
+> >>
+> >
+> >I added "-m64" to AFLAGS as well and now I get farther:
+> >
+> >  CC      arch/x86_64/ia32/syscall32.o
+> >  AS      arch/x86_64/ia32/vsyscall-sysenter.o
+> >arch/x86_64/ia32/vsyscall-sysenter.S: Assembler messages:
+> >arch/x86_64/ia32/vsyscall-sysenter.S:14: Error: suffix or operands invalid for `push'
+> >arch/x86_64/ia32/vsyscall-sysenter.S:16: Error: suffix or operands invalid for `push'
+> >arch/x86_64/ia32/vsyscall-sysenter.S:18: Error: suffix or operands invalid for `push'
+> >arch/x86_64/ia32/vsyscall-sysenter.S:25: Error: suffix or operands invalid for `pop'
+> >arch/x86_64/ia32/vsyscall-sysenter.S:27: Error: suffix or operands invalid for `pop'
+> >arch/x86_64/ia32/vsyscall-sysenter.S:29: Error: suffix or operands invalid for `pop'
+> >arch/x86_64/ia32/vsyscall-sigreturn.S:16: Error: suffix or operands invalid for `pop'
+> >make[1]: *** [arch/x86_64/ia32/vsyscall-sysenter.o] Error 1
+> >make: *** [arch/x86_64/ia32] Error 2
+> >
+> >Lee
+> >
+> >  
+> >
 > 
-> and after that the tsc is selected as the timing source.
->   Time: tsc clocksource has been installed.
+> Yes, some commands NEED the -m64 and and WILL NOT work with -m64.
 > 
-> The strange thing is that this is the same hardware as on other
-> machines. 
+> Really, try my method.  I've done it without all that making a separate 
+> binutils non-sense.
 
-Aha! Yes but no. The BIOS makes a difference. The first BIOS that has
-support for the X2 processors on this particular motherboard works fine
-with regards to the acpi_pm clock source, subsequent ones make linux say
-things like:
-  PM-Timer running at invalid rate: 2159% of normal - aborting.
-and then tsc is selected as the clock source...
+Your scripts don't help.  I still need to add "-m64" to the CFLAGS and
+AFLAGS to get it to work at all, otherwise gcc is invoked in 32 bit
+mode, and they don't address the problem where some invocations of AS
+need -m64 and some like:
 
-> I have to install this kernel on more machines, will report
-> then...
-> 
-> This is what's available after the boot:
-> # cat /sys/devices/system/clocksource/clocksource0/available_clocksource
-> jiffies tsc pit
-> 
-> So I selected by hand:
-> # cat /sys/devices/system/clocksource/clocksource0/current_clocksource
-> pit
-> 
-> On the machine that's not selecting tsc the options are:
-> # cat /sys/devices/system/clocksource/clocksource0/available_clocksource
-> acpi_pm jiffies tsc pi
-> (and acpi_pm is selected, of course).
-> 
-> I think TSC's should never be selected on this hardware and it is known
-> not to work. 
+  AS      arch/x86_64/ia32/vsyscall-sysenter.o
 
--- Fernando
+need -m32.
 
+Lee
 

@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964904AbVLJD0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbVLJDck@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964904AbVLJD0r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 22:26:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbVLJD0r
+	id S964907AbVLJDck (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 22:32:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVLJDck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 22:26:47 -0500
-Received: from cantor.suse.de ([195.135.220.2]:24215 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964904AbVLJD0q (ORCPT
+	Fri, 9 Dec 2005 22:32:40 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:52132 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964907AbVLJDck (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 22:26:46 -0500
-Date: Sat, 10 Dec 2005 04:26:44 +0100
+	Fri, 9 Dec 2005 22:32:40 -0500
+Date: Sat, 10 Dec 2005 04:32:35 +0100
 From: Andi Kleen <ak@suse.de>
-To: Keith Mannthey <kmannth@gmail.com>
-Cc: Andi Kleen <ak@muc.de>, Matt Tolentino <metolent@cs.vt.edu>, akpm@osdl.org,
-       discuss@x86-64.org, linux-kernel@vger.kernel.org,
-       matthew.e.tolentino@intel.com
-Subject: Re: [discuss] Re: [patch 3/3] add x86-64 support for memory hot-add
-Message-ID: <20051210032644.GJ15804@wotan.suse.de>
-References: <200512091523.jB9FNn5J006697@ap1.cs.vt.edu> <20051209173249.GA54033@muc.de> <a762e240512091616l62f1c69andeec382d7356ba64@mail.gmail.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+       Andi Kleen <ak@suse.de>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [RFC 1/6] Framework
+Message-ID: <20051210033235.GP11190@wotan.suse.de>
+References: <20051210005440.3887.34478.sendpatchset@schroedinger.engr.sgi.com> <20051210005445.3887.94119.sendpatchset@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a762e240512091616l62f1c69andeec382d7356ba64@mail.gmail.com>
+In-Reply-To: <20051210005445.3887.94119.sendpatchset@schroedinger.engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 04:16:41PM -0800, Keith Mannthey wrote:
-> > These should be all __cpuinit.
-> >
-> > In general SRAT has a hotplug memory bit so it's possible
-> > to predict how much memory there will be in advance. Since
-> > the overhead of the kernel page tables should be very
-> > low I would prefer if you just used instead.
-> 
-> How much overhead would there be?
+> +#define global_page_state(__x) atomic_long_read(&vm_stat[__x])
+> +#define zone_page_state(__z,__x) atomic_long_read(&(__z)->vm_stat[__x])
+> +extern unsigned long node_page_state(int node, enum zone_stat_item);
+> +
+> +/*
+> + * For use when we know that interrupts are disabled.
 
-It's 2MB pages in 3levels, so roughly 3*8=24 bytes per 2MB or roughly
-512 bytes per GB (rounded up always to the next page)
+Why do you need to disable interupts for atomic_t ? 
+If you just want to prevent switching CPUs that could be 
+done with get_cpu(), but alternatively you could just ignore
+that race (it wouldn't be a big issue to still increment
+the counter on the old CPU)
 
-> 
-> > (i.e. instead of extending the kernel mapping preallocate
-> > the direct mapping and just clear the P bits)
-> 
-> On my box the SRAT for hot-add areas exposed are from the end
-> installed memory to way out in outerspace.
-> SRAT: hot plug zone found 280000000 - 2300000000
-> I can't hot add that sort of range on my box but the bios didn't want
-> to limit or is planing for really really big dimms.
-
-You're just proving someone's (anyone want to volunteer their name? ;-]
-I think Linus pointed it out originally, so let's call it Linus') 
-law - as soon as we use some BIOS feature we soon find a BIOS 
-that will get it totally wrong.
-
-Anyways, I retracted anyways because of some other issues so Matt's 
-original approach should be ok.
+And why atomic and not just local_t?  On x86/x86-64 local_t
+would be much cheaper at least. It's not long, but that could
+be as well added.
 
 -Andi
+

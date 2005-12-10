@@ -1,46 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161067AbVLJXig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161069AbVLJXoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161067AbVLJXig (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 18:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161070AbVLJXig
+	id S1161069AbVLJXoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 18:44:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030330AbVLJXoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 18:38:36 -0500
-Received: from mail.kroah.org ([69.55.234.183]:62404 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161067AbVLJXif (ORCPT
+	Sat, 10 Dec 2005 18:44:25 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:18088 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S1030249AbVLJXoY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 18:38:35 -0500
-Date: Sat, 10 Dec 2005 15:28:37 -0800
-From: Greg KH <greg@kroah.com>
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: stable@kernel.org, torvalds@osdl.org, scjody@modernduck.com,
-       linux1394-devel@lists.sourceforge.net, bcollins@debian.org,
-       adq@lidskialf.net, linux-kernel@vger.kernel.org
-Subject: Re: [stable] [PATCH] sbp2: fix panic when ejecting an ipod
-Message-ID: <20051210232837.GE11094@kroah.com>
-References: <20051209171922.GW19441@conscoop.ottawa.on.ca> <200512101125.jBABP7Z9001085@einhorn.in-berlin.de>
+	Sat, 10 Dec 2005 18:44:24 -0500
+Date: Sun, 11 Dec 2005 00:46:11 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Greg KH <greg@kroah.com>, "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc5-mm1
+Message-ID: <20051211004611.60248a2f@werewolf.auna.net>
+In-Reply-To: <20051210233655.GH11094@kroah.com>
+References: <20051204232153.258cd554.akpm@osdl.org>
+	<20051206000524.74cb2ddc@werewolf.auna.net>
+	<20051210233655.GH11094@kroah.com>
+X-Mailer: Sylpheed-Claws 1.9.100cvs81 (GTK+ 2.8.8; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512101125.jBABP7Z9001085@einhorn.in-berlin.de>
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed; boundary="Sig_D1DY0we./4+81.+U18_6c/C";
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
+X-Auth-Info: Auth:LOGIN IP:[83.138.219.198] Login:jamagallon@able.es Fecha:Sun, 11 Dec 2005 00:44:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 10, 2005 at 12:24:59PM +0100, Stefan Richter wrote:
-> sbp2: fix panic when ejecting an ipod
-> 
-> Sbp2 did not catch some bogus transfer directions in requests from upper
-> layers.  Problem became apparent when iPods were to be ejected:
-> http://marc.theaimsgroup.com/?l=linux1394-devel&m=113399994920181
-> http://marc.theaimsgroup.com/?l=linux1394-user&m=112152701817435
-> Debugging and original variant of the patch by Andrew de Quincey.
-> 
-> Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
-> Cc: Andrew de Quincey <adq@lidskialf.net>
+--Sig_D1DY0we./4+81.+U18_6c/C
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Is this in linus's tree yet?  Do the 1394 maintainers accept it as a
-valid fix?
+On Sat, 10 Dec 2005 15:36:55 -0800, Greg KH <greg@kroah.com> wrote:
 
-thanks,
+> On Tue, Dec 06, 2005 at 12:05:24AM +0100, J.A. Magallon wrote:
+> > On Sun, 4 Dec 2005 23:21:53 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> >=20
+> > >=20
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-=
+rc5/2.6.15-rc5-mm1/
+> > >=20
+> > >=20
+> >=20
+> > I still get this oops on boot, then the machine freezes hard on the init
+> > process:
+> >=20
+> > usb_set_configuration+0x22b/0x4df
+> > usb_new_device+0x105/0x158
+> > hub_port_connect_change+0x2de/0x37e
+> > clear_port_feature+0x48/0x4d
+> > hub_events+0x2aa/0x42f
+> > hub_thread+0x14/0xe2
+> > autoremove_wake_function+0x0/0x37
+> > kthread+0x93/0x97
+> > kthread+0x0/0x97
+> > kernel_thread_helper+0x5/0xb
+> >=20
+> > udevd-event[694]: run_program: exec of program '/etc/udev/agents.d/usb/=
+usbcore'
+> > failed.
+> >=20
+> > I have udev-075, plain 2.6.15-rc5-mm1 + devfs-die + low1Gbmem.
+> >=20
+> > Any ideas ?
+>=20
+> Do you have the same problem with 2.6.15-rc5?
+>=20
+> What is in /etc/udev/agents.d/usb/usbcore?
+> What distro is this?
+> What kind of usb devices do you have attached?
+>=20
+> thanks,
 
-greg k-h
+Sorry for the delay. I'm just compiling all rcs from rc2 to rc5 and will
+try to boot whith them.
+
+For the rest of your questions:
+- I have no /etc/udev/agents.d/usb/usbcore
+- I have killed all the devfs compat scripts/rules (BTW, when will be final=
+ly
+  erradicated from  udev ;) ?
+- Distro: Mandriva Cooker, updated daily, udev-077 now (the hangs I reported
+  were with 075).
+
+More info soon...
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.14-jam3 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
+
+--Sig_D1DY0we./4+81.+U18_6c/C
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDm2jDRlIHNEGnKMMRArQgAJ0Rf4PUq6kW5i91+1/xFhl4gQdY9gCgpRTU
+XdBg6kBCh2ve8J8JkLNoXGs=
+=tzs/
+-----END PGP SIGNATURE-----
+
+--Sig_D1DY0we./4+81.+U18_6c/C--

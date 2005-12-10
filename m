@@ -1,76 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbVLIX4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932478AbVLJAHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932430AbVLIX4P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 18:56:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932518AbVLIX4P
+	id S932478AbVLJAHE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 19:07:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932531AbVLJAHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 18:56:15 -0500
-Received: from smtp114.sbc.mail.re2.yahoo.com ([68.142.229.91]:46518 "HELO
-	smtp114.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932430AbVLIX4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 18:56:14 -0500
-Subject: Core-iSCSI v1.6.2.2 (STABLE) + Tools v3.1
-From: "Nicholas A. Bellinger" <nab@kernel.org>
-To: Core-iSCSI <Core-iSCSI@googlegroups.com>,
-       Open iSCSI <open-iscsi@googlegroups.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-Content-Type: text/plain
-Date: Fri, 09 Dec 2005 15:50:11 -0800
-Message-Id: <1134172211.5350.29.camel@haakon>
+	Fri, 9 Dec 2005 19:07:03 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:746 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932521AbVLJAHB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 19:07:01 -0500
+Date: Fri, 9 Dec 2005 16:06:47 -0800
+From: Paul Jackson <pj@sgi.com>
+To: hawkes@sgi.com
+Cc: nickpiggin@yahoo.com.au, dino@in.ibm.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, steiner@sgi.com,
+       hawkes@sgi.com
+Subject: Re: [PATCH] -mm tree: broken "dynamic sched domains" and "migration
+ cost"
+Message-Id: <20051209160647.275febe4.pj@sgi.com>
+In-Reply-To: <20051209205454.18325.46768.sendpatchset@tomahawk.engr.sgi.com>
+References: <20051209205454.18325.46768.sendpatchset@tomahawk.engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all,
+> (5) Besides, the migration cost between any two CPUs is something
+>     that can be calculated once at boot time and remembered
+>     thereafter.  I suspect the reason why the algorithm doesn't do
+>     this is that an exhaustive NxN calculation will be very slow for
+>     large NR_CPUS counts, which explains why the calculations are
+>     now done in the context of sched domains.
 
-Core-iSCSI v1.6.2.2 and Core-iSCSI-tools v3.1 will be available shortly
-from:
+Agreed - I too suspect that this a form of compression, both of
+computation costs and data size.  We save space and time by not
+calculating the full N * N matrix, where N is num_onlinecpus(), but
+just the sched domain sub-matrices.
 
-http://www.kernel.org/pub/linux/kernel/people/nab/iscsi-initiator-core/core-iscsi-v1.6.2.2.tar.bz2
-http://www.kernel.org/pub/linux/utils/storage/iscsi/core-iscsi-tools-v3.1.tar.bz2
+In theory, I would think that we should -not- compress based on sched
+domains, because:
+ 1) these are (now becoming) dynamic, and
+ 2) they don't reflect the "natural" basis for such compression,
+    which would be hardware topology based, not sched domain based.
 
-This release would not have been possible without the help of:
+Rather we should compress based on the topological symmetries of the
+hardware system.  Of course, this is an ARCH specific characteristic,
+or even platform specific.
 
-http://www.sbei.com
-Dominik and Dustin @ VBI
-Daniel @ JHAPL
-Bill and Chris @ Wasabi
-Albert Pauw
-Mike Mazarick
-Micky Mazarick
-Mark Tyler
-jonas@wehey.com
+Perhaps we could provide an ARCH specific routine that would map any
+ordered pair <cpu0, cpu1> of cpu numbers to a canonical pair, such that
+the canonical pairs were "about as far apart, for that system
+topology", but potentially much fewer in number than the entire N * N
+space, and a smaller maximum value of the largest cpu number returned.
+The default routine would be the identify function, which would work
+fine for ordinary sized systems.
 
-This release includes a solution for single portal + multiple IQN names
-that some iSCSI target nodes use as their primary naming scheme.  This
-done via an optional parameter inside of the /etc/sysconfig/initiator
-which does not break backwards comptability with existing installations.
-Additionally a fix has been included for HP iSCSI Target Nodes that
-involves the removal of a 'return on error' condition related to
-Underflow + S_BIT checking.  For the former, manual pages and howto have
-been updated to reflect the change to the /etc/sysconfig/initiator
-configuration file.
+A second ARCH specific routine would return the largest value M
+canonical cpu number that would be returned by the above routine.
+The distance array could be dynamically allocated to M**2 size.
+The default routine would just return the highest online CPU number.
 
-Additionally, it was recently brought to my attention that a check
-related to DataSequeceInOrder=Yes located in iscsi_initiator_erl0.c is
-causing a problem with certain vendors iSCSI Target nodes.  I will be
-getting more information on this issue in the next few days,  and will
-release a fix as soon as possible.  I will keep everyone posted.
+These 'canonical cpu pairs' would replace the sched domains as the
+basis for compression.
 
-Also, the Core-iSCSI list has been created.  Everyone is invited to join
-at:  http://groups.google.com/group/Core-iSCSI
+Then one time at boot, for each possible pair of online cpus, map that
+pair to its canonical pair, and if not already done, compute its
+migration cost.  For example, if on the current systems topology, cpu
+pairs <3,5> and <67,69> are pretty much the same distances apart, the
+"canonical" pair for both these might be <3,5>, and only that pair
+would have to be actually computed and stored.  Everytime the software
+using this wanted results for <67,69>, it would get mapped to <3,5> for
+resolution.
 
-And finally, the project's website should be going online sometime in
-the next week.  I will keep everyone posted.  We have definately made an
-amazing amount of progress in the last 8 days, and the Core-iSCSI team
-will keep moving full steam ahead with the project as long as a need
-exists.
-
-Thanks for your support.
+In the extreme case of a big NUMA system with an essentially homogeneous
+topology (all cpu-cpu distances the same), all <cpu0, cpu1> pairs where
+cpu- != cpu1, could be mapped to same canonical pair <0, 1>.
 
 -- 
-Nicholas A. Bellinger <nab@kernel.org>
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

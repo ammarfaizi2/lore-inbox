@@ -1,61 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161056AbVLJTtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161018AbVLJUEw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161056AbVLJTtI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 14:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161057AbVLJTtI
+	id S1161018AbVLJUEw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 15:04:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161058AbVLJUEw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 14:49:08 -0500
-Received: from mail.autoweb.net ([198.172.237.26]:11481 "EHLO
-	mail.internal.autoweb.net") by vger.kernel.org with ESMTP
-	id S1161056AbVLJTtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 14:49:07 -0500
-Date: Sat, 10 Dec 2005 14:48:47 -0500
-From: Ryan Anderson <ryan@michonline.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Message-ID: <20051210194846.GA11235@mythryan2.michonline.com>
-References: <20051203135608.GJ31395@stusta.de> <1133620598.22170.14.camel@laptopd505.fenrus.org> <20051203152339.GK31395@stusta.de>
+	Sat, 10 Dec 2005 15:04:52 -0500
+Received: from bayc1-pasmtp01.bayc1.hotmail.com ([65.54.191.161]:48550 "EHLO
+	BAYC1-PASMTP01.bayc1.hotmail.com") by vger.kernel.org with ESMTP
+	id S1161018AbVLJUEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 15:04:51 -0500
+Message-ID: <BAYC1-PASMTP014F0E17FF544F4D6C309FAE440@CEZ.ICE>
+X-Originating-IP: [69.156.6.171]
+X-Originating-Email: [seanlkml@sympatico.ca]
+Message-ID: <39068.10.10.10.28.1134245083.squirrel@linux1>
+In-Reply-To: <439A7E8E.8010707@wolfmountaingroup.com>
+References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>    
+        <20051206040820.GB26602@kroah.com>        
+    <2cd57c900512052358m5b631204i@mail.gmail.com>        
+    <200512061856.42493.luke-jr@utopios.org>
+    <2cd57c900512061742s28f57b5eu@mail.gmail.com>
+    <20051210051628.E9E08CF4156@tsurukikun.utopios.org>
+    <439A7E8E.8010707@wolfmountaingroup.com>
+Date: Sat, 10 Dec 2005 15:04:43 -0500 (EST)
+Subject: [way OT] Re: GNU/Linux in a binary world... a doomsday scenario
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: "Coywolf Qi Hunt" <coywolf@gmail.com>, luke-jr@utopios.org,
+       linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4-2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051203152339.GK31395@stusta.de>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 10 Dec 2005 20:04:45.0066 (UTC) FILETIME=[F7147EA0:01C5FDC4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 03, 2005 at 04:23:39PM +0100, Adrian Bunk wrote:
-> On Sat, Dec 03, 2005 at 03:36:38PM +0100, Arjan van de Ven wrote:
-> 
-> > If the current model doesn't work as you claim it doesn't, then maybe
-> > the model needs finetuning. Right now the biggest pain is the userland
-> > ABI changes that need new packages; sometimes (often) for no real hard
-> > reason. Maybe we should just stop doing those bits, they're not in any
-> > fundamental way blocking general progress (sure there's some code bloat
-> > due to it, but I guess we'll just have to live with that).
-> 
-> IOW, we should e.g. ensure that today's udev will still work flawlessly 
-> with kernel 2.6.30 (sic)?
-> 
-> This could work, but it should be officially announced that e.g. a 
-> userspace running kernel 2.6.15 must work flawlessly with _any_ future 
-> 2.6 kernel.
-> 
-> For how many years do you think we will be able to ensure that this will 
-> stay true?
+On Sat, December 10, 2005 2:06 am, Jeff V. Merkey said:
 
-I'd rather see the statement that if a kernel 2.6.N requires a userspace
-update (udev, alsa, whatever), that the new userspace works correctly on
-2.6.(N-10).
+> "constructive" is a for profit model that sustains the hi tech industry.
+> The current
 
-I think that is the bit of the problem that has been really frustrating
-to the people that have run into it.
+There are for-profit models of selling GPL software.  Anyway, billions of
+dollars are still spent every year on software.
 
-(I think that is the complaint Dave Jones made during his OLS keynote,
-and I've seen a similar complaint about udev, though the udev issue
-may have been Debian specific.)
+> models have created a conduit for socialist disintegration of the
+> american hi tech markets, loss of jobs, and have funnelled technology out
 
--- 
+You should look at the dwindling manufacturing sector in America and
+notice that the same thing is happening there without any GPL to blame.
 
-Ryan Anderson
-  sometimes Pug Majere
+> of the country.  Legal defense funds should be the biggest red flags of
+> all.  If this system you devised really works, why all the litigation?
+> Why all the need for legal defense funds and patent infringement
+
+This is just utter nonsense; most litigation in the software industry
+occurs between closed source vendors.
+
+> insurance?   I've watched the entire market slowly collapse over the
+> years as the result of the affect of the GPL on America's hi tech
+> markets.
+
+By which measure has the market collapsed?  Whatever you mean, my guess is
+that you're overestimating the role of the GPL.  More likely, you're just
+misinterpreting globalization and the natural transition of the sector
+into more of a commodity market.
+
+> It isn't working, and it isn't sustainable.  non-profit and "temples" of
+> GPL "religion" have evolved, with the leaders living in orgnaizations
+
+Hah!  By your definition of the word, American capitalism is just another
+"religion".
+
+> that subsist from handouts and donations.   This movement has spawned a
+> global attitude that has no respect for IP rights, and it's extended
+
+This movement has spawned a global attitude supporting greater consumer
+rights.  Overall, its been a very positive and healthy force.
+
+> itself to no respect for human rights, or any other rights of the
+> indivdual.    That's the legacy this has left and the ultimate
+> conclusion.
+
+Oh please, how exactly does GPL software undermine human rights?
+
+Cheers,
+Sean
+
+

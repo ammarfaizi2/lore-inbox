@@ -1,37 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbVLJGsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbVLJHC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964937AbVLJGsk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 01:48:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVLJGsk
+	id S964926AbVLJHC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 02:02:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbVLJHC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 01:48:40 -0500
-Received: from smtp106.sbc.mail.re2.yahoo.com ([68.142.229.99]:890 "HELO
-	smtp106.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S964937AbVLJGsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 01:48:40 -0500
-Message-Id: <20051210063626.817047000.dtor_core@ameritech.net>
-Date: Sat, 10 Dec 2005 01:36:26 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Jean Delvare <khali@linux-fr.org>
-Subject: [patch 0/2] Add platform_device_del()
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Dec 2005 02:02:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:21691 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964926AbVLJHC3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 02:02:29 -0500
+Date: Sat, 10 Dec 2005 02:02:12 -0500
+From: Dave Jones <davej@redhat.com>
+To: acpi-devel@lists.sourceforge.net
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: ACPI sleeping whilst atomic warnings on resume.
+Message-ID: <20051210070212.GA28005@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	acpi-devel@lists.sourceforge.net,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This has been broken for months.  On resume, we call acpi_pci_link_set()
+with interrupts off, so we get a warning when we try to do a kmalloc
+of non atomic memory.  The actual allocation is just 2 long's
+(plus extra byte for some reason I can't fathom), so a simple conversion
+to GFP_ATOMIC is probably the safest way to fix this.
 
-OK, so here is the patch adding platform_device_del() that we were
-discussing. The second patch just moves exports around so we do not
-mix two styles in one source file.
+The error looks like this..
 
-Greg, if you are OK with it - are you going to push it or maybe I
-should put it in my tree so I can publish pieces depending on this
-as they are getting ready?
+Debug: sleeping function called from invalid context at mm/slab.c:2486
+in_atomic():0, irqs_disabled():1
+ [<c0143f6c>] kmem_cache_alloc+0x40/0x56
+ [<c0206a2e>] acpi_pci_link_set+0x3f/0x17f
+ [<c0206f96>] irqrouter_resume+0x1e/0x3c
+ [<c0239bca>] __sysdev_resume+0x11/0x6b
+ [<c0239e88>] sysdev_resume+0x34/0x52
+ [<c023de21>] device_power_up+0x5/0xa
 
---
-Dmitry
+Signed-off-by: Dave Jones <davej@redhat.com>
 
+--- linux-2.6.14/drivers/acpi/pci_link.c~	2005-12-10 01:58:17.000000000 -0500
++++ linux-2.6.14/drivers/acpi/pci_link.c	2005-12-10 01:58:36.000000000 -0500
+@@ -316,7 +316,7 @@ static int acpi_pci_link_set(struct acpi
+ 	if (!link || !irq)
+ 		return_VALUE(-EINVAL);
+ 
+-	resource = kmalloc(sizeof(*resource) + 1, GFP_KERNEL);
++	resource = kmalloc(sizeof(*resource) + 1, GFP_ATOMIC);
+ 	if (!resource)
+ 		return_VALUE(-ENOMEM);
+ 

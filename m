@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbVLJBqO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVLJCBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964850AbVLJBqO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 20:46:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbVLJBqO
+	id S1750720AbVLJCBh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 21:01:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbVLJCBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 20:46:14 -0500
-Received: from bay103-f22.bay103.hotmail.com ([65.54.174.32]:3233 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S964850AbVLJBqN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 20:46:13 -0500
-Message-ID: <BAY103-F22CCAF1888F2839F97DCCBDF440@phx.gbl>
-X-Originating-IP: [70.131.112.137]
-X-Originating-Email: [dravet@hotmail.com]
-In-Reply-To: <200512091254.44770.bjorn.helgaas@hp.com>
-From: "Jason Dravet" <dravet@hotmail.com>
-To: bjorn.helgaas@hp.com
-Cc: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: wrong number of serial port detected
-Date: Fri, 09 Dec 2005 19:46:12 -0600
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 10 Dec 2005 01:46:13.0200 (UTC) FILETIME=[808BE500:01C5FD2B]
+	Fri, 9 Dec 2005 21:01:37 -0500
+Received: from web31712.mail.mud.yahoo.com ([68.142.201.192]:36236 "HELO
+	web31712.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750720AbVLJCBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 21:01:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=A2YiaAol2giVvB3Rmv3fIS4J+1p8MvklC2tBkxBf7N+NNTwd1wtSw06EAOGIt+TzJYuDQD0czwpKGZ0ru98KCm4yIhsG8x4VyOaFrDj69ljI0YtUxnrqwkh+hllOQiqUoC5QQahN/xCEc62TP7htsNy/PZCvLBkhakhB4JviDOk=  ;
+Message-ID: <20051210020134.94755.qmail@web31712.mail.mud.yahoo.com>
+Date: Fri, 9 Dec 2005 18:01:34 -0800 (PST)
+From: Bao Zhao <baozhaolinuxer@yahoo.com>
+Subject: typo in debugfs code comments?
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: greg@kroah.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Bjorn Helgaas <bjorn.helgaas@hp.com>
->To: "Jason Dravet" <dravet@hotmail.com>
->CC: rmk+lkml@arm.linux.org.uk, linux-kernel@vger.kernel.org
->Subject: Re: wrong number of serial port detected
->Date: Fri, 9 Dec 2005 12:54:44 -0700
->
->On Friday 09 December 2005 7:37 am, Jason Dravet wrote:
-> > The question I have
-> > is with all of this plug and play stuff in our PCs shouldn't it be 
->possible
-> > to get the correct number of ports, ask the bios or the pci bus or
-> > something?
->
->Yes.  ACPI (or even PNPBIOS) should tell us about all the "legacy"
->ports, and PCI or other bus enumeration should tell us about all the
->rest.
->
->So in theory, if we have some flavor of PNP, we should be able to
->ignore all the compiled-in stuff in SERIAL_PORT_DFNS, which is what
->leads to the duplicate port detection.  I've considered doing that
->(and ia64 already does it), but it would almost certainly break
->systems because of BIOS bugs, so I'm not sure it's worth the risk.
+  I think that the comments of debugfs_create_u16 and
+debugfs_create_u32 
+have the copy and paste error.
+  
+below is original comments.
+/**
+ * debugfs_create_u16 - create a file in the debugfs
+filesystem that is used to read and write a unsigned 8
+bit value.
+ *
 
-I agree that breaking things is bad, but it would be interesting to see what 
-would happen and if anyone complains.  A gut feeling is that very few people 
-use more than the two serial ports that come on their motherboards.  Where I 
-work out of the 2,500 PCs on campus, only 3 or 4 PCs actually use a serial 
-port.  I think this would be a good survey for slashdot.  I don't use the 
-serial ports on my PCs.  I do use the serial ports on my servers.  The 
-serial ports on the servers connect to a digi terminal server.  One serial 
-port is the management interface to the server, the other is setup for 
-serial login.
+/**
+ * debugfs_create_u32 - create a file in the debugfs
+filesystem that is used to read and write a unsigned 8
+bit value.
+ *
 
-The reason I started this thread is because I wanted to know why/how I was 
-seeing 32 serial ports in /dev when I have 0 enabled on my PC and I have 2 
-serial ports on my servers.  Thanks to the responses I have a better 
-understanding of what is going on.
+It should be "a unsigned 16 bit value" and "a unsigned
+32 bit value"
 
->Having all the extra /dev/ttyS entries is a little different problem.
->That is basically so "setserial /dev/ttySx" can be used to work around
->the fact that the serial driver doesn't know about all existing devices.
->If it did, setserial should be superfluous.  Maybe there'd be a way to
->implement that functionality via sysfs and get rid of the extra
->/dev/ttyS entries.  That'd be kind of cool.
-
-sysfs is way outside my area of understanding.  Anything that moves to a 
-more accurate /dev directory is good in my book.
-
-Thanks,
-Jason
-
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

@@ -1,77 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbVLJEVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbVLJE0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964906AbVLJEVX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 23:21:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbVLJEVX
+	id S964921AbVLJE0M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 23:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbVLJE0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 23:21:23 -0500
-Received: from main.gmane.org ([80.91.229.2]:50065 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S964906AbVLJEVW (ORCPT
+	Fri, 9 Dec 2005 23:26:11 -0500
+Received: from mx1.suse.de ([195.135.220.2]:40093 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964910AbVLJE0K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 23:21:22 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Tom <harningt@gmail.com>
-Subject: Re: Linux 2.6.15-rc5: off-line for a week
-Date: Fri, 09 Dec 2005 23:07:47 -0500
-Message-ID: <dndkaj$27f$2@sea.gmane.org>
-References: <200512041526.19111.edmondo@eriadon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: harningt-2.user.msu.edu
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050721)
-X-Accept-Language: en-us, en
-In-Reply-To: <200512041526.19111.edmondo@eriadon.com>
+	Fri, 9 Dec 2005 23:26:10 -0500
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
+References: <1134154208.14363.8.camel@mindpipe> <439A0746.80208@mnsu.edu>
+	<1134173138.18432.41.camel@mindpipe> <439A201D.7030103@mnsu.edu>
+	<1134179410.18432.66.camel@mindpipe>
+From: Andi Kleen <ak@suse.de>
+Date: 10 Dec 2005 01:56:56 -0700
+In-Reply-To: <1134179410.18432.66.camel@mindpipe>
+Message-ID: <p73oe3ppbxj.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edmondo Tommasina wrote:
-> :-)
+Lee Revell <rlrevell@joe-job.com> writes:
+> > 
+> > Yes, some commands NEED the -m64 and and WILL NOT work with -m64.
+> > 
 > 
-> Linux 2.6.15-rc5 compiles fine and works as expected here.
+> Aha!  I disabled CONFIG_IA32_EMULATION and it works perfectly.
 > 
-> lbalrog edmondo # uname -a
-> Linux balrog 2.6.15-rc5 #1 SMP Sun Dec 4 14:42:04 CET 2005 x86_64
-> AMD Athlon(tm) 64 X2 Dual Core Processor 4400+ AuthenticAMD GNU/Linux
+> So all that's needed to build an x86_64 kernel with the i386 Ubuntu 5.10
+> toolchain:
 > 
-> balrog edmondo # dmesg
-> Bootdata ok (command line is root=/dev/hda5)
-> Linux version 2.6.15-rc5 (root@balrog) (gcc version 4.0.2 (Gentoo 4.0.2-r1, pie-8.7.8)) #1 SMP Sun Dec 4 14:42:04 CET 2005
-> (...)
-> NVRM: loading NVIDIA Linux x86_64 NVIDIA Kernel Module  1.0-7676  Fri Jul 29 13:15:16 PDT 2005
-> X does an incomplete pfn remapping
-> Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
->        <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
->        <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
->        <ffffffff8010dcaa>{system_call+126}
-> X does an incomplete pfn remapping
-> Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
->        <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
->        <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
->        <ffffffff8010dcaa>{system_call+126}
-> X does an incomplete pfn remapping
-> Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
->        <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
->        <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
->        <ffffffff8010dcaa>{system_call+126}
-> X does an incomplete pfn remapping
-> Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
->        <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
->        <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
->        <ffffffff8010dcaa>{system_call+126}
-> (...)
+>  - edit Makefile: add -m64 to CFLAGS and AFLAGS
 
-I get that too... compiles and mostly works.
+I guess I can add that.
 
-That pfn issue seems to affect my pointer device (Synaptic).
-I've used both NVIDIA 7676 and the latest: 8174
+I'm surprised someone does such a weird setup. Only the very early
+x86-64 distributions set up the gccs like this until it was noticed
+that a gcc compiled for 64bit targets run noticeable slower on 32bit
+and needs more memory. That's because it does everything with long
+long internally then and gcc's code generation for long long is not
+exactly great. So it's normally better to use a separate cross 
+compiler for 64bit to keep the 32bit compilations running faster.
 
-Versions between 2.6.13-rc3 - 2.6.15-rc5 haven't worked (well.. I
-hadn't tried out any 2.6.15 revisions until now).  I have 2.6.13-rc3
-sitting back in case this pfn issue causes too much trouble.
+Ubuntu seems didn't pay attention to history and just repated that
+mistake. In addition they don't seem to be very fond of contributing
+changes back - normally one would expect the distribution maintainer
+to submit a patch like this if they set up their gcc in non
+traditional this way. 
 
+But you're the first to bring this problem to my attention.
 
-Does anyone
+>  - disable CONFIG_IA32_EMULATION
 
+I just tried it here. Adding -m64 to CFLAGS/AFLAGS on a native
+64bit biarch toolchain and it compiled without problems. It ends
+up with -m64 -m32 for the 32bit vsyscall files, but that seems
+to DTRT at least in gcc 4.
+
+I'm not sure what's going wrong. If you use a freshly unmodified tree
+and apply the appended patch does it work for you?
+
+-Andi
+
+Pass -m64 by default
+
+This might help on distributions that use a 32bit biarch compiler.
+
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+Index: linux/arch/x86_64/Makefile
+===================================================================
+--- linux.orig/arch/x86_64/Makefile
++++ linux/arch/x86_64/Makefile
+@@ -31,6 +31,7 @@ cflags-$(CONFIG_MK8) += $(call cc-option
+ cflags-$(CONFIG_MPSC) += $(call cc-option,-march=nocona)
+ CFLAGS += $(cflags-y)
+ 
++CFLAGS += -m64
+ CFLAGS += -mno-red-zone
+ CFLAGS += -mcmodel=kernel
+ CFLAGS += -pipe
+@@ -52,6 +53,8 @@ CFLAGS += $(call cc-option,-funit-at-a-t
+ # prevent gcc from generating any FP code by mistake
+ CFLAGS += $(call cc-option,-mno-sse -mno-mmx -mno-sse2 -mno-3dnow,)
+ 
++AFLAGS += -m64
++
+ head-y := arch/x86_64/kernel/head.o arch/x86_64/kernel/head64.o arch/x86_64/kernel/init_task.o
+ 
+ libs-y 					+= arch/x86_64/lib/

@@ -1,90 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751276AbVLJWwI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbVLJWzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751276AbVLJWwI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 17:52:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVLJWwI
+	id S1750738AbVLJWzN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 17:55:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbVLJWzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 17:52:08 -0500
-Received: from 1-1-3-46a.gml.gbg.bostream.se ([82.182.110.161]:5079 "EHLO
-	kotiaho.net") by vger.kernel.org with ESMTP id S1751276AbVLJWwH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 17:52:07 -0500
-Date: Sat, 10 Dec 2005 23:52:01 +0100 (CET)
-From: "J.O. Aho" <trizt@iname.com>
-X-X-Sender: trizt@lai.local.lan
-To: "David S. Miller" <davem@davemloft.net>
-cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: Re: Sparc: Kernel 2.6.13 to 2.6.15-rc2 bug when running X11
-In-Reply-To: <20051210.143523.106612727.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.64.0512102350310.4739@lai.local.lan>
-References: <Pine.LNX.4.64.0512072217580.24376@lai.local.lan>
- <20051207.133236.97581111.davem@davemloft.net> <Pine.LNX.4.64.0512102314530.4626@lai.local.lan>
- <20051210.143523.106612727.davem@davemloft.net>
+	Sat, 10 Dec 2005 17:55:13 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:60881 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1750738AbVLJWzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 17:55:11 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [RFC/RFT] swsusp: image size tunable (was: Re: [PATCH][mm] swsusp: limit image size)
+Date: Sat, 10 Dec 2005 23:56:26 +0100
+User-Agent: KMail/1.9
+Cc: Stefan Seyfried <seife@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       Andy Isaacson <adi@hexapodia.org>
+References: <200512072246.06222.rjw@sisk.pl> <20051210160641.GB5047@elf.ucw.cz> <200512102106.41952.rjw@sisk.pl>
+In-Reply-To: <200512102106.41952.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512102356.27271.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Dec 2005, David S. Miller wrote:
+Update:
 
-> It doesn't trigger for me here with the Xorg server, on an
-> Ultra60 with CreatorFB.  I do get the cursor in the corner
-> and a non-functional screen but I can switch around to other
-> VC's and kill the X server cleanly.  I definitely don't get
-> those kernel log messages.
->
-> Please retest with this debug tracing added:
+On Saturday, 10 December 2005 21:06, Rafael J. Wysocki wrote:
+> On Saturday, 10 December 2005 17:06, Pavel Machek wrote:
+> > > > The tunable may be useful to people who'd like to achieve the
+> > > > maximum efficiency of suspend/resume and it would be a nice
+> > > > feature to have, I think, but let's say we'll try to implement it
+> > > > in the future, if still needed/wanted.
+> > > 
+> > > Actually the tunable turned out to be quite easy to implement and I think
+> > > I'll need it for userspace swsusp (the suspend-handling userspace
+> > > process will need to tell the kernel how much space there is for the
+> > > image).
+> > 
+> > Looks mostly okay to me, small comments below.
 
-This generates two extra lines in the dmesg output, I have included the 
-bug message too, just in case.
+A cleaner version with comments etc. follows.
 
-IO[X:6761]: 
-remap_pfn_range(s[71800000]e[71c10000],f[71800000],pfn[1fc0060],sz[2000],prot[80000000000006b0])
-IO[X:6761]: 
-remap_pfn_range(s[71800000]e[71c10000],f[71802000],pfn[1fc0060],sz[2000],prot[80000000000006b0])
-kernel BUG at arch/sparc64/mm/generic.c:77!
-               \|/ ____ \|/
-               "@'/ .. \`@"
-               /_| \__/ |_\
-                  \__U_/
-X(6761): Kernel bad sw trap 5 [#1]
-TSTATE: 0000000011009603 TPC: 0000000000434da0 TNPC: 0000000000434da4 Y: 
-00000000    Not tainted
-TPC: <io_remap_pfn_range+0x400/0x420>
-g0: fffff8000703f261 g1: 0000000000669400 g2: 0000000000000001 g3: 
-0000000000001f4c
-g4: fffff80007e2aa60 g5: 0000000000000010 g6: fffff80007030000 g7: 
-0000000000000000
-o0: 000000000000002f o1: 000000000061f1a8 o2: 000000000000004d o3: 
-0000000011812000
-o4: 000001fc00610000 o5: fffff800041b8c00 sp: fffff8000703f241 ret_pc: 
-0000000000434d98
-RPC: <io_remap_pfn_range+0x3f8/0x420>
-l0: 0000000071802000 l1: 000001fb8edfe000 l2: 0000000071804000 l3: 
-000001fb8edfe000
-l4: 000001fb8edfe000 l5: e000000000000f8a l6: a000000000000f8a l7: 
-c000000000000f8a
-i0: 0000000071804000 i1: 0000000071802000 i2: 0000000000000000 i3: 
-0000000071802000
-i4: 80000000000006b0 i5: fffff80005a7000c i6: fffff8000703f361 i7: 
-000000000053b224
-I7: <sbusfb_mmap_helper+0x104/0x160>
-Caller[000000000053b224]: sbusfb_mmap_helper+0x104/0x160
-Caller[00000000005335b4]: fb_mmap+0x134/0x160
-Caller[0000000000478748]: do_mmap_pgoff+0x368/0x720
-Caller[00000000004161d8]: sys_mmap+0xf8/0x160
-Caller[0000000000406c94]: linux_sparc_syscall32+0x34/0x40
-Caller[0000000000286378]: 0x286378
-Instruction DUMP: 9210204d  7fff6e02  901221a8 <91d02005> 7ffff76f 
-b13ee000  81cfe008  01000000  30680003
+Rafael
 
--- 
-      //Aho
 
-  ------------------------------------------------------------------------
-   E-Mail: trizt@iname.com            URL: http://www.kotiaho.net/~trizt/
-      ICQ: 13696780
-   System: Linux System                        (PPC7447/1000 AMD K7A/2000)
-  ------------------------------------------------------------------------
-             EU forbids you to send spam without my permission
-  ------------------------------------------------------------------------
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+
+ Documentation/power/interface.txt |   11 +++++++++++
+ Documentation/power/swsusp.txt    |    7 ++++++-
+ kernel/power/disk.c               |   20 ++++++++++++++++++++
+ kernel/power/power.h              |    7 ++-----
+ kernel/power/swsusp.c             |   10 +++++++++-
+ 5 files changed, 48 insertions(+), 7 deletions(-)
+
+Index: linux-2.6.15-rc5-mm1/kernel/power/disk.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/kernel/power/disk.c	2005-12-07 23:19:03.000000000 +0100
++++ linux-2.6.15-rc5-mm1/kernel/power/disk.c	2005-12-10 21:10:53.000000000 +0100
+@@ -367,9 +367,29 @@
+ 
+ power_attr(resume);
+ 
++static ssize_t image_size_show(struct subsystem * subsys, char *buf)
++{
++	return sprintf(buf, "%u\n", image_size);
++}
++
++static ssize_t image_size_store(struct subsystem * subsys, const char * buf, size_t n)
++{
++	unsigned int size;
++
++	if (sscanf(buf, "%u", &size) == 1) {
++		image_size = size;
++		return n;
++	}
++
++	return -EINVAL;
++}
++
++power_attr(image_size);
++
+ static struct attribute * g[] = {
+ 	&disk_attr.attr,
+ 	&resume_attr.attr,
++	&image_size_attr.attr,
+ 	NULL,
+ };
+ 
+Index: linux-2.6.15-rc5-mm1/kernel/power/power.h
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/kernel/power/power.h	2005-12-10 20:59:52.000000000 +0100
++++ linux-2.6.15-rc5-mm1/kernel/power/power.h	2005-12-10 21:13:04.000000000 +0100
+@@ -52,11 +52,8 @@
+ extern unsigned int nr_copy_pages;
+ extern struct pbe *pagedir_nosave;
+ 
+-/*
+- * Preferred image size in MB (set it to zero to get the smallest
+- * image possible)
+- */
+-#define IMAGE_SIZE	500
++/* Preferred image size in MB (default 500) */
++extern unsigned int image_size;
+ 
+ extern asmlinkage int swsusp_arch_suspend(void);
+ extern asmlinkage int swsusp_arch_resume(void);
+Index: linux-2.6.15-rc5-mm1/kernel/power/swsusp.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/kernel/power/swsusp.c	2005-12-10 20:59:52.000000000 +0100
++++ linux-2.6.15-rc5-mm1/kernel/power/swsusp.c	2005-12-10 22:21:25.000000000 +0100
+@@ -69,6 +69,14 @@
+ 
+ #include "power.h"
+ 
++/*
++ * Preferred image size in MB (tunable via /sys/power/image_size).
++ * When it is set to N, swsusp will do its best to ensure the image
++ * size will not exceed N MB, but if that is impossible, it will
++ * try to create the smallest image possible.
++ */
++unsigned int image_size = 500;
++
+ #ifdef CONFIG_HIGHMEM
+ unsigned int count_highmem_pages(void);
+ int save_highmem(void);
+@@ -647,7 +655,7 @@
+ 			if (!tmp)
+ 				return -ENOMEM;
+ 			pages += tmp;
+-		} else if (size > (IMAGE_SIZE * 1024 * 1024) / PAGE_SIZE) {
++		} else if (size > (image_size * 1024 * 1024) / PAGE_SIZE) {
+ 			tmp = shrink_all_memory(SHRINK_BITE);
+ 			pages += tmp;
+ 		}
+Index: linux-2.6.15-rc5-mm1/Documentation/power/swsusp.txt
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/Documentation/power/swsusp.txt	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6.15-rc5-mm1/Documentation/power/swsusp.txt	2005-12-10 23:49:08.000000000 +0100
+@@ -27,6 +27,11 @@
+ 
+ echo platform > /sys/power/disk; echo disk > /sys/power/state
+ 
++If you want to limit the suspend image size to N megabytes, do
++
++echo N > /sys/power/image_size
++
++before suspend (it is limited to 500 MB by default).
+ 
+ Encrypted suspend image:
+ ------------------------
+Index: linux-2.6.15-rc5-mm1/Documentation/power/interface.txt
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/Documentation/power/interface.txt	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6.15-rc5-mm1/Documentation/power/interface.txt	2005-12-10 23:42:39.000000000 +0100
+@@ -41,3 +41,14 @@
+ It will only change to 'firmware' or 'platform' if the system supports
+ it. 
+ 
++/sys/power/image_size controls the size of the image created by
++the suspend-to-disk mechanism.  It can be written a string
++representing a non-negative integer that will be used as an upper
++limit of the image size, in megabytes.  The suspend-to-disk mechanism will
++do its best to ensure the image size will not exceed that number.  However,
++if this turns out to be impossible, it will try to suspend anyway using the
++smallest image possible.  In particular, if "0" is written to this file, the
++suspend image will be as small as possible.
++
++Reading from this file will display the current image size limit, which
++is set to 500 MB by default.

@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbVLJC3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbVLJCeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932505AbVLJC3o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 21:29:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932533AbVLJC3o
+	id S932547AbVLJCeE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 21:34:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932710AbVLJCeE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 21:29:44 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:41109 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932505AbVLJC3n
+	Fri, 9 Dec 2005 21:34:04 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:39369 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932547AbVLJCeD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 21:29:43 -0500
-Subject: Re: 2.6.14-rt22
+	Fri, 9 Dec 2005 21:34:03 -0500
+Subject: Re: [RT] fix delay in do_vgettimeofday() in
+	arch/x86_64/kernel/vsyscall.c
 From: john stultz <johnstul@us.ibm.com>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1134172105.12624.27.camel@cmn3.stanford.edu>
-References: <1134172105.12624.27.camel@cmn3.stanford.edu>
+To: Serge Belyshev <belyshev@depni.sinp.msu.ru>
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <87d5k6ukky.fsf@foo.vault.bofh.ru>
+References: <87d5k6ukky.fsf@foo.vault.bofh.ru>
 Content-Type: text/plain
-Date: Fri, 09 Dec 2005 18:29:30 -0800
-Message-Id: <1134181771.4002.4.camel@leatherman>
+Date: Fri, 09 Dec 2005 18:33:40 -0800
+Message-Id: <1134182041.4002.10.camel@leatherman>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-09 at 15:48 -0800, Fernando Lopez-Lezcano wrote:
-> Hi all, I'm running 2.6.14-rt22 and just noticed something strange. I
-> have not installed it in all machines yet, but in some of them (same
-> hardware as others that seems to work fine) the TSC was selected as the
-> main clock for the kernel. Remember this is one of the Athlon X2
-> machines in which the TCS's drift...
+On Fri, 2005-12-09 at 22:38 +0300, Serge Belyshev wrote:
 > 
-> dmesg shows this:
->   PM-Timer running at invalid rate: 2172% of normal - aborting.
+> There are occasional very very long (30..60 sec) delays happening when calling
+> gettimeofday() vsyscall on x86_64 with 2.6.14-rt22 kernel.
+> 
+> These delays come from while() looping over invalid data that are
+> going to be discarded by seqlock.
 
-Hm. That's odd. Either your PM-Timer isn't running at the right
-frequency, or something is going wrong in the calibration. I'm
-suspecting its the second. If you add a "return 0;" to the top of
-verify_pmtmr_rate() in drivers/clocksource/acpi_pm.c does the acpi_pm
-timer keep proper time?
+Ah, good catch! I just included a similar change (moved all the math
+outside the lock) in my own tree.
 
-thanks
+Thanks for finding this!
 -john
-
 

@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbVLJSLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161016AbVLJSKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161017AbVLJSLR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 13:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbVLJSLQ
+	id S1161016AbVLJSKU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 13:10:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161017AbVLJSKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 13:11:16 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:32454 "EHLO
+	Sat, 10 Dec 2005 13:10:20 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:30662 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161017AbVLJSLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 13:11:16 -0500
-Subject: Re: IRQ vector assignment for system call exception
+	id S1161016AbVLJSKS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 13:10:18 -0500
+Subject: Re: Please help with kernel BUG at include/linux/gfp.h:80 with
+	ndiswrapper on x86_64
 From: Arjan van de Ven <arjan@infradead.org>
-To: Gaurav Dhiman <gaurav4lkg@gmail.com>
-Cc: yen <yen@eos.cs.nthu.edu.tw>, linux-kernel@vger.kernel.org
-In-Reply-To: <1e33f5710512100520k57c016b0tadfbb496cac3ea6e@mail.gmail.com>
-References: <20051208080435.M54890@eos.cs.nthu.edu.tw>
-	 <1e33f5710512100520k57c016b0tadfbb496cac3ea6e@mail.gmail.com>
+To: Orion Poplawski <orion@cora.nwra.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <dncs1c$8e5$1@sea.gmane.org>
+References: <dncs1c$8e5$1@sea.gmane.org>
 Content-Type: text/plain
-Date: Sat, 10 Dec 2005 19:11:11 +0100
-Message-Id: <1134238271.2828.19.camel@laptopd505.fenrus.org>
+Date: Sat, 10 Dec 2005 19:10:10 +0100
+Message-Id: <1134238210.2828.17.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -36,11 +36,28 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-10 at 18:50 +0530, Gaurav Dhiman wrote:
-> yes, definetely a historical reason. System libraries need to know
-> this vector to invoke system call.
+On Fri, 2005-12-09 at 14:13 -0700, Orion Poplawski wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> With kernel 2.6.15-rc5, gfp_zone has the following BUG_ON:
+> 
+> static inline int gfp_zone(gfp_t gfp)
+> {
+>         int zone = GFP_ZONEMASK & (__force int) gfp;
+>         BUG_ON(zone >= GFP_ZONETYPES);
+>         return zone;
+> }
+> 
+> This is being tripped by ndiswrapper on x86_64 when it calls:
+> 
+> dma_alloc_coherent(&pci_dev->dev,size,dma_handle, \
+>                            GFP_KERNEL | __GFP_REPEAT | GFP_DMA)
 
-nowadays it's also mostly unused; sysenter and friends are used instead
-and they don't use this entry point.
+
+I don't think GFP_DMA is a valid option for dma_alloc_coherent at all;
+GFP_DMA was for isa card allocations, for PCI stuff you need to set the
+proper masks instead, and GFP_DMA is obsolete and wrong for PCI.
+(except for potentially deep arch code that knows what it's doing).
 
 

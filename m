@@ -1,47 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932638AbVLJPno@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVLJPrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932638AbVLJPno (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 10:43:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932682AbVLJPno
+	id S964819AbVLJPrT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 10:47:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbVLJPrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 10:43:44 -0500
-Received: from 80-219-218-68.dclient.hispeed.ch ([80.219.218.68]:55196 "EHLO
-	mx.eriadon.com") by vger.kernel.org with ESMTP id S932638AbVLJPnn
+	Sat, 10 Dec 2005 10:47:19 -0500
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:35597 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S964819AbVLJPrS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 10:43:43 -0500
-From: Edmondo Tommasina <edmondo@eriadon.com>
-To: Tom <harningt@gmail.com>
-Subject: Re: Linux 2.6.15-rc5: off-line for a week
-Date: Sat, 10 Dec 2005 16:43:39 +0100
-User-Agent: KMail/1.9
-Cc: linux-kernel@vger.kernel.org
-References: <200512041526.19111.edmondo@eriadon.com> <dndkaj$27f$2@sea.gmane.org>
-In-Reply-To: <dndkaj$27f$2@sea.gmane.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 10 Dec 2005 10:47:18 -0500
+Date: Sat, 10 Dec 2005 16:49:28 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Greg KH <greg@kroah.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Minor change to platform_device_register_simple
+ prototype
+Message-Id: <20051210164928.3a7f57fb.khali@linux-fr.org>
+In-Reply-To: <20051208232254.GC9357@flint.arm.linux.org.uk>
+References: <20051205202707.GH15201@flint.arm.linux.org.uk>
+	<200512070105.40169.dtor_core@ameritech.net>
+	<d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com>
+	<20051207180842.GG6793@flint.arm.linux.org.uk>
+	<d120d5000512071023u151c42f4lcc40862b2debad73@mail.gmail.com>
+	<20051207190352.GI6793@flint.arm.linux.org.uk>
+	<d120d5000512071418q521d2155r81759ef8993000d8@mail.gmail.com>
+	<20051207225126.GA648@kroah.com>
+	<d120d5000512071459s9b461d8ye7abc41d0e1950fd@mail.gmail.com>
+	<20051208215257.78d7c67a.khali@linux-fr.org>
+	<20051208232254.GC9357@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512101643.39777.edmondo@eriadon.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10-December-2005 05:07, Tom wrote:
-> Edmondo Tommasina wrote:
-> > Call Trace:<ffffffff80168f80>{remap_pfn_range+176} <ffffffff882b70f3>{:nvidia:nv_verify_pci_config+392}
-> >        <ffffffff882babae>{:nvidia:os_pci_read_dword+35} <ffffffff882b7b76>{:nvidia:nv_kern_mmap+1273}
-> >        <ffffffff8016ed73>{do_mmap_pgoff+1251} <ffffffff801143fd>{sys_mmap+173}
-> >        <ffffffff8010dcaa>{system_call+126}
-> > (...)
+Hi Russell,
+
+> On Thu, Dec 08, 2005 at 09:52:57PM +0100, Jean Delvare wrote:
+> > BTW, doesn't this suggest that the error path in
+> > platform_device_register_simple() is currently broken as well? If
+> > platform_device_add() fails therein, I take it that the resources
+> > previously allocated by platform_device_add_resources() will never be
+> > freed.
 > 
-> I get that too... compiles and mostly works.
+> No.  If platform_device_add() fails then you platform_device_put()
+> it with no other action.  If it's been added, with the current
+> available interfaces, your only option is to
+> platform_device_unregister() it.
+> 
+> So:
+> 
+> - error during platform_device_alloc, no additional action necessary
+> - error returned by platform_device_add, you have a structure allocated
+>   and initialised, you platform_device_put it.
+> - subsequently you want to get rid of it, platform_device_unregister it,
+>   or alternatively platform_device_del + platform_device_put it (where
+>   provided.)
+> 
+> This is actually a generic driver model rule which can be applied to
+> all driver model interfaces which have the alloc/init, add, del, put,
+> register, unregister methods.
 
-These are just harmless warnings saying that the some unnamed module ;-) is
-doing some strange VMA remapping. It's expected to be like that.
+I was fine with the sequence you are describing above. The only thing
+which was worrying me was platform_device_add_resources(), until I
+realized that this function was really only preparing the resources for
+reservation. For some reason I was erroneously thinking that it was
+also requesting the resources "for real", so I was worried that
+platform_device_put wouldn't release these if platform_device_add was
+failing.
 
-Look at the "Linux 2.6.14-rc4" thread to better understand the changes
-done:
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0512.0/0010.html
+This all makes sense to me now. Thanks for the clarification, and sorry
+for being a bit slow to figure out how the platform stuff works.
 
-ciao
-edmondo
+I'll post the platform driver I am currently working on later today for
+comments. I'm pretty sure I'm still not using the platform
+infrastructure the way it was meant to be, and would appreciate hints on
+how I can do it better.
+
+Thanks again,
+-- 
+Jean Delvare

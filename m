@@ -1,55 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbVLJCRX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932696AbVLJCRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbVLJCRX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 21:17:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbVLJCRW
+	id S932696AbVLJCRo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 21:17:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932682AbVLJCRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 21:17:22 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:34273
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932297AbVLJCRT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 21:17:19 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Thu, 8 Dec 2005 15:49:36 -0600
-User-Agent: KMail/1.8
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512052122.02485.gene.heskett@verizon.net> <Pine.LNX.4.64.0512051954040.19959@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.64.0512051954040.19959@montezuma.fsmlabs.com>
+	Fri, 9 Dec 2005 21:17:43 -0500
+Received: from zorg.st.net.au ([203.16.233.9]:2514 "EHLO borg.st.net.au")
+	by vger.kernel.org with ESMTP id S932297AbVLJCRl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 21:17:41 -0500
+Message-ID: <439A3B15.5010608@torque.net>
+Date: Sat, 10 Dec 2005 12:19:01 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Erik Slagter <erik@slagter.name>, Jens Axboe <axboe@suse.de>,
+       Randy Dunlap <randy_d_dunlap@linux.intel.com>, hch@infradead.org,
+       mjg59@srcf.ucam.org, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
+References: <20051208030242.GA19923@srcf.ucam.org>	 <20051208091542.GA9538@infradead.org>	 <20051208132657.GA21529@srcf.ucam.org>	 <20051208133308.GA13267@infradead.org>	 <20051208133945.GA21633@srcf.ucam.org>	 <20051208134438.GA13507@infradead.org>	 <1134062330.1732.9.camel@localhost.localdomain>	 <43989B00.5040503@pobox.com>	 <20051208133144.0f39cb37.randy_d_dunlap@linux.intel.com>	 <1134121522.27633.7.camel@localhost.localdomain>	 <20051209103937.GE26185@suse.de> <1134125145.27633.32.camel@localhost.localdomain> <43996A26.8060700@pobox.com>
+In-Reply-To: <43996A26.8060700@pobox.com>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512081549.36459.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 05 December 2005 21:56, Zwane Mwaikambo wrote:
-> Do you think this opensource hardware could keep up with nvidia and ati
-> hardware development? Joe sixpack is all about the fastest hardware.
+Jeff Garzik wrote:
+> Erik Slagter wrote:
+> 
+>> On Fri, 2005-12-09 at 11:39 +0100, Jens Axboe wrote:
+>>
+>>
+>>>> IMHO available infrastructure (and hardware abstraction!) should be
+>>>> used
+>>>> instead of being stubborn and pretend we know everything about any
+>>>> hardware.
+>>>
+>>>
+>>> It's not about being stubborn, it's about maintaining and working on a
+>>> clean design. The developers have to do that, not the users. So forgive
+>>> people for being a little cautious about shuffling all sorts of ACPI
+>>> into the scsi core and/or drivers. We always need to think long term
+>>> here.
+>>>
+>>> Users don't care about the maintainability and cleanliness of the code,
+>>> they really just want it to work. Which is perfectly understandable.
+>>
+>>
+>>
+>> I perfectly understand that, what I do object against, is rejecting a
+>> concept (like this) totally because the developers(?) do not like the
+>> mechanism that's used (although ACPI is used everywhere else in the
+>> kernel). At least there might be some discussion where this sort of code
+>> belongs to make the design clean and easily maintainable, instead of
+>> instantly completely rejecting the concept, because OP simply doesn't
+>> like acpi.
+> 
+> 
+> Framing the discussion in terms of "like" and "dislike" proves you
+> understand nothing about the issues -- and lacking that understanding,
+> you feel its best to insult people.
 
-Not really.  The early adopters and cutting edge gamers are, sure.  For 
-everybody else its price/performance and "good enough to run my games".  The 
-playstation 2 is how many years old now?  But it's still selling fresh 
-copies, and will until the PS3 comes out.  (And even then, people will still 
-play PS2 games.)
+Jeff,
+Point of order.
 
-Like everything else, this is application driven.  If it runs World of 
-Warcraft and City of Heroes, there's a market for it.  May be a cheap market, 
-but it's there.  Especially if it fits nicely in laptops, has low power 
-consumption, doesn't need a cooling fan...
+My email record of this thread indicates that it was
+Christoph Hellwig:
+http://marc.theaimsgroup.com/?l=linux-scsi&m=113404894931377&w=2
+who initially lowered the tone. Just to prove that was not
+an aberration he followed that up with this email:
+http://marc.theaimsgroup.com/?l=linux-scsi&m=113404957727924&w=2
+and there are several others. Given Christoph's posts I
+find those of Matthew Garrett and Erik Slagter pretty well
+considered and I fail to see what warranted the "you feel its
+best to insult people" line above.
 
-(Also, keep in mind that half of graphics performance is how much texture 
-memory the sucker has and how fast the ram it talks to is.)
+I used to think that SCSI was the most maligned part of the
+linux kernel, but that no longer seems to be the case.
+Can ACPI be really that bad ...
 
-(I remember the days when games had a selection menu so you could tell it what 
-kind of sound card you had.  3D video cards are still there.  Won't last 
-forever.)
+Doug Gilbert
 
-Rob
--- 
-Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
-I do not think it means what you think it means.
+> libata suspend/resume needs to work on platforms without ACPI, such as
+> ppc64.  libata reset needs to work even when BIOS is not present at all.
+>  And by definition, anything that is done in ACPI can be done in the
+> driver.
+> 
+> The only thing libata cannot know is BIOS defaults.  Anything else
+> libata doesn't know is a driver bug.  We already know there are a ton of
+> settings that should be saved/restored, which is not done now.  Until
+> that code is added to libata, talk of ACPI is premature.  Further, even
+> the premature patch was obviously unacceptable, because you don't patch
+> ACPI code directly into libata and SCSI.  That's the wrong approach.
+> 
+>     Jeff
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 
+

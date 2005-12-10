@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbVLJTcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161056AbVLJTtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964935AbVLJTcz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 14:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVLJTcz
+	id S1161056AbVLJTtI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 14:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161057AbVLJTtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 14:32:55 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:28602 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964935AbVLJTcz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 14:32:55 -0500
-Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051210071935.GQ11190@wotan.suse.de>
-References: <1134154208.14363.8.camel@mindpipe> <439A0746.80208@mnsu.edu>
-	 <1134173138.18432.41.camel@mindpipe> <439A201D.7030103@mnsu.edu>
-	 <1134179410.18432.66.camel@mindpipe> <p73oe3ppbxj.fsf@verdi.suse.de>
-	 <1134191524.18432.82.camel@mindpipe> <20051210071935.GQ11190@wotan.suse.de>
-Content-Type: text/plain
-Date: Sat, 10 Dec 2005 14:34:33 -0500
-Message-Id: <1134243273.18432.104.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Dec 2005 14:49:08 -0500
+Received: from mail.autoweb.net ([198.172.237.26]:11481 "EHLO
+	mail.internal.autoweb.net") by vger.kernel.org with ESMTP
+	id S1161056AbVLJTtH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 14:49:07 -0500
+Date: Sat, 10 Dec 2005 14:48:47 -0500
+From: Ryan Anderson <ryan@michonline.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Message-ID: <20051210194846.GA11235@mythryan2.michonline.com>
+References: <20051203135608.GJ31395@stusta.de> <1133620598.22170.14.camel@laptopd505.fenrus.org> <20051203152339.GK31395@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051203152339.GK31395@stusta.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-10 at 08:19 +0100, Andi Kleen wrote:
-> On Sat, Dec 10, 2005 at 12:12:03AM -0500, Lee Revell wrote:
-> > On Sat, 2005-12-10 at 01:56 -0700, Andi Kleen wrote:
-> > > Lee Revell <rlrevell@joe-job.com> writes:
-> > > >  - disable CONFIG_IA32_EMULATION
-> > > 
-> > > I just tried it here. Adding -m64 to CFLAGS/AFLAGS on a native
-> > > 64bit biarch toolchain and it compiled without problems. It ends
-> > > up with -m64 -m32 for the 32bit vsyscall files, but that seems
-> > > to DTRT at least in gcc 4.
-> > 
-> > Nope, passing -m64 -m32 does not seem to DTRT on native 32bit biarch
-> > toolchain:
+On Sat, Dec 03, 2005 at 04:23:39PM +0100, Adrian Bunk wrote:
+> On Sat, Dec 03, 2005 at 03:36:38PM +0100, Arjan van de Ven wrote:
 > 
-> How about this patch? 
+> > If the current model doesn't work as you claim it doesn't, then maybe
+> > the model needs finetuning. Right now the biggest pain is the userland
+> > ABI changes that need new packages; sometimes (often) for no real hard
+> > reason. Maybe we should just stop doing those bits, they're not in any
+> > fundamental way blocking general progress (sure there's some code bloat
+> > due to it, but I guess we'll just have to live with that).
+> 
+> IOW, we should e.g. ensure that today's udev will still work flawlessly 
+> with kernel 2.6.30 (sic)?
+> 
+> This could work, but it should be officially announced that e.g. a 
+> userspace running kernel 2.6.15 must work flawlessly with _any_ future 
+> 2.6 kernel.
+> 
+> For how many years do you think we will be able to ensure that this will 
+> stay true?
 
-FWIW it still fails at the final link step:
+I'd rather see the statement that if a kernel 2.6.N requires a userspace
+update (udev, alsa, whatever), that the new userspace works correctly on
+2.6.(N-10).
 
-  ld -m elf_x86_64  -o .tmp_vmlinux1 -T arch/x86_64/kernel/vmlinux.lds
-arch/x86_64/kernel/head.o arch/x86_64/kernel/head64.o
-arch/x86_64/kernel/init_task.o  init/built-in.o --start-group
-usr/built-in.o  arch/x86_64/kernel/built-in.o  arch/x86_64/mm/built-in.o
-arch/x86_64/crypto/built-in.o  arch/x86_64/ia32/built-in.o
-kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o
-security/built-in.o  crypto/built-in.o  lib/lib.a  arch/x86_64/lib/lib.a
-lib/built-in.o  arch/x86_64/lib/built-in.o  drivers/built-in.o
-sound/built-in.o  arch/x86_64/pci/built-in.o  net/built-in.o
---end-group 
-ld:arch/x86_64/kernel/vmlinux.lds:383: parse error
-make: *** [.tmp_vmlinux1] Error 1
+I think that is the bit of the problem that has been really frustrating
+to the people that have run into it.
 
-Here are the relevant lines of arch/x86_64/kernel/vmlinux.lds:
+(I think that is the complaint Dave Jones made during his OLS keynote,
+and I've seen a similar complaint about udev, though the udev issue
+may have been Debian specific.)
 
-    382 OUTPUT_FORMAT("elf64-x86-64", "elf64-x86-64", "elf64-x86-64")
-    383 OUTPUT_ARCH(1:x86-64)
-    384 ENTRY(phys_startup_64)
+-- 
 
-Any ideas?  Another toolchain quirk?
-
-Lee
-
+Ryan Anderson
+  sometimes Pug Majere

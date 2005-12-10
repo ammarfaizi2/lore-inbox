@@ -1,84 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964819AbVLJPrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbVLJQHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964819AbVLJPrT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 10:47:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbVLJPrT
+	id S964792AbVLJQHE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 11:07:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbVLJQHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 10:47:19 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:35597 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S964819AbVLJPrS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 10:47:18 -0500
-Date: Sat, 10 Dec 2005 16:49:28 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Minor change to platform_device_register_simple
- prototype
-Message-Id: <20051210164928.3a7f57fb.khali@linux-fr.org>
-In-Reply-To: <20051208232254.GC9357@flint.arm.linux.org.uk>
-References: <20051205202707.GH15201@flint.arm.linux.org.uk>
-	<200512070105.40169.dtor_core@ameritech.net>
-	<d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com>
-	<20051207180842.GG6793@flint.arm.linux.org.uk>
-	<d120d5000512071023u151c42f4lcc40862b2debad73@mail.gmail.com>
-	<20051207190352.GI6793@flint.arm.linux.org.uk>
-	<d120d5000512071418q521d2155r81759ef8993000d8@mail.gmail.com>
-	<20051207225126.GA648@kroah.com>
-	<d120d5000512071459s9b461d8ye7abc41d0e1950fd@mail.gmail.com>
-	<20051208215257.78d7c67a.khali@linux-fr.org>
-	<20051208232254.GC9357@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Sat, 10 Dec 2005 11:07:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55997 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964792AbVLJQHC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 11:07:02 -0500
+Date: Sat, 10 Dec 2005 17:06:41 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Stefan Seyfried <seife@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       Andy Isaacson <adi@hexapodia.org>
+Subject: Re: [RFC/RFT] swsusp: image size tunable (was: Re: [PATCH][mm] swsusp: limit image size)
+Message-ID: <20051210160641.GB5047@elf.ucw.cz>
+References: <200512072246.06222.rjw@sisk.pl> <20051209191735.GB4658@elf.ucw.cz> <200512092308.19644.rjw@sisk.pl> <200512101421.57918.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200512101421.57918.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
+Hi!
 
-> On Thu, Dec 08, 2005 at 09:52:57PM +0100, Jean Delvare wrote:
-> > BTW, doesn't this suggest that the error path in
-> > platform_device_register_simple() is currently broken as well? If
-> > platform_device_add() fails therein, I take it that the resources
-> > previously allocated by platform_device_add_resources() will never be
-> > freed.
+> > The tunable may be useful to people who'd like to achieve the
+> > maximum efficiency of suspend/resume and it would be a nice
+> > feature to have, I think, but let's say we'll try to implement it
+> > in the future, if still needed/wanted.
 > 
-> No.  If platform_device_add() fails then you platform_device_put()
-> it with no other action.  If it's been added, with the current
-> available interfaces, your only option is to
-> platform_device_unregister() it.
-> 
-> So:
-> 
-> - error during platform_device_alloc, no additional action necessary
-> - error returned by platform_device_add, you have a structure allocated
->   and initialised, you platform_device_put it.
-> - subsequently you want to get rid of it, platform_device_unregister it,
->   or alternatively platform_device_del + platform_device_put it (where
->   provided.)
-> 
-> This is actually a generic driver model rule which can be applied to
-> all driver model interfaces which have the alloc/init, add, del, put,
-> register, unregister methods.
+> Actually the tunable turned out to be quite easy to implement and I think
+> I'll need it for userspace swsusp (the suspend-handling userspace
+> process will need to tell the kernel how much space there is for the
+> image).
 
-I was fine with the sequence you are describing above. The only thing
-which was worrying me was platform_device_add_resources(), until I
-realized that this function was really only preparing the resources for
-reservation. For some reason I was erroneously thinking that it was
-also requesting the resources "for real", so I was worried that
-platform_device_put wouldn't release these if platform_device_add was
-failing.
+Looks mostly okay to me, small comments below.
 
-This all makes sense to me now. Thanks for the clarification, and sorry
-for being a bit slow to figure out how the platform stuff works.
+> Index: linux-2.6.15-rc5-mm1/kernel/power/disk.c
+> ===================================================================
+> --- linux-2.6.15-rc5-mm1.orig/kernel/power/disk.c	2005-12-10 13:12:18.000000000 +0100
+> +++ linux-2.6.15-rc5-mm1/kernel/power/disk.c	2005-12-10 13:20:38.000000000 +0100
+> @@ -367,9 +367,34 @@
+>  
+>  power_attr(resume);
+>  
+> +static ssize_t image_size_show(struct subsystem * subsys, char *buf)
+> +{
+> +	return sprintf(buf, "%u\n", image_size);
+> +}
+> +
+> +static ssize_t image_size_store(struct subsystem * subsys, const char * buf, size_t n)
+> +{
+> +	int len;
+> +	char *p;
+> +	unsigned int size;
+> +
+> +	p = memchr(buf, '\n', n);
+> +	len = p ? p - buf : n;
 
-I'll post the platform driver I am currently working on later today for
-comments. I'm pretty sure I'm still not using the platform
-infrastructure the way it was meant to be, and would appreciate hints on
-how I can do it better.
+len and p are unused.
 
-Thanks again,
+> +	if (sscanf(buf, "%u", &size) == 1) {
+> +		image_size = size < MAX_IMAGE_SIZE ? size : MAX_IMAGE_SIZE;
+> +		return n;
+
+Why the limit? We may want to allow very big images when someone wants
+"as similar to suspended system as possible".
+
+> Index: linux-2.6.15-rc5-mm1/kernel/power/power.h
+> ===================================================================
+> --- linux-2.6.15-rc5-mm1.orig/kernel/power/power.h	2005-12-10 13:12:18.000000000 +0100
+> +++ linux-2.6.15-rc5-mm1/kernel/power/power.h	2005-12-10 13:20:46.000000000 +0100
+> @@ -53,10 +53,12 @@
+>  extern struct pbe *pagedir_nosave;
+>  
+>  /*
+> - * Preferred image size in MB (set it to zero to get the smallest
+> + * Maximum image size in MB (set it to zero to get the smallest
+>   * image possible)
+>   */
+
+In fact this is not maximum. If more than 500MB can't be freed, well,
+it will not be freed. Very improbable, but possible.
+
+> -#define IMAGE_SIZE	500
+> +#define MAX_IMAGE_SIZE	500
+> +
+
+With runtime configuration, we should not need additional
+compile-time config. OTOH /proc tunables should have descritption in
+Documentation/.
+
+								Pavel
 -- 
-Jean Delvare
+Thanks, Sharp!

@@ -1,49 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932761AbVLJHng@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932710AbVLJHuO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932761AbVLJHng (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 02:43:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbVLJHng
+	id S932710AbVLJHuO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 02:50:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932771AbVLJHuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 02:43:36 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:28056 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932761AbVLJHng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 02:43:36 -0500
-Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andi Kleen <ak@suse.de>
+	Sat, 10 Dec 2005 02:50:14 -0500
+Received: from web31715.mail.mud.yahoo.com ([68.142.201.195]:10104 "HELO
+	web31715.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932769AbVLJHuN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 02:50:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=p3JJ23mkeWwv41GVXncgKguvj6B90YDrWnA1JFzrP8JGaQmSdVIo4Q0FU/mtIx7CyiZagMOL9qpNDRIBIkhQ7UZ+7+x3KqfoAfkaFGWI3bFHiffVrnfUcgNmf7sCc6agJP7QTgK5WNaMpivLDga9Rsq2P87SB6XP5n5Kd2bSBFk=  ;
+Message-ID: <20051210075012.87815.qmail@web31715.mail.mud.yahoo.com>
+Date: Fri, 9 Dec 2005 23:50:12 -0800 (PST)
+From: Bao Zhao <baozhaolinuxer@yahoo.com>
+Subject: Re: typo in debugfs code comments?
+To: Greg KH <greg@kroah.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051210071935.GQ11190@wotan.suse.de>
-References: <1134154208.14363.8.camel@mindpipe> <439A0746.80208@mnsu.edu>
-	 <1134173138.18432.41.camel@mindpipe> <439A201D.7030103@mnsu.edu>
-	 <1134179410.18432.66.camel@mindpipe> <p73oe3ppbxj.fsf@verdi.suse.de>
-	 <1134191524.18432.82.camel@mindpipe> <20051210071935.GQ11190@wotan.suse.de>
-Content-Type: text/plain
-Date: Sat, 10 Dec 2005 02:43:18 -0500
-Message-Id: <1134200599.18432.86.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20051210025720.GA17847@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-10 at 08:19 +0100, Andi Kleen wrote:
-> On Sat, Dec 10, 2005 at 12:12:03AM -0500, Lee Revell wrote:
-> > On Sat, 2005-12-10 at 01:56 -0700, Andi Kleen wrote:
-> > > Lee Revell <rlrevell@joe-job.com> writes:
-> > > >  - disable CONFIG_IA32_EMULATION
-> > > 
-> > > I just tried it here. Adding -m64 to CFLAGS/AFLAGS on a native
-> > > 64bit biarch toolchain and it compiled without problems. It ends
-> > > up with -m64 -m32 for the 32bit vsyscall files, but that seems
-> > > to DTRT at least in gcc 4.
+
+
+--- Greg KH <greg@kroah.com> wrote:
+
+> On Fri, Dec 09, 2005 at 06:01:34PM -0800, Bao Zhao
+> wrote:
+> >   I think that the comments of debugfs_create_u16
+> and
+> > debugfs_create_u32 
+> > have the copy and paste error.
+> >   
+> > below is original comments.
+> > /**
+> >  * debugfs_create_u16 - create a file in the
+> debugfs
+> > filesystem that is used to read and write a
+> unsigned 8
+> > bit value.
+> >  *
 > > 
-> > Nope, passing -m64 -m32 does not seem to DTRT on native 32bit biarch
-> > toolchain:
+> > /**
+> >  * debugfs_create_u32 - create a file in the
+> debugfs
+> > filesystem that is used to read and write a
+> unsigned 8
+> > bit value.
+> >  *
+> > 
+> > It should be "a unsigned 16 bit value" and "a
+> unsigned
+> > 32 bit value"
 > 
-> How about this patch? 
+> Heh, cut and paste comments :)
+> 
+> Care to send me a patch, as per
+> Documentation/SubmittingPatches to fix
+> this up?
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Yes, works great.
+This patch fixes cut and paste error in debugfs.
 
-Lee
+Signed-off-by: Zhao Bao <baozhaolinuxer@yahoo.com>
 
+---
+
+--- linux-2.6.14.3/fs/debugfs/file.c.orig	2005-12-03
+17:39:41.000000000 -0500
++++ linux-2.6.14.3/fs/debugfs/file.c	2005-12-03
+17:41:15.000000000 -0500
+@@ -98,7 +98,7 @@ static u64 debugfs_u16_get(void
+*data)
+ DEFINE_SIMPLE_ATTRIBUTE(fops_u16, debugfs_u16_get,
+debugfs_u16_set, "%llu\n");
+ 
+ /**
+- * debugfs_create_u16 - create a file in the debugfs
+filesystem that is used to read and write a unsigned 8
+bit value.
++ * debugfs_create_u16 - create a file in the debugfs
+filesystem that is used to read and write a unsigned
+16 bit value.
+  *
+  * @name: a pointer to a string containing the name
+of the file to create.
+  * @mode: the permission that the file should have
+@@ -140,7 +140,7 @@ static u64 debugfs_u32_get(void
+*data)
+ DEFINE_SIMPLE_ATTRIBUTE(fops_u32, debugfs_u32_get,
+debugfs_u32_set, "%llu\n");
+ 
+ /**
+- * debugfs_create_u32 - create a file in the debugfs
+filesystem that is used to read and write a unsigned 8
+bit value.
++ * debugfs_create_u32 - create a file in the debugfs
+filesystem that is used to read and write a unsigned
+32 bit value.
+  *
+  * @name: a pointer to a string containing the name
+of the file to create.
+  * @mode: the permission that the file should have
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

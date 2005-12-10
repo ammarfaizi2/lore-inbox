@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932646AbVLJFvm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVLJFkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932646AbVLJFvm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 00:51:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932710AbVLJFvm
+	id S932297AbVLJFkX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 00:40:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVLJFkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 00:51:42 -0500
-Received: from user-0c938qu.cable.mindspring.com ([24.145.163.94]:37272 "EHLO
-	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
-	id S932646AbVLJFvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 00:51:41 -0500
-From: Luke-Jr <luke-jr@utopios.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Sat, 10 Dec 2005 05:51:40 +0000
-User-Agent: KMail/1.9
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512052122.02485.gene.heskett@verizon.net> <Pine.LNX.4.64.0512051954040.19959@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.64.0512051954040.19959@montezuma.fsmlabs.com>
-Public-GPG-Key: 0xD53E9583
-Public-GPG-Key-URI: http://dashjr.org/~luke-jr/myself/Luke-Jr.pgp
-IM-Address: luke-jr@jabber.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Dec 2005 00:40:23 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:11423 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932297AbVLJFkW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 00:40:22 -0500
+Date: Sat, 10 Dec 2005 00:40:13 -0500
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: broken cast in parport_pc
+Message-ID: <20051210054013.GA11286@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	linux-kernel@vger.kernel.org, akpm@osdl.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512100551.40987.luke-jr@utopios.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 December 2005 03:56, Zwane Mwaikambo wrote:
-> Do you think this opensource hardware could keep up with nvidia and ati
-> hardware development? Joe sixpack is all about the fastest hardware.
+Spotted by a Fedora user. Compiling with DEBUG_PARPORT set fails
+due to the broken cast.
 
-Personally, I'm hoping that it will get some standard interfaces to video 
-cards and possibly lay out a VESA-for-OpenGL or such that is later adopted by 
-all other cards...
--- 
-Luke-Jr
-Developer, Utopios
-http://utopios.org/
+Just remove it.
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+--- linux-2.6.14/include/linux/parport_pc.h~	2005-12-10 00:26:42.000000000 -0500
++++ linux-2.6.14/include/linux/parport_pc.h	2005-12-10 00:38:57.000000000 -0500
+@@ -86,7 +86,7 @@ extern __inline__ void dump_parport_stat
+ 	unsigned char dcr = inb (CONTROL (p));
+ 	unsigned char dsr = inb (STATUS (p));
+ 	static char *ecr_modes[] = {"SPP", "PS2", "PPFIFO", "ECP", "xXx", "yYy", "TST", "CFG"};
+-	const struct parport_pc_private *priv = (parport_pc_private *)p->physport->private_data;
++	const struct parport_pc_private *priv = p->physport->private_data;
+ 	int i;
+ 
+ 	printk (KERN_DEBUG "*** parport state (%s): ecr=[%s", str, ecr_modes[(ecr & 0xe0) >> 5]);

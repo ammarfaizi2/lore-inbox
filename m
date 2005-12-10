@@ -1,65 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbVLJOtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbVLJPYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbVLJOtb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 09:49:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbVLJOtb
+	id S932410AbVLJPYV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 10:24:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbVLJPYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 09:49:31 -0500
-Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:21914 "HELO
-	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932420AbVLJOtb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 09:49:31 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Nico Schottelius <nico-kernel@schottelius.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Device files for keyboard(s)?
-Date: Sat, 10 Dec 2005 09:49:28 -0500
-User-Agent: KMail/1.9
-References: <20051210085752.GF15679@schottelius.org>
-In-Reply-To: <20051210085752.GF15679@schottelius.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Dec 2005 10:24:21 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:64932 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932410AbVLJPYU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 10:24:20 -0500
+Date: Sat, 10 Dec 2005 20:49:51 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+Cc: linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Fix RCU race in access of nohz_cpu_mask
+Message-ID: <20051210151951.GA2798@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <439889FA.BB08E5E1@tv-sign.ru> <20051209024623.GA14844@in.ibm.com> <4399D852.47E0BB4E@tv-sign.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512100949.29185.dtor_core@ameritech.net>
+In-Reply-To: <4399D852.47E0BB4E@tv-sign.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 December 2005 03:57, Nico Schottelius wrote:
-> Hello dear Kernel-Developers,
+On Fri, Dec 09, 2005 at 10:17:38PM +0300, Oleg Nesterov wrote:
+> Srivatsa Vaddagiri wrote:
+> > 
+> > On Thu, Dec 08, 2005 at 10:31:06PM +0300, Oleg Nesterov wrote:
+> > > I can't see how this change can prevent idle cpus to be included in
+> > > ->cpumask, cpu can add itself to nohz_cpu_mask right after some other
+> > > cpu started new grace period.
+> > 
+> > Yes that can happen, but if they check for rcu_pending right after that
+> > it will prevent them from going tickless atleast (which will prevent grace
+> > periods from being unnecessarily extended). Something like below:
+> > 
+> >         CPU0                                    CPU1
+> > 
+> >         rcp->cur++;     /* New GP */
+> > 
+> >         smp_mb();
 > 
-> I've the problem that I've connected two keyboards
-> (one via usb and one via ps/2) to my machine and I want to have
-> different keyboard layout on it.
+> I think I need some education on memory barriers.
 > 
-> While I was trying to find out what would be the best way to do that,
-> I was somehow surprised that keyboards are not presented via
-> a device file to userspace.
->
+> Does this mb() garantees that the new value of ->cur will be visible
+> on other cpus immediately after smp_mb() (so that rcu_pending() will
+> notice it) ?
 
-They are. You need to use event input interface. All input devices can
-be accessed via /dev/input/eventX device nodes.
- 
-> My questions are:
+AFAIK the new value of ->cur should be visible to other CPUs when smp_mb() 
+returns. Here's a definition of smp_mb() from Paul's article:
+
+smp_mb(): "memory barrier" that orders both loads and stores. This means loads 
+and stores preceding the memory barrier are committed to memory before any 
+loads and stores following the memory barrier.
+
+[ http://www.linuxjournal.com/article/8211 ]
+
+> My understanding is that it only garantees that all stores before it
+> must be visible before any store after mb. (yes, mb implies rmb, but
+> I think it does not matter if CPU1 adds itself to nonhz mask after
+> CPU0 reads nohz_cpu_mask). This means that CPU1 can read the stale
+> value of ->cur. I guess I am wrong, but I can't prove it to myself.
 > 
-> - Is there a reason not to have devices for keyboards?
-> - If I would implement it into a recent kernel, would it have any chance
->   getting into mainline?
+> Could you please clarify this?
 > 
-> I know this would have some consequences for user space, at least those:
+> Even simpler question:
 > 
-> - x11 (x.org/xfree) would have to modify their input device section for Linux
->   for keyboards
-> - loadkeys would have to be patched so one could specify which keyboard
->   to change the layout for
-> - kde/gnome would have to be changed in the manner that they support more
->   than one keyboard
+> CPU0
+> 	var = 1;
+> 	wmb();
 > 
-> Nico
+> after that CPU1 does rmb().
 > 
-> P.S.: Please cc me.
-> 
+> Does it garantees that CPU1 will see the new value of var?
+
+Again, going by the above article, I would expect CPU1 to see the new value of 
+var.
+
 
 -- 
-Dmitry
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

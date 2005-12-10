@@ -1,51 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVLJCBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbVLJCCk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbVLJCBh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 21:01:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbVLJCBh
+	id S1751285AbVLJCCk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 21:02:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVLJCCk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 21:01:37 -0500
-Received: from web31712.mail.mud.yahoo.com ([68.142.201.192]:36236 "HELO
-	web31712.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750720AbVLJCBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 21:01:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=A2YiaAol2giVvB3Rmv3fIS4J+1p8MvklC2tBkxBf7N+NNTwd1wtSw06EAOGIt+TzJYuDQD0czwpKGZ0ru98KCm4yIhsG8x4VyOaFrDj69ljI0YtUxnrqwkh+hllOQiqUoC5QQahN/xCEc62TP7htsNy/PZCvLBkhakhB4JviDOk=  ;
-Message-ID: <20051210020134.94755.qmail@web31712.mail.mud.yahoo.com>
-Date: Fri, 9 Dec 2005 18:01:34 -0800 (PST)
-From: Bao Zhao <baozhaolinuxer@yahoo.com>
-Subject: typo in debugfs code comments?
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: greg@kroah.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 9 Dec 2005 21:02:40 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:51927 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751232AbVLJCCj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 21:02:39 -0500
+Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <439A201D.7030103@mnsu.edu>
+References: <1134154208.14363.8.camel@mindpipe>  <439A0746.80208@mnsu.edu>
+	 <1134173138.18432.41.camel@mindpipe>  <439A201D.7030103@mnsu.edu>
+Content-Type: text/plain
+Date: Fri, 09 Dec 2005 20:50:10 -0500
+Message-Id: <1134179410.18432.66.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  I think that the comments of debugfs_create_u16 and
-debugfs_create_u32 
-have the copy and paste error.
-  
-below is original comments.
-/**
- * debugfs_create_u16 - create a file in the debugfs
-filesystem that is used to read and write a unsigned 8
-bit value.
- *
+On Fri, 2005-12-09 at 18:23 -0600, Jeffrey Hundstad wrote:
+> Lee Revell wrote:
+> 
+> >On Fri, 2005-12-09 at 16:37 -0600, Jeffrey Hundstad wrote:
+> >  
+> >
+> >>Lee Revell wrote:
+> >>
+> >>    
+> >>
+> >>>I'm trying to build an x66-64 kernel on a 32 bit system (Ubuntu 5.10).
+> >>>I added -m64 to the CFLAGS as per the gcc docs.  But the build fails
+> >>>with:
+> >>>
+> >>>$ make ARCH=x86_64
+> >>> [...]
+> >>> CC      init/initramfs.o
+> >>>
+> >>>
+> >>>      
+> >>>
+> >>I have successfully done this using Debian/Sid.
+> >>
+> >>    
+> >>
+> >
+> >I added "-m64" to AFLAGS as well and now I get farther:
+> >
+> >  CC      arch/x86_64/ia32/syscall32.o
+> >  AS      arch/x86_64/ia32/vsyscall-sysenter.o
+> >arch/x86_64/ia32/vsyscall-sysenter.S: Assembler messages:
+> >arch/x86_64/ia32/vsyscall-sysenter.S:14: Error: suffix or operands invalid for `push'
+> >arch/x86_64/ia32/vsyscall-sysenter.S:16: Error: suffix or operands invalid for `push'
+> >arch/x86_64/ia32/vsyscall-sysenter.S:18: Error: suffix or operands invalid for `push'
+> >arch/x86_64/ia32/vsyscall-sysenter.S:25: Error: suffix or operands invalid for `pop'
+> >arch/x86_64/ia32/vsyscall-sysenter.S:27: Error: suffix or operands invalid for `pop'
+> >arch/x86_64/ia32/vsyscall-sysenter.S:29: Error: suffix or operands invalid for `pop'
+> >arch/x86_64/ia32/vsyscall-sigreturn.S:16: Error: suffix or operands invalid for `pop'
+> >make[1]: *** [arch/x86_64/ia32/vsyscall-sysenter.o] Error 1
+> >make: *** [arch/x86_64/ia32] Error 2
+> >
+> >Lee
+> >
+> >  
+> >
+> 
+> Yes, some commands NEED the -m64 and and WILL NOT work with -m64.
+> 
 
-/**
- * debugfs_create_u32 - create a file in the debugfs
-filesystem that is used to read and write a unsigned 8
-bit value.
- *
+Aha!  I disabled CONFIG_IA32_EMULATION and it works perfectly.
 
-It should be "a unsigned 16 bit value" and "a unsigned
-32 bit value"
+So all that's needed to build an x86_64 kernel with the i386 Ubuntu 5.10
+toolchain:
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+ - edit Makefile: add -m64 to CFLAGS and AFLAGS
+ - disable CONFIG_IA32_EMULATION
+ - make ARCH=x86_64
+
+Lee
+
+
+
+
+

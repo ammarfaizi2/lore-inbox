@@ -1,158 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932779AbVLJLXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932780AbVLJL0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932779AbVLJLXp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 06:23:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932782AbVLJLXp
+	id S932780AbVLJL0L (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 06:26:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932781AbVLJL0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 06:23:45 -0500
-Received: from mailhost.u-strasbg.fr ([130.79.200.155]:22519 "EHLO
-	mailhost.u-strasbg.fr") by vger.kernel.org with ESMTP
-	id S932779AbVLJLXo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 06:23:44 -0500
-Message-ID: <439ABA93.8000206@crc.u-strasbg.fr>
-Date: Sat, 10 Dec 2005 12:22:59 +0100
-From: Philippe Pegon <Philippe.Pegon@crc.u-strasbg.fr>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051016)
-X-Accept-Language: en-us, en
+	Sat, 10 Dec 2005 06:26:11 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:53994 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S932780AbVLJL0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 06:26:10 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-Id: <200512101125.jBABP7Z9001085@einhorn.in-berlin.de>
+Date: Sat, 10 Dec 2005 12:24:59 +0100 (CET)
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Subject: [PATCH] sbp2: fix panic when ejecting an ipod
+To: stable@kernel.org, torvalds@osdl.org
+cc: linux1394-devel@lists.sourceforge.net, bcollins@debian.org,
+       adq@lidskialf.net, scjody@modernduck.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20051209171922.GW19441@conscoop.ottawa.on.ca>
 MIME-Version: 1.0
-To: Kirill Korotaev <dev@sw.ru>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, kir@sw.ru, devel@openvz.org,
-       Andrey Savochkin <saw@sawoct.com>, dim@sw.ru,
-       Stanislav Protassov <st@sw.ru>
-Subject: Re: [ANNOUNCE] first stable release of OpenVZ kernel virtualization
- solution
-References: <43949155.5060606@sw.ru>
-In-Reply-To: <43949155.5060606@sw.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (mailhost.u-strasbg.fr [IPv6:2001:660:2402::155]); Sat, 10 Dec 2005 12:23:42 +0100 (CET)
+Content-Type: TEXT/plain; charset=us-ascii
+X-Spam-Score: (0.127) AWL,BAYES_20,MSGID_FROM_MTA_ID
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+sbp2: fix panic when ejecting an ipod
 
-By curiosity, what is the status for IPv6 in OpenVZ (I saw that it was 
-in the roadmap on the website, but maybe you have more informations) ?
+Sbp2 did not catch some bogus transfer directions in requests from upper
+layers.  Problem became apparent when iPods were to be ejected:
+http://marc.theaimsgroup.com/?l=linux1394-devel&m=113399994920181
+http://marc.theaimsgroup.com/?l=linux1394-user&m=112152701817435
+Debugging and original variant of the patch by Andrew de Quincey.
 
-thanks
---
-Philippe Pegon
+Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Andrew de Quincey <adq@lidskialf.net>
 
-Kirill Korotaev wrote:
-> Hello,
-> 
-> We are happy to announce the release of a stable version of the OpenVZ 
-> software, located at http://openvz.org/.
-> 
-> OpenVZ is a kernel virtualization solution which can be considered as a
-> natural step in the OS kernel evolution: after multiuser and 
-> multitasking functionality there comes an OpenVZ feature of having 
-> multiple environments.
-> 
-> Virtualization lets you divide a system into separate isolated
-> execution environments (called VPSs - Virtual Private Servers). From the
-> point of view of the VPS owner (root), it looks like a stand-alone 
-> server. Each VPS has its own filesystem tree, process tree (starting 
-> from init as in a real system) and so on. The  single-kernel approach 
-> makes it possible to virtualize with very little overhead, if any.
-> 
-> OpenVZ in-kernel modifications can be divided into several components:
-> 
-> 1. Virtualization and isolation.
-> Many Linux kernel subsystems are virtualized, so each VPS has its own:
-> - process tree (featuring virtualized pids, so that the init pid is 1);
-> - filesystems (including virtualized /proc and /sys);
-> - network (virtual network device, its own ip addresses,
->   set of netfilter and routing rules);
-> - devices (if needed, any VPS can be granted access to real devices
->   like network interfaces, serial ports, disk partitions, etc);
-> - IPC objects.
-> 
-> 2. Resource Management.
-> This subsystem enables multiple VPSs to coexist, providing managed
-> resource sharing and limiting.
-> - User Beancounters is a set of per-VPS resource counters, limits,
->   and guarantees (kernel memory, network buffers, phys pages, etc.).
-> - Fair CPU scheduler (SFQ with shares and hard limits).
-> - Two-level disk quota (first-level: per-VPS quota;
->   second-level: ordinary user/group quota inside a VPS)
-> 
-> Resource management is what makes OpenVZ different from other solutions
-> of this kind (like Linux VServer or FreeBSD jails). There are a few
-> resources that can be abused from inside a VPS (such as files, IPC
-> objects, ...) leading to a DoS attack. User Beancounters prevent such
-> abuses.
-> 
-> As virtualization solution OpenVZ makes it possible to do the same 
-> things for which people use UML, Xen, QEmu or VMware, but there are 
-> differences:
-> (a) there is no ability to run other operating systems
->     (although different Linux distros can happily coexist);
-> (b) performance loss is negligible due to absense of any kind of
->     emulation;
-> (c) resource utilization is much better.
-> 
-> The last point needs to be elaborated on. OpenVZ allows to utilize
-> system resources such as memory and disk space very efficiently, and
-> because of that has better performance on memory-critical workloads.
-> OpenVZ does not run separate kernels in each VPS and saves memory on
-> kernel internal data. However, even bigger efficiency of OpenVZ comes
-> from dynamic resource allocation.
-> 
-> With other virtualization solutions, you need to specify in advance the
-> amount of memory for each virtual machine and create a disk device and
-> filesystem for it, and the possibilities to change settings later on the
-> fly are very limited.
-> 
-> The dynamic assignment of resources in OpenVZ can significantly improve 
-> their utilization. For example, a x86_64 box (2.8 GHz Celeron D, 1GB 
-> RAM) is capable to run 100 VPSs with a fairly high performance (VPSs 
-> were serving http requests for 4.2Kb static pages at an overall rate of 
-> more than 80,000 req/min). Each VPS (running CentOS 4 x86_64) had the 
-> following set of processes:
-> 
-> [root@ovz-x64 ~]# vzctl exec 1043 ps axf
->  PID TTY      STAT   TIME COMMAND
->    1 ?        Ss     0:00 init
-> 11830 ?        Ss     0:00 syslogd -m 0
-> 11897 ?        Ss     0:00 /usr/sbin/sshd
-> 11943 ?        Ss     0:00 xinetd -stayalive -pidfile ...
-> 12218 ?        Ss     0:00 sendmail: accepting connections
-> 12265 ?        Ss     0:00 sendmail: Queue runner@01:00:00
-> 13362 ?        Ss     0:00 /usr/sbin/httpd
-> 13363 ?        S      0:00  \_ /usr/sbin/httpd
-> 13364 ?        S      0:00  \_ /usr/sbin/httpd
-> 13365 ?        S      0:00  \_ /usr/sbin/httpd
-> 13366 ?        S      0:00  \_ /usr/sbin/httpd
-> 13370 ?        S      0:00  \_ /usr/sbin/httpd   
-> 13371 ?        S      0:00  \_ /usr/sbin/httpd
-> 13372 ?        S      0:00  \_ /usr/sbin/httpd
-> 13373 ?        S      0:00  \_ /usr/sbin/httpd
-> 6416 ?        Rs     0:00 ps axf
-> 
-> And the list of running VPSs:
-> 
-> [root@ovz-x64 ~]# vzlist
->     VPSID      NPROC STATUS  IP_ADDR         HOSTNAME
->      1001         15 running 10.1.1.1        vps1001
->      1002         15 running 10.1.1.2        vps1002
->      [....skipped....]
->      1099         15 running 10.1.1.99       vps1099
->      1100         15 running 10.1.1.100      vps1100
-> 
-> On the box with 4Gb of RAM one can expect 400 of such VPSs to run 
-> without much troubles.
-> 
-> More information is available at http://openvz.org/
-> 
-> Thanks,
-> OpenVZ team.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+---
+
+Corresponding fix of the places where transfer direction is actually set and
+how to clean sbp2_create_command_orb() up after this fix is being discussed.
+A patch for SCSI mid and high level has been submitted.
+http://marc.theaimsgroup.com/?t=113400010000001
+Please apply the following patch to prevent kernel panics as the first step.
+
+ drivers/ieee1394/sbp2.c |   16 ++++++----------
+ 1 files changed, 6 insertions(+), 10 deletions(-)
+
+--- linux/drivers/ieee1394.orig/sbp2.c	2005-11-24 23:10:21.000000000 +0100
++++ linux/drivers/ieee1394/sbp2.c	2005-12-10 11:57:41.000000000 +0100
+@@ -1784,6 +1784,12 @@ static int sbp2_create_command_orb(struc
+ 			break;
+ 	}
+ 
++	if (orb_direction != ORB_DIRECTION_NO_DATA_TRANSFER &&
++	    scsi_request_bufflen == 0) {
++		SBP2_WARN("Enforcing transfer direction DMA_NONE");
++		orb_direction = ORB_DIRECTION_NO_DATA_TRANSFER;
++	}
++
+ 	/*
+ 	 * Set-up our pagetable stuff... unfortunately, this has become
+ 	 * messier than I'd like. Need to clean this up a bit.   ;-)
+@@ -1900,16 +1906,6 @@ static int sbp2_create_command_orb(struc
+ 			command_orb->misc |= ORB_SET_DATA_SIZE(scsi_request_bufflen);
+ 			command_orb->misc |= ORB_SET_DIRECTION(orb_direction);
+ 
+-			/*
+-			 * Sanity, in case our direction table is not
+-			 * up-to-date
+-			 */
+-			if (!scsi_request_bufflen) {
+-				command_orb->data_descriptor_hi = 0x0;
+-				command_orb->data_descriptor_lo = 0x0;
+-				command_orb->misc |= ORB_SET_DIRECTION(1);
+-			}
+-
+ 		} else {
+ 			/*
+ 			 * Need to turn this into page tables, since the
+
 

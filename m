@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbVLJR4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161017AbVLJSLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964944AbVLJR4O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 12:56:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964945AbVLJR4O
+	id S1161017AbVLJSLR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 13:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbVLJSLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 12:56:14 -0500
-Received: from bay103-f14.bay103.hotmail.com ([65.54.174.24]:41646 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S964944AbVLJR4N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 12:56:13 -0500
-Message-ID: <BAY103-F14F00806E485B60FFA140CDF440@phx.gbl>
-X-Originating-IP: [70.131.119.231]
-X-Originating-Email: [dravet@hotmail.com]
-In-Reply-To: <20051210154628.GA22707@flint.arm.linux.org.uk>
-From: "Jason Dravet" <dravet@hotmail.com>
-To: rmk+lkml@arm.linux.org.uk
-Cc: bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org
-Subject: Re: wrong number of serial port detected
-Date: Sat, 10 Dec 2005 11:56:12 -0600
+	Sat, 10 Dec 2005 13:11:16 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:32454 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1161017AbVLJSLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 13:11:16 -0500
+Subject: Re: IRQ vector assignment for system call exception
+From: Arjan van de Ven <arjan@infradead.org>
+To: Gaurav Dhiman <gaurav4lkg@gmail.com>
+Cc: yen <yen@eos.cs.nthu.edu.tw>, linux-kernel@vger.kernel.org
+In-Reply-To: <1e33f5710512100520k57c016b0tadfbb496cac3ea6e@mail.gmail.com>
+References: <20051208080435.M54890@eos.cs.nthu.edu.tw>
+	 <1e33f5710512100520k57c016b0tadfbb496cac3ea6e@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 10 Dec 2005 19:11:11 +0100
+Message-Id: <1134238271.2828.19.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 10 Dec 2005 17:56:13.0237 (UTC) FILETIME=[0278C650:01C5FDB3]
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Russell King <rmk+lkml@arm.linux.org.uk>
->To: Jason Dravet <dravet@hotmail.com>
->CC: bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org
->Subject: Re: wrong number of serial port detected
->Date: Sat, 10 Dec 2005 15:46:28 +0000
->
->On Sat, Dec 10, 2005 at 08:24:59AM -0600, Jason Dravet wrote:
-> > How is this for an idea?  The serial driver enumerates ACPI, PNPBIOS, or
-> > whaterver it needs for the onboard serial ports.  If you have a PCI 
->based
-> > serial card it would show up in the emuneration of the PCI bus, right?  
->For
-> > the case of ISA serial cards couldn't they have an option in 
->modprobe.conf
-> > to tell the kernel about the ISA serial card and the proper number of
-> > serial ports on the card itself?
->
->That's already thought about and rejected.
->
->If you want to pass a string telling the serial module where the ports
->are, you could be looking at a very _long_ string.  You need to specify
->the IO address, IRQ and base baud as a minimum for every port, along
->with optional flags.
->
->Assuming 5 characters for the IO address, 1 for the IRQ, and 6 for
->the baud base, plus 2 for separators between each of these, and one
->character separator per group, you're looking at 15 characters
->minimum per port.  For 8 ports, that's 120 characters.  16 would
->be 240 characters.  If the driver is built-in to the kernel, you're
->limited to 255 characters to describe all kernel options, so you
->couldn't hope to describe 32 ports.
+On Sat, 2005-12-10 at 18:50 +0530, Gaurav Dhiman wrote:
+> yes, definetely a historical reason. System libraries need to know
+> this vector to invoke system call.
 
-I was not aware that it worked like that.  My last experience with ISA cards 
-was to put a line in the modules.conf that pointed to the base IO and IRQ 
-for the card.  There was a serperate file that setup the serial ports.  This 
-was way back in RedHat 6.x days.  Thank you for the new information.
-
->The alternative is something like Dave's patch which allows you to
->tell the driver the number of ports you want to support and setserial.
-
-Dave's patch is good and I look forward to seeing it in the kernel.
-
-Thanks,
-Jason
+nowadays it's also mostly unused; sysenter and friends are used instead
+and they don't use this entry point.
 
 

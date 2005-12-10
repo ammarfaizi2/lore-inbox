@@ -1,73 +1,220 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932688AbVLJAkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932733AbVLJAzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932688AbVLJAkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 19:40:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932669AbVLJAkZ
+	id S932733AbVLJAzd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 19:55:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932710AbVLJAzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 19:40:25 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:62900 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932646AbVLJAkX (ORCPT
+	Fri, 9 Dec 2005 19:55:33 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:22965 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932539AbVLJAzH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 19:40:23 -0500
-Message-ID: <439A23E8.3080407@pobox.com>
-Date: Fri, 09 Dec 2005 19:40:08 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-CC: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       randy_d_dunlap@linux.intel.com, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-References: <20051208141811.GB21715@srcf.ucam.org> <1134052433.17102.17.camel@localhost.localdomain> <20051208145257.GB21946@srcf.ucam.org> <20051208171901.GA22451@srcf.ucam.org> <20051209114246.GB16945@infradead.org> <20051209114944.GA1068@havoc.gtf.org> <20051209115235.GB25771@srcf.ucam.org> <43997171.9060105@pobox.com> <20051209121124.GA25974@srcf.ucam.org> <439975AB.5000902@pobox.com> <20051209122457.GB26070@srcf.ucam.org>
-In-Reply-To: <20051209122457.GB26070@srcf.ucam.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Matthew Garrett wrote: > On Fri, Dec 09, 2005 at
-	07:16:43AM -0500, Jeff Garzik wrote: > > >>libata will immediately
-	notice the ejection without ACPI's help. > > >
-	http://linux.yyz.us/sata/sata-status.html claims that ICH6 doesn't >
-	support hotswap. The Intel docs seem to say the same thing. Pulling the
-	> drive out generates an ACPI interrupt but not a PCI one. I'm really >
-	happy to be wrong here, it's just that everything I've been able to
-	find > so far suggests that ACPI is the only way to get a notification
-	that the > drive has gone missing :) [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+	Fri, 9 Dec 2005 19:55:07 -0500
+Date: Fri, 9 Dec 2005 16:54:56 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-mm@kvack.org, Andi Kleen <ak@suse.de>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Christoph Lameter <clameter@sgi.com>
+Message-Id: <20051210005456.3887.94412.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051210005440.3887.34478.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051210005440.3887.34478.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [RFC 3/6] Make nr_pagecache a per zone counter
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Garrett wrote:
-> On Fri, Dec 09, 2005 at 07:16:43AM -0500, Jeff Garzik wrote:
-> 
-> 
->>libata will immediately notice the ejection without ACPI's help.
-> 
-> 
-> http://linux.yyz.us/sata/sata-status.html claims that ICH6 doesn't 
-> support hotswap. The Intel docs seem to say the same thing. Pulling the 
-> drive out generates an ACPI interrupt but not a PCI one. I'm really 
-> happy to be wrong here, it's just that everything I've been able to find 
-> so far suggests that ACPI is the only way to get a notification that the 
-> drive has gone missing :)
+Make nr_pagecache a per node variable
 
-ICH6 and ICH7 support it just fine, through the normal SATA PHY 
-registers.  ICH5 only support it if you are clever :)
+Currently a single atomic variable is used to establish the size of the page cache
+in the whole machine. The zoned VM counters have the same method of implementation
+as the nr_pagecache code. Remove the special implementation for nr_pagecache and make
+it a zoned counter. We will then be able to figure out how much of the memory in a
+zone is used by the pagecache.
 
-Further, although one can detect hot-unplug on ICH5, hotplug is probably 
-not detectable without polling or SMI.
+Updates of the page cache counters are always performed with interrupts off.
+We can therefore use the __ variant here.
 
-	Jeff
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-
+Index: linux-2.6.15-rc5/include/linux/pagemap.h
+===================================================================
+--- linux-2.6.15-rc5.orig/include/linux/pagemap.h	2005-12-03 21:10:42.000000000 -0800
++++ linux-2.6.15-rc5/include/linux/pagemap.h	2005-12-09 16:28:42.000000000 -0800
+@@ -99,51 +99,6 @@ int add_to_page_cache_lru(struct page *p
+ extern void remove_from_page_cache(struct page *page);
+ extern void __remove_from_page_cache(struct page *page);
+ 
+-extern atomic_t nr_pagecache;
+-
+-#ifdef CONFIG_SMP
+-
+-#define PAGECACHE_ACCT_THRESHOLD        max(16, NR_CPUS * 2)
+-DECLARE_PER_CPU(long, nr_pagecache_local);
+-
+-/*
+- * pagecache_acct implements approximate accounting for pagecache.
+- * vm_enough_memory() do not need high accuracy. Writers will keep
+- * an offset in their per-cpu arena and will spill that into the
+- * global count whenever the absolute value of the local count
+- * exceeds the counter's threshold.
+- *
+- * MUST be protected from preemption.
+- * current protection is mapping->page_lock.
+- */
+-static inline void pagecache_acct(int count)
+-{
+-	long *local;
+-
+-	local = &__get_cpu_var(nr_pagecache_local);
+-	*local += count;
+-	if (*local > PAGECACHE_ACCT_THRESHOLD || *local < -PAGECACHE_ACCT_THRESHOLD) {
+-		atomic_add(*local, &nr_pagecache);
+-		*local = 0;
+-	}
+-}
+-
+-#else
+-
+-static inline void pagecache_acct(int count)
+-{
+-	atomic_add(count, &nr_pagecache);
+-}
+-#endif
+-
+-static inline unsigned long get_page_cache_size(void)
+-{
+-	int ret = atomic_read(&nr_pagecache);
+-	if (unlikely(ret < 0))
+-		ret = 0;
+-	return ret;
+-}
+-
+ /*
+  * Return byte-offset into filesystem object for page.
+  */
+Index: linux-2.6.15-rc5/mm/swap_state.c
+===================================================================
+--- linux-2.6.15-rc5.orig/mm/swap_state.c	2005-12-03 21:10:42.000000000 -0800
++++ linux-2.6.15-rc5/mm/swap_state.c	2005-12-09 16:28:42.000000000 -0800
+@@ -84,7 +84,7 @@ static int __add_to_swap_cache(struct pa
+ 			SetPageSwapCache(page);
+ 			set_page_private(page, entry.val);
+ 			total_swapcache_pages++;
+-			pagecache_acct(1);
++			__inc_zone_page_state(page_zone(page), NR_PAGECACHE);
+ 		}
+ 		write_unlock_irq(&swapper_space.tree_lock);
+ 		radix_tree_preload_end();
+@@ -129,7 +129,7 @@ void __delete_from_swap_cache(struct pag
+ 	set_page_private(page, 0);
+ 	ClearPageSwapCache(page);
+ 	total_swapcache_pages--;
+-	pagecache_acct(-1);
++	__dec_zone_page_state(page_zone(page), NR_PAGECACHE);
+ 	INC_CACHE_INFO(del_total);
+ }
+ 
+Index: linux-2.6.15-rc5/mm/filemap.c
+===================================================================
+--- linux-2.6.15-rc5.orig/mm/filemap.c	2005-12-03 21:10:42.000000000 -0800
++++ linux-2.6.15-rc5/mm/filemap.c	2005-12-09 16:28:42.000000000 -0800
+@@ -115,7 +115,7 @@ void __remove_from_page_cache(struct pag
+ 	radix_tree_delete(&mapping->page_tree, page->index);
+ 	page->mapping = NULL;
+ 	mapping->nrpages--;
+-	pagecache_acct(-1);
++	__dec_zone_page_state(page_zone(page), NR_PAGECACHE);
+ }
+ 
+ void remove_from_page_cache(struct page *page)
+@@ -390,7 +390,7 @@ int add_to_page_cache(struct page *page,
+ 			page->mapping = mapping;
+ 			page->index = offset;
+ 			mapping->nrpages++;
+-			pagecache_acct(1);
++			__inc_zone_page_state(page_zone(page), NR_PAGECACHE);
+ 		}
+ 		write_unlock_irq(&mapping->tree_lock);
+ 		radix_tree_preload_end();
+Index: linux-2.6.15-rc5/mm/page_alloc.c
+===================================================================
+--- linux-2.6.15-rc5.orig/mm/page_alloc.c	2005-12-09 16:28:38.000000000 -0800
++++ linux-2.6.15-rc5/mm/page_alloc.c	2005-12-09 16:28:42.000000000 -0800
+@@ -1227,12 +1227,6 @@ static void show_node(struct zone *zone)
+  */
+ static DEFINE_PER_CPU(struct page_state, page_states) = {0};
+ 
+-atomic_t nr_pagecache = ATOMIC_INIT(0);
+-EXPORT_SYMBOL(nr_pagecache);
+-#ifdef CONFIG_SMP
+-DEFINE_PER_CPU(long, nr_pagecache_local) = 0;
+-#endif
+-
+ void __get_page_state(struct page_state *ret, int nr, cpumask_t *cpumask)
+ {
+ 	int cpu = 0;
+Index: linux-2.6.15-rc5/mm/mmap.c
+===================================================================
+--- linux-2.6.15-rc5.orig/mm/mmap.c	2005-12-03 21:10:42.000000000 -0800
++++ linux-2.6.15-rc5/mm/mmap.c	2005-12-09 16:28:42.000000000 -0800
+@@ -95,7 +95,7 @@ int __vm_enough_memory(long pages, int c
+ 	if (sysctl_overcommit_memory == OVERCOMMIT_GUESS) {
+ 		unsigned long n;
+ 
+-		free = get_page_cache_size();
++		free = global_page_state(NR_PAGECACHE);
+ 		free += nr_swap_pages;
+ 
+ 		/*
+Index: linux-2.6.15-rc5/mm/nommu.c
+===================================================================
+--- linux-2.6.15-rc5.orig/mm/nommu.c	2005-12-03 21:10:42.000000000 -0800
++++ linux-2.6.15-rc5/mm/nommu.c	2005-12-09 16:28:42.000000000 -0800
+@@ -1114,7 +1114,7 @@ int __vm_enough_memory(long pages, int c
+ 	if (sysctl_overcommit_memory == OVERCOMMIT_GUESS) {
+ 		unsigned long n;
+ 
+-		free = get_page_cache_size();
++		free = global_page_state(NR_PAGECACHE);
+ 		free += nr_swap_pages;
+ 
+ 		/*
+Index: linux-2.6.15-rc5/arch/sparc64/kernel/sys_sunos32.c
+===================================================================
+--- linux-2.6.15-rc5.orig/arch/sparc64/kernel/sys_sunos32.c	2005-12-03 21:10:42.000000000 -0800
++++ linux-2.6.15-rc5/arch/sparc64/kernel/sys_sunos32.c	2005-12-09 16:28:42.000000000 -0800
+@@ -154,7 +154,7 @@ asmlinkage int sunos_brk(u32 baddr)
+ 	 * simple, it hopefully works in most obvious cases.. Easy to
+ 	 * fool it, but this should catch most mistakes.
+ 	 */
+-	freepages = get_page_cache_size();
++	freepages = global_page_state(NR_PAGECACHE);
+ 	freepages >>= 1;
+ 	freepages += nr_free_pages();
+ 	freepages += nr_swap_pages;
+Index: linux-2.6.15-rc5/arch/sparc/kernel/sys_sunos.c
+===================================================================
+--- linux-2.6.15-rc5.orig/arch/sparc/kernel/sys_sunos.c	2005-12-03 21:10:42.000000000 -0800
++++ linux-2.6.15-rc5/arch/sparc/kernel/sys_sunos.c	2005-12-09 16:28:42.000000000 -0800
+@@ -195,7 +195,7 @@ asmlinkage int sunos_brk(unsigned long b
+ 	 * simple, it hopefully works in most obvious cases.. Easy to
+ 	 * fool it, but this should catch most mistakes.
+ 	 */
+-	freepages = get_page_cache_size();
++	freepages = global_page_state(NR_PAGECACHE);
+ 	freepages >>= 1;
+ 	freepages += nr_free_pages();
+ 	freepages += nr_swap_pages;
+Index: linux-2.6.15-rc5/fs/proc/proc_misc.c
+===================================================================
+--- linux-2.6.15-rc5.orig/fs/proc/proc_misc.c	2005-12-09 16:28:37.000000000 -0800
++++ linux-2.6.15-rc5/fs/proc/proc_misc.c	2005-12-09 16:28:42.000000000 -0800
+@@ -142,7 +142,7 @@ static int meminfo_read_proc(char *page,
+ 	allowed = ((totalram_pages - hugetlb_total_pages())
+ 		* sysctl_overcommit_ratio / 100) + total_swap_pages;
+ 
+-	cached = get_page_cache_size() - total_swapcache_pages - i.bufferram;
++	cached = global_page_state(NR_PAGECACHE) - total_swapcache_pages - i.bufferram;
+ 	if (cached < 0)
+ 		cached = 0;
+ 

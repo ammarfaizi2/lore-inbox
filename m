@@ -1,89 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbVLJBee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbVLJBdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbVLJBee (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 20:34:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964798AbVLJBee
+	id S964828AbVLJBdo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 20:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbVLJBdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 20:34:34 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:54423 "HELO
+	Fri, 9 Dec 2005 20:33:44 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:47255 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964797AbVLJBee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 20:34:34 -0500
+	id S964828AbVLJBdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 20:33:44 -0500
 Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
 From: Lee Revell <rlrevell@joe-job.com>
-To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
+To: Xavier Bestel <xavier.bestel@free.fr>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <439A201D.7030103@mnsu.edu>
-References: <1134154208.14363.8.camel@mindpipe>  <439A0746.80208@mnsu.edu>
-	 <1134173138.18432.41.camel@mindpipe>  <439A201D.7030103@mnsu.edu>
-Content-Type: text/plain
-Date: Fri, 09 Dec 2005 20:28:12 -0500
-Message-Id: <1134178093.18432.51.camel@mindpipe>
+In-Reply-To: <1134168222.5270.1.camel@bip.parateam.prv>
+References: <1134154208.14363.8.camel@mindpipe>
+	 <1134168222.5270.1.camel@bip.parateam.prv>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Fri, 09 Dec 2005 20:31:19 -0500
+Message-Id: <1134178279.18432.55.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-09 at 18:23 -0600, Jeffrey Hundstad wrote:
-> Lee Revell wrote:
+On Fri, 2005-12-09 at 23:43 +0100, Xavier Bestel wrote:
+> Le vendredi 09 décembre 2005 à 13:50 -0500, Lee Revell a écrit :
+> > I'm trying to build an x66-64 kernel on a 32 bit system (Ubuntu 5.10).
+> > I added -m64 to the CFLAGS as per the gcc docs. 
 > 
-> >On Fri, 2005-12-09 at 16:37 -0600, Jeffrey Hundstad wrote:
-> >  
-> >
-> >>Lee Revell wrote:
-> >>
-> >>    
-> >>
-> >>>I'm trying to build an x66-64 kernel on a 32 bit system (Ubuntu 5.10).
-> >>>I added -m64 to the CFLAGS as per the gcc docs.  But the build fails
-> >>>with:
-> >>>
-> >>>$ make ARCH=x86_64
-> >>> [...]
-> >>> CC      init/initramfs.o
-> >>>
-> >>>
-> >>>      
-> >>>
-> >>I have successfully done this using Debian/Sid.
-> >>
-> >>    
-> >>
-> >
-> >I added "-m64" to AFLAGS as well and now I get farther:
-> >
-> >  CC      arch/x86_64/ia32/syscall32.o
-> >  AS      arch/x86_64/ia32/vsyscall-sysenter.o
-> >arch/x86_64/ia32/vsyscall-sysenter.S: Assembler messages:
-> >arch/x86_64/ia32/vsyscall-sysenter.S:14: Error: suffix or operands invalid for `push'
-> >arch/x86_64/ia32/vsyscall-sysenter.S:16: Error: suffix or operands invalid for `push'
-> >arch/x86_64/ia32/vsyscall-sysenter.S:18: Error: suffix or operands invalid for `push'
-> >arch/x86_64/ia32/vsyscall-sysenter.S:25: Error: suffix or operands invalid for `pop'
-> >arch/x86_64/ia32/vsyscall-sysenter.S:27: Error: suffix or operands invalid for `pop'
-> >arch/x86_64/ia32/vsyscall-sysenter.S:29: Error: suffix or operands invalid for `pop'
-> >arch/x86_64/ia32/vsyscall-sigreturn.S:16: Error: suffix or operands invalid for `pop'
-> >make[1]: *** [arch/x86_64/ia32/vsyscall-sysenter.o] Error 1
-> >make: *** [arch/x86_64/ia32] Error 2
-> >
-> >Lee
-> >
-> >  
-> >
-> 
-> Yes, some commands NEED the -m64 and and WILL NOT work with -m64.
-> 
-> Really, try my method.  I've done it without all that making a separate 
-> binutils non-sense.
+> Under debian 32bits with 64bits kernel, I just add -m64 somewhere in the
+> main Makefile to rebuild my modules. Didn't try with a whole kernel
+> though.
 
-Your scripts don't help.  I still need to add "-m64" to the CFLAGS and
-AFLAGS to get it to work at all, otherwise gcc is invoked in 32 bit
-mode, and they don't address the problem where some invocations of AS
-need -m64 and some like:
-
-  AS      arch/x86_64/ia32/vsyscall-sysenter.o
-
-need -m32.
+The bug seems to be that the kernel build system does not grok biarch
+toolchains - it really insists on a separate toolchain for i386 and
+x86_64 even though the situation can be handled with selective use of
+-m64.  If I jsut add -m64 to everything then it fails when it gets to
+the ia32 stuff.
 
 Lee
 

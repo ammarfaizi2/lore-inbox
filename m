@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbVLJDjg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbVLJDru@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964905AbVLJDjg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 22:39:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVLJDjg
+	id S964911AbVLJDru (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 22:47:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbVLJDru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 22:39:36 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:20498 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S964905AbVLJDjf
+	Fri, 9 Dec 2005 22:47:50 -0500
+Received: from xproxy.gmail.com ([66.249.82.193]:21776 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964811AbVLJDrt convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 22:39:35 -0500
-Date: Fri, 9 Dec 2005 23:31:22 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Paulo da Silva <psdasilva@esoterica.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: STILL Cannot run linux 2.6.14.3 UML on a x86_64
-Message-ID: <20051210043122.GC14269@ccure.user-mode-linux.org>
-References: <43924B2C.9000300@esoterica.pt> <20051204043205.GA15425@ccure.user-mode-linux.org> <43926CC8.2030902@esoterica.pt> <20051204162732.GA3692@ccure.user-mode-linux.org> <43978E04.7030000@esoterica.pt>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 9 Dec 2005 22:47:49 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=K5AQyDqXnCvf8qNx5u/ma9QMDs4R+l8NFDSkpawj9E5epxD+h/BYSqcMw0O+HV+4LtMcr50iojrC9EGJBdywftX7H16YrWz0j1GpOSuP192Fo+wP0W4hROADf7YydVQW6U+GqAAUPhk7ArPhbDeDAwp8o20VNLNkL6tsyfb1d0Y=
+Message-ID: <c0a09e5c0512091947o4c3d8fd5y10a6b089655d216e@mail.gmail.com>
+Date: Fri, 9 Dec 2005 19:47:48 -0800
+From: Andrew Grover <andy.grover@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [ACPI] Re: RFC: ACPI/scsi/libata integration and hotswap
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, randy_d_dunlap@linux.intel.com,
+       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+In-Reply-To: <439A4422.3030808@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <43978E04.7030000@esoterica.pt>
-User-Agent: Mutt/1.4.2.1i
+References: <20051209114246.GB16945@infradead.org> <43997171.9060105@pobox.com>
+	 <20051209121124.GA25974@srcf.ucam.org> <439975AB.5000902@pobox.com>
+	 <20051209122457.GB26070@srcf.ucam.org> <439A23E8.3080407@pobox.com>
+	 <20051210023426.GA31220@srcf.ucam.org> <439A4070.2000500@pobox.com>
+	 <20051210025004.GB31328@srcf.ucam.org> <439A4422.3030808@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 08, 2005 at 01:36:04AM +0000, Paulo da Silva wrote:
-> Cannot get it running !!!
-> It stops, consuming variable amounts of cpu.
-> The same configuration works perfectly on a 32 bits system.
+On 12/9/05, Jeff Garzik <jgarzik@pobox.com> wrote:
 
-> [42949373.490000] request_module: runaway loop modprobe binfmt-464c
-> [42949373.490000] request_module: runaway loop modprobe binfmt-464c
-> [42949373.490000] request_module: runaway loop modprobe binfmt-464c
-> [42949373.490000] request_module: runaway loop modprobe binfmt-464c
-> [42949373.490000] request_module: runaway loop modprobe binfmt-464c
+> Yes, I do agree with this WRT PATA.  Randy Dunlap's ACPI stuff is
+> particularly interesting for this, though I haven't had time to review
+> it in depth.
+>
+> I'm a bit more reluctant WRT SATA.
 
-You never answered my question about whether this was a 32 or 64 bit
-filesystem.
+(side note: Shaohua's patch added ACPI support to PATA. Randy's was
+the SATA ACPI support.)
 
-				Jeff
+ACPI 3.0 specifically mentions SATA and the control methods that it
+expects the OS to make use of: _SDD and _GTF. This is needed for
+things like HD password unlocking. So, someone needs to be handling
+this whenever the SATA drive is reinitialized, such as on resume. So
+there's gotta be some SATA ACPI code, somewhere. (And if there is,
+then handling the ICH5 ACPI hotplug interrupt seems like maybe
+something it should handle, too.)
+
+I'm sure it's possible to properly abstract things so that
+arch-neutral code can remain ACPI-unaware -- I just wanted to make it
+clear that even if you don't support ICH5 hotplug there are still ACPI
+requirements for SATA.
+
+Regards -- Andy

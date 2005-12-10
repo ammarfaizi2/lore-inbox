@@ -1,60 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbVLJCba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932745AbVLJCe7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbVLJCba (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 21:31:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbVLJCba
+	id S932745AbVLJCe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 21:34:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbVLJCe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 21:31:30 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:43196 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932533AbVLJCb3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 21:31:29 -0500
-Subject: Re: 2.6.14-rt22 (acpi_pm vs tsc vs BIOS)
-From: john stultz <johnstul@us.ibm.com>
-To: Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, cc@ccrma.Stanford.EDU,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1134177671.4811.4.camel@cmn3.stanford.edu>
-References: <1134172105.12624.27.camel@cmn3.stanford.edu>
-	 <1134177671.4811.4.camel@cmn3.stanford.edu>
-Content-Type: text/plain
-Date: Fri, 09 Dec 2005 18:31:26 -0800
-Message-Id: <1134181887.4002.7.camel@leatherman>
+	Fri, 9 Dec 2005 21:34:59 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:46306 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S932710AbVLJCe5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 21:34:57 -0500
+Date: Sat, 10 Dec 2005 02:34:26 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       randy_d_dunlap@linux.intel.com, linux-ide@vger.kernel.org,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
+Message-ID: <20051210023426.GA31220@srcf.ucam.org>
+References: <20051208145257.GB21946@srcf.ucam.org> <20051208171901.GA22451@srcf.ucam.org> <20051209114246.GB16945@infradead.org> <20051209114944.GA1068@havoc.gtf.org> <20051209115235.GB25771@srcf.ucam.org> <43997171.9060105@pobox.com> <20051209121124.GA25974@srcf.ucam.org> <439975AB.5000902@pobox.com> <20051209122457.GB26070@srcf.ucam.org> <439A23E8.3080407@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <439A23E8.3080407@pobox.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-09 at 17:21 -0800, Fernando Lopez-Lezcano wrote:
-> On Fri, 2005-12-09 at 15:48 -0800, Fernando Lopez-Lezcano wrote:
-> > Hi all, I'm running 2.6.14-rt22 and just noticed something strange. I
-> > have not installed it in all machines yet, but in some of them (same
-> > hardware as others that seems to work fine) the TSC was selected as the
-> > main clock for the kernel. Remember this is one of the Athlon X2
-> > machines in which the TCS's drift...
-> > 
-> > dmesg shows this:
-> >   PM-Timer running at invalid rate: 2172% of normal - aborting.
-> > 
-> > and after that the tsc is selected as the timing source.
-> >   Time: tsc clocksource has been installed.
-> > 
-> > The strange thing is that this is the same hardware as on other
-> > machines. 
-> 
-> Aha! Yes but no. The BIOS makes a difference. The first BIOS that has
-> support for the X2 processors on this particular motherboard works fine
-> with regards to the acpi_pm clock source, subsequent ones make linux say
-> things like:
->   PM-Timer running at invalid rate: 2159% of normal - aborting.
-> and then tsc is selected as the clock source...
+On Fri, Dec 09, 2005 at 07:40:08PM -0500, Jeff Garzik wrote:
 
-So you're saying the newer BIOS detects the PM timer as running too fast
-or is it the older ones?
+> ICH6 and ICH7 support it just fine, through the normal SATA PHY 
+> registers.  ICH5 only support it if you are clever :)
 
-thanks
--john
+ICH6 supports it even in non-AHCI mode? You may want to update the 
+website, then :)
 
+> Further, although one can detect hot-unplug on ICH5, hotplug is probably 
+> not detectable without polling or SMI.
 
+ACPI allows us to detect hotplug on ICH5, which sounds like a good 
+argument for its inclusion.
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

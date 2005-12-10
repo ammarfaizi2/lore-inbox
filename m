@@ -1,126 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbVLJIT3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVLJIU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbVLJIT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 03:19:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbVLJIT3
+	id S964965AbVLJIU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 03:20:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbVLJIUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 03:19:29 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:19929 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S964969AbVLJITZ (ORCPT
+	Sat, 10 Dec 2005 03:20:00 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:35033 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S964971AbVLJITr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 03:19:25 -0500
-Date: Sat, 10 Dec 2005 00:19:16 -0800 (PST)
+	Sat, 10 Dec 2005 03:19:47 -0500
+Date: Sat, 10 Dec 2005 00:19:39 -0800 (PST)
 From: Paul Jackson <pj@sgi.com>
 To: akpm@osdl.org
 Cc: Simon Derr <Simon.Derr@bull.net>, Paul Jackson <pj@sgi.com>,
        linux-kernel@vger.kernel.org, Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051210081916.12303.8253.sendpatchset@jackhammer.engr.sgi.com>
+Message-Id: <20051210081939.12303.77511.sendpatchset@jackhammer.engr.sgi.com>
 In-Reply-To: <20051210081843.12303.13344.sendpatchset@jackhammer.engr.sgi.com>
 References: <20051210081843.12303.13344.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH 06/10] Cpuset: implement cpuset_mems_allowed
+Subject: [PATCH 10/10] Cpuset: migrate all tasks in cpuset at once
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Provide a cpuset_mems_allowed() method, which the sys_migrate_pages()
-code needed, to obtain the mems_allowed vector of a cpuset, and
-replaced the workaround in sys_migrate_pages() to call this new
-method.
+Given the mechanism in the previous patch to handle rebinding
+the per-vma mempolicies of all tasks in a cpuset that changes its
+memory placement, it is now easier to handle the page migration
+requirements of such tasks at the same time.
+
+The previous code didn't actually attempt to migrate the pages
+of the tasks in a cpuset whose memory placement changed until
+the next time each such task tried to allocate memory.  This was
+undesirable, as users invoking memory page migration exected
+to happen when the placement changed, not some unspecified time
+later when the task needed more memory.
+
+It is now trivial to handle the page migration at the same time
+as the per-vma rebinding is done.
+
+The routine cpuset.c:update_nodemask(), which handles changing a
+cpusets memory placement ('mems') now checks for the special case
+of being asked to write a placement that is the same as before.
+It was harmless enough before to just recompute everything again,
+even though nothing had changed.  But page migration is a heavy
+weight operation - moving pages about.  So now it is worth
+avoiding that if asked to move a cpuset to its current location.
 
 Signed-off-by: Paul Jackson <pj@sgi.com>
 
 ---
 
- include/linux/cpuset.h |    8 +++++++-
- kernel/cpuset.c        |   29 ++++++++++++++++++++++++++---
- mm/mempolicy.c         |    3 ---
- 3 files changed, 33 insertions(+), 7 deletions(-)
+ kernel/cpuset.c |   29 ++++++++++++++++-------------
+ 1 files changed, 16 insertions(+), 13 deletions(-)
 
---- 2.6.15-rc3-mm1.orig/include/linux/cpuset.h	2005-12-07 23:34:04.173695910 -0800
-+++ 2.6.15-rc3-mm1/include/linux/cpuset.h	2005-12-07 23:36:26.159621364 -0800
-@@ -18,7 +18,8 @@ extern int cpuset_init(void);
- extern void cpuset_init_smp(void);
- extern void cpuset_fork(struct task_struct *p);
- extern void cpuset_exit(struct task_struct *p);
--extern cpumask_t cpuset_cpus_allowed(const struct task_struct *p);
-+extern cpumask_t cpuset_cpus_allowed(struct task_struct *p);
-+extern nodemask_t cpuset_mems_allowed(struct task_struct *p);
- void cpuset_init_current_mems_allowed(void);
- void cpuset_update_task_memory_state(void);
- #define cpuset_nodes_subset_current_mems_allowed(nodes) \
-@@ -50,6 +51,11 @@ static inline cpumask_t cpuset_cpus_allo
- 	return cpu_possible_map;
- }
+--- 2.6.15-rc3-mm1.orig/kernel/cpuset.c	2005-12-09 05:08:00.834840778 -0800
++++ 2.6.15-rc3-mm1/kernel/cpuset.c	2005-12-09 05:09:55.573472784 -0800
+@@ -639,25 +639,14 @@ void cpuset_update_task_memory_state()
+ 	task_unlock(tsk);
  
-+static inline nodemask_t cpuset_mems_allowed(struct task_struct *p)
-+{
-+	return node_possible_map;
-+}
-+
- static inline void cpuset_init_current_mems_allowed(void) {}
- static inline void cpuset_update_task_memory_state(void) {}
- #define cpuset_nodes_subset_current_mems_allowed(nodes) (1)
---- 2.6.15-rc3-mm1.orig/kernel/cpuset.c	2005-12-07 23:35:54.229585036 -0800
-+++ 2.6.15-rc3-mm1/kernel/cpuset.c	2005-12-07 23:36:26.164504230 -0800
-@@ -1871,14 +1871,14 @@ void cpuset_exit(struct task_struct *tsk
-  * tasks cpuset.
-  **/
- 
--cpumask_t cpuset_cpus_allowed(const struct task_struct *tsk)
-+cpumask_t cpuset_cpus_allowed(struct task_struct *tsk)
- {
- 	cpumask_t mask;
- 
- 	down(&callback_sem);
--	task_lock((struct task_struct *)tsk);
-+	task_lock(tsk);
- 	guarantee_online_cpus(tsk->cpuset, &mask);
--	task_unlock((struct task_struct *)tsk);
-+	task_unlock(tsk);
- 	up(&callback_sem);
- 
- 	return mask;
-@@ -1890,6 +1890,29 @@ void cpuset_init_current_mems_allowed(vo
- }
- 
- /**
-+ * cpuset_mems_allowed - return mems_allowed mask from a tasks cpuset.
-+ * @tsk: pointer to task_struct from which to obtain cpuset->mems_allowed.
-+ *
-+ * Description: Returns the nodemask_t mems_allowed of the cpuset
-+ * attached to the specified @tsk.  Guaranteed to return some non-empty
-+ * subset of node_online_map, even if this means going outside the
-+ * tasks cpuset.
-+ **/
-+
-+nodemask_t cpuset_mems_allowed(struct task_struct *tsk)
-+{
-+	nodemask_t mask;
-+
-+	down(&callback_sem);
-+	task_lock(tsk);
-+	guarantee_online_mems(tsk->cpuset, &mask);
-+	task_unlock(tsk);
-+	up(&callback_sem);
-+
-+	return mask;
-+}
-+
-+/**
-  * cpuset_zonelist_valid_mems_allowed - check zonelist vs. curremt mems_allowed
-  * @zl: the zonelist to be checked
-  *
---- 2.6.15-rc3-mm1.orig/mm/mempolicy.c	2005-12-07 23:34:04.182485069 -0800
-+++ 2.6.15-rc3-mm1/mm/mempolicy.c	2005-12-07 23:36:26.168410523 -0800
-@@ -774,9 +774,6 @@ asmlinkage long sys_set_mempolicy(int mo
- 	return do_set_mempolicy(mode, &nodes);
- }
- 
--/* Macro needed until Paul implements this function in kernel/cpusets.c */
--#define cpuset_mems_allowed(task) node_online_map
+ 	if (my_cpusets_mem_gen != tsk->cpuset_mems_generation) {
+-		nodemask_t oldmem = tsk->mems_allowed;
+-		int migrate;
 -
- asmlinkage long sys_migrate_pages(pid_t pid, unsigned long maxnode,
- 		const unsigned long __user *old_nodes,
- 		const unsigned long __user *new_nodes)
+ 		down(&callback_sem);
+ 		task_lock(tsk);
+ 		cs = tsk->cpuset;	/* Maybe changed when task not locked */
+-		migrate = is_memory_migrate(cs);
+ 		guarantee_online_mems(cs, &tsk->mems_allowed);
+ 		tsk->cpuset_mems_generation = cs->mems_generation;
+ 		task_unlock(tsk);
+ 		up(&callback_sem);
+ 		mpol_rebind_task(tsk, &tsk->mems_allowed);
+-		if (!nodes_equal(oldmem, tsk->mems_allowed)) {
+-			if (migrate) {
+-				do_migrate_pages(tsk->mm, &oldmem,
+-					&tsk->mems_allowed,
+-					MPOL_MF_MOVE_ALL);
+-			}
+-		}
+ 	}
+ }
+ 
+@@ -815,7 +804,9 @@ static int update_cpumask(struct cpuset 
+  * Handle user request to change the 'mems' memory placement
+  * of a cpuset.  Needs to validate the request, update the
+  * cpusets mems_allowed and mems_generation, and for each
+- * task in the cpuset, rebind any vma mempolicies.
++ * task in the cpuset, rebind any vma mempolicies and if
++ * the cpuset is marked 'memory_migrate', migrate the tasks
++ * pages to the new memory.
+  *
+  * Call with manage_sem held.  May take callback_sem during call.
+  * Will take tasklist_lock, scan tasklist for tasks in cpuset cs,
+@@ -826,9 +817,11 @@ static int update_cpumask(struct cpuset 
+ static int update_nodemask(struct cpuset *cs, char *buf)
+ {
+ 	struct cpuset trialcs;
++	nodemask_t oldmem;
+ 	struct task_struct *g, *p;
+ 	struct mm_struct **mmarray;
+ 	int i, n, ntasks;
++	int migrate;
+ 	int fudge;
+ 	int retval;
+ 
+@@ -837,6 +830,11 @@ static int update_nodemask(struct cpuset
+ 	if (retval < 0)
+ 		goto done;
+ 	nodes_and(trialcs.mems_allowed, trialcs.mems_allowed, node_online_map);
++	oldmem = cs->mems_allowed;
++	if (nodes_equal(oldmem, trialcs.mems_allowed)) {
++		retval = 0;		/* Too easy - nothing to do */
++		goto done;
++	}
+ 	if (nodes_empty(trialcs.mems_allowed)) {
+ 		retval = -ENOSPC;
+ 		goto done;
+@@ -912,12 +910,17 @@ static int update_nodemask(struct cpuset
+ 	 * cpuset manage_sem, we know that no other rebind effort will
+ 	 * be contending for the global variable cpuset_being_rebound.
+ 	 * It's ok if we rebind the same mm twice; mpol_rebind_mm()
+-	 * is idempotent.
++	 * is idempotent.  Also migrate pages in each mm to new nodes.
+ 	 */
++	migrate = is_memory_migrate(cs);
+ 	for (i = 0; i < n; i++) {
+ 		struct mm_struct *mm = mmarray[i];
+ 
+ 		mpol_rebind_mm(mm, &cs->mems_allowed);
++		if (migrate) {
++			do_migrate_pages(mm, &oldmem, &cs->mems_allowed,
++							MPOL_MF_MOVE_ALL);
++		}
+ 		mmput(mm);
+ 	}
+ 
 
 -- 
                           I won't rest till it's the best ...

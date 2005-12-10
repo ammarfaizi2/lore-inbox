@@ -1,91 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751285AbVLJCCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbVLJCQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751285AbVLJCCk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 21:02:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVLJCCk
+	id S1751301AbVLJCQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 21:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVLJCQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 21:02:40 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:51927 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751232AbVLJCCj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 21:02:39 -0500
-Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <439A201D.7030103@mnsu.edu>
-References: <1134154208.14363.8.camel@mindpipe>  <439A0746.80208@mnsu.edu>
-	 <1134173138.18432.41.camel@mindpipe>  <439A201D.7030103@mnsu.edu>
-Content-Type: text/plain
-Date: Fri, 09 Dec 2005 20:50:10 -0500
-Message-Id: <1134179410.18432.66.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Fri, 9 Dec 2005 21:16:56 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:33761
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751301AbVLJCQz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 21:16:55 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Date: Fri, 9 Dec 2005 20:16:42 -0600
+User-Agent: KMail/1.8
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20051203152339.GK31395@stusta.de> <20051204232205.GF8914@kroah.com> <4395A72E.6030006@tmr.com>
+In-Reply-To: <4395A72E.6030006@tmr.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512092016.42825.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-09 at 18:23 -0600, Jeffrey Hundstad wrote:
-> Lee Revell wrote:
-> 
-> >On Fri, 2005-12-09 at 16:37 -0600, Jeffrey Hundstad wrote:
-> >  
+On Tuesday 06 December 2005 08:58, Bill Davidsen wrote:
+> Greg KH wrote:
+> > On Sun, Dec 04, 2005 at 04:46:31AM +0000, Luke-Jr wrote:
+> >>Well, devfs does have some abilities udev doesn't: hotplug/udev
+> >>doesn't detect everything, and can result in rarer or non-PnP devices
+> >>not being automatically available;
 > >
-> >>Lee Revell wrote:
-> >>
-> >>    
-> >>
-> >>>I'm trying to build an x66-64 kernel on a 32 bit system (Ubuntu 5.10).
-> >>>I added -m64 to the CFLAGS as per the gcc docs.  But the build fails
-> >>>with:
-> >>>
-> >>>$ make ARCH=x86_64
-> >>> [...]
-> >>> CC      init/initramfs.o
-> >>>
-> >>>
-> >>>      
-> >>>
-> >>I have successfully done this using Debian/Sid.
-> >>
-> >>    
-> >>
+> > Are you sure about that today?  And udev wasn't created to do everything
+> > that devfs does.  And devfs can't do everything that udev can (by
+> > far...)
 > >
-> >I added "-m64" to AFLAGS as well and now I get farther:
+> >>devfs has the effect of trying to load a module when a program looks
+> >>for the devices it provides-- while it can cause problems, it does
+> >>have a possibility to work better.
 > >
-> >  CC      arch/x86_64/ia32/syscall32.o
-> >  AS      arch/x86_64/ia32/vsyscall-sysenter.o
-> >arch/x86_64/ia32/vsyscall-sysenter.S: Assembler messages:
-> >arch/x86_64/ia32/vsyscall-sysenter.S:14: Error: suffix or operands invalid for `push'
-> >arch/x86_64/ia32/vsyscall-sysenter.S:16: Error: suffix or operands invalid for `push'
-> >arch/x86_64/ia32/vsyscall-sysenter.S:18: Error: suffix or operands invalid for `push'
-> >arch/x86_64/ia32/vsyscall-sysenter.S:25: Error: suffix or operands invalid for `pop'
-> >arch/x86_64/ia32/vsyscall-sysenter.S:27: Error: suffix or operands invalid for `pop'
-> >arch/x86_64/ia32/vsyscall-sysenter.S:29: Error: suffix or operands invalid for `pop'
-> >arch/x86_64/ia32/vsyscall-sigreturn.S:16: Error: suffix or operands invalid for `pop'
-> >make[1]: *** [arch/x86_64/ia32/vsyscall-sysenter.o] Error 1
-> >make: *** [arch/x86_64/ia32] Error 2
+> > Sorry, but that model of loading modules is very broken and it is good
+> > that we don't do that anymore (as you allude to.)
 > >
-> >Lee
+> >>Interesting effects of switching my desktop from devfs to udev:
+> >>1. my DVD burners are left uninitialized until I manually modprobe ide-cd
+> >> or (more recently) ide-scsi
 > >
-> >  
+> > Sounds like a broken distro configuration :)
 > >
-> 
-> Yes, some commands NEED the -m64 and and WILL NOT work with -m64.
-> 
+> >>2. my sound card is autodetected and the drivers loaded, but the OSS
+> >> emulation modules are omitted; with devfs, they would be autoloaded when
+> >> an app tried to use OSS
+> >
+> > Again, broken distro configuration :)
+>
+> If a new udev config is needed with every new kernel, why isn't it in
+> the kernel tarball?
 
-Aha!  I disabled CONFIG_IA32_EMULATION and it works perfectly.
+Why isn't inittab in the kernel tarball?
 
-So all that's needed to build an x86_64 kernel with the i386 Ubuntu 5.10
-toolchain:
+I have a shell script that initializes /dev.  (I've posted it here a few 
+times, somebody ported it to C, and a micro-udev replacement will go into 
+busybox in 1.2.)
 
- - edit Makefile: add -m64 to CFLAGS and AFLAGS
- - disable CONFIG_IA32_EMULATION
- - make ARCH=x86_64
+Why isn't there a command shell in the kernel tarball?  Kinda hard to use your 
+system without a shell...
 
-Lee
+As far as I can tell, what broke with udev was their embedded version of 
+"libsysfs", which is an abstraction layer I've _never_ understood the point 
+of.  (Because opening single value files in /sys is just too hard.  Nobody 
+needed a "libproc", the parsing of which is actual work, but they felt a need 
+a libsysfs.  Uh-huh...)
 
-
-
-
-
+Rob
+-- 
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.

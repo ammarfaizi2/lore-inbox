@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbVLISad@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbVLISbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964864AbVLISad (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 13:30:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbVLISac
+	id S964867AbVLISbk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 13:31:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbVLISbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 13:30:32 -0500
-Received: from mx1.suse.de ([195.135.220.2]:60365 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964867AbVLISac (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 13:30:32 -0500
-Message-ID: <4399CD28.9080000@suse.de>
-Date: Fri, 09 Dec 2005 19:30:00 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050715 Thunderbird/1.0.6 Mnenhy/0.7.2.0
+	Fri, 9 Dec 2005 13:31:40 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:62192 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S964867AbVLISbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 13:31:39 -0500
+Message-ID: <439A3047.7080505@acm.org>
+Date: Fri, 09 Dec 2005 19:32:55 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH][mm] swsusp: limit image size
-References: <200512072246.06222.rjw@sisk.pl> <4399A737.40809@suse.de> <200512091804.22397.rjw@sisk.pl>
-In-Reply-To: <200512091804.22397.rjw@sisk.pl>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+To: Matt Domsch <Matt_Domsch@dell.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6] ipmi: panic generator ID
+References: <20051209180305.GB29231@lists.us.dell.com>
+In-Reply-To: <20051209180305.GB29231@lists.us.dell.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote:
-> On Friday, 9 December 2005 16:48, Stefan Seyfried wrote:
+Yes, this is correct, I can't shift bits :).
+
+Thanks, Jordon and Matt.
+
+-Corey
+
+Matt Domsch wrote:
+
+>The IPMI specifcation says the generator ID is 0x20, but that is for
+>bits 7-1.  Bit 0 is set to specify it is a software event.  The
+>correct value is 0x41.  Without this fix, panic events written into
+>the System Event Log appear to come from an "unknown" generator,
+>rather than from the kernel.
 >
->> What happens if IMAGE_SIZE is bigger than free swap? Do we "try harder"
->> or do we fail?
-> 
-> First, with swsusp the image can't be bigger than 1/2 of lowmem (1/2 of RAM
-> on x86-64) and the too great values of IMAGE_SIZE have no effect.  Still, if
-> the amount of free swap is smaller than 1/2 of RAM and the image happens
-> to be bigger, we will fail.
+>Signed-off-by: Jordan Hargrave <Jordan_Hargrave@dell.com>
+>Signed-off-by: Matt Domsch <Matt_Domsch@dell.com>
+>Ack'd-by: Corey Minyard <minyard@acm.org>
+>
+>
+>  
+>
 
-ok. This is not nice since we might fail without any _real_ need. Can we
-make this parameter userspace-tweakable, so that my userspace app can do
-something like (pseudocode):
-
-    echo 500 > /sys/power/swsusp/imagesize
-    echo disk > /sys/power/state
-    R=$?
-    if [ $R -eq $ENOMEM ]; then
-        echo 100 > /sys/power/swsusp/imagesize # try again
-        echo disk > /sys/power/state
-        R=$?
-    fi
-    if [ $R -ne 0 ]; then
-        pop_up_some_loud_beeping_window "suspend failed!"
-    fi
-
-This would at least give us a chance for a second try. I know that Pavel
-dislikes userspace tunables, but i dislike failing suspends ;-)
-
-Best regards,
-
-    Stefan
--- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen

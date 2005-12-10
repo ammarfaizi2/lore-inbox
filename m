@@ -1,91 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161018AbVLJUEw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161058AbVLJUFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161018AbVLJUEw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 15:04:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161058AbVLJUEw
+	id S1161058AbVLJUFa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 15:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161063AbVLJUFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 15:04:52 -0500
-Received: from bayc1-pasmtp01.bayc1.hotmail.com ([65.54.191.161]:48550 "EHLO
-	BAYC1-PASMTP01.bayc1.hotmail.com") by vger.kernel.org with ESMTP
-	id S1161018AbVLJUEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 15:04:51 -0500
-Message-ID: <BAYC1-PASMTP014F0E17FF544F4D6C309FAE440@CEZ.ICE>
-X-Originating-IP: [69.156.6.171]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Message-ID: <39068.10.10.10.28.1134245083.squirrel@linux1>
-In-Reply-To: <439A7E8E.8010707@wolfmountaingroup.com>
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>    
-        <20051206040820.GB26602@kroah.com>        
-    <2cd57c900512052358m5b631204i@mail.gmail.com>        
-    <200512061856.42493.luke-jr@utopios.org>
-    <2cd57c900512061742s28f57b5eu@mail.gmail.com>
-    <20051210051628.E9E08CF4156@tsurukikun.utopios.org>
-    <439A7E8E.8010707@wolfmountaingroup.com>
-Date: Sat, 10 Dec 2005 15:04:43 -0500 (EST)
-Subject: [way OT] Re: GNU/Linux in a binary world... a doomsday scenario
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: "Coywolf Qi Hunt" <coywolf@gmail.com>, luke-jr@utopios.org,
-       linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4-2
+	Sat, 10 Dec 2005 15:05:30 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:37841 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1161058AbVLJUF3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 15:05:29 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [RFC/RFT] swsusp: image size tunable (was: Re: [PATCH][mm] swsusp: limit image size)
+Date: Sat, 10 Dec 2005 21:06:41 +0100
+User-Agent: KMail/1.9
+Cc: Stefan Seyfried <seife@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       Andy Isaacson <adi@hexapodia.org>
+References: <200512072246.06222.rjw@sisk.pl> <200512101421.57918.rjw@sisk.pl> <20051210160641.GB5047@elf.ucw.cz>
+In-Reply-To: <20051210160641.GB5047@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 10 Dec 2005 20:04:45.0066 (UTC) FILETIME=[F7147EA0:01C5FDC4]
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512102106.41952.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, December 10, 2005 2:06 am, Jeff V. Merkey said:
+Hi,
 
-> "constructive" is a for profit model that sustains the hi tech industry.
-> The current
+On Saturday, 10 December 2005 17:06, Pavel Machek wrote:
+> > > The tunable may be useful to people who'd like to achieve the
+> > > maximum efficiency of suspend/resume and it would be a nice
+> > > feature to have, I think, but let's say we'll try to implement it
+> > > in the future, if still needed/wanted.
+> > 
+> > Actually the tunable turned out to be quite easy to implement and I think
+> > I'll need it for userspace swsusp (the suspend-handling userspace
+> > process will need to tell the kernel how much space there is for the
+> > image).
+> 
+> Looks mostly okay to me, small comments below.
+> 
+> > Index: linux-2.6.15-rc5-mm1/kernel/power/disk.c
+> > ===================================================================
+> > --- linux-2.6.15-rc5-mm1.orig/kernel/power/disk.c	2005-12-10 13:12:18.000000000 +0100
+> > +++ linux-2.6.15-rc5-mm1/kernel/power/disk.c	2005-12-10 13:20:38.000000000 +0100
+> > @@ -367,9 +367,34 @@
+> >  
+> >  power_attr(resume);
+> >  
+> > +static ssize_t image_size_show(struct subsystem * subsys, char *buf)
+> > +{
+> > +	return sprintf(buf, "%u\n", image_size);
+> > +}
+> > +
+> > +static ssize_t image_size_store(struct subsystem * subsys, const char * buf, size_t n)
+> > +{
+> > +	int len;
+> > +	char *p;
+> > +	unsigned int size;
+> > +
+> > +	p = memchr(buf, '\n', n);
+> > +	len = p ? p - buf : n;
+> 
+> len and p are unused.
 
-There are for-profit models of selling GPL software.  Anyway, billions of
-dollars are still spent every year on software.
+Right.  BTW, the same applies to resume_store().
 
-> models have created a conduit for socialist disintegration of the
-> american hi tech markets, loss of jobs, and have funnelled technology out
+> 
+> > +	if (sscanf(buf, "%u", &size) == 1) {
+> > +		image_size = size < MAX_IMAGE_SIZE ? size : MAX_IMAGE_SIZE;
+> > +		return n;
+> 
+> Why the limit? We may want to allow very big images when someone wants
+> "as similar to suspended system as possible".
 
-You should look at the dwindling manufacturing sector in America and
-notice that the same thing is happening there without any GPL to blame.
+It's not really necessary.  I'll remove it.
 
-> of the country.  Legal defense funds should be the biggest red flags of
-> all.  If this system you devised really works, why all the litigation?
-> Why all the need for legal defense funds and patent infringement
+> 
+> > Index: linux-2.6.15-rc5-mm1/kernel/power/power.h
+> > ===================================================================
+> > --- linux-2.6.15-rc5-mm1.orig/kernel/power/power.h	2005-12-10 13:12:18.000000000 +0100
+> > +++ linux-2.6.15-rc5-mm1/kernel/power/power.h	2005-12-10 13:20:46.000000000 +0100
+> > @@ -53,10 +53,12 @@
+> >  extern struct pbe *pagedir_nosave;
+> >  
+> >  /*
+> > - * Preferred image size in MB (set it to zero to get the smallest
+> > + * Maximum image size in MB (set it to zero to get the smallest
+> >   * image possible)
+> >   */
+> 
+> In fact this is not maximum. If more than 500MB can't be freed, well,
+> it will not be freed. Very improbable, but possible.
+> 
+> > -#define IMAGE_SIZE	500
+> > +#define MAX_IMAGE_SIZE	500
+> > +
+> 
+> With runtime configuration, we should not need additional
+> compile-time config. OTOH /proc tunables should have descritption in
+> Documentation/.
 
-This is just utter nonsense; most litigation in the software industry
-occurs between closed source vendors.
+This only is an experimental version.  I'll write the description for the
+final one.
 
-> insurance?   I've watched the entire market slowly collapse over the
-> years as the result of the affect of the GPL on America's hi tech
-> markets.
-
-By which measure has the market collapsed?  Whatever you mean, my guess is
-that you're overestimating the role of the GPL.  More likely, you're just
-misinterpreting globalization and the natural transition of the sector
-into more of a commodity market.
-
-> It isn't working, and it isn't sustainable.  non-profit and "temples" of
-> GPL "religion" have evolved, with the leaders living in orgnaizations
-
-Hah!  By your definition of the word, American capitalism is just another
-"religion".
-
-> that subsist from handouts and donations.   This movement has spawned a
-> global attitude that has no respect for IP rights, and it's extended
-
-This movement has spawned a global attitude supporting greater consumer
-rights.  Overall, its been a very positive and healthy force.
-
-> itself to no respect for human rights, or any other rights of the
-> indivdual.    That's the legacy this has left and the ultimate
-> conclusion.
-
-Oh please, how exactly does GPL software undermine human rights?
-
-Cheers,
-Sean
+Rafael
 
 
+-- 
+Beer is proof that God loves us and wants us to be happy - Benjamin Franklin

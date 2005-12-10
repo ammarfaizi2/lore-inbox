@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964958AbVLJHc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932761AbVLJHng@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964958AbVLJHc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 02:32:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbVLJHc6
+	id S932761AbVLJHng (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 02:43:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932769AbVLJHng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 02:32:58 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:139 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S964958AbVLJHc5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 02:32:57 -0500
-Message-ID: <439A7E8E.8010707@wolfmountaingroup.com>
-Date: Sat, 10 Dec 2005 00:06:54 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: rms@gnu.org
-Cc: Coywolf Qi Hunt <coywolf@gmail.com>, luke-jr@utopios.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: GNU/Linux in a binary world... a doomsday scenario
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>         <20051206040820.GB26602@kroah.com>         <2cd57c900512052358m5b631204i@mail.gmail.com>         <200512061856.42493.luke-jr@utopios.org> <2cd57c900512061742s28f57b5eu@mail.gmail.com> <20051210051628.E9E08CF4156@tsurukikun.utopios.org>
-In-Reply-To: <20051210051628.E9E08CF4156@tsurukikun.utopios.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Sat, 10 Dec 2005 02:43:36 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:28056 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932761AbVLJHng (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 02:43:36 -0500
+Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051210071935.GQ11190@wotan.suse.de>
+References: <1134154208.14363.8.camel@mindpipe> <439A0746.80208@mnsu.edu>
+	 <1134173138.18432.41.camel@mindpipe> <439A201D.7030103@mnsu.edu>
+	 <1134179410.18432.66.camel@mindpipe> <p73oe3ppbxj.fsf@verdi.suse.de>
+	 <1134191524.18432.82.camel@mindpipe> <20051210071935.GQ11190@wotan.suse.de>
+Content-Type: text/plain
+Date: Sat, 10 Dec 2005 02:43:18 -0500
+Message-Id: <1134200599.18432.86.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard M. Stallman wrote:
+On Sat, 2005-12-10 at 08:19 +0100, Andi Kleen wrote:
+> On Sat, Dec 10, 2005 at 12:12:03AM -0500, Lee Revell wrote:
+> > On Sat, 2005-12-10 at 01:56 -0700, Andi Kleen wrote:
+> > > Lee Revell <rlrevell@joe-job.com> writes:
+> > > >  - disable CONFIG_IA32_EMULATION
+> > > 
+> > > I just tried it here. Adding -m64 to CFLAGS/AFLAGS on a native
+> > > 64bit biarch toolchain and it compiled without problems. It ends
+> > > up with -m64 -m32 for the 32bit vsyscall files, but that seems
+> > > to DTRT at least in gcc 4.
+> > 
+> > Nope, passing -m64 -m32 does not seem to DTRT on native 32bit biarch
+> > toolchain:
+> 
+> How about this patch? 
 
->    > No proprietary software here, excluding things such as firmware/BIOS where
->    > there is no choice.
->
->    Why 'excluding'? You can't deny you are using proprietary software.
->    Neither do us.
->
->The FSF chose, for its newest server, a machine that supports a
->free BIOS.  You can make such choices too.
->
->We are also trying to help the work to support free BIOS on a laptop
->so that my next laptop can run a free BIOS.  There are surely ways you
->can help, too, if you want to be constructive.
->  
->
-"constructive" is a for profit model that sustains the hi tech 
-industry.    The current
-models have created a conduit for socialist disintegration of the 
-american hi tech
-markets, loss of jobs, and have funnelled technology out of the 
-country.  Legal
-defense funds should be the biggest red flags of all.  If this system 
-you devised really
-works, why all the litigation?  Why all the need for legal defense funds 
-and patent
-infringement insurance?   I've watched the entire market slowly collapse 
-over the years
-as the result of the affect of the GPL on America's hi tech markets. 
+Yes, works great.
 
-It isn't working, and it isn't sustainable.  non-profit and "temples" of 
-GPL "religion"
-have evolved, with the leaders living in orgnaizations that subsist from 
-handouts and
-donations.   This movement has spawned a global attitude that has no 
-respect
-for IP rights, and it's extended itself to no respect for human rights, 
-or any other rights
-of the indivdual.    That's the legacy this has left and the ultimate 
-conclusion.
+Lee
 
-My 2 cents.
-
-J

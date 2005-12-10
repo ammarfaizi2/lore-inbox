@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161022AbVLJSo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161026AbVLJSwF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161022AbVLJSo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 13:44:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161026AbVLJSo2
+	id S1161026AbVLJSwF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 13:52:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbVLJSwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 13:44:28 -0500
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:18053 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S1161022AbVLJSo2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 13:44:28 -0500
-Message-ID: <439B2232.9010906@t-online.de>
-Date: Sat, 10 Dec 2005 19:45:06 +0100
-From: Knut Petersen <Knut_Petersen@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.7) Gecko/20050414
-X-Accept-Language: de, en
+	Sat, 10 Dec 2005 13:52:04 -0500
+Received: from mxfep01.bredband.com ([195.54.107.70]:24012 "EHLO
+	mxfep01.bredband.com") by vger.kernel.org with ESMTP
+	id S1161012AbVLJSwD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 13:52:03 -0500
+Message-ID: <439B23C8.3020609@stesmi.com>
+Date: Sat, 10 Dec 2005 19:51:52 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Antonino A. Daplas" <adaplas@gmail.com>,
-       linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/1] Constant spelling
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+CC: Al Boldi <a1426z@gawab.com>, netdev@vger.kernel.org,
+       linux-net@vger.kernel.org, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] ip / ifconfig redesign
+References: <200512022253.19029.a1426z@gawab.com> <Pine.LNX.4.61.0512021527090.11277@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0512021527090.11277@chaos.analogic.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-ID: GzwfPEZroedwj2tSs60WnEbNj7ZRWepa-wTslSs6tRypfHEIBc8hYJ@t-dialin.net
-X-TOI-MSGID: 0ebe1370-5b5f-4aae-b73b-e6f409f88504
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Obviously constants should be spelled correctly.
-Follow-up to fbdev-fixing-switch-to-kd_text-enhanced-version.patch
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Hi.
 
-Signed-off-by: Knut Petersen <Knut_Petersen@t-online.de>
+>>And there may be many other benefits... (i.e. 100% OSI compliance)
+>>
+> 
+> What does Open Source Initiative have to do with this at all???
+> You are just spewing stuff out.
 
+*cough*
 
-diff -uprN -X linux/Documentation/dontdiff -x '*.bak' -x '*.ctx' linuxorig/drivers/video/console/fbcon.c linuxtmp/drivers/video/console/fbcon.c
---- linuxorig/drivers/video/console/fbcon.c	2005-12-10 19:36:49.000000000 +0100
-+++ linuxtmp/drivers/video/console/fbcon.c	2005-12-10 19:36:40.000000000 +0100
-@@ -2104,7 +2104,7 @@ static int fbcon_switch(struct vc_data *
-  	ops->var = info->var;
+http://www.webopedia.com/quick_ref/OSI_Layers.asp
 
-  	if (old_info != NULL && (old_info != info ||
--				 info->flags & FBINFO_MISC_ALLWAYS_SETPAR)) {
-+				 info->flags & FBINFO_MISC_ALWAYS_SETPAR)) {
-  		if (info->fbops->fb_set_par)
-  			info->fbops->fb_set_par(info);
-  		fbcon_del_cursor_timer(old_info);
-diff -uprN -X linux/Documentation/dontdiff -x '*.bak' -x '*.ctx' linuxorig/include/linux/fb.h linuxtmp/include/linux/fb.h
---- linuxorig/include/linux/fb.h	2005-12-10 19:36:49.000000000 +0100
-+++ linuxtmp/include/linux/fb.h	2005-12-10 19:36:42.000000000 +0100
-@@ -735,7 +735,7 @@ struct fb_tile_ops {
-   * code whenever there is a bug report related to switching between X and the
-   * framebuffer console.
-   */
--#define FBINFO_MISC_ALLWAYS_SETPAR   0x40000
-+#define FBINFO_MISC_ALWAYS_SETPAR   0x40000
+He's talking about the OSI layers and not anything else.
 
+Ie networking ...
 
-  struct fb_info {
+// Stefan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
+iD8DBQFDmyPIBrn2kJu9P78RAoo1AJ4vmiwaNNXjbYhOTYBTzGzeaaT8rQCdFywX
+rAaJ9HFR11fpG0fk91ezFl8=
+=qCfq
+-----END PGP SIGNATURE-----

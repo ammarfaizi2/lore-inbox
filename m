@@ -1,62 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbVLJDLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964904AbVLJD0r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbVLJDLK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 22:11:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbVLJDLK
+	id S964904AbVLJD0r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 22:26:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbVLJD0r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 22:11:10 -0500
-Received: from smtp2.Stanford.EDU ([171.67.16.125]:44489 "EHLO
-	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP id S964891AbVLJDLI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 22:11:08 -0500
-Date: Fri, 9 Dec 2005 19:10:39 -0800 (PST)
-From: Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-X-X-Sender: nando@cmn37.stanford.edu
-To: john stultz <johnstul@us.ibm.com>
-cc: linux-kernel@vger.kernel.org, <cc@ccrma.Stanford.EDU>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: 2.6.14-rt22 (acpi_pm vs tsc vs BIOS)
-In-Reply-To: <1134181887.4002.7.camel@leatherman>
-Message-ID: <Pine.LNX.4.44.0512091907220.11220-100000@cmn37.stanford.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 9 Dec 2005 22:26:47 -0500
+Received: from cantor.suse.de ([195.135.220.2]:24215 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964904AbVLJD0q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 22:26:46 -0500
+Date: Sat, 10 Dec 2005 04:26:44 +0100
+From: Andi Kleen <ak@suse.de>
+To: Keith Mannthey <kmannth@gmail.com>
+Cc: Andi Kleen <ak@muc.de>, Matt Tolentino <metolent@cs.vt.edu>, akpm@osdl.org,
+       discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       matthew.e.tolentino@intel.com
+Subject: Re: [discuss] Re: [patch 3/3] add x86-64 support for memory hot-add
+Message-ID: <20051210032644.GJ15804@wotan.suse.de>
+References: <200512091523.jB9FNn5J006697@ap1.cs.vt.edu> <20051209173249.GA54033@muc.de> <a762e240512091616l62f1c69andeec382d7356ba64@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a762e240512091616l62f1c69andeec382d7356ba64@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Dec 2005, john stultz wrote:
-> On Fri, 2005-12-09 at 17:21 -0800, Fernando Lopez-Lezcano wrote:
-> > On Fri, 2005-12-09 at 15:48 -0800, Fernando Lopez-Lezcano wrote:
-> > > Hi all, I'm running 2.6.14-rt22 and just noticed something strange. I
-> > > have not installed it in all machines yet, but in some of them (same
-> > > hardware as others that seems to work fine) the TSC was selected as the
-> > > main clock for the kernel. Remember this is one of the Athlon X2
-> > > machines in which the TCS's drift...
-> > > 
-> > > dmesg shows this:
-> > >   PM-Timer running at invalid rate: 2172% of normal - aborting.
-> > > 
-> > > and after that the tsc is selected as the timing source.
-> > >   Time: tsc clocksource has been installed.
-> > > 
-> > > The strange thing is that this is the same hardware as on other
-> > > machines. 
-> > 
-> > Aha! Yes but no. The BIOS makes a difference. The first BIOS that has
-> > support for the X2 processors on this particular motherboard works fine
-> > with regards to the acpi_pm clock source, subsequent ones make linux say
-> > things like:
-> >   PM-Timer running at invalid rate: 2159% of normal - aborting.
-> > and then tsc is selected as the clock source...
+On Fri, Dec 09, 2005 at 04:16:41PM -0800, Keith Mannthey wrote:
+> > These should be all __cpuinit.
+> >
+> > In general SRAT has a hotplug memory bit so it's possible
+> > to predict how much memory there will be in advance. Since
+> > the overhead of the kernel page tables should be very
+> > low I would prefer if you just used instead.
 > 
-> So you're saying the newer BIOS detects the PM timer as running too fast
-> or is it the older ones?
+> How much overhead would there be?
 
-Yes, newer ones are apparently broken. This is a GA-K8NS Ultra-939
-(NForce3), acpi_pm is recognized with BIOS F7, gives an error with F8 or
-F9...
+It's 2MB pages in 3levels, so roughly 3*8=24 bytes per 2MB or roughly
+512 bytes per GB (rounded up always to the next page)
 
--- Fernando
+> 
+> > (i.e. instead of extending the kernel mapping preallocate
+> > the direct mapping and just clear the P bits)
+> 
+> On my box the SRAT for hot-add areas exposed are from the end
+> installed memory to way out in outerspace.
+> SRAT: hot plug zone found 280000000 - 2300000000
+> I can't hot add that sort of range on my box but the bios didn't want
+> to limit or is planing for really really big dimms.
 
+You're just proving someone's (anyone want to volunteer their name? ;-]
+I think Linus pointed it out originally, so let's call it Linus') 
+law - as soon as we use some BIOS feature we soon find a BIOS 
+that will get it totally wrong.
+
+Anyways, I retracted anyways because of some other issues so Matt's 
+original approach should be ok.
+
+-Andi

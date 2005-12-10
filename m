@@ -1,44 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVLJFkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbVLJGBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbVLJFkX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 00:40:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVLJFkX
+	id S932099AbVLJGBd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 01:01:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVLJGBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 00:40:23 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11423 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932297AbVLJFkW (ORCPT
+	Sat, 10 Dec 2005 01:01:33 -0500
+Received: from smtpout.mac.com ([17.250.248.88]:55258 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932099AbVLJGBd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 00:40:22 -0500
-Date: Sat, 10 Dec 2005 00:40:13 -0500
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: broken cast in parport_pc
-Message-ID: <20051210054013.GA11286@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org, akpm@osdl.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 10 Dec 2005 01:01:33 -0500
+In-Reply-To: <Pine.LNX.4.61.0512092205540.29012@goblin.wat.veritas.com>
+References: <r02010500-1043-55BAAD4668D211DA98840011248907EC@[10.64.61.57]> <1134148609.30856.22.camel@localhost> <E4ECF4F0-9442-4FFE-BE55-3EF7A1CC40F4@mac.com> <1134151696.3278.2.camel@localhost> <DB1A6A43-DA12-4C5B-B195-5C01DED4CF3E@mac.com> <Pine.LNX.4.61.0512092034510.28318@goblin.wat.veritas.com> <A699737E-EE3B-4521-B68C-F7D90C018CFB@mac.com> <Pine.LNX.4.61.0512092205540.29012@goblin.wat.veritas.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <9F5D68CE-C9B6-43FD-B884-B273C96F43DD@mac.com>
+Cc: Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Mark Rustad <mrustad@mac.com>
+Subject: Re: [PATCH 2.6.15-rc5] hugetlb: make make_huge_pte global and fix coding style
+Date: Sat, 10 Dec 2005 00:01:28 -0600
+To: Hugh Dickins <hugh@veritas.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Spotted by a Fedora user. Compiling with DEBUG_PARPORT set fails
-due to the broken cast.
+On Dec 9, 2005, at 4:12 PM, Hugh Dickins wrote:
 
-Just remove it.
+> On Fri, 9 Dec 2005, Mark Rustad wrote:
+>> On Dec 9, 2005, at 2:37 PM, Hugh Dickins wrote:
+>>>
+>>> You're not the only one to have trouble with recent remap_pfn_range
+>>> changes.
+>>> Would you let us know what you were doing, that you can no longer  
+>>> do?
+>>> Some of the change may need to be reverted.
+>>
+>> Well, our driver had been allocating two 320MB and one 128MB range  
+>> of memory,
+>> each of the three being contiguous. These were allocated by  
+>> allocating lots of
+>> 1MB groups of pages until we got a contiguous range, then the  
+>> unneeded pages
+>> were freed.
+>
+> I can understand that you might be dissatisfied with that.
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+Not dissatisfied really. It worked fine, not optimal of course, but  
+it worked. Since change was forced by kernel changes, it made sense  
+to try to do better while making it work again.
 
---- linux-2.6.14/include/linux/parport_pc.h~	2005-12-10 00:26:42.000000000 -0500
-+++ linux-2.6.14/include/linux/parport_pc.h	2005-12-10 00:38:57.000000000 -0500
-@@ -86,7 +86,7 @@ extern __inline__ void dump_parport_stat
- 	unsigned char dcr = inb (CONTROL (p));
- 	unsigned char dsr = inb (STATUS (p));
- 	static char *ecr_modes[] = {"SPP", "PS2", "PPFIFO", "ECP", "xXx", "yYy", "TST", "CFG"};
--	const struct parport_pc_private *priv = (parport_pc_private *)p->physport->private_data;
-+	const struct parport_pc_private *priv = p->physport->private_data;
- 	int i;
- 
- 	printk (KERN_DEBUG "*** parport state (%s): ecr=[%s", str, ecr_modes[(ecr & 0xe0) >> 5]);
+>> These areas were then mapped into the application with  
+>> remap_pfn_range. We
+>> have been running on a SuSE kernel derived from 2.6.5 for a long  
+>> time where
+>> this worked fine, even for gdb to access during debugging. Now  
+>> that we are
+>> moving to a more current kernel, changes were needed mainly to  
+>> allow gdb to
+>> access these shared memory areas.
+>
+> Okay, I think I get the picture.  2.6.15-rc5 would work if you used
+> three adjacent mmaps, but that would involve changes to your driver  
+> and
+> to your userspace, so you thought better to do it another way anyway.
+
+We had to change the remap_pfn_range though, because that was no  
+longer usable if one wanted to be able to access the memory from gdb,  
+which is a requirement for debugging. Also, all of our shared memory  
+had been coming out of low memory - the change to hugepages now has  
+lifted that restriction, which is also a much better place to be.
+
+>> I had messed with simply taking the large memory by restricting  
+>> the kernel's
+>> memory range with mem=, but gdb still can't get to the pages  
+>> because it
+>> believes that they are for I/O (there would be no struct page in  
+>> that case).
+>>
+>> Given the situation, using hugepages seemed more attractive  
+>> anyway, so I just
+>> decided to go that way and specify hugepages=192 on the kernel  
+>> command line.
+>>
+>> We also have a single page shared between our processes and the  
+>> driver, but we
+>> now use the new insert_single_page call for that, which works  
+>> nicely. It
+>> seemed to me that calling that for the each of the single pages in  
+>> our 768M of
+>> shared memory was silly, so I went the hugepage route, and that  
+>> proved to be
+>> less trouble than I had expected. I feel like things now are  
+>> really where they
+>> should have been all along.
+>
+> Hmm.  Well, I share the doubts Dave and Adam have expressed.  Out- 
+> of-tree
+> drivers making up their own page tables are likely to break and be  
+> broken,
+> and the more so once you get into hugepages.  You'll be much more  
+> portable
+> from release to release if you stick with lots of vm_insert_pages,  
+> silly
+> as all that does seem, yes.  Sorry, I don't have a better answer to  
+> hand.
+
+Well, portability is less important than maintainability. I think  
+being able to call make_huge_pte likely makes what I'm doing somewhat  
+more maintainable than duplicating the code locally. I would prefer  
+an explicit call to do the mapping, but I don't really expect that  
+there are very many things doing memory mapping on this scale, so I  
+have not submitted a patch to implement that. I am also not very  
+confident in my understanding of this area of the kernel to think  
+that I could provide an adequate patch, even though the code that I  
+have is working for our application.
+
+Do you foresee problems in using the make_huge_pte function? I am  
+also calling alloc_huge_page, free_huge_page, huge_pte_alloc,  
+set_huge_pte_at and pte_none in my code. I only had to change  
+make_huge_pte in order to be able to call it - the other functions  
+were already callable. Note that in my case, the driver is built into  
+the kernel - it is not a module. My patch for changing make_huge_pte  
+does not export that symbol from the kernel for use by modules.
+
+-- 
+Mark Rustad, MRustad@mac.com
+

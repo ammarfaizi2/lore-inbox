@@ -1,57 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbVLJHC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbVLJHDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964926AbVLJHC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 02:02:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbVLJHC3
+	id S964928AbVLJHDj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 02:03:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbVLJHDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 02:02:29 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21691 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964926AbVLJHC3 (ORCPT
+	Sat, 10 Dec 2005 02:03:39 -0500
+Received: from holomorphy.com ([66.93.40.71]:13747 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S964928AbVLJHDi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 02:02:29 -0500
-Date: Sat, 10 Dec 2005 02:02:12 -0500
-From: Dave Jones <davej@redhat.com>
-To: acpi-devel@lists.sourceforge.net
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: ACPI sleeping whilst atomic warnings on resume.
-Message-ID: <20051210070212.GA28005@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	acpi-devel@lists.sourceforge.net,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Sat, 10 Dec 2005 02:03:38 -0500
+Date: Fri, 9 Dec 2005 23:02:48 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, David Gibson <david@gibson.dropbear.id.au>,
+       Jens Axboe <axboe@suse.de>, "Michael S. Tsirkin" <mst@mellanox.co.il>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PageCompound avoid page[1].mapping
+Message-ID: <20051210070248.GE2838@holomorphy.com>
+References: <Pine.LNX.4.61.0512092151240.28965@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.61.0512092151240.28965@goblin.wat.veritas.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This has been broken for months.  On resume, we call acpi_pci_link_set()
-with interrupts off, so we get a warning when we try to do a kmalloc
-of non atomic memory.  The actual allocation is just 2 long's
-(plus extra byte for some reason I can't fathom), so a simple conversion
-to GFP_ATOMIC is probably the safest way to fix this.
+On Fri, Dec 09, 2005 at 09:56:42PM +0000, Hugh Dickins wrote:
+> -	page[1].mapping = (void *)free_huge_page;
+> +	page[1].index = (unsigned long)free_huge_page;	/* set dtor */
+>  	for (i = 0; i < (HPAGE_SIZE/PAGE_SIZE); ++i)
+>  		clear_highpage(&page[i]);
+>  	return page;
 
-The error looks like this..
+Hmm, ->lru would be nicer. What prompted the use of ->index?
 
-Debug: sleeping function called from invalid context at mm/slab.c:2486
-in_atomic():0, irqs_disabled():1
- [<c0143f6c>] kmem_cache_alloc+0x40/0x56
- [<c0206a2e>] acpi_pci_link_set+0x3f/0x17f
- [<c0206f96>] irqrouter_resume+0x1e/0x3c
- [<c0239bca>] __sysdev_resume+0x11/0x6b
- [<c0239e88>] sysdev_resume+0x34/0x52
- [<c023de21>] device_power_up+0x5/0xa
 
-Signed-off-by: Dave Jones <davej@redhat.com>
-
---- linux-2.6.14/drivers/acpi/pci_link.c~	2005-12-10 01:58:17.000000000 -0500
-+++ linux-2.6.14/drivers/acpi/pci_link.c	2005-12-10 01:58:36.000000000 -0500
-@@ -316,7 +316,7 @@ static int acpi_pci_link_set(struct acpi
- 	if (!link || !irq)
- 		return_VALUE(-EINVAL);
- 
--	resource = kmalloc(sizeof(*resource) + 1, GFP_KERNEL);
-+	resource = kmalloc(sizeof(*resource) + 1, GFP_ATOMIC);
- 	if (!resource)
- 		return_VALUE(-ENOMEM);
- 
+-- wli

@@ -1,97 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161059AbVLJUWS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161063AbVLJUWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161059AbVLJUWS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 15:22:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161062AbVLJUWS
+	id S1161063AbVLJUWh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 15:22:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161062AbVLJUWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 15:22:18 -0500
-Received: from smtp1.wanadoo.fr ([193.252.22.30]:53809 "EHLO smtp1.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1161059AbVLJUWR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 15:22:17 -0500
-X-ME-UUID: 20051210202205844.CE2811FFFD25@mwinf0102.wanadoo.fr
-Message-ID: <439B3969.20202@wanadoo.fr>
-Date: Sat, 10 Dec 2005 21:24:09 +0100
-From: mahashakti89 <mahashakti89@wanadoo.fr>
-Reply-To: mahashakti89@wanadoo.fr
-Organization: none
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: fr, en
+	Sat, 10 Dec 2005 15:22:37 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:42270 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161063AbVLJUWg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 15:22:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=GQ+XkltN/LWQkkkbG4Wp/0RtryakpSxMS7pzEX8kcf6LLJptPh+/mwNgqyVWgj8LU33unFeWq/WWD1QzJbueEY+5HervK5ga7MqwDbsDE5Y86XOPV/EMDjAYxZTpkyFMTejsagjEvoE2Lofvm/QtZmiC7qP/3avR55xF8MWC8m0=
+Message-ID: <5a4c581d0512101222je343b28k6e61f80c0727ae54@mail.gmail.com>
+Date: Sat, 10 Dec 2005 21:22:35 +0100
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.15-rc5 - nonfatal libata assertion (qc->n_elem > 0)
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: udev problem ...
-References: <439A9973.6050009@wanadoo.fr> <20051210181640.GA8245@kroah.com>
-In-Reply-To: <20051210181640.GA8245@kroah.com>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This one is just for the record, as it doesn't appear to have had
+ any side effects...
 
-Greg KH a écrit :
-> On Sat, Dec 10, 2005 at 10:01:39AM +0100, mahashakti89 wrote:
-> 
->>Hi !
->>
->>Here is a report bug I posted on bugs@debian.org , we'll make it short ,
->>I cannot activate udev at boot , if I do this  I get IDE errors on both
->>harddisks and if I can enter an X-session, I cannot open a terminal : I
->>get following error message :
->>"there was a problem with the child process of this terminal" . If I
->>desactivate udev at boot, eveything is going O.K.
->>The Debian package maintainer thinks it looks like a kernel bug ....
->>This is why I am posting here hoping for help in this matter.
-> 
-> 
-> Can you try the 2.6.15-rc5 kernel release to see if this is better?
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> 
-I did it, but it is not better ..... but perhaps due to an upgrade on my
-debian Sid it seems
-that I have not so much IDE errors but this impossibility to open any
-terminal is already here ...
+Dell Latitude D610, uptodate FC4, kernel 2.6.15-rc5, booted with
+ libata.atapi_enabled=1.
 
-I tried one Debian pre-packaged kernel and it works , I mean nearly no
-IDE errors
-and no more problems with opening gnome-terminal, so it would mean that
-here is a problem
-in my kernel config ??
+Dec 10 19:33:26 sandman kernel: cdrom: This disc doesn't have any
+tracks I recognize!
+Dec 10 19:35:21 sandman kernel: Assertion failed! qc->n_elem >
+0,drivers/scsi/libata-core.c,ata_fill_sg,line=2482
+Dec 10 19:35:35 sandman last message repeated 18 times
 
-Here is an extract of the - so mentioned in the doc - important settings :
+This happened presumably when I earlier burned a CD-R
+ with .wav audio tracks; the burning was successful.
 
-# Pseudo filesystems
-#
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-# CONFIG_HUGETLBFS is not set
-# CONFIG_HUGETLB_PAGE is not set
-CONFIG_RAMFS=y
-# CONFIG_RELAYFS_FS is not set
+Drive is detected as follows:
 
+ata2: SATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xBFA8 irq 15
+ata2: dev 0 cfg 49:0b00 82:0210 83:1000 84:0000 85:0000 86:0000 87:0000 88:0407
+ata2: dev 0 ATAPI, max UDMA/33
+ata2: dev 0 configured for UDMA/33
+scsi1 : ata_piix
+  Vendor: SONY      Model: DVD+-RW DW-Q58A   Rev: UDS1
+  Type:   CD-ROM                             ANSI SCSI revision: 05
 
-Where should I look to solve it definetely ??
+--alessandro
 
-Thanks for your answer.
+ "So much can happen by accident
+  No rhyme, no reason - no one's innocent"
 
-mahashakti89
-
-Hope there is no problem if I CC you this message ..
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDmzlpPPuyRSaD7LoRAnguAJ9qktzBbdMdSErbGv+H9Fn33kZrxwCfYZhw
-ND2wNBura+nQ+e6IZ78M97k=
-=UteB
------END PGP SIGNATURE-----
-
+   (Steve Wynn - "Under The Weather")

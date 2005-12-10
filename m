@@ -1,110 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932696AbVLJCRo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbVLJCQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932696AbVLJCRo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 21:17:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932682AbVLJCRn
+	id S1751300AbVLJCQz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 21:16:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbVLJCQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 21:17:43 -0500
-Received: from zorg.st.net.au ([203.16.233.9]:2514 "EHLO borg.st.net.au")
-	by vger.kernel.org with ESMTP id S932297AbVLJCRl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 21:17:41 -0500
-Message-ID: <439A3B15.5010608@torque.net>
-Date: Sat, 10 Dec 2005 12:19:01 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Fri, 9 Dec 2005 21:16:55 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:33505
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1751276AbVLJCQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 21:16:54 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Matthias Andree <matthias.andree@gmx.de>
+Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
+Date: Fri, 9 Dec 2005 18:22:40 -0600
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <20051203135608.GJ31395@stusta.de> <87mzjf2gxs.fsf@mid.deneb.enyo.de> <20051206112127.GE10574@merlin.emma.line.org>
+In-Reply-To: <20051206112127.GE10574@merlin.emma.line.org>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: Erik Slagter <erik@slagter.name>, Jens Axboe <axboe@suse.de>,
-       Randy Dunlap <randy_d_dunlap@linux.intel.com>, hch@infradead.org,
-       mjg59@srcf.ucam.org, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-References: <20051208030242.GA19923@srcf.ucam.org>	 <20051208091542.GA9538@infradead.org>	 <20051208132657.GA21529@srcf.ucam.org>	 <20051208133308.GA13267@infradead.org>	 <20051208133945.GA21633@srcf.ucam.org>	 <20051208134438.GA13507@infradead.org>	 <1134062330.1732.9.camel@localhost.localdomain>	 <43989B00.5040503@pobox.com>	 <20051208133144.0f39cb37.randy_d_dunlap@linux.intel.com>	 <1134121522.27633.7.camel@localhost.localdomain>	 <20051209103937.GE26185@suse.de> <1134125145.27633.32.camel@localhost.localdomain> <43996A26.8060700@pobox.com>
-In-Reply-To: <43996A26.8060700@pobox.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512091822.41278.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Erik Slagter wrote:
-> 
->> On Fri, 2005-12-09 at 11:39 +0100, Jens Axboe wrote:
->>
->>
->>>> IMHO available infrastructure (and hardware abstraction!) should be
->>>> used
->>>> instead of being stubborn and pretend we know everything about any
->>>> hardware.
->>>
->>>
->>> It's not about being stubborn, it's about maintaining and working on a
->>> clean design. The developers have to do that, not the users. So forgive
->>> people for being a little cautious about shuffling all sorts of ACPI
->>> into the scsi core and/or drivers. We always need to think long term
->>> here.
->>>
->>> Users don't care about the maintainability and cleanliness of the code,
->>> they really just want it to work. Which is perfectly understandable.
->>
->>
->>
->> I perfectly understand that, what I do object against, is rejecting a
->> concept (like this) totally because the developers(?) do not like the
->> mechanism that's used (although ACPI is used everywhere else in the
->> kernel). At least there might be some discussion where this sort of code
->> belongs to make the design clean and easily maintainable, instead of
->> instantly completely rejecting the concept, because OP simply doesn't
->> like acpi.
-> 
-> 
-> Framing the discussion in terms of "like" and "dislike" proves you
-> understand nothing about the issues -- and lacking that understanding,
-> you feel its best to insult people.
+On Tuesday 06 December 2005 05:21, Matthias Andree wrote:
+> On Tue, 06 Dec 2005, Florian Weimer wrote:
+> > From a vendor POV, the lack of official kernel.org advisories may be a
+> > feature.  I find it rather disturbing, and I'm puzzled that the kernel
+> > developer community doesn't view this a problem.  I know I'm alone,
+>
+> You're not alone in viewing this as a problem, but QA is a burden kernel
+> developers are not interested in. But it is necessary.
 
-Jeff,
-Point of order.
+If you want to run a big automated regression test against the kernel, 
+exercising the full API and immediately catching any regressions, go right 
+ahead.  Nobody's stopping you and you don't need our permission anyway.  The 
+Linux Test Project is working on something like this already, and ODSL does 
+some of this to.  (It's not like QA is being ignored.)
 
-My email record of this thread indicates that it was
-Christoph Hellwig:
-http://marc.theaimsgroup.com/?l=linux-scsi&m=113404894931377&w=2
-who initially lowered the tone. Just to prove that was not
-an aberration he followed that up with this email:
-http://marc.theaimsgroup.com/?l=linux-scsi&m=113404957727924&w=2
-and there are several others. Given Christoph's posts I
-find those of Matthew Garrett and Erik Slagter pretty well
-considered and I fail to see what warranted the "you feel its
-best to insult people" line above.
+The problem is that the bulk of the kernel code is device drivers, and nobody 
+has all the strange and esoteric hardware that the drivers push.  Nope, not 
+even IBM.  I doubt any one organization anywhere on the planet has 
+_everything_ the kernel has been used to drive.
+.
 
-I used to think that SCSI was the most maligned part of the
-linux kernel, but that no longer seems to be the case.
-Can ACPI be really that bad ...
+> QA has to happen at all levels if it is supposed to be affordable or
+> scalable. The development process was scaled up, but QA wasn't.
+>
+> How about the Signed-off-by: lines? Those people who pass on the changes
+> also pass on the bugs, and they are responsible for the code - not only
+> license-wise, but also quality-wise. That's the latest point where
+> regression tests MUST happen.
 
-Doug Gilbert
+I can't test your setup for you.  I haven't got your setup.  All I can tell 
+you is that it worked for me.
 
-> libata suspend/resume needs to work on platforms without ACPI, such as
-> ppc64.  libata reset needs to work even when BIOS is not present at all.
->  And by definition, anything that is done in ACPI can be done in the
-> driver.
-> 
-> The only thing libata cannot know is BIOS defaults.  Anything else
-> libata doesn't know is a driver bug.  We already know there are a ton of
-> settings that should be saved/restored, which is not done now.  Until
-> that code is added to libata, talk of ACPI is premature.  Further, even
-> the premature patch was obviously unacceptable, because you don't patch
-> ACPI code directly into libata and SCSI.  That's the wrong approach.
-> 
->     Jeff
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+I spent most of a week last month fighting to get User Mode Linux 2.6.15-rc1 
+through rc4 to compile and run on both x86 ubuntu and x86-64 PLD.  Different 
+versions of GCC compiled the darn interface code differently (there's a 
+section where it switches stacks and gcc kept trying to touch the stack in 
+the middle of this, and segfaulting).  Worked fine for Jeff Dike and 
+Blaisorblade, because they weren't using a semi-obsolete version of ubuntu.
 
+Over on PLD, I had a fight just to get it to _compile_, because the header 
+files were all different (PLD uses Mazur's cleaned up 2.6 headers which 
+uClibc systems also use, while most things use the glibc package, and at one 
+point they had userspace and kernel space headers reversed and it worked fine 
+with the glibc kernel headers but Mazur's headers really are cleaned up and 
+don't leak nearly so much kernel stuff into userspace).  And then /lib wasn't 
+a symlink to /lib64 (it is on Fedora and Debian, but on PLD they're separate 
+directories) so the link path had to be adjusted (/lib64 was the correct 
+directory for a 64-bit build and should be checked first).  Then getting it 
+to run had another half-dozen problems with various interface code: for some 
+reason on PLD page_size was linked as a function call when they expected it 
+to be a constant...
+
+Another fun little thing is just a performance issue: UML gets its "physical 
+memory" from an mmap file (easy to share between processes), but if that file 
+isn't on tmpfs then every page UML dirties gets scheduled for writeout, over 
+and over again, keeping the hard drive constantly busy and slowing the system 
+to a crawl.   Of course it _works_, but so it's hard to pin down what the 
+problem is.  (UML isn't slowed down, the rest of the system is by the 
+unnecessary I/O.)  Again, on Jeff's system /tmp is a tmpfs mount.  On most 
+systems, /dev/shm is a tmpfs mount and /tmp inherits /.  (Meaning on knoppix 
+it's tmpfs, but on Fedora or Ubuntu or Gentoo, it isn't by default.  Unless 
+the sysadmin has changed it, which many sysadmins will.)  And strangely, on 
+the PLD system I'm borrowing /dev/shm isn't tmpfs, so changing the default is 
+the right thing but it needed an improved error message.
+
+It all worked just _fine_ for the people who wrote it.  (And continues to.)  
+And all of this is why there was an -rc1, so people like me could try it and 
+report that it didn't work the same way for us and spend a week figuring out 
+all the various different _ways_ it didn't work.
+
+This isn't the full set of bugs I plowed through.  I had a version at one 
+point that ran fine, gave me a command shell (init=/bin/sh) and I reported 
+success and then came back the next day with "nope, fork segfaults".  
+(Actually it was exec segfaulting.)  The shell _did_ come up fine.  (And echo 
+$USER hadn't actually had to exec anything...)  But that wasn't the end of 
+it.
+
+The thing is, me spending all this time making sure it worked _for_me_ was 
+something that I did on my own time, voluntarily.  I'm not really a UML 
+developer, I have too much to do elsewhere.  If I hadn't done this, would it 
+work on ubuntu and PLD right now?  Maybe.  I don't know.  But it already 
+worked for Jeff Dike when he checked it in.  Worked just fine.  Because he 
+didn't have the environment I had.  He could find _none_ of these problems 
+because the bugs only manifest in an environment he doesn't have.
+
+And all this is a _rounding_error_ compared to the kernel as a whole.  This is 
+just one little corner of it, in one little release, where one person spent 
+one week debugging on just two systems.
+
+And this wasn't even hardware dependent!  (Or an intermittent problem that you 
+_think_ is fixed because you haven't seen it, or something requiring a 
+particularly arduous reproduction sequence like a 40 hour calculation, or 
+access to a machine that's only available thursdays from 2-4 am...)
+
+You seem to _deeply_ misunderstand nature of the problem.
+
+Rob
+-- 
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.

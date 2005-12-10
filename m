@@ -1,171 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964961AbVLJI7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964959AbVLJI6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964961AbVLJI7y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 03:59:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965089AbVLJI7y
+	id S964959AbVLJI6K (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 03:58:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965089AbVLJI6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 03:59:54 -0500
-Received: from smtp3.wanadoo.fr ([193.252.22.28]:9339 "EHLO smtp3.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S964961AbVLJI7w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 03:59:52 -0500
-X-ME-UUID: 20051210085942422.673331C0034B@mwinf0306.wanadoo.fr
-Message-ID: <439A9973.6050009@wanadoo.fr>
-Date: Sat, 10 Dec 2005 10:01:39 +0100
-From: mahashakti89 <mahashakti89@wanadoo.fr>
-Reply-To: mahashakti89@wanadoo.fr
-Organization: none
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: fr, en
+	Sat, 10 Dec 2005 03:58:09 -0500
+Received: from wg.technophil.ch ([213.189.149.230]:41650 "HELO
+	hydrogenium.schottelius.org") by vger.kernel.org with SMTP
+	id S964959AbVLJI6I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 03:58:08 -0500
+Date: Sat, 10 Dec 2005 09:57:52 +0100
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Device files for keyboard(s)?
+Message-ID: <20051210085752.GF15679@schottelius.org>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	LKML <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: mahashakti89@wanadoo.fr
-Subject: udev problem ...
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yH1ZJFh+qWm+VodA"
+Content-Disposition: inline
+User-Agent: echo $message | gpg -e $sender  -s | netcat mailhost 25
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux 2.6.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
+--yH1ZJFh+qWm+VodA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi !
+Hello dear Kernel-Developers,
 
-Here is a report bug I posted on bugs@debian.org , we'll make it short ,
-I cannot activate udev at boot , if I do this  I get IDE errors on both
-harddisks and if I can enter an X-session, I cannot open a terminal : I
-get following error message :
-"there was a problem with the child process of this terminal" . If I
-desactivate udev at boot, eveything is going O.K.
-The Debian package maintainer thinks it looks like a kernel bug ....
-This is why I am posting here hoping for help in this matter.
+I've the problem that I've connected two keyboards
+(one via usb and one via ps/2) to my machine and I want to have
+different keyboard layout on it.
 
-mahashakti89
+While I was trying to find out what would be the best way to do that,
+I was somehow surprised that keyboards are not presented via
+a device file to userspace.
 
-PS : Could you CC me your answer, I am not on the list .
+My questions are:
 
+- Is there a reason not to have devices for keyboards?
+- If I would implement it into a recent kernel, would it have any chance
+  getting into mainline?
 
-THANKS
+I know this would have some consequences for user space, at least those:
 
+- x11 (x.org/xfree) would have to modify their input device section for Lin=
+ux
+  for keyboards
+- loadkeys would have to be patched so one could specify which keyboard
+  to change the layout for
+- kde/gnome would have to be changed in the manner that they support more
+  than one keyboard
 
-Package :  udev
-Version  : 0.076-3
+Nico
 
+P.S.: Please cc me.
 
-#dpkg --status udev
-Package
-Package : udev
-Version:0.076-3
-Status: install ok installed
-Priority: optional
-Section: admin
-Installed-Size: 960
-Maintainer: Marco d'Itri <md@linux.it>
-Architecture: i386
-Version: 0.076-3
-Provides: hotplug
-Depends: libc6 (>= 2.3.5-1), libselinux1 (>= 1.26), libsepol1 (>= 1.8),
-initscripts (>= 2.85-16), makedev (>= 2.3.1-77), sed (>= 3.95), lsb-base
-(>= 3.0-6)
-Conflicts: lvm-common (<< 1.5.13), hotplug, module-init-tools (<<
-3.2-pre9-1), initramfs-tools (<< 0.39)
-Description: /dev/ and hotplug management daemon
- udev is a daemon which dynamically creates and removes device nodes from
- /dev/, handles hotplug events and loads drivers at boot time. It replaces
- the hotplug package and requires a kernel not older than 2.6.12.
+--=20
+Latest project: cinit-0.2.1 (http://linux.schottelius.org/cinit/)
+Open Source nutures open minds and free, creative developers.
 
-II.Descritpion
+--yH1ZJFh+qWm+VodA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-If I activate udev at boot through some utility like sysvconfig or
-sysvconfig I have problem with both IDE Disks
-(Maxtor 80 G0 and 250 G0) , I get following error message : Drive Seek
-Complete Data Request, Satus 0x 58, Drive not Ready
-for command , and sometimes I cannot log into an X-session.
-
-If I can log in, I cannot open a terminal - gnome-terminal , konsole,
-xterm - I get following error message :
-There was a problem with the child process of this terminal.
-It is then impossible to type any command.
-
-If I desactivate udev at boot , everything is O.K , no IDE-errors , no
-problems with gnme-terminal, konsole or xterm.
-
-
-III. Informations
-KERNEL VERSION :
-
-/home/claude# uname -a
-Linux ishwara 2.6.14-ck6 #1 SMP Sun Nov 27 10:05:42 CET 2005 i686 GNU/Linux
-
-LIBC6 VERSION :
-
-:/home/claude# dpkg -s libc6 | grep ^Version
-Version: 2.3.5-8.1
-
-HARDWARE :
-Processor = Pentium IV
-Motherboard = ASUS P4P800
-Chipset = I865 PE
-Harddisk 1 =
-
-hdparm -i /dev/hda
-
-/dev/hda:
-
- Model=Maxtor 6Y080P0, FwRev=YAR41BW0, SerialNo=Y31PPXDE
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=7936kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=160086528
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5 udma6
- AdvancedPM=yes: disabled (255) WriteCache=enabled
- Drive conforms to: (null):  ATA/ATAPI-1 ATA/ATAPI-2 ATA/ATAPI-3
-ATA/ATAPI-4 ATA/ATAPI-5 ATA/ATAPI-6 ATA/ATAPI-7
-
- * signifies the current active mode
-
-Harddisk 2 =
-
- hdparm -i /dev/hdb
-
-/dev/hdb:
-
- Model=Maxtor 6L250R0, FwRev=BAH41G10, SerialNo=L6132M9H
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=16384kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=268435455
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5 udma6
- AdvancedPM=yes: disabled (255) WriteCache=enabled
- Drive conforms to: (null):  ATA/ATAPI-1 ATA/ATAPI-2 ATA/ATAPI-3
-ATA/ATAPI-4 ATA/ATAPI-5 ATA/ATAPI-6 ATA/ATAPI-7
-
- * signifies the current active mode
-
- I didn't  touch the basic configuration files of udev except some
-personal rules for my modem
-and USB-Sticks.
-
-
-Hope you understand my english.
-
-Thanks
-
-mahashakti89
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFDmplyPPuyRSaD7LoRAk7DAJ0ddxljwM2pRCLCB1ZZPaeeG23vvgCgiM7c
-bw2MG2i6kDy2zM0xxV7jbNk=
-=1uMy
+iQIVAwUBQ5qYj7OTBMvCUbrlAQJ9sQ/8CeM6uPLXtONwJ1fgyMhpprv9s4bez/Q8
+KkS75XcX9010IF17ujUpppBjv+Y9HDAlr7r/5SjZiFpms4gi96nGyisbCiFnu6RV
+dcylmUqRERQN+joM/EJr8ikUeJ5zVQ41Y2JVrqo78qo8En/dP8yi5bgu/a/qVEJC
+M6FhODlfJRa2EdhAM0QEVWQSc8PYpz9A15/cts5SBQGa4WQI7NmWWwvafCI9xNdf
+WAiEdiJpSRp8ttaapooXRExrKrHAsj8NAXegwv6EzKFvHzaT1xfGNqj2AqpIBpbk
+FWo+SyOg5ppAdIs/v/ywfgBO1XZOMZfupiJRWY5P+OBIV7xsXEa/0TJ/hKmT0JMq
+lZ8Lt5w36zpzRNIV3efKLUXwZbk088Fniypy+0RDYH7WSzsUhtpqkeVrX1dINeqA
+C2M5PNEESAj7uXYQAc7ayOhPaHi6gHYYPcFnZ3yVRbryELnsYO2oYw8qQnvEZ8qe
+dsarin2mx8H+6jDBCZnUPM4Mxp6q4SY80U0sBFsXrMCuMaecFGaVm+lhoDURu9Zl
+pzpCZY+Wzp3yQoOnPF2f4R/dLLQvaMX1xggBEG3GBC2YO8feLs93zv2kyLyC+QFh
+oyiRnx57l79L8zJUAtwydVEQJ52Jk4VZTPDbWoRshU6yZMdpNefvDDjurojh07kP
+SsvS2TYATi0=
+=mJZx
 -----END PGP SIGNATURE-----
 
+--yH1ZJFh+qWm+VodA--

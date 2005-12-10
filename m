@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbVLJDck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbVLJDjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbVLJDck (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Dec 2005 22:32:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVLJDck
+	id S964905AbVLJDjg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Dec 2005 22:39:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVLJDjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Dec 2005 22:32:40 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:52132 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964907AbVLJDck (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Dec 2005 22:32:40 -0500
-Date: Sat, 10 Dec 2005 04:32:35 +0100
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       Andi Kleen <ak@suse.de>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [RFC 1/6] Framework
-Message-ID: <20051210033235.GP11190@wotan.suse.de>
-References: <20051210005440.3887.34478.sendpatchset@schroedinger.engr.sgi.com> <20051210005445.3887.94119.sendpatchset@schroedinger.engr.sgi.com>
+	Fri, 9 Dec 2005 22:39:36 -0500
+Received: from lakshmi.addtoit.com ([198.99.130.6]:20498 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S964905AbVLJDjf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Dec 2005 22:39:35 -0500
+Date: Fri, 9 Dec 2005 23:31:22 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: Paulo da Silva <psdasilva@esoterica.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: STILL Cannot run linux 2.6.14.3 UML on a x86_64
+Message-ID: <20051210043122.GC14269@ccure.user-mode-linux.org>
+References: <43924B2C.9000300@esoterica.pt> <20051204043205.GA15425@ccure.user-mode-linux.org> <43926CC8.2030902@esoterica.pt> <20051204162732.GA3692@ccure.user-mode-linux.org> <43978E04.7030000@esoterica.pt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051210005445.3887.94119.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <43978E04.7030000@esoterica.pt>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +#define global_page_state(__x) atomic_long_read(&vm_stat[__x])
-> +#define zone_page_state(__z,__x) atomic_long_read(&(__z)->vm_stat[__x])
-> +extern unsigned long node_page_state(int node, enum zone_stat_item);
-> +
-> +/*
-> + * For use when we know that interrupts are disabled.
+On Thu, Dec 08, 2005 at 01:36:04AM +0000, Paulo da Silva wrote:
+> Cannot get it running !!!
+> It stops, consuming variable amounts of cpu.
+> The same configuration works perfectly on a 32 bits system.
 
-Why do you need to disable interupts for atomic_t ? 
-If you just want to prevent switching CPUs that could be 
-done with get_cpu(), but alternatively you could just ignore
-that race (it wouldn't be a big issue to still increment
-the counter on the old CPU)
+> [42949373.490000] request_module: runaway loop modprobe binfmt-464c
+> [42949373.490000] request_module: runaway loop modprobe binfmt-464c
+> [42949373.490000] request_module: runaway loop modprobe binfmt-464c
+> [42949373.490000] request_module: runaway loop modprobe binfmt-464c
+> [42949373.490000] request_module: runaway loop modprobe binfmt-464c
 
-And why atomic and not just local_t?  On x86/x86-64 local_t
-would be much cheaper at least. It's not long, but that could
-be as well added.
+You never answered my question about whether this was a 32 or 64 bit
+filesystem.
 
--Andi
-
+				Jeff

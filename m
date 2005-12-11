@@ -1,68 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbVLKMMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbVLKMSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbVLKMMh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 07:12:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751347AbVLKMMh
+	id S1751352AbVLKMSO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 07:18:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbVLKMSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 07:12:37 -0500
-Received: from build.arklinux.osuosl.org ([140.211.166.26]:4770 "EHLO
-	mail.arklinux.org") by vger.kernel.org with ESMTP id S1751345AbVLKMMh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 07:12:37 -0500
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-To: dtor_core@ameritech.net
-Subject: Re: [git pull 02/14] Add Wistron driver
-Date: Sun, 11 Dec 2005 13:10:13 +0000
+	Sun, 11 Dec 2005 07:18:13 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:36307 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S1751352AbVLKMSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 07:18:13 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
+Date: Sun, 11 Dec 2005 13:16:46 +0100
 User-Agent: KMail/1.9
-Cc: "Yu, Luming" <luming.yu@intel.com>, Linus Torvalds <torvalds@osdl.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Brown, Len" <len.brown@intel.com>
-References: <3ACA40606221794F80A5670F0AF15F840A53FCC5@pdsmsx403> <d120d5000512060721j3a75ff7bh40309f4fa132b39a@mail.gmail.com>
-In-Reply-To: <d120d5000512060721j3a75ff7bh40309f4fa132b39a@mail.gmail.com>
+Cc: adi@hexapodia.org, linux-kernel@vger.kernel.org, pavel@ucw.cz
+References: <20051205081935.GI22168@hexapodia.org> <200512110007.35346.rjw@sisk.pl> <20051210153306.02377935.akpm@osdl.org>
+In-Reply-To: <20051210153306.02377935.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200512111310.14984.bero@arklinux.org>
+Message-Id: <200512111316.47153.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 December 2005 15:21, Dmitry Torokhov wrote:
+On Sunday, 11 December 2005 00:33, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> >
+> >  Would that be ok if I made drop_pagecache() nonstatic and called it directly
+> >  from swsusp?
+> 
+> Sure, I'll updates the patch for that.
 
-Hi, sorry for the delay, just returning from Spain...
+Thanks a lot.
+ 
+> It changed a bit..  You'll need to run sys_sync() then drop_pagecache()
+> then drop_slab().
 
-> > There are acpi daemon for any evetnts that needs user space attention.
-> > I'm not sure if these events should be routed to input layer.
->
-> How do you suggest handle buttons such as "Mail", "WWW", etc? Through
-> acpid? And then tunnel them to X somewhow?
+I think it won't hurt if we do this unconditionally in swsusp_shrink_memory().
+Pavel, what do you think?
 
-I think routing them to the input layer makes most sense because they are keys 
-like everything else -- of course hacking acpid to pass on ACPI key events to 
-Xorg via the XTest extension is not exactly hard, but that would break the 
-keys in text mode (who knows, maybe someone wants to map his mail key to 
-"mutt[RETURN]"?), and of course launching an application from acpid is a bit 
-hard (acpid runs as root --> need to figure out which user is pressed the 
-button, switch user IDs, find the correct X display if any, .....) if it's an 
-input event, solutions for the expected functionality already exist - e.g. 
-khotkeys.
+The appended patch illustrates the way in which I think we can use this.
+I've tested it a little, but if someone feels like trying it, please do.
 
-> > With acpi enabled - wistron module, bluetooth works.
-> > From these test cases, do you still think wistron driver can help my
-> > laptop?
->
-> No, you have proven that the driver will not help to your laptop. Now,
-> as it is, it won't even load on your laptop either, because of
-> different DMI signature. So why are you complaining? I am pretty sure
-> Bernhard (who added bluetooth handling) has his working with ACPI.
-> Bernhard, any input on this?
+Greetings,
+Rafael
 
-I have ACPI + wistron module. Can't tell if bluetooth actually works because I 
-don't have any bluetooth hardware, but I can tell the bluetooth LED can be 
-turned on and off.
 
-ACPI works on this box, but not the ACPI buttons stuff (guess they aren't 
-following standards...). I'm running a modified 2.6.15-rc5-mm1 here (none of 
-the modifications touch ACPI though).
+ kernel/power/swsusp.c |    3 +++
+ 1 files changed, 3 insertions(+)
+
+Index: linux-2.6.15-rc5-mm1/kernel/power/swsusp.c
+===================================================================
+--- linux-2.6.15-rc5-mm1.orig/kernel/power/swsusp.c	2005-12-10 23:51:00.000000000 +0100
++++ linux-2.6.15-rc5-mm1/kernel/power/swsusp.c	2005-12-11 12:45:57.000000000 +0100
+@@ -641,6 +641,9 @@ int swsusp_shrink_memory(void)
+ 	char *p = "-\\|/";
+ 
+ 	printk("Shrinking memory...  ");
++	sys_sync();
++	drop_pagecache();
++	drop_slab();
+ 	do {
+ 		size = 2 * count_highmem_pages();
+ 		size += size / 50 + count_data_pages();

@@ -1,46 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVLKPX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbVLKQH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbVLKPX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 10:23:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbVLKPX5
+	id S1750721AbVLKQH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 11:07:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbVLKQH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 10:23:57 -0500
-Received: from host94-205.pool8022.interbusiness.it ([80.22.205.94]:42897 "EHLO
-	waobagger.intranet.nucleus.it") by vger.kernel.org with ESMTP
-	id S1750714AbVLKPX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 10:23:56 -0500
-From: Massimiliano Hofer <max@bbs.cc.uniud.it>
-Organization: Nucleus snc
-To: linux-kernel@vger.kernel.org
-Subject: freeze with IDE
-Date: Sun, 11 Dec 2005 16:23:35 +0100
-User-Agent: KMail/1.9
+	Sun, 11 Dec 2005 11:07:28 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:10222 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1750721AbVLKQH0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 11:07:26 -0500
+Message-ID: <439C605F.BA7C1D5B@tv-sign.ru>
+Date: Sun, 11 Dec 2005 20:22:39 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: akpm@osdl.org
+Cc: orenl@cs.columbia.edu, roland@redhat.com, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH ? 2/2] setpgid: should work for sub-threads
+References: <200512110523.jBB5NVEr002551@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512111623.35784.max@bbs.cc.uniud.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have frequent freezes with the following setup:
-- IDE (PIIX)
-- MD (RAID 1)
-- SMP (2 CPUs)
-- kernel 2.6.14.x
+setpgid(0, pgid) or setpgid(forked_child_pid, pgid) does not work
+unless the calling process is a thread_group_leader().
 
-If I unmount the RAID partitions everything is fine (tested on the same 
-machine and on a pure SCSI twin). Heavy activity on the IDE disks doesn't 
-trigger the problem.
-2.6.13.x and 2.6.15-rc5 work flawlessly.
-I have many other servers with MD on SCSI and SMP or MS on IDE not SMP. This 
-is the only one that has this problem.
-Having a working 2.6.15, I shouldn't whine, but I didn't see any bug fixes 
-specific to this bug.
-Did anyone experience the same problem?
+'man setpgid' does not tell anything about that, so I consider
+this behaviour is a bug.
 
--- 
-Bye,
-   Massimiliano Hofer
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.15-rc5/kernel/sys.c~	2005-12-11 22:40:33.000000000 +0300
++++ 2.6.15-rc5/kernel/sys.c	2005-12-11 22:50:39.000000000 +0300
+@@ -1083,10 +1083,11 @@ asmlinkage long sys_times(struct tms __u
+ asmlinkage long sys_setpgid(pid_t pid, pid_t pgid)
+ {
+ 	struct task_struct *p;
++	struct task_struct *group_leader = current->group_leader;
+ 	int err = -EINVAL;
+ 
+ 	if (!pid)
+-		pid = current->pid;
++		pid = group_leader->pid;
+ 	if (!pgid)
+ 		pgid = pid;
+ 	if (pgid < 0)
+@@ -1106,16 +1107,16 @@ asmlinkage long sys_setpgid(pid_t pid, p
+ 	if (!thread_group_leader(p))
+ 		goto out;
+ 
+-	if (p->real_parent == current) {
++	if (p->real_parent == group_leader) {
+ 		err = -EPERM;
+-		if (p->signal->session != current->signal->session)
++		if (p->signal->session != group_leader->signal->session)
+ 			goto out;
+ 		err = -EACCES;
+ 		if (p->did_exec)
+ 			goto out;
+ 	} else {
+ 		err = -ESRCH;
+-		if (p != current)
++		if (p != group_leader)
+ 			goto out;
+ 	}
+ 
+@@ -1127,7 +1128,7 @@ asmlinkage long sys_setpgid(pid_t pid, p
+ 		struct task_struct *p;
+ 
+ 		do_each_task_pid(pgid, PIDTYPE_PGID, p) {
+-			if (p->signal->session == current->signal->session)
++			if (p->signal->session == group_leader->signal->session)
+ 				goto ok_pgid;
+ 		} while_each_task_pid(pgid, PIDTYPE_PGID, p);
+ 		goto out;

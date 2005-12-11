@@ -1,70 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVLKTlj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbVLKTmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbVLKTlj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 14:41:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVLKTlj
+	id S1750830AbVLKTmw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 14:42:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbVLKTmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 14:41:39 -0500
-Received: from mxfep02.bredband.com ([195.54.107.73]:50356 "EHLO
-	mxfep02.bredband.com") by vger.kernel.org with ESMTP
-	id S1750827AbVLKTlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 14:41:39 -0500
-From: "ph0x" <ph0x@freequest.net>
-To: "'Jesse Brandeburg'" <jesse.brandeburg@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>,
-       "'Kernel Netdev Mailing List'" <netdev@vger.kernel.org>
-Subject: RE: PROBLEM: bug in e1000 module causes very high CPU load
-Date: Sun, 11 Dec 2005 20:41:18 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Sun, 11 Dec 2005 14:42:52 -0500
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:52493 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S1750830AbVLKTmv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 14:42:51 -0500
+Date: Sun, 11 Dec 2005 20:44:58 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>, Greg KH <greg@kroah.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: Re: [PATCH] Minor change to platform_device_register_simple
+ prototype
+Message-Id: <20051211204458.22c60123.khali@linux-fr.org>
+In-Reply-To: <20051208215257.78d7c67a.khali@linux-fr.org>
+References: <20051205212337.74103b96.khali@linux-fr.org>
+	<20051205202707.GH15201@flint.arm.linux.org.uk>
+	<200512070105.40169.dtor_core@ameritech.net>
+	<d120d5000512070959q6a957009j654e298d6767a5da@mail.gmail.com>
+	<20051207180842.GG6793@flint.arm.linux.org.uk>
+	<d120d5000512071023u151c42f4lcc40862b2debad73@mail.gmail.com>
+	<20051207190352.GI6793@flint.arm.linux.org.uk>
+	<d120d5000512071418q521d2155r81759ef8993000d8@mail.gmail.com>
+	<20051207225126.GA648@kroah.com>
+	<d120d5000512071459s9b461d8ye7abc41d0e1950fd@mail.gmail.com>
+	<20051208215257.78d7c67a.khali@linux-fr.org>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <4807377b0512101416t2f3a04c5ua6859ab3d99e8d07@mail.gmail.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2670
-Thread-Index: AcX92MKgPdY07loVR4GgT+V/+wn0/gAr1/cg
-Message-Id: <20051211194114.GBCH17186.mxfep02.bredband.com@ph0x>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->please send the output of cat /proc/interrupts, I'm worried you have
->an issue due to interrupt sharing.  If it does fail again and is still
->usable, please send the output of ethtool -d eth0, and ethtool -S
->eth0. Also, is there any chance you can try the 6.2.15 driver from
->http://prdownloads.sf.net/e1000
+Hi Dmirty, Russell, Greg,
 
-ph0x@orion:~$ cat /proc/interrupts
-           CPU0
-  0:  113068493          XT-PIC  timer
-  2:          0          XT-PIC  cascade
-  8:          1          XT-PIC  rtc
-  9:          0          XT-PIC  acpi
- 10:   25386110          XT-PIC  eth1
- 11:   29562097          XT-PIC  eth0
- 12:     527004          XT-PIC  uhci_hcd:usb1, uhci_hcd:usb2
- 14:     565520          XT-PIC  ide0
- 15:       1887          XT-PIC  ide1
-NMI:          0
-LOC:          0
-ERR:          0
-MIS:          0
+Quoting myself:
+> I second Dmitry's request here. I can't seem to possibly build a valid
+> error path during device registration with the current API. Having
+> platform_device_del() would make it possible.
 
-The problem is that the card has never been rendered unusable, it just
-starts to have performance issues.
-I've compiled the new driver and installed it. I'll schedule a reboot later
-this week to get it working.
-I've also built 2.6.14.3, which was activeted by a reboot this Saturday.
-I'll let you know if the new driver worked.
+I since modified the platform driver I am working on, thanks to the
+guidance of Alessandro Zummo, and found that the new implementation no
+longer needs platform_device_del().
 
->do you have a test to reproduce this?
+My original code was registering a platform_driver, but wasn't actually
+using it. In particular, the driver had no probe and remove functions.
+Everything was done directly through the init and exit functions of the
+module.
 
-Yes, let the server act as usual, it just starts happening out of the blue.
-No new hardware has been added or removed, no new programs has been
-installed.
-Only thing upgrades was the kernel.
+The new code makes proper use of platform_driver's probe and remove
+function pointers. This means that the initial platform_device
+registration ends with a call to platform_device_add(), and as a
+consequence, the error path doesn't need platform_device_del().
 
->Thanks, Jesse
+So, provided that my case can be extended to others, I'd guess that
+platform drivers using platform_driver.probe are likely not to need
+platform_device_del(), while drivers not using platform_driver.probe
+may need it. This may explain why platform_device_del wasn't needed so
+far.
+
+This raises a question. For a module which registers both the
+platform_device and the matching platform_driver (as is the case for
+mine), is it considered better to rely on platform_driver.probe
+and .remove (as my new code does)? Or is it OK to omit these and handle
+initialization and cleanup phases more direclty (as my old code did),
+as this is technically possible? Using .probe and .remove looks cleaner
+with regards to the driver model, but it also makes things a little
+more complex.
+
+If the goal is to always use .probe and .remove, then
+platform_device_del() might become unneeded again in the long run.
 
 Thanks,
-Andreas
-
+-- 
+Jean Delvare

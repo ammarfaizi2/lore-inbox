@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVLKRS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbVLKRWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbVLKRS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 12:18:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbVLKRS1
+	id S1750756AbVLKRWg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 12:22:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbVLKRWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 12:18:27 -0500
-Received: from fep01-0.kolumbus.fi ([193.229.0.41]:26214 "EHLO
-	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S1750724AbVLKRS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 12:18:26 -0500
-Subject: discontiguous mapping with remap_pfn_range
-From: Imre Deak <imre.deak@nokia.com>
-Reply-To: imre.deak@nokia.com
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Nokia
-Date: Sun, 11 Dec 2005 19:18:22 +0200
-Message-Id: <1134321502.12362.48.camel@bitbox.mine.nu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Sun, 11 Dec 2005 12:22:36 -0500
+Received: from aeimail.aei.ca ([206.123.6.84]:59869 "EHLO aeimail.aei.ca")
+	by vger.kernel.org with ESMTP id S1750756AbVLKRWg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 12:22:36 -0500
+From: Ed Tomlinson <edt@aei.ca>
+Organization: me
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch -mm] fix SLOB on x64
+Date: Sun, 11 Dec 2005 12:22:54 -0500
+User-Agent: KMail/1.8.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Matt Mackall <mpm@selenic.com>
+References: <20051211141217.GA5912@elte.hu>
+In-Reply-To: <20051211141217.GA5912@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512111222.56067.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sunday 11 December 2005 09:12, Ingo Molnar wrote:
+> this patch fixes 32-bitness bugs in mm/slob.c. Successfully booted x64 
+> with SLOB enabled. (i have switched the PREEMPT_RT feature to use the 
+> SLOB allocator exclusively, so it must work on all platforms)
 
-after the recent changes in remap_pfn_range it's not possible any more
-to create a mapping for a physically discontiguous range for which no
-struct page exists.
+Its a good idea to get this working everywhere.  Why have you switched to 
+use SLOB exclusively?
 
-Earlier it was achieved by calling remap_pfn_range for each physical
-region with the same vma, but now this will result in
-incomplete_pfn_remap which handles only normal mappings, that is where
-we have struct page for each PFN.
-
-I would need such a mapping for a frame buffer consisting of two
-discontiguous physical range. Is there any way I can do this with the
-current API? If not, is there a plan to support it (with a vm_insert_pfn
-for example) ? I know it's a rare HW configuration, but there might be
-some other use case for this.
-
-Thanks,
-Imre
-
-
+Thanks
+Ed Tomlinson

@@ -1,163 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbVLKWhv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbVLKWlY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbVLKWhv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 17:37:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbVLKWhu
+	id S1750904AbVLKWlY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 17:41:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbVLKWlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 17:37:50 -0500
-Received: from hera.kernel.org ([140.211.167.34]:24966 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750893AbVLKWhu (ORCPT
+	Sun, 11 Dec 2005 17:41:24 -0500
+Received: from styx.suse.cz ([82.119.242.94]:64669 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S1750900AbVLKWlX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 17:37:50 -0500
-Date: Sun, 11 Dec 2005 20:36:46 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Wu Fengguang <wfg@mail.ustc.edu.cn>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Rik van Riel <riel@redhat.com>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       Magnus Damm <magnus.damm@gmail.com>, Nick Piggin <npiggin@suse.de>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [PATCH 03/16] mm: supporting variables and functions for balanced zone aging
-Message-ID: <20051211223646.GB6978@dmt.cnet>
-References: <20051207104755.177435000@localhost.localdomain> <20051207104932.630888000@localhost.localdomain>
+	Sun, 11 Dec 2005 17:41:23 -0500
+Date: Sun, 11 Dec 2005 23:40:59 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Bernhard Rosenkraenzer <bero@arklinux.org>
+Cc: dtor_core@ameritech.net, "Yu, Luming" <luming.yu@intel.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Brown, Len" <len.brown@intel.com>
+Subject: Re: [git pull 02/14] Add Wistron driver
+Message-ID: <20051211224059.GA28388@midnight.suse.cz>
+References: <3ACA40606221794F80A5670F0AF15F840A53FCC5@pdsmsx403> <d120d5000512060721j3a75ff7bh40309f4fa132b39a@mail.gmail.com> <200512111310.14984.bero@arklinux.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051207104932.630888000@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <200512111310.14984.bero@arklinux.org>
+X-Bounce-Cookie: It's a lemon tree, dear Watson!
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 07, 2005 at 06:47:58PM +0800, Wu Fengguang wrote:
-> The zone aging rates are currently imbalanced, the gap can be as large as 3
-> times, which can severely damage read-ahead requests and shorten their
-> effective life time.
+On Sun, Dec 11, 2005 at 01:10:13PM +0000, Bernhard Rosenkraenzer wrote:
+> On Tuesday 06 December 2005 15:21, Dmitry Torokhov wrote:
 > 
-> This patch adds three variables in struct zone
-> 	- aging_total
-> 	- aging_milestone
-> 	- page_age
-> to keep track of page aging rate, and keep it in sync on page reclaim time.
+> Hi, sorry for the delay, just returning from Spain...
 > 
-> The aging_total is just a per-zone counter-part to the per-cpu
-> pgscan_{kswapd,direct}_{zone name}. But it is not direct comparable between
-> zones, so the aging_milestone/page_age are maintained based on aging_total.
+> > > There are acpi daemon for any evetnts that needs user space attention.
+> > > I'm not sure if these events should be routed to input layer.
+> >
+> > How do you suggest handle buttons such as "Mail", "WWW", etc? Through
+> > acpid? And then tunnel them to X somewhow?
 > 
-> The page_age is a normalized value that can be direct compared between zones
-> with the helper macro age_ge/age_gt. The goal of balancing logics are to keep
-> this normalized value in sync between zones.
+> I think routing them to the input layer makes most sense because they are keys 
+> like everything else -- of course hacking acpid to pass on ACPI key events to 
+> Xorg via the XTest extension is not exactly hard, but that would break the 
+> keys in text mode (who knows, maybe someone wants to map his mail key to 
+> "mutt[RETURN]"?), and of course launching an application from acpid is a bit 
+> hard (acpid runs as root --> need to figure out which user is pressed the 
+> button, switch user IDs, find the correct X display if any, .....) if it's an 
+> input event, solutions for the expected functionality already exist - e.g. 
+> khotkeys.
+
+You also can hack acpid to use uinput to feed the events back to the
+input subsystem, but I agree with you that going there directly is
+probably the best way to go.
+
+> > > With acpi enabled - wistron module, bluetooth works.
+> > > From these test cases, do you still think wistron driver can help my
+> > > laptop?
+> >
+> > No, you have proven that the driver will not help to your laptop. Now,
+> > as it is, it won't even load on your laptop either, because of
+> > different DMI signature. So why are you complaining? I am pretty sure
+> > Bernhard (who added bluetooth handling) has his working with ACPI.
+> > Bernhard, any input on this?
 > 
-> One can check the balanced aging progress by running:
->                         tar c / | cat > /dev/null &
->                         watch -n1 'grep "age " /proc/zoneinfo'
-> 
-> Signed-off-by: Wu Fengguang <wfg@mail.ustc.edu.cn>
-> ---
-> 
->  include/linux/mmzone.h |   14 ++++++++++++++
->  mm/page_alloc.c        |   11 +++++++++++
->  mm/vmscan.c            |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 73 insertions(+)
-> 
-> --- linux.orig/include/linux/mmzone.h
-> +++ linux/include/linux/mmzone.h
-> @@ -149,6 +149,20 @@ struct zone {
->  	unsigned long		pages_scanned;	   /* since last reclaim */
->  	int			all_unreclaimable; /* All pages pinned */
->  
-> +	/* Fields for balanced page aging:
-> +	 * aging_total     - The accumulated number of activities that may
-> +	 *                   cause page aging, that is, make some pages closer
-> +	 *                   to the tail of inactive_list.
-> +	 * aging_milestone - A snapshot of total_scan every time a full
-> +	 *                   inactive_list of pages become aged.
-> +	 * page_age        - A normalized value showing the percent of pages
-> +	 *                   have been aged.  It is compared between zones to
-> +	 *                   balance the rate of page aging.
-> +	 */
-> +	unsigned long		aging_total;
-> +	unsigned long		aging_milestone;
-> +	unsigned long		page_age;
-> +
->  	/*
->  	 * Does the allocator try to reclaim pages from the zone as soon
->  	 * as it fails a watermark_ok() in __alloc_pages?
-> --- linux.orig/mm/vmscan.c
-> +++ linux/mm/vmscan.c
-> @@ -123,6 +123,53 @@ static long total_memory;
->  static LIST_HEAD(shrinker_list);
->  static DECLARE_RWSEM(shrinker_rwsem);
->  
-> +#ifdef CONFIG_HIGHMEM64G
-> +#define		PAGE_AGE_SHIFT  8
-> +#elif BITS_PER_LONG == 32
-> +#define		PAGE_AGE_SHIFT  12
-> +#elif BITS_PER_LONG == 64
-> +#define		PAGE_AGE_SHIFT  20
-> +#else
-> +#error unknown BITS_PER_LONG
-> +#endif
-> +#define		PAGE_AGE_SIZE   (1 << PAGE_AGE_SHIFT)
-> +#define		PAGE_AGE_MASK   (PAGE_AGE_SIZE - 1)
-> +
-> +/*
-> + * The simplified code is:
-> + * 	age_ge: (@a->page_age >= @b->page_age)
-> + * 	age_gt: (@a->page_age > @b->page_age)
-> + * The complexity deals with the wrap-around problem.
-> + * Two page ages not close enough(gap >= 1/8) should also be ignored:
-> + * they are out of sync and the comparison may be nonsense.
-> + *
-> + * Return value depends on the position of @a relative to @b:
-> + * -1/8       b      +1/8
-> + *   |--------|--------|-----------------------------------------------|
-> + *       0        1                           0
-> + */
-> +#define age_ge(a, b) \
-> +	(((a->page_age - b->page_age) & PAGE_AGE_MASK) < PAGE_AGE_SIZE / 8)
-> +#define age_gt(a, b) \
-> +	(((b->page_age - a->page_age) & PAGE_AGE_MASK) > PAGE_AGE_SIZE * 7 / 8)
-> +
-> +/*
-> + * Keep track of the percent of cold pages that have been scanned / aged.
-> + * It's not really ##%, but a high resolution normalized value.
-> + */
-> +static inline void update_zone_age(struct zone *z, int nr_scan)
-> +{
-> +	unsigned long len = z->nr_inactive | 1;
-> +
-> +	z->aging_total += nr_scan;
-> +
-> +	if (z->aging_total - z->aging_milestone > len)
-> +		z->aging_milestone += len;
-> +
-> +	z->page_age = ((z->aging_total - z->aging_milestone)
-> +						<< PAGE_AGE_SHIFT) / len;
-> +}
-> +
+> I have ACPI + wistron module. Can't tell if bluetooth actually works because I 
+> don't have any bluetooth hardware, but I can tell the bluetooth LED can be 
+> turned on and off.
 
-Hi Wu,
+You should see the bluetooth USB device appearing and disappearing in
+'lsusb'.
 
-It is not very clear to me what is the meaning of these numbers and what
-you're trying to deduce from them. Please correct me if I'm wrong.
+> ACPI works on this box, but not the ACPI buttons stuff (guess they aren't 
+> following standards...). I'm running a modified 2.6.15-rc5-mm1 here (none of 
+> the modifications touch ACPI though).
 
-z->aging_total is the sum of all scanned inactive pages for the zone
-(sum of scanned pages by shrink_cache).
-
-z->aging_milestone is the number of pages scanned with "nr_inactive"
-precision (it is updated in response to a full inactive list scan).
-
-z->page_age is the difference between aging_milestone and aging_total.
-
-The name sounds a bit misleading since "page age" intuitively means
-"what is the age of a page".
-
-Anyway, z->page_age is the number of scanned pages since the last full  
-scan, shifted left by PAGE_AGE_SHIFT and divided by the number of       
-inactive pages.                                                         
-
-IOW, it still means "number of scanned pages since last full scan".
-
-How can that be meaningful? No other code uses this in the patchset
-AFAICS.
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

@@ -1,82 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbVLKXPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVLKW6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbVLKXPo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 18:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbVLKXPo
+	id S1750796AbVLKW6S (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 17:58:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbVLKW6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 18:15:44 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:30080 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750802AbVLKXPn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 18:15:43 -0500
-Date: Mon, 12 Dec 2005 00:19:21 +0100
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, rms@gnu.org,
-       Coywolf Qi Hunt <coywolf@gmail.com>, luke-jr@utopios.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: GNU/Linux in a binary world... a doomsday scenario
-Message-ID: <20051211231921.GA15832@aitel.hist.no>
-References: <2cd57c900512052358m5b631204i@mail.gmail.com> <200512061856.42493.luke-jr@utopios.org> <2cd57c900512061742s28f57b5eu@mail.gmail.com> <20051210051628.E9E08CF4156@tsurukikun.utopios.org> <439A7E8E.8010707@wolfmountaingroup.com> <20051210164320.GB15986@aitel.hist.no> <20051210190537.GI13985@lug-owl.de> <439B2215.6090408@wolfmountaingroup.com> <20051210191501.GJ13985@lug-owl.de> <439B3E36.7090302@wolfmountaingroup.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <439B3E36.7090302@wolfmountaingroup.com>
-User-Agent: Mutt/1.5.11
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Sun, 11 Dec 2005 17:58:17 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25489 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750796AbVLKW6R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 17:58:17 -0500
+Date: Sun, 11 Dec 2005 14:57:40 -0800
+From: Paul Jackson <pj@sgi.com>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: akpm@osdl.org, zwane@arm.linux.org.uk, ashok.raj@intel.com, ak@suse.de,
+       davej@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Don't attempt to power off if power off is not
+ implemented.
+Message-Id: <20051211145740.32284a45.pj@sgi.com>
+In-Reply-To: <m1k6egavgq.fsf_-_@ebiederm.dsl.xmission.com>
+References: <Pine.LNX.4.61.0511270115020.20046@montezuma.fsmlabs.com>
+	<20051127135833.GH20775@brahms.suse.de>
+	<m1wtiufa9z.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.61.0511270836120.20046@montezuma.fsmlabs.com>
+	<m1psolfqvt.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0512021221210.13220@montezuma.fsmlabs.com>
+	<m1iru7dlww.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0512050014000.6637@montezuma.fsmlabs.com>
+	<m1zmncb0n5.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0512072158500.2557@montezuma.fsmlabs.com>
+	<m1vey0azeu.fsf@ebiederm.dsl.xmission.com>
+	<Pine.LNX.4.64.0512072249000.2557@montezuma.fsmlabs.com>
+	<m1k6egavgq.fsf_-_@ebiederm.dsl.xmission.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 10, 2005 at 01:44:38PM -0700, Jeff V. Merkey wrote:
-
-[...]
-> The entire culture has absolutely no concept of IP rights and I was 
-> amazed at how open folks are there about piracy.  If someone did that in 
-> the US, they'd
-> be in jail.   I have lived in Germany, Italy, France, Spain, Crete, and 
-> I spent about 2 years in the UK when I was a younger man, and I have a 
-> really
-> good handle on the culture over there.  Even the republic countries 
-> which have democratic governments are very much socialist in terms of the
-> lifestyle and the governments, and the way people live, so it's no 
-> surprise the whole concept of free software and the GPL are so natural 
-> to the
-> culture of Europe in general.
+> For architectures like alpha that don't implement the pm_power_off
+> variable pm_power_off is declared in linux/pm.h and it is a generic
+> part of our power management code, and all architectures should
+> implement it.
 > 
-Free sw and GPL is not about disrespect for intellectual property. We
-want the GPL to be respected - as well as *enforced* when need be.
-Free sw people tend to respect IP laws *more* than others - simply because
-it is easier for us.  We don't need to choose between piracy
-or paying through the nose for an os or an office productivity suite,
-whe have all of this and more for free - legally.  Some of us take
-pride in not pirating anything.
+> ...
+> 
+> Andrew can you pick this up and put this in the mm tree.  Kernels
+> that don't compile or don't power off seem saner than kernels that
+> oops or panic.  
 
-> I have been very dismayed at how FOSS has been used as a vehicle to 
-> promote anti-american attitudes into our own culture.  It's sad.  I have 
-> lived in
-> all these places and the only place where people have guaranteed rights 
-> as individuals and true freedom is America.  
+Ok - so now you've broken alpha build ;(.
 
-"The only place!"  Are you just trying to provoke?  Or can you tell me
-what freedoms and rights I lack? I live in a democracy, I vote, I
-have freedom of speech and press, I can leave if I'm not satisified anyway.
-I also have the freedom of going wherever I want, any time of day, without risk.
+Yes - as your patch comment explains, the alternatives suck worse.
 
-If you wonder why some people have an anti-american attitude, try listening to
-what they say.  It is usually about foreign policies, environmental problems,
-or the actions of large America-based multinational corporations. 
+I'll send a patch that provides a NULL pm_power_off pointer for alpha,
+which in my 43 seconds of deep analysis of this issue, seems to be the
+thing to do for arch's that don't define a useful pm_power_off.
 
-> I was in Germany in the late
-> 1970's and earlt 1980's when the Bater-Meinhoffs were killing Americans 
-
-Criminals, which were eventually caught.  Seems to me America has enough
-of their own criminals killing americans?  
-
-> in the streets and the Grune-Gehfahr (Green Party) was having 
-> demonstrations burning effigies of Uncle Sam in the Hauptewache District 
-
-Excercising their freedom of speech?  It'd be sad if they couldn't.
-If you love freedom of speech, then you have to put up with people
-saying all sorts of things. Even things you don't like.
-
-Helge Hafting
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

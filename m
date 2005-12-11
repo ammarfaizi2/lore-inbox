@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbVLKVNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbVLKVVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbVLKVNH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 16:13:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVLKVNH
+	id S1750822AbVLKVVh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 16:21:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVLKVVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 16:13:07 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:64143 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750788AbVLKVNF (ORCPT
+	Sun, 11 Dec 2005 16:21:37 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:17581 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750822AbVLKVVg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 16:13:05 -0500
+	Sun, 11 Dec 2005 16:21:36 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Zh9z80l0v5x0AGybOsaUB2sOHxdAYEb99r9JqfRmy4qyxa4+pRsbomrQV+NvwR/GBU93vkqZ8184lwawMvBsRFcI6LX+WmROmB/fGvGtdsy5PqtsbVkmAKV8B1V7+UUGSqRcluSYY73TGDjb5j84qCHRMhaw1b/33OoMIwJOYRY=
-Message-ID: <439C965C.5030100@gmail.com>
-Date: Mon, 12 Dec 2005 05:13:00 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051025)
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=bZkcYLQ7CXKN8ciXYT7XckxftSCJ2T+hRSnj1qw7fmXL88kvldLFhbhP+pslB5K0WlVro9kPVvc3ptFxJUJ/PUJhu5ydKPXEWEEO/uMczPsPzVz48cahEhAnj25h2mLXJWL3QcmU1Wd2zKvZc5JzeYB+REL0AL+pQm59CDSkid4=
+Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+To: vatsa@in.ibm.com
+Subject: Re: Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
+Date: Sun, 11 Dec 2005 16:21:18 -0500
+User-Agent: KMail/1.8.3
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>
+References: <439889FA.BB08E5E1@tv-sign.ru> <439B24A7.E2508AAE@tv-sign.ru> <20051211174114.GA4883@in.ibm.com>
+In-Reply-To: <20051211174114.GA4883@in.ibm.com>
 MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix vesafb display panning regression
-References: <20051211041308.7bb19454.akpm@osdl.org> <9a8748490512110808q2d485407o52da0d4777fbf38e@mail.gmail.com>
-In-Reply-To: <9a8748490512110808q2d485407o52da0d4777fbf38e@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512111621.20365.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix vesafb hang when scroll mode is REDRAW.
-
-Signed-off-by: Antonino Daplas <adaplas@pol.net>
----
-
-Jesper Juhl wrote:
-> On 12/11/05, Andrew Morton <akpm@osdl.org> wrote:
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm2/
->>
-> When booting this kernel with  vga=791 like I normally do, the kernel
-> hangs on boot. Booting with vga=normal works just fine.
-> I don't have very much info since as soon as the videomode is switched
-> I get a small rectangle of messed up colours in the top left corner of
-> the screen (the rest is just black) and then it hangs - even the
-> keyboard is dead, I have to powercycle the machine.
-> Nothing makes it to the logs and I don't have a second machine atm to
-> get logs via serial console or netconsole.
-> I've got the vesafb driver build in, none of the other fb drivers.
+On Sunday 11 December 2005 12:41, Srivatsa Vaddagiri wrote:
+> [Changed the subject line to be more generic in the interest of wider audience]
 > 
+> We seem to be having some confusion over the exact semantics of smp_mb().
+> 
+> Specifically, are all stores preceding smp_mb() guaranteed to have finished
+> (committed to memory/corresponding cache-lines on other CPUs invalidated) 
+> *before* successive loads are issued?
 
-Sorry about that.  This particular hunk was missing in the 
-vesafb_trim_pan_display.patch
+I doubt it. That's definitely not true of smp_wmb(), which boils down to
+__asm__ __volatile__ ("": : :"memory") on SMP i386 (which the constrains
+how the compiler orders write instructions, but is otherwise a nop. i386
+has in-order writes.).
 
-Tony
+And it makes sense that wmb() wouldn't wait for writes: RCU needs
+constraints on the order in which writes become visible, but has very week
+constraints on when they do. Waiting for writes to flush would hurt
+performance.
 
- drivers/video/vesafb.c |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/video/vesafb.c b/drivers/video/vesafb.c
-index e6e56b8..8982e54 100644
---- a/drivers/video/vesafb.c
-+++ b/drivers/video/vesafb.c
-@@ -417,6 +417,9 @@ static int __init vesafb_probe(struct pl
- 	info->flags = FBINFO_FLAG_DEFAULT |
- 		(ypan) ? FBINFO_HWACCEL_YPAN : 0;
- 
-+	if (!ypan)
-+		info->fbops->fb_pan_display = NULL;
-+
- 	if (fb_alloc_cmap(&info->cmap, 256, 0) < 0) {
- 		err = -ENOMEM;
- 		goto err;
+Andrew Wade

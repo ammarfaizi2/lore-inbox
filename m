@@ -1,82 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbVLKUHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbVLKUMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750859AbVLKUHX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 15:07:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbVLKUHX
+	id S1750858AbVLKUMm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 15:12:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbVLKUMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 15:07:23 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:45124 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750852AbVLKUHW convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 15:07:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iiKgiU2xg605jK1eOLpJsaOcN/gPX8CY+wsLed3fg/2DWZw1RJfNggyU1vHEV36kGjQGQxVpOb3ddsHVySzOMVPmCjXKGb0ujPgSPssrzjdDik6a8mLemULuUuGeEt2aza0M3Ay9cw1dgUwPPZYOkoj2RPd7Vb41NPr+b9E+4RY=
-Message-ID: <9a8748490512111207g15d107f5mf40c4fe696bfe978@mail.gmail.com>
-Date: Sun, 11 Dec 2005 21:07:21 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 5/6] selinux: Remove unneeded k[cm]alloc() return value casts
-Cc: Stephen Smalley <sds@epoch.ncsc.mil>, James Morris <jmorris@redhat.com>,
-       selinux@tycho.nsa.gov, Andrew Morton <akpm@osdl.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>
-In-Reply-To: <200512112035.02729.jesper.juhl@gmail.com>
+	Sun, 11 Dec 2005 15:12:42 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46061 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750856AbVLKUMl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 15:12:41 -0500
+Message-ID: <439C884A.4010304@volny.cz>
+Date: Sun, 11 Dec 2005 21:12:58 +0100
+From: Miloslav Trmac <mitr@volny.cz>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200512112035.02729.jesper.juhl@gmail.com>
+To: Ashutosh Naik <ashutosh.naik@gmail.com>, dtor@mail.ru
+CC: bero@arklinux.org, akpm@osdl.org, vojtech@suse.cz,
+       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       linux-laptop@vger.kernel.org
+Subject: Re: [PATCH] drivers/input/misc: Added Acer TravelMate 240 support
+ to the wistron button interface
+References: <81083a450512102116o50d71fa0gbb53557f0e3d8748@mail.gmail.com>
+In-Reply-To: <81083a450512102116o50d71fa0gbb53557f0e3d8748@mail.gmail.com>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[resending this as it didn't seem to reach LKML on the first try -
-sorry if you recieve it twice]
-
-
-Remove redundant casts of k*alloc() return values in
-security/selinux/ss/services.c
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- security/selinux/ss/services.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
---- linux-2.6.15-rc5-git1-orig/security/selinux/ss/services.c  
-2005-12-04 18:49:02.000000000 +0100
-+++ linux-2.6.15-rc5-git1/security/selinux/ss/services.c       
-2005-12-11 19:46:39.000000000 +0100
-@@ -1712,11 +1712,11 @@ int security_get_bools(int *len, char **
-                goto out;
-        }
-
--       *names = (char**)kcalloc(*len, sizeof(char*), GFP_ATOMIC);
-+       *names = kcalloc(*len, sizeof(char*), GFP_ATOMIC);
-        if (!*names)
-                goto err;
-
--       *values = (int*)kcalloc(*len, sizeof(int), GFP_ATOMIC);
-+       *values = kcalloc(*len, sizeof(int), GFP_ATOMIC);
-        if (!*values)
-                goto err;
-
-@@ -1724,7 +1724,7 @@ int security_get_bools(int *len, char **
-                size_t name_len;
-                (*values)[i] = policydb.bool_val_to_struct[i]->state;
-                name_len = strlen(policydb.p_bool_val_to_name[i]) + 1;
--               (*names)[i] = (char*)kmalloc(sizeof(char) * name_len,
-GFP_ATOMIC);
-+               (*names)[i] = kmalloc(sizeof(char) * name_len, GFP_ATOMIC);
-                if (!(*names)[i])
-                        goto err;
-                strncpy((*names)[i], policydb.p_bool_val_to_name[i], name_len);
-
-
-
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Ashutosh Naik wrote:
+> This patch adds Acer TravelMate 240 support to the wistron button
+> interface. This means that the buttons on top of the
+> keyboard(including ones for Wifi and Bluetooth),  which hitherto did
+> not work, work now. I have tested it on my laptop and it seems to work
+> great.
+> 
+> Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
+Signed-off-by: Miloslav Trmac <mitr@volny.cz>

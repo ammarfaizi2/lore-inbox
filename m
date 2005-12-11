@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbVLKKtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751339AbVLKK7d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751327AbVLKKtO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 05:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbVLKKtO
+	id S1751339AbVLKK7d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 05:59:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbVLKK7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 05:49:14 -0500
-Received: from gold.veritas.com ([143.127.12.110]:61497 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1751327AbVLKKtN (ORCPT
+	Sun, 11 Dec 2005 05:59:33 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:18107 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751339AbVLKK7c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 05:49:13 -0500
-Date: Sun, 11 Dec 2005 10:49:24 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-cc: Martin Drab <drab@kepler.fjfi.cvut.cz>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc5 bad page with fglrx on Radeon X300
-In-Reply-To: <439B475F.2050901@ens-lyon.org>
-Message-ID: <Pine.LNX.4.61.0512111038510.3858@goblin.wat.veritas.com>
-References: <Pine.LNX.4.64.0512032155290.3099@g5.osdl.org> <439B475F.2050901@ens-lyon.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 11 Dec 2005 10:49:08.0744 (UTC) FILETIME=[837F3080:01C5FE40]
+	Sun, 11 Dec 2005 05:59:32 -0500
+Date: Sun, 11 Dec 2005 11:58:44 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Gaurav Dhiman <gaurav4lkg@gmail.com>, yen <yen@eos.cs.nthu.edu.tw>,
+       linux-kernel@vger.kernel.org
+Subject: Re: IRQ vector assignment for system call exception
+Message-ID: <20051211105844.GA4085@elte.hu>
+References: <20051208080435.M54890@eos.cs.nthu.edu.tw> <1e33f5710512100520k57c016b0tadfbb496cac3ea6e@mail.gmail.com> <1134238271.2828.19.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1134238271.2828.19.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Dec 2005, Brice Goglin wrote:
-> Does anybody out there have ATI drivers working on Radeon X300
-> on 2.6.15-rc5 (or -rc[234]) ? They released fglrx 8.20.8 on december 8th.
-> I thought they would have fixed the driver for 2.6.15.
-> But, I still get bad page and X programs freezing.
 
-The ATI wrapper source is carefully "#if 0"ing a get_page because of the
-traditional anomalous behaviour of PageReserved.  2.6.15-rc killed that
-anomalous behaviour, so their "#if 0" needs to become a version test.
+* Arjan van de Ven <arjan@infradead.org> wrote:
 
-Big thanks to Martin Drab for testing this (and correcting the stupidity
-of my original inverted patch) - tell us if it does not work for you too.
+> On Sat, 2005-12-10 at 18:50 +0530, Gaurav Dhiman wrote:
+> > yes, definetely a historical reason. System libraries need to know
+> > this vector to invoke system call.
+> 
+> nowadays it's also mostly unused; sysenter and friends are used 
+> instead and they don't use this entry point.
 
-Hugh
+note that some system-calls are still invoked via int80 by glibc, such 
+as fork() - even on sysenter/syscall capable CPUs.
 
---- fglrx.orig/build_mod/firegl_public.c	2005-12-05 15:47:41.000000000 +0000
-+++ fglrx/build_mod/firegl_public.c	2005-12-05 17:18:12.000000000 +0000
-@@ -2586,7 +2586,7 @@ static __inline__ vm_nopage_ret_t do_vm_
- 
-     pMmPage = virt_to_page(kaddr);
- 
--#if 0
-+#if LINUX_VERSION_CODE >= 0x02060f
-     // WARNING WARNINIG WARNNING WARNNING WARNNING WARNNING WARNNING WARNNING
-     // Don't increment page usage count, cause ctx pages are allocated
-     // with drm_alloc_pages, which marks all pages as reserved. Reserved
+	Ingo

@@ -1,97 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161105AbVLKJAQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161085AbVLKJPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161105AbVLKJAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 04:00:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161106AbVLKJAQ
+	id S1161085AbVLKJPd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 04:15:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161087AbVLKJPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 04:00:16 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:62860 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1161105AbVLKJAP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 04:00:15 -0500
-Message-ID: <439BE48A.4020205@wolfmountaingroup.com>
-Date: Sun, 11 Dec 2005 01:34:18 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Sun, 11 Dec 2005 04:15:32 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:10193
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S1161085AbVLKJPc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 04:15:32 -0500
+From: Rob Landley <rob@landley.net>
+Organization: Boundaries Unlimited
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: ipw2200 [was Re: RFC: Starting a stable kernel series off the 2.6 kernel]
+Date: Sun, 11 Dec 2005 03:12:46 -0600
+User-Agent: KMail/1.8
+Cc: Bill Davidsen <davidsen@tmr.com>, Mark Lord <lkml@rtr.ca>,
+       Adrian Bunk <bunk@stusta.de>, David Ranson <david@unsolicited.net>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       Matthias Andree <matthias.andree@gmx.de>
+References: <20051203135608.GJ31395@stusta.de> <200512102330.31572.rob@landley.net> <20051211083737.GF5187@elf.ucw.cz>
+In-Reply-To: <20051211083737.GF5187@elf.ucw.cz>
 MIME-Version: 1.0
-To: rms@gnu.org
-Cc: coywolf@gmail.com, luke-jr@utopios.org, linux-kernel@vger.kernel.org
-Subject: Re: GNU/Linux in a binary world... a doomsday scenario
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>         <20051206040820.GB26602@kroah.com>         <2cd57c900512052358m5b631204i@mail.gmail.com>         <200512061856.42493.luke-jr@utopios.org> <2cd57c900512061742s28f57b5eu@mail.gmail.com> <20051210051628.E9E08CF4156@tsurukikun.utopios.org> <439A7E8E.8010707@wolfmountaingroup.com> <E1ElJMz-00047E-1p@fencepost.gnu.org>
-In-Reply-To: <E1ElJMz-00047E-1p@fencepost.gnu.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512110312.47142.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard M. Stallman wrote:
+On Sunday 11 December 2005 02:37, Pavel Machek wrote:
+> On So 10-12-05 23:30:30, Rob Landley wrote:
+> > On Saturday 10 December 2005 02:35, Pavel Machek wrote:
+> > > On Wed 07-12-05 12:14:25, Rob Landley wrote:
+> > > > On Tuesday 06 December 2005 12:51, Bill Davidsen wrote:
+> > > > > Just so we're all on the same page, I think there are two sets of
+> > > > > unhappy people here... one is the group who want new stuff fast and
+> > > > > stable. For the most part that's not me, although I was in the "if
+> > > > > you're going to add ipw2200 support, why not something that works?"
+> > > > > group. But new stuff is going in faster than most people can
+> > > > > assimilate it if they have a real job, so I don't see too much
+> > > > > problem there.
+> > > >
+> > > > My laptop has an ipw2200 but I can't get it to work in any kernel I
+> > > > built because the kernels I build aren't modular.  I hope to be able
+> > > > to work around this someday with a clever enough initramfs (if
+> > > > necessary, moving the initramfs initialization earlier in the boot
+> > > > sequence), but it hasn't made it far enough up my todo list yet.
+> > >
+> > > Well, building modular kernel for a test is not *that* much work.
+> > > Anyway, if you are going to fix it, fix it properly (by
+> > > delayed firmware loading) -- initrd hacks are good for you
+> > > but unusable for anyone else.
+> >
+> > I don't see why that's any less usable than using udev from initramfs to
+> > find your root partition.
+>
+> Why use udev from initramfs?
 
->	The current
->    models have created a conduit for socialist disintegration of the 
->    american hi tech
->    markets, loss of jobs, and have funnelled technology out of the 
->    country.  Legal
->    defense funds should be the biggest red flags of all.  If this system 
->    you devised really
->    works, why all the litigation?  Why all the need for legal defense funds 
->    and patent
->    infringement insurance?
->
->I think you are combining several different issues that need to be
->addressed separately.  The GNU GPL works well for the problems it was
->designed to solve, especially the problem of having to compete with
->proprietary modified versions of your own free software.  It succeeds,
->to the extent copyright holders enforce it, in ensuring that all users
->of the program get the source code and are free to run, change, and
->redistribute the program.  But it does not solve all the world's
->problems, or even all of software's ethical problems.  That is too
->much to expect.
->
->No software license can make software patents go away, nor can any
->software license by itself change the larger patterns--the
->globalization of business power, the erosion of democracy, the
->increasing concentration of wealth.  Those problems are real, and I
->don't know how to solve them, so I hope someone else finds a way.
->Meanwhile, the GNU GPL does what we can reasonably ask of it.
->
->    This movement has spawned a global attitude that has no 
->    respect
->    for IP rights,
->
->That attitude does not come from me.  I think it comes from the use of
->the biased and misleading term "IP rights".  That term lumps together
->more than a dozen disparate laws, which have little in
->common--including, for instance, copyright law and patent law, whose
->practical effects in the software field are completely different.
->
->Discussing these various laws as "IP" tends to lead people to
->simplistic, across-the-board views.  It also leads people to imagine
->that there is some sort of general "principle of IP" that these
->various laws were designed to embody (which is historically false).
->That's how you get so many people who are "for IP" or "against IP".
->
->To avoid these confusions, I decided not to use the term "IP" (except
->when it means "Internet Protocol").  It is clearer to discuss
->copyright, patents, and trademarks as three separate issues; that way,
->we can think about each of them in terms of how it affects society,
->without being drawn towards simplistic, across-the-board views.
->
->See http://www.gnu.org/philosophy/not-ipr.xhtml for more explanation
->of this issue.
->
->
->  
->
-Richard,
- 
-It is within your power to revise the GP L to address these issues.  You 
-should consider
-doing so.  I would be happy to propose several changes in future 
-revisions.  Let me know where,
-when, and what to provide.  You can be assured I'll provide some very 
-excellent input on
-these issues. 
+I don't, but I do use a script that mknods the real root's node based on 
+running "find" against /sys to locacate the appropriate device name and then 
+finding the major/minor numbers there.
 
-Jeff
+This has nothing whatsoever to do with ipw2200.  It just means I'm not using 
+the in-kernel root-finder code.
 
+> Just teach ipw2200 to load firmware late.
+
+That's now how I'd fix this.  If you want to fix it this way, be my guest.
+
+> Don't load firmware when ipw2200 is initialized, load it only 
+> when someone attempts to talk to your ipw2200. At that time, you
+> should have userland already.
+
+Or I could move initramfs extraction earlier in the boot sequence and never 
+have to modify any _other_ drivers that want firmware in order to be able to 
+make them work too, rather than playing whack-a-mole teaching drivers I don't 
+care about how to hold off on wanting firmware.
+
+>         Pavel
+
+Rob
+-- 
+Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
+I do not think it means what you think it means.

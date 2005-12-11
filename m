@@ -1,28 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbVLKS1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbVLKS0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbVLKS1T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 13:27:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVLKSZ1
+	id S1750780AbVLKS0K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 13:26:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750783AbVLKSZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 13:25:27 -0500
-Received: from mail.gmx.de ([213.165.64.21]:5041 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750779AbVLKSZT (ORCPT
+	Sun, 11 Dec 2005 13:25:43 -0500
+Received: from mail.gmx.net ([213.165.64.21]:35722 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750780AbVLKSZV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 13:25:19 -0500
+	Sun, 11 Dec 2005 13:25:21 -0500
 X-Authenticated: #20799612
-Date: Sun, 11 Dec 2005 19:20:38 +0100
+Date: Sun, 11 Dec 2005 19:20:37 +0100
 From: Hansjoerg Lipp <hjlipp@web.de>
 To: Karsten Keil <kkeil@suse.de>
 Cc: i4ldeveloper@listserv.isdn4linux.de, linux-usb-devel@lists.sourceforge.net,
        linux-kernel@vger.kernel.org, Greg Kroah-Hartman <gregkh@suse.de>,
        Tilman Schmidt <tilman@imap.cc>
-Subject: [PATCH 9/9] isdn4linux: Siemens Gigaset drivers - M105 USB DECT adapter
-Message-ID: <gigaset307x.2005.12.11.001.9@hjlipp.my-fqdn.de>
-References: <gigaset307x.2005.12.11.001.0@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.1@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.2@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.3@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.4@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.5@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.6@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.7@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.8@hjlipp.my-fqdn.de>
+Subject: [PATCH 2/9] isdn4linux: Siemens Gigaset drivers - common module
+Message-ID: <gigaset307x.2005.12.11.001.2@hjlipp.my-fqdn.de>
+References: <gigaset307x.2005.12.11.001.0@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.1@hjlipp.my-fqdn.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <gigaset307x.2005.12.11.001.8@hjlipp.my-fqdn.de>
+In-Reply-To: <gigaset307x.2005.12.11.001.1@hjlipp.my-fqdn.de>
 User-Agent: Mutt/1.5.9i
 X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,32 +30,1000 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Tilman Schmidt <tilman@imap.cc>, Hansjoerg Lipp <hjlipp@web.de>
 
-This patch adds the connection-specific module "usb_gigaset", the
-hardware driver for Gigaset base stations connected via the M105 USB
-DECT adapter. It contains the code for handling probe/disconnect, AT
-command/response transmission, and call setup and termination, as well
-as handling asynchronous data transfers, PPP framing, byte stuffing,
-and flow control.
+This patch adds the common include file for the Siemens Gigaset drivers,
+providing definitions used by all of the Gigaset ISDN driver source files.
+It also adds the main source file of the gigaset module which manages
+common functions not specific to the type of connection to the device.
 
 Signed-off-by: Hansjoerg Lipp <hjlipp@web.de>
 Signed-off-by: Tilman Schmidt <tilman@imap.cc>
 ---
 
- drivers/isdn/gigaset/asyncdata.c   |  597 +++++++++++++++++++++
- drivers/isdn/gigaset/usb-gigaset.c | 1028 +++++++++++++++++++++++++++++++++++++
- 2 files changed, 1625 insertions(+)
+ drivers/isdn/gigaset/common.c  | 1247 +++++++++++++++++++++++++++++++++++++++++
+ drivers/isdn/gigaset/gigaset.h |  969 +++++++++++++++++++++++++++++++
+ 2 files changed, 2216 insertions(+)
 
---- linux-2.6.14/drivers/isdn/gigaset/usb-gigaset.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.14-gig/drivers/isdn/gigaset/usb-gigaset.c	2005-12-11 13:21:42.000000000 +0100
-@@ -0,0 +1,1028 @@
+--- linux-2.6.14/drivers/isdn/gigaset/gigaset.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.14-gig/drivers/isdn/gigaset/gigaset.h	2005-12-11 13:21:42.000000000 +0100
+@@ -0,0 +1,969 @@
++/* Siemens Gigaset 307x driver
++ * Common header file for all connection variants
++ *
++ * Written by Stefan Eilers <Eilers.Stefan@epost.de>
++ *        and Hansjoerg Lipp <hjlipp@web.de>
++ *
++ * Version: $Id: gigaset.h,v 1.97.4.18 2005/12/10 16:56:16 hjlipp Exp $
++ * ===========================================================================
++ */
++
++#ifndef GIGASET_H
++#define GIGASET_H
++
++#include <linux/config.h>
++#include <linux/kernel.h>
++#include <linux/compiler.h>
++#include <linux/types.h>
++#include <asm/atomic.h>
++#include <linux/spinlock.h>
++#include <linux/isdnif.h>
++#include <linux/usb.h>
++#include <linux/skbuff.h>
++#include <linux/netdevice.h>
++#include <linux/ppp_defs.h>
++#include <linux/proc_fs.h>
++#include <linux/timer.h>
++#include <linux/interrupt.h>
++#include <linux/tty.h>
++#include <linux/tty_driver.h>
++
++#define GIG_VERSION {0,5,0,0}
++#define GIG_COMPAT  {0,4,0,0}
++
++#define MAX_REC_PARAMS 10                         /* Max. number of params in response string */
++#define MAX_RESP_SIZE 512                         /* Max. size of a response string */
++#define HW_HDR_LEN 2                              /* Header size used to store ack info */
++
++#define MAX_EVENTS 64                          /* size of event queue */
++
++#define RBUFSIZE 8192
++#define SBUFSIZE 4096				/* sk_buff payload size */
++
++#define MAX_BUF_SIZE (SBUFSIZE - 2)		/* Max. size of a data packet from LL */
++#define TRANSBUFSIZE 768			/* bytes per skb for transparent receive */
++
++/* compile time options */
++#define GIG_MAJOR 0
++
++#define GIG_MAYINITONDIAL
++#define GIG_RETRYCID
++#define GIG_X75
++
++#define MAX_TIMER_INDEX 1000
++#define MAX_SEQ_INDEX   1000
++
++#define GIG_TICK (HZ / 10)
++
++/* timeout values (unit: 1 sec) */
++#define INIT_TIMEOUT 1
++
++/* timeout values (unit: 0.1 sec) */
++#define RING_TIMEOUT 3		/* for additional parameters to RING */
++#define BAS_TIMEOUT 20		/* for response to Base USB ops */
++#define ATRDY_TIMEOUT 3		/* for HD_READY_SEND_ATDATA */
++
++#define BAS_RETRY 3		/* max. retries for base USB ops */
++
++#define MAXACT 3
++
++#define IFNULL(a)         if (unlikely(!(a)))
++#define IFNULLRET(a)      if (unlikely(!(a))) {err("%s==NULL at %s:%d!", #a, __FILE__, __LINE__); return; }
++#define IFNULLRETVAL(a,b) if (unlikely(!(a))) {err("%s==NULL at %s:%d!", #a, __FILE__, __LINE__); return (b); }
++#define IFNULLCONT(a)     if (unlikely(!(a))) {err("%s==NULL at %s:%d!", #a, __FILE__, __LINE__); continue; }
++#define IFNULLGOTO(a,b)   if (unlikely(!(a))) {err("%s==NULL at %s:%d!", #a, __FILE__, __LINE__); goto b; }
++
++extern atomic_t gigaset_debuglevel; /* "needs" cast to (enum debuglevel) */
++
++/* any combination of these can be given with the 'debug=' parameter to insmod, e.g.
++ * 'insmod usb_gigaset.o debug=0x2c' will set DEBUG_OPEN, DEBUG_CMD and DEBUG_INTR. */
++enum debuglevel { /* up to 24 bits (atomic_t) */
++	DEBUG_REG	  = 0x0002, /* serial port I/O register operations */
++	DEBUG_OPEN	  = 0x0004, /* open/close serial port */
++	DEBUG_INTR	  = 0x0008, /* interrupt processing */
++	DEBUG_INTR_DUMP   = 0x0010, /* Activating hexdump debug output on interrupt
++				      requests, not available as run-time option */
++	DEBUG_CMD	  = 0x00020, /* sent/received LL commands */
++	DEBUG_STREAM	  = 0x00040, /* application data stream I/O events */
++	DEBUG_STREAM_DUMP = 0x00080, /* application data stream content */
++	DEBUG_LLDATA	  = 0x00100, /* sent/received LL data */
++	DEBUG_INTR_0	  = 0x00200, /* serial port output interrupt processing */
++	DEBUG_DRIVER	  = 0x00400, /* driver structure */
++	DEBUG_HDLC	  = 0x00800, /* M10x HDLC processing */
++	DEBUG_WRITE	  = 0x01000, /* M105 data write */
++	DEBUG_TRANSCMD    = 0x02000, /*AT-COMMANDS+RESPONSES*/
++	DEBUG_MCMD        = 0x04000, /*COMMANDS THAT ARE SENT VERY OFTEN*/
++	DEBUG_INIT	  = 0x08000, /* (de)allocation+initialization of data structures */
++	DEBUG_LOCK	  = 0x10000, /* semaphore operations */
++	DEBUG_OUTPUT	  = 0x20000, /* output to device */
++	DEBUG_ISO         = 0x40000, /* isochronous transfers */
++	DEBUG_IF	  = 0x80000, /* character device operations */
++	DEBUG_USBREQ	  = 0x100000, /* USB communication (except payload data) */
++	DEBUG_LOCKCMD     = 0x200000, /* AT commands and responses when MS_LOCKED */
++
++	DEBUG_ANY	  = 0x3fffff, /* print message if any of the others is activated */
++};
++
++#ifdef CONFIG_GIGASET_DEBUG
++#define DEBUG_DEFAULT (DEBUG_INIT | DEBUG_TRANSCMD | DEBUG_CMD | DEBUG_USBREQ)
++//#define DEBUG_DEFAULT (DEBUG_LOCK | DEBUG_INIT | DEBUG_TRANSCMD | DEBUG_CMD | DEBUF_IF | DEBUG_DRIVER | DEBUG_OUTPUT | DEBUG_INTR)
++#else
++#define DEBUG_DEFAULT 0
++#endif
++
++/* define our own syslog macros which add our module name to the message */
++/* The space before the comma in ", ##" is needed by gcc 2.95 */
++#undef info
++#define info(format, arg...) printk(KERN_INFO "%s: " format "\n", THIS_MODULE ? THIS_MODULE->name : "gigaset_hw" , ## arg)
++
++#undef notice
++#define notice(format, arg...) printk(KERN_NOTICE "%s: " format "\n", THIS_MODULE ? THIS_MODULE->name : "gigaset_hw" , ## arg)
++
++#undef warn
++#define warn(format, arg...) printk(KERN_WARNING "%s: " format "\n", THIS_MODULE ? THIS_MODULE->name : "gigaset_hw" , ## arg)
++
++#undef err
++#define err(format, arg...) printk(KERN_ERR "%s: " format "\n", THIS_MODULE ? THIS_MODULE->name : "gigaset_hw" , ## arg)
++
++#undef dbg
++#ifdef CONFIG_GIGASET_DEBUG
++#define dbg(level, format, arg...) do { if (unlikely((enum debuglevel)atomic_read(&gigaset_debuglevel) & (level))) \
++	printk(KERN_DEBUG "%s: " format "\n", THIS_MODULE ? THIS_MODULE->name : "gigaset_hw" , ## arg); } while (0)
++#else
++#define dbg(level, format, arg...) do {} while (0)
++#endif
++
++void gigaset_dbg_buffer(enum debuglevel level, const unsigned char *msg,
++                        size_t len, const unsigned char *buf, int from_user);
++
++/* connection state */
++#define ZSAU_NONE			0
++#define ZSAU_DISCONNECT_IND		4
++#define ZSAU_OUTGOING_CALL_PROCEEDING	1 //FIXME
++#define ZSAU_PROCEEDING			1
++#define ZSAU_CALL_DELIVERED		2
++#define ZSAU_ACTIVE			3
++#define ZSAU_NULL			5
++#define ZSAU_DISCONNECT_REQ		6
++#define ZSAU_UNKNOWN			-1
++
++/* USB control transfer requests */
++#define OUT_VENDOR_REQ			(USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_ENDPOINT)
++#define IN_VENDOR_REQ			(USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_ENDPOINT)
++
++/* int-in-events 3070 */
++#define HD_B1_FLOW_CONTROL		0x80
++#define HD_B2_FLOW_CONTROL		0x81
++#define HD_RECEIVEATDATA_ACK		(0x35)		// 3070		// att: HD_RECEIVE>>AT<<DATA_ACK
++#define HD_READY_SEND_ATDATA		(0x36)		// 3070
++#define HD_OPEN_ATCHANNEL_ACK		(0x37)		// 3070
++#define HD_CLOSE_ATCHANNEL_ACK		(0x38)		// 3070
++#define HD_DEVICE_INIT_OK		(0x11)		// ISurf USB + 3070
++#define HD_OPEN_B1CHANNEL_ACK		(0x51)		// ISurf USB + 3070
++#define HD_OPEN_B2CHANNEL_ACK		(0x52)		// ISurf USB + 3070
++#define HD_CLOSE_B1CHANNEL_ACK		(0x53)		// ISurf USB + 3070
++#define HD_CLOSE_B2CHANNEL_ACK		(0x54)		// ISurf USB + 3070
++// 	 Powermangment
++#define HD_SUSPEND_END			(0x61)		// ISurf USB
++//   Configuration
++#define HD_RESET_INTERRUPT_PIPE_ACK	(0xFF)		// ISurf USB + 3070
++
++/* control requests 3070 */
++#define	HD_OPEN_B1CHANNEL		(0x23)		// ISurf USB + 3070
++#define	HD_CLOSE_B1CHANNEL		(0x24)		// ISurf USB + 3070
++#define	HD_OPEN_B2CHANNEL		(0x25)		// ISurf USB + 3070
++#define	HD_CLOSE_B2CHANNEL		(0x26)		// ISurf USB + 3070
++#define HD_RESET_INTERRUPT_PIPE		(0x27)		// ISurf USB + 3070
++#define	HD_DEVICE_INIT_ACK		(0x34)		// ISurf USB + 3070
++#define	HD_WRITE_ATMESSAGE		(0x12)		// 3070
++#define	HD_READ_ATMESSAGE		(0x13)		// 3070
++#define	HD_OPEN_ATCHANNEL		(0x28)		// 3070
++#define	HD_CLOSE_ATCHANNEL		(0x29)		// 3070
++
++/* USB frames for isochronous transfer */
++#define BAS_FRAMETIME	1		/* number of milliseconds between frames */
++#define BAS_NUMFRAMES	8		/* number of frames per URB */
++#define BAS_MAXFRAME	16		/* allocated bytes per frame */
++#define BAS_NORMFRAME	8		/* send size without flow control */
++#define BAS_HIGHFRAME	10		/* "    "    with positive flow control */
++#define BAS_LOWFRAME	5		/* "    "    with negative flow control */
++#define BAS_CORRFRAMES	4		/* flow control multiplicator */
++
++#define BAS_INBUFSIZE	(BAS_MAXFRAME * BAS_NUMFRAMES) /* size of isochronous input buffer per URB */
++#define BAS_OUTBUFSIZE	4096		/* size of common isochronous output buffer */
++#define BAS_OUTBUFPAD	BAS_MAXFRAME	/* size of pad area for isochronous output buffer */
++
++#define BAS_INURBS	3
++#define BAS_OUTURBS	3
++
++/* variable commands in struct bc_state */
++#define AT_ISO		0
++#define AT_DIAL		1
++#define AT_MSN		2
++#define AT_BC		3
++#define AT_PROTO	4
++#define AT_TYPE		5
++#define AT_HLC		6
++#define AT_NUM		7
++
++/* variables in struct at_state_t */
++#define VAR_ZSAU   0
++#define VAR_ZDLE   1
++#define VAR_ZVLS   2
++#define VAR_ZCTP   3
++#define VAR_NUM    4
++
++#define STR_NMBR   0
++#define STR_ZCPN   1
++#define STR_ZCON   2
++#define STR_ZBC    3
++#define STR_ZHLC   4
++#define STR_NUM    5
++
++#define EV_TIMEOUT      -105
++#define EV_IF_VER       -106
++#define EV_PROC_CIDMODE -107
++#define EV_SHUTDOWN     -108
++#define EV_START        -110
++#define EV_STOP         -111
++#define EV_IF_LOCK      -112
++#define EV_PROTO_L2     -113
++#define EV_ACCEPT       -114
++#define EV_DIAL         -115
++#define EV_HUP          -116
++#define EV_BC_OPEN      -117
++#define EV_BC_CLOSED    -118
++
++/* input state */
++#define INS_command     0x0001
++#define INS_DLE_char    0x0002
++#define INS_byte_stuff  0x0004
++#define INS_have_data   0x0008
++#define INS_skip_frame  0x0010
++#define INS_DLE_command 0x0020
++#define INS_flag_hunt	0x0040
++
++/* channel state */
++#define CHS_D_UP	0x01
++#define CHS_B_UP	0x02
++#define CHS_NOTIFY_LL	0x04
++
++#define ICALL_REJECT  0
++#define ICALL_ACCEPT  1
++#define ICALL_IGNORE  2
++
++/* device state */
++#define MS_UNINITIALIZED        0
++#define MS_INIT                 1
++#define MS_LOCKED               2
++#define MS_SHUTDOWN             3
++#define MS_RECOVER              4
++#define MS_READY                5
++
++/* mode */
++#define M_UNKNOWN       0
++#define M_CONFIG        1
++#define M_UNIMODEM      2
++#define M_CID           3
++
++/* start mode */
++#define SM_LOCKED       0
++#define SM_ISDN         1 /* default */
++
++struct gigaset_ops;
++struct gigaset_driver;
++
++struct usb_cardstate;
++struct ser_cardstate;
++struct bas_cardstate;
++
++struct bc_state;
++struct usb_bc_state;
++struct ser_bc_state;
++struct bas_bc_state;
++
++struct reply_t {
++	int	resp_code;      /* RSP_XXXX */
++	int	min_ConState;   /* <0 => ignore */
++	int	max_ConState;   /* <0 => ignore */
++	int	parameter;      /* e.g. ZSAU_XXXX <0: ignore*/
++	int	new_ConState;   /* <0 => ignore */
++	int	timeout;        /* >0 => *HZ; <=0 => TOUT_XXXX*/
++	int	action[MAXACT]; /* ACT_XXXX */
++	char *command;        /* NULL==none */
++};
++
++extern struct reply_t gigaset_tab_cid_m10x[];
++extern struct reply_t gigaset_tab_nocid_m10x[];
++
++struct proc_atomic {
++	atomic_t *variable;
++	int (*write_callback) (unsigned long data, int value);
++	int min;
++	int max;
++	unsigned long data;
++	//struct semaphore *sem;
++};
++
++struct inbuf_t {
++	unsigned char           *rcvbuf;                /* usb-gigaset receive buffer */
++							//FIXME move to cs->hw.usb
++	struct bc_state		*bcs;
++	struct cardstate *cs;
++	int inputstate;
++
++	atomic_t head, tail;
++	unsigned char data[RBUFSIZE];
++};
++
++/* isochronous write buffer structure
++ * circular buffer with pad area for extraction of complete USB frames
++ * - data[read..nextread-1] is valid data already submitted to the USB subsystem
++ * - data[nextread..write-1] is valid data yet to be sent
++ * - data[write] is the next byte to write to
++ *   - in byte-oriented L2 procotols, it is completely free
++ *   - in bit-oriented L2 procotols, it may contain a partial byte of valid data
++ * - data[write+1..read-1] is free
++ * - wbits is the number of valid data bits in data[write], starting at the LSB
++ * - writesem is the semaphore for writing to the buffer:
++ *   if writesem <= 0, data[write..read-1] is currently being written to
++ * - idle contains the byte value to repeat when the end of valid data is
++ *   reached; if nextread==write (buffer contains no data to send), either the
++ *   BAS_OUTBUFPAD bytes immediately before data[write] (if write>=BAS_OUTBUFPAD)
++ *   or those of the pad area (if write<BAS_OUTBUFPAD) are also filled with that
++ *   value
++ * - optionally, the following statistics on the buffer's usage can be collected:
++ *   maxfill: maximum number of bytes occupied
++ *   idlefills: number of times a frame of idle bytes is prepared
++ *   emptygets: number of times the buffer was empty when a data frame was requested
++ *   backtoback: number of times two data packets were entered into the buffer
++ *    without intervening idle flags
++ *   nakedback: set if no idle flags have been inserted since the last data packet
++ */
++struct isowbuf_t {
++	atomic_t	read;
++	atomic_t	nextread;
++	atomic_t	write;
++	atomic_t	writesem;
++	int		wbits;
++	unsigned char	data[BAS_OUTBUFSIZE + BAS_OUTBUFPAD];
++	unsigned char	idle;
++};
++
++/* isochronous write URB context structure
++ * data to be stored along with the URB and retrieved when it is returned
++ * as completed by the USB subsystem
++ * - urb: pointer to the URB itself
++ * - bcs: pointer to the B Channel control structure
++ * - limit: end of write buffer area covered by this URB
++ */
++struct isow_urbctx_t {
++	struct urb *urb;
++	struct bc_state *bcs;
++	int limit;
++};
++
++/* AT state structure
++ * data associated with the state of an ISDN connection, whether or not
++ * it is currently assigned a B channel
++ */
++struct at_state_t {
++	struct at_state_t       *next, *prev;
++	int                     waiting;
++	int                     getstring;
++	atomic_t		timer_index;
++	unsigned long		timer_expires;
++	int			timer_active;
++	unsigned int		ConState;                           /* State of connection */
++	struct reply_t          *replystruct;
++	int                     cid;
++	int                     int_var[VAR_NUM];   /* see VAR_XXXX */
++	char                    *str_var[STR_NUM];  /* see STR_XXXX */
++	unsigned                pending_commands;   /* see PC_XXXX */
++	atomic_t                seq_index;
++
++	struct cardstate    *cs;
++	struct bc_state         *bcs;
++};
++
++struct resp_type_t {
++	unsigned char	*response;
++	int		resp_code;           /* RSP_XXXX */
++	int		type;                /* RT_XXXX */
++};
++
++struct prot_skb {
++	atomic_t		empty;
++	struct semaphore	*sem;
++	struct sk_buff		*skb;
++};
++
++struct event_t {
++	int type;
++	void *ptr, *arg;
++	int parameter;
++	int cid;
++	struct at_state_t *at_state;
++};
++
++/* This buffer holds all information about the used B-Channel */
++struct bc_state {
++	struct sk_buff *tx_skb;                        /* Current transfer buffer to modem */
++	struct sk_buff_head squeue;	               /* B-Channel send Queue */
++
++	/* Variables for debugging .. */
++	int corrupted;                                   /* Counter for corrupted packages */
++	int trans_down;                                  /* Counter of packages (downstream) */
++	int trans_up;                                    /* Counter of packages (upstream) */
++
++	struct at_state_t at_state;
++	unsigned long rcvbytes;
++
++	__u16 fcs;
++	struct sk_buff *skb;
++	int inputstate; /* see INS_XXXX */
++
++	int channel;
++
++	struct cardstate *cs;
++
++	unsigned chstate;			/* bitmap (CHS_*) */
++	int ignore;
++	unsigned	proto2;			/* Layer 2 protocol (ISDN_PROTO_L2_*) */
++	char		*commands[AT_NUM]; /* see AT_XXXX */
++
++#ifdef CONFIG_GIGASET_DEBUG
++	int emptycount;
++#endif
++	int busy;
++	int use_count;
++
++	/* hardware drivers */
++	union {
++		struct ser_bc_state *ser;		 /* private data of serial hardware driver */ /* FIXME why pointers?? */
++		struct usb_bc_state *usb;		 /* private data of usb hardware driver */
++		struct bas_bc_state *bas;
++	} hw;
++};
++
++struct cardstate {
++	struct gigaset_driver *driver;
++	unsigned minor_index;
++
++	const struct gigaset_ops *ops;
++
++	/* Stuff to handle communication */
++	//wait_queue_head_t initwait;
++	wait_queue_head_t waitqueue;
++	int waiting;
++	atomic_t mode;                       /* see M_XXXX */
++	atomic_t mstate;                     /* Modem state: see MS_XXXX */
++	                                     /* only changed by the event layer */
++	int cmd_result;
++
++	int channels;
++	struct bc_state *bcs;              /* Array of struct bc_state */
++
++	int onechannel;                      /* data and commands transmitted in one stream (M10x) */
++
++	spinlock_t lock;
++	struct at_state_t at_state;         /* list of the "struct at_state_t"s without B channel */
++
++	struct inbuf_t *inbuf;
++
++	struct cmdbuf_t *cmdbuf, *lastcmdbuf;
++	spinlock_t cmdlock;
++	unsigned curlen, cmdbytes;
++
++	unsigned open_count;
++	struct tty_struct *tty;
++	struct tasklet_struct if_wake_tasklet;
++	unsigned control_state;
++
++	unsigned fwver[4];
++	int gotfwver;
++
++	atomic_t running;                    /* !=0 if events are handled */
++	atomic_t connected;                  /* !=0 if hardware is connected */
++
++	atomic_t cidmode;
++	struct proc_atomic proc_atomic[1];
++
++	int myid;                            /* id for communication with LL */
++	isdn_if iif;
++
++	struct reply_t *tabnocid;
++	struct reply_t *tabcid;
++	struct proc_dir_entry *proc_entry;
++	int cs_init;
++	int ignoreframes;                    /* frames to ignore after setting up the B channel */
++	struct semaphore sem;                /* locks this structure: */
++	                                     /*   connected is not changed, */
++	                                     /*   hardware_up is not changed, */
++	                                     /*   MState is not changed to or from MS_LOCKED */
++
++	struct timer_list timer;
++	int retry_count;
++	int dle;                             /* !=0 if modem commands/responses are dle encoded */
++	int cur_at_seq;                      /* sequence of AT commands being processed */
++	int curchannel;                      /* channel, those commands are meant for */
++	atomic_t commands_pending;           /* flag(s) in xxx.commands_pending have been set */
++	struct tasklet_struct event_tasklet; /* tasklet for serializing AT commands. Scheduled
++	                                      *   -> for modem reponses (and incomming data for M10x)
++	                                      *   -> on timeout
++	                                      *   -> after setting bits in xxx.at_state.pending_command
++	                                      *      (e.g. command from LL) */
++	struct tasklet_struct write_tasklet; /* tasklet for serial output
++					      * (not used in base driver) */
++
++	/* event queue */
++	struct event_t events[MAX_EVENTS];
++	atomic_t ev_tail, ev_head;
++	spinlock_t ev_lock;
++
++	/* current modem response */
++	unsigned char respdata[MAX_RESP_SIZE];
++	unsigned cbytes;
++
++	/* hardware drivers */
++	union {
++		struct usb_cardstate *usb; /* private data of USB hardware driver */
++		struct ser_cardstate *ser; /* private data of serial hardware driver */
++		struct bas_cardstate *bas; /* private data of base hardware driver */
++	} hw;
++};
++
++struct gigaset_driver {
++	struct gigaset_driver *next, *prev;
++	spinlock_t lock;                       /* locks minor tables and blocked */
++	//struct semaphore sem;                /* locks this structure */
++	struct proc_dir_entry *proc_entry;
++	const char *proc_path;
++	struct tty_driver *tty;
++	unsigned have_tty;
++	unsigned minor;
++	unsigned minors;
++	struct cardstate *cs;
++	unsigned *flags;
++	int blocked;
++
++	const struct gigaset_ops *ops;
++	struct module *owner;
++};
++
++struct cmdbuf_t {
++	struct cmdbuf_t *next, *prev;
++	int len, offset;
++	struct tasklet_struct *wake_tasklet;
++	unsigned char buf[0];
++};
++
++struct bas_bc_state { //FIXME move to a header file for bas-gigaset and isocdata
++	/* isochronous output state */
++	atomic_t	running;
++	atomic_t	corrbytes;
++	spinlock_t	isooutlock;
++	struct isow_urbctx_t	isoouturbs[BAS_OUTURBS];
++	struct isow_urbctx_t	*isooutdone, *isooutfree, *isooutovfl;
++	struct isowbuf_t	*isooutbuf;
++	unsigned numsub;			/* submitted URB counter (for diagnostic messages only) */
++	struct tasklet_struct	sent_tasklet;
++
++	/* isochronous input state */
++	spinlock_t isoinlock;
++	struct urb *isoinurbs[BAS_INURBS];
++	unsigned char isoinbuf[BAS_INBUFSIZE * BAS_INURBS];
++	struct urb *isoindone;	                /* completed isoc read URB */
++	int loststatus;				/* status of dropped URB */
++	unsigned isoinlost;			/* number of bytes lost */
++	/* state of bit unstuffing algorithm (in addition to BC_state.inputstate) */
++	unsigned seqlen;			/* number of '1' bits not yet unstuffed */
++	unsigned inbyte, inbits;		/* collected bits for next byte */
++	/* statistics */
++	unsigned goodbytes;			/* bytes correctly received */
++	unsigned alignerrs;			/* frames with incomplete byte at end */
++	unsigned fcserrs;			/* FCS errors */
++	unsigned frameerrs;			/* framing errors */
++	unsigned giants;			/* long frames */
++	unsigned runts;				/* short frames */
++	unsigned aborts;			/* HDLC aborts */
++	unsigned shared0s;			/* '0' bits shared between flags */
++	unsigned stolen0s;			/* '0' stuff bits also serving as leading flag bits */
++	struct tasklet_struct rcvd_tasklet;
++};
++
++struct gigaset_ops {
++	/* Called from ev-layer.c/interface.c for sending AT commands to the device */
++	int (*write_cmd)(struct cardstate *cs,
++	                 const unsigned char *buf, int len,
++	                 struct tasklet_struct *wake_tasklet);
++
++	/* Called from interface.c for additional device control */
++	int (*write_room)(struct cardstate *cs);
++	int (*chars_in_buffer)(struct cardstate *cs);
++	int (*brkchars)(struct cardstate *cs, const unsigned char buf[6]);
++
++	/* Called from ev-layer.c after setting up connection
++	 * Should call gigaset_bchannel_up(), when finished. */
++	int (*init_bchannel)(struct bc_state *bcs);
++
++	/* Called from ev-layer.c after hanging up
++	 * Should call gigaset_bchannel_down(), when finished. */
++	int (*close_bchannel)(struct bc_state *bcs);
++
++	/* Called by gigaset_initcs() for setting up bcs->hw.xxx */
++	int (*initbcshw)(struct bc_state *bcs);
++
++	/* Called by gigaset_freecs() for freeing bcs->hw.xxx */
++	int (*freebcshw)(struct bc_state *bcs);
++
++	/* Called by gigaset_stop() or gigaset_bchannel_down() for resetting bcs->hw.xxx */
++	void (*reinitbcshw)(struct bc_state *bcs);
++
++	/* Called by gigaset_initcs() for setting up cs->hw.xxx */
++	int (*initcshw)(struct cardstate *cs);
++
++	/* Called by gigaset_freecs() for freeing cs->hw.xxx */
++	void (*freecshw)(struct cardstate *cs);
++
++	/* Called by kernel when /proc/driver/xxx/hwinfo is read */
++	int (*read_proc_hwinfo)(char *buf, char **start, off_t offset,
++				     int count, int *eof, void *data);
++
++	///* Called by gigaset_stop() for killing URBs, shutting down the device, ...
++	//   hardwareup: ==0: don't try to shut down the device, hardware is really not accessible
++	//	       !=0: hardware still up */
++	//void (*stophw)(struct cardstate *cs, int hardwareup);
++
++	/* Called from common.c/interface.c for additional serial port control */
++	int (*set_modem_ctrl)(struct cardstate *cs, unsigned old_state, unsigned new_state);
++	int (*baud_rate)(struct cardstate *cs, unsigned cflag);
++	int (*set_line_ctrl)(struct cardstate *cs, unsigned cflag);
++
++	/* Called from i4l.c to put an skb into the send-queue. */
++	int (*send_skb)(struct bc_state *bcs, struct sk_buff *skb);
++
++	/* Called from ev-layer.c to process a block of data
++	 * received through the common/control channel. */
++	void (*handle_input)(struct inbuf_t *inbuf);
++
++};
++
++/* = Common structures and definitions ======================================= */
++
++/* Parser states for DLE-Event:
++ * <DLE-EVENT>: <DLE_FLAG> "X" <EVENT> <DLE_FLAG> "."
++ * <DLE_FLAG>:  0x10
++ * <EVENT>:     ((a-z)* | (A-Z)* | (0-10)*)+
++ */
++#define DLE_FLAG       0x10
++
++/* ===========================================================================
++ *  Functions implemented in asyncdata.c
++ */
++
++//FIXME this should not be included by the base driver
++
++/* Called from i4l.c to put an skb into the send-queue.
++ * After sending gigaset_skb_sent() should be called. */
++int gigaset_m10x_send_skb(struct bc_state *bcs, struct sk_buff *skb);
++
++/* Called from ev-layer.c to process a block of data
++ * received through the common/control channel. */
++void gigaset_m10x_input(struct inbuf_t *inbuf);
++
++/* ===========================================================================
++ *  Functions implemented in isocdata.c
++ */
++
++//FIXME this should not be included by the M10x drivers
++
++/* Called from i4l.c to put an skb into the send-queue.
++ * After sending gigaset_skb_sent() should be called. */
++int gigaset_isoc_send_skb(struct bc_state *bcs, struct sk_buff *skb);
++
++/* Called from ev-layer.c to process a block of data
++ * received through the common/control channel. */
++void gigaset_isoc_input(struct inbuf_t *inbuf);
++
++/* Called from bas-gigaset.c to process a block of data
++ * received through the isochronous channel */
++void gigaset_isoc_receive(unsigned char *src, unsigned count, struct bc_state *bcs);
++
++/* Called from bas-gigaset.c to put a block of data
++ * into the isochronous output buffer */
++int gigaset_isoc_buildframe(struct bc_state *bcs, unsigned char *in, int len);
++
++/* Called from bas-gigaset.c to initialize the isochronous output buffer */
++void gigaset_isowbuf_init(struct isowbuf_t *iwb, unsigned char idle);
++
++/* Called from bas-gigaset.c to retrieve a block of bytes for sending */
++int gigaset_isowbuf_getbytes(struct isowbuf_t *iwb, int size);
++
++/* ===========================================================================
++ *  Functions implemented in i4l.c/gigaset.h
++ */
++
++/* Called by gigaset_initcs() for setting up with the isdn4linux subsystem */
++int gigaset_register_to_LL(struct cardstate *cs, const char *isdnid);
++
++/* Called from xxx-gigaset.c to indicate completion of sending an skb */
++void gigaset_skb_sent(struct bc_state *bcs, struct sk_buff *skb);
++
++/* Called from common.c/ev-layer.c to indicate events relevant to the LL */
++int gigaset_isdn_icall(struct at_state_t *at_state);
++int gigaset_isdn_setup_accept(struct at_state_t *at_state);
++int gigaset_isdn_setup_dial(struct at_state_t *at_state, void *data);
++
++void gigaset_i4l_cmd(struct cardstate *cs, int cmd);
++void gigaset_i4l_channel_cmd(struct bc_state *bcs, int cmd);
++
++
++static inline void gigaset_isdn_rcv_err(struct bc_state *bcs)
++{
++	isdn_ctrl response;
++
++	/* error -> LL */
++	dbg(DEBUG_CMD, "sending L1ERR");
++	response.driver = bcs->cs->myid;
++	response.command = ISDN_STAT_L1ERR;
++	response.arg = bcs->channel;
++	response.parm.errcode = ISDN_STAT_L1ERR_RECV;
++	bcs->cs->iif.statcallb(&response);
++}
++
++/* ===========================================================================
++ *  Functions implemented in ev-layer.c
++ */
++
++/* tasklet called from common.c to process queued events */
++void gigaset_handle_event(unsigned long data);
++
++/* called from isocdata.c / asyncdata.c
++ * when a complete modem response line has been received */
++void gigaset_handle_modem_response(struct cardstate *cs);
++
++/* ===========================================================================
++ *  Functions implemented in proc.c
++ */
++
++/* initialize proc fs for driver (/proc/driver/DRIVERNAME/) */
++void gigaset_init_drv_proc(struct gigaset_driver *drv);
++
++/* initialize proc fs for minor (/proc/driver/DRIVERNAME/MINORNUMBER/,
++ *                               /proc/driver/DRIVERNAME/MINORNUMBER/CHANNEL/) */
++void gigaset_init_cs_proc(struct cardstate *cs);
++
++void gigaset_free_drv_proc(struct gigaset_driver *drv);
++void gigaset_free_cs_proc(struct cardstate *cs);
++
++void gigaset_init_common_proc(void);
++void gigaset_free_common_proc(void);
++
++/* ===========================================================================
++ *  Functions implemented in common.c/gigaset.h
++ */
++
++void gigaset_bcs_reinit(struct bc_state *bcs);
++void gigaset_at_init(struct at_state_t *at_state, struct bc_state *bcs,
++                     struct cardstate *cs, int cid);
++int gigaset_get_channel(struct bc_state *bcs);
++void gigaset_free_channel(struct bc_state *bcs);
++int gigaset_get_channels(struct cardstate *cs);
++void gigaset_free_channels(struct cardstate *cs);
++void gigaset_block_channels(struct cardstate *cs);
++int gigaset_scan_long(const unsigned char *buf, long int *result);
++
++/* Allocate and initialize driver structure. */
++struct gigaset_driver *gigaset_initdriver(unsigned minor, unsigned minors,
++                                          const char *procname,
++                                          const char *devname,
++                                          const char *devfsname,
++                                          const struct gigaset_ops *ops,
++                                          struct module *owner);
++
++/* Deallocate driver structure. */
++void gigaset_freedriver(struct gigaset_driver *drv);
++void gigaset_debugdrivers(void);
++struct cardstate *gigaset_get_cs_by_minor(unsigned minor);
++struct cardstate *gigaset_get_cs_by_tty(struct tty_struct *tty);
++struct cardstate *gigaset_get_cs_by_id(int id);
++
++/* For drivers without fixed assignment device<->cardstate (usb) */
++struct cardstate *gigaset_getunassignedcs(struct gigaset_driver *drv);
++void gigaset_unassign(struct cardstate *cs);
++void gigaset_blockdriver(struct gigaset_driver *drv);
++
++/* Allocate and initialize card state. Calls hardware dependent gigaset_init[b]cs(). */
++struct cardstate *gigaset_initcs(struct gigaset_driver *drv, int channels,
++				 int onechannel, int ignoreframes,
++				 int cidmode, const char *modulename);
++
++/* Free card state. Calls hardware dependent gigaset_free[b]cs(). */
++void gigaset_freecs(struct cardstate *cs);
++
++/* Tell common.c that hardware and driver are ready. */
++int gigaset_start(struct cardstate *cs);
++
++/* Tell common.c that the device is not present any more. */
++void gigaset_stop(struct cardstate *cs);
++
++/* Tell common.c that the driver is being unloaded. */
++void gigaset_shutdown(struct cardstate *cs);
++
++/* Tell common.c that an skb has been sent. */
++void gigaset_skb_sent(struct bc_state *bcs, struct sk_buff *skb);
++
++/* Append event to the queue.
++ * Returns NULL on failure or a pointer to the event on success.
++ * ptr must be kmalloc()ed (and not be freed by the caller).
++ */
++struct event_t *gigaset_add_event(struct cardstate *cs,
++                                  struct at_state_t *at_state, int type,
++                                  void *ptr, int parameter, void *arg);
++
++/* Called on CONFIG1 command from frontend. */
++int gigaset_enterconfigmode(struct cardstate *cs); //0: success <0: errorcode
++
++/* cs->lock must not be locked */
++static inline void gigaset_schedule_event(struct cardstate *cs)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&cs->lock, flags);
++	if (atomic_read(&cs->running))
++		tasklet_schedule(&cs->event_tasklet);
++	spin_unlock_irqrestore(&cs->lock, flags);
++}
++
++/* Tell common.c that B channel has been closed. */
++/* cs->lock must not be locked */
++static inline void gigaset_bchannel_down(struct bc_state *bcs)
++{
++	gigaset_add_event(bcs->cs, &bcs->at_state, EV_BC_CLOSED, NULL, 0, NULL);
++
++	dbg(DEBUG_CMD, "scheduling BC_CLOSED");
++	gigaset_schedule_event(bcs->cs);
++}
++
++/* Tell common.c that B channel has been opened. */
++/* cs->lock must not be locked */
++static inline void gigaset_bchannel_up(struct bc_state *bcs)
++{
++	gigaset_add_event(bcs->cs, &bcs->at_state, EV_BC_OPEN, NULL, 0, NULL);
++
++	dbg(DEBUG_CMD, "scheduling BC_OPEN");
++	gigaset_schedule_event(bcs->cs);
++}
++
++/* handling routines for sk_buff */
++/* ============================= */
++
++/* private version of __skb_put()
++ * append 'len' bytes to the content of 'skb', already knowing that the
++ * existing buffer can accomodate them
++ * returns a pointer to the location where the new bytes should be copied to
++ * This function does not take any locks so it must be called with the
++ * appropriate locks held only.
++ */
++static inline unsigned char *gigaset_skb_put_quick(struct sk_buff *skb,
++                                                   unsigned int len)
++{
++	unsigned char *tmp = skb->tail;
++	/*SKB_LINEAR_ASSERT(skb);*/		/* not needed here */
++	skb->tail += len;
++	skb->len += len;
++	return tmp;
++}
++
++/* pass received skb to LL
++ * Warning: skb must not be accessed anymore!
++ */
++static inline void gigaset_rcv_skb(struct sk_buff *skb,
++                                   struct cardstate *cs,
++                                   struct bc_state *bcs)
++{
++	cs->iif.rcvcallb_skb(cs->myid, bcs->channel, skb);
++	bcs->trans_down++;
++}
++
++/* handle reception of corrupted skb
++ * Warning: skb must not be accessed anymore!
++ */
++static inline void gigaset_rcv_error(struct sk_buff *procskb,
++                                     struct cardstate *cs,
++                                     struct bc_state *bcs)
++{
++	if (procskb)
++		dev_kfree_skb(procskb);
++
++	if (bcs->ignore)
++		--bcs->ignore;
++	else {
++		++bcs->corrupted;
++		gigaset_isdn_rcv_err(bcs);
++	}
++}
++
++
++/* bitwise byte inversion table */
++extern __u8 gigaset_invtab[];	/* in common.c */
++
++
++/* append received bytes to inbuf */
++static inline int gigaset_fill_inbuf(struct inbuf_t *inbuf,
++                                     const unsigned char *src,
++                                     unsigned numbytes)
++{
++	unsigned n, head, tail, bytesleft;
++
++	dbg(DEBUG_INTR, "received %u bytes", numbytes);
++
++	if (!numbytes)
++		return 0;
++
++	bytesleft = numbytes;
++	tail = atomic_read(&inbuf->tail);
++	head = atomic_read(&inbuf->head);
++	dbg(DEBUG_INTR, "buffer state: %u -> %u", head, tail);
++
++	while (bytesleft) {
++		if (head > tail)
++			n = head - 1 - tail;
++		else if (head == 0)
++			n = (RBUFSIZE-1) - tail;
++		else
++			n = RBUFSIZE - tail;
++		if (!n) {
++			err("buffer overflow (%u bytes lost)", bytesleft);
++			break;
++		}
++		if (n > bytesleft)
++			n = bytesleft;
++		memcpy(inbuf->data + tail, src, n);
++		bytesleft -= n;
++		tail = (tail + n) % RBUFSIZE;
++		src += n;
++	}
++	dbg(DEBUG_INTR, "setting tail to %u", tail);
++	atomic_set(&inbuf->tail, tail);
++	return numbytes != bytesleft;
++}
++
++/* ===========================================================================
++ *  Functions implemented in interface.c
++ */
++
++/* initialize interface */
++void gigaset_if_initdriver(struct gigaset_driver *drv, const char *procname,
++                           const char *devname, const char *devfsname);
++/* release interface */
++void gigaset_if_freedriver(struct gigaset_driver *drv);
++/* add minor */
++void gigaset_if_init(struct cardstate *cs);
++/* remove minor */
++void gigaset_if_free(struct cardstate *cs);
++/* device received data */
++void gigaset_if_receive(struct cardstate *cs,
++                        unsigned char *buffer, size_t len);
++
++#endif
+--- linux-2.6.14/drivers/isdn/gigaset/common.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.14-gig/drivers/isdn/gigaset/common.c	2005-12-11 13:21:42.000000000 +0100
+@@ -0,0 +1,1247 @@
 +/*
-+ * USB driver for Gigaset 307x directly or using M105 Data.
++ * Stuff used by all variants of the driver
 + *
-+ * Copyright (c) 2001 by Stefan Eilers <Eilers.Stefan@epost.de>
-+ *                   and Hansjoerg Lipp <hjlipp@web.de>.
-+ *
-+ * This driver was derived from the USB skeleton driver by
-+ * Greg Kroah-Hartman <greg@kroah.com>
++ * Copyright (c) 2001 by Stefan Eilers <Eilers.Stefan@epost.de>,
++ *                       Hansjoerg Lipp <hjlipp@web.de>,
++ *                       Tilman Schmidt <tilman@imap.cc>.
 + *
 + * =====================================================================
 + *	This program is free software; you can redistribute it and/or
@@ -65,1614 +1033,1235 @@ Signed-off-by: Tilman Schmidt <tilman@imap.cc>
 + * =====================================================================
 + * ToDo: ...
 + * =====================================================================
-+ * Version: $Id: usb-gigaset.c,v 1.85.4.14 2005/12/10 16:56:18 hjlipp Exp $
++ * Version: $Id: common.c,v 1.104.4.18 2005/12/10 16:56:15 hjlipp Exp $
 + * =====================================================================
 + */
 +
 +#include "gigaset.h"
-+
-+#include <linux/errno.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/usb.h>
++#include <linux/ctype.h>
 +#include <linux/module.h>
 +#include <linux/moduleparam.h>
 +
 +/* Version Information */
-+#define DRIVER_AUTHOR "Hansjoerg Lipp <hjlipp@web.de>, Stefan Eilers <Eilers.Stefan@epost.de>"
-+#define DRIVER_DESC "USB Driver for Gigaset 307x using M105"
++#define DRIVER_AUTHOR "Hansjoerg Lipp <hjlipp@web.de>, Tilman Schmidt <tilman@imap.cc>, Stefan Eilers <Eilers.Stefan@epost.de>"
++#define DRIVER_DESC "Driver for Gigaset 307x"
 +
 +/* Module parameters */
++static int debug = DEBUG_DEFAULT;
++module_param(debug, int, 0);
++MODULE_PARM_DESC(debug, "debug level");
 +
-+static int startmode = SM_ISDN;
-+static int cidmode = 1;
++/* debug level for dbg() function */
++atomic_t gigaset_debuglevel = ATOMIC_INIT(DEBUG_DEFAULT);
++EXPORT_SYMBOL_GPL(gigaset_debuglevel);
 +
-+module_param(startmode, int, 0);
-+module_param(cidmode, int, 0);
-+MODULE_PARM_DESC(startmode, "start in isdn4linux mode");
-+MODULE_PARM_DESC(cidmode, "Call-ID mode");
-+
-+#define GIGASET_MINORS     1
-+#define GIGASET_MINOR      8
-+#define GIGASET_MODULENAME "usb_gigaset"
-+#define GIGASET_DEVFSNAME  "gig/usb/"
-+#define GIGASET_DEVNAME    "ttyGU"
-+
-+#define IF_WRITEBUF 2000 //FIXME  // WAKEUP_CHARS: 256
-+
-+/* Values for the Gigaset M105 Data */
-+#define USB_M105_VENDOR_ID	0x0681
-+#define USB_M105_PRODUCT_ID	0x0009
-+
-+/* table of devices that work with this driver */
-+static struct usb_device_id gigaset_table [] = {
-+	{ USB_DEVICE(USB_M105_VENDOR_ID, USB_M105_PRODUCT_ID) },
-+	{ }					/* Terminating entry */
-+};
-+
-+MODULE_DEVICE_TABLE(usb, gigaset_table);
-+
-+/* Get a minor range for your devices from the usb maintainer */
-+#define USB_SKEL_MINOR_BASE	200
-+
-+
-+/*
-+ * Control requests (empty fields: 00)
-+ *
-+ *       RT|RQ|VALUE|INDEX|LEN  |DATA
-+ * In:
-+ *       C1 08             01
-+ *            Get flags (1 byte). Bits: 0=dtr,1=rts,3-7:?
-+ *       C1 0F             ll ll
-+ *            Get device information/status (llll: 0x200 and 0x40 seen).
-+ *            Real size: I only saw MIN(llll,0x64).
-+ *            Contents: seems to be always the same...
-+ *              offset 0x00: Length of this structure (0x64) (len: 1,2,3 bytes)
-+ *              offset 0x3c: String (16 bit chars): "MCCI USB Serial V2.0"
-+ *              rest:        ?
-+ * Out:
-+ *       41 11
-+ *            Initialize/reset device ?
-+ *       41 00 xx 00
-+ *            ? (xx=00 or 01; 01 on start, 00 on close)
-+ *       41 07 vv mm
-+ *            Set/clear flags vv=value, mm=mask (see RQ 08)
-+ *       41 12 xx
-+ *            Used before the following configuration requests are issued
-+ *            (with xx=0x0f). I've seen other values<0xf, though.
-+ *       41 01 xx xx
-+ *            Set baud rate. xxxx=ceil(0x384000/rate)=trunc(0x383fff/rate)+1.
-+ *       41 03 ps bb
-+ *            Set byte size and parity. p:  0x20=even,0x10=odd,0x00=no parity
-+ *                                     [    0x30: m, 0x40: s           ]
-+ *                                     [s:  0: 1 stop bit; 1: 1.5; 2: 2]
-+ *                                      bb: bits/byte (seen 7 and 8)
-+ *       41 13 -- -- -- -- 10 00 ww 00 00 00 xx 00 00 00 yy 00 00 00 zz 00 00 00
-+ *            ??
-+ *            Initialization: 01, 40, 00, 00
-+ *            Open device:    00  40, 00, 00
-+ *            yy and zz seem to be equal, either 0x00 or 0x0a
-+ *            (ww,xx) pairs seen: (00,00), (00,40), (01,40), (09,80), (19,80)
-+ *       41 19 -- -- -- -- 06 00 00 00 00 xx 11 13
-+ *            Used after every "configuration sequence" (RQ 12, RQs 01/03/13).
-+ *            xx is usually 0x00 but was 0x7e before starting data transfer
-+ *            in unimodem mode. So, this might be an array of characters that need
-+ *            special treatment ("commit all bufferd data"?), 11=^Q, 13=^S.
-+ *
-+ * Unimodem mode: use "modprobe ppp_async flag_time=0" as the device _needs_ two
-+ * flags per packet.
++/*======================================================================
++  Prototypes of internal functions
 + */
 +
-+static int gigaset_probe(struct usb_interface *interface,
-+                         const struct usb_device_id *id);
-+static void gigaset_disconnect(struct usb_interface *interface);
++//static void gigaset_process_response(int resp_code, int parameter,
++//                                     struct at_state_t *at_state,
++//                                     unsigned char ** pstring);
++static struct cardstate *alloc_cs(struct gigaset_driver *drv);
++static void free_cs(struct cardstate *cs);
++static void make_valid(struct cardstate *cs, unsigned mask);
++static void make_invalid(struct cardstate *cs, unsigned mask);
 +
-+static struct gigaset_driver *driver = NULL;
-+static struct cardstate *cardstate = NULL;
++#define VALID_MINOR       0x01
++#define VALID_ID          0x02
++#define ASSIGNED          0x04
 +
-+/* usb specific object needed to register this driver with the usb subsystem */
-+static struct usb_driver gigaset_usb_driver = {
-+	.name =         GIGASET_MODULENAME,
-+	.probe =        gigaset_probe,
-+	.disconnect =   gigaset_disconnect,
-+	.owner =        THIS_MODULE,
-+	.id_table =     gigaset_table,
++/* bitwise byte inversion table */
++__u8 gigaset_invtab[256] = {
++	0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
++	0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
++	0x08, 0x88, 0x48, 0xc8, 0x28, 0xa8, 0x68, 0xe8,
++	0x18, 0x98, 0x58, 0xd8, 0x38, 0xb8, 0x78, 0xf8,
++	0x04, 0x84, 0x44, 0xc4, 0x24, 0xa4, 0x64, 0xe4,
++	0x14, 0x94, 0x54, 0xd4, 0x34, 0xb4, 0x74, 0xf4,
++	0x0c, 0x8c, 0x4c, 0xcc, 0x2c, 0xac, 0x6c, 0xec,
++	0x1c, 0x9c, 0x5c, 0xdc, 0x3c, 0xbc, 0x7c, 0xfc,
++	0x02, 0x82, 0x42, 0xc2, 0x22, 0xa2, 0x62, 0xe2,
++	0x12, 0x92, 0x52, 0xd2, 0x32, 0xb2, 0x72, 0xf2,
++	0x0a, 0x8a, 0x4a, 0xca, 0x2a, 0xaa, 0x6a, 0xea,
++	0x1a, 0x9a, 0x5a, 0xda, 0x3a, 0xba, 0x7a, 0xfa,
++	0x06, 0x86, 0x46, 0xc6, 0x26, 0xa6, 0x66, 0xe6,
++	0x16, 0x96, 0x56, 0xd6, 0x36, 0xb6, 0x76, 0xf6,
++	0x0e, 0x8e, 0x4e, 0xce, 0x2e, 0xae, 0x6e, 0xee,
++	0x1e, 0x9e, 0x5e, 0xde, 0x3e, 0xbe, 0x7e, 0xfe,
++	0x01, 0x81, 0x41, 0xc1, 0x21, 0xa1, 0x61, 0xe1,
++	0x11, 0x91, 0x51, 0xd1, 0x31, 0xb1, 0x71, 0xf1,
++	0x09, 0x89, 0x49, 0xc9, 0x29, 0xa9, 0x69, 0xe9,
++	0x19, 0x99, 0x59, 0xd9, 0x39, 0xb9, 0x79, 0xf9,
++	0x05, 0x85, 0x45, 0xc5, 0x25, 0xa5, 0x65, 0xe5,
++	0x15, 0x95, 0x55, 0xd5, 0x35, 0xb5, 0x75, 0xf5,
++	0x0d, 0x8d, 0x4d, 0xcd, 0x2d, 0xad, 0x6d, 0xed,
++	0x1d, 0x9d, 0x5d, 0xdd, 0x3d, 0xbd, 0x7d, 0xfd,
++	0x03, 0x83, 0x43, 0xc3, 0x23, 0xa3, 0x63, 0xe3,
++	0x13, 0x93, 0x53, 0xd3, 0x33, 0xb3, 0x73, 0xf3,
++	0x0b, 0x8b, 0x4b, 0xcb, 0x2b, 0xab, 0x6b, 0xeb,
++	0x1b, 0x9b, 0x5b, 0xdb, 0x3b, 0xbb, 0x7b, 0xfb,
++	0x07, 0x87, 0x47, 0xc7, 0x27, 0xa7, 0x67, 0xe7,
++	0x17, 0x97, 0x57, 0xd7, 0x37, 0xb7, 0x77, 0xf7,
++	0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef,
++	0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff
 +};
++EXPORT_SYMBOL_GPL(gigaset_invtab);
 +
-+struct usb_cardstate {
-+	struct usb_device       *udev;                  /* save off the usb device pointer */
-+	struct usb_interface    *interface;             /* the interface for this device */
-+	atomic_t                busy;                   /* bulk output in progress */
-+
-+	/* Output buffer for commands (M105: and data)*/
-+	unsigned char           *bulk_out_buffer;       /* the buffer to send data */
-+	int                     bulk_out_size;          /* the size of the send buffer */
-+	__u8                    bulk_out_endpointAddr;  /* the address of the bulk out endpoint */
-+	struct urb              *bulk_out_urb;          /* the urb used to transmit data */
-+
-+	/* Input buffer for command responses (M105: and data)*/
-+	int                     rcvbuf_size;            /* the size of the receive buffer */
-+	struct urb              *read_urb;              /* the urb used to receive data */
-+	__u8                    int_in_endpointAddr;    /* the address of the bulk in endpoint */
-+
-+	char                    bchars[6];              /* req. 0x19 */
-+};
-+
-+struct usb_bc_state {};
-+
-+static int gigaset_read_proc_hwinfo(char *buf, char **start, off_t offset,
-+                                    int count, int *eof, void *data)
++void gigaset_dbg_buffer(enum debuglevel level, const unsigned char *msg,
++                        size_t len, const unsigned char *buf, int from_user)
 +{
-+	int len = 0;
-+	int i;
-+	struct cardstate *cs = data;
++	unsigned char outbuf[80];
++	unsigned char inbuf[80 - 1];
++	size_t numin;
++	const unsigned char *in;
++	size_t space = sizeof outbuf - 1;
++	unsigned char *out = outbuf;
 +
-+	if (down_interruptible(&cs->sem))
-+		return -ERESTARTSYS; // FIXME -EINTR?
-+
-+	for (i = 0; i < cs->channels; ++i) {
++	if (!from_user) {
++		in = buf;
++		numin = len;
++	} else {
++		numin = len < sizeof inbuf ? len : sizeof inbuf;
++		in = inbuf;
++		if (copy_from_user(inbuf, (const unsigned char __user *) buf, numin)) {
++			strncpy(inbuf, "<FAULT>", sizeof inbuf);
++			numin = sizeof "<FAULT>" - 1;
++		}
 +	}
 +
-+	*eof = 1;
++	for (; numin && space; --numin, ++in) {
++		--space;
++		if (*in >= 32)
++			*out++ = *in;
++		else {
++			*out++ = '^';
++			if (space) {
++				*out++ = '@' + *in;
++				--space;
++			}
++		}
++	}
++	*out = 0;
 +
-+	up(&cs->sem);
++	dbg(level, "%s (%u bytes): %s", msg, (unsigned) len, outbuf);
++}
++EXPORT_SYMBOL_GPL(gigaset_dbg_buffer);
 +
-+	return len;
++/* converts string to long int
++   returns 0 on success */
++int gigaset_scan_long(const unsigned char *buf, long int *result)
++{
++	int found = 0;
++	unsigned char *end;
++
++	if (!buf || !result)
++		return -EINVAL;
++	while (*buf) {
++		if (!isspace(*buf)) {
++			found = 1;
++			break;
++		}
++		++buf;
++	}
++	if (!found)
++		return -EINVAL;
++
++	*result = simple_strtol(buf, (char **) &end, 0);
++
++	while (*end)
++		if (!isspace(*end++))
++			return -EINVAL;
++
++	return 0;
 +}
 +
-+static inline unsigned tiocm_to_gigaset(unsigned state)
++static int setflags(struct cardstate *cs, unsigned flags, unsigned delay)
 +{
-+	return ((state & TIOCM_DTR) ? 1 : 0) | ((state & TIOCM_RTS) ? 2 : 0);
-+}
-+
-+#ifdef CONFIG_GIGASET_UNDOCREQ
-+/* WARNING: EXPERIMENTAL! */
-+static int gigaset_set_modem_ctrl(struct cardstate *cs, unsigned old_state,
-+                                  unsigned new_state)
-+{
-+	unsigned mask, val;
 +	int r;
 +
-+	mask = tiocm_to_gigaset(old_state ^ new_state);
-+	val = tiocm_to_gigaset(new_state);
-+
-+	dbg(DEBUG_USBREQ, "set flags 0x%02x with mask 0x%02x", val, mask);
-+	r = usb_control_msg(cs->hw.usb->udev,
-+	                    usb_sndctrlpipe(cs->hw.usb->udev, 0), 7, 0x41,
-+	                    (val & 0xff) | ((mask & 0xff) << 8), 0,
-+	                    NULL, 0, 2000 /*timeout??*/); // don't use this in an interrupt/BH
++	r = cs->ops->set_modem_ctrl(cs, cs->control_state, flags);
++	cs->control_state = flags;
 +	if (r < 0)
 +		return r;
-+	//..
++
++	if (delay) {
++		set_current_state(TASK_INTERRUPTIBLE);
++		schedule_timeout(delay * HZ / 1000);
++	}
++
 +	return 0;
 +}
 +
-+static int set_value(struct cardstate *cs, u8 req, u16 val)
++int gigaset_enterconfigmode(struct cardstate *cs)
 +{
-+	int r, r2;
++	int i, r;
 +
-+	dbg(DEBUG_USBREQ, "request %02x (%04x)", (unsigned)req, (unsigned)val);
-+	r = usb_control_msg(cs->hw.usb->udev,
-+	                    usb_sndctrlpipe(cs->hw.usb->udev, 0), 0x12, 0x41,
-+	                    0xf /*?*/, 0,
-+	                    NULL, 0, 2000 /*?*/); /* no idea, what this does */
-+	if (r < 0) {
-+		err("error %d on request 0x12", -r);
-+		return r;
++	if (!atomic_read(&cs->connected)) {
++		err("not connected!");
++		return -1;
 +	}
 +
-+	r = usb_control_msg(cs->hw.usb->udev,
-+	                    usb_sndctrlpipe(cs->hw.usb->udev, 0), req, 0x41,
-+	                    val, 0,
-+	                    NULL, 0, 2000 /*?*/);
++	cs->control_state = TIOCM_RTS; //FIXME
++
++	r = setflags(cs, TIOCM_DTR, 200);
 +	if (r < 0)
-+		err("error %d on request 0x%02x", -r, (unsigned)req);
-+
-+	r2 = usb_control_msg(cs->hw.usb->udev,
-+	                     usb_sndctrlpipe(cs->hw.usb->udev, 0), 0x19, 0x41,
-+	                     0, 0, cs->hw.usb->bchars, 6, 2000 /*?*/);
-+	if (r2 < 0)
-+		err("error %d on request 0x19", -r2);
-+
-+	return r < 0 ? r : (r2 < 0 ? r2 : 0);
-+}
-+
-+/* WARNING: HIGHLY EXPERIMENTAL! */
-+// don't use this in an interrupt/BH
-+static int gigaset_baud_rate(struct cardstate *cs, unsigned cflag)
-+{
-+	u16 val;
-+	u32 rate;
-+
-+	cflag &= CBAUD;
-+
-+	switch (cflag) {
-+	//FIXME more values?
-+	case    B300: rate =     300; break;
-+	case    B600: rate =     600; break;
-+	case   B1200: rate =    1200; break;
-+	case   B2400: rate =    2400; break;
-+	case   B4800: rate =    4800; break;
-+	case   B9600: rate =    9600; break;
-+	case  B19200: rate =   19200; break;
-+	case  B38400: rate =   38400; break;
-+	case  B57600: rate =   57600; break;
-+	case B115200: rate =  115200; break;
-+	default:
-+		rate =  9600;
-+		err("unsupported baudrate request 0x%x,"
-+		    " using default of B9600", cflag);
++		goto error;
++	r = setflags(cs, 0, 200);
++	if (r < 0)
++		goto error;
++	for (i = 0; i < 5; ++i) {
++		r = setflags(cs, TIOCM_RTS, 100);
++		if (r < 0)
++			goto error;
++		r = setflags(cs, 0, 100);
++		if (r < 0)
++			goto error;
 +	}
++	r = setflags(cs, TIOCM_RTS|TIOCM_DTR, 800);
++	if (r < 0)
++		goto error;
 +
-+	val = 0x383fff / rate + 1;
-+
-+	return set_value(cs, 1, val);
-+}
-+
-+/* WARNING: HIGHLY EXPERIMENTAL! */
-+// don't use this in an interrupt/BH
-+static int gigaset_set_line_ctrl(struct cardstate *cs, unsigned cflag)
-+{
-+	u16 val = 0;
-+
-+	/* set the parity */
-+	if (cflag & PARENB)
-+		val |= (cflag & PARODD) ? 0x10 : 0x20;
-+
-+	/* set the number of data bits */
-+	switch (cflag & CSIZE) {
-+	case CS5:
-+		val |= 5 << 8; break;
-+	case CS6:
-+		val |= 6 << 8; break;
-+	case CS7:
-+		val |= 7 << 8; break;
-+	case CS8:
-+		val |= 8 << 8; break;
-+	default:
-+		err("CSIZE was not CS5-CS8, using default of 8");
-+		val |= 8 << 8;
-+		break;
-+	}
-+
-+	/* set the number of stop bits */
-+	if (cflag & CSTOPB) {
-+		if ((cflag & CSIZE) == CS5)
-+			val |= 1; /* 1.5 stop bits */ //FIXME is this okay?
-+		else
-+			val |= 2; /* 2 stop bits */
-+	}
-+
-+	return set_value(cs, 3, val);
-+}
-+
-+#else
-+static int gigaset_set_modem_ctrl(struct cardstate *cs, unsigned old_state,
-+                                  unsigned new_state)
-+{
-+	return -EINVAL;
-+}
-+
-+static int gigaset_set_line_ctrl(struct cardstate *cs, unsigned cflag)
-+{
-+	return -EINVAL;
-+}
-+
-+static int gigaset_baud_rate(struct cardstate *cs, unsigned cflag)
-+{
-+	return -EINVAL;
-+}
-+#endif
-+
-+
-+ /*================================================================================================================*/
-+static int gigaset_init_bchannel(struct bc_state *bcs)
-+{
-+	/* nothing to do for M10x */
-+	gigaset_bchannel_up(bcs);
 +	return 0;
++
++error:
++	err("error %d on setuartbits!\n", -r);
++	cs->control_state = TIOCM_RTS|TIOCM_DTR; // FIXME is this a good value?
++	cs->ops->set_modem_ctrl(cs, 0, TIOCM_RTS|TIOCM_DTR);
++
++	return -1; //r
 +}
 +
-+static int gigaset_close_bchannel(struct bc_state *bcs)
++static int test_timeout(struct at_state_t *at_state)
 +{
-+	/* nothing to do for M10x */
-+	gigaset_bchannel_down(bcs);
-+	return 0;
++	if (!at_state->timer_expires)
++		return 0;
++
++	if (--at_state->timer_expires) {
++		dbg(DEBUG_MCMD, "decreased timer of %p to %lu",
++		    at_state, at_state->timer_expires);
++		return 0;
++	}
++
++	if (!gigaset_add_event(at_state->cs, at_state, EV_TIMEOUT, NULL,
++	                       atomic_read(&at_state->timer_index), NULL)) {
++		//FIXME what should we do?
++	}
++
++	return 1;
 +}
 +
-+//void send_ack_to_LL(void *data);
-+static int write_modem(struct cardstate *cs);
-+static int send_cb(struct cardstate *cs, struct cmdbuf_t *cb);
-+
-+
-+/* Handling of send queue. If there is already a skb opened, put data to
-+ * the transfer buffer by calling "write_modem". Otherwise take a new skb out of the queue.
-+ * This function will be called by the ISR via "transmit_chars" (USB: B-Channel Bulk callback handler
-+ * via immediate task queue) or by writebuf_from_LL if the LL wants to transmit data.
-+ */
-+static void gigaset_modem_fill(unsigned long data)
++static void timer_tick(unsigned long data)
 +{
 +	struct cardstate *cs = (struct cardstate *) data;
-+	struct bc_state *bcs = &cs->bcs[0]; /* only one channel */
-+	struct cmdbuf_t *cb;
 +	unsigned long flags;
-+	int again;
++	unsigned channel;
++	struct at_state_t *at_state;
++	int timeout = 0;
 +
-+	dbg(DEBUG_OUTPUT, "modem_fill");
++	spin_lock_irqsave(&cs->lock, flags);
 +
-+	if (atomic_read(&cs->hw.usb->busy)) {
-+		dbg(DEBUG_OUTPUT, "modem_fill: busy");
-+		return;
++	for (channel = 0; channel < cs->channels; ++channel)
++		if (test_timeout(&cs->bcs[channel].at_state))
++			timeout = 1;
++
++	for (at_state = &cs->at_state; at_state; at_state = at_state->next)
++		if (test_timeout(at_state))
++			timeout = 1;
++
++	if (atomic_read(&cs->running)) {
++		mod_timer(&cs->timer, jiffies + GIG_TICK);
++		if (timeout) {
++			dbg(DEBUG_CMD, "scheduling timeout");
++			tasklet_schedule(&cs->event_tasklet);
++		}
 +	}
 +
-+	do {
-+		again = 0;
-+		if (!bcs->tx_skb) { /* no skb is being sent */
-+			spin_lock_irqsave(&cs->cmdlock, flags);
-+			cb = cs->cmdbuf;
-+			spin_unlock_irqrestore(&cs->cmdlock, flags);
-+			if (cb) { /* commands to send? */
-+				dbg(DEBUG_OUTPUT, "modem_fill: cb");
-+				if (send_cb(cs, cb) < 0) {
-+					dbg(DEBUG_OUTPUT,
-+					    "modem_fill: send_cb failed");
-+					again = 1; /* no callback will be called! */
-+				}
-+			} else { /* skbs to send? */
-+				bcs->tx_skb = skb_dequeue(&bcs->squeue);
-+				if (bcs->tx_skb)
-+					dbg(DEBUG_INTR,
-+					    "Dequeued skb (Adr: %lx)!",
-+					    (unsigned long) bcs->tx_skb);
-+			}
-+		}
-+
-+		if (bcs->tx_skb) {
-+			dbg(DEBUG_OUTPUT, "modem_fill: tx_skb");
-+			if (write_modem(cs) < 0) {
-+				dbg(DEBUG_OUTPUT,
-+				    "modem_fill: write_modem failed");
-+				// FIXME should we tell the LL?
-+				again = 1; /* no callback will be called! */
-+			}
-+		}
-+	} while (again);
++	spin_unlock_irqrestore(&cs->lock, flags);
 +}
 +
-+/**
-+ *	gigaset_read_int_callback
-+ *
-+ *      It is called if the data was received from the device. This is almost similiar to
-+ *      the interrupt service routine in the serial device.
-+ */
-+static void gigaset_read_int_callback(struct urb *urb, struct pt_regs *regs)
++int gigaset_get_channel(struct bc_state *bcs)
 +{
-+	int resubmit = 0;
-+	int r;
-+	struct cardstate *cs;
-+	unsigned numbytes;
-+	unsigned char *src;
-+	//unsigned long flags;
-+	struct inbuf_t *inbuf;
-+
-+	IFNULLRET(urb);
-+	inbuf = (struct inbuf_t *) urb->context;
-+	IFNULLRET(inbuf);
-+	//spin_lock_irqsave(&inbuf->lock, flags);
-+	cs = inbuf->cs;
-+	IFNULLGOTO(cs, exit);
-+	IFNULLGOTO(cardstate, exit);
-+
-+	if (!atomic_read(&cs->connected)) {
-+		err("%s: disconnected", __func__);
-+		goto exit;
-+	}
-+
-+	if (!urb->status) {
-+		numbytes = urb->actual_length;
-+
-+		if (numbytes) {
-+			src = inbuf->rcvbuf;
-+			if (unlikely(*src))
-+				warn("%s: There was no leading 0, but 0x%02x!",
-+				     __func__, (unsigned) *src);
-+			++src; /* skip leading 0x00 */
-+			--numbytes;
-+			if (gigaset_fill_inbuf(inbuf, src, numbytes)) {
-+				dbg(DEBUG_INTR, "%s-->BH", __func__);
-+				gigaset_schedule_event(inbuf->cs);
-+			}
-+		} else
-+			dbg(DEBUG_INTR, "Received zero block length");
-+		resubmit = 1;
-+	} else {
-+		/* The urb might have been killed. */
-+		dbg(DEBUG_ANY, "%s - nonzero read bulk status received: %d",
-+		    __func__, urb->status);
-+		if (urb->status != -ENOENT) /* not killed */
-+			resubmit = 1;
-+	}
-+exit:
-+	//spin_unlock_irqrestore(&inbuf->lock, flags);
-+	if (resubmit) {
-+		r = usb_submit_urb(urb, SLAB_ATOMIC);
-+		if (r)
-+			err("error %d when resubmitting urb.", -r);
-+	}
-+}
-+
-+
-+/* This callback routine is called when data was transmitted to a B-Channel.
-+ * Therefore it has to check if there is still data to transmit. This
-+ * happens by calling modem_fill via task queue.
-+ *
-+ */
-+static void gigaset_write_bulk_callback(struct urb *urb, struct pt_regs *regs)
-+{
-+	struct cardstate *cs = (struct cardstate *) urb->context;
-+
-+	IFNULLRET(cs);
-+#ifdef CONFIG_GIGASET_DEBUG
-+	if (!atomic_read(&cs->connected)) {
-+		err("%s:not connected", __func__);
-+		return;
-+	}
-+#endif
-+	if (urb->status)
-+		err("bulk transfer failed (status %d)", -urb->status); /* That's all we can do. Communication problems
-+		                                                           are handeled by timeouts or network protocols */
-+
-+	atomic_set(&cs->hw.usb->busy, 0);
-+	tasklet_schedule(&cs->write_tasklet);
-+}
-+
-+static int send_cb(struct cardstate *cs, struct cmdbuf_t *cb)
-+{
-+	struct cmdbuf_t *tcb;
-+	unsigned long flags;
-+	int count;
-+	int status = -ENOENT; // FIXME
-+	struct usb_cardstate *ucs = cs->hw.usb;
-+
-+	do {
-+		if (!cb->len) {
-+			tcb = cb;
-+
-+			spin_lock_irqsave(&cs->cmdlock, flags);
-+			cs->cmdbytes -= cs->curlen;
-+			dbg(DEBUG_OUTPUT, "send_cb: sent %u bytes, %u left",
-+			    cs->curlen, cs->cmdbytes);
-+			cs->cmdbuf = cb = cb->next;
-+			if (cb) {
-+				cb->prev = NULL;
-+				cs->curlen = cb->len;
-+			} else {
-+				cs->lastcmdbuf = NULL;
-+				cs->curlen = 0;
-+			}
-+			spin_unlock_irqrestore(&cs->cmdlock, flags);
-+
-+			if (tcb->wake_tasklet)
-+				tasklet_schedule(tcb->wake_tasklet);
-+			kfree(tcb);
-+		}
-+		if (cb) {
-+			count = min(cb->len, ucs->bulk_out_size);
-+			usb_fill_bulk_urb(ucs->bulk_out_urb, ucs->udev,
-+			                  usb_sndbulkpipe(ucs->udev,
-+			                     ucs->bulk_out_endpointAddr & 0x0f),
-+			                  cb->buf + cb->offset, count,
-+			                  gigaset_write_bulk_callback, cs);
-+
-+			cb->offset += count;
-+			cb->len -= count;
-+			atomic_set(&ucs->busy, 1);
-+			dbg(DEBUG_OUTPUT, "send_cb: send %d bytes", count);
-+
-+			status = usb_submit_urb(ucs->bulk_out_urb, SLAB_ATOMIC);
-+			if (status) {
-+				atomic_set(&ucs->busy, 0);
-+				err("could not submit urb (error %d).",
-+				    -status);
-+				cb->len = 0; /* skip urb => remove cb+wakeup in next loop cycle */
-+			}
-+		}
-+	} while (cb && status); /* bei Fehler naechster Befehl //FIXME: ist das OK? */
-+
-+	return status;
-+}
-+
-+/* Write string into transbuf and send it to modem.
-+ */
-+static int gigaset_write_cmd(struct cardstate *cs, const unsigned char *buf,
-+                             int len, struct tasklet_struct *wake_tasklet)
-+{
-+	struct cmdbuf_t *cb;
 +	unsigned long flags;
 +
-+	gigaset_dbg_buffer(atomic_read(&cs->mstate) != MS_LOCKED ?
-+	                     DEBUG_TRANSCMD : DEBUG_LOCKCMD,
-+	                   "CMD Transmit", len, buf, 0);
-+
-+	if (!atomic_read(&cs->connected)) {
-+		err("%s: not connected", __func__);
-+		return -ENODEV;
-+	}
-+
-+	if (len <= 0)
++	spin_lock_irqsave(&bcs->cs->lock, flags);
++	if (bcs->use_count) {
++		dbg(DEBUG_ANY, "could not allocate channel %d", bcs->channel);
++		spin_unlock_irqrestore(&bcs->cs->lock, flags);
 +		return 0;
-+
-+	if (!(cb = kmalloc(sizeof(struct cmdbuf_t) + len, GFP_ATOMIC))) {
-+		err("%s: out of memory", __func__);
-+		return -ENOMEM;
 +	}
-+
-+	memcpy(cb->buf, buf, len);
-+	cb->len = len;
-+	cb->offset = 0;
-+	cb->next = NULL;
-+	cb->wake_tasklet = wake_tasklet;
-+
-+	spin_lock_irqsave(&cs->cmdlock, flags);
-+	cb->prev = cs->lastcmdbuf;
-+	if (cs->lastcmdbuf)
-+		cs->lastcmdbuf->next = cb;
-+	else {
-+		cs->cmdbuf = cb;
-+		cs->curlen = len;
-+	}
-+	cs->cmdbytes += len;
-+	cs->lastcmdbuf = cb;
-+	spin_unlock_irqrestore(&cs->cmdlock, flags);
-+
-+	tasklet_schedule(&cs->write_tasklet);
-+	return len;
-+}
-+
-+static int gigaset_write_room(struct cardstate *cs)
-+{
-+	unsigned long flags;
-+	unsigned bytes;
-+
-+	spin_lock_irqsave(&cs->cmdlock, flags);
-+	bytes = cs->cmdbytes;
-+	spin_unlock_irqrestore(&cs->cmdlock, flags);
-+
-+	return bytes < IF_WRITEBUF ? IF_WRITEBUF - bytes : 0;
-+}
-+
-+static int gigaset_chars_in_buffer(struct cardstate *cs)
-+{
-+	return cs->cmdbytes;
-+}
-+
-+static int gigaset_brkchars(struct cardstate *cs, const unsigned char buf[6])
-+{
-+#ifdef CONFIG_GIGASET_UNDOCREQ
-+	gigaset_dbg_buffer(DEBUG_USBREQ, "brkchars", 6, buf, 0);
-+	memcpy(cs->hw.usb->bchars, buf, 6);
-+	return usb_control_msg(cs->hw.usb->udev,
-+	                       usb_sndctrlpipe(cs->hw.usb->udev, 0), 0x19, 0x41,
-+	                       0, 0, &buf, 6, 2000);
-+#else
-+	return -EINVAL;
-+#endif
-+}
-+
-+static int gigaset_freebcshw(struct bc_state *bcs)
-+{
-+	if (!bcs->hw.usb)
-+		return 0;
-+	//FIXME
-+	kfree(bcs->hw.usb);
++	++bcs->use_count;
++	bcs->busy = 1;
++	dbg(DEBUG_ANY, "allocated channel %d", bcs->channel);
++	spin_unlock_irqrestore(&bcs->cs->lock, flags);
 +	return 1;
++}
++
++void gigaset_free_channel(struct bc_state *bcs)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&bcs->cs->lock, flags);
++	if (!bcs->busy) {
++		dbg(DEBUG_ANY, "could not free channel %d", bcs->channel);
++		spin_unlock_irqrestore(&bcs->cs->lock, flags);
++		return;
++	}
++	--bcs->use_count;
++	bcs->busy = 0;
++	dbg(DEBUG_ANY, "freed channel %d", bcs->channel);
++	spin_unlock_irqrestore(&bcs->cs->lock, flags);
++}
++
++int gigaset_get_channels(struct cardstate *cs)
++{
++	unsigned long flags;
++	int i;
++
++	spin_lock_irqsave(&cs->lock, flags);
++	for (i = 0; i < cs->channels; ++i)
++		if (cs->bcs[i].use_count) {
++			spin_unlock_irqrestore(&cs->lock, flags);
++			dbg(DEBUG_ANY, "could not allocated all channels");
++			return 0;
++		}
++	for (i = 0; i < cs->channels; ++i)
++		++cs->bcs[i].use_count;
++	spin_unlock_irqrestore(&cs->lock, flags);
++
++	dbg(DEBUG_ANY, "allocated all channels");
++
++	return 1;
++}
++
++void gigaset_free_channels(struct cardstate *cs)
++{
++	unsigned long flags;
++	int i;
++
++	dbg(DEBUG_ANY, "unblocking all channels");
++	spin_lock_irqsave(&cs->lock, flags);
++	for (i = 0; i < cs->channels; ++i)
++		--cs->bcs[i].use_count;
++	spin_unlock_irqrestore(&cs->lock, flags);
++}
++
++void gigaset_block_channels(struct cardstate *cs)
++{
++	unsigned long flags;
++	int i;
++
++	dbg(DEBUG_ANY, "blocking all channels");
++	spin_lock_irqsave(&cs->lock, flags);
++	for (i = 0; i < cs->channels; ++i)
++		++cs->bcs[i].use_count;
++	spin_unlock_irqrestore(&cs->lock, flags);
++}
++
++static void clear_events(struct cardstate *cs)
++{
++	struct event_t *ev;
++	unsigned head, tail;
++
++	/* no locking needed (no reader/writer allowed) */
++
++	head = atomic_read(&cs->ev_head);
++	tail = atomic_read(&cs->ev_tail);
++
++	while (tail != head) {
++		ev = cs->events + head;
++		kfree(ev->ptr);
++
++		head = (head + 1) % MAX_EVENTS;
++	}
++
++	atomic_set(&cs->ev_head, tail);
++}
++
++struct event_t *gigaset_add_event(struct cardstate *cs,
++                                  struct at_state_t *at_state, int type,
++                                  void *ptr, int parameter, void *arg)
++{
++	unsigned long flags;
++	unsigned next, tail;
++	struct event_t *event = NULL;
++
++	spin_lock_irqsave(&cs->ev_lock, flags);
++
++	tail = atomic_read(&cs->ev_tail);
++	next = (tail + 1) % MAX_EVENTS;
++	if (unlikely(next == atomic_read(&cs->ev_head)))
++		err("event queue full");
++	else {
++		event = cs->events + tail;
++		event->type = type;
++		event->at_state = at_state;
++		event->cid = -1;
++		event->ptr = ptr;
++		event->arg = arg;
++		event->parameter = parameter;
++		atomic_set(&cs->ev_tail, next);
++	}
++
++	spin_unlock_irqrestore(&cs->ev_lock, flags);
++
++	return event;
++}
++EXPORT_SYMBOL_GPL(gigaset_add_event);
++
++static void free_strings(struct at_state_t *at_state)
++{
++	int i;
++
++	for (i = 0; i < STR_NUM; ++i) {
++		kfree(at_state->str_var[i]);
++		at_state->str_var[i] = NULL;
++	}
++}
++
++static void dealloc_at_state(struct at_state_t *at_state)
++{
++	struct at_state_t *cur, *tmp;
++
++	free_strings(at_state);
++
++	cur = at_state->next;
++	at_state->next = at_state->prev = NULL;
++	while (cur) {
++		free_strings(cur);
++		tmp = cur;
++		cur = cur->next;
++		kfree(tmp);
++	}
++}
++
++static void gigaset_freebcs(struct bc_state *bcs)
++{
++	int i;
++
++	dbg(DEBUG_INIT, "freeing bcs[%d]->hw", bcs->channel);
++	if (!bcs->cs->ops->freebcshw(bcs)) {
++		dbg(DEBUG_INIT, "failed");
++	}
++
++	dbg(DEBUG_INIT, "clearing bcs[%d]->at_state", bcs->channel);
++	dealloc_at_state(&bcs->at_state);
++	dbg(DEBUG_INIT, "freeing bcs[%d]->skb", bcs->channel);
++
++	if (bcs->skb)
++		dev_kfree_skb(bcs->skb);
++	for (i = 0; i < AT_NUM; ++i) {
++		kfree(bcs->commands[i]);
++		bcs->commands[i] = NULL;
++	}
++}
++
++void gigaset_freecs(struct cardstate *cs)
++{
++	int i;
++	unsigned long flags;
++
++	if (!cs)
++		return;
++
++	down(&cs->sem);
++
++	if (!cs->bcs)
++		goto f_cs;
++	if (!cs->inbuf)
++		goto f_bcs;
++
++	spin_lock_irqsave(&cs->lock, flags);
++	atomic_set(&cs->running, 0);
++	spin_unlock_irqrestore(&cs->lock, flags); /* event handler and timer are not rescheduled below */
++
++	tasklet_kill(&cs->event_tasklet);
++	del_timer_sync(&cs->timer);
++
++	switch (cs->cs_init) {
++	default:
++		gigaset_if_free(cs);
++
++		gigaset_free_cs_proc(cs);
++
++		dbg(DEBUG_INIT, "clearing hw");
++		cs->ops->freecshw(cs);
++
++		//FIXME cmdbuf
++
++		/* fall through */
++	case 2: /* error in initcshw */
++		/* Deregister from LL */
++		make_invalid(cs, VALID_ID);
++		dbg(DEBUG_INIT, "clearing iif");
++		gigaset_i4l_cmd(cs, ISDN_STAT_UNLOAD);
++
++		/* fall through */
++	case 1: /* error when regestering to LL */
++		dbg(DEBUG_INIT, "clearing at_state");
++		dealloc_at_state(&cs->at_state);
++
++		/* fall through */
++	case 0: /* error in one call to initbcs */
++		for (i = 0; i < cs->channels; ++i) {
++			dbg(DEBUG_INIT, "clearing bcs[%d]", i);
++			gigaset_freebcs(cs->bcs + i);
++		}
++
++		clear_events(cs);
++		dbg(DEBUG_INIT, "freeing inbuf");
++		kfree(cs->inbuf);
++	}
++f_bcs:	dbg(DEBUG_INIT, "freeing bcs[]");
++	kfree(cs->bcs);
++f_cs:	dbg(DEBUG_INIT, "freeing cs");
++	up(&cs->sem);
++	free_cs(cs);
++}
++EXPORT_SYMBOL_GPL(gigaset_freecs);
++
++void gigaset_at_init(struct at_state_t *at_state, struct bc_state *bcs,
++                     struct cardstate *cs, int cid)
++{
++	int i;
++
++	at_state->waiting = 0;
++	at_state->getstring = 0;
++	at_state->next = NULL;
++	at_state->prev = NULL;
++	at_state->pending_commands = 0;
++	at_state->timer_expires = 0;
++	at_state->timer_active = 0;
++	atomic_set(&at_state->timer_index, 0);
++	atomic_set(&at_state->seq_index, 0);
++	at_state->ConState = 0;
++	for (i = 0; i < STR_NUM; ++i)
++		at_state->str_var[i] = NULL;
++	at_state->int_var[VAR_ZDLE] = 0;
++	at_state->int_var[VAR_ZCTP] = -1;
++	at_state->int_var[VAR_ZSAU] = ZSAU_NULL;
++	at_state->cs = cs;
++	at_state->bcs = bcs;
++	at_state->cid = cid;
++	if (!cid)
++		at_state->replystruct = cs->tabnocid;
++	else
++		at_state->replystruct = cs->tabcid;
++}
++
++
++static void gigaset_inbuf_init(struct inbuf_t *inbuf, struct bc_state *bcs,
++                               struct cardstate *cs, int inputstate)
++/* inbuf->read must be allocated before! */
++{
++	atomic_set(&inbuf->head, 0);
++	atomic_set(&inbuf->tail, 0);
++	inbuf->cs = cs;
++	inbuf->bcs = bcs; /*base driver: NULL*/
++	inbuf->rcvbuf = NULL; //FIXME
++	inbuf->inputstate = inputstate;
 +}
 +
 +/* Initialize the b-channel structure */
-+static int gigaset_initbcshw(struct bc_state *bcs)
++static struct bc_state *gigaset_initbcs(struct bc_state *bcs,
++                                        struct cardstate *cs, int channel)
 +{
-+	bcs->hw.usb = kmalloc(sizeof(struct usb_bc_state), GFP_KERNEL);
-+	if (!bcs->hw.usb)
-+		return 0;
++	int i;
 +
-+	//bcs->hw.usb->trans_flg = READY_TO_TRNSMIT; /* B-Channel ready to transmit */
-+	return 1;
-+}
++	bcs->tx_skb = NULL; //FIXME -> hw part
 +
-+static void gigaset_reinitbcshw(struct bc_state *bcs)
-+{
-+}
++	skb_queue_head_init(&bcs->squeue);
 +
-+static void gigaset_freecshw(struct cardstate *cs)
-+{
-+	//FIXME
-+	tasklet_kill(&cs->write_tasklet);
-+	kfree(cs->hw.usb);
-+}
++	bcs->corrupted = 0;
++	bcs->trans_down = 0;
++	bcs->trans_up = 0;
 +
-+static int gigaset_initcshw(struct cardstate *cs)
-+{
-+	struct usb_cardstate *ucs;
++	dbg(DEBUG_INIT, "setting up bcs[%d]->at_state", channel);
++	gigaset_at_init(&bcs->at_state, bcs, cs, -1);
 +
-+	cs->hw.usb = ucs =
-+		kmalloc(sizeof(struct usb_cardstate), GFP_KERNEL);
-+	if (!ucs)
-+		return 0;
++	bcs->rcvbytes = 0;
 +
-+	ucs->bchars[0] = 0;
-+	ucs->bchars[1] = 0;
-+	ucs->bchars[2] = 0;
-+	ucs->bchars[3] = 0;
-+	ucs->bchars[4] = 0x11;
-+	ucs->bchars[5] = 0x13;
-+	ucs->bulk_out_buffer = NULL;
-+	ucs->bulk_out_urb = NULL;
-+	//ucs->urb_cmd_out = NULL;
-+	ucs->read_urb = NULL;
-+	tasklet_init(&cs->write_tasklet,
-+	             &gigaset_modem_fill, (unsigned long) cs);
-+
-+	return 1;
-+}
-+
-+/* Writes the data of the current open skb into the modem.
-+ * We have to protect against multiple calls until the
-+ * callback handler () is called , due to the fact that we
-+ * are just allowed to send data once to an endpoint. Therefore
-+ * we using "trans_flg" to synchonize ...
-+ */
-+static int write_modem(struct cardstate *cs)
-+{
-+	int ret;
-+	int count;
-+	struct bc_state *bcs = &cs->bcs[0]; /* only one channel */
-+	struct usb_cardstate *ucs = cs->hw.usb;
-+	//unsigned long flags;
-+
-+	IFNULLRETVAL(bcs->tx_skb, -EINVAL);
-+
-+	dbg(DEBUG_WRITE, "len: %d...", bcs->tx_skb->len);
-+
-+	ret = -ENODEV;
-+	IFNULLGOTO(ucs->bulk_out_buffer, error);
-+	IFNULLGOTO(ucs->bulk_out_urb, error);
-+	ret = 0;
-+
-+	if (!bcs->tx_skb->len) {
-+		dev_kfree_skb_any(bcs->tx_skb);
-+		bcs->tx_skb = NULL;
-+		return -EINVAL;
-+	}
-+
-+	/* Copy data to bulk out buffer and  // FIXME copying not necessary
-+	 * transmit data
-+	 */
-+	count = min(bcs->tx_skb->len, (unsigned) ucs->bulk_out_size);
-+	memcpy(ucs->bulk_out_buffer, bcs->tx_skb->data, count);
-+	skb_pull(bcs->tx_skb, count);
-+
-+	usb_fill_bulk_urb(ucs->bulk_out_urb, ucs->udev,
-+	                  usb_sndbulkpipe(ucs->udev,
-+	                                  ucs->bulk_out_endpointAddr & 0x0f),
-+	                  ucs->bulk_out_buffer, count,
-+	                  gigaset_write_bulk_callback, cs);
-+	atomic_set(&ucs->busy, 1);
-+	dbg(DEBUG_OUTPUT, "write_modem: send %d bytes", count);
-+
-+	ret = usb_submit_urb(ucs->bulk_out_urb, SLAB_ATOMIC);
-+	if (ret) {
-+		err("could not submit urb (error %d).", -ret);
-+		atomic_set(&ucs->busy, 0);
-+	}
-+	if (!bcs->tx_skb->len) {
-+		/* skb sent completely */
-+		gigaset_skb_sent(bcs, bcs->tx_skb); //FIXME also, when ret<0?
-+
-+		dbg(DEBUG_INTR,
-+		    "kfree skb (Adr: %lx)!", (unsigned long) bcs->tx_skb);
-+		dev_kfree_skb_any(bcs->tx_skb);
-+		bcs->tx_skb = NULL;
-+	}
-+
-+	return ret;
-+error:
-+	dev_kfree_skb_any(bcs->tx_skb);
-+	bcs->tx_skb = NULL;
-+	return ret;
-+
-+}
-+
-+static int gigaset_probe(struct usb_interface *interface,
-+                         const struct usb_device_id *id)
-+{
-+	int retval;
-+	struct usb_device *udev = interface_to_usbdev(interface);
-+	unsigned int ifnum;
-+	struct usb_host_interface *hostif;
-+	struct cardstate *cs = NULL;
-+	struct usb_cardstate *ucs = NULL;
-+	//struct usb_interface_descriptor *iface_desc;
-+	struct usb_endpoint_descriptor *endpoint;
-+	//isdn_ctrl command;
-+	int buffer_size;
-+	int alt;
-+	//unsigned long flags;
-+
-+	info("%s: Check if device matches .. (Vendor: 0x%x, Product: 0x%x)",
-+	    __func__, le16_to_cpu(udev->descriptor.idVendor),
-+	    le16_to_cpu(udev->descriptor.idProduct));
-+
-+	retval = -ENODEV; //FIXME
-+
-+	/* See if the device offered us matches what we can accept */
-+	if ((le16_to_cpu(udev->descriptor.idVendor  != USB_M105_VENDOR_ID)) ||
-+	    (le16_to_cpu(udev->descriptor.idProduct != USB_M105_PRODUCT_ID)))
-+		goto exit;
-+
-+	/* this starts to become ascii art... */
-+	hostif = interface->cur_altsetting;
-+	alt = hostif->desc.bAlternateSetting;
-+	ifnum = hostif->desc.bInterfaceNumber; // FIXME ?
-+
-+	if (alt != 0 || ifnum != 0) {
-+		warn("ifnum %d, alt %d", ifnum, alt);
-+		goto exit;
-+	}
-+
-+	/* Reject application specific intefaces
-+	 *
-+	 */
-+	if (hostif->desc.bInterfaceClass != 255) {
-+		info("%s: Device matched, but iface_desc[%d]->bInterfaceClass==%d !",
-+		       __func__, ifnum, hostif->desc.bInterfaceClass);
-+		goto exit;
-+	}
-+
-+	info("%s: Device matched ... !", __func__);
-+
-+	cs = gigaset_getunassignedcs(driver);
-+	if (!cs) {
-+		warn("No free cardstate!");
-+		goto exit;
-+	}
-+	ucs = cs->hw.usb;
-+
-+#if 0
-+	if (usb_set_configuration(udev, udev->config[0].desc.bConfigurationValue) < 0) {
-+		warn("set_configuration failed");
-+		goto error;
-+	}
-+
-+
-+	if (usb_set_interface(udev, ifnum/*==0*/, alt/*==0*/) < 0) {
-+		warn("usb_set_interface failed, device %d interface %d altsetting %d",
-+		     udev->devnum, ifnum, alt);
-+		goto error;
-+	}
++#ifdef CONFIG_GIGASET_DEBUG
++	bcs->emptycount = 0;
 +#endif
 +
-+	/* set up the endpoint information */
-+	/* check out the endpoints */
-+	/* We will get 2 endpoints: One for sending commands to the device (bulk out) and one to
-+	 * poll messages from the device(int in).
-+	 * Therefore we will have an almost similiar situation as with our serial port handler.
-+	 * If an connection will be established, we will have to create data in/out pipes
-+	 * dynamically...
++	dbg(DEBUG_INIT, "allocating bcs[%d]->skb", channel);
++	bcs->fcs = PPP_INITFCS;
++	bcs->inputstate = 0;
++	if (cs->ignoreframes) {
++		bcs->inputstate |= INS_skip_frame;
++		bcs->skb = NULL;
++	} else if ((bcs->skb = dev_alloc_skb(SBUFSIZE + HW_HDR_LEN)) != NULL)
++		skb_reserve(bcs->skb, HW_HDR_LEN);
++	else {
++		warn("could not allocate skb");
++		bcs->inputstate |= INS_skip_frame;
++	}
++
++	bcs->channel = channel;
++	bcs->cs = cs;
++
++	bcs->chstate = 0;
++	bcs->use_count = 1;
++	bcs->busy = 0;
++	bcs->ignore = cs->ignoreframes;
++
++	for (i = 0; i < AT_NUM; ++i)
++		bcs->commands[i] = NULL;
++
++	dbg(DEBUG_INIT, "  setting up bcs[%d]->hw", channel);
++	if (cs->ops->initbcshw(bcs))
++		return bcs;
++
++//error:
++	dbg(DEBUG_INIT, "  failed");
++
++	dbg(DEBUG_INIT, "  freeing bcs[%d]->skb", channel);
++	if (bcs->skb)
++		dev_kfree_skb(bcs->skb);
++
++	return NULL;
++}
++
++/* gigaset_initcs
++ * Allocate and initialize cardstate structure for Gigaset driver
++ * Calls hardware dependent gigaset_initcshw() function
++ * Calls B channel initialization function gigaset_initbcs() for each B channel
++ * parameters:
++ *      drv		hardware driver the device belongs to
++ *	channels	number of B channels supported by device
++ *	onechannel	!=0: B channel data and AT commands share one communication channel
++ *			==0: B channels have separate communication channels
++ *	ignoreframes	number of frames to ignore after setting up B channel
++ *	cidmode		!=0: start in CallID mode
++ *	modulename	name of driver module (used for I4L registration)
++ * return value:
++ *	pointer to cardstate structure
++ */
++struct cardstate *gigaset_initcs(struct gigaset_driver *drv, int channels,
++				 int onechannel, int ignoreframes,
++				 int cidmode, const char *modulename)
++{
++	struct cardstate *cs = NULL;
++	int i;
++
++	dbg(DEBUG_INIT, "allocating cs");
++	cs = alloc_cs(drv);
++	if (!cs)
++		goto error;
++	dbg(DEBUG_INIT, "allocating bcs[0..%d]", channels - 1);
++	cs->bcs = kmalloc(channels * sizeof(struct bc_state), GFP_KERNEL);
++	if (!cs->bcs)
++		goto error;
++	dbg(DEBUG_INIT, "allocating inbuf");
++	cs->inbuf = kmalloc(sizeof(struct inbuf_t), GFP_KERNEL);
++	if (!cs->inbuf)
++		goto error;
++
++	cs->cs_init = 0;
++	cs->channels = channels;
++	cs->onechannel = onechannel;
++	cs->ignoreframes = ignoreframes;
++	cs->proc_entry = NULL;
++	atomic_set(&cs->running, 0);
++	init_timer(&cs->timer); /* clear next & prev */
++	spin_lock_init(&cs->ev_lock);
++	atomic_set(&cs->ev_tail, 0);
++	atomic_set(&cs->ev_head, 0);
++	init_MUTEX_LOCKED(&cs->sem);
++	tasklet_init(&cs->event_tasklet, &gigaset_handle_event, (unsigned long) cs);
++	atomic_set(&cs->commands_pending, 0);
++	cs->cur_at_seq = 0;
++	cs->gotfwver = -1;
++	cs->open_count = 0;
++	cs->tty = NULL;
++	atomic_set(&cs->cidmode, cidmode != 0);
++
++	//if(onechannel) { //FIXME
++		cs->tabnocid = gigaset_tab_nocid_m10x;
++		cs->tabcid = gigaset_tab_cid_m10x;
++	//} else {
++	//	cs->tabnocid = gigaset_tab_nocid;
++	//	cs->tabcid = gigaset_tab_cid;
++	//}
++
++	//init_waitqueue_head(&cs->initwait); //FIXME
++	init_waitqueue_head(&cs->waitqueue);
++	cs->waiting = 0;
++
++	atomic_set(&cs->mode, M_UNKNOWN);
++	atomic_set(&cs->mstate, MS_UNINITIALIZED);
++
++	for (i = 0; i < channels; ++i) {
++		dbg(DEBUG_INIT, "setting up bcs[%d].read", i);
++		if (!gigaset_initbcs(cs->bcs + i, cs, i))
++			goto error;
++	}
++
++	++cs->cs_init;
++
++	dbg(DEBUG_INIT, "setting up at_state");
++	spin_lock_init(&cs->lock);
++	gigaset_at_init(&cs->at_state, NULL, cs, 0);
++	cs->dle = 0;
++	cs->cbytes = 0;
++
++	dbg(DEBUG_INIT, "setting up inbuf");
++	if (onechannel) {			//FIXME distinction necessary?
++		gigaset_inbuf_init(cs->inbuf, cs->bcs, cs, INS_command);
++	} else
++		gigaset_inbuf_init(cs->inbuf, NULL,    cs, INS_command);
++
++	atomic_set(&cs->connected, 0);
++
++	dbg(DEBUG_INIT, "setting up cmdbuf");
++	cs->cmdbuf = cs->lastcmdbuf = NULL;
++	spin_lock_init(&cs->cmdlock);
++	cs->curlen = 0;
++	cs->cmdbytes = 0;
++
++	/*
++	 * Tell the ISDN4Linux subsystem (the LL) that
++	 * a driver for a USB-Device is available !
++	 * If this is done, "isdnctrl" is able to bind a device for this driver even
++	 * if no physical usb-device is currently connected.
++	 * But this device will just be accessable if a physical USB device is connected
++	 * (via "gigaset_probe") .
 +	 */
-+
-+	endpoint = &hostif->endpoint[0].desc;
-+
-+	buffer_size = le16_to_cpu(endpoint->wMaxPacketSize);
-+	ucs->bulk_out_size = buffer_size;
-+	ucs->bulk_out_endpointAddr = endpoint->bEndpointAddress;
-+	ucs->bulk_out_buffer = kmalloc(buffer_size, GFP_KERNEL);
-+	if (!ucs->bulk_out_buffer) {
-+		err("Couldn't allocate bulk_out_buffer");
-+		retval = -ENOMEM;
++	dbg(DEBUG_INIT, "setting up iif");
++	if (!gigaset_register_to_LL(cs, modulename)) {
++		err("register_isdn=>error");
 +		goto error;
 +	}
 +
-+	ucs->bulk_out_urb = usb_alloc_urb(0, SLAB_KERNEL);
-+	if (!ucs->bulk_out_urb) {
-+		err("Couldn't allocate bulk_out_buffer");
-+		retval = -ENOMEM;
++	make_valid(cs, VALID_ID);
++	++cs->cs_init;
++	dbg(DEBUG_INIT, "setting up hw");
++	if (!cs->ops->initcshw(cs))
++		goto error;
++
++	++cs->cs_init;
++
++	gigaset_init_cs_proc(cs);
++
++	gigaset_if_init(cs);
++
++	atomic_set(&cs->running, 1);
++	cs->timer.data = (unsigned long) cs;
++	cs->timer.function = timer_tick;
++	cs->timer.expires = jiffies + GIG_TICK;
++	/* FIXME: can jiffies increase too much until the timer is added?
++	 * Same problem(?) with mod_timer() in timer_tick(). */
++	add_timer(&cs->timer);
++
++	dbg(DEBUG_INIT, "cs initialized!");
++	up(&cs->sem);
++	return cs;
++
++error:	if (cs)
++		up(&cs->sem);
++	dbg(DEBUG_INIT, "failed");
++	gigaset_freecs(cs);
++	return NULL;
++}
++EXPORT_SYMBOL_GPL(gigaset_initcs);
++
++/* ReInitialize the b-channel structure */ /* e.g. called on hangup, disconnect */
++void gigaset_bcs_reinit(struct bc_state *bcs)
++{
++	struct sk_buff *skb;
++	struct cardstate *cs = bcs->cs;
++	unsigned long flags;
++
++	while ((skb = skb_dequeue(&bcs->squeue)) != NULL)
++		dev_kfree_skb(skb);
++
++	spin_lock_irqsave(&cs->lock, flags); //FIXME
++	dealloc_at_state(&bcs->at_state);
++	bcs->at_state.ConState = 0;
++	bcs->at_state.timer_active = 0;
++	bcs->at_state.timer_expires = 0;
++	bcs->at_state.cid = -1;                     /* No CID defined */
++	spin_unlock_irqrestore(&cs->lock, flags);
++
++	bcs->inputstate = 0;
++
++#ifdef CONFIG_GIGASET_DEBUG
++	bcs->emptycount = 0;
++#endif
++
++	bcs->fcs = PPP_INITFCS;
++	bcs->chstate = 0;
++
++	bcs->ignore = cs->ignoreframes;
++	if (bcs->ignore)
++		bcs->inputstate |= INS_skip_frame;
++
++
++	cs->ops->reinitbcshw(bcs);
++}
++
++static void cleanup_cs(struct cardstate *cs)
++{
++	struct cmdbuf_t *cb, *tcb;
++	int i;
++	unsigned long flags;
++
++	spin_lock_irqsave(&cs->lock, flags);
++
++	atomic_set(&cs->mode, M_UNKNOWN);
++	atomic_set(&cs->mstate, MS_UNINITIALIZED);
++
++	dealloc_at_state(&cs->at_state);
++	free_strings(&cs->at_state);
++	gigaset_at_init(&cs->at_state, NULL, cs, 0);
++
++	kfree(cs->inbuf->rcvbuf);
++	cs->inbuf->rcvbuf = NULL;
++	cs->inbuf->inputstate = INS_command;
++	atomic_set(&cs->inbuf->head, 0);
++	atomic_set(&cs->inbuf->tail, 0);
++
++	cb = cs->cmdbuf;
++	while (cb) {
++		tcb = cb;
++		cb = cb->next;
++		kfree(tcb);
++	}
++	cs->cmdbuf = cs->lastcmdbuf = NULL;
++	cs->curlen = 0;
++	cs->cmdbytes = 0;
++	cs->gotfwver = -1;
++	cs->dle = 0;
++	cs->cur_at_seq = 0;
++	atomic_set(&cs->commands_pending, 0);
++	cs->cbytes = 0;
++
++	spin_unlock_irqrestore(&cs->lock, flags);
++
++	for (i = 0; i < cs->channels; ++i) {
++		gigaset_freebcs(cs->bcs + i);
++		if (!gigaset_initbcs(cs->bcs + i, cs, i))
++			break;			//FIXME error handling
++	}
++
++	if (cs->waiting) {
++		cs->cmd_result = -ENODEV;
++		cs->waiting = 0;
++		wake_up_interruptible(&cs->waitqueue);
++	}
++}
++
++
++int gigaset_start(struct cardstate *cs)
++{
++	if (down_interruptible(&cs->sem))
++		return 0;
++	//info("USB device for Gigaset 307x now attached to Dev %d", ucs->minor);
++
++	atomic_set(&cs->connected, 1);
++
++	if (atomic_read(&cs->mstate) != MS_LOCKED) {
++		cs->ops->set_modem_ctrl(cs, 0, TIOCM_DTR|TIOCM_RTS);
++		cs->ops->baud_rate(cs, B115200);
++		cs->ops->set_line_ctrl(cs, CS8);
++		cs->control_state = TIOCM_DTR|TIOCM_RTS;
++	} else {
++		//FIXME use some saved values?
++	}
++
++	cs->waiting = 1;
++
++	if (!gigaset_add_event(cs, &cs->at_state, EV_START, NULL, 0, NULL)) {
++		cs->waiting = 0;
++		//FIXME what should we do?
 +		goto error;
 +	}
 +
-+	endpoint = &hostif->endpoint[1].desc;
++	dbg(DEBUG_CMD, "scheduling START");
++	gigaset_schedule_event(cs);
 +
-+	atomic_set(&ucs->busy, 0);
-+	ucs->udev = udev;
-+	ucs->interface = interface;
++	wait_event(cs->waitqueue, !cs->waiting);
 +
-+	ucs->read_urb = usb_alloc_urb(0, SLAB_KERNEL);
-+	if (!ucs->read_urb) {
-+		err("No free urbs available");
-+		retval = -ENOMEM;
-+		goto error;
-+	}
-+	buffer_size = le16_to_cpu(endpoint->wMaxPacketSize);
-+	ucs->rcvbuf_size = buffer_size;
-+	ucs->int_in_endpointAddr = endpoint->bEndpointAddress;
-+	cs->inbuf[0].rcvbuf = kmalloc(buffer_size, GFP_KERNEL);
-+	if (!cs->inbuf[0].rcvbuf) {
-+		err("Couldn't allocate rcvbuf");
-+		retval = -ENOMEM;
-+		goto error;
-+	}
-+	/* Fill the interrupt urb and send it to the core */
-+	usb_fill_int_urb(ucs->read_urb, udev,
-+	                 usb_rcvintpipe(udev,
-+	                                endpoint->bEndpointAddress & 0x0f),
-+	                 cs->inbuf[0].rcvbuf, buffer_size,
-+	                 gigaset_read_int_callback,
-+	                 cs->inbuf + 0, endpoint->bInterval);
-+
-+	retval = usb_submit_urb(ucs->read_urb, SLAB_KERNEL);
-+	if (retval) {
-+		err("Could not submit URB!");
-+		goto error;
-+	}
-+
-+	/* tell common part that the device is ready */
-+	if (startmode == SM_LOCKED)
-+		atomic_set(&cs->mstate, MS_LOCKED);
-+	if (!gigaset_start(cs)) {
-+		tasklet_kill(&cs->write_tasklet);
-+		retval = -ENODEV; //FIXME
-+		goto error;
-+	}
-+	retval = 0;
-+	goto exit;
++	up(&cs->sem);
++	return 1;
 +
 +error:
-+	if (ucs->read_urb)
-+		usb_kill_urb(ucs->read_urb); // out-urb?
-+	//struct cmdbuf_t *cmdbuf, *lastcmdbuf; , rcvbuf, rcv_in_progress
-+	kfree(ucs->bulk_out_buffer);
-+	if (ucs->bulk_out_urb != NULL)
-+		usb_free_urb(ucs->bulk_out_urb);
-+	kfree(cs->inbuf[0].rcvbuf);
-+	if (ucs->read_urb != NULL)
-+		usb_free_urb(ucs->read_urb);
-+	ucs->read_urb = ucs->bulk_out_urb = NULL;
-+	cs->inbuf[0].rcvbuf = ucs->bulk_out_buffer = NULL;
-+	gigaset_unassign(cs);
-+exit:
-+	if (retval == 0)
-+		usb_set_intfdata(interface, cs);
-+
-+	return retval;
++	up(&cs->sem);
++	return 0;
 +}
++EXPORT_SYMBOL_GPL(gigaset_start);
 +
-+/**
-+ *	skel_disconnect
-+ */
-+static void gigaset_disconnect(struct usb_interface *interface)
++void gigaset_shutdown(struct cardstate *cs)
 +{
-+	struct cardstate *cs;
-+	struct usb_cardstate *ucs;
++	down(&cs->sem);
 +
-+	//down(&mutex);
++	cs->waiting = 1;
 +
-+	cs = usb_get_intfdata(interface);
-+	usb_set_intfdata(interface, NULL);
-+	ucs = cs->hw.usb;
-+	usb_kill_urb(ucs->read_urb);
-+	//info("GigaSet USB device #%d will be disconnected", minor);
-+
-+	gigaset_stop(cs);
-+
-+	tasklet_kill(&cs->write_tasklet);
-+
-+	usb_kill_urb(ucs->bulk_out_urb);  /* FIXME: nur, wenn noetig */
-+	//usb_kill_urb(ucs->urb_cmd_out);  /* FIXME: nur, wenn noetig */
-+
-+	kfree(ucs->bulk_out_buffer);
-+	if (ucs->bulk_out_urb != NULL)
-+		usb_free_urb(ucs->bulk_out_urb);
-+	//if(ucs->urb_cmd_out != NULL)
-+	//	usb_free_urb(ucs->urb_cmd_out);
-+	kfree(cs->inbuf[0].rcvbuf);
-+	if (ucs->read_urb != NULL)
-+		usb_free_urb(ucs->read_urb);
-+	ucs->read_urb = ucs->bulk_out_urb/*=ucs->urb_cmd_out*/=NULL;
-+	cs->inbuf[0].rcvbuf = ucs->bulk_out_buffer = NULL;
-+
-+	gigaset_unassign(cs);
-+}
-+
-+static struct gigaset_ops ops = {
-+	gigaset_write_cmd,
-+	gigaset_write_room,
-+	gigaset_chars_in_buffer,
-+	gigaset_brkchars,
-+	gigaset_init_bchannel,
-+	gigaset_close_bchannel,
-+	gigaset_initbcshw,
-+	gigaset_freebcshw,
-+	gigaset_reinitbcshw,
-+	gigaset_initcshw,
-+	gigaset_freecshw,
-+	gigaset_read_proc_hwinfo,
-+	gigaset_set_modem_ctrl,
-+	gigaset_baud_rate,
-+	gigaset_set_line_ctrl,
-+	gigaset_m10x_send_skb,
-+	gigaset_m10x_input,
-+};
-+
-+/**
-+ *	usb_gigaset_init
-+ * This function is called while kernel-module is loaded
-+ */
-+static int __init usb_gigaset_init(void)
-+{
-+	int result;
-+
-+	/* allocate memory for our driver state and intialize it */
-+	if ((driver = gigaset_initdriver(GIGASET_MINOR, GIGASET_MINORS,
-+	                               GIGASET_MODULENAME, GIGASET_DEVNAME,
-+	                               GIGASET_DEVFSNAME, &ops,
-+	                               THIS_MODULE)) == NULL)
-+		goto error;
-+
-+	/* allocate memory for our device state and intialize it */
-+	cardstate = gigaset_initcs(driver, 1, 1, 0, cidmode, GIGASET_MODULENAME);
-+	if (!cardstate)
-+		goto error;
-+
-+	/* register this driver with the USB subsystem */
-+	result = usb_register(&gigaset_usb_driver);
-+	if (result < 0) {
-+		err("usb_gigaset: usb_register failed (error %d)",
-+		    -result);
-+		goto error;
++	if (!gigaset_add_event(cs, &cs->at_state, EV_SHUTDOWN, NULL, 0, NULL)) {
++		//FIXME what should we do?
++		goto exit;
 +	}
++
++	dbg(DEBUG_CMD, "scheduling SHUTDOWN");
++	gigaset_schedule_event(cs);
++
++	if (wait_event_interruptible(cs->waitqueue, !cs->waiting)) {
++		warn("aborted");
++		//FIXME
++	}
++
++	if (atomic_read(&cs->mstate) != MS_LOCKED) {
++		//FIXME?
++		//gigaset_baud_rate(cs, B115200);
++		//gigaset_set_line_ctrl(cs, CS8);
++		//gigaset_set_modem_ctrl(cs, TIOCM_DTR|TIOCM_RTS, 0);
++		//cs->control_state = 0;
++	} else {
++		//FIXME use some saved values?
++	}
++
++	cleanup_cs(cs);
++
++exit:
++	up(&cs->sem);
++}
++EXPORT_SYMBOL_GPL(gigaset_shutdown);
++
++void gigaset_stop(struct cardstate *cs)
++{
++	down(&cs->sem);
++
++	atomic_set(&cs->connected, 0);
++
++	cs->waiting = 1;
++
++	if (!gigaset_add_event(cs, &cs->at_state, EV_STOP, NULL, 0, NULL)) {
++		//FIXME what should we do?
++		goto exit;
++	}
++
++	dbg(DEBUG_CMD, "scheduling STOP");
++	gigaset_schedule_event(cs);
++
++	if (wait_event_interruptible(cs->waitqueue, !cs->waiting)) {
++		warn("aborted");
++		//FIXME
++	}
++
++	/* Tell the LL that the device is not available .. */
++	gigaset_i4l_cmd(cs, ISDN_STAT_STOP); // FIXME move to event layer?
++
++	cleanup_cs(cs);
++
++exit:
++	up(&cs->sem);
++}
++EXPORT_SYMBOL_GPL(gigaset_stop);
++
++static struct gigaset_driver *drivers = NULL;
++static spinlock_t driver_lock = SPIN_LOCK_UNLOCKED;
++
++struct cardstate *gigaset_get_cs_by_id(int id)
++{
++	unsigned long flags;
++	static struct cardstate *ret = NULL;
++	static struct cardstate *cs;
++	struct gigaset_driver *drv;
++	unsigned i;
++
++	spin_lock_irqsave(&driver_lock, flags);
++	for (drv = drivers; drv; drv = drv->next) {
++		spin_lock(&drv->lock);
++		for (i = 0; i < drv->minors; ++i) {
++			if (drv->flags[i] & VALID_ID) {
++				cs = drv->cs + i;
++				if (cs->myid == id)
++					ret = cs;
++			}
++			if (ret)
++				break;
++		}
++		spin_unlock(&drv->lock);
++		if (ret)
++			break;
++	}
++	spin_unlock_irqrestore(&driver_lock, flags);
++	return ret;
++}
++
++void gigaset_debugdrivers(void)
++{
++	unsigned long flags;
++	static struct cardstate *cs;
++	struct gigaset_driver *drv;
++	unsigned i;
++
++	spin_lock_irqsave(&driver_lock, flags);
++	for (drv = drivers; drv; drv = drv->next) {
++		dbg(DEBUG_DRIVER, "driver %p", drv);
++		spin_lock(&drv->lock);
++		for (i = 0; i < drv->minors; ++i) {
++			dbg(DEBUG_DRIVER, "  index %u", i);
++			dbg(DEBUG_DRIVER, "    flags 0x%02x", drv->flags[i]);
++			cs = drv->cs + i;
++			dbg(DEBUG_DRIVER, "    cardstate %p", cs);
++			dbg(DEBUG_DRIVER, "    minor_index %u", cs->minor_index);
++			dbg(DEBUG_DRIVER, "    driver %p", cs->driver);
++			dbg(DEBUG_DRIVER, "    i4l id %d", cs->myid);
++		}
++		spin_unlock(&drv->lock);
++	}
++	spin_unlock_irqrestore(&driver_lock, flags);
++}
++EXPORT_SYMBOL_GPL(gigaset_debugdrivers);
++
++struct cardstate *gigaset_get_cs_by_tty(struct tty_struct *tty)
++{
++	if (tty->index < 0 || tty->index >= tty->driver->num)
++		return NULL;
++	return gigaset_get_cs_by_minor(tty->index + tty->driver->minor_start);
++}
++
++struct cardstate *gigaset_get_cs_by_minor(unsigned minor)
++{
++	unsigned long flags;
++	static struct cardstate *ret = NULL;
++	struct gigaset_driver *drv;
++	unsigned index;
++
++	spin_lock_irqsave(&driver_lock, flags);
++	for (drv = drivers; drv; drv = drv->next) {
++		if (minor < drv->minor || minor >= drv->minor + drv->minors)
++			continue;
++		index = minor - drv->minor;
++		spin_lock(&drv->lock);
++		if (drv->flags[index] & VALID_MINOR)
++			ret = drv->cs + index;
++		spin_unlock(&drv->lock);
++		if (ret)
++			break;
++	}
++	spin_unlock_irqrestore(&driver_lock, flags);
++	return ret;
++}
++
++void gigaset_freedriver(struct gigaset_driver *drv)
++{
++	unsigned long flags;
++
++	spin_lock_irqsave(&driver_lock, flags);
++	if (drv->next)
++		drv->next->prev = drv->prev;
++	if (drv->prev)
++		drv->prev->next = drv->next;
++	else if (drv == drivers)
++		drivers = drv->next;
++	spin_unlock_irqrestore(&driver_lock, flags);
++
++	gigaset_if_freedriver(drv);
++	gigaset_free_drv_proc(drv);
++	kfree(drv->cs);
++	kfree(drv->flags);
++	kfree(drv);
++}
++EXPORT_SYMBOL_GPL(gigaset_freedriver);
++
++/* gigaset_initdriver
++ * Allocate and initialize gigaset_driver structure. Initialize interface.
++ * parameters:
++ *      minor           First minor number
++ *      minors          Number of minors this driver can handle
++ *      procname        Name of the driver (e.g. for /proc/tty/drivers, path in /proc/driver)
++ *      devname         Name of the device files (prefix without minor number)
++ *      devfsname       Devfs name of the device files without %d
++ * return value:
++ *      Pointer to the gigaset_driver structure on success, NULL on failure.
++ */
++struct gigaset_driver *gigaset_initdriver(unsigned minor, unsigned minors,
++                                          const char *procname,
++                                          const char *devname,
++                                          const char *devfsname,
++                                          const struct gigaset_ops *ops,
++                                          struct module *owner)
++{
++	struct gigaset_driver *drv;
++	unsigned long flags;
++	unsigned i;
++
++	drv = kmalloc(sizeof *drv, GFP_KERNEL);
++	if (!drv)
++		return NULL;
++
++	drv->next = drv->prev = NULL;
++	drv->cs = NULL;
++	drv->have_tty = 0;
++	drv->minor = minor;
++	drv->minors = minors;
++	spin_lock_init(&drv->lock);
++	drv->proc_entry = NULL;
++	drv->proc_path = procname;
++	drv->blocked = 0;
++	drv->ops = ops;
++	drv->owner = owner;
++
++	drv->cs = kmalloc(minors * sizeof *drv->cs, GFP_KERNEL);
++	if (!drv->cs)
++		goto out1;
++	drv->flags = kmalloc(minors * sizeof *drv->flags, GFP_KERNEL);
++	if (!drv->flags)
++		goto out2;
++
++	for (i = 0; i < minors; ++i) {
++		drv->flags[i] = 0;
++		drv->cs[i].driver = drv;
++		drv->cs[i].ops = drv->ops;
++		drv->cs[i].minor_index = i;
++	}
++
++	gigaset_init_drv_proc(drv);
++	gigaset_if_initdriver(drv, procname, devname, devfsname);
++
++	spin_lock_irqsave(&driver_lock, flags);
++	drv->next = drivers;
++	drv->prev = NULL;
++	if (drivers)
++		drivers->prev = drv;
++	drivers = drv;
++	spin_unlock_irqrestore(&driver_lock, flags);
++
++	return drv;
++
++out2:
++	kfree(drv->cs);
++out1:
++	kfree(drv);
++	return NULL;
++}
++EXPORT_SYMBOL_GPL(gigaset_initdriver);
++
++static struct cardstate *alloc_cs(struct gigaset_driver *drv)
++{
++	unsigned long flags;
++	unsigned i;
++	static struct cardstate *ret = NULL;
++
++	spin_lock_irqsave(&drv->lock, flags);
++	for (i = 0; i < drv->minors; ++i) {
++		if (!(drv->flags[i] & VALID_MINOR)) {
++			drv->flags[i] = VALID_MINOR;
++			ret = drv->cs + i;
++		}
++		if (ret)
++			break;
++	}
++	spin_unlock_irqrestore(&drv->lock, flags);
++	return ret;
++}
++
++static void free_cs(struct cardstate *cs)
++{
++	unsigned long flags;
++	struct gigaset_driver *drv = cs->driver;
++	spin_lock_irqsave(&drv->lock, flags);
++	drv->flags[cs->minor_index] = 0;
++	spin_unlock_irqrestore(&drv->lock, flags);
++}
++
++static void make_valid(struct cardstate *cs, unsigned mask)
++{
++	unsigned long flags;
++	struct gigaset_driver *drv = cs->driver;
++	spin_lock_irqsave(&drv->lock, flags);
++	drv->flags[cs->minor_index] |= mask;
++	spin_unlock_irqrestore(&drv->lock, flags);
++}
++
++static void make_invalid(struct cardstate *cs, unsigned mask)
++{
++	unsigned long flags;
++	struct gigaset_driver *drv = cs->driver;
++	spin_lock_irqsave(&drv->lock, flags);
++	drv->flags[cs->minor_index] &= ~mask;
++	spin_unlock_irqrestore(&drv->lock, flags);
++}
++
++/* For drivers without fixed assignment device<->cardstate (usb) */
++struct cardstate *gigaset_getunassignedcs(struct gigaset_driver *drv)
++{
++	unsigned long flags;
++	struct cardstate *cs = NULL;
++	unsigned i;
++
++	spin_lock_irqsave(&drv->lock, flags);
++	if (drv->blocked)
++		goto exit;
++	for (i = 0; i < drv->minors; ++i) {
++		if ((drv->flags[i] & VALID_MINOR) &&
++		    !(drv->flags[i] & ASSIGNED)) {
++			drv->flags[i] |= ASSIGNED;
++			cs = drv->cs + i;
++			break;
++		}
++	}
++exit:
++	spin_unlock_irqrestore(&drv->lock, flags);
++	return cs;
++}
++EXPORT_SYMBOL_GPL(gigaset_getunassignedcs);
++
++void gigaset_unassign(struct cardstate *cs)
++{
++	unsigned long flags;
++	unsigned *minor_flags;
++	struct gigaset_driver *drv;
++
++	if (!cs)
++		return;
++	drv = cs->driver;
++	spin_lock_irqsave(&drv->lock, flags);
++	minor_flags = drv->flags + cs->minor_index;
++	if (*minor_flags & VALID_MINOR)
++		*minor_flags &= ~ASSIGNED;
++	spin_unlock_irqrestore(&drv->lock, flags);
++}
++EXPORT_SYMBOL_GPL(gigaset_unassign);
++
++void gigaset_blockdriver(struct gigaset_driver *drv)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&drv->lock, flags);
++	drv->blocked = 1;
++	spin_unlock_irqrestore(&drv->lock, flags);
++}
++EXPORT_SYMBOL_GPL(gigaset_blockdriver);
++
++static int __init gigaset_init_module(void)
++{
++	if (debug == 1)
++		debug = DEBUG_DEFAULT; /* stay compatible with older semantics */
++
++	atomic_set(&gigaset_debuglevel, debug);
++			/* assume that the debug parameter contains a bit mask with the
++			 * debug level. Note that setting debug=0 still switches off the debug
++			 * output */
++
++	gigaset_init_common_proc();
 +
 +	info(DRIVER_AUTHOR);
 +	info(DRIVER_DESC);
 +	return 0;
-+
-+error:	if (cardstate)
-+		gigaset_freecs(cardstate);
-+	cardstate = NULL;
-+	if (driver)
-+		gigaset_freedriver(driver);
-+	driver = NULL;
-+	return -1;
 +}
 +
-+
-+/**
-+ *	usb_gigaset_exit
-+ * This function is called while unloading the kernel-module
-+ */
-+static void __exit usb_gigaset_exit(void)
++static void __exit gigaset_exit_module(void)
 +{
-+	gigaset_blockdriver(driver); /* => probe will fail
-+	                              * => no gigaset_start any more
-+	                              */
-+
-+	gigaset_shutdown(cardstate);
-+	/* from now on, no isdn callback should be possible */
-+
-+	/* deregister this driver with the USB subsystem */
-+	usb_deregister(&gigaset_usb_driver);
-+	/* this will call the disconnect-callback */
-+	/* from now on, no disconnect/probe callback should be running */
-+
-+	gigaset_freecs(cardstate);
-+	cardstate = NULL;
-+	gigaset_freedriver(driver);
-+	driver = NULL;
++	gigaset_free_common_proc();
 +}
 +
-+
-+module_init(usb_gigaset_init);
-+module_exit(usb_gigaset_exit);
++module_init(gigaset_init_module);
++module_exit(gigaset_exit_module);
 +
 +MODULE_AUTHOR(DRIVER_AUTHOR);
 +MODULE_DESCRIPTION(DRIVER_DESC);
 +
 +MODULE_LICENSE("GPL");
---- linux-2.6.14/drivers/isdn/gigaset/asyncdata.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.14-gig/drivers/isdn/gigaset/asyncdata.c	2005-12-11 13:21:42.000000000 +0100
-@@ -0,0 +1,597 @@
-+/*
-+ * Common data handling layer for ser_gigaset and usb_gigaset
-+ *
-+ * Copyright (c) 2005 by Tilman Schmidt <tilman@imap.cc>,
-+ *                       Hansjoerg Lipp <hjlipp@web.de>,
-+ *                       Stefan Eilers <Eilers.Stefan@epost.de>.
-+ *
-+ * =====================================================================
-+ *	This program is free software; you can redistribute it and/or
-+ *	modify it under the terms of the GNU General Public License as
-+ *	published by the Free Software Foundation; either version 2 of
-+ *	the License, or (at your option) any later version.
-+ * =====================================================================
-+ * ToDo: ...
-+ * =====================================================================
-+ * Version: $Id: asyncdata.c,v 1.2.2.7 2005/11/13 23:05:18 hjlipp Exp $
-+ * =====================================================================
-+ */
-+
-+#include "gigaset.h"
-+#include <linux/crc-ccitt.h>
-+
-+//#define GIG_M10x_STUFF_VOICE_DATA
-+
-+/* check if byte must be stuffed/escaped
-+ * I'm not sure which data should be encoded.
-+ * Therefore I will go the hard way and decode every value
-+ * less than 0x20, the flag sequence and the control escape char.
-+ */
-+static inline int muststuff(unsigned char c)
-+{
-+	if (c < PPP_TRANS) return 1;
-+	if (c == PPP_FLAG) return 1;
-+	if (c == PPP_ESCAPE) return 1;
-+	/* other possible candidates: */
-+	/* 0x91: XON with parity set */
-+	/* 0x93: XOFF with parity set */
-+	return 0;
-+}
-+
-+/* == data input =========================================================== */
-+
-+/* process a block of received bytes in command mode (modem response)
-+ * Return value:
-+ *	number of processed bytes
-+ */
-+static inline int cmd_loop(unsigned char c, unsigned char *src, int numbytes,
-+                           struct inbuf_t *inbuf)
-+{
-+	struct cardstate *cs = inbuf->cs;
-+	unsigned cbytes      = cs->cbytes;
-+	int inputstate = inbuf->inputstate;
-+	int startbytes = numbytes;
-+
-+	for (;;) {
-+		cs->respdata[cbytes] = c;
-+		if (c == 10 || c == 13) {
-+			dbg(DEBUG_TRANSCMD, "%s: End of Command (%d Bytes)",
-+			    __func__, cbytes);
-+			cs->cbytes = cbytes;
-+			gigaset_handle_modem_response(cs); /* can change cs->dle */
-+			cbytes = 0;
-+
-+			if (cs->dle &&
-+			    !(inputstate & INS_DLE_command)) {
-+				inputstate &= ~INS_command;
-+				break;
-+			}
-+		} else {
-+			/* advance in line buffer, checking for overflow */
-+			if (cbytes < MAX_RESP_SIZE - 1)
-+				cbytes++;
-+			else
-+				warn("response too large");
-+		}
-+
-+		if (!numbytes)
-+			break;
-+		c = *src++;
-+		--numbytes;
-+		if (c == DLE_FLAG &&
-+		    (cs->dle || inputstate & INS_DLE_command)) {
-+			inputstate |= INS_DLE_char;
-+			break;
-+		}
-+	}
-+
-+	cs->cbytes = cbytes;
-+	inbuf->inputstate = inputstate;
-+
-+	return startbytes - numbytes;
-+}
-+
-+/* process a block of received bytes in lock mode (tty i/f)
-+ * Return value:
-+ *	number of processed bytes
-+ */
-+static inline int lock_loop(unsigned char *src, int numbytes,
-+                            struct inbuf_t *inbuf)
-+{
-+	struct cardstate *cs = inbuf->cs;
-+
-+	gigaset_dbg_buffer(DEBUG_LOCKCMD, "received response", numbytes, src, 0);
-+	gigaset_if_receive(cs, src, numbytes);
-+
-+	return numbytes;
-+}
-+
-+/* process a block of received bytes in HDLC data mode
-+ * Collect HDLC frames, undoing byte stuffing and watching for DLE escapes.
-+ * When a frame is complete, check the FCS and pass valid frames to the LL.
-+ * If DLE is encountered, return immediately to let the caller handle it.
-+ * Return value:
-+ *	number of processed bytes
-+ *	numbytes (all bytes processed) on error --FIXME
-+ */
-+static inline int hdlc_loop(unsigned char c, unsigned char *src, int numbytes,
-+                            struct inbuf_t *inbuf)
-+{
-+	struct cardstate *cs = inbuf->cs;
-+	struct bc_state *bcs = inbuf->bcs;
-+	int inputstate;
-+	__u16 fcs;
-+	struct sk_buff *skb;
-+	unsigned char error;
-+	struct sk_buff *compskb;
-+	int startbytes = numbytes;
-+	int l;
-+
-+	IFNULLRETVAL(bcs, numbytes);
-+	inputstate = bcs->inputstate;
-+	fcs = bcs->fcs;
-+	skb = bcs->skb;
-+	IFNULLRETVAL(skb, numbytes);
-+
-+	if (unlikely(inputstate & INS_byte_stuff)) {
-+		inputstate &= ~INS_byte_stuff;
-+		goto byte_stuff;
-+	}
-+	for (;;) {
-+		if (unlikely(c == PPP_ESCAPE)) {
-+			if (unlikely(!numbytes)) {
-+				inputstate |= INS_byte_stuff;
-+				break;
-+			}
-+			c = *src++;
-+			--numbytes;
-+			if (unlikely(c == DLE_FLAG &&
-+				     (cs->dle ||
-+				      inbuf->inputstate & INS_DLE_command))) {
-+				inbuf->inputstate |= INS_DLE_char;
-+				inputstate |= INS_byte_stuff;
-+				break;
-+			}
-+byte_stuff:
-+			c ^= PPP_TRANS;
-+#ifdef CONFIG_GIGASET_DEBUG
-+			if (unlikely(!muststuff(c)))
-+				dbg(DEBUG_HDLC,
-+				    "byte stuffed: 0x%02x", c);
-+#endif
-+		} else if (unlikely(c == PPP_FLAG)) {
-+			if (unlikely(inputstate & INS_skip_frame)) {
-+				if (!(inputstate & INS_have_data)) { /* 7E 7E */
-+					//dbg(DEBUG_HDLC, "(7e)7e------------------------");
-+#ifdef CONFIG_GIGASET_DEBUG
-+					++bcs->emptycount;
-+#endif
-+				} else
-+					dbg(DEBUG_HDLC,
-+					    "7e----------------------------");
-+
-+				/* end of frame */
-+				error = 1;
-+				gigaset_rcv_error(NULL, cs, bcs);
-+			} else if (!(inputstate & INS_have_data)) { /* 7E 7E */
-+				//dbg(DEBUG_HDLC, "(7e)7e------------------------");
-+#ifdef CONFIG_GIGASET_DEBUG
-+				++bcs->emptycount;
-+#endif
-+				break;
-+			} else {
-+				dbg(DEBUG_HDLC,
-+				    "7e----------------------------");
-+
-+				/* end of frame */
-+				error = 0;
-+
-+				if (unlikely(fcs != PPP_GOODFCS)) {
-+					err("Packet checksum at %lu failed, "
-+					    "packet is corrupted (%u bytes)!",
-+					    bcs->rcvbytes, skb->len);
-+					compskb = NULL;
-+					gigaset_rcv_error(compskb, cs, bcs);
-+					error = 1;
-+				} else {
-+					if (likely((l = skb->len) > 2)) {
-+						skb->tail -= 2;
-+						skb->len -= 2;
-+					} else {
-+						dev_kfree_skb(skb);
-+						skb = NULL;
-+						inputstate |= INS_skip_frame;
-+						if (l == 1) {
-+							err("invalid packet size (1)!");
-+							error = 1;
-+							gigaset_rcv_error(NULL, cs, bcs);
-+						}
-+					}
-+					if (likely(!(error ||
-+						     (inputstate &
-+						      INS_skip_frame)))) {
-+						gigaset_rcv_skb(skb, cs, bcs);
-+					}
-+				}
-+			}
-+
-+			if (unlikely(error))
-+				if (skb)
-+					dev_kfree_skb(skb);
-+
-+			fcs = PPP_INITFCS;
-+			inputstate &= ~(INS_have_data | INS_skip_frame);
-+			if (unlikely(bcs->ignore)) {
-+				inputstate |= INS_skip_frame;
-+				skb = NULL;
-+			} else if (likely((skb = dev_alloc_skb(SBUFSIZE + HW_HDR_LEN)) != NULL)) {
-+				skb_reserve(skb, HW_HDR_LEN);
-+			} else {
-+				warn("could not allocate new skb");
-+				inputstate |= INS_skip_frame;
-+			}
-+
-+			break;
-+#ifdef CONFIG_GIGASET_DEBUG
-+		} else if (unlikely(muststuff(c))) {
-+			/* Should not happen. Possible after ZDLE=1<CR><LF>. */
-+			dbg(DEBUG_HDLC, "not byte stuffed: 0x%02x", c);
-+#endif
-+		}
-+
-+		/* add character */
-+
-+#ifdef CONFIG_GIGASET_DEBUG
-+		if (unlikely(!(inputstate & INS_have_data))) {
-+			dbg(DEBUG_HDLC,
-+			    "7e (%d x) ================", bcs->emptycount);
-+			bcs->emptycount = 0;
-+		}
-+#endif
-+
-+		inputstate |= INS_have_data;
-+
-+		if (likely(!(inputstate & INS_skip_frame))) {
-+			if (unlikely(skb->len == SBUFSIZE)) {
-+				warn("received packet too long");
-+				dev_kfree_skb_any(skb);
-+				skb = NULL;
-+				inputstate |= INS_skip_frame;
-+				break;
-+			}
-+			*gigaset_skb_put_quick(skb, 1) = c;
-+			/* *__skb_put (skb, 1) = c; */
-+			fcs = crc_ccitt_byte(fcs, c);
-+		}
-+
-+		if (unlikely(!numbytes))
-+			break;
-+		c = *src++;
-+		--numbytes;
-+		if (unlikely(c == DLE_FLAG &&
-+			     (cs->dle ||
-+			      inbuf->inputstate & INS_DLE_command))) {
-+			inbuf->inputstate |= INS_DLE_char;
-+			break;
-+		}
-+	}
-+	bcs->inputstate = inputstate;
-+	bcs->fcs = fcs;
-+	bcs->skb = skb;
-+	return startbytes - numbytes;
-+}
-+
-+/* process a block of received bytes in transparent data mode
-+ * Invert bytes, undoing byte stuffing and watching for DLE escapes.
-+ * If DLE is encountered, return immediately to let the caller handle it.
-+ * Return value:
-+ *	number of processed bytes
-+ *	numbytes (all bytes processed) on error --FIXME
-+ */
-+static inline int iraw_loop(unsigned char c, unsigned char *src, int numbytes,
-+                            struct inbuf_t *inbuf)
-+{
-+	struct cardstate *cs = inbuf->cs;
-+	struct bc_state *bcs = inbuf->bcs;
-+	int inputstate;
-+	struct sk_buff *skb;
-+	int startbytes = numbytes;
-+
-+	IFNULLRETVAL(bcs, numbytes);
-+	inputstate = bcs->inputstate;
-+	skb = bcs->skb;
-+	IFNULLRETVAL(skb, numbytes);
-+
-+	for (;;) {
-+		/* add character */
-+		inputstate |= INS_have_data;
-+
-+		if (likely(!(inputstate & INS_skip_frame))) {
-+			if (unlikely(skb->len == SBUFSIZE)) {
-+				//FIXME just pass skb up and allocate a new one
-+				warn("received packet too long");
-+				dev_kfree_skb_any(skb);
-+				skb = NULL;
-+				inputstate |= INS_skip_frame;
-+				break;
-+			}
-+			*gigaset_skb_put_quick(skb, 1) = gigaset_invtab[c];
-+		}
-+
-+		if (unlikely(!numbytes))
-+			break;
-+		c = *src++;
-+		--numbytes;
-+		if (unlikely(c == DLE_FLAG &&
-+			     (cs->dle ||
-+			      inbuf->inputstate & INS_DLE_command))) {
-+			inbuf->inputstate |= INS_DLE_char;
-+			break;
-+		}
-+	}
-+
-+	/* pass data up */
-+	if (likely(inputstate & INS_have_data)) {
-+		if (likely(!(inputstate & INS_skip_frame))) {
-+			gigaset_rcv_skb(skb, cs, bcs);
-+		}
-+		inputstate &= ~(INS_have_data | INS_skip_frame);
-+		if (unlikely(bcs->ignore)) {
-+			inputstate |= INS_skip_frame;
-+			skb = NULL;
-+		} else if (likely((skb = dev_alloc_skb(SBUFSIZE + HW_HDR_LEN))
-+				  != NULL)) {
-+			skb_reserve(skb, HW_HDR_LEN);
-+		} else {
-+			warn("could not allocate new skb");
-+			inputstate |= INS_skip_frame;
-+		}
-+	}
-+
-+	bcs->inputstate = inputstate;
-+	bcs->skb = skb;
-+	return startbytes - numbytes;
-+}
-+
-+/* process a block of data received from the device
-+ */
-+void gigaset_m10x_input(struct inbuf_t *inbuf)
-+{
-+	struct cardstate *cs;
-+	unsigned tail, head, numbytes;
-+	unsigned char *src, c;
-+	int procbytes;
-+
-+	head = atomic_read(&inbuf->head);
-+	tail = atomic_read(&inbuf->tail);
-+	dbg(DEBUG_INTR, "buffer state: %u -> %u", head, tail);
-+
-+	if (head != tail) {
-+		cs = inbuf->cs;
-+		src = inbuf->data + head;
-+		numbytes = (head > tail ? RBUFSIZE : tail) - head;
-+		dbg(DEBUG_INTR, "processing %u bytes", numbytes);
-+
-+		while (numbytes) {
-+			if (atomic_read(&cs->mstate) == MS_LOCKED) {
-+				procbytes = lock_loop(src, numbytes, inbuf);
-+				src += procbytes;
-+				numbytes -= procbytes;
-+			} else {
-+				c = *src++;
-+				--numbytes;
-+				if (c == DLE_FLAG && (cs->dle ||
-+				    inbuf->inputstate & INS_DLE_command)) {
-+					if (!(inbuf->inputstate & INS_DLE_char)) {
-+						inbuf->inputstate |= INS_DLE_char;
-+						goto nextbyte;
-+					}
-+					/* <DLE> <DLE> => <DLE> in data stream */
-+					inbuf->inputstate &= ~INS_DLE_char;
-+				}
-+
-+				if (!(inbuf->inputstate & INS_DLE_char)) {
-+
-+					/* FIXME Einfach je nach Modus Funktionszeiger in cs setzen [hier+hdlc_loop]?  */
-+					/* FIXME Spart folgendes "if" und ermoeglicht andere Protokolle */
-+					if (inbuf->inputstate & INS_command)
-+						procbytes = cmd_loop(c, src, numbytes, inbuf);
-+					else if (inbuf->bcs->proto2 == ISDN_PROTO_L2_HDLC)
-+						procbytes = hdlc_loop(c, src, numbytes, inbuf);
-+					else
-+						procbytes = iraw_loop(c, src, numbytes, inbuf);
-+
-+					src += procbytes;
-+					numbytes -= procbytes;
-+				} else {  /* DLE-char */
-+					inbuf->inputstate &= ~INS_DLE_char;
-+					switch (c) {
-+					case 'X': /*begin of command*/
-+#ifdef CONFIG_GIGASET_DEBUG
-+						if (inbuf->inputstate & INS_command)
-+							err("received <DLE> 'X' in command mode");
-+#endif
-+						inbuf->inputstate |=
-+							INS_command | INS_DLE_command;
-+						break;
-+					case '.': /*end of command*/
-+#ifdef CONFIG_GIGASET_DEBUG
-+						if (!(inbuf->inputstate & INS_command))
-+							err("received <DLE> '.' in hdlc mode");
-+#endif
-+						inbuf->inputstate &= cs->dle ?
-+							~(INS_DLE_command|INS_command)
-+							: ~INS_DLE_command;
-+						break;
-+					//case DLE_FLAG: /*DLE_FLAG in data stream*/ /* schon oben behandelt! */
-+					default:
-+						err("received 0x10 0x%02x!", (int) c);
-+						/* FIXME: reset driver?? */
-+					}
-+				}
-+			}
-+nextbyte:
-+			if (!numbytes) {
-+				/* end of buffer, check for wrap */
-+				if (head > tail) {
-+					head = 0;
-+					src = inbuf->data;
-+					numbytes = tail;
-+				} else {
-+					head = tail;
-+					break;
-+				}
-+			}
-+		}
-+
-+		dbg(DEBUG_INTR, "setting head to %u", head);
-+		atomic_set(&inbuf->head, head);
-+	}
-+}
-+
-+
-+/* == data output ========================================================== */
-+
-+/* Encoding of a PPP packet into an octet stuffed HDLC frame
-+ * with FCS, opening and closing flags.
-+ * parameters:
-+ *	skb	skb containing original packet (freed upon return)
-+ *	head	number of headroom bytes to allocate in result skb
-+ *	tail	number of tailroom bytes to allocate in result skb
-+ * Return value:
-+ *	pointer to newly allocated skb containing the result frame
-+ */
-+static struct sk_buff *HDLC_Encode(struct sk_buff *skb, int head, int tail)
-+{
-+	struct sk_buff *hdlc_skb;
-+	__u16 fcs;
-+	unsigned char c;
-+	unsigned char *cp;
-+	int len;
-+	unsigned int stuf_cnt;
-+
-+	stuf_cnt = 0;
-+	fcs = PPP_INITFCS;
-+	cp = skb->data;
-+	len = skb->len;
-+	while (len--) {
-+		if (muststuff(*cp))
-+			stuf_cnt++;
-+		fcs = crc_ccitt_byte(fcs, *cp++);
-+	}
-+	fcs ^= 0xffff;                 /* complement */
-+
-+	/* size of new buffer: original size + number of stuffing bytes
-+	 * + 2 bytes FCS + 2 stuffing bytes for FCS (if needed) + 2 flag bytes
-+	 */
-+	hdlc_skb = dev_alloc_skb(skb->len + stuf_cnt + 6 + tail + head);
-+	if (!hdlc_skb) {
-+		err("unable to allocate memory for HDLC encoding!");
-+		dev_kfree_skb(skb);
-+		return NULL;
-+	}
-+	skb_reserve(hdlc_skb, head);
-+
-+	/* Copy acknowledge request into new skb */
-+	memcpy(hdlc_skb->head, skb->head, 2);
-+
-+	/* Add flag sequence in front of everything.. */
-+	*(skb_put(hdlc_skb, 1)) = PPP_FLAG;
-+
-+	/* Perform byte stuffing while copying data. */
-+	while (skb->len--) {
-+		if (muststuff(*skb->data)) {
-+			*(skb_put(hdlc_skb, 1)) = PPP_ESCAPE;
-+			*(skb_put(hdlc_skb, 1)) = (*skb->data++) ^ PPP_TRANS;
-+		} else
-+			*(skb_put(hdlc_skb, 1)) = *skb->data++;
-+	}
-+
-+	/* Finally add FCS (byte stuffed) and flag sequence */
-+	c = (fcs & 0x00ff);      /* least significant byte first */
-+	if (muststuff(c)) {
-+		*(skb_put(hdlc_skb, 1)) = PPP_ESCAPE;
-+		c ^= PPP_TRANS;
-+	}
-+	*(skb_put(hdlc_skb, 1)) = c;
-+
-+	c = ((fcs >> 8) & 0x00ff);
-+	if (muststuff(c)) {
-+		*(skb_put(hdlc_skb, 1)) = PPP_ESCAPE;
-+		c ^= PPP_TRANS;
-+	}
-+	*(skb_put(hdlc_skb, 1)) = c;
-+
-+	*(skb_put(hdlc_skb, 1)) = PPP_FLAG;
-+
-+	dev_kfree_skb(skb);
-+	return hdlc_skb;
-+}
-+
-+/* Encoding of a raw packet into an octet stuffed bit inverted frame
-+ * parameters:
-+ *	skb	skb containing original packet (freed upon return)
-+ *	head	number of headroom bytes to allocate in result skb
-+ *	tail	number of tailroom bytes to allocate in result skb
-+ * Return value:
-+ *	pointer to newly allocated skb containing the result frame
-+ */
-+static struct sk_buff *iraw_encode(struct sk_buff *skb, int head, int tail)
-+{
-+	struct sk_buff *iraw_skb;
-+	unsigned char c;
-+	unsigned char *cp;
-+	int len;
-+
-+	/* worst case: every byte must be stuffed */
-+	iraw_skb = dev_alloc_skb(2*skb->len + tail + head);
-+	if (!iraw_skb) {
-+		err("unable to allocate memory for HDLC encoding!");
-+		dev_kfree_skb(skb);
-+		return NULL;
-+	}
-+	skb_reserve(iraw_skb, head);
-+
-+	cp = skb->data;
-+	len = skb->len;
-+	while (len--) {
-+		c = gigaset_invtab[*cp++];
-+		if (c == DLE_FLAG)
-+			*(skb_put(iraw_skb, 1)) = c;
-+		*(skb_put(iraw_skb, 1)) = c;
-+	}
-+	dev_kfree_skb(skb);
-+	return iraw_skb;
-+}
-+
-+/* gigaset_send_skb
-+ * called by common.c to queue an skb for sending
-+ * and start transmission if necessary
-+ * parameters:
-+ *	B Channel control structure
-+ *	skb
-+ * Return value:
-+ *	number of bytes accepted for sending
-+ *	(skb->len if ok, 0 if out of buffer space)
-+ *	or error code (< 0, eg. -EINVAL)
-+ */
-+int gigaset_m10x_send_skb(struct bc_state *bcs, struct sk_buff *skb)
-+{
-+	unsigned len;
-+
-+	IFNULLRETVAL(bcs, -EFAULT);
-+	IFNULLRETVAL(skb, -EFAULT);
-+	len = skb->len;
-+
-+	if (bcs->proto2 == ISDN_PROTO_L2_HDLC)
-+		skb = HDLC_Encode(skb, HW_HDR_LEN, 0);
-+	else
-+		skb = iraw_encode(skb, HW_HDR_LEN, 0);
-+	if (!skb)
-+		return -ENOMEM;
-+
-+	skb_queue_tail(&bcs->squeue, skb);
-+	tasklet_schedule(&bcs->cs->write_tasklet);
-+
-+	return len;	/* ok so far */
-+}

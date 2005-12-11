@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbVLKRFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVLKRS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbVLKRFe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 12:05:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbVLKRFe
+	id S1750724AbVLKRS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 12:18:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbVLKRS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 12:05:34 -0500
-Received: from smtp1.pochta.ru ([81.211.64.6]:10569 "EHLO smtp1.pochta.ru")
-	by vger.kernel.org with ESMTP id S1750728AbVLKRFd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 12:05:33 -0500
-X-Author: vitalhome@rbcmail.ru from [10.1.27.2] ([82.179.192.198]) via Free Mail POCHTA.RU
-Message-ID: <439C5BE7.3030503@ru.mvista.com>
-Date: Sun, 11 Dec 2005 20:03:35 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
-       greg@kroah.com, basicmark@yahoo.com, komal_shah802003@yahoo.com,
-       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
-       Joachim_Jaeger@digi.com
-Subject: Re: [spi-devel-general] Re: [PATCH 2.6-git] SPI core refresh
-References: <20051201191109.40f2d04b.vwool@ru.mvista.com> <200512071759.56782.david-b@pacbell.net> <4397D3AA.6050804@ru.mvista.com> <200512091455.01790.david-b@pacbell.net> <439C1D5E.1020407@ru.mvista.com>
-In-Reply-To: <439C1D5E.1020407@ru.mvista.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 11 Dec 2005 12:18:27 -0500
+Received: from fep01-0.kolumbus.fi ([193.229.0.41]:26214 "EHLO
+	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id S1750724AbVLKRS0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 12:18:26 -0500
+Subject: discontiguous mapping with remap_pfn_range
+From: Imre Deak <imre.deak@nokia.com>
+Reply-To: imre.deak@nokia.com
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Nokia
+Date: Sun, 11 Dec 2005 19:18:22 +0200
+Message-Id: <1134321502.12362.48.camel@bitbox.mine.nu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vitaly Wool wrote:
+Hi,
 
-> David Brownell wrote:
->
->>> Yeah thus we don't have an ability to allocate SPI messages on stack 
->>> as you do, that's what votes for your approach. Yours is thus a bit 
->>> faster, though I suspect that this method is a possible *danger* for 
->>> really high-speed devices with data bursts on the SPI bus like WiFi 
->>> adapters: stack's gonna suffer from large amounts of data allocated.
->>>   
->>
->>
->> No, you're still thinking about a purely synchronous programming model;
->> which we had agreed ages ago was not required.
->>  
->>
-> Ah yes. But wait... I've got an important question here.
-> For instance, let's take your MTD driver. You're allocating a message 
-> structure on stack and passing it then down to spi->master->transfer 
-> function.
-> The benefit you're talking about is that you don't have to use 
-> heavyweight memory allocation. But... the transfer is basically async 
-> so spi->master->transfer will need to copy your message structure to 
-> its own-allocated structure so some memory copying will occur as this 
-> might be an async transfer (and therefore the stack-allocated message 
-> may be freed at some point when it's yet used!)
-> So your model implies concealed double message allocation/copying, 
-> doesn't it?
-> And if I'm wrong, can you please explain me this?
+after the recent changes in remap_pfn_range it's not possible any more
+to create a mapping for a physically discontiguous range for which no
+struct page exists.
 
-Oh, now looks like I understood what is meant. If a function uses 
-stack-allocated messages, it should ensure that it will not exit until 
-the message is processed (shouldn't it be documented somewhere?). But 
-this solves the problem only partially since this technique fits only 
-the synchronous transfers.
-Functions targeting async transfers will anyway have to kmalloc the 
-memory for message structure which makes your approach not really more 
-lightweight then ours. It's mainly async transfers that need high 
-throughput; and the drivers based on your core will have to kmalloc 
-memory for messages in that case.
+Earlier it was achieved by calling remap_pfn_range for each physical
+region with the same vma, but now this will result in
+incomplete_pfn_remap which handles only normal mappings, that is where
+we have struct page for each PFN.
 
-Vitaly
+I would need such a mapping for a frame buffer consisting of two
+discontiguous physical range. Is there any way I can do this with the
+current API? If not, is there a plan to support it (with a vm_insert_pfn
+for example) ? I know it's a rare HW configuration, but there might be
+some other use case for this.
+
+Thanks,
+Imre
+
+

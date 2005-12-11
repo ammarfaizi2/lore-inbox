@@ -1,140 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVLKVLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbVLKVNH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750708AbVLKVLv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 16:11:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVLKVLu
+	id S1750788AbVLKVNH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 16:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbVLKVNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 16:11:50 -0500
-Received: from takamine.ncl.cs.columbia.edu ([128.59.18.70]:10414 "EHLO
-	takamine.ncl.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id S1750708AbVLKVLu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 16:11:50 -0500
-Date: Sun, 11 Dec 2005 16:14:01 -0500 (EST)
-From: Oren Laadan <orenl@cs.columbia.edu>
-X-X-Sender: orenl@takamine.ncl.cs.columbia.edu
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: akpm@osdl.org, roland@redhat.com, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH ? 2/2] setpgid: should work for sub-threads
-In-Reply-To: <439C605F.BA7C1D5B@tv-sign.ru>
-Message-ID: <Pine.LNX.4.63.0512111605430.31447@takamine.ncl.cs.columbia.edu>
-References: <200512110523.jBB5NVEr002551@shell0.pdx.osdl.net>
- <439C605F.BA7C1D5B@tv-sign.ru>
+	Sun, 11 Dec 2005 16:13:07 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:64143 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750788AbVLKVNF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 16:13:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=Zh9z80l0v5x0AGybOsaUB2sOHxdAYEb99r9JqfRmy4qyxa4+pRsbomrQV+NvwR/GBU93vkqZ8184lwawMvBsRFcI6LX+WmROmB/fGvGtdsy5PqtsbVkmAKV8B1V7+UUGSqRcluSYY73TGDjb5j84qCHRMhaw1b/33OoMIwJOYRY=
+Message-ID: <439C965C.5030100@gmail.com>
+Date: Mon, 12 Dec 2005 05:13:00 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix vesafb display panning regression
+References: <20051211041308.7bb19454.akpm@osdl.org> <9a8748490512110808q2d485407o52da0d4777fbf38e@mail.gmail.com>
+In-Reply-To: <9a8748490512110808q2d485407o52da0d4777fbf38e@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Fix vesafb hang when scroll mode is REDRAW.
 
-[PATCH 1/1] setsid: should work for sub-threads
-
-setsid() does not work unless the calling process is a 
-thread_group_leader().
-
-'man setpgid' does not tell anything about that, so I consider
-this behaviour is a bug.
-
-Signed-off-by: Oren Laadan <orenl@cs.columbia.edu>
-
+Signed-off-by: Antonino Daplas <adaplas@pol.net>
 ---
 
-(see similar patch for setpgid by Oleg Nesterov). This one also required 
-modifying kernel/exit.c:__set_special_pids() (and it's prototype in 
-sched.h).
+Jesper Juhl wrote:
+> On 12/11/05, Andrew Morton <akpm@osdl.org> wrote:
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm2/
+>>
+> When booting this kernel with  vga=791 like I normally do, the kernel
+> hangs on boot. Booting with vga=normal works just fine.
+> I don't have very much info since as soon as the videomode is switched
+> I get a small rectangle of messed up colours in the top left corner of
+> the screen (the rest is just black) and then it hangs - even the
+> keyboard is dead, I have to powercycle the machine.
+> Nothing makes it to the logs and I don't have a second machine atm to
+> get logs via serial console or netconsole.
+> I've got the vesafb driver build in, none of the other fb drivers.
+> 
 
-Please review...
+Sorry about that.  This particular hunk was missing in the 
+vesafb_trim_pan_display.patch
 
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index b0ad6f3..9ff6e79 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1003,7 +1003,7 @@ extern struct   mm_struct init_mm;
-  #define find_task_by_pid(nr)	find_task_by_pid_type(PIDTYPE_PID, nr)
-  extern struct task_struct *find_task_by_pid_type(int type, int pid);
-  extern void set_special_pids(pid_t session, pid_t pgrp);
--extern void __set_special_pids(pid_t session, pid_t pgrp);
-+extern void __set_special_pids(struct task_struct *tsk, pid_t session, pid_t pgrp);
+Tony
 
-  /* per-UID process charging. */
-  extern struct user_struct * alloc_uid(uid_t);
-diff --git a/kernel/exit.c b/kernel/exit.c
-index ee51568..d47931f 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -256,26 +256,24 @@ static inline void reparent_to_init(void
-  	switch_uid(INIT_USER);
-  }
+ drivers/video/vesafb.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
--void __set_special_pids(pid_t session, pid_t pgrp)
-+void __set_special_pids(struct task_struct *tsk, pid_t session, pid_t pgrp)
-  {
--	struct task_struct *curr = current;
--
--	if (curr->signal->session != session) {
--		detach_pid(curr, PIDTYPE_SID);
--		curr->signal->session = session;
--		attach_pid(curr, PIDTYPE_SID, session);
--	}
--	if (process_group(curr) != pgrp) {
--		detach_pid(curr, PIDTYPE_PGID);
--		curr->signal->pgrp = pgrp;
--		attach_pid(curr, PIDTYPE_PGID, pgrp);
-+	if (tsk->signal->session != session) {
-+		detach_pid(tsk, PIDTYPE_SID);
-+		tsk->signal->session = session;
-+		attach_pid(tsk, PIDTYPE_SID, session);
-+	}
-+	if (process_group(tsk) != pgrp) {
-+		detach_pid(tsk, PIDTYPE_PGID);
-+		tsk->signal->pgrp = pgrp;
-+		attach_pid(tsk, PIDTYPE_PGID, pgrp);
-  	}
-  }
-
-  void set_special_pids(pid_t session, pid_t pgrp)
-  {
-  	write_lock_irq(&tasklist_lock);
--	__set_special_pids(session, pgrp);
-+	__set_special_pids(current, session, pgrp);
-  	write_unlock_irq(&tasklist_lock);
-  }
-
-diff --git a/kernel/sys.c b/kernel/sys.c
-index bce933e..c907f88 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -1207,24 +1207,22 @@ asmlinkage long sys_getsid(pid_t pid)
-
-  asmlinkage long sys_setsid(void)
-  {
-+	struct task_struct *leader = current->group_leader;
-  	struct pid *pid;
-  	int err = -EPERM;
-
--	if (!thread_group_leader(current))
--		return -EINVAL;
--
-  	down(&tty_sem);
-  	write_lock_irq(&tasklist_lock);
-
--	pid = find_pid(PIDTYPE_PGID, current->pid);
-+	pid = find_pid(PIDTYPE_PGID, leader->pid);
-  	if (pid)
-  		goto out;
-
--	current->signal->leader = 1;
--	__set_special_pids(current->pid, current->pid);
--	current->signal->tty = NULL;
--	current->signal->tty_old_pgrp = 0;
--	err = process_group(current);
-+	leader->signal->leader = 1;
-+	__set_special_pids(leader, leader->pid, leader->pid);
-+	leader->signal->tty = NULL;
-+	leader->signal->tty_old_pgrp = 0;
-+	err = process_group(leader);
-  out:
-  	write_unlock_irq(&tasklist_lock);
-  	up(&tty_sem);
-
-
-
+diff --git a/drivers/video/vesafb.c b/drivers/video/vesafb.c
+index e6e56b8..8982e54 100644
+--- a/drivers/video/vesafb.c
++++ b/drivers/video/vesafb.c
+@@ -417,6 +417,9 @@ static int __init vesafb_probe(struct pl
+ 	info->flags = FBINFO_FLAG_DEFAULT |
+ 		(ypan) ? FBINFO_HWACCEL_YPAN : 0;
+ 
++	if (!ypan)
++		info->fbops->fb_pan_display = NULL;
++
+ 	if (fb_alloc_cmap(&info->cmap, 256, 0) < 0) {
+ 		err = -ENOMEM;
+ 		goto err;

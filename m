@@ -1,120 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161108AbVLKGLi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbVLKG0M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161108AbVLKGLi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 01:11:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161109AbVLKGLi
+	id S932085AbVLKG0M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 01:26:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932147AbVLKG0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 01:11:38 -0500
-Received: from zproxy.gmail.com ([64.233.162.196]:15988 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161108AbVLKGLg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 01:11:36 -0500
+	Sun, 11 Dec 2005 01:26:11 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:11653 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932085AbVLKG0J convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 01:26:09 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
-        b=UqHbUnIyvAfkiSOhK5a+uNPFL1uhRtmDf5mDdsYupamMy+aijP6TRDGoT+G1+QJjLqOHSjDoqC9tzrxBWTulBk9Rlp6kEg4rMqCVMHsGUF+GLAIjZNGQsePb+yUGFYlCxe4w76rgoukPYQVAxTQhfQVKkyYwTujz2NdWdiWXLLU=
-Message-ID: <81083a450512102211r608cee8wc16cc19565a1488f@mail.gmail.com>
-Date: Sun, 11 Dec 2005 11:41:35 +0530
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Mm1orRMNC04p8p/6FuEPPXDuh6ubtkX0RL+HYRyg4/U5sq7TR+yQo5G4+N4ZQhTvvnu3SHsIju/IL7QCUxeSeo3wcxzUhtnjEnHLj0XxKOBHgkU/BIKNTiB8Xr//lnQZaeS+V1uw+DdGJRSaJmUM5CRMbwpH+vUpEnYNUc4Vcb0=
+Message-ID: <81083a450512102226q1443f09bof0d3ba2bd5a1be2@mail.gmail.com>
+Date: Sun, 11 Dec 2005 11:56:08 +0530
 From: Ashutosh Naik <ashutosh.naik@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: [BUG] Early Kernel Panic with 2.6.15-rc5
+Subject: Re: [BUG] Early Kernel Panic with 2.6.15-rc5
 Cc: akpm@osdl.org, greg@kroah.com
+In-Reply-To: <81083a450512102211r608cee8wc16cc19565a1488f@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_11759_18527341.1134281495668"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <81083a450512102211r608cee8wc16cc19565a1488f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_11759_18527341.1134281495668
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Providing .config and lspci dump inline
 
-Distribution:
-Fedora Core 2, 2.6.15-rc5 kernel
-
-Hardware Environment:
-Acer Travelmate 240 ,Intel Celeron 2.6 Ghz, lspci with 2.6.14 attached
-
-Description
-I am getting an early kernel panic when I compiled the Kernel
-2.6.15-rc5 on my Acer Laptop. The dump is as follows. It is
-reproducible every time on bootup.
-
-Uncompressing Linux... Ok, booting the kernel.
-Unable to handle kernel NULL pointer dereference at virtual address 0000000=
-0
- printing eip:
-*pde =3D 00000000
-Oops: 0002 [#1]
-PREEMPT
-Modules linked in :
-CPU:    0
-EIP:    0060:[<c020e494>]    Not tainted VLI
-EFLAGS: 00010292   (2.6.15-rc5)
-EIP is at kobject_add+0x94/0xd0
-eax: c0455d80   ebx: c0455b4c   ecx: 00000000 edx: c0455b68
-esi: ffffffea   edi: c0455d88   ebp: 00000000 esp: c6e8bf4c
-ds: 007b es: 007b ss: 0068
-Process swapper (pid =3D 1 threadinfo =3D c6e8a00 task =3D c6e88a50)
-Stack : c0455b4c ffffffea c0455d20 c020e4f2 00000000 c0455b38 c0455b4c c045=
-5b38
-        c0455b4c c0294b12 c0455b4c c040e7c2 c03cdd36 c0455b38 00000000 0000=
-0000
-        00000000 c0295542 00000000 c021fa65 c011d377 c0411638 00000000 c04e=
-d0dc
-Call Trace:
- [<c020e4f2>] kobject_register+0x22/0x70
- [<c0294b12>] bus_add_driver+0x52/0xc0
- [<c0295542>] driver_register+0x32/0x40
- [<c0214a65>] pcie_start_thread+0x15/0x60
- [<c011d377>] printk+0x17/0x20
- [<c04ed0dc>] pcied_init+0x1c/0xa0
- [<c04ed055>] pci_proc_init+0x65/0x70
- [<c04da83b>] do_init_calls+0x2b/0xc0
- [<c01002a0>] init+0x0/0x160
- [<c01002a0>] init+0x0/0x160
- [<c01002d7>] init+0x37/0x160
- [<c01013c9>] kernel_thread_helper+0x5/0xc
-Code: 74 df 89 f8 e8 ce 02 00 00 eb d6 b8 01 00 00 00 e8 42 af f0 ff 85 ff =
-74 36
- 8b 43 28 8d 53 1c 83 c0 08 89 43 1c 8b 48 04 89 50 04 <89> 11 89 4a 04 b8 =
-01 00
- 00 00 e8 5d af f0 ff b8 00 e0 ff ff 21
- <0>Kernel panic - not syncing: Attempted to kill init!
-
-Attached - lspci.dump
-Attached - .config
-
-------=_Part_11759_18527341.1134281495668
-Content-Type: application/octet-stream; name=lspci.dump
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="lspci.dump"
-
-00:00.0 Host bridge: Intel Corp. 82852/855GM Host Bridge (rev 02)
-00:00.1 System peripheral: Intel Corp. 855GM/GME GMCH Memory I/O Control Registers (rev 02)
-00:00.3 System peripheral: Intel Corp. 855GM/GME GMCH Configuration Process Registers (rev 02)
-00:02.0 VGA compatible controller: Intel Corp. 82852/855GM Integrated Graphics Device (rev 02)
-00:02.1 Display controller: Intel Corp. 82852/855GM Integrated Graphics Device (rev 02)
-00:1d.0 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #1 (rev 03)
-00:1d.1 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #2 (rev 03)
-00:1d.2 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #3 (rev 03)
-00:1d.7 USB Controller: Intel Corp. 82801DB (ICH4) USB2 EHCI Controller (rev 03)
-00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 83)
-00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev 03)
-00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA Storage Controller (rev 03)
-00:1f.3 SMBus: Intel Corp. 82801DB/DBM (ICH4) SMBus Controller (rev 03)
-00:1f.5 Multimedia audio controller: Intel Corp. 82801DB (ICH4) AC'97 Audio Controller (rev 03)
-00:1f.6 Modem: Intel Corp. 82801DB (ICH4) AC'97 Modem Controller (rev 03)
-02:04.0 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus Controller (rev 01)
-02:04.1 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus Controller (rev 01)
-02:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 10)
-
-------=_Part_11759_18527341.1134281495668
-Content-Type: application/octet-stream; name=2.6.15-rc5-crash.config
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="2.6.15-rc5-crash.config"
-
+---.config-------------
 #
 # Automatically generated make config: don't edit
 # Linux kernel version: 2.6.15-rc5crash
@@ -2672,4 +2588,88 @@ CONFIG_GENERIC_HARDIRQS=y
 CONFIG_GENERIC_IRQ_PROBE=y
 CONFIG_X86_BIOS_REBOOT=y
 
-------=_Part_11759_18527341.1134281495668--
+---lspci dump---
+00:00.0 Host bridge: Intel Corp. 82852/855GM Host Bridge (rev 02)
+00:00.1 System peripheral: Intel Corp. 855GM/GME GMCH Memory I/O
+Control Registers (rev 02)
+00:00.3 System peripheral: Intel Corp. 855GM/GME GMCH Configuration
+Process Registers (rev 02)
+00:02.0 VGA compatible controller: Intel Corp. 82852/855GM Integrated
+Graphics Device (rev 02)
+00:02.1 Display controller: Intel Corp. 82852/855GM Integrated
+Graphics Device (rev 02)
+00:1d.0 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #1 (rev 03)
+00:1d.1 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #2 (rev 03)
+00:1d.2 USB Controller: Intel Corp. 82801DB (ICH4) USB UHCI #3 (rev 03)
+00:1d.7 USB Controller: Intel Corp. 82801DB (ICH4) USB2 EHCI Controller (rev 03)
+00:1e.0 PCI bridge: Intel Corp. 82801BAM/CAM PCI Bridge (rev 83)
+00:1f.0 ISA bridge: Intel Corp. 82801DBM LPC Interface Controller (rev 03)
+00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA Storage
+Controller (rev 03)
+00:1f.3 SMBus: Intel Corp. 82801DB/DBM (ICH4) SMBus Controller (rev 03)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801DB (ICH4) AC'97
+Audio Controller (rev 03)
+00:1f.6 Modem: Intel Corp. 82801DB (ICH4) AC'97 Modem Controller (rev 03)
+02:04.0 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus
+Controller (rev 01)
+02:04.1 CardBus bridge: Texas Instruments PCI1520 PC card Cardbus
+Controller (rev 01)
+02:0a.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
+RTL-8139/8139C/8139C+ (rev 10)
+
+Regards
+Ashutosh
+
+On 12/11/05, Ashutosh Naik <ashutosh.naik@gmail.com> wrote:
+> Distribution:
+> Fedora Core 2, 2.6.15-rc5 kernel
+>
+> Hardware Environment:
+> Acer Travelmate 240 ,Intel Celeron 2.6 Ghz, lspci with 2.6.14 attached
+>
+> Description
+> I am getting an early kernel panic when I compiled the Kernel
+> 2.6.15-rc5 on my Acer Laptop. The dump is as follows. It is
+> reproducible every time on bootup.
+>
+> Uncompressing Linux... Ok, booting the kernel.
+> Unable to handle kernel NULL pointer dereference at virtual address 00000000
+>  printing eip:
+> *pde = 00000000
+> Oops: 0002 [#1]
+> PREEMPT
+> Modules linked in :
+> CPU:    0
+> EIP:    0060:[<c020e494>]    Not tainted VLI
+> EFLAGS: 00010292   (2.6.15-rc5)
+> EIP is at kobject_add+0x94/0xd0
+> eax: c0455d80   ebx: c0455b4c   ecx: 00000000 edx: c0455b68
+> esi: ffffffea   edi: c0455d88   ebp: 00000000 esp: c6e8bf4c
+> ds: 007b es: 007b ss: 0068
+> Process swapper (pid = 1 threadinfo = c6e8a00 task = c6e88a50)
+> Stack : c0455b4c ffffffea c0455d20 c020e4f2 00000000 c0455b38 c0455b4c c0455b38
+>         c0455b4c c0294b12 c0455b4c c040e7c2 c03cdd36 c0455b38 00000000 00000000
+>         00000000 c0295542 00000000 c021fa65 c011d377 c0411638 00000000 c04ed0dc
+> Call Trace:
+>  [<c020e4f2>] kobject_register+0x22/0x70
+>  [<c0294b12>] bus_add_driver+0x52/0xc0
+>  [<c0295542>] driver_register+0x32/0x40
+>  [<c0214a65>] pcie_start_thread+0x15/0x60
+>  [<c011d377>] printk+0x17/0x20
+>  [<c04ed0dc>] pcied_init+0x1c/0xa0
+>  [<c04ed055>] pci_proc_init+0x65/0x70
+>  [<c04da83b>] do_init_calls+0x2b/0xc0
+>  [<c01002a0>] init+0x0/0x160
+>  [<c01002a0>] init+0x0/0x160
+>  [<c01002d7>] init+0x37/0x160
+>  [<c01013c9>] kernel_thread_helper+0x5/0xc
+> Code: 74 df 89 f8 e8 ce 02 00 00 eb d6 b8 01 00 00 00 e8 42 af f0 ff 85 ff 74 36
+>  8b 43 28 8d 53 1c 83 c0 08 89 43 1c 8b 48 04 89 50 04 <89> 11 89 4a 04 b8 01 00
+>  00 00 e8 5d af f0 ff b8 00 e0 ff ff 21
+>  <0>Kernel panic - not syncing: Attempted to kill init!
+>
+> Attached - lspci.dump
+> Attached - .config
+>
+>
+>

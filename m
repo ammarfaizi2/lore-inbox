@@ -1,83 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161083AbVLKBER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbVLKBrw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161083AbVLKBER (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 20:04:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161082AbVLKBER
+	id S964809AbVLKBrw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 20:47:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbVLKBrw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 20:04:17 -0500
-Received: from einhorn.in-berlin.de ([192.109.42.8]:21149 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S1161083AbVLKBEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 20:04:16 -0500
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Message-ID: <439B7A8F.6000209@s5r6.in-berlin.de>
-Date: Sun, 11 Dec 2005 02:02:07 +0100
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
-X-Accept-Language: de, en
+	Sat, 10 Dec 2005 20:47:52 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:1124 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964809AbVLKBrw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 20:47:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rJ50+9YIw+ZAdRV8jJgU6H+no96MAQ8ekU1LQz9j6OWivHiK/cH+DixSQLHytsZHhRM/8PW5d1wfLpANOyZJpfdS9ad0t11vvhym7bmPCYLyIVe3jnsrDXU4V7ROlBLWdhJ8+cVkQYNOCHH0zSoMdBvDfMUKS0cJ13Tc9NrF2U4=
+Message-ID: <9a8748490512101747p1cdcdf7cs1b8b4b0e67908b94@mail.gmail.com>
+Date: Sun, 11 Dec 2005 02:47:51 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] Decrease number of pointer derefs in nf_conntrack_core.c
+Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netfilter Core Team <coreteam@netfilter.org>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20051209114935.GA26127@elte.hu>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: stable@kernel.org, torvalds@osdl.org, scjody@modernduck.com,
-       linux1394-devel@lists.sourceforge.net, bcollins@debian.org,
-       adq@lidskialf.net, linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: [stable] [PATCH] sbp2: fix panic when ejecting an ipod
-References: <20051209171922.GW19441@conscoop.ottawa.on.ca> <200512101125.jBABP7Z9001085@einhorn.in-berlin.de> <20051210232837.GE11094@kroah.com>
-In-Reply-To: <20051210232837.GE11094@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: (0.412) AWL,BAYES_50
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200512082336.19695.jesper.juhl@gmail.com>
+	 <20051209110441.GC20314@elte.hu>
+	 <9a8748490512090218q72998aebq8c09247921bd167e@mail.gmail.com>
+	 <Pine.LNX.4.63.0512091134100.31859@gockel.physik3.uni-rostock.de>
+	 <20051209114935.GA26127@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Sat, Dec 10, 2005 at 12:24:59PM +0100, Stefan Richter wrote:
-> 
->>sbp2: fix panic when ejecting an ipod
->>
->>Sbp2 did not catch some bogus transfer directions in requests from upper
->>layers.  Problem became apparent when iPods were to be ejected:
->>http://marc.theaimsgroup.com/?l=linux1394-devel&m=113399994920181
->>http://marc.theaimsgroup.com/?l=linux1394-user&m=112152701817435
->>Debugging and original variant of the patch by Andrew de Quincey.
->>
->>Signed-off-by: Stefan Richter <stefanr@s5r6.in-berlin.de>
->>Cc: Andrew de Quincey <adq@lidskialf.net>
-> 
-> 
-> Is this in linus's tree yet? 
+On 12/9/05, Ingo Molnar <mingo@elte.hu> wrote:
+>
+> * Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
+>
+> > I get
+> > orig:
+> >    text    data     bss     dec     hex filename
+> >   11745      67     728   12540    30fc net/netfilter/nf_conntrack_core.o
+> >
+> > patched:
+> >    text    data     bss     dec     hex filename
+> >   11681      67     728   12476    30bc net/netfilter/nf_conntrack_core.o
+>
+> yeah, that's OK and in the expected range.
+>
+Ingo, Tim, you are correct. I did screw up the size measurements for
+that one patch. Sorry about that.
 
-My idea was that it goes in parallel to Linus and to -stable, hence the 
-selection of recipients of my posting.
-
-I will submit two related cleanup patches for sbp2 to linux1394-devel on 
-Sunday morning. They will remove obsolete code and reformat code for 
-readability. IMO they will *not* be suitable for Linus' tree before the 
-next subsystem merge window.
-
-> Do the 1394 maintainers accept it as a valid fix?
-
-Ben Collins and I are *sbp2* maintainers. I consider it a valid fix (but 
-see below.) Jody McIntyre and Ben are *1394* maintainers. Jody posted a 
-NAK a few hours ago:
-|| NAK.  James has a patch to fix this in the SCSI layer, which is his
-|| preference.
-
-I agree with Jody and the SCSI people that Jens' and James' patches are 
-the actual fixes. What I want to accomplish is twofold:
-  - Don't let tiny mistakes lead to catastrophic failure (panic) if it
-    can be avoided without additional code.
-  - Get the panic fixed in -stable in one way or another ASAP.
-
-James, I assume Jens' and your patch will be in Linus' tree soon. 
-Therefore and because my pending sbp2 cleanups will land in Linus' tree 
-eventually, this sbp2 patch here is not vital for the current kernel. 
-But do you consider to submit the SCSI fixes or a derivative to -stable 
-too? If not, I recommend my patch to be included in -stable.
-
-Jody, I very much respect and appreciate your opinion. Please continue 
-to step in the way when I'm doing goofy things. :-)
--- 
-Stefan Richter
--=====-=-=-= ==-- -=-==
-http://arcgraph.de/sr/
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

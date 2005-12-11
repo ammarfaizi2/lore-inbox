@@ -1,193 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161094AbVLKFlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161092AbVLKFkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161094AbVLKFlL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 00:41:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161100AbVLKFlK
+	id S1161092AbVLKFkU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 00:40:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbVLKFkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 00:41:10 -0500
-Received: from uproxy.gmail.com ([66.249.92.200]:20666 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161095AbVLKFlH (ORCPT
+	Sun, 11 Dec 2005 00:40:20 -0500
+Received: from uproxy.gmail.com ([66.249.92.192]:6575 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1161092AbVLKFkT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 00:41:07 -0500
+	Sun, 11 Dec 2005 00:40:19 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:content-type:content-transfer-encoding:message-id;
-        b=Cq0QpWOpCaigAMUqwmMnA0Y3v4BghYmmoi/yFEA2rkNqfs4PHxzwY0OIpcTHckGNZkZQ4RSLgs1QPKZWD6yol2Bk6Ko59l3O14NtnlzrMxydQtDUKY7U0xub+3dlMa4f0FkBasr6H7B47x2gEgacUuXw1isHOmNMQEZ6D33Xxf4=
+        b=KxRTOc2799oNs6MIIkl3T8mT3jw7vYwwDF0WRuqcTvf0l4sPX3gaJFPjsLqCEfr9ysOHeMeHL2adf8P4RSA/BqcvRD8lDFKstyab5GdrncLB63746FpvUFDrbSyBc/2ROjjnuKiBLaefKSM7akbArB8Uw0r6QfrX6uXexQ3xL2M=
 From: Jesper Juhl <jesper.juhl@gmail.com>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Reduce nr of ptr derefs in drivers/pci/hotplug/pciehp_core.c
-Date: Sun, 11 Dec 2005 06:41:42 +0100
+Subject: [PATCH] Reduce nr of ptr derefs in fs/jffs2/summary.c
+Date: Sun, 11 Dec 2005 06:40:48 +0100
 User-Agent: KMail/1.9
-Cc: greg@kroah.com, kristen.c.accardi@intel.com, Andrew Morton <akpm@osdl.org>,
-       Jesper Juhl <jesper.juhl@gmail.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
+       Andrew Morton <akpm@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200512110641.42992.jesper.juhl@gmail.com>
+Message-Id: <200512110640.48356.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Here's a small patch to reduce the nr. of pointer dereferences in
-drivers/pci/hotplug/pciehp_core.c
+fs/jffs2/summary.c
 
 Benefits:
  - micro speed optimization due to fewer pointer derefs
  - generated code is slightly smaller
- - small line length cleanup
  - better readability
 
-Please consider applying.
+Please consider applying...
 
 
 Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 ---
 
- drivers/pci/hotplug/pciehp_core.c |   90 +++++++++++++++++++++-----------------
- 1 files changed, 50 insertions(+), 40 deletions(-)
+ fs/jffs2/summary.c |   38 +++++++++++++++++++-------------------
+ 1 files changed, 19 insertions(+), 19 deletions(-)
 
 orig:
    text    data     bss     dec     hex filename
-   4910     436      24    5370    14fa drivers/pci/hotplug/pciehp_core.o
+   5033       0       0    5033    13a9 fs/jffs2/summary.o
 patched:
    text    data     bss     dec     hex filename
-   4889     436      24    5349    14e5 drivers/pci/hotplug/pciehp_core.o
+   4935       0       0    4935    1347 fs/jffs2/summary.o
 
---- linux-2.6.15-rc5-git1-orig/drivers/pci/hotplug/pciehp_core.c	2005-12-04 18:48:04.000000000 +0100
-+++ linux-2.6.15-rc5-git1/drivers/pci/hotplug/pciehp_core.c	2005-12-11 05:46:58.000000000 +0100
-@@ -103,7 +103,10 @@ static void release_slot(struct hotplug_
+--- linux-2.6.15-rc5-git1-orig/fs/jffs2/summary.c	2005-12-04 18:48:38.000000000 +0100
++++ linux-2.6.15-rc5-git1/fs/jffs2/summary.c	2005-12-11 06:01:51.000000000 +0100
+@@ -581,16 +581,17 @@ static int jffs2_sum_write_data(struct j
+ 	wpage = c->summary->sum_buf;
  
- static int init_slots(struct controller *ctrl)
- {
--	struct slot *new_slot;
-+	struct slot *slot;
-+	struct hpc_ops *hpc_ops;
-+	struct hotplug_slot *hotplug_slot;
-+	struct hotplug_slot_info *hotplug_slot_info;
- 	u8 number_of_slots;
- 	u8 slot_device;
- 	u32 slot_number;
-@@ -114,59 +117,66 @@ static int init_slots(struct controller 
- 	slot_number = ctrl->first_slot;
+ 	while (c->summary->sum_num) {
++		temp = c->summary->sum_list_head;
  
- 	while (number_of_slots) {
--		new_slot = kmalloc(sizeof(*new_slot), GFP_KERNEL);
--		if (!new_slot)
-+		slot = kmalloc(sizeof(*slot), GFP_KERNEL);
-+		if (!slot)
- 			goto error;
+-		switch (je16_to_cpu(c->summary->sum_list_head->u.nodetype)) {
++		switch (je16_to_cpu(temp->u.nodetype)) {
+ 			case JFFS2_NODETYPE_INODE: {
+ 				struct jffs2_sum_inode_flash *sino_ptr = wpage;
  
--		memset(new_slot, 0, sizeof(struct slot));
--		new_slot->hotplug_slot =
--				kmalloc(sizeof(*(new_slot->hotplug_slot)),
-+		memset(slot, 0, sizeof(struct slot));
-+		slot->hotplug_slot =
-+				kmalloc(sizeof(*(slot->hotplug_slot)),
- 						GFP_KERNEL);
--		if (!new_slot->hotplug_slot)
-+		if (!slot->hotplug_slot)
- 			goto error_slot;
--		memset(new_slot->hotplug_slot, 0, sizeof(struct hotplug_slot));
-+		hotplug_slot = slot->hotplug_slot;
-+		memset(hotplug_slot, 0, sizeof(struct hotplug_slot));
+-				sino_ptr->nodetype = c->summary->sum_list_head->i.nodetype;
+-				sino_ptr->inode = c->summary->sum_list_head->i.inode;
+-				sino_ptr->version = c->summary->sum_list_head->i.version;
+-				sino_ptr->offset = c->summary->sum_list_head->i.offset;
+-				sino_ptr->totlen = c->summary->sum_list_head->i.totlen;
++				sino_ptr->nodetype = temp->i.nodetype;
++				sino_ptr->inode = temp->i.inode;
++				sino_ptr->version = temp->i.version;
++				sino_ptr->offset = temp->i.offset;
++				sino_ptr->totlen = temp->i.totlen;
  
--		new_slot->hotplug_slot->info =
--			kmalloc(sizeof(*(new_slot->hotplug_slot->info)),
-+		hotplug_slot->info =
-+			kmalloc(sizeof(*(hotplug_slot->info)),
- 						GFP_KERNEL);
--		if (!new_slot->hotplug_slot->info)
-+		if (!hotplug_slot->info)
- 			goto error_hpslot;
--		memset(new_slot->hotplug_slot->info, 0,
-+		hotplug_slot_info = hotplug_slot->info;
-+		memset(hotplug_slot_info, 0,
- 					sizeof(struct hotplug_slot_info));
--		new_slot->hotplug_slot->name = kmalloc(SLOT_NAME_SIZE,
--						GFP_KERNEL);
--		if (!new_slot->hotplug_slot->name)
-+		hotplug_slot->name = kmalloc(SLOT_NAME_SIZE, GFP_KERNEL);
-+		if (!hotplug_slot->name)
- 			goto error_info;
+ 				wpage += JFFS2_SUMMARY_INODE_SIZE;
  
--		new_slot->ctrl = ctrl;
--		new_slot->bus = ctrl->slot_bus;
--		new_slot->device = slot_device;
--		new_slot->hpc_ops = ctrl->hpc_ops;
-+		slot->ctrl = ctrl;
-+		slot->bus = ctrl->slot_bus;
-+		slot->device = slot_device;
-+		slot->hpc_ops = hpc_ops = ctrl->hpc_ops;
+@@ -600,19 +601,19 @@ static int jffs2_sum_write_data(struct j
+ 			case JFFS2_NODETYPE_DIRENT: {
+ 				struct jffs2_sum_dirent_flash *sdrnt_ptr = wpage;
  
--		new_slot->number = ctrl->first_slot;
--		new_slot->hp_slot = slot_device - ctrl->slot_device_offset;
-+		slot->number = ctrl->first_slot;
-+		slot->hp_slot = slot_device - ctrl->slot_device_offset;
+-				sdrnt_ptr->nodetype = c->summary->sum_list_head->d.nodetype;
+-				sdrnt_ptr->totlen = c->summary->sum_list_head->d.totlen;
+-				sdrnt_ptr->offset = c->summary->sum_list_head->d.offset;
+-				sdrnt_ptr->pino = c->summary->sum_list_head->d.pino;
+-				sdrnt_ptr->version = c->summary->sum_list_head->d.version;
+-				sdrnt_ptr->ino = c->summary->sum_list_head->d.ino;
+-				sdrnt_ptr->nsize = c->summary->sum_list_head->d.nsize;
+-				sdrnt_ptr->type = c->summary->sum_list_head->d.type;
++				sdrnt_ptr->nodetype = temp->d.nodetype;
++				sdrnt_ptr->totlen = temp->d.totlen;
++				sdrnt_ptr->offset = temp->d.offset;
++				sdrnt_ptr->pino = temp->d.pino;
++				sdrnt_ptr->version = temp->d.version;
++				sdrnt_ptr->ino = temp->d.ino;
++				sdrnt_ptr->nsize = temp->d.nsize;
++				sdrnt_ptr->type = temp->d.type;
  
- 		/* register this slot with the hotplug pci core */
--		new_slot->hotplug_slot->private = new_slot;
--		new_slot->hotplug_slot->release = &release_slot;
--		make_slot_name(new_slot->hotplug_slot->name, SLOT_NAME_SIZE, new_slot);
--		new_slot->hotplug_slot->ops = &pciehp_hotplug_slot_ops;
--
--		new_slot->hpc_ops->get_power_status(new_slot, &(new_slot->hotplug_slot->info->power_status));
--		new_slot->hpc_ops->get_attention_status(new_slot, &(new_slot->hotplug_slot->info->attention_status));
--		new_slot->hpc_ops->get_latch_status(new_slot, &(new_slot->hotplug_slot->info->latch_status));
--		new_slot->hpc_ops->get_adapter_status(new_slot, &(new_slot->hotplug_slot->info->adapter_status));
--
--		dbg("Registering bus=%x dev=%x hp_slot=%x sun=%x slot_device_offset=%x\n", 
--			new_slot->bus, new_slot->device, new_slot->hp_slot, new_slot->number, ctrl->slot_device_offset);
--		result = pci_hp_register (new_slot->hotplug_slot);
-+		hotplug_slot->private = slot;
-+		hotplug_slot->release = &release_slot;
-+		make_slot_name(hotplug_slot->name, SLOT_NAME_SIZE, slot);
-+		hotplug_slot->ops = &pciehp_hotplug_slot_ops;
-+
-+		hpc_ops->get_power_status(slot,
-+			&(hotplug_slot_info->power_status));
-+		hpc_ops->get_attention_status(slot,
-+			&(hotplug_slot_info->attention_status));
-+		hpc_ops->get_latch_status(slot,
-+			&(hotplug_slot_info->latch_status));
-+		hpc_ops->get_adapter_status(slot,
-+			&(hotplug_slot_info->adapter_status));
-+
-+		dbg("Registering bus=%x dev=%x hp_slot=%x sun=%x "
-+			"slot_device_offset=%x\n", 
-+			slot->bus, slot->device, slot->hp_slot, slot->number,
-+			ctrl->slot_device_offset);
-+		result = pci_hp_register(hotplug_slot);
- 		if (result) {
- 			err ("pci_hp_register failed with error %d\n", result);
- 			goto error_name;
+-				memcpy(sdrnt_ptr->name, c->summary->sum_list_head->d.name,
+-							c->summary->sum_list_head->d.nsize);
++				memcpy(sdrnt_ptr->name, temp->d.name,
++							temp->d.nsize);
+ 
+-				wpage += JFFS2_SUMMARY_DIRENT_SIZE(c->summary->sum_list_head->d.nsize);
++				wpage += JFFS2_SUMMARY_DIRENT_SIZE(temp->d.nsize);
+ 
+ 				break;
+ 			}
+@@ -622,8 +623,7 @@ static int jffs2_sum_write_data(struct j
+ 			}
  		}
  
--		new_slot->next = ctrl->slot;
--		ctrl->slot = new_slot;
-+		slot->next = ctrl->slot;
-+		ctrl->slot = slot;
+-		temp = c->summary->sum_list_head;
+-		c->summary->sum_list_head = c->summary->sum_list_head->u.next;
++		c->summary->sum_list_head = temp->u.next;
+ 		kfree(temp);
  
- 		number_of_slots--;
- 		slot_device++;
-@@ -176,13 +186,13 @@ static int init_slots(struct controller 
- 	return 0;
- 
- error_name:
--	kfree(new_slot->hotplug_slot->name);
-+	kfree(hotplug_slot->name);
- error_info:
--	kfree(new_slot->hotplug_slot->info);
-+	kfree(hotplug_slot_info);
- error_hpslot:
--	kfree(new_slot->hotplug_slot);
-+	kfree(hotplug_slot);
- error_slot:
--	kfree(new_slot);
-+	kfree(slot);
- error:
- 	return result;
- }
+ 		c->summary->sum_num--;
 
 
 

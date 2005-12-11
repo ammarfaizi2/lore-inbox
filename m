@@ -1,125 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161092AbVLKFkU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161093AbVLKFkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161092AbVLKFkU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 00:40:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161094AbVLKFkU
+	id S1161093AbVLKFkV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 00:40:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161095AbVLKFkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 00:40:20 -0500
-Received: from uproxy.gmail.com ([66.249.92.192]:6575 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161092AbVLKFkT (ORCPT
+	Sun, 11 Dec 2005 00:40:21 -0500
+Received: from inglit.ubishops.ca ([206.167.194.132]:8151 "EHLO cs.ubishops.ca")
+	by vger.kernel.org with ESMTP id S1161093AbVLKFkU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 00:40:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-disposition:content-type:content-transfer-encoding:message-id;
-        b=KxRTOc2799oNs6MIIkl3T8mT3jw7vYwwDF0WRuqcTvf0l4sPX3gaJFPjsLqCEfr9ysOHeMeHL2adf8P4RSA/BqcvRD8lDFKstyab5GdrncLB63746FpvUFDrbSyBc/2ROjjnuKiBLaefKSM7akbArB8Uw0r6QfrX6uXexQ3xL2M=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Reduce nr of ptr derefs in fs/jffs2/summary.c
-Date: Sun, 11 Dec 2005 06:40:48 +0100
-User-Agent: KMail/1.9
-Cc: David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
-       Andrew Morton <akpm@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>
+	Sun, 11 Dec 2005 00:40:20 -0500
+Message-ID: <439BBBC3.7050803@cs.ubishops.ca>
+Date: Sun, 11 Dec 2005 00:40:19 -0500
+From: Patrick McLean <pmclean@cs.ubishops.ca>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051204)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GNU/Linux in a binary world... a doomsday scenario
+References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>         <20051206040820.GB26602@kroah.com>         <2cd57c900512052358m5b631204i@mail.gmail.com>         <200512061856.42493.luke-jr@utopios.org> <2cd57c900512061742s28f57b5eu@mail.gmail.com> <20051210051628.E9E08CF4156@tsurukikun.utopios.org> <439A7E8E.8010707@wolfmountaingroup.com>
+In-Reply-To: <439A7E8E.8010707@wolfmountaingroup.com>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200512110640.48356.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a small patch to reduce the nr. of pointer dereferences in
-fs/jffs2/summary.c
+Sorry to continue this OT thread.
 
-Benefits:
- - micro speed optimization due to fewer pointer derefs
- - generated code is slightly smaller
- - better readability
+Jeff V. Merkey wrote:
+>>
+> "constructive" is a for profit model that sustains the hi tech 
+> industry.    The current
+> models have created a conduit for socialist disintegration of the 
+> american hi tech
+> markets, loss of jobs, and have funnelled technology out of the 
+> country.  Legal
+> defense funds should be the biggest red flags of all.  If this system 
+> you devised really
+> works, why all the litigation?  Why all the need for legal defense funds 
+> and patent
+> infringement insurance?   I've watched the entire market slowly collapse 
+> over the years
+> as the result of the affect of the GPL on America's hi tech markets.
+> It isn't working, and it isn't sustainable.  non-profit and "temples" of 
+> GPL "religion"
+> have evolved, with the leaders living in orgnaizations that subsist from 
+> handouts and
+> donations.   This movement has spawned a global attitude that has no 
+> respect
+> for IP rights, and it's extended itself to no respect for human rights, 
+> or any other rights
+> of the indivdual.    That's the legacy this has left and the ultimate 
+> conclusion.
 
-Please consider applying...
+If you are totally against "socialist" licenses and the OSS movement, 
+what are you doing on this mailing list? I rather doubt many people here 
+share your views, and I seriously doubt that you are going to convince 
+anyone to change their viewpoints.
 
-
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
-
- fs/jffs2/summary.c |   38 +++++++++++++++++++-------------------
- 1 files changed, 19 insertions(+), 19 deletions(-)
-
-orig:
-   text    data     bss     dec     hex filename
-   5033       0       0    5033    13a9 fs/jffs2/summary.o
-patched:
-   text    data     bss     dec     hex filename
-   4935       0       0    4935    1347 fs/jffs2/summary.o
-
---- linux-2.6.15-rc5-git1-orig/fs/jffs2/summary.c	2005-12-04 18:48:38.000000000 +0100
-+++ linux-2.6.15-rc5-git1/fs/jffs2/summary.c	2005-12-11 06:01:51.000000000 +0100
-@@ -581,16 +581,17 @@ static int jffs2_sum_write_data(struct j
- 	wpage = c->summary->sum_buf;
- 
- 	while (c->summary->sum_num) {
-+		temp = c->summary->sum_list_head;
- 
--		switch (je16_to_cpu(c->summary->sum_list_head->u.nodetype)) {
-+		switch (je16_to_cpu(temp->u.nodetype)) {
- 			case JFFS2_NODETYPE_INODE: {
- 				struct jffs2_sum_inode_flash *sino_ptr = wpage;
- 
--				sino_ptr->nodetype = c->summary->sum_list_head->i.nodetype;
--				sino_ptr->inode = c->summary->sum_list_head->i.inode;
--				sino_ptr->version = c->summary->sum_list_head->i.version;
--				sino_ptr->offset = c->summary->sum_list_head->i.offset;
--				sino_ptr->totlen = c->summary->sum_list_head->i.totlen;
-+				sino_ptr->nodetype = temp->i.nodetype;
-+				sino_ptr->inode = temp->i.inode;
-+				sino_ptr->version = temp->i.version;
-+				sino_ptr->offset = temp->i.offset;
-+				sino_ptr->totlen = temp->i.totlen;
- 
- 				wpage += JFFS2_SUMMARY_INODE_SIZE;
- 
-@@ -600,19 +601,19 @@ static int jffs2_sum_write_data(struct j
- 			case JFFS2_NODETYPE_DIRENT: {
- 				struct jffs2_sum_dirent_flash *sdrnt_ptr = wpage;
- 
--				sdrnt_ptr->nodetype = c->summary->sum_list_head->d.nodetype;
--				sdrnt_ptr->totlen = c->summary->sum_list_head->d.totlen;
--				sdrnt_ptr->offset = c->summary->sum_list_head->d.offset;
--				sdrnt_ptr->pino = c->summary->sum_list_head->d.pino;
--				sdrnt_ptr->version = c->summary->sum_list_head->d.version;
--				sdrnt_ptr->ino = c->summary->sum_list_head->d.ino;
--				sdrnt_ptr->nsize = c->summary->sum_list_head->d.nsize;
--				sdrnt_ptr->type = c->summary->sum_list_head->d.type;
-+				sdrnt_ptr->nodetype = temp->d.nodetype;
-+				sdrnt_ptr->totlen = temp->d.totlen;
-+				sdrnt_ptr->offset = temp->d.offset;
-+				sdrnt_ptr->pino = temp->d.pino;
-+				sdrnt_ptr->version = temp->d.version;
-+				sdrnt_ptr->ino = temp->d.ino;
-+				sdrnt_ptr->nsize = temp->d.nsize;
-+				sdrnt_ptr->type = temp->d.type;
- 
--				memcpy(sdrnt_ptr->name, c->summary->sum_list_head->d.name,
--							c->summary->sum_list_head->d.nsize);
-+				memcpy(sdrnt_ptr->name, temp->d.name,
-+							temp->d.nsize);
- 
--				wpage += JFFS2_SUMMARY_DIRENT_SIZE(c->summary->sum_list_head->d.nsize);
-+				wpage += JFFS2_SUMMARY_DIRENT_SIZE(temp->d.nsize);
- 
- 				break;
- 			}
-@@ -622,8 +623,7 @@ static int jffs2_sum_write_data(struct j
- 			}
- 		}
- 
--		temp = c->summary->sum_list_head;
--		c->summary->sum_list_head = c->summary->sum_list_head->u.next;
-+		c->summary->sum_list_head = temp->u.next;
- 		kfree(temp);
- 
- 		c->summary->sum_num--;
-
-
-
+I suspect you are simply trolling, and I suppose I am taking the bait.

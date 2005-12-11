@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVLKW6S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbVLKXYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbVLKW6S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 17:58:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbVLKW6R
+	id S1750908AbVLKXYj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 18:24:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbVLKXYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 17:58:17 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:25489 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750796AbVLKW6R (ORCPT
+	Sun, 11 Dec 2005 18:24:39 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:60553 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750907AbVLKXYi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 17:58:17 -0500
-Date: Sun, 11 Dec 2005 14:57:40 -0800
+	Sun, 11 Dec 2005 18:24:38 -0500
+Date: Sun, 11 Dec 2005 15:24:29 -0800 (PST)
 From: Paul Jackson <pj@sgi.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: akpm@osdl.org, zwane@arm.linux.org.uk, ashok.raj@intel.com, ak@suse.de,
-       davej@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Don't attempt to power off if power off is not
- implemented.
-Message-Id: <20051211145740.32284a45.pj@sgi.com>
-In-Reply-To: <m1k6egavgq.fsf_-_@ebiederm.dsl.xmission.com>
-References: <Pine.LNX.4.61.0511270115020.20046@montezuma.fsmlabs.com>
-	<20051127135833.GH20775@brahms.suse.de>
-	<m1wtiufa9z.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.61.0511270836120.20046@montezuma.fsmlabs.com>
-	<m1psolfqvt.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0512021221210.13220@montezuma.fsmlabs.com>
-	<m1iru7dlww.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0512050014000.6637@montezuma.fsmlabs.com>
-	<m1zmncb0n5.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0512072158500.2557@montezuma.fsmlabs.com>
-	<m1vey0azeu.fsf@ebiederm.dsl.xmission.com>
-	<Pine.LNX.4.64.0512072249000.2557@montezuma.fsmlabs.com>
-	<m1k6egavgq.fsf_-_@ebiederm.dsl.xmission.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: akpm@osdl.org
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       linux-kernel@vger.kernel.org, Richard Henderson <rth@twiddle.net>,
+       Dave Jones <davej@redhat.com>, Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Andi Kleen <ak@suse.de>, Raj Ashok <ashok.raj@intel.com>,
+       Paul Jackson <pj@sgi.com>
+Message-Id: <20051211232428.18286.40968.sendpatchset@sam.engr.sgi.com>
+Subject: [PATCH] alpha build pm_power_off hack
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For architectures like alpha that don't implement the pm_power_off
-> variable pm_power_off is declared in linux/pm.h and it is a generic
-> part of our power management code, and all architectures should
-> implement it.
-> 
-> ...
-> 
-> Andrew can you pick this up and put this in the mm tree.  Kernels
-> that don't compile or don't power off seem saner than kernels that
-> oops or panic.  
+This follows up Eric W. Biederman's patch of Dec 8, 2005:
+  [PATCH] Don't attempt to power off if power off is not implemented.
 
-Ok - so now you've broken alpha build ;(.
+To avoid having problems with one arch break the crosstool
+builds which developers for other arch's do to ensure they
+haven't added an arch-specific build bug, add a NULL
+pm_power_off() function pointer definition to the alpha build.
 
-Yes - as your patch comment explains, the alternatives suck worse.
+Without this change, an alpha build fails in the final link
+stage, for the missing 'pm_power_off' symbol that is used
+in kernel/sys.c
 
-I'll send a patch that provides a NULL pm_power_off pointer for alpha,
-which in my 43 seconds of deep analysis of this issue, seems to be the
-thing to do for arch's that don't define a useful pm_power_off.
+If the alpha developers don't like the behaviour of '/sbin/halt'
+on their kernel, I will leave that to them to figure out.
+
+Signed-off-by: Paul Jackson
+
+---
+
+ arch/alpha/kernel/process.c |    5 +++++
+ 1 files changed, 5 insertions(+)
+
+--- 2.6.15-rc5-mm2.orig/arch/alpha/kernel/process.c	2005-12-11 15:07:52.000000000 -0800
++++ 2.6.15-rc5-mm2/arch/alpha/kernel/process.c	2005-12-11 15:09:33.000000000 -0800
+@@ -43,6 +43,11 @@
+ #include "proto.h"
+ #include "pci_impl.h"
+ 
++/*
++ * Power off function, if any
++ */
++void (*pm_power_off)(void);
++
+ void
+ cpu_idle(void)
+ {
 
 -- 
                   I won't rest till it's the best ...
                   Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+                  Paul Jackson <pj@sgi.com> 1.650.933.1373, 1.925.600.0401

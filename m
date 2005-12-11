@@ -1,88 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbVLKNJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbVLKNPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbVLKNJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 08:09:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbVLKNJQ
+	id S1751359AbVLKNPe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 08:15:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbVLKNPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 08:09:16 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:44805 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1751358AbVLKNJP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 08:09:15 -0500
-Date: Sun, 11 Dec 2005 14:08:54 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Brent <brent@skyblue.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: High load since upgrade
-Message-ID: <20051211130854.GA5258@alpha.home.local>
-References: <20051209214417.GE15993@alpha.home.local> <000001c5fe52$10411040$3128fea9@mforma.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 11 Dec 2005 08:15:34 -0500
+Received: from uproxy.gmail.com ([66.249.92.202]:4449 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751359AbVLKNPd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 08:15:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=lkwxSMl0S0AdwBlUWgwRiu6KOoxVyYLEszx9EMMIAUBy7XiphQf2CWbtbkhk+4ePu3LbnsgvovEtblKjmsVTr5tlQAIgtXNVVKuYhnVvSkHSCOQt6F/7bn1atnefplOuxhGqIL9VlwHkWRgBnHu2AR/7XGh0w6h0v27H+3Y1Id8=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [-mm PATCH] EDAC: make Kconfig defaults match recommendations in help text
+Date: Sun, 11 Dec 2005 14:16:05 +0100
+User-Agent: KMail/1.9
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Jesper Juhl <jesper.juhl@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <000001c5fe52$10411040$3128fea9@mforma.com>
-User-Agent: Mutt/1.5.10i
+Message-Id: <200512111416.05501.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+"config EDAC" and "config EDAC_MM_EDAC" both state clearly that if the user
+is unsure she should select "Y", yet the default for those options is "N".
 
-On Sun, Dec 11, 2005 at 12:54:45PM -0000, Brent wrote:
-> Almost everything is statically compiled apart from a few things that I
-> didn't feel like rebooting for.
-> I also put up the .config at http://pics.skyblue.eu.org/graphs/config.txt if
-> you want to check that out as well.
-> 
-> lon-gw:/var/log# lsmod
-> Module                  Size  Used by
-> 8250                   27380  0 
-> serial_core            25984  1 8250
-> lon-gw:/var/log# 
-> 
-> 
-> USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
-> root         1  0.0  0.0  1584  516 ?        S    Dec09   0:01 init [2]  
-> root         2  0.0  0.0     0    0 ?        S    Dec09   0:06 [migration/0]
-> root         3  0.0  0.0     0    0 ?        SN   Dec09   0:00 [ksoftirqd/0]
-> root         4  0.0  0.0     0    0 ?        S    Dec09   0:06 [migration/1]
-> root         5  0.0  0.0     0    0 ?        SN   Dec09   0:00 [ksoftirqd/1]
-> root         6  0.0  0.0     0    0 ?        S<   Dec09   0:00 [events/0]
-> root         7  0.0  0.0     0    0 ?        S<   Dec09   0:00 [events/1]
-> root         8  0.0  0.0     0    0 ?        S<   Dec09   0:00 [khelper]
-> root         9  0.0  0.0     0    0 ?        S<   Dec09   0:00 [kthread]
-> root        12  0.0  0.0     0    0 ?        S<   Dec09   0:00 [kacpid]
-> root        78  0.0  0.0     0    0 ?        S<   Dec09   0:00 [kblockd/0]
-> root        79  0.0  0.0     0    0 ?        S<   Dec09   0:00 [kblockd/1]
-> root        82  0.0  0.0     0    0 ?        S<   Dec09   0:00 [khubd]
-> root       183  0.0  0.0     0    0 ?        S    Dec09   0:00 [pdflush]
-> root       184  0.0  0.0     0    0 ?        S    Dec09   0:00 [pdflush]
-> root       186  0.0  0.0     0    0 ?        S<   Dec09   0:00 [aio/0]
-> root       185  0.0  0.0     0    0 ?        S    Dec09   0:00 [kswapd0]
-> root       187  0.0  0.0     0    0 ?        S<   Dec09   0:00 [aio/1]
-> root       771  0.0  0.0     0    0 ?        S<   Dec09   0:00 [kseriod]
-> root       848  0.0  0.0     0    0 ?        S<   Dec09   0:00 [scsi_eh_0]
-> root       881  0.0  0.0     0    0 ?        S<   Dec09   0:00 [scsi_eh_1]
-> root       915  0.0  0.0     0    0 ?        S<   Dec09   0:00 [scsi_eh_2]
-> root       961  0.0  0.0     0    0 ?        D    Dec09   0:00 [firmware/dell_r]
-                                             ^^^^^               ^^^^^^^^^^^^^^^
+This patch brings the default for the options into line with the
+recommendation stated in the help text.
 
-What's this kernel thread ? The fact that it's stuck in D state makes me
-think it may be the responsible for the skewed values you measure. Can you
-retry without it ? I don't know where it comes from, maybe this is related
-to some of the following discoveries, I don't know :
+Please consider for inclusion.
 
-> scsi2 : LSI Logic MegaRAID driver
-> scsi[2]: scanning scsi channel 0 [Phy 0] for non-raid devices
->   Vendor: DELL      Model: 1x3 U2W SCSI BP   Rev: 1.21
->   Type:   Processor                          ANSI SCSI revision: 02
-(...)
 
-> 0-002d: Using VRM: 8.2 adm9240 0-002d: status: config 0x03 mode 1
-> i2c_adapter i2c-0: found LM81 revision 3 adm9240 0-002e: Using VRM: 8.2
-> adm9240 0-002e: status: config 0x03 mode 1 i2c_adapter i2c-0: detect fail:
-> address match, 0x2f
->  dcdbas: Dell Systems Management Base Driver (version 5.6.0-1)
-(...)
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
 
-Regards,
-Willy
+ drivers/edac/Kconfig |    2 ++
+ 1 files changed, 2 insertions(+)
+
+diff -U 7 linux-2.6.15-rc5-mm2-orig/drivers/edac/Kconfig linux-2.6.15-rc5-mm2/drivers/edac/Kconfig
+--- linux-2.6.15-rc5-mm2-orig/drivers/edac/Kconfig	2005-12-11 13:53:26.000000000 +0100
++++ linux-2.6.15-rc5-mm2/drivers/edac/Kconfig	2005-12-11 14:04:06.000000000 +0100
+@@ -7,14 +7,15 @@
+ #
  
+ menu 'EDAC - error detection and reporting (RAS)'
+ 
+ config EDAC
+ 	tristate "EDAC core system error reporting"
+ 	depends on X86
++	default y
+ 	help
+ 	  EDAC is designed to report errors in the core system.
+ 	  These are low-level errors that are reported in the CPU or
+ 	  supporting chipset: memory errors, cache errors, PCI errors,
+ 	  thermal throttling, etc..  If unsure, select 'Y'.
+ 
+ 
+@@ -29,14 +30,15 @@
+ 	  sub-system. You can insert module with "debug_level=x", current
+ 	  there're four debug levels (x=0,1,2,3 from low to high).
+ 	  Usually you should select 'N'.
+ 
+ config EDAC_MM_EDAC
+ 	tristate "Main Memory EDAC (Error Detection And Correction) reporting"
+ 	depends on EDAC
++	default y
+ 	help
+ 	  Some systems are able to detect and correct errors in main
+ 	  memory.  EDAC can report statistics on memory error
+ 	  detection and correction (EDAC - or commonly referred to ECC
+ 	  errors).  EDAC will also try to decode where these errors
+ 	  occurred so that a particular failing memory module can be
+ 	  replaced.  If unsure, select 'Y'.
+
+
+

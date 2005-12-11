@@ -1,212 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbVLKTnn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbVLKTot@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750838AbVLKTnn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 14:43:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVLKTnn
+	id S1750841AbVLKTot (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 14:44:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVLKTos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 14:43:43 -0500
-Received: from hulk.vianw.pt ([195.22.31.43]:38547 "EHLO hulk.vianw.pt")
-	by vger.kernel.org with ESMTP id S1750835AbVLKTnV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 14:43:21 -0500
-Message-ID: <439C8140.1000108@esoterica.pt>
-Date: Sun, 11 Dec 2005 19:42:56 +0000
-From: Paulo da Silva <psdasilva@esoterica.pt>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Dike <jdike@addtoit.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: STILL Cannot run linux 2.6.14.3 UML on a x86_64
-References: <43924B2C.9000300@esoterica.pt> <20051204043205.GA15425@ccure.user-mode-linux.org> <43926CC8.2030902@esoterica.pt> <20051204162732.GA3692@ccure.user-mode-linux.org> <43978E04.7030000@esoterica.pt> <20051210043122.GC14269@ccure.user-mode-linux.org>
-In-Reply-To: <20051210043122.GC14269@ccure.user-mode-linux.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Dec 2005 14:44:48 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43276 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750828AbVLKTor (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 14:44:47 -0500
+Date: Sun, 11 Dec 2005 19:44:37 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, matthew@wil.cx, grundler@parisc-linux.org,
+       parisc-linux@parisc-linux.org, paulus@samba.org,
+       linuxppc-dev@ozlabs.org, lethal@linux-sh.org, kkojima@rr.iij4u.or.jp,
+       dwmw2@infradead.org, linux-mtd@lists.infradead.xn--org-boa
+Subject: Re: [2.6 patch] defconfig's shouldn't set CONFIG_BROKEN=y
+Message-ID: <20051211194437.GB22537@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	linux-kernel@vger.kernel.org, tony.luck@intel.com,
+	linux-ia64@vger.kernel.org, matthew@wil.cx,
+	grundler@parisc-linux.org, parisc-linux@parisc-linux.org,
+	paulus@samba.org, linuxppc-dev@ozlabs.org, lethal@linux-sh.org,
+	kkojima@rr.iij4u.or.jp, dwmw2@infradead.org,
+	linux-mtd@lists.infradead.xn--org-boa
+References: <20051211185212.GQ23349@stusta.de> <20051211192109.GA22537@flint.arm.linux.org.uk> <20051211193118.GR23349@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051211193118.GR23349@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike wrote:
+On Sun, Dec 11, 2005 at 08:31:18PM +0100, Adrian Bunk wrote:
+> On Sun, Dec 11, 2005 at 07:21:10PM +0000, Russell King wrote:
+> > On Sun, Dec 11, 2005 at 07:52:12PM +0100, Adrian Bunk wrote:
+> > > defconfig's shouldn't set CONFIG_BROKEN=y.
+> > 
+> > NACK.  This changes other configuration options in addition, for example
+> > in collie_defconfig:
+> > 
+> > -CONFIG_MTD_OBSOLETE_CHIPS=y
+> > -# CONFIG_MTD_AMDSTD is not set
+> > -CONFIG_MTD_SHARP=y
+> > -# CONFIG_MTD_JEDEC is not set
+> 
+> That's not a problem introduced by my patch.
 
-> ...
+It's a problem introduced by your patch because the resulting defconfig
+file becomes _wrong_ by your change, and other changes in the defconfig
+are thereby hidden.
 
+If you change any options in a defconfig file, and they're obviously not
+leaf options, you should check what impact they have on other options by
+running it through an "oldconfig" cycle.  That's what I just did with
+this script:
 
->You never answered my question about whether this was a 32 or 64 bit
->filesystem.
->
->  
->
-This became a great confusion! I noticed that when
-UML crashes, restarting a "previous working copy"
-does not work either until a reboot is done (may be
-something else could be done ...).
+#!/bin/sh -e
+alias amake='make CROSS_COMPILE=arm-linux- ARCH=arm'
+amake $1 O=../build/t >/dev/null 2>&1
+mv ../build/t/.config ../build/t/.config.orig
+sed '/CONFIG_BROKEN/d;s,^# CONFIG_CLEAN_COMPILE is not set,CONFIG_CLEAN_COMPILE=y,' < ../build/t/.config.orig > ../build/t/.config
+amake oldconfig O=../build/t >/dev/null 2>&1
+diff -u ../build/t/.config.orig ../build/t/.config
 
-So I decided to start from the scratch ...
-I created a disk image with ext2 and a 64 bits gentoo
-system (this answers to your question).
-Recompiled the kernel (a new copy). Everything
-on a 64 bits system. I tried skas and non skas mode.
-I'm sending both outputs.
-TT mode just crashes.
-SKAS mode starts looping somewhere consuming CPU.
+Hence I discovered that disabling CONFIG_BROKEN removes the above
+options for the collie case.
 
-The same procedure for 32 bits worked fine for TT mode
-only. SKAS mode does not work.
+BTW, it might be worth using something like the above script for all
+the changes to the defconfig files in your patch so that it correctly
+updates these files.  It will also mean that any review of it is more
+meaningful because we can see the full extent of your changes.
 
-Thank you.
+> Either the depency of MTD_OBSOLETE_CHIPS on BROKEN is correct (in which 
+> case CONFIG_MTD_OBSOLETE_CHIPS=y wouldn't bring you anything), or the 
+> dependency on BROKEN is not correct and should be corrected.
 
+That's something which collie folk need to comment on.  However, what
+I can say is that the collie_defconfig builds successfully today:
 
-Checking PROT_EXEC mmap in /tmp...OK
-UML running in TT mode
-tracing thread pid = 19319
-[42949372.960000] Checking that ptrace can change system call numbers...OK
-[42949372.960000] Checking syscall emulation patch for ptrace...missing
-[42949372.960000] Linux version 2.6.14.3 (psergio@Gandalf) (gcc version 
-3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)) #1 Sun Dec 11 
-18:56:37 WET 2005
-[42949372.960000] Built 1 zonelists
-[42949372.960000] Kernel command line: ubd0=/VMs/UML/UML1 mem=250M 
-eth0=tuntap,,,192.168.1.100 root=98:0
-[42949372.960000] PID hash table entries: 1024 (order: 10, 32768 bytes)
-[42949372.960000] Dentry cache hash table entries: 32768 (order: 6, 
-262144 bytes)
-[42949372.960000] Inode-cache hash table entries: 16384 (order: 5, 
-131072 bytes)
-[42949372.960000] Memory: 243712k available
-[42949373.180000] Mount-cache hash table entries: 256
-[42949373.180000] Checking that host ptys support output SIGIO...Yes
-[42949373.180000] Checking that host ptys support SIGIO on close...No, 
-enabling workaround
-[42949373.180000] Checking for /dev/anon on the host...Not available 
-(open failed with errno 2)
-[42949373.180000] softlockup thread 0 started up.
-[42949373.180000] Disabling 2.6 AIO in tt mode
-[42949373.180000] 2.6 host AIO support not used - falling back to I/O thread
-[42949373.180000] NET: Registered protocol family 16
-[42949373.180000] mconsole (version 2) initialized on 
-/home/psergio/.uml/Pulga/mconsole
-[42949373.180000] Netdevice 0 : TUN/TAP backend - IP = 192.168.1.100
-[42949373.180000] Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-[42949373.180000] Initializing Cryptographic API
-[42949373.340000] io scheduler noop registered
-[42949373.340000] io scheduler anticipatory registered
-[42949373.340000] RAMDISK driver initialized: 16 RAM disks of 4096K size 
-1024 blocksize
-[42949373.340000] loop: loaded (max 8 devices)
-[42949373.340000] NET: Registered protocol family 2
-[42949373.550000] IP route cache hash table entries: 2048 (order: 2, 
-16384 bytes)
-[42949373.550000] TCP established hash table entries: 8192 (order: 4, 
-65536 bytes)
-[42949373.550000] TCP bind hash table entries: 8192 (order: 4, 65536 bytes)
-[42949373.550000] TCP: Hash tables configured (established 8192 bind 8192)
-[42949373.550000] TCP reno registered
-[42949373.550000] TCP bic registered
-[42949373.550000] NET: Registered protocol family 1
-[42949373.550000] NET: Registered protocol family 17
-[42949373.550000] NET: Registered protocol family 15
-[42949373.550000] Initialized stdio console driver
-[42949373.550000] Console initialized on /dev/tty0
-[42949373.550000] Initializing software serial port version 1
-[42949373.550000]  ubda: unknown partition table
-[42949373.600000] VFS: Mounted root (ext2 filesystem) readonly.
-[42949373.650000] Kernel panic - not syncing: Kernel mode fault at addr 
-0x0, ip 0x0
-[42949373.650000]
-[42949373.650000] Modules linked in:
-[42949373.650000] Pid: 1, comm: init Not tainted 2.6.14.3
-[42949373.650000] RIP: 0000:[<0000000000000000>]
-[42949373.650000] RSP: 0000000061383c30  EFLAGS: 00010202
-[42949373.650000] RAX: 0000000000000001 RBX: 0000000000000000 RCX: 
-00000000601b3c25
-[42949373.650000] RDX: 0000000060027e1d RSI: 0000000000000001 RDI: 
-0000000061383ad0
-[42949373.650000] RBP: 0000000000000000 R08: 0000000000000000 R09: 
-0000000000000000
-[42949373.650000] R10: 0000000000000008 R11: 0000000000000246 R12: 
-0000000000000000
-[42949373.650000] R13: 0000000000000001 R14: 000000000000000a R15: 
-00000000602b1988
-[42949373.650000] Call Trace:
-[42949373.650000] 613836d8:  [<6001850f>] panic_exit+0x2f/0x50
-[42949373.650000] 613836f8:  [<6003e3cb>] notifier_call_chain+0x2b/0x50
-[42949373.650000] 61383728:  [<6002d794>] panic+0xe4/0x180
-[42949373.650000] 61383768:  [<601b3c25>] sigprocmask+0x11/0x3c
-[42949373.650000] 61383798:  [<60017670>] handle_page_fault+0x1d0/0x2b0
-[42949373.650000] 61383818:  [<60017944>] segv+0x1f4/0x2f0
-[42949373.650000] 61383828:  [<601b3d6d>] sigemptyset+0x15/0x34
-[42949373.650000] 61383838:  [<60015611>] change_sig+0x61/0x80
-[42949373.650000] 613838a8:  [<601b3d6d>] sigemptyset+0x15/0x34
-[42949373.650000] 613838b8:  [<60015681>] change_signals+0x51/0x80
-[42949373.650000] 61383928:  [<60017cfe>] segv_handler+0x9e/0xb0
-[42949373.650000] 61383968:  [<6001b259>] sig_handler_common_tt+0x109/0x1b0
-[42949373.650000] 613839d8:  [<60027e50>] sig_handler+0x10/0x20
-[42949373.650000] 613839e8:  [<601b3af0>] __restore_rt+0x0/0x9
-[42949373.650000] 61383a78:  [<60027e1d>] run_kernel_thread+0x2d/0x50
-[42949373.650000] 61383a88:  [<601b3c25>] sigprocmask+0x11/0x3c
-[42949373.650000] 61383ae0:  [<600101b0>] init+0x0/0x160
-[42949373.650000] 61383b08:  [<60027e1d>] run_kernel_thread+0x2d/0x50
-[42949373.650000] 61383b88:  [<600101b0>] init+0x0/0x160
-[42949373.650000] 61383b98:  [<600156ce>] unblock_signals+0xe/0x10
-[42949373.650000] 61383ba8:  [<60019706>] new_thread_handler+0x166/0x1a0
-[42949373.650000] 61383cd8:  [<601b3c25>] sigprocmask+0x11/0x3c
-[42949373.650000]
-[42949373.650000]
-___________________________________________________________________________________
+http://armlinux.simtec.co.uk/kautobuild/2.6.15-rc5-git1/collie_defconfig/zimage.log
 
-Checking PROT_EXEC mmap in /tmp...OK
-Checking for /proc/mm...not found
-Checking for the skas3 patch in the host...not found
-UML running in SKAS0 mode
-[42949372.960000] Checking that ptrace can change system call numbers...OK
-[42949372.960000] Checking syscall emulation patch for ptrace...missing
-[42949372.960000] Linux version 2.6.14.3 (psergio@Gandalf) (gcc version 
-3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)) #1 Sun Dec 11 
-19:16:39 WET 2005
-[42949372.960000] Built 1 zonelists
-[42949372.960000] Kernel command line: ubd0=/VMs/UML/UML1 mem=250M 
-eth0=tuntap,,,192.168.1.100 root=98:0
-[42949372.960000] PID hash table entries: 1024 (order: 10, 32768 bytes)
-[42949372.960000] Dentry cache hash table entries: 32768 (order: 6, 
-262144 bytes)
-[42949372.960000] Inode-cache hash table entries: 16384 (order: 5, 
-131072 bytes)
-[42949372.960000] Memory: 243712k available
-[42949373.190000] Mount-cache hash table entries: 256
-[42949373.190000] Checking that host ptys support output SIGIO...Yes
-[42949373.190000] Checking that host ptys support SIGIO on close...No, 
-enabling workaround
-[42949373.190000] Checking for /dev/anon on the host...Not available 
-(open failed with errno 2)
-[42949373.190000] softlockup thread 0 started up.
-[42949373.190000] Using 2.6 host AIO
-[42949373.190000] NET: Registered protocol family 16
-[42949373.190000] mconsole (version 2) initialized on 
-/home/psergio/.uml/Pulga/mconsole
-[42949373.190000] Netdevice 0 : TUN/TAP backend - IP = 192.168.1.100
-[42949373.190000] Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
-[42949373.190000] Initializing Cryptographic API
-[42949373.210000] io scheduler noop registered
-[42949373.210000] io scheduler anticipatory registered
-[42949373.210000] RAMDISK driver initialized: 16 RAM disks of 4096K size 
-1024 blocksize
-[42949373.210000] loop: loaded (max 8 devices)
-[42949373.210000] NET: Registered protocol family 2
-[42949373.360000] IP route cache hash table entries: 2048 (order: 2, 
-16384 bytes)
-[42949373.360000] TCP established hash table entries: 8192 (order: 4, 
-65536 bytes)
-[42949373.360000] TCP bind hash table entries: 8192 (order: 4, 65536 bytes)
-[42949373.360000] TCP: Hash tables configured (established 8192 bind 8192)
-[42949373.360000] TCP reno registered
-[42949373.360000] TCP bic registered
-[42949373.360000] NET: Registered protocol family 1
-[42949373.360000] NET: Registered protocol family 17
-[42949373.360000] NET: Registered protocol family 15
-[42949373.360000] Initialized stdio console driver
-[42949373.360000] Console initialized on /dev/tty0
-[42949373.360000] Initializing software serial port version 1
-[42949373.360000]  ubda: unknown partition table
-[42949373.360000] VFS: Mounted root (ext2 filesystem) readonly.
+so it's quite possible that the Kconfig is out of sync with reality.
 
----------- HANGS HERE CONSUMING CPU!
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

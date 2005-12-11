@@ -1,107 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161069AbVLJXoZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbVLKAAt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161069AbVLJXoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 18:44:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030330AbVLJXoZ
+	id S1030223AbVLKAAt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 19:00:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161071AbVLKAAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 18:44:25 -0500
-Received: from smtp06.auna.com ([62.81.186.16]:18088 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S1030249AbVLJXoY (ORCPT
+	Sat, 10 Dec 2005 19:00:49 -0500
+Received: from ns.suse.de ([195.135.220.2]:48267 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030223AbVLKAAs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 18:44:24 -0500
-Date: Sun, 11 Dec 2005 00:46:11 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Greg KH <greg@kroah.com>, "Linux-Kernel, " <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-rc5-mm1
-Message-ID: <20051211004611.60248a2f@werewolf.auna.net>
-In-Reply-To: <20051210233655.GH11094@kroah.com>
-References: <20051204232153.258cd554.akpm@osdl.org>
-	<20051206000524.74cb2ddc@werewolf.auna.net>
-	<20051210233655.GH11094@kroah.com>
-X-Mailer: Sylpheed-Claws 1.9.100cvs81 (GTK+ 2.8.8; i686-pc-linux-gnu)
+	Sat, 10 Dec 2005 19:00:48 -0500
+Date: Sun, 11 Dec 2005 01:00:39 +0100
+From: Andi Kleen <ak@suse.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
+Message-ID: <20051211000039.GR11190@wotan.suse.de>
+References: <1134154208.14363.8.camel@mindpipe> <439A0746.80208@mnsu.edu> <1134173138.18432.41.camel@mindpipe> <439A201D.7030103@mnsu.edu> <1134179410.18432.66.camel@mindpipe> <p73oe3ppbxj.fsf@verdi.suse.de> <1134191524.18432.82.camel@mindpipe> <20051210071935.GQ11190@wotan.suse.de> <1134243273.18432.104.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_D1DY0we./4+81.+U18_6c/C";
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.219.198] Login:jamagallon@able.es Fecha:Sun, 11 Dec 2005 00:44:22 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1134243273.18432.104.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_D1DY0we./4+81.+U18_6c/C
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+> Here are the relevant lines of arch/x86_64/kernel/vmlinux.lds:
+> 
+>     382 OUTPUT_FORMAT("elf64-x86-64", "elf64-x86-64", "elf64-x86-64")
+>     383 OUTPUT_ARCH(1:x86-64)
+>     384 ENTRY(phys_startup_64)
+> 
+> Any ideas?  Another toolchain quirk?
 
-On Sat, 10 Dec 2005 15:36:55 -0800, Greg KH <greg@kroah.com> wrote:
+The original is 
 
-> On Tue, Dec 06, 2005 at 12:05:24AM +0100, J.A. Magallon wrote:
-> > On Sun, 4 Dec 2005 23:21:53 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> >=20
-> > >=20
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-=
-rc5/2.6.15-rc5-mm1/
-> > >=20
-> > >=20
-> >=20
-> > I still get this oops on boot, then the machine freezes hard on the init
-> > process:
-> >=20
-> > usb_set_configuration+0x22b/0x4df
-> > usb_new_device+0x105/0x158
-> > hub_port_connect_change+0x2de/0x37e
-> > clear_port_feature+0x48/0x4d
-> > hub_events+0x2aa/0x42f
-> > hub_thread+0x14/0xe2
-> > autoremove_wake_function+0x0/0x37
-> > kthread+0x93/0x97
-> > kthread+0x0/0x97
-> > kernel_thread_helper+0x5/0xb
-> >=20
-> > udevd-event[694]: run_program: exec of program '/etc/udev/agents.d/usb/=
-usbcore'
-> > failed.
-> >=20
-> > I have udev-075, plain 2.6.15-rc5-mm1 + devfs-die + low1Gbmem.
-> >=20
-> > Any ideas ?
->=20
-> Do you have the same problem with 2.6.15-rc5?
->=20
-> What is in /etc/udev/agents.d/usb/usbcore?
-> What distro is this?
-> What kind of usb devices do you have attached?
->=20
-> thanks,
+OUTPUT_ARCH(i386:x86-64)
 
-Sorry for the delay. I'm just compiling all rcs from rc2 to rc5 and will
-try to boot whith them.
+It replaced the i386 with 1, which obviously doesn't work.
 
-For the rest of your questions:
-- I have no /etc/udev/agents.d/usb/usbcore
-- I have killed all the devfs compat scripts/rules (BTW, when will be final=
-ly
-  erradicated from  udev ;) ?
-- Distro: Mandriva Cooker, updated daily, udev-077 now (the hangs I reported
-  were with 075).
+Try (full patch again) 
 
-More info soon...
+-Andi
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.14-jam3 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
 
---Sig_D1DY0we./4+81.+U18_6c/C
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
+Pass -m64 by default
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+This might help on distributions that use a 32bit biarch compiler.
 
-iD8DBQFDm2jDRlIHNEGnKMMRArQgAJ0Rf4PUq6kW5i91+1/xFhl4gQdY9gCgpRTU
-XdBg6kBCh2ve8J8JkLNoXGs=
-=tzs/
------END PGP SIGNATURE-----
+Also add some more .code32s because at least the Ubuntu biarch
+32bit gcc doesn't seem to handle -m64 -m32 as generated
+by the Makefile without such assistance.
 
---Sig_D1DY0we./4+81.+U18_6c/C--
+Signed-off-by: Andi Kleen <ak@suse.de>
+
+Index: linux/arch/x86_64/Makefile
+===================================================================
+--- linux.orig/arch/x86_64/Makefile
++++ linux/arch/x86_64/Makefile
+@@ -31,6 +31,7 @@ cflags-$(CONFIG_MK8) += $(call cc-option
+ cflags-$(CONFIG_MPSC) += $(call cc-option,-march=nocona)
+ CFLAGS += $(cflags-y)
+ 
++CFLAGS += -m64
+ CFLAGS += -mno-red-zone
+ CFLAGS += -mcmodel=kernel
+ CFLAGS += -pipe
+@@ -52,6 +53,8 @@ CFLAGS += $(call cc-option,-funit-at-a-t
+ # prevent gcc from generating any FP code by mistake
+ CFLAGS += $(call cc-option,-mno-sse -mno-mmx -mno-sse2 -mno-3dnow,)
+ 
++AFLAGS += -m64
++
+ head-y := arch/x86_64/kernel/head.o arch/x86_64/kernel/head64.o arch/x86_64/kernel/init_task.o
+ 
+ libs-y 					+= arch/x86_64/lib/
+Index: linux/arch/x86_64/ia32/vsyscall-sigreturn.S
+===================================================================
+--- linux.orig/arch/x86_64/ia32/vsyscall-sigreturn.S
++++ linux/arch/x86_64/ia32/vsyscall-sigreturn.S
+@@ -7,6 +7,7 @@
+  * by doing ".balign 32" must match in both versions of the page.
+  */
+ 
++	.code32
+ 	.section .text.sigreturn,"ax"
+ 	.balign 32
+ 	.globl __kernel_sigreturn
+Index: linux/arch/x86_64/ia32/vsyscall-syscall.S
+===================================================================
+--- linux.orig/arch/x86_64/ia32/vsyscall-syscall.S
++++ linux/arch/x86_64/ia32/vsyscall-syscall.S
+@@ -6,6 +6,7 @@
+ #include <asm/asm-offsets.h>
+ #include <asm/segment.h>
+ 
++	.code32
+ 	.text
+ 	.section .text.vsyscall,"ax"
+ 	.globl __kernel_vsyscall
+Index: linux/arch/x86_64/ia32/vsyscall-sysenter.S
+===================================================================
+--- linux.orig/arch/x86_64/ia32/vsyscall-sysenter.S
++++ linux/arch/x86_64/ia32/vsyscall-sysenter.S
+@@ -5,6 +5,7 @@
+ #include <asm/ia32_unistd.h>
+ #include <asm/asm-offsets.h>
+ 
++	.code32
+ 	.text
+ 	.section .text.vsyscall,"ax"
+ 	.globl __kernel_vsyscall
+Index: linux/arch/x86_64/kernel/vmlinux.lds.S
+===================================================================
+--- linux.orig/arch/x86_64/kernel/vmlinux.lds.S
++++ linux/arch/x86_64/kernel/vmlinux.lds.S
+@@ -8,6 +8,8 @@
+ #include <asm/page.h>
+ #include <linux/config.h>
+ 
++#undef i386	/* in case the preprocessor is a 32bit one */
++
+ OUTPUT_FORMAT("elf64-x86-64", "elf64-x86-64", "elf64-x86-64")
+ OUTPUT_ARCH(i386:x86-64)
+ ENTRY(phys_startup_64)

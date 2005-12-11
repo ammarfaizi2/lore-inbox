@@ -1,65 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVLKNTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbVLKNYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751360AbVLKNTV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 08:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVLKNTV
+	id S1751355AbVLKNYj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 08:24:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVLKNYi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 08:19:21 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:10903 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751360AbVLKNTU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 08:19:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YEqapjBn5QugBpixrInqyBYq6NfOYBs4PImzOCRmAiMkX7ziPUcCIc1kSl3ZSE+8GL9DHyiqMaNAvDQrO5Zzv3UkcWy+QTl6tLV+p3tAvS/d88CXGQOvEHXIakgHfP3PNj1CkUIleMbh4GtnLZlm8zR1kjSqRfwGo68YqKX64So=
-Message-ID: <9a8748490512110519r418560eek952cb976ab84a776@mail.gmail.com>
-Date: Sun, 11 Dec 2005 14:19:19 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Gregor Jasny <gjasny@web.de>
-Subject: Re: [PATCH] Reduce nr of ptr derefs in drivers/pci/hotplug/pciehp_core.c
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <439C24DB.3050307@web.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200512110641.42992.jesper.juhl@gmail.com>
-	 <439C24DB.3050307@web.de>
+	Sun, 11 Dec 2005 08:24:38 -0500
+Received: from ns.firmix.at ([62.141.48.66]:20871 "EHLO ns.firmix.at")
+	by vger.kernel.org with ESMTP id S1751355AbVLKNYi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 08:24:38 -0500
+Subject: Re: GNU/Linux in a binary world... a doomsday scenario
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>, rms@gnu.org,
+       Coywolf Qi Hunt <coywolf@gmail.com>, luke-jr@utopios.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051210164320.GB15986@aitel.hist.no>
+References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
+	 <20051206040820.GB26602@kroah.com>
+	 <2cd57c900512052358m5b631204i@mail.gmail.com>
+	 <200512061856.42493.luke-jr@utopios.org>
+	 <2cd57c900512061742s28f57b5eu@mail.gmail.com>
+	 <20051210051628.E9E08CF4156@tsurukikun.utopios.org>
+	 <439A7E8E.8010707@wolfmountaingroup.com>
+	 <20051210164320.GB15986@aitel.hist.no>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Date: Sun, 11 Dec 2005 14:24:18 +0100
+Message-Id: <1134307458.3289.21.camel@gimli.at.home>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/11/05, Gregor Jasny <gjasny@web.de> wrote:
-> Jesper Juhl schrieb:
-> > --- linux-2.6.15-rc5-git1-orig/drivers/pci/hotplug/pciehp_core.c      2005-12-04 18:48:04.000000000 +0100
-> > +++ linux-2.6.15-rc5-git1/drivers/pci/hotplug/pciehp_core.c   2005-12-11 05:46:58.000000000 +0100
-> @@ -114,59 +117,66 @@ static int init_slots(struct controller
->         slot_number = ctrl->first_slot;
->
->         while (number_of_slots) {
-> -               new_slot = kmalloc(sizeof(*new_slot), GFP_KERNEL);
-> -               if (!new_slot)
-> +               slot = kmalloc(sizeof(*slot), GFP_KERNEL);
-> +               if (!slot)
->                         goto error;
->
-> -               memset(new_slot, 0, sizeof(struct slot));
-> -               new_slot->hotplug_slot =
-> -                       kmalloc(sizeof(*(new_slot->hotplug_slot)),
-> +               memset(slot, 0, sizeof(struct slot));
-> +               slot->hotplug_slot =
-> +                               kmalloc(sizeof(*(slot->hotplug_slot)),
->
-> Just one suggestion:
->
-> In your patches I've seen a lot of kmalloc + memset calls. Perhaps you
-> can convert them to kzalloc? This would improve readability even more.
->
+On Sat, 2005-12-10 at 17:43 +0100, Helge Hafting wrote:
+> On Sat, Dec 10, 2005 at 12:06:54AM -0700, Jeff V. Merkey wrote:
+[....]
+> > donations.   This movement has spawned a global attitude that has no 
+> > respect
+> > for IP rights, and it's extended itself to no respect for human rights, 
+> > or any other rights
+> > of the indivdual.    That's the legacy this has left and the ultimate 
+> > conclusion.
+> 
+> Less respect for IP rights - possibly.  Perhaps that's a good thing though,
 
-Good idea, but I think I'll do that as a seperate round of patches at
-a later date. Added to my todo list. Thanks.
+Not at all - *much* more respect for IP rights then ever before.
+The problem is the raised awareness yields problems for old economy
+corporations which rely on segmented markets with a relatively small
+number of competitors (so that you can actually handle all the patent
+and license issue[0]) and the rest are private folks which can't afford
+going to court after $CORPORATION took some piece of "work" (i.e.
+usually software) and sells it as part of a e.g. WLAN access point
+without paying for it a cent.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> some of us thinks such rights are a bit overrated.
+
+	Bernd
+
+[0]: And we all know the licenses and patent "fees" are not more than an
+     insurance for not getting sued by the issuer of the license.
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+
+
+

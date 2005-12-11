@@ -1,88 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVLKVaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbVLKVen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbVLKVaP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 16:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbVLKVaP
+	id S1750865AbVLKVen (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 16:34:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbVLKVen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 16:30:15 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:28031 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750828AbVLKVaN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 16:30:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=O3COj3U8BtXFAaKiXbTE4NUguSIIYEhrMZc91KgRM3bPMuVKvj12F3kwJYRqSKcxqKO7ZPC8K+9Jpap7D8RDnYzB+Xf6pK0vFh0ZBF0PA9AOStLFmQYFuavuui4hR3+MHxvTYhT6uL3Rb89apko2l11fWCJ7HN1axoCo+JlZ9OE=
-Message-ID: <9a8748490512111330l6097b39cp2c51dbbd059e923f@mail.gmail.com>
-Date: Sun, 11 Dec 2005 22:30:12 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: [PATCH] Fix vesafb display panning regression
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <439C965C.5030100@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051211041308.7bb19454.akpm@osdl.org>
-	 <9a8748490512110808q2d485407o52da0d4777fbf38e@mail.gmail.com>
-	 <439C965C.5030100@gmail.com>
+	Sun, 11 Dec 2005 16:34:43 -0500
+Received: from smtp04.auna.com ([62.81.186.14]:20417 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S1750843AbVLKVem (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 16:34:42 -0500
+Date: Sun, 11 Dec 2005 22:36:38 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Greg KH <greg@kroah.com>, "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc5-mm1
+Message-ID: <20051211223638.27a0749e@werewolf.auna.net>
+In-Reply-To: <20051211004611.60248a2f@werewolf.auna.net>
+References: <20051204232153.258cd554.akpm@osdl.org>
+	<20051206000524.74cb2ddc@werewolf.auna.net>
+	<20051210233655.GH11094@kroah.com>
+	<20051211004611.60248a2f@werewolf.auna.net>
+X-Mailer: Sylpheed-Claws 1.9.100cvs82 (GTK+ 2.8.8; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="Sig_5rx2dMhmetpsk/RDxjwvye3";
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
+X-Auth-Info: Auth:LOGIN IP:[83.138.219.198] Login:jamagallon@able.es Fecha:Sun, 11 Dec 2005 22:34:40 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/11/05, Antonino A. Daplas <adaplas@gmail.com> wrote:
-> Fix vesafb hang when scroll mode is REDRAW.
->
-> Signed-off-by: Antonino Daplas <adaplas@pol.net>
-> ---
->
-> Jesper Juhl wrote:
-> > On 12/11/05, Andrew Morton <akpm@osdl.org> wrote:
-> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm2/
-> >>
-> > When booting this kernel with  vga=791 like I normally do, the kernel
-> > hangs on boot. Booting with vga=normal works just fine.
-> > I don't have very much info since as soon as the videomode is switched
-> > I get a small rectangle of messed up colours in the top left corner of
-> > the screen (the rest is just black) and then it hangs - even the
-> > keyboard is dead, I have to powercycle the machine.
-> > Nothing makes it to the logs and I don't have a second machine atm to
-> > get logs via serial console or netconsole.
-> > I've got the vesafb driver build in, none of the other fb drivers.
-> >
->
-> Sorry about that.
+--Sig_5rx2dMhmetpsk/RDxjwvye3
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-No problem, it happens :)
+On Sun, 11 Dec 2005 00:46:11 +0100, "J.A. Magallon" <jamagallon@able.es> wr=
+ote:
 
+> On Sat, 10 Dec 2005 15:36:55 -0800, Greg KH <greg@kroah.com> wrote:
+>=20
+> > On Tue, Dec 06, 2005 at 12:05:24AM +0100, J.A. Magallon wrote:
+> > > On Sun, 4 Dec 2005 23:21:53 -0800, Andrew Morton <akpm@osdl.org> wrot=
+e:
+> > >=20
+> > > >=20
+> > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1=
+5-rc5/2.6.15-rc5-mm1/
+> > > >=20
+> > > >=20
+> > >=20
+> > > I still get this oops on boot, then the machine freezes hard on the i=
+nit
+> > > process:
+> > >=20
+> > > usb_set_configuration+0x22b/0x4df
+> > > usb_new_device+0x105/0x158
+> > > hub_port_connect_change+0x2de/0x37e
+> > > clear_port_feature+0x48/0x4d
+> > > hub_events+0x2aa/0x42f
+> > > hub_thread+0x14/0xe2
+> > > autoremove_wake_function+0x0/0x37
+> > > kthread+0x93/0x97
+> > > kthread+0x0/0x97
+> > > kernel_thread_helper+0x5/0xb
+> > >=20
+> > > udevd-event[694]: run_program: exec of program '/etc/udev/agents.d/us=
+b/usbcore'
+> > > failed.
+> > >=20
+> > > I have udev-075, plain 2.6.15-rc5-mm1 + devfs-die + low1Gbmem.
+> > >=20
+> > > Any ideas ?
+> >=20
+> > Do you have the same problem with 2.6.15-rc5?
+> >=20
+> > What is in /etc/udev/agents.d/usb/usbcore?
+> > What distro is this?
+> > What kind of usb devices do you have attached?
+> >=20
+> > thanks,
+>=20
+> Sorry for the delay. I'm just compiling all rcs from rc2 to rc5 and will
+> try to boot whith them.
+>=20
+> For the rest of your questions:
+> - I have no /etc/udev/agents.d/usb/usbcore
+> - I have killed all the devfs compat scripts/rules (BTW, when will be fin=
+ally
+>   erradicated from  udev ;) ?
+> - Distro: Mandriva Cooker, updated daily, udev-077 now (the hangs I repor=
+ted
+>   were with 075).
+>=20
+> More info soon...
+>=20
 
->  This particular hunk was missing in the
-> vesafb_trim_pan_display.patch
->
+No problems with plain rc5. It does not seem to _always_ happen on -mm1,
+I thing I even got a clean boot, but just one.=20
+Detailed oops screenshot is here:
 
-I just rebuild 2.6.15-rc5-mm2 with that patch applied and I can
-confirm that it fixes the problem.
-So, I guess I should add
-
-Acked-by: Jesper Juhl <jesper.juhl@gmail.com>
-
-Andrew, could you please merge that patch from Antonio?
-
-
-
-One small detail; With 2.6.15-rc5-mm2 I see a small (rather
-insignificant) difference in behaviour compared to 2.6.15-rc5-git1
-just at the time when the video mode is switched at boot.
-With 2.6.15-rc5-git1 it goes straight from the text mode display to
-the graphical one with the boot logo in the top left corner. With
-2.6.15-rc5-mm2 + your patch I get a brief, split second, image with
-random green/grey/white pixels in the location where the penguin
-appears a few ms later - then everything is normal.
-No big deal and it doesn't bother me, just thought it might be
-something you'd want to know about...
+http://belly.cps.unizar.es/~magallon/oops/oops.jpg
 
 
 --
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.14-jam3 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
+
+--Sig_5rx2dMhmetpsk/RDxjwvye3
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDnJvmRlIHNEGnKMMRAv4uAJ9CA3zWRcU0lS/ZfUl+Uyi3gYCfWQCfZzu1
+IG9jWeVos0DWzzr2s0GBq/s=
+=1NXD
+-----END PGP SIGNATURE-----
+
+--Sig_5rx2dMhmetpsk/RDxjwvye3--

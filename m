@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbVLKOSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbVLKOYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbVLKOSF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 09:18:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbVLKOSF
+	id S1750704AbVLKOYj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 09:24:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbVLKOYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 09:18:05 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:64428 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750709AbVLKOSE (ORCPT
+	Sun, 11 Dec 2005 09:24:39 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:6798 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750704AbVLKOYj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 09:18:04 -0500
-Date: Sun, 11 Dec 2005 15:17:16 +0100
+	Sun, 11 Dec 2005 09:24:39 -0500
+Date: Sun, 11 Dec 2005 15:23:53 +0100
 From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Matt Mackall <mpm@selenic.com>
-Subject: [patch -mm] DEBUG_SLAB depends on SLAB
-Message-ID: <20051211141716.GA8500@elte.hu>
+To: Matt Mackall <mpm@selenic.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: SLOB wishlist
+Message-ID: <20051211142353.GA10131@elte.hu>
+References: <20051211141716.GA8500@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20051211141716.GA8500@elte.hu>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.6
+X-ELTE-SpamScore: 0.0
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.6 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-another SLOB related patch: make DEBUG_SLAB depend on SLAB.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+btw., here's my SLOB wishlist:
 
-Index: linux/lib/Kconfig.debug
-===================================================================
---- linux.orig/lib/Kconfig.debug
-+++ linux/lib/Kconfig.debug
-@@ -100,7 +100,7 @@ config SCHEDSTATS
- 
- config DEBUG_SLAB
- 	bool "Debug memory allocations"
--	depends on DEBUG_KERNEL
-+	depends on DEBUG_KERNEL && SLAB
- 	help
- 	  Say Y here to have the kernel do limited verification on memory
- 	  allocation as well as poisoning memory on free to catch use of freed
+ - would be nice to have DEBUG_SLOB - people want to debug their memory 
+   allocations, no matter which allocator they use.
+
+ - would be nice to have CONFIG_SLOB_INFO, to have /proc/slabinfo for 
+   those who are ready to pay the .text price for it - this is nice for 
+   memory leak debugging, etc. [should be /proc/slabinfo, not 
+   /proc/slobinfo - to stay compatible with things like slabtop]
+
+	Ingo

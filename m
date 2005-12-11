@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVLKPPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVLKPX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbVLKPPd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 10:15:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbVLKPPd
+	id S1750714AbVLKPX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 10:23:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbVLKPX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 10:15:33 -0500
-Received: from natblindhugh.rzone.de ([81.169.145.175]:48524 "EHLO
-	natblindhugh.rzone.de") by vger.kernel.org with ESMTP
-	id S1750706AbVLKPPc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 10:15:32 -0500
-Subject: Re: GNU/Linux in a binary world... a doomsday scenario
-From: Erwin Rol <mailinglists@erwinrol.com>
-To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <439B3E36.7090302@wolfmountaingroup.com>
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
-	 <20051206040820.GB26602@kroah.com>
-	 <2cd57c900512052358m5b631204i@mail.gmail.com>
-	 <200512061856.42493.luke-jr@utopios.org>
-	 <2cd57c900512061742s28f57b5eu@mail.gmail.com>
-	 <20051210051628.E9E08CF4156@tsurukikun.utopios.org>
-	 <439A7E8E.8010707@wolfmountaingroup.com>
-	 <20051210164320.GB15986@aitel.hist.no> <20051210190537.GI13985@lug-owl.de>
-	 <439B2215.6090408@wolfmountaingroup.com>
-	 <20051210191501.GJ13985@lug-owl.de>
-	 <439B3E36.7090302@wolfmountaingroup.com>
-Content-Type: text/plain
-Date: Sun, 11 Dec 2005 16:15:28 +0100
-Message-Id: <1134314129.9000.31.camel@xpc.home.erwinrol.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.5.2 (2.5.2-1) 
+	Sun, 11 Dec 2005 10:23:57 -0500
+Received: from host94-205.pool8022.interbusiness.it ([80.22.205.94]:42897 "EHLO
+	waobagger.intranet.nucleus.it") by vger.kernel.org with ESMTP
+	id S1750714AbVLKPX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 10:23:56 -0500
+From: Massimiliano Hofer <max@bbs.cc.uniud.it>
+Organization: Nucleus snc
+To: linux-kernel@vger.kernel.org
+Subject: freeze with IDE
+Date: Sun, 11 Dec 2005 16:23:35 +0100
+User-Agent: KMail/1.9
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512111623.35784.max@bbs.cc.uniud.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-10 at 13:44 -0700, Jeff V. Merkey wrote:
+Hi,
+I have frequent freezes with the following setup:
+- IDE (PIIX)
+- MD (RAID 1)
+- SMP (2 CPUs)
+- kernel 2.6.14.x
 
-> I'm married to a German citizen and I visit Germany for 3-4 week stints 
-> once a year.  Last year I went to Aachen and Amsterdam on vacation.  
-> Every computer store I visited sold pirated copies of Windows XP and 
-> Microsoft Office and in Amsterdam people were selling copies on the 
-> street corners in the Artis District.
+If I unmount the RAID partitions everything is fine (tested on the same 
+machine and on a pure SCSI twin). Heavy activity on the IDE disks doesn't 
+trigger the problem.
+2.6.13.x and 2.6.15-rc5 work flawlessly.
+I have many other servers with MD on SCSI and SMP or MS on IDE not SMP. This 
+is the only one that has this problem.
+Having a working 2.6.15, I shouldn't whine, but I didn't see any bug fixes 
+specific to this bug.
+Did anyone experience the same problem?
 
-Did you find those people selling pirated windows copies on the street
-before or after you visited a coffeeshop ?
-
-> Jeff
-
-- Erwin (who is Dutch and finds this story highly unlikely, unless there
-is another Amsterdam in Asia somewhere).
-
-
-
+-- 
+Bye,
+   Massimiliano Hofer

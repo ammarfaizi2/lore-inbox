@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750939AbVLLA1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbVLLAdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750939AbVLLA1S (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 19:27:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbVLLA1S
+	id S1750941AbVLLAdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 19:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbVLLAdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 19:27:18 -0500
-Received: from ozlabs.org ([203.10.76.45]:13443 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750937AbVLLA1R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 19:27:17 -0500
-Date: Mon, 12 Dec 2005 11:26:56 +1100
-From: David Gibson <david@gibson.dropbear.id.au>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       "Michael S. Tsirkin" <mst@mellanox.co.il>,
-       William Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PageCompound avoid page[1].mapping
-Message-ID: <20051212002656.GB18791@localhost.localdomain>
-Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
-	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-	Jens Axboe <axboe@suse.de>,
-	"Michael S. Tsirkin" <mst@mellanox.co.il>,
-	William Irwin <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0512092151240.28965@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0512092151240.28965@goblin.wat.veritas.com>
-User-Agent: Mutt/1.5.9i
+	Sun, 11 Dec 2005 19:33:09 -0500
+Received: from user-0c938qu.cable.mindspring.com ([24.145.163.94]:24519 "EHLO
+	tsurukikun.utopios.org") by vger.kernel.org with ESMTP
+	id S1750943AbVLLAdI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 19:33:08 -0500
+Content-Type: text/plain; charset=ISO-8859-15
+From: "Richard M. Stallman" <rms@gnu.org>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: jbglaw@lug-owl.de, helgehaf@aitel.hist.no, coywolf@gmail.com,
+       luke-jr@utopios.org, linux-kernel@vger.kernel.org
+In-reply-to: <439B3E36.7090302@wolfmountaingroup.com>
+        (jmerkey@wolfmountaingroup.com)
+Subject: Re: GNU/Linux in a binary world... a doomsday scenario
+Reply-To: rms@gnu.org
+References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com> <20051206040820.GB26602@kroah.com> <2cd57c900512052358m5b631204i@mail.gmail.com> <200512061856.42493.luke-jr@utopios.org> <2cd57c900512061742s28f57b5eu@mail.gmail.com> <20051210051628.E9E08CF4156@tsurukikun.utopios.org> <439A7E8E.8010707@wolfmountaingroup.com> <20051210164320.GB15986@aitel.hist.no> <20051210190537.GI13985@lug-owl.de> <439B2215.6090408@wolfmountaingroup.com> <20051210191501.GJ13985@lug-owl.de> <439B3E36.7090302@wolfmountaingroup.com>
+Message-Id: <E1ElUOR-0000kJ-LS@fencepost.gnu.org>
+Date: Sun, 11 Dec 2005 11:49:47 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 09:56:42PM +0000, Hugh Dickins wrote:
-> If a compound page has its own put_page_testzero destructor (the only
-> current example is free_huge_page), that is noted in page[1].mapping of
-> the compound page.  But David Gibson's recent fix to access_process_vm
-> shows that to be rather a poor place to keep it: functions which call
-> set_page_dirty(_lock) after get_user_pages ought to check !PageCompound
-> first, otherwise set_page_dirty may crash on what's not the address of
-> a struct address_space; but Infiniband for one is unaware of this issue.
-> 
-> Even if we fixed all callers, or set_page_dirty(_lock) itself, it would
-> still be unsatisfactory: e.g. get_user_pages calls flush_dcache_page,
-> which involves page->mapping on some architectures - not a problem while
-> hugetlb goes its own way in get_user_pages, but needs a test if another
-> compound page destructor were added.  page->mapping is used too widely
-> to be a safe field to reuse in this way.
-> 
-> The safest field to reuse, given how PageCompound redirects callers to
-> the page count of the first page, is actually the _count field of the
-> second page: save order (only used for debug) there, and move destructor
-> address from mapping to index.  Add __page_count inline for internal
-> debug use - to avoid reliance on page_private when page is in doubt.
+      At any rate, Stallman needs to in the next GPL incorporate
+    capitalist provisions which will allow FOSS to become a self sustaining 
+    model.
 
-It's not clear to me this is a good way to go.  It will make things
-work neatly in the case where the correct action on a compound page is
-to do nothing (and we already have a mapping == NULL test).  However
-it will fail silently in cases where we actually need to get at the
-mapping for a compound page (so we need to check for CompoundPage and
-find the master page).  The existing code will probably blow up in
-that case, at least showing there's a problem.
+The GNU General Public License was developed in the US, and follows
+the principles that the US proclaims, which include doing business.
+That is how I came to the conclusion that selling copies is one of the
+things that free software must permit for every user.
 
-> Revert David's mod to access_process_vm, no longer required.  But leave
-> the PageCompound tests in fs/bio.c and fs/direct-io.c: perhaps those are
-> worthwhile optimizations when working on hugetlb areas.
+However, freedom and community are more fundamental than economics.
+The primary goal of the GNU GPL is to defend the freedom of all users,
+particularly the freedom to cooperate.  Business questions are
+secondary.
 
--- 
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
+Fortunately, we need not to do anything to enable free software to
+"become self-sustaining", because it is already sustaining itself just
+fine.  If and when we see real problems, rather than speculation
+about problems, we might have a reason to try to solve them.
+
+But we could not make radical changes in the GNU GPL, even if we
+wanted to.  It would violate the commitment stated in section 9 of the

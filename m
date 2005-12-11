@@ -1,17 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbVLKWQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbVLKWS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750895AbVLKWQe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 17:16:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbVLKWQe
+	id S1750892AbVLKWS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 17:18:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVLKWS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 17:16:34 -0500
-Received: from smtp1.pochta.ru ([81.211.64.6]:55623 "EHLO smtp1.pochta.ru")
-	by vger.kernel.org with ESMTP id S1750805AbVLKWQe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 17:16:34 -0500
-X-Author: vitalhome@rbcmail.ru from [10.1.27.2] ([82.179.192.198]) via Free Mail POCHTA.RU
-Message-ID: <439CA512.8090906@ru.mvista.com>
-Date: Mon, 12 Dec 2005 01:15:46 +0300
+	Sun, 11 Dec 2005 17:18:56 -0500
+Received: from rtsoft3.corbina.net ([85.21.88.6]:26969 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S1750892AbVLKWSz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 17:18:55 -0500
+Message-ID: <439CA5B8.5010701@ru.mvista.com>
+Date: Mon, 12 Dec 2005 01:18:32 +0300
 From: Vitaly Wool <vwool@ru.mvista.com>
 User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
 X-Accept-Language: en-us, en

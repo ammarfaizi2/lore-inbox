@@ -1,44 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbVLKXig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbVLKXmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbVLKXig (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 18:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbVLKXig
+	id S1750896AbVLKXmn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 18:42:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbVLKXmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 18:38:36 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:23985 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750919AbVLKXie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 18:38:34 -0500
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>,
-       Christoph Hellwig <hch@infradead.org>, randy_d_dunlap@linux.intel.com,
-       linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-In-Reply-To: <439A4070.2000500@pobox.com>
-References: <20051208145257.GB21946@srcf.ucam.org>
-	 <20051208171901.GA22451@srcf.ucam.org>
-	 <20051209114246.GB16945@infradead.org>
-	 <20051209114944.GA1068@havoc.gtf.org>
-	 <20051209115235.GB25771@srcf.ucam.org> <43997171.9060105@pobox.com>
-	 <20051209121124.GA25974@srcf.ucam.org> <439975AB.5000902@pobox.com>
-	 <20051209122457.GB26070@srcf.ucam.org> <439A23E8.3080407@pobox.com>
-	 <20051210023426.GA31220@srcf.ucam.org>  <439A4070.2000500@pobox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 12 Dec 2005 00:38:28 +0000
-Message-Id: <1134347909.2737.10.camel@localhost>
+	Sun, 11 Dec 2005 18:42:43 -0500
+Received: from bay103-f7.bay103.hotmail.com ([65.54.174.17]:20169 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S1750893AbVLKXmn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 18:42:43 -0500
+Message-ID: <BAY103-F753F61FDEC913D1E25AF1DF470@phx.gbl>
+X-Originating-IP: [69.222.161.85]
+X-Originating-Email: [dravet@hotmail.com]
+From: "Jason Dravet" <dravet@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: parport module is a missing "dev" file
+Date: Sun, 11 Dec 2005 17:42:42 -0600
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 11 Dec 2005 23:42:43.0079 (UTC) FILETIME=[9498A970:01C5FEAC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-12-09 at 21:41 -0500, Jeff Garzik wrote:
-> Do you even know if this special case is applicable outside of Dell ICH5 
-> boxes?  And I thought your previous messages were referring to ICH6?
+The parport module is a missing "dev" file in /sys, which the kernel should 
+provide.
 
-Some older thinkpads seem to support this. Also some laptops generate
-pnpbios changes. The different methods alone argue for a generic
-interface
-h
+Oct 19 09:11:52 jever udevd[18982]: get_udevd_msg: udevd event message 
+received
+Oct 19 09:11:52 jever udevd[18982]: main: skip uevent_helper message with
+SEQNUM, netlink is active
+Oct 19 09:11:52 jever udevd[18982]: msg_queue_insert: seq 699 queued, 'add'
+'/module/parport'
+Oct 19 09:11:52 jever udevd[18982]: udev_event_run: seq 699 forked, pid 
+[19000],
+'add' 'module', 0 seconds old
+Oct 19 09:11:52 jever udevd[18982]: msg_queue_insert: seq 700 queued, 'add'
+'/module/parport_pc'
+Oct 19 09:11:52 jever udevd[18982]: udev_event_run: seq 700 forked, pid 
+[19002],
+'add' 'module', 0 seconds old
+Oct 19 09:11:52 jever udevd[18982]: get_udevd_msg: udevd event message 
+received
+Oct 19 09:11:52 jever udevd[18982]: main: skip uevent_helper message with
+SEQNUM, netlink is active
+Oct 19 09:11:52 jever udevd[18982]: udev_done: seq 700, pid [19002] exit, 0
+seconds old
+Oct 19 09:11:52 jever udevd[18982]: msg_queue_insert: seq 701 queued, 'add'
+'/bus/pnp/drivers/parport_pc'
+Oct 19 09:11:52 jever udevd[18982]: udev_event_run: seq 701 forked, pid 
+[19006],
+'add' 'drivers', 0 seconds old
+Oct 19 09:11:52 jever udevd[18982]: get_udevd_msg: udevd event message 
+received
+Oct 19 09:11:52 jever udevd[18982]: main: skip uevent_helper message with
+SEQNUM, netlink is active
+Oct 19 09:11:52 jever kernel: pnp: Device 00:08 activated.
+Oct 19 09:11:52 jever udevd[18982]: udev_done: seq 699, pid [19000] exit, 0
+seconds old
+Oct 19 09:11:52 jever kernel: parport: PnPBIOS parport detected.
+Oct 19 09:11:52 jever udevd[18982]: udev_done: seq 701, pid [19006] exit, 0
+seconds old
+Oct 19 09:11:52 jever kernel: parport0: PC-style at 0x378 (0x778), irq 7
+[PCSPP,TRISTATE]
+Oct 19 09:11:52 jever udevd[18982]: msg_queue_insert: seq 702 queued, 'add'
+'/bus/pci/drivers/parport_pc'
+Oct 19 09:11:52 jever udevd[18982]: udev_event_run: seq 702 forked, pid 
+[19008],
+'add' 'drivers', 0 seconds old
+Oct 19 09:11:52 jever udevd[18982]: get_udevd_msg: udevd event message 
+received
+Oct 19 09:11:52 jever udevd[18982]: main: skip uevent_helper message with
+SEQNUM, netlink is active
+Oct 19 09:11:52 jever udevd[18982]: udev_done: seq 702, pid [19008] exit, 0
+seconds old
+
+No hotplug message from the kernel appears and no /sys "dev" file is 
+offered.  This is bug number 5496 in bugzilla.kernel.org.
+
+Thanks,
+Jason
+
+

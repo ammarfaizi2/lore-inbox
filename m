@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbVLKBrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932746AbVLKE7o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbVLKBrw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Dec 2005 20:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964853AbVLKBrw
+	id S932746AbVLKE7o (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Dec 2005 23:59:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932774AbVLKE7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Dec 2005 20:47:52 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:1124 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964809AbVLKBrw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Dec 2005 20:47:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rJ50+9YIw+ZAdRV8jJgU6H+no96MAQ8ekU1LQz9j6OWivHiK/cH+DixSQLHytsZHhRM/8PW5d1wfLpANOyZJpfdS9ad0t11vvhym7bmPCYLyIVe3jnsrDXU4V7ROlBLWdhJ8+cVkQYNOCHH0zSoMdBvDfMUKS0cJ13Tc9NrF2U4=
-Message-ID: <9a8748490512101747p1cdcdf7cs1b8b4b0e67908b94@mail.gmail.com>
-Date: Sun, 11 Dec 2005 02:47:51 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] Decrease number of pointer derefs in nf_conntrack_core.c
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Netfilter Core Team <coreteam@netfilter.org>,
-       Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20051209114935.GA26127@elte.hu>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200512082336.19695.jesper.juhl@gmail.com>
-	 <20051209110441.GC20314@elte.hu>
-	 <9a8748490512090218q72998aebq8c09247921bd167e@mail.gmail.com>
-	 <Pine.LNX.4.63.0512091134100.31859@gockel.physik3.uni-rostock.de>
-	 <20051209114935.GA26127@elte.hu>
+	Sat, 10 Dec 2005 23:59:44 -0500
+Received: from quechua.inka.de ([193.197.184.2]:8413 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S932746AbVLKE7n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Dec 2005 23:59:43 -0500
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] ip / ifconfig redesign
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <200512022253.19029.a1426z@gawab.com>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
+Message-Id: <E1ElJJF-0005mU-00@calista.inka.de>
+Date: Sun, 11 Dec 2005 05:59:41 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/9/05, Ingo Molnar <mingo@elte.hu> wrote:
->
-> * Tim Schmielau <tim@physik3.uni-rostock.de> wrote:
->
-> > I get
-> > orig:
-> >    text    data     bss     dec     hex filename
-> >   11745      67     728   12540    30fc net/netfilter/nf_conntrack_core.o
-> >
-> > patched:
-> >    text    data     bss     dec     hex filename
-> >   11681      67     728   12476    30bc net/netfilter/nf_conntrack_core.o
->
-> yeah, that's OK and in the expected range.
->
-Ingo, Tim, you are correct. I did screw up the size measurements for
-that one patch. Sorry about that.
+In article <200512022253.19029.a1426z@gawab.com> you wrote:
+> The current ip / ifconfig configuration is arcane and inflexible.  The reason 
+> being, that they are based on design principles inherited from the last 
+> century.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Yes I agree, however note that some of the asumptions are backed up and
+required by RFCs. For example the binding of addresses to interfaces. This
+is especially strongly required in the IPV6 world with all the scoping and
+renumbering RFCs.
+
+The things you want to change need to be changed in kernel space, btw.
+
+Gruss
+Bernd
+ifconfig maintainer
+

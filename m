@@ -1,110 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbVLKSHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVLKSL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbVLKSHE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 13:07:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbVLKSHE
+	id S1750763AbVLKSL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 13:11:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVLKSL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 13:07:04 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4876 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750765AbVLKSHD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 13:07:03 -0500
-Date: Sun, 11 Dec 2005 19:07:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: dwmw2@infradead.org, jffs-dev@axis.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove fs/jffs2/ioctl.c
-Message-ID: <20051211180702.GO23349@stusta.de>
-MIME-Version: 1.0
+	Sun, 11 Dec 2005 13:11:58 -0500
+Received: from waste.org ([64.81.244.121]:7314 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1750763AbVLKSL5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 13:11:57 -0500
+Date: Sun, 11 Dec 2005 10:05:51 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch -mm] fix SLOB on x64
+Message-ID: <20051211180551.GW8637@waste.org>
+References: <20051211141217.GA5912@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051211141217.GA5912@elte.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There doesn't seem to be any reason for keeping fs/jffs2/ioctl.c .
+On Sun, Dec 11, 2005 at 03:12:17PM +0100, Ingo Molnar wrote:
+> 
+> this patch fixes 32-bitness bugs in mm/slob.c. Successfully booted x64 
+> with SLOB enabled. (i have switched the PREEMPT_RT feature to use the 
+> SLOB allocator exclusively, so it must work on all platforms)
 
+The patch looks fine, but what's this about using SLOB exclusively?
+Fragmentation performance of SLOB is miserable on anything like a
+modern desktop, I think SLOB only makes sense for small machines. The
+locking also suggests dual core at most.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Anyway,
 
----
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-This patch was already sent on:
-- 1 Nov 2005
+Acked-by: Matt Mackall <mpm@selenic.com>
+> 
+> Index: linux/mm/slob.c
+> ===================================================================
+> --- linux.orig/mm/slob.c
+> +++ linux/mm/slob.c
+> @@ -198,7 +198,7 @@ void kfree(const void *block)
+>  	if (!block)
+>  		return;
+>  
+> -	if (!((unsigned int)block & (PAGE_SIZE-1))) {
+> +	if (!((unsigned long)block & (PAGE_SIZE-1))) {
+>  		/* might be on the big block list */
+>  		spin_lock_irqsave(&block_lock, flags);
+>  		for (bb = bigblocks; bb; last = &bb->next, bb = bb->next) {
+> @@ -227,7 +227,7 @@ unsigned int ksize(const void *block)
+>  	if (!block)
+>  		return 0;
+>  
+> -	if (!((unsigned int)block & (PAGE_SIZE-1))) {
+> +	if (!((unsigned long)block & (PAGE_SIZE-1))) {
+>  		spin_lock_irqsave(&block_lock, flags);
+>  		for (bb = bigblocks; bb; bb = bb->next)
+>  			if (bb->pages == block) {
+> @@ -326,7 +326,7 @@ void kmem_cache_init(void)
+>  	void *p = slob_alloc(PAGE_SIZE, 0, PAGE_SIZE-1);
+>  
+>  	if (p)
+> -		free_page((unsigned int)p);
+> +		free_page((unsigned long)p);
+>  
+>  	mod_timer(&slob_timer, jiffies + HZ);
+>  }
 
- fs/jffs2/Makefile   |    2 +-
- fs/jffs2/dir.c      |    1 -
- fs/jffs2/file.c     |    1 -
- fs/jffs2/ioctl.c    |   23 -----------------------
- fs/jffs2/os-linux.h |    3 ---
- 5 files changed, 1 insertion(+), 29 deletions(-)
-
---- linux-2.6.14-rc5-mm1-full/fs/jffs2/os-linux.h.old	2005-11-01 20:28:24.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-full/fs/jffs2/os-linux.h	2005-11-01 20:28:31.000000000 +0100
-@@ -147,9 +147,6 @@
- int jffs2_fsync(struct file *, struct dentry *, int);
- int jffs2_do_readpage_unlock (struct inode *inode, struct page *pg);
- 
--/* ioctl.c */
--int jffs2_ioctl(struct inode *, struct file *, unsigned int, unsigned long);
--
- /* symlink.c */
- extern struct inode_operations jffs2_symlink_inode_operations;
- 
---- linux-2.6.14-rc5-mm1-full/fs/jffs2/dir.c.old	2005-11-01 20:28:39.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-full/fs/jffs2/dir.c	2005-11-01 20:28:43.000000000 +0100
-@@ -41,7 +41,6 @@
- {
- 	.read =		generic_read_dir,
- 	.readdir =	jffs2_readdir,
--	.ioctl =	jffs2_ioctl,
- 	.fsync =	jffs2_fsync
- };
- 
---- linux-2.6.14-rc5-mm1-full/fs/jffs2/Makefile.old	2005-11-01 20:31:23.000000000 +0100
-+++ linux-2.6.14-rc5-mm1-full/fs/jffs2/Makefile	2005-11-01 20:31:41.000000000 +0100
-@@ -6,7 +6,7 @@
- 
- obj-$(CONFIG_JFFS2_FS) += jffs2.o
- 
--jffs2-y	:= compr.o dir.o file.o ioctl.o nodelist.o malloc.o
-+jffs2-y	:= compr.o dir.o file.o nodelist.o malloc.o
- jffs2-y	+= read.o nodemgmt.o readinode.o write.o scan.o gc.o
- jffs2-y	+= symlink.o build.o erase.o background.o fs.o writev.o
- jffs2-y	+= super.o
---- linux-2.6.15-rc5-mm2-full/fs/jffs2/file.c.old	2005-12-11 17:27:26.000000000 +0100
-+++ linux-2.6.15-rc5-mm2-full/fs/jffs2/file.c	2005-12-11 17:28:21.000000000 +0100
-@@ -48,7 +48,6 @@
- 	.writev =	generic_file_writev,
- 	.aio_read =	generic_file_aio_read,
- 	.aio_write =	generic_file_aio_write,
--	.ioctl =	jffs2_ioctl,
- 	.mmap =		generic_file_readonly_mmap,
- 	.fsync =	jffs2_fsync,
- 	.sendfile =	generic_file_sendfile
---- linux-2.6.15-rc5-mm2-full/fs/jffs2/ioctl.c	2005-12-11 15:01:46.000000000 +0100
-+++ /dev/null	2005-11-08 19:07:57.000000000 +0100
-@@ -1,23 +0,0 @@
--/*
-- * JFFS2 -- Journalling Flash File System, Version 2.
-- *
-- * Copyright (C) 2001-2003 Red Hat, Inc.
-- *
-- * Created by David Woodhouse <dwmw2@infradead.org>
-- *
-- * For licensing information, see the file 'LICENCE' in this directory.
-- *
-- * $Id: ioctl.c,v 1.10 2005/11/07 11:14:40 gleixner Exp $
-- *
-- */
--
--#include <linux/fs.h>
--
--int jffs2_ioctl(struct inode *inode, struct file *filp, unsigned int cmd,
--		unsigned long arg)
--{
--	/* Later, this will provide for lsattr.jffs2 and chattr.jffs2, which
--	   will include compression support etc. */
--	return -ENOTTY;
--}
--
+-- 
+Mathematics is the supreme nostalgia of our time.

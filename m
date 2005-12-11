@@ -1,55 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbVLKVGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750708AbVLKVLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbVLKVGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 16:06:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVLKVGQ
+	id S1750708AbVLKVLv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 16:11:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbVLKVLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 16:06:16 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:14954 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750754AbVLKVGP convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 16:06:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=aR+wH5Ifjlow7CDBwK7SuDJ1ZMHq4UsNCXy0Q7Y+F6F5CidYWMODFLYkxJK3/ZnS1Qj2ubbh6aNbP2KGueQL7fqsUd0j9vF5Jn2iE5rSQaMqb6VouE5fgptJGOtyGjLCXsqvjEsf4A+2IyHQO5fHJUdni3WKlsVYdc9mKnAYHvM=
-Message-ID: <9a8748490512111306x3b01cb8cw2068a7ad3af93b03@mail.gmail.com>
-Date: Sun, 11 Dec 2005 22:06:14 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: LKML List <linux-kernel@vger.kernel.org>
-Subject: Yet more display troubles with 2.6.15-rc5-mm2
-Cc: Andrew Morton <akpm@osdl.org>
+	Sun, 11 Dec 2005 16:11:50 -0500
+Received: from takamine.ncl.cs.columbia.edu ([128.59.18.70]:10414 "EHLO
+	takamine.ncl.cs.columbia.edu") by vger.kernel.org with ESMTP
+	id S1750708AbVLKVLu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 16:11:50 -0500
+Date: Sun, 11 Dec 2005 16:14:01 -0500 (EST)
+From: Oren Laadan <orenl@cs.columbia.edu>
+X-X-Sender: orenl@takamine.ncl.cs.columbia.edu
+To: Oleg Nesterov <oleg@tv-sign.ru>
+cc: akpm@osdl.org, roland@redhat.com, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH ? 2/2] setpgid: should work for sub-threads
+In-Reply-To: <439C605F.BA7C1D5B@tv-sign.ru>
+Message-ID: <Pine.LNX.4.63.0512111605430.31447@takamine.ncl.cs.columbia.edu>
+References: <200512110523.jBB5NVEr002551@shell0.pdx.osdl.net>
+ <439C605F.BA7C1D5B@tv-sign.ru>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In addition to the problem I reported earlier about 2.6.15-rc5-mm2
-hanging at boot with vga=791 I've just discovered another problem.
 
-If I boot with vga=normal (which is aparently all that works), then I
-can boot up to a nice lain text login and run startx, but if I then
-switch away from X back to a text console with ctrl+alt+f6 or if I
-shut down X, then I'm presented with a completely garbled text mode
-screen - flashing coloured blocks all over, random bits of text at
-random locations etc.
+[PATCH 1/1] setsid: should work for sub-threads
 
-Also, when starting X, just before the cursor appears I normally just
-have a black screen. With this kernel I first get a short blink of a
-garbled graphics mode screeen with either what looks like just random
-pixels or sometimes with something that looks like a mangled snapshot
-of my text mode console, or if I kill X with ctrl+alt+backspace and
-then start it again (the garbled text mode console does work, although
-I'm glad I know how to touch type ;) then I sometimes get what looks
-like a snapshot of my previous X session with random pixels on top.
-The garbled graphical screen stays for just a blink of an eye, then
-it's replaced with the normal black screen and the mouse cursor.
+setsid() does not work unless the calling process is a 
+thread_group_leader().
 
-2.6.15-rc5-git1 works perfectly without these issues.
+'man setpgid' does not tell anything about that, so I consider
+this behaviour is a bug.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Signed-off-by: Oren Laadan <orenl@cs.columbia.edu>
+
+---
+
+(see similar patch for setpgid by Oleg Nesterov). This one also required 
+modifying kernel/exit.c:__set_special_pids() (and it's prototype in 
+sched.h).
+
+Please review...
+
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index b0ad6f3..9ff6e79 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1003,7 +1003,7 @@ extern struct   mm_struct init_mm;
+  #define find_task_by_pid(nr)	find_task_by_pid_type(PIDTYPE_PID, nr)
+  extern struct task_struct *find_task_by_pid_type(int type, int pid);
+  extern void set_special_pids(pid_t session, pid_t pgrp);
+-extern void __set_special_pids(pid_t session, pid_t pgrp);
++extern void __set_special_pids(struct task_struct *tsk, pid_t session, pid_t pgrp);
+
+  /* per-UID process charging. */
+  extern struct user_struct * alloc_uid(uid_t);
+diff --git a/kernel/exit.c b/kernel/exit.c
+index ee51568..d47931f 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -256,26 +256,24 @@ static inline void reparent_to_init(void
+  	switch_uid(INIT_USER);
+  }
+
+-void __set_special_pids(pid_t session, pid_t pgrp)
++void __set_special_pids(struct task_struct *tsk, pid_t session, pid_t pgrp)
+  {
+-	struct task_struct *curr = current;
+-
+-	if (curr->signal->session != session) {
+-		detach_pid(curr, PIDTYPE_SID);
+-		curr->signal->session = session;
+-		attach_pid(curr, PIDTYPE_SID, session);
+-	}
+-	if (process_group(curr) != pgrp) {
+-		detach_pid(curr, PIDTYPE_PGID);
+-		curr->signal->pgrp = pgrp;
+-		attach_pid(curr, PIDTYPE_PGID, pgrp);
++	if (tsk->signal->session != session) {
++		detach_pid(tsk, PIDTYPE_SID);
++		tsk->signal->session = session;
++		attach_pid(tsk, PIDTYPE_SID, session);
++	}
++	if (process_group(tsk) != pgrp) {
++		detach_pid(tsk, PIDTYPE_PGID);
++		tsk->signal->pgrp = pgrp;
++		attach_pid(tsk, PIDTYPE_PGID, pgrp);
+  	}
+  }
+
+  void set_special_pids(pid_t session, pid_t pgrp)
+  {
+  	write_lock_irq(&tasklist_lock);
+-	__set_special_pids(session, pgrp);
++	__set_special_pids(current, session, pgrp);
+  	write_unlock_irq(&tasklist_lock);
+  }
+
+diff --git a/kernel/sys.c b/kernel/sys.c
+index bce933e..c907f88 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1207,24 +1207,22 @@ asmlinkage long sys_getsid(pid_t pid)
+
+  asmlinkage long sys_setsid(void)
+  {
++	struct task_struct *leader = current->group_leader;
+  	struct pid *pid;
+  	int err = -EPERM;
+
+-	if (!thread_group_leader(current))
+-		return -EINVAL;
+-
+  	down(&tty_sem);
+  	write_lock_irq(&tasklist_lock);
+
+-	pid = find_pid(PIDTYPE_PGID, current->pid);
++	pid = find_pid(PIDTYPE_PGID, leader->pid);
+  	if (pid)
+  		goto out;
+
+-	current->signal->leader = 1;
+-	__set_special_pids(current->pid, current->pid);
+-	current->signal->tty = NULL;
+-	current->signal->tty_old_pgrp = 0;
+-	err = process_group(current);
++	leader->signal->leader = 1;
++	__set_special_pids(leader, leader->pid, leader->pid);
++	leader->signal->tty = NULL;
++	leader->signal->tty_old_pgrp = 0;
++	err = process_group(leader);
+  out:
+  	write_unlock_irq(&tasklist_lock);
+  	up(&tty_sem);
+
+
+

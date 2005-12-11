@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbVLKWOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbVLKWQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750887AbVLKWOq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 17:14:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVLKWOq
+	id S1750895AbVLKWQe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 17:16:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbVLKWQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 17:14:46 -0500
-Received: from smtp1.pochta.ru ([81.211.64.6]:33606 "EHLO smtp1.pochta.ru")
-	by vger.kernel.org with ESMTP id S1750883AbVLKWOp (ORCPT
+	Sun, 11 Dec 2005 17:16:34 -0500
+Received: from smtp1.pochta.ru ([81.211.64.6]:55623 "EHLO smtp1.pochta.ru")
+	by vger.kernel.org with ESMTP id S1750805AbVLKWQe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 17:14:45 -0500
+	Sun, 11 Dec 2005 17:16:34 -0500
 X-Author: vitalhome@rbcmail.ru from [10.1.27.2] ([82.179.192.198]) via Free Mail POCHTA.RU
-Message-ID: <439CA488.3050302@ru.mvista.com>
-Date: Mon, 12 Dec 2005 01:13:28 +0300
+Message-ID: <439CA512.8090906@ru.mvista.com>
+Date: Mon, 12 Dec 2005 01:15:46 +0300
 From: Vitaly Wool <vwool@ru.mvista.com>
 User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
 X-Accept-Language: en-us, en
@@ -75,7 +75,7 @@ Well, it's pretty much what we do in the latest one...
 Though we use one-by-one chaining and not specifying the number of 
 messages in chain.
 I'm not sure which approach is better, really. Maybe an API like
-struct spi_mjsg *spi_message_alloc(struct spi_device *, unsigned ntrans);
+struct spi_msg *spi_message_alloc(struct spi_device *, unsigned ntrans);
 spi_add_transfer(struct spi_msg *, ...);
 ...
 is better than what we've got now (see patch sent 12/05; I plan to post 

@@ -1,83 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbVLKGfM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbVLKGfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964853AbVLKGfM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 01:35:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVLKGfM
+	id S932249AbVLKGfo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 01:35:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVLKGfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 01:35:12 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:61324 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932249AbVLKGfK (ORCPT
+	Sun, 11 Dec 2005 01:35:44 -0500
+Received: from mail.kroah.org ([69.55.234.183]:485 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932249AbVLKGfn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 01:35:10 -0500
-Date: Sat, 10 Dec 2005 22:34:53 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Sun, 11 Dec 2005 01:35:43 -0500
+Date: Sat, 10 Dec 2005 22:35:22 -0800
+From: Greg KH <greg@kroah.com>
 To: Ashutosh Naik <ashutosh.naik@gmail.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
 Subject: Re: [BUG] Early Kernel Panic with 2.6.15-rc5
-Message-Id: <20051210223453.24f7515b.akpm@osdl.org>
-In-Reply-To: <81083a450512102211r608cee8wc16cc19565a1488f@mail.gmail.com>
-References: <81083a450512102211r608cee8wc16cc19565a1488f@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Message-ID: <20051211063522.GA23621@kroah.com>
+References: <81083a450512102211r608cee8wc16cc19565a1488f@mail.gmail.com> <81083a450512102226q1443f09bof0d3ba2bd5a1be2@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <81083a450512102226q1443f09bof0d3ba2bd5a1be2@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ashutosh Naik <ashutosh.naik@gmail.com> wrote:
->
-> Distribution:
-> Fedora Core 2, 2.6.15-rc5 kernel
-> 
-> Hardware Environment:
-> Acer Travelmate 240 ,Intel Celeron 2.6 Ghz, lspci with 2.6.14 attached
-> 
-> Description
-> I am getting an early kernel panic when I compiled the Kernel
-> 2.6.15-rc5 on my Acer Laptop. The dump is as follows. It is
-> reproducible every time on bootup.
-> 
-> Uncompressing Linux... Ok, booting the kernel.
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000
->  printing eip:
-> *pde = 00000000
-> Oops: 0002 [#1]
-> PREEMPT
-> Modules linked in :
-> CPU:    0
-> EIP:    0060:[<c020e494>]    Not tainted VLI
-> EFLAGS: 00010292   (2.6.15-rc5)
-> EIP is at kobject_add+0x94/0xd0
-> eax: c0455d80   ebx: c0455b4c   ecx: 00000000 edx: c0455b68
-> esi: ffffffea   edi: c0455d88   ebp: 00000000 esp: c6e8bf4c
-> ds: 007b es: 007b ss: 0068
-> Process swapper (pid = 1 threadinfo = c6e8a00 task = c6e88a50)
-> Stack : c0455b4c ffffffea c0455d20 c020e4f2 00000000 c0455b38 c0455b4c c0455b38
->         c0455b4c c0294b12 c0455b4c c040e7c2 c03cdd36 c0455b38 00000000 00000000
->         00000000 c0295542 00000000 c021fa65 c011d377 c0411638 00000000 c04ed0dc
-> Call Trace:
->  [<c020e4f2>] kobject_register+0x22/0x70
->  [<c0294b12>] bus_add_driver+0x52/0xc0
->  [<c0295542>] driver_register+0x32/0x40
->  [<c0214a65>] pcie_start_thread+0x15/0x60
->  [<c011d377>] printk+0x17/0x20
->  [<c04ed0dc>] pcied_init+0x1c/0xa0
->  [<c04ed055>] pci_proc_init+0x65/0x70
->  [<c04da83b>] do_init_calls+0x2b/0xc0
->  [<c01002a0>] init+0x0/0x160
->  [<c01002a0>] init+0x0/0x160
->  [<c01002d7>] init+0x37/0x160
->  [<c01013c9>] kernel_thread_helper+0x5/0xc
-> Code: 74 df 89 f8 e8 ce 02 00 00 eb d6 b8 01 00 00 00 e8 42 af f0 ff 85 ff 74 36
->  8b 43 28 8d 53 1c 83 c0 08 89 43 1c 8b 48 04 89 50 04 <89> 11 89 4a 04 b8 01 00
->  00 00 e8 5d af f0 ff b8 00 e0 ff ff 21
->  <0>Kernel panic - not syncing: Attempted to kill init!
-> 
+On Sun, Dec 11, 2005 at 11:56:08AM +0530, Ashutosh Naik wrote:
+> CONFIG_HOTPLUG_PCI_PCIE=y
 
-Looks like this:
+Change this to "m" or "n" and the oops should go away.  It's a known
+problem that is being worked on, but will probably take a while to get
+done.
 
-                list_add_tail(&kobj->entry,&kobj->kset->list);
+Do you really have a pci express hotplug controller on this machine?
 
-went oops over null pointers in kobj->kset->list.
+thanks,
 
-At a wild guess, I'd say that pcie_port_bus_register() hasn't run yet.
+greg k-h

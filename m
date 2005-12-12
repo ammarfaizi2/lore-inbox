@@ -1,57 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbVLLMoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbVLLMvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbVLLMoK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 07:44:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbVLLMoK
+	id S1751140AbVLLMvs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 07:51:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVLLMvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 07:44:10 -0500
-Received: from zproxy.gmail.com ([64.233.162.207]:35019 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751147AbVLLMoJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 07:44:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ReLN+XuuzsdFiTEOsqTPLJ/mxA9BB4f16f6ttdjec9r8Rr/arCaeSwq48yIzZUpvoysbzAdOM4UT1U2DyVgTXOlX1WwPQvd9okJRXpCTUKI6crYFQFNXOJL4qCAk+OAWWEmct38OyCm2JyxDaWYVNNlYmjIZL8Z+hCuaWLkQFQ8=
-Message-ID: <81083a450512120444v56038320k6feffa34257a933d@mail.gmail.com>
-Date: Mon, 12 Dec 2005 18:14:08 +0530
-From: Ashutosh Naik <ashutosh.naik@gmail.com>
-To: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, rth@redhat.com,
-       akpm@osdl.org, Greg KH <greg@kroah.com>
-Subject: Re: [RFC][PATCH] Prevent overriding of Symbols in the Kernel, avoiding Undefined behaviour
-Cc: anandhkrishnan@yahoo.co.in
-In-Reply-To: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 12 Dec 2005 07:51:48 -0500
+Received: from hera.kernel.org ([140.211.167.34]:2775 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751140AbVLLMvs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 07:51:48 -0500
+Date: Mon, 12 Dec 2005 09:57:31 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andi Kleen <ak@suse.de>, Christoph Lameter <clameter@sgi.com>,
+       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       linux-mm@kvack.org
+Subject: Re: [RFC 3/6] Make nr_pagecache a per zone counter
+Message-ID: <20051212115731.GA3599@dmt.cnet>
+References: <20051210005440.3887.34478.sendpatchset@schroedinger.engr.sgi.com> <20051210005456.3887.94412.sendpatchset@schroedinger.engr.sgi.com> <20051211183241.GD4267@dmt.cnet> <20051211194840.GU11190@wotan.suse.de> <20051211204943.GA4375@dmt.cnet> <439CF3B1.4050803@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com>
+In-Reply-To: <439CF3B1.4050803@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updating the correct email id of Anand Krishnan
-Signed-off-by: Anand Krishnan <anandhkrishnan@yahoo.co.in>
+On Mon, Dec 12, 2005 at 02:51:13PM +1100, Nick Piggin wrote:
+> Marcelo Tosatti wrote:
+> >On Sun, Dec 11, 2005 at 08:48:40PM +0100, Andi Kleen wrote:
+> >
+> >>>By the way, why does nr_pagecache needs to be an atomic variable on UP 
+> >>>systems?
+> >>
+> >>At least on X86 UP atomic doesn't use the LOCK prefix and is thus quite
+> >>cheap. I would expect other architectures who care about UP performance
+> >>(= not IA64) to be similar.
+> >
+> >
+> >But in practice the variable does not need to be an atomic type for UP, but
+> >simply a word, since stores are atomic on UP systems, no?
+> >
+> >Several arches seem to use additional atomicity instructions on 
+> >atomic functions:
+> >
+> 
+> Yeah, this is to protect from interrupts and is common to most
+> load store architectures. It is possible we could have
+> atomic_xxx_irq / atomic_xxx_irqsave functions for these, however
+> I think nobody has yet demostrated the improvements outweigh the
+> complexity that would be added.
 
-On 12/12/05, Ashutosh Naik <ashutosh.naik@gmail.com> wrote:
-> This patch is the next logical step after the following two  threads
->
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0511.2/2505.html
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0511.3/0036.html
->
-> When a symbol is exported from the kernel, and say, a module would
-> export the same symbol, there currently exists no mechanism to prevent
-> the module from exporting this symbol. The module would still go ahead
-> and export the symbol, the symbol table would now contain two copies
-> of the exported symbol, and hell would break loose.
->
-> This patch prevents that from happening, by checking the symbol table
-> before relocation for all occurences of the Exported Symbol. If the
-> symbol already exists, we branch out with -ENOEXEC. Currently, this
-> search is sequential.
->
->
-> Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
-> Signed-off-by: Anand Krishnan <anandhkrishnan@yahoo.com>
->
->
->
+Hi Nick,
+
+But nr_pagecache is not accessed at interrupt code, is it? It does
+not need to be an atomic type.
+

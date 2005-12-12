@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbVLLU0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbVLLU3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750938AbVLLU0r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 15:26:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750944AbVLLU0r
+	id S1750990AbVLLU3u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 15:29:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbVLLU3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 15:26:47 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:21904 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1750936AbVLLU0r
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 15:26:47 -0500
-Date: Mon, 12 Dec 2005 13:26:43 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ak@muc.de,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [patch 2/4] i386/x86-64: Implement fallback for PCI mmconfig to type1
-Message-ID: <20051212202643.GG9286@parisc-linux.org>
-References: <20051212192030.873030000@press.kroah.org> <20051212200123.GC27657@kroah.com>
+	Mon, 12 Dec 2005 15:29:50 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:32922 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750989AbVLLU3t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 15:29:49 -0500
+Date: Mon, 12 Dec 2005 12:29:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.15-rc5-mm2: ehci_hcd crashes on load sometimes
+Message-Id: <20051212122914.1bd36f32.akpm@osdl.org>
+In-Reply-To: <200512122053.39970.rjw@sisk.pl>
+References: <20051211041308.7bb19454.akpm@osdl.org>
+	<200512111706.42867.rjw@sisk.pl>
+	<20051211123808.2609f5e7.akpm@osdl.org>
+	<200512122053.39970.rjw@sisk.pl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051212200123.GC27657@kroah.com>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 12, 2005 at 12:01:23PM -0800, Greg Kroah-Hartman wrote:
-> When there is no entry for a bus in MCFG fall back to type1.  This is
-> especially important on K8 systems where always some devices can't be
-> accessed using mmconfig (in particular the builtin northbridge doesn't
-> support it for its own devices)
-[...]
-> -static int pci_conf1_read(unsigned int seg, unsigned int bus,
-> +int pci_conf1_read(unsigned int seg, unsigned int bus,
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+>
+> On Sunday, 11 December 2005 21:38, Andrew Morton wrote:
+> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > >
+> > > The ehci_hcd driver causes problems like this:
+> > > 
+> > > ehci_hcd 0000:00:02.2: EHCI Host Controller
+> > > ehci_hcd 0000:00:02.2: debug port 1
+> > > ehci_hcd 0000:00:02.2: new USB bus registered, assigned bus number 3
+> > > ehci_hcd 0000:00:02.2: irq 5, io mem 0xfebfdc00
+> > > usb 2-2: Product: USB Receiver
+> > > usb 2-2: Manufacturer: Logitech
+> > > usb 2-2: configuration #1 chosen from 1 choice
+> > > ehci_hcd 0000:00:02.2: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
+> > > Unable to handle kernel NULL pointer dereference at 00000000000002a4 RIP:
+> > > <ffffffff880ad9d0>{:ehci_hcd:ehci_irq+224}
+> > 
+> > Can you poke around in gdb, see which line it's dying at?
+> 
+> It looks like at the line 620.  At least here's what gdb told me:
+> 
+> Line 620 of "ehci-hcd.c" starts at address 0x69c3 <ehci_irq+211>
+>    and ends at 0x69e2 <ehci_irq+242>.
 
-I don't like this at all.  We already have a mechanism to use different
-accessors per-bus (bus->ops->read()); calling the type1 accessors from
-the mmconfig accessors just seems wrong.
+On my tree that's
 
-> +	if (!base)
-> +		return pci_conf1_read(seg,bus,devfn,reg,len,value);
+	if ((status & STS_PCD) && device_may_wakeup(&hcd->self.root_hub->dev)) {
 
-Should be space after commas.
+It's best to actually send a copy of line 620 - kernels vary a lot, and
+many developers won't have that particualr -mm tree handy.
 
+The way I normally do this is to do `gdb vmlinux' and then `l
+*0xffffffff880ad9d0'.  If that lands you in some inline function then poke
+around, displacing the EIP by +/- amounts until it lands outside the
+inlined function so you can see the callsite.
+
+Anyway.  Greg's tree seems rather buggy lately..

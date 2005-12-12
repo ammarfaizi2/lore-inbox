@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbVLLUVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbVLLUWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbVLLUVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 15:21:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbVLLUVQ
+	id S1750802AbVLLUWN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 15:22:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVLLUWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 15:21:16 -0500
-Received: from mail.kroah.org ([69.55.234.183]:18092 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750800AbVLLUVP (ORCPT
+	Mon, 12 Dec 2005 15:22:13 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:61420 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750802AbVLLUWL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 15:21:15 -0500
-Date: Mon, 12 Dec 2005 12:20:20 -0800
-From: Greg KH <greg@kroah.com>
-To: Richard Henderson <rth@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ashutosh Naik <ashutosh.naik@gmail.com>,
-       anandhkrishnan@yahoo.com, linux-kernel@vger.kernel.org,
-       rusty@rustcorp.com.au
-Subject: Re: [RFC][PATCH] Prevent overriding of Symbols in the Kernel, avoiding Undefined behaviour
-Message-ID: <20051212202019.GA28131@kroah.com>
-References: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com> <20051212111322.40be4cfe.akpm@osdl.org> <20051212192746.GE19245@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051212192746.GE19245@redhat.com>
-User-Agent: Mutt/1.5.11
+	Mon, 12 Dec 2005 15:22:11 -0500
+Message-ID: <00a401c5ff59$7958c480$6f00a8c0@comcast.net>
+From: "John Hawkes" <hawkes@sgi.com>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "Dinakar Guniguntala" <dino@in.ibm.com>,
+       "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       "Jack Steiner" <steiner@sgi.com>, "Paul Jackson" <pj@sgi.com>
+References: <20051209205454.18325.46768.sendpatchset@tomahawk.engr.sgi.com> <20051210122548.GB25065@elte.hu>
+Subject: Re: [patch -mm] scheduler cache hot autodetect, isolcpus fix
+Date: Mon, 12 Dec 2005 12:20:05 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6600
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 12, 2005 at 11:27:46AM -0800, Richard Henderson wrote:
-> On Mon, Dec 12, 2005 at 11:13:22AM -0800, Andrew Morton wrote:
-> > Do we really need to do this at runtime?
-> 
-> Probably.  One could consider this a security hole...
+I'm looking at 2.6.15-rc5-mm2 and there is still a problem:  the
+migration_cost[] array is disappearing after boot, which leads to completely
+bogus migration_cost[] values when dynamic sched domains are declared.
 
-Huh?  You are root and loading a kernel module.  You can do much worse
-things at this point in time than messing around with existing symbols
-:)
+The fix:
 
-I think it should be a build-time thing if possible.
+Index: linux/kernel/sched.c
+==========================================================
+--- linux.orig/kernel/sched.c   2005-12-12 10:30:24.000000000 -0800
++++ linux/kernel/sched.c        2005-12-12 11:25:27.000000000 -0800
+@@ -5279,7 +5279,7 @@
+  */
+ #define MAX_DOMAIN_DISTANCE 32
 
-thanks,
+-static __initdata unsigned long long migration_cost[MAX_DOMAIN_DISTANCE] =
++static unsigned long long migration_cost[MAX_DOMAIN_DISTANCE] =
+                { [ 0 ... MAX_DOMAIN_DISTANCE-1 ] = -1LL };
 
-greg k-h
+ /*
+

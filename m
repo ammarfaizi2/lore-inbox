@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVLLUOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbVLLURn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbVLLUOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 15:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbVLLUOY
+	id S932215AbVLLURn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 15:17:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932220AbVLLURn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 15:14:24 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:22250 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932212AbVLLUOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 15:14:22 -0500
-Subject: Re: Memory corruption & SCSI in 2.6.15
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Brian King <brking@us.ibm.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, Jens Axboe <axboe@suse.de>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0512121149360.15597@g5.osdl.org>
-References: <1134371606.6989.95.camel@gaston> <439DC9E4.6030508@us.ibm.com>
-	 <Pine.LNX.4.64.0512121149360.15597@g5.osdl.org>
-Content-Type: text/plain
-Date: Mon, 12 Dec 2005 14:13:51 -0600
-Message-Id: <1134418432.9994.32.camel@mulgrave>
+	Mon, 12 Dec 2005 15:17:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:16023 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932215AbVLLURm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 15:17:42 -0500
+Date: Mon, 12 Dec 2005 12:16:39 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Neil Horman <nhorman@tuxdriver.com>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: [PATCH] vm: enhance __alloc_pages to prioritize pagecache
+ eviction when pressed for memory
+Message-Id: <20051212121639.2e5bb1e4.akpm@osdl.org>
+In-Reply-To: <20051212182236.GB828@hmsreliant.homelinux.net>
+References: <20051207220401.GB13577@hmsreliant.homelinux.net>
+	<20051209162901.71728620.akpm@osdl.org>
+	<20051212182236.GB828@hmsreliant.homelinux.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-12 at 11:55 -0800, Linus Torvalds wrote:
-> Indeed, that looks pretty subtle. 
+Neil Horman <nhorman@tuxdriver.com> wrote:
+>
+> On Fri, Dec 09, 2005 at 04:29:01PM -0800, Andrew Morton wrote:
+> > Neil Horman <nhorman@tuxdriver.com> wrote:
+> > >
+> > > Hey all-
+> > >      I was recently shown this issue, wherein, if the kernel was kept full of
+> > > pagecache via applications that were constantly writing large amounts of data to
+> > > disk, the box could find itself in a position where the vm, in __alloc_pages
+> > > would invoke the oom killer repetatively within try_to_free_pages, until such
+> > > time as the box had no candidate processes left to kill, at which point it would
+> > > panic.
+> > 
+> > That's pretty bad.  Are you able to provide a description which would permit
+> > others to reproduce this?
 > 
-> James: Brian's patch looks obviously correct to me (scsi_alloc_sdev() will 
-> have called scsi_sysfs_device_initialize() which will set up the release 
-> function to free the queue). 
+> As promised, heres the reproducer that was given to me, and used to reproduce
+> this problem:
+> 
+> 1) setup an nfs serve with a thread count of 2.  Of course, 1 thread might make
+> the problem more easy to reproduce.  I haven't tried it yet.
+> 
+> 2) Setup 4 nodes to hammer the nfs mounted directory.  The 4 nodes should hammer
+> out 4 gigs.  2 gigs didn't seem to be enough.
+> 
+> I used a locally developed tool called ior to reproduce this problem.  The tool
+> can be found here:
+> 
+> http://www.llnl.gov/asci/platforms/purple/rfp/benchmarks/limited/ior/
+> 
+> I suppose anything that can write to NFS fast should be fine.  But that's what I
+> did.
+> 
+> 
+> If you do this, any node writing to the server that has more than 4GB of RAM
+> should start oom killing to the point where it runs out of candidate processes
+> and panics
 
-Yes it does ... I'll put it in the rc-fixes tree.
-
-> This code has been like that forever, though, which makes me wonder. Can 
-> anybody see what has changed to make the bug trigger? Or is there 
-> something I'm missing?
-
-The trigger, based on the failure path has to be a slave_alloc failure
-of an underlying driver (which isn't that common).  This may not be
-visible in the dmesg traces if anyone has one, because reporting the
-condition is up to the driver.
-
-James
-
-
+We merged an NFS fix last week which will help throttling under heavy
+writeout conditions..

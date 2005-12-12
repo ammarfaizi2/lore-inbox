@@ -1,81 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbVLLVsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbVLLVtX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbVLLVsn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 16:48:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbVLLVsn
+	id S1751310AbVLLVtX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 16:49:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbVLLVtX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 16:48:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5293 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751310AbVLLVsn (ORCPT
+	Mon, 12 Dec 2005 16:49:23 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:54218 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751310AbVLLVtV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 16:48:43 -0500
-Date: Mon, 12 Dec 2005 13:48:28 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-Subject: Re: oops on shutdown.
-Message-ID: <20051212134828.69bdebe2@unknown-222.office.pdx.osdl.net>
-In-Reply-To: <20051212122226.4d47dde8.akpm@osdl.org>
-References: <20051212114246.09c4b172@unknown-222.office.pdx.osdl.net>
-	<20051212122226.4d47dde8.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+	Mon, 12 Dec 2005 16:49:21 -0500
+Date: Mon, 12 Dec 2005 13:49:04 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: "block" symlink in sysfs for a multifunction device
+Message-Id: <20051212134904.225dcc5d.zaitcev@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.8; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Dec 2005 12:22:26 -0800
-Andrew Morton <akpm@osdl.org> wrote:
+Hi, Greg,
 
-> Stephen Hemminger <shemminger@osdl.org> wrote:
-> >
-> > This is a 2 CPU Opteron box.  It hung on a basic shutdown reboot
-> >  running 2.6.15-rc5. It doesn't look related to the sky2 driver.
-> >  I had a couple of nfs client mounts.
-> > 
-> > 
-> >  [264357.575968] nfsd: last server has exited
-> >  [264357.589641] nfsd: unexporting all filesystems
-> >  [264357.605047] RPC: failed to contact portmap (errno -5).
-> >  [264362.028736] sky2 eth1: disabling interface
-> >  [264369.044649] Unable to handle kernel NULL pointer dereference at 0000000000000001 RIP: 
-> >  [264369.063676] <ffffffff8015bdc7>{find_get_pages+87}
-> >  [264369.088376] PGD 7d698067 PUD 7dc0a067 PMD 0 
-> >  [264369.103310] Oops: 0000 [1] SMP 
-> >  [264369.114347] CPU 0 
-> >  [264369.121489] Modules linked in: nfsd exportfs binfmt_misc video thermal processor fan button battery ac ohci_hcd ehci_hcd i2c_amd8111 i2c_amd756 i2c_core snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc sky2 tg3 usbcore
-> >  [264369.180541] Pid: 11776, comm: umount Not tainted 2.6.15-rc5 #1
-> >  [264369.180544] RIP: 0010:[<ffffffff8015bdc7>] <ffffffff8015bdc7>{find_get_pages+87}
-> >  [264369.180553] RSP: 0018:ffff81007d9d9c48  EFLAGS: 00010002
-> >  [264369.180556] RAX: 000000000000086c RBX: 0000000000000002 RCX: ffff81007d9d9ce0
-> >  [264369.180558] RDX: 0000000000000001 RSI: 0000000000000001 RDI: 0000000000000002
-> >  [264369.180561] RBP: ffff81007d9d9c78 R08: 0000000000000000 R09: 0000000000000040
-> >  [264369.180564] R10: ffff8100005ef4b0 R11: 0000000000000002 R12: 000000000000000e
-> >  [264369.180567] R13: 0000000000000000 R14: ffff81007d9d9cd8 R15: ffff8100006cd6c0
-> >  [264369.180571] FS:  00002aaaaaac5e80(0000) GS:ffffffff805ae800(0000) knlGS:0000000000000000
-> >  [264369.180574] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-> >  [264369.180577] CR2: 0000000000000001 CR3: 000000007c2d8000 CR4: 00000000000006e0
-> >  [264369.180580] Process umount (pid: 11776, threadinfo ffff81007d9d8000, task ffff81005aa300c0)
-> >  [264369.180583] Stack: ffff81007d9d9c58 ffff81007d9d9cc8 0000000000000000 ffff81007d9d9dc8 
-> >  [264369.180588]        0000000000006fb4 ffff8100006cd6a8 ffff81007d9d9c98 ffffffff8016657f 
-> >  [264369.180594]        0000000000000018 ffff8100006cd558 
-> >  [264369.180597] Call Trace:<ffffffff8016657f>{pagevec_lookup+31} <ffffffff8016718c>{truncate_inode_pages+252}
-> >  [264369.180611]        <ffffffff8019b21a>{dispose_list+90} <ffffffff8019b661>{invalidate_inodes+257}
-> >  [264369.180624]        <ffffffff80185bfa>{generic_shutdown_super+154} <ffffffff80185d00>{kill_block_super+48}
-> >  [264369.180635]        <ffffffff80185fbc>{deactivate_super+108} <ffffffff8019d468>{mntput_no_expire+88}
-> >  [264369.180643]        <ffffffff8018d94d>{path_release_on_umount+29} <ffffffff8019e91f>{sys_umount+639}
-> >  [264369.180651]        <ffffffff8010dd1e>{system_call+126} 
-> 
-> 
-> Damn, that's a weird place to be oopsing.  NFS doesn't call
-> kill_block_super(), so it might be a different fs.
-> 
-> Is it repeatable?
+When I plug a USB card reader with multiply LUNs, the following happens:
 
-It doesn't appear to be repeatable.
+[zaitcev@niphredil ~]$ ls -l /sys/devices/pci0000:00/0000:00:07.2/usb1/1-2/1-2:1.0
+total 0
+-r--r--r-- 1 root root 4096 Dec 12 12:47 bAlternateSetting
+-r--r--r-- 1 root root 4096 Dec 12 12:46 bInterfaceClass
+-r--r--r-- 1 root root 4096 Dec 12 12:46 bInterfaceNumber
+-r--r--r-- 1 root root 4096 Dec 12 12:46 bInterfaceProtocol
+-r--r--r-- 1 root root 4096 Dec 12 12:46 bInterfaceSubClass
+lrwxrwxrwx 1 root root    0 Dec 12 12:47 block -> ../../../../../../block/ubd
+lrwxrwxrwx 1 root root    0 Dec 12 12:47 block -> ../../../../../../block/ubd
+lrwxrwxrwx 1 root root    0 Dec 12 12:47 block -> ../../../../../../block/ubd
+lrwxrwxrwx 1 root root    0 Dec 12 12:47 block -> ../../../../../../block/ubd
+-r--r--r-- 1 root root 4096 Dec 12 12:46 bNumEndpoints
+lrwxrwxrwx 1 root root    0 Dec 12 12:46 bus -> ../../../../../../bus/usb
+-r--r--r-- 1 root root 4096 Dec 12 12:47 diag
+lrwxrwxrwx 1 root root    0 Dec 12 12:46 driver -> ../../../../../../bus/usb/drivers/ub
+-r--r--r-- 1 root root 4096 Dec 12 12:46 modalias
+drwxr-xr-x 2 root root    0 Dec 12 12:46 power
+[zaitcev@niphredil ~]$ cat /proc/version
+Linux version 2.6.14-nip (zaitcev@niphredil) (gcc version 4.0.2 20051109 (Red Hat 4.0.2-6)) #5 Tue Dec 6 23:10:53 PST 2005
+[zaitcev@niphredil ~]$
 
+The usb-storage produces this:
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+[root@niphredil linux-2.6.14-nip]# find /sys -name block
+/sys/block
+/sys/devices/pci0000:00/0000:00:07.2/usb1/1-2/1-2:1.0/host0/target0:0:0/0:0:0:3/block
+/sys/devices/pci0000:00/0000:00:07.2/usb1/1-2/1-2:1.0/host0/target0:0:0/0:0:0:2/block
+/sys/devices/pci0000:00/0000:00:07.2/usb1/1-2/1-2:1.0/host0/target0:0:0/0:0:0:1/block
+/sys/devices/pci0000:00/0000:00:07.2/usb1/1-2/1-2:1.0/host0/target0:0:0/0:0:0:0/block
+/sys/devices/pci0000:00/0000:00:07.1/ide0/0.0/block
+[root@niphredil linux-2.6.14-nip]# ls -l /sys/devices/pci0000:00/0000:00:07.2/usb1/1-2/1-2:1.0/host0/target0:0:0/0:0:0:0/block
+lrwxrwxrwx 1 root root 0 Dec 12 13:44 /sys/devices/pci0000:00/0000:00:07.2/usb1/1-2/1-2:1.0/host0/target0:0:0/0:0:0:0/block -> ../../../../../../../../../block/sda
+[root@niphredil linux-2.6.14-nip]#
+
+Each "block" is in its own subdirectory.
+
+Do you have a suggestion about the fastest way to accomplish the same
+effect with ub?
+
+Thank you,
+-- Pete

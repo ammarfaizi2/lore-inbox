@@ -1,161 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbVLLOqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932065AbVLLOp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751089AbVLLOqA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 09:46:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbVLLOqA
+	id S932065AbVLLOp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 09:45:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbVLLOp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 09:46:00 -0500
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:15366 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751089AbVLLOp7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 09:45:59 -0500
-In-Reply-To: <20051203135608.GJ31395@stusta.de>
-References: <20051203135608.GJ31395@stusta.de>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <671576E7-A7F1-4FF9-8E4B-361A89ADA173@oxley.org>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Felix Oxley <lkml@oxley.org>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-Date: Mon, 12 Dec 2005 14:45:52 +0000
-To: Adrian Bunk <bunk@stusta.de>
-X-Mailer: Apple Mail (2.746.2)
+	Mon, 12 Dec 2005 09:45:58 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:7432
+	"EHLO opteron.random") by vger.kernel.org with ESMTP
+	id S1751089AbVLLOp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 09:45:57 -0500
+Date: Mon, 12 Dec 2005 15:45:45 +0100
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, Rik van Riel <riel@redhat.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Message-ID: <20051212144545.GN3092@opteron.random>
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01EE9BB3@otce2k03.adaptec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01EE9BB3@otce2k03.adaptec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 07, 2005 at 04:06:44PM -0500, Salyzyn, Mark wrote:
+> Don't you mean 'leaving it political', kernel.org is hardly neutral.
+> Neutrality is usually handled by a single trusted entity such as a Judge
+> ;-/ and not by a committee or a democracy.
 
-On 3 Dec 2005, at 13:56, Adrian Bunk wrote:
+;)
 
-> The current kernel development model is pretty good for people who
-> always want to use or offer their costumers the maximum amount of the
-> latest bugs^Wfeatures without having to resort on additional  
-> patches for
-> them.
->
-> Problems of the current development model from a user's point of view
-> are:
-> - many regressions in every new release
-> - kernel updates often require updates for the kernel-related  
-> userspace
->   (e.g. for udev or the pcmcia tools switch)
->
-> One problem following from this is that people continue to use older
-> kernels with known security holes because the amount of work for  
-> kernel
-> upgrades is too high.
->
-> These problems follow from the development model.
->
-> The latest stable kernel series without these problems is 2.4, but 2.4
-> is becoming more and more obsolete and might e.g. lack driver support
-> for some recent hardware you want to use.
->
-> Since Andrew and Linus do AFAIK not plan to change the development
-> model, what about the following for getting a stable kernel series
-> without leaving the current development model:
->
->
-> Kernel 2.6.16 will be the base for a stable series.
->
-> After 2.6.16, there will be a 2.6.16.y series with the usual stable
-> rules.
->
-> After the release of 2.6.17, this 2.6.16.y series will be continued  
-> with
-> more relaxed rules similar to the rules in kernel 2.4 since the  
-> release
-> of kernel 2.6.0 (e.g. driver updates will be allowed).
->
->
-> Q:
-> What is the target audience for this 2.6.16 series?
->
-> A:
-> The target audience are users still using 2.4 (or who'd still use  
-> kernel
-> 2.4 if they weren't forced to upgrade to 2.6 for some reason) who  
-> want a
-> stable kernel series including security fixes but excluding many
-> regressions.
-> It might also be interesting for distributions that prefer stability
-> over always using the latest stuff.
->
->
-> Q:
-> Does this proposal imply anything for the development between  
-> 2.6.15 and
-> 2.6.16?
->
-> A:
-> In theory not.
-> In practice, it would be a big advantage if some of the bigger
-> changes that might go into 2.6.16 would be postponed to 2.6.17.
->
->
-> Q:
-> Why not start with the more relaxed rules before the release of  
-> 2.6.17?
->
-> A:
-> After 2.6.16.y following the usual stable rules, the kernel should be
-> relatively stable and well-tested giving the best possible basis for a
-> long-living series.
->
->
-> Q:
-> How long should this 2.6.16 series be maintained?
->
-> A:
-> Time will tell, but if people use it I'd expect 2 or 3 years.
->
->
-> Q:
-> Stable API/ABI for external modules?
->
-> A:
-> No.
->
->
-> Q:
-> Who will maintain this branch?
->
-> A:
-> I could do it, but if someone more experienced wants to do it that  
-> would
-> be even better.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux- 
-> kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+kernel.org is better than a dot com website, that's what I meant by
+neutral.
 
+> This issue is hardly black-and-white. The Hardware Vendors are hardly
+> monolithic. Markets are not always just horizontal, or just vertical.
+> 
+> For instance, there are reasons, somewhat outside the control of the
+> Hardware Vendor, for binary drivers. Often, in the hopes of achieving
+> standards compliance, Hardware vendors are cornered by legalities over
+> the copyright associated with those standards that ties their hands
+> either from releasing interface documentation or from releasing source
+> code. Yet all these vendors would be overjoyed to have Linux drivers for
+> their Hardware in order to increase the sales of their products.
 
-What if ...
+A standard that ties the hands and requires not releasing the source
+should be obsoleted by a new one that is based on open information and
+open source.
 
-1. When people make a patch set, if they have encountered any 'bugs'  
-they split them out as separate items.
+I understand the tainting problem, but for the future you really should
+create a new standard whose objective is "interoperability" and not
+to tie hands.
 
-2. The submitter would identify through GIT when the error had been  
-introduced so that the the person responsible could be CC'ed, also  
-anybody who had worked on the code recently would be CCed, therefore  
-the programmers who were most familiar with that section of code  
-would be made aware of it.
+Note that even as programmers it's very easy to be tainted, and it
+requires skills to avoid it. Companies have the same problem, if they
+accept the tainting they may have to pay for the conseguences eventually
+(i.e. presumably lower sale of their products).
 
-3. When the patch is posted to LKML, it is tagged [PATCH][FIX] in the  
-subject line.
-     In the body of the fix would be noted each kernel to which the  
-fix applied e.g [FIX 2.6.11][FIX 2.6.12][FIX 2.6.13][FIX 2.6.14]
+So if something this should be a lesson to remind.
 
-4. The programmers mentioned in (2) would ACK the patch which would  
-then become part of an 'official' fixes list.
+Binary only drivers in such a tainting legal condition sounds reasonable
+for the current generation of hardware (accepting the perhaps
+unavoidable lower sales), but for new hardware you must find a way out
+of it. Found a new standard body, ask your competitors to join it and
+see what is their reaction, create sane legalities (like NDA with
+expiration after which GPL source can be released) or similar better
+choices.
 
-5. If a volunteer wanted to maintain, say, 2.6.14 + fixes, they could  
-build and test it and be a point of contact regarding any problems.  
-These could hopefully be tracked down and submitted as a new fix patch.
+If you did a mistake it's not me who has the duty to help resolving it.
+I can only suggest you not to do the same mistake again and again, while
+the "standard that ties the hands" is banking on it.
 
-regards,
-Felix
+> The users are overjoyed when they have a wide variety of useful hardware
+> products to select. The market is overjoyed when there is competition.
+> 
+> Linux gains popularity when the users are placated, increasing the
+> interest in funding projects, engineers and organizations associated
+> with Linux. Call this trickle down economics if you want.
 
+Sure.
 
+> Locking out the Hardware is counterproductive for all to varying degrees
+> (I agree that locking out the details is also counterproductive, do not
+> misconstrue my argument). The current state of affairs where binary-only
+> drivers are grudgingly handled and politically sensitive offers the
+> balance that urges these Hardware Vendors to pursue open source variants
+> or to move initial binary-only offerings eventually in the future
+> towards an open-source solution when conditions change to permit it.
+> Thus without hurting the OS, the users or the Hardware vendors; with the
+> timely delivery of advanced hardware. Without an open door, that piece
+> of hardware, or the market window, will pass Linux by. Despise the
+> results, by all means. Plan to protect copyrights that binaries may
+> violate, that is a noble duty. Remain forever vigilant against
+> encroachment. But please stop planning a revolt, locking the door,
+> constructing conspiracy theories or creating scenarios of utter
+> destruction and mayhem.
+
+Even today you can check when a driver has an open source driver. I do,
+it takes time, sometime I have to annoy to the developers to be sure I
+read the pciids correctly. If there was a way to find it more easily it
+would be helpful and hopefully it will allow more people to choose
+hardware with open source drivers.
+
+I don't agree with the revolt of breaking all drivers and I think
+reversing that patch was the right thing to do (because doing so all
+users would suffer), I only want your revenue to shrink over time
+in order to give a business reason to care about open source drivers.
+Technical reasons are always secondary to business reasons.
+
+> Sleep with the enemy when you have mutual gain (keep a loaded gun under
+> the pillow to keep him honest ;-> ).
+
+;)

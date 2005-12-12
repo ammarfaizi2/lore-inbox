@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVLLIw3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbVLLIyw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbVLLIw3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 03:52:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbVLLIw3
+	id S1751121AbVLLIyw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 03:54:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbVLLIyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 03:52:29 -0500
-Received: from [194.90.237.34] ([194.90.237.34]:3233 "EHLO mtlex01.yok.mtl.com")
-	by vger.kernel.org with ESMTP id S1750732AbVLLIw3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 03:52:29 -0500
-Date: Mon, 12 Dec 2005 10:55:32 +0200
-From: "Michael S. Tsirkin" <mst@mellanox.co.il>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Hugh Dickins <hugh@veritas.com>, Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: set_page_dirty vs set_page_dirty_lock
-Message-ID: <20051212085532.GW14936@mellanox.co.il>
-Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-References: <439D3592.70100@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <439D3592.70100@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 12 Dec 2005 03:54:52 -0500
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:42587 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751121AbVLLIyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 03:54:51 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=a8U3EI/dpuKVxV2TnqBfvmR1kE9V59DpSytMblKwBZU/tLatAhmWONHcLMRLvlEUKFlL9wM4GB9XyCBnTiaulWV1QtCC4i0orf6I028rEmd1WJOfTHX3LyD9hFUh4nGUiTiftgzakISmrPO/8N8MU4wf1Cr/hwe5GxZPo8eTN3U=  ;
+Message-ID: <439D3AD5.3080403@yahoo.com.au>
+Date: Mon, 12 Dec 2005 19:54:45 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Eric Dumazet <dada1@cosmosbay.com>
+CC: Paul Jackson <pj@sgi.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Simon Derr <Simon.Derr@bull.net>, Andi Kleen <ak@suse.de>,
+       Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
+References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com> <439D39A8.1020806@cosmosbay.com>
+In-Reply-To: <439D39A8.1020806@cosmosbay.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Nick Piggin <nickpiggin@yahoo.com.au>:
-> OK, yeah if a thread in the parent process writes into the buffer, then
-> yes this would leave the copy in the parent AFAIKS.
+Eric Dumazet wrote:
+> Paul Jackson a écrit :
 > 
-> But this is going to do similar weird stuff when racing with
-> copy_to_user
-> with ethernet recvmsg, is it not? (and direct-io and probably others).
-
-FWIW, I think that copy_to_user will work correctly since it keeps the mmap
-semaphore for the duration of the copy.
-Direct-io might have the same problem.
-
-> As such, I don't think it would be something you in particular need to
-> worry about.
+>> +
+>> +static kmem_cache_t *cpuset_cache;
+>> +
 > 
-> I guess to solve it, we could either retain mmap_sem for the duration to
-> prevent fork,
+> 
+> Hi Paul
+> 
+> Please do use __read_mostly for new kmem_cache :
+> 
+> static kmem_cache_t *cpuset_cache __read_mostly;
+> 
+> If not, the pointer can sit in the midle of a highly modified cache 
+> line, and multiple CPUS will have memory cache misses to access the 
+> cpuset_cache, while slab code/data layout itself is very NUMA/SMP friendly.
+> 
 
-Since this is the receive side, the DMA can take an indefinite
-time to arrive. Isnt this a problem if we keep the mmap_sem?
+Is it a good idea for all kmem_cache_t? If so, can we move
+__read_mostly to the type definition?
 
-> or try to do something tricky with page_count to determine
-> if we need to do a copy in fork() rather than a COW.
-
-I'm actually reasonably happy with the trick that I'm using:
-performing a second get_user_pages after DMA and comparing
-the page lists.
-However, doing this every time on the off chance that a
-page was made COW forces me into task context, every time.
 
 -- 
-MST
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

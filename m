@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbVLLGY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbVLLG1t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbVLLGY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 01:24:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbVLLGY2
+	id S1751137AbVLLG1t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 01:27:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbVLLG1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 01:24:28 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:61094 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1751156AbVLLGY1 (ORCPT
+	Mon, 12 Dec 2005 01:27:49 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:51651 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S1751137AbVLLG1s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 01:24:27 -0500
-Date: Sun, 11 Dec 2005 22:24:04 -0800
-From: Paul Jackson <pj@sgi.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: akpm@osdl.org, ink@jurassic.park.msu.ru, linux-kernel@vger.kernel.org,
-       rth@twiddle.net, davej@redhat.com, zwane@arm.linux.org.uk, ak@suse.de,
-       ashok.raj@intel.com
-Subject: Re: [PATCH] alpha build pm_power_off hack
-Message-Id: <20051211222404.d35f990c.pj@sgi.com>
-In-Reply-To: <m1y82qany7.fsf@ebiederm.dsl.xmission.com>
-References: <20051211232428.18286.40968.sendpatchset@sam.engr.sgi.com>
-	<m1y82qany7.fsf@ebiederm.dsl.xmission.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Mon, 12 Dec 2005 01:27:48 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: paulmck@us.ibm.com, oleg@tv-sign.ru, vatsa@in.ibm.com,
+       linux-kernel@vger.kernel.org, dipankar@in.ibm.com
+Subject: Re: [PATCH] Fix RCU race in access of nohz_cpu_mask 
+In-reply-to: Your message of "Sun, 11 Dec 2005 20:32:26 -0800."
+             <20051211203226.4deafd59.akpm@osdl.org> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 12 Dec 2005 17:27:38 +1100
+Message-ID: <4143.1134368858@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric wrote:
-> Taking a quick glance at alpha causes me to think we always
-> want pm_power_off to be non null on alpha.
+On Sun, 11 Dec 2005 20:32:26 -0800, 
+Andrew Morton <akpm@osdl.org> wrote:
+>"Paul E. McKenney" <paulmck@us.ibm.com> wrote:
+>>
+>> 1.	wmb() guarantees that any writes preceding the wmb() will
+>>  	be seen by the interconnect before any writes following the
+>>  	wmb().  But this applies -only- to the writes executed by
+>>  	the CPU doing the wmb().
+>> 
+>>  2.	rmb() guarantees that any changes seen by the interconnect
+>>  	preceding the rmb() will be seen by any reads following the
+>>  	rmb().  Again, this applies only to reads executed by the
+>>  	CPU doing the wmb().  However, the changes might be due to
+>>  	any CPU.
+>> 
+>>  3.	mb() combines the guarantees made by rmb() and wmb().
+>
+>So foo_mb() in preemptible code is potentially buggy.
+>
+>I guess we assume that a context switch accidentally did enough of the
+>right types of barriers for things to work OK.
 
-So I presume you think that some alpha person should write
-such a function?
+Not by accident.  Any context switch must flush the memory state from
+the old cpu's internal buffers, and that flush must get at least as far
+as the globally snoopable cache.  Otherwise the old cpu could still own
+partial memory updates from the process, even though the process was
+now running on a new cpu.
 
-I can't quite guess whether you are agreeing with my patch,
-or disagreeing with it.
-
-At the very least, I don't want to leave the crosstools build
-of alpha with a default config broken.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

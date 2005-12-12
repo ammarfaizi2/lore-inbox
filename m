@@ -1,182 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbVLLDZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751062AbVLLD2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbVLLDZi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 22:25:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbVLLDZi
+	id S1751062AbVLLD2X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 22:28:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbVLLD2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 22:25:38 -0500
-Received: from mail.tmr.com ([64.65.253.246]:7392 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S1751060AbVLLDZh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 22:25:37 -0500
-Message-ID: <439CED92.5040203@tmr.com>
-Date: Sun, 11 Dec 2005 22:25:06 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Sun, 11 Dec 2005 22:28:23 -0500
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:44370 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S1751059AbVLLD2W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 22:28:22 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=YgkjzGjL8HoDg2COO0SXnmDrqNVLZ9J5axKHFUjYy2skF7+kdD7VqH6WuKPNsHWZCj/wKL0aE8BOM0qi5M5tig/5smZP6gdC+1YWLtJcC4UzIuL1i6kFyYibYBJbAvV2YfOTYBgwjDPmnsXoO3JVzLb0QOPKSdQ1PQax6rYXOiQ=  ;
+Message-ID: <439CEE50.2060803@yahoo.com.au>
+Date: Mon, 12 Dec 2005 14:28:16 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Douglas McNaught <doug@mcnaught.org>
-CC: Rob Landley <rob@landley.net>, Mark Lord <lkml@rtr.ca>,
-       Adrian Bunk <bunk@stusta.de>, David Ranson <david@unsolicited.net>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel
-References: <20051203135608.GJ31395@stusta.de>	<200512051158.06882.rob@landley.net> <4395DDA8.8000003@tmr.com>	<200512071214.26574.rob@landley.net> <439ADAF3.9040705@tmr.com> <m2r78khogb.fsf@Douglas-McNaughts-Powerbook.local>
-In-Reply-To: <m2r78khogb.fsf@Douglas-McNaughts-Powerbook.local>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+CC: Hugh Dickins <hugh@veritas.com>, Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: set_page_dirty vs set_page_dirty_lock
+References: <Pine.LNX.4.61.0512081908530.11737@goblin.wat.veritas.com> <20051208215600.GE13886@mellanox.co.il>
+In-Reply-To: <20051208215600.GE13886@mellanox.co.il>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas McNaught wrote:
+Michael S. Tsirkin wrote:
+> Quoting Hugh Dickins <hugh@veritas.com>:
+> 
+>>Many would be pleased if we could manage without set_page_dirty_lock.
+> 
+> 
+> It seems that I can do
+> 
+> 	if (TestSetPageLocked(page))
+> 		schedule_work()
+> 
+> and in this way, avoid the schedule_work overhead for the common case
+> where the page isnt locked.
+> Right?
+> 
 
->Bill Davidsen <davidsen@tmr.com> writes:
->
->  
->
->>Rob Landley wrote:
->>
->>    
->>
->>>Re-raising the same objections over and over again when they've
->>>already been aired, considered, and rejections is called "whining".
->>>
->>>      
->>>
->>Repeating the same information over and over until it sinks in is
->>called "rote learning." The question is not if cryptoloop is perfect,
->>every crypto seems to fail eventually, recently md5 was cracked,
->>etc. But people have used cryptoloop now, and removing it from the
->>kernel will lock them out of their own data, or prevent them from
->>moving forward. There's no replacement for cryptoloop, so I can't just
->>reconfigure X and still read my 147 DVDs full of business data, or
->>access the current data on 34 laptops around the country.
->>    
->>
->
->Bill, I still don't think your complaints are justified.
->  
->
-I never expected anyone to admit they were wrong, so that doesn't 
-surprise me...
+I think you can do that - provided you ensure the page mapping hasn't
+disappeared after locking it. However, I think you should try to the
+simplest way first.
 
->You're only "locked out of your own data" if you knowingly upgrade to
->a kernel that doesn't support cryptoloop.  Nobody's forcing you to do
->that. 
->  
->
+> If that works, I can mostly do things directly,
+> although I'm still stuck with the problem of an app performing
+> a fork + write into the same page while I'm doing DMA there.
+> 
+> I am currently solving this by doing a second get_user_pages after
+> DMA is done and comparing the page lists, but this, of course,
+> needs a task context ...
+> 
 
-Are you endorsing ignoring security fixes? Of course you're forced to if 
-you are trying to be secure. If there were a replacement for cryptoloop 
-that wouldn't be a problem. But saying that CL must go because it isn't 
-perfect is like saying that you shouldn't lock your window because 
-someone could still break it and get in.
+Usually we don't care about these kinds of races happening. So long
+as it doesn't oops the kernel or hang the hardware, it is up to
+userspace not to do stuff like that.
 
->The kernel developers owe *nothing* to J. Random User.  They are
->either doing what they do for their own reasons (the "fun" of it), or
->being paid by an organization with specific objectives (even if, in
->Linus' case, the objective is just "make the best kernel possible,
->based on your judgement and that of people you trust").
->  
->
-
-A little later you say that most of the developers are paid for working 
-on Linux. Just who is the ultimate source of that funding if not the 
-random user? Almost all of it comes from people who lack the ability to 
-maintain the kernel, one way or the other. If kernel features are left 
-to the vendors you encourage fragmentation, and all you have to do is 
-look at BSD to see what a success that is.
-
-What Linux has going over Windows is choice... the ability to configure 
-WITHOUT having to depend on the judgement of someone else. And when that 
-judgement is to remove a feature which has no replacement, in which uses 
-have made an investment, then the choice is gone.
-
->That said, of course none of them want to break things unnecessarily.
->But they make technical decisions, with the goal of having the best
->kernel, that do sometimes have painful consequences.  You're free, of
->course, to disagree with those decisions and maintain your own kernel.
->  
->
-
-Why waste electrons on statments like that. Yes, I could do that, but 
-the average users can't, and after maintaining GECOS, and MULTICS, and 
-supporting BSD installations and writing a realtime control o/s, I 
-certainly don't have the slightest interest in spending my time doing 
-that. Effectively anything not in a kernel.org kernel is going to die.
-
->They don't owe you security fixes either.  Sorry, but that's the way
->it is.  We're all lucky that they take security very seriously and
->respond quickly to problems.
->
->  
->
->>In most cases CL is not expected to protect against goverment agencies
->>but rather stolen laptops in airports (yes the pros have added MacOS
->>and Linux to their business model) or the occasional lost DVD in the
->>mail. Removing CL is not a hell of a lot better morally than these
->>viruses which encrypt your data and then hold it for ransom, with the
->>price being doing without security fixes in future kernels.
->>    
->>
->
->That last sentence is crap.
->
->You're free to backport security fixes to cryptoloop-supporting
->kernels forever, or pay someone to do so.  Or maintain a cryptoloop
->patch against current kernels, or pay someone to do so.  Or write a
->converter for cryptoloop data to whatever's currently in the kernel,
->or pay someone to do so.
->  
->
-Given that CL has minimal (essentially no) maintenence cost, I wish
-
->>the ivory tower developers could understand that real people have
->>invested real money in it, and real data in the technology. Since
->>there is no alternative solution offered, CL is far better than no
->>crypto at all, and I wish there were a few more developers who had
->>experience working in the real word.
->>    
->>
->
->If you include a crypto solution in the mainstream kernel, you're in
->some sense endorsing its security.  If that solution has known
->weaknesses, I can understand wanting to either fix it or rip it out.
->Crypto is hard enough to get right as it is.
->
->Your "ivory tower" statement is really condescending.  Linux is way
->past the stage where college students were the main contributors (if
->it ever was so after Linus graduated). and a great majority of
->developers now are paid to work on the kernel.  There are probably
->very few of them that don't have at least a little sysadmin
->experience.
->  
->
-I wonder... running servers is relatively easy, supporting end user 
-systems (admin, not help desk) is hard.
-
->If you've invested money and put important data in a system, and you
->haven't contracted with anyone to support that system, supply security
->fixes, and make sure it does what you want it to do, who's the fool?
->  
->
-The advantage of using dynamic systems rather than locking in with 
-something like RHEL was attractive. Trusting a third party was not.
-
->Basically, you're complaining about something you get *for free* that
->represents millions of hours of work, because it doesn't work quite
->the way you want it to, when you have perfect freedom to make it meet
->your needs by putting in your own time, effort and/or money.
->
-
-Most users have no such ability, but people jumped abord Linux when 
-2.6.0 came out, and it WAS called a "new stable release." Redefining 
-what stable means after people have used the software is not something I 
-would feel comfortable doing.
+Nick
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+SUSE Labs, Novell Inc.
 
+Send instant messages to your online friends http://au.messenger.yahoo.com 

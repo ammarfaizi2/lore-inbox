@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbVLLUSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVLLURw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932221AbVLLUSd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 15:18:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbVLLUSd
+	id S932220AbVLLURw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 15:17:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbVLLURv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 15:18:33 -0500
-Received: from [62.38.104.168] ([62.38.104.168]:40652 "EHLO pfn3.pefnos")
-	by vger.kernel.org with ESMTP id S932221AbVLLUSb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 15:18:31 -0500
-From: "P. Christeas" <p_christ@hol.gr>
-To: kraxel@bytesex.org, lkml <linux-kernel@vger.kernel.org>
-Subject: No sound from CX23880 tuner w. 2.6.15-rc5
-Date: Mon, 12 Dec 2005 22:17:55 +0200
-User-Agent: KMail/1.9
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Dec 2005 15:17:51 -0500
+Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:14762 "EHLO
+	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
+	id S932220AbVLLURu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 15:17:50 -0500
+Date: Mon, 12 Dec 2005 14:17:03 -0600
+From: mike.miller@hp.com
+To: axboe@suse.de, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH 1/1] cciss: fix for deregister_disk
+Message-ID: <20051212201703.GA9395@beardog.cca.cpqcorp.net>
+Reply-To: mikem@beardog.cca.cpqcorp.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512122217.56616.p_christ@hol.gr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I upgraded from 2.6.13.2 to 2.6.15-rc5 last week. Unfortunately I can no 
-longer hear the sound from my tuner (analog tv).
-lspci -vv -s 02:05.0
-02:05.0 Multimedia video controller: Conexant CX23880/1/2/3 PCI Video and 
-Audio Decoder (rev 05)
-        Subsystem: LeadTek Research Inc.: Unknown device 663b
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
+Patch 1/1
+Been doing some cleanup in various parts of the driver (more like adding
+bugs). Got to keep busy!
+This patch adds setting our drv->queue = NULL back in deregister_disk.
+The drv->queue is part of our controller struct. blk_cleanup_queue works
+only on the queue in the gendisk struct. Please apply this patch.
 
-Is that bug acknowledged? Any early hints before I start a regression test?
-Radio (w. gnomeradio) works OK on the card. I can also hear 'peaks' whenever I 
-change the tv channel.
+Signed-off-by: Mike Miller <mike.miller@hp.com.
+--------------------------------------------------------------------------------
+ cciss.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+index e34104d..1d56f2a 100644
+--- a/drivers/block/cciss.c
++++ b/drivers/block/cciss.c
+@@ -1464,8 +1464,10 @@ static int deregister_disk(struct gendis
+ 			request_queue_t *q = disk->queue;
+ 			if (disk->flags & GENHD_FL_UP)
+ 				del_gendisk(disk);
+-			if (q)	
++			if (q) {	
+ 				blk_cleanup_queue(q);
++				drv->queue = NULL;
++			}
+ 		}
+ 	}
+ 

@@ -1,78 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbVLLGug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbVLLGwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbVLLGug (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 01:50:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbVLLGug
+	id S1750864AbVLLGwg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 01:52:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbVLLGwg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 01:50:36 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:13191 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750762AbVLLGuf (ORCPT
+	Mon, 12 Dec 2005 01:52:36 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:150 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750864AbVLLGwf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 01:50:35 -0500
-Date: Sun, 11 Dec 2005 22:50:27 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Andi Kleen <ak@suse.de>
-Cc: ak@suse.de, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au, Simon.Derr@bull.net, clameter@sgi.com
-Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
-Message-Id: <20051211225027.dc0483b8.pj@sgi.com>
-In-Reply-To: <20051212062141.GB11190@wotan.suse.de>
-References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>
-	<20051212032902.GW11190@wotan.suse.de>
-	<20051211221110.f94ec92a.pj@sgi.com>
-	<20051212062141.GB11190@wotan.suse.de>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Mon, 12 Dec 2005 01:52:35 -0500
+Date: Mon, 12 Dec 2005 07:51:50 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.15-rc5: multiuser scheduling trouble
+Message-ID: <20051212065150.GA8187@elte.hu>
+References: <Pine.LNX.4.64.0512032155290.3099@g5.osdl.org> <20051210162759.GA15986@aitel.hist.no> <Pine.LNX.4.64.0512111607040.15597@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512111607040.15597@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.7
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.7 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi wrote:
-> No - i mean a quick check if the cpuset allows all nodes
-> for memory allocation.
 
-Good - I think I've already done what you're suggesting, then.
+Helge,
 
-You comment would pertain to the cpuset_zone_allowed() call in
-mm/page_alloc.c __alloc_pages(), not to the routine we are
-discussing here - cpuset_update_task_memory_state().
+* Linus Torvalds <torvalds@osdl.org> wrote:
 
-There are two key cpuset hooks in the page allocation code path:
- 1) cpuset_update_task_memory_state() - which transfers
-	changes in the tasks cpuset (where we need locking
-	to read) into the task->mems_allowed nodemask (where
-	the task can look w/o locks).
- 2) cpuset_zone_allowed() - which checks each zone examined
-	in the page_alloc() loops to see if it is on an allowed
-	node.
+> Also, the most common case is that somebody has reniced the X server, 
+> which is just _wrong_.  It used to be done by some distributions to 
+> try to help the scheduler make the right choices, but we've fixed the 
+> scheduler and it doesn't need it or want it.
 
-The first of these was the primary victim of my patches today,
-reducing the cost using RCU, and just now removing the NULL
-cpuset check that was only needed during init.
+> > Knowing the root password I renices his Xorg and firefox by 10, and 
+> > then everything is fine.  His games are still ok, and my xterms are 
+> > snappy again.
 
-The first of these is called once each page allocation, from
-a couple of spots in mm/mempolicy.c.  The second of these is
-called from within (now beneath) __alloc_pages(), once each
-zone that is considered for providing the requested pages.
+does this mean X defaults to nice level 0, and then if you renice
+Firefox and X by +10, everything is fine? Or is Linus' suspicion, and X
+defaults to something like nice -5? (e.g. on Debian type of systems)
 
-==
+but ... i havent seen problems with Firefox and flash myself. My 3 years
+old son's favorite kid's site is fully based on flash, and the 833 MHz
+laptop is still usable remotely while he browses around on it. It's
+Fedora Core 4, and X is not reniced.
 
-The second of these was already short circuited, using inline
-code as you recommend, in a patch a couple of days ago (I forgot
-to cc you directly on the patch, so sent you a separate message
-pointing to those patches).
+but if the X server is not reniced then it would be nice if i could
+reproduce the starvation ... which site is the one triggering it? (and
+could you check www.egyszervolt.hu, and click around on it, does it
+trigger similar starvation problems too?)
 
-For that one, see the number_of_cpusets global kernel counter, in the
-*-mm patch:
-
-  cpuset_number_of_cpusets_optimization
-
-It enables short circuiting with inline code this other key routine
-on the memory allocation path: cpuset_zone_allowed().
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+	Ingo

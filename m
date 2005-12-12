@@ -1,100 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbVLLTtO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbVLLTwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbVLLTtO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 14:49:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVLLTtO
+	id S932182AbVLLTwU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 14:52:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVLLTwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 14:49:14 -0500
-Received: from [69.90.147.196] ([69.90.147.196]:43938 "EHLO mail.kenati.com")
-	by vger.kernel.org with ESMTP id S932164AbVLLTtN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 14:49:13 -0500
-Message-ID: <439DD4F8.3040709@kenati.com>
-Date: Mon, 12 Dec 2005 11:52:24 -0800
-From: Carlos Munoz <carlos@kenati.com>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Mon, 12 Dec 2005 14:52:20 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:53210 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932182AbVLLTwU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 14:52:20 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.15-rc5-mm2: ehci_hcd crashes on load sometimes
+Date: Mon, 12 Dec 2005 20:53:39 +0100
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <20051211041308.7bb19454.akpm@osdl.org> <200512111706.42867.rjw@sisk.pl> <20051211123808.2609f5e7.akpm@osdl.org>
+In-Reply-To: <20051211123808.2609f5e7.akpm@osdl.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Can't build loadable module for 2.6.kernel
-Content-Type: multipart/mixed;
- boundary="------------050200050601060007090403"
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512122053.39970.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050200050601060007090403
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sunday, 11 December 2005 21:38, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> >
+> > The ehci_hcd driver causes problems like this:
+> > 
+> > ehci_hcd 0000:00:02.2: EHCI Host Controller
+> > ehci_hcd 0000:00:02.2: debug port 1
+> > ehci_hcd 0000:00:02.2: new USB bus registered, assigned bus number 3
+> > ehci_hcd 0000:00:02.2: irq 5, io mem 0xfebfdc00
+> > usb 2-2: Product: USB Receiver
+> > usb 2-2: Manufacturer: Logitech
+> > usb 2-2: configuration #1 chosen from 1 choice
+> > ehci_hcd 0000:00:02.2: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
+> > Unable to handle kernel NULL pointer dereference at 00000000000002a4 RIP:
+> > <ffffffff880ad9d0>{:ehci_hcd:ehci_irq+224}
+> 
+> Can you poke around in gdb, see which line it's dying at?
 
-Hi all,
+It looks like at the line 620.  At least here's what gdb told me:
 
-I hope this is the right forum for this question.
-
-I'm trying to build a loadable module for a telephony card that includes 
-several files. Some of the files are source files (written by me) and 
-some are object files (provided by the chip vendor). I'm unable to link 
-the vendor object files with the target.
-
-Make displays the following error:
-make[4]: *** No rule to make target 
-`drivers/telephony/mrvphone/apicnt.s', needed by 
-`drivers/telephony/mrvphone/apicnt.o'.  Stop.
-
-The makefile has the following rule to build apicnt.o:
-apicnt.o: apicnt.o.shipped
-    cp apicnt.o.shipped apicnt.o
-
-I have also included the whole Makefile with this email.
-
-Thanks in advance,
-
-
-Carlos Munoz
-
-
---------------050200050601060007090403
-Content-Type: text/plain;
- name="Makefile"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="Makefile"
-
-#
-# Makefile for the phone_mrvl driver loadable module
-#
-TARGET = phone_mrvl.o
-
-obj-$(CONFIG_PHONE_MARVELL) = phone_mrvl.o
-
-ifeq ($(CONFIG_PHONE_LEGERITY),y)
-phone_mrvl-objs = mrvphone.o slic.o legerity.o vp_hal.o sys_service.o apicnt.o apiinit.o apiquery.o vp_api.o vp_api_common.o mvutils.o
-endif
-
-ifeq ($(CONFIG_PHONE_PROSLIC),y)
-phone_mrvl-objs = mrvphone.o proslic.o
-endif
-
-CFLAGS += -D__linux__
-EXTRA_CFLAGS += -Idrivers/telephony/mrvphone
-EXTRA_CFLAGS += -DNDEBUG -Dlinux -D__linux__ -Dunix -DEMBED -DLINUX -DHOST_LE
-
-ifeq ($(CONFIG_PHONE_LEGERITY),y)
-EXTRA_CFLAGS += -D__LEGERITY__
-endif
-ifeq ($(CONFIG_PHONE_PROSLIC),y)
-EXTRA_CFLAGS += -D__PROSLIC__
-endif
-
-all: $(TARGET)
-
-$(TARGET): $(OBJS)
-	$(LD) -r $(OBJS) -o $(TARGET)
-
-clean:
-	-rm -f $(TARGET) *.elf *.gdb *.o
-
-apicnt.o: apicnt.o.shipped
-	cp apicnt.o.shipped apicnt.o
-
---------------050200050601060007090403--
+Line 620 of "ehci-hcd.c" starts at address 0x69c3 <ehci_irq+211>
+   and ends at 0x69e2 <ehci_irq+242>.

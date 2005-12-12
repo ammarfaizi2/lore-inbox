@@ -1,80 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbVLNLmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932446AbVLNLoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932450AbVLNLmM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 06:42:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932446AbVLNLmL
+	id S932446AbVLNLoE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 06:44:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVLNLoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 06:42:11 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:53661 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932443AbVLNLmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 06:42:09 -0500
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Howells <dhowells@redhat.com>,
-       Christopher Friesen <cfriesen@nortel.com>, torvalds@osdl.org,
-       akpm@osdl.org, hch@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-In-Reply-To: <1134559470.25663.22.camel@localhost.localdomain>
-References: <439EDC3D.5040808@nortel.com>
-	 <1134479118.11732.14.camel@localhost.localdomain>
-	 <dhowells1134431145@warthog.cambridge.redhat.com>
-	 <3874.1134480759@warthog.cambridge.redhat.com>
-	 <15167.1134488373@warthog.cambridge.redhat.com>
-	 <1134490205.11732.97.camel@localhost.localdomain>
-	 <1134556187.2894.7.camel@laptopd505.fenrus.org>
-	 <1134558188.25663.5.camel@localhost.localdomain>
-	 <1134558507.2894.22.camel@laptopd505.fenrus.org>
-	 <1134559470.25663.22.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 14 Dec 2005 12:42:00 +0100
-Message-Id: <1134560520.2894.27.camel@laptopd505.fenrus.org>
+	Wed, 14 Dec 2005 06:44:04 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52161 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932446AbVLNLoD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 06:44:03 -0500
+Date: Mon, 12 Dec 2005 12:45:29 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Mouse button swapping
+Message-ID: <20051212114529.GA6533@elf.ucw.cz>
+References: <Pine.LNX.4.61.0512091508250.8080@yvahk01.tjqt.qr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0512091508250.8080@yvahk01.tjqt.qr>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-14 at 11:24 +0000, Alan Cox wrote:
-> On Mer, 2005-12-14 at 12:08 +0100, Arjan van de Ven wrote:
-> > 1) the BKL change hasn't finished, and we're 5 years down the line. API
-> > changes done gradual tend to take forever in practice, esp if there's no
-> > "compile" incentive for people to fix things. 
+Hi!
+
+> I produced a small patch that allows one to flip the mouse buttons at the 
+> kernel level. This is useful for changing it on a per-system basis, i.e. it 
+> will affect gpm, X and VMware all at once. It is changeable through
+> /sys/module/mousedev/swap_buttons at runtime. Is this something mainline would
+> be interested in?
+
+Hopefully not. This should _not_ be done at kernel level. But fixing
+X, gpm and vmware to load same config would be nice....
+								Pavel
+
+> diff -dpru a/drivers/input/mousedev.c b/drivers/input/mousedev.c
+> --- a/drivers/input/mousedev.c	2005-10-22 20:59:22.000000000 +0200
+> +++ b/drivers/input/mousedev.c	2005-11-22 19:32:01.000000000 +0100
+> @@ -40,6 +40,10 @@ MODULE_LICENSE("GPL");
+>  #define CONFIG_INPUT_MOUSEDEV_SCREEN_Y	768
+>  #endif
+>  
+> +static unsigned int swap_buttons = 0;
+> +module_param(swap_buttons, uint, 0644);
+> +MODULE_PARM_DESC(swap_buttons, "Swap left and right mouse buttons");
+> +
+>  static int xres = CONFIG_INPUT_MOUSEDEV_SCREEN_X;
+>  module_param(xres, uint, 0);
+>  MODULE_PARM_DESC(xres, "Horizontal screen resolution");
+> @@ -191,10 +195,10 @@ static void mousedev_key_event(struct mo
+>  		case BTN_TOUCH:
+>  		case BTN_0:
+>  		case BTN_FORWARD:
+> -		case BTN_LEFT:		index = 0; break;
+> +		case BTN_LEFT:		index = !!swap_buttons; break;
+>  		case BTN_STYLUS:
+>  		case BTN_1:
+> -		case BTN_RIGHT:		index = 1; break;
+> +		case BTN_RIGHT:		index = !swap_buttons; break;
+>  		case BTN_2:
+>  		case BTN_STYLUS2:
+>  		case BTN_MIDDLE:	index = 2; break;
+> # eof
 > 
-> This isn't a "fix" however, its merely a performance tweak.
-
-it's a conceptual API split that, if nothing else, declares intent and
-usage pattern more specifically. Performance is just one of the angles.
-Other angles are that it's possible to treat mutex users different (like
-Ingo is doing in -rt, where you can temporary boost a mutex owner if the
-mutex gets contended, other uses are better hold time metrics etc etc)
-
->  Drivers
-> using the old API are not a problem because
 > 
-> a) The old API is needed long term for true counting sem users
+> Jan Engelhardt
 
-this is skipping one bridge ;)
-A counting semaphore is needed long term. API is up for debate in the
-sense that it's not clear that a non-compile-time thing is the right
-solution.
-
-> Thats rather different to the BKL
-
-BKL is different in that it's more work to do a conversion (eg the BKL
-semantics are rather complex compared to normal spinlock / semaphore /
-mutex semantics). So yes BKL is harder, and not really possible to do in
-one go. Unlike these...
-For BKL there was no choice. Here there is.
-
-
-
+-- 
+Thanks, Sharp!

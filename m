@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbVLLJjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbVLLJ4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751171AbVLLJjI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 04:39:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbVLLJjI
+	id S1751138AbVLLJ4M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 04:56:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbVLLJ4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 04:39:08 -0500
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:32360 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751171AbVLLJjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 04:39:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=X2dJYwCpYEMLptrCiC9oGP9fLd4PVt4qLv0IbKbpcmOBeua0VpgSHUwrJCNyp6jnhZ7bH/ndrFMxwxPhw7G9jluMtbCmDB7cmL1wJ1jlQrjeeCAB1Bt8+Ps8UieAOb98ggGJlAzkuRlHMkdl6Sw1pDwzpXZTVp4Mxam/LSbUUHU=  ;
-Message-ID: <439D4533.6000708@yahoo.com.au>
-Date: Mon, 12 Dec 2005 20:38:59 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: dada1@cosmosbay.com, pj@sgi.com, linux-kernel@vger.kernel.org,
-       Simon.Derr@bull.net, ak@suse.de, clameter@sgi.com
-Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
-References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>	<439D39A8.1020806@cosmosbay.com>	<439D3AD5.3080403@yahoo.com.au> <20051212011108.0725524d.akpm@osdl.org>
-In-Reply-To: <20051212011108.0725524d.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Dec 2005 04:56:12 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:35529 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP
+	id S1751138AbVLLJ4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 04:56:11 -0500
+Date: Mon, 12 Dec 2005 11:59:10 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>, Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: set_page_dirty vs set_page_dirty_lock
+Message-ID: <20051212095910.GX14936@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <439D417E.903@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <439D417E.903@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Quoting Nick Piggin <nickpiggin@yahoo.com.au>:
+> >>or try to do something tricky with page_count to determine
+> >>if we need to do a copy in fork() rather than a COW.
+> > 
+> > 
+> > I'm actually reasonably happy with the trick that I'm using:
+> > performing a second get_user_pages after DMA and comparing
+> > the page lists.
+> > However, doing this every time on the off chance that a
+> > page was made COW forces me into task context, every time.
+> > 
 > 
+> I think it might be possible to solve it with the early-copy in
+> fork(). I'll tinker with it.
 
->>
->>Is it a good idea for all kmem_cache_t? If so, can we move
->>__read_mostly to the type definition?
->>
-> 
-> 
-> Yes, I suppose that's worthwhile.
-> 
-> We've been shuffling towards removing kmem_cache_t in favour of `struct
-> kmem_cache', but this is an argument against doing that.
-> 
-> If we can work out how:
-> 
-> void foo()
-> {
-> 	kmem_cache_t *p;
-> }
-> 
-> That'll barf.
-> 
-
-Mmm. And the structure within structure, which Eric points out. I assumed
-without grepping that those were mostly confined to slab itself and would
-be easy to special case, but it turns out networking makes some use of
-them too.
+Thanks, that would help!
 
 -- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+MST

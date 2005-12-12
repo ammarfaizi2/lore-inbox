@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVLLURw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbVLLUVQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbVLLURw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 15:17:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbVLLURv
+	id S1750800AbVLLUVQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 15:21:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbVLLUVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 15:17:51 -0500
-Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:14762 "EHLO
-	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
-	id S932220AbVLLURu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 15:17:50 -0500
-Date: Mon, 12 Dec 2005 14:17:03 -0600
-From: mike.miller@hp.com
-To: axboe@suse.de, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: [PATCH 1/1] cciss: fix for deregister_disk
-Message-ID: <20051212201703.GA9395@beardog.cca.cpqcorp.net>
-Reply-To: mikem@beardog.cca.cpqcorp.net
+	Mon, 12 Dec 2005 15:21:16 -0500
+Received: from mail.kroah.org ([69.55.234.183]:18092 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750800AbVLLUVP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 15:21:15 -0500
+Date: Mon, 12 Dec 2005 12:20:20 -0800
+From: Greg KH <greg@kroah.com>
+To: Richard Henderson <rth@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ashutosh Naik <ashutosh.naik@gmail.com>,
+       anandhkrishnan@yahoo.com, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au
+Subject: Re: [RFC][PATCH] Prevent overriding of Symbols in the Kernel, avoiding Undefined behaviour
+Message-ID: <20051212202019.GA28131@kroah.com>
+References: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com> <20051212111322.40be4cfe.akpm@osdl.org> <20051212192746.GE19245@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20051212192746.GE19245@redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch 1/1
-Been doing some cleanup in various parts of the driver (more like adding
-bugs). Got to keep busy!
-This patch adds setting our drv->queue = NULL back in deregister_disk.
-The drv->queue is part of our controller struct. blk_cleanup_queue works
-only on the queue in the gendisk struct. Please apply this patch.
+On Mon, Dec 12, 2005 at 11:27:46AM -0800, Richard Henderson wrote:
+> On Mon, Dec 12, 2005 at 11:13:22AM -0800, Andrew Morton wrote:
+> > Do we really need to do this at runtime?
+> 
+> Probably.  One could consider this a security hole...
 
-Signed-off-by: Mike Miller <mike.miller@hp.com.
---------------------------------------------------------------------------------
- cciss.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
+Huh?  You are root and loading a kernel module.  You can do much worse
+things at this point in time than messing around with existing symbols
+:)
 
-diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
-index e34104d..1d56f2a 100644
---- a/drivers/block/cciss.c
-+++ b/drivers/block/cciss.c
-@@ -1464,8 +1464,10 @@ static int deregister_disk(struct gendis
- 			request_queue_t *q = disk->queue;
- 			if (disk->flags & GENHD_FL_UP)
- 				del_gendisk(disk);
--			if (q)	
-+			if (q) {	
- 				blk_cleanup_queue(q);
-+				drv->queue = NULL;
-+			}
- 		}
- 	}
- 
+I think it should be a build-time thing if possible.
+
+thanks,
+
+greg k-h

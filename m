@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVLLRjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbVLLRko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbVLLRjT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 12:39:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVLLRjT
+	id S1750791AbVLLRko (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 12:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVLLRko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 12:39:19 -0500
-Received: from mail.contec.at ([213.229.28.240]:17679 "EHLO mail.contec.at")
-	by vger.kernel.org with ESMTP id S1750747AbVLLRjS (ORCPT
+	Mon, 12 Dec 2005 12:40:44 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:38098 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750766AbVLLRkn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 12:39:18 -0500
-From: Manfred Gruber <m.gruber@tirol.com>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 12 Dec 2005 18:44:34 +0100
-User-Agent: KMail/1.6.2
+	Mon, 12 Dec 2005 12:40:43 -0500
+Date: Mon, 12 Dec 2005 09:40:34 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+cc: Hugh Dickins <hugh@veritas.com>, Kai Makisara <Kai.Makisara@kolumbus.fi>,
+       Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: Fw: crash on x86_64 - mm related?
+In-Reply-To: <20051212165443.GD17295@tau.solarneutrino.net>
+Message-ID: <Pine.LNX.4.64.0512120928110.15597@g5.osdl.org>
+References: <20051201195657.GB7236@tau.solarneutrino.net>
+ <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com>
+ <20051202180326.GB7634@tau.solarneutrino.net>
+ <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com>
+ <20051202194447.GA7679@tau.solarneutrino.net>
+ <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com>
+ <20051206160815.GC11560@tau.solarneutrino.net>
+ <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
+ <20051206204336.GA12248@tau.solarneutrino.net>
+ <Pine.LNX.4.61.0512071803300.2975@goblin.wat.veritas.com>
+ <20051212165443.GD17295@tau.solarneutrino.net>
 MIME-Version: 1.0
-Content-Disposition: inline
-Subject: Misleading information on linuxdevices.com
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200512121844.34832.m.gruber@tirol.com>
-X-OriginalArrivalTime: 12 Dec 2005 17:44:36.0109 (UTC) FILETIME=[B7C6FBD0:01C5FF43]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-as some of you might have noticed, there was an announcement of our
-company on http://www.linuxdevices.com/news/NS9959272388.html
 
-The text is misleading as it speaks about a "propietary" kernel, which
-is completely wrong.
+On Mon, 12 Dec 2005, Ryan Richter wrote:
+>
+> And yet another crash, this time during boot:
 
-We run Ingo Molnars rt-preemption patch with modifications for our
-custom board done by Thomas Gleixner and us.
+The instruction that crashes is
 
-The source code is of course available under the GPL. See also the
-information on our homepage: 
-http://www.contec.at/78+M52087573ab0.0.html
+	testb  $0x80,0x1cd(%rdi)
 
-We don't know where in the information chain from the development team
-via the marketing team to linuxdevices this happened, but we want to
-correct any wrong impression about our company. Sorry.
+with %rdi being 6b6b6b6b6b6b6b6b, which is the pattern that slab poisoning 
+uses for free areas. 
 
-We want to say thanks to all the developers involved in Linux and the
-rt-preemption work.
+I think it's the "sdev->single_lun" test at the very top of the function, 
+where "sdev" was initialized with "q->queuedata". So it looks like 
+somebody free'd the request_queue structure before the IO completed.
 
-        Manfred
+Definitely sounds like something screwy in SCSI.. I don't think this is VM 
+related.
 
-==========================================
-Contec Steuerungstechnik & Automation GmbH
-Manfred Gruber
-Waldeck 1
-A-6330 Kufstein
-AUSTRIA
-------------------------------------------
-http://www.contec.at/
-manfred.gruber@contec.at
-
-phone: 0043 / (0)5372 64121 25
-fax: 0043 / (0)5372 64121 20
-==========================================
+		Linus

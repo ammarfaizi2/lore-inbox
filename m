@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbVLLTbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVLLTjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932169AbVLLTbw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 14:31:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVLLTbw
+	id S932176AbVLLTjh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 14:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbVLLTjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 14:31:52 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:65491 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932169AbVLLTbv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 14:31:51 -0500
-Message-ID: <439DD01A.2060803@watson.ibm.com>
-Date: Mon, 12 Dec 2005 19:31:38 +0000
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
+	Mon, 12 Dec 2005 14:39:37 -0500
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:23446 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932176AbVLLTjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 14:39:36 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: control placement of vDSO page
+Date: Mon, 12 Dec 2005 20:39:25 +0100
+User-Agent: KMail/1.7.2
+Cc: John Reiser <jreiser@bitwagon.com>
+References: <439D9767.2000208@BitWagon.com>
+In-Reply-To: <439D9767.2000208@BitWagon.com>
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@engr.sgi.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       lse-tech@lists.sourceforge.net,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Jay Lan <jlan@sgi.com>, Jens Axboe <axboe@suse.de>,
-       John Stultz <johnstul@us.ibm.com>
-Subject: Re: [Lse-tech] [RFC][Patch 1/5] nanosecond timestamps and diffs
-References: <43975D45.3080801@watson.ibm.com> <43975E6D.9000301@watson.ibm.com> <Pine.LNX.4.62.0512121049400.14868@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0512121049400.14868@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart3864222.c7NC5UuN8r";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200512122039.29799.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Wed, 7 Dec 2005, Shailabh Nagar wrote:
-> 
-> 
->>+void getnstimestamp(struct timespec *ts)
-> 
-> 
-> There is already getnstimeofday in the kernel.
-> 
-> 
+--nextPart3864222.c7NC5UuN8r
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Yes, and that function is being used within the getnstimestamp() being proposed.
-However, John Stultz had advised that getnstimeofday could get affected by calls to
-settimeofday and had recommended adjusting the getnstimeofday value with wall_to_monotonic.
+On Monday 12 December 2005 16:29, John Reiser wrote:
+> Possible solution: a new system call  move_vdso(old_addr, new_addr, flags=
+).
+> Check that current vDSO was at old_addr, else error.  Change vDSO page
+> under control of flags like in mmap(): new_addr is hint (place to start
+> search) or required address if MAP_FIXED.  Return value is new vDSO addre=
+ss.
+>=20
 
-John, could you elaborate ?
+What about special casing the vDSO page in mremap() ?
 
-Thanks,
-Shailabh
+
+Regards
+
+Ingo Oeser
+
+
+--nextPart3864222.c7NC5UuN8r
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDndHxU56oYWuOrkARAq8tAJsGSc64uZBY8QFD4l18mLp/JShUSQCgoXrx
+n1p+IGxsxofBne4/cLJ0CHY=
+=639I
+-----END PGP SIGNATURE-----
+
+--nextPart3864222.c7NC5UuN8r--

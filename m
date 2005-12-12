@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbVLLTOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVLLTOA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbVLLTOX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 14:14:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbVLLTOX
+	id S932147AbVLLTOA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 14:14:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932160AbVLLTOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 14:14:23 -0500
-Received: from pfepa.post.tele.dk ([195.41.46.235]:25661 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S932160AbVLLTOW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 14:14:22 -0500
-Date: Mon, 12 Dec 2005 20:14:22 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Petr Baudis <pasky@suse.cz>
-Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: [PATCH 0/3] Link lxdialog with mconf directly
-Message-ID: <20051212191422.GB7694@mars.ravnborg.org>
-References: <20051212004159.31263.89669.stgit@machine.or.cz>
+	Mon, 12 Dec 2005 14:14:00 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50309 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932147AbVLLTN7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 14:13:59 -0500
+Date: Mon, 12 Dec 2005 11:13:22 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ashutosh Naik <ashutosh.naik@gmail.com>
+Cc: anandhkrishnan@yahoo.com, linux-kernel@vger.kernel.org,
+       rusty@rustcorp.com.au, rth@redhat.com, greg@kroah.com
+Subject: Re: [RFC][PATCH] Prevent overriding of Symbols in the Kernel,
+ avoiding Undefined behaviour
+Message-Id: <20051212111322.40be4cfe.akpm@osdl.org>
+In-Reply-To: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com>
+References: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051212004159.31263.89669.stgit@machine.or.cz>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 12, 2005 at 01:41:59AM +0100, Petr Baudis wrote:
->   The following series revives one three years old patch, turning lxdialog
-> to a library and linking it directly to mconf, making menuconfig nicer and
-> things in general quite simpler and cleaner.
+Ashutosh Naik <ashutosh.naik@gmail.com> wrote:
+>
+> When a symbol is exported from the kernel, and say, a module would
+>  export the same symbol, there currently exists no mechanism to prevent
+>  the module from exporting this symbol. The module would still go ahead
+>  and export the symbol, the symbol table would now contain two copies
+>  of the exported symbol, and hell would break loose.
 > 
->   The first two patches make slight adjustements to kbuild in order to make
-> liblxdialog possible. The third patch does the libification itself and
-> appropriate modifications to mconf.c.
+>  This patch prevents that from happening, by checking the symbol table
+>  before relocation for all occurences of the Exported Symbol. If the
+>  symbol already exists, we branch out with -ENOEXEC. Currently, this
+>  search is sequential.
 
-Why not just copy over relevant files to scripts/kconfig?
-Then no playing tricks with libaries etc. is needed, and everythings
-just works.
-
-It is only 8 files and prefixing them with lx* would make them
-stand out compared to the rest. It is not like there is any user planned
-for the lxdialog functionality in the kernel, and kconfig users outside
-the kernel I beleive copy lxdialog with rest of kconfig files.
-
-Btw. the work you are doing are clashing with a general cleanup effort
-of lxdialog I have in -mm at the moment.
-I received only very limited feedback = looks ok.
-Integrating principles from your old patch was on my TODO list.
-
-I have something in the works that uses linked list instead of a
-preallocated array, to keep the dynamic behaviour. I will probarly make
-a version with the linked list approach but otherwise use your changes
-to mconf.c. But it will take a few days until I get to it.
-
-	Sam
+Do we really need to do this at runtime?  We could check this when building
+module depoendencies (for example).  That'll be a 95% solution..

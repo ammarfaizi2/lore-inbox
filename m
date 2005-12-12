@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbVLLRoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbVLLRqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbVLLRoO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 12:44:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbVLLRoO
+	id S1750824AbVLLRqd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 12:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbVLLRqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 12:44:14 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:19674 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1750798AbVLLRoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 12:44:14 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: swsusp performance problems in 2.6.15-rc3-mm1
-Date: Mon, 12 Dec 2005 18:45:33 +0100
-User-Agent: KMail/1.9
-Cc: Andrew Morton <akpm@osdl.org>, adi@hexapodia.org,
-       linux-kernel@vger.kernel.org
-References: <20051205081935.GI22168@hexapodia.org> <200512111316.47153.rjw@sisk.pl> <20051211232805.GC5982@elf.ucw.cz>
-In-Reply-To: <20051211232805.GC5982@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 12 Dec 2005 12:46:33 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:50407 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1750799AbVLLRqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 12:46:32 -0500
+Subject: Re: Fw: crash on x86_64 - mm related?
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ryan Richter <ryan@tau.solarneutrino.net>, Hugh Dickins <hugh@veritas.com>,
+       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0512120928110.15597@g5.osdl.org>
+References: <20051201195657.GB7236@tau.solarneutrino.net>
+	 <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com>
+	 <20051202180326.GB7634@tau.solarneutrino.net>
+	 <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com>
+	 <20051202194447.GA7679@tau.solarneutrino.net>
+	 <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com>
+	 <20051206160815.GC11560@tau.solarneutrino.net>
+	 <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
+	 <20051206204336.GA12248@tau.solarneutrino.net>
+	 <Pine.LNX.4.61.0512071803300.2975@goblin.wat.veritas.com>
+	 <20051212165443.GD17295@tau.solarneutrino.net>
+	 <Pine.LNX.4.64.0512120928110.15597@g5.osdl.org>
+Content-Type: text/plain
+Date: Mon, 12 Dec 2005 11:45:30 -0600
+Message-Id: <1134409531.9994.13.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512121845.34151.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Monday, 12 December 2005 00:28, Pavel Machek wrote:
-> > > >  Would that be ok if I made drop_pagecache() nonstatic and called it directly
-> > > >  from swsusp?
-> > > 
-> > > Sure, I'll updates the patch for that.
-> > 
-> > Thanks a lot.
-> >  
-> > > It changed a bit..  You'll need to run sys_sync() then drop_pagecache()
-> > > then drop_slab().
-> > 
-> > I think it won't hurt if we do this unconditionally in swsusp_shrink_memory().
-> > Pavel, what do you think?
-> > 
-> > The appended patch illustrates the way in which I think we can use this.
-> > I've tested it a little, but if someone feels like trying it, please
->  >  do.
+On Mon, 2005-12-12 at 09:40 -0800, Linus Torvalds wrote:
+> I think it's the "sdev->single_lun" test at the very top of the function, 
+> where "sdev" was initialized with "q->queuedata". So it looks like 
+> somebody free'd the request_queue structure before the IO completed.
 > 
-> Not sure, do we really want to drop all the pagecache? We want to free
-> memory that is not going to be used soon after suspend, but I guess
-> pagecache can be quite "hot".
-> 
-> I'd certainly wait with this until code settles. And at least trying
-> if it helps or hurts...
+> Definitely sounds like something screwy in SCSI.. I don't think this is VM 
+> related.
 
-Sure.  Today it caused my box to stuck in the idle process. ;-)  OTOH,
-performance-wise it does not seem to hurt.
+Welcome back home.
 
-Greetings,
-Rafael
+This is that SCSI patch you reversed just before you went away.  If you
+put it back again, the problem will go away ...
+
+James
 
 
--- 
-Beer is proof that God loves us and wants us to be happy - Benjamin Franklin

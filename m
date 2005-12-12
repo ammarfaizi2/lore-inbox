@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbVLLDvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751077AbVLLD4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751075AbVLLDvU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 22:51:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbVLLDvU
+	id S1751077AbVLLD4n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 22:56:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbVLLD4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 22:51:20 -0500
-Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:15461 "HELO
-	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S1751075AbVLLDvT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 22:51:19 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=VaOdSe9RXJb8aCHkjscUIYg6PL8loLIR0Utbsbo9NXZ77h9WUsz4GbzL4UGIO5cGSblsSR3HfDzHQjrNxxypDAif30IyX0Q5GrbBc6Nt04+h3x8m1AgkDjEHYIxgSzvPeUe5dqzK7EqTDmGISMtrVsuc31Ub7p4C1/7cnrSd2as=  ;
-Message-ID: <439CF3B1.4050803@yahoo.com.au>
-Date: Mon, 12 Dec 2005 14:51:13 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Andi Kleen <ak@suse.de>, Christoph Lameter <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       linux-mm@kvack.org
-Subject: Re: [RFC 3/6] Make nr_pagecache a per zone counter
-References: <20051210005440.3887.34478.sendpatchset@schroedinger.engr.sgi.com> <20051210005456.3887.94412.sendpatchset@schroedinger.engr.sgi.com> <20051211183241.GD4267@dmt.cnet> <20051211194840.GU11190@wotan.suse.de> <20051211204943.GA4375@dmt.cnet>
-In-Reply-To: <20051211204943.GA4375@dmt.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 11 Dec 2005 22:56:42 -0500
+Received: from mx2.suse.de ([195.135.220.15]:11147 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751077AbVLLD4m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 22:56:42 -0500
+Date: Mon, 12 Dec 2005 04:56:32 +0100
+From: Andi Kleen <ak@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Christoph Lameter <clameter@sgi.com>, linux-kernel@vger.kernel.org,
+       Hugh Dickins <hugh@veritas.com>, linux-mm@kvack.org,
+       Andi Kleen <ak@suse.de>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [RFC 1/6] Framework
+Message-ID: <20051212035631.GX11190@wotan.suse.de>
+References: <20051210005440.3887.34478.sendpatchset@schroedinger.engr.sgi.com> <20051210005445.3887.94119.sendpatchset@schroedinger.engr.sgi.com> <439CF2A2.60105@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <439CF2A2.60105@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> On Sun, Dec 11, 2005 at 08:48:40PM +0100, Andi Kleen wrote:
+On Mon, Dec 12, 2005 at 02:46:42PM +1100, Nick Piggin wrote:
+> Christoph Lameter wrote:
 > 
->>>By the way, why does nr_pagecache needs to be an atomic variable on UP systems?
->>
->>At least on X86 UP atomic doesn't use the LOCK prefix and is thus quite
->>cheap. I would expect other architectures who care about UP performance
->>(= not IA64) to be similar.
+> >+/*
+> >+ * For use when we know that interrupts are disabled.
+> >+ */
+> >+static inline void __mod_zone_page_state(struct zone *zone, enum 
+> >zone_stat_item item, int delta)
+> >+{
 > 
-> 
-> But in practice the variable does not need to be an atomic type for UP, but
-> simply a word, since stores are atomic on UP systems, no?
-> 
-> Several arches seem to use additional atomicity instructions on 
-> atomic functions:
-> 
+> Before this goes through, I have a full patch to do similar for the
+> rest of the statistics, and which will make names consistent with what
+> you have (shouldn't be a lot of clashes though).
 
-Yeah, this is to protect from interrupts and is common to most
-load store architectures. It is possible we could have
-atomic_xxx_irq / atomic_xxx_irqsave functions for these, however
-I think nobody has yet demostrated the improvements outweigh the
-complexity that would be added.
+I also have a patch to change them all to local_t, greatly simplifying
+it (e.g. the counters can be done inline then) 
 
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+-Andi

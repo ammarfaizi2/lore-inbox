@@ -1,61 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbVLLBQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbVLLBSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750977AbVLLBQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 20:16:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbVLLBQ1
+	id S1750983AbVLLBSE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 20:18:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbVLLBSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 20:16:27 -0500
-Received: from c-67-177-35-222.hsd1.ut.comcast.net ([67.177.35.222]:17806 "EHLO
-	vger.utah-nac.org") by vger.kernel.org with ESMTP id S1750976AbVLLBQ1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 20:16:27 -0500
-Message-ID: <439CC958.5060607@wolfmountaingroup.com>
-Date: Sun, 11 Dec 2005 17:50:32 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Sun, 11 Dec 2005 20:18:03 -0500
+Received: from services.erkkila.org ([24.97.94.217]:54149 "EHLO erkkila.org")
+	by vger.kernel.org with ESMTP id S1750983AbVLLBSB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 20:18:01 -0500
+Message-ID: <439CCFC7.2080100@erkkila.org>
+Date: Mon, 12 Dec 2005 01:17:59 +0000
+From: Paul Erkkila <pee@erkkila.org>
+User-Agent: Mail/News 1.5 (X11/20051209)
 MIME-Version: 1.0
-To: rms@gnu.org
-Cc: coywolf@gmail.com, luke-jr@utopios.org, linux-kernel@vger.kernel.org
-Subject: Re: GNU/Linux in a binary world... a doomsday scenario
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>         <20051206040820.GB26602@kroah.com>         <2cd57c900512052358m5b631204i@mail.gmail.com>         <200512061856.42493.luke-jr@utopios.org> <2cd57c900512061742s28f57b5eu@mail.gmail.com> <20051210051628.E9E08CF4156@tsurukikun.utopios.org> <439A7E8E.8010707@wolfmountaingroup.com> <E1ElJMz-00047E-1p@fencepost.gnu.org> <439BE48A.4020205@wolfmountaingroup.com> <20051212004458.855D7CF402E@tsurukikun.utopios.org>
-In-Reply-To: <20051212004458.855D7CF402E@tsurukikun.utopios.org>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+To: linux-net@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.15-rc5 gre tunnel checksum error
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard M. Stallman wrote:
 
->--text follows this line--
->      I would be happy to propose several changes in future revisions.
->    Let me know where, when, and what to provide.  You can be assured
->    I'll provide some very excellent input on these issues.
->
->We accepting comments on the first public draft of GNU GPL v3 once it
->is made public on Jan 16.
->
->See gplv3.fsf.org for more information about how this will work.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-You can be assured I will submit proposed changes.  Something along the 
-same lines as the CDDL.  Needs to protect
-receivers of the code from IP claims and also needs to accomodate mixing 
-of non-GPL components without
-contaminating add on modules and functionality.  I would use the GPL if 
-it were more acceptable along these
-lines.  In case you haven't noticed, I don't have problem being 
-outspoken, nor do I am subject to intimination
-by the more vocal element of the FOSS community.  I am using the CDDL at 
-present but a revised and more
-capitalism oriented GPL would certainly be welcome.
+    I'm getting this traceback from 2.6.15-rc5.
 
-I'll sharpen my pencil.
+    - no skge driver in this box
+        - 02:01.0 Ethernet controller: Intel Corporation 82547EI Gigabit
+Ethernet Controller (LOM)
+        - 03:01.0 Ethernet controller: 3Com Corporation 3c905 100BaseTX
+[Boomerang]
+        - 03:04.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M
+[Tornado] (rev 78)
 
-Jeff
+    - just seems to be ping that causes it
+    - the checksums look ok with tethereal
+
+tunnel0: hw csum failure.
+ [<c03733cf>] __skb_checksum_complete+0x67/0x6d
+ [<c03cd50f>] icmp_error+0xbb/0x1c1
+ [<c03d36ce>] ipt_do_table+0x2f2/0x4f0
+ [<c03718dc>] skb_checksum+0x4e/0x2c2
+ [<c03ca33c>] ip_conntrack_in+0x117/0x395
+ [<c03d9f33>] ipt_hook+0x37/0x3c
+ [<c03882cc>] nf_iterate+0x58/0xa8
+ [<c039177a>] ip_rcv_finish+0x0/0x2ba
+ [<c0388387>] nf_hook_slow+0x6b/0x134
+ [<c039177a>] ip_rcv_finish+0x0/0x2ba
+ [<c03913ba>] ip_rcv+0x1d0/0x590
+ [<c039177a>] ip_rcv_finish+0x0/0x2ba
+ [<c03763ba>] netif_receive_skb+0x1d0/0x23e
+ [<c03764aa>] process_backlog+0x82/0x109
+ [<c03765c0>] net_rx_action+0x8f/0x16a
+ [<c0126517>] __do_softirq+0x6b/0xd8
+ [<c01265b6>] do_softirq+0x32/0x34
+ [<c0104ee2>] do_IRQ+0x1e/0x24
+ [<c0103756>] common_interrupt+0x1a/0x20
+ [<c0100d6c>] default_idle+0x2e/0x52
+ [<c0100e09>] cpu_idle+0x65/0x73
+ [<c055a945>] start_kernel+0x180/0x1bc
+ [<c055a32a>] unknown_bootoption+0x0/0x1e0
+
+
+-pee
+

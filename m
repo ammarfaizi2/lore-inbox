@@ -1,78 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbVLLROe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbVLLRSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751275AbVLLROe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 12:14:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbVLLROe
+	id S1751143AbVLLRSb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 12:18:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVLLRSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 12:14:34 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:20295 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751275AbVLLROd convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 12:14:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tG2cs2lM/kpKQd3+a7N+/Eicu+AtZl/UwoF+SpmaSUj3ArkHAWMBu0tjtem2qbqXiVwqcE+EOykDz42cz6TJgx9exoEgsqpaJgeRNHns5s6xzc8SBQRQWnbhhGWrndho2pVUOW5bbYQPcTlMYfNvye0GrALkQt5I+bDObfE5+3I=
-Message-ID: <9a8748490512120914v494b9fdcy459e90b1704f1757@mail.gmail.com>
-Date: Mon, 12 Dec 2005 18:14:31 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: Mouse stalls with 2.6.5-rc5-mm2
-Cc: LKML List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <200512112250.44848.dtor_core@ameritech.net>
+	Mon, 12 Dec 2005 12:18:31 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:53193 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751143AbVLLRSa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 12:18:30 -0500
+Date: Mon, 12 Dec 2005 09:17:32 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>, Jens Axboe <axboe@suse.de>,
+       Brian King <brking@us.ibm.com>
+Subject: Re: Memory corruption & SCSI in 2.6.15
+In-Reply-To: <1134371606.6989.95.camel@gaston>
+Message-ID: <Pine.LNX.4.64.0512120909460.15597@g5.osdl.org>
+References: <1134371606.6989.95.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9a8748490512110548h22889559ld81374f2626c3ed2@mail.gmail.com>
-	 <200512111327.40578.dtor_core@ameritech.net>
-	 <9a8748490512111149l358f18abuc7f0685413f75c06@mail.gmail.com>
-	 <200512112250.44848.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/12/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> On Sunday 11 December 2005 14:49, Jesper Juhl wrote:
-> > well, unplugging the mouse from the KVM and plugging it into the PC's
-> > PS/2 port directly resulted in this in dmesg :
-> >
-> > [ 567.297724] psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost
-> > synchronization, throwing 1 bytes away.
-> > [ 567.807251] psmouse.c: resync failed, issuing reconnect request
-> > [ 568.015721] logips2pp: Detected unknown logitech mouse model 87
-> >
-> > and after that I see no more resync failed messages and the mouse doesn't stall.
-> >
->
-> Ok, so your KVM fakes the response to POLL command. But normally
-> (with resync disabled) your mouse works just fine with your KVM,
-> you can still use wheel after switching between the boxes, right?
-
-The wheel works fine after switching away and back.
 
 
-> If so I will try adjusting my patch.
->
-> In the mean time could you please try the tiny patch below - it
-> shoudl get rid of "unknown logitech mouse" message. Could you send
-> me your dmesg after applying the patch?
->
+On Mon, 12 Dec 2005, Benjamin Herrenschmidt wrote:
+> 
+> Current -git as of today (that is 2.6.15-rc5 + the batch of fixes Linus
+> pulled after his return) was dying in weird ways for me on POWER5. I had
+> the good idea to activate slab debugging, and I now see it detecting
+> slab corruption as soon as the IPR driver initializes.
+> 
+> Since I remember seeing a discussion somewhere on a list between Brian
+> King and Jens Axboe about use-after-free problems in SCSI and possible
+> other niceties of that sort, I though it might be related...
+> 
+> Anything I can do to help track this down ?
 
-Patch seems to do its job :
+If it's easily repeatable, doing a "git bisect" to see when it starts 
+happening is the obvious big sledge-hammer thing to try. Even if you don't 
+bisect all the way, just narrowing it down a bit more might help.
 
-$ dmesg | grep -i mouse
-[   24.039229] mice: PS/2 mouse device common for all mice
-[   24.790995] input: ImExPS/2 Generic Explorer Mouse as /class/input/input1
-[  192.060997] psmouse.c: Explorer Mouse at isa0060/serio1/input0 lost
-synchronization, throwing 1 bytes away.
-[  192.569915] psmouse.c: resync failed, issuing reconnect request
+Also, enabling DEBUG_PAGEALLOC might help, but that's not available on 
+powerpc.
 
+There's a raid1 use-after-free bugfix that I just merged and pushed out, 
+but I doubt that one is relevant. But you might try to update.
 
-Thanks.
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+		Linus

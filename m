@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbVLLUIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbVLLUNo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbVLLUIV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 15:08:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbVLLUIV
+	id S932205AbVLLUNo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 15:13:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbVLLUNn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 15:08:21 -0500
-Received: from w241.dkm.cz ([62.24.88.241]:14048 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S932150AbVLLUIU (ORCPT
+	Mon, 12 Dec 2005 15:13:43 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:58517 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932163AbVLLUNm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 15:08:20 -0500
-Date: Mon, 12 Dec 2005 21:08:17 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: [PATCH 0/3] Link lxdialog with mconf directly
-Message-ID: <20051212200817.GM10680@pasky.or.cz>
-References: <20051212004159.31263.89669.stgit@machine.or.cz> <20051212191422.GB7694@mars.ravnborg.org>
+	Mon, 12 Dec 2005 15:13:42 -0500
+Date: Mon, 12 Dec 2005 12:12:08 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: hch@infradead.org, fujita.tomonori@lab.ntt.co.jp, michaelc@cs.wisc.edu,
+       linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
+       open-iscsi@googlegroups.com, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: allowed pages in the block later, was Re: [Ext2-devel] [PATCH]
+ ext3: avoid sending down non-refcounted pages
+Message-Id: <20051212121208.4c7421ce.akpm@osdl.org>
+In-Reply-To: <20051212172552.GA28652@infradead.org>
+References: <20051208180900T.fujita.tomonori@lab.ntt.co.jp>
+	<20051208101833.GM14509@schatzie.adilger.int>
+	<20051208134239.GA13376@infradead.org>
+	<20051210164736.6e4eaa3f.akpm@osdl.org>
+	<20051212172552.GA28652@infradead.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051212191422.GB7694@mars.ravnborg.org>
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Mon, Dec 12, 2005 at 08:14:22PM CET, I got a letter
-where Sam Ravnborg <sam@ravnborg.org> said that...
-> On Mon, Dec 12, 2005 at 01:41:59AM +0100, Petr Baudis wrote:
-> >   The following series revives one three years old patch, turning lxdialog
-> > to a library and linking it directly to mconf, making menuconfig nicer and
-> > things in general quite simpler and cleaner.
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> On Sat, Dec 10, 2005 at 04:47:36PM -0800, Andrew Morton wrote:
+> > Christoph Hellwig <hch@infradead.org> wrote:
+> > >
+> > > The problem we're trying to solve here is how do implement network block
+> > >  devices (nbd, iscsi) efficiently.  The zero copy codepath in the networking
+> > >  layer does need to grab additional references to pages.  So to use sendpage
+> > >  we need a refcountable page.  pages used by the slab allocator are not
+> > >  normally refcounted so try to do get_page/pub_page on them will break.
 > > 
-> >   The first two patches make slight adjustements to kbuild in order to make
-> > liblxdialog possible. The third patch does the libification itself and
-> > appropriate modifications to mconf.c.
+> > I don't get it.  Doing get_page/put_page on a slab-allocated page should do
+> > the right thing?
 > 
-> Why not just copy over relevant files to scripts/kconfig?
-> Then no playing tricks with libaries etc. is needed, and everythings
-> just works.
-> 
-> It is only 8 files and prefixing them with lx* would make them
-> stand out compared to the rest. It is not like there is any user planned
-> for the lxdialog functionality in the kernel, and kconfig users outside
-> the kernel I beleive copy lxdialog with rest of kconfig files.
+> As Arjan mentioned, what would be the right thing?  Delaying returning the
+> page to the page pool and disallow reuse until page count reaches zero?
 
-Ok. I didn't want to pollute scripts/kconfig/ too much, but if it's ok
-by you, I can do it that way. I will submit another series later in the
-evening.
+Yes, that's what'll happen.  slab will put its final ref to the page, so
+whoever did that intervening get_page() ends up owning the page.
 
-> Btw. the work you are doing are clashing with a general cleanup effort
-> of lxdialog I have in -mm at the moment.
-> I received only very limited feedback = looks ok.
-> Integrating principles from your old patch was on my TODO list.
+> All this seems highly impractical.
 
-Do you mean the series you posted at Nov 21? Should I just rebase my
-patches on top of that?
+Well, as Arjan points out, doing get_page() won't prevent slab from
+"freeing" a part of the page and reusing it for another object of the same
+type.
 
-FWIW, the changes there look fine to me. I actually wanted to change the
-indentation of the menus as well; it looks horrible especially in the
-singlemenu mode.
-
-> I have something in the works that uses linked list instead of a
-> preallocated array, to keep the dynamic behaviour. I will probarly make
-> a version with the linked list approach but otherwise use your changes
-> to mconf.c. But it will take a few days until I get to it.
-
-I can do it and include it in the updated series.
-
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-VI has two modes: the one in which it beeps and the one in which
-it doesn't.

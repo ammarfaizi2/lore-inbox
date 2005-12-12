@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750864AbVLLGwg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbVLLHHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750864AbVLLGwg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 01:52:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbVLLGwg
+	id S1751092AbVLLHHE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 02:07:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVLLHHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 01:52:36 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:150 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750864AbVLLGwf (ORCPT
+	Mon, 12 Dec 2005 02:07:04 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:38108 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751092AbVLLHHC convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 01:52:35 -0500
-Date: Mon, 12 Dec 2005 07:51:50 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.15-rc5: multiuser scheduling trouble
-Message-ID: <20051212065150.GA8187@elte.hu>
-References: <Pine.LNX.4.64.0512032155290.3099@g5.osdl.org> <20051210162759.GA15986@aitel.hist.no> <Pine.LNX.4.64.0512111607040.15597@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512111607040.15597@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.7
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.7 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Mon, 12 Dec 2005 02:07:02 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="gb2312"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [BUG] Variable stopmachine_state should be volatile
+Date: Mon, 12 Dec 2005 15:06:50 +0800
+Message-ID: <8126E4F969BA254AB43EA03C59F44E84042C56D5@pdsmsx404>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BUG] Variable stopmachine_state should be volatile
+Thread-Index: AcX3FyKnyRKZ1LJdR+WciiNOD370YgEf3qogACRx4pAADRGN4A==
+From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+To: "Luck, Tony" <tony.luck@intel.com>,
+       "Arjan van de Ven" <arjan@infradead.org>, "Pavel Machek" <pavel@ucw.cz>
+Cc: <linux-kernel@vger.kernel.org>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Shah, Rajesh" <rajesh.shah@intel.com>, <linux-ia64@vger.kernel.org>
+X-OriginalArrivalTime: 12 Dec 2005 07:06:52.0550 (UTC) FILETIME=[A0EB3A60:01C5FEEA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>-----Original Message-----
+>>From: linux-ia64-owner@vger.kernel.org
+>>[mailto:linux-ia64-owner@vger.kernel.org] On Behalf Of Luck, Tony
+>>Sent: 2005Äê12ÔÂ9ÈÕ 2:53
+>>To: Zhang, Yanmin; Arjan van de Ven; Pavel Machek
+>>Cc: linux-kernel@vger.kernel.org; Pallipadi, Venkatesh; Shah, Rajesh;
+>>linux-ia64@vger.kernel.org
+>>Subject: RE: [BUG] Variable stopmachine_state should be volatile
+>>
+>>> The right approach is to define ia64_hint to ia64_barrier in file
+>>> include/asm-ia64/intel_intrin.h. I tested the new approach and it
+>>> does work.
+>>
+>>Does that get you a "hint@pause" instruction inside the loop?  If not, then
+>>it isn't all the way to the "right" approach.
 
-Helge,
+Tony,
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+The approach just fixes compiler scheduling barrier problem of cpu_relax, and there is no hint@pause inside the loop.
 
-> Also, the most common case is that somebody has reniced the X server, 
-> which is just _wrong_.  It used to be done by some distributions to 
-> try to help the scheduler make the right choices, but we've fixed the 
-> scheduler and it doesn't need it or want it.
+Today I tried the latest icc, 9.0.027. It provides __hint, a new intrinsic, to support hint@pause. __hint also has the meaning of compiler scheduling barrier. So the best solution is to use __hint(0). The disassembled result showed the new intrinsic did work.
 
-> > Knowing the root password I renices his Xorg and firefox by 10, and 
-> > then everything is fine.  His games are still ok, and my xterms are 
-> > snappy again.
-
-does this mean X defaults to nice level 0, and then if you renice
-Firefox and X by +10, everything is fine? Or is Linus' suspicion, and X
-defaults to something like nice -5? (e.g. on Debian type of systems)
-
-but ... i havent seen problems with Firefox and flash myself. My 3 years
-old son's favorite kid's site is fully based on flash, and the 833 MHz
-laptop is still usable remotely while he browses around on it. It's
-Fedora Core 4, and X is not reniced.
-
-but if the X server is not reniced then it would be nice if i could
-reproduce the starvation ... which site is the one triggering it? (and
-could you check www.egyszervolt.hu, and click around on it, does it
-trigger similar starvation problems too?)
-
-	Ingo

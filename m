@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751134AbVLLIfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVLLIkp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751134AbVLLIfX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 03:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbVLLIfX
+	id S1751133AbVLLIkp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 03:40:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbVLLIkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 03:35:23 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:38804 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751134AbVLLIfX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 03:35:23 -0500
-Message-ID: <439D3632.7000201@cosmosbay.com>
-Date: Mon, 12 Dec 2005 09:34:58 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Keith Mannthey <kmannth@gmail.com>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH] x86_64 NUMA : Bug correction in populate_memnodemap()
-References: <a762e240512062124i517a9c35xd1ec681428418341@mail.gmail.com> <43970136.4010006@cosmosbay.com> <20051211182741.GT11190@wotan.suse.de>
-In-Reply-To: <20051211182741.GT11190@wotan.suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Mon, 12 Dec 2005 09:35:00 +0100 (CET)
+	Mon, 12 Dec 2005 03:40:45 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:2721 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751133AbVLLIko (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 03:40:44 -0500
+Date: Mon, 12 Dec 2005 14:11:13 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
+Message-ID: <20051212084112.GA3934@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <1134344716.5937.11.camel@localhost.localdomain> <18382.1134348547@ocs3.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <18382.1134348547@ocs3.ocs.com.au>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen a écrit :
-> On Wed, Dec 07, 2005 at 04:35:18PM +0100, Eric Dumazet wrote:
+On Mon, Dec 12, 2005 at 11:49:07AM +1100, Keith Owens wrote:
+> >On the contrary.  I did some digging and asking and thinking about this
+> >for the Unreliable Guide to Kernel Locking, years ago:
+> >
+> >wmb() means all writes preceeding will complete before any writes
+> >following are started.
+> >rmb() means all reads preceeding will complete before any reads
+> >following are started.
+> >mb() means all reads and writes preceeding will complete before any
+> >reads and writes following are started.
 > 
->>As reported by Keith Mannthey, there are problems in populate_memnodemap()
->>
->>The bug was that the compute_hash_shift() was returning 31, with incorrect 
->>initialization of memnodemap[]
->>
->>To correct the bug, we must use (1UL << shift) instead of (1 << shift) to 
->>avoid an integer overflow, and we must check that shift < 64 to avoid an 
->>infinite loop.
-> 
-> 
-> It's already merged, no need to resubmit. P.S.: It would be easier
-> to merge if you didn't use attachments.
+> FWIW, wmb() on IA64 does not require that preceding stores are flushed
+> to main memory.  It only requires that they be "made visible to other
+> processors in the coherence domain".  "visible" means that the updated
+> value must reach (at least) an externally snooped cache.  There is no
+> requirement that the preceding stores be flushed all the way to main
+> memory, the updates only have to get as far as a cache level that other
+> cpus can see.  The cache snooping takes care of flushing to main memory
+> when necessary.
 
-Hi Andi
+For the context of the problem that we are dealing with, I think this fact
+that writes are made "visible" to other CPUs (before smp_mb() finishes and 
+before other reads are started) is good enough.
 
-AFAIK I posted the patch on linux-kernel only once... and once privatly to 
-Keith because it seems he missed the linux-kernel post.
-I'm confused by your answer.
+Oleg, with all these inputs, I consider the patch I had sent to be correct.
+Let me know if you still have some lingering doubts!
 
-Eric
+P.S :- Thanks to everybody who reponded clarifying this subject.
+
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVLLSE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbVLLSIh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbVLLSE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 13:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVLLSE1
+	id S932171AbVLLSIh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 13:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVLLSIh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 13:04:27 -0500
-Received: from solarneutrino.net ([66.199.224.43]:33798 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S932156AbVLLSEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 13:04:25 -0500
-Date: Mon, 12 Dec 2005 13:04:19 -0500
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       ryan@tau.solarneutrino.net
-Subject: Re: Fw: crash on x86_64 - mm related?
-Message-ID: <20051212180419.GA18508@tau.solarneutrino.net>
-References: <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com> <20051202194447.GA7679@tau.solarneutrino.net> <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com> <20051206160815.GC11560@tau.solarneutrino.net> <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com> <20051206204336.GA12248@tau.solarneutrino.net> <Pine.LNX.4.61.0512071803300.2975@goblin.wat.veritas.com> <20051212165443.GD17295@tau.solarneutrino.net> <Pine.LNX.4.64.0512120928110.15597@g5.osdl.org> <1134409531.9994.13.camel@mulgrave>
+	Mon, 12 Dec 2005 13:08:37 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:35137 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932172AbVLLSIg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 13:08:36 -0500
+Date: Mon, 12 Dec 2005 19:09:53 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>, Brian King <brking@us.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Memory corruption & SCSI in 2.6.15
+Message-ID: <20051212180952.GA12024@suse.de>
+References: <1134371606.6989.95.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1134409531.9994.13.camel@mulgrave>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+In-Reply-To: <1134371606.6989.95.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 12, 2005 at 11:45:30AM -0600, James Bottomley wrote:
-> On Mon, 2005-12-12 at 09:40 -0800, Linus Torvalds wrote:
-> > I think it's the "sdev->single_lun" test at the very top of the
-> > function, where "sdev" was initialized with "q->queuedata". So it
-> > looks like somebody free'd the request_queue structure before the IO
-> > completed.
-> > 
-> > Definitely sounds like something screwy in SCSI.. I don't think this
-> > is VM related.
-
-That was just a stupid guess to get someone's attention :)
-
-> Welcome back home.
+On Mon, Dec 12 2005, Benjamin Herrenschmidt wrote:
+> Hi !
 > 
-> This is that SCSI patch you reversed just before you went away.  If
-> you put it back again, the problem will go away ...
+> Current -git as of today (that is 2.6.15-rc5 + the batch of fixes Linus
+> pulled after his return) was dying in weird ways for me on POWER5. I had
+> the good idea to activate slab debugging, and I now see it detecting
+> slab corruption as soon as the IPR driver initializes.
 > 
+> Since I remember seeing a discussion somewhere on a list between Brian
+> King and Jens Axboe about use-after-free problems in SCSI and possible
+> other niceties of that sort, I though it might be related...
 
-Should I try this patch out?  If so, where can I find it?
+When did this start happening (roughly)?
 
-Thanks,
--ryan
+-- 
+Jens Axboe
+

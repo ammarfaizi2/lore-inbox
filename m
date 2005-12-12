@@ -1,82 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbVLLRUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbVLLR0B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbVLLRUR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 12:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbVLLRUR
+	id S932079AbVLLR0B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 12:26:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVLLR0B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 12:20:17 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:41954 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932070AbVLLRUQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 12:20:16 -0500
-Message-Id: <200512121717.jBCHHqHe017137@laptop11.inf.utfsm.cl>
-To: Felix Oxley <lkml@oxley.org>
-cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel 
-In-Reply-To: Message from Felix Oxley <lkml@oxley.org> 
-   of "Mon, 12 Dec 2005 14:45:52 -0000." <671576E7-A7F1-4FF9-8E4B-361A89ADA173@oxley.org> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Mon, 12 Dec 2005 14:17:52 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 12 Dec 2005 14:17:53 -0300 (CLST)
+	Mon, 12 Dec 2005 12:26:01 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:37513 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932074AbVLLR0A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 12:26:00 -0500
+Date: Mon, 12 Dec 2005 17:25:52 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, fujita.tomonori@lab.ntt.co.jp,
+       michaelc@cs.wisc.edu, linux-fsdevel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net, open-iscsi@googlegroups.com,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: allowed pages in the block later, was Re: [Ext2-devel] [PATCH] ext3: avoid sending down non-refcounted pages
+Message-ID: <20051212172552.GA28652@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, fujita.tomonori@lab.ntt.co.jp,
+	michaelc@cs.wisc.edu, linux-fsdevel@vger.kernel.org,
+	ext2-devel@lists.sourceforge.net, open-iscsi@googlegroups.com,
+	linux-mm@kvack.org, linux-kernel@vger.kernel.org
+References: <20051208180900T.fujita.tomonori@lab.ntt.co.jp> <20051208101833.GM14509@schatzie.adilger.int> <20051208134239.GA13376@infradead.org> <20051210164736.6e4eaa3f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051210164736.6e4eaa3f.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felix Oxley <lkml@oxley.org> wrote:
-
-[...]
-
-> What if ...
+On Sat, Dec 10, 2005 at 04:47:36PM -0800, Andrew Morton wrote:
+> Christoph Hellwig <hch@infradead.org> wrote:
+> >
+> > The problem we're trying to solve here is how do implement network block
+> >  devices (nbd, iscsi) efficiently.  The zero copy codepath in the networking
+> >  layer does need to grab additional references to pages.  So to use sendpage
+> >  we need a refcountable page.  pages used by the slab allocator are not
+> >  normally refcounted so try to do get_page/pub_page on them will break.
 > 
-> 1. When people make a patch set, if they have encountered any 'bugs'
-> they split them out as separate items.
+> I don't get it.  Doing get_page/put_page on a slab-allocated page should do
+> the right thing?
 
-No need. Patches are either (a) bug fixes, or (b) infrastructure changes,
-or (c) additions (mostly drivers). You only need to pick (a) items. Check.
-
-> 2. The submitter would identify through GIT when the error had been
-> introduced
-
-Hard to find out. Nobody will do so.
-
->            so that the the person responsible could be CC'ed, also
-> anybody who had worked on the code recently would be CCed, therefore
-> the programmers who were most familiar with that section of code
-> would be made aware of it.
-
-Cc:ing them is part of the development anyway (in reality, Cc:ing anybody
-interested in the area). Check.
-
-> 3. When the patch is posted to LKML, it is tagged [PATCH][FIX] in the
-> subject line.
->      In the body of the fix would be noted each kernel to which the
->      fix applied e.g [FIX 2.6.11][FIX 2.6.12][FIX 2.6.13][FIX 2.6.14]
-
-No do. Problem are the (b) and (c) patches above, they change whatever the
-patch applies to and make it not apply anymore. The effort of finding out
-if the patch is (a) or (c) class, seeing if it is really needed, and
-modifying it so it applies to your source base is called "backporting". And
-it remains hard, thankless work.
-
-> 4. The programmers mentioned in (2) would ACK the patch which would
-> then become part of an 'official' fixes list.
-
-Won't happen.
-
-> 5. If a volunteer wanted to maintain, say, 2.6.14 + fixes, they could
-> build and test it and be a point of contact regarding any problems.
-> These could hopefully be tracked down and submitted as a new fix patch.
-
-Go right ahead. Just be warned that distributions hired a small army of
-kernel specialists to do exactly this, and got tired of doing so. Among
-others because the patches deemed necessary were different from one
-distributuion to the next, and then usually incompatible with one another
-and with what turned out to be the standard solution. This gave rise to the
-current development model...
-
-Armchair software engineering is much like armchair $SPORT.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+As Arjan mentioned, what would be the right thing?  Delaying returning the
+page to the page pool and disallow reuse until page count reaches zero?
+All this seems highly impractical.

@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbVLLP7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbVLLQNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932072AbVLLP7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 10:59:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbVLLP7Y
+	id S1750723AbVLLQNI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 11:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVLLQNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 10:59:24 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:29666 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932072AbVLLP7X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 10:59:23 -0500
-Date: Mon, 12 Dec 2005 07:58:47 -0800
-From: Paul Jackson <pj@sgi.com>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: miklos@szeredi.hu, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       rth@twiddle.net, davej@redhat.com, zwane@arm.linux.org.uk, ak@suse.de,
-       ashok.raj@intel.com
-Subject: Re: [PATCH] move pm_power_off and pm_idle declaration to common
- code
-Message-Id: <20051212075847.99a2591c.pj@sgi.com>
-In-Reply-To: <m1pso29z37.fsf@ebiederm.dsl.xmission.com>
-References: <E1EloGS-0005gf-00@dorka.pomaz.szeredi.hu>
-	<m1pso29z37.fsf@ebiederm.dsl.xmission.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 12 Dec 2005 11:13:08 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:23219 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750723AbVLLQNH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 11:13:07 -0500
+Subject: Re: 2.6.15-rc5-mm1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <4398D967.4020309@ums.usu.ru>
+References: <20051204232153.258cd554.akpm@osdl.org>
+	 <4398D967.4020309@ums.usu.ru>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 12 Dec 2005 16:12:35 +0000
+Message-Id: <1134403956.6841.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A key question is how do we handle architectures
-> that always want to want to call machine_power_off.
+On Gwe, 2005-12-09 at 06:09 +0500, Alexander E. Patrakov wrote:
+> With the via82cxxx driver, I can get speed around 20 MB/s from /dev/hda. 
+> The pata_via driver downgrades this to 7 MB/s because it needlessly 
+> drops the disk to MWDMA2 mode.
 
-One common way to handle a generic default with possible arch specific
-overrides is with #ifdef symbols.  Surround the generic definition with
-something like "#ifndef ARCH_HAS_PM_POWER_OFF", and let the arch's that
-want something other than the default define that preprocessor symbol
-as well.
+This is fixed in the ide patches I've been posting and has been fixed
+for a long time. The libata core in the base kernel however isn't bright
+enough to independantly tune master and slave.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Jeff asked me to finish sorting out and testing some other things with
+those changes (notably ata_piix) to ensure that they don't break
+existing setups. I've got that mostly done now although it took some
+time because both the original ata_piix and the ide/pci/piix driver turn
+out to contain bad mistakes.
+
+I hope to be able to feed the relevant stuff to Jeff this week.
+
+
+

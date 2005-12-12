@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbVLLQ4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751265AbVLLQ66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751273AbVLLQ4t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 11:56:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751275AbVLLQ4t
+	id S1751265AbVLLQ66 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 11:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVLLQ66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 11:56:49 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:51914 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1751273AbVLLQ4s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 11:56:48 -0500
-Message-ID: <439DABEC.8000301@ru.mvista.com>
-Date: Mon, 12 Dec 2005 19:57:16 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 12 Dec 2005 11:58:58 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:46473 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751265AbVLLQ66 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 11:58:58 -0500
+Message-ID: <439DBDE7.75F0BAAD@tv-sign.ru>
+Date: Mon, 12 Dec 2005 21:13:59 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
-       greg@kroah.com, basicmark@yahoo.com, komal_shah802003@yahoo.com,
-       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
-       Joachim_Jaeger@digi.com
-Subject: Re: [PATCH 2.6-git] SPI core refresh
-References: <20051130195053.713ea9ef.vwool@ru.mvista.com> <200511301327.02053.david-b@pacbell.net>
-In-Reply-To: <200511301327.02053.david-b@pacbell.net>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] copy_process: error path cleanup
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW:
+This patch moves 'fork_out:' under 'bad_fork_free:',
+and removes now unneeded 'if (retval)' check.
 
-David Brownell wrote:
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
 
->+How do I write an "SPI Master Controller Driver"?
->+-------------------------------------------------
->+An SPI controller will probably be registered on the platform_bus; write
->+a driver to bind to the device, whichever bus is involved.
->+
->+The main task of this type of driver is to provide an "spi_master".
->+Use spi_alloc_master() to allocate the master, and class_get_devdata()
->+to get the driver-private data allocated for that device.
->+
->+	struct spi_master	*master;
->+	struct CONTROLLER	*c;
->+
->+	master = spi_alloc_master(dev, sizeof *c);
->+	if (!master)
->+		return -ENODEV;
->+
->+	c = class_get_devdata(&master->cdev);
->  
->
-Here's an example of a mixture of two approaches which leads to 
-misleading code.
-If you want to have abstract spi_master, then you have to disallow (or 
-at least discourage) explicit usage of spi_master fields, otherwise 
-'kzalloc is your friend' and you don't have toadd this spi_alloc_master 
-API as it's basically useless IMHO.
-
-As opposed to this, we use abstract handles where possible (i. e. for 
-spi_message).
-I'd have understood your dissatisfaction with that if you were 
-consistently following the approach 'expose everything, forget the 
-extensibility, viva lightwieghtness', but you're mixing things.
-
-Vitaly
+--- 2.6.15-rc5/kernel/fork.c~	2005-12-06 23:33:16.000000000 +0300
++++ 2.6.15-rc5/kernel/fork.c	2005-12-12 22:55:12.000000000 +0300
+@@ -1141,11 +1141,7 @@ static task_t *copy_process(unsigned lon
+ 	write_unlock_irq(&tasklist_lock);
+ 	proc_fork_connector(p);
+ 	cpuset_fork(p);
+-	retval = 0;
+ 
+-fork_out:
+-	if (retval)
+-		return ERR_PTR(retval);
+ 	return p;
+ 
+ bad_fork_cleanup_namespace:
+@@ -1184,7 +1180,8 @@ bad_fork_cleanup_count:
+ 	free_uid(p->user);
+ bad_fork_free:
+ 	free_task(p);
+-	goto fork_out;
++fork_out:
++	return ERR_PTR(retval);
+ }
+ 
+ struct pt_regs * __devinit __attribute__((weak)) idle_regs(struct pt_regs *regs)

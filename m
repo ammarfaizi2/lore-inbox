@@ -1,48 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbVLLT4T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbVLLUAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbVLLT4T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 14:56:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVLLT4T
+	id S932189AbVLLUAu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 15:00:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbVLLUAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 14:56:19 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51600 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932183AbVLLT4S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 14:56:18 -0500
-Date: Mon, 12 Dec 2005 11:55:40 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Brian King <brking@us.ibm.com>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, Jens Axboe <axboe@suse.de>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: Memory corruption & SCSI in 2.6.15
-In-Reply-To: <439DC9E4.6030508@us.ibm.com>
-Message-ID: <Pine.LNX.4.64.0512121149360.15597@g5.osdl.org>
-References: <1134371606.6989.95.camel@gaston> <439DC9E4.6030508@us.ibm.com>
+	Mon, 12 Dec 2005 15:00:50 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:13968 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932189AbVLLUAt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 15:00:49 -0500
+Message-ID: <439DD6E8.7010802@watson.ibm.com>
+Date: Mon, 12 Dec 2005 20:00:40 +0000
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: john stultz <johnstul@us.ibm.com>
+CC: Christoph Lameter <clameter@engr.sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       lse-tech@lists.sourceforge.net,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Jay Lan <jlan@sgi.com>, Jens Axboe <axboe@suse.de>
+Subject: Re: [Lse-tech] [RFC][Patch 1/5] nanosecond timestamps and diffs
+References: <43975D45.3080801@watson.ibm.com>	 <43975E6D.9000301@watson.ibm.com>	 <Pine.LNX.4.62.0512121049400.14868@schroedinger.engr.sgi.com>	 <439DD01A.2060803@watson.ibm.com> <1134416962.14627.7.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1134416962.14627.7.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 12 Dec 2005, Brian King wrote:
+john stultz wrote:
+> On Mon, 2005-12-12 at 19:31 +0000, Shailabh Nagar wrote:
 > 
-> Please try the attached patch. There appears to be a double free going on
-> in the scsi scan code. There is a direct call to scsi_free_queue and then
-> the following put_device calls the release function, which also frees
-> the queue.
+>>Christoph Lameter wrote:
+>>
+>>>On Wed, 7 Dec 2005, Shailabh Nagar wrote:
+>>>
+>>>
+>>>
+>>>>+void getnstimestamp(struct timespec *ts)
+>>>
+>>>
+>>>There is already getnstimeofday in the kernel.
+>>>
+>>
+>>Yes, and that function is being used within the getnstimestamp() being proposed.
+>>However, John Stultz had advised that getnstimeofday could get affected by calls to
+>>settimeofday and had recommended adjusting the getnstimeofday value with wall_to_monotonic.
+>>
+>>John, could you elaborate ?
+> 
+> 
+> I think you pretty well have it covered. 
+> 
+> getnstimeofday + wall_to_monotonic should be higher-res and more
+> reliable (then TSC based sched_clock(), for example) for getting a
+> timestamp.
+> 
+> There may be performance concerns as you have to access the clock
+> hardware in getnstimeofday(), but there really is no other way for
+> reliable finely grained monotonically increasing timestamps.
+> 
+> thanks
+> -john
 
-Indeed, that looks pretty subtle. 
+Thanks, that clarifies. I guess the other underlying concern here would be whether these
+improvements (in resolution and reliability) should be going into getnstimeofday()
+itself (rather than creating a new func for the same) ? Or is it better to leave
+getnstimeofday as it is ?
 
-James: Brian's patch looks obviously correct to me (scsi_alloc_sdev() will 
-have called scsi_sysfs_device_initialize() which will set up the release 
-function to free the queue). 
+Thanks,
+Shailabh
 
-This code has been like that forever, though, which makes me wonder. Can 
-anybody see what has changed to make the bug trigger? Or is there 
-something I'm missing?
-
-		Linus

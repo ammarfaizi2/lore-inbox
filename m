@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932156AbVLLWwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbVLLW5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932156AbVLLWwH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 17:52:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbVLLWwH
+	id S932225AbVLLW5q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 17:57:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbVLLW5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 17:52:07 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:16300 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932156AbVLLWwF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 17:52:05 -0500
-Subject: Re: 2.6.15-rc5-mm2: two cs5535 modules
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ben Gardner <gardner.ben@gmail.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <808c8e9d0512121029p4215d8b9y411a76d54f625677@mail.gmail.com>
-References: <20051211041308.7bb19454.akpm@osdl.org>
-	 <20051211175612.GL23349@stusta.de>
-	 <808c8e9d0512121029p4215d8b9y411a76d54f625677@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 12 Dec 2005 22:49:46 +0000
-Message-Id: <1134427786.10304.8.camel@localhost.localdomain>
+	Mon, 12 Dec 2005 17:57:46 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:35773 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932225AbVLLW5p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 17:57:45 -0500
+Date: Mon, 12 Dec 2005 14:58:45 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.15-rc5-mm1
+Message-Id: <20051212145845.7a76da76.akpm@osdl.org>
+In-Reply-To: <20051211223638.27a0749e@werewolf.auna.net>
+References: <20051204232153.258cd554.akpm@osdl.org>
+	<20051206000524.74cb2ddc@werewolf.auna.net>
+	<20051210233655.GH11094@kroah.com>
+	<20051211004611.60248a2f@werewolf.auna.net>
+	<20051211223638.27a0749e@werewolf.auna.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-12-12 at 12:29 -0600, Ben Gardner wrote:
-> Hi Adrian,
+"J.A. Magallon" <jamagallon@able.es> wrote:
+>
+> > Sorry for the delay. I'm just compiling all rcs from rc2 to rc5 and will
+> > try to boot whith them.
+> > 
+> > For the rest of your questions:
+> > - I have no /etc/udev/agents.d/usb/usbcore
+> > - I have killed all the devfs compat scripts/rules (BTW, when will be finally
+> >   erradicated from  udev ;) ?
+> > - Distro: Mandriva Cooker, updated daily, udev-077 now (the hangs I reported
+> >   were with 075).
+> > 
+> > More info soon...
+> > 
 > 
-> Thanks for pointing that out. I'll use a different name.
+> No problems with plain rc5. It does not seem to _always_ happen on -mm1,
+> I thing I even got a clean boot, but just one. 
+> Detailed oops screenshot is here:
 > 
-> Perhaps the cs5535 ide module should also be renamed to something more
-> sane, like "cs5535-ide".
+> http://belly.cps.unizar.es/~magallon/oops/oops.jpg
+> 
 
-Historically all chipsets for IDE have been known by the chipset name.
-Its already changed for the new sata layer. Its probably better to
-rename the gpio type module, if indeed its even worth having in the
-kernel (which I'm dubious about)
+Thanks for that.
 
+Let's add the usb list..

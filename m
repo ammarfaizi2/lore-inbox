@@ -1,64 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVLLTjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbVLLTnI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbVLLTjh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 14:39:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbVLLTjh
+	id S932179AbVLLTnI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 14:43:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbVLLTnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 14:39:37 -0500
-Received: from smtprelay02.ispgateway.de ([80.67.18.14]:23446 "EHLO
-	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
-	id S932176AbVLLTjg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 14:39:36 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: control placement of vDSO page
-Date: Mon, 12 Dec 2005 20:39:25 +0100
-User-Agent: KMail/1.7.2
-Cc: John Reiser <jreiser@bitwagon.com>
-References: <439D9767.2000208@BitWagon.com>
-In-Reply-To: <439D9767.2000208@BitWagon.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3864222.c7NC5UuN8r";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Mon, 12 Dec 2005 14:43:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:17549 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932179AbVLLTnH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 14:43:07 -0500
+Date: Mon, 12 Dec 2005 11:42:46 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: akpm@osdl.org, trond.myklebust@fys.uio.no
+Cc: linux-kernel@vger.kernel.org
+Subject: oops on shutdown.
+Message-ID: <20051212114246.09c4b172@unknown-222.office.pdx.osdl.net>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200512122039.29799.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3864222.c7NC5UuN8r
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On Monday 12 December 2005 16:29, John Reiser wrote:
-> Possible solution: a new system call  move_vdso(old_addr, new_addr, flags=
-).
-> Check that current vDSO was at old_addr, else error.  Change vDSO page
-> under control of flags like in mmap(): new_addr is hint (place to start
-> search) or required address if MAP_FIXED.  Return value is new vDSO addre=
-ss.
->=20
-
-What about special casing the vDSO page in mremap() ?
+This is a 2 CPU Opteron box.  It hung on a basic shutdown reboot
+running 2.6.15-rc5. It doesn't look related to the sky2 driver.
+I had a couple of nfs client mounts.
 
 
-Regards
-
-Ingo Oeser
-
-
---nextPart3864222.c7NC5UuN8r
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDndHxU56oYWuOrkARAq8tAJsGSc64uZBY8QFD4l18mLp/JShUSQCgoXrx
-n1p+IGxsxofBne4/cLJ0CHY=
-=639I
------END PGP SIGNATURE-----
-
---nextPart3864222.c7NC5UuN8r--
+[264357.575968] nfsd: last server has exited
+[264357.589641] nfsd: unexporting all filesystems
+[264357.605047] RPC: failed to contact portmap (errno -5).
+[264362.028736] sky2 eth1: disabling interface
+[264369.044649] Unable to handle kernel NULL pointer dereference at 0000000000000001 RIP: 
+[264369.063676] <ffffffff8015bdc7>{find_get_pages+87}
+[264369.088376] PGD 7d698067 PUD 7dc0a067 PMD 0 
+[264369.103310] Oops: 0000 [1] SMP 
+[264369.114347] CPU 0 
+[264369.121489] Modules linked in: nfsd exportfs binfmt_misc video thermal processor fan button battery ac ohci_hcd ehci_hcd i2c_amd8111 i2c_amd756 i2c_core snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc sky2 tg3 usbcore
+[264369.180541] Pid: 11776, comm: umount Not tainted 2.6.15-rc5 #1
+[264369.180544] RIP: 0010:[<ffffffff8015bdc7>] <ffffffff8015bdc7>{find_get_pages+87}
+[264369.180553] RSP: 0018:ffff81007d9d9c48  EFLAGS: 00010002
+[264369.180556] RAX: 000000000000086c RBX: 0000000000000002 RCX: ffff81007d9d9ce0
+[264369.180558] RDX: 0000000000000001 RSI: 0000000000000001 RDI: 0000000000000002
+[264369.180561] RBP: ffff81007d9d9c78 R08: 0000000000000000 R09: 0000000000000040
+[264369.180564] R10: ffff8100005ef4b0 R11: 0000000000000002 R12: 000000000000000e
+[264369.180567] R13: 0000000000000000 R14: ffff81007d9d9cd8 R15: ffff8100006cd6c0
+[264369.180571] FS:  00002aaaaaac5e80(0000) GS:ffffffff805ae800(0000) knlGS:0000000000000000
+[264369.180574] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+[264369.180577] CR2: 0000000000000001 CR3: 000000007c2d8000 CR4: 00000000000006e0
+[264369.180580] Process umount (pid: 11776, threadinfo ffff81007d9d8000, task ffff81005aa300c0)
+[264369.180583] Stack: ffff81007d9d9c58 ffff81007d9d9cc8 0000000000000000 ffff81007d9d9dc8 
+[264369.180588]        0000000000006fb4 ffff8100006cd6a8 ffff81007d9d9c98 ffffffff8016657f 
+[264369.180594]        0000000000000018 ffff8100006cd558 
+[264369.180597] Call Trace:<ffffffff8016657f>{pagevec_lookup+31} <ffffffff8016718c>{truncate_inode_pages+252}
+[264369.180611]        <ffffffff8019b21a>{dispose_list+90} <ffffffff8019b661>{invalidate_inodes+257}
+[264369.180624]        <ffffffff80185bfa>{generic_shutdown_super+154} <ffffffff80185d00>{kill_block_super+48}
+[264369.180635]        <ffffffff80185fbc>{deactivate_super+108} <ffffffff8019d468>{mntput_no_expire+88}
+[264369.180643]        <ffffffff8018d94d>{path_release_on_umount+29} <ffffffff8019e91f>{sys_umount+639}
+[264369.180651]        <ffffffff8010dd1e>{system_call+126} 
+[264369.180664] 
+[264369.180665] Code: 8b 02 89 c0 f6 c4 40 74 04 48 8b 52 10 f0 ff 42 08 ff c6 48 
+[264369.180674] RIP <ffffffff8015bdc7>{find_get_pages+87} RSP <ffff81007d9d9c48>
+[264369.180679] CR2: 0000000000000001
+[264369.180681]  <3>Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
+[264369.180684] in_atomic():0, irqs_disabled():1
+[264369.180686] 
+[264369.180687] Call Trace:<ffffffff8012cfdb>{__might_sleep+187} <ffffffff8013520d>{profile_task_exit+29}
+[264369.180696]        <ffffffff801365b5>{do_exit+37} <ffffffff803a726b>{do_page_fault+1867}
+[264369.180708]        <ffffffff8016496f>{free_block+223} <ffffffff80164d44>{cache_flusharray+196}
+[264369.180716]        <ffffffff8010ec9d>{error_exit+0} <ffffffff8015bdc7>{find_get_pages+87}
+[264369.180731]        <ffffffff8015bdb9>{find_get_pages+73} <ffffffff8016657f>{pagevec_lookup+31}
+[264369.180739]        <ffffffff8016718c>{truncate_inode_pages+252} <ffffffff8019b21a>{dispose_list+90}
+[264369.180752]        <ffffffff8019b661>{invalidate_inodes+257} <ffffffff80185bfa>{generic_shutdown_super+154}
+[264369.180762]        <ffffffff80185d00>{kill_block_super+48} <ffffffff80185fbc>{deactivate_super+108}
+[264369.180770]        <ffffffff8019d468>{mntput_no_expire+88} <ffffffff8018d94d>{path_release_on_umount+29}
+[264369.180777]        <ffffffff8019e91f>{sys_umount+639} <ffffffff8010dd1e>{system_call+126}
+[264369.180789]        
+[264369.180799] Badness in do_exit at kernel/exit.c:796
+[264369.180801] 
+[264369.180802] Call Trace:<ffffffff801365e6>{do_exit+86} <ffffffff803a726b>{do_page_fault+1867}
+[264369.180811]        <ffffffff8016496f>{free_block+223} <ffffffff80164d44>{cache_flusharray+196}
+[264369.180820]        <ffffffff8010ec9d>{error_exit+0} <ffffffff8015bdc7>{find_get_pages+87}
+[264369.180833]        <ffffffff8015bdb9>{find_get_pages+73} <ffffffff8016657f>{pagevec_lookup+31}
+[264369.180842]        <ffffffff8016718c>{truncate_inode_pages+252} <ffffffff8019b21a>{dispose_list+90}
+[264369.180854]        <ffffffff8019b661>{invalidate_inodes+257} <ffffffff80185bfa>{generic_shutdown_super+154}
+[264369.180864]        <ffffffff80185d00>{kill_block_super+48} <ffffffff80185fbc>{deactivate_super+108}
+[264369.180872]        <ffffffff8019d468>{mntput_no_expire+88} <ffffffff8018d94d>{path_release_on_umount+29}
+[264369.180879]        <ffffffff8019e91f>{sys_umount+639} <ffffffff8010dd1e>{system_call+126}
+[264369.180890]        

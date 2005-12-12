@@ -1,71 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVLLIHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbVLLILP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbVLLIHe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 03:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVLLIHe
+	id S1751128AbVLLILP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 03:11:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVLLILP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 03:07:34 -0500
-Received: from [202.125.80.34] ([202.125.80.34]:12263 "EHLO mail.esn.co.in")
-	by vger.kernel.org with ESMTP id S1751126AbVLLIHe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 03:07:34 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: Errors while booting the newly built 2.6.12 kernel??
-Date: Mon, 12 Dec 2005 13:28:46 +0530
-Message-ID: <3AEC1E10243A314391FE9C01CD65429B1BDB03@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Errors while booting the newly built 2.6.12 kernel??
-Thread-Index: AcX+7IM2MYpUVGbfSsKCULm9uVUwNQAAHTpw
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: <linux-kernel@vger.kernel.org>
+	Mon, 12 Dec 2005 03:11:15 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:64139 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP
+	id S1751128AbVLLILO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 03:11:14 -0500
+Date: Mon, 12 Dec 2005 10:14:15 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>, Gleb Natapov <gleb@minantech.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: set_page_dirty vs set_page_dirty_lock
+Message-ID: <20051212081415.GT14936@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <439D224A.7080007@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <439D224A.7080007@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Dear Arjun,
-Thanks for your quick response
-After I compiled the kernel, I verified the 'initrd-2.6.12.img' and it was present. 
-But it is 10000 bytes less than the initial FC4 initrd img.
-
-I did the following steps to build the kernel:
-
-Copied the existing '.config' file from the old kernel and copied to the 2.6.12 kernel base directory.
-Then,
-# make
-# make modules
-# make modules_install
-# make install
-
-Is there is any thing additional needed for building the kernels in 2.6.x kernels?
-I verified the support for inbuilt ext3 too and its present too.
-What else could be the problem area?
-
-Thanks & Regards,
-Mukund Jampala
-
-
------Original Message-----
-From: Arjan van de Ven [mailto:arjan@infradead.org]
-Sent: Monday, December 12, 2005 12:54 PM
-To: Mukund JB.
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Errors while booting the newly built 2.6.12 kernel??
-
-
-On Mon, 2005-12-12 at 12:44 +0530, Mukund JB. wrote:
-> Dear Kernel Team,
+Quoting Nick Piggin <nickpiggin@yahoo.com.au>:
+> >>>If that works, I can mostly do things directly,
+> >>>although I'm still stuck with the problem of an app performing
+> >>>a fork + write into the same page while I'm doing DMA there.
+> >>>
+> >>>I am currently solving this by doing a second get_user_pages after
+> >>>DMA is done and comparing the page lists, but this, of course,
+> >>>needs a task context ...
+> >>>
+> >>
+> >>Usually we don't care about these kinds of races happening. So long
+> >>as it doesn't oops the kernel or hang the hardware, it is up to
+> >>userspace not to do stuff like that.
+> > 
+> > 
+> > Note that I am, even, not necessarily talking about full pages
+> > here: an application could be writing to one part of a page
+> > while hardware DMAs another part of it.
+> > So the app is not necessarily buggy.
+> > 
 > 
-> I am facing a strange error after I compiled the Linux kernel-2.6.12(downloaded from kernel.org).
-> Please see the errors I get when I try to boot the newly built 2.6.12 kernel.
-> 
-> I found lot of members in the groups discussing this and no definite solution is suggestion.
+> Sorry, I might have misunderstdood: what's the race? And how does
+> a second get_user_pages solve it?
 
-you forgot to make an initrd.
+Here's what I have in mind:
 
+A multithreaded app calls recvmsg(2), (or io_submit with receive request),
+passing in a buffer that is not page aligned.
+This does get_user_pages on some page and blocks waiting for DMA to complete.
 
+Another thread calls fork(2), marking the page for copy on write.
+After fork, it writes (even 1 byte) into one of the pages that were passed
+to recvmsg, possibly even outside the buffer passed to recvmsg.
+This triggers a page copy in the parent process.
+
+Any data that the device DMA's into this page after this point is not
+seen by the application, since it goes into the original page,
+while a copy is now mapped into the parent's memory.
+
+-- 
+MST

@@ -1,107 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751108AbVLLHKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751118AbVLLHPe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751108AbVLLHKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 02:10:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbVLLHKP
+	id S1751118AbVLLHPe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 02:15:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVLLHPe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 02:10:15 -0500
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:35684 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751108AbVLLHKN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 02:10:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ysR0orY6/kQetsKirqmEFQ31EoggwtKIl5zVUucxefsNaGkdTqZ0euPqs1szJ+kNHNu8wy4QcnK8Xv8gUqnfJ5ZFa1hme7WrbsaVaBTa0CoEfzZ9IAE+xkXB/mqisWnGO6rI9xJruLD6UGEyRB4/AaLEkgwpF0ackVMxwWIZpaY=  ;
-Message-ID: <439D224A.7080007@yahoo.com.au>
-Date: Mon, 12 Dec 2005 18:10:02 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-CC: Hugh Dickins <hugh@veritas.com>, Gleb Natapov <gleb@minantech.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: set_page_dirty vs set_page_dirty_lock
-References: <439CEE50.2060803@yahoo.com.au> <20051212063521.GB24168@mellanox.co.il>
-In-Reply-To: <20051212063521.GB24168@mellanox.co.il>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 12 Dec 2005 02:15:34 -0500
+Received: from gate.crashing.org ([63.228.1.57]:18133 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751118AbVLLHPe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 02:15:34 -0500
+Subject: Memory corruption & SCSI in 2.6.15
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>, Jens Axboe <axboe@suse.de>,
+       Brian King <brking@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>
+Content-Type: text/plain
+Date: Mon, 12 Dec 2005 18:13:26 +1100
+Message-Id: <1134371606.6989.95.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael S. Tsirkin wrote:
-> Quoting Nick Piggin <nickpiggin@yahoo.com.au>:
-> 
+Hi !
 
->>I think you can do that - provided you ensure the page mapping hasn't
->>disappeared after locking it.
-> 
-> 
-> Ugh. I dont really know how to do that.
-> Isnt this sufficient?
-> 
-> if (TestSetPageLocked(page))
-> 	schedule_work(...)
-> set_page_dirty(page)
-> unlock_page(page)
-> 
-> Thats all there seems to be set_page_dirty_lock does if it is called when
-> PG_Locked bit is clear.
-> 
+Current -git as of today (that is 2.6.15-rc5 + the batch of fixes Linus
+pulled after his return) was dying in weird ways for me on POWER5. I had
+the good idea to activate slab debugging, and I now see it detecting
+slab corruption as soon as the IPR driver initializes.
 
-Oh yeah you are right - set_page_dirty does the check for you. Sorry
-for the misinformation.
+Since I remember seeing a discussion somewhere on a list between Brian
+King and Jens Axboe about use-after-free problems in SCSI and possible
+other niceties of that sort, I though it might be related...
 
-> 
->>However, I think you should try to the simplest way first.
-> 
-> 
-> Thanks, Nick, thats what I have now, this already works for me here
-> https://openib.org/svn/gen2/trunk/src/linux-kernel/infiniband/ulp/sdp/sdp_iocb.c
-> I'm looking at ways to improve performance, though.
-> 
+Anything I can do to help track this down ?
 
-Oh good :)
+ipr: IBM Power RAID SCSI Device Driver version: 2.1.0 (October 31, 2005)
+ipr 0000:c0:01.0: Found IOA with IRQ: 99
+ipr 0000:c0:01.0: Starting IOA initialization sequence.
+ipr 0000:c0:01.0: Adapter firmware version: 020A004E
+ipr 0000:c0:01.0: IOA initialized.
+scsi0 : IBM 570B Storage Adapter
+Slab corruption: start=c000000070de39a0, len=728
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<c0000000002297c4>](.blk_cleanup_queue+0xe4/0x170)
+1d0: 6b 6b 6b 6b 6b 6b 6b 6b 00 00 00 00 00 00 00 00
+2b0: 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Prev obj: start=c000000070de36b0, len=728
+Redzone: 0x5a2cf071/0x5a2cf071.
+Last user: [<0000000000000000>](0x0)
+000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+Next obj: start=c000000070de3c90, len=728
+Redzone: 0x170fc2a5/0x170fc2a5.
+Last user: [<c000000000227b00>](.blk_alloc_queue_node+0x30/0x90)
 
-> 
->>>If that works, I can mostly do things directly,
->>>although I'm still stuck with the problem of an app performing
->>>a fork + write into the same page while I'm doing DMA there.
->>>
->>>I am currently solving this by doing a second get_user_pages after
->>>DMA is done and comparing the page lists, but this, of course,
->>>needs a task context ...
->>>
->>
->>Usually we don't care about these kinds of races happening. So long
->>as it doesn't oops the kernel or hang the hardware, it is up to
->>userspace not to do stuff like that.
-> 
-> 
-> Note that I am, even, not necessarily talking about full pages
-> here: an application could be writing to one part of a page
-> while hardware DMAs another part of it.
-> So the app is not necessarily buggy.
-> 
+Ben.
 
-Sorry, I might have misunderstdood: what's the race? And how does
-a second get_user_pages solve it?
-
-> It seems to me people really dont want to change their applications.
-> They just want to load a library and have it go faster.
-> Given that I'm implementing a socket protocol, we are talking about
-> an awful lot of applications that currently work fine on top of TCP.
-> 
-
-Understandable.
-
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

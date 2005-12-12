@@ -1,86 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbVLLKgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751223AbVLLKrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbVLLKgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 05:36:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVLLKgQ
+	id S1751223AbVLLKrj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 05:47:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVLLKrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 05:36:16 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:30614 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751214AbVLLKgP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 05:36:15 -0500
-Subject: Re: [PATCH 2.6.15-rc5] media/video/bttv : enhance ioctl debug
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Philippe De Muyter <phdm@macqel.be>
-Cc: linux-kernel@vger.kernel.org,
-       Linux and Kernel Video <video4linux-list@redhat.com>
-In-Reply-To: <200512082105.jB8L5xW12712@mail.macqel.be>
-References: <200512082105.jB8L5xW12712@mail.macqel.be>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 12 Dec 2005 08:36:03 -0200
-Message-Id: <1134383763.18903.37.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-1mdk 
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 1.8 (+)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (1.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[200.163.0.147 listed in dnsbl.sorbs.net]
-	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
-	[200.163.0.147 listed in combined.njabl.org]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 12 Dec 2005 05:47:39 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:8835 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751223AbVLLKri
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 05:47:38 -0500
+Message-ID: <439D5625.4030900@aitel.hist.no>
+Date: Mon, 12 Dec 2005 11:51:17 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Helge Hafting <helgehaf@aitel.hist.no>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.15-rc5: multiuser scheduling trouble
+References: <Pine.LNX.4.64.0512032155290.3099@g5.osdl.org> <20051210162759.GA15986@aitel.hist.no> <Pine.LNX.4.64.0512111607040.15597@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0512111607040.15597@g5.osdl.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qui, 2005-12-08 às 22:05 +0100, Philippe De Muyter escreveu:
-> This patch adds the current process name in the media/video/bttv ioctl debug.
+Linus Torvalds wrote:
 
-	Philippe, 
-
-	I'm in doubt about the relevance of this patch. Why do you think it is
-important to have process name at ioctl debug?
-
-	PS.: Please address these patches to V4L Mailing List.
-> 
-> Signed-off-by: Philippe De Muyter <phdm@macqel.be>
-> 
-> ---
-> 
-> --- linux/drivers/media/video/bttv-driver.c.orig	2005-08-29 01:41:01.000000000 +0200
-> +++ linux/drivers/media/video/bttv-driver.c	2005-12-08 20:59:45.000000000 +0100
-> @@ -2181,19 +2182,19 @@ static int bttv_do_ioctl(struct inode *i
->  	int retval = 0;
+>Helge,
+> did this start at any particular point in time?
 >  
->  	if (bttv_debug > 1) {
-> +		printk("bttv%d: %s: ioctl 0x%x ", btv->c.nr, current->comm,
-> +			cmd);
->  		switch (_IOC_TYPE(cmd)) {
->  		case 'v':
-> -			printk("bttv%d: ioctl 0x%x (v4l1, VIDIOC%s)\n",
-> -			       btv->c.nr, cmd, (_IOC_NR(cmd) < V4L1_IOCTLS) ?
-> +			printk("(v4l1, VIDIOC%s)\n",
-> +			       (_IOC_NR(cmd) < V4L1_IOCTLS) ?
->  			       v4l1_ioctls[_IOC_NR(cmd)] : "???");
->  			break;
->  		case 'V':
-> -			printk("bttv%d: ioctl 0x%x (v4l2, %s)\n",
-> -			       btv->c.nr, cmd,  v4l2_ioctl_names[_IOC_NR(cmd)]);
-> +			printk("(v4l2, %s)\n", v4l2_ioctl_names[_IOC_NR(cmd)]);
->  			break;
->  		default:
-> -			printk("bttv%d: ioctl 0x%x (???)\n",
-> -			       btv->c.nr, cmd);
-> +			printk("(???)\n");
->  		}
->  	}
->  	if (btv->errors)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>
+Not that I know of, flash games became popular the last weeks.
+I can try some older kernels though.
 
+>Also, the most common case is that somebody has reniced the X server, 
+>which is just _wrong_.  
+>
+I wish it was that simple.  But according to "top", the xservers runs
+with NI=0.  I believe I got rid of the X renicing at the time the scheduler
+was improved.  Nobody played flash games at the time though.
+
+I have tried running two tuxracers too, and found this to be somewhat
+bursty.  Instead of the players enjoying half a cpu each (which
+is bearable at sufficiently low resolution), they seem to get bursts of cpu
+and short pauses.  I never bothered looking more into this as  the
+pci card always hangs the machine after a while when doing 3D. Instead
+I disabled DRI on that xserver.  Stability is more important.
+
+Helge Hafting

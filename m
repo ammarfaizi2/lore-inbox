@@ -1,68 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbVLLTDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbVLLTF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbVLLTDU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 14:03:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbVLLTDU
+	id S932151AbVLLTF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 14:05:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVLLTF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 14:03:20 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:27338 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S932142AbVLLTDU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 14:03:20 -0500
-Date: Mon, 12 Dec 2005 11:02:53 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Christoph Hellwig <hch@infradead.org>
-cc: Michal Feix <michal@feix.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [SCSI] SCSI block devices larger then 2TB
-In-Reply-To: <20051207123519.GA17414@infradead.org>
-Message-ID: <Pine.LNX.4.62.0512121057070.267@qynat.qvtvafvgr.pbz>
-References: <4396B795.1000108@feix.cz> <20051207123519.GA17414@infradead.org>
+	Mon, 12 Dec 2005 14:05:27 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:4815 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932144AbVLLTF0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 14:05:26 -0500
+Message-ID: <439DC9E4.6030508@us.ibm.com>
+Date: Mon, 12 Dec 2005 13:05:08 -0600
+From: Brian King <brking@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>, Jens Axboe <axboe@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: Memory corruption & SCSI in 2.6.15
+References: <1134371606.6989.95.camel@gaston>
+In-Reply-To: <1134371606.6989.95.camel@gaston>
+Content-Type: multipart/mixed;
+ boundary="------------010702070707060207080701"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Dec 2005, Christoph Hellwig wrote:
+This is a multi-part message in MIME format.
+--------------010702070707060207080701
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> On Wed, Dec 07, 2005 at 11:21:09AM +0100, Michal Feix wrote:
->> Greetings!
->>
->> Current aic79xxx driver doesn't see SCSI devices larger, then 2TB. It
->> fails with READ CAPACITY(16) command. As far as I can understand, we
->> already have LBD support in kernel for some time now. So it's only the
->
->> drivers, that need to be fixed? LSI driver is the only one I found
->> working with devices over 2TB; I couldn't test any other driver, as I
->> don't have the hardware. Is it really so bad, that only LSI chipset
-> and
->> maybe few others are capable of seeng such devices?
->
-> I definitly works fine with Qlogic parallel scsi and fibrechannel and
-> emulex
-> fibre channel controllers aswell as lsi/engenio megaraid controllers.
->
-> It looks like aci79xx is just broken in that repsect. Unfortunately the
-> driver doesn't have a proper maintainer, we scsi developers put in fixes
-> and cleanups but we don't have the full documentation to fix such
-> complicated
-> issue.  If you have a support contract with Adaptec complain to them.
+Benjamin Herrenschmidt wrote:
+> Hi !
+> 
+> Current -git as of today (that is 2.6.15-rc5 + the batch of fixes Linus
+> pulled after his return) was dying in weird ways for me on POWER5. I had
+> the good idea to activate slab debugging, and I now see it detecting
+> slab corruption as soon as the IPR driver initializes.
 
-I was at a BOF at LISA last week on this subject, the guy running it said 
-that the common ultra320 chip used for parallel scsi doesn't implment READ 
-CAPACITY(16), but instead implemnets a propriatary READ CAPACITY(12) which 
-allows you to break the 2TB limit.
+Please try the attached patch. There appears to be a double free going on
+in the scsi scan code. There is a direct call to scsi_free_queue and then
+the following put_device calls the release function, which also frees
+the queue.
 
-I asked him to send the patch that he's been maintaining seperatly (and 
-providing to his customers, he's a storage hardware vendor) to the list to 
-get integrated.
+Brian
 
-I'll see if I have any notes with his address on them, or you could check 
-the BOF schedule online to see if it got listed there.
 
-David Lang
+> Since I remember seeing a discussion somewhere on a list between Brian
+> King and Jens Axboe about use-after-free problems in SCSI and possible
+> other niceties of that sort, I though it might be related...
+> 
+> Anything I can do to help track this down ?
+> 
+> ipr: IBM Power RAID SCSI Device Driver version: 2.1.0 (October 31, 2005)
+> ipr 0000:c0:01.0: Found IOA with IRQ: 99
+> ipr 0000:c0:01.0: Starting IOA initialization sequence.
+> ipr 0000:c0:01.0: Adapter firmware version: 020A004E
+> ipr 0000:c0:01.0: IOA initialized.
+> scsi0 : IBM 570B Storage Adapter
+> Slab corruption: start=c000000070de39a0, len=728
+> Redzone: 0x5a2cf071/0x5a2cf071.
+> Last user: [<c0000000002297c4>](.blk_cleanup_queue+0xe4/0x170)
+> 1d0: 6b 6b 6b 6b 6b 6b 6b 6b 00 00 00 00 00 00 00 00
+> 2b0: 6b 6b 6b 6a 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> Prev obj: start=c000000070de36b0, len=728
+> Redzone: 0x5a2cf071/0x5a2cf071.
+> Last user: [<0000000000000000>](0x0)
+> 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> Next obj: start=c000000070de3c90, len=728
+> Redzone: 0x170fc2a5/0x170fc2a5.
+> Last user: [<c000000000227b00>](.blk_alloc_queue_node+0x30/0x90)
+> 
+> Ben.
+> 
+> 
+
 
 -- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+Brian King
+eServer Storage I/O
+IBM Linux Technology Center
 
+--------------010702070707060207080701
+Content-Type: text/x-patch;
+ name="scsi_scan_use_after_free.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="scsi_scan_use_after_free.patch"
+
+
+Current scsi scanning code appears to have a use after free
+bug is a LLDD's slave_alloc fails. Remove the redundant
+scsi_free_queue.
+
+Signed-off-by: Brian King <brking@us.ibm.com>
+---
+
+ drivers/scsi/scsi_scan.c |    1 -
+ 1 files changed, 1 deletion(-)
+
+diff -puN drivers/scsi/scsi_scan.c~scsi_scan_use_after_free drivers/scsi/scsi_scan.c
+--- linux-2.6/drivers/scsi/scsi_scan.c~scsi_scan_use_after_free	2005-12-12 13:00:28.000000000 -0600
++++ linux-2.6-bjking1/drivers/scsi/scsi_scan.c	2005-12-12 13:00:28.000000000 -0600
+@@ -279,7 +279,6 @@ static struct scsi_device *scsi_alloc_sd
+ 
+ out_device_destroy:
+ 	transport_destroy_device(&sdev->sdev_gendev);
+-	scsi_free_queue(sdev->request_queue);
+ 	put_device(&sdev->sdev_gendev);
+ out:
+ 	if (display_failure_msg)
+_
+
+--------------010702070707060207080701--

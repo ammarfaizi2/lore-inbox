@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbVLLPj3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbVLLPxF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbVLLPj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 10:39:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbVLLPj3
+	id S932067AbVLLPxF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 10:53:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbVLLPxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 10:39:29 -0500
-Received: from waste.org ([64.81.244.121]:57502 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751192AbVLLPj2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 10:39:28 -0500
-Date: Mon, 12 Dec 2005 07:32:58 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 7/15] misc: Make x86 doublefault handling optional
-Message-ID: <20051212153258.GD8637@waste.org>
-References: <8.282480653@selenic.com> <200511160713.07632.rob@landley.net> <20051116182145.GP31287@waste.org> <f1079b100511161121g1997cfb4jc8e8aec5072c1d92@mail.gmail.com> <20051212103611.GA6416@elte.hu> <p73u0denv3h.fsf@verdi.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73u0denv3h.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.9i
+	Mon, 12 Dec 2005 10:53:05 -0500
+Received: from adsl-80.mirage.euroweb.hu ([193.226.228.80]:528 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S932067AbVLLPxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 10:53:04 -0500
+To: akpm@osdl.org
+CC: ebiederm@xmission.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] uml: fix pm_power_off link failure
+References: <E1EloGS-0005gf-00@dorka.pomaz.szeredi.hu>
+Message-Id: <E1ElpZn-0005pw-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 12 Dec 2005 16:26:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 12, 2005 at 09:22:42AM -0700, Andi Kleen wrote:
-> Ingo Molnar <mingo@elte.hu> writes:
-> > 
-> > in the past couple of years i saw double-faults at a rate of perhaps 
-> > once a year - and i frequently hack lowlevel glue code! So the 
-> > usefulness of this code in the field, and especially on an embedded 
-> > platforms, is extremely limited.
-> 
-> If it only saves an hour or developer time on some bug report
-> it has already justified its value.
-> 
-> Also to really save memory there are much better areas
-> of attack than this relatively slim code.
+Andrew,
 
-Such as? Odds are good I've already attacked them, but I'd be happy
-for some new ideas.
+please scrap my the previous pm_power_off fix, it didn't work out.
+This just fixes UML:
 
-I think anything easily disabled larger than 1k is a pretty decent
-target in a minimal config.
+  LD      .tmp_vmlinux1
+kernel/built-in.o(.text+0x148e1): In function `sys_reboot':
+kernel/sys.c:535: undefined reference to `pm_power_off'
 
-> -Andi (who sees double faults more often) 
+On uml machine_halt() just calls machine_power_off() so it's safe to
+leave pm_power_off as NULL.
 
-You will *not* see them on a platform with no console and no printk,
-hence CONFIG_EMBEDDED. Can we be done with this yet?
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+---
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Index: linux/arch/um/kernel/reboot.c
+===================================================================
+--- linux.orig/arch/um/kernel/reboot.c	2005-10-28 02:02:08.000000000 +0200
++++ linux/arch/um/kernel/reboot.c	2005-12-12 16:10:16.000000000 +0100
+@@ -12,6 +12,8 @@
+ #include "mode.h"
+ #include "choose-mode.h"
+ 
++void (*pm_power_off)(void);
++
+ #ifdef CONFIG_SMP
+ static void kill_idlers(int me)
+ {
+

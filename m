@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbVLLPxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbVLLPtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbVLLPxF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 10:53:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbVLLPxF
+	id S1751175AbVLLPtm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 10:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbVLLPtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 10:53:05 -0500
-Received: from adsl-80.mirage.euroweb.hu ([193.226.228.80]:528 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S932067AbVLLPxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 10:53:04 -0500
-To: akpm@osdl.org
-CC: ebiederm@xmission.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] uml: fix pm_power_off link failure
-References: <E1EloGS-0005gf-00@dorka.pomaz.szeredi.hu>
-Message-Id: <E1ElpZn-0005pw-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 12 Dec 2005 16:26:55 +0100
+	Mon, 12 Dec 2005 10:49:42 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32010 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751175AbVLLPtl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 10:49:41 -0500
+Date: Mon, 12 Dec 2005 15:49:25 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Vitaly Wool <vwool@ru.mvista.com>
+Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net, dpervushin@gmail.com,
+       akpm@osdl.org, greg@kroah.com, basicmark@yahoo.com,
+       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
+       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
+Subject: Re: [PATCH 2.6-git 1/4] SPI core refresh: SPI core patch
+Message-ID: <20051212154925.GA19481@flint.arm.linux.org.uk>
+Mail-Followup-To: Vitaly Wool <vwool@ru.mvista.com>,
+	linux-kernel@vger.kernel.org, david-b@pacbell.net,
+	dpervushin@gmail.com, akpm@osdl.org, greg@kroah.com,
+	basicmark@yahoo.com, komal_shah802003@yahoo.com,
+	stephen@streetfiresound.com,
+	spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
+References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051212182249.018daa1b.vwool@ru.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051212182249.018daa1b.vwool@ru.mvista.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
+Only two comments this time.
 
-please scrap my the previous pm_power_off fix, it didn't work out.
-This just fixes UML:
+On Mon, Dec 12, 2005 at 06:22:49PM +0300, Vitaly Wool wrote:
+> +static int spi_bus_suspend(struct device * dev, pm_message_t message)
+> +{
+> +	int ret = 0;
+> +
+> +	if (dev && dev->driver && TO_SPI_DRIVER(dev->driver)->suspend ) {
 
-  LD      .tmp_vmlinux1
-kernel/built-in.o(.text+0x148e1): In function `sys_reboot':
-kernel/sys.c:535: undefined reference to `pm_power_off'
+dev will always be non-NULL here.
 
-On uml machine_halt() just calls machine_power_off() so it's safe to
-leave pm_power_off as NULL.
+> +static int spi_bus_resume(struct device * dev)
+> +{
+> +	int ret = 0;
+> +
+> +	if (dev && dev->driver && TO_SPI_DRIVER(dev->driver)->suspend ) {
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
----
+Ditto.
 
-Index: linux/arch/um/kernel/reboot.c
-===================================================================
---- linux.orig/arch/um/kernel/reboot.c	2005-10-28 02:02:08.000000000 +0200
-+++ linux/arch/um/kernel/reboot.c	2005-12-12 16:10:16.000000000 +0100
-@@ -12,6 +12,8 @@
- #include "mode.h"
- #include "choose-mode.h"
- 
-+void (*pm_power_off)(void);
-+
- #ifdef CONFIG_SMP
- static void kill_idlers(int me)
- {
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

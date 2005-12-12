@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVLLVBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbVLLVKf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbVLLVBD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 16:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbVLLVBD
+	id S1751026AbVLLVKf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 16:10:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751279AbVLLVKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 16:01:03 -0500
-Received: from gate.crashing.org ([63.228.1.57]:60895 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751272AbVLLVBC (ORCPT
+	Mon, 12 Dec 2005 16:10:35 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8869 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751026AbVLLVKe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 16:01:02 -0500
-Subject: Re: Memory corruption & SCSI in 2.6.15
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Paul Mackerras <paulus@samba.org>, Jens Axboe <axboe@suse.de>,
-       Brian King <brking@us.ibm.com>
-In-Reply-To: <Pine.LNX.4.64.0512121250130.15597@g5.osdl.org>
-References: <1134371606.6989.95.camel@gaston>
-	 <Pine.LNX.4.64.0512120909460.15597@g5.osdl.org>
-	 <1134419609.6989.116.camel@gaston>
-	 <Pine.LNX.4.64.0512121250130.15597@g5.osdl.org>
-Content-Type: text/plain
-Date: Tue, 13 Dec 2005 07:57:59 +1100
-Message-Id: <1134421080.6989.121.camel@gaston>
+	Mon, 12 Dec 2005 16:10:34 -0500
+Date: Mon, 12 Dec 2005 13:09:57 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.15-rc5-mm2: ehci_hcd crashes on load sometimes
+Message-Id: <20051212130957.146fbcc3.akpm@osdl.org>
+In-Reply-To: <200512122155.43632.rjw@sisk.pl>
+References: <20051211041308.7bb19454.akpm@osdl.org>
+	<200512122053.39970.rjw@sisk.pl>
+	<20051212122914.1bd36f32.akpm@osdl.org>
+	<200512122155.43632.rjw@sisk.pl>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-12 at 12:51 -0800, Linus Torvalds wrote:
-> [ I applied Brian's patch, so hopefully it was the same issue, and current 
->   git doesn't show this problem any more ]
-
-I'll be able to test in about 1h.
-
-> On Tue, 13 Dec 2005, Benjamin Herrenschmidt wrote:
-> >
-> > > Also, enabling DEBUG_PAGEALLOC might help, but that's not available on 
-> > > powerpc.
-> > 
-> > Remind me what is needed to get that working ? Unmapping of linear
-> > mapping pages ? (I suppose I could do that if I also disable using large
-> > pages for it).
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+>
+>  > It's best to actually send a copy of line 620 - kernels vary a lot, and
+>  > many developers won't have that particualr -mm tree handy.
+>  > 
+>  > The way I normally do this is to do `gdb vmlinux' and then `l
+>  > *0xffffffff880ad9d0'.
 > 
-> Yes, basically you'd have to allow the kernel mapping being unmapped one 
-> page at a time. 
-> 
-> And yes, it's inefficient. Don't use it for performance measurements ;)
+>  Does it work for modules too?
 
-Ok, I'll look into it. It's doable though it will definitely not be
-fast :)
+Ah.  There are certainly ways of doing this - see the kgdb documentation. 
+Or you can work out the module load address, gdb the module and do the
+appropriate arithmetic I guess.
 
-Ben.
-
+Generally I just statically link anything which I want to play with.
 

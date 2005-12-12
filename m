@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbVLLAwy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbVLLAxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750966AbVLLAwy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 19:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750969AbVLLAwy
+	id S1750972AbVLLAxc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 19:53:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbVLLAxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 19:52:54 -0500
-Received: from waste.org ([64.81.244.121]:60357 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1750960AbVLLAwy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 19:52:54 -0500
-Date: Sun, 11 Dec 2005 16:46:47 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch -mm] DEBUG_SLAB depends on SLAB
-Message-ID: <20051212004647.GZ8637@waste.org>
-References: <20051211141716.GA8500@elte.hu>
-Mime-Version: 1.0
+	Sun, 11 Dec 2005 19:53:32 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:18827 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1750969AbVLLAxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 19:53:31 -0500
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc5-mm2
+Date: Mon, 12 Dec 2005 11:53:18 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <3shpp197r05k8e9togafkg4kelm646quc5@4ax.com>
+References: <20051211041308.7bb19454.akpm@osdl.org>
+In-Reply-To: <20051211041308.7bb19454.akpm@osdl.org>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051211141716.GA8500@elte.hu>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 11, 2005 at 03:17:16PM +0100, Ingo Molnar wrote:
-> another SLOB related patch: make DEBUG_SLAB depend on SLAB.
-> 
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+On Sun, 11 Dec 2005 04:13:08 -0800, Andrew Morton <akpm@osdl.org> wrote:
 
-Acked-by: Matt Mackall <mpm@selenic.com>
+>
+>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm2/
 
-> 
-> Index: linux/lib/Kconfig.debug
-> ===================================================================
-> --- linux.orig/lib/Kconfig.debug
-> +++ linux/lib/Kconfig.debug
-> @@ -100,7 +100,7 @@ config SCHEDSTATS
->  
->  config DEBUG_SLAB
->  	bool "Debug memory allocations"
-> -	depends on DEBUG_KERNEL
-> +	depends on DEBUG_KERNEL && SLAB
->  	help
->  	  Say Y here to have the kernel do limited verification on memory
->  	  allocation as well as poisoning memory on free to catch use of freed
+Locked up on boot just after 
 
--- 
-Mathematics is the supreme nostalgia of our time.
+  "USB 2.0 initialised, EHCI 1.00, driver 10 Dec 2004", 
+
+where I'd expect to see the first "USB hub found" message.
+
+box info: http://bugsplatter.mine.nu/test/boxen/sempro/
+
+Sempron SktA on VIA chipset.
+
+Grant.

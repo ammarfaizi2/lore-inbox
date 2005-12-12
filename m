@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751234AbVLLLUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbVLLLWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751234AbVLLLUg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 06:20:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbVLLLUg
+	id S1751236AbVLLLWp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 06:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbVLLLWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 06:20:36 -0500
-Received: from w241.dkm.cz ([62.24.88.241]:50145 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S1751234AbVLLLUf (ORCPT
+	Mon, 12 Dec 2005 06:22:45 -0500
+Received: from cantor.suse.de ([195.135.220.2]:64717 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751236AbVLLLWo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 06:20:35 -0500
-Date: Mon, 12 Dec 2005 12:20:33 +0100
-From: Petr Baudis <pasky@ucw.cz>
-To: Kurt Wall <kwallinator@gmail.com>
-Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org, sam@ravnborg.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: [PATCH 3/3] [kconfig] Direct use of lxdialog routines by menuconfig
-Message-ID: <20051212112033.GB8025@pasky.or.cz>
-References: <20051212004159.31263.89669.stgit@machine.or.cz> <20051212004606.31263.37616.stgit@machine.or.cz> <200512112218.27286.kwallinator@gmail.com>
+	Mon, 12 Dec 2005 06:22:44 -0500
+Date: Mon, 12 Dec 2005 12:22:05 +0100
+From: Stefan Seyfried <seife@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: vojtech@suse.cz, dtor_core@ameritech.net, luming.yu@intel.com,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, len.brown@intel.com,
+       bero@arklinux.org
+Subject: Re: [git pull 02/14] Add Wistron driver
+Message-ID: <20051212112205.GA23881@suse.de>
+References: <20051211224059.GA28388@midnight.suse.cz> <20051212001315.0e2c64f1.akpm@osdl.org> <20051212091427.GB21522@suse.de> <20051212013844.59a1f76e.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200512112218.27286.kwallinator@gmail.com>
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051212013844.59a1f76e.akpm@osdl.org>
+X-Operating-System: SUSE LINUX 10.0 (i586), Kernel 2.6.13-15.7-default
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Mon, Dec 12, 2005 at 04:18:26AM CET, I got a letter
-where Kurt Wall <kwallinator@gmail.com> said that...
-> On Sunday 11 December 2005 07:46 pm, Petr Baudis wrote:
-> > After three years, the zombie walks again!  This patch (against the latest
-> > git tree) cleans up interaction between kconfig's mconf (menuconfig
-> > frontend) and lxdialog. Its commandline interface disappears in this patch,
-> > instead a .so is packed from the lxdialog objects and the relevant
-> > functions are called directly from mconf.
+On Mon, Dec 12, 2005 at 01:38:44AM -0800, Andrew Morton wrote:
+> Stefan Seyfried <seife@suse.de> wrote:
+> > No. The ACPI Mafia^H^H^Hintainers :-) no longer accept any hotkey drivers
+> > and IIUC it will be reimplemented in a generic driver. This driver
+> > then should pipe the hotkey events to the input subsystem.
 > 
-> > @@ -808,18 +684,22 @@ static void conf(struct menu *menu)
-> >     }
-> >     break;
-> >    case 4:
-> > -   if (type == 't')
-> > +   if (active_type == 't')
-> >      sym_set_tristate_value(sym, no);
-> >     break;
-> >    case 5:
-> > -   if (type == 't')
-> > +   if (active_type == 't')
-> >      sym_set_tristate_value(sym, mod);
-> >     break;
-> >    case 6:
-> > -   if (type == 't')
-> > +   if (active_type == 't') {
-> >      sym_toggle_tristate_value(sym);
-> > -   else if (type == 'm')
-> > -    conf(submenu);
-> > +   } else if (active_type == 'm') {
-> > +    if (single_menu_mode)
-> > +     submenu->data = (void *) !submenu->data;
-> 
-> Shouldn't this be:
->      submenu->data = (void *) (long) !submenu->data;
+> hm.  It seems a fairly bad idea to remove functionality before that
+> functionality has been implemented by the other means and has been rolled
+> out by distros for some time.
 
-You are right, it should be so at least for consistency - it'll be fixed
-in the next resend of the patch. I can't see why is it needed, though -
-shouldn't the int be padded to void* anyway?
-
+pcc_acpi never was in the acpi tree or in mainline AFAIK.
+But it is nevertheless an example that it is not too hard to route hotkey
+events through the input subsystem :-)
 -- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-VI has two modes: the one in which it beeps and the one in which
-it doesn't.
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen

@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVLLSXS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVLLSZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbVLLSXS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 13:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbVLLSXS
+	id S932117AbVLLSZi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 13:25:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbVLLSZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 13:23:18 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:26120 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932115AbVLLSXR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 13:23:17 -0500
-Date: Mon, 12 Dec 2005 13:22:36 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: Re: [PATCH] vm: enhance __alloc_pages to prioritize pagecache eviction when pressed for memory
-Message-ID: <20051212182236.GB828@hmsreliant.homelinux.net>
-References: <20051207220401.GB13577@hmsreliant.homelinux.net> <20051209162901.71728620.akpm@osdl.org>
+	Mon, 12 Dec 2005 13:25:38 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:33512 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932117AbVLLSZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 13:25:37 -0500
+Subject: Re: Fw: crash on x86_64 - mm related?
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ryan Richter <ryan@tau.solarneutrino.net>, Hugh Dickins <hugh@veritas.com>,
+       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org>
+References: <20051201195657.GB7236@tau.solarneutrino.net>
+	 <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com>
+	 <20051202180326.GB7634@tau.solarneutrino.net>
+	 <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com>
+	 <20051202194447.GA7679@tau.solarneutrino.net>
+	 <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com>
+	 <20051206160815.GC11560@tau.solarneutrino.net>
+	 <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
+	 <20051206204336.GA12248@tau.solarneutrino.net>
+	 <Pine.LNX.4.61.0512071803300.2975@goblin.wat.veritas.com>
+	 <20051212165443.GD17295@tau.solarneutrino.net>
+	 <Pine.LNX.4.64.0512120928110.15597@g5.osdl.org>
+	 <1134409531.9994.13.camel@mulgrave>
+	 <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org>
+Content-Type: text/plain
+Date: Mon, 12 Dec 2005 12:24:42 -0600
+Message-Id: <1134411882.9994.18.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051209162901.71728620.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 09, 2005 at 04:29:01PM -0800, Andrew Morton wrote:
-> Neil Horman <nhorman@tuxdriver.com> wrote:
-> >
-> > Hey all-
-> >      I was recently shown this issue, wherein, if the kernel was kept full of
-> > pagecache via applications that were constantly writing large amounts of data to
-> > disk, the box could find itself in a position where the vm, in __alloc_pages
-> > would invoke the oom killer repetatively within try_to_free_pages, until such
-> > time as the box had no candidate processes left to kill, at which point it would
-> > panic.
+On Mon, 2005-12-12 at 10:09 -0800, Linus Torvalds wrote:
+> Well, that patch is definitely broken.
+
+No, it's not; all it's doing is deferring the device_put() from the
+scsi_put_command() to after the scsi_run_queue(), which doesn't fix the
+sleep while atomic problem of the device release method.  In both cases
+we still get the semaphore in atomic context problem which is caused by
+scsi_reap_target() doing a device_del(), which I assumed (wrongly) was
+valid from atomic context.
+
+I'll fix the scsi_reap_target(), but it's nothing to do with the patch
+you reversed.
+
+> You say that it just causes a warning about sleeping in interrupt context, 
+> while I say that the warning is a serious error. If that semaphore _ever_ 
+> is write-locked, the whole machine will crash from trying to sleep when it 
+> cannot sleep.
 > 
-> That's pretty bad.  Are you able to provide a description which would permit
-> others to reproduce this?
+> So I can certainly undo the undo, but the fact is, the code is CRAP. I'd 
+> much rather get a real fix instead of having to select between two known 
+> bugs.
 
-As promised, heres the reproducer that was given to me, and used to reproduce
-this problem:
+I'll find a fix for the real problem, but this patch isn't the cause.
 
-1) setup an nfs serve with a thread count of 2.  Of course, 1 thread might make
-the problem more easy to reproduce.  I haven't tried it yet.
-
-2) Setup 4 nodes to hammer the nfs mounted directory.  The 4 nodes should hammer
-out 4 gigs.  2 gigs didn't seem to be enough.
-
-I used a locally developed tool called ior to reproduce this problem.  The tool
-can be found here:
-
-http://www.llnl.gov/asci/platforms/purple/rfp/benchmarks/limited/ior/
-
-I suppose anything that can write to NFS fast should be fine.  But that's what I
-did.
+James
 
 
-If you do this, any node writing to the server that has more than 4GB of RAM
-should start oom killing to the point where it runs out of candidate processes
-and panics
-
-Thanks & Regards
-Neil
-
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/

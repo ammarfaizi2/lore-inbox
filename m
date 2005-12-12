@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVLLRfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVLLRjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbVLLRfF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 12:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932078AbVLLRfF
+	id S1750747AbVLLRjT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 12:39:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVLLRjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 12:35:05 -0500
-Received: from lizards-lair.paranoiacs.org ([216.158.28.252]:16345 "EHLO
-	lizards-lair.paranoiacs.org") by vger.kernel.org with ESMTP
-	id S932073AbVLLRfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 12:35:03 -0500
-Date: Mon, 12 Dec 2005 12:34:56 -0500
-From: Ben Slusky <sluskyb@paranoiacs.org>
-To: Rob Landley <rob@landley.net>
-Cc: Pavel Machek <pavel@ucw.cz>, Bill Davidsen <davidsen@tmr.com>,
-       Mark Lord <lkml@rtr.ca>, Adrian Bunk <bunk@stusta.de>,
-       David Ranson <david@unsolicited.net>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: ipw2200 [was Re: RFC: Starting a stable kernel series off the 2.6 kernel]
-Message-ID: <20051212173456.GB8209@paranoiacs.org>
-Mail-Followup-To: Rob Landley <rob@landley.net>,
-	Pavel Machek <pavel@ucw.cz>, Bill Davidsen <davidsen@tmr.com>,
-	Mark Lord <lkml@rtr.ca>, Adrian Bunk <bunk@stusta.de>,
-	David Ranson <david@unsolicited.net>,
-	Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-	Matthias Andree <matthias.andree@gmx.de>
-References: <20051203135608.GJ31395@stusta.de> <200512071214.26574.rob@landley.net> <20051210083503.GA2833@ucw.cz> <200512102330.31572.rob@landley.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Dec 2005 12:39:19 -0500
+Received: from mail.contec.at ([213.229.28.240]:17679 "EHLO mail.contec.at")
+	by vger.kernel.org with ESMTP id S1750747AbVLLRjS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 12:39:18 -0500
+From: Manfred Gruber <m.gruber@tirol.com>
+To: linux-kernel@vger.kernel.org
+Date: Mon, 12 Dec 2005 18:44:34 +0100
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200512102330.31572.rob@landley.net>
-User-Agent: Mutt/1.4.2.1i
+Subject: Misleading information on linuxdevices.com
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200512121844.34832.m.gruber@tirol.com>
+X-OriginalArrivalTime: 12 Dec 2005 17:44:36.0109 (UTC) FILETIME=[B7C6FBD0:01C5FF43]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 10 Dec 2005 23:30:30 -0600, Rob Landley wrote:
-> Query: if you tell lilo or grub that it has an initrd but feed it a gzipped 
-> cpio image, will the kernel figure everything out and initialize initramfs 
-> from that appropriately?
+Hi,
 
-Yes, I've been booting my laptop this way (using GRUB) since 2.6.7 or so.
+as some of you might have noticed, there was an announcement of our
+company on http://www.linuxdevices.com/news/NS9959272388.html
 
--- 
-Ben Slusky                  | It was only after their population
-sluskyb@paranoiacs.org      | of 50 mysteriously shrank to eight
-sluskyb@stwing.org          | that the other seven dwarfs began
-PGP keyID ADA44B3B          | to suspect Hungry.
+The text is misleading as it speaks about a "propietary" kernel, which
+is completely wrong.
+
+We run Ingo Molnars rt-preemption patch with modifications for our
+custom board done by Thomas Gleixner and us.
+
+The source code is of course available under the GPL. See also the
+information on our homepage: 
+http://www.contec.at/78+M52087573ab0.0.html
+
+We don't know where in the information chain from the development team
+via the marketing team to linuxdevices this happened, but we want to
+correct any wrong impression about our company. Sorry.
+
+We want to say thanks to all the developers involved in Linux and the
+rt-preemption work.
+
+        Manfred
+
+==========================================
+Contec Steuerungstechnik & Automation GmbH
+Manfred Gruber
+Waldeck 1
+A-6330 Kufstein
+AUSTRIA
+------------------------------------------
+http://www.contec.at/
+manfred.gruber@contec.at
+
+phone: 0043 / (0)5372 64121 25
+fax: 0043 / (0)5372 64121 20
+==========================================

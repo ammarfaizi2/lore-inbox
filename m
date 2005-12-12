@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbVLLJGV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbVLLJHk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbVLLJGV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 04:06:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbVLLJGV
+	id S1751149AbVLLJHk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 04:07:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbVLLJHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 04:06:21 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:18873 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751148AbVLLJGU convert rfc822-to-8bit
+	Mon, 12 Dec 2005 04:07:39 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:22217 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751149AbVLLJHj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 04:06:20 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Qo5kWlDwHujbWj8H41KTmBh6qN0qtMkbN50l2pYF0G3oMmci6ex46MMayUMwMcZF8O/inEOJxVMBFlb/j8gZrO0kOijhVjfJGrS5e5UEYQVHB84EilkJxBZxMAABb2w0/e7Eria4x4+ivEprPr6A7x5xeLlSQgfNCBBAffgepSw=
-Message-ID: <2f7228250512120106wc8f3f99n8633529da9f63f57@mail.gmail.com>
-Date: Mon, 12 Dec 2005 14:36:19 +0530
-From: Digvijoy Chatterjee <digvijoy.c@gmail.com>
-Subject: Re: Errors while booting the newly built 2.6.12 kernel??
-Cc: "Mukund JB." <mukundjb@esntechnologies.co.in>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <9a8748490512120022g3b5bba4ch3c2e13b4f1a08188@mail.gmail.com>
+	Mon, 12 Dec 2005 04:07:39 -0500
+Message-ID: <439D3DB2.9010900@cosmosbay.com>
+Date: Mon, 12 Dec 2005 10:06:58 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <3AEC1E10243A314391FE9C01CD65429B1BDB03@mail.esn.co.in>
-	 <9a8748490512120022g3b5bba4ch3c2e13b4f1a08188@mail.gmail.com>
-To: unlisted-recipients:; (no To-header on input)
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Paul Jackson <pj@sgi.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Simon Derr <Simon.Derr@bull.net>, Andi Kleen <ak@suse.de>,
+       Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
+References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com> <439D39A8.1020806@cosmosbay.com> <439D3AD5.3080403@yahoo.com.au>
+In-Reply-To: <439D3AD5.3080403@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Mon, 12 Dec 2005 10:06:58 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-may be you have to see if your basic console devices are being created
-in initrd , things like /dev/console /dev/null you have to add that to
-ur init script if its not
+Nick Piggin a écrit :
+> Eric Dumazet wrote:
+> 
+>> Paul Jackson a écrit :
+>>
+>>> +
+>>> +static kmem_cache_t *cpuset_cache;
+>>> +
+>>
+>>
+>>
+>> Hi Paul
+>>
+>> Please do use __read_mostly for new kmem_cache :
+>>
+>> static kmem_cache_t *cpuset_cache __read_mostly;
+>>
+>> If not, the pointer can sit in the midle of a highly modified cache 
+>> line, and multiple CPUS will have memory cache misses to access the 
+>> cpuset_cache, while slab code/data layout itself is very NUMA/SMP 
+>> friendly.
+>>
+> 
+> Is it a good idea for all kmem_cache_t? If so, can we move
+> __read_mostly to the type definition?
+> 
+> 
 
-On 12/12/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 12/12/05, Mukund JB. <mukundjb@esntechnologies.co.in> wrote:
-> >
-> [snip]
-> >
-> I wrote a small guide a while back. Perhaps it can help you :
-> http://www.linuxtux.org/~juhl/2.6-kernel-build.txt
->
->
-> --
-> Jesper Juhl <jesper.juhl@gmail.com>
-> Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-> Plain text mails only, please      http://www.expita.com/nomime.html
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Well this question was already asked.
 
+You cannot move __read_mostly to the type itself as some kmem_cache_t are 
+included in some data structures.
 
---
-Thanks and Regards
-Digvijoy Chatterjee
+struct {
+  ...
+  kmem_cache_t *slab;
+  ...
+};
+
+And in this case you cannot automatically add __read_mostly
+
+Eric

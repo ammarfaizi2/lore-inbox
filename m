@@ -1,76 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751264AbVLLQy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbVLLQx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751264AbVLLQy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 11:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751259AbVLLQy6
+	id S1751172AbVLLQx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 11:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbVLLQx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 11:54:58 -0500
-Received: from solarneutrino.net ([66.199.224.43]:30982 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S1751213AbVLLQy6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 11:54:58 -0500
-Date: Mon, 12 Dec 2005 11:54:43 -0500
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       ryan@tau.solarneutrino.net
-Subject: Re: Fw: crash on x86_64 - mm related?
-Message-ID: <20051212165443.GD17295@tau.solarneutrino.net>
-References: <20051201195657.GB7236@tau.solarneutrino.net> <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com> <20051202180326.GB7634@tau.solarneutrino.net> <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com> <20051202194447.GA7679@tau.solarneutrino.net> <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com> <20051206160815.GC11560@tau.solarneutrino.net> <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com> <20051206204336.GA12248@tau.solarneutrino.net> <Pine.LNX.4.61.0512071803300.2975@goblin.wat.veritas.com>
+	Mon, 12 Dec 2005 11:53:29 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:11015 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S1751172AbVLLQx2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 11:53:28 -0500
+Subject: Kernel BUG at arch/x86_64/mm/pageattr.c:154
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: LKML Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 12 Dec 2005 17:53:18 +0100
+Message-Id: <1134406398.4953.3.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0512071803300.2975@goblin.wat.veritas.com>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+X-Mailer: Evolution 2.4.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And yet another crash, this time during boot:
+hello... i know my kernel is tainted, however, since the thing with
+nvidia giving warnings i think this still might be apropriate to report.
+
+i get the following by running bzflag 2.0.4 (2.0.2 works)..
+the first time i did it, X froze, the next time, it didnt, however no
+opengl worked anymore...
+bzflag seems to be the only thing whihc doesent work, other opengl stuff
+seems not to be affected, despite the warning from nvidia..
+
+Kernel BUG at arch/x86_64/mm/pageattr.c:154
+invalid operand: 0000 [1]
+CPU 0
+Modules linked in: vfat fat isofs zlib_inflate nvidia i2c_viapro
+ehci_hcd uhci_hcd amd64_agp agpgart snd_pcm_oss snd_mixer_oss
+snd_seq_oss snd_seq_midi_event snd_seq $
+Pid: 6760, comm: bzflag Tainted: P      2.6.15-rc5-ck2-redee #1
+RIP: 0010:[<ffffffff8011e0d0>] <ffffffff8011e0d0>{__change_page_attr
++608}
+RSP: 0018:ffff8100356b9d98  EFLAGS: 00010282
+RAX: 00000000000001f8 RBX: ffff8100010001f8 RCX: 80000000328001e3
+RDX: 0000000000000048 RSI: 0000000000032962 RDI: ffff810000000000
+RBP: ffff810032962000 R08: 00003ffffffff000 R09: 8000000000000163
+R10: ffffffffffffffff R11: ffffffff80152d40 R12: 0000000000000000
+R13: ffff810000009ca0 R14: 0000000000000ca0 R15: 8000000000000163
+FS:  00002aaaace1b1f0(0000) GS:ffffffff80412800(0000)
+knlGS:000000004014e6b0
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000881708 CR3: 0000000014629000 CR4: 00000000000006e0
+Process bzflag (pid: 6760, threadinfo ffff8100356b8000, task
+ffff810017a3a3c0)
+Stack: 0000001e00000001 ffffffff80101810 0000000000000102
+0000000000000000
+       ffff810037f66000 0000000000000013 0000000000000246
+ffff810032962000
+       0000000000032962 0000000000000000
+Call Trace:<ffffffff80101810>{init_level4_pgt+2064}
+<ffffffff8011e31b>{change_page_attr_addr+155}
+       <ffffffff88479947>{:nvidia:nv_vm_free_pages+274}
+<ffffffff88475b44>{:nvidia:nv_kern_vma_release+126}
+       <ffffffff8015f80c>{remove_vma+44} <ffffffff8015fd78>{exit_mmap
++184}
+       <ffffffff8012c37b>{mmput+27} <ffffffff80130633>{do_exit+547}
+       <ffffffff80131029>{do_group_exit+169}
+<ffffffff8010e96e>{system_call+126}
 
 
-mptbase: Initiating ioc1 bringup
-ioc1: 53C1030: Capabilities={Initiator}
-scsi2 : ioc1: LSI53C1030, FwRev=01030600h, Ports=1, MaxQ=255, IRQ=17
-  Vendor: SEAGATE   Model: ST336607LW        Rev: 0007
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-SCSI device sdf: 71687372 512-byte hdwr sectors (36704 MB)
-SCSI device sdf: drive cache: write back
-SCSI device sdf: 71687372 512-byte hdwr sectors (36704 MB)
-SCSI device sdf: drive cache: write back
- sdf: sdf1 sdf2 sdf3 sdf4
-sd 2:0:0:0: Attached scsi disk sdf
-sd 2:0:0:0: Attached scsi generic sg8 type 0
-general protection fault: 0000 [1] SMP
-CPU 1
-Modules linked in:
-Pid: 0, comm: swapper Not tainted 2.6.15-rc5 #1
-RIP: 0010:[<ffffffff802a0a04>] <ffffffff802a0a04>{scsi_run_queue+20}
-RSP: 0000:ffff81010288be18  EFLAGS: 00010296
-RAX: 0000000000000001 RBX: ffff81000c0ad770 RCX: 0000000000000001
-RDX: 0000000000000001 RSI: ffffffff80222090 RDI: 6b6b6b6b6b6b6b6b
-RBP: ffff8100f6fba230 R08: 0000000000000000 R09: ffff81000c0aa198
-R10: ffff8100f6f88578 R11: 0000000000000001 R12: 0000000000000292
-R13: ffff81000486e3e8 R14: ffff81000486e3e8 R15: 0000000000000000
-FS:  0000000000000000(0000) GS:ffffffff804ee880(0000) knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-CR2: 0000000000000000 CR3: 0000000000101000 CR4: 00000000000006e0
-Process swapper (pid: 0, threadinfo ffff81000482e000, task ffff81000482ae00)
-Stack: 0000000000000001 ffff81000c0ad770 ffff8100f6fba230 0000000000000292
-       0000000000000001 ffffffff802a0c4f ffff81000c0d93b8 ffff8100f6fba230
-       0000000000000024 0000000000010000
-Call Trace: <IRQ> <ffffffff802a0c4f>{scsi_end_request+207} <ffffffff802a11af>{scsi_io_completion+1039}
-       <ffffffff8029c3c6>{scsi_finish_command+150} <ffffffff8029c2dd>{scsi_softirq+333}
-       <ffffffff801386eb>{__do_softirq+107} <ffffffff8010eeeb>{call_softirq+31}
-       <ffffffff80110781>{do_softirq+49} <ffffffff80110744>{do_IRQ+52}
-       <ffffffff8010e10c>{ret_from_intr+0}  <EOI> <ffffffff8038866c>{thread_return+140}
-       <ffffffff8010bb1a>{default_idle+58} <ffffffff8010bd61>{cpu_idle+97}
+Code: 0f 0b 68 d2 a5 2d 80 c2 9a 00 66 66 90 66 66 90 8b 03 89 c0
+RIP <ffffffff8011e0d0>{__change_page_attr+608} RSP <ffff8100356b9d98>
+ <1>Fixing recursive fault but reboot is needed!
 
 
-Code: f6 87 cd 01 00 00 80 48 8b 2f 74 05 e8 fb fe ff ff 48 8b 7d
-RIP <ffffffff802a0a04>{scsi_run_queue+20} RSP <ffff81010288be18>
- <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
-
--ryan

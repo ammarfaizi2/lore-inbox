@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbVLLJMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbVLLJRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751152AbVLLJMP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 04:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbVLLJMP
+	id S1751155AbVLLJRI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 04:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVLLJRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 04:12:15 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:51124 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751152AbVLLJMO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 04:12:14 -0500
-Date: Mon, 12 Dec 2005 01:11:08 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: dada1@cosmosbay.com, pj@sgi.com, linux-kernel@vger.kernel.org,
-       Simon.Derr@bull.net, ak@suse.de, clameter@sgi.com
-Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
-Message-Id: <20051212011108.0725524d.akpm@osdl.org>
-In-Reply-To: <439D3AD5.3080403@yahoo.com.au>
-References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>
-	<439D39A8.1020806@cosmosbay.com>
-	<439D3AD5.3080403@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 12 Dec 2005 04:17:08 -0500
+Received: from cantor.suse.de ([195.135.220.2]:39102 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751155AbVLLJRH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 04:17:07 -0500
+Date: Mon, 12 Dec 2005 10:14:27 +0100
+From: Stefan Seyfried <seife@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: vojtech@suse.cz, dtor_core@ameritech.net, luming.yu@intel.com,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, len.brown@intel.com,
+       bero@arklinux.org
+Subject: Re: [git pull 02/14] Add Wistron driver
+Message-ID: <20051212091427.GB21522@suse.de>
+References: <20051211224059.GA28388@midnight.suse.cz> <20051212001315.0e2c64f1.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051212001315.0e2c64f1.akpm@osdl.org>
+X-Operating-System: SUSE LINUX 10.0 (i586), Kernel 2.6.13-15.7-default
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> Eric Dumazet wrote:
-> > Paul Jackson a écrit :
-> > 
-> >> +
-> >> +static kmem_cache_t *cpuset_cache;
-> >> +
-> > 
-> > 
-> > Hi Paul
-> > 
-> > Please do use __read_mostly for new kmem_cache :
-> > 
-> > static kmem_cache_t *cpuset_cache __read_mostly;
-> > 
-> > If not, the pointer can sit in the midle of a highly modified cache 
-> > line, and multiple CPUS will have memory cache misses to access the 
-> > cpuset_cache, while slab code/data layout itself is very NUMA/SMP friendly.
-> > 
+On Mon, Dec 12, 2005 at 12:13:15AM -0800, Andrew Morton wrote:
+> Stefan Seyfried <seife@suse.de> wrote:
+
+> > pcc_acpi already does this successfully and is a pleasure to use.
 > 
-> Is it a good idea for all kmem_cache_t? If so, can we move
-> __read_mostly to the type definition?
-> 
+> That's not in the tree any more.   Did something replace it?
 
-Yes, I suppose that's worthwhile.
+No. The ACPI Mafia^H^H^Hintainers :-) no longer accept any hotkey drivers
+and IIUC it will be reimplemented in a generic driver. This driver
+then should pipe the hotkey events to the input subsystem.
 
-We've been shuffling towards removing kmem_cache_t in favour of `struct
-kmem_cache', but this is an argument against doing that.
-
-If we can work out how:
-
-void foo()
-{
-	kmem_cache_t *p;
-}
-
-That'll barf.
-
-
+Disclaimer: i cannot judge if the pcc_acpi code is "nice" or particularly
+correct, but it works fine (for me).
+-- 
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen

@@ -1,84 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbVLLMoa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbVLLMoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbVLLMoa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 07:44:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbVLLMoa
+	id S1751147AbVLLMoK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 07:44:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbVLLMoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 07:44:30 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:805 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751182AbVLLMo3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 07:44:29 -0500
-Date: Mon, 12 Dec 2005 13:45:53 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [DOC PATCH] block/stat.txt
-Message-ID: <20051212124553.GW26185@suse.de>
-References: <20051211010339.GA26568@hexapodia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Dec 2005 07:44:10 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:35019 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751147AbVLLMoJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 07:44:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ReLN+XuuzsdFiTEOsqTPLJ/mxA9BB4f16f6ttdjec9r8Rr/arCaeSwq48yIzZUpvoysbzAdOM4UT1U2DyVgTXOlX1WwPQvd9okJRXpCTUKI6crYFQFNXOJL4qCAk+OAWWEmct38OyCm2JyxDaWYVNNlYmjIZL8Z+hCuaWLkQFQ8=
+Message-ID: <81083a450512120444v56038320k6feffa34257a933d@mail.gmail.com>
+Date: Mon, 12 Dec 2005 18:14:08 +0530
+From: Ashutosh Naik <ashutosh.naik@gmail.com>
+To: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, rth@redhat.com,
+       akpm@osdl.org, Greg KH <greg@kroah.com>
+Subject: Re: [RFC][PATCH] Prevent overriding of Symbols in the Kernel, avoiding Undefined behaviour
+Cc: anandhkrishnan@yahoo.co.in
+In-Reply-To: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051211010339.GA26568@hexapodia.org>
+References: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 10 2005, Andy Isaacson wrote:
-> I couldn't find any docs explaining the contents of
-> /sys/block/<dev>/stat, so I wrote up the following.  I'm not completely
-> sure it's accurate - Jens, could you give a yea or nay on this?
-> 
-> In particular, the counts of read/write IOs and read/write sectors are
-> incremented in different places - it looks like they both increment as
-> the request is being finished, but I'm not completely sure of that.
+Updating the correct email id of Anand Krishnan
+Signed-off-by: Anand Krishnan <anandhkrishnan@yahoo.co.in>
 
-Overall it looks very nice, you basically all of it right. And thanks
-for doing it btw, it's a good addition to the documentation. A few small
-comments follows:
-
-
-> +Name            units         description
-> +----            -----         -----------
-> +read I/Os       requests      number of read I/Os processed
-> +read merges     requests      number of read I/Os merged with in-queue I/O
-> +read sectors    blocks        number of sectors read
-
-The unit here should just read 'sectors', blocks usually refers to a
-file system block.
-
-> +read I/Os, write I/Os
-> +=====================
-> +
-> +These values increment when an I/O request completes.
-> +
-> +read merges, write merges
-> +=========================
-> +
-> +These values increment when an I/O request is merged with an
-> +already-queued I/O request.
-
-Both correct, good!
-
-> +read sectors, write sectors
-> +===========================
-> +
-> +These values count the number of blocks read from or written to this
-> +block device.  The "blocks" in question are the standard UNIX 512-byte
-> +blocks, not any device-specific block size.  The counters are
-> +incremented when the I/O completes.
-
-These standard 512-b blocks we just call sectors in Linux.
-
-> +in_flight
-> +=========
-> +
-> +This value counts the number of currently-queued I/O requests.
-
-A little confusing - it's the number of in flight io at the
-driver/device end, that is after the block layer. One could read the
-above as total in flight (total queued in the queue for the device),
-which is a very different number.
-
--- 
-Jens Axboe
-
+On 12/12/05, Ashutosh Naik <ashutosh.naik@gmail.com> wrote:
+> This patch is the next logical step after the following two  threads
+>
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0511.2/2505.html
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0511.3/0036.html
+>
+> When a symbol is exported from the kernel, and say, a module would
+> export the same symbol, there currently exists no mechanism to prevent
+> the module from exporting this symbol. The module would still go ahead
+> and export the symbol, the symbol table would now contain two copies
+> of the exported symbol, and hell would break loose.
+>
+> This patch prevents that from happening, by checking the symbol table
+> before relocation for all occurences of the Exported Symbol. If the
+> symbol already exists, we branch out with -ENOEXEC. Currently, this
+> search is sequential.
+>
+>
+> Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
+> Signed-off-by: Anand Krishnan <anandhkrishnan@yahoo.com>
+>
+>
+>

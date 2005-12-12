@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751175AbVLLPtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbVLLPvs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751175AbVLLPtm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 10:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbVLLPtm
+	id S932066AbVLLPvs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 10:51:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932067AbVLLPvs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 10:49:42 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32010 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751175AbVLLPtl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 10:49:41 -0500
-Date: Mon, 12 Dec 2005 15:49:25 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Vitaly Wool <vwool@ru.mvista.com>
-Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net, dpervushin@gmail.com,
-       akpm@osdl.org, greg@kroah.com, basicmark@yahoo.com,
-       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
-       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
-Subject: Re: [PATCH 2.6-git 1/4] SPI core refresh: SPI core patch
-Message-ID: <20051212154925.GA19481@flint.arm.linux.org.uk>
-Mail-Followup-To: Vitaly Wool <vwool@ru.mvista.com>,
-	linux-kernel@vger.kernel.org, david-b@pacbell.net,
-	dpervushin@gmail.com, akpm@osdl.org, greg@kroah.com,
-	basicmark@yahoo.com, komal_shah802003@yahoo.com,
-	stephen@streetfiresound.com,
-	spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051212182249.018daa1b.vwool@ru.mvista.com>
+	Mon, 12 Dec 2005 10:51:48 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:23681 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932066AbVLLPvr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 10:51:47 -0500
+Subject: Re: GNU/Linux in a binary world... a doomsday scenario
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Florian Weimer <fw@deneb.enyo.de>
+Cc: Erwin Rol <mailinglists@erwinrol.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <87fyozk2rr.fsf@mid.deneb.enyo.de>
+References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
+	 <20051206040820.GB26602@kroah.com>
+	 <2cd57c900512052358m5b631204i@mail.gmail.com>
+	 <200512061856.42493.luke-jr@utopios.org>
+	 <2cd57c900512061742s28f57b5eu@mail.gmail.com>
+	 <20051210051628.E9E08CF4156@tsurukikun.utopios.org>
+	 <439A7E8E.8010707@wolfmountaingroup.com>
+	 <20051210164320.GB15986@aitel.hist.no> <20051210190537.GI13985@lug-owl.de>
+	 <439B2215.6090408@wolfmountaingroup.com>
+	 <20051210191501.GJ13985@lug-owl.de>
+	 <439B3E36.7090302@wolfmountaingroup.com>
+	 <1134314129.9000.31.camel@xpc.home.erwinrol.com>
+	 <87fyozk2rr.fsf@mid.deneb.enyo.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 12 Dec 2005 15:51:07 +0000
+Message-Id: <1134402667.6841.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051212182249.018daa1b.vwool@ru.mvista.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Only two comments this time.
+On Sul, 2005-12-11 at 17:38 +0100, Florian Weimer wrote:
+> IP enforcements varies quite a lot across Europe.  I'm being told that
+> in the UK, the DVD situation is as worse as in some Asian countries
+> (i.e. you can buy illegal copies of current movies on flea markets).
 
-On Mon, Dec 12, 2005 at 06:22:49PM +0300, Vitaly Wool wrote:
-> +static int spi_bus_suspend(struct device * dev, pm_message_t message)
-> +{
-> +	int ret = 0;
-> +
-> +	if (dev && dev->driver && TO_SPI_DRIVER(dev->driver)->suspend ) {
+It isnt quite as bad. However there is a lack of interest in enforcement
+from local government who have better things to spend their money on,
+and also because the IP rules have been abused so much in the UK
+including to charge rip off prices that local goverment serves voters
+who are likely to vote against not for any local government
+representative who decides to go on an anti-piracy crusade. I've heard
+people in the trading standards area (which tackles counterfeiting)
+who've been told by their elected "masters" to concentrate solely on the
+other areas of their duties like product safety if they want to have an
+operating budget next year.
 
-dev will always be non-NULL here.
+Unfortuantely the bad behaviour of the big media companies that
+triggered much of this gets reflected back at everything even
+disinterest in GPL violation enforcment or large scale violations by big
+business.
 
-> +static int spi_bus_resume(struct device * dev)
-> +{
-> +	int ret = 0;
-> +
-> +	if (dev && dev->driver && TO_SPI_DRIVER(dev->driver)->suspend ) {
+Alan
 
-Ditto.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

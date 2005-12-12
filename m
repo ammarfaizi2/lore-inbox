@@ -1,90 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbVLLTnI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbVLLTqh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932179AbVLLTnI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 14:43:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbVLLTnI
+	id S932166AbVLLTqh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 14:46:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbVLLTqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 14:43:08 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17549 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932179AbVLLTnH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 14:43:07 -0500
-Date: Mon, 12 Dec 2005 11:42:46 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: akpm@osdl.org, trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org
-Subject: oops on shutdown.
-Message-ID: <20051212114246.09c4b172@unknown-222.office.pdx.osdl.net>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Dec 2005 14:46:37 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:15121 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932166AbVLLTqg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 14:46:36 -0500
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	<1133807641.9356.50.camel@laptopd505.fenrus.org>
+	<4395BBDB.307@ti-wmc.nl> <200512061850.20169.luke-jr@utopios.org>
+	<4397EB7A.7030404@aitel.hist.no> <87hd9jvgvz.fsf@amaterasu.srvr.nix>
+	<439D66AF.3010801@aitel.hist.no>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: the road to Hell is paved with extensibility.
+Date: Mon, 12 Dec 2005 19:46:30 +0000
+In-Reply-To: <439D66AF.3010801@aitel.hist.no> (Helge Hafting's message of
+ "Mon, 12 Dec 2005 13:01:51 +0100")
+Message-ID: <87u0dew12h.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a 2 CPU Opteron box.  It hung on a basic shutdown reboot
-running 2.6.15-rc5. It doesn't look related to the sky2 driver.
-I had a couple of nfs client mounts.
+On Mon, 12 Dec 2005, Helge Hafting said:
+> Nix wrote:
+>>(FWIW, my AGP Radeon 9250 works flawlessly as of X.org 6.8.99.901.
+>>6.8.2 and earlier were wobbly.)
+>>
+>>
+> Time to try again then, I guess.  Nice to know that something
+> is happening with the newer servers.
+
+Yep :) modular X is on its way...
+
+>>Whether performance is appalling I don't know because I don't have any
+>>standards to measure it by, but I get 2000fps or thereabouts out of
+>>glxgears. That's a hell of a lot better than the 64fps I got out of
+>>my earlier mach64 :)
+
+Hm, retrying I see 500fps. I wonder what I was doing differently
+earlier... :/
+
+> I have never seen glxgears go into the thousands.  The card is
+> obviously not supposed to be like this - either card or driver is
+> faulty.
+
+FWIW when glxgears is running, X consumes about 2% more CPU time
+than normal: it's almost impossible to detect.
+
+It sounds to me almost like direct rendering is disabled, which will of
+course have catastropic effects on performance. What does glxinfo say?
+
+FWIW, on my box it says
+
+name of display: :0.0
+display: :0  screen: 0
+direct rendering: Yes
+server glx vendor string: SGI
+server glx version string: 1.2
+server glx extensions:
+    GLX_ARB_multisample, GLX_EXT_visual_info, GLX_EXT_visual_rating,
+    GLX_EXT_import_context, GLX_OML_swap_method, GLX_SGI_make_current_read,
+    GLX_SGIS_multisample, GLX_SGIX_hyperpipe, GLX_SGIX_swap_barrier,
+    GLX_SGIX_fbconfig
+client glx vendor string: SGI
+client glx version string: 1.4
+client glx extensions:
+    GLX_ARB_get_proc_address, GLX_ARB_multisample, GLX_EXT_import_context,
+    GLX_EXT_visual_info, GLX_EXT_visual_rating, GLX_MESA_allocate_memory,
+    GLX_MESA_swap_control, GLX_MESA_swap_frame_usage, GLX_OML_swap_method,
+    GLX_OML_sync_control, GLX_SGI_make_current_read, GLX_SGI_swap_control,
+    GLX_SGI_video_sync, GLX_SGIS_multisample, GLX_SGIX_fbconfig,
+    GLX_SGIX_pbuffer, GLX_SGIX_visual_select_group
+GLX extensions:
+    GLX_ARB_get_proc_address, GLX_ARB_multisample, GLX_EXT_import_context,
+    GLX_EXT_visual_info, GLX_EXT_visual_rating, GLX_MESA_allocate_memory,
+    GLX_MESA_swap_control, GLX_MESA_swap_frame_usage, GLX_OML_swap_method,
+    GLX_SGI_video_sync, GLX_SGIS_multisample, GLX_SGIX_fbconfig
+OpenGL vendor string: Tungsten Graphics, Inc.
+OpenGL renderer string: Mesa DRI R200 20041207 AGP 4x x86/MMX+/3DNow!+/SSE TCL
+OpenGL version string: 1.3 Mesa 6.4
+OpenGL extensions:
+    GL_ARB_imaging, GL_ARB_multisample, GL_ARB_multitexture,
+    GL_ARB_texture_border_clamp, GL_ARB_texture_compression,
+    GL_ARB_texture_cube_map, GL_ARB_texture_env_add,
+    GL_ARB_texture_env_combine, GL_ARB_texture_env_dot3,
+    GL_ARB_texture_mirrored_repeat, GL_ARB_texture_rectangle,
+    GL_ARB_transpose_matrix, GL_ARB_vertex_buffer_object, GL_ARB_window_pos,
+    GL_EXT_abgr, GL_EXT_bgra, GL_EXT_blend_color,
+    GL_EXT_blend_equation_separate, GL_EXT_blend_func_separate,
+    GL_EXT_blend_minmax, GL_EXT_blend_subtract, GL_EXT_clip_volume_hint,
+    GL_EXT_compiled_vertex_array, GL_EXT_convolution, GL_EXT_copy_texture,
+    GL_EXT_draw_range_elements, GL_EXT_fog_coord, GL_EXT_histogram,
+    GL_EXT_packed_pixels, GL_EXT_polygon_offset, GL_EXT_rescale_normal,
+    GL_EXT_secondary_color, GL_EXT_separate_specular_color,
+    GL_EXT_stencil_wrap, GL_EXT_subtexture, GL_EXT_texture, GL_EXT_texture3D,
+    GL_EXT_texture_edge_clamp, GL_EXT_texture_env_add,
+    GL_EXT_texture_env_combine, GL_EXT_texture_env_dot3,
+    GL_EXT_texture_filter_anisotropic, GL_EXT_texture_lod_bias,
+    GL_EXT_texture_mirror_clamp, GL_EXT_texture_object,
+    GL_EXT_texture_rectangle, GL_EXT_vertex_array, GL_APPLE_packed_pixels,
+    GL_ATI_blend_equation_separate, GL_ATI_texture_env_combine3,
+    GL_ATI_texture_mirror_once, GL_IBM_rasterpos_clip,
+    GL_IBM_texture_mirrored_repeat, GL_INGR_blend_func_separate,
+    GL_MESA_pack_invert, GL_MESA_ycbcr_texture, GL_MESA_window_pos,
+    GL_NV_blend_square, GL_NV_light_max_exponent, GL_NV_texture_rectangle,
+    GL_NV_texgen_reflection, GL_OES_read_format, GL_SGI_color_matrix,
+    GL_SGI_color_table, GL_SGIS_generate_mipmap, GL_SGIS_texture_border_clamp,
+    GL_SGIS_texture_edge_clamp, GL_SGIS_texture_lod
+glu version: 1.3
+glu extensions:
+    GLU_EXT_nurbs_tessellator, GLU_EXT_object_space_tess
+
+   visual  x  bf lv rg d st colorbuffer ax dp st accumbuffer  ms  cav
+ id dep cl sp sz l  ci b ro  r  g  b  a bf th cl  r  g  b  a ns b eat
+----------------------------------------------------------------------
+0x23 16 tc  0 16  0 r  .  .  5  6  5  0  0 16  0  0  0  0  0  0 0 None
+0x24 16 tc  0 16  0 r  .  .  5  6  5  0  0 16  8  0  0  0  0  0 0 Slow
+0x25 16 tc  0 16  0 r  .  .  5  6  5  0  0 16  0 16 16 16  0  0 0 Slow
+0x26 16 tc  0 16  0 r  .  .  5  6  5  0  0 16  8 16 16 16  0  0 0 Slow
+0x27 16 tc  0 16  0 r  y  .  5  6  5  0  0 16  0  0  0  0  0  0 0 None
+0x28 16 tc  0 16  0 r  y  .  5  6  5  0  0 16  8  0  0  0  0  0 0 Slow
+0x29 16 tc  0 16  0 r  y  .  5  6  5  0  0 16  0 16 16 16  0  0 0 Slow
+0x2a 16 tc  0 16  0 r  y  .  5  6  5  0  0 16  8 16 16 16  0  0 0 Slow
+0x2b 16 dc  0 16  0 r  .  .  5  6  5  0  0 16  0  0  0  0  0  0 0 None
+0x2c 16 dc  0 16  0 r  .  .  5  6  5  0  0 16  8  0  0  0  0  0 0 Slow
+0x2d 16 dc  0 16  0 r  .  .  5  6  5  0  0 16  0 16 16 16  0  0 0 Slow
+0x2e 16 dc  0 16  0 r  .  .  5  6  5  0  0 16  8 16 16 16  0  0 0 Slow
+0x2f 16 dc  0 16  0 r  y  .  5  6  5  0  0 16  0  0  0  0  0  0 0 None
+0x30 16 dc  0 16  0 r  y  .  5  6  5  0  0 16  8  0  0  0  0  0 0 Slow
+0x31 16 dc  0 16  0 r  y  .  5  6  5  0  0 16  0 16 16 16  0  0 0 Slow
+0x32 16 dc  0 16  0 r  y  .  5  6  5  0  0 16  8 16 16 16  0  0 0 Slow
 
 
-[264357.575968] nfsd: last server has exited
-[264357.589641] nfsd: unexporting all filesystems
-[264357.605047] RPC: failed to contact portmap (errno -5).
-[264362.028736] sky2 eth1: disabling interface
-[264369.044649] Unable to handle kernel NULL pointer dereference at 0000000000000001 RIP: 
-[264369.063676] <ffffffff8015bdc7>{find_get_pages+87}
-[264369.088376] PGD 7d698067 PUD 7dc0a067 PMD 0 
-[264369.103310] Oops: 0000 [1] SMP 
-[264369.114347] CPU 0 
-[264369.121489] Modules linked in: nfsd exportfs binfmt_misc video thermal processor fan button battery ac ohci_hcd ehci_hcd i2c_amd8111 i2c_amd756 i2c_core snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc sky2 tg3 usbcore
-[264369.180541] Pid: 11776, comm: umount Not tainted 2.6.15-rc5 #1
-[264369.180544] RIP: 0010:[<ffffffff8015bdc7>] <ffffffff8015bdc7>{find_get_pages+87}
-[264369.180553] RSP: 0018:ffff81007d9d9c48  EFLAGS: 00010002
-[264369.180556] RAX: 000000000000086c RBX: 0000000000000002 RCX: ffff81007d9d9ce0
-[264369.180558] RDX: 0000000000000001 RSI: 0000000000000001 RDI: 0000000000000002
-[264369.180561] RBP: ffff81007d9d9c78 R08: 0000000000000000 R09: 0000000000000040
-[264369.180564] R10: ffff8100005ef4b0 R11: 0000000000000002 R12: 000000000000000e
-[264369.180567] R13: 0000000000000000 R14: ffff81007d9d9cd8 R15: ffff8100006cd6c0
-[264369.180571] FS:  00002aaaaaac5e80(0000) GS:ffffffff805ae800(0000) knlGS:0000000000000000
-[264369.180574] CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-[264369.180577] CR2: 0000000000000001 CR3: 000000007c2d8000 CR4: 00000000000006e0
-[264369.180580] Process umount (pid: 11776, threadinfo ffff81007d9d8000, task ffff81005aa300c0)
-[264369.180583] Stack: ffff81007d9d9c58 ffff81007d9d9cc8 0000000000000000 ffff81007d9d9dc8 
-[264369.180588]        0000000000006fb4 ffff8100006cd6a8 ffff81007d9d9c98 ffffffff8016657f 
-[264369.180594]        0000000000000018 ffff8100006cd558 
-[264369.180597] Call Trace:<ffffffff8016657f>{pagevec_lookup+31} <ffffffff8016718c>{truncate_inode_pages+252}
-[264369.180611]        <ffffffff8019b21a>{dispose_list+90} <ffffffff8019b661>{invalidate_inodes+257}
-[264369.180624]        <ffffffff80185bfa>{generic_shutdown_super+154} <ffffffff80185d00>{kill_block_super+48}
-[264369.180635]        <ffffffff80185fbc>{deactivate_super+108} <ffffffff8019d468>{mntput_no_expire+88}
-[264369.180643]        <ffffffff8018d94d>{path_release_on_umount+29} <ffffffff8019e91f>{sys_umount+639}
-[264369.180651]        <ffffffff8010dd1e>{system_call+126} 
-[264369.180664] 
-[264369.180665] Code: 8b 02 89 c0 f6 c4 40 74 04 48 8b 52 10 f0 ff 42 08 ff c6 48 
-[264369.180674] RIP <ffffffff8015bdc7>{find_get_pages+87} RSP <ffff81007d9d9c48>
-[264369.180679] CR2: 0000000000000001
-[264369.180681]  <3>Debug: sleeping function called from invalid context at include/linux/rwsem.h:43
-[264369.180684] in_atomic():0, irqs_disabled():1
-[264369.180686] 
-[264369.180687] Call Trace:<ffffffff8012cfdb>{__might_sleep+187} <ffffffff8013520d>{profile_task_exit+29}
-[264369.180696]        <ffffffff801365b5>{do_exit+37} <ffffffff803a726b>{do_page_fault+1867}
-[264369.180708]        <ffffffff8016496f>{free_block+223} <ffffffff80164d44>{cache_flusharray+196}
-[264369.180716]        <ffffffff8010ec9d>{error_exit+0} <ffffffff8015bdc7>{find_get_pages+87}
-[264369.180731]        <ffffffff8015bdb9>{find_get_pages+73} <ffffffff8016657f>{pagevec_lookup+31}
-[264369.180739]        <ffffffff8016718c>{truncate_inode_pages+252} <ffffffff8019b21a>{dispose_list+90}
-[264369.180752]        <ffffffff8019b661>{invalidate_inodes+257} <ffffffff80185bfa>{generic_shutdown_super+154}
-[264369.180762]        <ffffffff80185d00>{kill_block_super+48} <ffffffff80185fbc>{deactivate_super+108}
-[264369.180770]        <ffffffff8019d468>{mntput_no_expire+88} <ffffffff8018d94d>{path_release_on_umount+29}
-[264369.180777]        <ffffffff8019e91f>{sys_umount+639} <ffffffff8010dd1e>{system_call+126}
-[264369.180789]        
-[264369.180799] Badness in do_exit at kernel/exit.c:796
-[264369.180801] 
-[264369.180802] Call Trace:<ffffffff801365e6>{do_exit+86} <ffffffff803a726b>{do_page_fault+1867}
-[264369.180811]        <ffffffff8016496f>{free_block+223} <ffffffff80164d44>{cache_flusharray+196}
-[264369.180820]        <ffffffff8010ec9d>{error_exit+0} <ffffffff8015bdc7>{find_get_pages+87}
-[264369.180833]        <ffffffff8015bdb9>{find_get_pages+73} <ffffffff8016657f>{pagevec_lookup+31}
-[264369.180842]        <ffffffff8016718c>{truncate_inode_pages+252} <ffffffff8019b21a>{dispose_list+90}
-[264369.180854]        <ffffffff8019b661>{invalidate_inodes+257} <ffffffff80185bfa>{generic_shutdown_super+154}
-[264369.180864]        <ffffffff80185d00>{kill_block_super+48} <ffffffff80185fbc>{deactivate_super+108}
-[264369.180872]        <ffffffff8019d468>{mntput_no_expire+88} <ffffffff8018d94d>{path_release_on_umount+29}
-[264369.180879]        <ffffffff8019e91f>{sys_umount+639} <ffffffff8010dd1e>{system_call+126}
-[264369.180890]        
+>          Most people don't seem to have performance problems,
+> with their radeons, so perhaps my card is a bit different and
+> don't fit the driver.
+
+The X startup log can also be useful here. I've noticed that if you
+get the AGPMode wrong in either direction, the results can be
+catastrophic: if it's too low the card is terribly slow and if it's
+too high you soon get the X server hanging as it waits forever for
+the card to respond to something it hasn't had time to receive (or
+something like that, anyway).
+
+-- 
+`Don't confuse the shark with the remoras.' --- Rob Landley
+

@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVLLXVU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbVLLXog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbVLLXVU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 18:21:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbVLLXVU
+	id S932237AbVLLXog (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 18:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbVLLXog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 18:21:20 -0500
-Received: from smtpq1.groni1.gr.home.nl ([213.51.130.200]:23206 "EHLO
-	smtpq1.groni1.gr.home.nl") by vger.kernel.org with ESMTP
-	id S932202AbVLLXVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 18:21:19 -0500
-Message-ID: <439E06C3.7000304@keyaccess.nl>
-Date: Tue, 13 Dec 2005 00:24:51 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: External USB2 HDD affects speed hda
-References: <429BA001.2030405@keyaccess.nl> <200506011643.42073.david-b@pacbell.net> <Pine.LNX.4.58.0506020316240.28167@artax.karlin.mff.cuni.cz> <200506011917.14678.david-b@pacbell.net> <429F075F.7030804@keyaccess.nl> <42F3E95B.4050704@keyaccess.nl> <20050917023639.B49481FF9E@adsl-69-107-32-110.dsl.pltn13.pacbell.net> <432C2BF1.1040100@keyaccess.nl>
-In-Reply-To: <432C2BF1.1040100@keyaccess.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 12 Dec 2005 18:44:36 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:22216 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932237AbVLLXof (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 18:44:35 -0500
+Date: Mon, 12 Dec 2005 15:42:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, bunk@stusta.de
+Subject: Re: [PATCH] Introduce atomic_long_t and asm-generic/atomic.h
+Message-Id: <20051212154224.10a8c5e4.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0512121028410.14769@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0512121028410.14769@schroedinger.engr.sgi.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Herman wrote:
+Christoph Lameter <clameter@engr.sgi.com> wrote:
+>
+> +#ifdef ATOMIC64_INIT
+> +
+> +#define ATOMIC_LONG_INIT(i)	ATOMIC64_INIT(i)
+> +#define atomic_long_t		atomic64_t
+> +#define atomic_long_read(v)	atomic64_read(v)
+> +#define atomic_long_set(v,i)	atomic64_set(v,i)
+> +#define atomic_long_inc(v)	atomic64_inc(v)
+> +#define atomic_long_dec(v)	atomic64_dec(v)
+> +#define atomic_long_add(i,v)	atomic64_add(i,v)
+> +#define atomic_long_sub(i,v)	atomic64_sub(i,v)
+> +
+> +#else
+> +
+> +#define ATOMIC_LONG_INIT(i)	ATOMIC_INIT(i)
+> +#define atomic_long_t		atomic_t
+> +#define atomic_long_read(v)	atomic_read(v)
+> +#define atomic_long_set(v,i)	atomic_set(v,i)
+> +#define atomic_long_inc(v)	atomic_inc(v)
+> +#define atomic_long_dec(v)	atomic_dec(v)
+> +#define atomic_long_add(i,v)	atomic_add(i,v)
+> +#define atomic_long_sub(i,v)	atomic_sub(i,v)
+> +
+> +#endif
 
-(thread at http://marc.theaimsgroup.com/?t=111749614000002&r=1&w=2)
+It's sneaky, but it's not really good enough, IMO.
 
-> David Brownell wrote:
+It assumes that sizeof(long) = sizeof(int) ifndef ATOMIC64_INIT.  Which is
+true, but there are still problems.  For example, I'd reasonably expect this:
 
->> -    if (!head->qh_next.qh) {
->> +    if (!head->qh_next.qh && !ehci->reclaim) {
-> 
-> 
-> Thanks, but unfortunately no change. That is, still have that "Async" 
-> status flag toggling on and off in /sys/class/usb_host/usb?/registers 
-> (and the ~ 8MB/s drop in IDE throughput).
+	printk("%ld", atomic_long_read(v));
 
-Maybe useful informateion: no problems when the disk is accessed through 
-uhci-hcd at the same port. Only using it through ehci-hcd triggers the 
-problem ("async" status flag toggling on/off, drop in IDE throughput).
+to not produce a warning.  It may also lead to long*/int* warnings or build
+errors.
 
-Rene.
+Also, it kind-of assumes that each 64-bit arch uses `long' for its 64-bit
+value.  sh64, for example, appears to use `long long'.
 
 
+Perhaps all this can be fixed by filling the above macros with typecasts. 
+Remember that typecasted lvals are illegal with gcc-4.x.
 
+Or we bite the bullet and implement these guys in each arch...

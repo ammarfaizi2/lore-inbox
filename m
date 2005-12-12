@@ -1,95 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751235AbVLLLXj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751237AbVLLLat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751235AbVLLLXj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 06:23:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbVLLLXj
+	id S1751237AbVLLLat (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 06:30:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVLLLat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 06:23:39 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:39555 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751235AbVLLLXj
+	Mon, 12 Dec 2005 06:30:49 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:32782 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751237AbVLLLat
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 06:23:39 -0500
-Message-ID: <439D5E96.3030607@aitel.hist.no>
-Date: Mon, 12 Dec 2005 12:27:18 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Mon, 12 Dec 2005 06:30:49 -0500
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Helge Hafting <helgehaf@aitel.hist.no>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.15-rc5: multiuser scheduling trouble
+References: <Pine.LNX.4.64.0512032155290.3099@g5.osdl.org>
+	<20051210162759.GA15986@aitel.hist.no>
+	<Pine.LNX.4.64.0512111607040.15597@g5.osdl.org>
+	<20051212065150.GA8187@elte.hu>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: anything free is worth what you paid for it.
+Date: Mon, 12 Dec 2005 11:30:22 +0000
+In-Reply-To: <20051212065150.GA8187@elte.hu> (Ingo Molnar's message of "12
+ Dec 2005 06:54:39 -0000")
+Message-ID: <87vexuy2lt.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: Luke-Jr <luke-jr@utopios.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux in a binary world... a doomsday scenario
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512061850.20169.luke-jr@utopios.org> <4397EB7A.7030404@aitel.hist.no> <200512081130.05095.luke-jr@utopios.org>
-In-Reply-To: <200512081130.05095.luke-jr@utopios.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke-Jr wrote:
+On 12 Dec 2005, Ingo Molnar announced authoritatively:
+> does this mean X defaults to nice level 0, and then if you renice
+> Firefox and X by +10, everything is fine? Or is Linus' suspicion, and X
+> defaults to something like nice -5? (e.g. on Debian type of systems)
 
->On Thursday 08 December 2005 08:14, you wrote:
->  
->
->>Luke-Jr wrote:
->>    
->>
->>>The ATi Radeon 9200 works fine...
->>>      
->>>
->>Lucky you.  Mine doesn't.  Using 3D on it makes the machine unstable,
->>and the performance is apalling too.
->>    
->>
->
->Hm, well I don't have DRI enabled on my primary desktop... just on a second 
->one dedicated to gaming. Not sure if that makes any difference...
->
->  
->
->>So I'm looking for something else - a radeon 7000 is cheap .  . .
->>    
->>
->
->That'll outperform a 9200? ;)
->  
->
-Actually yes, because something is clearly wrong.
-The pci 9200 SE can run tuxracer at 640x480 - not smooth
-but playable until it locks the machine after a few minutes.
+Your latter suspicion is correct, on Debian at least: see the setting of
+nice_value in /etc/X11/Xwrapper.config.
 
-The AGP matrox G550 is better, it runs 1280x1024 tuxracer
-with a unknown but noticeable higher framerate.  According to
-people I talked to before, the 9200SE is supposed to outperform
-this, even with a pci bus.  But it is not even close and I don't
-bother running 3D on it any more due to the hanging.
+-- 
+`Don't confuse the shark with the remoras.' --- Rob Landley
 
->  
->
->>And don't say that a crash during a 3D game isn't important -
->>    
->>
->
->A system crash? Worst I've ever seen was a X crash, back before I got my X 
->configs good. If you mean a game crash, I wouldn't know... half the time it'd 
->probably be my fault. ;)
->  
->
-I don't mind a game crash - I can always find another game.  But it will
-at least screw up that card so bad that I need a reboot to get
-a working xserver running on that display.  Typically, the
-crash ends with a 99% cpu loop in the kernel, a blocked display,
-and perhaps the other xserver gets in trouble too.
-
->  
->
->>it is a two-user machine and the other user is not amused when this happens.
->>    
->>
->
->Maybe he would be if it showed a BSOD? :p
->  
->
-Nope.  A windows crash isn't any "better", and they are used to
-the linux-level of stability anyway.
-
-Helge Hafting

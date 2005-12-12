@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVLLIOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbVLLIWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751129AbVLLIOE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 03:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751130AbVLLIOE
+	id S1751130AbVLLIWa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 03:22:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbVLLIW3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 03:14:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:61095 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751129AbVLLIOD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 03:14:03 -0500
-Date: Mon, 12 Dec 2005 00:13:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Stefan Seyfried <seife@suse.de>
-Cc: vojtech@suse.cz, dtor_core@ameritech.net, luming.yu@intel.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org, len.brown@intel.com,
-       bero@arklinux.org
-Subject: Re: [git pull 02/14] Add Wistron driver
-Message-Id: <20051212001315.0e2c64f1.akpm@osdl.org>
-References: <20051211224059.GA28388@midnight.suse.cz>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
+	Mon, 12 Dec 2005 03:22:29 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:60434 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751130AbVLLIW3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 03:22:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=T8coMrTxw/gmxKnEXlpsij0j7atXdXXx1wTBQJjHoOJgZ1n76P5cwQ6Sb6ur7Fz0cAfZKnDdM/A7pKIYqJR9RHAIEpzgiCUrYpTBov3/OBAuIMcttV65xQwyXjYWFJ7drE9DM7+/eFMrxmx5GRK3J3EbFR5q1cWYBcw2JZofuUs=
+Message-ID: <9a8748490512120022g3b5bba4ch3c2e13b4f1a08188@mail.gmail.com>
+Date: Mon, 12 Dec 2005 09:22:28 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Mukund JB." <mukundjb@esntechnologies.co.in>
+Subject: Re: Errors while booting the newly built 2.6.12 kernel??
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <3AEC1E10243A314391FE9C01CD65429B1BDB03@mail.esn.co.in>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3AEC1E10243A314391FE9C01CD65429B1BDB03@mail.esn.co.in>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Seyfried <seife@suse.de> wrote:
+On 12/12/05, Mukund JB. <mukundjb@esntechnologies.co.in> wrote:
 >
-> In article <20051211224059.GA28388@midnight.suse.cz> you wrote:
-> > On Sun, Dec 11, 2005 at 01:10:13PM +0000, Bernhard Rosenkraenzer wrote:
-> >> I think routing them to the input layer makes most sense because they are keys 
-> >> like everything else -- of course hacking acpid to pass on ACPI key events to 
-> >> Xorg via the XTest extension is not exactly hard, but that would break the 
-> >> keys in text mode (who knows, maybe someone wants to map his mail key to 
-> >> "mutt[RETURN]"?), and of course launching an application from acpid is a bit 
-> >> hard (acpid runs as root --> need to figure out which user is pressed the 
-> >> button, switch user IDs, find the correct X display if any, .....) if it's an 
-> >> input event, solutions for the expected functionality already exist - e.g. 
-> >> khotkeys.
-> > 
-> > You also can hack acpid to use uinput to feed the events back to the
-> > input subsystem, but I agree with you that going there directly is
-> > probably the best way to go.
-> 
-> pcc_acpi already does this successfully and is a pleasure to use.
+[snip]
+>
+I wrote a small guide a while back. Perhaps it can help you :
+http://www.linuxtux.org/~juhl/2.6-kernel-build.txt
 
-That's not in the tree any more.   Did something replace it?
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

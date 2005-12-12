@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbVLLUCm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVLLUCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbVLLUCm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 15:02:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbVLLUCe
+	id S932195AbVLLUCF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 15:02:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbVLLUCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 15:02:34 -0500
-Received: from mail.kroah.org ([69.55.234.183]:46501 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932191AbVLLUCO (ORCPT
+	Mon, 12 Dec 2005 15:02:05 -0500
+Received: from api.pobox.com ([208.210.124.75]:65497 "EHLO thorn.pobox.com")
+	by vger.kernel.org with ESMTP id S932192AbVLLUCD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 15:02:14 -0500
-Date: Mon, 12 Dec 2005 12:01:05 -0800
-From: Greg Kroah-Hartman <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org, mgreer@mvista.com,
-       khali@linux-fr.org
-Subject: [patch 1/4] i2c: Fix i2c-mv64xxx compilation error
-Message-ID: <20051212200105.GB27657@kroah.com>
-References: <20051212192030.873030000@press.kroah.org>
+	Mon, 12 Dec 2005 15:02:03 -0500
+Date: Mon, 12 Dec 2005 15:01:55 -0500
+From: Nathan Lynch <ntl@pobox.com>
+To: Brian King <brking@us.ibm.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>, Jens Axboe <axboe@suse.de>,
+       Linus Torvalds <torvalds@osdl.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: Memory corruption & SCSI in 2.6.15
+Message-ID: <20051212200155.GC19599@localhost.localdomain>
+References: <1134371606.6989.95.camel@gaston> <439DC9E4.6030508@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="i2c-mv64xxx-compilation-error-fix.patch"
-In-Reply-To: <20051212200044.GA27657@kroah.com>
-User-Agent: Mutt/1.5.11
+Content-Disposition: inline
+In-Reply-To: <439DC9E4.6030508@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Mark A. Greer" <mgreer@mvista.com>
+Brian King wrote:
+> Benjamin Herrenschmidt wrote:
+> >Hi !
+> >
+> >Current -git as of today (that is 2.6.15-rc5 + the batch of fixes Linus
+> >pulled after his return) was dying in weird ways for me on POWER5. I had
+> >the good idea to activate slab debugging, and I now see it detecting
+> >slab corruption as soon as the IPR driver initializes.
+> 
+> Please try the attached patch. There appears to be a double free going on
+> in the scsi scan code. There is a direct call to scsi_free_queue and then
+> the following put_device calls the release function, which also frees
+> the queue.
 
-The busses/i2c-mv64xxx.c driver doesn't currently compile because of an
-incorrect argument to dev_err().  This patch fixes that.
+Tested against 2.6.15-rc5, seems to fix it, thanks.
 
-Signed-off-by: Mark A. Greer <mgreer@mvista.com>
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- drivers/i2c/busses/i2c-mv64xxx.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- greg-2.6.orig/drivers/i2c/busses/i2c-mv64xxx.c
-+++ greg-2.6/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -529,14 +529,15 @@ mv64xxx_i2c_probe(struct platform_device
- 	i2c_set_adapdata(&drv_data->adapter, drv_data);
- 
- 	if (request_irq(drv_data->irq, mv64xxx_i2c_intr, 0,
--		MV64XXX_I2C_CTLR_NAME, drv_data)) {
--
--		dev_err(dev, "mv64xxx: Can't register intr handler "
--			"irq: %d\n", drv_data->irq);
-+			MV64XXX_I2C_CTLR_NAME, drv_data)) {
-+		dev_err(&drv_data->adapter.dev,
-+			"mv64xxx: Can't register intr handler irq: %d\n",
-+			drv_data->irq);
- 		rc = -EINVAL;
- 		goto exit_unmap_regs;
- 	} else if ((rc = i2c_add_adapter(&drv_data->adapter)) != 0) {
--		dev_err(dev, "mv64xxx: Can't add i2c adapter, rc: %d\n", -rc);
-+		dev_err(&drv_data->adapter.dev,
-+			"mv64xxx: Can't add i2c adapter, rc: %d\n", -rc);
- 		goto exit_free_irq;
- 	}
- 
-
---
+Nathan

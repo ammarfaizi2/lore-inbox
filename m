@@ -1,82 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbVLLUHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbVLLUIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbVLLUHW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 15:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbVLLUHW
+	id S932150AbVLLUIV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 15:08:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbVLLUIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 15:07:22 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:63661 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932154AbVLLUHV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 15:07:21 -0500
-Subject: Re: [Lse-tech] [RFC][Patch 1/5] nanosecond timestamps and diffs
-From: john stultz <johnstul@us.ibm.com>
-To: Shailabh Nagar <nagar@watson.ibm.com>
-Cc: Christoph Lameter <clameter@engr.sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       lse-tech@lists.sourceforge.net,
-       ckrm-tech <ckrm-tech@lists.sourceforge.net>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Jay Lan <jlan@sgi.com>, Jens Axboe <axboe@suse.de>
-In-Reply-To: <439DD6E8.7010802@watson.ibm.com>
-References: <43975D45.3080801@watson.ibm.com>
-	 <43975E6D.9000301@watson.ibm.com>
-	 <Pine.LNX.4.62.0512121049400.14868@schroedinger.engr.sgi.com>
-	 <439DD01A.2060803@watson.ibm.com>
-	 <1134416962.14627.7.camel@cog.beaverton.ibm.com>
-	 <439DD6E8.7010802@watson.ibm.com>
-Content-Type: text/plain
-Date: Mon, 12 Dec 2005 12:07:14 -0800
-Message-Id: <1134418034.14627.14.camel@cog.beaverton.ibm.com>
+	Mon, 12 Dec 2005 15:08:21 -0500
+Received: from w241.dkm.cz ([62.24.88.241]:14048 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S932150AbVLLUIU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 15:08:20 -0500
+Date: Mon, 12 Dec 2005 21:08:17 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org,
+       kbuild-devel@lists.sourceforge.net
+Subject: Re: [PATCH 0/3] Link lxdialog with mconf directly
+Message-ID: <20051212200817.GM10680@pasky.or.cz>
+References: <20051212004159.31263.89669.stgit@machine.or.cz> <20051212191422.GB7694@mars.ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051212191422.GB7694@mars.ravnborg.org>
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-12 at 20:00 +0000, Shailabh Nagar wrote:
-> john stultz wrote:
-> > On Mon, 2005-12-12 at 19:31 +0000, Shailabh Nagar wrote:
+Dear diary, on Mon, Dec 12, 2005 at 08:14:22PM CET, I got a letter
+where Sam Ravnborg <sam@ravnborg.org> said that...
+> On Mon, Dec 12, 2005 at 01:41:59AM +0100, Petr Baudis wrote:
+> >   The following series revives one three years old patch, turning lxdialog
+> > to a library and linking it directly to mconf, making menuconfig nicer and
+> > things in general quite simpler and cleaner.
 > > 
-> >>Christoph Lameter wrote:
-> >>
-> >>>On Wed, 7 Dec 2005, Shailabh Nagar wrote:
-> >>>>+void getnstimestamp(struct timespec *ts)
-> >>>
-> >>>There is already getnstimeofday in the kernel.
-> >>
-> >>Yes, and that function is being used within the getnstimestamp() being proposed.
-> >>However, John Stultz had advised that getnstimeofday could get affected by calls to
-> >>settimeofday and had recommended adjusting the getnstimeofday value with wall_to_monotonic.
-> >>
-> >>John, could you elaborate ?
-> > 
-> > I think you pretty well have it covered. 
-> > 
-> > getnstimeofday + wall_to_monotonic should be higher-res and more
-> > reliable (then TSC based sched_clock(), for example) for getting a
-> > timestamp.
-> > 
-> > There may be performance concerns as you have to access the clock
-> > hardware in getnstimeofday(), but there really is no other way for
-> > reliable finely grained monotonically increasing timestamps.
-> > 
+> >   The first two patches make slight adjustements to kbuild in order to make
+> > liblxdialog possible. The third patch does the libification itself and
+> > appropriate modifications to mconf.c.
+> 
+> Why not just copy over relevant files to scripts/kconfig?
+> Then no playing tricks with libaries etc. is needed, and everythings
+> just works.
+> 
+> It is only 8 files and prefixing them with lx* would make them
+> stand out compared to the rest. It is not like there is any user planned
+> for the lxdialog functionality in the kernel, and kconfig users outside
+> the kernel I beleive copy lxdialog with rest of kconfig files.
 
-> Thanks, that clarifies. I guess the other underlying concern here would be whether these
-> improvements (in resolution and reliability) should be going into getnstimeofday()
-> itself (rather than creating a new func for the same) ? Or is it better to leave
-> getnstimeofday as it is ?
+Ok. I didn't want to pollute scripts/kconfig/ too much, but if it's ok
+by you, I can do it that way. I will submit another series later in the
+evening.
 
-No, getnstimeofday() is very much needed to get a nanosecond grained
-wall-time clock, so a new function is needed for the monotonic clock.
+> Btw. the work you are doing are clashing with a general cleanup effort
+> of lxdialog I have in -mm at the moment.
+> I received only very limited feedback = looks ok.
+> Integrating principles from your old patch was on my TODO list.
 
-In my timeofday re-work I have used the name "get_monotonic_clock()" and
-"get_monotonic_clock_ts()" for basically the same functionality
-(providing a ktime and a timespec respectively). You might consider
-naming it as such, but resolving these naming collisions shouldn't be
-too difficult either way.
+Do you mean the series you posted at Nov 21? Should I just rebase my
+patches on top of that?
 
-thanks
--john
+FWIW, the changes there look fine to me. I actually wanted to change the
+indentation of the menus as well; it looks horrible especially in the
+singlemenu mode.
 
+> I have something in the works that uses linked list instead of a
+> preallocated array, to keep the dynamic behaviour. I will probarly make
+> a version with the linked list approach but otherwise use your changes
+> to mconf.c. But it will take a few days until I get to it.
+
+I can do it and include it in the updated series.
+
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+VI has two modes: the one in which it beeps and the one in which
+it doesn't.

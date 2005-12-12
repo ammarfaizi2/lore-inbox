@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbVLLIyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbVLLJGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbVLLIyw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 03:54:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbVLLIyw
+	id S1751148AbVLLJGV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 04:06:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbVLLJGV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 03:54:52 -0500
-Received: from smtp015.mail.yahoo.com ([216.136.173.59]:42587 "HELO
-	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1751121AbVLLIyv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 03:54:51 -0500
+	Mon, 12 Dec 2005 04:06:21 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:18873 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751148AbVLLJGU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 04:06:20 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=a8U3EI/dpuKVxV2TnqBfvmR1kE9V59DpSytMblKwBZU/tLatAhmWONHcLMRLvlEUKFlL9wM4GB9XyCBnTiaulWV1QtCC4i0orf6I028rEmd1WJOfTHX3LyD9hFUh4nGUiTiftgzakISmrPO/8N8MU4wf1Cr/hwe5GxZPo8eTN3U=  ;
-Message-ID: <439D3AD5.3080403@yahoo.com.au>
-Date: Mon, 12 Dec 2005 19:54:45 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Qo5kWlDwHujbWj8H41KTmBh6qN0qtMkbN50l2pYF0G3oMmci6ex46MMayUMwMcZF8O/inEOJxVMBFlb/j8gZrO0kOijhVjfJGrS5e5UEYQVHB84EilkJxBZxMAABb2w0/e7Eria4x4+ivEprPr6A7x5xeLlSQgfNCBBAffgepSw=
+Message-ID: <2f7228250512120106wc8f3f99n8633529da9f63f57@mail.gmail.com>
+Date: Mon, 12 Dec 2005 14:36:19 +0530
+From: Digvijoy Chatterjee <digvijoy.c@gmail.com>
+Subject: Re: Errors while booting the newly built 2.6.12 kernel??
+Cc: "Mukund JB." <mukundjb@esntechnologies.co.in>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <9a8748490512120022g3b5bba4ch3c2e13b4f1a08188@mail.gmail.com>
 MIME-Version: 1.0
-To: Eric Dumazet <dada1@cosmosbay.com>
-CC: Paul Jackson <pj@sgi.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Simon Derr <Simon.Derr@bull.net>, Andi Kleen <ak@suse.de>,
-       Christoph Lameter <clameter@sgi.com>
-Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
-References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com> <439D39A8.1020806@cosmosbay.com>
-In-Reply-To: <439D39A8.1020806@cosmosbay.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3AEC1E10243A314391FE9C01CD65429B1BDB03@mail.esn.co.in>
+	 <9a8748490512120022g3b5bba4ch3c2e13b4f1a08188@mail.gmail.com>
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Dumazet wrote:
-> Paul Jackson a écrit :
-> 
->> +
->> +static kmem_cache_t *cpuset_cache;
->> +
-> 
-> 
-> Hi Paul
-> 
-> Please do use __read_mostly for new kmem_cache :
-> 
-> static kmem_cache_t *cpuset_cache __read_mostly;
-> 
-> If not, the pointer can sit in the midle of a highly modified cache 
-> line, and multiple CPUS will have memory cache misses to access the 
-> cpuset_cache, while slab code/data layout itself is very NUMA/SMP friendly.
-> 
+may be you have to see if your basic console devices are being created
+in initrd , things like /dev/console /dev/null you have to add that to
+ur init script if its not
 
-Is it a good idea for all kmem_cache_t? If so, can we move
-__read_mostly to the type definition?
+On 12/12/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> On 12/12/05, Mukund JB. <mukundjb@esntechnologies.co.in> wrote:
+> >
+> [snip]
+> >
+> I wrote a small guide a while back. Perhaps it can help you :
+> http://www.linuxtux.org/~juhl/2.6-kernel-build.txt
+>
+>
+> --
+> Jesper Juhl <jesper.juhl@gmail.com>
+> Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+> Plain text mails only, please      http://www.expita.com/nomime.html
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
 
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+--
+Thanks and Regards
+Digvijoy Chatterjee

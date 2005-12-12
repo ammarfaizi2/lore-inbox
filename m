@@ -1,34 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVLLT2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbVLLTbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbVLLT2N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 14:28:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVLLT2M
+	id S932169AbVLLTbw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 14:31:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVLLTbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 14:28:12 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:27096 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932165AbVLLT2M (ORCPT
+	Mon, 12 Dec 2005 14:31:52 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:65491 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932169AbVLLTbv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 14:28:12 -0500
-Date: Mon, 12 Dec 2005 11:27:46 -0800
-From: Richard Henderson <rth@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ashutosh Naik <ashutosh.naik@gmail.com>, anandhkrishnan@yahoo.com,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, greg@kroah.com
-Subject: Re: [RFC][PATCH] Prevent overriding of Symbols in the Kernel, avoiding Undefined behaviour
-Message-ID: <20051212192746.GE19245@redhat.com>
-References: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com> <20051212111322.40be4cfe.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051212111322.40be4cfe.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 12 Dec 2005 14:31:51 -0500
+Message-ID: <439DD01A.2060803@watson.ibm.com>
+Date: Mon, 12 Dec 2005 19:31:38 +0000
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <clameter@engr.sgi.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       lse-tech@lists.sourceforge.net,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Jay Lan <jlan@sgi.com>, Jens Axboe <axboe@suse.de>,
+       John Stultz <johnstul@us.ibm.com>
+Subject: Re: [Lse-tech] [RFC][Patch 1/5] nanosecond timestamps and diffs
+References: <43975D45.3080801@watson.ibm.com> <43975E6D.9000301@watson.ibm.com> <Pine.LNX.4.62.0512121049400.14868@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.62.0512121049400.14868@schroedinger.engr.sgi.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 12, 2005 at 11:13:22AM -0800, Andrew Morton wrote:
-> Do we really need to do this at runtime?
+Christoph Lameter wrote:
+> On Wed, 7 Dec 2005, Shailabh Nagar wrote:
+> 
+> 
+>>+void getnstimestamp(struct timespec *ts)
+> 
+> 
+> There is already getnstimeofday in the kernel.
+> 
+> 
 
-Probably.  One could consider this a security hole...
+Yes, and that function is being used within the getnstimestamp() being proposed.
+However, John Stultz had advised that getnstimeofday could get affected by calls to
+settimeofday and had recommended adjusting the getnstimeofday value with wall_to_monotonic.
 
+John, could you elaborate ?
 
-r~
+Thanks,
+Shailabh

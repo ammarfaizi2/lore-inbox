@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbVLLEvz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbVLLE4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbVLLEvz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 23:51:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVLLEvz
+	id S1751106AbVLLE4c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 23:56:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVLLE4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 23:51:55 -0500
-Received: from cantor.suse.de ([195.135.220.2]:47526 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751102AbVLLEvy (ORCPT
+	Sun, 11 Dec 2005 23:56:32 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:61892 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751103AbVLLE4b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 23:51:54 -0500
-Date: Mon, 12 Dec 2005 05:51:46 +0100
-From: Andi Kleen <ak@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andi Kleen <ak@suse.de>, Christoph Lameter <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
-       linux-mm@kvack.org, Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: [RFC 1/6] Framework
-Message-ID: <20051212045146.GA11190@wotan.suse.de>
-References: <20051210005440.3887.34478.sendpatchset@schroedinger.engr.sgi.com> <20051210005445.3887.94119.sendpatchset@schroedinger.engr.sgi.com> <439CF2A2.60105@yahoo.com.au> <20051212035631.GX11190@wotan.suse.de> <439CF93D.5090207@yahoo.com.au> <20051212042142.GZ11190@wotan.suse.de> <439CFC67.4030107@yahoo.com.au>
+	Sun, 11 Dec 2005 23:56:31 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, rmk@arm.linux.org.uk,
+       takata@linux-m32r.org, linux-mips@linux-mips.org,
+       parisc-linux@lists.parisc-linux.org, linux-sh@m17n.org,
+       lethal@linux-sh.org, davem@davemloft.net, sparclinux@vger.kernel.org
+Subject: generic read_trylock() never tries, it always waits
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <439CFC67.4030107@yahoo.com.au>
+Date: Mon, 12 Dec 2005 15:55:38 +1100
+Message-ID: <9942.1134363338@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >With local_t you don't need to turn off interrupts
-> >anymore.
-> >
-> 
-> Then you can't use __local_xxx, and so many architectures will use
-> atomic instructions (the ones who don't are the ones with tripled
-> cacheline footprint of this structure).
+Copied to assorted architecture maintainers and mailing lists, please
+trim cc: list back to lkml plus arch if you reply.
 
-They are wrong then. atomic instructions is the wrong implementation
-and they would be better off with asm-generic. 
+The generic version of read_trylock() never tests if the lock is in
+use, it always spins waiting for the lock to be free.  IOW, it behaves
+like read_lock().  Given the different implementations of rwlock_t, it
+is hard for generic__raw_read_trylock() to do anything else.
 
-If anything they should use per_cpu counters for interrupts and 
-use seq locks. Or just turn off the interrupts for a short time
-in the low level code.
+I strongly recommend that the architectures below define their own
+version of __raw_read_trylock() that really test the lock first, then
+we can ditch generic__raw_read_trylock().  I have already sent an ia64
+patch to that mailing list.
 
-> 
-> Sure i386 and x86-64 are happy, but this would probably slow down
-> most other architectures.
+include/asm-arm/spinlock.h:#define __raw_read_trylock(lock) generic__raw_read_trylock(lock)
+include/asm-ia64/spinlock.h:#define __raw_read_trylock(lock) generic__raw_read_trylock(lock)
+include/asm-m32r/spinlock.h:#define __raw_read_trylock(lock) generic__raw_read_trylock(lock)
+include/asm-mips/spinlock.h:#define __raw_read_trylock(lock) generic__raw_read_trylock(lock)
+include/asm-parisc/spinlock.h:#define __raw_read_trylock(lock) generic__raw_read_trylock(lock)
+include/asm-sh/spinlock.h:#define __raw_read_trylock(lock) generic__raw_read_trylock(lock)
+include/asm-sparc64/spinlock.h:#define __raw_read_trylock(lock) generic__raw_read_trylock(lock)
 
-I think it is better to fix the other architectures then - if they
-are really using a full scale bus lock for this they're just wrong.
-
-I don't think it is a good idea to do a large change in generic
-code just for dumb low level code.
-
--Andi

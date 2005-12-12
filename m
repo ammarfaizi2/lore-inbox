@@ -1,100 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbVLLUOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVLLUOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932217AbVLLUOX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 15:14:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbVLLUOX
+	id S932212AbVLLUOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 15:14:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbVLLUOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 15:14:23 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:59666 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S932201AbVLLUOV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 15:14:21 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <356942780@web.de>
-X-OriginalArrivalTime: 12 Dec 2005 20:14:20.0566 (UTC) FILETIME=[A2EE5360:01C5FF58]
-Content-class: urn:content-classes:message
-Subject: Re: Strange delay on PCI-DMA-transfer completion by wait_event_interruptible()
-Date: Mon, 12 Dec 2005 15:14:20 -0500
-Message-ID: <Pine.LNX.4.61.0512121501340.4578@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Strange delay on PCI-DMA-transfer completion by wait_event_interruptible()
-Thread-Index: AcX/WKL183GkZ9DySP+dLvVui+CKHg==
-References: <356942780@web.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: =?iso-8859-1?Q?Burkhard_Sch=F6lpen?= <bschoelpen@web.de>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Mon, 12 Dec 2005 15:14:24 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:22250 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932212AbVLLUOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 15:14:22 -0500
+Subject: Re: Memory corruption & SCSI in 2.6.15
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Brian King <brking@us.ibm.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>, Jens Axboe <axboe@suse.de>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0512121149360.15597@g5.osdl.org>
+References: <1134371606.6989.95.camel@gaston> <439DC9E4.6030508@us.ibm.com>
+	 <Pine.LNX.4.64.0512121149360.15597@g5.osdl.org>
+Content-Type: text/plain
+Date: Mon, 12 Dec 2005 14:13:51 -0600
+Message-Id: <1134418432.9994.32.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-12-12 at 11:55 -0800, Linus Torvalds wrote:
+> Indeed, that looks pretty subtle. 
+> 
+> James: Brian's patch looks obviously correct to me (scsi_alloc_sdev() will 
+> have called scsi_sysfs_device_initialize() which will set up the release 
+> function to free the queue). 
 
-On Mon, 12 Dec 2005, [iso-8859-1] Burkhard Schölpen wrote:
+Yes it does ... I'll put it in the rc-fixes tree.
 
-> Hi all,
->
-> I'm trying to write a driver for a custom PCI-Board which is DMA-Busmaster capable (kernel 2.6.13 with SMP). Unfortunately I get some strange delay between the start of the transfer until the interrupt appears, which signals its completion.
->
-> Concerning a dma transfer from RAM to the pci device, my code does the following:
->
-> while (down_interruptible(my_device->write_semaphore));
-> my_device->dma_write_complete = 0;
-> my_device->dma_direction  = PCI_DMA_TODEVICE;
-> my_device->bus_addr = pci_map_single(my_device->pci_device, pointer_to_buffer, my_device->dma_size, my_device->dma_direction);
->
-> writel (cpu_to_le32 (bus_addr), MY_DMA_ADDR_REGISTER);
-> writel (cpu_to_le32 (my_device->dma_size/4), MY_DMA_COUNT_REGISTER);	    //triggers dma transfer
->
-> if (wait_event_interruptible(write_wait_queue, my_device->dma_write_complete))
-> {
->      //handle error...
-> }
-> //test, if MY_DMA_COUNT_REGISTER contains 0
-> up(my_device->write_semaphore);
->
-> Inside the Interrupt-handler I do the following:
->
-> pci_unmap_single (my_device->pci_device, my_device->bus_addr,
-> my_device->dma_size, my_device->dma_direction);
-> my_device->dma_write_complete = 1;
-> wake_up_interruptible(&write_wait_queue);
-> return IRQ_HANDLED;
->
-> Actually the dma transfer works but I get a strange timing issue,
-> which seems to be caused by wait_event_interruptible(). I measured the
-> clock ticks elapsing from the start of the transfer until the interrupt
-> appears. Converted to microseconds I get more than 600 us for less than
-> 3 kB buffers. If I try out busy waiting using "while  (!my_device->dma_write
->_complete)" instead of wait_event_interruptible() the transfer already
-> completes successfully after about 80 us. The device has to transport very
-> large amounts of data, so I have to get the transfer rate as high as possible.
->
-> I'm sorry if I made a very simple mistake, because I'm quite unexperienced in driver development, so hints would be very appreciated.
->
+> This code has been like that forever, though, which makes me wonder. Can 
+> anybody see what has changed to make the bug trigger? Or is there 
+> something I'm missing?
 
-Don't you get an interrupt both on a completion and error?
-I think you should be using interruptible_sleep_on(&write_wait_queue),
-not spinning in wait_event_interruptible().
+The trigger, based on the failure path has to be a slave_alloc failure
+of an underlying driver (which isn't that common).  This may not be
+visible in the dmesg traces if anyone has one, because reporting the
+condition is up to the driver.
 
-Most all my DMA transfers use as above and from the time the DMA
-completion occurs until the time user-mode code gets awakened in
-poll()  (Much worse latency than your code), the time is always
-less than 120 us on a 400 MHz ix86 embedded machine with a 100 MHz
-front-side bus.
+James
 
-> Kind regards,
-> Burkhard
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.56 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

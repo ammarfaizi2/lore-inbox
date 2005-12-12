@@ -1,107 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbVLLSxe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbVLLTDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932135AbVLLSxe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 13:53:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbVLLSxe
+	id S932142AbVLLTDU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 14:03:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbVLLTDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 13:53:34 -0500
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:43784 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932135AbVLLSxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 13:53:33 -0500
-In-Reply-To: <200512121717.jBCHHqHe017137@laptop11.inf.utfsm.cl>
-References: <200512121717.jBCHHqHe017137@laptop11.inf.utfsm.cl>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <B1E7AE38-6D7C-4CE6-847E-8F1608F66D77@oxley.org>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Felix Oxley <lkml@oxley.org>
-Subject: Re: RFC: Starting a stable kernel series off the 2.6 kernel 
-Date: Mon, 12 Dec 2005 18:53:30 +0000
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Mailer: Apple Mail (2.746.2)
+	Mon, 12 Dec 2005 14:03:20 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:27338 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S932142AbVLLTDU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 14:03:20 -0500
+Date: Mon, 12 Dec 2005 11:02:53 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Christoph Hellwig <hch@infradead.org>
+cc: Michal Feix <michal@feix.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [SCSI] SCSI block devices larger then 2TB
+In-Reply-To: <20051207123519.GA17414@infradead.org>
+Message-ID: <Pine.LNX.4.62.0512121057070.267@qynat.qvtvafvgr.pbz>
+References: <4396B795.1000108@feix.cz> <20051207123519.GA17414@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 7 Dec 2005, Christoph Hellwig wrote:
 
-On 12 Dec 2005, at 17:17, Horst von Brand wrote:
-
-> Felix Oxley <lkml@oxley.org> wrote:
->
-> [...]
->
->> What if ...
+> On Wed, Dec 07, 2005 at 11:21:09AM +0100, Michal Feix wrote:
+>> Greetings!
 >>
->> 1. When people make a patch set, if they have encountered any 'bugs'
->> they split them out as separate items.
+>> Current aic79xxx driver doesn't see SCSI devices larger, then 2TB. It
+>> fails with READ CAPACITY(16) command. As far as I can understand, we
+>> already have LBD support in kernel for some time now. So it's only the
 >
-> No need. Patches are either (a) bug fixes, or (b) infrastructure  
-> changes,
-> or (c) additions (mostly drivers). You only need to pick (a) items.  
-> Check.
+>> drivers, that need to be fixed? LSI driver is the only one I found
+>> working with devices over 2TB; I couldn't test any other driver, as I
+>> don't have the hardware. Is it really so bad, that only LSI chipset
+> and
+>> maybe few others are capable of seeng such devices?
 >
->> 2. The submitter would identify through GIT when the error had been
->> introduced
+> I definitly works fine with Qlogic parallel scsi and fibrechannel and
+> emulex
+> fibre channel controllers aswell as lsi/engenio megaraid controllers.
 >
-> Hard to find out. Nobody will do so.
->
->>            so that the the person responsible could be CC'ed, also
->> anybody who had worked on the code recently would be CCed, therefore
->> the programmers who were most familiar with that section of code
->> would be made aware of it.
->
-> Cc:ing them is part of the development anyway (in reality, Cc:ing  
-> anybody
-> interested in the area). Check.
->
->> 3. When the patch is posted to LKML, it is tagged [PATCH][FIX] in the
->> subject line.
->>      In the body of the fix would be noted each kernel to which the
->>      fix applied e.g [FIX 2.6.11][FIX 2.6.12][FIX 2.6.13][FIX 2.6.14]
->
-> No do. Problem are the (b) and (c) patches above, they change  
-> whatever the
-> patch applies to and make it not apply anymore. The effort of  
-> finding out
-> if the patch is (a) or (c) class, seeing if it is really needed, and
-> modifying it so it applies to your source base is called  
-> "backporting". And
-> it remains hard, thankless work.
+> It looks like aci79xx is just broken in that repsect. Unfortunately the
+> driver doesn't have a proper maintainer, we scsi developers put in fixes
+> and cleanups but we don't have the full documentation to fix such
+> complicated
+> issue.  If you have a support contract with Adaptec complain to them.
 
-If this was done for 'trivial' patches of type (a):
-	1. Would that make it simple enough for people to actually do it?
-	2. Would it be worthwhile? (Are there enough 'trivial fixes'?)
+I was at a BOF at LISA last week on this subject, the guy running it said 
+that the common ultra320 chip used for parallel scsi doesn't implment READ 
+CAPACITY(16), but instead implemnets a propriatary READ CAPACITY(12) which 
+allows you to break the 2TB limit.
 
-I envisaged something like the current Stable series, just for longer  
-than a single release cycle.
+I asked him to send the patch that he's been maintaining seperatly (and 
+providing to his customers, he's a storage hardware vendor) to the list to 
+get integrated.
 
->> 4. The programmers mentioned in (2) would ACK the patch which would
->> then become part of an 'official' fixes list.
->
-> Won't happen.
->
->> 5. If a volunteer wanted to maintain, say, 2.6.14 + fixes, they could
->> build and test it and be a point of contact regarding any problems.
->> These could hopefully be tracked down and submitted as a new fix  
->> patch.
->
-> Go right ahead. Just be warned that distributions hired a small  
-> army of
-> kernel specialists to do exactly this, and got tired of doing so.  
-> Among
-> others because the patches deemed necessary were different from one
-> distributuion to the next, and then usually incompatible with one  
-> another
-> and with what turned out to be the standard solution. This gave  
-> rise to the
-> current development model...
->
-> Armchair software engineering is much like armchair $SPORT.
+I'll see if I have any notes with his address on them, or you could check 
+the BOF schedule online to see if it got listed there.
 
-I am guilty :-)
+David Lang
 
-Thanks for your reply.
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
 
-regards,
-Felix

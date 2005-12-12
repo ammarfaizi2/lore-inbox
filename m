@@ -1,66 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbVLLUkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbVLLUuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbVLLUkw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 15:40:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbVLLUkw
+	id S1751184AbVLLUuY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 15:50:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbVLLUuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 15:40:52 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:32588 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1751141AbVLLUkv
+	Mon, 12 Dec 2005 15:50:24 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:9607 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1751184AbVLLUuX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 15:40:51 -0500
-Date: Mon, 12 Dec 2005 21:40:49 +0100
+	Mon, 12 Dec 2005 15:50:23 -0500
+Date: Mon, 12 Dec 2005 21:50:19 +0100
 From: Sam Ravnborg <sam@ravnborg.org>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: [PATCH 0/3] Link lxdialog with mconf directly
-Message-ID: <20051212204049.GA7656@mars.ravnborg.org>
-References: <20051212004159.31263.89669.stgit@machine.or.cz> <20051212191422.GB7694@mars.ravnborg.org> <20051212200817.GM10680@pasky.or.cz>
+To: Carlos Munoz <carlos@kenati.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Can't build loadable module for 2.6.kernel
+Message-ID: <20051212205019.GB7656@mars.ravnborg.org>
+References: <439DD4F8.3040709@kenati.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051212200817.GM10680@pasky.or.cz>
+In-Reply-To: <439DD4F8.3040709@kenati.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 12, 2005 at 09:08:17PM +0100, Petr Baudis wrote:
-> > It is only 8 files and prefixing them with lx* would make them
-> > stand out compared to the rest. It is not like there is any user planned
-> > for the lxdialog functionality in the kernel, and kconfig users outside
-> > the kernel I beleive copy lxdialog with rest of kconfig files.
+On Mon, Dec 12, 2005 at 11:52:24AM -0800, Carlos Munoz wrote:
+> Hi all,
 > 
-> Ok. I didn't want to pollute scripts/kconfig/ too much, but if it's ok
-> by you, I can do it that way. I will submit another series later in the
-> evening.
-In the end this is Roman's call, not mine.
-Keeping the lxdialog functionality close to the users though makes
-total sense. We do not have to take special care of dependencies etc.
-> 
-> > Btw. the work you are doing are clashing with a general cleanup effort
-> > of lxdialog I have in -mm at the moment.
-> > I received only very limited feedback = looks ok.
-> > Integrating principles from your old patch was on my TODO list.
-> 
-> Do you mean the series you posted at Nov 21? Should I just rebase my
-> patches on top of that?
-Please do so. I did not post the biggest one where I Lindented all of
-lxdialog, but they are all in
-git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
+> I hope this is the right forum for this question.
+Yes.
 
-> FWIW, the changes there look fine to me. I actually wanted to change the
-> indentation of the menus as well; it looks horrible especially in the
-> singlemenu mode.
-> 
-> > I have something in the works that uses linked list instead of a
-> > preallocated array, to keep the dynamic behaviour. I will probarly make
-> > a version with the linked list approach but otherwise use your changes
-> > to mconf.c. But it will take a few days until I get to it.
-> 
-> I can do it and include it in the updated series.
-Would be perfect!
+> The makefile has the following rule to build apicnt.o:
+> apicnt.o: apicnt.o.shipped
+>    cp apicnt.o.shipped apicnt.o
 
-I will then do a proper review of next round of patches.
+This is wrong. kbuild has knowledge how to copy a file named:
+apicnt.o_shippd to apicnt.o
+So you renamed the supplied .o fiel to apicnt.o_shipped and delte your
+own rule.
+
+
+> #
+> # Makefile for the phone_mrvl driver loadable module
+> #
+> TARGET = phone_mrvl.o
+> 
+> obj-$(CONFIG_PHONE_MARVELL) = phone_mrvl.o
+> 
+> ifeq ($(CONFIG_PHONE_LEGERITY),y)
+> phone_mrvl-objs = mrvphone.o slic.o legerity.o vp_hal.o sys_service.o apicnt.o apiinit.o apiquery.o vp_api.o vp_api_common.o mvutils.o
+> endif
+Please do:
+phone_mrvl-$(CONFIG_PHONE_LEGERITY) := mrvphone.o slic.o legerity.o 
+phone_mrvl-$(CONFIG_PHONE_LEGERITY) += vp_hal.o sys_service.o apicnt.o 
+phone_mrvl-$(CONFIG_PHONE_LEGERITY) += apiinit.o apiquery.o vp_api.o
+phone_mrvl-$(CONFIG_PHONE_LEGERITY) += vp_api_common.o mvutils.o
+
+> 
+> ifeq ($(CONFIG_PHONE_PROSLIC),y)
+> phone_mrvl-objs = mrvphone.o proslic.o
+> endif
+phone_mrvl-$(CONFIG_PHONE_PROSLIC) += mrvphone.o proslic.o
+
+> 
+> CFLAGS += -D__linux__
+> EXTRA_CFLAGS += -Idrivers/telephony/mrvphone
+> EXTRA_CFLAGS += -DNDEBUG -Dlinux -D__linux__ -Dunix -DEMBED -DLINUX -DHOST_LE
+> 
+> ifeq ($(CONFIG_PHONE_LEGERITY),y)
+> EXTRA_CFLAGS += -D__LEGERITY__
+> endif
+> ifeq ($(CONFIG_PHONE_PROSLIC),y)
+> EXTRA_CFLAGS += -D__PROSLIC__
+> endif
+Here you could do:
+extra-cflags-$(CONFIG_PHONE_LEGERITY) += -D__LEGERITY__
+extra-cflags-$(CONFIG_PHONE_PROSLIC)  += -D__PROSLIC__
+EXTRA_CFLAGS += $(extra-cflags-y)
+
+Please delete the rest - it is not needed.
+> all: $(TARGET)
+> 
+> $(TARGET): $(OBJS)
+> 	$(LD) -r $(OBJS) -o $(TARGET)
+> 
+> clean:
+> 	-rm -f $(TARGET) *.elf *.gdb *.o
+> 
+> apicnt.o: apicnt.o.shipped
+> 	cp apicnt.o.shipped apicnt.o
+
+When you build your module use:
+make -C $PATH_TO_COMPILED_KERNEL M=`pwd`
+
+See also Documentation/kbuild/modules.txt for further reference.
 
 	Sam

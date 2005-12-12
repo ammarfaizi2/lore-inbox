@@ -1,61 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbVLLPvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbVLLP7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbVLLPvs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 10:51:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932067AbVLLPvs
+	id S932072AbVLLP7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 10:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbVLLP7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 10:51:48 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:23681 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932066AbVLLPvr (ORCPT
+	Mon, 12 Dec 2005 10:59:24 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:29666 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932072AbVLLP7X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 10:51:47 -0500
-Subject: Re: GNU/Linux in a binary world... a doomsday scenario
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: Erwin Rol <mailinglists@erwinrol.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <87fyozk2rr.fsf@mid.deneb.enyo.de>
-References: <21d7e9970512051610n1244467am12adc8373c1a4473@mail.gmail.com>
-	 <20051206040820.GB26602@kroah.com>
-	 <2cd57c900512052358m5b631204i@mail.gmail.com>
-	 <200512061856.42493.luke-jr@utopios.org>
-	 <2cd57c900512061742s28f57b5eu@mail.gmail.com>
-	 <20051210051628.E9E08CF4156@tsurukikun.utopios.org>
-	 <439A7E8E.8010707@wolfmountaingroup.com>
-	 <20051210164320.GB15986@aitel.hist.no> <20051210190537.GI13985@lug-owl.de>
-	 <439B2215.6090408@wolfmountaingroup.com>
-	 <20051210191501.GJ13985@lug-owl.de>
-	 <439B3E36.7090302@wolfmountaingroup.com>
-	 <1134314129.9000.31.camel@xpc.home.erwinrol.com>
-	 <87fyozk2rr.fsf@mid.deneb.enyo.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 12 Dec 2005 15:51:07 +0000
-Message-Id: <1134402667.6841.6.camel@localhost.localdomain>
+	Mon, 12 Dec 2005 10:59:23 -0500
+Date: Mon, 12 Dec 2005 07:58:47 -0800
+From: Paul Jackson <pj@sgi.com>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: miklos@szeredi.hu, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       rth@twiddle.net, davej@redhat.com, zwane@arm.linux.org.uk, ak@suse.de,
+       ashok.raj@intel.com
+Subject: Re: [PATCH] move pm_power_off and pm_idle declaration to common
+ code
+Message-Id: <20051212075847.99a2591c.pj@sgi.com>
+In-Reply-To: <m1pso29z37.fsf@ebiederm.dsl.xmission.com>
+References: <E1EloGS-0005gf-00@dorka.pomaz.szeredi.hu>
+	<m1pso29z37.fsf@ebiederm.dsl.xmission.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-12-11 at 17:38 +0100, Florian Weimer wrote:
-> IP enforcements varies quite a lot across Europe.  I'm being told that
-> in the UK, the DVD situation is as worse as in some Asian countries
-> (i.e. you can buy illegal copies of current movies on flea markets).
+> A key question is how do we handle architectures
+> that always want to want to call machine_power_off.
 
-It isnt quite as bad. However there is a lack of interest in enforcement
-from local government who have better things to spend their money on,
-and also because the IP rules have been abused so much in the UK
-including to charge rip off prices that local goverment serves voters
-who are likely to vote against not for any local government
-representative who decides to go on an anti-piracy crusade. I've heard
-people in the trading standards area (which tackles counterfeiting)
-who've been told by their elected "masters" to concentrate solely on the
-other areas of their duties like product safety if they want to have an
-operating budget next year.
+One common way to handle a generic default with possible arch specific
+overrides is with #ifdef symbols.  Surround the generic definition with
+something like "#ifndef ARCH_HAS_PM_POWER_OFF", and let the arch's that
+want something other than the default define that preprocessor symbol
+as well.
 
-Unfortuantely the bad behaviour of the big media companies that
-triggered much of this gets reflected back at everything even
-disinterest in GPL violation enforcment or large scale violations by big
-business.
-
-Alan
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

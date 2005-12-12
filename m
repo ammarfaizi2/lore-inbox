@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbVLLKzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbVLLLIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbVLLKzu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 05:55:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751226AbVLLKzu
+	id S1751228AbVLLLIG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 06:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVLLLIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 05:55:50 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:29595
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751217AbVLLKzt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 05:55:49 -0500
-Subject: [ANNOUNCE] 2.6.15-rc5-hrt2 - hrtimers based high resolution patches
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>,
-       john stultz <johnstul@us.ibm.com>
-Content-Type: text/plain
-Organization: linutronix
-Date: Mon, 12 Dec 2005 12:02:23 +0100
-Message-Id: <1134385343.4205.72.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Mon, 12 Dec 2005 06:08:06 -0500
+Received: from moutvdom.kundenserver.de ([212.227.126.249]:57320 "EHLO
+	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751228AbVLLLIE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 06:08:04 -0500
+Message-ID: <439D5A11.3070008@anagramm.de>
+Date: Mon, 12 Dec 2005 12:08:01 +0100
+From: Clemens Koller <clemens.koller@anagramm.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Mouse button swapping
+References: <Pine.LNX.4.61.0512091508250.8080@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0512091508250.8080@yvahk01.tjqt.qr>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, Jan!
 
-The rebased version of the high resolution patches on top of the
-hrtimers base patch is available from the new project home:
+> I produced a small patch that allows one to flip the mouse buttons at the 
+> kernel level. This is useful for changing it on a per-system basis, i.e. it 
+> will affect gpm, X and VMware all at once. It is changeable through
+> /sys/module/mousedev/swap_buttons at runtime. Is this something mainline would
+> be interested in?
 
-http://www.tglx.de/projetcs/hrtimers
+Jup, sounds interesting. Maybe it would be fine to add some more documentation,
+otherwise the feature might get lost in space.
+I also can imagine to have free button-mapping somewhere... for multi-button
+mices, configurable from right to left-handed use on the fly.
 
-The current patch is available here:
+Greets,
+-- 
+Clemens Koller
+_______________________________
+R&D Imaging Devices
+Anagramm GmbH
+Rupert-Mayer-Str. 45/1
+81379 Muenchen
+Germany
 
-http://www.tglx.de/projects/hrtimers/2.6.15-rc5/patch-2.6.15-rc5-hrt2.patch
-
-along with the broken out series
-
-http://www.tglx.de/projects/hrtimers/2.6.15-rc5/patch-2.6.15-rc5-hrt2.patches.tar.bz2
-
-
-Changes since the last 2.6.15-rc2-kthrt8 patch:
-
-- rebased to hrtimers
-- newest Generic Timeofday patch from John Stultz
-- cleanups, bugfixes and improvements all over the place
-
-Thanks to 
-- Roman Zippel for his help with ktime_t (see ktime.h), discussion and
-suggestions.
-- John Stultz for his timeofday work
-- all others who provided testing, help and suggestions 
-
-	tglx
-
-
+http://www.anagramm.de
+Phone: +49-89-741518-50
+Fax: +49-89-741518-19

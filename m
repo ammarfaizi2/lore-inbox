@@ -1,37 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbVLLEfs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVLLEi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbVLLEfs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 23:35:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVLLEfs
+	id S1751098AbVLLEi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 23:38:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbVLLEi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 23:35:48 -0500
-Received: from rtr.ca ([64.26.128.89]:58801 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1751095AbVLLEfr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 23:35:47 -0500
-Message-ID: <439CFE22.7080502@rtr.ca>
-Date: Sun, 11 Dec 2005 23:35:46 -0500
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sata_via VT6421 vendor update
-References: <439CF781.3080400@pobox.com>
-In-Reply-To: <439CF781.3080400@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 11 Dec 2005 23:38:28 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50650
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751098AbVLLEiO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Dec 2005 23:38:14 -0500
+Date: Sun, 11 Dec 2005 20:38:09 -0800 (PST)
+Message-Id: <20051211.203809.127057416.davem@davemloft.net>
+To: akpm@osdl.org
+Cc: paulmck@us.ibm.com, oleg@tv-sign.ru, vatsa@in.ibm.com,
+       linux-kernel@vger.kernel.org, dipankar@in.ibm.com
+Subject: Re: [PATCH] Fix RCU race in access of nohz_cpu_mask
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051211203226.4deafd59.akpm@osdl.org>
+References: <439B24A7.E2508AAE@tv-sign.ru>
+	<20051212031053.GA8748@us.ibm.com>
+	<20051211203226.4deafd59.akpm@osdl.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+From: Andrew Morton <akpm@osdl.org>
+Date: Sun, 11 Dec 2005 20:32:26 -0800
+
+> So foo_mb() in preemptible code is potentially buggy.
 > 
-> VIA contributed the attached update to sata_via, which adds support for 
-> the third (PATA) port, and switches around the reset method a bit.
+> I guess we assume that a context switch accidentally did enough of the
+> right types of barriers for things to work OK.
 
-Too many inline busy-waits.. needs to use timers & callbacks instead.
-But it might do in the interim, until that stuff gets fixed.
+A trap ought to flush all memory operations.
 
-Cheers
+There are some incredibly difficult memory error handling cases if the
+cpu does not synchronize all pending memory operations when a trap
+occurs.
+
+Failing that, yes, to be absolutely safe we'd need to have some
+explicit memory barrier in the context switch.

@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbVLLVUd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbVLLVYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751177AbVLLVUd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 16:20:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbVLLVUd
+	id S1751306AbVLLVYc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 16:24:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbVLLVYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 16:20:33 -0500
-Received: from xenotime.net ([66.160.160.81]:37042 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751177AbVLLVUc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 16:20:32 -0500
-Date: Mon, 12 Dec 2005 13:20:26 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: David Lang <dlang@digitalinsight.com>
-cc: Jesse Barnes <jesse.barnes@intel.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       Benjamin LaHaise <bcrl@kvack.org>, Dirk Steuwer <dirk@steuwer.de>,
+	Mon, 12 Dec 2005 16:24:31 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:60889 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751292AbVLLVYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 16:24:31 -0500
+Date: Mon, 12 Dec 2005 21:24:27 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Michael Reed <mdr@sgi.com>
+Cc: Michael Joosten <michael.joosten@c-lab.de>, linux-scsi@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: Runs with Linux (tm)
-In-Reply-To: <Pine.LNX.4.62.0512121307500.267@qynat.qvtvafvgr.pbz>
-Message-ID: <Pine.LNX.4.58.0512121319590.6272@shark.he.net>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
- <20051207141720.GA533@kvack.org> <Pine.LNX.4.58.0512071008450.17648@shark.he.net>
- <200512071022.35900.jesse.barnes@intel.com> <Pine.LNX.4.62.0512121307500.267@qynat.qvtvafvgr.pbz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: [PATCH]: Re: qla1280.c broken on SGI visws, PCI coherency problem
+Message-ID: <20051212212427.GA9139@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Michael Reed <mdr@sgi.com>,
+	Michael Joosten <michael.joosten@c-lab.de>,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <4399D6EB.4080603@c-lab.de> <439A17BE.5000904@sgi.com> <439DE50B.90007@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <439DE50B.90007@sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Dec 2005, David Lang wrote:
+On Mon, Dec 12, 2005 at 03:00:59PM -0600, Michael Reed wrote:
+> (The subject of this email isn't quite accurate.  It's not
+> a pci coherency problem, it's a pio write ordering problem.)
+> 
+> I've been asked to pass along the suggestion that "mmiowb"
+> should be implemented for the platform.
+> 
+> Given that I've been unable to unearth the chipset documentation
+> for the Vis WS, I can only hope that you've got some good ideas
+> on how this might be accomplished.
+> 
+> I agree that replacing the pio read which flushed the preceeding
+> pio write with mmiowb() is what has likely broken the driver.  If you
+> restore them,  please make it either mmiowb or pio read, but not both.
+> 
+> Perhaps something like this?  It's not the most elegant solution....
 
-> On Wed, 7 Dec 2005, Jesse Barnes wrote:
->
-> > Now, who's in a position to make this happen?  Maybe Linux International?
-> > (I think Maddog mentioned something like this at a Kernel Summit a few
-> > years ago.)
->
-> I don't remember tha name of the orginization, but the group that Linus
-> setup to enforce the trademark would be perfect for this. licensing a
-> 'runs with linux' sticker would be exactly the type of thing the trademark
-> is designed to protect.
+Yeah, it's not that nice.  After all we don't use mmio at all on visw but
+pio.  So why do we need the flushing at all?
 
-That's the Linux Mark Institute:
-  http://www.linuxmark.org/
+> --- old/drivers/scsi/qla1280.c        2005-12-05 12:39:36.000000000 -0600
+> +++ new/drivers/scsi/qla1280.c      2005-12-12 14:42:11.146215122 -0600
+> @@ -401,6 +401,10 @@
+>  #include "ql1280_fw.h"
+>  #include "ql1040_fw.h"
+> 
+> +#ifdef CONFIG_X86_VISWS
+> +  #undef mmiowb
+> +  #define mmiowb() RD_REG_WORD(&ha->iobase->id_l)
+> +#endif
 
-> I think it's obvious that anything with in-kernel drivers would qualify
-> (new versions of hardware may need driver updates before they could use
-> the sticker) and if Linus could define a suitable level of documentation
-> of the hardware I think that that should very quickly lead to an in-kernel
-> driver (and given hardware lead time it may be reasonable to allow the
-> sticker based on the release of documentation)
->
-> I would not like to see it for external drivers, especially ones that work
-> only with specific kernels from specific distros. even if the source is
-> available, unless it can be merged into the kernel it's going to be a
-> ongoing problem (although the open-source-but-external driver code could
-> end up being deemed 'sufficiant documentation')
->
-> David Lang
+Macros with implicit arguments are pretty horrible.  If we want to go down
+that road we should add a macro that expands to either version depending
+on the config flags.
 
--- 
-~Randy
+While we're at it, does anyone know whyt the ioread* interface doesn't
+provide the _relaxed version?  I'd really love to switch qla1280 over to it
+given that it needs to support both mmio and pio.
+

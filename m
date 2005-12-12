@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbVLLInw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbVLLIuX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbVLLInw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 03:43:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbVLLInw
+	id S1751125AbVLLIuX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 03:50:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbVLLIuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 03:43:52 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:39399 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S1751136AbVLLInv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 03:43:51 -0500
-Date: Mon, 12 Dec 2005 00:43:30 -0800 (PST)
-From: Paul Jackson <pj@sgi.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Simon Derr <Simon.Derr@bull.net>, Andi Kleen <ak@suse.de>,
-       Paul Jackson <pj@sgi.com>, Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051212084330.3242.54457.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH] Cpuset: rcu slab cache optimization rcu_dereference comment
+	Mon, 12 Dec 2005 03:50:23 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:17025 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S1751125AbVLLIuW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 03:50:22 -0500
+Message-ID: <439D39A8.1020806@cosmosbay.com>
+Date: Mon, 12 Dec 2005 09:49:44 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Paul Jackson <pj@sgi.com>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Simon Derr <Simon.Derr@bull.net>,
+       Andi Kleen <ak@suse.de>, Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
+References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>
+In-Reply-To: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Mon, 12 Dec 2005 09:49:45 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a comment noting that unlike usual, we do not need to
-guard a dereference of an rcu guarded pointer with a
-call to rcu_dereference(), because we don't care if we
-see out of order results.
+Paul Jackson a écrit :
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+> +
+> +static kmem_cache_t *cpuset_cache;
+> +
 
----
+Hi Paul
 
- kernel/cpuset.c |    6 ++++++
- 1 files changed, 6 insertions(+)
+Please do use __read_mostly for new kmem_cache :
 
---- 2.6.15-rc3-mm1.orig/kernel/cpuset.c	2005-12-11 22:35:39.051718313 -0800
-+++ 2.6.15-rc3-mm1/kernel/cpuset.c	2005-12-12 00:38:25.301117045 -0800
-@@ -632,6 +632,12 @@ static void guarantee_online_mems(const 
-  * unmapped.  It's ok if attach_task() replaces our cpuset with
-  * another while we are reading mems_generation, and even frees it.
-  *
-+ * We do -not- need to guard the 'cs' pointer dereference within the
-+ * rcu_read_lock section with rcu_dereference(), because we don't
-+ * mind getting bogus out-of-order results.  New cpuset pointer and
-+ * old mems_generation is ok - we'll realize that our cpuset memory
-+ * placement changed the next time through here.
-+ *
-  * This routine is needed to update the per-task mems_allowed data,
-  * within the tasks context, when it is trying to allocate memory
-  * (in various mm/mempolicy.c routines) and notices that some other
+static kmem_cache_t *cpuset_cache __read_mostly;
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+If not, the pointer can sit in the midle of a highly modified cache line, and 
+multiple CPUS will have memory cache misses to access the cpuset_cache, while 
+slab code/data layout itself is very NUMA/SMP friendly.
+
+Eric

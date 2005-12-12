@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbVLLVgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbVLLVh6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932209AbVLLVgU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 16:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbVLLVgT
+	id S932084AbVLLVh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 16:37:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVLLVh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 16:36:19 -0500
-Received: from mail.kroah.org ([69.55.234.183]:47307 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932095AbVLLVgT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 16:36:19 -0500
-Date: Mon, 12 Dec 2005 13:15:54 -0800
-From: Greg KH <gregkh@suse.de>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, ak@muc.de,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [patch 2/4] i386/x86-64: Implement fallback for PCI mmconfig to type1
-Message-ID: <20051212211553.GA29112@suse.de>
-References: <20051212192030.873030000@press.kroah.org> <20051212200123.GC27657@kroah.com> <20051212202643.GG9286@parisc-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 12 Dec 2005 16:37:58 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:32731 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932084AbVLLVh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 16:37:58 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.15-rc5-mm2: ehci_hcd crashes on load sometimes
+Date: Mon, 12 Dec 2005 22:39:19 +0100
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+References: <20051211041308.7bb19454.akpm@osdl.org> <200512122155.43632.rjw@sisk.pl> <20051212130957.146fbcc3.akpm@osdl.org>
+In-Reply-To: <20051212130957.146fbcc3.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051212202643.GG9286@parisc-linux.org>
-User-Agent: Mutt/1.5.11
+Message-Id: <200512122239.20264.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 12, 2005 at 01:26:43PM -0700, Matthew Wilcox wrote:
-> On Mon, Dec 12, 2005 at 12:01:23PM -0800, Greg Kroah-Hartman wrote:
-> > When there is no entry for a bus in MCFG fall back to type1.  This is
-> > especially important on K8 systems where always some devices can't be
-> > accessed using mmconfig (in particular the builtin northbridge doesn't
-> > support it for its own devices)
-> [...]
-> > -static int pci_conf1_read(unsigned int seg, unsigned int bus,
-> > +int pci_conf1_read(unsigned int seg, unsigned int bus,
+On Monday, 12 December 2005 22:09, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> >
+> >  > It's best to actually send a copy of line 620 - kernels vary a lot, and
+> >  > many developers won't have that particualr -mm tree handy.
+> >  > 
+> >  > The way I normally do this is to do `gdb vmlinux' and then `l
+> >  > *0xffffffff880ad9d0'.
+> > 
+> >  Does it work for modules too?
 > 
-> I don't like this at all.  We already have a mechanism to use different
-> accessors per-bus (bus->ops->read()); calling the type1 accessors from
-> the mmconfig accessors just seems wrong.
+> Ah.  There are certainly ways of doing this - see the kgdb documentation. 
+> Or you can work out the module load address, gdb the module and do the
+> appropriate arithmetic I guess.
+> 
+> Generally I just statically link anything which I want to play with.
 
->From what I can tell, it's too late in the callstack for us to change
-the read ops for this device to be the other one.  The problem is (and
-Andi can correct me if I'm wrong), some boxes basically have incomplete
-MCFG acpi tables (the tables do not describe all PCI busses that are
-present in the box).  But we don't realize this until we are about to do
-the read function.
+Still, the oops is from a module.  I could link it statically for debugging,
+but then the address would be different to the one in the oops.
 
-I remember I looked into trying to set this up at probe/init time, and
-it was almost impossible to do so, due to the structure of the code.
+Anyway, please tell me if my reasoning was correct: I thought I couldn't
+figure it out based on the absolute address, but I could use the
+displacements.  Namely, it followed from the oops that the problem
+occured at the address {:ehci_hcd:ehci_irq+224}, which is at the
+offset 224 wrt ehci_irq, so I did:
 
-However, I might have missed something, and if you can point how to do
-this easier, please do.
+gdb drivers/usb/host/ehci-hcd.o
 
-As it is, this patch is needed to fix boxes that do not work at all with
-the current kernel.
+In gdb I did:
 
-thanks,
+info line ehci_irq
 
-greg k-h
+and it told me the address the line started at, so I added 224 to it and
+got the line 620.

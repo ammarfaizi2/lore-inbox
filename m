@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVLLSZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbVLLS3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbVLLSZi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 13:25:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbVLLSZi
+	id S932118AbVLLS3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 13:29:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbVLLS3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 13:25:38 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:33512 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932117AbVLLSZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 13:25:37 -0500
-Subject: Re: Fw: crash on x86_64 - mm related?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ryan Richter <ryan@tau.solarneutrino.net>, Hugh Dickins <hugh@veritas.com>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org>
-References: <20051201195657.GB7236@tau.solarneutrino.net>
-	 <Pine.LNX.4.61.0512012008420.28450@goblin.wat.veritas.com>
-	 <20051202180326.GB7634@tau.solarneutrino.net>
-	 <Pine.LNX.4.61.0512021856170.4940@goblin.wat.veritas.com>
-	 <20051202194447.GA7679@tau.solarneutrino.net>
-	 <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com>
-	 <20051206160815.GC11560@tau.solarneutrino.net>
-	 <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
-	 <20051206204336.GA12248@tau.solarneutrino.net>
-	 <Pine.LNX.4.61.0512071803300.2975@goblin.wat.veritas.com>
-	 <20051212165443.GD17295@tau.solarneutrino.net>
-	 <Pine.LNX.4.64.0512120928110.15597@g5.osdl.org>
-	 <1134409531.9994.13.camel@mulgrave>
-	 <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org>
-Content-Type: text/plain
-Date: Mon, 12 Dec 2005 12:24:42 -0600
-Message-Id: <1134411882.9994.18.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Dec 2005 13:29:24 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:55710 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932118AbVLLS3Y convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 13:29:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gKt+pVj4z5KqdHFgUzG26Y87c+t4TytMFg6WrOIqJKZLQcbYCtAMY2FhbhkPUnSp+/hbmectxVKUKOpWzXpmCSNP7WNYxmsf/Dq6y47flvFM/BycW/I9mIDsSg/7R+iKm3BekZ9TiH87t6nv3gL4/44l7A5hikWVycPlo4GaSfo=
+Message-ID: <808c8e9d0512121029p4215d8b9y411a76d54f625677@mail.gmail.com>
+Date: Mon, 12 Dec 2005 12:29:23 -0600
+From: Ben Gardner <gardner.ben@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: 2.6.15-rc5-mm2: two cs5535 modules
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051211175612.GL23349@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051211041308.7bb19454.akpm@osdl.org>
+	 <20051211175612.GL23349@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-12 at 10:09 -0800, Linus Torvalds wrote:
-> Well, that patch is definitely broken.
+Hi Adrian,
 
-No, it's not; all it's doing is deferring the device_put() from the
-scsi_put_command() to after the scsi_run_queue(), which doesn't fix the
-sleep while atomic problem of the device release method.  In both cases
-we still get the semaphore in atomic context problem which is caused by
-scsi_reap_target() doing a device_del(), which I assumed (wrongly) was
-valid from atomic context.
+Thanks for pointing that out. I'll use a different name.
 
-I'll fix the scsi_reap_target(), but it's nothing to do with the patch
-you reversed.
+Perhaps the cs5535 ide module should also be renamed to something more
+sane, like "cs5535-ide".
 
-> You say that it just causes a warning about sleeping in interrupt context, 
-> while I say that the warning is a serious error. If that semaphore _ever_ 
-> is write-locked, the whole machine will crash from trying to sleep when it 
-> cannot sleep.
-> 
-> So I can certainly undo the undo, but the fact is, the code is CRAP. I'd 
-> much rather get a real fix instead of having to select between two known 
-> bugs.
+Ben
 
-I'll find a fix for the real problem, but this patch isn't the cause.
-
-James
-
-
+On 12/11/05, Adrian Bunk <bunk@stusta.de> wrote:
+> On Sun, Dec 11, 2005 at 04:13:08AM -0800, Andrew Morton wrote:
+> >...
+> > Changes since 2.6.15-rc5-mm1:
+> >...
+> > +i386-cs5535-chip-support-cpu.patch
+> >...
+> >  Updated.   Still need work.
+> >...
+>
+> This patch adds a module cs5535 under arch/i386/kernel/, but there's
+> already a module of the same name present under drivers/ide/pci/.
+>
+> This is a problem if both are modular since two modules of the same name
+> are not possible.
+>
+> cu
+> Adrian
+>
+> --
+>
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
+>
+>

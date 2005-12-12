@@ -1,65 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVLLQ3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbVLLQdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbVLLQ3R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 11:29:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbVLLQ3R
+	id S1751250AbVLLQdL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 11:33:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbVLLQdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 11:29:17 -0500
-Received: from 1-1-3-46a.gml.gbg.bostream.se ([82.182.110.161]:16062 "EHLO
-	kotiaho.net") by vger.kernel.org with ESMTP id S1751177AbVLLQ3Q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 11:29:16 -0500
-Date: Mon, 12 Dec 2005 17:28:57 +0100 (CET)
-From: "J.O. Aho" <trizt@iname.com>
-X-X-Sender: trizt@lai.local.lan
-To: "David S. Miller" <davem@davemloft.net>
-cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: Re: Sparc: Kernel 2.6.13 to 2.6.15-rc2 bug when running X11
-In-Reply-To: <20051211.210752.83944980.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.64.0512121725430.25109@lai.local.lan>
-References: <Pine.LNX.4.64.0512102350310.4739@lai.local.lan>
- <20051210.150034.67577008.davem@davemloft.net> <Pine.LNX.4.64.0512110020050.4809@lai.local.lan>
- <20051211.210752.83944980.davem@davemloft.net>
+	Mon, 12 Dec 2005 11:33:10 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:50335 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751250AbVLLQdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 11:33:09 -0500
+Date: Mon, 12 Dec 2005 08:32:49 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [RFC 1/6] Framework
+In-Reply-To: <20051210033235.GP11190@wotan.suse.de>
+Message-ID: <Pine.LNX.4.62.0512120827470.14274@schroedinger.engr.sgi.com>
+References: <20051210005440.3887.34478.sendpatchset@schroedinger.engr.sgi.com>
+ <20051210005445.3887.94119.sendpatchset@schroedinger.engr.sgi.com>
+ <20051210033235.GP11190@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Dec 2005, David S. Miller wrote:
+On Sat, 10 Dec 2005, Andi Kleen wrote:
 
-> From: "J.O. Aho" <trizt@iname.com>
-> Date: Sun, 11 Dec 2005 00:22:22 +0100 (CET)
->
->> sbusfb_mmap: start[71800000] size[410000] off[4000000]
->> sbusfb_mmap: page[0] map_size[2000]
->> sbusfb_mmap: map_size is now 2000
->> IO[X:6712]:
->> remap_pfn_range(s[71800000]e[71c10000],f[71800000],pfn[1fc0060],sz[2000],prot[80000000000006b0])
->> sbusfb_mmap: page[2000] map_size[2000]
->> sbusfb_mmap: map_size is now 2000
->> IO[X:6712]:
->> remap_pfn_range(s[71800000]e[71c10000],f[71802000],pfn[1fc0060],sz[2000],prot[80000000000006b0])
->
-> This is the trace we needed.
->
-> I strongly believe your kernel is being miscompiled by whatever
-> gcc is being used to build your kernels.
+> > +#define global_page_state(__x) atomic_long_read(&vm_stat[__x])
+> > +#define zone_page_state(__z,__x) atomic_long_read(&(__z)->vm_stat[__x])
+> > +extern unsigned long node_page_state(int node, enum zone_stat_item);
+> > +
+> > +/*
+> > + * For use when we know that interrupts are disabled.
+> 
+> Why do you need to disable interupts for atomic_t ? 
 
-Now I have tested all the gcc-sparc64 thats in Gentoo, 3.3.5, 3.3.6 and 
-3.4.4. The results on kernels are the same, I get that crash/bug when 
-starting X11.
+Interrupts need to be disabled because the processing of the byte sized 
+differential could be interrupted.
 
-Would love to know what gcc you do use for the 64bit kernel, to see if I 
-can't test that one on my machine too.
+> If you just want to prevent switching CPUs that could be 
+> done with get_cpu(), but alternatively you could just ignore
+> that race (it wouldn't be a big issue to still increment
+> the counter on the old CPU)
 
+There is no increment or decrement right now. We add an offset and that 
+offset could easily burst the limits of a byte sized differential. A check 
+needs to happen before the differential is updated.
 
--- 
-      //Aho
+> And why atomic and not just local_t?  On x86/x86-64 local_t
+> would be much cheaper at least. It's not long, but that could
+> be as well added.
 
-  ------------------------------------------------------------------------
-   E-Mail: trizt@iname.com            URL: http://www.kotiaho.net/~trizt/
-      ICQ: 13696780
-   System: Linux System                        (PPC7447/1000 AMD K7A/2000)
-  ------------------------------------------------------------------------
-             EU forbids you to send spam without my permission
-  ------------------------------------------------------------------------
+local_t is long on ia64. 
+
+The atomics are used for global updates of counters in struct zone and the 
+vm_stats array. local_t wont help there.
+
+local_t could be used for the differentials. Special functions for 
+increment and decrement could use the non-interruptible nature of inc/decs 
+on i386 and x86_64.
+
+There is no byte sized local_t though so its difficult to use local_t 
+here. I think this whole local_t stuff is not too useful after all. 
+Could we add an incp/decp macro that is like cmpxchg? That macro should 
+be able to operation on various sizes of counters.

@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751081AbVLLEc6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbVLLEeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751081AbVLLEc6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Dec 2005 23:32:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbVLLEc5
+	id S1751097AbVLLEeU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Dec 2005 23:34:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVLLEeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Dec 2005 23:32:57 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5504 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751081AbVLLEc5 (ORCPT
+	Sun, 11 Dec 2005 23:34:20 -0500
+Received: from rtr.ca ([64.26.128.89]:58545 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751092AbVLLEeT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Dec 2005 23:32:57 -0500
-Date: Sun, 11 Dec 2005 20:32:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: paulmck@us.ibm.com
-Cc: oleg@tv-sign.ru, vatsa@in.ibm.com, linux-kernel@vger.kernel.org,
-       dipankar@in.ibm.com
-Subject: Re: [PATCH] Fix RCU race in access of nohz_cpu_mask
-Message-Id: <20051211203226.4deafd59.akpm@osdl.org>
-In-Reply-To: <20051212031053.GA8748@us.ibm.com>
-References: <439889FA.BB08E5E1@tv-sign.ru>
-	<20051209024623.GA14844@in.ibm.com>
-	<4399D852.47E0BB4E@tv-sign.ru>
-	<20051210151951.GA2798@in.ibm.com>
-	<439B24A7.E2508AAE@tv-sign.ru>
-	<20051212031053.GA8748@us.ibm.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 11 Dec 2005 23:34:19 -0500
+Message-ID: <439CFDCA.2020902@rtr.ca>
+Date: Sun, 11 Dec 2005 23:34:18 -0500
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sata_via VT6421 vendor update
+References: <439CF781.3080400@pobox.com>
+In-Reply-To: <439CF781.3080400@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Paul E. McKenney" <paulmck@us.ibm.com> wrote:
->
-> 1.	wmb() guarantees that any writes preceding the wmb() will
->  	be seen by the interconnect before any writes following the
->  	wmb().  But this applies -only- to the writes executed by
->  	the CPU doing the wmb().
+Jeff Garzik wrote:
 > 
->  2.	rmb() guarantees that any changes seen by the interconnect
->  	preceding the rmb() will be seen by any reads following the
->  	rmb().  Again, this applies only to reads executed by the
->  	CPU doing the wmb().  However, the changes might be due to
->  	any CPU.
-> 
->  3.	mb() combines the guarantees made by rmb() and wmb().
+> +	switch (adev->dma_mode & 0x07) {
+> +		case 0:
+> +			cfg_byte = 0xee;
+> +			break;	
+> +		case 1:
+> +			cfg_byte = 0xe8;
+> +			break;	
+> +		case 2:
+> +			cfg_byte = 0xe6;
+> +			break;	
+> +		case 3:
+> +			cfg_byte = 0xe4;
+> +			break;	
+> +		case 4:
+> +			cfg_byte = 0xe2;
+> +			break;	
+> +		case 5:
+> +			cfg_byte = 0xe1;
+> +			break;	
+> +		case 6:
+> +			cfg_byte = 0xe0;
+> +			break;	
+> +		default:
+> +			cfg_byte = 0xe0;
+> +	}
 
-So foo_mb() in preemptible code is potentially buggy.
+Mmm.. replace all that with this (?):
 
-I guess we assume that a context switch accidentally did enough of the
-right types of barriers for things to work OK.
+	u8 cfg_bytes[8] = {0xee, 0xe8, 0xe6, 0xe4, 0xe2, 0xe1, 0xe0, 0xe0};
+	cfg_byte = cfg_bytes[adev->dma_mode & 7];
+
+-ml

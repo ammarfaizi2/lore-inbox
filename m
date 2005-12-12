@@ -1,67 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbVLLSVj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVLLSXS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbVLLSVj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 13:21:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVLLSVj
+	id S932115AbVLLSXS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 13:23:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbVLLSXS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 13:21:39 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:64595 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932114AbVLLSVj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 13:21:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bbi6W/n8UdlICKdqBdRMUsjqHy4FyvMMm2UJNPiykd/pzhFZ79or2vPi+o6zF0Q4cblPJpksHzVbwlJJz4yr05fXZPQhqG//p/LWhdiHlAyI7GkHpszzdXbwjKKY8FoSZX44yNm+CfBB61wa1YGNeyWvGT7L6ThlNJ+raXzgILw=
-Message-ID: <9a8748490512121021h14a652cdqbc6c53d8a0f4dd3b@mail.gmail.com>
-Date: Mon, 12 Dec 2005 19:21:37 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Manfred Gruber <m.gruber@tirol.com>
-Subject: Re: Misleading information on linuxdevices.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200512121844.34832.m.gruber@tirol.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 12 Dec 2005 13:23:18 -0500
+Received: from ra.tuxdriver.com ([24.172.12.4]:26120 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932115AbVLLSXR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 13:23:17 -0500
+Date: Mon, 12 Dec 2005 13:22:36 -0500
+From: Neil Horman <nhorman@tuxdriver.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: [PATCH] vm: enhance __alloc_pages to prioritize pagecache eviction when pressed for memory
+Message-ID: <20051212182236.GB828@hmsreliant.homelinux.net>
+References: <20051207220401.GB13577@hmsreliant.homelinux.net> <20051209162901.71728620.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200512121844.34832.m.gruber@tirol.com>
+In-Reply-To: <20051209162901.71728620.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/12/05, Manfred Gruber <m.gruber@tirol.com> wrote:
-> Hi,
->
-> as some of you might have noticed, there was an announcement of our
-> company on http://www.linuxdevices.com/news/NS9959272388.html
->
-> The text is misleading as it speaks about a "propietary" kernel, which
-> is completely wrong.
->
-Well, your own website also says it proprietary.  Quoting the page you
-refer to below:
+On Fri, Dec 09, 2005 at 04:29:01PM -0800, Andrew Morton wrote:
+> Neil Horman <nhorman@tuxdriver.com> wrote:
+> >
+> > Hey all-
+> >      I was recently shown this issue, wherein, if the kernel was kept full of
+> > pagecache via applications that were constantly writing large amounts of data to
+> > disk, the box could find itself in a position where the vm, in __alloc_pages
+> > would invoke the oom killer repetatively within try_to_free_pages, until such
+> > time as the box had no candidate processes left to kill, at which point it would
+> > panic.
+> 
+> That's pretty bad.  Are you able to provide a description which would permit
+> others to reproduce this?
 
-"Contec are now offering a proprietary adaptation of Real Time Linux
-for their successful business card sized ARM-9 CPU Modules."
+As promised, heres the reproducer that was given to me, and used to reproduce
+this problem:
+
+1) setup an nfs serve with a thread count of 2.  Of course, 1 thread might make
+the problem more easy to reproduce.  I haven't tried it yet.
+
+2) Setup 4 nodes to hammer the nfs mounted directory.  The 4 nodes should hammer
+out 4 gigs.  2 gigs didn't seem to be enough.
+
+I used a locally developed tool called ior to reproduce this problem.  The tool
+can be found here:
+
+http://www.llnl.gov/asci/platforms/purple/rfp/benchmarks/limited/ior/
+
+I suppose anything that can write to NFS fast should be fine.  But that's what I
+did.
 
 
-> We run Ingo Molnars rt-preemption patch with modifications for our
-> custom board done by Thomas Gleixner and us.
->
-> The source code is of course available under the GPL. See also the
-> information on our homepage:
-> http://www.contec.at/78+M52087573ab0.0.html
->
-Where exactely is the source code? I can't seem to find it...
+If you do this, any node writing to the server that has more than 4GB of RAM
+should start oom killing to the point where it runs out of candidate processes
+and panics
 
-> We don't know where in the information chain from the development team
-> via the marketing team to linuxdevices this happened, but we want to
-> correct any wrong impression about our company. Sorry.
->
-Perhaps you should start by fixing the text on your own homepage and
-provide a prominent link to the source code :)
+Thanks & Regards
+Neil
 
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/

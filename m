@@ -1,16 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVLMDAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVLMDCD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932380AbVLMDAv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 22:00:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbVLMDAq
+	id S932376AbVLMDCD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 22:02:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbVLMDAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 22:00:46 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:5775 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932375AbVLMDAJ (ORCPT
+	Mon, 12 Dec 2005 22:00:38 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:3728 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932381AbVLMDAS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 22:00:09 -0500
-Subject: [PATCH -mm 3/9] unshare system call : system call registration for
-	powerpc
+	Mon, 12 Dec 2005 22:00:18 -0500
+Subject: [PATCH -mm 7/9] unshare system call : allow unsharing of namespace
 From: JANAK DESAI <janak@us.ibm.com>
 Reply-To: janak@us.ibm.com
 To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
@@ -19,53 +18,166 @@ To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
        janak@us.ibm.com
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1134442655.14136.117.camel@hobbs.atlanta.ibm.com>
+Message-Id: <1134442736.14136.128.camel@hobbs.atlanta.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 12 Dec 2005 22:00:00 -0500
+Date: Mon, 12 Dec 2005 22:00:09 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[PATCH -mm 3/9] unshare system call: System call registration for
-powerpc
-                                                                                
-Signed-off-by: Janak Desai
+[PATCH -mm 7/9] unshare system call: allow unsharing of namespace
 
 
- arch/powerpc/kernel/systbl.S |    1 +
- include/asm-powerpc/unistd.h |    3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ fs/namespace.c            |   55
+++++++++++++++++++++++++++++++----------------
+ include/linux/namespace.h |    1 
+ kernel/fork.c             |   16 +++++++++----
+ 3 files changed, 48 insertions(+), 24 deletions(-)
  
  
-diff -Naurp 2.6.15-rc5-mm2/arch/powerpc/kernel/systbl.S
-2.6.15-rc5-mm2+powerpc/arch/powerpc/kernel/systbl.S
---- 2.6.15-rc5-mm2/arch/powerpc/kernel/systbl.S	2005-12-12
-03:05:39.000000000 +0000
-+++ 2.6.15-rc5-mm2+powerpc/arch/powerpc/kernel/systbl.S	2005-12-12
-20:15:54.000000000 +0000
-@@ -322,3 +322,4 @@ SYSCALL(inotify_rm_watch)
- SYSCALL(spu_run)
- SYSCALL(spu_create)
- SYSCALL(migrate_pages)
-+SYSCALL(unshare)
-diff -Naurp 2.6.15-rc5-mm2/include/asm-powerpc/unistd.h
-2.6.15-rc5-mm2+powerpc/include/asm-powerpc/unistd.h
---- 2.6.15-rc5-mm2/include/asm-powerpc/unistd.h	2005-12-12
-03:05:58.000000000 +0000
-+++ 2.6.15-rc5-mm2+powerpc/include/asm-powerpc/unistd.h	2005-12-12
-20:18:03.000000000 +0000
-@@ -299,8 +299,9 @@
- #define __NR_spu_run		278
- #define __NR_spu_create		279
- #define __NR_migrate_pages	280
-+#define __NR_unshare		281
+diff -Naurp 2.6.15-rc5-mm2+patch/fs/namespace.c
+2.6.15-rc5-mm2+patch7/fs/namespace.c
+--- 2.6.15-rc5-mm2+patch/fs/namespace.c	2005-12-12 18:27:20.000000000
++0000
++++ 2.6.15-rc5-mm2+patch7/fs/namespace.c	2005-12-12 22:01:00.000000000
++0000
+@@ -1314,7 +1314,11 @@ dput_out:
+ 	return retval;
+ }
  
--#define __NR_syscalls		281
-+#define __NR_syscalls		282
+-int copy_namespace(int flags, struct task_struct *tsk)
++/*
++ * Allocate a new namespace structure and populate it with contents
++ * copied from the namespace of the passed in task structure.
++ */
++struct namespace *dup_namespace(struct task_struct *tsk)
+ {
+ 	struct namespace *namespace = tsk->namespace;
+ 	struct namespace *new_ns;
+@@ -1322,19 +1326,6 @@ int copy_namespace(int flags, struct tas
+ 	struct fs_struct *fs = tsk->fs;
+ 	struct vfsmount *p, *q;
  
- #ifdef __KERNEL__
- #define __NR__exit __NR_exit
+-	if (!namespace)
+-		return 0;
+-
+-	get_namespace(namespace);
+-
+-	if (!(flags & CLONE_NEWNS))
+-		return 0;
+-
+-	if (!capable(CAP_SYS_ADMIN)) {
+-		put_namespace(namespace);
+-		return -EPERM;
+-	}
+-
+ 	new_ns = kmalloc(sizeof(struct namespace), GFP_KERNEL);
+ 	if (!new_ns)
+ 		goto out;
+@@ -1385,8 +1376,6 @@ int copy_namespace(int flags, struct tas
+ 	}
+ 	up_write(&namespace_sem);
+ 
+-	tsk->namespace = new_ns;
+-
+ 	if (rootmnt)
+ 		mntput(rootmnt);
+ 	if (pwdmnt)
+@@ -1394,12 +1383,40 @@ int copy_namespace(int flags, struct tas
+ 	if (altrootmnt)
+ 		mntput(altrootmnt);
+ 
+-	put_namespace(namespace);
+-	return 0;
++out:
++	return new_ns;
++}
++
++int copy_namespace(int flags, struct task_struct *tsk)
++{
++	struct namespace *namespace = tsk->namespace;
++	struct namespace *new_ns;
++	int err = 0;
++
++	if (!namespace)
++		return 0;
++
++	get_namespace(namespace);
++
++	if (!(flags & CLONE_NEWNS))
++		return 0;
++
++	if (!capable(CAP_SYS_ADMIN)) {
++		err = -EPERM;
++		goto out;
++	}
++
++	new_ns = dup_namespace(tsk);
++	if (!new_ns) {
++		err = -ENOMEM;
++		goto out;
++	}
++
++	tsk->namespace = new_ns;
+ 
+ out:
+ 	put_namespace(namespace);
+-	return -ENOMEM;
++	return err;
+ }
+ 
+ asmlinkage long sys_mount(char __user * dev_name, char __user *
+dir_name,
+diff -Naurp 2.6.15-rc5-mm2+patch/include/linux/namespace.h
+2.6.15-rc5-mm2+patch7/include/linux/namespace.h
+--- 2.6.15-rc5-mm2+patch/include/linux/namespace.h	2005-12-12
+18:27:38.000000000 +0000
++++ 2.6.15-rc5-mm2+patch7/include/linux/namespace.h	2005-12-12
+22:01:57.000000000 +0000
+@@ -15,6 +15,7 @@ struct namespace {
+ 
+ extern int copy_namespace(int, struct task_struct *);
+ extern void __put_namespace(struct namespace *namespace);
++extern struct namespace *dup_namespace(struct task_struct *);
+ 
+ static inline void put_namespace(struct namespace *namespace)
+ {
+diff -Naurp 2.6.15-rc5-mm2+patch/kernel/fork.c
+2.6.15-rc5-mm2+patch7/kernel/fork.c
+--- 2.6.15-rc5-mm2+patch/kernel/fork.c	2005-12-12 19:31:48.000000000
++0000
++++ 2.6.15-rc5-mm2+patch7/kernel/fork.c	2005-12-12 21:58:44.000000000
++0000
+@@ -1392,16 +1392,22 @@ static int unshare_fs(unsigned long unsh
+ }
+ 
+ /*
+- * Unsharing of namespace for tasks created without CLONE_NEWNS is not
+- * supported yet
++ * Unshare the namespace structure if it is being shared
+  */
+ static int unshare_namespace(unsigned long unshare_flags, struct
+namespace **new_nsp)
+ {
+-	struct namespace *ns = current->namespace;
++	struct namespace *ns = current->namespace, *new_ns;
+ 
+ 	if ((unshare_flags & CLONE_NEWNS) &&
+-	    (ns && atomic_read(&ns->count) > 1))
+-		return -EINVAL;
++	    (ns && atomic_read(&ns->count) > 1)) {
++		if (!capable(CAP_SYS_ADMIN))
++			return -EPERM;
++
++		new_ns = dup_namespace(current);
++		if (!new_ns)
++			return -ENOMEM;
++		*new_nsp = new_ns;
++	}
+ 
+ 	return 0;
+ }
 
 

@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVLMRme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbVLMRq2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbVLMRme (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 12:42:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbVLMRmd
+	id S932222AbVLMRq2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 12:46:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbVLMRq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 12:42:33 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:44265 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751176AbVLMRmd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 12:42:33 -0500
-Date: Tue, 13 Dec 2005 09:42:19 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-cc: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
-       Simon.Derr@bull.net, ak@suse.de
-Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
-In-Reply-To: <439EF75D.50206@cosmosbay.com>
-Message-ID: <Pine.LNX.4.62.0512130938130.22803@schroedinger.engr.sgi.com>
-References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>
- <439D39A8.1020806@cosmosbay.com> <20051212020211.1394bc17.pj@sgi.com>
- <20051212021247.388385da.akpm@osdl.org> <20051213075345.c39f335d.pj@sgi.com>
- <439EF75D.50206@cosmosbay.com>
+	Tue, 13 Dec 2005 12:46:28 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:29421 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S932222AbVLMRq1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 12:46:27 -0500
+Date: Tue, 13 Dec 2005 18:38:36 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Adrian Bunk <bunk@stusta.de>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] defconfig's shouldn't set CONFIG_BROKEN=y
+In-Reply-To: <20051213173112.GA24094@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.62.0512131837380.17990@pademelon.sonytel.be>
+References: <20051211185212.GQ23349@stusta.de> <20051211192109.GA22537@flint.arm.linux.org.uk>
+ <20051211193118.GR23349@stusta.de> <20051211194437.GB22537@flint.arm.linux.org.uk>
+ <20051213001028.GS23349@stusta.de> <439ECDCC.80707@hogyros.de>
+ <20051213140001.GG23349@stusta.de> <20051213173112.GA24094@flint.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Dec 2005, Eric Dumazet wrote:
+On Tue, 13 Dec 2005, Russell King wrote:
+> If, in order to have a working platform configuration, they deem that
+                         ^^^^^^^
+> CONFIG_BROKEN must be enabled, then that's the way it is.
+         ^^^^^^
+Still funny...
 
-> Say you move to read mostly most of struct kmem_cache *, they are guaranteed
-> to stay in 'mostly read'.
+So either one of them is lying...
 
-True but then this variable is not frequently read. So false sharing would 
-not have much of an impact.
+Gr{oetje,eeting}s,
 
-> Mixing for example filp_cachep and dcache_lock in the same cache line is not a
-> good thing. And this is what happening on typical kernel :
-> 
-> c04f15f0 B dcache_lock
-> c04f15f4 B names_cachep
-> c04f15f8 B filp_cachep
-> c04f15fc b rename_lock
-> 
-> I do think we should have defined a special section for very hot (and written)
-> spots. It's more easy to locate thos hot spots than 'mostly read and shared by
-> all cpus without cache ping pongs' places...
+						Geert
 
-In that case I would think we would want to place these very hot 
-spots in their own cacheline and control which variables end up in 
-that particular cacheline. Define a struct something {} and put all 
-elements that need to go into the same cacheline into that struct. 
-Then cacheline align the struct.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

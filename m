@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030301AbVLMWcG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030270AbVLMWfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030301AbVLMWcG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 17:32:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030300AbVLMWcF
+	id S1030270AbVLMWfW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 17:35:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030305AbVLMWfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 17:32:05 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:59153 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030301AbVLMWcE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 17:32:04 -0500
-Date: Tue, 13 Dec 2005 23:32:04 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, dhowells@redhat.com,
-       torvalds@osdl.org, hch@infradead.org, arjan@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Message-ID: <20051213223203.GV23349@stusta.de>
-References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de> <20051213004257.0f87d814.akpm@osdl.org> <20051213084926.GN23384@wotan.suse.de> <20051213010126.0832356d.akpm@osdl.org> <20051213090517.GQ23384@wotan.suse.de> <20051213221810.GU23349@stusta.de> <20051213222543.GY23384@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051213222543.GY23384@wotan.suse.de>
-User-Agent: Mutt/1.5.11
+	Tue, 13 Dec 2005 17:35:22 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:4078 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030270AbVLMWfV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 17:35:21 -0500
+Date: Tue, 13 Dec 2005 14:35:00 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       Simon.Derr@bull.net, ak@suse.de, clameter@sgi.com
+Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
+Message-Id: <20051213143500.96c9aecd.pj@sgi.com>
+In-Reply-To: <439F2F39.3090800@cosmosbay.com>
+References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>
+	<439D39A8.1020806@cosmosbay.com>
+	<20051212020211.1394bc17.pj@sgi.com>
+	<20051212021247.388385da.akpm@osdl.org>
+	<20051213075345.c39f335d.pj@sgi.com>
+	<439EF75D.50206@cosmosbay.com>
+	<20051213120814.f7e1d73d.pj@sgi.com>
+	<439F2F39.3090800@cosmosbay.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 11:25:43PM +0100, Andi Kleen wrote:
-> > 3.2+ would be better than 3.1+
-> > 
-> > Remember that 3.2 would have been named 3.1.2 if there wasn't the C++
-> > ABI change, and I don't remember any big Linux distribution actually 
-> > using gcc 3.1 as default compiler.
-> 
-> Yes, but the kernel doesn't use C++ and afaik other than that there were only
-> a few minor bugfixes between 3.1 and 3.2. So it doesn't make any
-> difference for this special case.
+Eric wrote:
+> But the initial pointer *should* be in a cache line shared by all cpus to get 
+> best performance. 
 
-gcc 3.2.3 is four bugfix releases and nine months later than 3.1.1, and 
-there are virtually no gcc 3.1 users.
-
-It's not a strong opinion, but if the question is whether to draw the 
-line before or after gcc 3.1 I'd vote for dropping gcc 3.1 support.
-
-> -Andi
-
-cu
-Adrian
+No - not if that pointer is seldom used.  Then its location does not
+directly affect performance at all, and better for it to be used as
+"inert filler" to fill out cache lines of words that are write hot.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

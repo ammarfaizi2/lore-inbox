@@ -1,39 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbVLNKV0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVLNKW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbVLNKV0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 05:21:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbVLNKVZ
+	id S932279AbVLNKW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 05:22:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbVLNKW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 05:21:25 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:5284 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932268AbVLNKVZ
+	Wed, 14 Dec 2005 05:22:58 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:9380 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932279AbVLNKWz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 05:21:25 -0500
-Subject: Re: [SERIAL, -mm] CRC failure
+	Wed, 14 Dec 2005 05:22:55 -0500
+Subject: Re: tp_smapi conflict with IDE, hdaps
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kenneth Parrish <Kenneth.Parrish@familynet-international.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <403eda.8e05b5@familynet-international.net>
-References: <403eda.8e05b5@familynet-international.net>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Rovert Love <rlove@rlove.org>,
+       Jens Axboe <axboe@suse.de>, linux-ide@vger.kernel.org
+In-Reply-To: <41840b750512130804s32fe543xa11933f681973281@mail.gmail.com>
+References: <41840b750512130635p45591633ya1df731f24a87658@mail.gmail.com>
+	 <1134486203.11732.60.camel@localhost.localdomain>
+	 <41840b750512130729y49903791xc9ceba4e6a18322e@mail.gmail.com>
+	 <1134488305.11732.74.camel@localhost.localdomain>
+	 <41840b750512130804s32fe543xa11933f681973281@mail.gmail.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Wed, 14 Dec 2005 09:07:36 +0000
-Message-Id: <1134551256.25663.3.camel@localhost.localdomain>
+Date: Tue, 13 Dec 2005 16:16:15 +0000
+Message-Id: <1134490575.11732.104.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2005-12-14 at 06:45 +0000, Kenneth Parrish wrote:
->         Three -mm kernels of late, and now v2.6.15-rc5-mm2, give
-> frequent z-modem crc errors with minicom, lrz, and an external v90 modem
-> to a couple of local bb's.  2.6.15-rc5-git2 and before are okay.
+On Maw, 2005-12-13 at 18:04 +0200, Shem Multinymous wrote:
+> > What else does that code do, what else might it confuse, what rules and
+> > locking are hidden in the windows driver that are unknown. Want to risk
+> > everyones data for that ?
+> 
+> We already take that risk to some degree, since the SMAPI BIOS is also
+> invoked by the ACPI DSDT and by external events.
+
+But the ACPI DSDT is OS independant in theory and in practice to a fair
+extent. It can't make assumptions about windows drivers.
+
+> > HDAPS doesn't need it btw.
+> 
+> It's not implemented yet, but I gather it's necessary for preventing
+> the disk from spinning back up as the laptop slides off the table.
+> Maybe I missed some subsequent discussion?
+
+HDAPS wants to be able to talk with the IDE/libata layer to request it
+to hold off requests, thats very different to "gee I wonder what the
+bios did"
+
+> You write "command" values into IO ports 0x1610 and 0x161F and, in
+> some cases, read some results from ports 0x1610-0x161F. Throughout
+> that, you inspect various bits (whose meaning we don't understand) in
+> the status port 0x1604. The details of the commands, scheduling and
+> status bits differ between the drivers. I don't think a full-blown
+> ownership and expansion infrastructure is necessary, or even possible
+> without better understanding.
+
+Ok
 
 
-Which -mm kernels gave the error, and which do you know ehrre ok. Also
-can you tell me more about the hardware arrangement you are using - what
-cpu, what serial driver ?
+> Thanks for the pointers. I guess the minimal approach is probably
+> ideal here; are there any such dumb drivers lying around?
 
-The -mm tree contains some buffering changes I made and those would be
-the obvious candidate for suspicion
+Its probably easier to write than go find one
+
+
+I mean you need
+
+
+tp_hw_init() {
+   if (not a thinkpad) return -ENODEV
+   request_region(...)
+   return 0
+}
+
+tp_hw_exit() {
+   release_region(...)
+}
+
+EXPORT_SYMBOL_GPL(tp_hw_lock); 
+EXPORT_SYMBOL_GPL(tp_hw_unlock);
+
+tp_hw_lock() {
+    down(&tp_sem);
+}
+
+tp_hw_unlock() {
+    up(&tp_sem);
+}
+
+/* And perhaps if the port varies by machine */
+
+EXPORT_SYMBOL_GPL(tp_hw_addr);
+
+tp_hw_addr() {
+    return 0x1600;
+}
+
+It can really be that simple
 

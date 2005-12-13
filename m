@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbVLMQtj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932401AbVLMQwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932328AbVLMQtj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 11:49:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVLMQtj
+	id S932401AbVLMQwM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 11:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVLMQwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 11:49:39 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:31677 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932328AbVLMQtj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 11:49:39 -0500
-Subject: Re: [Patch] Fix calculation of grow_pgdat_span() in
-	mm/memory_hotplug.c
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Yasunori Goto <y-goto@jp.fujitsu.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051213220842.9C02.Y-GOTO@jp.fujitsu.com>
-References: <20051213220842.9C02.Y-GOTO@jp.fujitsu.com>
-Content-Type: text/plain
-Date: Tue, 13 Dec 2005 08:49:26 -0800
-Message-Id: <1134492566.6448.1.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Tue, 13 Dec 2005 11:52:12 -0500
+Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:9551 "HELO
+	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932401AbVLMQwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 11:52:11 -0500
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: 2.6.15-rc5-mm1
+Date: Tue, 13 Dec 2005 08:47:09 -0800
+User-Agent: KMail/1.7.1
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       "J.A. Magallon" <jamagallon@able.es>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0512131032200.4831-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0512131032200.4831-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512130847.09459.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-13 at 22:20 +0900, Yasunori Goto wrote:
-> Dave-san.
-> CC: Andrew-san.
+On Tuesday 13 December 2005 7:35 am, Alan Stern wrote:
+> On Tue, 13 Dec 2005, J.A. Magallon wrote:
+
+> > PCI: cache line size of 128 is not supported by device 0000:00:1d.7
+> >     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 > 
-> I realized 2.6.15-rc5 still has a bug for memory hotplug.
-> The calculation for node_spanned_pages at grow_pgdat_span() is
-> clearly wrong. This is patch for it.
+> I don't think that matters.  It's more informational than a warning.
 
-Clearly wrong is the term for it.  Thanks for the fix.
+I don't even know why the PCI layer thinks we need to know about it.
 
--- Dave
-
+Probably that came out as a side effect of noticing that the PCI
+Memory-Write-Invalidate (MWI) cycle support can't be enabled; it's
+an optional performance optimization, not widely supported for USB.

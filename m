@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbVLMWD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbVLMWG4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030255AbVLMWD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 17:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbVLMWD6
+	id S1030256AbVLMWG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 17:06:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbVLMWGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 17:03:58 -0500
-Received: from smtp103.sbc.mail.mud.yahoo.com ([68.142.198.202]:4690 "HELO
-	smtp103.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030255AbVLMWD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 17:03:58 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Anderson Lizardo <anderson.lizardo@indt.org.br>
-Subject: Re: [patch 0/5] Add MMC password protection (lock/unlock) support
-Date: Tue, 13 Dec 2005 14:03:53 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-omap-open-source@linux.omap.com,
-       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
-       Anderson Briglia <anderson.briglia@indt.org.br>,
-       Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>,
-       Russell King - ARM Linux <linux@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>
-References: <20051213213208.303580000@localhost.localdomain>
-In-Reply-To: <20051213213208.303580000@localhost.localdomain>
+	Tue, 13 Dec 2005 17:06:55 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:5922 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030256AbVLMWGz convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 17:06:55 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Hu4jbGpMRnTgCPg1Hm4iJvgkQsDFdNwgxOiIJfHcrLcPlNZB+KeOQrlDX+olOZUjlQ89qogpBXkUy9vHLSKXWXOwZeEFlkBWu5kP8+q/J9Agaf3hFF9d+SQi8hZTmIQqjRTVf37EMj/l1SCpk61NedUbk51sLSqJvolGvlCy9aY=
+Message-ID: <d120d5000512131406t2cff3c19ic309c5cb766b8d01@mail.gmail.com>
+Date: Tue, 13 Dec 2005 17:06:53 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Stelian Pop <stelian@popies.net>
+Subject: Re: sonypi searching new maintainer (Was: Re: [RFT] Sonypi: convert to the new platform device interface)
+Cc: Mattia Dongili <malattia@linux.it>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1134510936.9642.31.camel@deep-space-9.dsnet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200512131403.53983.david-b@pacbell.net>
+References: <200512130219.41034.dtor_core@ameritech.net>
+	 <20051213183248.GA3606@inferi.kami.home>
+	 <d120d5000512131104x260fdbf2mcc58fb953559fec5@mail.gmail.com>
+	 <1134505855.9642.28.camel@deep-space-9.dsnet>
+	 <d120d5000512131248j79a93d5ex8667ca6a38452a1d@mail.gmail.com>
+	 <1134510936.9642.31.camel@deep-space-9.dsnet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey, cool ... glad to see that's ready now!
-I'll have to give it a try when I have a spare moment.
+On 12/13/05, Stelian Pop <stelian@popies.net> wrote:
+> Le mardi 13 décembre 2005 à 15:48 -0500, Dmitry Torokhov a écrit :
+> > On 12/13/05, Stelian Pop <stelian@popies.net> wrote:
+> > > Le mardi 13 décembre 2005 à 14:04 -0500, Dmitry Torokhov a >
+> > > > > sonypi: unknown event port1=0x0f,port2=0x05
+> > > [...]
+> > > > > Oh, there seems to be a spurious interrupt happening at modules
+> > > > > insertion (I suspect sonypi_enable triggering and ignoring it), but this
+> > > > > happens with the old module too and I never noticed it before. Wouldn't
+> > > > > make more sense to print the warning even if verbose=0 to be able to
+> > > > > catch it timely? I mean it's since 2.4 times I don't enable verbose mode
+> > > > > in sonypi...
+> > > > >
+> > > > Probably, let's see what Stelian will say.
+> > >
+> > > This is the "ok I'm loaded" event. I am not sure this event is available
+> > > on all the sonypi supported platforms, that's why it hasn't been defined
+> > > as a known event. And it doesn't make much sense to forward it anyways.
+> > >
+> > > I would leave it like it is now.
+> > >
+> >
+> > But when it is reported is it the same event?
+>
+> I don't follow you here...
+>
 
-Is there a writeup on how to hook this up with the key retention
-infrastructure?  I know many folk are unfamiliar with that, and
-I seem to recall a need for some userspace tweaks.  (Like SHA1
-hashing of passphrases to generate MMC keys, and maybe storing
-keys in some per-user file using some user interface.)
+I was talking about that "ok, i'm loaded" event. When it is reported
+is it the same v1,v2 pair all the time? If it is the same we could
+suppress "unknown" message in verbose mode.
 
-- Dave
-
+--
+Dmitry

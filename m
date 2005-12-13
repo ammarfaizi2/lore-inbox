@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbVLMXZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbVLMX0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030245AbVLMXZU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 18:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbVLMXZU
+	id S1030300AbVLMX0J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 18:26:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbVLMX0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 18:25:20 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:714 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030245AbVLMXZT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 18:25:19 -0500
-Date: Tue, 13 Dec 2005 15:24:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc5-mm1
-Message-Id: <20051213152450.733aff26.akpm@osdl.org>
-In-Reply-To: <20051213234918.456131df@werewolf.auna.net>
-References: <20051204232153.258cd554.akpm@osdl.org>
-	<20051213234918.456131df@werewolf.auna.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Dec 2005 18:26:09 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:28434 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030300AbVLMX0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 18:26:08 -0500
+Date: Wed, 14 Dec 2005 00:26:07 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove the deprecated check_gcc
+Message-ID: <20051213232607.GX23349@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" <jamagallon@able.es> wrote:
->
-> On Sun, 4 Dec 2005 23:21:53 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm1/
-> > 
-> 
-> mmm, this patch GPL'ed all pci_xxxxxx functions, so it broke what you
-> all know.
+check_gcc has been deprecated for quite some time.
 
-That'll be gregkh-pci-shot-accross-the-bow.patch.
 
-> Final attack against binary drivers ? Or just an API change ?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-A joke, I believe.
+---
+
+This patch was already sent on:
+- 3 Dec 2005
+
+--- linux-2.6.15-rc3-mm1/Makefile.old	2005-12-03 02:50:54.000000000 +0100
++++ linux-2.6.15-rc3-mm1/Makefile	2005-12-03 02:51:05.000000000 +0100
+@@ -286,10 +286,6 @@
+ cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+              > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
+ 
+-# For backward compatibility
+-check_gcc = $(warning check_gcc is deprecated - use cc-option) \
+-            $(call cc-option, $(1),$(2))
+-
+ # cc-option-yn
+ # Usage: flag := $(call cc-option-yn, -march=winchip-c6)
+ cc-option-yn = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
+

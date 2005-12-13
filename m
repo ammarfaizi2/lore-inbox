@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbVLMRXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVLMRX3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbVLMRXc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 12:23:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbVLMRXc
+	id S1751162AbVLMRX3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 12:23:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVLMRX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 12:23:32 -0500
-Received: from verein.lst.de ([213.95.11.210]:5074 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S1751090AbVLMRXb (ORCPT
+	Tue, 13 Dec 2005 12:23:29 -0500
+Received: from verein.lst.de ([213.95.11.210]:3794 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S1751104AbVLMRX2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 12:23:31 -0500
-Date: Tue, 13 Dec 2005 18:23:20 +0100
+	Tue, 13 Dec 2005 12:23:28 -0500
+Date: Tue, 13 Dec 2005 18:23:12 +0100
 From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org, schwidefsky@de.ibm.com
+To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: [PATCH 2/3] add ->compat_ioctl to dasd
-Message-ID: <20051213172320.GB16392@lst.de>
+Subject: [PATCH 1/3] move rtc compat ioctl handling to fs/compat_ioctl.c
+Message-ID: <20051213172312.GA16392@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,91 +23,175 @@ X-Spam-Score: -4.901 () BAYES_00,UPPERCASE_25_50
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add a compat_ioctl method to the dasd driver so the last entries in
-arch/s390/kernel/compat_ioctl.c can go away.  Unlike the previous
-attempt this one does not replace the ioctl method with an
-unlocked_ioctl method so that the ioctl_by_bdev calls in s390 partition
-code continue to work.
+This patch implements generic handling of RTC_IRQP_READ32, RTC_IRQP_SET32,
+RTC_EPOCH_READ32 and RTC_EPOCH_SET32 in fs/compat_ioctl.c.  It's based on
+the x86_64 code which needed a little massaging to be endian-clean.
+
+parisc used COMPAT_IOCTL or generic w_long handlers for these whichce
+is wrong and can't work because the ioctls encode sizeof(unsigned long)
+in their ioctl number.  parisc also duplicated COMPAT_IOCTL entries for
+other rtc ioctls which I remove in this patch, too.
 
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Index: linux-2.6.15-rc5/drivers/s390/block/dasd.c
+Index: linux-2.6.15-rc5/arch/parisc/kernel/ioctl32.c
 ===================================================================
---- linux-2.6.15-rc5.orig/drivers/s390/block/dasd.c	2005-12-12 19:09:39.000000000 +0100
-+++ linux-2.6.15-rc5/drivers/s390/block/dasd.c	2005-12-12 19:09:41.000000000 +0100
-@@ -1751,6 +1751,7 @@
- 	.open		= dasd_open,
- 	.release	= dasd_release,
- 	.ioctl		= dasd_ioctl,
-+	.compat_ioctl	= dasd_compat_ioctl,
- 	.getgeo		= dasd_getgeo,
- };
+--- linux-2.6.15-rc5.orig/arch/parisc/kernel/ioctl32.c	2005-12-12 18:31:28.000000000 +0100
++++ linux-2.6.15-rc5/arch/parisc/kernel/ioctl32.c	2005-12-12 18:53:52.000000000 +0100
+@@ -36,25 +36,6 @@
+ HANDLE_IOCTL(SIOCGPPPCSTATS, dev_ifsioc)
+ HANDLE_IOCTL(SIOCGPPPVER, dev_ifsioc)
  
-Index: linux-2.6.15-rc5/drivers/s390/block/dasd_int.h
-===================================================================
---- linux-2.6.15-rc5.orig/drivers/s390/block/dasd_int.h	2005-12-12 19:09:39.000000000 +0100
-+++ linux-2.6.15-rc5/drivers/s390/block/dasd_int.h	2005-12-12 19:09:41.000000000 +0100
-@@ -527,6 +527,7 @@
- int  dasd_ioctl_no_register(struct module *, int, dasd_ioctl_fn_t);
- int  dasd_ioctl_no_unregister(struct module *, int, dasd_ioctl_fn_t);
- int  dasd_ioctl(struct inode *, struct file *, unsigned int, unsigned long);
-+long dasd_compat_ioctl(struct file *, unsigned int, unsigned long);
+-#if defined(CONFIG_GEN_RTC)
+-COMPATIBLE_IOCTL(RTC_AIE_ON)
+-COMPATIBLE_IOCTL(RTC_AIE_OFF)
+-COMPATIBLE_IOCTL(RTC_UIE_ON)
+-COMPATIBLE_IOCTL(RTC_UIE_OFF)
+-COMPATIBLE_IOCTL(RTC_PIE_ON)
+-COMPATIBLE_IOCTL(RTC_PIE_OFF)
+-COMPATIBLE_IOCTL(RTC_WIE_ON)
+-COMPATIBLE_IOCTL(RTC_WIE_OFF)
+-COMPATIBLE_IOCTL(RTC_ALM_SET)   /* struct rtc_time only has ints */
+-COMPATIBLE_IOCTL(RTC_ALM_READ)  /* struct rtc_time only has ints */
+-COMPATIBLE_IOCTL(RTC_RD_TIME)   /* struct rtc_time only has ints */
+-COMPATIBLE_IOCTL(RTC_SET_TIME)  /* struct rtc_time only has ints */
+-HANDLE_IOCTL(RTC_IRQP_READ, w_long)
+-COMPATIBLE_IOCTL(RTC_IRQP_SET)
+-HANDLE_IOCTL(RTC_EPOCH_READ, w_long)
+-COMPATIBLE_IOCTL(RTC_EPOCH_SET)
+-#endif
+-
+ IOCTL_TABLE_END
  
- /* externals in dasd_proc.c */
- int dasd_proc_init(void);
-Index: linux-2.6.15-rc5/drivers/s390/block/dasd_ioctl.c
+ int ioctl_table_size = ARRAY_SIZE(ioctl_start);
+Index: linux-2.6.15-rc5/arch/x86_64/ia32/ia32_ioctl.c
 ===================================================================
---- linux-2.6.15-rc5.orig/drivers/s390/block/dasd_ioctl.c	2005-12-12 19:09:39.000000000 +0100
-+++ linux-2.6.15-rc5/drivers/s390/block/dasd_ioctl.c	2005-12-12 19:09:41.000000000 +0100
-@@ -118,6 +118,18 @@
+--- linux-2.6.15-rc5.orig/arch/x86_64/ia32/ia32_ioctl.c	2005-12-12 18:31:31.000000000 +0100
++++ linux-2.6.15-rc5/arch/x86_64/ia32/ia32_ioctl.c	2005-12-12 18:53:52.000000000 +0100
+@@ -16,45 +16,6 @@
+ 
+ #define CODE
+ #include "compat_ioctl.c"
+-  
+-#define RTC_IRQP_READ32	_IOR('p', 0x0b, unsigned int)	 /* Read IRQ rate   */
+-#define RTC_IRQP_SET32	_IOW('p', 0x0c, unsigned int)	 /* Set IRQ rate    */
+-#define RTC_EPOCH_READ32	_IOR('p', 0x0d, unsigned)	 /* Read epoch      */
+-#define RTC_EPOCH_SET32		_IOW('p', 0x0e, unsigned)	 /* Set epoch       */
+-
+-static int rtc32_ioctl(unsigned fd, unsigned cmd, unsigned long arg) 
+-{ 
+-	unsigned long val;
+-	mm_segment_t oldfs = get_fs(); 
+-	int ret; 
+-	
+-	switch (cmd) { 
+-	case RTC_IRQP_READ32: 
+-		set_fs(KERNEL_DS); 
+-		ret = sys_ioctl(fd, RTC_IRQP_READ, (unsigned long)&val); 
+-		set_fs(oldfs); 
+-		if (!ret)
+-			ret = put_user(val, (unsigned int __user *) arg); 
+-		return ret; 
+-
+-	case RTC_IRQP_SET32: 
+-		cmd = RTC_IRQP_SET; 
+-		break; 
+-
+-	case RTC_EPOCH_READ32:
+-		set_fs(KERNEL_DS); 
+-		ret = sys_ioctl(fd, RTC_EPOCH_READ, (unsigned long) &val); 
+-		set_fs(oldfs); 
+-		if (!ret)
+-			ret = put_user(val, (unsigned int __user *) arg); 
+-		return ret; 
+-
+-	case RTC_EPOCH_SET32:
+-		cmd = RTC_EPOCH_SET; 
+-		break; 
+-	} 
+-	return sys_ioctl(fd,cmd,arg); 
+-} 
+ 
+ 
+ #define HANDLE_IOCTL(cmd,handler) { (cmd), (ioctl_trans_handler_t)(handler) }, 
+@@ -64,14 +25,6 @@
+ #include <linux/compat_ioctl.h>
+ #define DECLARES
+ #include "compat_ioctl.c"
+-
+-/* And these ioctls need translation */
+-/* realtime device */
+-HANDLE_IOCTL(RTC_IRQP_READ,  rtc32_ioctl)
+-HANDLE_IOCTL(RTC_IRQP_READ32,rtc32_ioctl)
+-HANDLE_IOCTL(RTC_IRQP_SET32, rtc32_ioctl)
+-HANDLE_IOCTL(RTC_EPOCH_READ32, rtc32_ioctl)
+-HANDLE_IOCTL(RTC_EPOCH_SET32, rtc32_ioctl)
+ /* take care of sizeof(sizeof()) breakage */
+ }; 
+ 
+Index: linux-2.6.15-rc5/fs/compat_ioctl.c
+===================================================================
+--- linux-2.6.15-rc5.orig/fs/compat_ioctl.c	2005-12-12 18:51:16.000000000 +0100
++++ linux-2.6.15-rc5/fs/compat_ioctl.c	2005-12-12 19:00:53.000000000 +0100
+@@ -2476,6 +2476,49 @@
  	return -EINVAL;
  }
  
-+long
-+dasd_compat_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
++#define RTC_IRQP_READ32		_IOR('p', 0x0b, compat_ulong_t)
++#define RTC_IRQP_SET32		_IOW('p', 0x0c, compat_ulong_t)
++#define RTC_EPOCH_READ32	_IOR('p', 0x0d, compat_ulong_t)
++#define RTC_EPOCH_SET32		_IOW('p', 0x0e, compat_ulong_t)
++
++static int rtc_ioctl(unsigned fd, unsigned cmd, unsigned long arg)
 +{
-+	int rval;
++	mm_segment_t oldfs = get_fs();
++	compat_ulong_t val32;
++	unsigned long kval;
++	int ret;
 +
-+	lock_kernel();
-+	rval = dasd_ioctl(filp->f_dentry->d_inode, filp, cmd, arg);
-+	unlock_kernel();
++	switch (cmd) {
++	case RTC_IRQP_READ32:
++	case RTC_EPOCH_READ32:
++		set_fs(KERNEL_DS);
++		ret = sys_ioctl(fd, (cmd == RTC_IRQP_READ32) ?
++					RTC_IRQP_READ : RTC_EPOCH_READ,
++					(unsigned long)&kval);
++		set_fs(oldfs);
++		if (ret)
++			return ret;
++		val32 = kval;
++		return put_user(val32, (unsigned int __user *)arg);
++	case RTC_IRQP_SET32:
++	case RTC_EPOCH_SET32:
++		ret = get_user(val32, (unsigned int __user *)arg);
++		if (ret)
++			return ret;
++		kval = val32;
 +
-+	return rval;
++		set_fs(KERNEL_DS);
++		ret = sys_ioctl(fd, (cmd == RTC_IRQP_SET32) ?
++				RTC_IRQP_SET : RTC_EPOCH_SET,
++				(unsigned long)&kval);
++		set_fs(oldfs);
++		return ret;
++	default:
++		/* unreached */
++		return -ENOIOCTLCMD;
++	}
 +}
 +
- static int
- dasd_ioctl_api_version(struct block_device *bdev, int no, long args)
- {
-Index: linux-2.6.15-rc5/arch/s390/kernel/compat_ioctl.c
-===================================================================
---- linux-2.6.15-rc5.orig/arch/s390/kernel/compat_ioctl.c	2005-12-12 19:09:39.000000000 +0100
-+++ linux-2.6.15-rc5/arch/s390/kernel/compat_ioctl.c	2005-12-12 19:15:46.000000000 +0100
-@@ -42,27 +42,6 @@
- #include <linux/compat_ioctl.h>
- #define DECLARES
- #include "../../../fs/compat_ioctl.c"
--
--/* s390 only ioctls */
--COMPATIBLE_IOCTL(DASDAPIVER)
--COMPATIBLE_IOCTL(BIODASDDISABLE)
--COMPATIBLE_IOCTL(BIODASDENABLE)
--COMPATIBLE_IOCTL(BIODASDRSRV)
--COMPATIBLE_IOCTL(BIODASDRLSE)
--COMPATIBLE_IOCTL(BIODASDSLCK)
--COMPATIBLE_IOCTL(BIODASDINFO)
--COMPATIBLE_IOCTL(BIODASDINFO2)
--COMPATIBLE_IOCTL(BIODASDFMT)
--COMPATIBLE_IOCTL(BIODASDPRRST)
--COMPATIBLE_IOCTL(BIODASDQUIESCE)
--COMPATIBLE_IOCTL(BIODASDRESUME)
--COMPATIBLE_IOCTL(BIODASDPRRD)
--COMPATIBLE_IOCTL(BIODASDPSRD)
--COMPATIBLE_IOCTL(BIODASDGATTR)
--COMPATIBLE_IOCTL(BIODASDSATTR)
--COMPATIBLE_IOCTL(BIODASDCMFENABLE)
--COMPATIBLE_IOCTL(BIODASDCMFDISABLE)
--COMPATIBLE_IOCTL(BIODASDREADALLCMB)
- };
+ #if defined(CONFIG_NCP_FS) || defined(CONFIG_NCP_FS_MODULE)
+ struct ncp_ioctl_request_32 {
+ 	u32 function;
+@@ -2859,6 +2902,10 @@
+ HANDLE_IOCTL(SIOCGIWENCODE, do_wireless_ioctl)
+ HANDLE_IOCTL(SIOCSIFBR, old_bridge_ioctl)
+ HANDLE_IOCTL(SIOCGIFBR, old_bridge_ioctl)
++HANDLE_IOCTL(RTC_IRQP_READ32, rtc_ioctl)
++HANDLE_IOCTL(RTC_IRQP_SET32, rtc_ioctl)
++HANDLE_IOCTL(RTC_EPOCH_READ32, rtc_ioctl)
++HANDLE_IOCTL(RTC_EPOCH_SET32, rtc_ioctl)
  
- int ioctl_table_size = ARRAY_SIZE(ioctl_start);
+ #if defined(CONFIG_NCP_FS) || defined(CONFIG_NCP_FS_MODULE)
+ HANDLE_IOCTL(NCP_IOC_NCPREQUEST_32, do_ncp_ncprequest)

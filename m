@@ -1,24 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbVLMXWF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030245AbVLMXZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030252AbVLMXWF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 18:22:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbVLMXWF
+	id S1030245AbVLMXZU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 18:25:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbVLMXZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 18:22:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:8137 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030252AbVLMXWE (ORCPT
+	Tue, 13 Dec 2005 18:25:20 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:714 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030245AbVLMXZT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 18:22:04 -0500
-Date: Tue, 13 Dec 2005 15:21:43 -0800
+	Tue, 13 Dec 2005 18:25:19 -0500
+Date: Tue, 13 Dec 2005 15:24:50 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: hch@lst.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 6/6] per-mount noatime and nodiratime
-Message-Id: <20051213152143.6193fc7a.akpm@osdl.org>
-In-Reply-To: <20051213223928.GA22373@lst.de>
-References: <20051213175659.GF17130@lst.de>
-	<20051213143638.120ee601.akpm@osdl.org>
-	<20051213223928.GA22373@lst.de>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc5-mm1
+Message-Id: <20051213152450.733aff26.akpm@osdl.org>
+In-Reply-To: <20051213234918.456131df@werewolf.auna.net>
+References: <20051204232153.258cd554.akpm@osdl.org>
+	<20051213234918.456131df@werewolf.auna.net>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,35 +25,19 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@lst.de> wrote:
+"J.A. Magallon" <jamagallon@able.es> wrote:
 >
-> On Tue, Dec 13, 2005 at 02:36:38PM -0800, Andrew Morton wrote:
-> > Where'd this hunk come from?
-> > 
-> > > Index: linux-2.6.15-rc5/fs/super.c
-> > > ===================================================================
-> > > --- linux-2.6.15-rc5.orig/fs/super.c	2005-12-13 11:27:14.000000000 +0100
-> > > +++ linux-2.6.15-rc5/fs/super.c	2005-12-13 12:06:00.000000000 +0100
-> > > @@ -830,9 +830,9 @@
-> > >  	mnt->mnt_parent = mnt;
-> > >  
-> > >  	if (type->fs_flags & FS_NOATIME)
-> > > -		sb->s_flags |= MS_NOATIME;
-> > > +		mnt->mnt_flags |= MNT_NOATIME;
-> > >  	if (type->fs_flags & FS_NODIRATIME)
-> > > -		sb->s_flags |= MS_NODIRATIME;
-> > > +		mnt->mnt_flags |= MNT_NODIRATIME;
-> > >  
-> > >  	up_write(&sb->s_umount);
-> > >  	free_secdata(secdata);
-> > 
-> > I just dropped it, but it's a worry...
+> On Sun, 4 Dec 2005 23:21:53 -0800, Andrew Morton <akpm@osdl.org> wrote:
 > 
-> This is totally intentional.  The FS_* flags were introduced in the
-> previous patch to mark filesystems that always are NOATIME/NODIRATIME,
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm1/
+> > 
+> 
+> mmm, this patch GPL'ed all pci_xxxxxx functions, so it broke what you
+> all know.
 
-Please refer to patches by their filename or Subject:.  I assume you're
-referring to "[PATCH 3/6] introduce FS_NOATIME and FS_NODIRATIME flags"?
+That'll be gregkh-pci-shot-accross-the-bow.patch.
 
-If so, that patch doesn't touch fs/super.c.  Please fix and resend.
+> Final attack against binary drivers ? Or just an API change ?
 
+A joke, I believe.

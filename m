@@ -1,1466 +1,585 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751293AbVLMHpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbVLMHzl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751293AbVLMHpH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 02:45:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbVLMHpG
+	id S1751243AbVLMHzl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 02:55:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVLMHzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 02:45:06 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:10219 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751187AbVLMHpC (ORCPT
+	Tue, 13 Dec 2005 02:55:41 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:22928 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750711AbVLMHzk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 02:45:02 -0500
-Date: Tue, 13 Dec 2005 02:45:00 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: linux-ide@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] libata queue contents
-Message-ID: <20051213074500.GA32467@havoc.gtf.org>
+	Tue, 13 Dec 2005 02:55:40 -0500
+Date: Tue, 13 Dec 2005 08:54:41 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
+       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051213075441.GB6765@elte.hu>
+References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051212161944.3185a3f9.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.7
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.7 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.2 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-A few more commits went in, here is the current contents of libata-dev...
-(as soon as mirrors catch up)
+* Andrew Morton <akpm@osdl.org> wrote:
 
+> I'd have thought that the way to do this is to simply reimplement 
+> down(), up(), down_trylock(), etc using the new xchg-based code and to 
+> then hunt down those few parts of the kernel which actually use the 
+> old semaphore's counting feature and convert them to use down_sem(), 
+> up_sem(), etc.  And rename all the old semaphore code: 
+> s/down/down_sem/etc.
 
+even better than that, why not use the solution that we've implemented 
+for the -rt patchset, more than a year ago?
 
-The 'upstream' branch of
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+the solution i took was this:
 
-contains the following updates:
+- i did not touch the 'struct semaphore' namespace, but introduced a
+  'struct compat_semaphore'.
 
- drivers/scsi/ahci.c         |   14 +
- drivers/scsi/ata_piix.c     |  127 +++++++++++----
- drivers/scsi/libata-core.c  |  364 ++++++++++++++++++++++++--------------------
- drivers/scsi/libata-scsi.c  |   31 ++-
- drivers/scsi/libata.h       |    1 
- drivers/scsi/pdc_adma.c     |   11 -
- drivers/scsi/sata_mv.c      |   14 +
- drivers/scsi/sata_promise.c |   32 ++-
- drivers/scsi/sata_qstor.c   |    9 -
- drivers/scsi/sata_sil.c     |    2 
- drivers/scsi/sata_sil24.c   |   15 +
- drivers/scsi/sata_sx4.c     |   20 +-
- include/linux/libata.h      |   14 -
- 13 files changed, 391 insertions(+), 263 deletions(-)
+- i introduced a 'type-sensitive' macro wrapper that switches down() 
+  (and the other APIs) to either to the assembly variant (if the 
+  variable's type is struct compat_semaphore), or switches it to the new 
+  generic mutex (if the type is struct semaphore), at build-time. There 
+  is no runtime overhead due to this build-time-switching.
 
-Alan Cox:
-      libata: add ata_piix notes
-      libata: ata_piix 450NX errata
+- for many months we worked with upstream maintainers to convert dozens
+  of mutex users over to struct completion, where this was appropriate.
 
-Albert Lee:
-      libata: minor patch before moving err_mask
-      libata: move err_mask to ata_queued_cmd
-      libata: determine the err_mask when the error is found
-      libata: determine the err_mask directly in atapi_packet_task()
-      libata: err_mask misc fix
+all this simplified the 'compatibility conversion' to the patch below.  
+No other non-generic changes are needed.
 
-Arjan van de Ven:
-      mark several libata datastructures const
+	Ingo
 
-Jeff Garzik:
-      [libata] remove two unused fields from struct ata_port
-      [libata ata_piix] cleanup: remove duplicate ata_port_info records
-      [libata] Print out SATA speed, if link is up
-      [libata sata_promise] minor whitespace cleanup
-      [libata] mark certain hardware (or drivers) with a no-atapi flag
+----
+convert the remaining users of 'full Linux semaphore semantics' over to 
+compat_semaphore.
 
-Tejun Heo:
-      libata: implement ata_exec_internal()
-      libata: use ata_exec_internal()
-      libata: remove unused functions
-      libata: remove unused qc->waiting
+ drivers/acpi/osl.c                        |   12 ++++++------
+ drivers/ieee1394/ieee1394_types.h         |    2 +-
+ drivers/ieee1394/nodemgr.c                |    2 +-
+ drivers/ieee1394/raw1394-private.h        |    2 +-
+ drivers/media/dvb/dvb-core/dvb_frontend.c |    2 +-
+ drivers/media/dvb/dvb-core/dvb_frontend.h |    2 +-
+ drivers/net/3c527.c                       |    2 +-
+ drivers/net/hamradio/6pack.c              |    2 +-
+ drivers/net/hamradio/mkiss.c              |    2 +-
+ drivers/net/plip.c                        |    5 ++++-
+ drivers/net/ppp_async.c                   |    2 +-
+ drivers/net/ppp_synctty.c                 |    2 +-
+ drivers/pci/hotplug/cpci_hotplug_core.c   |    4 ++--
+ drivers/pci/hotplug/cpqphp_ctrl.c         |    4 ++--
+ drivers/pci/hotplug/ibmphp_hpc.c          |    2 +-
+ drivers/pci/hotplug/pciehp_ctrl.c         |    4 ++--
+ drivers/pci/hotplug/shpchp_ctrl.c         |    4 ++--
+ drivers/scsi/aacraid/aacraid.h            |    4 ++--
+ drivers/scsi/aic7xxx/aic79xx_osm.h        |    2 +-
+ drivers/scsi/aic7xxx/aic7xxx_osm.h        |    2 +-
+ drivers/scsi/qla2xxx/qla_def.h            |    2 +-
+ drivers/usb/storage/usb.h                 |    2 +-
+ fs/xfs/linux-2.6/mutex.h                  |    2 +-
+ fs/xfs/linux-2.6/sema.h                   |    2 +-
+ fs/xfs/linux-2.6/xfs_buf.h                |    4 ++--
+ include/linux/jffs2_fs_i.h                |   10 +++++++++-
+ include/linux/jffs2_fs_sb.h               |    6 +++---
+ include/linux/parport.h                   |    2 +-
+ include/pcmcia/ss.h                       |    2 +-
+ include/scsi/scsi_transport_spi.h         |    2 +-
+ 30 files changed, 54 insertions(+), 43 deletions(-)
 
-diff --git a/drivers/scsi/ahci.c b/drivers/scsi/ahci.c
-index 83467a0..887eaa2 100644
---- a/drivers/scsi/ahci.c
-+++ b/drivers/scsi/ahci.c
-@@ -243,7 +243,7 @@ static const struct ata_port_operations 
- 	.port_stop		= ahci_port_stop,
- };
+Index: linux/drivers/acpi/osl.c
+===================================================================
+--- linux.orig/drivers/acpi/osl.c
++++ linux/drivers/acpi/osl.c
+@@ -728,14 +728,14 @@ void acpi_os_delete_lock(acpi_handle han
+ acpi_status
+ acpi_os_create_semaphore(u32 max_units, u32 initial_units, acpi_handle * handle)
+ {
+-	struct semaphore *sem = NULL;
++	struct compat_semaphore *sem = NULL;
  
--static struct ata_port_info ahci_port_info[] = {
-+static const struct ata_port_info ahci_port_info[] = {
- 	/* board_ahci */
- 	{
- 		.sht		= &ahci_sht,
-@@ -643,7 +643,8 @@ static void ahci_eng_timeout(struct ata_
- 	 	 * not being called from the SCSI EH.
- 	 	 */
- 		qc->scsidone = scsi_finish_command;
--		ata_qc_complete(qc, AC_ERR_OTHER);
-+		qc->err_mask |= AC_ERR_OTHER;
-+		ata_qc_complete(qc);
- 	}
+ 	ACPI_FUNCTION_TRACE("os_create_semaphore");
  
- 	spin_unlock_irqrestore(&host_set->lock, flags);
-@@ -664,7 +665,8 @@ static inline int ahci_host_intr(struct 
- 	ci = readl(port_mmio + PORT_CMD_ISSUE);
- 	if (likely((ci & 0x1) == 0)) {
- 		if (qc) {
--			ata_qc_complete(qc, 0);
-+			assert(qc->err_mask == 0);
-+			ata_qc_complete(qc);
- 			qc = NULL;
- 		}
- 	}
-@@ -681,8 +683,10 @@ static inline int ahci_host_intr(struct 
- 		/* command processing has stopped due to error; restart */
- 		ahci_restart_port(ap, status);
+-	sem = acpi_os_allocate(sizeof(struct semaphore));
++	sem = acpi_os_allocate(sizeof(struct compat_semaphore));
+ 	if (!sem)
+ 		return_ACPI_STATUS(AE_NO_MEMORY);
+-	memset(sem, 0, sizeof(struct semaphore));
++	memset(sem, 0, sizeof(struct compat_semaphore));
  
--		if (qc)
--			ata_qc_complete(qc, err_mask);
-+		if (qc) {
-+			qc->err_mask |= AC_ERR_OTHER;
-+			ata_qc_complete(qc);
-+		}
- 	}
+ 	sema_init(sem, initial_units);
  
- 	return 1;
-diff --git a/drivers/scsi/ata_piix.c b/drivers/scsi/ata_piix.c
-index 333d69d..0ea2787 100644
---- a/drivers/scsi/ata_piix.c
-+++ b/drivers/scsi/ata_piix.c
-@@ -37,6 +37,49 @@
-  *
-  *  Hardware documentation available at http://developer.intel.com/
-  *
-+ * Documentation
-+ *	Publically available from Intel web site. Errata documentation
-+ * is also publically available. As an aide to anyone hacking on this
-+ * driver the list of errata that are relevant is below.going back to
-+ * PIIX4. Older device documentation is now a bit tricky to find.
-+ *
-+ * The chipsets all follow very much the same design. The orginal Triton
-+ * series chipsets do _not_ support independant device timings, but this
-+ * is fixed in Triton II. With the odd mobile exception the chips then
-+ * change little except in gaining more modes until SATA arrives. This
-+ * driver supports only the chips with independant timing (that is those
-+ * with SITRE and the 0x44 timing register). See pata_oldpiix and pata_mpiix
-+ * for the early chip drivers.
-+ *
-+ * Errata of note:
-+ *
-+ * Unfixable
-+ *	PIIX4    errata #9	- Only on ultra obscure hw
-+ *	ICH3	 errata #13     - Not observed to affect real hw
-+ *				  by Intel
-+ *
-+ * Things we must deal with
-+ *	PIIX4	errata #10	- BM IDE hang with non UDMA
-+ *				  (must stop/start dma to recover)
-+ *	440MX   errata #15	- As PIIX4 errata #10
-+ *	PIIX4	errata #15	- Must not read control registers
-+ * 				  during a PIO transfer
-+ *	440MX   errata #13	- As PIIX4 errata #15
-+ *	ICH2	errata #21	- DMA mode 0 doesn't work right
-+ *	ICH0/1  errata #55	- As ICH2 errata #21
-+ *	ICH2	spec c #9	- Extra operations needed to handle
-+ *				  drive hotswap [NOT YET SUPPORTED]
-+ *	ICH2    spec c #20	- IDE PRD must not cross a 64K boundary
-+ *				  and must be dword aligned
-+ *	ICH2    spec c #24	- UDMA mode 4,5 t85/86 should be 6ns not 3.3
-+ *
-+ * Should have been BIOS fixed:
-+ *	450NX:	errata #19	- DMA hangs on old 450NX
-+ *	450NX:  errata #20	- DMA hangs on old 450NX
-+ *	450NX:  errata #25	- Corruption with DMA on old 450NX
-+ *	ICH3    errata #15      - IDE deadlock under high load
-+ *				  (BIOS must set dev 31 fn 0 bit 23)
-+ *	ICH3	errata #18	- Don't use native mode
+@@ -758,7 +758,7 @@ EXPORT_SYMBOL(acpi_os_create_semaphore);
+ 
+ acpi_status acpi_os_delete_semaphore(acpi_handle handle)
+ {
+-	struct semaphore *sem = (struct semaphore *)handle;
++	struct compat_semaphore *sem = (struct compat_semaphore *)handle;
+ 
+ 	ACPI_FUNCTION_TRACE("os_delete_semaphore");
+ 
+@@ -787,7 +787,7 @@ EXPORT_SYMBOL(acpi_os_delete_semaphore);
+ acpi_status acpi_os_wait_semaphore(acpi_handle handle, u32 units, u16 timeout)
+ {
+ 	acpi_status status = AE_OK;
+-	struct semaphore *sem = (struct semaphore *)handle;
++	struct compat_semaphore *sem = (struct compat_semaphore *)handle;
+ 	int ret = 0;
+ 
+ 	ACPI_FUNCTION_TRACE("os_wait_semaphore");
+@@ -868,7 +868,7 @@ EXPORT_SYMBOL(acpi_os_wait_semaphore);
   */
+ acpi_status acpi_os_signal_semaphore(acpi_handle handle, u32 units)
+ {
+-	struct semaphore *sem = (struct semaphore *)handle;
++	struct compat_semaphore *sem = (struct compat_semaphore *)handle;
  
- #include <linux/kernel.h>
-@@ -78,9 +121,7 @@ enum {
- 	ich5_sata		= 1,
- 	piix4_pata		= 2,
- 	ich6_sata		= 3,
--	ich6_sata_rm		= 4,
--	ich7_sata		= 5,
--	esb2_sata		= 6,
-+	ich6_sata_ahci		= 4,
+ 	ACPI_FUNCTION_TRACE("os_signal_semaphore");
  
- 	PIIX_AHCI_DEVICE	= 6,
+Index: linux/drivers/ieee1394/ieee1394_types.h
+===================================================================
+--- linux.orig/drivers/ieee1394/ieee1394_types.h
++++ linux/drivers/ieee1394/ieee1394_types.h
+@@ -19,7 +19,7 @@ struct hpsb_tlabel_pool {
+ 	spinlock_t lock;
+ 	u8 next;
+ 	u32 allocations;
+-	struct semaphore count;
++	struct compat_semaphore count;
  };
-@@ -111,11 +152,11 @@ static const struct pci_device_id piix_p
- 	{ 0x8086, 0x25a3, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich5_sata },
- 	{ 0x8086, 0x25b0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich5_sata },
- 	{ 0x8086, 0x2651, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata },
--	{ 0x8086, 0x2652, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_rm },
--	{ 0x8086, 0x2653, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_rm },
--	{ 0x8086, 0x27c0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich7_sata },
--	{ 0x8086, 0x27c4, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich7_sata },
--	{ 0x8086, 0x2680, PCI_ANY_ID, PCI_ANY_ID, 0, 0, esb2_sata },
-+	{ 0x8086, 0x2652, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
-+	{ 0x8086, 0x2653, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
-+	{ 0x8086, 0x27c0, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
-+	{ 0x8086, 0x27c4, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
-+	{ 0x8086, 0x2680, PCI_ANY_ID, PCI_ANY_ID, 0, 0, ich6_sata_ahci },
  
- 	{ }	/* terminate list */
+ #define HPSB_TPOOL_INIT(_tp)			\
+Index: linux/drivers/ieee1394/nodemgr.c
+===================================================================
+--- linux.orig/drivers/ieee1394/nodemgr.c
++++ linux/drivers/ieee1394/nodemgr.c
+@@ -114,7 +114,7 @@ struct host_info {
+ 	struct hpsb_host *host;
+ 	struct list_head list;
+ 	struct completion exited;
+-	struct semaphore reset_sem;
++	struct compat_semaphore reset_sem;
+ 	int pid;
+ 	char daemon_name[15];
+ 	int kill_me;
+Index: linux/drivers/ieee1394/raw1394-private.h
+===================================================================
+--- linux.orig/drivers/ieee1394/raw1394-private.h
++++ linux/drivers/ieee1394/raw1394-private.h
+@@ -29,7 +29,7 @@ struct file_info {
+ 
+         struct list_head req_pending;
+         struct list_head req_complete;
+-        struct semaphore complete_sem;
++        struct compat_semaphore complete_sem;
+         spinlock_t reqlists_lock;
+         wait_queue_head_t poll_wait_complete;
+ 
+Index: linux/drivers/media/dvb/dvb-core/dvb_frontend.c
+===================================================================
+--- linux.orig/drivers/media/dvb/dvb-core/dvb_frontend.c
++++ linux/drivers/media/dvb/dvb-core/dvb_frontend.c
+@@ -95,7 +95,7 @@ struct dvb_frontend_private {
+ 	struct dvb_device *dvbdev;
+ 	struct dvb_frontend_parameters parameters;
+ 	struct dvb_fe_events events;
+-	struct semaphore sem;
++	struct compat_semaphore sem;
+ 	struct list_head list_head;
+ 	wait_queue_head_t wait_queue;
+ 	pid_t thread_pid;
+Index: linux/drivers/media/dvb/dvb-core/dvb_frontend.h
+===================================================================
+--- linux.orig/drivers/media/dvb/dvb-core/dvb_frontend.h
++++ linux/drivers/media/dvb/dvb-core/dvb_frontend.h
+@@ -86,7 +86,7 @@ struct dvb_fe_events {
+ 	int			  eventr;
+ 	int			  overflow;
+ 	wait_queue_head_t	  wait_queue;
+-	struct semaphore	  sem;
++	struct compat_semaphore	  sem;
  };
-@@ -258,31 +299,7 @@ static struct ata_port_info piix_port_in
- 		.port_ops	= &piix_sata_ops,
- 	},
  
--	/* ich6_sata_rm */
--	{
--		.sht		= &piix_sht,
--		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_SRST |
--				  PIIX_FLAG_COMBINED | PIIX_FLAG_CHECKINTR |
--				  ATA_FLAG_SLAVE_POSS | PIIX_FLAG_AHCI,
--		.pio_mask	= 0x1f,	/* pio0-4 */
--		.mwdma_mask	= 0x07, /* mwdma0-2 */
--		.udma_mask	= 0x7f,	/* udma0-6 */
--		.port_ops	= &piix_sata_ops,
--	},
--
--	/* ich7_sata */
--	{
--		.sht		= &piix_sht,
--		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_SRST |
--				  PIIX_FLAG_COMBINED | PIIX_FLAG_CHECKINTR |
--				  ATA_FLAG_SLAVE_POSS | PIIX_FLAG_AHCI,
--		.pio_mask	= 0x1f,	/* pio0-4 */
--		.mwdma_mask	= 0x07, /* mwdma0-2 */
--		.udma_mask	= 0x7f,	/* udma0-6 */
--		.port_ops	= &piix_sata_ops,
--	},
--
--	/* esb2_sata */
-+	/* ich6_sata_ahci */
- 	{
- 		.sht		= &piix_sht,
- 		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_SRST |
-@@ -603,6 +620,40 @@ static int piix_disable_ahci(struct pci_
- }
+ struct dvb_frontend {
+Index: linux/drivers/net/3c527.c
+===================================================================
+--- linux.orig/drivers/net/3c527.c
++++ linux/drivers/net/3c527.c
+@@ -182,7 +182,7 @@ struct mc32_local 
  
- /**
-+ *	piix_check_450nx_errata	-	Check for problem 450NX setup
-+ *	
-+ *	Check for the present of 450NX errata #19 and errata #25. If
-+ *	they are found return an error code so we can turn off DMA
-+ */
-+
-+static int __devinit piix_check_450nx_errata(struct pci_dev *ata_dev)
-+{
-+	struct pci_dev *pdev = NULL;
-+	u16 cfg;
-+	u8 rev;
-+	int no_piix_dma = 0;
-+	
-+	while((pdev = pci_get_device(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82454NX, pdev)) != NULL)
-+	{
-+		/* Look for 450NX PXB. Check for problem configurations
-+		   A PCI quirk checks bit 6 already */
-+		pci_read_config_byte(pdev, PCI_REVISION_ID, &rev);
-+		pci_read_config_word(pdev, 0x41, &cfg);
-+		/* Only on the original revision: IDE DMA can hang */
-+		if(rev == 0x00)
-+			no_piix_dma = 1;
-+		/* On all revisions below 5 PXB bus lock must be disabled for IDE */
-+		else if(cfg & (1<<14) && rev < 5)
-+			no_piix_dma = 2;
-+	}
-+	if(no_piix_dma)
-+		dev_printk(KERN_WARNING, &ata_dev->dev, "450NX errata present, disabling IDE DMA.\n");
-+	if(no_piix_dma == 2)
-+		dev_printk(KERN_WARNING, &ata_dev->dev, "A BIOS update may resolve this.\n");
-+	return no_piix_dma;
-+}		
-+
-+/**
-  *	piix_init_one - Register PIIX ATA PCI device with kernel services
-  *	@pdev: PCI device to register
-  *	@ent: Entry in piix_pci_tbl matching with @pdev
-@@ -676,7 +727,15 @@ static int piix_init_one (struct pci_dev
- 			   "combined mode detected (p=%u, s=%u)\n",
- 			   pata_chan, sata_chan);
- 	}
--
-+	if (piix_check_450nx_errata(pdev)) {
-+		/* This writes into the master table but it does not
-+		   really matter for this errata as we will apply it to
-+		   all the PIIX devices on the board */
-+		port_info[0]->mwdma_mask = 0;
-+		port_info[0]->udma_mask = 0;
-+		port_info[1]->mwdma_mask = 0;
-+		port_info[1]->udma_mask = 0;
-+	}
- 	return ata_pci_init_one(pdev, port_info, 2);
- }
+ 	u16 rx_ring_tail;       /* index to rx de-queue end */ 
  
-diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
-index d0a0fdb..9ea1025 100644
---- a/drivers/scsi/libata-core.c
-+++ b/drivers/scsi/libata-core.c
-@@ -605,7 +605,7 @@ void ata_rwcmd_protocol(struct ata_queue
- 	tf->command = ata_rw_cmds[index + lba48 + write];
- }
+-	struct semaphore cmd_mutex;    /* Serialises issuing of execute commands */
++	struct compat_semaphore cmd_mutex;    /* Serialises issuing of execute commands */
+         struct completion execution_cmd; /* Card has completed an execute command */
+ 	struct completion xceiver_cmd;   /* Card has completed a tx or rx command */
+ };
+Index: linux/drivers/net/hamradio/6pack.c
+===================================================================
+--- linux.orig/drivers/net/hamradio/6pack.c
++++ linux/drivers/net/hamradio/6pack.c
+@@ -124,7 +124,7 @@ struct sixpack {
+ 	struct timer_list	tx_t;
+ 	struct timer_list	resync_t;
+ 	atomic_t		refcnt;
+-	struct semaphore	dead_sem;
++	struct compat_semaphore	dead_sem;
+ 	spinlock_t		lock;
+ };
  
--static const char * xfer_mode_str[] = {
-+static const char * const xfer_mode_str[] = {
- 	"UDMA/16",
- 	"UDMA/25",
- 	"UDMA/33",
-@@ -1046,28 +1046,103 @@ static unsigned int ata_pio_modes(const 
- 	return modes;
- }
+Index: linux/drivers/net/hamradio/mkiss.c
+===================================================================
+--- linux.orig/drivers/net/hamradio/mkiss.c
++++ linux/drivers/net/hamradio/mkiss.c
+@@ -85,7 +85,7 @@ struct mkiss {
+ #define CRC_MODE_SMACK_TEST	4
  
--static int ata_qc_wait_err(struct ata_queued_cmd *qc,
--			   struct completion *wait)
-+struct ata_exec_internal_arg {
-+	unsigned int err_mask;
-+	struct ata_taskfile *tf;
-+	struct completion *waiting;
-+};
-+
-+int ata_qc_complete_internal(struct ata_queued_cmd *qc)
- {
--	int rc = 0;
-+	struct ata_exec_internal_arg *arg = qc->private_data;
-+	struct completion *waiting = arg->waiting;
+ 	atomic_t		refcnt;
+-	struct semaphore	dead_sem;
++	struct compat_semaphore	dead_sem;
+ };
  
--	if (wait_for_completion_timeout(wait, 30 * HZ) < 1) {
--		/* timeout handling */
--		unsigned int err_mask = ac_err_mask(ata_chk_status(qc->ap));
--
--		if (!err_mask) {
--			printk(KERN_WARNING "ata%u: slow completion (cmd %x)\n",
--			       qc->ap->id, qc->tf.command);
--		} else {
--			printk(KERN_WARNING "ata%u: qc timeout (cmd %x)\n",
--			       qc->ap->id, qc->tf.command);
--			rc = -EIO;
-+	if (!(qc->err_mask & ~AC_ERR_DEV))
-+		qc->ap->ops->tf_read(qc->ap, arg->tf);
-+	arg->err_mask = qc->err_mask;
-+	arg->waiting = NULL;
-+	complete(waiting);
-+
-+	return 0;
-+}
-+
-+/**
-+ *	ata_exec_internal - execute libata internal command
-+ *	@ap: Port to which the command is sent
-+ *	@dev: Device to which the command is sent
-+ *	@tf: Taskfile registers for the command and the result
-+ *	@dma_dir: Data tranfer direction of the command
-+ *	@buf: Data buffer of the command
-+ *	@buflen: Length of data buffer
-+ *
-+ *	Executes libata internal command with timeout.  @tf contains
-+ *	command on entry and result on return.  Timeout and error
-+ *	conditions are reported via return value.  No recovery action
-+ *	is taken after a command times out.  It's caller's duty to
-+ *	clean up after timeout.
-+ *
-+ *	LOCKING:
-+ *	None.  Should be called with kernel context, might sleep.
-+ */
-+
-+static unsigned
-+ata_exec_internal(struct ata_port *ap, struct ata_device *dev,
-+		  struct ata_taskfile *tf,
-+		  int dma_dir, void *buf, unsigned int buflen)
-+{
-+	u8 command = tf->command;
-+	struct ata_queued_cmd *qc;
-+	DECLARE_COMPLETION(wait);
-+	unsigned long flags;
-+	struct ata_exec_internal_arg arg;
-+
-+	spin_lock_irqsave(&ap->host_set->lock, flags);
-+
-+	qc = ata_qc_new_init(ap, dev);
-+	BUG_ON(qc == NULL);
-+
-+	qc->tf = *tf;
-+	qc->dma_dir = dma_dir;
-+	if (dma_dir != DMA_NONE) {
-+		ata_sg_init_one(qc, buf, buflen);
-+		qc->nsect = buflen / ATA_SECT_SIZE;
-+	}
-+
-+	arg.waiting = &wait;
-+	arg.tf = tf;
-+	qc->private_data = &arg;
-+	qc->complete_fn = ata_qc_complete_internal;
-+
-+	if (ata_qc_issue(qc))
-+		goto issue_fail;
-+
-+	spin_unlock_irqrestore(&ap->host_set->lock, flags);
-+
-+	if (!wait_for_completion_timeout(&wait, ATA_TMOUT_INTERNAL)) {
-+		spin_lock_irqsave(&ap->host_set->lock, flags);
-+
-+		/* We're racing with irq here.  If we lose, the
-+		 * following test prevents us from completing the qc
-+		 * again.  If completion irq occurs after here but
-+		 * before the caller cleans up, it will result in a
-+		 * spurious interrupt.  We can live with that.
-+		 */
-+		if (arg.waiting) {
-+			qc->err_mask = AC_ERR_OTHER;
-+			ata_qc_complete(qc);
-+			printk(KERN_WARNING "ata%u: qc timeout (cmd 0x%x)\n",
-+			       ap->id, command);
- 		}
- 
--		ata_qc_complete(qc, err_mask);
-+		spin_unlock_irqrestore(&ap->host_set->lock, flags);
- 	}
- 
--	return rc;
-+	return arg.err_mask;
-+
-+ issue_fail:
-+	ata_qc_free(qc);
-+	spin_unlock_irqrestore(&ap->host_set->lock, flags);
-+	return AC_ERR_OTHER;
- }
- 
- /**
-@@ -1099,9 +1174,8 @@ static void ata_dev_identify(struct ata_
- 	u16 tmp;
- 	unsigned long xfer_modes;
- 	unsigned int using_edd;
--	DECLARE_COMPLETION(wait);
--	struct ata_queued_cmd *qc;
--	unsigned long flags;
-+	struct ata_taskfile tf;
-+	unsigned int err_mask;
- 	int rc;
- 
- 	if (!ata_dev_present(dev)) {
-@@ -1122,40 +1196,26 @@ static void ata_dev_identify(struct ata_
- 
- 	ata_dev_select(ap, device, 1, 1); /* select device 0/1 */
- 
--	qc = ata_qc_new_init(ap, dev);
--	BUG_ON(qc == NULL);
--
--	ata_sg_init_one(qc, dev->id, sizeof(dev->id));
--	qc->dma_dir = DMA_FROM_DEVICE;
--	qc->tf.protocol = ATA_PROT_PIO;
--	qc->nsect = 1;
--
- retry:
-+	ata_tf_init(ap, &tf, device);
-+
- 	if (dev->class == ATA_DEV_ATA) {
--		qc->tf.command = ATA_CMD_ID_ATA;
-+		tf.command = ATA_CMD_ID_ATA;
- 		DPRINTK("do ATA identify\n");
- 	} else {
--		qc->tf.command = ATA_CMD_ID_ATAPI;
-+		tf.command = ATA_CMD_ID_ATAPI;
- 		DPRINTK("do ATAPI identify\n");
- 	}
- 
--	qc->waiting = &wait;
--	qc->complete_fn = ata_qc_complete_noop;
-+	tf.protocol = ATA_PROT_PIO;
- 
--	spin_lock_irqsave(&ap->host_set->lock, flags);
--	rc = ata_qc_issue(qc);
--	spin_unlock_irqrestore(&ap->host_set->lock, flags);
-+	err_mask = ata_exec_internal(ap, dev, &tf, DMA_FROM_DEVICE,
-+				     dev->id, sizeof(dev->id));
- 
--	if (rc)
--		goto err_out;
--	else
--		ata_qc_wait_err(qc, &wait);
--
--	spin_lock_irqsave(&ap->host_set->lock, flags);
--	ap->ops->tf_read(ap, &qc->tf);
--	spin_unlock_irqrestore(&ap->host_set->lock, flags);
-+	if (err_mask) {
-+		if (err_mask & ~AC_ERR_DEV)
-+			goto err_out;
- 
--	if (qc->tf.command & ATA_ERR) {
- 		/*
- 		 * arg!  EDD works for all test cases, but seems to return
- 		 * the ATA signature for some ATAPI devices.  Until the
-@@ -1168,13 +1228,9 @@ retry:
- 		 * to have this problem.
- 		 */
- 		if ((using_edd) && (dev->class == ATA_DEV_ATA)) {
--			u8 err = qc->tf.feature;
-+			u8 err = tf.feature;
- 			if (err & ATA_ABORTED) {
- 				dev->class = ATA_DEV_ATAPI;
--				qc->cursg = 0;
--				qc->cursg_ofs = 0;
--				qc->cursect = 0;
--				qc->nsect = 1;
- 				goto retry;
- 			}
- 		}
-@@ -1444,11 +1500,23 @@ void __sata_phy_reset(struct ata_port *a
- 	} while (time_before(jiffies, timeout));
- 
- 	/* TODO: phy layer with polling, timeouts, etc. */
--	if (sata_dev_present(ap))
-+	sstatus = scr_read(ap, SCR_STATUS);
-+	if (sata_dev_present(ap)) {
-+		const char *speed;
-+		u32 tmp;
-+
-+		tmp = (sstatus >> 4) & 0xf;
-+		if (tmp & (1 << 0))
-+			speed = "1.5";
-+		else if (tmp & (1 << 1))
-+			speed = "3.0";
-+		else
-+			speed = "<unknown>";
-+		printk(KERN_INFO "ata%u: SATA link up %s Gbps (SStatus %X)\n",
-+		       ap->id, speed, sstatus);
- 		ata_port_probe(ap);
--	else {
--		sstatus = scr_read(ap, SCR_STATUS);
--		printk(KERN_INFO "ata%u: no device found (phy stat %08x)\n",
-+	} else {
-+		printk(KERN_INFO "ata%u: SATA link down (SStatus %X)\n",
- 		       ap->id, sstatus);
- 		ata_port_disable(ap);
- 	}
-@@ -2071,7 +2139,7 @@ static void ata_pr_blacklisted(const str
- 		ap->id, dev->devno);
- }
- 
--static const char * ata_dma_blacklist [] = {
-+static const char * const ata_dma_blacklist [] = {
- 	"WDC AC11000H",
- 	"WDC AC22100H",
- 	"WDC AC32500H",
-@@ -2266,34 +2334,23 @@ static int ata_choose_xfer_mode(const st
- 
- static void ata_dev_set_xfermode(struct ata_port *ap, struct ata_device *dev)
- {
--	DECLARE_COMPLETION(wait);
--	struct ata_queued_cmd *qc;
--	int rc;
--	unsigned long flags;
-+	struct ata_taskfile tf;
- 
- 	/* set up set-features taskfile */
- 	DPRINTK("set features - xfer mode\n");
- 
--	qc = ata_qc_new_init(ap, dev);
--	BUG_ON(qc == NULL);
--
--	qc->tf.command = ATA_CMD_SET_FEATURES;
--	qc->tf.feature = SETFEATURES_XFER;
--	qc->tf.flags |= ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE;
--	qc->tf.protocol = ATA_PROT_NODATA;
--	qc->tf.nsect = dev->xfer_mode;
--
--	qc->waiting = &wait;
--	qc->complete_fn = ata_qc_complete_noop;
--
--	spin_lock_irqsave(&ap->host_set->lock, flags);
--	rc = ata_qc_issue(qc);
--	spin_unlock_irqrestore(&ap->host_set->lock, flags);
-+	ata_tf_init(ap, &tf, dev->devno);
-+	tf.command = ATA_CMD_SET_FEATURES;
-+	tf.feature = SETFEATURES_XFER;
-+	tf.flags |= ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE;
-+	tf.protocol = ATA_PROT_NODATA;
-+	tf.nsect = dev->xfer_mode;
- 
--	if (rc)
-+	if (ata_exec_internal(ap, dev, &tf, DMA_NONE, NULL, 0)) {
-+		printk(KERN_ERR "ata%u: failed to set xfermode, disabled\n",
-+		       ap->id);
- 		ata_port_disable(ap);
--	else
--		ata_qc_wait_err(qc, &wait);
-+	}
- 
- 	DPRINTK("EXIT\n");
- }
-@@ -2308,41 +2365,25 @@ static void ata_dev_set_xfermode(struct 
- 
- static void ata_dev_reread_id(struct ata_port *ap, struct ata_device *dev)
- {
--	DECLARE_COMPLETION(wait);
--	struct ata_queued_cmd *qc;
--	unsigned long flags;
--	int rc;
--
--	qc = ata_qc_new_init(ap, dev);
--	BUG_ON(qc == NULL);
-+	struct ata_taskfile tf;
- 
--	ata_sg_init_one(qc, dev->id, sizeof(dev->id));
--	qc->dma_dir = DMA_FROM_DEVICE;
-+	ata_tf_init(ap, &tf, dev->devno);
- 
- 	if (dev->class == ATA_DEV_ATA) {
--		qc->tf.command = ATA_CMD_ID_ATA;
-+		tf.command = ATA_CMD_ID_ATA;
- 		DPRINTK("do ATA identify\n");
- 	} else {
--		qc->tf.command = ATA_CMD_ID_ATAPI;
-+		tf.command = ATA_CMD_ID_ATAPI;
- 		DPRINTK("do ATAPI identify\n");
- 	}
- 
--	qc->tf.flags |= ATA_TFLAG_DEVICE;
--	qc->tf.protocol = ATA_PROT_PIO;
--	qc->nsect = 1;
--
--	qc->waiting = &wait;
--	qc->complete_fn = ata_qc_complete_noop;
--
--	spin_lock_irqsave(&ap->host_set->lock, flags);
--	rc = ata_qc_issue(qc);
--	spin_unlock_irqrestore(&ap->host_set->lock, flags);
-+	tf.flags |= ATA_TFLAG_DEVICE;
-+	tf.protocol = ATA_PROT_PIO;
- 
--	if (rc)
-+	if (ata_exec_internal(ap, dev, &tf, DMA_FROM_DEVICE,
-+			      dev->id, sizeof(dev->id)))
- 		goto err_out;
- 
--	ata_qc_wait_err(qc, &wait);
--
- 	swap_buf_le16(dev->id, ATA_ID_WORDS);
- 
- 	ata_dump_id(dev);
-@@ -2351,6 +2392,7 @@ static void ata_dev_reread_id(struct ata
- 
- 	return;
- err_out:
-+	printk(KERN_ERR "ata%u: failed to reread ID, disabled\n", ap->id);
- 	ata_port_disable(ap);
- }
- 
-@@ -2364,10 +2406,7 @@ err_out:
- 
- static void ata_dev_init_params(struct ata_port *ap, struct ata_device *dev)
- {
--	DECLARE_COMPLETION(wait);
--	struct ata_queued_cmd *qc;
--	int rc;
--	unsigned long flags;
-+	struct ata_taskfile tf;
- 	u16 sectors = dev->id[6];
- 	u16 heads   = dev->id[3];
- 
-@@ -2378,26 +2417,18 @@ static void ata_dev_init_params(struct a
- 	/* set up init dev params taskfile */
- 	DPRINTK("init dev params \n");
- 
--	qc = ata_qc_new_init(ap, dev);
--	BUG_ON(qc == NULL);
--
--	qc->tf.command = ATA_CMD_INIT_DEV_PARAMS;
--	qc->tf.flags |= ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE;
--	qc->tf.protocol = ATA_PROT_NODATA;
--	qc->tf.nsect = sectors;
--	qc->tf.device |= (heads - 1) & 0x0f; /* max head = num. of heads - 1 */
--
--	qc->waiting = &wait;
--	qc->complete_fn = ata_qc_complete_noop;
--
--	spin_lock_irqsave(&ap->host_set->lock, flags);
--	rc = ata_qc_issue(qc);
--	spin_unlock_irqrestore(&ap->host_set->lock, flags);
-+	ata_tf_init(ap, &tf, dev->devno);
-+	tf.command = ATA_CMD_INIT_DEV_PARAMS;
-+	tf.flags |= ATA_TFLAG_ISADDR | ATA_TFLAG_DEVICE;
-+	tf.protocol = ATA_PROT_NODATA;
-+	tf.nsect = sectors;
-+	tf.device |= (heads - 1) & 0x0f; /* max head = num. of heads - 1 */
- 
--	if (rc)
-+	if (ata_exec_internal(ap, dev, &tf, DMA_NONE, NULL, 0)) {
-+		printk(KERN_ERR "ata%u: failed to init parameters, disabled\n",
-+		       ap->id);
- 		ata_port_disable(ap);
--	else
--		ata_qc_wait_err(qc, &wait);
-+	}
- 
- 	DPRINTK("EXIT\n");
- }
-@@ -2765,7 +2796,7 @@ skip_map:
-  *	None.  (grabs host lock)
-  */
- 
--void ata_poll_qc_complete(struct ata_queued_cmd *qc, unsigned int err_mask)
-+void ata_poll_qc_complete(struct ata_queued_cmd *qc)
- {
- 	struct ata_port *ap = qc->ap;
- 	unsigned long flags;
-@@ -2773,7 +2804,7 @@ void ata_poll_qc_complete(struct ata_que
- 	spin_lock_irqsave(&ap->host_set->lock, flags);
- 	ap->flags &= ~ATA_FLAG_NOINTR;
- 	ata_irq_on(ap);
--	ata_qc_complete(qc, err_mask);
-+	ata_qc_complete(qc);
- 	spin_unlock_irqrestore(&ap->host_set->lock, flags);
- }
- 
-@@ -2790,10 +2821,14 @@ void ata_poll_qc_complete(struct ata_que
- 
- static unsigned long ata_pio_poll(struct ata_port *ap)
- {
-+	struct ata_queued_cmd *qc;
- 	u8 status;
- 	unsigned int poll_state = HSM_ST_UNKNOWN;
- 	unsigned int reg_state = HSM_ST_UNKNOWN;
- 
-+	qc = ata_qc_from_tag(ap, ap->active_tag);
-+	assert(qc != NULL);
-+
- 	switch (ap->hsm_task_state) {
- 	case HSM_ST:
- 	case HSM_ST_POLL:
-@@ -2813,6 +2848,7 @@ static unsigned long ata_pio_poll(struct
- 	status = ata_chk_status(ap);
- 	if (status & ATA_BUSY) {
- 		if (time_after(jiffies, ap->pio_task_timeout)) {
-+			qc->err_mask |= AC_ERR_ATA_BUS;
- 			ap->hsm_task_state = HSM_ST_TMOUT;
- 			return 0;
- 		}
-@@ -2847,29 +2883,31 @@ static int ata_pio_complete (struct ata_
- 	 * msecs, then chk-status again.  If still busy, fall back to
- 	 * HSM_ST_POLL state.
- 	 */
--	drv_stat = ata_busy_wait(ap, ATA_BUSY | ATA_DRQ, 10);
--	if (drv_stat & (ATA_BUSY | ATA_DRQ)) {
-+	drv_stat = ata_busy_wait(ap, ATA_BUSY, 10);
-+	if (drv_stat & ATA_BUSY) {
- 		msleep(2);
--		drv_stat = ata_busy_wait(ap, ATA_BUSY | ATA_DRQ, 10);
--		if (drv_stat & (ATA_BUSY | ATA_DRQ)) {
-+		drv_stat = ata_busy_wait(ap, ATA_BUSY, 10);
-+		if (drv_stat & ATA_BUSY) {
- 			ap->hsm_task_state = HSM_ST_LAST_POLL;
- 			ap->pio_task_timeout = jiffies + ATA_TMOUT_PIO;
- 			return 0;
- 		}
- 	}
- 
-+	qc = ata_qc_from_tag(ap, ap->active_tag);
-+	assert(qc != NULL);
-+
- 	drv_stat = ata_wait_idle(ap);
- 	if (!ata_ok(drv_stat)) {
-+		qc->err_mask |= __ac_err_mask(drv_stat);
- 		ap->hsm_task_state = HSM_ST_ERR;
- 		return 0;
- 	}
- 
--	qc = ata_qc_from_tag(ap, ap->active_tag);
--	assert(qc != NULL);
--
- 	ap->hsm_task_state = HSM_ST_IDLE;
- 
--	ata_poll_qc_complete(qc, 0);
-+	assert(qc->err_mask == 0);
-+	ata_poll_qc_complete(qc);
- 
- 	/* another command may start at this point */
- 
-@@ -3177,6 +3215,7 @@ static void atapi_pio_bytes(struct ata_q
- err_out:
- 	printk(KERN_INFO "ata%u: dev %u: ATAPI check failed\n",
- 	      ap->id, dev->devno);
-+	qc->err_mask |= AC_ERR_ATA_BUS;
- 	ap->hsm_task_state = HSM_ST_ERR;
- }
- 
-@@ -3215,8 +3254,16 @@ static void ata_pio_block(struct ata_por
- 	qc = ata_qc_from_tag(ap, ap->active_tag);
- 	assert(qc != NULL);
- 
-+	/* check error */
-+	if (status & (ATA_ERR | ATA_DF)) {
-+		qc->err_mask |= AC_ERR_DEV;
-+		ap->hsm_task_state = HSM_ST_ERR;
-+		return;
-+	}
-+
-+	/* transfer data if any */
- 	if (is_atapi_taskfile(&qc->tf)) {
--		/* no more data to transfer or unsupported ATAPI command */
-+		/* DRQ=0 means no more data to transfer */
- 		if ((status & ATA_DRQ) == 0) {
- 			ap->hsm_task_state = HSM_ST_LAST;
- 			return;
-@@ -3226,6 +3273,7 @@ static void ata_pio_block(struct ata_por
- 	} else {
- 		/* handle BSY=0, DRQ=0 as error */
- 		if ((status & ATA_DRQ) == 0) {
-+			qc->err_mask |= AC_ERR_ATA_BUS;
- 			ap->hsm_task_state = HSM_ST_ERR;
- 			return;
- 		}
-@@ -3243,9 +3291,14 @@ static void ata_pio_error(struct ata_por
- 	qc = ata_qc_from_tag(ap, ap->active_tag);
- 	assert(qc != NULL);
- 
-+	/* make sure qc->err_mask is available to 
-+	 * know what's wrong and recover
+ /*---------------------------------------------------------------------------*/
+Index: linux/drivers/net/plip.c
+===================================================================
+--- linux.orig/drivers/net/plip.c
++++ linux/drivers/net/plip.c
+@@ -229,7 +229,10 @@ struct net_local {
+ 	                              struct hh_cache *hh);
+ 	spinlock_t lock;
+ 	atomic_t kill_timer;
+-	struct semaphore killed_timer_sem;
++	/*
++	 * PREEMPT_RT: this isnt a mutex, it should be struct completion.
 +	 */
-+	assert(qc->err_mask);
-+
- 	ap->hsm_task_state = HSM_ST_IDLE;
++	struct compat_semaphore killed_timer_sem;
+ };
  
--	ata_poll_qc_complete(qc, AC_ERR_ATA_BUS);
-+	ata_poll_qc_complete(qc);
- }
+ static inline void enable_parport_interrupts (struct net_device *dev)
+Index: linux/drivers/net/ppp_async.c
+===================================================================
+--- linux.orig/drivers/net/ppp_async.c
++++ linux/drivers/net/ppp_async.c
+@@ -66,7 +66,7 @@ struct asyncppp {
+ 	struct tasklet_struct tsk;
  
- static void ata_pio_task(void *_data)
-@@ -3347,7 +3400,8 @@ static void ata_qc_timeout(struct ata_qu
- 		       ap->id, qc->tf.command, drv_stat, host_stat);
+ 	atomic_t	refcnt;
+-	struct semaphore dead_sem;
++	struct compat_semaphore dead_sem;
+ 	struct ppp_channel chan;	/* interface to generic ppp layer */
+ 	unsigned char	obuf[OBUFSIZE];
+ };
+Index: linux/drivers/net/ppp_synctty.c
+===================================================================
+--- linux.orig/drivers/net/ppp_synctty.c
++++ linux/drivers/net/ppp_synctty.c
+@@ -70,7 +70,7 @@ struct syncppp {
+ 	struct tasklet_struct tsk;
  
- 		/* complete taskfile transaction */
--		ata_qc_complete(qc, ac_err_mask(drv_stat));
-+		qc->err_mask |= ac_err_mask(drv_stat);
-+		ata_qc_complete(qc);
- 		break;
- 	}
+ 	atomic_t	refcnt;
+-	struct semaphore dead_sem;
++	struct compat_semaphore dead_sem;
+ 	struct ppp_channel chan;	/* interface to generic ppp layer */
+ };
  
-@@ -3446,15 +3500,10 @@ struct ata_queued_cmd *ata_qc_new_init(s
- 	return qc;
- }
+Index: linux/drivers/pci/hotplug/cpci_hotplug_core.c
+===================================================================
+--- linux.orig/drivers/pci/hotplug/cpci_hotplug_core.c
++++ linux/drivers/pci/hotplug/cpci_hotplug_core.c
+@@ -60,8 +60,8 @@ static int slots;
+ static atomic_t extracting;
+ int cpci_debug;
+ static struct cpci_hp_controller *controller;
+-static struct semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
+-static struct semaphore thread_exit;		/* guard ensure thread has exited before calling it quits */
++static struct compat_semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
++static struct compat_semaphore thread_exit;		/* guard ensure thread has exited before calling it quits */
+ static int thread_finished = 1;
  
--int ata_qc_complete_noop(struct ata_queued_cmd *qc, unsigned int err_mask)
--{
--	return 0;
--}
--
- static void __ata_qc_complete(struct ata_queued_cmd *qc)
- {
- 	struct ata_port *ap = qc->ap;
--	unsigned int tag, do_clear = 0;
-+	unsigned int tag;
+ static int enable_slot(struct hotplug_slot *slot);
+Index: linux/drivers/pci/hotplug/cpqphp_ctrl.c
+===================================================================
+--- linux.orig/drivers/pci/hotplug/cpqphp_ctrl.c
++++ linux/drivers/pci/hotplug/cpqphp_ctrl.c
+@@ -45,8 +45,8 @@ static int configure_new_function(struct
+ 			u8 behind_bridge, struct resource_lists *resources);
+ static void interrupt_event_handler(struct controller *ctrl);
  
- 	qc->flags = 0;
- 	tag = qc->tag;
-@@ -3462,17 +3511,8 @@ static void __ata_qc_complete(struct ata
- 		if (tag == ap->active_tag)
- 			ap->active_tag = ATA_TAG_POISON;
- 		qc->tag = ATA_TAG_POISON;
--		do_clear = 1;
--	}
--
--	if (qc->waiting) {
--		struct completion *waiting = qc->waiting;
--		qc->waiting = NULL;
--		complete(waiting);
--	}
--
--	if (likely(do_clear))
- 		clear_bit(tag, &ap->qactive);
-+	}
- }
+-static struct semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
+-static struct semaphore event_exit;		/* guard ensure thread has exited before calling it quits */
++static struct compat_semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
++static struct compat_semaphore event_exit;		/* guard ensure thread has exited before calling it quits */
+ static int event_finished;
+ static unsigned long pushbutton_pending;	/* = 0 */
  
- /**
-@@ -3488,7 +3528,6 @@ static void __ata_qc_complete(struct ata
- void ata_qc_free(struct ata_queued_cmd *qc)
- {
- 	assert(qc != NULL);	/* ata_qc_from_tag _might_ return NULL */
--	assert(qc->waiting == NULL);	/* nothing should be waiting */
+Index: linux/drivers/pci/hotplug/ibmphp_hpc.c
+===================================================================
+--- linux.orig/drivers/pci/hotplug/ibmphp_hpc.c
++++ linux/drivers/pci/hotplug/ibmphp_hpc.c
+@@ -104,7 +104,7 @@ static int tid_poll;
+ static struct semaphore sem_hpcaccess;	// lock access to HPC
+ static struct semaphore semOperations;	// lock all operations and
+ 					// access to data structures
+-static struct semaphore sem_exit;	// make sure polling thread goes away
++static struct compat_semaphore sem_exit;	// make sure polling thread goes away
+ //----------------------------------------------------------------------------
+ // local function prototypes
+ //----------------------------------------------------------------------------
+Index: linux/drivers/pci/hotplug/pciehp_ctrl.c
+===================================================================
+--- linux.orig/drivers/pci/hotplug/pciehp_ctrl.c
++++ linux/drivers/pci/hotplug/pciehp_ctrl.c
+@@ -37,8 +37,8 @@
  
- 	__ata_qc_complete(qc);
- }
-@@ -3505,7 +3544,7 @@ void ata_qc_free(struct ata_queued_cmd *
-  *	spin_lock_irqsave(host_set lock)
+ static void interrupt_event_handler(struct controller *ctrl);
+ 
+-static struct semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
+-static struct semaphore event_exit;		/* guard ensure thread has exited before calling it quits */
++static struct compat_semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
++static struct compat_semaphore event_exit;		/* guard ensure thread has exited before calling it quits */
+ static int event_finished;
+ static unsigned long pushbutton_pending;	/* = 0 */
+ static unsigned long surprise_rm_pending;	/* = 0 */
+Index: linux/drivers/pci/hotplug/shpchp_ctrl.c
+===================================================================
+--- linux.orig/drivers/pci/hotplug/shpchp_ctrl.c
++++ linux/drivers/pci/hotplug/shpchp_ctrl.c
+@@ -37,8 +37,8 @@
+ 
+ static void interrupt_event_handler(struct controller *ctrl);
+ 
+-static struct semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
+-static struct semaphore event_exit;		/* guard ensure thread has exited before calling it quits */
++static struct compat_semaphore event_semaphore;	/* mutex for process loop (up if something to process) */
++static struct compat_semaphore event_exit;		/* guard ensure thread has exited before calling it quits */
+ static int event_finished;
+ static unsigned long pushbutton_pending;	/* = 0 */
+ 
+Index: linux/drivers/scsi/aacraid/aacraid.h
+===================================================================
+--- linux.orig/drivers/scsi/aacraid/aacraid.h
++++ linux/drivers/scsi/aacraid/aacraid.h
+@@ -735,7 +735,7 @@ struct aac_fib_context {
+ 	u32			unique;		// unique value representing this context
+ 	ulong			jiffies;	// used for cleanup - dmb changed to ulong
+ 	struct list_head	next;		// used to link context's into a linked list
+-	struct semaphore 	wait_sem;	// this is used to wait for the next fib to arrive.
++	struct compat_semaphore	wait_sem;	// this is used to wait for the next fib to arrive.
+ 	int			wait;		// Set to true when thread is in WaitForSingleObject
+ 	unsigned long		count;		// total number of FIBs on FibList
+ 	struct list_head	fib_list;	// this holds fibs and their attachd hw_fibs
+@@ -804,7 +804,7 @@ struct fib {
+ 	 *	This is the event the sendfib routine will wait on if the
+ 	 *	caller did not pass one and this is synch io.
+ 	 */
+-	struct semaphore 	event_wait;
++	struct compat_semaphore	event_wait;
+ 	spinlock_t		event_lock;
+ 
+ 	u32			done;	/* gets set to 1 when fib is complete */
+Index: linux/drivers/scsi/aic7xxx/aic79xx_osm.h
+===================================================================
+--- linux.orig/drivers/scsi/aic7xxx/aic79xx_osm.h
++++ linux/drivers/scsi/aic7xxx/aic79xx_osm.h
+@@ -390,7 +390,7 @@ struct ahd_platform_data {
+ 	spinlock_t		 spin_lock;
+ 	u_int			 qfrozen;
+ 	struct timer_list	 reset_timer;
+-	struct semaphore	 eh_sem;
++	struct compat_semaphore	 eh_sem;
+ 	struct Scsi_Host        *host;		/* pointer to scsi host */
+ #define AHD_LINUX_NOIRQ	((uint32_t)~0)
+ 	uint32_t		 irq;		/* IRQ for this adapter */
+Index: linux/drivers/scsi/aic7xxx/aic7xxx_osm.h
+===================================================================
+--- linux.orig/drivers/scsi/aic7xxx/aic7xxx_osm.h
++++ linux/drivers/scsi/aic7xxx/aic7xxx_osm.h
+@@ -394,7 +394,7 @@ struct ahc_platform_data {
+ 	spinlock_t		 spin_lock;
+ 	u_int			 qfrozen;
+ 	struct timer_list	 reset_timer;
+-	struct semaphore	 eh_sem;
++	struct compat_semaphore	 eh_sem;
+ 	struct Scsi_Host        *host;		/* pointer to scsi host */
+ #define AHC_LINUX_NOIRQ	((uint32_t)~0)
+ 	uint32_t		 irq;		/* IRQ for this adapter */
+Index: linux/drivers/scsi/qla2xxx/qla_def.h
+===================================================================
+--- linux.orig/drivers/scsi/qla2xxx/qla_def.h
++++ linux/drivers/scsi/qla2xxx/qla_def.h
+@@ -2411,7 +2411,7 @@ typedef struct scsi_qla_host {
+ 	spinlock_t	mbx_reg_lock;   /* Mbx Cmd Register Lock */
+ 
+ 	struct semaphore mbx_cmd_sem;	/* Serialialize mbx access */
+-	struct semaphore mbx_intr_sem;  /* Used for completion notification */
++	struct compat_semaphore mbx_intr_sem;  /* Used for completion notification */
+ 
+ 	uint32_t	mbx_flags;
+ #define  MBX_IN_PROGRESS	BIT_0
+Index: linux/drivers/usb/storage/usb.h
+===================================================================
+--- linux.orig/drivers/usb/storage/usb.h
++++ linux/drivers/usb/storage/usb.h
+@@ -171,7 +171,7 @@ struct us_data {
+ 	dma_addr_t		iobuf_dma;
+ 
+ 	/* mutual exclusion and synchronization structures */
+-	struct semaphore	sema;		 /* to sleep thread on	    */
++	struct compat_semaphore	sema;		 /* to sleep thread on	    */
+ 	struct completion	notify;		 /* thread begin/end	    */
+ 	wait_queue_head_t	delay_wait;	 /* wait during scan, reset */
+ 
+Index: linux/fs/xfs/linux-2.6/mutex.h
+===================================================================
+--- linux.orig/fs/xfs/linux-2.6/mutex.h
++++ linux/fs/xfs/linux-2.6/mutex.h
+@@ -28,7 +28,7 @@
+  * callers.
+  */
+ #define MUTEX_DEFAULT		0x0
+-typedef struct semaphore	mutex_t;
++typedef struct compat_semaphore	mutex_t;
+ 
+ #define mutex_init(lock, type, name)		sema_init(lock, 1)
+ #define mutex_destroy(lock)			sema_init(lock, -99)
+Index: linux/fs/xfs/linux-2.6/sema.h
+===================================================================
+--- linux.orig/fs/xfs/linux-2.6/sema.h
++++ linux/fs/xfs/linux-2.6/sema.h
+@@ -27,7 +27,7 @@
+  * sema_t structure just maps to struct semaphore in Linux kernel.
   */
  
--void ata_qc_complete(struct ata_queued_cmd *qc, unsigned int err_mask)
-+void ata_qc_complete(struct ata_queued_cmd *qc)
- {
- 	int rc;
+-typedef struct semaphore sema_t;
++typedef struct compat_semaphore sema_t;
  
-@@ -3522,7 +3561,7 @@ void ata_qc_complete(struct ata_queued_c
- 	qc->flags &= ~ATA_QCFLAG_ACTIVE;
+ #define init_sema(sp, val, c, d)	sema_init(sp, val)
+ #define initsema(sp, val)		sema_init(sp, val)
+Index: linux/fs/xfs/linux-2.6/xfs_buf.h
+===================================================================
+--- linux.orig/fs/xfs/linux-2.6/xfs_buf.h
++++ linux/fs/xfs/linux-2.6/xfs_buf.h
+@@ -114,7 +114,7 @@ typedef int (*page_buf_bdstrat_t)(struct
+ #define PB_PAGES	2
  
- 	/* call completion callback */
--	rc = qc->complete_fn(qc, err_mask);
-+	rc = qc->complete_fn(qc);
+ typedef struct xfs_buf {
+-	struct semaphore	pb_sema;	/* semaphore for lockables  */
++	struct compat_semaphore	pb_sema;	/* semaphore for lockables  */
+ 	unsigned long		pb_queuetime;	/* time buffer was queued   */
+ 	atomic_t		pb_pin_count;	/* pin count		    */
+ 	wait_queue_head_t	pb_waiters;	/* unpin waiters	    */
+@@ -134,7 +134,7 @@ typedef struct xfs_buf {
+ 	page_buf_iodone_t	pb_iodone;	/* I/O completion function */
+ 	page_buf_relse_t	pb_relse;	/* releasing function */
+ 	page_buf_bdstrat_t	pb_strat;	/* pre-write function */
+-	struct semaphore	pb_iodonesema;	/* Semaphore for I/O waiters */
++	struct compat_semaphore	pb_iodonesema;	/* Semaphore for I/O waiters */
+ 	void			*pb_fspriv;
+ 	void			*pb_fspriv2;
+ 	void			*pb_fspriv3;
+Index: linux/include/linux/jffs2_fs_i.h
+===================================================================
+--- linux.orig/include/linux/jffs2_fs_i.h
++++ linux/include/linux/jffs2_fs_i.h
+@@ -14,7 +14,15 @@ struct jffs2_inode_info {
+ 	   before letting GC proceed. Or we'd have to put ugliness
+ 	   into the GC code so it didn't attempt to obtain the i_sem
+ 	   for the inode(s) which are already locked */
+-	struct semaphore sem;
++	/*
++	 * (On PREEMPT_RT: while use of ei->sem is mostly mutex-alike, the
++	 * SLAB cache keeps the semaphore locked, which breaks the strict
++	 * "owner must exist" properties of rt_mutexes. Fix it the easy
++	 * way: by going to a compat_semaphore. But the real fix would be
++	 * to cache inodes in an unlocked state and lock them when
++	 * allocating a new inode.)
++	 */
++	struct compat_semaphore sem;
  
- 	/* if callback indicates not to complete command (non-zero),
- 	 * return immediately
-@@ -3960,7 +3999,8 @@ inline unsigned int ata_host_intr (struc
- 		ap->ops->irq_clear(ap);
+ 	/* The highest (datanode) version number used for this ino */
+ 	uint32_t highest_version;
+Index: linux/include/linux/jffs2_fs_sb.h
+===================================================================
+--- linux.orig/include/linux/jffs2_fs_sb.h
++++ linux/include/linux/jffs2_fs_sb.h
+@@ -35,7 +35,7 @@ struct jffs2_sb_info {
+ 	struct completion gc_thread_start; /* GC thread start completion */
+ 	struct completion gc_thread_exit; /* GC thread exit completion port */
  
- 		/* complete taskfile transaction */
--		ata_qc_complete(qc, ac_err_mask(status));
-+		qc->err_mask |= ac_err_mask(status);
-+		ata_qc_complete(qc);
- 		break;
+-	struct semaphore alloc_sem;	/* Used to protect all the following
++	struct compat_semaphore alloc_sem; /* Used to protect all the following
+ 					   fields, and also to protect against
+ 					   out-of-order writing of nodes. And GC. */
+ 	uint32_t cleanmarker_size;	/* Size of an _inline_ CLEANMARKER
+@@ -93,7 +93,7 @@ struct jffs2_sb_info {
+ 	/* Sem to allow jffs2_garbage_collect_deletion_dirent to
+ 	   drop the erase_completion_lock while it's holding a pointer
+ 	   to an obsoleted node. I don't like this. Alternatives welcomed. */
+-	struct semaphore erase_free_sem;
++	struct compat_semaphore erase_free_sem;
  
- 	default:
-@@ -4054,13 +4094,17 @@ static void atapi_packet_task(void *_dat
+ 	uint32_t wbuf_pagesize; /* 0 for NOR and other flashes with no wbuf */
  
- 	/* sleep-wait for BSY to clear */
- 	DPRINTK("busy wait\n");
--	if (ata_busy_sleep(ap, ATA_TMOUT_CDB_QUICK, ATA_TMOUT_CDB))
--		goto err_out_status;
-+	if (ata_busy_sleep(ap, ATA_TMOUT_CDB_QUICK, ATA_TMOUT_CDB)) {
-+		qc->err_mask |= AC_ERR_ATA_BUS;
-+		goto err_out;
-+	}
+@@ -104,7 +104,7 @@ struct jffs2_sb_info {
+ 	uint32_t wbuf_len;
+ 	struct jffs2_inodirty *wbuf_inodes;
  
- 	/* make sure DRQ is set */
- 	status = ata_chk_status(ap);
--	if ((status & (ATA_BUSY | ATA_DRQ)) != ATA_DRQ)
-+	if ((status & (ATA_BUSY | ATA_DRQ)) != ATA_DRQ) {
-+		qc->err_mask |= AC_ERR_ATA_BUS;
- 		goto err_out;
-+	}
+-	struct rw_semaphore wbuf_sem;	/* Protects the write buffer */
++	struct compat_rw_semaphore wbuf_sem;	/* Protects the write buffer */
  
- 	/* send SCSI cdb */
- 	DPRINTK("send cdb\n");
-@@ -4092,10 +4136,8 @@ static void atapi_packet_task(void *_dat
- 
- 	return;
- 
--err_out_status:
--	status = ata_chk_status(ap);
- err_out:
--	ata_poll_qc_complete(qc, __ac_err_mask(status));
-+	ata_poll_qc_complete(qc);
- }
- 
- 
-diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
-index 379e870..f286a6f 100644
---- a/drivers/scsi/libata-scsi.c
-+++ b/drivers/scsi/libata-scsi.c
-@@ -418,7 +418,7 @@ void ata_to_sense_error(unsigned id, u8 
- 	int i;
- 
- 	/* Based on the 3ware driver translation table */
--	static unsigned char sense_table[][4] = {
-+	static const unsigned char sense_table[][4] = {
- 		/* BBD|ECC|ID|MAR */
- 		{0xd1, 		ABORTED_COMMAND, 0x00, 0x00}, 	// Device busy                  Aborted command
- 		/* BBD|ECC|ID */
-@@ -449,7 +449,7 @@ void ata_to_sense_error(unsigned id, u8 
- 		{0x80, 		MEDIUM_ERROR, 0x11, 0x04}, 	// Block marked bad		  Medium error, unrecovered read error
- 		{0xFF, 0xFF, 0xFF, 0xFF}, // END mark
- 	};
--	static unsigned char stat_table[][4] = {
-+	static const unsigned char stat_table[][4] = {
- 		/* Must be first because BUSY means no other bits valid */
- 		{0x80, 		ABORTED_COMMAND, 0x47, 0x00},	// Busy, fake parity for now
- 		{0x20, 		HARDWARE_ERROR,  0x00, 0x00}, 	// Device fault
-@@ -1203,12 +1203,11 @@ nothing_to_do:
- 	return 1;
- }
- 
--static int ata_scsi_qc_complete(struct ata_queued_cmd *qc,
--				unsigned int err_mask)
-+static int ata_scsi_qc_complete(struct ata_queued_cmd *qc)
- {
- 	struct scsi_cmnd *cmd = qc->scsicmd;
- 	u8 *cdb = cmd->cmnd;
-- 	int need_sense = (err_mask != 0);
-+ 	int need_sense = (qc->err_mask != 0);
- 
- 	/* For ATA pass thru (SAT) commands, generate a sense block if
- 	 * user mandated it or if there's an error.  Note that if we
-@@ -1532,7 +1531,7 @@ unsigned int ata_scsiop_inq_80(struct at
- 	return 0;
- }
- 
--static const char *inq_83_str = "Linux ATA-SCSI simulator";
-+static const char * const inq_83_str = "Linux ATA-SCSI simulator";
- 
- /**
-  *	ata_scsiop_inq_83 - Simulate INQUIRY EVPD page 83, device identity
-@@ -1955,9 +1954,9 @@ void ata_scsi_badcmd(struct scsi_cmnd *c
- 	done(cmd);
- }
- 
--static int atapi_sense_complete(struct ata_queued_cmd *qc,unsigned int err_mask)
-+static int atapi_sense_complete(struct ata_queued_cmd *qc)
- {
--	if (err_mask && ((err_mask & AC_ERR_DEV) == 0))
-+	if (qc->err_mask && ((qc->err_mask & AC_ERR_DEV) == 0))
- 		/* FIXME: not quite right; we don't want the
- 		 * translation of taskfile registers into
- 		 * a sense descriptors, since that's only
-@@ -2015,15 +2014,18 @@ static void atapi_request_sense(struct a
- 
- 	qc->complete_fn = atapi_sense_complete;
- 
--	if (ata_qc_issue(qc))
--		ata_qc_complete(qc, AC_ERR_OTHER);
-+	if (ata_qc_issue(qc)) {
-+		qc->err_mask |= AC_ERR_OTHER;
-+		ata_qc_complete(qc);
-+	}
- 
- 	DPRINTK("EXIT\n");
- }
- 
--static int atapi_qc_complete(struct ata_queued_cmd *qc, unsigned int err_mask)
-+static int atapi_qc_complete(struct ata_queued_cmd *qc)
- {
- 	struct scsi_cmnd *cmd = qc->scsicmd;
-+	unsigned int err_mask = qc->err_mask;
- 
- 	VPRINTK("ENTER, err_mask 0x%X\n", err_mask);
- 
-@@ -2173,9 +2175,12 @@ ata_scsi_find_dev(struct ata_port *ap, c
- 	if (unlikely(!ata_dev_present(dev)))
- 		return NULL;
- 
--	if (!atapi_enabled) {
--		if (unlikely(dev->class == ATA_DEV_ATAPI))
-+	if (!atapi_enabled || (ap->flags & ATA_FLAG_NO_ATAPI)) {
-+		if (unlikely(dev->class == ATA_DEV_ATAPI)) {
-+			printk(KERN_WARNING "ata%u(%u): WARNING: ATAPI is %s, device ignored.\n",
-+			       ap->id, dev->devno, atapi_enabled ? "not supported with this driver" : "disabled");
- 			return NULL;
-+		}
- 	}
- 
- 	return dev;
-diff --git a/drivers/scsi/libata.h b/drivers/scsi/libata.h
-index 8ebaa69..251e53b 100644
---- a/drivers/scsi/libata.h
-+++ b/drivers/scsi/libata.h
-@@ -39,7 +39,6 @@ struct ata_scsi_args {
- 
- /* libata-core.c */
- extern int atapi_enabled;
--extern int ata_qc_complete_noop(struct ata_queued_cmd *qc, unsigned int err_mask);
- extern struct ata_queued_cmd *ata_qc_new_init(struct ata_port *ap,
- 				      struct ata_device *dev);
- extern void ata_rwcmd_protocol(struct ata_queued_cmd *qc);
-diff --git a/drivers/scsi/pdc_adma.c b/drivers/scsi/pdc_adma.c
-index f557f17..e8df0c9 100644
---- a/drivers/scsi/pdc_adma.c
-+++ b/drivers/scsi/pdc_adma.c
-@@ -464,14 +464,12 @@ static inline unsigned int adma_intr_pkt
- 			continue;
- 		qc = ata_qc_from_tag(ap, ap->active_tag);
- 		if (qc && (!(qc->tf.ctl & ATA_NIEN))) {
--			unsigned int err_mask = 0;
--
- 			if ((status & (aPERR | aPSD | aUIRQ)))
--				err_mask = AC_ERR_OTHER;
-+				qc->err_mask |= AC_ERR_OTHER;
- 			else if (pp->pkt[0] != cDONE)
--				err_mask = AC_ERR_OTHER;
-+				qc->err_mask |= AC_ERR_OTHER;
- 
--			ata_qc_complete(qc, err_mask);
-+			ata_qc_complete(qc);
- 		}
- 	}
- 	return handled;
-@@ -501,7 +499,8 @@ static inline unsigned int adma_intr_mmi
- 		
- 				/* complete taskfile transaction */
- 				pp->state = adma_state_idle;
--				ata_qc_complete(qc, ac_err_mask(status));
-+				qc->err_mask |= ac_err_mask(status);
-+				ata_qc_complete(qc);
- 				handled = 1;
- 			}
- 		}
-diff --git a/drivers/scsi/sata_mv.c b/drivers/scsi/sata_mv.c
-index ab7432a..b2bf16a 100644
---- a/drivers/scsi/sata_mv.c
-+++ b/drivers/scsi/sata_mv.c
-@@ -86,7 +86,8 @@ enum {
- 	MV_FLAG_DUAL_HC		= (1 << 30),  /* two SATA Host Controllers */
- 	MV_FLAG_IRQ_COALESCE	= (1 << 29),  /* IRQ coalescing capability */
- 	MV_COMMON_FLAGS		= (ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
--				   ATA_FLAG_SATA_RESET | ATA_FLAG_MMIO),
-+				   ATA_FLAG_SATA_RESET | ATA_FLAG_MMIO |
-+				   ATA_FLAG_NO_ATAPI),
- 	MV_6XXX_FLAGS		= MV_FLAG_IRQ_COALESCE,
- 
- 	CRQB_FLAG_READ		= (1 << 0),
-@@ -430,7 +431,7 @@ static const struct ata_port_operations 
- 	.host_stop		= mv_host_stop,
+ 	/* Information about out-of-band area usage... */
+ 	struct nand_oobinfo *oobinfo;
+Index: linux/include/linux/parport.h
+===================================================================
+--- linux.orig/include/linux/parport.h
++++ linux/include/linux/parport.h
+@@ -254,7 +254,7 @@ enum ieee1284_phase {
+ struct ieee1284_info {
+ 	int mode;
+ 	volatile enum ieee1284_phase phase;
+-	struct semaphore irq;
++	struct compat_semaphore irq;
  };
  
--static struct ata_port_info mv_port_info[] = {
-+static const struct ata_port_info mv_port_info[] = {
- 	{  /* chip_504x */
- 		.sht		= &mv_sht,
- 		.host_flags	= MV_COMMON_FLAGS,
-@@ -1242,8 +1243,10 @@ static void mv_host_intr(struct ata_host
- 				VPRINTK("port %u IRQ found for qc, "
- 					"ata_status 0x%x\n", port,ata_status);
- 				/* mark qc status appropriately */
--				if (!(qc->tf.ctl & ATA_NIEN))
--					ata_qc_complete(qc, err_mask);
-+				if (!(qc->tf.ctl & ATA_NIEN)) {
-+					qc->err_mask |= err_mask;
-+					ata_qc_complete(qc);
-+				}
- 			}
- 		}
- 	}
-@@ -1864,7 +1867,8 @@ static void mv_eng_timeout(struct ata_po
- 	 	 */
- 		spin_lock_irqsave(&ap->host_set->lock, flags);
- 		qc->scsidone = scsi_finish_command;
--		ata_qc_complete(qc, AC_ERR_OTHER);
-+		qc->err_mask |= AC_ERR_OTHER;
-+		ata_qc_complete(qc);
- 		spin_unlock_irqrestore(&ap->host_set->lock, flags);
- 	}
- }
-diff --git a/drivers/scsi/sata_promise.c b/drivers/scsi/sata_promise.c
-index 8a8e3e3..da7fa04 100644
---- a/drivers/scsi/sata_promise.c
-+++ b/drivers/scsi/sata_promise.c
-@@ -70,6 +70,9 @@ enum {
- 	PDC_HAS_PATA		= (1 << 1), /* PDC20375 has PATA */
+ /* A parallel port */
+Index: linux/include/pcmcia/ss.h
+===================================================================
+--- linux.orig/include/pcmcia/ss.h
++++ linux/include/pcmcia/ss.h
+@@ -243,7 +243,7 @@ struct pcmcia_socket {
+ #endif
  
- 	PDC_RESET		= (1 << 11), /* HDMA reset */
-+
-+	PDC_COMMON_FLAGS	= ATA_FLAG_NO_LEGACY | ATA_FLAG_SRST |
-+				  ATA_FLAG_MMIO | ATA_FLAG_NO_ATAPI,
+ 	/* state thread */
+-	struct semaphore		skt_sem;	/* protects socket h/w state */
++	struct compat_semaphore		skt_sem;	/* protects socket h/w state */
+ 
+ 	struct task_struct		*thread;
+ 	struct completion		thread_done;
+Index: linux/include/scsi/scsi_transport_spi.h
+===================================================================
+--- linux.orig/include/scsi/scsi_transport_spi.h
++++ linux/include/scsi/scsi_transport_spi.h
+@@ -51,7 +51,7 @@ struct spi_transport_attrs {
+ 	unsigned int support_qas; /* supports quick arbitration and selection */
+ 	/* Private Fields */
+ 	unsigned int dv_pending:1; /* Internal flag */
+-	struct semaphore dv_sem; /* semaphore to serialise dv */
++	struct compat_semaphore dv_sem; /* semaphore to serialise dv */
  };
  
- 
-@@ -158,12 +161,11 @@ static const struct ata_port_operations 
- 	.host_stop		= ata_pci_host_stop,
- };
- 
--static struct ata_port_info pdc_port_info[] = {
-+static const struct ata_port_info pdc_port_info[] = {
- 	/* board_2037x */
- 	{
- 		.sht		= &pdc_ata_sht,
--		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
--				  ATA_FLAG_SRST | ATA_FLAG_MMIO,
-+		.host_flags	= PDC_COMMON_FLAGS | ATA_FLAG_SATA,
- 		.pio_mask	= 0x1f, /* pio0-4 */
- 		.mwdma_mask	= 0x07, /* mwdma0-2 */
- 		.udma_mask	= 0x7f, /* udma0-6 ; FIXME */
-@@ -173,8 +175,7 @@ static struct ata_port_info pdc_port_inf
- 	/* board_20319 */
- 	{
- 		.sht		= &pdc_ata_sht,
--		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
--				  ATA_FLAG_SRST | ATA_FLAG_MMIO,
-+		.host_flags	= PDC_COMMON_FLAGS | ATA_FLAG_SATA,
- 		.pio_mask	= 0x1f, /* pio0-4 */
- 		.mwdma_mask	= 0x07, /* mwdma0-2 */
- 		.udma_mask	= 0x7f, /* udma0-6 ; FIXME */
-@@ -184,8 +185,7 @@ static struct ata_port_info pdc_port_inf
- 	/* board_20619 */
- 	{
- 		.sht		= &pdc_ata_sht,
--		.host_flags	= ATA_FLAG_NO_LEGACY | ATA_FLAG_SRST |
--				  ATA_FLAG_MMIO | ATA_FLAG_SLAVE_POSS,
-+		.host_flags	= PDC_COMMON_FLAGS | ATA_FLAG_SLAVE_POSS,
- 		.pio_mask	= 0x1f, /* pio0-4 */
- 		.mwdma_mask	= 0x07, /* mwdma0-2 */
- 		.udma_mask	= 0x7f, /* udma0-6 ; FIXME */
-@@ -401,7 +401,8 @@ static void pdc_eng_timeout(struct ata_p
- 	case ATA_PROT_NODATA:
- 		printk(KERN_ERR "ata%u: command timeout\n", ap->id);
- 		drv_stat = ata_wait_idle(ap);
--		ata_qc_complete(qc, __ac_err_mask(drv_stat));
-+		qc->err_mask |= __ac_err_mask(drv_stat);
-+		ata_qc_complete(qc);
- 		break;
- 
- 	default:
-@@ -410,7 +411,8 @@ static void pdc_eng_timeout(struct ata_p
- 		printk(KERN_ERR "ata%u: unknown timeout, cmd 0x%x stat 0x%x\n",
- 		       ap->id, qc->tf.command, drv_stat);
- 
--		ata_qc_complete(qc, ac_err_mask(drv_stat));
-+		qc->err_mask |= ac_err_mask(drv_stat);
-+		ata_qc_complete(qc);
- 		break;
- 	}
- 
-@@ -422,21 +424,21 @@ out:
- static inline unsigned int pdc_host_intr( struct ata_port *ap,
-                                           struct ata_queued_cmd *qc)
- {
--	unsigned int handled = 0, err_mask = 0;
-+	unsigned int handled = 0;
- 	u32 tmp;
- 	void __iomem *mmio = (void __iomem *) ap->ioaddr.cmd_addr + PDC_GLOBAL_CTL;
- 
- 	tmp = readl(mmio);
- 	if (tmp & PDC_ERR_MASK) {
--		err_mask = AC_ERR_DEV;
-+		qc->err_mask |= AC_ERR_DEV;
- 		pdc_reset_port(ap);
- 	}
- 
- 	switch (qc->tf.protocol) {
- 	case ATA_PROT_DMA:
- 	case ATA_PROT_NODATA:
--		err_mask |= ac_err_mask(ata_wait_idle(ap));
--		ata_qc_complete(qc, err_mask);
-+		qc->err_mask |= ac_err_mask(ata_wait_idle(ap));
-+		ata_qc_complete(qc);
- 		handled = 1;
- 		break;
- 
-@@ -703,7 +705,7 @@ static int pdc_ata_init_one (struct pci_
- 		probe_ent->port[3].scr_addr = base + 0x700;
- 		break;
- 	case board_2037x:
--       		probe_ent->n_ports = 2;
-+		probe_ent->n_ports = 2;
- 		break;
- 	case board_20619:
- 		probe_ent->n_ports = 4;
-@@ -713,7 +715,7 @@ static int pdc_ata_init_one (struct pci_
- 
- 		probe_ent->port[2].scr_addr = base + 0x600;
- 		probe_ent->port[3].scr_addr = base + 0x700;
--                break;
-+		break;
- 	default:
- 		BUG();
- 		break;
-diff --git a/drivers/scsi/sata_qstor.c b/drivers/scsi/sata_qstor.c
-index a8987f5..de05e28 100644
---- a/drivers/scsi/sata_qstor.c
-+++ b/drivers/scsi/sata_qstor.c
-@@ -170,7 +170,7 @@ static const struct ata_port_operations 
- 	.bmdma_status		= qs_bmdma_status,
- };
- 
--static struct ata_port_info qs_port_info[] = {
-+static const struct ata_port_info qs_port_info[] = {
- 	/* board_2068_idx */
- 	{
- 		.sht		= &qs_ata_sht,
-@@ -409,8 +409,8 @@ static inline unsigned int qs_intr_pkt(s
- 					case 3: /* device error */
- 						pp->state = qs_state_idle;
- 						qs_enter_reg_mode(qc->ap);
--						ata_qc_complete(qc,
--							ac_err_mask(sDST));
-+						qc->err_mask |= ac_err_mask(sDST);
-+						ata_qc_complete(qc);
- 						break;
- 					default:
- 						break;
-@@ -447,7 +447,8 @@ static inline unsigned int qs_intr_mmio(
- 
- 				/* complete taskfile transaction */
- 				pp->state = qs_state_idle;
--				ata_qc_complete(qc, ac_err_mask(status));
-+				qc->err_mask |= ac_err_mask(status);
-+				ata_qc_complete(qc);
- 				handled = 1;
- 			}
- 		}
-diff --git a/drivers/scsi/sata_sil.c b/drivers/scsi/sata_sil.c
-index 3609186..d205348 100644
---- a/drivers/scsi/sata_sil.c
-+++ b/drivers/scsi/sata_sil.c
-@@ -176,7 +176,7 @@ static const struct ata_port_operations 
- 	.host_stop		= ata_pci_host_stop,
- };
- 
--static struct ata_port_info sil_port_info[] = {
-+static const struct ata_port_info sil_port_info[] = {
- 	/* sil_3112 */
- 	{
- 		.sht		= &sil_sht,
-diff --git a/drivers/scsi/sata_sil24.c b/drivers/scsi/sata_sil24.c
-index e0d6f19..a0ad3ed 100644
---- a/drivers/scsi/sata_sil24.c
-+++ b/drivers/scsi/sata_sil24.c
-@@ -654,7 +654,8 @@ static void sil24_eng_timeout(struct ata
- 	 */
- 	printk(KERN_ERR "ata%u: command timeout\n", ap->id);
- 	qc->scsidone = scsi_finish_command;
--	ata_qc_complete(qc, AC_ERR_OTHER);
-+	qc->err_mask |= AC_ERR_OTHER;
-+	ata_qc_complete(qc);
- 
- 	sil24_reset_controller(ap);
- }
-@@ -711,8 +712,10 @@ static void sil24_error_intr(struct ata_
- 		sil24_reset_controller(ap);
- 	}
- 
--	if (qc)
--		ata_qc_complete(qc, err_mask);
-+	if (qc) {
-+		qc->err_mask |= err_mask;
-+		ata_qc_complete(qc);
-+	}
- }
- 
- static inline void sil24_host_intr(struct ata_port *ap)
-@@ -734,8 +737,10 @@ static inline void sil24_host_intr(struc
- 		 */
- 		sil24_update_tf(ap);
- 
--		if (qc)
--			ata_qc_complete(qc, ac_err_mask(pp->tf.command));
-+		if (qc) {
-+			qc->err_mask |= ac_err_mask(pp->tf.command);
-+			ata_qc_complete(qc);
-+		}
- 	} else
- 		sil24_error_intr(ap, slot_stat);
- }
-diff --git a/drivers/scsi/sata_sx4.c b/drivers/scsi/sata_sx4.c
-index dcc3ad9..94b253b 100644
---- a/drivers/scsi/sata_sx4.c
-+++ b/drivers/scsi/sata_sx4.c
-@@ -215,12 +215,13 @@ static const struct ata_port_operations 
- 	.host_stop		= pdc20621_host_stop,
- };
- 
--static struct ata_port_info pdc_port_info[] = {
-+static const struct ata_port_info pdc_port_info[] = {
- 	/* board_20621 */
- 	{
- 		.sht		= &pdc_sata_sht,
- 		.host_flags	= ATA_FLAG_SATA | ATA_FLAG_NO_LEGACY |
--				  ATA_FLAG_SRST | ATA_FLAG_MMIO,
-+				  ATA_FLAG_SRST | ATA_FLAG_MMIO |
-+				  ATA_FLAG_NO_ATAPI,
- 		.pio_mask	= 0x1f, /* pio0-4 */
- 		.mwdma_mask	= 0x07, /* mwdma0-2 */
- 		.udma_mask	= 0x7f, /* udma0-6 ; FIXME */
-@@ -718,7 +719,8 @@ static inline unsigned int pdc20621_host
- 			VPRINTK("ata%u: read hdma, 0x%x 0x%x\n", ap->id,
- 				readl(mmio + 0x104), readl(mmio + PDC_HDMA_CTLSTAT));
- 			/* get drive status; clear intr; complete txn */
--			ata_qc_complete(qc, ac_err_mask(ata_wait_idle(ap)));
-+			qc->err_mask |= ac_err_mask(ata_wait_idle(ap));
-+			ata_qc_complete(qc);
- 			pdc20621_pop_hdma(qc);
- 		}
- 
-@@ -756,7 +758,8 @@ static inline unsigned int pdc20621_host
- 			VPRINTK("ata%u: write ata, 0x%x 0x%x\n", ap->id,
- 				readl(mmio + 0x104), readl(mmio + PDC_HDMA_CTLSTAT));
- 			/* get drive status; clear intr; complete txn */
--			ata_qc_complete(qc, ac_err_mask(ata_wait_idle(ap)));
-+			qc->err_mask |= ac_err_mask(ata_wait_idle(ap));
-+			ata_qc_complete(qc);
- 			pdc20621_pop_hdma(qc);
- 		}
- 		handled = 1;
-@@ -766,7 +769,8 @@ static inline unsigned int pdc20621_host
- 
- 		status = ata_busy_wait(ap, ATA_BUSY | ATA_DRQ, 1000);
- 		DPRINTK("BUS_NODATA (drv_stat 0x%X)\n", status);
--		ata_qc_complete(qc, ac_err_mask(status));
-+		qc->err_mask |= ac_err_mask(status);
-+		ata_qc_complete(qc);
- 		handled = 1;
- 
- 	} else {
-@@ -881,7 +885,8 @@ static void pdc_eng_timeout(struct ata_p
- 	case ATA_PROT_DMA:
- 	case ATA_PROT_NODATA:
- 		printk(KERN_ERR "ata%u: command timeout\n", ap->id);
--		ata_qc_complete(qc, __ac_err_mask(ata_wait_idle(ap)));
-+		qc->err_mask |= __ac_err_mask(ata_wait_idle(ap));
-+		ata_qc_complete(qc);
- 		break;
- 
- 	default:
-@@ -890,7 +895,8 @@ static void pdc_eng_timeout(struct ata_p
- 		printk(KERN_ERR "ata%u: unknown timeout, cmd 0x%x stat 0x%x\n",
- 		       ap->id, qc->tf.command, drv_stat);
- 
--		ata_qc_complete(qc, ac_err_mask(drv_stat));
-+		qc->err_mask |= ac_err_mask(drv_stat);
-+		ata_qc_complete(qc);
- 		break;
- 	}
- 
-diff --git a/include/linux/libata.h b/include/linux/libata.h
-index f2dbb68..e828e17 100644
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -122,6 +122,7 @@ enum {
- 	ATA_FLAG_NOINTR		= (1 << 9), /* FIXME: Remove this once
- 					     * proper HSM is in place. */
- 	ATA_FLAG_DEBUGMSG	= (1 << 10),
-+	ATA_FLAG_NO_ATAPI	= (1 << 11), /* No ATAPI support */
- 
- 	ATA_QCFLAG_ACTIVE	= (1 << 1), /* cmd not yet ack'd to scsi lyer */
- 	ATA_QCFLAG_SG		= (1 << 3), /* have s/g table? */
-@@ -135,6 +136,8 @@ enum {
- 	ATA_TMOUT_BOOT_QUICK	= 7 * HZ,	/* hueristic */
- 	ATA_TMOUT_CDB		= 30 * HZ,
- 	ATA_TMOUT_CDB_QUICK	= 5 * HZ,
-+	ATA_TMOUT_INTERNAL	= 30 * HZ,
-+	ATA_TMOUT_INTERNAL_QUICK = 5 * HZ,
- 
- 	/* ATA bus states */
- 	BUS_UNKNOWN		= 0,
-@@ -194,7 +197,7 @@ struct ata_port;
- struct ata_queued_cmd;
- 
- /* typedefs */
--typedef int (*ata_qc_cb_t) (struct ata_queued_cmd *qc, unsigned int err_mask);
-+typedef int (*ata_qc_cb_t) (struct ata_queued_cmd *qc);
- 
- struct ata_ioports {
- 	unsigned long		cmd_addr;
-@@ -279,9 +282,9 @@ struct ata_queued_cmd {
- 	/* DO NOT iterate over __sg manually, use ata_for_each_sg() */
- 	struct scatterlist	*__sg;
- 
--	ata_qc_cb_t		complete_fn;
-+	unsigned int		err_mask;
- 
--	struct completion	*waiting;
-+	ata_qc_cb_t		complete_fn;
- 
- 	void			*private_data;
- };
-@@ -330,8 +333,6 @@ struct ata_port {
- 
- 	u8			ctl;	/* cache of ATA control register */
- 	u8			last_ctl;	/* Cache last written value */
--	unsigned int		bus_state;
--	unsigned int		port_state;
- 	unsigned int		pio_mask;
- 	unsigned int		mwdma_mask;
- 	unsigned int		udma_mask;
-@@ -477,7 +478,7 @@ extern void ata_bmdma_start (struct ata_
- extern void ata_bmdma_stop(struct ata_queued_cmd *qc);
- extern u8   ata_bmdma_status(struct ata_port *ap);
- extern void ata_bmdma_irq_clear(struct ata_port *ap);
--extern void ata_qc_complete(struct ata_queued_cmd *qc, unsigned int err_mask);
-+extern void ata_qc_complete(struct ata_queued_cmd *qc);
- extern void ata_eng_timeout(struct ata_port *ap);
- extern void ata_scsi_simulate(u16 *id, struct scsi_cmnd *cmd,
- 			      void (*done)(struct scsi_cmnd *));
-@@ -669,6 +670,7 @@ static inline void ata_qc_reinit(struct 
- 	qc->cursect = qc->cursg = qc->cursg_ofs = 0;
- 	qc->nsect = 0;
- 	qc->nbytes = qc->curbytes = 0;
-+	qc->err_mask = 0;
- 
- 	ata_tf_init(qc->ap, &qc->tf, qc->dev->devno);
- }
+ enum spi_signal_type {

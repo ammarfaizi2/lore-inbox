@@ -1,96 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932616AbVLMXGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbVLMXIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932616AbVLMXGd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 18:06:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbVLMXGc
+	id S932619AbVLMXIz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 18:08:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbVLMXIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 18:06:32 -0500
-Received: from uproxy.gmail.com ([66.249.92.198]:48179 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932608AbVLMXGa (ORCPT
+	Tue, 13 Dec 2005 18:08:55 -0500
+Received: from amdext4.amd.com ([163.181.251.6]:30353 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S932619AbVLMXIy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 18:06:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=OPPxevNH1PmRlTaC5Moa1YBhSfUxPIOUB5Jb8DOi6Ve8xU0JWCNFHI9T1ZX2+k7bwae/ztKAjyQ3jtFahn5dTlc7zI/wI73vVnOJOnVc7bxEa+iYr0kSwAyzB38bClMvQ5WU7TRyvtP4VyyLAui7DlLctbrFDcejraG2pqx77ic=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix warning and missing failure handling for scsi_add_host in aic7xxx driver
-Date: Wed, 14 Dec 2005 00:07:19 +0100
-User-Agent: KMail/1.9
-Cc: linux-scsi@vger.kernel.org,
-       "James E.J. Bottomley" <James.Bottomley@steeleye.com>,
-       "Daniel M. Eischen" <deischen@iworks.interworks.org>,
-       Doug Ledford <dledford@redhat.com>,
-       James.Bottomley@hansenpartnership.com,
-       Jesper Juhl <jesper.juhl@gmail.com>
+	Tue, 13 Dec 2005 18:08:54 -0500
+X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
+Date: Tue, 13 Dec 2005 16:10:15 -0700
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: gardner.ben@gmail.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386: GPIO driver for AMD CS5535/CS5536
+Message-ID: <20051213231015.GB8896@cosmic.amd.com>
 MIME-Version: 1.0
+User-Agent: Mutt/1.5.11
+X-WSS-ID: 6F818BFD1BK2017129-01-01
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+ charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512140007.20046.jesper.juhl@gmail.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> A simple driver for the CS5535 and CS5536 that allows a user-space
+> program to manipulate GPIO pins.
+> The CS5535/CS5536 chips are Geode processor companion devices.
 
-Here's a patch to fix a compiler warning and problem with missing failure 
-handling of scsi_add_host noted in comment in aic7xxx_osm
+> Signed-off-by: Ben Gardner <bgardner <at> wabtec.com>
 
-The warning I see (with 2.6.15-rc5-git3) is this one:
-drivers/scsi/aic7xxx/aic7xxx_osm.c:1100: warning: ignoring return value of csi_add_host', declared with attribute warn_unused_result
+This all looks excellent to me.  Just FYI - If you want to get rid of the
+rdmsr and just use the PCI header, you can also get the IO base of the 
+GPIO registers from BAR1 of the DIVIL device.   Not a big deal,
+but some people like to stay away from MSR accesses if they can avoid it.
 
-The patch has seen the following testing:
- - compile tested
- - boot tested on a machine using the AIC7XXX driver
+Thanks for your hard work - its good to see Geode users pop up in the
+community! :)
 
-Please review and consider for inclusion.
+Jordan
+-- 
+Jordan Crouse
+Senior Linux Engineer
+AMD - Personal Connectivity Solutions Group
+<www.amd.com/embeddedprocessors>
 
-
-Signed-off-by: Jesper Juhl <jeser.juhl@gmail.com>
----
-
- drivers/scsi/aic7xxx/aic7xxx_osm.c |   22 +++++++++++++++++-----
- 1 files changed, 17 insertions(+), 5 deletions(-)
-
---- linux-2.6.15-rc5-git3-orig/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-12-04 18:48:12.000000000 +0100
-+++ linux-2.6.15-rc5-git3/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-12-13 23:47:45.000000000 +0100
-@@ -1061,10 +1061,11 @@ uint32_t aic7xxx_verbose;
- int
- ahc_linux_register_host(struct ahc_softc *ahc, struct scsi_host_template *template)
- {
--	char	 buf[80];
--	struct	 Scsi_Host *host;
-+	char	buf[80];
-+	struct	Scsi_Host *host;
- 	char	*new_name;
--	u_long	 s;
-+	u_long	s;
-+	int	retval = 0;
- 
- 	template->name = ahc->description;
- 	host = scsi_host_alloc(template, sizeof(struct ahc_softc *));
-@@ -1097,9 +1098,20 @@ ahc_linux_register_host(struct ahc_softc
- 
- 	host->transportt = ahc_linux_transport_template;
- 
--	scsi_add_host(host, (ahc->dev_softc ? &ahc->dev_softc->dev : NULL)); /* XXX handle failure */
-+	retval = scsi_add_host(host,
-+			(ahc->dev_softc ? &ahc->dev_softc->dev : NULL));
-+	if (retval) {
-+		printk(KERN_ERR "aic7xxx: scsi_add_host failed\n");
-+		goto free_and_out;
-+	}
-+
- 	scsi_scan_host(host);
--	return (0);
-+
-+out:
-+	return retval;
-+free_and_out:
-+	scsi_remove_host(host);
-+	goto out;
- }
- 
- /*

@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbVLMDAH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbVLMDAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbVLMDAH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 22:00:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVLMDAH
+	id S932375AbVLMDAw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 22:00:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVLMDAn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 22:00:07 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:53997 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932371AbVLMDAF (ORCPT
+	Mon, 12 Dec 2005 22:00:43 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:1002 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932378AbVLMDAL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 22:00:05 -0500
-Subject: [PATCH -mm 1/9] unshare system call : system call handler function
-	sys_unshare
+	Mon, 12 Dec 2005 22:00:11 -0500
+Subject: [PATCH -mm 4/9] unshare system call : system call registration for
+	ppc
 From: JANAK DESAI <janak@us.ibm.com>
 Reply-To: janak@us.ibm.com
 To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
@@ -19,277 +19,34 @@ To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
        janak@us.ibm.com
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1134441680.14136.5.camel@hobbs.atlanta.ibm.com>
+Message-Id: <1134442665.14136.119.camel@hobbs.atlanta.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 12 Dec 2005 21:59:50 -0500
+Date: Mon, 12 Dec 2005 22:00:02 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[PATCH -mm 1/9] unshare system call: System call handler function
-sys_unshare
+[PATCH -mm 4/9] unshare system call: System call registration for ppc
                                                                                 
 Signed-off-by: Janak Desai
+                                                                                
 
-
- fork.c |  235
-+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 235 insertions(+)
+ misc.S |    1 +
+ 1 files changed, 1 insertion(+)
  
  
-diff -Naurp 2.6.15-rc5-mm2/kernel/fork.c
-2.6.15-rc5-mm2+patch/kernel/fork.c
---- 2.6.15-rc5-mm2/kernel/fork.c	2005-12-12 03:05:59.000000000 +0000
-+++ 2.6.15-rc5-mm2+patch/kernel/fork.c	2005-12-12 19:31:48.000000000
+diff -Naurp 2.6.15-rc5-mm2/arch/ppc/kernel/misc.S
+2.6.15-rc5-mm2+ppc/arch/ppc/kernel/misc.S
+--- 2.6.15-rc5-mm2/arch/ppc/kernel/misc.S	2005-12-12 03:05:39.000000000
 +0000
-@@ -1330,3 +1330,238 @@ void __init proc_caches_init(void)
- 			sizeof(struct mm_struct), 0,
- 			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
- }
-+
-+
-+/*
-+ * Check constraints on flags passed to the unshare system call and
-+ * force unsharing of additional process context as appropriate.
-+ */
-+static inline void check_unshare_flags(unsigned long *flags_ptr)
-+{
-+	/*
-+	 * If unsharing a thread from a thread group, must also
-+	 * unshare vm.
-+	 */
-+	if (*flags_ptr & CLONE_THREAD)
-+		*flags_ptr |= CLONE_VM;
-+
-+	/*
-+	 * If unsharing vm, must also unshare signal handlers.
-+	 */
-+	if (*flags_ptr & CLONE_VM)
-+		*flags_ptr |= CLONE_SIGHAND;
-+
-+	/*
-+	 * If unsharing signal handlers and the task was created
-+	 * using CLONE_THREAD, then must unshare the thread
-+	 */
-+	if ((*flags_ptr & CLONE_SIGHAND) &&
-+	    (atomic_read(&current->signal->count) > 1))
-+		*flags_ptr |= CLONE_THREAD;
-+
-+	/*
-+	 * If unsharing namespace, must also unshare filesystem information.
-+	 */
-+	if (*flags_ptr & CLONE_NEWNS)
-+		*flags_ptr |= CLONE_FS;
-+}
-+
-+/*
-+ * Unsharing of tasks created with CLONE_THREAD is not supported yet
-+ */
-+static int unshare_thread(unsigned long unshare_flags)
-+{
-+	if (unshare_flags & CLONE_THREAD)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Unsharing of fs info for tasks created with CLONE_FS is not
-supported yet
-+ */
-+static int unshare_fs(unsigned long unshare_flags, struct fs_struct
-**new_fsp)
-+{
-+	struct fs_struct *fs = current->fs;
-+
-+	if ((unshare_flags & CLONE_FS) &&
-+	    (fs && atomic_read(&fs->count) > 1))
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Unsharing of namespace for tasks created without CLONE_NEWNS is not
-+ * supported yet
-+ */
-+static int unshare_namespace(unsigned long unshare_flags, struct
-namespace **new_nsp)
-+{
-+	struct namespace *ns = current->namespace;
-+
-+	if ((unshare_flags & CLONE_NEWNS) &&
-+	    (ns && atomic_read(&ns->count) > 1))
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Unsharing of sighand for tasks created with CLONE_SIGHAND is not
-+ * supported yet
-+ */
-+static int unshare_sighand(unsigned long unshare_flags, struct
-sighand_struct **new_sighp)
-+{
-+	struct sighand_struct *sigh = current->sighand;
-+
-+	if ((unshare_flags & CLONE_SIGHAND) &&
-+	    (sigh && atomic_read(&sigh->count) > 1))
-+		return -EINVAL;
-+	else
-+		return 0;
-+}
-+
-+/*
-+ * Unsharing of vm for tasks created with CLONE_VM is not supported yet
-+ */
-+static int unshare_vm(unsigned long unshare_flags, struct mm_struct
-**new_mmp)
-+{
-+	struct mm_struct *mm = current->mm;
-+
-+	if ((unshare_flags & CLONE_VM) &&
-+	    (mm && atomic_read(&mm->mm_users) > 1))
-+		return -EINVAL;
-+
-+	return 0;
-+
-+}
-+
-+/*
-+ * Unsharing of files for tasks created with CLONE_FILES is not
-supported yet
-+ */
-+static int unshare_fd(unsigned long unshare_flags, struct files_struct
-**new_fdp)
-+{
-+	struct files_struct *fd = current->files;
-+
-+	if ((unshare_flags & CLONE_FILES) &&
-+	    (fd && atomic_read(&fd->count) > 1))
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+/*
-+ * Unsharing of semundo for tasks created with CLONE_SYSVSEM is not
-+ * supported yet
-+ */
-+static int unshare_semundo(unsigned long unshare_flags, struct
-sem_undo_list **new_ulistp)
-+{
-+	if (unshare_flags & CLONE_SYSVSEM)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+/*
-+ * unshare allows a process to 'unshare' part of the process
-+ * context which was originally shared using clone.  copy_*
-+ * functions used by do_fork() cannot be used here directly
-+ * because they modify an inactive task_struct that is being
-+ * constructed. Here we are modifying the current, active,
-+ * task_struct.
-+ */
-+asmlinkage long sys_unshare(unsigned long unshare_flags)
-+{
-+	int err = 0;
-+	struct fs_struct *fs, *new_fs = NULL;
-+	struct namespace *ns, *new_ns = NULL;
-+	struct sighand_struct *sigh, *new_sigh = NULL;
-+	struct mm_struct *mm, *new_mm = NULL, *active_mm = NULL;
-+	struct files_struct *fd, *new_fd = NULL;
-+	struct sem_undo_list *new_ulist = NULL;
-+
-+	check_unshare_flags(&unshare_flags);
-+
-+	if ((err = unshare_thread(unshare_flags)))
-+		goto bad_unshare_out;
-+	if ((err = unshare_fs(unshare_flags, &new_fs)))
-+		goto bad_unshare_cleanup_thread;
-+	if ((err = unshare_namespace(unshare_flags, &new_ns)))
-+		goto bad_unshare_cleanup_fs;
-+	if ((err = unshare_sighand(unshare_flags, &new_sigh)))
-+		goto bad_unshare_cleanup_ns;
-+	if ((err = unshare_vm(unshare_flags, &new_mm)))
-+		goto bad_unshare_cleanup_sigh;
-+	if ((err = unshare_fd(unshare_flags, &new_fd)))
-+		goto bad_unshare_cleanup_vm;
-+	if ((err = unshare_semundo(unshare_flags, &new_ulist)))
-+		goto bad_unshare_cleanup_fd;
-+
-+	if (new_fs || new_ns || new_sigh || new_mm || new_fd || new_ulist) {
-+
-+		task_lock(current);
-+
-+		if (new_fs) {
-+			fs = current->fs;
-+			current->fs = new_fs;
-+			put_fs_struct(fs);
-+		}
-+
-+		if (new_ns) {
-+			ns = current->namespace;
-+			current->namespace = new_ns;
-+			put_namespace(ns);
-+		}
-+
-+		if (new_sigh) {
-+			sigh = current->sighand;
-+			current->sighand = new_sigh;
-+			if (atomic_dec_and_test(&sigh->count))
-+				kmem_cache_free(sighand_cachep, sigh);
-+		}
-+
-+		if (new_mm) {
-+			mm = current->mm;
-+			active_mm = current->active_mm;
-+			current->mm = new_mm;
-+			current->active_mm = new_mm;
-+			activate_mm(active_mm, new_mm);
-+			mmput(mm);
-+		}
-+
-+		if (new_fd) {
-+			fd = current->files;
-+			current->files = new_fd;
-+			put_files_struct(fd);
-+		}
-+
-+		task_unlock(current);
-+	}
-+
-+	return 0;
-+
-+bad_unshare_cleanup_fd:
-+	if (new_fd)
-+		put_files_struct(new_fd);
-+
-+bad_unshare_cleanup_vm:
-+	if (new_mm)
-+		mmput(new_mm);
-+
-+bad_unshare_cleanup_sigh:
-+	if (new_sigh)
-+		if (atomic_dec_and_test(&new_sigh->count))
-+			kmem_cache_free(sighand_cachep, new_sigh);
-+
-+bad_unshare_cleanup_ns:
-+	if (new_ns)
-+		put_namespace(new_ns);
-+
-+bad_unshare_cleanup_fs:
-+	if (new_fs)
-+		put_fs_struct(new_fs);
-+
-+bad_unshare_cleanup_thread:
-+bad_unshare_out:
-+	return err;
-+}
++++ 2.6.15-rc5-mm2+ppc/arch/ppc/kernel/misc.S	2005-12-12
+20:24:32.000000000 +0000
+@@ -1406,3 +1406,4 @@ _GLOBAL(sys_call_table)
+ 	.long sys_ni_syscall
+ 	.long sys_ni_syscall
+ 	.long sys_migrate_pages		/* 280 */
++	.long sys_unshare
 
 

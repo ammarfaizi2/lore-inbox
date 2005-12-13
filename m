@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbVLMC2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbVLMC3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932367AbVLMC2a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 21:28:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbVLMC2a
+	id S932368AbVLMC3J (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 21:29:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVLMC3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 21:28:30 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:56069 "HELO
+	Mon, 12 Dec 2005 21:29:09 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:58629 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932366AbVLMC23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 21:28:29 -0500
-Date: Tue, 13 Dec 2005 03:28:29 +0100
+	id S932368AbVLMC3G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 21:29:06 -0500
+Date: Tue, 13 Dec 2005 03:29:06 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: andrew.vasquez@qlogic.com, linux-scsi@vger.kernel.org,
+Cc: Jean Tourrilhes <jt@hpl.hp.com>, jgarzik@pobox.com, netdev@vger.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/qla2xxx/: possible cleanups
-Message-ID: <20051213022829.GZ23349@stusta.de>
+Subject: [2.6 patch] kill drivers/net/irda/sir_core.c
+Message-ID: <20051213022906.GB23349@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,125 +23,221 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- #if 0 the following unused global functions:
-  - qla_sup.c: qla24xx_get_flash_manufacturer
-  - qla_sup.c: qla24xx_write_flash_data
+EXPORT_SYMBOL's do nowadays belong to the files where the actual 
+functions are.
+
+Moving the module_init/module_exit to the file with the actual functions 
+has the advantage of saving a few bytes due to the removal of two 
+functions.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Acked-by: Jean Tourrilhes <jt@hpl.hp.com>
 
 ---
 
 This patch was already sent on:
-- 20 Nov 2005
+- 21 Nov 2005
 
- drivers/scsi/qla2xxx/qla_os.c  |   14 +++++++-------
- drivers/scsi/qla2xxx/qla_sup.c |    8 ++++++--
- 2 files changed, 13 insertions(+), 9 deletions(-)
+ drivers/net/irda/Makefile      |    2 -
+ drivers/net/irda/sir-dev.h     |    2 -
+ drivers/net/irda/sir_core.c    |   56 ---------------------------------
+ drivers/net/irda/sir_dev.c     |   10 +++++
+ drivers/net/irda/sir_dongle.c  |    2 +
+ drivers/net/irda/sir_kthread.c |   11 +++++-
+ 6 files changed, 21 insertions(+), 62 deletions(-)
 
---- linux-2.6.15-rc1-mm2-full/drivers/scsi/qla2xxx/qla_os.c.old	2005-11-20 19:56:43.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/drivers/scsi/qla2xxx/qla_os.c	2005-11-20 20:04:14.000000000 +0100
-@@ -54,7 +54,7 @@
- MODULE_PARM_DESC(ql2xloginretrycount,
- 		"Specify an alternate value for the NVRAM login retry count.");
+--- linux-2.6.15-rc1-mm2-full/drivers/net/irda/Makefile.old	2005-11-20 20:22:17.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/net/irda/Makefile	2005-11-20 20:22:24.000000000 +0100
+@@ -45,4 +45,4 @@
+ obj-$(CONFIG_MA600_DONGLE)	+= ma600-sir.o
  
--int ql2xfwloadbin=1;
-+static int ql2xfwloadbin=1;
- module_param(ql2xfwloadbin, int, S_IRUGO|S_IRUSR);
- MODULE_PARM_DESC(ql2xfwloadbin,
- 		"Load ISP2xxx firmware image via hotplug.");
-@@ -266,7 +266,7 @@
- 	return str;
+ # The SIR helper module
+-sir-dev-objs := sir_core.o sir_dev.o sir_dongle.o sir_kthread.o
++sir-dev-objs := sir_dev.o sir_dongle.o sir_kthread.o
+--- linux-2.6.15-rc1-mm2-full/drivers/net/irda/sir-dev.h.old	2005-11-20 20:18:25.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/net/irda/sir-dev.h	2005-11-20 20:18:37.000000000 +0100
+@@ -133,8 +133,6 @@
+ 
+ extern void sirdev_enable_rx(struct sir_dev *dev);
+ extern int sirdev_schedule_request(struct sir_dev *dev, int state, unsigned param);
+-extern int __init irda_thread_create(void);
+-extern void __exit irda_thread_join(void);
+ 
+ /* inline helpers */
+ 
+--- linux-2.6.15-rc1-mm2-full/drivers/net/irda/sir_kthread.c.old	2005-11-20 20:18:47.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/net/irda/sir_kthread.c	2005-11-20 20:42:21.000000000 +0100
+@@ -466,7 +466,7 @@
+ 	return 0;
  }
  
--char *
-+static char *
- qla2x00_fw_version_str(struct scsi_qla_host *ha, char *str)
+-int __init irda_thread_create(void)
++static int __init irda_thread_create(void)
  {
- 	char un_str[10];
-@@ -304,7 +304,7 @@
- 	return (str);
+ 	struct completion startup;
+ 	int pid;
+@@ -488,7 +488,7 @@
+ 	return 0;
  }
  
--char *
-+static char *
- qla24xx_fw_version_str(struct scsi_qla_host *ha, char *str)
+-void __exit irda_thread_join(void) 
++static void __exit irda_thread_join(void) 
  {
- 	sprintf(str, "%d.%02d.%02d ", ha->fw_major_version,
-@@ -580,7 +580,7 @@
- *
- * Note:
- **************************************************************************/
--int
-+static int
- qla2xxx_eh_abort(struct scsi_cmnd *cmd)
- {
- 	scsi_qla_host_t *ha = to_qla_host(cmd->device->host);
-@@ -714,7 +714,7 @@
- *    SUCCESS/FAILURE (defined as macro in scsi.h).
- *
- **************************************************************************/
--int
-+static int
- qla2xxx_eh_device_reset(struct scsi_cmnd *cmd)
- {
- 	scsi_qla_host_t *ha = to_qla_host(cmd->device->host);
-@@ -845,7 +845,7 @@
- *    SUCCESS/FAILURE (defined as macro in scsi.h).
- *
- **************************************************************************/
--int
-+static int
- qla2xxx_eh_bus_reset(struct scsi_cmnd *cmd)
- {
- 	scsi_qla_host_t *ha = to_qla_host(cmd->device->host);
-@@ -906,7 +906,7 @@
- *
- * Note:
- **************************************************************************/
--int
-+static int
- qla2xxx_eh_host_reset(struct scsi_cmnd *cmd)
- {
- 	scsi_qla_host_t *ha = to_qla_host(cmd->device->host);
---- linux-2.6.15-rc1-mm2-full/drivers/scsi/qla2xxx/qla_sup.c.old	2005-11-20 19:58:00.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/drivers/scsi/qla2xxx/qla_sup.c	2005-11-20 20:00:10.000000000 +0100
-@@ -428,7 +428,7 @@
- 	return FARX_ACCESS_NVRAM_DATA | naddr;
+ 	if (irda_rq_queue.thread) {
+ 		flush_irda_queue();
+@@ -499,3 +499,10 @@
+ 	}
  }
  
--uint32_t
-+static uint32_t
- qla24xx_read_flash_dword(scsi_qla_host_t *ha, uint32_t addr)
- {
- 	int rval;
-@@ -469,7 +469,7 @@
- 	return dwptr;
- }
- 
--int
-+static int
- qla24xx_write_flash_dword(scsi_qla_host_t *ha, uint32_t addr, uint32_t data)
- {
- 	int rval;
-@@ -491,6 +491,8 @@
- 	return rval;
- }
- 
-+#if 0
++module_init(irda_thread_create);
++module_exit(irda_thread_join);
 +
- void
- qla24xx_get_flash_manufacturer(scsi_qla_host_t *ha, uint8_t *man_id,
-     uint8_t *flash_id)
-@@ -581,6 +583,8 @@
++MODULE_AUTHOR("Martin Diehl <info@mdiehl.de>");
++MODULE_DESCRIPTION("IrDA SIR core");
++MODULE_LICENSE("GPL");
++
+--- linux-2.6.15-rc1-mm2-full/drivers/net/irda/sir_dongle.c.old	2005-11-20 20:21:23.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/net/irda/sir_dongle.c	2005-11-20 20:22:02.000000000 +0100
+@@ -50,6 +50,7 @@
+ 	up(&dongle_list_lock);
+ 	return 0;
+ }
++EXPORT_SYMBOL(irda_register_dongle);
+ 
+ int irda_unregister_dongle(struct dongle_driver *drv)
+ {
+@@ -58,6 +59,7 @@
+ 	up(&dongle_list_lock);
+ 	return 0;
+ }
++EXPORT_SYMBOL(irda_unregister_dongle);
+ 
+ int sirdev_get_dongle(struct sir_dev *dev, IRDA_DONGLE type)
+ {
+--- linux-2.6.15-rc1-mm2-full/drivers/net/irda/sir_dev.c.old	2005-11-20 20:22:37.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/net/irda/sir_dev.c	2005-11-20 20:24:00.000000000 +0100
+@@ -60,6 +60,7 @@
+ 	up(&dev->fsm.sem);
+ 	return err;
+ }
++EXPORT_SYMBOL(sirdev_set_dongle);
+ 
+ /* used by dongle drivers for dongle programming */
+ 
+@@ -94,6 +95,7 @@
+ 	spin_unlock_irqrestore(&dev->tx_lock, flags);
  	return ret;
  }
++EXPORT_SYMBOL(sirdev_raw_write);
  
-+#endif  /*  0  */
+ /* seems some dongle drivers may need this */
+ 
+@@ -116,6 +118,7 @@
+ 
+ 	return count;
+ }
++EXPORT_SYMBOL(sirdev_raw_read);
+ 
+ int sirdev_set_dtr_rts(struct sir_dev *dev, int dtr, int rts)
+ {
+@@ -124,7 +127,8 @@
+ 		ret =  dev->drv->set_dtr_rts(dev, dtr, rts);
+ 	return ret;
+ }
+-	
++EXPORT_SYMBOL(sirdev_set_dtr_rts);
 +
- uint8_t *
- qla2x00_read_nvram_data(scsi_qla_host_t *ha, uint8_t *buf, uint32_t naddr,
-     uint32_t bytes)
+ /**********************************************************************/
+ 
+ /* called from client driver - likely with bh-context - to indicate
+@@ -227,6 +231,7 @@
+ done:
+ 	spin_unlock_irqrestore(&dev->tx_lock, flags);
+ }
++EXPORT_SYMBOL(sirdev_write_complete);
+ 
+ /* called from client driver - likely with bh-context - to give us
+  * some more received bytes. We put them into the rx-buffer,
+@@ -279,6 +284,7 @@
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(sirdev_receive);
+ 
+ /**********************************************************************/
+ 
+@@ -641,6 +647,7 @@
+ out:
+ 	return NULL;
+ }
++EXPORT_SYMBOL(sirdev_get_instance);
+ 
+ int sirdev_put_instance(struct sir_dev *dev)
+ {
+@@ -673,4 +680,5 @@
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL(sirdev_put_instance);
+ 
+--- linux-2.6.15-rc1-mm2-full/drivers/net/irda/sir_core.c	2005-11-20 20:24:09.000000000 +0100
++++ /dev/null	2005-11-08 19:07:57.000000000 +0100
+@@ -1,56 +0,0 @@
+-/*********************************************************************
+- *
+- *	sir_core.c:	module core for irda-sir abstraction layer
+- *
+- *	Copyright (c) 2002 Martin Diehl
+- * 
+- *	This program is free software; you can redistribute it and/or 
+- *	modify it under the terms of the GNU General Public License as 
+- *	published by the Free Software Foundation; either version 2 of 
+- *	the License, or (at your option) any later version.
+- *
+- ********************************************************************/    
+-
+-#include <linux/module.h>
+-#include <linux/kernel.h>
+-#include <linux/init.h>
+-
+-#include <net/irda/irda.h>
+-
+-#include "sir-dev.h"
+-
+-/***************************************************************************/
+-
+-MODULE_AUTHOR("Martin Diehl <info@mdiehl.de>");
+-MODULE_DESCRIPTION("IrDA SIR core");
+-MODULE_LICENSE("GPL");
+-
+-/***************************************************************************/
+-
+-EXPORT_SYMBOL(irda_register_dongle);
+-EXPORT_SYMBOL(irda_unregister_dongle);
+-
+-EXPORT_SYMBOL(sirdev_get_instance);
+-EXPORT_SYMBOL(sirdev_put_instance);
+-
+-EXPORT_SYMBOL(sirdev_set_dongle);
+-EXPORT_SYMBOL(sirdev_write_complete);
+-EXPORT_SYMBOL(sirdev_receive);
+-
+-EXPORT_SYMBOL(sirdev_raw_write);
+-EXPORT_SYMBOL(sirdev_raw_read);
+-EXPORT_SYMBOL(sirdev_set_dtr_rts);
+-
+-static int __init sir_core_init(void)
+-{
+-	return irda_thread_create();
+-}
+-
+-static void __exit sir_core_exit(void)
+-{
+-	irda_thread_join();
+-}
+-
+-module_init(sir_core_init);
+-module_exit(sir_core_exit);
+-
 

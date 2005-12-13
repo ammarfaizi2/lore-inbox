@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932555AbVLMKA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932549AbVLMKEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932555AbVLMKA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 05:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbVLMKA7
+	id S932549AbVLMKEr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 05:04:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbVLMKEr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 05:00:59 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:56246 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932523AbVLMKA6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 05:00:58 -0500
-Date: Tue, 13 Dec 2005 11:00:15 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Message-ID: <20051213100015.GA32194@elte.hu>
-References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051213093949.GC26097@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 13 Dec 2005 05:04:47 -0500
+Received: from web8610.mail.in.yahoo.com ([202.43.219.85]:30077 "HELO
+	web8610.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S932549AbVLMKEq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 05:04:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.co.in;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=nRRCUmW64gH/rA76STRFFJUZSKyTvJX5bufUpl67SHMklsOpkh7sC21FWPpc70rjE+s1tlMjufzVYPKTa6+dgwcctsfPe1ZIWphEnQ3V5Hu3y1a7BTRcKJG5Kc+voI1Qsm0+4lWyCTEsGeGaSPsUkm+IOmH1Nq5plJMZ3UW0Vks=  ;
+Message-ID: <20051213095952.16201.qmail@web8610.mail.in.yahoo.com>
+Date: Tue, 13 Dec 2005 01:59:52 -0800 (PST)
+From: "Anand H. Krishnan" <anandhkrishnan@yahoo.co.in>
+Subject: Re: Fwd: [RFC][PATCH] Prevent overriding of Symbols in the Kernel, avoiding Undefined behaviour
+To: Ashutosh Naik <ashutosh.naik@gmail.com>, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, rth@redhat.com, akpm@osdl.org,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <81083a450512130146j40a3f1ibc87350bdc9a6f11@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> > On Tue, Dec 13, 2005 at 08:54:41AM +0100, Ingo Molnar wrote:
-> > > - i did not touch the 'struct semaphore' namespace, but introduced a
-> > >   'struct compat_semaphore'.
-> > 
-> > Because it's totally braindead.  Your compat_semaphore is a real 
-> > semaphore and your semaphore is a mutex.  So name them as such.
+>
 > 
-> well, i had the choice between a 30K patch, a 300K patch and a 3000K 
-> patch. I went for the 30K patch ;-)
+> Hi,
+>         The check for exportsym not being NULL is
+> redundant, since
+> mod->num_syms will be 0 in that case.  The cast is
+> also redundant.  You
+> have two identical failure cases at the bottom. 
 
-in that sense i'm all for going for the 300K patch, which is roughly the 
-direction David is heading into: rename to 'struct mutex' but keep the 
-down/up APIs, and introduce sem_down()/sem_up()/ for the cases that need 
-full semaphores.
+All true and will be changed.
 
-i dont think the 3000K patch (full API rename, introduction of 
-mutex_down()/mutex_up()) is realistic.
+> your use of index
+> is convoluted: do it after relocations.
+> 
 
-	Ingo
+Though rare, we will have the extra overhead of
+relocations before we fail the loading of the m
+odule [with the advantage of a cleaner code]. I
+s that OK ?
+
+
+
+Thanks,
+Anand
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

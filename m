@@ -1,124 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbVLMD2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932437AbVLMDcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbVLMD2x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 22:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932427AbVLMD2x
+	id S932437AbVLMDcj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 22:32:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932438AbVLMDcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 22:28:53 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:62931 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932422AbVLMD2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 22:28:52 -0500
-Subject: Re: 2.6.15-rc5-rt1 will not compile (was Re: 2.6.14-rt15: cannot
-	build with !PREEMPT_RT)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: david singleton <dsingleton@mvista.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1134426711.17058.10.camel@mindpipe>
-References: <1133031912.5904.12.camel@mindpipe>
-	 <1133034406.32542.308.camel@tglx.tec.linutronix.de>
-	 <20051127123052.GA22807@elte.hu> <1133141224.4909.1.camel@mindpipe>
-	 <20051128114852.GA3391@elte.hu> <1133189789.5228.7.camel@mindpipe>
-	 <20051128160052.GA29540@elte.hu> <1133217651.4678.2.camel@mindpipe>
-	 <1133230103.5640.0.camel@mindpipe> <20051129072922.GA21696@elte.hu>
-	 <20051129093231.GA5028@elte.hu>  <1134090316.11053.3.camel@mindpipe>
-	 <1134174330.18432.46.camel@mindpipe>  <1134409469.15074.1.camel@mindpipe>
-	 <1134424143.24145.6.camel@localhost.localdomain>
-	 <1134425688.17058.5.camel@mindpipe>
-	 <1134426179.24145.15.camel@localhost.localdomain>
-	 <1134426711.17058.10.camel@mindpipe>
-Content-Type: text/plain
-Date: Mon, 12 Dec 2005 22:28:00 -0500
-Message-Id: <1134444480.24145.30.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 12 Dec 2005 22:32:39 -0500
+Received: from mx1.rowland.org ([192.131.102.7]:43780 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S932437AbVLMDcj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 22:32:39 -0500
+Date: Mon, 12 Dec 2005 22:32:37 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Greg Kroah-Hartman <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [patch 4/4] UHCI: add missing memory barriers
+In-Reply-To: <439E1581.40808@pobox.com>
+Message-ID: <Pine.LNX.4.44L0.0512122220350.17181-100000@netrider.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-12 at 17:31 -0500, Lee Revell wrote:
-> On Mon, 2005-12-12 at 17:22 -0500, Steven Rostedt wrote:
-> > On Mon, 2005-12-12 at 17:14 -0500, Lee Revell wrote:
+On Mon, 12 Dec 2005, Jeff Garzik wrote:
+
+> Greg Kroah-Hartman wrote:
+> > From: Alan Stern <stern@rowland.harvard.edu>
 > > 
-> > > 
-> > > The patch had no effect.
+> > This patch (as617) adds a couple of memory barriers that Ben H. forgot in
+> > his recent suspend/resume fix.
 > > 
-> > The patch should work for krfoley though.  His errors where the same
-> > that I had for i386.  I also have it working under x86_64.
-> > > 
-> > > In fact x86-64 does not set CONFIG_RWSEM_XCHGADD_ALGORITHM so this test
-> > > in include/linux/rwsem.h causes asm/rwsem.h to be included which does
-> > > not exist on x86-64:
+> > Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 > > 
-> > Yeah OK, you have a different problem.  Did you post your .config?  You
-> > can send it privately to me if you haven't already posted it.
+> > ---
+> >  drivers/usb/host/uhci-hcd.c |    2 ++
+> >  1 file changed, 2 insertions(+)
+> > 
+> > --- greg-2.6.orig/drivers/usb/host/uhci-hcd.c
+> > +++ greg-2.6/drivers/usb/host/uhci-hcd.c
+> > @@ -717,6 +717,7 @@ static int uhci_suspend(struct usb_hcd *
+> >  	 * at the source, so we must turn off PIRQ.
+> >  	 */
+> >  	pci_write_config_word(to_pci_dev(uhci_dev(uhci)), USBLEGSUP, 0);
+> > +	mb();
+> >  	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+> >  	uhci->hc_inaccessible = 1;
+> >  	hcd->poll_rh = 0;
+> > @@ -738,6 +739,7 @@ static int uhci_resume(struct usb_hcd *h
+> >  	 * really don't want to keep a stale HCD_FLAG_HW_ACCESSIBLE=0
+> >  	 */
+> >  	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+> > +	mb();
 > 
-> Yes I posted the .config earlier in the thread.  Let me know if you want
-> me to resend it to you.
+> Are these just guesses, or what?
 
-Here Lee,
+There's no need for sarcasm.  No, they are not guesses.  Ask Ben 
+Herrenschmidt if you don't believe me.
 
-I got it to compile, but I haven't yet tried to boot it.  As a matter of
-fact, I haven't booted any 2.6.15-rc5-rt1 on any of my machines.  I must
-trust Ingo too much, since I started porting my kernel to his before
-testing it to see if it works without my changes.  Oh well, I know what
-to do tomorrow.
+> Why not smp_mb__before_clear_bit() or smp_mb__after_clear_bit() ?
 
-Well, this compiles, you can see if it boots ;-)
+Because the code needs to synchronize not with another CPU, but with a USB 
+host controller.  Those barriers are necessary even on a UP system.
 
--- Steve
 
-Index: linux-2.6.15-rc5-rt1/arch/x86_64/Kconfig
-===================================================================
---- linux-2.6.15-rc5-rt1.orig/arch/x86_64/Kconfig	2005-12-12 10:56:37.000000000 -0500
-+++ linux-2.6.15-rc5-rt1/arch/x86_64/Kconfig	2005-12-12 21:33:56.000000000 -0500
-@@ -240,7 +240,6 @@
- 
- config RWSEM_GENERIC_SPINLOCK
- 	bool
--	depends on PREEMPT_RT
- 	default y
- 
- config RWSEM_XCHGADD_ALGORITHM
-Index: linux-2.6.15-rc5-rt1/include/asm-x86_64/semaphore.h
-===================================================================
---- linux-2.6.15-rc5-rt1.orig/include/asm-x86_64/semaphore.h	2005-12-12 10:56:37.000000000 -0500
-+++ linux-2.6.15-rc5-rt1/include/asm-x86_64/semaphore.h	2005-12-12 22:13:08.000000000 -0500
-@@ -104,6 +104,7 @@
- asmlinkage int  __compat_down_interruptible(struct compat_semaphore * sem);
- asmlinkage int  __compat_down_trylock(struct compat_semaphore * sem);
- asmlinkage void __compat_up(struct compat_semaphore * sem);
-+asmlinkage int compat_sem_is_locked(struct compat_semaphore *sem);
- 
- /*
-  * This is ugly, but we want the default case to fall through.
-@@ -199,5 +200,10 @@
- 		:"D" (sem)
- 		:"memory");
- }
-+
-+#ifndef CONFIG_PREEMPT_RT
-+# include <linux/semaphore.h>
-+#endif
-+
- #endif /* __KERNEL__ */
- #endif
-Index: linux-2.6.15-rc5-rt1/include/linux/rwsem.h
-===================================================================
---- linux-2.6.15-rc5-rt1.orig/include/linux/rwsem.h	2005-12-12 10:56:37.000000000 -0500
-+++ linux-2.6.15-rc5-rt1/include/linux/rwsem.h	2005-12-12 22:13:00.000000000 -0500
-@@ -163,6 +163,10 @@
- {
- 	compat_downgrade_write(rwsem);
- }
-+static inline int rwsem_is_locked(struct compat_rw_semaphore *sem)
-+{
-+	return compat_rwsem_is_locked(sem);
-+}
- #endif /* CONFIG_PREEMPT_RT */
- 
- #endif /* __KERNEL__ */
+By the way, what's the idea with this proliferation of little
+not-all-that-helpful routines, like smp_mb__before_clear_bit()?  Are there
+architectures on which
 
+	smp_mb__before_clear_bit(...);
+
+is significantly superior to
+
+	smp_mb();
+	clear_bit(...);
+
+?  (It's certainly not easier to type.)  Is this difference worth noting,
+considering how infrequently clear_bit() gets used?
+
+Alan Stern
 

@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbVLMVzn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbVLMV4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030249AbVLMVzn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 16:55:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVLMVzm
+	id S1030253AbVLMV4d (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 16:56:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbVLMV4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 16:55:42 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:27659 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S1030249AbVLMVzm (ORCPT
+	Tue, 13 Dec 2005 16:56:33 -0500
+Received: from ns2.suse.de ([195.135.220.15]:20384 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030192AbVLMV4c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 16:55:42 -0500
-Subject: Re: sonypi searching new maintainer (Was: Re: [RFT] Sonypi:
-	convert to the new platform device interface)
-From: Stelian Pop <stelian@popies.net>
-To: dtor_core@ameritech.net
-Cc: Mattia Dongili <malattia@linux.it>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <d120d5000512131248j79a93d5ex8667ca6a38452a1d@mail.gmail.com>
-References: <200512130219.41034.dtor_core@ameritech.net>
-	 <20051213183248.GA3606@inferi.kami.home>
-	 <d120d5000512131104x260fdbf2mcc58fb953559fec5@mail.gmail.com>
-	 <1134505855.9642.28.camel@deep-space-9.dsnet>
-	 <d120d5000512131248j79a93d5ex8667ca6a38452a1d@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Tue, 13 Dec 2005 22:55:36 +0100
-Message-Id: <1134510936.9642.31.camel@deep-space-9.dsnet>
+	Tue, 13 Dec 2005 16:56:32 -0500
+Date: Tue, 13 Dec 2005 22:56:10 +0100
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>, mingo@elte.hu,
+       dhowells@redhat.com, hch@infradead.org, arjan@infradead.org,
+       matthew@wil.cx, linux-kernel@vger.kernel.org, rth@redhat.com
+Subject: Using C99 in the kernel was Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051213215610.GX23384@wotan.suse.de>
+References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de> <20051213004257.0f87d814.akpm@osdl.org> <20051213084926.GN23384@wotan.suse.de> <Pine.LNX.4.64.0512130812020.15597@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512130812020.15597@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mardi 13 décembre 2005 à 15:48 -0500, Dmitry Torokhov a écrit :
-> On 12/13/05, Stelian Pop <stelian@popies.net> wrote:
-> > Le mardi 13 décembre 2005 à 14:04 -0500, Dmitry Torokhov a >
-> > > > sonypi: unknown event port1=0x0f,port2=0x05
-> > [...]
-> > > > Oh, there seems to be a spurious interrupt happening at modules
-> > > > insertion (I suspect sonypi_enable triggering and ignoring it), but this
-> > > > happens with the old module too and I never noticed it before. Wouldn't
-> > > > make more sense to print the warning even if verbose=0 to be able to
-> > > > catch it timely? I mean it's since 2.4 times I don't enable verbose mode
-> > > > in sonypi...
-> > > >
-> > > Probably, let's see what Stelian will say.
-> >
-> > This is the "ok I'm loaded" event. I am not sure this event is available
-> > on all the sonypi supported platforms, that's why it hasn't been defined
-> > as a known event. And it doesn't make much sense to forward it anyways.
-> >
-> > I would leave it like it is now.
-> >
+[dropping linux-arch because it seems to generate bounces]
+
+On Tue, Dec 13, 2005 at 08:16:39AM -0800, Linus Torvalds wrote:
 > 
-> But when it is reported is it the same event? 
+> 
+> On Tue, 13 Dec 2005, Andi Kleen wrote:
+> > 
+> > Remove -Wdeclaration-after-statement
+> 
+> Please don't.
+> 
+> It's a coding style issue. We put our variable declarations where people 
+> can _find_ them, not in random places in the code.
+> 
+> Putting variables in the middle of code only improves readability when you 
+> have messy code. 
 
-I don't follow you here... 
+I like it when the scopes for variables are as small as possible because then 
+I also find it good documentation when the first initialization
+of a variable also has the type. 
 
-> If so we could just not
-> warn when we see it (but still dont forward it to the userspace).
+While it's possible with nested {} blocks too that imho makes the code ugly
+because you either end up with non syntactic elements with wrong 
+indentation (driving emacs/indent etc crazy) or with too much
+indentation.
 
-The warning is only present if 'verbose > 0', so in normal conditions
-you won't see it.
+I can see Ingo's argument about catching merging mistakes though -
+that is a good point against it that I didn't consider.
 
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+> 
+> Now, one feature that _may_ be worth it is the loop counter thing:
+> 
+> 	for (int i = 10; i; i--)
+> 		...
+> 
+> kind of syntax actually makes sense and is a real feature (it makes "i" 
+> local to the loop, and can actually help people avoid bugs - you can't use 
+> "i" by mistake after the loop).
+> 
+> But I think you need "--std=c99" for gcc to take that.
+
+Ok. So should we enable that?  Or rather --std=gnu99
+
+But actually I tried it and it causes lots of
+
+mm/page_alloc.c:49: error: initializer element is not constant
+
+It looks like casts in constant initializers for global structures are not 
+allowed anymore: struct foo x = (struct foo) { ... }; warns.  That's
+not good because when the (struct foo){} is generated in a macro
+then it's the only easy way to allow initialization outside a declaration.
+
+Common case is SPIN_LOCK_UNLOCKED() / DEFINE_SPINLOCK().
+
+Richard, any comments on that? 
+
+P.S.: Linus, I wish you weren't so fond of using downcounting loops: I find
+them always slightly confusing (or rather they need more consideration
+than a standard upcounting loop to understand) and gcc is perfectly
+capable of reversing loops when suitable on its own.
+
+-Andi
 

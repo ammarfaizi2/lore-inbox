@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbVLMFdI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbVLMFce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbVLMFdI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 00:33:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbVLMFdI
+	id S1751321AbVLMFce (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 00:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbVLMFce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 00:33:08 -0500
-Received: from havoc.gtf.org ([69.61.125.42]:38377 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751292AbVLMFdG (ORCPT
+	Tue, 13 Dec 2005 00:32:34 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:37353 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751267AbVLMFce (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 00:33:06 -0500
-Date: Tue, 13 Dec 2005 00:33:05 -0500
+	Tue, 13 Dec 2005 00:32:34 -0500
+Date: Tue, 13 Dec 2005 00:32:32 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [git patches] more net driver fixes
-Message-ID: <20051213053305.GA26682@havoc.gtf.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patches] libata fix
+Message-ID: <20051213053232.GA26669@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,52 +24,35 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Please pull from 'upstream-fixes' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
 to receive the following updates:
 
- drivers/net/skge.c    |   10 ++++++----
- net/ieee80211/Kconfig |    2 +-
- 2 files changed, 7 insertions(+), 5 deletions(-)
+ drivers/scsi/libata-core.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Olaf Hering:
-      ieee80211_crypt_tkip depends on NET_RADIO
+Mark Lord:
+      libata-core.c:  fix parameter bug on kunmap_atomic() calls
 
-Stephen Hemminger:
-      skge: get rid of warning on race
-
-diff --git a/drivers/net/skge.c b/drivers/net/skge.c
-index 7164678..8b6e2a1 100644
---- a/drivers/net/skge.c
-+++ b/drivers/net/skge.c
-@@ -2280,11 +2280,13 @@ static int skge_xmit_frame(struct sk_buf
-  	}
+diff --git a/drivers/scsi/libata-core.c b/drivers/scsi/libata-core.c
+index 665ae79..d0a0fdb 100644
+--- a/drivers/scsi/libata-core.c
++++ b/drivers/scsi/libata-core.c
+@@ -2443,7 +2443,7 @@ static void ata_sg_clean(struct ata_queu
+ 			struct scatterlist *psg = &qc->pad_sgent;
+ 			void *addr = kmap_atomic(psg->page, KM_IRQ0);
+ 			memcpy(addr + psg->offset, pad_buf, qc->pad_len);
+-			kunmap_atomic(psg->page, KM_IRQ0);
++			kunmap_atomic(addr, KM_IRQ0);
+ 		}
+ 	} else {
+ 		if (sg_dma_len(&sg[0]) > 0)
+@@ -2717,7 +2717,7 @@ static int ata_sg_setup(struct ata_queue
+ 		if (qc->tf.flags & ATA_TFLAG_WRITE) {
+ 			void *addr = kmap_atomic(psg->page, KM_IRQ0);
+ 			memcpy(pad_buf, addr + psg->offset, qc->pad_len);
+-			kunmap_atomic(psg->page, KM_IRQ0);
++			kunmap_atomic(addr, KM_IRQ0);
+ 		}
  
- 	if (unlikely(skge->tx_avail < skb_shinfo(skb)->nr_frags +1)) {
--		netif_stop_queue(dev);
--		spin_unlock_irqrestore(&skge->tx_lock, flags);
-+		if (!netif_stopped(dev)) {
-+			netif_stop_queue(dev);
- 
--		printk(KERN_WARNING PFX "%s: ring full when queue awake!\n",
--		       dev->name);
-+			printk(KERN_WARNING PFX "%s: ring full when queue awake!\n",
-+			       dev->name);
-+		}
-+		spin_unlock_irqrestore(&skge->tx_lock, flags);
- 		return NETDEV_TX_BUSY;
- 	}
- 
-diff --git a/net/ieee80211/Kconfig b/net/ieee80211/Kconfig
-index 91b16fb..d18ccba 100644
---- a/net/ieee80211/Kconfig
-+++ b/net/ieee80211/Kconfig
-@@ -55,7 +55,7 @@ config IEEE80211_CRYPT_CCMP
- 
- config IEEE80211_CRYPT_TKIP
- 	tristate "IEEE 802.11i TKIP encryption"
--	depends on IEEE80211
-+	depends on IEEE80211 && NET_RADIO
- 	select CRYPTO
- 	select CRYPTO_MICHAEL_MIC
- 	---help---
+ 		sg_dma_address(psg) = ap->pad_dma + (qc->tag * ATA_DMA_PAD_SZ);

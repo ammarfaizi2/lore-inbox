@@ -1,111 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbVLMUTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVLMU3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030220AbVLMUTV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 15:19:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbVLMUTV
+	id S932119AbVLMU3y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 15:29:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbVLMU3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 15:19:21 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31504 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030212AbVLMUTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 15:19:20 -0500
-Date: Tue, 13 Dec 2005 21:19:20 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Simon Richter <Simon.Richter@hogyros.de>, linux-kernel@vger.kernel.org,
-       tony.luck@intel.com, linux-ia64@vger.kernel.org, matthew@wil.cx,
-       grundler@parisc-linux.org, parisc-linux@parisc-linux.org,
-       paulus@samba.org, linuxppc-dev@ozlabs.org, lethal@linux-sh.org,
-       kkojima@rr.iij4u.or.jp, dwmw2@infradead.org,
-       linux-mtd@lists.infradead.org
-Subject: Re: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
-Message-ID: <20051213201920.GT23349@stusta.de>
-References: <20051211185212.GQ23349@stusta.de> <20051211192109.GA22537@flint.arm.linux.org.uk> <20051211193118.GR23349@stusta.de> <20051211194437.GB22537@flint.arm.linux.org.uk> <20051213001028.GS23349@stusta.de> <439ECDCC.80707@hogyros.de> <20051213140001.GG23349@stusta.de> <20051213173112.GA24094@flint.arm.linux.org.uk> <20051213180551.GN23349@stusta.de> <20051213200106.GC24094@flint.arm.linux.org.uk>
+	Tue, 13 Dec 2005 15:29:54 -0500
+Received: from mf01.sitadelle.com ([212.94.174.68]:40592 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1751256AbVLMU3x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 15:29:53 -0500
+Message-ID: <439F2F39.3090800@cosmosbay.com>
+Date: Tue, 13 Dec 2005 21:29:45 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051213200106.GC24094@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.11
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       Simon.Derr@bull.net, ak@suse.de, clameter@sgi.com
+Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
+References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>	<439D39A8.1020806@cosmosbay.com>	<20051212020211.1394bc17.pj@sgi.com>	<20051212021247.388385da.akpm@osdl.org>	<20051213075345.c39f335d.pj@sgi.com>	<439EF75D.50206@cosmosbay.com> <20051213120814.f7e1d73d.pj@sgi.com>
+In-Reply-To: <20051213120814.f7e1d73d.pj@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 08:01:06PM +0000, Russell King wrote:
-> On Tue, Dec 13, 2005 at 07:05:52PM +0100, Adrian Bunk wrote:
-> > On Tue, Dec 13, 2005 at 05:31:12PM +0000, Russell King wrote:
-> > > The defconfig files in arch/arm/configs are for platform configurations
-> > > and are provided by the platform maintainers as a _working_ configuration
-> > > for their platform.  They're not "defconfigs".  They got called
-> > > "defconfigs" as a result of the kbuild "cleanups".  Please don't confuse
-> > > them as such.
-> > > 
-> > > If, in order to have a working platform configuration, they deem that
-> > > CONFIG_BROKEN must be enabled, then that's the way it is.
-> > 
-> > if a working platform configuration configuration requires 
-> > CONFIG_BROKEN=y, the problem is a bug that should be fixed properly.
+Paul Jackson a écrit :
+> Detail question ...
 > 
-> Maybe they're only broken for a small subset of platforms, and someone
-> added a BROKEN without properly considering whether it should be global
-> or not?
+> Eric wrote:
 > 
-> I don't disagree with the overall notion that CONFIG_BROKEN should not
-> be set _where_ _possible_.  However, if it needs to be set to get the
-> required options, then that's what needs to happen until such time that
-> the above is corrected.
-
-Where is the bug report from the person who set CONFIG_BROKEN=y in the 
-collie defconfig that the BROKEN dependency on MTD_SHARP was wrong?
-
-> However - and now to the main bug bear - how can we tell what is really
-> broken if you _just_ change the default configuration file settings for
-> CONFIG_BROKEN?  What happens is that, on review, we see a simple change.
-> We'd assume that it has little impact, and we accept that change.
+>>Say you move to read mostly most of struct kmem_cache *
 > 
-> Maybe a month or two down the line, someone whines that their platform
-> doesn't work for some reason, and it's tracked down to this and the
-> resulting fallout from disabling CONFIG_BROKEN.
-
-The whining is the bug report the person who set the CONFIG_BROKEN=y in 
-the defconfig didn't send.
-
-And things would have been even worse if I had sent a patch erasing 
-MTD_SHARP from the kernel because code "both marked as obsolete and 
-BROKEN can clearly be removed" and the code was therefore completely 
-removed two months before the first person whined?
-
-> That means that the original review was _worthless_.  It wasn't a
-> review at all.
 > 
-> So, what I am trying to get across is the need to show the _full_ set
-> of changes to a default configuratoin when you disable CONFIG_BROKEN,
-> which is trivially producable if you run the script I've already posted.
+> Does the following:
 > 
-> You can even use that in conjunction with your present patch to produce
-> a patch which shows _exactly_ _everything_ which changes as a result of
-> disabling CONFIG_BROKEN.  Surely giving reviewers the _full_ story is
-> far better than half a story, and should be something that any change
-> to the kernel strives for.
+> 	struct kmem_cache *cpuset_cache __read_mostly;
 > 
-> If not, what's the point of the original change?
+> mark just the one word pointer 'cpuset_cache' as __read_mostly,
+> or does it mark the whole dang cpuset cache?
+> 
+> I presume it just marks the one pointer word.  Am I wrong?
 
-The point is that I haven't yet heard any good reason for 
-CONFIG_BROKEN=y in a defconfig.
+Only the pointer is placed onto read mostly section.
 
-No, it's not a good reason if someone used it as a workaround instead of 
-sending a bug report that would result in a fixing of the wrong BROKEN 
-dependency.
+In fact the pointer is written once at boot time, then it is only read.
 
-Where is the bug report of the person setting CONFIG_BROKEN=y in the 
-collie defconfig that the MTD_SHARP dependency on BROKEN was wrong?
+kmem_cache implementation is SMP/NUMA friendly, keeping care of false sharing 
+issues, and node aware memory.
 
-> Russell King
+But the initial pointer *should* be in a cache line shared by all cpus to get 
+best performance. It's easy to achive this since the pointer is only read. 
+(well... mostly... )
 
-cu
-Adrian
+> 
+> I ask because the subtle phrasing of your comment reads to
+> my ear as if you knew it marked the entire cache.  I can't
+> tell if that is due to my ears having a different language
+> accent than yours, or if it is due to my getting this wrong.
+> 
 
--- 
+Sorry...
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Eric

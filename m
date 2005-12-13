@@ -1,71 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbVLMWCN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbVLMWD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030264AbVLMWCN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 17:02:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbVLMWCN
+	id S1030255AbVLMWD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 17:03:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbVLMWD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 17:02:13 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27923 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030264AbVLMWCK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 17:02:10 -0500
-Date: Tue, 13 Dec 2005 22:01:57 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Simon Richter <Simon.Richter@hogyros.de>, linux-kernel@vger.kernel.org,
-       tony.luck@intel.com, linux-ia64@vger.kernel.org, matthew@wil.cx,
-       grundler@parisc-linux.org, parisc-linux@parisc-linux.org,
-       paulus@samba.org, linuxppc-dev@ozlabs.org, lethal@linux-sh.org,
-       kkojima@rr.iij4u.or.jp, dwmw2@infradead.org,
-       linux-mtd@lists.infradead.org
-Subject: Re: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
-Message-ID: <20051213220157.GD24094@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Simon Richter <Simon.Richter@hogyros.de>,
-	linux-kernel@vger.kernel.org, tony.luck@intel.com,
-	linux-ia64@vger.kernel.org, matthew@wil.cx,
-	grundler@parisc-linux.org, parisc-linux@parisc-linux.org,
-	paulus@samba.org, linuxppc-dev@ozlabs.org, lethal@linux-sh.org,
-	kkojima@rr.iij4u.or.jp, dwmw2@infradead.org,
-	linux-mtd@lists.infradead.org
-References: <20051211192109.GA22537@flint.arm.linux.org.uk> <20051211193118.GR23349@stusta.de> <20051211194437.GB22537@flint.arm.linux.org.uk> <20051213001028.GS23349@stusta.de> <439ECDCC.80707@hogyros.de> <20051213140001.GG23349@stusta.de> <20051213173112.GA24094@flint.arm.linux.org.uk> <20051213180551.GN23349@stusta.de> <20051213200106.GC24094@flint.arm.linux.org.uk> <20051213201920.GT23349@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Dec 2005 17:03:58 -0500
+Received: from smtp103.sbc.mail.mud.yahoo.com ([68.142.198.202]:4690 "HELO
+	smtp103.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030255AbVLMWD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 17:03:58 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Anderson Lizardo <anderson.lizardo@indt.org.br>
+Subject: Re: [patch 0/5] Add MMC password protection (lock/unlock) support
+Date: Tue, 13 Dec 2005 14:03:53 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-omap-open-source@linux.omap.com,
+       linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org,
+       Anderson Briglia <anderson.briglia@indt.org.br>,
+       Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>,
+       Russell King - ARM Linux <linux@arm.linux.org.uk>,
+       Tony Lindgren <tony@atomide.com>
+References: <20051213213208.303580000@localhost.localdomain>
+In-Reply-To: <20051213213208.303580000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051213201920.GT23349@stusta.de>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200512131403.53983.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 09:19:20PM +0100, Adrian Bunk wrote:
-> On Tue, Dec 13, 2005 at 08:01:06PM +0000, Russell King wrote:
-> > That means that the original review was _worthless_.  It wasn't a
-> > review at all.
-> > 
-> > So, what I am trying to get across is the need to show the _full_ set
-> > of changes to a default configuratoin when you disable CONFIG_BROKEN,
-> > which is trivially producable if you run the script I've already posted.
-> > 
-> > You can even use that in conjunction with your present patch to produce
-> > a patch which shows _exactly_ _everything_ which changes as a result of
-> > disabling CONFIG_BROKEN.  Surely giving reviewers the _full_ story is
-> > far better than half a story, and should be something that any change
-> > to the kernel strives for.
-> > 
-> > If not, what's the point of the original change?
-> 
-> The point is that I haven't yet heard any good reason for 
-> CONFIG_BROKEN=y in a defconfig.
+Hey, cool ... glad to see that's ready now!
+I'll have to give it a try when I have a spare moment.
 
-I'm sorry, I feel like I'm beating my head against a brick wall.  I
-have said everything that needs to be said, and made my position on
-this patch crystal clear.
+Is there a writeup on how to hook this up with the key retention
+infrastructure?  I know many folk are unfamiliar with that, and
+I seem to recall a need for some userspace tweaks.  (Like SHA1
+hashing of passphrases to generate MMC keys, and maybe storing
+keys in some per-user file using some user interface.)
 
-The patch to the ARM configuration files is nacked as it stands.
-Please go back and rework it along the guidelines I've pointed out
-several times in this thread and maybe then it becomes acceptable.
+- Dave
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

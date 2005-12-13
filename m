@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVLMNSB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbVLMNWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbVLMNSB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 08:18:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbVLMNSB
+	id S932113AbVLMNWR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 08:22:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbVLMNWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 08:18:01 -0500
-Received: from perninha.conectiva.com.br ([200.140.247.100]:61319 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S932075AbVLMNSA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 08:18:00 -0500
-Date: Tue, 13 Dec 2005 11:17:43 -0200
-From: Luiz Fernando Capitulino <lcapitulino@mandriva.com.br>
-To: akpm <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] ext2: trivial indentation fix.
-Message-Id: <20051213111743.17f96151.lcapitulino@mandriva.com.br>
-Organization: Mandriva
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i586-mandriva-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 13 Dec 2005 08:22:17 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:43699 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S932113AbVLMNWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 08:22:16 -0500
+Date: Tue, 13 Dec 2005 22:20:35 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Subject: [Patch] Fix calculation of grow_pgdat_span() in mm/memory_hotplug.c
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.054
+Message-Id: <20051213220842.9C02.Y-GOTO@jp.fujitsu.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave-san.
+CC: Andrew-san.
 
- This memset() line was indented with seven spaces, this patch fixes
-it to use a tab instead. Yes, very trivial but it's the third time
-I have to look at this line..
+I realized 2.6.15-rc5 still has a bug for memory hotplug.
+The calculation for node_spanned_pages at grow_pgdat_span() is
+clearly wrong. This is patch for it.
 
-Signed-off-by: Luiz Capitulino <lcapitulino@mandriva.com.br>
+(Please see grow_zone_span() to compare. It is correct.)
 
- fs/ext2/dir.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Thanks.
 
-diff --git a/fs/ext2/dir.c b/fs/ext2/dir.c
-index 5b5f528..7442bdd 100644
---- a/fs/ext2/dir.c
-+++ b/fs/ext2/dir.c
-@@ -592,7 +592,7 @@ int ext2_make_empty(struct inode *inode,
- 		goto fail;
- 	}
- 	kaddr = kmap_atomic(page, KM_USER0);
--       memset(kaddr, 0, chunk_size);
-+	memset(kaddr, 0, chunk_size);
- 	de = (struct ext2_dir_entry_2 *)kaddr;
- 	de->name_len = 1;
- 	de->rec_len = cpu_to_le16(EXT2_DIR_REC_LEN(1));
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
+Index: zone_reclaim/mm/memory_hotplug.c
+===================================================================
+--- zone_reclaim.orig/mm/memory_hotplug.c	2005-12-13 21:38:16.000000000 +0900
++++ zone_reclaim/mm/memory_hotplug.c	2005-12-13 21:39:14.000000000 +0900
+@@ -104,7 +104,7 @@ static void grow_pgdat_span(struct pglis
+ 		pgdat->node_start_pfn = start_pfn;
+ 
+ 	if (end_pfn > old_pgdat_end_pfn)
+-		pgdat->node_spanned_pages = end_pfn - pgdat->node_spanned_pages;
++		pgdat->node_spanned_pages = end_pfn - pgdat->node_start_pfn;
+ }
+ 
+ int online_pages(unsigned long pfn, unsigned long nr_pages)
 
 -- 
-Luiz Fernando N. Capitulino
+Yasunori Goto 
+
+

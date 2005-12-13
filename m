@@ -1,60 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbVLMAar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbVLMAaP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbVLMAar (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 19:30:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVLMAar
+	id S932311AbVLMAaP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 19:30:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVLMAaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 19:30:47 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:12176 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932265AbVLMAaq (ORCPT
+	Mon, 12 Dec 2005 19:30:15 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:7895 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932281AbVLMAaN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 19:30:46 -0500
-To: Greg KH <gregkh@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [patch 2/4] i386/x86-64: Implement fallback for PCI mmconfig to type1
-References: <20051212192030.873030000@press.kroah.org>
-	<20051212200123.GC27657@kroah.com>
-	<20051212202643.GG9286@parisc-linux.org>
-	<20051212211553.GA29112@suse.de>
-From: Andi Kleen <ak@suse.de>
-Date: 12 Dec 2005 22:02:19 -0700
-In-Reply-To: <20051212211553.GA29112@suse.de>
-Message-ID: <p734q5da8tg.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 12 Dec 2005 19:30:13 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Date: Tue, 13 Dec 2005 01:30:04 +0100
+User-Agent: KMail/1.8.3
+Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, arjan@infradead.org,
+       matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+References: <dhowells1134431145@warthog.cambridge.redhat.com>
+In-Reply-To: <dhowells1134431145@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200512130130.05186.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Dienstag 13 Dezember 2005 00:45 schrieb David Howells:
+>  (7) Provides a debugging config option CONFIG_DEBUG_MUTEX_OWNER by which
+> the mutex owner can be tracked and by which over-upping can be detected.
 
-Sorry Greg, Linus,
+I can't see how your code actually detects the over-upping, although it's 
+fairly obvious how it would be done. Did you miss one patch for this?
 
-I also submitted the two PCI patches on my own with the x86-64
-patchkit, hopefully the duplication doesn't cause too much trouble.
-
-Greg KH <gregkh@suse.de> writes:
-> 
-> From what I can tell, it's too late in the callstack for us to change
-> the read ops for this device to be the other one.  The problem is (and
-> Andi can correct me if I'm wrong), some boxes basically have incomplete
-> MCFG acpi tables (the tables do not describe all PCI busses that are
-> present in the box).  But we don't realize this until we are about to do
-> the read function.
-
-It can happen with perfectly legal MCFG tables. If a bus is not listed
-in MCFG then we must fallback to type1. This happens on AMD K8 systems
-because the busses in the builtin northbridge don't support mmconfig,
-only busses on external bridges do. In theory it could happen on
-other systems too (although external northbridges typically support
-mmconfig for everything if they do at all) 
-
-In addition we have some boxes with broken MCFG tables who don't get
-the tables right, this is what the next patch was trying to fix.
-
-> I remember I looked into trying to set this up at probe/init time, and
-> it was almost impossible to do so, due to the structure of the code.
-
-Yes, I also didn't see an easy way to do it, although it would be probably DTRT. 
-
--Andi
+	Arnd <><

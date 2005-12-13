@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbVLMDAw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbVLMDBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbVLMDAw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 22:00:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVLMDAn
+	id S932379AbVLMDBc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 22:01:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVLMDAm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 22:00:43 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:1002 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932378AbVLMDAL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 22:00:11 -0500
-Subject: [PATCH -mm 4/9] unshare system call : system call registration for
-	ppc
+	Mon, 12 Dec 2005 22:00:42 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:29139 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932379AbVLMDAO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 22:00:14 -0500
+Subject: [PATCH -mm 5/9] unshare system call : system call registration for
+	x86_64
 From: JANAK DESAI <janak@us.ibm.com>
 Reply-To: janak@us.ibm.com
 To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
@@ -19,34 +19,73 @@ To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
        janak@us.ibm.com
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1134442665.14136.119.camel@hobbs.atlanta.ibm.com>
+Message-Id: <1134442682.14136.121.camel@hobbs.atlanta.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 12 Dec 2005 22:00:02 -0500
+Date: Mon, 12 Dec 2005 22:00:04 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[PATCH -mm 4/9] unshare system call: System call registration for ppc
+[PATCH -mm 5/9] unshare system call: System call registration for x86_64
                                                                                 
 Signed-off-by: Janak Desai
                                                                                 
 
- misc.S |    1 +
- 1 files changed, 1 insertion(+)
+ arch/x86_64/ia32/ia32entry.S     |    1 +
+ include/asm-x86_64/ia32_unistd.h |    3 ++-
+ include/asm-x86_64/unistd.h      |    4 +++-
+ 3 files changed, 6 insertions(+), 2 deletions(-)
  
  
-diff -Naurp 2.6.15-rc5-mm2/arch/ppc/kernel/misc.S
-2.6.15-rc5-mm2+ppc/arch/ppc/kernel/misc.S
---- 2.6.15-rc5-mm2/arch/ppc/kernel/misc.S	2005-12-12 03:05:39.000000000
-+0000
-+++ 2.6.15-rc5-mm2+ppc/arch/ppc/kernel/misc.S	2005-12-12
-20:24:32.000000000 +0000
-@@ -1406,3 +1406,4 @@ _GLOBAL(sys_call_table)
- 	.long sys_ni_syscall
- 	.long sys_ni_syscall
- 	.long sys_migrate_pages		/* 280 */
-+	.long sys_unshare
+diff -Naurp 2.6.15-rc5-mm2/arch/x86_64/ia32/ia32entry.S
+2.6.15-rc5-mm2+x86_64/arch/x86_64/ia32/ia32entry.S
+--- 2.6.15-rc5-mm2/arch/x86_64/ia32/ia32entry.S	2005-12-12
+03:05:40.000000000 +0000
++++ 2.6.15-rc5-mm2+x86_64/arch/x86_64/ia32/ia32entry.S	2005-12-12
+20:33:22.000000000 +0000
+@@ -666,6 +666,7 @@ ia32_sys_call_table:
+ 	.quad sys_inotify_init
+ 	.quad sys_inotify_add_watch
+ 	.quad sys_inotify_rm_watch
++	.quad sys_unshare
+ ia32_syscall_end:		
+ 	.rept IA32_NR_syscalls-(ia32_syscall_end-ia32_sys_call_table)/8
+ 		.quad ni_syscall
+diff -Naurp 2.6.15-rc5-mm2/include/asm-x86_64/ia32_unistd.h
+2.6.15-rc5-mm2+x86_64/include/asm-x86_64/ia32_unistd.h
+--- 2.6.15-rc5-mm2/include/asm-x86_64/ia32_unistd.h	2005-10-28
+00:02:08.000000000 +0000
++++ 2.6.15-rc5-mm2+x86_64/include/asm-x86_64/ia32_unistd.h	2005-12-12
+20:35:35.000000000 +0000
+@@ -299,7 +299,8 @@
+ #define __NR_ia32_inotify_init		291
+ #define __NR_ia32_inotify_add_watch	292
+ #define __NR_ia32_inotify_rm_watch	293
++#define __NR_ia32_unshare		294
+ 
+-#define IA32_NR_syscalls 294	/* must be > than biggest syscall! */
++#define IA32_NR_syscalls 295	/* must be > than biggest syscall! */
+ 
+ #endif /* _ASM_X86_64_IA32_UNISTD_H_ */
+diff -Naurp 2.6.15-rc5-mm2/include/asm-x86_64/unistd.h
+2.6.15-rc5-mm2+x86_64/include/asm-x86_64/unistd.h
+--- 2.6.15-rc5-mm2/include/asm-x86_64/unistd.h	2005-12-12
+03:05:58.000000000 +0000
++++ 2.6.15-rc5-mm2+x86_64/include/asm-x86_64/unistd.h	2005-12-12
+20:38:12.000000000 +0000
+@@ -573,8 +573,10 @@ __SYSCALL(__NR_inotify_add_watch, sys_in
+ __SYSCALL(__NR_inotify_rm_watch, sys_inotify_rm_watch)
+ #define __NR_migrate_pages	256
+ __SYSCALL(__NR_migrate_pages, sys_migrate_pages)
++#define __NR_unshare		257
++__SYSCALL(__NR_unshare, sys_unshare)
+ 
+-#define __NR_syscall_max __NR_migrate_pages
++#define __NR_syscall_max __NR_unshare
+ #ifndef __NO_STUBS
+ 
+ /* user-visible error numbers are in the range -1 - -4095 */
 
 

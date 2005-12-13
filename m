@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030234AbVLMVXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbVLMV3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030234AbVLMVXt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 16:23:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbVLMVXt
+	id S1030228AbVLMV3z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 16:29:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbVLMV3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 16:23:49 -0500
-Received: from lakshmi.addtoit.com ([198.99.130.6]:2820 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S932385AbVLMVXs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 16:23:48 -0500
-Date: Tue, 13 Dec 2005 17:15:48 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: Gerd Knorr <kraxel@suse.de>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2/2] uml: Framebuffer driver for UML
-Message-ID: <20051213221548.GB9769@ccure.user-mode-linux.org>
-References: <439EE38C.6020602@suse.de> <439EE5B0.2030709@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <439EE5B0.2030709@suse.de>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 13 Dec 2005 16:29:54 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:8139 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932385AbVLMV3y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 16:29:54 -0500
+Date: Tue, 13 Dec 2005 13:29:44 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] slab gcc fix
+Message-ID: <Pine.LNX.4.62.0512131327140.23733@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 04:16:00PM +0100, Gerd Knorr wrote:
-> $subject says pretty much all: This adds a framebuffer driver for UML.
+Since we no longer support 2.95, we can get rid of this ugly thing.
 
-> please apply,
-> 
->   Gerd
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Please don't.  This patch fails to link for me in -rc5 - the errors start like
-
-drivers/built-in.o(.text+0x18b): In function `vgacon_deinit':
-/home/jdike/linux/2.6/linux-2.6.15/drivers/video/console/vgacon.c:151: undefined reference to `outw'
-drivers/built-in.o(.text+0x1a7):/home/jdike/linux/2.6/linux-2.6.15/drivers/video/console/vgacon.c:152: undefined reference to `outw'
-drivers/built-in.o(.text+0x366): In function `vgacon_set_cursor_size':
-/home/jdike/linux/2.6/linux-2.6.15/drivers/video/console/vgacon.c:430: undefined reference to `outb_p'
-drivers/built-in.o(.text+0x375):/home/jdike/linux/2.6/linux-2.6.15/drivers/video/console/vgacon.c:431: undefined reference to `inb_p'
-drivers/built-in.o(.text+0x396):/home/jdike/linux/2.6/linux-2.6.15/drivers/video/console/vgacon.c:432: undefined reference to `outb_p'
-drivers/built-in.o(.text+0x3a5):/home/jdike/linux/2.6/linux-2.6.15/drivers/video/console/vgacon.c:433: undefined reference to `inb_p'
-
-and go on for another couple hundred lines.
-
-IIRC, I found fixes for these when I merged this into my tree.  It's a nice 
-addition, but there are aspects of this that I don't like, which is why I
-haven't sent it in myself.  Again, IIRC, enabling this disables the normal 
-consoles, which is fairly unfriendly.
-
-				Jeff
+Index: linux-2.6.15-rc5-mm2/mm/slab.c
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/mm/slab.c	2005-12-13 13:18:48.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/slab.c	2005-12-13 13:19:11.000000000 -0800
+@@ -265,11 +265,10 @@ struct array_cache {
+ 	unsigned int batchcount;
+ 	unsigned int touched;
+ 	spinlock_t lock;
+-	void *entry[0];		/*
++	void *entry[];		/*
+ 				 * Must have this definition in here for the proper
+ 				 * alignment of array_cache. Also simplifies accessing
+ 				 * the entries.
+-				 * [0] is for gcc 2.95. It should really be [].
+ 				 */
+ };
+ 

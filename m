@@ -1,90 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030313AbVLMXjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030315AbVLMXkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030313AbVLMXjc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 18:39:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbVLMXjc
+	id S1030315AbVLMXkO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 18:40:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbVLMXkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 18:39:32 -0500
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:59638 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S1030309AbVLMXjc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 18:39:32 -0500
-Message-ID: <439F5B91.4010903@mvista.com>
-Date: Tue, 13 Dec 2005 15:38:57 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nicolas Mailhot <nicolas.mailhot@laposte.net>
-CC: Thomas Gleixner <tglx@linutronix.de>, Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
-References: <17594.192.54.193.25.1134477932.squirrel@rousalka.dyndns.org>
-In-Reply-To: <17594.192.54.193.25.1134477932.squirrel@rousalka.dyndns.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Dec 2005 18:40:14 -0500
+Received: from a34-mta02.direcpc.com ([66.82.4.91]:35671 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S1030309AbVLMXkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 18:40:12 -0500
+Date: Tue, 13 Dec 2005 18:39:52 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 2/2] ide/sis5513: Add support for 965 chipset
+In-reply-to: <58cb370e0512131306q49cd6c3am41d5c1f46557fada@mail.gmail.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1134517192.12502.22.camel@localhost.localdomain>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.2
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <1134498192250-git-send-email-bcollins@ubuntu.com>
+ <1134498254295-git-send-email-bcollins@ubuntu.com>
+ <58cb370e0512131038q49271226xfe932476bb05d2d0@mail.gmail.com>
+ <1134502230.12502.17.camel@localhost.localdomain>
+ <58cb370e0512131157y1176bbdbk5914c67c51a9a0f0@mail.gmail.com>
+ <1134506487.12502.20.camel@localhost.localdomain>
+ <58cb370e0512131306q49cd6c3am41d5c1f46557fada@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Mailhot wrote:
-> "This is your interpretation and I disagree.
+On Tue, 2005-12-13 at 22:06 +0100, Bartlomiej Zolnierkiewicz wrote:
+> The useful bits are here:
+> http://kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-2.6.git;a=commitdiff;h=14351f8e573442e2437d4b177fa10075aaefd5c9;hp=4f1d774aadfc5a6ed1545dca180f66ab6d0f543d
 > 
-> If I set up a timer with a 24 hour interval, which should go off
-> everyday at 6:00 AM, then I expect that this timer does this even when
-> the clock is set e.g. by daylight saving. I think, that this is a
-> completely valid interpretation and makes a lot of sense from a
-> practical point of view. The existing implementation does it that way
-> already, so why do we want to change this ?"
+> The author of the patch that you are submitting confirmed that a new
+> patch works for him and suggested that it should be used instead of
+> the original patch (because it conflicts with sata_sis driver as it claims
+> the wrong PCI device).
 
-I think that there is a miss understanding here.  The kernel timers, 
-at this time, do not know or care about daylight savings time.  This 
-is not really a clock set but a time zone change which does not 
-intrude on the kernels notion of time (that being, more or less UTC).
-> 
-> Please do not hardcode anywhere 1 day = 24h or something like this.
-> Relative timers should stay relative not depend on DST.
-
-As far as timers go, it is only the user who understands any 
-abstraction above the second.  I.e. hour, day, min. all are 
-abstractions done in user land.
-
-There is, however, one exception, the leap second.  The kernel inserts 
-this at midnight UTC and does use a fixed constant (86400) to find 
-midnight.
-> 
-> If someone needs a timer that sets of everyday at the same (legal) time,
-> make him ask for everyday at that time not one time + n x 24h.
-> 
-> Some processes need an exact legal hour
-> Other processes need an exact duration
-
-I think what we are saying is that ABS time flag says that the timer 
-is supposed to expire at the given time "by the specified clock", 
-however that time is arrived at, be it the initial time or the initial 
-time plus one or more intervals.  We are NOT saying that these 
-intervals are the same size, but only that the given clock says that 
-they are the same size, thus any clock setting done during an interval 
-can cause that interval to be of a different size.
-
-Without the ABS time flag, we are talking about intervals (the initial 
-and subsequent) that are NOT affected by clock setting and are thus as 
-close to the requested duration as possible.
-> 
-> In a DST world that's not the same thing at all - don't assume one or the
-> other, have coders request exactly what they need and everyone will be
-> happy.
-
-This is why the standard introduced the ABS time flag.  It does NOT, 
-however, IMHO touch on the issue of time zone changes introduced by 
-shifting into and out of day light savings time.
-> 
-> I can tell from experience trying to fix code which assumed one day = 24h
-> is not fun at all. And yes sometimes the difference between legal and UTC
-> time matters a lot.
-> 
+Thanks for pointing this out. Reverting out of both my tree's.
 
 -- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
+

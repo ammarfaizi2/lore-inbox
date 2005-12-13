@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVLMXFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVLMXFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbVLMXFz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 18:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbVLMXFz
+	id S932392AbVLMXFs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 18:05:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVLMXFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 18:05:55 -0500
-Received: from ns.firmix.at ([62.141.48.66]:57521 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S932385AbVLMXFy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 18:05:54 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: mreuther@umich.edu
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051213175901.7yshajkzk0s848k8@engin.mail.umich.edu>
-References: <20051213175901.7yshajkzk0s848k8@engin.mail.umich.edu>
-Content-Type: text/plain
-Organization: http://www.firmix.at/
-Date: Wed, 14 Dec 2005 00:05:45 +0100
-Message-Id: <1134515145.3319.45.camel@gimli.at.home>
+	Tue, 13 Dec 2005 18:05:48 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:53954 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932392AbVLMXFr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 18:05:47 -0500
+Date: Tue, 13 Dec 2005 23:05:36 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       mingo@elte.hu, dhowells@redhat.com, hch@infradead.org,
+       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       rth@redhat.com
+Subject: Re: Using C99 in the kernel was Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051213230536.GQ27946@ftp.linux.org.uk>
+References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de> <20051213004257.0f87d814.akpm@osdl.org> <20051213084926.GN23384@wotan.suse.de> <Pine.LNX.4.64.0512130812020.15597@g5.osdl.org> <20051213215610.GX23384@wotan.suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051213215610.GX23384@wotan.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-13 at 17:59 -0500, mreuther@umich.edu wrote:
-> There was a recent lawsuit, settled before judgement, in the USA over 
-> the ownership of a GPL program that implemented a copyrighted standard. 
+On Tue, Dec 13, 2005 at 10:56:10PM +0100, Andi Kleen wrote:
+> It looks like casts in constant initializers for global structures are not 
+> allowed anymore: struct foo x = (struct foo) { ... }; warns.  That's
+> not good because when the (struct foo){} is generated in a macro
+> then it's the only easy way to allow initialization outside a declaration.
+> 
+> Common case is SPIN_LOCK_UNLOCKED() / DEFINE_SPINLOCK().
 
-The document (as such) containing the standard is copyrighted.
-But this has nothing to do with: "I read the standard somewhere somehow
-and implement it in some piece of GPLed software."
-What do you exactly really mean?
+There are two similar things - struct initializers and compound literals.
+They are *not* the same, though; compound literal defines an unnamed
+object, so
+{
+	struct foo x = (struct foo){...};
 
-> The name of the case was Drew Technologies v. Society of Automotive 
-> Engineers.
+is equivalent to
+	struct foo unnamed_variable = {....};
+	struct foo x = unnamed_variable;
 
-URL?
+For auto variables it's fine; there initializer doesn't have to be
+constant.  For globals it's _not_.
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+Note that it's really a definition of object - e.. you can say
+	f(&(struct foo){....});
+and have it work just fine.
 
-
-
+IOW, DEFINE_SPINLOCK() should be spinlock_t x = __SPIN_LOCK_UNLOCKED()
+and SPIN_LOCK_UNLOCKED - (spinlock_t) __SPIN_LOCK_UNLOCKED.  That's
+enough to make it valid C99...

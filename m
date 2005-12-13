@@ -1,80 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932528AbVLMSZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbVLMS1R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932528AbVLMSZK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 13:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932574AbVLMSZK
+	id S1030198AbVLMS1R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 13:27:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbVLMS1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 13:25:10 -0500
-Received: from mf01.sitadelle.com ([212.94.174.68]:40865 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S932528AbVLMSZI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 13:25:08 -0500
-Message-ID: <439F11F9.8070300@cosmosbay.com>
-Date: Tue, 13 Dec 2005 19:24:57 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: paulmck@us.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shrinks dentry struct
-References: <121a28810511282317j47a90f6t@mail.gmail.com> <20051129000916.6306da8b.akpm@osdl.org> <438C7218.8030109@cosmosbay.com> <20051213180315.GB14158@us.ibm.com>
-In-Reply-To: <20051213180315.GB14158@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Tue, 13 Dec 2005 13:27:17 -0500
+Received: from cavan.codon.org.uk ([217.147.92.49]:51166 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S932574AbVLMS1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 13:27:16 -0500
+Date: Tue, 13 Dec 2005 18:26:51 +0000
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Randy Dunlap <randy_d_dunlap@linux.intel.com>
+Cc: linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
+Message-ID: <20051213182651.GA14645@srcf.ucam.org>
+References: <20051208030242.GA19923@srcf.ucam.org> <20051213101417.13fdb14c.randy_d_dunlap@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051213101417.13fdb14c.randy_d_dunlap@linux.intel.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul E. McKenney a écrit :
-> On Tue, Nov 29, 2005 at 04:22:00PM +0100, Eric Dumazet wrote:
-> 
->>Hi Andrew
->>
->>Could you add this patch to mm ?
->>
->>Thank you
->>
->>[PATCH] shrinks dentry struct
->>
->>Some long time ago, dentry struct was carefully tuned so that on 32 bits 
->>UP, sizeof(struct dentry) was exactly 128, ie a power of 2, and a multiple 
->>of memory cache lines.
->>
->>Then RCU was added and dentry struct enlarged by two pointers, with nice 
->>results for SMP, but not so good on UP, because breaking the above tuning 
->>(128 + 8 = 136 bytes)
->>
->>This patch reverts this unwanted side effect, by using an union (d_u), 
->>where d_rcu and d_child are placed so that these two fields can share their 
->>memory needs.
->>
->>At the time d_free() is called (and d_rcu is really used), d_child is known 
->>to be empty and not touched by the dentry freeing.
->>
->>Lockless lookups only access d_name, d_parent, d_lock, d_op, d_flags (so 
->>the previous content of d_child is not needed if said dentry was unhashed 
->>but still accessed by a CPU because of RCU constraints)
->>
->>As dentry cache easily contains millions of entries, a size reduction is 
->>worth the extra complexity of the ugly C union.
-> 
-> 
-> Looks sound to me!  Some opportunities for simplification below.
-> 
-> (Please accept my apologies for the delay -- some diversions turned out
-> to be more consuming than I had expected.)
-> 
-> 							Thanx, Paul
-> 
+On Tue, Dec 13, 2005 at 10:14:17AM -0800, Randy Dunlap wrote:
 
-Hi Paul
+> 1.  I had problems applying it.  What tree is it against?
+>     Say so in the description.
 
-My patch only address the layout of dentry structure, basically a 'global 
-substitute' on various places.
+It was against 2.6.15-git at the time, but I accidently left a hunk of 
+stuff from the hotplug patch in there which probably confused things. 
+I'll try to rediff it by the end of the week (and do other tidying)
 
-Adding some 'optimizations' or simplifications was not the goal, so please 
-submit a patch if you feel the need for it :)
+> 7.  Most important:  What good does the ACPI interface do/add?
+>     What I mean is that acpi_get_child() in scsi_acpi_find_channel()
+>     always returns a handle value of 0, so it doesn't get us
+>     any closer to determining the ACPI address (_ADR) of the SATA
+>     devices.  The acpi_get_devices() technique in my patch (basically
+>     walking the ACPI namespace, looking at all "devices") is the
+>     only way that I know of doing this, but I would certainly
+>     like to find a better way.
 
-Thank you
+When the PCI bus is registered, acpi walks it and finds the appropriate 
+acpi handle for each PCI device. This is shoved in the 
+firmware_data field of the device structure. Later on, we register the 
+scsi bus. As each item on the bus is added, the acpi callback gets 
+called. If it's not an endpoint, scsi_acpi_find_channel gets called. 
+We're worried about the host case. The host number will correspond to 
+the appropriate _ADR underneath the PCI device that the host is on, so 
+we simply get the handle of the PCI device and then ask for the child 
+with the appropriate _ADR. That gives us the handle for the device, and 
+returning that sticks it back in the child's firmware_data field.
 
-Eric
+At least, that's how it works here. If acpi_get_child always returns 0 
+for you, then it sounds like something's going horribly wrong. Do you 
+have a copy of the DSDT?
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

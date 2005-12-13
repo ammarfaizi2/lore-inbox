@@ -1,64 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbVLMWrS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030331AbVLMWsv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030303AbVLMWrS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 17:47:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbVLMWrS
+	id S1030331AbVLMWsv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 17:48:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030330AbVLMWsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 17:47:18 -0500
-Received: from smtp05.auna.com ([62.81.186.15]:21996 "EHLO smtp05.retemail.es")
-	by vger.kernel.org with ESMTP id S1030327AbVLMWrR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 17:47:17 -0500
-Date: Tue, 13 Dec 2005 23:49:18 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc5-mm1
-Message-ID: <20051213234918.456131df@werewolf.auna.net>
-In-Reply-To: <20051204232153.258cd554.akpm@osdl.org>
-References: <20051204232153.258cd554.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 1.9.100cvs86 (GTK+ 2.8.9; i686-pc-linux-gnu)
+	Tue, 13 Dec 2005 17:48:51 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:54727
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030328AbVLMWsu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 17:48:50 -0500
+Date: Tue, 13 Dec 2005 14:48:54 -0800 (PST)
+Message-Id: <20051213.144854.73497707.davem@davemloft.net>
+To: hch@lst.de
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/3] move rtc compat ioctl handling to fs/compat_ioctl.c
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051213172312.GA16392@lst.de>
+References: <20051213172312.GA16392@lst.de>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/aJi+0xRg1v=J8EN_1JUM9V";
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.219.198] Login:jamagallon@able.es Fecha:Tue, 13 Dec 2005 23:47:11 +0100
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_/aJi+0xRg1v=J8EN_1JUM9V
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+From: Christoph Hellwig <hch@lst.de>
+Date: Tue, 13 Dec 2005 18:23:12 +0100
 
-On Sun, 4 Dec 2005 23:21:53 -0800, Andrew Morton <akpm@osdl.org> wrote:
+> This patch implements generic handling of RTC_IRQP_READ32, RTC_IRQP_SET32,
+> RTC_EPOCH_READ32 and RTC_EPOCH_SET32 in fs/compat_ioctl.c.  It's based on
+> the x86_64 code which needed a little massaging to be endian-clean.
+> 
+> parisc used COMPAT_IOCTL or generic w_long handlers for these whichce
+> is wrong and can't work because the ioctls encode sizeof(unsigned long)
+> in their ioctl number.  parisc also duplicated COMPAT_IOCTL entries for
+> other rtc ioctls which I remove in this patch, too.
+> 
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
->=20
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/=
-2.6.15-rc5-mm1/
->=20
-
-mmm, this patch GPL'ed all pci_xxxxxx functions, so it broke what you
-all know.
-
-Final attack against binary drivers ? Or just an API change ?
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.14-jam4 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
-
---Sig_/aJi+0xRg1v=J8EN_1JUM9V
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDn0/uRlIHNEGnKMMRAqj6AJ9qj3T3/PHqUVoEAEBgCcx+o6TuTQCdGHHV
-vQszHMNVB9kq7kInoQQE4fo=
-=S/nM
------END PGP SIGNATURE-----
-
---Sig_/aJi+0xRg1v=J8EN_1JUM9V--
+Looks good to me.

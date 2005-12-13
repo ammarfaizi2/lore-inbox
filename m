@@ -1,149 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964945AbVLMO1E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbVLMO0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964945AbVLMO1E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 09:27:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbVLMO1E
+	id S964914AbVLMO0L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 09:26:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbVLMO0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 09:27:04 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:4868 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S964945AbVLMO1D convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 09:27:03 -0500
+	Tue, 13 Dec 2005 09:26:10 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:33350 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964914AbVLMO0J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 09:26:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=ZSrrKaSZvauVNzm5kM4+uKIOXIhuSiMwrCjLdioJmQKJ/gXhnxf6jGB8YZZDk/u7P9HvLONU/vvaYtP44+KSvsujJvErN3LBKDlhfHFgyi1qDIlt3762Ty3k7GycrV38ciGGc8wfcS38kVAV4YFEZqIBrxrGB+8y0N5RRewV22Q=
+Message-ID: <81083a450512130626x417d86c9w31f300555c99fdb2@mail.gmail.com>
+Date: Tue, 13 Dec 2005 19:56:07 +0530
+From: Ashutosh Naik <ashutosh.naik@gmail.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC][PATCH] Prevent overriding of Symbols in the Kernel, avoiding Undefined behaviour
+Cc: anandhkrishnan@yahoo.co.in, linux-kernel@vger.kernel.org, rth@redhat.com,
+       akpm@osdl.org, Greg KH <greg@kroah.com>, alan@lxorguk.ukuu.org.uk,
+       Jesper Juhl <jesper.juhl@gmail.com>
+In-Reply-To: <1134424878.22036.13.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <358302439@web.de>
-X-OriginalArrivalTime: 13 Dec 2005 14:27:02.0499 (UTC) FILETIME=[48E36330:01C5FFF1]
-Content-class: urn:content-classes:message
-Subject: Re: Strange delay on PCI-DMA-transfer completion by wait_event_interruptible()
-Date: Tue, 13 Dec 2005 09:27:02 -0500
-Message-ID: <Pine.LNX.4.61.0512130909340.7816@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Strange delay on PCI-DMA-transfer completion by wait_event_interruptible()
-Thread-Index: AcX/8UjqamUDqkubSJ2gqNC2lVQKDQ==
-References: <358302439@web.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: =?iso-8859-1?Q?Burkhard_Sch=F6lpen?= <bschoelpen@web.de>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_13700_30228728.1134483967255"
+References: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com>
+	 <1134424878.22036.13.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+------=_Part_13700_30228728.1134483967255
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Tue, 13 Dec 2005, [iso-8859-1] Burkhard Schölpen wrote:
-
->> "linux-os \(Dick Johnson\)" <linux-os@analogic.com> schrieb am 12.12.05 21:14:39:
->>
->>
->> On Mon, 12 Dec 2005, [iso-8859-1] Burkhard Schölpen wrote:
->>
->>> Hi all,
->>>
->>> I'm trying to write a driver for a custom PCI-Board which is DMA-Busmaster capable (kernel 2.6.13 with SMP). Unfortunately I get some strange delay between the start of the transfer >>until the interrupt appears, which signals its completion.
->>>
->>> Concerning a dma transfer from RAM to the pci device, my code does the following:
->>>
->>> while (down_interruptible(my_device->write_semaphore));
->>> my_device->dma_write_complete = 0;
->>> my_device->dma_direction  = PCI_DMA_TODEVICE;
->>> my_device->bus_addr = pci_map_single(my_device->pci_device, pointer_to_buffer, my_device->dma_size, my_device->dma_direction);
->>>
->>> writel (cpu_to_le32 (bus_addr), MY_DMA_ADDR_REGISTER);
->>> writel (cpu_to_le32 (my_device->dma_size/4), MY_DMA_COUNT_REGISTER);	    //triggers dma transfer
->>>
->>> if (wait_event_interruptible(write_wait_queue, my_device->dma_write_complete))
->>> {
->>>      //handle error...
->>> }
->>> //test, if MY_DMA_COUNT_REGISTER contains 0
->>> up(my_device->write_semaphore);
->>>
->>> Inside the Interrupt-handler I do the following:
->>>
->>> pci_unmap_single (my_device->pci_device, my_device->bus_addr,
->>> my_device->dma_size, my_device->dma_direction);
->>> my_device->dma_write_complete = 1;
->>> wake_up_interruptible(&write_wait_queue);
->>> return IRQ_HANDLED;
->>>
->>> Actually the dma transfer works but I get a strange timing issue,
->>> which seems to be caused by wait_event_interruptible(). I measured the
->>> clock ticks elapsing from the start of the transfer until the interrupt
->>> appears. Converted to microseconds I get more than 600 us for less than
->>> 3 kB buffers. If I try out busy waiting using "while  (!my_device->dma_write
->>> _complete)" instead of wait_event_interruptible() the transfer already
->>> completes successfully after about 80 us. The device has to transport very
->>> large amounts of data, so I have to get the transfer rate as high as possible.
->>>
->>> I'm sorry if I made a very simple mistake, because I'm quite unexperienced in driver development, so hints would be very appreciated.
->>>
->>
->> Don't you get an interrupt both on a completion and error?
->> I think you should be using interruptible_sleep_on(&write_wait_queue),
->> not spinning in wait_event_interruptible().
+On 12/13/05, Rusty Russell <rusty@rustcorp.com.au> wrote:
 >
-> Thanks a lot for your answer!
-> I just tried out interruptible_sleep_on(), but couriously I got the same
-> delay as before. On the hardware side, everything seems to be okay, because
-> the data I'm transferring is relayed to a printhead of a laser printer (by an
-> FPGA on the PCI-Board), whose LEDs light up as expected. The programmer of
-> the FPGA (sitting next to me) says there would be no interrupt in the case of
-> an error (so probably I should sleep with a timeout). But as there is an
-> interrupt (and MY_DMA_COUNT_REGISTER contains really 0) in fact, I think the
-> dma transfer succeeds, or could that be misleading? The only problem seems
-> to be, that the interrupt comes much later, if I put the user process to
-> sleep than let it do busy waiting. Do you have any idea, what could cause
-> this strange behaviour? Could it be concerned with my SMP kernel (I use a
-> processor with 2 cores)?
+> How about something like:
 >
-
-I think I know what is happening. You are writing the count across the
-PCI bus, thinking this will start the DMA transfer. However, the count
-won't actually get to the device until the PCI interface is flushed
-(it's a FIFO, waiting for more activity). You need to force that
-write to occur NOW, by performing a dummy read in your address-space
-on the PCI bus.
-
-Then, you should find that the DMA seems to occur instantly and you
-get your interrupt when you expect it. We use the PLX PCI 9656BA
-for PCI interface on our datalink boards so I have a lot of
-experience in this area.
-
-In the case where you were polling the interface, the first read
-if its status actually flushed the PCI bus and started the DMA
-transfer. In the cases where you weren't polling, the count
-got to the device whenever the PCI interface timed-out or when
-there was other activity such as network.
-
-> At first I used interruptible_sleep_on(), but then I changed to
-> wait_event_interruptible(), because I read that the probability of a race
-> condition is higher than with wait_event_interruptible(), so one shouldn't
-> use this function any longer. Do you think interruptible_sleep_on() is
-> okay for this case?
+>         const struct kernel_symbol *sym;
+>         unsigned int i;
+>         const unsigned long *crc;
+>         struct module *owner;
 >
+>         spin_lock_irq(&modlist_lock);
+>         for (i =3D 0; i < mod->num_syms; i++)
+>                 if (__find_symbol(mod->syms[i].name, &owner, &crc, 1))
+>                         goto dup;
+>         for (i =3D 0; i < num->num_gpl_syms; i++)
+>                 if (__find_symbol(mod->gpl_syms[i].name,&owner,&crc,1))
+>                         goto dup;
+>         spin_unlock_irq(&modlist_lock);
+>         return 0;
+> dup:
+>         printk("%s: exports duplicate symbol (owned by %s)\n",
+>                 mod->name, module_name(owner));
+>         return -ENOEXEC;
+> }
 
-Every time somebody wants to rewrite a macro, they declare that the
-previous one had some race condition. If, in fact, you have only
-one DMA occurring from your device then no race is possible with
-interruptible_sleep_on(). wait_event_interruptible() is the same thing
-but with an additional access to some memory variable, possibly
-causing a cache refill which means it might take more time.
+Have tried that in the attached patch. However,  mod->syms[i].name
+would be valid only after a long relocation for loop has run through.
+While this adds a wee bit extra overhead, that overhead is only in the
+case where the module does actually export a Duplicate Symbol.
 
-In any event, then both work okay.
+This its a question, whether we do the search before relocation ( A
+little messier ) or after ( More straight forward)
 
-> Kind regards,
-> Burkhard
+Regards
+Ashutosh
+
+------=_Part_13700_30228728.1134483967255
+Content-Type: text/plain; name=mod13Decpatch.txt; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="mod13Decpatch.txt"
+
+--- /usr/src/linux-2.6.15-rc5-vanilla/kernel/module.c	2005-12-07 19:32:23.000000000 +0530
++++ /usr/src/linux-2.6.15-rc5/kernel/module.c	2005-12-13 19:44:43.000000000 +0530
+@@ -1204,6 +1204,42 @@ void *__symbol_get(const char *symbol)
+ }
+ EXPORT_SYMBOL_GPL(__symbol_get);
+ 
++/*
++ * Ensure that an exported symbol [global namespace] does not already exist
++ * in the Kernel or in some other modules exported symbol table.
++ */
++static int verify_export_symbols(struct module *mod)
++{
++	const char *name=0;
++	unsigned long i, ret = 0;
++	struct module *owner;
++	const unsigned long *crc;
++        
++	spin_lock_irq(&modlist_lock);
++	for (i = 0; i < mod->num_syms; i++)
++		if (unlikely(__find_symbol(mod->syms[i].name, &owner, &crc,1))) {
++			name = mod->syms[i].name;
++			ret = -ENOEXEC;
++			goto dup;
++		}
++	
++	for (i = 0; i < mod->num_gpl_syms; i++)
++		if (unlikely(__find_symbol(mod->gpl_syms[i].name, &owner, &crc,1))) {
++			name = mod->gpl_syms[i].name;
++			ret = -ENOEXEC;
++			goto dup;
++		}
++
++dup:
++	spin_unlock_irq(&modlist_lock);
++	
++	if (ret)
++		printk("%s: exports duplicate symbol %s (owned by %s)\n", 
++			mod->name, name, module_name(owner));
++
++	return ret;
++}
++
+ /* Change all symbols so that sh_value encodes the pointer directly. */
+ static int simplify_symbols(Elf_Shdr *sechdrs,
+ 			    unsigned int symindex,
+@@ -1767,6 +1804,12 @@ static struct module *load_module(void _
+ 			goto cleanup;
+ 	}
+ 
++        /* Find duplicate symbols */
++	err = verify_export_symbols(mod);
++
++	if (err < 0)
++		goto cleanup;
++
+   	/* Set up and sort exception table */
+ 	mod->num_exentries = sechdrs[exindex].sh_size / sizeof(*mod->extable);
+ 	mod->extable = extable = (void *)sechdrs[exindex].sh_addr;
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.56 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+------=_Part_13700_30228728.1134483967255--

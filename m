@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbVLMGjy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbVLMGsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbVLMGjy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 01:39:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbVLMGjy
+	id S932387AbVLMGsS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 01:48:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbVLMGsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 01:39:54 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:37429 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932355AbVLMGjy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 01:39:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=gZ3usq2LIAt3vRgOPDzI/M7AdudVszzhQEXKxpvC2VVWd9mfitb7TXvgXgbzzAbhiibb9UvtkEv8XG4RGZTsyn1GqyEgVCK/ZCTRUTroCtWFVvWj1WbhDhcXdDvVV7JT6zKrzzHNjCANaVOdskIlWFW7HHUIguBKCNCDKYI7TKI=
-Message-ID: <7a37e95e0512122239p34d0f436k30227f7f62a2e437@mail.gmail.com>
-Date: Tue, 13 Dec 2005 12:09:53 +0530
-From: Deven Balani <devenbalani@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: patch for splice system call.
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 13 Dec 2005 01:48:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60575 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932387AbVLMGsS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 01:48:18 -0500
+Date: Tue, 13 Dec 2005 01:48:00 -0500
+From: Dave Jones <davej@redhat.com>
+To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add mem_nmi_panic enable system to panic on hard error
+Message-ID: <20051213064800.GB7401@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <439E6C58.6050301@jp.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <439E6C58.6050301@jp.fujitsu.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All!
+On Tue, Dec 13, 2005 at 03:38:16PM +0900, Hidetoshi Seto wrote:
+ > Some x86 server fires NMI with reason 0x80 up if a parity error
+ > occurs on its PCI-bus system or DIMM module.
 
-I am routing data from a tuner to harddisk.
-I came to know splice() is something related to do real-time IO.
-I believe direct IO doesn't address this scenario.
+Hmm, are you sure this isn't a bios error misconfiguring
+some northbridge register perhaps ?  Some chipsets offer
+such reporting as a feature. Could be your server has this
+on by default.
 
-Can any one refer me the source to the patch of splice() system call.
+(I believe the EDAC code has also triggered similar cases
+ on certain cards which is why it too disables this checking
+ by default).
 
-Regards,
-Deven
+ > However, such NMI cannot stop the system and data pollution,
+ > because the NMI is _not_ "unknown", through unknown_nmi_panic
+ > can panic the system on NMI which has no reason bits.
+ > 
+ > This patch adds "mem_nmi_panic" sysctl parameter that enable
+ > system to switch its action on such NMI originated in a hard error.
+ > Also it seems that x86_86 has same situation and problem,
+ > so this is a couple of patch for 2 archs, i386 and x86_64.
 
-On 12/9/05, Alex Riesen <raa.lkml@gmail.com> wrote:
-> On 12/9/05, Deven Balani <devenbalani@gmail.com> wrote:
-> > I am writing a libata-complaint SATA driver for an ARM board.
-> >
-> > I want to do data streaming from a tuner into the SATA hard disk.
-> >
-> > In other words, I am getting a buffer of stream in kernel space, which
-> > I had to store it in SATA hard disk.
->
-> can this be of interest:
->
-> http://groups.google.de/group/fa.linux.kernel/browse_frm/thread/21b2b3215f35e21a/bcbc00b7a0151afd?tvc=1&q=linux-kernel+Make+pipe+data+structure+be+a+circular+list+of+pages#bcbc00b7a0151afd
->
+Why not make this automatic based on dmi strings, instead of
+making the user guess that he needs to pass obscure command
+line options?
+
+The sysctl seems pointless too. If this is needed at all,
+why would you ever want to turn it off ?
+
+		Dave
+

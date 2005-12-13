@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVLMA5l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbVLMA7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbVLMA5l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 19:57:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVLMA5l
+	id S932310AbVLMA7g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 19:59:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbVLMA7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 19:57:41 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:4852 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S932305AbVLMA5k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 19:57:40 -0500
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-From: Daniel Walker <dwalker@mvista.com>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, arjan@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-In-Reply-To: <dhowells1134431145@warthog.cambridge.redhat.com>
-References: <dhowells1134431145@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Mon, 12 Dec 2005 16:57:38 -0800
-Message-Id: <1134435458.22269.11.camel@localhost.localdomain>
+	Mon, 12 Dec 2005 19:59:36 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:50050 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932310AbVLMA7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 19:59:35 -0500
+Date: Mon, 12 Dec 2005 16:59:11 -0800
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Anton Blanchard <anton@samba.org>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       pcihpd-discuss@lists.sourceforge.net, miltonm@bga.com
+Subject: Re: [PATCH] PCI express must be initialized before PCI hotplug
+Message-ID: <20051212165910.A6042@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <20051212001201.GF23641@krispykreme>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20051212001201.GF23641@krispykreme>; from anton@samba.org on Mon, Dec 12, 2005 at 11:12:01AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-12 at 23:45 +0000, David Howells wrote:
-
->  (1) Provides a simple xchg() based semaphore as a default for all
->      architectures that don't wish to override it and provide their own.
+On Mon, Dec 12, 2005 at 11:12:01AM +1100, Anton Blanchard wrote:
 > 
->      Overriding is possible by setting CONFIG_ARCH_IMPLEMENTS_MUTEX and
->      supplying asm/mutex.h
+> From: Milton Miller <miltonm@bga.com>
 > 
->      Partial overriding is possible by #defining mutex_grab(), mutex_release()
->      and is_mutex_locked() to perform the appropriate optimised functions.
+> PCI express hotplug uses the pcieportbus driver so pcie must be
+> initialized before hotplug/.  This patch changes the link order.
+> 
+Yes, this fixes it. Long term, I'm hoping to avoid this problem
+by merging the pcie code a bit more closely with pci.
 
-Your code is really similar to the RT mutex, which does everything that
-your mutex does at least ? Assuming you've reviewed the RT mutex, why
-would we want to use yours over it?
-
-Daniel
+thanks,
+Rajesh
 

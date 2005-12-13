@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbVLMIVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932544AbVLMIYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932542AbVLMIVa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 03:21:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbVLMIVa
+	id S932544AbVLMIYn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 03:24:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbVLMIYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 03:21:30 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:23175 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932542AbVLMIV3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 03:21:29 -0500
-Message-ID: <439E8565.3000900@aitel.hist.no>
-Date: Tue, 13 Dec 2005 09:25:09 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-CC: Andrea Arcangeli <andrea@cpushare.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, Rik van Riel <riel@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01EE9BB3@otce2k03.adaptec.com>
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01EE9BB3@otce2k03.adaptec.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Dec 2005 03:24:43 -0500
+Received: from mail.kroah.org ([69.55.234.183]:31107 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932544AbVLMIYm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 03:24:42 -0500
+Date: Tue, 13 Dec 2005 00:23:56 -0800
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       mikem@beardog.cca.cpqcorp.net, axboe@suse.de
+Subject: [patch 24/26] - stable review cciss: bug fix for hpacucli
+Message-ID: <20051213082356.GY5823@kroah.com>
+References: <20051213073430.558435000@press.kroah.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="cciss-bug-fix-for-hpacucli.patch"
+In-Reply-To: <20051213082143.GA5823@kroah.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Salyzyn, Mark wrote:
+-stable review patch.  If anyone has any objections, please let us know.
 
->For instance, there are reasons, somewhat outside the control of the
->Hardware Vendor, for binary drivers. Often, in the hopes of achieving
->standards compliance, Hardware vendors are cornered by legalities over
->the copyright associated with those standards that ties their hands
->either from releasing interface documentation or from releasing source
->code. Yet all these vendors would be overjoyed to have Linux drivers for
->their Hardware in order to increase the sales of their products.
->  
->
-Uh, a copyrighted standard?  They are trying to live up to a secret
-standard, one they cannot publish?
-Don't sound like a standard to me - a standard is something known,
-that is the purpose of standardization.
-This sounds like "we standardized the voltage for household lamps, but
-we won't tell if it is 110V, 220V or something completely different."
-I really hope I misunderstood this.
+------------------
+From: Mike Miller <mikem@beardog.cca.cpqcorp.net>
 
-Standards compliance should never get in the way of open source.
-Sure - if the owner modifies the source, then the thing may no longer
-comply with the standard.  In some cases even illegal or dangerous. 
-But in that case, it is the fault of the owner, not the vendor. The vendor
-can simply say that anyone changing the (distributed) source should get
-their own certification.
+This patch fixes a bug that breaks hpacucli, a command line interface
+for the HP Array Config Utility. Without this fix the utility will
+not detect any controllers in the system. I thought I had already fixed
+this, but I guess not.
 
-Helge Hafting
+Thanks to all who reported the issue. Please consider this this inclusion.
+
+Signed-off-by: Mike Miller <mikem@beardog.cca.cpqcorp.net>
+Signed-off-by: Jens Axboe <axboe@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+---
+ include/linux/cciss_ioctl.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.14.3.orig/include/linux/cciss_ioctl.h
++++ linux-2.6.14.3/include/linux/cciss_ioctl.h
+@@ -10,8 +10,8 @@
+ typedef struct _cciss_pci_info_struct
+ {
+ 	unsigned char 	bus;
+-	unsigned short	domain;
+ 	unsigned char 	dev_fn;
++	unsigned short	domain;
+ 	__u32 		board_id;
+ } cciss_pci_info_struct; 
+ 
+
+--

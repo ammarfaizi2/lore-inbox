@@ -1,92 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbVLMAjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbVLMAzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932304AbVLMAjD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 19:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVLMAjB
+	id S932252AbVLMAzu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 19:55:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbVLMAzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 19:39:01 -0500
-Received: from zproxy.gmail.com ([64.233.162.204]:62884 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932304AbVLMAjA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 19:39:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=AZiEVMhoOZaXpJAvAx7o8J+5X3fx2b8cfYNhZIpnJG4JnNot9a636MgcZhmVixwgDFrwdpm1Ak1FqhTtuBtQv54NdABJJEHkeGWi1BquwYdOyOEXZVCr/chAdRObL0RFi9Gm24/0BrexIO63AlP6hf4DZwDpWXnQzkBmfXWhmGw=
-Message-ID: <439E181D.4090409@gmail.com>
-Date: Tue, 13 Dec 2005 08:38:53 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051025)
+	Mon, 12 Dec 2005 19:55:50 -0500
+Received: from gw02.applegatebroadband.net ([207.55.227.2]:53497 "EHLO
+	data.mvista.com") by vger.kernel.org with ESMTP id S932252AbVLMAzu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 19:55:50 -0500
+Message-ID: <439E1BBE.4040405@mvista.com>
+Date: Mon, 12 Dec 2005 16:54:22 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: LKML List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Yet more display troubles with 2.6.15-rc5-mm2
-References: <9a8748490512111306x3b01cb8cw2068a7ad3af93b03@mail.gmail.com>	 <439CBE49.2090901@gmail.com> <9a8748490512121031p11beaa51l7445ce1a5b31c3c6@mail.gmail.com>
-In-Reply-To: <9a8748490512121031p11beaa51l7445ce1a5b31c3c6@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: john stultz <johnstul@us.ibm.com>
+CC: Shailabh Nagar <nagar@watson.ibm.com>,
+       Christoph Lameter <clameter@engr.sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       lse-tech@lists.sourceforge.net,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Jay Lan <jlan@sgi.com>, Jens Axboe <axboe@suse.de>
+Subject: Re: [Lse-tech] [RFC][Patch 1/5] nanosecond timestamps and diffs
+References: <43975D45.3080801@watson.ibm.com>	 <43975E6D.9000301@watson.ibm.com>	 <Pine.LNX.4.62.0512121049400.14868@schroedinger.engr.sgi.com>	 <439DD01A.2060803@watson.ibm.com>	 <1134416962.14627.7.camel@cog.beaverton.ibm.com>	 <439DD6E8.7010802@watson.ibm.com> <1134418034.14627.14.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1134418034.14627.14.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> On 12/12/05, Antonino A. Daplas <adaplas@gmail.com> wrote:
->> Jesper Juhl wrote:
->>> In addition to the problem I reported earlier about 2.6.15-rc5-mm2
->>> hanging at boot with vga=791 I've just discovered another problem.
+john stultz wrote:
+> On Mon, 2005-12-12 at 20:00 +0000, Shailabh Nagar wrote:
+> 
+>>john stultz wrote:
+>>
+>>>On Mon, 2005-12-12 at 19:31 +0000, Shailabh Nagar wrote:
 >>>
->>> If I boot with vga=normal (which is aparently all that works), then I
->>> can boot up to a nice lain text login and run startx, but if I then
->>> switch away from X back to a text console with ctrl+alt+f6 or if I
->>> shut down X, then I'm presented with a completely garbled text mode
->>> screen - flashing coloured blocks all over, random bits of text at
->>> random locations etc.
 >>>
->>> Also, when starting X, just before the cursor appears I normally just
->>> have a black screen. With this kernel I first get a short blink of a
->>> garbled graphics mode screeen with either what looks like just random
->>> pixels or sometimes with something that looks like a mangled snapshot
->>> of my text mode console, or if I kill X with ctrl+alt+backspace and
->>> then start it again (the garbled text mode console does work, although
->>> I'm glad I know how to touch type ;) then I sometimes get what looks
->>> like a snapshot of my previous X session with random pixels on top.
->>> The garbled graphical screen stays for just a blink of an eye, then
->>> it's replaced with the normal black screen and the mouse cursor.
+>>>>Christoph Lameter wrote:
+>>>>
+>>>>
+>>>>>On Wed, 7 Dec 2005, Shailabh Nagar wrote:
+>>>>>
+>>>>>>+void getnstimestamp(struct timespec *ts)
+>>>>>
+>>>>>There is already getnstimeofday in the kernel.
+>>>>
+>>>>Yes, and that function is being used within the getnstimestamp() being proposed.
+>>>>However, John Stultz had advised that getnstimeofday could get affected by calls to
+>>>>settimeofday and had recommended adjusting the getnstimeofday value with wall_to_monotonic.
+>>>>
+>>>>John, could you elaborate ?
 >>>
->>> 2.6.15-rc5-git1 works perfectly without these issues.
->> I cannot reproduce your problem...
->>
+>>>I think you pretty well have it covered. 
+>>>
+>>>getnstimeofday + wall_to_monotonic should be higher-res and more
+>>>reliable (then TSC based sched_clock(), for example) for getting a
+>>>timestamp.
+>>>
+>>>There may be performance concerns as you have to access the clock
+>>>hardware in getnstimeofday(), but there really is no other way for
+>>>reliable finely grained monotonically increasing timestamps.
+>>>
 > 
->> Can you try another X driver, ie, vesa?
->>
-> I'm already using the vesa driver. It seems to be the only Open Source
-> driver that'll work with this card, so i don't have any other to try.
 > 
-
-Ah, vesa Xorg driver with vgacon.  I haven't tried that yet. Let me check if
-I can reproduce the problem.
-
->> Also, these 2 patches are present in mm but not in Linus' tree.  Can
->> you check which of these are the culprit, if any?
->>
->> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc2/2.6.15-rc2-mm1/broken-out/vgacon-fix-doublescan-mode.patch
->> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc2/2.6.15-rc2-mm1/broken-out/vgacon-workaround-for-resize-bug-in-some-chipsets.patch
->>
+>>Thanks, that clarifies. I guess the other underlying concern here would be whether these
+>>improvements (in resolution and reliability) should be going into getnstimeofday()
+>>itself (rather than creating a new func for the same) ? Or is it better to leave
+>>getnstimeofday as it is ?
 > 
-> Since this is 2.6.15-rc5-mm2 I grabbed these two instead:
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm2/broken-out/vgacon-fix-doublescan-mode.patch
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm2/broken-out/vgacon-workaround-for-resize-bug-in-some-chipsets.patch
 > 
-> Reverting both patches didn't fix the problem. Starting X then
-> switching back to a text mode console still results in a completely
-> messed up text console. X is fine, I can switch back to it no problem,
-> but text consoles go bye-bye...
+> No, getnstimeofday() is very much needed to get a nanosecond grained
+> wall-time clock, so a new function is needed for the monotonic clock.
 > 
-> Would there be any point in trying a kernel with just one of the
-> patches reverted?
+> In my timeofday re-work I have used the name "get_monotonic_clock()" and
+> "get_monotonic_clock_ts()" for basically the same functionality
+> (providing a ktime and a timespec respectively). You might consider
+> naming it as such, but resolving these naming collisions shouldn't be
+> too difficult either way.
 
-Those 2 patches are independent, so it's possible that their side
-effects can cancel each other out.  So yes, try reversing one patch
-at a time.
+Indeed.  Lets use a name with "monotonic" in it, please.  And, 
+possibly not "clock".  How about get_nsmonotonic_time() or some such?
 
-Tony
 
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

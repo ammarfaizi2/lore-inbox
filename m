@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030300AbVLMX0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030350AbVLMX17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030300AbVLMX0J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 18:26:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbVLMX0J
+	id S1030350AbVLMX17 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 18:27:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbVLMX17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 18:26:09 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28434 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030300AbVLMX0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 18:26:08 -0500
-Date: Wed, 14 Dec 2005 00:26:07 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove the deprecated check_gcc
-Message-ID: <20051213232607.GX23349@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Tue, 13 Dec 2005 18:27:59 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:48586 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030350AbVLMX16 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 18:27:58 -0500
+Date: Tue, 13 Dec 2005 15:27:41 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ben Gardner <gardner.ben@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386: GPIO driver for AMD CS5535/CS5536
+Message-Id: <20051213152741.0cce785f.akpm@osdl.org>
+In-Reply-To: <808c8e9d0512131457k6f88e893p27e0f931741ed1fe@mail.gmail.com>
+References: <808c8e9d0512130904j5f202f7cwe0d195efb12afad0@mail.gmail.com>
+	<20051213142410.5f5f2bae.akpm@osdl.org>
+	<808c8e9d0512131457k6f88e893p27e0f931741ed1fe@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-check_gcc has been deprecated for quite some time.
+Ben Gardner <gardner.ben@gmail.com> wrote:
+>
+> On 12/13/05, Andrew Morton <akpm@osdl.org> wrote:
+> > Ben Gardner <gardner.ben@gmail.com> wrote:
+> > >
+> > >  A simple driver for the CS5535 and CS5536 that allows a user-space
+> > >  program to manipulate GPIO pins.
+> > >  The CS5535/CS5536 chips are Geode processor companion devices.
+> >
+> > Should CONFIG_CS5535_GPIO depend on X86 or X86_32?
+> >
+> 
+> I think it should depend on X86_32.
 
+OK.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Would you like me to send you a -fix patch or would you rather take care of it?
 
----
-
-This patch was already sent on:
-- 3 Dec 2005
-
---- linux-2.6.15-rc3-mm1/Makefile.old	2005-12-03 02:50:54.000000000 +0100
-+++ linux-2.6.15-rc3-mm1/Makefile	2005-12-03 02:51:05.000000000 +0100
-@@ -286,10 +286,6 @@
- cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-              > /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
- 
--# For backward compatibility
--check_gcc = $(warning check_gcc is deprecated - use cc-option) \
--            $(call cc-option, $(1),$(2))
--
- # cc-option-yn
- # Usage: flag := $(call cc-option-yn, -march=winchip-c6)
- cc-option-yn = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
-
+I fixed it up.

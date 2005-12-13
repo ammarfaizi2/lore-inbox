@@ -1,99 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbVLMQEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbVLMQRZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbVLMQEk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 11:04:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVLMQEk
+	id S932324AbVLMQRZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 11:17:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbVLMQRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 11:04:40 -0500
-Received: from zproxy.gmail.com ([64.233.162.203]:45807 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932337AbVLMQEj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 11:04:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EkeRo7YDXI1MPMbIsdaq3M7ExUewA44yOCV/1c57EDHIEBupGUPu2S5N+p8L64wgnQfhLyHoEgweKnfXHLpW2qp+szrKfzPUFWO/SFDhe5s0yRDxpml1+NB07nK+LorzePc3IomlPofOjAABRXG4lUCJ2yG4XsHrst5mE+MxUdA=
-Message-ID: <41840b750512130804s32fe543xa11933f681973281@mail.gmail.com>
-Date: Tue, 13 Dec 2005 18:04:37 +0200
-From: Shem Multinymous <multinymous@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: tp_smapi conflict with IDE, hdaps
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Rovert Love <rlove@rlove.org>,
-       Jens Axboe <axboe@suse.de>, linux-ide@vger.kernel.org
-In-Reply-To: <1134488305.11732.74.camel@localhost.localdomain>
+	Tue, 13 Dec 2005 11:17:25 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:39348 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932339AbVLMQRY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 11:17:24 -0500
+Date: Tue, 13 Dec 2005 08:16:39 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, dhowells@redhat.com,
+       hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+In-Reply-To: <20051213084926.GN23384@wotan.suse.de>
+Message-ID: <Pine.LNX.4.64.0512130812020.15597@g5.osdl.org>
+References: <dhowells1134431145@warthog.cambridge.redhat.com>
+ <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu>
+ <20051213075835.GZ15804@wotan.suse.de> <20051213004257.0f87d814.akpm@osdl.org>
+ <20051213084926.GN23384@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <41840b750512130635p45591633ya1df731f24a87658@mail.gmail.com>
-	 <1134486203.11732.60.camel@localhost.localdomain>
-	 <41840b750512130729y49903791xc9ceba4e6a18322e@mail.gmail.com>
-	 <1134488305.11732.74.camel@localhost.localdomain>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On 12/13/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> Sounds like it needs someone with an ATA bus analyser, or of course
-> someone from IBM to be helpful
-
-(I wonder which is more implausible...)
 
 
-> > > Trying to arbitrate libata access with unknown bios behaviour isn't going to have a
-> > > sane resolution.
-> >
-> > Why? BTW, isn't this similar to the queue freeze functionality needed
-> > by the disk park part of the ThinkPad HDAPS?
->
-> What else does that code do, what else might it confuse, what rules and
-> locking are hidden in the windows driver that are unknown. Want to risk
-> everyones data for that ?
+On Tue, 13 Dec 2005, Andi Kleen wrote:
+> 
+> Remove -Wdeclaration-after-statement
 
-We already take that risk to some degree, since the SMAPI BIOS is also
-invoked by the ACPI DSDT and by external events.
+Please don't.
 
+It's a coding style issue. We put our variable declarations where people 
+can _find_ them, not in random places in the code.
 
-> HDAPS doesn't need it btw.
+Putting variables in the middle of code only improves readability when you 
+have messy code. 
 
-It's not implemented yet, but I gather it's necessary for preventing
-the disk from spinning back up as the laptop slides off the table.
-Maybe I missed some subsequent discussion?
+Now, one feature that _may_ be worth it is the loop counter thing:
 
+	for (int i = 10; i; i--)
+		...
 
-> > We don't understand the controller interface sufficiently well to
-> > fully abstract it (no specs, and the two conflicting drivers do things
-> > somewhat differently), so for now the low-level driver may only handle
-> > locking... Is there an easier way to just share a mutex?
->
-> Yes but that isn't neccessarily the right thing to do. You want the
-> abstraction for the resource ownership and expansion. Can you summarize
-> the two drivers interaction with the ports ?
+kind of syntax actually makes sense and is a real feature (it makes "i" 
+local to the loop, and can actually help people avoid bugs - you can't use 
+"i" by mistake after the loop).
 
-You write "command" values into IO ports 0x1610 and 0x161F and, in
-some cases, read some results from ports 0x1610-0x161F. Throughout
-that, you inspect various bits (whose meaning we don't understand) in
-the status port 0x1604. The details of the commands, scheduling and
-status bits differ between the drivers. I don't think a full-blown
-ownership and expansion infrastructure is necessary, or even possible
-without better understanding.
+But I think you need "--std=c99" for gcc to take that.
 
-
-> One large scale example is the i2c bus code which has to deal with
-> multiple devices on multiple busses all being used by multiple people at
-> the same time.
->
-> Another is I2O where the I2O core code owns the I2O controller and the
-> detail for it and is used by various device drivers on top. That one is
-> fairly high level however and not exactly minimal.
->
-> It may well be that in your case the 'core' module can only identify the
-> ports, claim them, release them on unload and provide 'lock' and
-> 'unlock' functions and the base address.
-
-Thanks for the pointers. I guess the minimal approach is probably
-ideal here; are there any such dumb drivers lying around?
-
-  Shem
+			Linus

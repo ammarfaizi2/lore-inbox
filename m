@@ -1,60 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964837AbVLMJK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbVLMJLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964837AbVLMJK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 04:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbVLMJK3
+	id S964838AbVLMJLe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 04:11:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbVLMJLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 04:10:29 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:26536 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964822AbVLMJK0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 04:10:26 -0500
-Date: Tue, 13 Dec 2005 10:09:41 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, dhowells@redhat.com, torvalds@osdl.org,
-       hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Message-ID: <20051213090941.GA20490@elte.hu>
-References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de> <20051213004257.0f87d814.akpm@osdl.org> <20051213084926.GN23384@wotan.suse.de>
+	Tue, 13 Dec 2005 04:11:34 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:43173
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S964838AbVLMJLd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 04:11:33 -0500
+Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: george@mvista.com
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, rostedt@goodmis.org, johnstul@us.ibm.com,
+       mingo@elte.hu
+In-Reply-To: <439E2308.1000600@mvista.com>
+References: <20051206000126.589223000@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.61.0512061628050.1610@scrub.home>
+	 <1133908082.16302.93.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.61.0512070347450.1609@scrub.home>
+	 <1134148980.16302.409.camel@tglx.tec.linutronix.de>
+	 <Pine.LNX.4.61.0512120007010.1609@scrub.home>
+	 <1134405768.4205.190.camel@tglx.tec.linutronix.de>
+	 <439E2308.1000600@mvista.com>
+Content-Type: text/plain
+Organization: linutronix
+Date: Tue, 13 Dec 2005 10:18:08 +0100
+Message-Id: <1134465488.4205.293.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051213084926.GN23384@wotan.suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andi Kleen <ak@suse.de> wrote:
-
-> > It's time to give up on it and just drink more coffee or play more tetris
-> > or something, I'm afraid.
+On Mon, 2005-12-12 at 17:25 -0800, George Anzinger wrote:
+> >>The rationale for example talks about "a periodic timer with an absolute 
+> >>_initial_ expiration time", so I could also construct a valid example with 
+> >>this expectation. The more I read the spec the more I think the current 
+> >>behaviour is not correct, e.g. that ABS_TIME is only relevant for 
+> >>it_value.
+> >>So I'm interested in specific interpretations of the spec which support 
+> >>the current behaviour.
 > 
-> Or start using icecream (http://wiki.kde.org/icecream)
+> My $0.02 worth: It is clear (from the standard) that the initial time 
+> is to be ABS_TIME.  It is also clear that the interval is to be added 
+> to that time.  IMHO then, the result should have the same property, 
+> i.e. ABS_TIME.  Sort of like adding an offset to a relative address. 
+> The result is still relative.
 
-distcc is pretty good too. I have a minimal kernel build done in 19 
-seconds, a fuller build (1.5MB bzImage that boots on all my testboxes) 
-done in 45 seconds, using gcc 4.0.2.
+So the only difference between a timer with ABSTIME set and one without
+is the notion of the initial expiry value, aside the
+clock_settime(CLOCK_REALTIME) speciality.
 
-with the default settings, distcc wasnt saturating my boxes, the key was 
-to start distccd with a longer queue size (/etc/sysconfig/distccd):
+ABSTIME:
+firstexp = it_value
+firstexp, firstexp + it_interval, ... firstexp + n * it_interval
 
- OPTIONS="--nice 5 --jobs 128"
+non ABSTIME:
+firstexp = now + it_value
+firstexp, firstexp + it_interval, ... firstexp + n * it_interval
 
-and to get the DISTCC_HOSTS tuning right:
+The only limitation of this is that the interval value can not be less
+than the resolution of the clock in order to avoid the wrong accounting
+of the overflow.
 
- export DISTCC_HOSTS='j/16 n/120 v/40 s/13 e2/7'
+> > Unfortunately you find just the spec all over the place. I fear we have
+> > to find and agree on an interpretation ourself.
+> > 
+> > I agree, that the restriction to the initial it_value is definitely
+> > something you can read out of the spec. But it does not make a lot of
+> > sense for me. Also the restriction to TIMER_ABSTIME is somehow strange
+> > as it converts an CLOCK_REALTIME timer to a CLOCK_MONOTONIC timer. I
+> > never understood the rationale behind that.
+> 
+> I don't think it really does that.  The TIMER_ABSTIME flag just says 
+> that the time requested is to be taken as "clock" time (which ever 
+> clock) AND that this is to be the expire time regardless of clock 
+> setting.  We, in an attempt to simplify the lists, convert the expire 
+> time into some common time notation (in most cases we convert relative 
+> times to absolute times) but this introduces problems because the 
+> caller has _asked_ for a relative or absolute time and not the other. 
+>   If the clock can not be set this is not a problem.  If it can, well, 
+> we need to keep track of what the caller wanted, absolute or relative.
+> 
+> It might help others to understand this if you were to remove the 
+> clock names from your queues and instead call them "absolute_real" and 
+> "up_time".  Then it would be more clear, I think, that we are mapping 
+> user requests onto these queues based on the desired functionality 
+> without a predilection to put a timer on a given queue just because a 
+> particular clock was requested.  At this point it becomes clear, for 
+> example, that a TIMER_ABSTIME request on the real clock is the _only_ 
+> request that should be mapped to the "absolute_real" list.
 
-in fact my distcc builds are almost as fast as a fully cached ccache 
-build coming straight out of RAM ...
+In other words. If there is only CLOCK_REALTIME, then the implementation
+has to keep track of absolute and relative timers.
 
-	Ingo
+The existance of CLOCK_MONOTONIC and the fact that CLOCK_MONOTONIC is
+using the same clock source as CLOCK_REALTIME allows us to optimize the
+implementation by putting the relative timers on the monotonic list.
+
+	tglx
+
+

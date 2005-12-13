@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964901AbVLMJke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbVLMJmE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964901AbVLMJke (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 04:40:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbVLMJke
+	id S964897AbVLMJmE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 04:42:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbVLMJmE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 04:40:34 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:49870 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964807AbVLMJkd (ORCPT
+	Tue, 13 Dec 2005 04:42:04 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:62654 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964897AbVLMJmC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 04:40:33 -0500
-Date: Tue, 13 Dec 2005 10:39:49 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Message-ID: <20051213093949.GC26097@elte.hu>
-References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051213090219.GA27857@infradead.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.7
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.7 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Tue, 13 Dec 2005 04:42:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=e8tDMK8nObfwBu7KPETkG+Zo16lmTrxQ3m/+TD9RWBcKQQV0AIJDnu0cr1tdD7n0UP0UPG3EnapfjsU2JMQVQJiYgVHrxGbHSePDd/YJwSWCAhC4tU1AISBezWuU9Mv4gnDW75TDKQhwfkCyCL+O/mVL8ttBLezq5y6uT0A68uY=
+Message-ID: <439E9762.4070809@gmail.com>
+Date: Tue, 13 Dec 2005 17:41:54 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051025)
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: LKML List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Yet more display troubles with 2.6.15-rc5-mm2
+References: <9a8748490512111306x3b01cb8cw2068a7ad3af93b03@mail.gmail.com>	 <439CBE49.2090901@gmail.com> <9a8748490512121031p11beaa51l7445ce1a5b31c3c6@mail.gmail.com>
+In-Reply-To: <9a8748490512121031p11beaa51l7445ce1a5b31c3c6@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Christoph Hellwig <hch@infradead.org> wrote:
-
-> On Tue, Dec 13, 2005 at 08:54:41AM +0100, Ingo Molnar wrote:
-> > - i did not touch the 'struct semaphore' namespace, but introduced a
-> >   'struct compat_semaphore'.
+Jesper Juhl wrote:
+> On 12/12/05, Antonino A. Daplas <adaplas@gmail.com> wrote:
+>> Jesper Juhl wrote:
+>>
+> I'm already using the vesa driver. It seems to be the only Open Source
+> driver that'll work with this card, so i don't have any other to try.
 > 
-> Because it's totally braindead.  Your compat_semaphore is a real 
-> semaphore and your semaphore is a mutex.  So name them as such.
 
-well, i had the choice between a 30K patch, a 300K patch and a 3000K 
-patch. I went for the 30K patch ;-)
+I just tried with Xorg vesa and vgacon, and everything seems to work okay.
+Now I'm not sure what changes in linux causes the vgacon state restore
+to fail (VGA state restoration is almost the entire responsibility
+of X, BTW), but maybe you can use vbetool to get and set the vga mode,
+just to test?
 
-> > - i introduced a 'type-sensitive' macro wrapper that switches down() 
-> >   (and the other APIs) to either to the assembly variant (if the 
-> >   variable's type is struct compat_semaphore), or switches it to the new 
-> >   generic mutex (if the type is struct semaphore), at build-time. There 
-> >   is no runtime overhead due to this build-time-switching.
-> 
-> And this one is probably is a great help to win the obsfucated C 
-> contests, but otherwise just harmfull.
 
-i never found it to be harmful in any way, and we've now got a year of 
-experience with them. Could you elaborate?
-
-	Ingo
+Tony

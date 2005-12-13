@@ -1,96 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbVLMXLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932626AbVLMXU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932618AbVLMXLx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 18:11:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbVLMXLw
+	id S932626AbVLMXU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 18:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbVLMXU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 18:11:52 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:32680 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932618AbVLMXLv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 18:11:51 -0500
-Subject: Re: [ckrm-tech] Re: [Lse-tech] [RFC][Patch 1/5] nanosecond
-	timestamps and diffs
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Jay Lan <jlan@engr.sgi.com>
-Cc: john stultz <johnstul@us.ibm.com>, Shailabh Nagar <nagar@watson.ibm.com>,
-       Christoph Lameter <clameter@engr.sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>,
-       lse-tech@lists.sourceforge.net,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Jay Lan <jlan@sgi.com>, Jens Axboe <axboe@suse.de>
-In-Reply-To: <439F1455.7080402@engr.sgi.com>
-References: <43975D45.3080801@watson.ibm.com>
-	 <43975E6D.9000301@watson.ibm.com>
-	 <Pine.LNX.4.62.0512121049400.14868@schroedinger.engr.sgi.com>
-	 <439DD01A.2060803@watson.ibm.com>
-	 <1134416962.14627.7.camel@cog.beaverton.ibm.com>
-	 <439F1455.7080402@engr.sgi.com>
-Content-Type: text/plain
-Date: Tue, 13 Dec 2005 15:05:59 -0800
-Message-Id: <1134515159.6617.196.camel@stark>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Tue, 13 Dec 2005 18:20:56 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:60327 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S932624AbVLMXUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 18:20:55 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17311.22374.434801.753813@gargle.gargle.HOWL>
+Date: Wed, 14 Dec 2005 02:21:10 +0300
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, arjan@infradead.org,
+       matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <1134479713.11732.25.camel@localhost.localdomain>
+References: <dhowells1134431145@warthog.cambridge.redhat.com>
+	<1134479118.11732.14.camel@localhost.localdomain>
+	<1134479713.11732.25.camel@localhost.localdomain>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-13 at 10:35 -0800, Jay Lan wrote:
-> john stultz wrote:
-> > On Mon, 2005-12-12 at 19:31 +0000, Shailabh Nagar wrote:
-> > 
-> >>Christoph Lameter wrote:
-> >>
-> >>>On Wed, 7 Dec 2005, Shailabh Nagar wrote:
-> >>>
-> >>>
-> >>>
-> >>>>+void getnstimestamp(struct timespec *ts)
-> >>>
-> >>>
-> >>>There is already getnstimeofday in the kernel.
-> >>>
-> >>
-> >>Yes, and that function is being used within the getnstimestamp() being proposed.
-> >>However, John Stultz had advised that getnstimeofday could get affected by calls to
-> >>settimeofday and had recommended adjusting the getnstimeofday value with wall_to_monotonic.
-> >>
-> >>John, could you elaborate ?
-> > 
-> > 
-> > I think you pretty well have it covered. 
-> > 
-> > getnstimeofday + wall_to_monotonic should be higher-res and more
-> > reliable (then TSC based sched_clock(), for example) for getting a
-> > timestamp.
-> 
-> How is this proposed function different from
-> do_posix_clock_monotonic_gettime()?
-> It calls getnstimeofday(), it also adjusts with wall_to_monotinic.
-> 
-> It seems to me we just need to EXPORT_SYMBOL_GPL the
-> do_posix_clock_monotonic_gettime()?
-> 
-> Thanks,
->   - jay
+Alan Cox writes:
+ > Actually a PS to this while I think about it. spin_locks and mutex type
+ > locks could both do with a macro for
+ > 
+ > 	call_locked(&lock, foo(a,b,c,d))
 
-Ah, yes. I should've searched for gettime rather than gettimeofday when
-I was looking for a suitable function.
+reiser4 code was publicly humiliated for such macros, but indeed they
+are useful. The only problem is that one needs two macros: one for foo()
+returning void and one for all other cases.
 
-Two minor differences exist:
+ > 
+ > to cut down on all the error path forgot to release a lock type errors.
+ > 
 
-1) getnstimestamp does not fetch an unused copy of jiffies_64
-2) getnstimestamp uses and advertises an explicit maximum resolution
-
-	I don't think either of these really matter so I'll post a series of
-patches:
-
-1) EXPORTing (_SYMBOL_GPL) do_posix_clock_monotonic_gettime()
-2) using do_posix_clock_monotonic_gettime() as a timestamp
-3) removing getnstimestamp()
-
-Thanks,
-	-Matt Helsley
-
+Nikita.

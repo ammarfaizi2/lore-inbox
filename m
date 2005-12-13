@@ -1,83 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbVLMVFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbVLMVHE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbVLMVFl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 16:05:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030225AbVLMVFl
+	id S1030225AbVLMVHE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 16:07:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbVLMVHD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 16:05:41 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:16100 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030227AbVLMVFk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 16:05:40 -0500
-Subject: Re: [ANNOUNCE] 2.6.15-rc5-hrt2 - hrtimers based high resolution
-	patches
-From: Steven Rostedt <rostedt@goodmis.org>
-To: tglx@linutronix.de
-Cc: john stultz <johnstul@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1134385343.4205.72.camel@tglx.tec.linutronix.de>
-References: <1134385343.4205.72.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain
-Date: Tue, 13 Dec 2005 16:05:27 -0500
-Message-Id: <1134507927.18921.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Dec 2005 16:07:03 -0500
+Received: from nproxy.gmail.com ([64.233.182.201]:4743 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030225AbVLMVHB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 16:07:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pjNOqR8O64NjdICpvWf5brwwVW6qBBfWaUoutr5RXC/lZ5d3EBaaPJcakjiVyWB3ds07EqzJnt6Z2A4wbAd3dzHYXjNGwTgOSneMNzlx8TpwcNXavgiJFsTpuAA84fDvJKRc98K5noiK6PqkLH3t8K3ZGZenv9J1z/tzRtHWfHY=
+Message-ID: <58cb370e0512131306q49cd6c3am41d5c1f46557fada@mail.gmail.com>
+Date: Tue, 13 Dec 2005 22:06:59 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 2/2] ide/sis5513: Add support for 965 chipset
+Cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1134506487.12502.20.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1134498192250-git-send-email-bcollins@ubuntu.com>
+	 <1134498254295-git-send-email-bcollins@ubuntu.com>
+	 <58cb370e0512131038q49271226xfe932476bb05d2d0@mail.gmail.com>
+	 <1134502230.12502.17.camel@localhost.localdomain>
+	 <58cb370e0512131157y1176bbdbk5914c67c51a9a0f0@mail.gmail.com>
+	 <1134506487.12502.20.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas and Ingo,
+On 12/13/05, Ben Collins <ben.collins@ubuntu.com> wrote:
+> On Tue, 2005-12-13 at 20:57 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > On 12/13/05, Ben Collins <ben.collins@ubuntu.com> wrote:
+> > > On Tue, 2005-12-13 at 19:38 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > > > Hi,
+> > > >
+> > > > SiS965 support has been merged recently (different patch because
+> > > > sis5513_pci_tbl[] chunk of this patch causes problems on the real
+> > > > SiS180 controller).
+> > > >
+> > > > Please ask the user to test vanilla 2.6.15-rc5.
+> > >
+> > > This patch was against 2.6.15-rc5.
+> >
+> > The original bug was filled against 2.6.12-9-amd64-k8 and then
+> > reported to work with this patch with 2.6.14-something (probably,
+> > because the exact kernel version is not mentioned in the bugzilla).
+> >
+> > Were you able to reproduce the problem with 2.6.15-rc5?
+>
+> No, but the useful bits were nowhere to be found, so I figured that it
+> still applied.
 
-I found a bug in 2.6.15-rc5-rt1 that was due to a race in the hrtimers
-code.  This bug is most likely in the vanilla hrtimers code as well.
+The useful bits are here:
+http://kernel.org/git/?p=linux/kernel/git/bcollins/ubuntu-2.6.git;a=commitdiff;h=14351f8e573442e2437d4b177fa10075aaefd5c9;hp=4f1d774aadfc5a6ed1545dca180f66ab6d0f543d
 
-I added a HRTIMER_RUNNING state because there's a moment in the
-run_hrtimer_queues that turns interrupts on and releases the base lock.
-In this time, a remove_hrtimer can be called while the state is still
-HRTIMER_PENDING_CALLBACK, but it has been removed off the list.  The
-remove_hrtimer will then try to remove this again.
+The author of the patch that you are submitting confirmed that a new
+patch works for him and suggested that it should be used instead of
+the original patch (because it conflicts with sata_sis driver as it claims
+the wrong PCI device).
 
-Since I couldn't think of which state to use, I created the
-HRTIMER_RUNNING, and used that instead.
-
-I have a program (a simple jitter test) that, with out the patch,
-reliably crashes the 2.6.15-rc5-rt1 on a slow UP machine.  With the
-patch, it runs solidly, so I know this is the reason for the crash.
-
--- Steve
-
-Index: linux-2.6.15-rc5-rt1/kernel/hrtimer.c
-===================================================================
---- linux-2.6.15-rc5-rt1.orig/kernel/hrtimer.c	2005-12-13 15:51:52.000000000 -0500
-+++ linux-2.6.15-rc5-rt1/kernel/hrtimer.c	2005-12-13 15:53:36.000000000 -0500
-@@ -846,6 +846,7 @@
- 		data = timer->data;
- 		set_curr_timer(base, timer);
- 		list_del(&timer->list);
-+		timer->state = HRTIMER_RUNNING;
- 		spin_unlock_irq(&base->lock);
- 
- 		/*
-@@ -904,6 +905,7 @@
- 		data = timer->data;
- 		set_curr_timer(base, timer);
- 		__remove_hrtimer(timer, base);
-+		timer->state = HRTIMER_RUNNING;
- 		spin_unlock_irq(&base->lock);
- 
- 		/*
-Index: linux-2.6.15-rc5-rt1/include/linux/hrtimer.h
-===================================================================
---- linux-2.6.15-rc5-rt1.orig/include/linux/hrtimer.h	2005-12-13 15:51:40.000000000 -0500
-+++ linux-2.6.15-rc5-rt1/include/linux/hrtimer.h	2005-12-13 15:55:21.000000000 -0500
-@@ -41,6 +41,7 @@
- enum hrtimer_state {
- 	HRTIMER_INACTIVE,		/* Timer is inactive */
- 	HRTIMER_EXPIRED,		/* Timer is expired */
-+	HRTIMER_RUNNING,		/* Timer is currently running */
- 	HRTIMER_PENDING,		/* Timer is pending */
- 	HRTIMER_PENDING_CALLBACK,	/* Timer is expired, callback pending */
- };
-
-
+Bartlomiej

@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbVLMNWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVLMNXq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbVLMNWR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 08:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbVLMNWR
+	id S932178AbVLMNXq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 08:23:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbVLMNXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 08:22:17 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:43699 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932113AbVLMNWQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 08:22:16 -0500
-Date: Tue, 13 Dec 2005 22:20:35 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: [Patch] Fix calculation of grow_pgdat_span() in mm/memory_hotplug.c
-Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.054
-Message-Id: <20051213220842.9C02.Y-GOTO@jp.fujitsu.com>
+	Tue, 13 Dec 2005 08:23:46 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:23964 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S932163AbVLMNXp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 08:23:45 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Date: Tue, 13 Dec 2005 14:24:08 +0100
+User-Agent: KMail/1.8
+Cc: Ingo Molnar <mingo@elte.hu>, David Howells <dhowells@redhat.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, torvalds@osdl.org, akpm@osdl.org,
+       hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <439E122E.3080902@yahoo.com.au> <200512131347.30464.oliver@neukum.org> <1134479371.11732.19.camel@localhost.localdomain>
+In-Reply-To: <1134479371.11732.19.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.02 [ja]
+Content-Disposition: inline
+Message-Id: <200512131424.09522.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave-san.
-CC: Andrew-san.
+Am Dienstag, 13. Dezember 2005 14:09 schrieb Alan Cox:
+> On Maw, 2005-12-13 at 13:47 +0100, Oliver Neukum wrote:
+> > > spinlock to do the cmpxchg. This means that there wont be one single 
+> > > global spinlock to emulate cmpxchg, but the mutex's own spinlock can be 
+> > > used for it.
+> > 
+> > Can't you use the pointer as a hash input?
+> 
+> Some platforms already do this for certain sets of operations like
+> atomic_t. The downside however is that you no longer control the lock
+> contention or cache line bouncing. It becomes a question of luck rather
+> than science as to how well it scales.
 
-I realized 2.6.15-rc5 still has a bug for memory hotplug.
-The calculation for node_spanned_pages at grow_pgdat_span() is
-clearly wrong. This is patch for it.
+On the other hand you don't control cache eviction either, do you?
 
-(Please see grow_zone_span() to compare. It is correct.)
-
-Thanks.
-
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
-
-Index: zone_reclaim/mm/memory_hotplug.c
-===================================================================
---- zone_reclaim.orig/mm/memory_hotplug.c	2005-12-13 21:38:16.000000000 +0900
-+++ zone_reclaim/mm/memory_hotplug.c	2005-12-13 21:39:14.000000000 +0900
-@@ -104,7 +104,7 @@ static void grow_pgdat_span(struct pglis
- 		pgdat->node_start_pfn = start_pfn;
- 
- 	if (end_pfn > old_pgdat_end_pfn)
--		pgdat->node_spanned_pages = end_pfn - pgdat->node_spanned_pages;
-+		pgdat->node_spanned_pages = end_pfn - pgdat->node_start_pfn;
- }
- 
- int online_pages(unsigned long pfn, unsigned long nr_pages)
-
--- 
-Yasunori Goto 
-
-
+	Regards
+		Oliver

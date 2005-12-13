@@ -1,46 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932626AbVLMXU4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbVLMXWF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932626AbVLMXU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 18:20:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932625AbVLMXU4
+	id S1030252AbVLMXWF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 18:22:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030291AbVLMXWF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 18:20:56 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:60327 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S932624AbVLMXUz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 18:20:55 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Dec 2005 18:22:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:8137 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030252AbVLMXWE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 18:22:04 -0500
+Date: Tue, 13 Dec 2005 15:21:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: hch@lst.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 6/6] per-mount noatime and nodiratime
+Message-Id: <20051213152143.6193fc7a.akpm@osdl.org>
+In-Reply-To: <20051213223928.GA22373@lst.de>
+References: <20051213175659.GF17130@lst.de>
+	<20051213143638.120ee601.akpm@osdl.org>
+	<20051213223928.GA22373@lst.de>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17311.22374.434801.753813@gargle.gargle.HOWL>
-Date: Wed, 14 Dec 2005 02:21:10 +0300
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, arjan@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <1134479713.11732.25.camel@localhost.localdomain>
-References: <dhowells1134431145@warthog.cambridge.redhat.com>
-	<1134479118.11732.14.camel@localhost.localdomain>
-	<1134479713.11732.25.camel@localhost.localdomain>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
- > Actually a PS to this while I think about it. spin_locks and mutex type
- > locks could both do with a macro for
- > 
- > 	call_locked(&lock, foo(a,b,c,d))
+Christoph Hellwig <hch@lst.de> wrote:
+>
+> On Tue, Dec 13, 2005 at 02:36:38PM -0800, Andrew Morton wrote:
+> > Where'd this hunk come from?
+> > 
+> > > Index: linux-2.6.15-rc5/fs/super.c
+> > > ===================================================================
+> > > --- linux-2.6.15-rc5.orig/fs/super.c	2005-12-13 11:27:14.000000000 +0100
+> > > +++ linux-2.6.15-rc5/fs/super.c	2005-12-13 12:06:00.000000000 +0100
+> > > @@ -830,9 +830,9 @@
+> > >  	mnt->mnt_parent = mnt;
+> > >  
+> > >  	if (type->fs_flags & FS_NOATIME)
+> > > -		sb->s_flags |= MS_NOATIME;
+> > > +		mnt->mnt_flags |= MNT_NOATIME;
+> > >  	if (type->fs_flags & FS_NODIRATIME)
+> > > -		sb->s_flags |= MS_NODIRATIME;
+> > > +		mnt->mnt_flags |= MNT_NODIRATIME;
+> > >  
+> > >  	up_write(&sb->s_umount);
+> > >  	free_secdata(secdata);
+> > 
+> > I just dropped it, but it's a worry...
+> 
+> This is totally intentional.  The FS_* flags were introduced in the
+> previous patch to mark filesystems that always are NOATIME/NODIRATIME,
 
-reiser4 code was publicly humiliated for such macros, but indeed they
-are useful. The only problem is that one needs two macros: one for foo()
-returning void and one for all other cases.
+Please refer to patches by their filename or Subject:.  I assume you're
+referring to "[PATCH 3/6] introduce FS_NOATIME and FS_NODIRATIME flags"?
 
- > 
- > to cut down on all the error path forgot to release a lock type errors.
- > 
+If so, that patch doesn't touch fs/super.c.  Please fix and resend.
 
-Nikita.

@@ -1,40 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932311AbVLMAaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbVLMAjD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932311AbVLMAaP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 19:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVLMAaP
+	id S932304AbVLMAjD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 19:39:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVLMAjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 19:30:15 -0500
-Received: from moutng.kundenserver.de ([212.227.126.177]:7895 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932281AbVLMAaN convert rfc822-to-8bit (ORCPT
+	Mon, 12 Dec 2005 19:39:01 -0500
+Received: from zproxy.gmail.com ([64.233.162.204]:62884 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932304AbVLMAjA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 19:30:13 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Date: Tue, 13 Dec 2005 01:30:04 +0100
-User-Agent: KMail/1.8.3
-Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, arjan@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-References: <dhowells1134431145@warthog.cambridge.redhat.com>
-In-Reply-To: <dhowells1134431145@warthog.cambridge.redhat.com>
+	Mon, 12 Dec 2005 19:39:00 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=AZiEVMhoOZaXpJAvAx7o8J+5X3fx2b8cfYNhZIpnJG4JnNot9a636MgcZhmVixwgDFrwdpm1Ak1FqhTtuBtQv54NdABJJEHkeGWi1BquwYdOyOEXZVCr/chAdRObL0RFi9Gm24/0BrexIO63AlP6hf4DZwDpWXnQzkBmfXWhmGw=
+Message-ID: <439E181D.4090409@gmail.com>
+Date: Tue, 13 Dec 2005 08:38:53 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051025)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200512130130.05186.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: LKML List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Yet more display troubles with 2.6.15-rc5-mm2
+References: <9a8748490512111306x3b01cb8cw2068a7ad3af93b03@mail.gmail.com>	 <439CBE49.2090901@gmail.com> <9a8748490512121031p11beaa51l7445ce1a5b31c3c6@mail.gmail.com>
+In-Reply-To: <9a8748490512121031p11beaa51l7445ce1a5b31c3c6@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag 13 Dezember 2005 00:45 schrieb David Howells:
->  (7) Provides a debugging config option CONFIG_DEBUG_MUTEX_OWNER by which
-> the mutex owner can be tracked and by which over-upping can be detected.
+Jesper Juhl wrote:
+> On 12/12/05, Antonino A. Daplas <adaplas@gmail.com> wrote:
+>> Jesper Juhl wrote:
+>>> In addition to the problem I reported earlier about 2.6.15-rc5-mm2
+>>> hanging at boot with vga=791 I've just discovered another problem.
+>>>
+>>> If I boot with vga=normal (which is aparently all that works), then I
+>>> can boot up to a nice lain text login and run startx, but if I then
+>>> switch away from X back to a text console with ctrl+alt+f6 or if I
+>>> shut down X, then I'm presented with a completely garbled text mode
+>>> screen - flashing coloured blocks all over, random bits of text at
+>>> random locations etc.
+>>>
+>>> Also, when starting X, just before the cursor appears I normally just
+>>> have a black screen. With this kernel I first get a short blink of a
+>>> garbled graphics mode screeen with either what looks like just random
+>>> pixels or sometimes with something that looks like a mangled snapshot
+>>> of my text mode console, or if I kill X with ctrl+alt+backspace and
+>>> then start it again (the garbled text mode console does work, although
+>>> I'm glad I know how to touch type ;) then I sometimes get what looks
+>>> like a snapshot of my previous X session with random pixels on top.
+>>> The garbled graphical screen stays for just a blink of an eye, then
+>>> it's replaced with the normal black screen and the mouse cursor.
+>>>
+>>> 2.6.15-rc5-git1 works perfectly without these issues.
+>> I cannot reproduce your problem...
+>>
+> 
+>> Can you try another X driver, ie, vesa?
+>>
+> I'm already using the vesa driver. It seems to be the only Open Source
+> driver that'll work with this card, so i don't have any other to try.
+> 
 
-I can't see how your code actually detects the over-upping, although it's 
-fairly obvious how it would be done. Did you miss one patch for this?
+Ah, vesa Xorg driver with vgacon.  I haven't tried that yet. Let me check if
+I can reproduce the problem.
 
-	Arnd <><
+>> Also, these 2 patches are present in mm but not in Linus' tree.  Can
+>> you check which of these are the culprit, if any?
+>>
+>> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc2/2.6.15-rc2-mm1/broken-out/vgacon-fix-doublescan-mode.patch
+>> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc2/2.6.15-rc2-mm1/broken-out/vgacon-workaround-for-resize-bug-in-some-chipsets.patch
+>>
+> 
+> Since this is 2.6.15-rc5-mm2 I grabbed these two instead:
+> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm2/broken-out/vgacon-fix-doublescan-mode.patch
+> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm2/broken-out/vgacon-workaround-for-resize-bug-in-some-chipsets.patch
+> 
+> Reverting both patches didn't fix the problem. Starting X then
+> switching back to a text mode console still results in a completely
+> messed up text console. X is fine, I can switch back to it no problem,
+> but text consoles go bye-bye...
+> 
+> Would there be any point in trying a kernel with just one of the
+> patches reverted?
+
+Those 2 patches are independent, so it's possible that their side
+effects can cancel each other out.  So yes, try reversing one patch
+at a time.
+
+Tony
+

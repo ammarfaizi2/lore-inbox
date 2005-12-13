@@ -1,70 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932611AbVLMK2V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbVLMKap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932611AbVLMK2V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 05:28:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932613AbVLMK2V
+	id S964814AbVLMKap (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 05:30:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbVLMKao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 05:28:21 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:14992 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932611AbVLMK2U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 05:28:20 -0500
-Message-ID: <439EA1F4.3000204@jp.fujitsu.com>
-Date: Tue, 13 Dec 2005 19:27:00 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>
-Subject: [BUG][PATCH] e1000: Fix invalid memory reference
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Dec 2005 05:30:44 -0500
+Received: from cantor.suse.de ([195.135.220.2]:10130 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932576AbVLMKao (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 05:30:44 -0500
+Date: Tue, 13 Dec 2005 11:30:42 +0100
+From: Andi Kleen <ak@suse.de>
+To: Andreas Schwab <schwab@suse.de>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>, mingo@elte.hu,
+       dhowells@redhat.com, torvalds@osdl.org, hch@infradead.org,
+       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051213103042.GV23384@wotan.suse.de>
+References: <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de> <20051213004257.0f87d814.akpm@osdl.org> <20051213084926.GN23384@wotan.suse.de> <20051213010126.0832356d.akpm@osdl.org> <20051213090517.GQ23384@wotan.suse.de> <20051213011540.3070176f.akpm@osdl.org> <20051213092437.GS23384@wotan.suse.de> <jehd9d5m06.fsf@sykes.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <jehd9d5m06.fsf@sykes.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Dec 13, 2005 at 11:28:41AM +0100, Andreas Schwab wrote:
+> Andi Kleen <ak@suse.de> writes:
+> 
+> > Haven't seen that and I still use 3.2 occasionally (it's the default
+> > compiler on SLES9 and I believe on RHEL3 too)  
+> 
+> SLES9 has 3.3-hammer.
 
-I encountered a kernel panic which was caused by the invalid memory
-access by e1000 driver. The following patch fixes this issue.
+You're right - i meant to write SLES8 where 3.2 was default.
 
-Thanks,
-Kenji Kaneshige
-
-
-This patch fixes invalid memory reference in the e1000 driver which
-would cause kernel panic.
-
-Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-
- drivers/net/e1000/e1000_param.c |   10 +++++++---
- 1 files changed, 7 insertions(+), 3 deletions(-)
-
-Index: linux-2.6.15-rc5/drivers/net/e1000/e1000_param.c
-===================================================================
---- linux-2.6.15-rc5.orig/drivers/net/e1000/e1000_param.c
-+++ linux-2.6.15-rc5/drivers/net/e1000/e1000_param.c
-@@ -545,7 +545,7 @@ e1000_check_fiber_options(struct e1000_a
- static void __devinit
- e1000_check_copper_options(struct e1000_adapter *adapter)
- {
--	int speed, dplx;
-+	int speed, dplx, an;
- 	int bd = adapter->bd_number;
- 
- 	{ /* Speed */
-@@ -641,8 +641,12 @@ e1000_check_copper_options(struct e1000_
- 					 .p = an_list }}
- 		};
- 
--		int an = AutoNeg[bd];
--		e1000_validate_option(&an, &opt, adapter);
-+		if (num_AutoNeg > bd) {
-+			an = AutoNeg[bd];
-+			e1000_validate_option(&an, &opt, adapter);
-+		} else {
-+			an = opt.def;
-+		}
- 		adapter->hw.autoneg_advertised = an;
- 	}
- 
+-Andi

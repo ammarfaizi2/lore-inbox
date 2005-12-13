@@ -1,111 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932606AbVLMKTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932610AbVLMKUA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932606AbVLMKTG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 05:19:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932607AbVLMKTG
+	id S932610AbVLMKUA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 05:20:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbVLMKUA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 05:19:06 -0500
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:65292 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932606AbVLMKTF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 05:19:05 -0500
-In-Reply-To: <200512130307.08413.rob@landley.net>
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <200512122000.45679.rob@landley.net> <1134460576.2866.14.camel@laptopd505.fenrus.org> <200512130307.08413.rob@landley.net>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <004C9B26-B264-41C3-A298-5F5D0C668081@oxley.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, Pavel Machek <pavel@suse.cz>,
-       Brian Gerst <bgerst@didntduck.org>, Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Felix Oxley <lkml@oxley.org>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Tue, 13 Dec 2005 10:18:50 +0000
-To: Rob Landley <rob@landley.net>
-X-Mailer: Apple Mail (2.746.2)
+	Tue, 13 Dec 2005 05:20:00 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:4814 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932607AbVLMKT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 05:19:59 -0500
+Date: Tue, 13 Dec 2005 10:19:38 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, dhowells@redhat.com,
+       torvalds@osdl.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051213101938.GA30118@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jakub Jelinek <jakub@redhat.com>, Andi Kleen <ak@suse.de>,
+	Andrew Morton <akpm@osdl.org>, mingo@elte.hu, dhowells@redhat.com,
+	torvalds@osdl.org, arjan@infradead.org, matthew@wil.cx,
+	linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de> <20051213004257.0f87d814.akpm@osdl.org> <20051213084926.GN23384@wotan.suse.de> <20051213090429.GC27857@infradead.org> <20051213101141.GI31785@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051213101141.GI31785@devserv.devel.redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 13, 2005 at 05:11:41AM -0500, Jakub Jelinek wrote:
+> On Tue, Dec 13, 2005 at 09:04:29AM +0000, Christoph Hellwig wrote:
+> > > 
+> > > Remove -Wdeclaration-after-statement
+> > > 
+> > > Now that gcc 2.95 is not supported anymore it's ok to use C99
+> > > style mixed declarations everywhere.
+> > 
+> > Nack.  This code style is pure obsfucation and we should disallow it forever.
+> 
+> Why?  It greatly increases readability when variable declarations can be
+> moved close to their actual uses.  glibc changed a lot of its codebase
+> this way and from my experience it really helps.
 
-On 13 Dec 2005, at 09:07, Rob Landley wrote:
+mentioning glibc and readability in the same sentence disqualies your here,
+sorry ;-)
 
-> On Tuesday 13 December 2005 01:56, Arjan van de Ven wrote:
->>>                                t best.
->>>
->>>> And you don't have to be Linux user to refuse closed hardware.  
->>>> Having
->>>> option in future is always good.x
->>>
->>> If Linux desktop users are less than 5% of the laptop buying  
->>> population,
->>> a more effective technique would be to focus purchases on small  
->>> companies
->>> that _do_ provide things we can use.
->>
->> however, in areas where margins are really thin, like consumer PC
->> hardware, 5% of revenue is the difference between a loss and a  
->> profit.
->
-> With thin margins, 5% of volume isn't the same thing as 5%  
-> revenue.  It may be
-> 5% of _profit_, but unless fixed costs being amortized are a  
-> dominant factor
-> the whole point of thin margins is that it costs you almost as much to
-> produce as you sell it for.
->
-> More importantly, if they can't trace the loss back to what made the
-> difference, then it doesn't matter.  And very few things at this  
-> level have
-> only one cause.  When less than 1% of the planet's population ever  
-> bought the
-> product in the first place, a few more not buying it really doesn't  
-> register
-> easily.  Making a change may net you $5 million and cost you $10  
-> million
-> elsewhere.  (Hence boycotts either not being noticed or being  
-> attributed to
-> tidal forces and brownian motion.  And most of them simply _aren't_  
-> big
-> enough to make a difference.  There are groups out that regularly  
-> claim
-> responsibility for the sun coming up.  Decision makers learn to  
-> filter this
-> stuff out.)
->
-> Now large customers that purchase lots of stuff in blocks can  
-> easily get their
-> needs noticed at the negotiating table.  "Not supporting X will  
-> cost your
-> company this $$$ million contract".  They don't have to find this  
-> out via
-> data mining or surveys, there's a big check with explicit strings  
-> attached.
->
->> And if we can have official 'works well' and 'don't buy' lists,  
->> the PR
->> around that can help make that impact, especially if people who don't
->> run linux yet but might in the future also start to pay attention to
->> this list.
->
-> Bad publicity, and good publicity for competitors, is something  
-> that can get
-> noticed, yes.  But being able to translate it into actual dollar  
-> values is
-> noticeably more effective.  Showing an $x dollar market that  
-> wouldn't exist
-> without Linux-motivated purchases is one way to do that.
-
-Hence the justification for a Linux logo. As I said in another thread  
-"Linux Hardware Quality Labs":
-
-"The primary motivation for this is that it leverages the individual  
-power of each purchaser (of a system or individual piece of hardware)  
-be they a consumer, SME, system builder, tier 1 or 2 PC manufacturer,  
-government dept., or Linux distro company, into a single point of  
-pressure that can be applied to OEMs to ensure that they provide open  
-source drivers."
-
-regards,
-Felix
-
+But serious, having to look all over the source instead of just a block
+beginning decreases code readability a lot.  And if you have to scroll more
+than a page to the block beginning on a 80x24 terminal means the code needs
+a refactoring anyway.

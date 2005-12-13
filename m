@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932604AbVLMSiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbVLMSlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932604AbVLMSiY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 13:38:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbVLMSiY
+	id S1030203AbVLMSlj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 13:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030207AbVLMSlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 13:38:24 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:4646 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751185AbVLMSiX convert rfc822-to-8bit
+	Tue, 13 Dec 2005 13:41:39 -0500
+Received: from zproxy.gmail.com ([64.233.162.194]:13916 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030203AbVLMSli convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 13:38:23 -0500
+	Tue, 13 Dec 2005 13:41:38 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JPMg3z8dgnDNG5QfsCYURPLhe49eS7UZaqIJ/aWt6yGOhLGDN+wMs3fVdWTB3RFPavIfLLEQqcAXiZQx1tOntiGffdZtTiwRLBynkZVxOdBm45/yMnjFSJqlKeWDEC2fYLfCiS2rT7zr88H92SI22a+A3rQdlEpG6p0DK7y7Dz8=
-Message-ID: <58cb370e0512131038q49271226xfe932476bb05d2d0@mail.gmail.com>
-Date: Tue, 13 Dec 2005 19:38:18 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Ben Collins <bcollins@ubuntu.com>
-Subject: Re: [PATCH 2/2] ide/sis5513: Add support for 965 chipset
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1134498254295-git-send-email-bcollins@ubuntu.com>
+        b=Y8rBYH7qfpIUC2Vzag7cM8cnAvhpgE4SW9jZNkkQ41bTa9RHnErqBLi1DumAdQoXXH4Pdb6HrjW+nAPPVJazj9ldgMZKYEn9xThl7QzZPkxHrMGHaeBBTUOr264ehV0T+BbpBh80/94KhwB+diIA2bbtFiXiFke0reWfVcc+azs=
+Message-ID: <41840b750512131041i5ae5f021h29eed3492bad88ca@mail.gmail.com>
+Date: Tue, 13 Dec 2005 20:41:00 +0200
+From: Shem Multinymous <multinymous@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: tp_smapi conflict with IDE, hdaps
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Rovert Love <rlove@rlove.org>,
+       Jens Axboe <axboe@suse.de>, linux-ide@vger.kernel.org
+In-Reply-To: <41840b750512130729y49903791xc9ceba4e6a18322e@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <1134498192250-git-send-email-bcollins@ubuntu.com>
-	 <1134498254295-git-send-email-bcollins@ubuntu.com>
+References: <41840b750512130635p45591633ya1df731f24a87658@mail.gmail.com>
+	 <1134486203.11732.60.camel@localhost.localdomain>
+	 <41840b750512130729y49903791xc9ceba4e6a18322e@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 12/13/05, Shem Multinymous <multinymous@gmail.com> wrote:
+> ThinkPad T43 BIOS 1.24, Hitahi HTS726060M9AT00 firmware MH4OA6GA.
 
-SiS965 support has been merged recently (different patch because
-sis5513_pci_tbl[] chunk of this patch causes problems on the real
-SiS180 controller).
+Oops, sorry, that's the hard disk. The drive is a Matshita UJ-822S
+firmware 1.61 (branded by IBM as "UltraBay Slim DVD Multi-Burner
+Plus").
 
-Please ask the user to test vanilla 2.6.15-rc5.
+Meanwhile, I found out that with this drive, "hdparm -E" does affect
+CD-R discs, but not DVD-R discs. The SMAPI BIOS command affects both.
 
-Thanks,
-Bartlomiej
-
-On 12/13/05, Ben Collins <bcollins@ubuntu.com> wrote:
-> Tested by Ubuntu user.
->
-> http://bugzilla.ubuntu.com/17236
->
-> Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+  Shem

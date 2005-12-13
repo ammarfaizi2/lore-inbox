@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030251AbVLMW2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030284AbVLMWaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030251AbVLMW2H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 17:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbVLMW2H
+	id S1030284AbVLMWaK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 17:30:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbVLMWaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 17:28:07 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:39619 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S1030251AbVLMW2F (ORCPT
+	Tue, 13 Dec 2005 17:30:10 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:35563 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030284AbVLMWaI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 17:28:05 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: paulmck@us.ibm.com
-Cc: Andi Kleen <ak@suse.de>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       vatsa@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
-       linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ] 
-In-reply-to: Your message of "Tue, 13 Dec 2005 08:20:27 -0800."
-             <20051213162027.GA14158@us.ibm.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 14 Dec 2005 09:27:41 +1100
-Message-ID: <17158.1134512861@ocs3.ocs.com.au>
+	Tue, 13 Dec 2005 17:30:08 -0500
+Date: Tue, 13 Dec 2005 14:29:56 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Paul Jackson <pj@sgi.com>
+cc: Eric Dumazet <dada1@cosmosbay.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       Simon.Derr@bull.net, ak@suse.de
+Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
+In-Reply-To: <20051213142346.ccd3081a.pj@sgi.com>
+Message-ID: <Pine.LNX.4.62.0512131428460.24002@schroedinger.engr.sgi.com>
+References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>
+ <439D39A8.1020806@cosmosbay.com> <20051212020211.1394bc17.pj@sgi.com>
+ <20051212021247.388385da.akpm@osdl.org> <20051213075345.c39f335d.pj@sgi.com>
+ <439EF75D.50206@cosmosbay.com> <Pine.LNX.4.62.0512130938130.22803@schroedinger.engr.sgi.com>
+ <439F0B43.4080500@cosmosbay.com> <20051213130350.464a3054.pj@sgi.com>
+ <439F3F6E.6010701@cosmosbay.com> <20051213142346.ccd3081a.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Dec 2005 08:20:27 -0800, 
-"Paul E. McKenney" <paulmck@us.ibm.com> wrote:
->If the variable p references MMIO rather than normal memory, then
->wmb() and rmb() are needed instead of smp_wmb() and smp_rmb().
+On Tue, 13 Dec 2005, Paul Jackson wrote:
 
-mmiowb(), not wmb().  IA64 has a different form of memory fence for I/O
-space compared to normal memory.  MIPS also has a non-empty form of
-mmiowb().
+> Eric wrote:
+> > struct kmem_cache  itself will be about 512*8 + some bytes
+> > then for each cpu a 'struct array_cache' will be allocated (count 128 bytes 
+> 
+> Hmmm ... 'struct array_cache' looks to be about 6 integer words,
+> so if that is the main per-CPU cost, the minimal cost of a slab
+> cache (once created, before use) is about 24 bytes per cpu.
+> 
+> But whether its 24 or 128 bytes per cpu, that's a heavier weight
+> hammer than is needed here.
 
->This is because the I/O device needs to see the accesses ordered
->even in a UP system.
-
-Why does mmiowb() map to empty on most systems, including Alpha?
-Should it not map to wmb() for everything except IA64 and MIPS?
+The main per node costs is struct kmem_list3 on top of the array_cache.
 

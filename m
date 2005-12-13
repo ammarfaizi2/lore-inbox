@@ -1,77 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVLMPkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbVLMPnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbVLMPkM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 10:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbVLMPkL
+	id S1751031AbVLMPnn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 10:43:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbVLMPnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 10:40:11 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:8868 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932185AbVLMPkK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 10:40:10 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <439EDC3D.5040808@nortel.com> 
-References: <439EDC3D.5040808@nortel.com>  <1134479118.11732.14.camel@localhost.localdomain> <dhowells1134431145@warthog.cambridge.redhat.com> <3874.1134480759@warthog.cambridge.redhat.com> 
-To: "Christopher Friesen" <cfriesen@nortel.com>
-Cc: David Howells <dhowells@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       torvalds@osdl.org, akpm@osdl.org, hch@infradead.org,
-       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Tue, 13 Dec 2005 15:39:33 +0000
-Message-ID: <15167.1134488373@warthog.cambridge.redhat.com>
+	Tue, 13 Dec 2005 10:43:42 -0500
+Received: from zproxy.gmail.com ([64.233.162.199]:20693 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751031AbVLMPnm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 10:43:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Q8kHCUStHoOZ9LFie3cVsYV3xNwmAuWis0wC9p5J8CTuRPR9X/JyuK01Dcppuir7AsHFULG335PNMsmtgt6kXasuGSazA5HDHD0IVe1xiOy2nxWHrNtRVniRUBOk3QcSGLsfAjdx3TNz6+iDulSSSzavfsiQjlhSeVOJyLybNaQ=
+Message-ID: <41840b750512130743n39acbe28qced81c909c7c5187@mail.gmail.com>
+Date: Tue, 13 Dec 2005 17:43:40 +0200
+From: Shem Multinymous <multinymous@gmail.com>
+To: Robert Love <rlove@rlove.org>
+Subject: Re: tp_smapi conflict with IDE, hdaps
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1134486843.28684.89.camel@betsy.boston.ximian.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <41840b750512130635p45591633ya1df731f24a87658@mail.gmail.com>
+	 <1134486843.28684.89.camel@betsy.boston.ximian.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher Friesen <cfriesen@nortel.com> wrote:
+On 12/13/05, Robert Love <rlove@rlove.org> wrote:
+> On Tue, 2005-12-13 at 16:35 +0200, Shem Multinymous wrote:
+> Alan's response is the correct course of action here,
 
-> > Which would be a _lot_ more work. It would involve about ten times as many
-> > changes, I think, and thus be more prone to errors.
-> 
-> "lots of work" has never been a valid reason for not doing a kernel change...
+Ideally, but I'm not sure we understand the interface sufficiently
+well to abstract it beyond a mere mutex. Compare your hdaps.c code to
+the following relevant code from tp_smapi.c (stripped down a bit for
+simplicty):
 
-There are a number of considerations:
+----------------------------------------
+#define APS_ROW_LEN 16
+static int read_aps_row(u8 arg1610, u8 arg161F, u8* buf) {
+	int retries, i;
+	int ret = -EIO;
 
- (1) If _I_ am going to be doing the work, then I'm quite happy to reduce the
-     load by 90%. And I think it'd be at least that, probably more. Finding
-     struct semaphore with grep is much easier than finding up/down with grep
-     because of:
+	for (retries=APS_MAX_RETRIES; retries>0; --retries) {
+		if (inb(0x1604)&0x40) { /* readout pending? */
+			inb(0x161F); /* discard it */
+			udelay(10);
+		} else {
+			outb(arg1610, 0x1610);
+			if (inb(0x1604)&0x20)
+				goto wrote1610;
+		}
+	}
+	goto out;
+wrote1610:
+	outb(arg161F, 0x161F);
+	for (retries=APS_MAX_RETRIES; retries>0; --retries) {
+		if (inb(0x1604)&0x40) /* readout pending? */
+			goto gotdata;
+			udelay(10);
+	}
+	goto out;
+gotdata:
+	for (i=0; i<APS_ROW_LEN; ++i) {
+		buf[i] = inb(0x1610+i);
+	}
+	ret = 0;
+out:
+	return ret;
+}
+----------------------------------------
+(Yes, the loop/goto structure should be cleanup up a bit.)
 
-	(a) comments
+Not to mention the HDAPS init code, which is voodoo.
 
-	(b) other instances of up/down names, including rw_semaphores
 
-     There are a lot fewer instances of struct semaphore than up and down.
+> question: What other data in 0x1604-0x161F is there?
 
- (2) It makes it easier for other people. In most cases, all they need do is
-     change "struct semaphore" to "struct mutex". If they've used
-     DECLARE_MUTEX() then they need do nothing at all, and if they've used
-     init_MUTEX(), then they don't need to convert sema_init() either.
+I looked only at the readout "rows" given by arg1610=1,..,18 and
+arg161F=0,1. In that range, I didn't see anything obviously
+interesting in the "rows" not already used by the battery readout and
+HDAPS. I don't think any of the Windows driver reads other "rows". But
+for all we know, this could be a window into the embedded controller's
+memory or something of the sorts. Also, some of these "rows" are
+actually commands given during HDAPS init, so the "read_row"
+abstraction is obviously not accurate.
 
- (3) It forces people to reconsider how they want to use their semaphores.
-
-I have no objection to making life easier for other people. I suspect most
-other people don't care that their semaphores are now mutexes, and think of
-them that way anyway.
-
-I admit that there are downsides:
-
- (1) up and down now do something effectively different (though in most cases
-     it's also exactly the same).
-
- (2) Users of counting semaphores have to change, but they're in the minority
-     by quite a way.
-
- (3) Some people want mutexes to be:
-
-     (a) only releasable in the same context as they were taken
-
-     (b) not accessible in interrupt context, or that (a) applies here also
-
-     (c) not initialisable to the locked state
-
-     But this means that the current usages all have to be carefully audited,
-     and sometimes that unobvious.
-
-David
+  Shem

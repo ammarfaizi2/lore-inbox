@@ -1,202 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751267AbVLMFij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbVLMFmp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751267AbVLMFij (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 00:38:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbVLMFij
+	id S1751330AbVLMFmp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 00:42:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbVLMFmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 00:38:39 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:28426
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S1751267AbVLMFij (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 00:38:39 -0500
-Date: Tue, 13 Dec 2005 06:38:36 +0100
-From: Andrea Arcangeli <andrea@cpushare.com>
-To: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: [andrea@cpushare.com: Re: disable tsc with seccomp]
-Message-ID: <20051213053836.GY3092@opteron.random>
+	Tue, 13 Dec 2005 00:42:45 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:25576 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751330AbVLMFmo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 00:42:44 -0500
+Date: Mon, 12 Dec 2005 21:43:16 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+Cc: Rusty Russell <rusty@rustcorp.com.au>, vatsa@in.ibm.com,
+       Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
+Message-ID: <20051213054316.GB12539@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <439889FA.BB08E5E1@tv-sign.ru> <200512111621.20365.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <1134344716.5937.11.camel@localhost.localdomain> <200512130007.48712.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200512130007.48712.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got no feedback on the below email, it would be quite interesting to
-get this patch integrated if there are no more objections about the fact
-this is not a noop.
+On Tue, Dec 13, 2005 at 12:07:47AM -0500, Andrew James Wade wrote:
+> On Sunday 11 December 2005 18:45, Rusty Russell wrote:
+> > On Sun, 2005-12-11 at 16:21 -0500, Andrew James Wade wrote:
+> > > On Sunday 11 December 2005 12:41, Srivatsa Vaddagiri wrote:
+> > > > [Changed the subject line to be more generic in the interest of wider audience]
+> > > > 
+> > > > We seem to be having some confusion over the exact semantics of smp_mb().
+> > > > 
+> > > > Specifically, are all stores preceding smp_mb() guaranteed to have finished
+> > > > (committed to memory/corresponding cache-lines on other CPUs invalidated) 
+> > > > *before* successive loads are issued?
+> > > 
+> > > I doubt it. That's definitely not true of smp_wmb(), which boils down to
+> > > __asm__ __volatile__ ("": : :"memory") on SMP i386 (which the constrains
+> > > how the compiler orders write instructions, but is otherwise a nop. i386
+> > > has in-order writes.).
+> 
+> Hrrm, after doing a bit of reading on cache-coherency, verifying that the
+> corresponding cache-lines on other CPUs are invalidated can (sometimes)
+> be done quite quickly, so waiting for that before issuing reads might not
+> destroy performance. I still doubt that i386es do thing this way, but I
+> don't think it matters (see below).
 
-I take the opportunity of this reminder email, to ask one more question
-about the /dev/urandom device.  It would be really nice to have a good
-random number generator in CPUShare-seccomp mode, so I'm considering
-changing the CPUShare sell client to open /dev/urandom in O_RDONLY mode
-before firing seccomp.  However such a change means the urandom device
-driver will have to be secure in the way it creates the buffer (one
-obvious example is that it must schedule properly and of course not buffer
-overflow: a loong time ago I recall to have fixed a bug in the urandom
-device driver that could lockup the kernel for seconds with an huge
-buffer passed to read due the lack of cond_resched [it wasn't called
-cond_resched at the time ;) ]).  Having an optimal random number
-generator available in seccomp mode would be nice for certain apps like
-monte carlo simulations (I don't have much faith in monte carlo
-simulations myself, but they seem quite popular among scientific people
-so...) and for some other research I'm doing too (not related to monte
-carlo in any way). The more secure way would be to use a pseudo random
-generator and to pass the seed through the ssl connection over the
-internet from time to time (the seed would be generated from the buy
-client using os.urandom()). I think the /dev/urandom solution is
-prefereable but from a paranoid point of view I'm not feeling like doing
-the right thing by making seccomp weaker that way. Would other kernel
-developers feel ok to maintain /dev/urandom ->read callback secure?
+Hardware designers need only be concerned with how things -appear-
+to the software.  They can and do use optimizations that get the
+effect of waiting without actually waiting.  For example, an x86
+CPU need not -really- keep writes ordered as long as the software
+cannot tell that they have become misordered.  This may sound
+strange, but one important example would be a CPU doing writes that
+are to variables that it knows do not appear in any other CPU's 
+cache.  In this sort of case, the CPU could reorder the writes until
+such time as it detected a request from another CPU requsting a
+cache line containing one of the variables.
 
-Perhaps it's better to stay in paranoid mode...  By memory I can't
-remember any bugs in that area except for the DoS that I've fixed myself
-a long time ago. I don't want seccomp to grow but OTOH I tend to dislike
-the pseudo random generators without an auto-hardware seed like
-/dev/urandom. Generating all random numbers on the buy client and
-sending them through the internet would be a no way with my research, so
-psuedo random is the only way without a read fd to /dev/urandom.
+> > > And it makes sense that wmb() wouldn't wait for writes: RCU needs
+> > > constraints on the order in which writes become visible, but has very week
+> > > constraints on when they do. Waiting for writes to flush would hurt
+> > > performance.
+> > 
+> > On the contrary.  I did some digging and asking and thinking about this
+> > for the Unreliable Guide to Kernel Locking, years ago:
+> > 
+> > wmb() means all writes preceeding will complete before any writes
+> > following are started.
+> 
+> What does it mean for a write to start? For that matter, what does it mean
+> for a write to complete?
 
-Thanks!
+Potentially many things in both cases:
 
------ Forwarded message from Andrea Arcangeli <andrea@cpushare.com> -----
+o	Fetching the store instruction that will do the write.
 
-Date:	Mon, 21 Nov 2005 19:40:22 +0100
-From: Andrea Arcangeli <andrea@cpushare.com>
-To: unlisted-recipients: no To-header on input <;
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>
-Subject: Re: disable tsc with seccomp
+o	Determining that all instructions whose execution logically
+	precedes the write are free of fatal errors (e.g., page
+	faults, exceptions, traps, ...).
 
-On Sat, Nov 05, 2005 at 04:37:44PM +0100, Andi Kleen wrote:
-> It was useless, you can get exactly the same information by using
-> RDPMC on perfctr 0 which always runs the NMI watchdog and counts all
-> cycles too.
+o	Determining the exact value that is to be written (which might
+	have been computed by prior instructions).
 
-I can't see how you can claim that you can read stuff with rdpmc.
+o	Determining the exact address that is to be written to (which
+	also might have been computed by prior instructions).
 
-andrea@opteron:~> gdb ./a.out 
-GNU gdb 6.3
-Copyright 2004 Free Software Foundation, Inc.
-GDB is free software, covered by the GNU General Public License, and you
-are
-welcome to change it and/or distribute copies of it under certain
-conditions.
-Type "show copying" to see the conditions.
-There is absolutely no warranty for GDB.  Type "show warranty" for
-details.
-This GDB was configured as "x86_64-suse-linux"...Using host libthread_db
-library "/lib64/tls/libthread_db.so.1".
+o	Determining that the store instruction itself is free of
+	fatal errors.  Note that it might be necessary to compute
+	the address to be sure.
 
-(gdb) r
-Starting program: /home/andrea/a.out 
+o	Determining that no hardware interrupt will precede the
+	completion of the store instruction.
 
-Program received signal SIGSEGV, Segmentation fault.
-0x00000000004004bc in main ()
-(gdb) dis 0x00000000004004bc
-warning: bad breakpoint number at or near '0x00000000004004bc'
-(gdb) disassem 0x00000000004004bc
-Dump of assembler code for function main:
-0x00000000004004b8 <main+0>:    push   %rbp
-0x00000000004004b9 <main+1>:    mov    %rsp,%rbp
-0x00000000004004bc <main+4>:    rdpmc  
+o	Storing the value to one of the CPU's write buffers (which
+	is not yet in the coherence region represented by the CPU's
+	cache).
 
+o	Starting the process of fetching the cache line into which
+	the value is to be stored.
 
-I get an immediate segfault if I try to execute that instruction. infact
-the PCE bitflag is _already_ zero (checked with sysrq+P). 
+o	Starting the process of invalidating the corresponding cache
+	line from all the other CPUs' caches.
 
-Perhaps you mean if you change the kernel to allow RDPMC then you have a
-problem? But then it means your kernel modifications are buggy if they
-break seccomp.
+o	Receiving the cache line into which the value is to be stored.
 
-Please tell me how to generate a convert channel with an unmodified
-2.6.15-rc2 plus the attached patch applied so I can fix it too. I also
-moved the seccomp struct next to the scheduler data so the two
-cachelines may be hot already and the theoretical overhead may go away
-too.
+o	Storing the value to the CPU's cache, which involves combining
+	the value to be written with the rest of the cache line.
 
-And next time please bother to send me an email instead of silenty
-backing out my recent patches from your tree, especially when your
-backouts might decrease the security of some users of the kernel.
-I was lucky that Andrew notified me about it. (thanks!)
+o	Responding to the first request for the corresponding cache
+	line from some other CPU.
 
-In the below patch I also added a forced clear of the PCE just in case
-somebody writes buggy kernel code (as an additional security measure so
-if somebody writes buggy code like you seem to imply, seccomp still
-won't break this way, the buggy code will break instead and it will
-deserve it ;).
+o	Completing the process of invalidating the corresponding cache
+	line from all the other CPUs' caches.  Note that Alpha's
+	weak memory-barrier semantics allow this step to complete
+	long after the value is stored into the writing CPU's cache.
 
-Signed-off-by: Andrea Arcangeli <andrea@cpushare.com>
+o	Storing the value to physical DRAM.
 
-diff -r 6377b3f31134 include/linux/sched.h
---- a/include/linux/sched.h	Mon Nov 21 06:06:28 2005 +0800
-+++ b/include/linux/sched.h	Mon Nov 21 20:04:38 2005 +0200
-@@ -713,6 +719,8 @@
- #ifdef CONFIG_SCHEDSTATS
- 	struct sched_info sched_info;
- #endif
-+
-+	seccomp_t seccomp;
- 
- 	struct list_head tasks;
- 	/*
-@@ -810,7 +818,6 @@
- 	
- 	void *security;
- 	struct audit_context *audit_context;
--	seccomp_t seccomp;
- 
- /* Thread group tracking */
-    	u32 parent_exec_id;
-diff -r 6377b3f31134 arch/x86_64/kernel/process.c
---- a/arch/x86_64/kernel/process.c	Mon Nov 21 06:06:28 2005 +0800
-+++ b/arch/x86_64/kernel/process.c	Mon Nov 21 20:04:38 2005 +0200
-@@ -485,6 +485,33 @@
- }
- 
- /*
-+ * This function selects if the context switch from prev to next
-+ * has to tweak the TSC disable bit in the cr4.
-+ */
-+static inline void disable_tsc(struct task_struct *prev_p,
-+			       struct task_struct *next_p)
-+{
-+	struct thread_info *prev, *next;
-+
-+	/*
-+	 * gcc should eliminate the ->thread_info dereference if
-+	 * has_secure_computing returns 0 at compile time (SECCOMP=n).
-+	 */
-+	prev = prev_p->thread_info;
-+	next = next_p->thread_info;
-+
-+	if (has_secure_computing(prev) || has_secure_computing(next)) {
-+		/* slow path here */
-+		if (has_secure_computing(prev) &&
-+		    !has_secure_computing(next)) {
-+			write_cr4(read_cr4() & ~X86_CR4_TSD);
-+		} else if (!has_secure_computing(prev) &&
-+			   has_secure_computing(next))
-+			write_cr4((read_cr4() | X86_CR4_TSD) & ~X86_CR4_PCE);
-+	}
-+}
-+
-+/*
-  * This special macro can be used to load a debugging register
-  */
- #define loaddebug(thread,r) set_debug(thread->debugreg ## r, r)
-@@ -603,6 +630,8 @@
- 			memset(tss->io_bitmap, 0xff, prev->io_bitmap_max);
- 		}
- 	}
-+
-+	disable_tsc(prev_p, next_p);
- 
- 	return prev_p;
- }
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Most of these steps can execute in parallel or out of order.  And a
+CPU designer would gleefully point out -lots- of steps I have omitted,
+some for the sake of brevity, others out of ignorance.
 
------ End forwarded message -----
+You asked!!!
+
+> I think my focusing on the hardware details (of which I am woefully
+> ignorant) was a mistake: the hardware can really do whatever it wants so
+> long as it implements the expected abstract machine model, and it is
+> ordering that matters in that model. So it makes sense that ordering, not
+> time, is what the definitions of the memory barriers focus on.
+
+Yes, maintaining one's sanity requires taking a very simplified view
+of memory ordering, especially since no two CPUs order memory references
+in exactly the same way.
+
+> I think that Oleg's question:
+> > Does this mb() garantees that the new value of ->cur will be visible
+> > on other cpus immediately after smp_mb() (so that rcu_pending() will
+> > notice it) ?
+> is really just about the timeliness with which writes before a smp_mb()
+> become visible to other CPUs. Does Linux run on architectures in which
+> writes are not propagated in a timely manner (that is: other CPUs can read
+> stale values for a "considerable" time)? I rather doubt it.
+
+Remember that smp_mb() is officially about controlling the order in
+which values are communicated between the CPU executing the smp_mb()
+and the interconnect, -not- between a pair of CPUs.  In the general
+case (which includes Alpha), controlling the order in which values
+are communicated from one CPU to another requires that -both- CPUs
+execute memory barriers.
+
+> But with a proviso to my answer: the compiler will happily hoist reads out
+> of loops. So writes won't necessarily get read in a timely manner.
+
+Very good!
+
+And this is in fact why smp_wmb() and friends also contain must directives
+instructing the compiler not to mess with ordering.
+
+							Thanx, Paul

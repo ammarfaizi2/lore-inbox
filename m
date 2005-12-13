@@ -1,40 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932599AbVLMSen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932600AbVLMSfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932599AbVLMSen (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 13:34:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932597AbVLMSen
+	id S932600AbVLMSfX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 13:35:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932601AbVLMSfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 13:34:43 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:46523 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932594AbVLMSem (ORCPT
+	Tue, 13 Dec 2005 13:35:23 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:53888 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932600AbVLMSfW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 13:34:42 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20051213094053.33284360.pj@sgi.com> 
-References: <20051213094053.33284360.pj@sgi.com>  <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu> <20051213100015.GA32194@elte.hu> 
-To: Paul Jackson <pj@sgi.com>
-Cc: Ingo Molnar <mingo@elte.hu>, hch@infradead.org, akpm@osdl.org,
-       dhowells@redhat.com, torvalds@osdl.org, arjan@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Tue, 13 Dec 2005 18:34:24 +0000
-Message-ID: <6281.1134498864@warthog.cambridge.redhat.com>
+	Tue, 13 Dec 2005 13:35:22 -0500
+Message-ID: <439F1455.7080402@engr.sgi.com>
+Date: Tue, 13 Dec 2005 10:35:01 -0800
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040906
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+Cc: Shailabh Nagar <nagar@watson.ibm.com>,
+       Christoph Lameter <clameter@engr.sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       lse-tech@lists.sourceforge.net,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Jay Lan <jlan@sgi.com>, Jens Axboe <axboe@suse.de>
+Subject: Re: [Lse-tech] [RFC][Patch 1/5] nanosecond timestamps and diffs
+References: <43975D45.3080801@watson.ibm.com>	 <43975E6D.9000301@watson.ibm.com>	 <Pine.LNX.4.62.0512121049400.14868@schroedinger.engr.sgi.com>	 <439DD01A.2060803@watson.ibm.com> <1134416962.14627.7.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1134416962.14627.7.camel@cog.beaverton.ibm.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
+john stultz wrote:
+> On Mon, 2005-12-12 at 19:31 +0000, Shailabh Nagar wrote:
+> 
+>>Christoph Lameter wrote:
+>>
+>>>On Wed, 7 Dec 2005, Shailabh Nagar wrote:
+>>>
+>>>
+>>>
+>>>>+void getnstimestamp(struct timespec *ts)
+>>>
+>>>
+>>>There is already getnstimeofday in the kernel.
+>>>
+>>
+>>Yes, and that function is being used within the getnstimestamp() being proposed.
+>>However, John Stultz had advised that getnstimeofday could get affected by calls to
+>>settimeofday and had recommended adjusting the getnstimeofday value with wall_to_monotonic.
+>>
+>>John, could you elaborate ?
+> 
+> 
+> I think you pretty well have it covered. 
+> 
+> getnstimeofday + wall_to_monotonic should be higher-res and more
+> reliable (then TSC based sched_clock(), for example) for getting a
+> timestamp.
 
-> It is usually too easy to produce a nearly correct script, and too
-> difficult to produce an exactly right one, for all but serious sed or
-> perl regex hackers.
+How is this proposed function different from
+do_posix_clock_monotonic_gettime()?
+It calls getnstimeofday(), it also adjusts with wall_to_monotinic.
 
-I'd be especially impressed if you can get it to also analyse the context in
-which the semaphore is used and determine whether or not it should be a
-counting semaphore, a mutex or a completion. You can probably do this sort of
-thing with Perl regexes... they seem to be terrifically[*] powerful.
+It seems to me we just need to EXPORT_SYMBOL_GPL the
+do_posix_clock_monotonic_gettime()?
 
- [*] and I mean that in the proper sense:-)
+Thanks,
+  - jay
 
-David
+> 
+> There may be performance concerns as you have to access the clock
+> hardware in getnstimeofday(), but there really is no other way for
+> reliable finely grained monotonically increasing timestamps.
+> 
+> thanks
+> -john
+> 
+

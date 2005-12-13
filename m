@@ -1,104 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030207AbVLMTFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbVLMTJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030207AbVLMTFg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 14:05:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbVLMTFg
+	id S1030208AbVLMTJv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 14:09:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbVLMTJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 14:05:36 -0500
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:14214 "HELO
-	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030207AbVLMTFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 14:05:35 -0500
+	Tue, 13 Dec 2005 14:09:51 -0500
+Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:24954 "HELO
+	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030208AbVLMTJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 14:09:50 -0500
 From: David Brownell <david-b@pacbell.net>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [patch 2.6.15-rc5-mm2] SPI, priority inversion tweak
-Date: Tue, 13 Dec 2005 10:28:49 -0800
+To: Vitaly Wool <vwool@ru.mvista.com>
+Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
+Date: Tue, 13 Dec 2005 11:01:01 -0800
 User-Agent: KMail/1.7.1
-Cc: spi-devel-general@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
+       greg@kroah.com, basicmark@yahoo.com, komal_shah802003@yahoo.com,
+       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
+       Joachim_Jaeger@digi.com
+References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051213170629.7240d211.vwool@ru.mvista.com> <20051213195317.29cfd34a.vwool@ru.mvista.com>
+In-Reply-To: <20051213195317.29cfd34a.vwool@ru.mvista.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_hLxnDRKDtbLq5vn"
-Message-Id: <200512131028.49291.david-b@pacbell.net>
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
---Boundary-00=_hLxnDRKDtbLq5vn
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200512131101.02025.david-b@pacbell.net>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an updated version of the patch from Mark Underwood, handling
-the no-memory case better and using SLAB_KERNEL not SLAB_ATOMIC.
+On Tuesday 13 December 2005 8:53 am, Vitaly Wool wrote:
+> 
+> this patch removes nasty buffer allocation in spi core for sync message transfers.
 
-Please apply it on top of the current SPI code in the MM tree.
+That's not "core" in the normal "everyone must use this" sense.
+Even the folk that do use synchronous transfers aren't always
+going to use that particular codepath.
+
+Neither is it "remove" in the normal sense either.  The hot
+path never had an allocation before ... but it could easily
+have one now, because that sort of bounce-buffer semantic is
+what a DMA_UNSAFE flag demands from the lower levels.  (That's
+a key part part of the proposed change that's not included in
+this patch... making the chage look much smaller.)
+
+
+How much of the reason you're arguing for this is because you
+have that WLAN stack that does some static allocation for I/O
+buffers?  Changing that to use dynamic allocation -- the more
+usual style -- should be easy.  But instead, you want all code
+in the SPI stack to need to worry about two different kinds of
+I/O memory:  the normal stuff, and the DMA-unsafe kind.  Not
+just this WLAN code which for some reason started out using
+a nonportable scheme for allocating I/O buffers.
+
+It'd take a lot more persuasion to make me think that's a good
+idea.  That's the kind of subtle confusion that really promotes
+hard-to-find bugs in drivers, and lots of developer confusion.
+And all that to support a new less-portable I/O buffer model...
+
+It's way better to just insist that all I/O buffers (in all
+generic APIs) be DMA-safe.  AFAICT that's a pretty standard
+rule everywhere in Linux.
 
 - Dave
 
---Boundary-00=_hLxnDRKDtbLq5vn
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="spi-kmalloc.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="spi-kmalloc.patch"
-
-Update the SPI framework to remove a potential priority inversion case by
-reverting to kmalloc if the pre-allocated DMA-safe buffer isn't available.
-
-From: Mark Underwood <basicmark@yahoo.com>
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-
---- g26.orig/drivers/spi/spi.c	2005-12-11 11:06:38.000000000 -0800
-+++ g26/drivers/spi/spi.c	2005-12-13 09:56:22.000000000 -0800
-@@ -541,22 +541,30 @@ int spi_write_then_read(struct spi_devic
- 	int			status;
- 	struct spi_message	message;
- 	struct spi_transfer	x[2];
-+	u8			*local_buf;
- 
- 	/* Use preallocated DMA-safe buffer.  We can't avoid copying here,
- 	 * (as a pure convenience thing), but we can keep heap costs
--	 * out of the hot path.
-+	 * out of the hot path ...
- 	 */
- 	if ((n_tx + n_rx) > SPI_BUFSIZ)
- 		return -EINVAL;
- 
--	down(&lock);
-+	/* ... unless someone else is using the pre-allocated buffer */
-+	if (down_trylock(&lock)) {
-+		local_buf = kmalloc(SPI_BUFSIZ, GFP_KERNEL);
-+		if (!local_buf)
-+			return -ENOMEM;
-+	} else
-+		local_buf = buf;
-+
- 	memset(x, 0, sizeof x);
- 
--	memcpy(buf, txbuf, n_tx);
--	x[0].tx_buf = buf;
-+	memcpy(local_buf, txbuf, n_tx);
-+	x[0].tx_buf = local_buf;
- 	x[0].len = n_tx;
- 
--	x[1].rx_buf = buf + n_tx;
-+	x[1].rx_buf = local_buf + n_tx;
- 	x[1].len = n_rx;
- 
- 	/* do the i/o */
-@@ -568,7 +576,11 @@ int spi_write_then_read(struct spi_devic
- 		status = message.status;
- 	}
- 
--	up(&lock);
-+	if (x[0].tx_buf == buf)
-+		up(&lock);
-+	else
-+		kfree(local_buf);
-+
- 	return status;
- }
- EXPORT_SYMBOL_GPL(spi_write_then_read);
-
---Boundary-00=_hLxnDRKDtbLq5vn--

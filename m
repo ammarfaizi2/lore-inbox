@@ -1,79 +1,256 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVLMCCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVLMCKT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932361AbVLMCCh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 21:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbVLMCCh
+	id S932330AbVLMCKT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 21:10:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932357AbVLMCKS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 21:02:37 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:42899
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S932361AbVLMCCg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 21:02:36 -0500
-From: Rob Landley <rob@landley.net>
-Organization: Boundaries Unlimited
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Mon, 12 Dec 2005 20:00:44 -0600
-User-Agent: KMail/1.8
-Cc: Brian Gerst <bgerst@didntduck.org>, Andrea Arcangeli <andrea@suse.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
-References: <1133779953.9356.9.camel@laptopd505.fenrus.org> <43944F42.2070207@didntduck.org> <20051206151729.GC1999@elf.ucw.cz>
-In-Reply-To: <20051206151729.GC1999@elf.ucw.cz>
+	Mon, 12 Dec 2005 21:10:18 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:48389 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932330AbVLMCKQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 21:10:16 -0500
+Date: Tue, 13 Dec 2005 03:10:15 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lethal@linux-sh.org, rc@rc0.org.uk,
+       linuxsh-shmedia-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] include/asm-sh64/: "extern inline" -> "static inline"
+Message-ID: <20051213021015.GW23349@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512122000.45679.rob@landley.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 December 2005 09:17, Pavel Machek wrote:
-> Actually, yes it does cost them. If you refuse to buy $2000 notebook,
-> because its 3D graphics card ($100) is not supported properly... well
-> notebook vendor is going to put pressure on graphics card vendor.
+"extern inline" doesn't make much sense.
 
-One thing about understanding large companies: if they can't measure it, it 
-doesn't exist.
 
-And yes, this sometimes leads to really stupid behavior.  I remember an old 
-businessweek article from 1998 about how Pizza Hut responded to the 
-encroachment of Papa Johns by measuring salami slices with a micrometer and 
-timing how long it took the sauce to flow down an incline.  The fundamental 
-problem was, a large chunk of their customer base preferred the other guy's 
-pizza, but they couldn't _measure_ that.  Responding to concerns about 
-aesthetics and usability by focusing on "six nines" of reliability is a 
-common mistake.  Because it's easy to _measure_.  The squeaky wheel, and all 
-that...
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-So if they don't know _why_ you refused to buy the $2000 notebook (and telling 
-a salesbeing with no way to propogate it up the chain of command doesn't 
-help), then it doesn't mean anything to them.  For all they know you didn't 
-like the color, the CPU fan was too loud, the battery didn't last long 
-enough, the touchpad was uncomfortable...
+---
 
-Yes, you can write letters to them to inform them of your concerns.  But what 
-they care about is money, and correlating your concerns to aggregate sales 
-figures is hand waving at best.
+This patch was already sent on:
+- 21 Nov 2005
 
-> And you don't have to be Linux user to refuse closed hardware. Having
-> option in future is always good.x
+ include/asm-sh64/io.h          |    8 ++++----
+ include/asm-sh64/mmu_context.h |    2 +-
+ include/asm-sh64/pgalloc.h     |   14 +++++++-------
+ include/asm-sh64/pgtable.h     |   26 +++++++++++++-------------
+ include/asm-sh64/processor.h   |    4 ++--
+ include/asm-sh64/system.h      |    4 ++--
+ include/asm-sh64/tlbflush.h    |    2 +-
+ include/asm-sh64/uaccess.h     |    2 +-
+ 8 files changed, 31 insertions(+), 31 deletions(-)
 
-If Linux desktop users are less than 5% of the laptop buying population, a 
-more effective technique would be to focus purchases on small companies that 
-_do_ provide things we can use.  Trimming $25 million off of a $1 billion 
-market niche is a lot less noticeable than creating and sustaining a new $25 
-million market niche.  (That's something that's easy to measure.  Here's $x 
-dollars that could go to us, but doesn't.)
+--- linux-2.6.15-rc1-mm2-full/include/asm-sh64/io.h.old	2005-11-20 19:46:54.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/include/asm-sh64/io.h	2005-11-20 19:47:05.000000000 +0100
+@@ -143,12 +143,12 @@
+  * Change virtual addresses to physical addresses and vv.
+  * These are trivial on the 1:1 Linux/SuperH mapping
+  */
+-extern __inline__ unsigned long virt_to_phys(volatile void * address)
++static inline unsigned long virt_to_phys(volatile void * address)
+ {
+ 	return __pa(address);
+ }
+ 
+-extern __inline__ void * phys_to_virt(unsigned long address)
++static inline void * phys_to_virt(unsigned long address)
+ {
+ 	return __va(address);
+ }
+@@ -156,12 +156,12 @@
+ extern void * __ioremap(unsigned long phys_addr, unsigned long size,
+ 			unsigned long flags);
+ 
+-extern __inline__ void * ioremap(unsigned long phys_addr, unsigned long size)
++static inline void * ioremap(unsigned long phys_addr, unsigned long size)
+ {
+ 	return __ioremap(phys_addr, size, 1);
+ }
+ 
+-extern __inline__ void * ioremap_nocache (unsigned long phys_addr, unsigned long size)
++static inline void * ioremap_nocache (unsigned long phys_addr, unsigned long size)
+ {
+ 	return __ioremap(phys_addr, size, 0);
+ }
+--- linux-2.6.15-rc1-mm2-full/include/asm-sh64/mmu_context.h.old	2005-11-20 19:47:15.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/include/asm-sh64/mmu_context.h	2005-11-20 19:47:18.000000000 +0100
+@@ -50,7 +50,7 @@
+  */
+ #define MMU_VPN_MASK	0xfffff000
+ 
+-extern __inline__ void
++static inline void
+ get_new_mmu_context(struct mm_struct *mm)
+ {
+ 	extern void flush_tlb_all(void);
+--- linux-2.6.15-rc1-mm2-full/include/asm-sh64/pgalloc.h.old	2005-11-20 19:47:27.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/include/asm-sh64/pgalloc.h	2005-11-20 19:47:33.000000000 +0100
+@@ -38,14 +38,14 @@
+  * if any.
+  */
+ 
+-extern __inline__ pgd_t *get_pgd_slow(void)
++static inline pgd_t *get_pgd_slow(void)
+ {
+ 	unsigned int pgd_size = (USER_PTRS_PER_PGD * sizeof(pgd_t));
+ 	pgd_t *ret = (pgd_t *)kmalloc(pgd_size, GFP_KERNEL);
+ 	return ret;
+ }
+ 
+-extern __inline__ pgd_t *get_pgd_fast(void)
++static inline pgd_t *get_pgd_fast(void)
+ {
+ 	unsigned long *ret;
+ 
+@@ -62,14 +62,14 @@
+ 	return (pgd_t *)ret;
+ }
+ 
+-extern __inline__ void free_pgd_fast(pgd_t *pgd)
++static inline void free_pgd_fast(pgd_t *pgd)
+ {
+ 	*(unsigned long *)pgd = (unsigned long) pgd_quicklist;
+ 	pgd_quicklist = (unsigned long *) pgd;
+ 	pgtable_cache_size++;
+ }
+ 
+-extern __inline__ void free_pgd_slow(pgd_t *pgd)
++static inline void free_pgd_slow(pgd_t *pgd)
+ {
+ 	kfree((void *)pgd);
+ }
+@@ -77,7 +77,7 @@
+ extern pte_t *get_pte_slow(pmd_t *pmd, unsigned long address_preadjusted);
+ extern pte_t *get_pte_kernel_slow(pmd_t *pmd, unsigned long address_preadjusted);
+ 
+-extern __inline__ pte_t *get_pte_fast(void)
++static inline pte_t *get_pte_fast(void)
+ {
+ 	unsigned long *ret;
+ 
+@@ -89,7 +89,7 @@
+ 	return (pte_t *)ret;
+ }
+ 
+-extern __inline__ void free_pte_fast(pte_t *pte)
++static inline void free_pte_fast(pte_t *pte)
+ {
+ 	*(unsigned long *)pte = (unsigned long) pte_quicklist;
+ 	pte_quicklist = (unsigned long *) pte;
+@@ -167,7 +167,7 @@
+ 
+ extern int do_check_pgt_cache(int, int);
+ 
+-extern inline void set_pgdir(unsigned long address, pgd_t entry)
++static inline void set_pgdir(unsigned long address, pgd_t entry)
+ {
+ 	struct task_struct * p;
+ 	pgd_t *pgd;
+--- linux-2.6.15-rc1-mm2-full/include/asm-sh64/pgtable.h.old	2005-11-20 19:47:43.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/include/asm-sh64/pgtable.h	2005-11-20 19:47:48.000000000 +0100
+@@ -421,18 +421,18 @@
+ static inline int pte_file(pte_t pte) { return pte_val(pte) & _PAGE_FILE; }
+ static inline int pte_write(pte_t pte){ return pte_val(pte) & _PAGE_WRITE; }
+ 
+-extern inline pte_t pte_rdprotect(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_READ)); return pte; }
+-extern inline pte_t pte_wrprotect(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_WRITE)); return pte; }
+-extern inline pte_t pte_exprotect(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_EXECUTE)); return pte; }
+-extern inline pte_t pte_mkclean(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_DIRTY)); return pte; }
+-extern inline pte_t pte_mkold(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_ACCESSED)); return pte; }
+-
+-extern inline pte_t pte_mkread(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_READ)); return pte; }
+-extern inline pte_t pte_mkwrite(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_WRITE)); return pte; }
+-extern inline pte_t pte_mkexec(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_EXECUTE)); return pte; }
+-extern inline pte_t pte_mkdirty(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_DIRTY)); return pte; }
+-extern inline pte_t pte_mkyoung(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_ACCESSED)); return pte; }
+-extern inline pte_t pte_mkhuge(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_SZHUGE)); return pte; }
++static inline pte_t pte_rdprotect(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_READ)); return pte; }
++static inline pte_t pte_wrprotect(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_WRITE)); return pte; }
++static inline pte_t pte_exprotect(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_EXECUTE)); return pte; }
++static inline pte_t pte_mkclean(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_DIRTY)); return pte; }
++static inline pte_t pte_mkold(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) & ~_PAGE_ACCESSED)); return pte; }
++
++static inline pte_t pte_mkread(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_READ)); return pte; }
++static inline pte_t pte_mkwrite(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_WRITE)); return pte; }
++static inline pte_t pte_mkexec(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_EXECUTE)); return pte; }
++static inline pte_t pte_mkdirty(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_DIRTY)); return pte; }
++static inline pte_t pte_mkyoung(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_ACCESSED)); return pte; }
++static inline pte_t pte_mkhuge(pte_t pte)	{ set_pte(&pte, __pte(pte_val(pte) | _PAGE_SZHUGE)); return pte; }
+ 
+ 
+ /*
+@@ -456,7 +456,7 @@
+ #define mk_pte_phys(physpage, pgprot) \
+ ({ pte_t __pte; set_pte(&__pte, __pte(physpage | pgprot_val(pgprot))); __pte; })
+ 
+-extern inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
++static inline pte_t pte_modify(pte_t pte, pgprot_t newprot)
+ { set_pte(&pte, __pte((pte_val(pte) & _PAGE_CHG_MASK) | pgprot_val(newprot))); return pte; }
+ 
+ typedef pte_t *pte_addr_t;
+--- linux-2.6.15-rc1-mm2-full/include/asm-sh64/processor.h.old	2005-11-20 19:47:59.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/include/asm-sh64/processor.h	2005-11-20 19:48:04.000000000 +0100
+@@ -228,7 +228,7 @@
+  * FPU lazy state save handling.
+  */
+ 
+-extern __inline__ void release_fpu(void)
++static inline void release_fpu(void)
+ {
+ 	unsigned long long __dummy;
+ 
+@@ -240,7 +240,7 @@
+ 			     : "r" (SR_FD));
+ }
+ 
+-extern __inline__ void grab_fpu(void)
++static inline void grab_fpu(void)
+ {
+ 	unsigned long long __dummy;
+ 
+--- linux-2.6.15-rc1-mm2-full/include/asm-sh64/system.h.old	2005-11-20 19:48:12.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/include/asm-sh64/system.h	2005-11-20 19:48:16.000000000 +0100
+@@ -132,7 +132,7 @@
+ 	(flags != 0);			\
+ })
+ 
+-extern __inline__ unsigned long xchg_u32(volatile int * m, unsigned long val)
++static inline unsigned long xchg_u32(volatile int * m, unsigned long val)
+ {
+ 	unsigned long flags, retval;
+ 
+@@ -143,7 +143,7 @@
+ 	return retval;
+ }
+ 
+-extern __inline__ unsigned long xchg_u8(volatile unsigned char * m, unsigned long val)
++static inline unsigned long xchg_u8(volatile unsigned char * m, unsigned long val)
+ {
+ 	unsigned long flags, retval;
+ 
+--- linux-2.6.15-rc1-mm2-full/include/asm-sh64/uaccess.h.old	2005-11-20 19:48:25.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/include/asm-sh64/uaccess.h	2005-11-20 19:48:29.000000000 +0100
+@@ -287,7 +287,7 @@
+  */
+ extern long __strnlen_user(const char *__s, long __n);
+ 
+-extern __inline__ long strnlen_user(const char *s, long n)
++static inline long strnlen_user(const char *s, long n)
+ {
+ 	if (!__addr_ok(s))
+ 		return 0;
+--- linux-2.6.15-rc1-mm2-full/include/asm-sh64/tlbflush.h.old	2005-11-20 19:48:37.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/include/asm-sh64/tlbflush.h	2005-11-20 19:48:43.000000000 +0100
+@@ -20,7 +20,7 @@
+ extern void flush_tlb_range(struct vm_area_struct *vma, unsigned long start,
+ 			    unsigned long end);
+ extern void flush_tlb_page(struct vm_area_struct *vma, unsigned long page);
+-extern inline void flush_tlb_pgtables(struct mm_struct *mm,
++static inline void flush_tlb_pgtables(struct mm_struct *mm,
+ 				      unsigned long start, unsigned long end)
+ {
+ }
 
-Of course getting a $1 billion company excited over a $25 million niche...  
-You might want to read "the innovator's dilemma", by clayton christensen.  
-_Marvelous_ book...
-
->         Pavel
-
-Rob
--- 
-Steve Ballmer: Innovation!  Inigo Montoya: You keep using that word.
-I do not think it means what you think it means.

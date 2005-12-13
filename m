@@ -1,102 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbVLMIdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964771AbVLMIk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932548AbVLMIdn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 03:33:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932552AbVLMIck
+	id S964771AbVLMIk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 03:40:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbVLMIk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 03:32:40 -0500
-Received: from mail.kroah.org ([69.55.234.183]:37763 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932549AbVLMIYq (ORCPT
+	Tue, 13 Dec 2005 03:40:27 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:51923 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964771AbVLMIk0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 03:24:46 -0500
-Date: Tue, 13 Dec 2005 00:23:44 -0800
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       jgarzik@pobox.com
-Subject: [patch 21/26] [libata] locking rewrite (== fix)
-Message-ID: <20051213082344.GV5823@kroah.com>
-References: <20051213073430.558435000@press.kroah.org>
+	Tue, 13 Dec 2005 03:40:26 -0500
+Date: Tue, 13 Dec 2005 09:39:42 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, Matt Mackall <mpm@selenic.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 7/15] misc: Make x86 doublefault handling optional
+Message-ID: <20051213083942.GD10088@elte.hu>
+References: <8.282480653@selenic.com> <200511160713.07632.rob@landley.net> <20051116182145.GP31287@waste.org> <f1079b100511161121g1997cfb4jc8e8aec5072c1d92@mail.gmail.com> <20051212103611.GA6416@elte.hu> <p73u0denv3h.fsf@verdi.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="locking-rewrite.patch"
-In-Reply-To: <20051213082143.GA5823@kroah.com>
-User-Agent: Mutt/1.5.11
+Content-Disposition: inline
+In-Reply-To: <p73u0denv3h.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
 
-------------------
-From: Jeff Garzik <jgarzik@pobox.com>
+* Andi Kleen <ak@suse.de> wrote:
 
-[libata] locking rewrite (== fix)
+> Ingo Molnar <mingo@elte.hu> writes:
+> > 
+> > in the past couple of years i saw double-faults at a rate of perhaps 
+> > once a year - and i frequently hack lowlevel glue code! So the 
+> > usefulness of this code in the field, and especially on an embedded 
+> > platforms, is extremely limited.
+> 
+> If it only saves an hour or developer time on some bug report it has 
+> already justified its value.
 
-A lot of power packed into a little patch.
+yes, of course. Are you arguing that all debugging options should be 
+made unconditional? Matt's patch simply makes double-fault-debugging 
+optional. More than that, it will still be unconditionally enabled 
+unless CONFIG_EMBEDDED is specified.
 
-This change eliminates the sharing between our controller-wide spinlock
-and the SCSI core's Scsi_Host lock.  As the locking in libata was
-already highly compartmentalized, always referencing our own lock, and
-never scsi_host::host_lock.
+> Also to really save memory there are much better areas of attack than 
+> this relatively slim code.
 
-As a side effect, this change eliminates a deadlock from calling
-scsi_finish_command() while inside our spinlock.
+the dynamics of memory reduction patches is just like the dynamics of 
+scalability patches: we have to attack on _every front_ and even then 
+progress will appear to be very slow. We almost never reject a 
+scalability micro-optimization just because there might be larger fruits 
+hanging.
 
+> > in fact, i've experienced triple-faults (== spontaneous reboots) to 
+> > be at least 10 times more frequent than double-faults! I.e. _if_ 
+> > your kernel (or hardware) is screwed up to the degree that it would 
+> > double-fault, it will much more likely also triple-fault.
+> 
+> A common case where this doesn't hold is breaking the [er]sp in kernel 
+> code.
+> 
+> -Andi (who sees double faults more often)
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+yeah. Still, i see no problem with making it optional. (as long as it 
+does not result in significant uglification of the code - which clearly 
+is not a problem for this particular patch.)
 
----
- drivers/scsi/libata-core.c |    2 --
- drivers/scsi/libata-scsi.c |    9 ++++++++-
- 2 files changed, 8 insertions(+), 3 deletions(-)
-
---- linux-2.6.14.3.orig/drivers/scsi/libata-core.c
-+++ linux-2.6.14.3/drivers/scsi/libata-core.c
-@@ -3916,8 +3916,6 @@ static void ata_host_init(struct ata_por
- 	host->unique_id = ata_unique_id++;
- 	host->max_cmd_len = 12;
- 
--	scsi_assign_lock(host, &host_set->lock);
--
- 	ap->flags = ATA_FLAG_PORT_DISABLED;
- 	ap->id = host->unique_id;
- 	ap->host = host;
---- linux-2.6.14.3.orig/drivers/scsi/libata-scsi.c
-+++ linux-2.6.14.3/drivers/scsi/libata-scsi.c
-@@ -39,6 +39,7 @@
- #include <scsi/scsi.h>
- #include "scsi.h"
- #include <scsi/scsi_host.h>
-+#include <scsi/scsi_device.h>
- #include <linux/libata.h>
- #include <asm/uaccess.h>
- 
-@@ -1565,8 +1566,12 @@ int ata_scsi_queuecmd(struct scsi_cmnd *
- 	struct ata_port *ap;
- 	struct ata_device *dev;
- 	struct scsi_device *scsidev = cmd->device;
-+	struct Scsi_Host *shost = scsidev->host;
- 
--	ap = (struct ata_port *) &scsidev->host->hostdata[0];
-+	ap = (struct ata_port *) &shost->hostdata[0];
-+
-+	spin_unlock(shost->host_lock);
-+	spin_lock(&ap->host_set->lock);
- 
- 	ata_scsi_dump_cdb(ap, cmd);
- 
-@@ -1589,6 +1594,8 @@ int ata_scsi_queuecmd(struct scsi_cmnd *
- 		ata_scsi_translate(ap, dev, cmd, done, atapi_xlat);
- 
- out_unlock:
-+	spin_unlock(&ap->host_set->lock);
-+	spin_lock(shost->host_lock);
- 	return 0;
- }
- 
-
---
+	Ingo

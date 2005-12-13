@@ -1,38 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbVLNKWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVLNKXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbVLNKWn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 05:22:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVLNKWn
+	id S932300AbVLNKXp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 05:23:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbVLNKXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 05:22:43 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:8100 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932276AbVLNKWm
+	Wed, 14 Dec 2005 05:23:45 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:10916 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932295AbVLNKXn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 05:22:42 -0500
-Subject: Re: tp_smapi conflict with IDE, hdaps
+	Wed, 14 Dec 2005 05:23:43 -0500
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Rovert Love <rlove@rlove.org>,
-       Jens Axboe <axboe@suse.de>, linux-ide@vger.kernel.org
-In-Reply-To: <41840b750512131041i5ae5f021h29eed3492bad88ca@mail.gmail.com>
-References: <41840b750512130635p45591633ya1df731f24a87658@mail.gmail.com>
-	 <1134486203.11732.60.camel@localhost.localdomain>
-	 <41840b750512130729y49903791xc9ceba4e6a18322e@mail.gmail.com>
-	 <41840b750512131041i5ae5f021h29eed3492bad88ca@mail.gmail.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Christopher Friesen <cfriesen@nortel.com>, torvalds@osdl.org,
+       akpm@osdl.org, hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+In-Reply-To: <15167.1134488373@warthog.cambridge.redhat.com>
+References: <439EDC3D.5040808@nortel.com>
+	 <1134479118.11732.14.camel@localhost.localdomain>
+	 <dhowells1134431145@warthog.cambridge.redhat.com>
+	 <3874.1134480759@warthog.cambridge.redhat.com>
+	 <15167.1134488373@warthog.cambridge.redhat.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Tue, 13 Dec 2005 19:18:24 +0000
-Message-Id: <1134501504.11732.120.camel@localhost.localdomain>
+Date: Tue, 13 Dec 2005 16:10:05 +0000
+Message-Id: <1134490205.11732.97.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-12-13 at 20:41 +0200, Shem Multinymous wrote:
-> Meanwhile, I found out that with this drive, "hdparm -E" does affect
-> CD-R discs
+On Maw, 2005-12-13 at 15:39 +0000, David Howells wrote:
+>  (3) Some people want mutexes to be:
+> 
+>      (a) only releasable in the same context as they were taken
+> 
+>      (b) not accessible in interrupt context, or that (a) applies here also
+> 
+>      (c) not initialisable to the locked state
+> 
+>      But this means that the current usages all have to be carefully audited,
+>      and sometimes that unobvious.
 
-That is expected behaviour. DVD speed is controlled by different
-interfaces
+Only if you insist on replacing them immediately. If you submit a
+*small* patch which just adds the new mutexes then a series of small
+patches can gradually convert code where mutexes are better. People will
+naturally hit the hot and critical points first meaning that in a short
+time the users of semaphores will be those who need it, and those who
+are not critical to performance.
+
+There is a problemn with init_MUTEX*/DECLARE_MUTEX naming being used for
+semaphore struct init and I don't see a nice way to fix that either. I'd
+rather see people just have to fix those as compiler errors (or a perl
+-e regexp run to make them all init_SEM/DECLARE_SEM before any other
+changes are made).
+
 

@@ -1,69 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932320AbVLMP5P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVLMP5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932320AbVLMP5P (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 10:57:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVLMP5P
+	id S932319AbVLMP5E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 10:57:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVLMP5D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 10:57:15 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:24231 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932320AbVLMP5O (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 10:57:14 -0500
-Date: Tue, 13 Dec 2005 07:45:32 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] skge: get rid of warning on race
-Message-ID: <20051213074532.18ee734c@localhost.localdomain>
-In-Reply-To: <20051213145054.GA24897@suse.de>
-References: <200512130559.jBD5xUjf015319@hera.kernel.org>
-	<20051213145054.GA24897@suse.de>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
+	Tue, 13 Dec 2005 10:57:03 -0500
+Received: from zproxy.gmail.com ([64.233.162.198]:62986 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932319AbVLMP5C convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 10:57:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=JzldNFV1j/PSpJyAeveSMsdRmmCOljECe8u6/utdXxO/kEqrNVKPoDjQbHrlxB9XFOR2PlDvG4uEs4uF33LUvfl3NEDTUd/PaJaSpukxxUf1+VQwNFUWJahkf1YTwc0J975LB07L7VzWD6SHWXhWIiaUroqMS/eOqpHevR6fgHo=
+Message-ID: <e46c534c0512130756k18c409aen3d60df7aaee50062@mail.gmail.com>
+Date: Tue, 13 Dec 2005 15:56:55 +0000
+From: Filipe Cabecinhas <filcab@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Possible problem in fcntl
+Cc: Nuno Lopes <ncpl@mega.ist.utl.pt>,
+       =?ISO-8859-1?Q?Renato_Cris=F3stomo?= <racc@mega.ist.utl.pt>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Dec 2005 15:50:54 +0100
-Olaf Hering <olh@suse.de> wrote:
+Hi,
 
->  On Mon, Dec 12, Linux Kernel Mailing List wrote:
-> 
-> > tree 987cfbd2134b82bea55c55fa17bd70d29df70458
-> > parent 0e670506668a43e1355b8f10c33d081a676bd521
-> > author Stephen Hemminger <shemminger@osdl.org> Wed, 07 Dec 2005 07:01:49 -0800
-> > committer Jeff Garzik <jgarzik@pobox.com> Tue, 13 Dec 2005 09:33:03 -0500
-> > 
-> > [PATCH] skge: get rid of warning on race
-> 
-> >  drivers/net/skge.c |   10 ++++++----
-> 
-> > -		netif_stop_queue(dev);
-> > -		spin_unlock_irqrestore(&skge->tx_lock, flags);
-> > +		if (!netif_stopped(dev)) {
-> > +			netif_stop_queue(dev);
-> 
-> Current Linus tree does not compile:
-> 
-> drivers/net/skge.c:2283: error: implicit declaration of function 'netif_stopped'
+We have written a little webserver for our CS course. But we have a
+problem with fcntl.
+We are using non-blocking sockets and per fcntl man page:
+       On Linux, the new socket returned by accept () does  not  inherit  file
+       status  flags such as O_NONBLOCK and O_ASYNC from the listening socket.
+       This behaviour differs from the canonical BSD  sockets  implementation.
+       Portable  programs should not rely on inheritance or non-inheritance of
+       file status flags and always explicitly set all required flags  on  the
+       socket returned from accept().
 
-Should have been netif_queue_stopped..
+We call fcntl after calling bind and listen. Then we also call fcntl
+for each accept'ed connection to set O_NONBLOCK:
+				flags = fcntl(e, F_GETFL);
+				fcntl(e, F_SETFL, flags | O_NONBLOCK);
 
-Index: skge-2.6/drivers/net/skge.c
-===================================================================
---- skge-2.6.orig/drivers/net/skge.c
-+++ skge-2.6/drivers/net/skge.c
-@@ -2280,7 +2280,7 @@ static int skge_xmit_frame(struct sk_buf
-  	}
- 
- 	if (unlikely(skge->tx_avail < skb_shinfo(skb)->nr_frags +1)) {
--		if (!netif_stopped(dev)) {
-+		if (!netif_queue_stopped(dev)) {
- 			netif_stop_queue(dev);
- 
- 			printk(KERN_WARNING PFX "%s: ring full when
-queue awake!\n",
+$ uname -a
+Linux lab9p2 2.6.11.12 #3 Sat Sep 3 20:09:17 WEST 2005 i686 Intel(R)
+Pentium(R) 4 CPU 2.26GHz GenuineIntel GNU/Linux
+$
+
+The code is at http://mega.ist.utl.pt/~facab/proj/
+(files httpd.n.[ch] have the line numbers)
+The line that's causing the trouble is line 377 in httpd.c. Commenting
+that line fixes the problem (although we think that shouldn't be
+necessary).
+
+However, in my laptop (with a different kernel version) it works. So,
+does this kernel version (2.6.11.12) has a bug with fcntl or are we
+doing something wrong?
 
 
+Thanks in advance,
+Filipe Cabecinhas
+
+P.S: Please CC me, because I'm not subscribed to this list.

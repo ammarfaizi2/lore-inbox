@@ -1,57 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932392AbVLMXFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932615AbVLMXG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932392AbVLMXFs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 18:05:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbVLMXFs
+	id S932615AbVLMXG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 18:06:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbVLMXG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 18:05:48 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:53954 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932392AbVLMXFr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 18:05:47 -0500
-Date: Tue, 13 Dec 2005 23:05:36 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       mingo@elte.hu, dhowells@redhat.com, hch@infradead.org,
-       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       rth@redhat.com
-Subject: Re: Using C99 in the kernel was Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Message-ID: <20051213230536.GQ27946@ftp.linux.org.uk>
-References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de> <20051213004257.0f87d814.akpm@osdl.org> <20051213084926.GN23384@wotan.suse.de> <Pine.LNX.4.64.0512130812020.15597@g5.osdl.org> <20051213215610.GX23384@wotan.suse.de>
-Mime-Version: 1.0
+	Tue, 13 Dec 2005 18:06:28 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:19218 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932616AbVLMXG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 18:06:26 -0500
+Date: Wed, 14 Dec 2005 00:06:25 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, Dave Kleikamp <shaggy@austin.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [-mm patch] fs/nfsd/vfs.c: fix possible runtime stack corruption
+Message-ID: <20051213230625.GW23349@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051213215610.GX23384@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 10:56:10PM +0100, Andi Kleen wrote:
-> It looks like casts in constant initializers for global structures are not 
-> allowed anymore: struct foo x = (struct foo) { ... }; warns.  That's
-> not good because when the (struct foo){} is generated in a macro
-> then it's the only easy way to allow initialization outside a declaration.
-> 
-> Common case is SPIN_LOCK_UNLOCKED() / DEFINE_SPINLOCK().
+Compiling 2.6.15-rc5-mm2 with CONFIG_NFSD_V4=n and CONFIG_NFSD_V2_ACL=y 
+or CONFIG_NFSD_V3_ACL=y results due to 
+add-vfs_-helpers-for-xattr-operations.patch in the following:
 
-There are two similar things - struct initializers and compound literals.
-They are *not* the same, though; compound literal defines an unnamed
-object, so
-{
-	struct foo x = (struct foo){...};
+<--  snip  -->
 
-is equivalent to
-	struct foo unnamed_variable = {....};
-	struct foo x = unnamed_variable;
+...
+  CC [M]  fs/nfsd/vfs.o
+fs/nfsd/vfs.c: In function 'nfsd_getxattr':
+fs/nfsd/vfs.c:376: warning: implicit declaration of function 'vfs_getxattr'
+fs/nfsd/vfs.c: In function 'nfsd_set_posix_acl':
+fs/nfsd/vfs.c:1931: warning: implicit declaration of function 'vfs_setxattr'
+fs/nfsd/vfs.c:1936: warning: implicit declaration of function 'vfs_removexattr'
+...
 
-For auto variables it's fine; there initializer doesn't have to be
-constant.  For globals it's _not_.
+<--  snip  -->
 
-Note that it's really a definition of object - e.. you can say
-	f(&(struct foo){....});
-and have it work just fine.
 
-IOW, DEFINE_SPINLOCK() should be spinlock_t x = __SPIN_LOCK_UNLOCKED()
-and SPIN_LOCK_UNLOCKED - (spinlock_t) __SPIN_LOCK_UNLOCKED.  That's
-enough to make it valid C99...
+The possible stack corruption if gcc guessed the types of the parameters 
+of any of these functions wrong is obvious.
+
+
+Given the -Werror-implicit-function-declaration flag, gcc would	
+abort compilation in such cases:
+
+<--  snip  -->
+
+...
+  CC [M]  fs/nfsd/vfs.o
+fs/nfsd/vfs.c: In function 'nfsd_getxattr':
+fs/nfsd/vfs.c:376: error: implicit declaration of function 'vfs_getxattr'
+fs/nfsd/vfs.c: In function 'nfsd_set_posix_acl':
+fs/nfsd/vfs.c:1931: error: implicit declaration of function 'vfs_setxattr'
+fs/nfsd/vfs.c:1936: error: implicit declaration of function 'vfs_removexattr'
+make[2]: *** [fs/nfsd/vfs.o] Error 1
+
+<--  snip  -->
+
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.15-rc5-mm2-modular/fs/nfsd/vfs.c.old	2005-12-13 22:05:39.000000000 +0100
++++ linux-2.6.15-rc5-mm2-modular/fs/nfsd/vfs.c	2005-12-13 22:05:55.000000000 +0100
+@@ -48,8 +48,8 @@
+ #include <linux/fsnotify.h>
+ #include <linux/posix_acl.h>
+ #include <linux/posix_acl_xattr.h>
+-#ifdef CONFIG_NFSD_V4
+ #include <linux/xattr.h>
++#ifdef CONFIG_NFSD_V4
+ #include <linux/nfs4.h>
+ #include <linux/nfs4_acl.h>
+ #include <linux/nfsd_idmap.h>
+

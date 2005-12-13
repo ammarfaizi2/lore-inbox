@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbVLMDBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVLMDAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932379AbVLMDBc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 22:01:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVLMDAm
+	id S932380AbVLMDAv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 22:00:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbVLMDAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 22:00:42 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:29139 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932379AbVLMDAO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 22:00:14 -0500
-Subject: [PATCH -mm 5/9] unshare system call : system call registration for
-	x86_64
+	Mon, 12 Dec 2005 22:00:46 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:5775 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932375AbVLMDAJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 22:00:09 -0500
+Subject: [PATCH -mm 3/9] unshare system call : system call registration for
+	powerpc
 From: JANAK DESAI <janak@us.ibm.com>
 Reply-To: janak@us.ibm.com
 To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
@@ -19,73 +19,53 @@ To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
        janak@us.ibm.com
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1134442682.14136.121.camel@hobbs.atlanta.ibm.com>
+Message-Id: <1134442655.14136.117.camel@hobbs.atlanta.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 12 Dec 2005 22:00:04 -0500
+Date: Mon, 12 Dec 2005 22:00:00 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[PATCH -mm 5/9] unshare system call: System call registration for x86_64
+[PATCH -mm 3/9] unshare system call: System call registration for
+powerpc
                                                                                 
 Signed-off-by: Janak Desai
-                                                                                
 
- arch/x86_64/ia32/ia32entry.S     |    1 +
- include/asm-x86_64/ia32_unistd.h |    3 ++-
- include/asm-x86_64/unistd.h      |    4 +++-
- 3 files changed, 6 insertions(+), 2 deletions(-)
+
+ arch/powerpc/kernel/systbl.S |    1 +
+ include/asm-powerpc/unistd.h |    3 ++-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
  
  
-diff -Naurp 2.6.15-rc5-mm2/arch/x86_64/ia32/ia32entry.S
-2.6.15-rc5-mm2+x86_64/arch/x86_64/ia32/ia32entry.S
---- 2.6.15-rc5-mm2/arch/x86_64/ia32/ia32entry.S	2005-12-12
-03:05:40.000000000 +0000
-+++ 2.6.15-rc5-mm2+x86_64/arch/x86_64/ia32/ia32entry.S	2005-12-12
-20:33:22.000000000 +0000
-@@ -666,6 +666,7 @@ ia32_sys_call_table:
- 	.quad sys_inotify_init
- 	.quad sys_inotify_add_watch
- 	.quad sys_inotify_rm_watch
-+	.quad sys_unshare
- ia32_syscall_end:		
- 	.rept IA32_NR_syscalls-(ia32_syscall_end-ia32_sys_call_table)/8
- 		.quad ni_syscall
-diff -Naurp 2.6.15-rc5-mm2/include/asm-x86_64/ia32_unistd.h
-2.6.15-rc5-mm2+x86_64/include/asm-x86_64/ia32_unistd.h
---- 2.6.15-rc5-mm2/include/asm-x86_64/ia32_unistd.h	2005-10-28
-00:02:08.000000000 +0000
-+++ 2.6.15-rc5-mm2+x86_64/include/asm-x86_64/ia32_unistd.h	2005-12-12
-20:35:35.000000000 +0000
-@@ -299,7 +299,8 @@
- #define __NR_ia32_inotify_init		291
- #define __NR_ia32_inotify_add_watch	292
- #define __NR_ia32_inotify_rm_watch	293
-+#define __NR_ia32_unshare		294
- 
--#define IA32_NR_syscalls 294	/* must be > than biggest syscall! */
-+#define IA32_NR_syscalls 295	/* must be > than biggest syscall! */
- 
- #endif /* _ASM_X86_64_IA32_UNISTD_H_ */
-diff -Naurp 2.6.15-rc5-mm2/include/asm-x86_64/unistd.h
-2.6.15-rc5-mm2+x86_64/include/asm-x86_64/unistd.h
---- 2.6.15-rc5-mm2/include/asm-x86_64/unistd.h	2005-12-12
+diff -Naurp 2.6.15-rc5-mm2/arch/powerpc/kernel/systbl.S
+2.6.15-rc5-mm2+powerpc/arch/powerpc/kernel/systbl.S
+--- 2.6.15-rc5-mm2/arch/powerpc/kernel/systbl.S	2005-12-12
+03:05:39.000000000 +0000
++++ 2.6.15-rc5-mm2+powerpc/arch/powerpc/kernel/systbl.S	2005-12-12
+20:15:54.000000000 +0000
+@@ -322,3 +322,4 @@ SYSCALL(inotify_rm_watch)
+ SYSCALL(spu_run)
+ SYSCALL(spu_create)
+ SYSCALL(migrate_pages)
++SYSCALL(unshare)
+diff -Naurp 2.6.15-rc5-mm2/include/asm-powerpc/unistd.h
+2.6.15-rc5-mm2+powerpc/include/asm-powerpc/unistd.h
+--- 2.6.15-rc5-mm2/include/asm-powerpc/unistd.h	2005-12-12
 03:05:58.000000000 +0000
-+++ 2.6.15-rc5-mm2+x86_64/include/asm-x86_64/unistd.h	2005-12-12
-20:38:12.000000000 +0000
-@@ -573,8 +573,10 @@ __SYSCALL(__NR_inotify_add_watch, sys_in
- __SYSCALL(__NR_inotify_rm_watch, sys_inotify_rm_watch)
- #define __NR_migrate_pages	256
- __SYSCALL(__NR_migrate_pages, sys_migrate_pages)
-+#define __NR_unshare		257
-+__SYSCALL(__NR_unshare, sys_unshare)
++++ 2.6.15-rc5-mm2+powerpc/include/asm-powerpc/unistd.h	2005-12-12
+20:18:03.000000000 +0000
+@@ -299,8 +299,9 @@
+ #define __NR_spu_run		278
+ #define __NR_spu_create		279
+ #define __NR_migrate_pages	280
++#define __NR_unshare		281
  
--#define __NR_syscall_max __NR_migrate_pages
-+#define __NR_syscall_max __NR_unshare
- #ifndef __NO_STUBS
+-#define __NR_syscalls		281
++#define __NR_syscalls		282
  
- /* user-visible error numbers are in the range -1 - -4095 */
+ #ifdef __KERNEL__
+ #define __NR__exit __NR_exit
 
 

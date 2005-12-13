@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbVLMIFc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbVLMIFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751324AbVLMIFc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 03:05:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbVLMIFc
+	id S1751331AbVLMIFF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 03:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbVLMIFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 03:05:32 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:50889 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751324AbVLMIFb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 03:05:31 -0500
-Message-ID: <439E80C4.6020202@pobox.com>
-Date: Tue, 13 Dec 2005 03:05:24 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jesse Barnes <jbarnes@virtuousgeek.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add boot option to control Intel combined mode behavior
- (to allow DMA in combined mode configs!)
-References: <200511282306.38515.jbarnes@virtuousgeek.org> <438CCE0D.7090304@pobox.com> <200511291415.07306.jbarnes@virtuousgeek.org>
-In-Reply-To: <200511291415.07306.jbarnes@virtuousgeek.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 13 Dec 2005 03:05:05 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:38801 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751331AbVLMIFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 03:05:04 -0500
+Subject: Re: Can't build loadable module for 2.6.kernel
+From: Arjan van de Ven <arjan@infradead.org>
+To: Carlos Munoz <carlos@kenati.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <439DD4F8.3040709@kenati.com>
+References: <439DD4F8.3040709@kenati.com>
+Content-Type: text/plain
+Date: Tue, 13 Dec 2005 09:05:01 +0100
+Message-Id: <1134461101.2866.21.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  applied [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
 	pts rule name              description
 	---- ---------------------- --------------------------------------------------
 	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied
+On Mon, 2005-12-12 at 11:52 -0800, Carlos Munoz wrote:
+> Hi all,
+> 
+> I hope this is the right forum for this question.
+> 
+> I'm trying to build a loadable module for a telephony card that includes 
+> several files. Some of the files are source files (written by me) and 
+> some are object files (provided by the chip vendor). I'm unable to link 
+> the vendor object files with the target.
+
+you might want to ask them for the source, lots easier that way as well.
+
 

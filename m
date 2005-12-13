@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932543AbVLMIcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbVLMIcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932543AbVLMIcz (ORCPT <rfc822;willy@w.ods.org>);
+	id S932570AbVLMIcz (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 13 Dec 2005 03:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbVLMIcn
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbVLMIcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 03:32:43 -0500
-Received: from mail.kroah.org ([69.55.234.183]:36227 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932548AbVLMIYp (ORCPT
+	Tue, 13 Dec 2005 03:32:45 -0500
+Received: from mail.kroah.org ([69.55.234.183]:34947 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932543AbVLMIYo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 03:24:45 -0500
-Date: Tue, 13 Dec 2005 00:23:03 -0800
+	Tue, 13 Dec 2005 03:24:44 -0500
+Date: Tue, 13 Dec 2005 00:23:52 -0800
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,13 +17,13 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       dsd@gentoo.org, green@linuxhacker.ru
-Subject: [patch 13/26] 32bit integer overflow in invalidate_inode_pages2()
-Message-ID: <20051213082303.GN5823@kroah.com>
+       linux@rainbow-software.org, bzolnier@gmail.com
+Subject: [patch 23/26] ide-floppy: software eject not working with LS-120 drive
+Message-ID: <20051213082352.GX5823@kroah.com>
 References: <20051213073430.558435000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="32bit-integer-overflow-in-invalidate_inode_pages2.patch"
+Content-Disposition: inline; filename="ide-floppy-software-eject-not-working-with-ls-120-drive.patch"
 In-Reply-To: <20051213082143.GA5823@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -32,40 +32,50 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Oleg Drokin <green@linuxhacker.ru>
+From: Ondrej Zary <linux@rainbow-software.org>
 
-[PATCH] 32bit integer overflow in invalidate_inode_pages2()
+The problem (eject not working on ATAPI LS-120 drive) is caused by
+idefloppy_ioctl() function which *first* tries generic_ide_ioctl()
+and *only* if it fails with -EINVAL, proceeds with the specific ioctls.
+The generic eject command fails with something other than -EINVAL
+and the specific one is never executed.
 
-Fix a 32 bit integer overflow in invalidate_inode_pages2_range.
+This patch fixes it by first going through the internal ioctls
+and only trying generic_ide_ioctl() if none of them matches.
 
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
+Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- mm/truncate.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- linux-2.6.14.3.orig/mm/truncate.c
-+++ linux-2.6.14.3/mm/truncate.c
-@@ -291,8 +291,8 @@ int invalidate_inode_pages2_range(struct
- 					 * Zap the rest of the file in one hit.
- 					 */
- 					unmap_mapping_range(mapping,
--					    page_index << PAGE_CACHE_SHIFT,
--					    (end - page_index + 1)
-+					   (loff_t)page_index<<PAGE_CACHE_SHIFT,
-+					   (loff_t)(end - page_index + 1)
- 							<< PAGE_CACHE_SHIFT,
- 					    0);
- 					did_range_unmap = 1;
-@@ -301,7 +301,7 @@ int invalidate_inode_pages2_range(struct
- 					 * Just zap this page
- 					 */
- 					unmap_mapping_range(mapping,
--					  page_index << PAGE_CACHE_SHIFT,
-+					  (loff_t)page_index<<PAGE_CACHE_SHIFT,
- 					  PAGE_CACHE_SIZE, 0);
- 				}
- 			}
+diff --git a/drivers/ide/ide-floppy.c b/drivers/ide/ide-floppy.c
+index e83f54d..f615ab7 100644
+---
+ drivers/ide/ide-floppy.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+--- linux-2.6.14.3.orig/drivers/ide/ide-floppy.c
++++ linux-2.6.14.3/drivers/ide/ide-floppy.c
+@@ -2038,11 +2038,9 @@ static int idefloppy_ioctl(struct inode 
+ 	struct ide_floppy_obj *floppy = ide_floppy_g(bdev->bd_disk);
+ 	ide_drive_t *drive = floppy->drive;
+ 	void __user *argp = (void __user *)arg;
+-	int err = generic_ide_ioctl(drive, file, bdev, cmd, arg);
++	int err;
+ 	int prevent = (arg) ? 1 : 0;
+ 	idefloppy_pc_t pc;
+-	if (err != -EINVAL)
+-		return err;
+ 
+ 	switch (cmd) {
+ 	case CDROMEJECT:
+@@ -2094,7 +2092,7 @@ static int idefloppy_ioctl(struct inode 
+ 	case IDEFLOPPY_IOCTL_FORMAT_GET_PROGRESS:
+ 		return idefloppy_get_format_progress(drive, argp);
+ 	}
+- 	return -EINVAL;
++	return generic_ide_ioctl(drive, file, bdev, cmd, arg);
+ }
+ 
+ static int idefloppy_media_changed(struct gendisk *disk)
 
 --

@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbVLMMpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbVLMMrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750974AbVLMMpx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 07:45:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbVLMMpx
+	id S1751022AbVLMMrS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 07:47:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbVLMMrS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 07:45:53 -0500
-Received: from mx.laposte.net ([81.255.54.11]:64085 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S1750973AbVLMMpx (ORCPT
+	Tue, 13 Dec 2005 07:47:18 -0500
+Received: from mail1.kontent.de ([81.88.34.36]:25252 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S1750981AbVLMMrR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 07:45:53 -0500
-Message-ID: <17594.192.54.193.25.1134477932.squirrel@rousalka.dyndns.org>
-Date: Tue, 13 Dec 2005 13:45:32 +0100 (CET)
-Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
-From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
-To: "Thomas Gleixner" <tglx@linutronix.de>
-Cc: "Roman Zippel" <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.6 [CVS]-0.cvs20051204.1.fc5.1.nim
+	Tue, 13 Dec 2005 07:47:17 -0500
+From: Oliver Neukum <oliver@neukum.org>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Date: Tue, 13 Dec 2005 13:47:30 +0100
+User-Agent: KMail/1.8
+Cc: David Howells <dhowells@redhat.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       torvalds@osdl.org, akpm@osdl.org, hch@infradead.org,
+       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+References: <439E122E.3080902@yahoo.com.au> <20051213101300.GA2178@elte.hu> <20051213103420.GA6681@elte.hu>
+In-Reply-To: <20051213103420.GA6681@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-Priority: 3 (Normal)
-Importance: Normal
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512131347.30464.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"This is your interpretation and I disagree.
+Am Dienstag, 13. Dezember 2005 11:34 schrieb Ingo Molnar:
 
-If I set up a timer with a 24 hour interval, which should go off
-everyday at 6:00 AM, then I expect that this timer does this even when
-the clock is set e.g. by daylight saving. I think, that this is a
-completely valid interpretation and makes a lot of sense from a
-practical point of view. The existing implementation does it that way
-already, so why do we want to change this ?"
+> the cost of a spinlock-based generic_cmpxchg could be significantly 
+> reduced by adding a generic_cmpxchg() variant that also includes a 
+> 'spinlock pointer' parameter.
+> 
+> Architectures that do not have the instruction, can use the specified 
+> spinlock to do the cmpxchg. This means that there wont be one single 
+> global spinlock to emulate cmpxchg, but the mutex's own spinlock can be 
+> used for it.
 
-Please do not hardcode anywhere 1 day = 24h or something like this.
-Relative timers should stay relative not depend on DST.
+Can't you use the pointer as a hash input?
 
-If someone needs a timer that sets of everyday at the same (legal) time,
-make him ask for everyday at that time not one time + n x 24h.
-
-Some processes need an exact legal hour
-Other processes need an exact duration
-
-In a DST world that's not the same thing at all - don't assume one or the
-other, have coders request exactly what they need and everyone will be
-happy.
-
-I can tell from experience trying to fix code which assumed one day = 24h
-is not fun at all. And yes sometimes the difference between legal and UTC
-time matters a lot.
-
--- 
-Nicolas Mailhot
-
+	Regards
+		Oliver

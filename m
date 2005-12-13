@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbVLMReg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbVLMRhk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbVLMReg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 12:34:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVLMReg
+	id S1750806AbVLMRhk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 12:37:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVLMRhk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 12:34:36 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:10182 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1751104AbVLMRef
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 12:34:35 -0500
-Date: Tue, 13 Dec 2005 10:34:34 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Christoph Hellwig <hch@lst.de>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 3/3] sanitize building of fs/compat_ioctl.c
-Message-ID: <20051213173434.GP9286@parisc-linux.org>
-References: <20051213172325.GC16392@lst.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051213172325.GC16392@lst.de>
-User-Agent: Mutt/1.5.9i
+	Tue, 13 Dec 2005 12:37:40 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:2280 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750806AbVLMRhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 12:37:40 -0500
+Date: Tue, 13 Dec 2005 09:37:11 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Paul Jackson <pj@sgi.com>
+cc: Andrew Morton <akpm@osdl.org>, dada1@cosmosbay.com,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       Simon.Derr@bull.net, ak@suse.de
+Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
+In-Reply-To: <20051213075345.c39f335d.pj@sgi.com>
+Message-ID: <Pine.LNX.4.62.0512130936170.22803@schroedinger.engr.sgi.com>
+References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>
+ <439D39A8.1020806@cosmosbay.com> <20051212020211.1394bc17.pj@sgi.com>
+ <20051212021247.388385da.akpm@osdl.org> <20051213075345.c39f335d.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 06:23:25PM +0100, Christoph Hellwig wrote:
-> [1] parisc still had it's PPP handler left, which is not fully correct
->     for ppp and besides that ppp uses the generic SIOCPRIV ioctl so it'd
->     kick in for all netdevice users.  We can introduce a proper handler
->     in one of the next patch series by adding a compat_ioctl method to
->     struct net_device but for now let's just kill it - parisc doesn't
->     compile in mainline anyway and I don't want this to block this
->     patchset.
+On Tue, 13 Dec 2005, Paul Jackson wrote:
 
-parisc probably does compile in mainline these days.  It's certainly
-much closer than it ever was before.  The 64-bit code doesn't compile
-because Andi keeps blocking the is_compat_task() stuff.  Why not do the
-netdevice compat_ioctl patch before killing this?  I'd hate to have to
-back out this patch in the PA tree.
+> So my intuition is:
+>   If read alot but seldom written, mark "__read_mostly".
+>   If seldom read or written, leave unmarked.
+
+Correct.
+
+>   1) I would -not- mark "struct kmem_cache *cpuset" __read_mostly, as it
+>      is rarely accessed on -any- code path, much less a hot one.  It is
+>      ideal cannon fodder.
+
+Agree.
+

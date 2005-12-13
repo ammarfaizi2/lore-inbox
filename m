@@ -1,92 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbVLMA17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbVLMAar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbVLMA17 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 19:27:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbVLMA17
+	id S932265AbVLMAar (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 19:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVLMAar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 19:27:59 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:2247 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932277AbVLMA16 (ORCPT
+	Mon, 12 Dec 2005 19:30:47 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:12176 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932265AbVLMAaq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 19:27:58 -0500
-Message-ID: <439E1581.40808@pobox.com>
-Date: Mon, 12 Dec 2005 19:27:45 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Mon, 12 Dec 2005 19:30:46 -0500
+To: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [patch 2/4] i386/x86-64: Implement fallback for PCI mmconfig to type1
+References: <20051212192030.873030000@press.kroah.org>
+	<20051212200123.GC27657@kroah.com>
+	<20051212202643.GG9286@parisc-linux.org>
+	<20051212211553.GA29112@suse.de>
+From: Andi Kleen <ak@suse.de>
+Date: 12 Dec 2005 22:02:19 -0700
+In-Reply-To: <20051212211553.GA29112@suse.de>
+Message-ID: <p734q5da8tg.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Greg Kroah-Hartman <gregkh@suse.de>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       stern@rowland.harvard.edu
-Subject: Re: [patch 4/4] UHCI: add missing memory barriers
-References: <20051212192030.873030000@press.kroah.org> <20051212200136.GE27657@kroah.com>
-In-Reply-To: <20051212200136.GE27657@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Greg Kroah-Hartman wrote: > From: Alan Stern
-	<stern@rowland.harvard.edu> > > This patch (as617) adds a couple of
-	memory barriers that Ben H. forgot in > his recent suspend/resume fix.
-	> > Signed-off-by: Alan Stern <stern@rowland.harvard.edu> >
-	Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de> > > --- >
-	drivers/usb/host/uhci-hcd.c | 2 ++ > 1 file changed, 2 insertions(+) >
-	> --- greg-2.6.orig/drivers/usb/host/uhci-hcd.c > +++
-	greg-2.6/drivers/usb/host/uhci-hcd.c > @@ -717,6 +717,7 @@ static int
-	uhci_suspend(struct usb_hcd * > * at the source, so we must turn off
-	PIRQ. > */ > pci_write_config_word(to_pci_dev(uhci_dev(uhci)),
-	USBLEGSUP, 0); > + mb(); > clear_bit(HCD_FLAG_HW_ACCESSIBLE,
-	&hcd->flags); > uhci->hc_inaccessible = 1; > hcd->poll_rh = 0; > @@
-	-738,6 +739,7 @@ static int uhci_resume(struct usb_hcd *h > * really
-	don't want to keep a stale HCD_FLAG_HW_ACCESSIBLE=0 > */ >
-	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags); > + mb(); [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Kroah-Hartman wrote:
-> From: Alan Stern <stern@rowland.harvard.edu>
+
+Sorry Greg, Linus,
+
+I also submitted the two PCI patches on my own with the x86-64
+patchkit, hopefully the duplication doesn't cause too much trouble.
+
+Greg KH <gregkh@suse.de> writes:
 > 
-> This patch (as617) adds a couple of memory barriers that Ben H. forgot in
-> his recent suspend/resume fix.
-> 
-> Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> 
-> ---
->  drivers/usb/host/uhci-hcd.c |    2 ++
->  1 file changed, 2 insertions(+)
-> 
-> --- greg-2.6.orig/drivers/usb/host/uhci-hcd.c
-> +++ greg-2.6/drivers/usb/host/uhci-hcd.c
-> @@ -717,6 +717,7 @@ static int uhci_suspend(struct usb_hcd *
->  	 * at the source, so we must turn off PIRQ.
->  	 */
->  	pci_write_config_word(to_pci_dev(uhci_dev(uhci)), USBLEGSUP, 0);
-> +	mb();
->  	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
->  	uhci->hc_inaccessible = 1;
->  	hcd->poll_rh = 0;
-> @@ -738,6 +739,7 @@ static int uhci_resume(struct usb_hcd *h
->  	 * really don't want to keep a stale HCD_FLAG_HW_ACCESSIBLE=0
->  	 */
->  	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
-> +	mb();
+> From what I can tell, it's too late in the callstack for us to change
+> the read ops for this device to be the other one.  The problem is (and
+> Andi can correct me if I'm wrong), some boxes basically have incomplete
+> MCFG acpi tables (the tables do not describe all PCI busses that are
+> present in the box).  But we don't realize this until we are about to do
+> the read function.
 
-Are these just guesses, or what?
+It can happen with perfectly legal MCFG tables. If a bus is not listed
+in MCFG then we must fallback to type1. This happens on AMD K8 systems
+because the busses in the builtin northbridge don't support mmconfig,
+only busses on external bridges do. In theory it could happen on
+other systems too (although external northbridges typically support
+mmconfig for everything if they do at all) 
 
-Why not smp_mb__before_clear_bit() or smp_mb__after_clear_bit() ?
+In addition we have some boxes with broken MCFG tables who don't get
+the tables right, this is what the next patch was trying to fix.
 
-	Jeff
+> I remember I looked into trying to set this up at probe/init time, and
+> it was almost impossible to do so, due to the structure of the code.
 
+Yes, I also didn't see an easy way to do it, although it would be probably DTRT. 
 
-
+-Andi

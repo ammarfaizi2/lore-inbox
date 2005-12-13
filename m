@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbVLMBsq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbVLMBtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbVLMBsq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 20:48:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVLMBsq
+	id S932341AbVLMBtu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 20:49:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932343AbVLMBtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 20:48:46 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:8402 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932342AbVLMBsp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 20:48:45 -0500
-Date: Mon, 12 Dec 2005 17:48:19 -0800
+	Mon, 12 Dec 2005 20:49:49 -0500
+Received: from fmr24.intel.com ([143.183.121.16]:14011 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932341AbVLMBtt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 20:49:49 -0500
+Date: Mon, 12 Dec 2005 17:49:27 -0800
 From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
 To: linux-kernel <linux-kernel@vger.kernel.org>
 Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Andi Kleen <ak@suse.de>, Rohit Seth <rohit.seth@intel.com>,
        Len Brown <len.brown@intel.com>
-Subject: [PATCH 1/3]i386,x86-64 (take 2) Handle missing local APIC timer interrupts on C3 state
-Message-ID: <20051212174819.B10234@unix-os.sc.intel.com>
+Subject: [PATCH 2/3]i386,x86-64 (take 2) Handle missing local APIC timer interrupts on C3 state
+Message-ID: <20051212174927.C10234@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -27,195 +27,217 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Remove the finer control of local APIC timer. We cannot provide a sub-jiffy
-control like this when we use broadcast from external timer in place of 
-local APIC. Instead of removing this only on systems that may end up using 
-broadcast from external timer (due to C3), I am going the
-"I'm feeling lucky" way to remove this fully. Basically, I am not sure about
-usefulness of this code today. Few other architectures also don't seem to 
-support this today. 
+Whenever we see that a CPU is capable of C3 (during ACPI cstate init), we 
+disable local APIC timer and switch to using a broadcast from external timer
+interrupt (IRQ 0).
 
-If you are using profiling and fine grained control and don't like this going
-away in normal case, yell at me right now.
+Patch below adds the code for i386 and also the ACPI hunk.
 
 Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
 
-Index: linux-2.6.15-rc3/arch/x86_64/kernel/apic.c
+Index: linux-2.6.15-rc3/arch/i386/kernel/time.c
 ===================================================================
---- linux-2.6.15-rc3.orig/arch/x86_64/kernel/apic.c
-+++ linux-2.6.15-rc3/arch/x86_64/kernel/apic.c
-@@ -41,10 +41,6 @@ int disable_apic_timer __initdata;
- /* Using APIC to generate smp_local_timer_interrupt? */
- int using_apic_timer = 0;
+--- linux-2.6.15-rc3.orig/arch/i386/kernel/time.c
++++ linux-2.6.15-rc3/arch/i386/kernel/time.c
+@@ -302,6 +302,12 @@ irqreturn_t timer_interrupt(int irq, voi
+ 	do_timer_interrupt(irq, regs);
  
--static DEFINE_PER_CPU(int, prof_multiplier) = 1;
--static DEFINE_PER_CPU(int, prof_old_multiplier) = 1;
--static DEFINE_PER_CPU(int, prof_counter) = 1;
--
- static void apic_pm_activate(void);
- 
- void enable_NMI_through_LVT0 (void * dummy)
-@@ -805,32 +801,9 @@ void enable_APIC_timer(void)
- 	}
+ 	write_sequnlock(&xtime_lock);
++
++#ifdef CONFIG_X86_LOCAL_APIC
++	if (using_apic_timer)
++		smp_send_timer_broadcast_ipi(regs);
++#endif
++
+ 	return IRQ_HANDLED;
  }
  
--/*
-- * the frequency of the profiling timer can be changed
-- * by writing a multiplier value into /proc/profile.
-- */
- int setup_profiling_timer(unsigned int multiplier)
- {
--	int i;
--
--	/*
--	 * Sanity check. [at least 500 APIC cycles should be
--	 * between APIC interrupts as a rule of thumb, to avoid
--	 * irqs flooding us]
--	 */
--	if ( (!multiplier) || (calibration_result/multiplier < 500))
--		return -EINVAL;
--
--	/* 
--	 * Set the new multiplier for each CPU. CPUs don't start using the
--	 * new values until the next timer interrupt in which they do process
--	 * accounting. At that time they also adjust their APIC timers
--	 * accordingly.
--	 */
--	for (i = 0; i < NR_CPUS; ++i)
--		per_cpu(prof_multiplier, i) = multiplier;
--
--	return 0;
-+	return -EINVAL;
- }
+Index: linux-2.6.15-rc3/include/asm-i386/apic.h
+===================================================================
+--- linux-2.6.15-rc3.orig/include/asm-i386/apic.h
++++ linux-2.6.15-rc3/include/asm-i386/apic.h
+@@ -132,6 +132,11 @@ extern unsigned int nmi_watchdog;
  
- #ifdef CONFIG_X86_MCE_AMD
-@@ -857,32 +830,10 @@ void setup_threshold_lvt(unsigned long l
+ extern int disable_timer_pin_1;
  
- void smp_local_timer_interrupt(struct pt_regs *regs)
- {
--	int cpu = smp_processor_id();
--
- 	profile_tick(CPU_PROFILING, regs);
--	if (--per_cpu(prof_counter, cpu) <= 0) {
--		/*
--		 * The multiplier may have changed since the last time we got
--		 * to this point as a result of the user writing to
--		 * /proc/profile. In this case we need to adjust the APIC
--		 * timer accordingly.
--		 *
--		 * Interrupts are already masked off at this point.
--		 */
--		per_cpu(prof_counter, cpu) = per_cpu(prof_multiplier, cpu);
--		if (per_cpu(prof_counter, cpu) != 
--		    per_cpu(prof_old_multiplier, cpu)) {
--			__setup_APIC_LVTT(calibration_result/
--					per_cpu(prof_counter, cpu));
--			per_cpu(prof_old_multiplier, cpu) =
--				per_cpu(prof_counter, cpu);
--		}
--
- #ifdef CONFIG_SMP
--		update_process_times(user_mode(regs));
-+	update_process_times(user_mode(regs));
- #endif
--	}
--
- 	/*
- 	 * We take the 'long' return path, and there every subsystem
- 	 * grabs the appropriate locks (kernel lock/ irq lock).
++void smp_send_timer_broadcast_ipi(struct pt_regs *regs);
++void switch_APIC_timer_to_ipi(void *cpumask);
++void switch_ipi_to_APIC_timer(void *cpumask);
++#define ARCH_APICTIMER_STOPS_ON_C3	1
++
+ #else /* !CONFIG_X86_LOCAL_APIC */
+ static inline void lapic_shutdown(void) { }
+ 
 Index: linux-2.6.15-rc3/arch/i386/kernel/apic.c
 ===================================================================
 --- linux-2.6.15-rc3.orig/arch/i386/kernel/apic.c
 +++ linux-2.6.15-rc3/arch/i386/kernel/apic.c
-@@ -92,10 +92,6 @@ void __init apic_intr_init(void)
- /* Using APIC to generate smp_local_timer_interrupt? */
- int using_apic_timer = 0;
+@@ -26,6 +26,7 @@
+ #include <linux/kernel_stat.h>
+ #include <linux/sysdev.h>
+ #include <linux/cpu.h>
++#include <linux/module.h>
  
--static DEFINE_PER_CPU(int, prof_multiplier) = 1;
--static DEFINE_PER_CPU(int, prof_old_multiplier) = 1;
--static DEFINE_PER_CPU(int, prof_counter) = 1;
--
- static int enabled_via_apicbase;
+ #include <asm/atomic.h>
+ #include <asm/smp.h>
+@@ -37,10 +38,17 @@
+ #include <asm/i8253.h>
  
- void enable_NMI_through_LVT0 (void * dummy)
-@@ -1092,34 +1088,6 @@ void enable_APIC_timer(void)
+ #include <mach_apic.h>
++#include <mach_ipi.h>
+ 
+ #include "io_ports.h"
+ 
+ /*
++ * cpu_mask that denotes the CPUs that needs timer interrupt coming in as
++ * IPIs in place of local APIC timers
++ */
++static cpumask_t timer_interrupt_broadcast_ipi_mask;
++
++/*
+  * Knob to control our willingness to enable the local APIC.
+  */
+ int enable_local_apic __initdata = 0; /* -1=force-disable, +1=force-enable */
+@@ -931,11 +939,16 @@ void (*wait_timer_tick)(void) __devinitd
+ static void __setup_APIC_LVTT(unsigned int clocks)
+ {
+ 	unsigned int lvtt_value, tmp_value, ver;
++	int cpu = smp_processor_id();
+ 
+ 	ver = GET_APIC_VERSION(apic_read(APIC_LVR));
+ 	lvtt_value = APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
+ 	if (!APIC_INTEGRATED(ver))
+ 		lvtt_value |= SET_APIC_TIMER_BASE(APIC_TIMER_BASE_DIV);
++
++	if (cpu_isset(cpu, timer_interrupt_broadcast_ipi_mask))
++		apic_write_around(APIC_LVTT, lvtt_value | APIC_LVT_MASKED);
++
+ 	apic_write_around(APIC_LVTT, lvtt_value);
+ 
+ 	/*
+@@ -1068,7 +1081,7 @@ void __devinit setup_secondary_APIC_cloc
+ 	setup_APIC_timer(calibration_result);
+ }
+ 
+-void __devinit disable_APIC_timer(void)
++void disable_APIC_timer(void)
+ {
+ 	if (using_apic_timer) {
+ 		unsigned long v;
+@@ -1080,7 +1093,10 @@ void __devinit disable_APIC_timer(void)
+ 
+ void enable_APIC_timer(void)
+ {
+-	if (using_apic_timer) {
++	int cpu = smp_processor_id();
++
++	if (using_apic_timer &&
++	    !cpu_isset(cpu, timer_interrupt_broadcast_ipi_mask)) {
+ 		unsigned long v;
+ 
+ 		v = apic_read(APIC_LVTT);
+@@ -1088,6 +1104,32 @@ void enable_APIC_timer(void)
  	}
  }
  
--/*
-- * the frequency of the profiling timer can be changed
-- * by writing a multiplier value into /proc/profile.
-- */
--int setup_profiling_timer(unsigned int multiplier)
--{
--	int i;
--
--	/*
--	 * Sanity check. [at least 500 APIC cycles should be
--	 * between APIC interrupts as a rule of thumb, to avoid
--	 * irqs flooding us]
--	 */
--	if ( (!multiplier) || (calibration_result/multiplier < 500))
--		return -EINVAL;
--
--	/* 
--	 * Set the new multiplier for each CPU. CPUs don't start using the
--	 * new values until the next timer interrupt in which they do process
--	 * accounting. At that time they also adjust their APIC timers
--	 * accordingly.
--	 */
--	for (i = 0; i < NR_CPUS; ++i)
--		per_cpu(prof_multiplier, i) = multiplier;
--
--	return 0;
--}
--
++void switch_APIC_timer_to_ipi(void *cpumask)
++{
++	cpumask_t mask = *(cpumask_t *)cpumask;
++	int cpu = smp_processor_id();
++
++	if (cpu_isset(cpu, mask) && 
++	    !cpu_isset(cpu, timer_interrupt_broadcast_ipi_mask)) {
++		disable_APIC_timer();
++		cpu_set(cpu, timer_interrupt_broadcast_ipi_mask);
++	}
++}
++EXPORT_SYMBOL(switch_APIC_timer_to_ipi);
++
++void switch_ipi_to_APIC_timer(void *cpumask)
++{
++	cpumask_t mask = *(cpumask_t *)cpumask;
++	int cpu = smp_processor_id();
++
++	if (cpu_isset(cpu, mask) &&
++	    cpu_isset(cpu, timer_interrupt_broadcast_ipi_mask)) {
++		cpu_clear(cpu, timer_interrupt_broadcast_ipi_mask);
++		enable_APIC_timer();
++	}
++}
++EXPORT_SYMBOL(switch_ipi_to_APIC_timer);
++		
  #undef APIC_DIVISOR
  
  /*
-@@ -1134,32 +1102,10 @@ int setup_profiling_timer(unsigned int m
- 
- inline void smp_local_timer_interrupt(struct pt_regs * regs)
- {
--	int cpu = smp_processor_id();
--
- 	profile_tick(CPU_PROFILING, regs);
--	if (--per_cpu(prof_counter, cpu) <= 0) {
--		/*
--		 * The multiplier may have changed since the last time we got
--		 * to this point as a result of the user writing to
--		 * /proc/profile. In this case we need to adjust the APIC
--		 * timer accordingly.
--		 *
--		 * Interrupts are already masked off at this point.
--		 */
--		per_cpu(prof_counter, cpu) = per_cpu(prof_multiplier, cpu);
--		if (per_cpu(prof_counter, cpu) !=
--					per_cpu(prof_old_multiplier, cpu)) {
--			__setup_APIC_LVTT(
--					calibration_result/
--					per_cpu(prof_counter, cpu));
--			per_cpu(prof_old_multiplier, cpu) =
--						per_cpu(prof_counter, cpu);
--		}
--
- #ifdef CONFIG_SMP
--		update_process_times(user_mode_vm(regs));
-+	update_process_times(user_mode_vm(regs));
- #endif
--	}
- 
- 	/*
- 	 * We take the 'long' return path, and there every subsystem
-@@ -1206,6 +1152,11 @@ fastcall void smp_apic_timer_interrupt(s
+@@ -1152,6 +1194,38 @@ fastcall void smp_apic_timer_interrupt(s
  	irq_exit();
  }
  
-+int setup_profiling_timer(unsigned int multiplier)
++#ifndef CONFIG_SMP
++static void up_apic_timer_interrupt_call(struct pt_regs *regs)
 +{
-+	return -EINVAL;
++	int cpu = smp_processor_id();
++
++	/*
++	 * the NMI deadlock-detector uses this.
++	 */
++	per_cpu(irq_stat, cpu).apic_timer_irqs++;
++
++	smp_local_timer_interrupt(regs);
++}
++#endif
++
++void smp_send_timer_broadcast_ipi(struct pt_regs *regs)
++{
++	cpumask_t mask;
++
++	cpus_and(mask, cpu_online_map, timer_interrupt_broadcast_ipi_mask);
++	if (!cpus_empty(mask)) {
++#ifdef CONFIG_SMP
++		send_IPI_mask(mask, LOCAL_TIMER_VECTOR);
++#else
++		/*
++		 * We can directly call the apic timer interrupt handler 
++		 * in UP case. Minus all irq related functions
++		 */
++		up_apic_timer_interrupt_call(regs);
++#endif
++	}
 +}
 +
- /*
-  * This interrupt should _never_ happen with our APIC/SMP architecture
-  */
+ int setup_profiling_timer(unsigned int multiplier)
+ {
+ 	return -EINVAL;
+Index: linux-2.6.15-rc3/drivers/acpi/processor_idle.c
+===================================================================
+--- linux-2.6.15-rc3.orig/drivers/acpi/processor_idle.c
++++ linux-2.6.15-rc3/drivers/acpi/processor_idle.c
+@@ -929,6 +929,15 @@ static int acpi_processor_power_verify(s
+ 	unsigned int i;
+ 	unsigned int working = 0;
+ 
++#ifdef ARCH_APICTIMER_STOPS_ON_C3
++	struct cpuinfo_x86 *c = cpu_data + pr->id;
++	cpumask_t mask = cpumask_of_cpu(pr->id);
++
++	if (c->x86_vendor == X86_VENDOR_INTEL) {
++		on_each_cpu(switch_ipi_to_APIC_timer, &mask, 1, 1);
++	}
++#endif
++
+ 	for (i = 1; i < ACPI_PROCESSOR_MAX_POWER; i++) {
+ 		struct acpi_processor_cx *cx = &pr->power.states[i];
+ 
+@@ -943,6 +952,12 @@ static int acpi_processor_power_verify(s
+ 
+ 		case ACPI_STATE_C3:
+ 			acpi_processor_power_verify_c3(pr, cx);
++#ifdef ARCH_APICTIMER_STOPS_ON_C3
++			if (c->x86_vendor == X86_VENDOR_INTEL) {
++				on_each_cpu(switch_APIC_timer_to_ipi, 
++						&mask, 1, 1);
++			}
++#endif
+ 			break;
+ 		}
+ 

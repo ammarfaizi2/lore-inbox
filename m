@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbVLMPGv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964974AbVLMPQW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964991AbVLMPGv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 10:06:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964992AbVLMPGv
+	id S964974AbVLMPQW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 10:16:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964996AbVLMPQW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 10:06:51 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:27855 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S964991AbVLMPGu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 10:06:50 -0500
-Date: Tue, 13 Dec 2005 10:06:48 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Andrew Morton <akpm@osdl.org>
-cc: Keith Owens <kaos@sgi.com>, <sekharan@us.ibm.com>, <ak@suse.de>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH 0/7]: Fix for unsafe notifier chain 
-In-Reply-To: <7639.1134450150@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.44L0.0512131005150.4831-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 13 Dec 2005 10:16:22 -0500
+Received: from loon.tech9.net ([69.20.54.92]:39865 "EHLO loon.tech9.net")
+	by vger.kernel.org with ESMTP id S964974AbVLMPQV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 10:16:21 -0500
+Subject: Re: tp_smapi conflict with IDE, hdaps
+From: Robert Love <rlove@rlove.org>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Jens Axboe <axboe@suse.de>
+In-Reply-To: <41840b750512130635p45591633ya1df731f24a87658@mail.gmail.com>
+References: <41840b750512130635p45591633ya1df731f24a87658@mail.gmail.com>
+Content-Type: text/plain
+Date: Tue, 13 Dec 2005 10:14:03 -0500
+Message-Id: <1134486843.28684.89.camel@betsy.boston.ximian.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Dec 2005, Keith Owens wrote:
+On Tue, 2005-12-13 at 16:35 +0200, Shem Multinymous wrote:
 
-> On Thu, 8 Dec 2005 14:53:56 -0500 (EST), 
-> Alan Stern <stern@rowland.harvard.edu> wrote:
-> >The code below defines three new data structures: atomic_notifier_head,
-> >blocking_notifier_head, and raw_notifier_head.  The first two correspond
-> >to what we had in the earlier patch, and raw_notifier_head is almost the
-> >same as the current implementation, with no locking or protection at all.  
-> 
-> Acked-By: Keith Owens <kaos@sgi.com>
-> 
-> I do not care how this problem is fixed, I am happy with any solution that
-> 
-> (a) stops notify chains being racy and
-> (b) allows users of notify_die() to be safely unloaded.
+> Conflict with the "hdaps" module:
+> Another function provided by tp_smapi is reporting extended battery
+> status, including some data not provided through ACPI. This conflict
+> with the recently added HDAPS accelerometer driver. Both drivers read
+> their data from the same ports (0x1604-0x161F), which implement a
+> query-reponse transaction interface, so both drivers talking to the
+> hardware simultaneously will wreak havoc. Some synchronization is
+> needed, and a way to address the request_region conflict.
 
-Andrew, I've been waiting to hear back about this.  Was that latest
-proposal (three separate types of notifier chains, each with its own API,
-one of them being completely raw) acceptable?
+Alan's response is the correct course of action here, but I have a
+question: What other data in 0x1604-0x161F is there?
 
-Alan Stern
+	Robert Love
+
 

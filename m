@@ -1,83 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751015AbVLMPjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbVLMPkM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751015AbVLMPjA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 10:39:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbVLMPjA
+	id S932263AbVLMPkM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 10:40:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932261AbVLMPkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 10:39:00 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:41444 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750806AbVLMPi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 10:38:59 -0500
-Subject: Re: tp_smapi conflict with IDE, hdaps
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Shem Multinymous <multinymous@gmail.com>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Rovert Love <rlove@rlove.org>,
-       Jens Axboe <axboe@suse.de>, linux-ide@vger.kernel.org
-In-Reply-To: <41840b750512130729y49903791xc9ceba4e6a18322e@mail.gmail.com>
-References: <41840b750512130635p45591633ya1df731f24a87658@mail.gmail.com>
-	 <1134486203.11732.60.camel@localhost.localdomain>
-	 <41840b750512130729y49903791xc9ceba4e6a18322e@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 13 Dec 2005 15:38:25 +0000
-Message-Id: <1134488305.11732.74.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 13 Dec 2005 10:40:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:8868 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932185AbVLMPkK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 10:40:10 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <439EDC3D.5040808@nortel.com> 
+References: <439EDC3D.5040808@nortel.com>  <1134479118.11732.14.camel@localhost.localdomain> <dhowells1134431145@warthog.cambridge.redhat.com> <3874.1134480759@warthog.cambridge.redhat.com> 
+To: "Christopher Friesen" <cfriesen@nortel.com>
+Cc: David Howells <dhowells@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       torvalds@osdl.org, akpm@osdl.org, hch@infradead.org,
+       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Tue, 13 Dec 2005 15:39:33 +0000
+Message-ID: <15167.1134488373@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-12-13 at 17:29 +0200, Shem Multinymous wrote:
-> Sure, that would be ideal. But how? You can't get that from the SMAPI
-> BIOS - it's totally opaque. You just write a constant to port 0xB2,
-> which triggers an SMI; the BIOS merrily does its thing in SMM and
-> returns; you see the final results in the CPU registers.
+Christopher Friesen <cfriesen@nortel.com> wrote:
 
-Sounds like it needs someone with an ATA bus analyser, or of course
-someone from IBM to be helpful
-
-> The thing is, there *is* a working interface, which is also used by
-> the Windows drivers...
-
-And the BIOS and driver hackers for IBM wrote both bits and had all the
-source and made them aware of each other. We don't have that luxury.
-
-> > Trying to arbitrate libata access with unknown bios behaviour isn't going to have a
-> > sane resolution.
+> > Which would be a _lot_ more work. It would involve about ten times as many
+> > changes, I think, and thus be more prone to errors.
 > 
-> Why? BTW, isn't this similar to the queue freeze functionality needed
-> by the disk park part of the ThinkPad HDAPS?
+> "lots of work" has never been a valid reason for not doing a kernel change...
 
-What else does that code do, what else might it confuse, what rules and
-locking are hidden in the windows driver that are unknown. Want to risk
-everyones data for that ?
+There are a number of considerations:
 
-HDAPS doesn't need it btw.
+ (1) If _I_ am going to be doing the work, then I'm quite happy to reduce the
+     load by 90%. And I think it'd be at least that, probably more. Finding
+     struct semaphore with grep is much easier than finding up/down with grep
+     because of:
 
-> We don't understand the controller interface sufficiently well to
-> fully abstract it (no specs, and the two conflicting drivers do things
-> somewhat differently), so for now the low-level driver may only handle
-> locking... Is there an easier way to just share a mutex?
+	(a) comments
 
-Yes but that isn't neccessarily the right thing to do. You want the
-abstraction for the resource ownership and expansion. Can you summarize
-the two drivers interaction with the ports ?
+	(b) other instances of up/down names, including rw_semaphores
 
-> Anyway, can you point out a minimal example (or two) of such low-level
-> drivers in the current kernel, so I can imitate the recommended
-> interface convention?
+     There are a lot fewer instances of struct semaphore than up and down.
 
-One large scale example is the i2c bus code which has to deal with
-multiple devices on multiple busses all being used by multiple people at
-the same time.
+ (2) It makes it easier for other people. In most cases, all they need do is
+     change "struct semaphore" to "struct mutex". If they've used
+     DECLARE_MUTEX() then they need do nothing at all, and if they've used
+     init_MUTEX(), then they don't need to convert sema_init() either.
 
-Another is I2O where the I2O core code owns the I2O controller and the
-detail for it and is used by various device drivers on top. That one is
-fairly high level however and not exactly minimal.
+ (3) It forces people to reconsider how they want to use their semaphores.
 
-It may well be that in your case the 'core' module can only identify the
-ports, claim them, release them on unload and provide 'lock' and
-'unlock' functions and the base address.
+I have no objection to making life easier for other people. I suspect most
+other people don't care that their semaphores are now mutexes, and think of
+them that way anyway.
 
+I admit that there are downsides:
 
+ (1) up and down now do something effectively different (though in most cases
+     it's also exactly the same).
+
+ (2) Users of counting semaphores have to change, but they're in the minority
+     by quite a way.
+
+ (3) Some people want mutexes to be:
+
+     (a) only releasable in the same context as they were taken
+
+     (b) not accessible in interrupt context, or that (a) applies here also
+
+     (c) not initialisable to the locked state
+
+     But this means that the current usages all have to be carefully audited,
+     and sometimes that unobvious.
+
+David

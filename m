@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbVLMPcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVLMPfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbVLMPcb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 10:32:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbVLMPcb
+	id S932141AbVLMPfY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 10:35:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbVLMPfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 10:32:31 -0500
-Received: from mx2.suse.de ([195.135.220.15]:46051 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932120AbVLMPca (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 10:32:30 -0500
-Message-ID: <439EE986.20106@suse.de>
-Date: Tue, 13 Dec 2005 16:32:22 +0100
-From: Gerd Knorr <kraxel@suse.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
-X-Accept-Language: en-us, en
+	Tue, 13 Dec 2005 10:35:24 -0500
+Received: from iolanthe.rowland.org ([192.131.102.54]:41145 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932141AbVLMPfY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 10:35:24 -0500
+Date: Tue, 13 Dec 2005 10:35:23 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] Re: 2.6.15-rc5-mm1
+In-Reply-To: <20051213145112.46301af0@werewolf.auna.net>
+Message-ID: <Pine.LNX.4.44L0.0512131032200.4831-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/2] uml/xen: make the vt subsystem a runtime option
-References: <439EE38C.6020602@suse.de> <20051213152121.GA4335@infradead.org>
-In-Reply-To: <20051213152121.GA4335@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Tue, Dec 13, 2005 at 04:06:52PM +0100, Gerd Knorr wrote:
->>  #ifdef CONFIG_VT
->> -	if (device == MKDEV(TTY_MAJOR,0)) {
->> +	if (console_use_vt && device == MKDEV(TTY_MAJOR,0)) {
+On Tue, 13 Dec 2005, J.A. Magallon wrote:
+
+> Bingo! This corrected the problem. I applied it to rc5-mm2 and booted nicely.
+> One less bug.
 > 
-> You don't register a cdev for this one below, so this can't be reached.
+> A side question. Are this messages dangerous ?
+> 
+> hub 4-0:1.0: USB hub found
+> hub 4-0:1.0: 2 ports detected
+> ACPI: PCI Interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 19
+> PCI: Setting latency timer of device 0000:00:1d.7 to 64
+> ehci_hcd 0000:00:1d.7: EHCI Host Controller
+> PCI: cache line size of 128 is not supported by device 0000:00:1d.7
+>     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-It can be reached in uml kernels.  Unless the vt subsystem is enabled 
-the uml kernel registeres a uml-specific tty driver with major #5 (see 
-arch/um/drivers/stdio_console.c).
+I don't think that matters.  It's more informational than a warning.
 
-cheers,
+> ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 5
+> ehci_hcd 0000:00:1d.7: irq 19, io mem 0xed200000
+> ehci_hcd 0000:00:1d.7: USB 2.0 started, EHCI 1.00, driver 10 Dec 2004
+> usb 1-1: unable to read config index 0 descriptor/all
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> usb 1-1: can't read configurations, error -71
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   Gerd
+These messages indicate a real problem.  The device plugged into your 
+first USB port didn't respond to a request.  It might not matter though, 
+because the system will retry.  If the device works then you don't need to 
+worry about it.
+
+Alan Stern
+

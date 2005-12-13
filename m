@@ -1,43 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbVLMH7F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbVLMIAP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbVLMH7F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 02:59:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbVLMH7F
+	id S1751338AbVLMIAP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 03:00:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbVLMIAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 02:59:05 -0500
-Received: from mx2.suse.de ([195.135.220.15]:52147 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751331AbVLMH7D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 02:59:03 -0500
-Date: Tue, 13 Dec 2005 08:58:35 +0100
-From: Andi Kleen <ak@suse.de>
+	Tue, 13 Dec 2005 03:00:15 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:2952 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751324AbVLMIAN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 03:00:13 -0500
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+From: Arjan van de Ven <arjan@infradead.org>
 To: Ingo Molnar <mingo@elte.hu>
 Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       torvalds@osdl.org, hch@infradead.org, arjan@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Message-ID: <20051213075835.GZ15804@wotan.suse.de>
-References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+       torvalds@osdl.org, hch@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
 In-Reply-To: <20051213075441.GB6765@elte.hu>
+References: <dhowells1134431145@warthog.cambridge.redhat.com>
+	 <20051212161944.3185a3f9.akpm@osdl.org>  <20051213075441.GB6765@elte.hu>
+Content-Type: text/plain
+Date: Tue, 13 Dec 2005 09:00:04 +0100
+Message-Id: <1134460804.2866.17.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 1.8 (+)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (1.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[213.93.14.173 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[213.93.14.173 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-12-13 at 08:54 +0100, Ingo Molnar wrote:
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > I'd have thought that the way to do this is to simply reimplement 
+> > down(), up(), down_trylock(), etc using the new xchg-based code and to 
+> > then hunt down those few parts of the kernel which actually use the 
+> > old semaphore's counting feature and convert them to use down_sem(), 
+> > up_sem(), etc.  And rename all the old semaphore code: 
+> > s/down/down_sem/etc.
+> 
+> even better than that, why not use the solution that we've implemented 
+> for the -rt patchset, more than a year ago?
+> 
+> the solution i took was this:
+> 
+> - i did not touch the 'struct semaphore' namespace, but introduced a
+>   'struct compat_semaphore'.
+
+which I think is wrong. THis naming sucks. Sure doing a full sed on the
+tree is not pretty but it's also not THAT painful. And the pain of wrong
+names is something the kernel needs to carry around for years.
+> 
 > - i introduced a 'type-sensitive' macro wrapper that switches down() 
 >   (and the other APIs) to either to the assembly variant (if the 
 >   variable's type is struct compat_semaphore), or switches it to the new 
 >   generic mutex (if the type is struct semaphore), at build-time. There 
 >   is no runtime overhead due to this build-time-switching.
 
-Didn't that drop compatibility with 2.95?  The necessary builtins
-are only in 3.x. 
+while this is a smart trick, I rather prefer seperate functions, just so
+that people are "aware" which they use. Since 99% of the users is a
+mutex anyway, the new names are only used in a few special cases.
 
-Not that I'm not in favour - I would like to use C99 everywhere 
-and it would get of the ugly spinlock workaround for i386
-and x86-64 doesn't support earlier compilers anyways - 
-but others might not agree.
 
--Andi

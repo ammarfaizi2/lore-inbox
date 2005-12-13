@@ -1,34 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbVLMOIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVLMOI1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbVLMOIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 09:08:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVLMOIZ
+	id S932322AbVLMOI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 09:08:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVLMOI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 09:08:25 -0500
-Received: from anubis.fi.muni.cz ([147.251.54.96]:58302 "EHLO
-	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S932321AbVLMOIY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 09:08:24 -0500
-Date: Tue, 13 Dec 2005 15:07:49 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: QLA2300 driver
-Message-ID: <20051213140749.GJ2511@mail.muni.cz>
+	Tue, 13 Dec 2005 09:08:27 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:59403 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932322AbVLMOI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 09:08:26 -0500
+Date: Tue, 13 Dec 2005 15:08:26 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Matt Tolentino <matthew.e.tolentino@intel.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/base/memory.c: unexport the static (sic) memory_sysdev_class
+Message-ID: <20051213140826.GH23349@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+We can't export a static struct to modules.
 
-does anyone use qla2300 driver with HP MSA1500 array connected via fibre
-channel with 2.6.x vanila kernels? Storage volumes works for me, but hpacucli
-nor cpqacuxe does not detect any controller to be configured. Does anyone know
-how to solve this? Thanks.
 
--- 
-Luká¹ Hejtmánek
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.15-rc5-mm2-full/drivers/base/memory.c.old	2005-12-13 15:00:17.000000000 +0100
++++ linux-2.6.15-rc5-mm2-full/drivers/base/memory.c	2005-12-13 15:00:28.000000000 +0100
+@@ -28,7 +28,6 @@
+ static struct sysdev_class memory_sysdev_class = {
+ 	set_kset_name(MEMORY_CLASS_NAME),
+ };
+-EXPORT_SYMBOL(memory_sysdev_class);
+ 
+ static const char *memory_uevent_name(struct kset *kset, struct kobject *kobj)
+ {
+

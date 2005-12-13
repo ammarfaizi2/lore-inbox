@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVLMC77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbVLMDAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbVLMC77 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 21:59:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVLMC77
+	id S932383AbVLMDAd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 22:00:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVLMDAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 21:59:59 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:2439 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932364AbVLMC76 (ORCPT
+	Mon, 12 Dec 2005 22:00:33 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:57505 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932383AbVLMDAW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 21:59:58 -0500
-Subject: [PATCH -mm 0/9] unshare system call (take 3)
+	Mon, 12 Dec 2005 22:00:22 -0500
+Subject: [PATCH -mm 9/9] unshare system call : allow unsharing of files
 From: JANAK DESAI <janak@us.ibm.com>
 Reply-To: janak@us.ibm.com
 To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
@@ -18,57 +18,163 @@ To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
        janak@us.ibm.com
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1134441527.14136.1.camel@hobbs.atlanta.ibm.com>
+Message-Id: <1134442764.14136.132.camel@hobbs.atlanta.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 12 Dec 2005 21:59:47 -0500
+Date: Mon, 12 Dec 2005 22:00:13 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-The following patches represent the updated version of the proposed
-new system call unshare. They were forward ported 2.6.15-rc5-mm2 and
-reorganized as per Al Viro's suggestion to allow incremental unsharing
-of process context without requiring ABI changes.
+[PATCH -mm 9/9] unshare system call: allow unsharing of files
 
-unshare allows a process to disassociate part of the process context (vm
-and/or namespace) that was being shared with a parent.  Unshare is
-needed
-to implement polyinstantiated directories (such as per-user and/or
-per-security context /tmp directory) using the kernel's per-process
-namespace mechanism. For a more detailed description of the
-justification
-and approach, please refer to lkml threads from 8/8/05, 10/13/05 &
-12/08/05.
-                                                                                
-Unshare system call, along with shared tree patches, have been in use
-in our department for over month and half. We have been using them to
-maintain per-user and per-context /tmp directory. The latest port to
-2.6.15-rc5-mm2 has been tested on a uni-processor i386 machine.
 
-Patches are organized as follows:
-
-1. Patch implementing system call handler sys_unshare. System call
-   accepts all clone(2) flags but returns -EINVAL when attempt is
-   made to unshare any shared context.
-2. Patch registering system call for i386 architecture
-3. Patch registering system call for powerpc architecture
-4. Patch registering system call for ppc architecture
-5. Patch registering system call for x86_64 architecture
-6. Patch implementing unsharing of filesystem information
-7. Patch implementing unsharing of namespace
-8. Patch implementing unsharing of vm
-9. Patch implementing unsharing of files
-
-Unsharing of singnal handlers is still not implemented. As far as I can
-tell, issues raised by Chris Wright regarding possible problems stemming
-from interaction of timers with unsharing of signal handlers, has been
-resolved by a 2.6.14 patch that fixed race in send_sigqueue with thread
-exit. However, I do want to understand the code better and experiment
-with it some more before implementing signal handler unsharing. If 
-deemed ok, it would be easy to add that functionality.
-
+ fork.c |   82
+++++++++++++++++++++++++++++++++++++++++++-----------------------
+ 1 files changed, 53 insertions(+), 29 deletions(-)
  
+ 
+diff -Naurp 2.6.15-rc5-mm2+patch/kernel/fork.c
+2.6.15-rc5-mm2+patch9/kernel/fork.c
+--- 2.6.15-rc5-mm2+patch/kernel/fork.c	2005-12-12 19:31:48.000000000
++0000
++++ 2.6.15-rc5-mm2+patch9/kernel/fork.c	2005-12-12 22:30:50.000000000
++0000
+@@ -596,32 +596,19 @@ out:
+ 	return newf;
+ }
+ 
+-static int copy_files(unsigned long clone_flags, struct task_struct *
+tsk)
++/*
++ * Allocate a new files structure and copy contents from the
++ * files structure of the passed in task structure.
++ */
++static struct files_struct *dup_fd(struct task_struct *tsk, int
+*errorp)
+ {
+ 	struct files_struct *oldf, *newf;
+ 	struct file **old_fds, **new_fds;
+-	int open_files, size, i, error = 0, expand;
++	int open_files, size, i, expand;
+ 	struct fdtable *old_fdt, *new_fdt;
+ 
+-	/*
+-	 * A background process may not have any files ...
+-	 */
+-	oldf = current->files;
+-	if (!oldf)
+-		goto out;
++	oldf = tsk->files;
+ 
+-	if (clone_flags & CLONE_FILES) {
+-		atomic_inc(&oldf->count);
+-		goto out;
+-	}
+-
+-	/*
+-	 * Note: we may be using current for both targets (See exec.c)
+-	 * This works because we cache current->files (old) as oldf. Don't
+-	 * break this.
+-	 */
+-	tsk->files = NULL;
+-	error = -ENOMEM;
+ 	newf = alloc_files();
+ 	if (!newf)
+ 		goto out;
+@@ -650,9 +637,9 @@ static int copy_files(unsigned long clon
+ 	if (expand) {
+ 		spin_unlock(&oldf->file_lock);
+ 		spin_lock(&newf->file_lock);
+-		error = expand_files(newf, open_files-1);
++		*errorp = expand_files(newf, open_files-1);
+ 		spin_unlock(&newf->file_lock);
+-		if (error < 0)
++		if (*errorp < 0)
+ 			goto out_release;
+ 		new_fdt = files_fdtable(newf);
+ 		/*
+@@ -701,10 +688,8 @@ static int copy_files(unsigned long clon
+ 		memset(&new_fdt->close_on_exec->fds_bits[start], 0, left);
+ 	}
+ 
+-	tsk->files = newf;
+-	error = 0;
+ out:
+-	return error;
++	return newf;
+ 
+ out_release:
+ 	free_fdset (new_fdt->close_on_exec, new_fdt->max_fdset);
+@@ -714,6 +699,40 @@ out_release:
+ 	goto out;
+ }
+ 
++static int copy_files(unsigned long clone_flags, struct task_struct *
+tsk)
++{
++	struct files_struct *oldf, *newf;
++	int error = 0;
++
++	/*
++	 * A background process may not have any files ...
++	 */
++	oldf = current->files;
++	if (!oldf)
++		goto out;
++
++	if (clone_flags & CLONE_FILES) {
++		atomic_inc(&oldf->count);
++		goto out;
++	}
++
++	/*
++	 * Note: we may be using current for both targets (See exec.c)
++	 * This works because we cache current->files (old) as oldf. Don't
++	 * break this.
++	 */
++	tsk->files = NULL;
++	error = -ENOMEM;
++	newf = dup_fd(current, &error);
++	if (!newf)
++		goto out;
++
++	tsk->files = newf;
++	error = 0;
++out:
++	return error;
++}
++
+ /*
+  *	Helper to unshare the files of the current task.
+  *	We don't want to expose copy_files internals to
+@@ -1437,15 +1456,20 @@ static int unshare_vm(unsigned long unsh
+ }
+ 
+ /*
+- * Unsharing of files for tasks created with CLONE_FILES is not
+supported yet
++ * Unshare file descriptor table if it is being shared
+  */
+ static int unshare_fd(unsigned long unshare_flags, struct files_struct
+**new_fdp)
+ {
+-	struct files_struct *fd = current->files;
++	struct files_struct *fd = current->files, *new_fd;
++	int error = 0;
+ 
+ 	if ((unshare_flags & CLONE_FILES) &&
+-	    (fd && atomic_read(&fd->count) > 1))
+-		return -EINVAL;
++	    (fd && atomic_read(&fd->count) > 1)) {
++		new_fd = dup_fd(current, &error);
++		if (!new_fd)
++			return error;
++		*new_fdp = new_fd;
++	}
+ 
+ 	return 0;
+ }
 
 

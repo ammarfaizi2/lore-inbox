@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbVLMWYG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbVLMWZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030262AbVLMWYG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 17:24:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbVLMWYG
+	id S1030288AbVLMWZs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 17:25:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbVLMWZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 17:24:06 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:489 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030262AbVLMWYE (ORCPT
+	Tue, 13 Dec 2005 17:25:48 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:19363 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030272AbVLMWZr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 17:24:04 -0500
-Date: Tue, 13 Dec 2005 14:23:46 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: clameter@engr.sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au, Simon.Derr@bull.net, ak@suse.de
-Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
-Message-Id: <20051213142346.ccd3081a.pj@sgi.com>
-In-Reply-To: <439F3F6E.6010701@cosmosbay.com>
-References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>
-	<439D39A8.1020806@cosmosbay.com>
-	<20051212020211.1394bc17.pj@sgi.com>
-	<20051212021247.388385da.akpm@osdl.org>
-	<20051213075345.c39f335d.pj@sgi.com>
-	<439EF75D.50206@cosmosbay.com>
-	<Pine.LNX.4.62.0512130938130.22803@schroedinger.engr.sgi.com>
-	<439F0B43.4080500@cosmosbay.com>
-	<20051213130350.464a3054.pj@sgi.com>
-	<439F3F6E.6010701@cosmosbay.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Tue, 13 Dec 2005 17:25:47 -0500
+Date: Tue, 13 Dec 2005 23:25:43 +0100
+From: Andi Kleen <ak@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>, mingo@elte.hu,
+       dhowells@redhat.com, torvalds@osdl.org, hch@infradead.org,
+       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051213222543.GY23384@wotan.suse.de>
+References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de> <20051213004257.0f87d814.akpm@osdl.org> <20051213084926.GN23384@wotan.suse.de> <20051213010126.0832356d.akpm@osdl.org> <20051213090517.GQ23384@wotan.suse.de> <20051213221810.GU23349@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051213221810.GU23349@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric wrote:
-> struct kmem_cache  itself will be about 512*8 + some bytes
-> then for each cpu a 'struct array_cache' will be allocated (count 128 bytes 
+> 3.2+ would be better than 3.1+
+> 
+> Remember that 3.2 would have been named 3.1.2 if there wasn't the C++
+> ABI change, and I don't remember any big Linux distribution actually 
+> using gcc 3.1 as default compiler.
 
-Hmmm ... 'struct array_cache' looks to be about 6 integer words,
-so if that is the main per-CPU cost, the minimal cost of a slab
-cache (once created, before use) is about 24 bytes per cpu.
+Yes, but the kernel doesn't use C++ and afaik other than that there were only
+a few minor bugfixes between 3.1 and 3.2. So it doesn't make any
+difference for this special case.
 
-But whether its 24 or 128 bytes per cpu, that's a heavier weight
-hammer than is needed here.
-
-Time for me to learn more about rcu.
-
-Thanks for raising this issue.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+-Andi

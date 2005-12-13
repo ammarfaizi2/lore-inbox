@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbVLMDDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbVLMDIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbVLMDDg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 22:03:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVLMDDf
+	id S932377AbVLMDIa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 22:08:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVLMDIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 22:03:35 -0500
-Received: from mail.kroah.org ([69.55.234.183]:55011 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932378AbVLMDDe (ORCPT
+	Mon, 12 Dec 2005 22:08:30 -0500
+Received: from mail.suse.de ([195.135.220.2]:21200 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932377AbVLMDI3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 22:03:34 -0500
-Date: Mon, 12 Dec 2005 19:03:12 -0800
-From: Greg KH <gregkh@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       stern@rowland.harvard.edu
-Subject: Re: [patch 4/4] UHCI: add missing memory barriers
-Message-ID: <20051213030312.GA1617@suse.de>
-References: <20051212192030.873030000@press.kroah.org> <20051212200136.GE27657@kroah.com> <439E1581.40808@pobox.com>
+	Mon, 12 Dec 2005 22:08:29 -0500
+Date: Tue, 13 Dec 2005 04:08:21 +0100
+From: Andi Kleen <ak@suse.de>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Rohit Seth <rohit.seth@intel.com>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: [PATCH 0/3]i386,x86-64 (take 2) Handle missing local APIC timer interrupts on C3 state
+Message-ID: <20051213030821.GF23384@wotan.suse.de>
+References: <20051208181040.C32524@unix-os.sc.intel.com> <Pine.LNX.4.64.0512090003460.26307@montezuma.fsmlabs.com> <20051209044938.A26619@unix-os.sc.intel.com> <Pine.LNX.4.64.0512090933540.26307@montezuma.fsmlabs.com> <20051209095243.A22139@unix-os.sc.intel.com> <20051212174720.A10234@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <439E1581.40808@pobox.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051212174720.A10234@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 12, 2005 at 07:27:45PM -0500, Jeff Garzik wrote:
-> Greg Kroah-Hartman wrote:
-> >From: Alan Stern <stern@rowland.harvard.edu>
-> >
-> >This patch (as617) adds a couple of memory barriers that Ben H. forgot in
-> >his recent suspend/resume fix.
-> >
-> >Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-> >Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
-> >
-> >---
-> > drivers/usb/host/uhci-hcd.c |    2 ++
-> > 1 file changed, 2 insertions(+)
-> >
-> >--- greg-2.6.orig/drivers/usb/host/uhci-hcd.c
-> >+++ greg-2.6/drivers/usb/host/uhci-hcd.c
-> >@@ -717,6 +717,7 @@ static int uhci_suspend(struct usb_hcd *
-> > 	 * at the source, so we must turn off PIRQ.
-> > 	 */
-> > 	pci_write_config_word(to_pci_dev(uhci_dev(uhci)), USBLEGSUP, 0);
-> >+	mb();
-> > 	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
-> > 	uhci->hc_inaccessible = 1;
-> > 	hcd->poll_rh = 0;
-> >@@ -738,6 +739,7 @@ static int uhci_resume(struct usb_hcd *h
-> > 	 * really don't want to keep a stale HCD_FLAG_HW_ACCESSIBLE=0
-> > 	 */
-> > 	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
-> >+	mb();
+On Mon, Dec 12, 2005 at 05:47:20PM -0800, Pallipadi, Venkatesh wrote:
 > 
-> Are these just guesses, or what?
+> I am sending an updated patchset.
 > 
-> Why not smp_mb__before_clear_bit() or smp_mb__after_clear_bit() ?
+> (The original patchset 
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0512.1/0300.html)
+> 
+> The fixes in the updated patchset
+> - Typo with ipi_to_APIC_timer call fixed
+> - The issues with suspend-resume (offline-online) handled.
 
-I don't know, Alan?
+Looks all good. I will merge it up into my tree thanks.
+
+Ok your globals are too long :)
+
+-Andi

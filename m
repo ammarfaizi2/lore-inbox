@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbVLMNnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbVLMNnR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbVLMNnm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 08:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbVLMNnl
+	id S932153AbVLMNnR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 08:43:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbVLMNnR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 08:43:41 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:25520 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932245AbVLMNnb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 08:43:31 -0500
-Subject: [PATCH -mm 9/9] unshare system call : allow unsharing of files
+	Tue, 13 Dec 2005 08:43:17 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:57275 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932153AbVLMNnQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 08:43:16 -0500
+Subject: [PATCH -mm 1/9] unshare system call : system call handler function
 From: JANAK DESAI <janak@us.ibm.com>
 Reply-To: janak@us.ibm.com
 To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
@@ -18,154 +18,264 @@ To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
        janak@us.ibm.com
 Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Message-Id: <1134481315.25431.195.camel@hobbs.atlanta.ibm.com>
+Message-Id: <1134481287.25431.179.camel@hobbs.atlanta.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 13 Dec 2005 08:43:18 -0500
+Date: Tue, 13 Dec 2005 08:42:59 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[PATCH -mm 9/9] unshare system call: allow unsharing of files
+[PATCH -mm 1/9] unshare system call: System call handler function sys_unshare
+                                                                                
+Signed-off-by: Janak Desai
 
 
- fork.c |   82 ++++++++++++++++++++++++++++++++++++++++++-----------------------
- 1 files changed, 53 insertions(+), 29 deletions(-)
+ fork.c |  235 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 235 insertions(+)
  
  
-diff -Naurp 2.6.15-rc5-mm2+patch/kernel/fork.c 2.6.15-rc5-mm2+patch9/kernel/fork.c
---- 2.6.15-rc5-mm2+patch/kernel/fork.c	2005-12-12 19:31:48.000000000 +0000
-+++ 2.6.15-rc5-mm2+patch9/kernel/fork.c	2005-12-12 22:30:50.000000000 +0000
-@@ -596,32 +596,19 @@ out:
- 	return newf;
+diff -Naurp 2.6.15-rc5-mm2/kernel/fork.c 2.6.15-rc5-mm2+patch/kernel/fork.c
+--- 2.6.15-rc5-mm2/kernel/fork.c	2005-12-12 03:05:59.000000000 +0000
++++ 2.6.15-rc5-mm2+patch/kernel/fork.c	2005-12-12 19:31:48.000000000 +0000
+@@ -1330,3 +1330,238 @@ void __init proc_caches_init(void)
+ 			sizeof(struct mm_struct), 0,
+ 			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
  }
- 
--static int copy_files(unsigned long clone_flags, struct task_struct * tsk)
++
++
 +/*
-+ * Allocate a new files structure and copy contents from the
-+ * files structure of the passed in task structure.
++ * Check constraints on flags passed to the unshare system call and
++ * force unsharing of additional process context as appropriate.
 + */
-+static struct files_struct *dup_fd(struct task_struct *tsk, int *errorp)
- {
- 	struct files_struct *oldf, *newf;
- 	struct file **old_fds, **new_fds;
--	int open_files, size, i, error = 0, expand;
-+	int open_files, size, i, expand;
- 	struct fdtable *old_fdt, *new_fdt;
- 
--	/*
--	 * A background process may not have any files ...
--	 */
--	oldf = current->files;
--	if (!oldf)
--		goto out;
-+	oldf = tsk->files;
- 
--	if (clone_flags & CLONE_FILES) {
--		atomic_inc(&oldf->count);
--		goto out;
--	}
--
--	/*
--	 * Note: we may be using current for both targets (See exec.c)
--	 * This works because we cache current->files (old) as oldf. Don't
--	 * break this.
--	 */
--	tsk->files = NULL;
--	error = -ENOMEM;
- 	newf = alloc_files();
- 	if (!newf)
- 		goto out;
-@@ -650,9 +637,9 @@ static int copy_files(unsigned long clon
- 	if (expand) {
- 		spin_unlock(&oldf->file_lock);
- 		spin_lock(&newf->file_lock);
--		error = expand_files(newf, open_files-1);
-+		*errorp = expand_files(newf, open_files-1);
- 		spin_unlock(&newf->file_lock);
--		if (error < 0)
-+		if (*errorp < 0)
- 			goto out_release;
- 		new_fdt = files_fdtable(newf);
- 		/*
-@@ -701,10 +688,8 @@ static int copy_files(unsigned long clon
- 		memset(&new_fdt->close_on_exec->fds_bits[start], 0, left);
- 	}
- 
--	tsk->files = newf;
--	error = 0;
- out:
--	return error;
-+	return newf;
- 
- out_release:
- 	free_fdset (new_fdt->close_on_exec, new_fdt->max_fdset);
-@@ -714,6 +699,40 @@ out_release:
- 	goto out;
- }
- 
-+static int copy_files(unsigned long clone_flags, struct task_struct * tsk)
++static inline void check_unshare_flags(unsigned long *flags_ptr)
 +{
-+	struct files_struct *oldf, *newf;
-+	int error = 0;
++	/*
++	 * If unsharing a thread from a thread group, must also
++	 * unshare vm.
++	 */
++	if (*flags_ptr & CLONE_THREAD)
++		*flags_ptr |= CLONE_VM;
 +
 +	/*
-+	 * A background process may not have any files ...
++	 * If unsharing vm, must also unshare signal handlers.
 +	 */
-+	oldf = current->files;
-+	if (!oldf)
-+		goto out;
-+
-+	if (clone_flags & CLONE_FILES) {
-+		atomic_inc(&oldf->count);
-+		goto out;
-+	}
++	if (*flags_ptr & CLONE_VM)
++		*flags_ptr |= CLONE_SIGHAND;
 +
 +	/*
-+	 * Note: we may be using current for both targets (See exec.c)
-+	 * This works because we cache current->files (old) as oldf. Don't
-+	 * break this.
++	 * If unsharing signal handlers and the task was created
++	 * using CLONE_THREAD, then must unshare the thread
 +	 */
-+	tsk->files = NULL;
-+	error = -ENOMEM;
-+	newf = dup_fd(current, &error);
-+	if (!newf)
-+		goto out;
++	if ((*flags_ptr & CLONE_SIGHAND) &&
++	    (atomic_read(&current->signal->count) > 1))
++		*flags_ptr |= CLONE_THREAD;
 +
-+	tsk->files = newf;
-+	error = 0;
-+out:
-+	return error;
++	/*
++	 * If unsharing namespace, must also unshare filesystem information.
++	 */
++	if (*flags_ptr & CLONE_NEWNS)
++		*flags_ptr |= CLONE_FS;
 +}
 +
- /*
-  *	Helper to unshare the files of the current task.
-  *	We don't want to expose copy_files internals to
-@@ -1437,15 +1456,20 @@ static int unshare_vm(unsigned long unsh
- }
- 
- /*
-- * Unsharing of files for tasks created with CLONE_FILES is not supported yet
-+ * Unshare file descriptor table if it is being shared
-  */
- static int unshare_fd(unsigned long unshare_flags, struct files_struct **new_fdp)
- {
--	struct files_struct *fd = current->files;
-+	struct files_struct *fd = current->files, *new_fd;
-+	int error = 0;
- 
- 	if ((unshare_flags & CLONE_FILES) &&
--	    (fd && atomic_read(&fd->count) > 1))
--		return -EINVAL;
-+	    (fd && atomic_read(&fd->count) > 1)) {
-+		new_fd = dup_fd(current, &error);
-+		if (!new_fd)
-+			return error;
-+		*new_fdp = new_fd;
++/*
++ * Unsharing of tasks created with CLONE_THREAD is not supported yet
++ */
++static int unshare_thread(unsigned long unshare_flags)
++{
++	if (unshare_flags & CLONE_THREAD)
++		return -EINVAL;
++
++	return 0;
++}
++
++/*
++ * Unsharing of fs info for tasks created with CLONE_FS is not supported yet
++ */
++static int unshare_fs(unsigned long unshare_flags, struct fs_struct **new_fsp)
++{
++	struct fs_struct *fs = current->fs;
++
++	if ((unshare_flags & CLONE_FS) &&
++	    (fs && atomic_read(&fs->count) > 1))
++		return -EINVAL;
++
++	return 0;
++}
++
++/*
++ * Unsharing of namespace for tasks created without CLONE_NEWNS is not
++ * supported yet
++ */
++static int unshare_namespace(unsigned long unshare_flags, struct namespace **new_nsp)
++{
++	struct namespace *ns = current->namespace;
++
++	if ((unshare_flags & CLONE_NEWNS) &&
++	    (ns && atomic_read(&ns->count) > 1))
++		return -EINVAL;
++
++	return 0;
++}
++
++/*
++ * Unsharing of sighand for tasks created with CLONE_SIGHAND is not
++ * supported yet
++ */
++static int unshare_sighand(unsigned long unshare_flags, struct sighand_struct **new_sighp)
++{
++	struct sighand_struct *sigh = current->sighand;
++
++	if ((unshare_flags & CLONE_SIGHAND) &&
++	    (sigh && atomic_read(&sigh->count) > 1))
++		return -EINVAL;
++	else
++		return 0;
++}
++
++/*
++ * Unsharing of vm for tasks created with CLONE_VM is not supported yet
++ */
++static int unshare_vm(unsigned long unshare_flags, struct mm_struct **new_mmp)
++{
++	struct mm_struct *mm = current->mm;
++
++	if ((unshare_flags & CLONE_VM) &&
++	    (mm && atomic_read(&mm->mm_users) > 1))
++		return -EINVAL;
++
++	return 0;
++
++}
++
++/*
++ * Unsharing of files for tasks created with CLONE_FILES is not supported yet
++ */
++static int unshare_fd(unsigned long unshare_flags, struct files_struct **new_fdp)
++{
++	struct files_struct *fd = current->files;
++
++	if ((unshare_flags & CLONE_FILES) &&
++	    (fd && atomic_read(&fd->count) > 1))
++		return -EINVAL;
++
++	return 0;
++}
++
++/*
++ * Unsharing of semundo for tasks created with CLONE_SYSVSEM is not
++ * supported yet
++ */
++static int unshare_semundo(unsigned long unshare_flags, struct sem_undo_list **new_ulistp)
++{
++	if (unshare_flags & CLONE_SYSVSEM)
++		return -EINVAL;
++
++	return 0;
++}
++
++/*
++ * unshare allows a process to 'unshare' part of the process
++ * context which was originally shared using clone.  copy_*
++ * functions used by do_fork() cannot be used here directly
++ * because they modify an inactive task_struct that is being
++ * constructed. Here we are modifying the current, active,
++ * task_struct.
++ */
++asmlinkage long sys_unshare(unsigned long unshare_flags)
++{
++	int err = 0;
++	struct fs_struct *fs, *new_fs = NULL;
++	struct namespace *ns, *new_ns = NULL;
++	struct sighand_struct *sigh, *new_sigh = NULL;
++	struct mm_struct *mm, *new_mm = NULL, *active_mm = NULL;
++	struct files_struct *fd, *new_fd = NULL;
++	struct sem_undo_list *new_ulist = NULL;
++
++	check_unshare_flags(&unshare_flags);
++
++	if ((err = unshare_thread(unshare_flags)))
++		goto bad_unshare_out;
++	if ((err = unshare_fs(unshare_flags, &new_fs)))
++		goto bad_unshare_cleanup_thread;
++	if ((err = unshare_namespace(unshare_flags, &new_ns)))
++		goto bad_unshare_cleanup_fs;
++	if ((err = unshare_sighand(unshare_flags, &new_sigh)))
++		goto bad_unshare_cleanup_ns;
++	if ((err = unshare_vm(unshare_flags, &new_mm)))
++		goto bad_unshare_cleanup_sigh;
++	if ((err = unshare_fd(unshare_flags, &new_fd)))
++		goto bad_unshare_cleanup_vm;
++	if ((err = unshare_semundo(unshare_flags, &new_ulist)))
++		goto bad_unshare_cleanup_fd;
++
++	if (new_fs || new_ns || new_sigh || new_mm || new_fd || new_ulist) {
++
++		task_lock(current);
++
++		if (new_fs) {
++			fs = current->fs;
++			current->fs = new_fs;
++			put_fs_struct(fs);
++		}
++
++		if (new_ns) {
++			ns = current->namespace;
++			current->namespace = new_ns;
++			put_namespace(ns);
++		}
++
++		if (new_sigh) {
++			sigh = current->sighand;
++			current->sighand = new_sigh;
++			if (atomic_dec_and_test(&sigh->count))
++				kmem_cache_free(sighand_cachep, sigh);
++		}
++
++		if (new_mm) {
++			mm = current->mm;
++			active_mm = current->active_mm;
++			current->mm = new_mm;
++			current->active_mm = new_mm;
++			activate_mm(active_mm, new_mm);
++			mmput(mm);
++		}
++
++		if (new_fd) {
++			fd = current->files;
++			current->files = new_fd;
++			put_files_struct(fd);
++		}
++
++		task_unlock(current);
 +	}
- 
- 	return 0;
- }
-
++
++	return 0;
++
++bad_unshare_cleanup_fd:
++	if (new_fd)
++		put_files_struct(new_fd);
++
++bad_unshare_cleanup_vm:
++	if (new_mm)
++		mmput(new_mm);
++
++bad_unshare_cleanup_sigh:
++	if (new_sigh)
++		if (atomic_dec_and_test(&new_sigh->count))
++			kmem_cache_free(sighand_cachep, new_sigh);
++
++bad_unshare_cleanup_ns:
++	if (new_ns)
++		put_namespace(new_ns);
++
++bad_unshare_cleanup_fs:
++	if (new_fs)
++		put_fs_struct(new_fs);
++
++bad_unshare_cleanup_thread:
++bad_unshare_out:
++	return err;
++}
 

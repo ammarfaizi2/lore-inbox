@@ -1,168 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbVLMNqV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbVLMNqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964845AbVLMNqV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 08:46:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbVLMNnm
+	id S932224AbVLMNqY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 08:46:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbVLMNqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 08:43:42 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:15809 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932236AbVLMNn1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 08:43:27 -0500
-Subject: [PATCH -mm 8/9] unshare system call: allow unsharing of vm
-From: JANAK DESAI <janak@us.ibm.com>
-Reply-To: janak@us.ibm.com
-To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
-       jamie@shareable.org, serue@us.ibm.com, mingo@elte.hu,
-       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
-       janak@us.ibm.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1134481313.25431.193.camel@hobbs.atlanta.ibm.com>
+	Tue, 13 Dec 2005 08:46:22 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:18922 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964780AbVLMNp4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 08:45:56 -0500
+Date: Tue, 13 Dec 2005 14:45:08 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, arjan@infradead.org,
+       matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051213134508.GA933@elte.hu>
+References: <20051213105459.GA9879@elte.hu> <dhowells1134431145@warthog.cambridge.redhat.com> <1036.1134473085@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 13 Dec 2005 08:43:16 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1036.1134473085@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.7
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.7 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[PATCH -mm 8/9] unshare system call: allow unsharing of vm
+* David Howells <dhowells@redhat.com> wrote:
 
- fork.c |   90 +++++++++++++++++++++++++++++++++++++++++------------------------
- 1 files changed, 58 insertions(+), 32 deletions(-)
- 
- 
-diff -Naurp 2.6.15-rc5-mm2+patch/kernel/fork.c 2.6.15-rc5-mm2+patch8/kernel/fork.c
---- 2.6.15-rc5-mm2+patch/kernel/fork.c	2005-12-12 19:31:48.000000000 +0000
-+++ 2.6.15-rc5-mm2+patch8/kernel/fork.c	2005-12-12 22:20:29.000000000 +0000
-@@ -445,6 +445,55 @@ void mm_release(struct task_struct *tsk,
- 	}
- }
- 
-+/*
-+ * Allocate a new mm structure and copy contents from the
-+ * mm structure of the passed in task structure.
-+ */
-+static struct mm_struct *dup_mm(struct task_struct *tsk)
-+{
-+	struct mm_struct *mm, *oldmm = current->mm;
-+	int err;
-+
-+	if (!oldmm)
-+		return NULL;
-+
-+	mm = allocate_mm();
-+	if (!mm)
-+		goto fail_nomem;
-+
-+	memcpy(mm, oldmm, sizeof(*mm));
-+
-+	if (!mm_init(mm))
-+		goto fail_nomem;
-+
-+	if (init_new_context(tsk, mm))
-+		goto fail_nocontext;
-+
-+	err = dup_mmap(mm, oldmm);
-+	if (err)
-+		goto free_pt;
-+
-+	mm->hiwater_rss = get_mm_rss(mm);
-+	mm->hiwater_vm = mm->total_vm;
-+
-+	return mm;
-+
-+free_pt:
-+	mmput(mm);
-+
-+fail_nomem:
-+	return NULL;
-+
-+fail_nocontext:
-+	/*
-+	 * If init_new_context() failed, we cannot use mmput() to free the mm
-+	 * because it calls destroy_context()
-+	 */
-+	mm_free_pgd(mm);
-+	free_mm(mm);
-+	return NULL;
-+}
-+
- static int copy_mm(unsigned long clone_flags, struct task_struct * tsk)
- {
- 	struct mm_struct * mm, *oldmm;
-@@ -472,43 +521,17 @@ static int copy_mm(unsigned long clone_f
- 	}
- 
- 	retval = -ENOMEM;
--	mm = allocate_mm();
-+	mm = dup_mm(tsk);
- 	if (!mm)
- 		goto fail_nomem;
- 
--	/* Copy the current MM stuff.. */
--	memcpy(mm, oldmm, sizeof(*mm));
--	if (!mm_init(mm))
--		goto fail_nomem;
--
--	if (init_new_context(tsk,mm))
--		goto fail_nocontext;
--
--	retval = dup_mmap(mm, oldmm);
--	if (retval)
--		goto free_pt;
--
--	mm->hiwater_rss = get_mm_rss(mm);
--	mm->hiwater_vm = mm->total_vm;
--
- good_mm:
- 	tsk->mm = mm;
- 	tsk->active_mm = mm;
- 	return 0;
- 
--free_pt:
--	mmput(mm);
- fail_nomem:
- 	return retval;
--
--fail_nocontext:
--	/*
--	 * If init_new_context() failed, we cannot use mmput() to free the mm
--	 * because it calls destroy_context()
--	 */
--	mm_free_pgd(mm);
--	free_mm(mm);
--	return retval;
- }
- 
- static inline struct fs_struct *__copy_fs_struct(struct fs_struct *old)
-@@ -1422,18 +1445,21 @@ static int unshare_sighand(unsigned long
- }
- 
- /*
-- * Unsharing of vm for tasks created with CLONE_VM is not supported yet
-+ * Unshare vm if it is being shared
-  */
- static int unshare_vm(unsigned long unshare_flags, struct mm_struct **new_mmp)
- {
--	struct mm_struct *mm = current->mm;
-+	struct mm_struct *mm = current->mm, *new_mm;
- 
- 	if ((unshare_flags & CLONE_VM) &&
--	    (mm && atomic_read(&mm->mm_users) > 1))
--		return -EINVAL;
-+	    (mm && atomic_read(&mm->mm_users) > 1)) {
-+		new_mm = dup_mm(current);
-+		if (!new_mm)
-+			return -ENOMEM;
-+		*new_mmp = new_mm;
-+	}
- 
- 	return 0;
--
- }
- 
- /*
+> Ingo Molnar <mingo@elte.hu> wrote:
+> 
+> > >      	init_MUTEX_LOCKED()
+> > > 	DECLARE_MUTEX_LOCKED()
+> > 
+> > please kill these two in the simple mutex implementation - they are a 
+> > sign of mutexes used as completions.
+> 
+> That can be done later. It's not necessary to do it in this particular 
+> patch set.
 
+i disagree - it's necessary that we dont build complexities into the 
+'simple' mutex type, or the whole game starts again. I.e. the 'owner 
+unlocks the mutex' rule must be enforced - which makes 
+DECLARE_MUTEX_LOCKED() meaningless.
 
+	Ingo

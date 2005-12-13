@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030219AbVLMVkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbVLMVok@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030219AbVLMVkE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 16:40:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbVLMVkE
+	id S1030240AbVLMVok (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 16:44:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbVLMVoj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 16:40:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:31896 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030219AbVLMVkC (ORCPT
+	Tue, 13 Dec 2005 16:44:39 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:26584 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932385AbVLMVoj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 16:40:02 -0500
-Date: Tue, 13 Dec 2005 13:39:42 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] slab gcc fix
-Message-Id: <20051213133942.1f742685.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0512131327140.23733@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0512131327140.23733@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 13 Dec 2005 16:44:39 -0500
+Date: Tue, 13 Dec 2005 13:44:19 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       Simon.Derr@bull.net, ak@suse.de, clameter@sgi.com
+Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
+Message-Id: <20051213134419.175821cd.pj@sgi.com>
+In-Reply-To: <439EF75D.50206@cosmosbay.com>
+References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>
+	<439D39A8.1020806@cosmosbay.com>
+	<20051212020211.1394bc17.pj@sgi.com>
+	<20051212021247.388385da.akpm@osdl.org>
+	<20051213075345.c39f335d.pj@sgi.com>
+	<439EF75D.50206@cosmosbay.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@engr.sgi.com> wrote:
->
-> Since we no longer support 2.95, we can get rid of this ugly thing.
-> 
->  Signed-off-by: Christoph Lameter <clameter@sgi.com>
-> 
->  Index: linux-2.6.15-rc5-mm2/mm/slab.c
->  ===================================================================
->  --- linux-2.6.15-rc5-mm2.orig/mm/slab.c	2005-12-13 13:18:48.000000000 -0800
->  +++ linux-2.6.15-rc5-mm2/mm/slab.c	2005-12-13 13:19:11.000000000 -0800
->  @@ -265,11 +265,10 @@ struct array_cache {
->   	unsigned int batchcount;
->   	unsigned int touched;
->   	spinlock_t lock;
->  -	void *entry[0];		/*
->  +	void *entry[];		/*
+Eric wrote:
+> I do think we should have defined a special section for very hot (and written) 
+> spots. It's more easy to locate thos hot spots than 'mostly read and shared by 
+> all cpus without cache ping pongs' places...
 
-There are hundreds of instances of this under include/.  I think we just
-live with it.
+Should we do something like:
+ 1) identify the hot write spots, to arrange them by access pattern,
+	as Christoph considered, in another reply on this thread.
+ 2) identify the hot read, cold write spots, to bunch them up away from (1)
+ 3) leave the rest as "inert filler" (aka "cannon fodder", in my previous
+	reply), but unmarked in any case.
+ 4) change the word "__read_mostly" to "__hot_read_cold_write", to more
+	accurately fit item (2).
 
-Plus the gcc-2.95 abandonment is tentative for now, so let's not go nuts. 
-It's conceivable that someone has a good reason for needing it retained - we'll
-see.
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

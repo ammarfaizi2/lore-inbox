@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbVLMS1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbVLMSaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbVLMS1R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 13:27:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbVLMS1R
+	id S932574AbVLMSaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 13:30:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbVLMSaI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 13:27:17 -0500
-Received: from cavan.codon.org.uk ([217.147.92.49]:51166 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S932574AbVLMS1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 13:27:16 -0500
-Date: Tue, 13 Dec 2005 18:26:51 +0000
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Randy Dunlap <randy_d_dunlap@linux.intel.com>
-Cc: linux-ide@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: RFC: ACPI/scsi/libata integration and hotswap
-Message-ID: <20051213182651.GA14645@srcf.ucam.org>
-References: <20051208030242.GA19923@srcf.ucam.org> <20051213101417.13fdb14c.randy_d_dunlap@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Dec 2005 13:30:08 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:50528 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932574AbVLMSaG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 13:30:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NFc/dB7EnL2J63/Kgp4O361Wz4ULtCLc7DFhJ/rAOqQ8STvPOq5CoN72am1N6keOZtSVlYlhlT4nSKMt1Okyb6vdERiPj8942Z7sLSvsyL7lbPaKd4Qlzg2Vtl/1+Wr66qw+PWupR26Po/Xg7sSBYs9PmobecoWNbksh5bVx41Q=
+Message-ID: <e46c534c0512131030v45640694t1030468ac5775804@mail.gmail.com>
+Date: Tue, 13 Dec 2005 18:30:00 +0000
+From: Filipe Cabecinhas <filcab@gmail.com>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Subject: Re: Possible problem in fcntl
+Cc: linux-kernel@vger.kernel.org, Nuno Lopes <ncpl@mega.ist.utl.pt>,
+       =?ISO-8859-1?Q?Renato_Cris=F3stomo?= <racc@mega.ist.utl.pt>
+In-Reply-To: <Pine.LNX.4.61.0512131242280.8370@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051213101417.13fdb14c.randy_d_dunlap@linux.intel.com>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+References: <e46c534c0512130756k18c409aen3d60df7aaee50062@mail.gmail.com>
+	 <Pine.LNX.4.61.0512131242280.8370@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 10:14:17AM -0800, Randy Dunlap wrote:
+On 12/13/05, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
 
-> 1.  I had problems applying it.  What tree is it against?
->     Say so in the description.
+> So what is it that the socket doesn't do, that you expect it
+> should do?
+>
 
-It was against 2.6.15-git at the time, but I accidently left a hunk of 
-stuff from the hotplug patch in there which probably confused things. 
-I'll try to rediff it by the end of the week (and do other tidying)
+When we call recv on that socket, it returns 0 and sets the string to
+"" (as if the the client had done an orderly shutdown (which is not
+true, since wget says connection refused).
 
-> 7.  Most important:  What good does the ACPI interface do/add?
->     What I mean is that acpi_get_child() in scsi_acpi_find_channel()
->     always returns a handle value of 0, so it doesn't get us
->     any closer to determining the ACPI address (_ADR) of the SATA
->     devices.  The acpi_get_devices() technique in my patch (basically
->     walking the ACPI namespace, looking at all "devices") is the
->     only way that I know of doing this, but I would certainly
->     like to find a better way.
+We were expecting it to return -1 and set errno to EAGAIN (or to
+return the number of bytes written and set the string to what it
+received).
 
-When the PCI bus is registered, acpi walks it and finds the appropriate 
-acpi handle for each PCI device. This is shoved in the 
-firmware_data field of the device structure. Later on, we register the 
-scsi bus. As each item on the bus is added, the acpi callback gets 
-called. If it's not an endpoint, scsi_acpi_find_channel gets called. 
-We're worried about the host case. The host number will correspond to 
-the appropriate _ADR underneath the PCI device that the host is on, so 
-we simply get the handle of the PCI device and then ask for the child 
-with the appropriate _ADR. That gives us the handle for the device, and 
-returning that sticks it back in the child's firmware_data field.
+It works as expected if we don't have that (second) fcntl call. But,
+as the accept manpage tells us, in linux the socket returned by accept
+() does  not  inherit  file status  flags such as O_NONBLOCK, so we
+think we should call it (to be sure it has that flag). And, even if it
+isn't necessary, we can't tell why it's breaking (because it would
+just be setting a flag (that is already set )).
 
-At least, that's how it works here. If acpi_get_child always returns 0 
-for you, then it sounds like something's going horribly wrong. Do you 
-have a copy of the DSDT?
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+Thanks in advance,
+Filipe Cabecinhas

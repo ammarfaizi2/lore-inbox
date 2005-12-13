@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbVLMOf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbVLMOgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964951AbVLMOf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 09:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVLMOf5
+	id S964972AbVLMOgi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 09:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVLMOgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 09:35:57 -0500
-Received: from zproxy.gmail.com ([64.233.162.205]:56625 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964951AbVLMOf5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 09:35:57 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=GKcMOHArjawyVx1kK5BJqBbMe0VSwS6TGsJpIQ6zz+xo0xJznqGXHe5kLQeJbFZkgL1glpUwNqmM6F0MsF0n4lf+OLnJSk+S+6Qnaqz8EOust6zKMduntDZ+BWHTshcxxX1YfXsZ4kfjWtncR2HDEJa148K7MT/Ul2C65TCA9oQ=
-Message-ID: <41840b750512130635p45591633ya1df731f24a87658@mail.gmail.com>
-Date: Tue, 13 Dec 2005 16:35:54 +0200
-From: Shem Multinymous <multinymous@gmail.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: tp_smapi conflict with IDE, hdaps
-Cc: Jeff Garzik <jgarzik@pobox.com>, Rovert Love <rlove@rlove.org>,
-       Jens Axboe <axboe@suse.de>
+	Tue, 13 Dec 2005 09:36:38 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:45520 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S964970AbVLMOgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 09:36:37 -0500
+Message-ID: <439EDC3D.5040808@nortel.com>
+Date: Tue, 13 Dec 2005 08:35:41 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: David Howells <dhowells@redhat.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org, akpm@osdl.org,
+       hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+References: <1134479118.11732.14.camel@localhost.localdomain>  <dhowells1134431145@warthog.cambridge.redhat.com> <3874.1134480759@warthog.cambridge.redhat.com>
+In-Reply-To: <3874.1134480759@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Dec 2005 14:35:44.0434 (UTC) FILETIME=[7FFC5920:01C5FFF2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+David Howells wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-I'm developing a new kernel module, tp_smapi, for providing access to
-special features of ThinkPad laptops via a sysfs interface. See [1]
-for details and [2] for the GPL sourcecode.
+>>It seems to me it would be far far saner to define something like
+>>
+>>	sleep_lock(&foo)
+>>	sleep_unlock(&foo)
+>>	sleep_trylock(&foo)
+> 
+> Which would be a _lot_ more work. It would involve about ten times as many
+> changes, I think, and thus be more prone to errors.
 
-This module conflicts with two other systems, due to use of common IO resource.
+"lots of work" has never been a valid reason for not doing a kernel 
+change...
 
-Conflict with IDE system:
-One of the functions provided by tp_smapi is setting the CD-ROM
-speed+spindown ("hdparm -E" and "eject -x" have no effect on these
-laptops). This is achieved by sending an appropriate command to the
-laptop's SMAPI BIOS, whose implementation is totally opaque [3].
-Evidently, the SMAPI BIOS sends some ATA command to the drive. If the
-kernel is accessing the drive at the same time (e.g., an ongoing "cat
-/dev/scd0"), the machine hangs. The ideal solution would be to figure
-out the relevant ATA commands and add them to libata/ata_piix/ide, but
-it's not clear how to do that. So tp_smapi needs to obtain some lock
-guaranteeing there is no access (or ongoing transaction) to that ATA
-device.
+In this case, introducing a new API means the changes can be made over time.
 
-Conflict with the "hdaps" module:
-Another function provided by tp_smapi is reporting extended battery
-status, including some data not provided through ACPI. This conflict
-with the recently added HDAPS accelerometer driver. Both drivers read
-their data from the same ports (0x1604-0x161F), which implement a
-query-reponse transaction interface, so both drivers talking to the
-hardware simultaneously will wreak havoc. Some synchronization is
-needed, and a way to address the request_region conflict.
+As time goes on you can convert more and more code to the mutex/sleep 
+lock and any tricky code just stays with the older API until someone who 
+understands it can vet it.
 
-What is standard procedure for resolving such conflicts?
+As Alan mentioned, the standard counting semaphore API is up/down. 
+Making those refer to a sleeping mutex violates the principle of least 
+surprise.
 
-  Shem
+Chris
 
-[1] http://thinkwiki.org/wiki/SMAPI_support_for_Linux
-[2] Current: http://tpctl.sourceforge.net/rel/tp_smapi-0.09.tgz
-    Future: http://sf.net/project/showfiles.php?group_id=1212&package_id=171579
-[3] The SMAPI BIOS runs in SMM and thus cannot be debugged by mere mortals.
-     See tp_smapi's README for known details:
-    http://sourceforge.net/project/shownotes.php?release_id=377806&group_id=1212

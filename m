@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbVLMUm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbVLMUlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932327AbVLMUm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 15:42:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbVLMUm5
+	id S932325AbVLMUlh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 15:41:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbVLMUlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 15:42:57 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:41862 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751256AbVLMUm4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 15:42:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=HdLsDL+CvDttl+dH1fDYyb1aEWo81F+32loUwTQ5E0P6h5iqKyDZJ5BuWfgsrpcLUkWtmgd+uY5xrb1mphJuhzf3sLBNxKlqZSjLHW2iWTcV7RmUzOlEvAVLnGRHPIJIGf8btrersqIOpR9mxaH7KP0OvhcpBcV2Vm13t6gTRNk=
-Message-ID: <e46c534c0512131242n3ad87709kfd0fc9238137f897@mail.gmail.com>
-Date: Tue, 13 Dec 2005 20:42:49 +0000
-From: Filipe Cabecinhas <filcab@gmail.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Subject: Re: Possible problem in fcntl
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-       Nuno Lopes <ncpl@mega.ist.utl.pt>,
-       Renato Crissstomo <racc@mega.ist.utl.pt>
-In-Reply-To: <Pine.LNX.4.61.0512131337240.8529@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <e46c534c0512130756k18c409aen3d60df7aaee50062@mail.gmail.com>
-	 <Pine.LNX.4.61.0512131242280.8370@chaos.analogic.com>
-	 <e46c534c0512131030v45640694t1030468ac5775804@mail.gmail.com>
-	 <Pine.LNX.4.61.0512131337240.8529@chaos.analogic.com>
+	Tue, 13 Dec 2005 15:41:37 -0500
+Received: from a34-mta02.direcpc.com ([66.82.4.91]:1172 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S1751256AbVLMUlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 15:41:36 -0500
+Date: Tue, 13 Dec 2005 15:41:26 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 2/2] ide/sis5513: Add support for 965 chipset
+In-reply-to: <58cb370e0512131157y1176bbdbk5914c67c51a9a0f0@mail.gmail.com>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+Message-id: <1134506487.12502.20.camel@localhost.localdomain>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.2
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <1134498192250-git-send-email-bcollins@ubuntu.com>
+ <1134498254295-git-send-email-bcollins@ubuntu.com>
+ <58cb370e0512131038q49271226xfe932476bb05d2d0@mail.gmail.com>
+ <1134502230.12502.17.camel@localhost.localdomain>
+ <58cb370e0512131157y1176bbdbk5914c67c51a9a0f0@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How do you know what wget did after the connection was refused?
-> Didn't it close its socket when returning to the shell?
+On Tue, 2005-12-13 at 20:57 +0100, Bartlomiej Zolnierkiewicz wrote:
+> On 12/13/05, Ben Collins <ben.collins@ubuntu.com> wrote:
+> > On Tue, 2005-12-13 at 19:38 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > > Hi,
+> > >
+> > > SiS965 support has been merged recently (different patch because
+> > > sis5513_pci_tbl[] chunk of this patch causes problems on the real
+> > > SiS180 controller).
+> > >
+> > > Please ask the user to test vanilla 2.6.15-rc5.
+> >
+> > This patch was against 2.6.15-rc5.
+> 
+> The original bug was filled against 2.6.12-9-amd64-k8 and then
+> reported to work with this patch with 2.6.14-something (probably,
+> because the exact kernel version is not mentioned in the bugzilla).
+> 
+> Were you able to reproduce the problem with 2.6.15-rc5?
 
-If we have the call to fcntl, the following happens:
-Telnet: SYN
-Server: SYN, ACK
-T: ACK
-S: FIN, ACK
-T: FIN, ACK
-S: ACK
+No, but the useful bits were nowhere to be found, so I figured that it
+still applied.
 
-There was no data exchanged. It just accepted the connection, and then
-finished it.
+> BTW please use linux-ide@vger.kernel.org for ATA stuff
 
-Without the call to fcntl everything goes normally:
-T: SYN
-S: SYN, ACK
-T: ACK
-T: PSH, ACK (HTTP request)
-S: ACK
-S: PSH, ACK (HTTP header)
-T: ACK
-S: PSH, ACK (data)
-T: ACK
-S: FIN, ACK
-T: ACK
-T: FIN, ACK
-S: ACK
+Sure thing.
 
-Thanks in advance,
+-- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
 
-Filipe Cabecinhas

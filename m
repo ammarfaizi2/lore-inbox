@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbVLMOu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbVLMO65@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964982AbVLMOu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 09:50:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbVLMOu4
+	id S964983AbVLMO65 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 09:58:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964984AbVLMO64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 09:50:56 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:44253 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964982AbVLMOu4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 09:50:56 -0500
-Date: Tue, 13 Dec 2005 15:50:54 +0100
-From: Olaf Hering <olh@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] skge: get rid of warning on race
-Message-ID: <20051213145054.GA24897@suse.de>
-References: <200512130559.jBD5xUjf015319@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Tue, 13 Dec 2005 09:58:56 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:33036 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964983AbVLMO64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 09:58:56 -0500
+Date: Tue, 13 Dec 2005 15:58:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] let MAGIC_SYSRQ no longer depend on DEBUG_KERNEL
+Message-ID: <20051213145856.GJ23349@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200512130559.jBD5xUjf015319@hera.kernel.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Dec 12, Linux Kernel Mailing List wrote:
+I know several people using MAGIC_SYSRQ not for kernel debugging but for 
+trying to do a halfway normal shutdown in case of problems.
 
-> tree 987cfbd2134b82bea55c55fa17bd70d29df70458
-> parent 0e670506668a43e1355b8f10c33d081a676bd521
-> author Stephen Hemminger <shemminger@osdl.org> Wed, 07 Dec 2005 07:01:49 -0800
-> committer Jeff Garzik <jgarzik@pobox.com> Tue, 13 Dec 2005 09:33:03 -0500
-> 
-> [PATCH] skge: get rid of warning on race
-
->  drivers/net/skge.c |   10 ++++++----
-
-> -		netif_stop_queue(dev);
-> -		spin_unlock_irqrestore(&skge->tx_lock, flags);
-> +		if (!netif_stopped(dev)) {
-> +			netif_stop_queue(dev);
-
-Current Linus tree does not compile:
-
-drivers/net/skge.c:2283: error: implicit declaration of function 'netif_stopped'
+Since there's no technical reason why MAGIC_SYSRQ would have to depend 
+on DEBUG_KERNEL, I'm therefore suggesting to drop this dependency.
 
 
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+---
+
+This patch was already sent on:
+- 22 Nov 2005
+
+ lib/Kconfig.debug |   15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
+
+--- linux-2.6.15-rc1-mm2-full/lib/Kconfig.debug.old	2005-11-20 20:26:51.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/lib/Kconfig.debug	2005-11-20 20:27:52.000000000 +0100
+@@ -8,16 +8,9 @@
+ 	  operations.  This is useful for identifying long delays
+ 	  in kernel startup.
+ 
+-
+-config DEBUG_KERNEL
+-	bool "Kernel debugging"
+-	help
+-	  Say Y here if you are developing drivers or trying to debug and
+-	  identify kernel problems.
+-
+ config MAGIC_SYSRQ
+ 	bool "Magic SysRq key"
+-	depends on DEBUG_KERNEL && !UML
++	depends on !UML
+ 	help
+ 	  If you say Y here, you will have some control over the system even
+ 	  if the system crashes for example during kernel debugging (e.g., you
+@@ -29,6 +22,12 @@
+ 	  keys are documented in <file:Documentation/sysrq.txt>. Don't say Y
+ 	  unless you really know what this hack does.
+ 
++config DEBUG_KERNEL
++	bool "Kernel debugging"
++	help
++	  Say Y here if you are developing drivers or trying to debug and
++	  identify kernel problems.
++
+ config LOG_BUF_SHIFT
+ 	int "Kernel log buffer size (16 => 64KB, 17 => 128KB)" if DEBUG_KERNEL
+ 	range 12 21
+

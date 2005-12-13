@@ -1,73 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbVLMHPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932499AbVLMHTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932487AbVLMHPn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 02:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbVLMHPn
+	id S932499AbVLMHTn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 02:19:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbVLMHTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 02:15:43 -0500
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:12553 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S932487AbVLMHPm
+	Tue, 13 Dec 2005 02:19:43 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:661 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932499AbVLMHTm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 02:15:42 -0500
-Date: Tue, 13 Dec 2005 08:17:52 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Alessandro Zummo <alessandro.zummo@towertech.it>
-Subject: Re: More platform driver questions
-Message-Id: <20051213081752.5de5eef4.khali@linux-fr.org>
-In-Reply-To: <20051211221034.GE22537@flint.arm.linux.org.uk>
-References: <20051211220023.19820e47.khali@linux-fr.org>
-	<20051211221034.GE22537@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Tue, 13 Dec 2005 02:19:42 -0500
+Date: Tue, 13 Dec 2005 08:22:30 +0100
+From: Frank Pavlic <fpavlic@de.ibm.com>
+To: jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [patch 2/3] s390: minor qeth network driver fixes
+Message-ID: <20051213072230.GB7207@pavlic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
 
-> On Sun, Dec 11, 2005 at 10:00:23PM +0100, Jean Delvare wrote:
-> > The base I/O address seemed to belong to .platform_data, as this is the
-> > only way I have to pass the information through the .probe mechanism
-> > (or should I use platform_get_resource instead?) All the rest I have
-> > put in .driver_data. Actually, I even duplicated the base I/O address
-> > there, as it made the rest of the code much more simple.
-> 
-> You should generally use the resources to pass address information.
+[patch 2/3] s390: minor qeth network driver fixes
 
-OK, I've changed my code that way. Thanks for the hint.
+From: Frank Pavlic <pavlic@de.ibm.com>
+	- use netif_carrier_on/off calls to tell network stack 
+	  link carrier state
+	- fix possible kfree on NULL 
+	- PDU_LEN2 is at offset 0x29 otherwise OSN chpid won't initialize 
 
-> > It seems that in most .remove functions, we explicitely set the driver
-> > data pointer to NULL before freeing the associated memory. I am
-> > wondering why. Can someone explain? Given that the device is just being
-> > deleted anyway, I don't quite see the benefit in doing so. But I guess
-> > I am once again missing something obvious.
-> 
-> This depends on your point of view - whether you think there's a
-> possibility that the driver_data might be accessed somehow after
-> you've freed the pointer.  Having a NULL pointer will give you a
-> very deterministic failure.
-> 
-> Of course, it can also be viewed as needless code and therefore not
-> required.  Again, it's an opinion thing.
+Signed-off-by: Frank Pavlic <pavlic@de.ibm.com>
 
-I don't mind the extra expense if it helps spotting race conditions. I
-just wanted to make sure we agreed that doing so would simply change
-the nature of the error we'll get if such a condition happens, but
-won't actually prevent this error from happening. Unless each user of
-the driver data has an explicit NULL check, which isn't the case for my
-driver (and I *would* mind that extra expense.)
+diffstat:
+ qeth_eddp.c |    3 ++-
+ qeth_main.c |   17 +++++++----------
+ qeth_mpc.h  |    2 +-
+ 3 files changed, 10 insertions(+), 12 deletions(-)
 
-Now the question is, is there actually any race condition there? In my
-case, the only users of the driver data are the sysfs callback
-functions, so I guess that this is all down to whether the driver core
-will unregister them before platform_driver.remove is called, or after
-it is called. If .remove is called first, then yes my code is racy and
-I'll have to fix it.
-
-Thanks,
--- 
-Jean Delvare
+diff -Naupr linux-orig/drivers/s390/net/qeth_eddp.c linux-patched/drivers/s390/net/qeth_eddp.c
+--- linux-orig/drivers/s390/net/qeth_eddp.c	2005-12-12 17:33:48.000000000 +0100
++++ linux-patched/drivers/s390/net/qeth_eddp.c	2005-12-12 18:56:23.000000000 +0100
+@@ -62,7 +62,8 @@ qeth_eddp_free_context(struct qeth_eddp_
+ 	for (i = 0; i < ctx->num_pages; ++i)
+ 		free_page((unsigned long)ctx->pages[i]);
+ 	kfree(ctx->pages);
+-	kfree(ctx->elements);
++	if (ctx->elements != NULL)
++		kfree(ctx->elements);
+ 	kfree(ctx);
+ }
+ 
+diff -Naupr linux-orig/drivers/s390/net/qeth_main.c linux-patched/drivers/s390/net/qeth_main.c
+--- linux-orig/drivers/s390/net/qeth_main.c	2005-12-12 18:15:36.000000000 +0100
++++ linux-patched/drivers/s390/net/qeth_main.c	2005-12-12 18:56:23.000000000 +0100
+@@ -518,7 +518,8 @@ __qeth_set_offline(struct ccwgroup_devic
+ 
+ 	QETH_DBF_TEXT(setup, 3, "setoffl");
+ 	QETH_DBF_HEX(setup, 3, &card, sizeof(void *));
+-
++	
++	netif_carrier_off(card->dev);
+ 	recover_flag = card->state;
+ 	if (qeth_stop_card(card, recovery_mode) == -ERESTARTSYS){
+ 		PRINT_WARN("Stopping card %s interrupted by user!\n",
+@@ -1020,7 +1021,6 @@ void
+ qeth_schedule_recovery(struct qeth_card *card)
+ {
+ 	QETH_DBF_TEXT(trace,2,"startrec");
+-
+ 	if (qeth_set_thread_start_bit(card, QETH_RECOVER_THREAD) == 0)
+ 		schedule_work(&card->kernel_thread_starter);
+ }
+@@ -1710,7 +1710,6 @@ qeth_check_ipa_data(struct qeth_card *ca
+ 					   "IP address reset.\n",
+ 					   QETH_CARD_IFNAME(card),
+ 					   card->info.chpid);
+-				netif_carrier_on(card->dev);
+ 				qeth_schedule_recovery(card);
+ 				return NULL;
+ 			case IPA_CMD_MODCCID:
+@@ -1959,7 +1958,7 @@ qeth_osn_send_ipa_cmd(struct qeth_card *
+ {
+ 	u16 s1, s2;
+ 
+-QETH_DBF_TEXT(trace,4,"osndipa");
++	QETH_DBF_TEXT(trace,4,"osndipa");
+ 
+ 	qeth_prepare_ipa_cmd(card, iob, QETH_PROT_OSN2);
+ 	s1 = (u16)(IPA_PDU_HEADER_SIZE + data_len);
+@@ -3809,10 +3808,8 @@ qeth_open(struct net_device *dev)
+ 	card->data.state = CH_STATE_UP;
+ 	card->state = CARD_STATE_UP;
+ 
+-	if (!card->lan_online){
+-		if (netif_carrier_ok(dev))
+-			netif_carrier_off(dev);
+-	}
++	if (!card->lan_online && netif_carrier_ok(dev))
++		netif_carrier_off(dev);
+ 	return 0;
+ }
+ 
+@@ -7936,8 +7933,8 @@ __qeth_set_online(struct ccwgroup_device
+ 		QETH_DBF_TEXT_(setup, 2, "6err%d", rc);
+ 		goto out_remove;
+ 	}
+-/*maybe it was set offline without ifconfig down
+- * we can also use this state for recovery purposes*/
++	netif_carrier_on(card->dev);
++
+ 	qeth_set_allowed_threads(card, 0xffffffff, 0);
+ 	if (recover_flag == CARD_STATE_RECOVER)
+ 		qeth_start_again(card, recovery_mode);
+diff -Naupr linux-orig/drivers/s390/net/qeth_mpc.h linux-patched/drivers/s390/net/qeth_mpc.h
+--- linux-orig/drivers/s390/net/qeth_mpc.h	2005-12-12 17:33:48.000000000 +0100
++++ linux-patched/drivers/s390/net/qeth_mpc.h	2005-12-12 18:56:23.000000000 +0100
+@@ -21,7 +21,7 @@ extern const char *VERSION_QETH_MPC_C;
+ #define IPA_PDU_HEADER_SIZE	0x40
+ #define QETH_IPA_PDU_LEN_TOTAL(buffer) (buffer+0x0e)
+ #define QETH_IPA_PDU_LEN_PDU1(buffer) (buffer+0x26)
+-#define QETH_IPA_PDU_LEN_PDU2(buffer) (buffer+0x2a)
++#define QETH_IPA_PDU_LEN_PDU2(buffer) (buffer+0x29)
+ #define QETH_IPA_PDU_LEN_PDU3(buffer) (buffer+0x3a)
+ 
+ extern unsigned char IPA_PDU_HEADER[];

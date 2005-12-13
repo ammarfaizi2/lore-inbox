@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbVLMSgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751320AbVLMShi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbVLMSgz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 13:36:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVLMSgz
+	id S1751320AbVLMShi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 13:37:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbVLMShi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 13:36:55 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:54796 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750717AbVLMSgx (ORCPT
+	Tue, 13 Dec 2005 13:37:38 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:54005 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S1751185AbVLMShh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 13:36:53 -0500
-Date: Tue, 13 Dec 2005 19:38:22 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andy Isaacson <adi@hexapodia.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [DOC PATCH] block/stat.txt
-Message-ID: <20051213183821.GP12024@suse.de>
-References: <20051212124553.GW26185@suse.de> <20051213084121.GF26568@hexapodia.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051213084121.GF26568@hexapodia.org>
+	Tue, 13 Dec 2005 13:37:37 -0500
+Date: Tue, 13 Dec 2005 19:28:41 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Simon Richter <Simon.Richter@hogyros.de>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       tony.luck@intel.com, linux-ia64@vger.kernel.org, matthew@wil.cx,
+       grundler@parisc-linux.org, parisc-linux@parisc-linux.org,
+       Paul Mackerras <paulus@samba.org>,
+       Linux/PPC Development <linuxppc-dev@ozlabs.org>, lethal@linux-sh.org,
+       kkojima@rr.iij4u.or.jp, dwmw2@infradead.org,
+       linux-mtd@lists.infradead.org
+Subject: Re: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
+In-Reply-To: <20051213180551.GN23349@stusta.de>
+Message-ID: <Pine.LNX.4.62.0512131926530.17990@pademelon.sonytel.be>
+References: <20051211185212.GQ23349@stusta.de> <20051211192109.GA22537@flint.arm.linux.org.uk>
+ <20051211193118.GR23349@stusta.de> <20051211194437.GB22537@flint.arm.linux.org.uk>
+ <20051213001028.GS23349@stusta.de> <439ECDCC.80707@hogyros.de>
+ <20051213140001.GG23349@stusta.de> <20051213173112.GA24094@flint.arm.linux.org.uk>
+ <20051213180551.GN23349@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13 2005, Andy Isaacson wrote:
-> > > +in_flight
-> > > +=========
-> > > +
-> > > +This value counts the number of currently-queued I/O requests.
-> > 
-> > A little confusing - it's the number of in flight io at the
-> > driver/device end, that is after the block layer. One could read the
-> > above as total in flight (total queued in the queue for the device),
-> > which is a very different number.
+On Tue, 13 Dec 2005, Adrian Bunk wrote:
+> Do not allow people to create configurations with CONFIG_BROKEN=y.
 > 
-> I wrote from misunderstanding, so it's no suprise what I wrote was
-> wrong. :)  Is "number of requests in the queue" available somewhere?
-
-Nope, it's only accounted internally I'm afraid. It's somewhere between
-0 and ~ /sys/block/<dev>/queue/nr_requests (it can go a little higher
-than this value, hence approximately).
-
-> How does this sound instead of the above?
+> The sole reason for CONFIG_BROKEN=y would be if you are working on 
+> fixing a broken driver, but in this case editing the Kconfig file is 
+> trivial.
 > 
-> +in_flight
-> +=========
-> +
-> +This value counts the number of I/O requests that have been issued to
-> +the device driver but have not yet completed.  It does not include I/O
-> +requests that are in the queue but not yet issued to the device driver.
+> Never ever should a user enable CONFIG_BROKEN.
+                      ^^^^
+OK, a user, not an expert. Let's assume users don't enable EXPERIMENTAL.
 
-That is perfect, thanks.
+But I'd like to at least have the possibility to enable broken drivers, even if
+it's just for compile regression tests.
 
--- 
-Jens Axboe
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

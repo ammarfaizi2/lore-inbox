@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbVLMC5u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbVLMC6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbVLMC5u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 21:57:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbVLMC5u
+	id S932372AbVLMC6G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 21:58:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVLMC6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 21:57:50 -0500
-Received: from rtr.ca ([64.26.128.89]:45536 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1750955AbVLMC5t (ORCPT
+	Mon, 12 Dec 2005 21:58:05 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:48968 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932364AbVLMC6C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 21:57:49 -0500
-Message-ID: <439E38A4.30204@rtr.ca>
-Date: Mon, 12 Dec 2005 21:57:40 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Mon, 12 Dec 2005 21:58:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=gBtvOljf11ItuK1iBP6Hr25oV5yNewxkXheejanirw2IfQvPyocBxmnZsLZdlAMROSgE8w0PkkTdDRg24eXsF5c/a9KNesybHSE2uUyNFpeGXVZAgFANpbLZfcVtonPuEEdxYW5BdOvI/d6beDyefAlCneMUgEm0lyjcixUF7LU=
+From: Kurt Wall <kwallinator@gmail.com>
+To: Petr Baudis <pasky@ucw.cz>
+Subject: Re: [PATCH 3/3] [kconfig] Direct use of lxdialog routines by menuconfig
+Date: Mon, 12 Dec 2005 21:59:03 -0500
+User-Agent: KMail/1.8.2
+Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org, sam@ravnborg.org,
+       kbuild-devel@lists.sourceforge.net
+References: <20051212004159.31263.89669.stgit@machine.or.cz> <200512112218.27286.kwallinator@gmail.com> <20051212112033.GB8025@pasky.or.cz>
+In-Reply-To: <20051212112033.GB8025@pasky.or.cz>
 MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, arjan@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-References: <dhowells1134431145@warthog.cambridge.redhat.com>
-In-Reply-To: <dhowells1134431145@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512122159.03296.kwallinator@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > (5) Redirects the following to apply to the new mutexes rather than the
- >     traditional semaphores:
- >
- >	down()
- >	down_trylock()
- >	down_interruptible()
- >	up()
+On Monday 12 December 2005 06:20 am, Petr Baudis wrote:
+> Dear diary, on Mon, Dec 12, 2005 at 04:18:26AM CET, I got a letter
+> where Kurt Wall <kwallinator@gmail.com> said that...
+>
 
-This will BREAK a lot of out-of-tree stuff if merged.
+[...]
 
-So please figure out some way to hang a HUGE banner out there
-so that the external codebases know they need updating.
+> > > +     submenu->data = (void *) !submenu->data;
+> >
+> > Shouldn't this be:
+> >      submenu->data = (void *) (long) !submenu->data;
+>
+> You are right, it should be so at least for consistency - it'll be fixed
+> in the next resend of the patch. I can't see why is it needed, though -
+> shouldn't the int be padded to void* anyway?
 
-The simplest way would be to NOT re-use the up()/down() symbols,
-but rather to either keep them as-is (counting semaphores),
-or delete them entirely (so that external code *knows* of the change).
+The cast to long quiets a warning from gcc. Without the cast, it
+complains:
 
-Cheers
+$ make menuconfig
+  HOSTCC  scripts/kconfig/mconf.o
+scripts/kconfig/mconf.c: In function `conf':
+scripts/kconfig/mconf.c:699: warning: cast to pointer from integer of 
+different size
+  HOSTLD  scripts/kconfig/mconf
+scripts/kconfig/mconf arch/x86_64/Kconfig
+
+I like the changes, though -- menuconfig is much snappier and easier on
+the eyes without the nasty flashing.
+
+Kurt
+-- 
+"I'd love to go out with you, but it's my parakeet's bowling night."

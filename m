@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbVLMPDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbVLMPDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964878AbVLMPDi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 10:03:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964989AbVLMPDi
+	id S964950AbVLMPDl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 10:03:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbVLMPDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 10:03:38 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:43728 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S964878AbVLMPDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 10:03:38 -0500
-Subject: Re: [PATCH -RT] fix i386 RWSEM_GENERIC_SPINLOCK (was: Re:
-	2.6.15-rc5-rt1 will not compile)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       david singleton <dsingleton@mvista.com>,
-       Lee Revell <rlrevell@joe-job.com>
-In-Reply-To: <1134484364.24145.43.camel@localhost.localdomain>
-References: <1133189789.5228.7.camel@mindpipe>
-	 <20051128160052.GA29540@elte.hu> <1133217651.4678.2.camel@mindpipe>
-	 <1133230103.5640.0.camel@mindpipe> <20051129072922.GA21696@elte.hu>
-	 <20051129093231.GA5028@elte.hu> <1134090316.11053.3.camel@mindpipe>
-	 <1134174330.18432.46.camel@mindpipe> <1134409469.15074.1.camel@mindpipe>
-	 <1134424143.24145.6.camel@localhost.localdomain>
-	 <20051213081502.GB10088@elte.hu>
-	 <1134484364.24145.43.camel@localhost.localdomain>
+	Tue, 13 Dec 2005 10:03:41 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:26040 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964950AbVLMPDk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 10:03:40 -0500
+Subject: Re: tp_smapi conflict with IDE, hdaps
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Rovert Love <rlove@rlove.org>,
+       Jens Axboe <axboe@suse.de>
+In-Reply-To: <41840b750512130635p45591633ya1df731f24a87658@mail.gmail.com>
+References: <41840b750512130635p45591633ya1df731f24a87658@mail.gmail.com>
 Content-Type: text/plain
-Date: Tue, 13 Dec 2005 10:03:15 -0500
-Message-Id: <1134486195.24145.52.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
+Date: Tue, 13 Dec 2005 15:03:22 +0000
+Message-Id: <1134486203.11732.60.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-13 at 09:32 -0500, Steven Rostedt wrote:
-> > 
+On Maw, 2005-12-13 at 16:35 +0200, Shem Multinymous wrote:
+> Evidently, the SMAPI BIOS sends some ATA command to the drive. If the
+> kernel is accessing the drive at the same time (e.g., an ongoing "cat
+> /dev/scd0"), the machine hangs. The ideal solution would be to figure
+> out the relevant ATA commands and add them to libata/ata_piix/ide, but
+> it's not clear how to do that. So tp_smapi needs to obtain some lock
+> guaranteeing there is no access (or ongoing transaction) to that ATA
+> device.
+
+You will need to find out the command. Trying to arbitrate libata access
+with unknown bios behaviour isn't going to have a sane resolution. There
+are standard commands for this so they ought to work. If not we need to
+know why, who makes the drive used etc
+
+> with the recently added HDAPS accelerometer driver. Both drivers read
+> their data from the same ports (0x1604-0x161F), which implement a
+> query-reponse transaction interface, so both drivers talking to the
+> hardware simultaneously will wreak havoc. Some synchronization is
+> needed, and a way to address the request_region conflict.
 > 
-> OK, scratch my last patch.  I'll submit this arch per arch.  Starting
-> with i386.  Each arch does it differently, so a generic lib/Konfig.rwsem
-> wouldn't work, since each arch has a different dependency.
+> What is standard procedure for resolving such conflicts?
 
-I guess this may be the only patch needed so far.  x86_64 doesn't use a
-RWSEM_XCHGADD_ALGORITHM, and as for the other archs:
-
-alpha and ia64 - doesn't have PREEPMT_RT yet.
-
-arm, cris, frv, h8300, m32r, parsic don't seem to implement the XCHGADD.
-
-But I see that powerpc will need a fix, but I'll let others who actually
-have the boards to fix them. ;-)
-
-As for what I own: x86_64 and i386, the patches I sent are sufficient.
-
-If anyone would like to give me a special board (to keep), I'll gladly
-make sure that Ingo's -RT kernel runs on it.
-
--- Steve
+You probably want a low level driver that just arbitrates the interface
+and implements the basic query/response transaction interface and
+locking and then is called by both HDAPS and your driver (and no doubt
+other future drivers talking to that controller). It can thene export
+the interface to both drivers.
 

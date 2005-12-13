@@ -1,51 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbVLMVok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932506AbVLMVo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030240AbVLMVok (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 16:44:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbVLMVoj
+	id S932506AbVLMVo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 16:44:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932608AbVLMVo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 16:44:39 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:26584 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932385AbVLMVoj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 16:44:39 -0500
-Date: Tue, 13 Dec 2005 13:44:19 -0800
-From: Paul Jackson <pj@sgi.com>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
-       Simon.Derr@bull.net, ak@suse.de, clameter@sgi.com
-Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
-Message-Id: <20051213134419.175821cd.pj@sgi.com>
-In-Reply-To: <439EF75D.50206@cosmosbay.com>
-References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>
-	<439D39A8.1020806@cosmosbay.com>
-	<20051212020211.1394bc17.pj@sgi.com>
-	<20051212021247.388385da.akpm@osdl.org>
-	<20051213075345.c39f335d.pj@sgi.com>
-	<439EF75D.50206@cosmosbay.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 13 Dec 2005 16:44:59 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:59060 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932506AbVLMVo6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 16:44:58 -0500
+Message-ID: <439F40CF.3010908@watson.ibm.com>
+Date: Tue, 13 Dec 2005 21:44:47 +0000
+From: Shailabh Nagar <nagar@watson.ibm.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jay Lan <jlan@engr.sgi.com>
+CC: john stultz <johnstul@us.ibm.com>,
+       Christoph Lameter <clameter@engr.sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       lse-tech@lists.sourceforge.net,
+       ckrm-tech <ckrm-tech@lists.sourceforge.net>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
+       Jay Lan <jlan@sgi.com>, Jens Axboe <axboe@suse.de>
+Subject: Re: [Lse-tech] [RFC][Patch 1/5] nanosecond timestamps and diffs
+References: <43975D45.3080801@watson.ibm.com>	 <43975E6D.9000301@watson.ibm.com>	 <Pine.LNX.4.62.0512121049400.14868@schroedinger.engr.sgi.com>	 <439DD01A.2060803@watson.ibm.com> <1134416962.14627.7.camel@cog.beaverton.ibm.com> <439F1455.7080402@engr.sgi.com>
+In-Reply-To: <439F1455.7080402@engr.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric wrote:
-> I do think we should have defined a special section for very hot (and written) 
-> spots. It's more easy to locate thos hot spots than 'mostly read and shared by 
-> all cpus without cache ping pongs' places...
+Jay Lan wrote:
+> john stultz wrote:
+> 
+>> On Mon, 2005-12-12 at 19:31 +0000, Shailabh Nagar wrote:
+>>
+>>> Christoph Lameter wrote:
+>>>
+>>>> On Wed, 7 Dec 2005, Shailabh Nagar wrote:
+>>>>
+>>>>
+>>>>
+>>>>> +void getnstimestamp(struct timespec *ts)
+>>>>
+>>>>
+>>>>
+>>>> There is already getnstimeofday in the kernel.
+>>>>
+>>>
+>>> Yes, and that function is being used within the getnstimestamp()
+>>> being proposed.
+>>> However, John Stultz had advised that getnstimeofday could get
+>>> affected by calls to
+>>> settimeofday and had recommended adjusting the getnstimeofday value
+>>> with wall_to_monotonic.
+>>>
+>>> John, could you elaborate ?
+>>
+>>
+>>
+>> I think you pretty well have it covered.
+>> getnstimeofday + wall_to_monotonic should be higher-res and more
+>> reliable (then TSC based sched_clock(), for example) for getting a
+>> timestamp.
+> 
+> 
+> How is this proposed function different from
+> do_posix_clock_monotonic_gettime()?
+> It calls getnstimeofday(), it also adjusts with wall_to_monotinic.
+> 
+> It seems to me we just need to EXPORT_SYMBOL_GPL the
+> do_posix_clock_monotonic_gettime()?
+> 
+> Thanks,
+>  - jay
+> 
 
-Should we do something like:
- 1) identify the hot write spots, to arrange them by access pattern,
-	as Christoph considered, in another reply on this thread.
- 2) identify the hot read, cold write spots, to bunch them up away from (1)
- 3) leave the rest as "inert filler" (aka "cannon fodder", in my previous
-	reply), but unmarked in any case.
- 4) change the word "__read_mostly" to "__hot_read_cold_write", to more
-	accurately fit item (2).
+Hmmm. Looks like do_posix_clock_monotonic_gettime will suffice for this patch.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Wonder why the clock parameter to do_posix_clock_monotonic_get is needed ?
+Doesn't seem to be used.
+
+Any possibility of these set of functions changing their behaviour ?
+
+-- Shailabh
+
+
+
+
+
+
+
+>>
+>> There may be performance concerns as you have to access the clock
+>> hardware in getnstimeofday(), but there really is no other way for
+>> reliable finely grained monotonically increasing timestamps.
+>>
+>> thanks
+>> -john
+>>
+> 
+> 
+

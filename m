@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932365AbVLMC2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVLMC2t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932365AbVLMC2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 21:28:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932367AbVLMC2Y
+	id S932370AbVLMC2t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 21:28:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbVLMC2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 21:28:24 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:55045 "HELO
+	Mon, 12 Dec 2005 21:28:49 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:57349 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932360AbVLMC2Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 21:28:24 -0500
-Date: Tue, 13 Dec 2005 03:28:23 +0100
+	id S932368AbVLMC2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 21:28:37 -0500
+Date: Tue, 13 Dec 2005 03:28:37 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: james.smart@emulex.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/lpfc/lpfc_scsi.c: make lpfc_sli_get_scsi_buf() static
-Message-ID: <20051213022823.GY23349@stusta.de>
+Cc: vandrove@vc.cvut.cz, linux-fbdev-devel@lists.sourceforge.net,
+       adaplas@pol.net, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] video/matrox/matroxfb_misc.c: remove dead code
+Message-ID: <20051213022837.GA23349@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,28 +23,43 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch makes the needlessly global function lpfc_sli_get_scsi_buf() 
-static.
+The Coverity checker spotted this dead code.
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Acked-by: James Smart <James.Smart@Emulex.Com>
 
 ---
 
 This patch was already sent on:
-- 20 Nov 2005
+- 21 Nov 2005
 
---- linux-2.6.15-rc1-mm2-full/drivers/scsi/lpfc/lpfc_scsi.c.old	2005-11-20 19:52:28.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/drivers/scsi/lpfc/lpfc_scsi.c	2005-11-20 19:52:45.000000000 +0100
-@@ -136,7 +136,7 @@
- 	return psb;
- }
+ drivers/video/matrox/matroxfb_misc.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+--- linux-2.6.15-rc1-mm2-full/drivers/video/matrox/matroxfb_misc.c.old	2005-11-20 22:27:01.000000000 +0100
++++ linux-2.6.15-rc1-mm2-full/drivers/video/matrox/matroxfb_misc.c	2005-11-20 22:27:21.000000000 +0100
+@@ -192,11 +192,8 @@
+ 	unsigned int wd;
+ 	unsigned int divider;
+ 	int i;
+-	int fwidth;
+ 	struct matrox_hw_state * const hw = &ACCESS_FBINFO(hw);
  
--struct  lpfc_scsi_buf*
-+static struct lpfc_scsi_buf*
- lpfc_sli_get_scsi_buf(struct lpfc_hba * phba)
- {
- 	struct  lpfc_scsi_buf * lpfc_cmd = NULL;
-
+-	fwidth = 8;
+-
+ 	DBG(__FUNCTION__)
+ 
+ 	hw->SEQ[0] = 0x00;
+@@ -235,10 +232,7 @@
+ 	hw->ATTR[16] = 0x41;
+ 	hw->ATTR[17] = 0xFF;
+ 	hw->ATTR[18] = 0x0F;
+-	if (fwidth == 9)
+-		hw->ATTR[19] = 0x08;
+-	else
+-		hw->ATTR[19] = 0x00;
++	hw->ATTR[19] = 0x00;
+ 	hw->ATTR[20] = 0x00;
+ 
+ 	hd = m->HDisplay >> 3;
 

@@ -1,51 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVLMIPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbVLMIRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbVLMIPv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 03:15:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932528AbVLMIPv
+	id S932537AbVLMIRU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 03:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932540AbVLMIRU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 03:15:51 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:17644 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932271AbVLMIPu (ORCPT
+	Tue, 13 Dec 2005 03:17:20 -0500
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:12523 "EHLO
+	orac.home") by vger.kernel.org with ESMTP id S932537AbVLMIRT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 03:15:50 -0500
-Date: Tue, 13 Dec 2005 09:15:02 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, david singleton <dsingleton@mvista.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: 2.6.15-rc5-rt1 will not compile (was Re: 2.6.14-rt15: cannot build with !PREEMPT_RT)
-Message-ID: <20051213081502.GB10088@elte.hu>
-References: <1133189789.5228.7.camel@mindpipe> <20051128160052.GA29540@elte.hu> <1133217651.4678.2.camel@mindpipe> <1133230103.5640.0.camel@mindpipe> <20051129072922.GA21696@elte.hu> <20051129093231.GA5028@elte.hu> <1134090316.11053.3.camel@mindpipe> <1134174330.18432.46.camel@mindpipe> <1134409469.15074.1.camel@mindpipe> <1134424143.24145.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Dec 2005 03:17:19 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+Date: Tue, 13 Dec 2005 08:17:12 +0000
+User-Agent: KMail/1.8.2
+References: <20051207210246.GB22690@redhat.com> <20051207.133820.39286690.davem@davemloft.net> <439DB8F4.7020802@emc.com>
+In-Reply-To: <439DB8F4.7020802@emc.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1134424143.24145.6.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.7
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.7 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.2 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200512130817.12206.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 12 December 2005 17:52, Ric Wheeler wrote:
+>
+> Did you also read Greg's follow up posting:
+>
+>      http://www.kroah.com/log/2005/11/07#osdl_gkai2
+>
+> where he says that he was wrong about OSDL pushing for binary drivers?
+> (Not that the update was a glowing review of OSDL in general ;-))
+>
+> I agree with Gerrit - from where I sit on OSDL's DCL tech forum, I have
+> not seen any push for binary drivers and have seen consistent pressure
+> pushing towards GPL'ed only drivers.
+>
+> That position is strongly spelled out in the OSDL sponsored open drivers
+> page as well.
+>
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+Useful. Thanks for pointing it out.
 
-> Looks like Ingo has a generic rwsem to work with, but if your arch 
-> turns on CONFIG_RWSEM_XCHGADD_ALGORITHM, it will compile lib/rwsem.c 
-> which won't compile as you've seen.
-> 
-> Try out this patch: I changed the Makefile, instead of going to each 
-> and every arch and change its Kconfig to do it properly.
-
-i rather went for fixing up the Kconfig, that makes things easier to 
-follow. If it turns out to be lots of duplicate stuff we could create a 
-lib/Kconfig.rwsem that architectures can include.
-
-	Ingo
+Andrew Walrond

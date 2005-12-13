@@ -1,95 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbVLMVzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbVLMVzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbVLMVzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 16:55:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVLMVzQ
+	id S1030249AbVLMVzn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 16:55:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVLMVzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 16:55:16 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:60372 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030239AbVLMVzO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 16:55:14 -0500
-Message-Id: <20051213203900.908870934@csdlinux-2.jf.intel.com>
-References: <20051213203547.649087523@csdlinux-2.jf.intel.com>
-Date: Tue, 13 Dec 2005 12:35:48 -0800
-From: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-To: ananth@in.ibm.com, akpm@osdl.org, paulmck@us.ibm.com
-Cc: linux-kernel@vger.kernel.org, systemtap@sources.redhat.com,
-       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Subject: [patch 1/4] Kprobes - Enable funcions only for required arch
-Content-Disposition: inline; filename=cleanup_inst_slot.patch
+	Tue, 13 Dec 2005 16:55:42 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:27659 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S1030249AbVLMVzm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 16:55:42 -0500
+Subject: Re: sonypi searching new maintainer (Was: Re: [RFT] Sonypi:
+	convert to the new platform device interface)
+From: Stelian Pop <stelian@popies.net>
+To: dtor_core@ameritech.net
+Cc: Mattia Dongili <malattia@linux.it>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <d120d5000512131248j79a93d5ex8667ca6a38452a1d@mail.gmail.com>
+References: <200512130219.41034.dtor_core@ameritech.net>
+	 <20051213183248.GA3606@inferi.kami.home>
+	 <d120d5000512131104x260fdbf2mcc58fb953559fec5@mail.gmail.com>
+	 <1134505855.9642.28.camel@deep-space-9.dsnet>
+	 <d120d5000512131248j79a93d5ex8667ca6a38452a1d@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Tue, 13 Dec 2005 22:55:36 +0100
+Message-Id: <1134510936.9642.31.camel@deep-space-9.dsnet>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] Kprobes - Enable funcions only for required arch
+Le mardi 13 décembre 2005 à 15:48 -0500, Dmitry Torokhov a écrit :
+> On 12/13/05, Stelian Pop <stelian@popies.net> wrote:
+> > Le mardi 13 décembre 2005 à 14:04 -0500, Dmitry Torokhov a >
+> > > > sonypi: unknown event port1=0x0f,port2=0x05
+> > [...]
+> > > > Oh, there seems to be a spurious interrupt happening at modules
+> > > > insertion (I suspect sonypi_enable triggering and ignoring it), but this
+> > > > happens with the old module too and I never noticed it before. Wouldn't
+> > > > make more sense to print the warning even if verbose=0 to be able to
+> > > > catch it timely? I mean it's since 2.4 times I don't enable verbose mode
+> > > > in sonypi...
+> > > >
+> > > Probably, let's see what Stelian will say.
+> >
+> > This is the "ok I'm loaded" event. I am not sure this event is available
+> > on all the sonypi supported platforms, that's why it hasn't been defined
+> > as a known event. And it doesn't make much sense to forward it anyways.
+> >
+> > I would leave it like it is now.
+> >
+> 
+> But when it is reported is it the same event? 
 
-	Kernel/kprobes.c defines get_insn_slot() and free_insn_slot()
-which are currently required _only_ for x86_64 and powerpc (which has
-no-exec support).
+I don't follow you here... 
 
-FYI, get{free}_insn_slot() functions manages the memory
-page which is mapped as executable, required for instruction
-emulation.
+> If so we could just not
+> warn when we see it (but still dont forward it to the userspace).
 
-This patch moves those two functions under
-__ARCH_WANT_KPROBES_INSN_SLOT and defines
-__ARCH_WANT_KPROBES_INSN_SLOT in arch specific
-kprobes.h file.
+The warning is only present if 'verbose > 0', so in normal conditions
+you won't see it.
 
-Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-------------------------------------------------------------------
-
- include/asm-powerpc/kprobes.h |    2 ++
- include/asm-x86_64/kprobes.h  |    2 ++
- kernel/kprobes.c              |    2 ++
- 3 files changed, 6 insertions(+)
-
-Index: linux-2.6.15-rc5-mm2/include/asm-powerpc/kprobes.h
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/include/asm-powerpc/kprobes.h
-+++ linux-2.6.15-rc5-mm2/include/asm-powerpc/kprobes.h
-@@ -29,6 +29,8 @@
- #include <linux/ptrace.h>
- #include <linux/percpu.h>
- 
-+#define  __ARCH_WANT_KPROBES_INSN_SLOT
-+
- struct pt_regs;
- 
- typedef unsigned int kprobe_opcode_t;
-Index: linux-2.6.15-rc5-mm2/include/asm-x86_64/kprobes.h
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/include/asm-x86_64/kprobes.h
-+++ linux-2.6.15-rc5-mm2/include/asm-x86_64/kprobes.h
-@@ -27,6 +27,8 @@
- #include <linux/ptrace.h>
- #include <linux/percpu.h>
- 
-+#define  __ARCH_WANT_KPROBES_INSN_SLOT
-+
- struct pt_regs;
- 
- typedef u8 kprobe_opcode_t;
-Index: linux-2.6.15-rc5-mm2/kernel/kprobes.c
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/kernel/kprobes.c
-+++ linux-2.6.15-rc5-mm2/kernel/kprobes.c
-@@ -52,6 +52,7 @@ static DEFINE_SPINLOCK(kprobe_lock);	/* 
- DEFINE_SPINLOCK(kretprobe_lock);	/* Protects kretprobe_inst_table */
- static DEFINE_PER_CPU(struct kprobe *, kprobe_instance) = NULL;
- 
-+#ifdef __ARCH_WANT_KPROBES_INSN_SLOT
- /*
-  * kprobe->ainsn.insn points to the copy of the instruction to be
-  * single-stepped. x86_64, POWER4 and above have no-exec support and
-@@ -151,6 +152,7 @@ void __kprobes free_insn_slot(kprobe_opc
- 		}
- 	}
- }
-+#endif
- 
- /* We have preemption disabled.. so it is safe to use __ versions */
- static inline void set_kprobe_instance(struct kprobe *kp)
-
---
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>
 

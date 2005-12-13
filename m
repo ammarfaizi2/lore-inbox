@@ -1,55 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbVLMSaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932590AbVLMScF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932574AbVLMSaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 13:30:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932582AbVLMSaI
+	id S932590AbVLMScF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 13:32:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbVLMScE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 13:30:08 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:50528 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932574AbVLMSaG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 13:30:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NFc/dB7EnL2J63/Kgp4O361Wz4ULtCLc7DFhJ/rAOqQ8STvPOq5CoN72am1N6keOZtSVlYlhlT4nSKMt1Okyb6vdERiPj8942Z7sLSvsyL7lbPaKd4Qlzg2Vtl/1+Wr66qw+PWupR26Po/Xg7sSBYs9PmobecoWNbksh5bVx41Q=
-Message-ID: <e46c534c0512131030v45640694t1030468ac5775804@mail.gmail.com>
-Date: Tue, 13 Dec 2005 18:30:00 +0000
-From: Filipe Cabecinhas <filcab@gmail.com>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Subject: Re: Possible problem in fcntl
-Cc: linux-kernel@vger.kernel.org, Nuno Lopes <ncpl@mega.ist.utl.pt>,
-       =?ISO-8859-1?Q?Renato_Cris=F3stomo?= <racc@mega.ist.utl.pt>
-In-Reply-To: <Pine.LNX.4.61.0512131242280.8370@chaos.analogic.com>
+	Tue, 13 Dec 2005 13:32:04 -0500
+Received: from 213-140-2-69.ip.fastwebnet.it ([213.140.2.69]:42895 "EHLO
+	aa002msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S932582AbVLMScD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 13:32:03 -0500
+Date: Tue, 13 Dec 2005 19:32:48 +0100
+From: Mattia Dongili <malattia@linux.it>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Stelian Pop <stelian@popies.net>
+Subject: Re: [RFT] Sonypi: convert to the new platform device interface
+Message-ID: <20051213183248.GA3606@inferi.kami.home>
+Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Stelian Pop <stelian@popies.net>
+References: <200512130219.41034.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <e46c534c0512130756k18c409aen3d60df7aaee50062@mail.gmail.com>
-	 <Pine.LNX.4.61.0512131242280.8370@chaos.analogic.com>
+In-Reply-To: <200512130219.41034.dtor_core@ameritech.net>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.15-rc5-mm1-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/13/05, linux-os (Dick Johnson) <linux-os@analogic.com> wrote:
+On Tue, Dec 13, 2005 at 02:19:40AM -0500, Dmitry Torokhov wrote:
+> Hi,
+> 
+> Now that we allow manual binding and unbinding devices through sysfs it
+> is better if main device initialization is done in ->probe() instead of
+> module_init(). The following patch converts sonypi driver to this model.
+> 
+> The patch compiles but I was unable to test it since I don't have the
+> hardware...
+[...]
+> +static int __devinit sonypi_setup_irq(struct sonypi_device *dev,
+> +				      const struct sonypi_irq_list *irq_list)
+> +{
+> +	while (irq_list->irq) {
+> +
+> +		if (!request_irq(dev->irq, sonypi_irq,
+                                 ^^^^^^^^
+this should be irq_list->irq
 
-> So what is it that the socket doesn't do, that you expect it
-> should do?
->
+other than that seems to work here on a type2 model:
 
-When we call recv on that socket, it returns 0 and sets the string to
-"" (as if the the client had done an orderly shutdown (which is not
-true, since wget says connection refused).
+sonypi: Sony Programmable I/O Controller Driver v1.26.
+sonypi: trying irq 11
+input: Sony Vaio Jogdial as /class/input/input8
+input: Sony Vaio Keys as /class/input/input9
+sonypi: detected type2 model, verbose = 1, fnkeyinit = off, camera = off, compat = off, mask = 0xffffffff, useinput = on, acpi = on
+sonypi: enabled at irq=11, port1=0x1080, port2=0x1084
+sonypi: device allocated minor is 63
+sonypi: unknown event port1=0x0f,port2=0x05
 
-We were expecting it to return -1 and set errno to EAGAIN (or to
-return the number of bytes written and set the string to what it
-received).
+Oh, there seems to be a spurious interrupt happening at modules
+insertion (I suspect sonypi_enable triggering and ignoring it), but this
+happens with the old module too and I never noticed it before. Wouldn't
+make more sense to print the warning even if verbose=0 to be able to
+catch it timely? I mean it's since 2.4 times I don't enable verbose mode
+in sonypi...
 
-It works as expected if we don't have that (second) fcntl call. But,
-as the accept manpage tells us, in linux the socket returned by accept
-() does  not  inherit  file status  flags such as O_NONBLOCK, so we
-think we should call it (to be sure it has that flag). And, even if it
-isn't necessary, we can't tell why it's breaking (because it would
-just be setting a flag (that is already set )).
-
-Thanks in advance,
-Filipe Cabecinhas
+-- 
+mattia
+:wq!

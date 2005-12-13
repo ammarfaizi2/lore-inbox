@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932466AbVLMGId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbVLMGQ2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932466AbVLMGId (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 01:08:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVLMGId
+	id S932473AbVLMGQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 01:16:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932422AbVLMGQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 01:08:33 -0500
-Received: from smtp108.sbc.mail.re2.yahoo.com ([68.142.229.97]:13408 "HELO
-	smtp108.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932466AbVLMGIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 01:08:32 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Mouse button swapping
-Date: Tue, 13 Dec 2005 01:08:28 -0500
-User-Agent: KMail/1.9.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>
-References: <Pine.LNX.4.61.0512091508250.8080@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0512091508250.8080@yvahk01.tjqt.qr>
+	Tue, 13 Dec 2005 01:16:28 -0500
+Received: from tornado.reub.net ([202.89.145.182]:54671 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S932473AbVLMGQ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 01:16:28 -0500
+Message-ID: <439E6730.5040602@reub.net>
+Date: Tue, 13 Dec 2005 19:16:16 +1300
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20051212)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>
+Subject: Re: 2.6.15-rc5-mm2
+References: <5iylt-514-17@gated-at.bofh.it>
+In-Reply-To: <5iylt-514-17@gated-at.bofh.it>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512130108.29822.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 December 2005 09:10, Jan Engelhardt wrote:
-> Hi,
+On 12/12/2005 1:20 a.m., Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm2/
 > 
+> - Many new driver updates and architecture updates
 > 
-> I produced a small patch that allows one to flip the mouse buttons at the 
-> kernel level. This is useful for changing it on a per-system basis, i.e. it 
-> will affect gpm, X and VMware all at once. It is changeable through
-> /sys/module/mousedev/swap_buttons at runtime. Is this something mainline would
-> be interested in?
+> - New CPU scheduler policy: SCHED_BATCH.
+> 
+> - New version of the hrtimers code.
 
-I am not sure if this should be done in kernel. It will also not work for mouse
-drivers using event interface (which hopefully will be default someday) instead
-of legacy mousedev interface.
+Works fine.  However now that Redhat Rawhide contains gcc version 4.1.0 20051207 
+(Red Hat 4.1.0-0.6) I'm seeing quite a few compile warnings, one in particular 
+appearing in hundreds of lines:
 
--- 
-Dmitry
+In file included from include/asm/mpspec.h:5,
+                  from include/asm/smp.h:18,
+                  from include/linux/smp.h:22,
+                  from include/linux/sched.h:26,
+                  from include/linux/module.h:10,
+                  from drivers/net/sky2.c:39:
+include/asm/mpspec_def.h:78: warning: 'packed' attribute ignored for field of 
+type 'unsigned char[5u]'
+
+
+There is a patch in the Fedora Core Kernel RPM that 'fixes' this for the FC kernels:
+
+http://cvs.fedora.redhat.com/viewcvs/devel/kernel/linux-2.6-gcc41.patch
+http://cvs.fedora.redhat.com/viewcvs/devel/kernel/linux-2.6-gcc41.patch?rev=1.3&view=markup
+
+Perhaps part or all of it could go into -mm for further testing?  Is this a gcc 
+glitch or something that ought to be fixed in the kernel?  (davej?)
+
+
+reuben

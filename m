@@ -1,52 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932581AbVLMJOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932586AbVLMJOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932581AbVLMJOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 04:14:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932578AbVLMJOQ
+	id S932586AbVLMJOy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 04:14:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932585AbVLMJOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 04:14:16 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:20919 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932576AbVLMJOO (ORCPT
+	Tue, 13 Dec 2005 04:14:54 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:3551 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932578AbVLMJOw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 04:14:14 -0500
-Date: Tue, 13 Dec 2005 10:13:28 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, dhowells@redhat.com, torvalds@osdl.org,
-       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
+	Tue, 13 Dec 2005 04:14:52 -0500
+Date: Tue, 13 Dec 2005 01:14:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: ak@suse.de, mingo@elte.hu, dhowells@redhat.com, torvalds@osdl.org,
+       hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
 Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Message-ID: <20051213091328.GG10088@elte.hu>
-References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de> <20051213004257.0f87d814.akpm@osdl.org> <20051213084926.GN23384@wotan.suse.de> <20051213090429.GC27857@infradead.org>
+Message-Id: <20051213011413.1288f4cf.akpm@osdl.org>
+In-Reply-To: <20051213090331.GB27857@infradead.org>
+References: <dhowells1134431145@warthog.cambridge.redhat.com>
+	<20051212161944.3185a3f9.akpm@osdl.org>
+	<20051213075441.GB6765@elte.hu>
+	<20051213075835.GZ15804@wotan.suse.de>
+	<20051213004257.0f87d814.akpm@osdl.org>
+	<20051213090331.GB27857@infradead.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051213090429.GC27857@infradead.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Christoph Hellwig <hch@infradead.org> wrote:
-
-> > 
-> > Remove -Wdeclaration-after-statement
-> > 
-> > Now that gcc 2.95 is not supported anymore it's ok to use C99
-> > style mixed declarations everywhere.
+Christoph Hellwig <hch@infradead.org> wrote:
+>
+> On Tue, Dec 13, 2005 at 12:42:57AM -0800, Andrew Morton wrote:
+> > scsi/sd.c is currently getting an ICE.  None of the new SAS code compiles,
+> > due to extensive use of anonymous unions.
 > 
-> Nack.  This code style is pure obsfucation and we should disallow it 
-> forever.
+> This is just the headers in the luben code which need redoing completely
+> because they're doing other stupid things like using bitfields for on the
+> wire structures.
 
-agreed. I often get quilt mismerges uncovered by that warning. If 
-someone wants to start a new section of code that is too large, it 
-should go into a separate function.
+Don't think so (you're referring to Jeff's git-sas-jg.patch?).  It dies
+with current -linus tree.
 
-	Ingo
+
+drivers/scsi/sd.c: In function `sd_read_capacity':
+drivers/scsi/sd.c:1301: internal error--unrecognizable insn:
+(insn 1274 1273 1797 (parallel[ 
+            (set (reg:SI 0 %eax)
+                (asm_operands ("") ("=a") 0[ 
+                        (reg:DI 1 %edx)
+                    ] 
+                    [ 
+                        (asm_input:DI ("A"))
+                    ]  ("drivers/scsi/sd.c") 1282))
+            (set (reg:SI 1 %edx)
+                (asm_operands ("") ("=d") 1[ 
+                        (reg:DI 1 %edx)
+                    ] 
+                    [ 
+                        (asm_input:DI ("A"))
+                    ]  ("drivers/scsi/sd.c") 1282))
+        ] ) -1 (insn_list 1269 (nil))
+    (nil))
+
+It'll be workable aroundable of course, but it's a hassle.

@@ -1,66 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbVLMC6G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVLMC77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932372AbVLMC6G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 21:58:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVLMC6F
+	id S932364AbVLMC77 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 21:59:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVLMC77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 21:58:05 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:48968 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932364AbVLMC6C (ORCPT
+	Mon, 12 Dec 2005 21:59:59 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:2439 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932364AbVLMC76 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 21:58:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=gBtvOljf11ItuK1iBP6Hr25oV5yNewxkXheejanirw2IfQvPyocBxmnZsLZdlAMROSgE8w0PkkTdDRg24eXsF5c/a9KNesybHSE2uUyNFpeGXVZAgFANpbLZfcVtonPuEEdxYW5BdOvI/d6beDyefAlCneMUgEm0lyjcixUF7LU=
-From: Kurt Wall <kwallinator@gmail.com>
-To: Petr Baudis <pasky@ucw.cz>
-Subject: Re: [PATCH 3/3] [kconfig] Direct use of lxdialog routines by menuconfig
-Date: Mon, 12 Dec 2005 21:59:03 -0500
-User-Agent: KMail/1.8.2
-Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org, sam@ravnborg.org,
-       kbuild-devel@lists.sourceforge.net
-References: <20051212004159.31263.89669.stgit@machine.or.cz> <200512112218.27286.kwallinator@gmail.com> <20051212112033.GB8025@pasky.or.cz>
-In-Reply-To: <20051212112033.GB8025@pasky.or.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 12 Dec 2005 21:59:58 -0500
+Subject: [PATCH -mm 0/9] unshare system call (take 3)
+From: JANAK DESAI <janak@us.ibm.com>
+Reply-To: janak@us.ibm.com
+To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
+       jamie@shareable.org, serue@us.ibm.com, mingo@elte.hu,
+       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
+       janak@us.ibm.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1134441527.14136.1.camel@hobbs.atlanta.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Mon, 12 Dec 2005 21:59:47 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512122159.03296.kwallinator@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 December 2005 06:20 am, Petr Baudis wrote:
-> Dear diary, on Mon, Dec 12, 2005 at 04:18:26AM CET, I got a letter
-> where Kurt Wall <kwallinator@gmail.com> said that...
->
 
-[...]
+The following patches represent the updated version of the proposed
+new system call unshare. They were forward ported 2.6.15-rc5-mm2 and
+reorganized as per Al Viro's suggestion to allow incremental unsharing
+of process context without requiring ABI changes.
 
-> > > +     submenu->data = (void *) !submenu->data;
-> >
-> > Shouldn't this be:
-> >      submenu->data = (void *) (long) !submenu->data;
->
-> You are right, it should be so at least for consistency - it'll be fixed
-> in the next resend of the patch. I can't see why is it needed, though -
-> shouldn't the int be padded to void* anyway?
+unshare allows a process to disassociate part of the process context (vm
+and/or namespace) that was being shared with a parent.  Unshare is
+needed
+to implement polyinstantiated directories (such as per-user and/or
+per-security context /tmp directory) using the kernel's per-process
+namespace mechanism. For a more detailed description of the
+justification
+and approach, please refer to lkml threads from 8/8/05, 10/13/05 &
+12/08/05.
+                                                                                
+Unshare system call, along with shared tree patches, have been in use
+in our department for over month and half. We have been using them to
+maintain per-user and per-context /tmp directory. The latest port to
+2.6.15-rc5-mm2 has been tested on a uni-processor i386 machine.
 
-The cast to long quiets a warning from gcc. Without the cast, it
-complains:
+Patches are organized as follows:
 
-$ make menuconfig
-  HOSTCC  scripts/kconfig/mconf.o
-scripts/kconfig/mconf.c: In function `conf':
-scripts/kconfig/mconf.c:699: warning: cast to pointer from integer of 
-different size
-  HOSTLD  scripts/kconfig/mconf
-scripts/kconfig/mconf arch/x86_64/Kconfig
+1. Patch implementing system call handler sys_unshare. System call
+   accepts all clone(2) flags but returns -EINVAL when attempt is
+   made to unshare any shared context.
+2. Patch registering system call for i386 architecture
+3. Patch registering system call for powerpc architecture
+4. Patch registering system call for ppc architecture
+5. Patch registering system call for x86_64 architecture
+6. Patch implementing unsharing of filesystem information
+7. Patch implementing unsharing of namespace
+8. Patch implementing unsharing of vm
+9. Patch implementing unsharing of files
 
-I like the changes, though -- menuconfig is much snappier and easier on
-the eyes without the nasty flashing.
+Unsharing of singnal handlers is still not implemented. As far as I can
+tell, issues raised by Chris Wright regarding possible problems stemming
+from interaction of timers with unsharing of signal handlers, has been
+resolved by a 2.6.14 patch that fixed race in send_sigqueue with thread
+exit. However, I do want to understand the code better and experiment
+with it some more before implementing signal handler unsharing. If 
+deemed ok, it would be easy to add that functionality.
 
-Kurt
--- 
-"I'd love to go out with you, but it's my parakeet's bowling night."
+ 
+
+

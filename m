@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030327AbVLMWuf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030330AbVLMWvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030327AbVLMWuf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 17:50:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030330AbVLMWuf
+	id S1030330AbVLMWvV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 17:51:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbVLMWvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 17:50:35 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:52680 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030327AbVLMWue
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 17:50:34 -0500
-Date: Tue, 13 Dec 2005 14:50:59 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Keith Owens <kaos@sgi.com>
-Cc: Andi Kleen <ak@suse.de>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       vatsa@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
-       linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
-Message-ID: <20051213225059.GD14158@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051213162027.GA14158@us.ibm.com> <17158.1134512861@ocs3.ocs.com.au>
+	Tue, 13 Dec 2005 17:51:21 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57543
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030276AbVLMWvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 17:51:20 -0500
+Date: Tue, 13 Dec 2005 14:51:09 -0800 (PST)
+Message-Id: <20051213.145109.20744871.davem@davemloft.net>
+To: matthew@wil.cx
+Cc: hch@lst.de, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 3/3] sanitize building of fs/compat_ioctl.c
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051213173434.GP9286@parisc-linux.org>
+References: <20051213172325.GC16392@lst.de>
+	<20051213173434.GP9286@parisc-linux.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17158.1134512861@ocs3.ocs.com.au>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 09:27:41AM +1100, Keith Owens wrote:
-> On Tue, 13 Dec 2005 08:20:27 -0800, 
-> "Paul E. McKenney" <paulmck@us.ibm.com> wrote:
-> >If the variable p references MMIO rather than normal memory, then
-> >wmb() and rmb() are needed instead of smp_wmb() and smp_rmb().
-> 
-> mmiowb(), not wmb().  IA64 has a different form of memory fence for I/O
-> space compared to normal memory.  MIPS also has a non-empty form of
-> mmiowb().
+From: Matthew Wilcox <matthew@wil.cx>
+Date: Tue, 13 Dec 2005 10:34:34 -0700
 
-New one on me!
+> The 64-bit code doesn't compile because Andi keeps blocking the
+> is_compat_task() stuff.
 
-> >This is because the I/O device needs to see the accesses ordered
-> >even in a UP system.
-> 
-> Why does mmiowb() map to empty on most systems, including Alpha?
-> Should it not map to wmb() for everything except IA64 and MIPS?
+The one place where I ever thought that was necessary, the
+USB async userspace I/O operation stuff, was solved much more
+cleanly with ->compat_ioctl() file_operations handlers.
 
-Sounds like I am not the only one that it is new to...
+What do you really still need it for at this point?
 
-There are over four hundred instances of wmb() still in the drivers tree
-in 2.6.14.  I suspect that most of them are for MMIO fencing -- the ones
-I looked at quickly certainly seem to be.
-
-But, given mmiowb(), what is the point of having wmb()?  Why are
-write memory barriers needed in UP kernels if not for MMIO and other
-hardware-specific accesses?  Is your thought that use of wmb() should
-be phased out in favor of mmiowb()?  (Might be a good idea, but doesn't
-look like we are there yet.)
-
-							Thanx, Paul
+I also would like to avoid it if possible.

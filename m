@@ -1,47 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVLMMPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbVLMMQ3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbVLMMPE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 07:15:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750766AbVLMMPE
+	id S1750766AbVLMMQ3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 07:16:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbVLMMQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 07:15:04 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:34201 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750764AbVLMMPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 07:15:01 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
-       Andrea Arcangeli <andrea@cpushare.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, Rik van Riel <riel@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1134467098.30759.8.camel@tara.firmix.at>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01EE9BB3@otce2k03.adaptec.com>
-	 <439E8565.3000900@aitel.hist.no>  <1134467098.30759.8.camel@tara.firmix.at>
-Content-Type: text/plain
+	Tue, 13 Dec 2005 07:16:29 -0500
+Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:40376 "EHLO
+	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750766AbVLMMQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 07:16:28 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Subject: Re: 2.6.15-rc5-mm2 :-)
+Date: Tue, 13 Dec 2005 23:16:11 +1100
+User-Agent: KMail/1.9
+References: <20051211041308.7bb19454.akpm@osdl.org> <200512131652.10117.kernel@kolivas.org> <1916802326.20051213121330@dns.toxicfilms.tv>
+In-Reply-To: <1916802326.20051213121330@dns.toxicfilms.tv>
+MIME-Version: 1.0
+Message-Id: <200512132316.14118.kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed;
+  boundary="nextPart1895324.oxDZcNMopj";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Date: Tue, 13 Dec 2005 12:14:10 +0000
-Message-Id: <1134476050.11732.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-12-13 at 10:44 +0100, Bernd Petrovitsch wrote:
-> At least for (certified) ISDN stacks any change on the source (including
-> trivial bug fixes) invalidates any official certification AFAIK
+--nextPart1895324.oxDZcNMopj
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This was abolished in most of the countries that had such rules. Several
-reasons including competition but above all the national security card.
-If a bad software stack could take out the phone exchange so could
-someone planning a bomb attack who wanted to kill phone service.
+On Tuesday 13 December 2005 22:13, Maciej Soltysiak wrote:
+> Hello Con,
+>
+> Tuesday, December 13, 2005, 6:52:09 AM, you wrote:
+> > I missed this announcement (been on leave for a while). This SCHED_BATCH
+> > implementation is by Ingo and it it is not "idle" scheduling as I have
+> > implemented in the staircase scheduler. This is just to restrict a task
+> > to not having any interactive bonus at any stage and to have predictable
+> > scheduling behaviour I guess.
+>
+> Thanks a lot. That's good anyway.
+>
+> If I understand correctly, if Ingo's version gets merged with linus' tree
+> your implementions of SCHED_BATCH in -ck will be replacing the one from
+> Ingo.
 
-Except in .de it seems the telco's found it hard to justify after that
-issue was raised
+Yes. SCHED_BATCH in Ingo's implementation is more like turning off the=20
+interactive setting in staircase, and the idle scheduling staircase offers =
+is=20
+extremely useful.
 
-Alan
+> A silly question. Is SCHED_BATCH-kind-of-thing a standard in Unices or
+> general operating system engineering know-how? Or is this concept only
+> available for Linux?
 
+=46airly standard in Unices but prone to all sorts of priority inversion=20
+starvation scenarios so very few implement it. In freebsd for example you c=
+an=20
+use their idle scheduling only if you are root to prevent this starvation -=
+=20
+which kind of makes it useless in practice. My implementation is fairly=20
+robust at avoiding the priority inversion problem - at least I haven't seen=
+ a=20
+bug report about it for years since I address it :)
+
+Cheers,
+Con
+
+--nextPart1895324.oxDZcNMopj
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDnruOZUg7+tp6mRURApanAJ97/ELCoyAiuumfuLj0iVwZROfK6gCffn5J
+p2kJOLAaIy51Vy+pqNYLSqg=
+=MX1t
+-----END PGP SIGNATURE-----
+
+--nextPart1895324.oxDZcNMopj--

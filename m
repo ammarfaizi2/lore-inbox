@@ -1,90 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbVLMUBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbVLMUE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751288AbVLMUBT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 15:01:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbVLMUBS
+	id S1030199AbVLMUE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 15:04:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbVLMUE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 15:01:18 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37390 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751288AbVLMUBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 15:01:17 -0500
-Date: Tue, 13 Dec 2005 20:01:06 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Simon Richter <Simon.Richter@hogyros.de>, linux-kernel@vger.kernel.org,
-       tony.luck@intel.com, linux-ia64@vger.kernel.org, matthew@wil.cx,
-       grundler@parisc-linux.org, parisc-linux@parisc-linux.org,
-       paulus@samba.org, linuxppc-dev@ozlabs.org, lethal@linux-sh.org,
-       kkojima@rr.iij4u.or.jp, dwmw2@infradead.org,
-       linux-mtd@lists.infradead.org
-Subject: Re: [2.6 patch] don't allow users to set CONFIG_BROKEN=y
-Message-ID: <20051213200106.GC24094@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Simon Richter <Simon.Richter@hogyros.de>,
-	linux-kernel@vger.kernel.org, tony.luck@intel.com,
-	linux-ia64@vger.kernel.org, matthew@wil.cx,
-	grundler@parisc-linux.org, parisc-linux@parisc-linux.org,
-	paulus@samba.org, linuxppc-dev@ozlabs.org, lethal@linux-sh.org,
-	kkojima@rr.iij4u.or.jp, dwmw2@infradead.org,
-	linux-mtd@lists.infradead.org
-References: <20051211185212.GQ23349@stusta.de> <20051211192109.GA22537@flint.arm.linux.org.uk> <20051211193118.GR23349@stusta.de> <20051211194437.GB22537@flint.arm.linux.org.uk> <20051213001028.GS23349@stusta.de> <439ECDCC.80707@hogyros.de> <20051213140001.GG23349@stusta.de> <20051213173112.GA24094@flint.arm.linux.org.uk> <20051213180551.GN23349@stusta.de>
+	Tue, 13 Dec 2005 15:04:58 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:4850 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751361AbVLMUE6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 15:04:58 -0500
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+From: Steven Rostedt <rostedt@goodmis.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org, matthew@wil.cx, arjan@infradead.org,
+       hch@infradead.org, akpm@osdl.org, torvalds@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <3874.1134480759@warthog.cambridge.redhat.com>
+References: <1134479118.11732.14.camel@localhost.localdomain>
+	 <dhowells1134431145@warthog.cambridge.redhat.com>
+	 <3874.1134480759@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Tue, 13 Dec 2005 15:04:20 -0500
+Message-Id: <1134504260.18921.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051213180551.GN23349@stusta.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 07:05:52PM +0100, Adrian Bunk wrote:
-> On Tue, Dec 13, 2005 at 05:31:12PM +0000, Russell King wrote:
-> > The defconfig files in arch/arm/configs are for platform configurations
-> > and are provided by the platform maintainers as a _working_ configuration
-> > for their platform.  They're not "defconfigs".  They got called
-> > "defconfigs" as a result of the kbuild "cleanups".  Please don't confuse
-> > them as such.
-> > 
-> > If, in order to have a working platform configuration, they deem that
-> > CONFIG_BROKEN must be enabled, then that's the way it is.
+On Tue, 2005-12-13 at 13:32 +0000, David Howells wrote:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 > 
-> if a working platform configuration configuration requires 
-> CONFIG_BROKEN=y, the problem is a bug that should be fixed properly.
+> > >  (5) Redirects the following to apply to the new mutexes rather than the
+> > >      traditional semaphores:
+> > > 
+> > > 	down()
+> > ...
+> > 
+> > And you've audited every occurence ?
+> 
+> Outside of the arch directories, yes; but I don't know that I've made the
+> correct decision in 100% of the cases.
 
-Maybe they're only broken for a small subset of platforms, and someone
-added a BROKEN without properly considering whether it should be global
-or not?
+I'm in the crowd that thinks that the mutex downs and ups should be
+converted to mutex_lock/mutex_unlock.  Simply because that is basically
+what a mutex is doing.  I rather not have another "historical" API in
+the kernel.
 
-I don't disagree with the overall notion that CONFIG_BROKEN should not
-be set _where_ _possible_.  However, if it needs to be set to get the
-required options, then that's what needs to happen until such time that
-the above is corrected.
+> 
+> I've changed some of the uses into completions, and found about a dozen or so
+> uses of counting semaphores; but the vast majority of occurrences seem to be
+> wanting mutex behaviour.
 
-However - and now to the main bug bear - how can we tell what is really
-broken if you _just_ change the default configuration file settings for
-CONFIG_BROKEN?  What happens is that, on review, we see a simple change.
-We'd assume that it has little impact, and we accept that change.
+And we can take our time in looking at this in a case by case basis.
 
-Maybe a month or two down the line, someone whines that their platform
-doesn't work for some reason, and it's tracked down to this and the
-resulting fallout from disabling CONFIG_BROKEN.
+> 
+> > It seems to me it would be far far saner to define something like
+> > 
+> > 	sleep_lock(&foo)
+> > 	sleep_unlock(&foo)
+> > 	sleep_trylock(&foo)
+> 
+> Which would be a _lot_ more work. It would involve about ten times as many
+> changes, I think, and thus be more prone to errors.
 
-That means that the original review was _worthless_.  It wasn't a
-review at all.
+I don't think this should be a one shot patch.  Your patch (and what you
+would be responsible for) would just introduce the use of the mutex.
+Let others go around and find the places where a semaphore is used where
+a mutex should be.  Yes there is a lot more mutexes than true
+semaphores, and that is why we really should look at this in a case by
+case basis.  One big global change will probably more likely miss a case
+that should be a semaphore.
 
-So, what I am trying to get across is the need to show the _full_ set
-of changes to a default configuratoin when you disable CONFIG_BROKEN,
-which is trivially producable if you run the script I've already posted.
+> 
+> > Its then obvious what it does, you don't randomly break other drivers you've
+> > not reviewed and the interface is intuitive rather than obfuscated.
+> 
+> I've attempted to review everything in 2.6.15-rc5 outside of most of the archs.
+> I can't easily modify any driver not contained in that tarball, but at least
+> the compiler will barf and force a review.
+> 
+> > It won't take long for people to then change the name of the performance
+> > critical cases and the others will catch up in time.
+> 
+> It took about ten hours to go through the declarations of struct semaphore and
+> review them; I hate to think how long it'd take to go through all the ups and
+> downs too.
 
-You can even use that in conjunction with your present patch to produce
-a patch which shows _exactly_ _everything_ which changes as a result of
-disabling CONFIG_BROKEN.  Surely giving reviewers the _full_ story is
-far better than half a story, and should be something that any change
-to the kernel strives for.
+That's why this should be a step by step integration.
 
-If not, what's the point of the original change?
+> 
+> > It also saves breaking every piece of out of tree kernel code for now
+> > good reason.
+> 
+> But my patch means the changes required are in the most cases minimal: just
+> changing struct semaphore to struct mutex is sufficient for the vast majority
+> of cases.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+But not every case.
+
+> 
+> Your way requires a lot more work, both in the tree and out of it.
+
+Not really.  Over time this would be all cleaned up, but introducing a
+new API should be the first step, then we can go to each and every spot
+to find where a semaphore should be a mutex.  You'll get a lot more
+people helping you in that method then you globally changing it, and
+people only help when it breaks.
+
+I'm sure I'm not the only one that would be happy to send patches in to
+convert semaphores to mutexes where I find them.  But I'd be more
+confused if something suddenly breaks that use to work, and then have to
+see that "Oh this was a semaphore that mistakenly became a mutex!".
+
+-- Steve
+

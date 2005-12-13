@@ -1,73 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932291AbVLMOAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbVLMOCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932291AbVLMOAF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 09:00:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVLMOAF
+	id S932308AbVLMOCu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 09:02:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVLMOCt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 09:00:05 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:47371 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932303AbVLMOAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 09:00:01 -0500
-Date: Tue, 13 Dec 2005 15:00:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Simon Richter <Simon.Richter@hogyros.de>
-Cc: linux-kernel@vger.kernel.org, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, matthew@wil.cx, grundler@parisc-linux.org,
-       parisc-linux@parisc-linux.org, paulus@samba.org,
-       linuxppc-dev@ozlabs.org, lethal@linux-sh.org, kkojima@rr.iij4u.or.jp,
-       dwmw2@infradead.org, linux-mtd@lists.infradead.org
-Subject: Re: [2.6 patch] defconfig's shouldn't set CONFIG_BROKEN=y
-Message-ID: <20051213140001.GG23349@stusta.de>
-References: <20051211185212.GQ23349@stusta.de> <20051211192109.GA22537@flint.arm.linux.org.uk> <20051211193118.GR23349@stusta.de> <20051211194437.GB22537@flint.arm.linux.org.uk> <20051213001028.GS23349@stusta.de> <439ECDCC.80707@hogyros.de>
+	Tue, 13 Dec 2005 09:02:49 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:45771 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932308AbVLMOCt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 09:02:49 -0500
+Message-ID: <439ED47D.3080504@us.ibm.com>
+Date: Tue, 13 Dec 2005 09:02:37 -0500
+From: JANAK DESAI <janak@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <439ECDCC.80707@hogyros.de>
-User-Agent: Mutt/1.5.11
+To: Ingo Molnar <mingo@elte.hu>
+CC: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
+       jamie@shareable.org, serue@us.ibm.com, linuxram@us.ibm.com,
+       jmorris@namei.org, sds@tycho.nsa.gov, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm 0/9] unshare system call (take 3)
+References: <1134441527.14136.1.camel@hobbs.atlanta.ibm.com> <20051213112029.GA14653@elte.hu>
+In-Reply-To: <20051213112029.GA14653@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 02:34:04PM +0100, Simon Richter wrote:
+Ingo Molnar wrote:
 
-> Hi,
+>* JANAK DESAI <janak@us.ibm.com> wrote:
+>
+>  
+>
+>>Patches are organized as follows:
+>>
+>>1. Patch implementing system call handler sys_unshare. System call
+>>   accepts all clone(2) flags but returns -EINVAL when attempt is
+>>   made to unshare any shared context.
+>>2. Patch registering system call for i386 architecture
+>>3. Patch registering system call for powerpc architecture
+>>4. Patch registering system call for ppc architecture
+>>5. Patch registering system call for x86_64 architecture
+>>6. Patch implementing unsharing of filesystem information
+>>7. Patch implementing unsharing of namespace
+>>8. Patch implementing unsharing of vm
+>>9. Patch implementing unsharing of files
+>>
+>>Unsharing of singnal handlers is still not implemented. As far as I 
+>>can tell, issues raised by Chris Wright regarding possible problems 
+>>stemming from interaction of timers with unsharing of signal handlers, 
+>>has been resolved by a 2.6.14 patch that fixed race in send_sigqueue 
+>>with thread exit. However, I do want to understand the code better and 
+>>experiment with it some more before implementing signal handler 
+>>unsharing. If deemed ok, it would be easy to add that functionality.
+>>    
+>>
+>
+>yes, it would be preferrable to have them all at once, once it hits 
+>upstream. Also, would unsharing the thread group make sense?
+>
+>	Ingo
+>
+>  
+>
+Hope you mean all flags when you say "have them all at once" because I
+hoping to get unsharing of namespace, fs. files and vm in now then
+implementing other primitives in an incremental manner. Since the
+reorg, these incremental addition of functionality will not require ABI
+changes. Namespace and fs unsharing (in addition to shared tree)
+is needed for polyinstantiation, critical component for common criteria
+lspp evaluation.
 
-Hi Simon,
+As far as unsharing of thread group, IMO implications of signal
+unsharing are even messier than signal handler unsharing. I can
+investigate it further if folks see usefulness of doing that. However,
+I was hoping to get namespace, fs, files and vm unsharing
+upstream first.
 
-> Adrian Bunk wrote:
-> 
-> >>It's a problem introduced by your patch because the resulting defconfig
-> >>file becomes _wrong_ by your change, and other changes in the defconfig
-> >>are thereby hidden.
-> >>...
-> 
-> >No, CONFIG_BROKEN=y in a defconfig file is a bug.
-> 
-> Indeed, but that's not the point. A defconfig file should be the result 
-> of running one of the various configuration targets; yours are 
-> hand-patched. If you run the defconfig target, it will copy the config 
-> file and run oldconfig, thus resulting in a different configuration file 
-> (because options may now be gone and hence disabled) than what was in 
-> the defconfig, and thus people may come to the wrong conclusion that if 
-> a driver is enabled in a defconfig file, it will be built.
-
-defconfig files are virtually never a configuration for the kernel they 
-are shipped with since they aren't updated every time some configuration 
-option is changed.
-
-Consider a defconfig with CONFIG_BROKEN=n, and a driver that is enabled 
-in this defconfig gets for some reason marked as broken in the Kconfig 
-file - this will give exactly the same result as the one you describe.
-
->    Simon
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+-Janak
 

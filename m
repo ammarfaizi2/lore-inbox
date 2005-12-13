@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932570AbVLMIcz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbVLMIci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932570AbVLMIcz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 03:32:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbVLMIcp
+	id S932550AbVLMIci (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 03:32:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbVLMIYo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 03:32:45 -0500
-Received: from mail.kroah.org ([69.55.234.183]:34947 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932543AbVLMIYo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 13 Dec 2005 03:24:44 -0500
-Date: Tue, 13 Dec 2005 00:23:52 -0800
+Received: from mail.kroah.org ([69.55.234.183]:32131 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932543AbVLMIYn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 03:24:43 -0500
+Date: Tue, 13 Dec 2005 00:23:48 -0800
 From: Greg KH <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,13 +17,13 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       linux@rainbow-software.org, bzolnier@gmail.com
-Subject: [patch 23/26] ide-floppy: software eject not working with LS-120 drive
-Message-ID: <20051213082352.GX5823@kroah.com>
+       dtor@mail.ru
+Subject: [patch 22/26] I8K: fix /proc reporting of blank service tags
+Message-ID: <20051213082348.GW5823@kroah.com>
 References: <20051213073430.558435000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="ide-floppy-software-eject-not-working-with-ls-120-drive.patch"
+Content-Disposition: inline; filename="i8k-fix-proc-reporting-of-blank-service-tags.patch"
 In-Reply-To: <20051213082143.GA5823@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -32,50 +32,43 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Ondrej Zary <linux@rainbow-software.org>
+From: Dmitry Torokhov <dtor_core@ameritech.net>
 
-The problem (eject not working on ATAPI LS-120 drive) is caused by
-idefloppy_ioctl() function which *first* tries generic_ide_ioctl()
-and *only* if it fails with -EINVAL, proceeds with the specific ioctls.
-The generic eject command fails with something other than -EINVAL
-and the specific one is never executed.
+[PATCH] I8K: fix /proc reporting of blank service tags
 
-This patch fixes it by first going through the internal ioctls
-and only trying generic_ide_ioctl() if none of them matches.
+Make /proc/i8k display '?' when service tag is blank in BIOS.
+This fixes segfault in i8k gkrellm plugin.
 
-Signed-off-by: Ondrej Zary <linux@rainbow-software.org>
-Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-diff --git a/drivers/ide/ide-floppy.c b/drivers/ide/ide-floppy.c
-index e83f54d..f615ab7 100644
----
- drivers/ide/ide-floppy.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- linux-2.6.14.3.orig/drivers/ide/ide-floppy.c
-+++ linux-2.6.14.3/drivers/ide/ide-floppy.c
-@@ -2038,11 +2038,9 @@ static int idefloppy_ioctl(struct inode 
- 	struct ide_floppy_obj *floppy = ide_floppy_g(bdev->bd_disk);
- 	ide_drive_t *drive = floppy->drive;
- 	void __user *argp = (void __user *)arg;
--	int err = generic_ide_ioctl(drive, file, bdev, cmd, arg);
-+	int err;
- 	int prevent = (arg) ? 1 : 0;
- 	idefloppy_pc_t pc;
--	if (err != -EINVAL)
--		return err;
+---
+ drivers/char/i8k.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- linux-2.6.14.3.orig/drivers/char/i8k.c
++++ linux-2.6.14.3/drivers/char/i8k.c
+@@ -99,7 +99,9 @@ struct smm_regs {
  
- 	switch (cmd) {
- 	case CDROMEJECT:
-@@ -2094,7 +2092,7 @@ static int idefloppy_ioctl(struct inode 
- 	case IDEFLOPPY_IOCTL_FORMAT_GET_PROGRESS:
- 		return idefloppy_get_format_progress(drive, argp);
- 	}
-- 	return -EINVAL;
-+	return generic_ide_ioctl(drive, file, bdev, cmd, arg);
+ static inline char *i8k_get_dmi_data(int field)
+ {
+-	return dmi_get_system_info(field) ? : "N/A";
++	char *dmi_data = dmi_get_system_info(field);
++
++	return dmi_data && *dmi_data ? dmi_data : "?";
  }
  
- static int idefloppy_media_changed(struct gendisk *disk)
+ /*
+@@ -396,7 +398,7 @@ static int i8k_proc_show(struct seq_file
+ 	return seq_printf(seq, "%s %s %s %d %d %d %d %d %d %d\n",
+ 			  I8K_PROC_FMT,
+ 			  bios_version,
+-			  dmi_get_system_info(DMI_PRODUCT_SERIAL) ? : "N/A",
++			  i8k_get_dmi_data(DMI_PRODUCT_SERIAL),
+ 			  cpu_temp,
+ 			  left_fan, right_fan, left_speed, right_speed,
+ 			  ac_power, fn_key);
 
 --

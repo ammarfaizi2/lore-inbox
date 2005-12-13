@@ -1,173 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932382AbVLMDCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbVLMDDg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932382AbVLMDCE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Dec 2005 22:02:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVLMDAf
+	id S932378AbVLMDDg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Dec 2005 22:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbVLMDDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Dec 2005 22:00:35 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:52876 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932382AbVLMDAV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Dec 2005 22:00:21 -0500
-Subject: [PATCH -mm 8/9] unshare system call : allow unsharing of vm
-From: JANAK DESAI <janak@us.ibm.com>
-Reply-To: janak@us.ibm.com
-To: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
-       jamie@shareable.org, serue@us.ibm.com, mingo@elte.hu,
-       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
-       janak@us.ibm.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1134442748.14136.130.camel@hobbs.atlanta.ibm.com>
+	Mon, 12 Dec 2005 22:03:35 -0500
+Received: from mail.kroah.org ([69.55.234.183]:55011 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932378AbVLMDDe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Dec 2005 22:03:34 -0500
+Date: Mon, 12 Dec 2005 19:03:12 -0800
+From: Greg KH <gregkh@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       stern@rowland.harvard.edu
+Subject: Re: [patch 4/4] UHCI: add missing memory barriers
+Message-ID: <20051213030312.GA1617@suse.de>
+References: <20051212192030.873030000@press.kroah.org> <20051212200136.GE27657@kroah.com> <439E1581.40808@pobox.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Mon, 12 Dec 2005 22:00:11 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <439E1581.40808@pobox.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 12, 2005 at 07:27:45PM -0500, Jeff Garzik wrote:
+> Greg Kroah-Hartman wrote:
+> >From: Alan Stern <stern@rowland.harvard.edu>
+> >
+> >This patch (as617) adds a couple of memory barriers that Ben H. forgot in
+> >his recent suspend/resume fix.
+> >
+> >Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+> >Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> >
+> >---
+> > drivers/usb/host/uhci-hcd.c |    2 ++
+> > 1 file changed, 2 insertions(+)
+> >
+> >--- greg-2.6.orig/drivers/usb/host/uhci-hcd.c
+> >+++ greg-2.6/drivers/usb/host/uhci-hcd.c
+> >@@ -717,6 +717,7 @@ static int uhci_suspend(struct usb_hcd *
+> > 	 * at the source, so we must turn off PIRQ.
+> > 	 */
+> > 	pci_write_config_word(to_pci_dev(uhci_dev(uhci)), USBLEGSUP, 0);
+> >+	mb();
+> > 	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+> > 	uhci->hc_inaccessible = 1;
+> > 	hcd->poll_rh = 0;
+> >@@ -738,6 +739,7 @@ static int uhci_resume(struct usb_hcd *h
+> > 	 * really don't want to keep a stale HCD_FLAG_HW_ACCESSIBLE=0
+> > 	 */
+> > 	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+> >+	mb();
+> 
+> Are these just guesses, or what?
+> 
+> Why not smp_mb__before_clear_bit() or smp_mb__after_clear_bit() ?
 
-[PATCH -mm 8/9] unshare system call: allow unsharing of vm
-
- fork.c |   90
-+++++++++++++++++++++++++++++++++++++++++------------------------
- 1 files changed, 58 insertions(+), 32 deletions(-)
- 
- 
-diff -Naurp 2.6.15-rc5-mm2+patch/kernel/fork.c
-2.6.15-rc5-mm2+patch8/kernel/fork.c
---- 2.6.15-rc5-mm2+patch/kernel/fork.c	2005-12-12 19:31:48.000000000
-+0000
-+++ 2.6.15-rc5-mm2+patch8/kernel/fork.c	2005-12-12 22:20:29.000000000
-+0000
-@@ -445,6 +445,55 @@ void mm_release(struct task_struct *tsk,
- 	}
- }
- 
-+/*
-+ * Allocate a new mm structure and copy contents from the
-+ * mm structure of the passed in task structure.
-+ */
-+static struct mm_struct *dup_mm(struct task_struct *tsk)
-+{
-+	struct mm_struct *mm, *oldmm = current->mm;
-+	int err;
-+
-+	if (!oldmm)
-+		return NULL;
-+
-+	mm = allocate_mm();
-+	if (!mm)
-+		goto fail_nomem;
-+
-+	memcpy(mm, oldmm, sizeof(*mm));
-+
-+	if (!mm_init(mm))
-+		goto fail_nomem;
-+
-+	if (init_new_context(tsk, mm))
-+		goto fail_nocontext;
-+
-+	err = dup_mmap(mm, oldmm);
-+	if (err)
-+		goto free_pt;
-+
-+	mm->hiwater_rss = get_mm_rss(mm);
-+	mm->hiwater_vm = mm->total_vm;
-+
-+	return mm;
-+
-+free_pt:
-+	mmput(mm);
-+
-+fail_nomem:
-+	return NULL;
-+
-+fail_nocontext:
-+	/*
-+	 * If init_new_context() failed, we cannot use mmput() to free the mm
-+	 * because it calls destroy_context()
-+	 */
-+	mm_free_pgd(mm);
-+	free_mm(mm);
-+	return NULL;
-+}
-+
- static int copy_mm(unsigned long clone_flags, struct task_struct * tsk)
- {
- 	struct mm_struct * mm, *oldmm;
-@@ -472,43 +521,17 @@ static int copy_mm(unsigned long clone_f
- 	}
- 
- 	retval = -ENOMEM;
--	mm = allocate_mm();
-+	mm = dup_mm(tsk);
- 	if (!mm)
- 		goto fail_nomem;
- 
--	/* Copy the current MM stuff.. */
--	memcpy(mm, oldmm, sizeof(*mm));
--	if (!mm_init(mm))
--		goto fail_nomem;
--
--	if (init_new_context(tsk,mm))
--		goto fail_nocontext;
--
--	retval = dup_mmap(mm, oldmm);
--	if (retval)
--		goto free_pt;
--
--	mm->hiwater_rss = get_mm_rss(mm);
--	mm->hiwater_vm = mm->total_vm;
--
- good_mm:
- 	tsk->mm = mm;
- 	tsk->active_mm = mm;
- 	return 0;
- 
--free_pt:
--	mmput(mm);
- fail_nomem:
- 	return retval;
--
--fail_nocontext:
--	/*
--	 * If init_new_context() failed, we cannot use mmput() to free the mm
--	 * because it calls destroy_context()
--	 */
--	mm_free_pgd(mm);
--	free_mm(mm);
--	return retval;
- }
- 
- static inline struct fs_struct *__copy_fs_struct(struct fs_struct *old)
-@@ -1422,18 +1445,21 @@ static int unshare_sighand(unsigned long
- }
- 
- /*
-- * Unsharing of vm for tasks created with CLONE_VM is not supported yet
-+ * Unshare vm if it is being shared
-  */
- static int unshare_vm(unsigned long unshare_flags, struct mm_struct
-**new_mmp)
- {
--	struct mm_struct *mm = current->mm;
-+	struct mm_struct *mm = current->mm, *new_mm;
- 
- 	if ((unshare_flags & CLONE_VM) &&
--	    (mm && atomic_read(&mm->mm_users) > 1))
--		return -EINVAL;
-+	    (mm && atomic_read(&mm->mm_users) > 1)) {
-+		new_mm = dup_mm(current);
-+		if (!new_mm)
-+			return -ENOMEM;
-+		*new_mmp = new_mm;
-+	}
- 
- 	return 0;
--
- }
- 
- /*
-
-
+I don't know, Alan?

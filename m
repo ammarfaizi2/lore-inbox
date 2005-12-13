@@ -1,46 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932519AbVLMHXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932512AbVLMH0j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932519AbVLMHXP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 02:23:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932512AbVLMHXP
+	id S932512AbVLMH0j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 02:26:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbVLMH0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 02:23:15 -0500
-Received: from smtp109.sbc.mail.re2.yahoo.com ([68.142.229.96]:48754 "HELO
-	smtp109.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932519AbVLMHXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 02:23:14 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Jean Delvare <khali@linux-fr.org>
-Subject: Re: More platform driver questions
-Date: Tue, 13 Dec 2005 02:23:12 -0500
-User-Agent: KMail/1.9.1
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Alessandro Zummo <alessandro.zummo@towertech.it>
-References: <20051211220023.19820e47.khali@linux-fr.org> <20051211221034.GE22537@flint.arm.linux.org.uk> <20051213081752.5de5eef4.khali@linux-fr.org>
-In-Reply-To: <20051213081752.5de5eef4.khali@linux-fr.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512130223.13178.dtor_core@ameritech.net>
+	Tue, 13 Dec 2005 02:26:39 -0500
+Received: from mini.brewt.org ([216.18.5.212]:34831 "HELO mini.brewt.org")
+	by vger.kernel.org with SMTP id S932525AbVLMH0i convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 02:26:38 -0500
+Date: Mon, 12 Dec 2005 23:26:37 -0800
+From: "Adrian Yee" <brewt-linux-kernel@brewt.org>
+Subject: tsc clock issues with dual core and question about irq balancing
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <GMail.1134458797.49013860.4106109506@brewt.org>
+Mime-Version: 1.0
+X-Gmail-Account: brewt@brewt.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jean,
+Hi,
 
-On Tuesday 13 December 2005 02:17, Jean Delvare wrote:
-> Now the question is, is there actually any race condition there? In my
-> case, the only users of the driver data are the sysfs callback
-> functions, so I guess that this is all down to whether the driver core
-> will unregister them before platform_driver.remove is called, or after
-> it is called. If .remove is called first, then yes my code is racy and
-> I'll have to fix it.
+I've been having tsc issues where it counts back occasionally causing
+things like ping to break with errors: "Warning: time of day goes back
+(-1451987us), taking countermeasures."  It seems related to
+http://bugzilla.kernel.org/show_bug.cgi?id=5105 , but that bug seems to
+be closed (and more x86_64 related).  I also get other timing issues
+like single clicks registering as double clicks, and at times double
+clicks that don't register.  In addition, if I stress the system with
+something like prime95, then after about 2 minutes the system clock will
+speed up where the clock advances by minutes every second.  As suggested
+in bug 5105, I switched to use the pmtimer (clock=pmtmr, my system
+doesn't seem to support hpet) and it has fixed the ping and clock issue,
+but my system doesn't 'feel' right.  For example, ssh'ing out of the
+machine is fine, but when ssh'ing into the system a dmesg is very slow
+(spurts out a few pages then pauses for 10-20 seconds, then repeat). 
+Also, general desktop usage seems a little sluggish and not what a smp
+system should feel like.
 
-Remove might be called first if sysfs attributes were open at the time
-platform_device_unregister was issued. The only thing that is guaranteed
-that ->release() is called only when last reference to kobject was dropped.
- 
--- 
-Dmitry
+I'm currently running an i386 (ie. not x86_64) 2.6.15-rc5 kernel w/ SMP,
+APIC and ACPI enabled (AMD Cool & Quiet disabled), an Athlon 64 X2 3800+
+and EVGA nForce4 SLI (NF41) motherboard.  I previously had the processor
+running on an Abit AV8 (K8T800 Pro chipset) board and was having similar
+issues, so it seems to be a dual core issue.  I'd just like to add that
+I'm currently testing the system with "nosmp noapic acpi=off clock=tsc"
+(it was losing interrupts and wouldn't boot properly with apic/acpi on)
+and so far everything seems to work (this includes ssh and desktop usage
+is better).
+
+My other question is about irq balancing - I turned it on, but it
+doesn't seem to be working properly:
+
+           CPU0       CPU1       
+  0:     109208        975    IO-APIC-edge  timer
+  1:       1226         10    IO-APIC-edge  i8042
+  8:     275272          1    IO-APIC-edge  rtc
+  9:          0          0   IO-APIC-level  acpi
+ 12:       4133          4    IO-APIC-edge  i8042
+ 14:       5135          8    IO-APIC-edge  ide0
+ 15:         17          8    IO-APIC-edge  ide1
+ 16:      25084          1   IO-APIC-level  eth0
+ 17:      43597          1   IO-APIC-level  eth1
+ 18:        185          5   IO-APIC-level  libata
+ 19:          0          0   IO-APIC-level  libata
+ 20:      11525          1   IO-APIC-level  EMU10K1
+ 21:      24870          1   IO-APIC-level  nvidia
+NMI:          0          0 
+LOC:     110119     110118 
+ERR:          0
+MIS:          0
+
+Are there certain conditions where irq balancing doesn't work properly? 
+Thanks.
+
+Adrian

@@ -1,110 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbVLMWQg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbVLMWSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030241AbVLMWQg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 17:16:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbVLMWQg
+	id S1030269AbVLMWSM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 17:18:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbVLMWSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 17:16:36 -0500
-Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:41064 "HELO
-	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030241AbVLMWQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 17:16:35 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Vitaly Wool <vwool@ru.mvista.com>
-Subject: Re: [PATCH 2.6-git] SPI core refresh
-Date: Tue, 13 Dec 2005 14:16:32 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
-       greg@kroah.com, basicmark@yahoo.com, komal_shah802003@yahoo.com,
-       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
-       Joachim_Jaeger@digi.com
-References: <20051130195053.713ea9ef.vwool@ru.mvista.com> <200511301327.02053.david-b@pacbell.net> <439DABEC.8000301@ru.mvista.com>
-In-Reply-To: <439DABEC.8000301@ru.mvista.com>
+	Tue, 13 Dec 2005 17:18:12 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:49937 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030269AbVLMWSL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 17:18:11 -0500
+Date: Tue, 13 Dec 2005 23:18:10 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, mingo@elte.hu, dhowells@redhat.com,
+       torvalds@osdl.org, hch@infradead.org, arjan@infradead.org,
+       matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051213221810.GU23349@stusta.de>
+References: <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de> <20051213004257.0f87d814.akpm@osdl.org> <20051213084926.GN23384@wotan.suse.de> <20051213010126.0832356d.akpm@osdl.org> <20051213090517.GQ23384@wotan.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512131416.33220.david-b@pacbell.net>
+In-Reply-To: <20051213090517.GQ23384@wotan.suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 December 2005 8:57 am, Vitaly Wool wrote:
-> BTW:
+On Tue, Dec 13, 2005 at 10:05:18AM +0100, Andi Kleen wrote:
+> On Tue, Dec 13, 2005 at 01:01:26AM -0800, Andrew Morton wrote:
+> > Andi Kleen <ak@suse.de> wrote:
+> > >
+> > > Can you please apply the following patch then? 
+> > > 
+> > >  Remove -Wdeclaration-after-statement
+> > 
+> > OK.
+> > 
+> > Thus far I have this:
 > 
-> David Brownell wrote:
-> 
-> >+How do I write an "SPI Master Controller Driver"?
-> >+-------------------------------------------------
-> >+An SPI controller will probably be registered on the platform_bus; write
-> >+a driver to bind to the device, whichever bus is involved.
-> >+
-> >+The main task of this type of driver is to provide an "spi_master".
-> >+Use spi_alloc_master() to allocate the master, and class_get_devdata()
-> >+to get the driver-private data allocated for that device.
-> >+
-> >+	struct spi_master	*master;
-> >+	struct CONTROLLER	*c;
-> >+
-> >+	master = spi_alloc_master(dev, sizeof *c);
-> >+	if (!master)
-> >+		return -ENODEV;
-> >+
-> >+	c = class_get_devdata(&master->cdev);
-> >  
-> >
-> Here's an example of a mixture of two approaches which leads to 
-> misleading code.
+> Would it be possible to drop support for gcc 3.0 too? 
+> AFAIK it has never been widely used. If we assume 3.1+ minimum it has the 
+> advantage that named assembly arguments work, which make
+> the inline assembly often a lot easier to read and maintain.
 
-I can't see that, myself.  I count three things, separated in as
-close to "the usual way" as I've heard of:  the spi_master, which
-essentially bridges some bus (platform etc) to SPI; the class
-device, associated one-to-one with the master; and the controller
-state used to implement the bridging.
+3.2+ would be better than 3.1+
 
-Have you ever noticed how alloc_etherdev() works?  This is much
-the same approach as that function (and its siblings) use.  Not
-identical, but that could change.  The infrastructure code allocates
-one block for the publicly visible state (spi_master in this case,
-"struct netdevice" for alloc_netdev) and the private data.  You
-want something like a "netdev_priv" backed by some different
-implementation?
+Remember that 3.2 would have been named 3.1.2 if there wasn't the C++
+ABI change, and I don't remember any big Linux distribution actually 
+using gcc 3.1 as default compiler.
 
+And since gcc 3.2 was released one and a half years before kernel 2.6.0, 
+I doubt there's any distribution both supporting kernel 2.6 and not 
+shipping any gcc >= 3.2 .
 
-> If you want to have abstract spi_master, then you have to disallow (or 
-> at least discourage) explicit usage of spi_master fields, otherwise 
-> 'kzalloc is your friend' and you don't have toadd this spi_alloc_master 
-> API as it's basically useless IMHO.
+> -Andi
 
-Well, it's what ensures that the class device is set up reasonably,
-and incidentally takes its memory management out of the hands of
-the controller driver.   Of course, "the Right Way" to handle such
-class devices has changed recently, and this code may be a closer
-match to "the Previous Right Way" than the new one.  ;)
+cu
+Adrian
 
+-- 
 
-> As opposed to this, we use abstract handles where possible (i. e. for 
-> spi_message).
-> I'd have understood your dissatisfaction with that if you were 
-> consistently following the approach 'expose everything, forget the 
-> extensibility, viva lightwieghtness', but you're mixing things.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Data abstraction isn't all-or-nothing, especially in C.  And in
-particular, there's a lot to be said for low level APIs not being
-fully opaque ... abstraction has costs, both in terms of growing
-conceptual complexity (you're supporting multiple things behind
-the abstraction, else why even bother?), loss of visibility into
-what's really going on, and in terms of lines of having more source
-(and likely object) code to cope with.  
-
-The opaque way to access a "struct", as C++ or Java users know, is
-to have get()/set() functions for every member.  And at the end of
-the day, that's just a lot of code bloat, which tends to slow things
-down (unless someone inlined it all, rather non-opaquely).
-
-So no, I don't see an inconsistency in wrapping up common code so
-it doesn't have to be copied/pasted everywhere (adding bugs), and
-not wrapping up code that boils down to "xfer->buf = ptr" (where
-funcall style wrappers hide how cheap it is).
-
-- Dave

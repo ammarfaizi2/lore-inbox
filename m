@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932601AbVLMTxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbVLMT5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932601AbVLMTxW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 14:53:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbVLMTxW
+	id S1750986AbVLMT5U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 14:57:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVLMT5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 14:53:22 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17682 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932601AbVLMTxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 14:53:21 -0500
-Date: Tue, 13 Dec 2005 19:53:14 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Adrian Bunk <bunk@stusta.de>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] defconfig's shouldn't set CONFIG_BROKEN=y
-Message-ID: <20051213195314.GB24094@flint.arm.linux.org.uk>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Adrian Bunk <bunk@stusta.de>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <20051211185212.GQ23349@stusta.de> <20051211192109.GA22537@flint.arm.linux.org.uk> <20051211193118.GR23349@stusta.de> <20051211194437.GB22537@flint.arm.linux.org.uk> <20051213001028.GS23349@stusta.de> <439ECDCC.80707@hogyros.de> <20051213140001.GG23349@stusta.de> <20051213173112.GA24094@flint.arm.linux.org.uk> <Pine.LNX.4.62.0512131837380.17990@pademelon.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Dec 2005 14:57:20 -0500
+Received: from nproxy.gmail.com ([64.233.182.203]:8827 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750986AbVLMT5T convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 14:57:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JzesyrgcrLIrU9aYzcBtEs7bAotEUmvsL4fR0NCTiW9zH4W/w0s71+HbYhc0d5+6XKaXUbJkXeuNS/4gfcu7PGzEe3zuhzo4mmxXL/OvYikpzjs4Iq6gK1Pk7VlHHNqk2PJywXioyEgx2zc3YGGOW8PU3FVip7Jnh+Sg3jDC47w=
+Message-ID: <58cb370e0512131157y1176bbdbk5914c67c51a9a0f0@mail.gmail.com>
+Date: Tue, 13 Dec 2005 20:57:18 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH 2/2] ide/sis5513: Add support for 965 chipset
+Cc: Ben Collins <bcollins@ubuntu.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1134502230.12502.17.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0512131837380.17990@pademelon.sonytel.be>
-User-Agent: Mutt/1.4.1i
+References: <1134498192250-git-send-email-bcollins@ubuntu.com>
+	 <1134498254295-git-send-email-bcollins@ubuntu.com>
+	 <58cb370e0512131038q49271226xfe932476bb05d2d0@mail.gmail.com>
+	 <1134502230.12502.17.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 06:38:36PM +0100, Geert Uytterhoeven wrote:
-> On Tue, 13 Dec 2005, Russell King wrote:
-> > If, in order to have a working platform configuration, they deem that
->                          ^^^^^^^
-> > CONFIG_BROKEN must be enabled, then that's the way it is.
->          ^^^^^^
-> Still funny...
-> 
-> So either one of them is lying...
+On 12/13/05, Ben Collins <ben.collins@ubuntu.com> wrote:
+> On Tue, 2005-12-13 at 19:38 +0100, Bartlomiej Zolnierkiewicz wrote:
+> > Hi,
+> >
+> > SiS965 support has been merged recently (different patch because
+> > sis5513_pci_tbl[] chunk of this patch causes problems on the real
+> > SiS180 controller).
+> >
+> > Please ask the user to test vanilla 2.6.15-rc5.
+>
+> This patch was against 2.6.15-rc5.
 
-They might be broken in other situations.  However, if you look at
-the latest build at:
+The original bug was filled against 2.6.12-9-amd64-k8 and then
+reported to work with this patch with 2.6.14-something (probably,
+because the exact kernel version is not mentioned in the bugzilla).
 
- http://armlinux.simtec.co.uk/kautobuild/
+Were you able to reproduce the problem with 2.6.15-rc5?
 
-you'll notice that all, even the ones with CONFIG_BROKEN build
-successfully.  Without any bug reports to the contary, we must
-assume that the configuration files supplied by the folk who
-developed the support for the platform are correct and working.
+BTW please use linux-ide@vger.kernel.org for ATA stuff
 
-Therefore, CONFIG_BROKEN may have been added to configuration
-options which don't work for some particular small corner cases.
-
-This brings on to another subject.  If we mark something broken
-we should say _why_ we're doing so, especially if it is non-obvious.
-That seems to be the case here - if these drivers are broken, it's
-non-obvious why they're broken.
-
-So, all in all, CONFIG_BROKEN is a broken idea in itself!
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Thanks,
+Bartlomiej

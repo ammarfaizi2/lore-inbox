@@ -1,86 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932579AbVLMJwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbVLMJzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932579AbVLMJwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 04:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbVLMJwZ
+	id S1751187AbVLMJzL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 04:55:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750848AbVLMJzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 04:52:25 -0500
-Received: from ns.firmix.at ([62.141.48.66]:54155 "EHLO ns.firmix.at")
-	by vger.kernel.org with ESMTP id S932579AbVLMJwZ (ORCPT
+	Tue, 13 Dec 2005 04:55:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:7325 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750811AbVLMJzK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 04:52:25 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
-       Andrea Arcangeli <andrea@cpushare.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, Rik van Riel <riel@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <439E8565.3000900@aitel.hist.no>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01EE9BB3@otce2k03.adaptec.com>
-	 <439E8565.3000900@aitel.hist.no>
-Content-Type: text/plain
-Organization: Firmix Software GmbH
-Date: Tue, 13 Dec 2005 10:44:58 +0100
-Message-Id: <1134467098.30759.8.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Dec 2005 04:55:10 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <439E122E.3080902@yahoo.com.au> 
+References: <439E122E.3080902@yahoo.com.au>  <dhowells1134431145@warthog.cambridge.redhat.com> 
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Tue, 13 Dec 2005 09:54:49 +0000
+Message-ID: <22479.1134467689@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-13 at 09:25 +0100, Helge Hafting wrote:
-> Salyzyn, Mark wrote:
-[...]
-> >For instance, there are reasons, somewhat outside the control of the
-> >Hardware Vendor, for binary drivers. Often, in the hopes of achieving
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-Even if this is the case it is the decision of the hardware vendor to go
-that way. The underlying organzation may be equally guilty but that
-doens't make the hardware vendor innocent - simply he plays the same
-game just with an excuse.
+> We have atomic_cmpxchg. Can you use that for a sufficient generic
+> implementation?
 
-> >standards compliance, Hardware vendors are cornered by legalities over
-> >the copyright associated with those standards that ties their hands
-> >either from releasing interface documentation or from releasing source
-> >code. Yet all these vendors would be overjoyed to have Linux drivers for
-> >their Hardware in order to increase the sales of their products.
+No. CMPXCHG/CAS is not as available as XCHG, and it's also unnecessary.
 
-Then it is up to them to do something.
-
-> Uh, a copyrighted standard?  They are trying to live up to a secret
-> standard, one they cannot publish?
-> Don't sound like a standard to me - a standard is something known,
-> that is the purpose of standardization.
-> This sounds like "we standardized the voltage for household lamps, but
-> we won't tell if it is 110V, 220V or something completely different."
-> I really hope I misunderstood this.
-
-s/copyright/patent/ then you will get it probably more right.
-Given (beautiful and readable) source code, a patent infringement is
-probably much easier to proove than with disassembled output of gcc-4.x.
-
-> Standards compliance should never get in the way of open source.
-> Sure - if the owner modifies the source, then the thing may no longer
-> comply with the standard.  In some cases even illegal or dangerous. 
-
-Propriatory vendors (the larger they are, the more it makes sense) do
-that all the time without telling their customers/users (usually
-somewhere hidden within some tools which produce not compliant garbage)
-and the strategy is called "customer lockin".
-
-> But in that case, it is the fault of the owner, not the vendor. The vendor
-> can simply say that anyone changing the (distributed) source should get
-> their own certification.
-
-At least for (certified) ISDN stacks any change on the source (including
-trivial bug fixes) invalidates any official certification AFAIK.
-
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+David

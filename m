@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030359AbVLNBlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbVLNBqI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030359AbVLNBlt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 20:41:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbVLNBls
+	id S1030412AbVLNBqI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 20:46:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVLNBqI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 20:41:48 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:63924 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030236AbVLNBls (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 20:41:48 -0500
-To: "David S. Miller" <davem@davemloft.net>
-Cc: hch@lst.de, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 3/3] sanitize building of fs/compat_ioctl.c
-References: <20051213172325.GC16392@lst.de>
-	<20051213173434.GP9286@parisc-linux.org>
-	<20051213.145109.20744871.davem@davemloft.net>
-From: Andi Kleen <ak@suse.de>
-Date: 14 Dec 2005 02:41:42 +0100
-In-Reply-To: <20051213.145109.20744871.davem@davemloft.net>
-Message-ID: <p73r78g8nft.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Tue, 13 Dec 2005 20:46:08 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:30147 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030353AbVLNBqG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 20:46:06 -0500
+Date: Tue, 13 Dec 2005 17:46:26 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Keith Owens <kaos@sgi.com>,
+       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       vatsa@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
+       linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
+Message-ID: <20051214014626.GF14158@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051213162027.GA14158@us.ibm.com> <17158.1134512861@ocs3.ocs.com.au> <20051213225059.GD14158@us.ibm.com> <20051214011253.GB23384@wotan.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051214011253.GB23384@wotan.suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@davemloft.net> writes:
-
-> From: Matthew Wilcox <matthew@wil.cx>
-> Date: Tue, 13 Dec 2005 10:34:34 -0700
+On Wed, Dec 14, 2005 at 02:12:53AM +0100, Andi Kleen wrote:
+> On Tue, Dec 13, 2005 at 02:50:59PM -0800, Paul E. McKenney wrote:
+> > On Wed, Dec 14, 2005 at 09:27:41AM +1100, Keith Owens wrote:
+> > > On Tue, 13 Dec 2005 08:20:27 -0800, 
+> > > "Paul E. McKenney" <paulmck@us.ibm.com> wrote:
+> > > >If the variable p references MMIO rather than normal memory, then
+> > > >wmb() and rmb() are needed instead of smp_wmb() and smp_rmb().
+> > > 
+> > > mmiowb(), not wmb().  IA64 has a different form of memory fence for I/O
+> > > space compared to normal memory.  MIPS also has a non-empty form of
+> > > mmiowb().
+> > 
+> > New one on me!
 > 
-> > The 64-bit code doesn't compile because Andi keeps blocking the
-> > is_compat_task() stuff.
-> 
-> The one place where I ever thought that was necessary, the
-> USB async userspace I/O operation stuff, was solved much more
-> cleanly with ->compat_ioctl() file_operations handlers.
-> 
-> What do you really still need it for at this point?
+> Didn't it make only a difference on the Altix or something like that? 
+> I suppose they added it only on the drivers for devices supported by SGI.
 
-input needs it :/ Take a look at drivers/input/evdev.c:evdev_write_compat
-Someone should roast in hell for that code.
+It could potentially help on a few other CPUs, but quite a few driver
+changes would be needed to really bring out the full benefits.  I am
+concerned that the current state leaves a number of CPU families broken --
+the empty definitions cannot be good for other weakly ordered CPUs!
 
-> I also would like to avoid it if possible.
-
-I have given in for now. Assuming the test is done on a flag that is only set
-by the system call entry path. But I still think it will result in
-a lot of ugly code. For for read/write it's hard to avoid because
-there are so many variants and we have too many message passing
-protocols now.
-
-That said I have been too lazy so far to actually implement it:/
-
--Andi
+						Thanx, Paul

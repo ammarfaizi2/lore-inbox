@@ -1,68 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbVLNLoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVLNLqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbVLNLoo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 06:44:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbVLNLon
+	id S932449AbVLNLqd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 06:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVLNLqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 06:44:43 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:2946 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932435AbVLNLom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 06:44:42 -0500
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, dhowells@redhat.com,
-       cfriesen@nortel.com, torvalds@osdl.org, hch@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-In-Reply-To: <20051214033536.05183668.akpm@osdl.org>
-References: <439EDC3D.5040808@nortel.com>
-	 <1134479118.11732.14.camel@localhost.localdomain>
-	 <dhowells1134431145@warthog.cambridge.redhat.com>
-	 <3874.1134480759@warthog.cambridge.redhat.com>
-	 <15167.1134488373@warthog.cambridge.redhat.com>
-	 <1134490205.11732.97.camel@localhost.localdomain>
-	 <1134556187.2894.7.camel@laptopd505.fenrus.org>
-	 <1134558188.25663.5.camel@localhost.localdomain>
-	 <1134558507.2894.22.camel@laptopd505.fenrus.org>
-	 <1134559470.25663.22.camel@localhost.localdomain>
-	 <20051214033536.05183668.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 14 Dec 2005 12:44:31 +0100
-Message-Id: <1134560671.2894.30.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 14 Dec 2005 06:46:33 -0500
+Received: from nproxy.gmail.com ([64.233.182.200]:28348 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932449AbVLNLqc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 06:46:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jlWIU7G+LJi2aHkl7NIFZlsvG1VTYt4qcG3rF0Q6zaio3R/MgvG/zTjoaCmMxaKTyYPivOygTEnaqiBLxtHCgPoAHDYwm+ZHp0u/HeuvG5KsjROUyY1LM3UHmu/pGtigneJFLPD/ae6FlpKUXTemq5vTLN1rLyF/IF0+nbCT2Ok=
+Message-ID: <1e62d1370512140346w6c0e8e69i82a23cffee3c9200@mail.gmail.com>
+Date: Wed, 14 Dec 2005 16:46:30 +0500
+From: Fawad Lateef <fawadlateef@gmail.com>
+To: Prabhat Hegde <hegde.prabhat@gmail.com>
+Subject: Re: querry on DMA
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <7accf3e60512140324x6570a65bk319f9ff11b6e8c93@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <7accf3e60512140324x6570a65bk319f9ff11b6e8c93@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-14 at 03:35 -0800, Andrew Morton wrote:
-> Could someone please remind me why we're even discussing this,
+On 12/14/05, Prabhat Hegde <hegde.prabhat@gmail.com> wrote:
+> Hi friends,
+> can any1 point me to a good linux memory management stuff. Actually i
+> want to know the conversion of virtual to physical address and when u
+> need to do it.
 
-* cleaner API
-* more declarative in terms of intent
+For getting detail and in-depth information on DMA and memory
+management just get the book "Understanding the Linux VM" by Mel
+Gorman. You can find its pdf version by just google for it. or get
+from the link http://www.csn.ul.ie/~mel/projects/vm/guide/pdf/understand.pdf
 
-which in turn allow
-* higher performance
-* enhanced options like the -rt patch is doing, such as boosting
-processes when a semaphore they're holding hits contention
-* mutex use is a candidate for a "spinaphore" treatment (unlike counting
-semaphores)
-
->  given that
-> mutex_down() is slightly more costly than current down(), and mutex_up() is
-> appreciably more costly than current up()?
-
-that's an implementation flaw in the current implementation that is not
-needed by any means and that Ingo has fixed in his version of this
-
-
+--
+Fawad Lateef

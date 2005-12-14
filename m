@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbVLNGiD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVLNGnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750902AbVLNGiD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 01:38:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbVLNGiD
+	id S1750782AbVLNGnV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 01:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbVLNGnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 01:38:03 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:43159 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750902AbVLNGiC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 01:38:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ZZlbu7bEl34k6oRjBZCp3LNCdofrQmTAXmzW4jAnBhVpDgeF3StXZti7jvVkuTvIT74SfR1gHC4sllvw+jSvfEIT2rhNmeOYT4eq3ceYNNGb5C284NaKxdDeR3CBSodA5dgxK57gjn7HuyLtX/pG8FbAs8dGvvZE1z9HVobGO8w=
-Message-ID: <439FBDC5.5060609@gmail.com>
-Date: Wed, 14 Dec 2005 14:37:57 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051025)
+	Wed, 14 Dec 2005 01:43:21 -0500
+Received: from rtsoft3.corbina.net ([85.21.88.6]:60778 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S1750782AbVLNGnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 01:43:20 -0500
+Message-ID: <439FBEF4.6020802@ru.mvista.com>
+Date: Wed, 14 Dec 2005 09:43:00 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Kurt Wall <kwallinator@gmail.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Console Goes Blank When Booting 2.6.15-rc5
-References: <200512132247.54341.kwallinator@gmail.com>
-In-Reply-To: <200512132247.54341.kwallinator@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: David Brownell <david-b@pacbell.net>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       spi-devel-general@lists.sourceforge.net
+Subject: Re: [spi-devel-general] [patch 2.6.15-rc5-mm2] SPI, priority inversion
+ tweak
+References: <200512131028.49291.david-b@pacbell.net> <439F4206.2040406@ru.mvista.com> <200512131421.10231.david-b@pacbell.net>
+In-Reply-To: <200512131421.10231.david-b@pacbell.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt Wall wrote:
-> As Jesper Juhl has reported, if I boot 2.6.15-rc5 with vga=normal,
-> everything is fine. If I boot using my preferred size (vga=794),
-> the console goes blank. Because I'm a touch typist, I can login and
-> start X and everything is copacetic, but as soon as I leave X, I'm
-> back to the blank screen. From X, if I flip over to a VC, the VC
-> display is garbled and has artifacts from the X display.
-> 
-> This worked fine with 2.6.14.3, and I didn't change the console, 
-> framebuffer, or vesa options between the two kernels. Not sure how 
-> to proceed, but I sure would like my high res console screens back.
+Okay, sorry, I've misundastood that.
 
-Can you recheck your .config and make sure that
-CONFIG_FRAMEBUFFER_CONSOLE=y
+Vitaly
 
-If that does not work, please post your dmesg and .config file.
+David Brownell wrote:
 
-Tony
+>On Tuesday 13 December 2005 1:49 pm, Vitaly Wool wrote:
+>  
+>
+>>So you're turning this to be unsafe if the buffer is in use, right? Funny...
+>>    
+>>
+>
+>I have no idea what you mean by that comment.  The parameters to that
+>function have always been documented as "will copy", and the two branches
+>(busy/not) differ only in _which_ buffer they use from the heap (the
+>fast pre-allocated one, or a freshly allocated scratch buffer).  Heap
+>buffers are by definition DMA-safe.
+>
+>- Dave
+>
+>
+>  
+>
+>>David Brownell wrote:
+>>
+>>    
+>>
+>>>This is an updated version of the patch from Mark Underwood, handling
+>>>the no-memory case better and using SLAB_KERNEL not SLAB_ATOMIC.
+>>>
+>>>      
+>>>
+>
+>
+>  
+>
 

@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbVLNW0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbVLNW15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965011AbVLNW0j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 17:26:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbVLNW0i
+	id S965004AbVLNW15 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 17:27:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbVLNW15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 17:26:38 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19215 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965004AbVLNW0i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 17:26:38 -0500
-Date: Wed, 14 Dec 2005 23:26:38 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] offer CC_OPTIMIZE_FOR_SIZE only if EXPERIMENTAL
-Message-ID: <20051214222638.GH23349@stusta.de>
-References: <20051214191006.GC23349@stusta.de> <20051214140531.7614152d.akpm@osdl.org> <20051214221304.GE23349@stusta.de> <20051214142216.57d1900a.akpm@osdl.org>
+	Wed, 14 Dec 2005 17:27:57 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:63970 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965004AbVLNW14 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 17:27:56 -0500
+Date: Wed, 14 Dec 2005 23:24:19 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Adrian Bunk <bunk@stusta.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fs/hfsplus/: move the hfsplus_inode_check() prototype
+ to hfsplus_fs.h
+In-Reply-To: <20051213170137.GL23349@stusta.de>
+Message-ID: <Pine.LNX.4.61.0512142319170.1609@scrub.home>
+References: <20051213170137.GL23349@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051214142216.57d1900a.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 02:22:16PM -0800, Andrew Morton wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
-> >
-> > CC_OPTIMIZE_FOR_SIZE is still an experimental feature that doesn't work 
-> > with all supported gcc/architecture combinations.
-> > 
-> > 
-> > Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> > 
-> > --- linux-git/init/Kconfig.old	2005-12-14 23:08:51.000000000 +0100
-> > +++ linux-git/init/Kconfig	2005-12-14 23:09:09.000000000 +0100
-> > @@ -257,7 +257,7 @@
-> >  source "usr/Kconfig"
-> >  
-> >  config CC_OPTIMIZE_FOR_SIZE
-> > -	bool "Optimize for size"
-> > +	bool "Optimize for size (EXPERIMENTAL)" if EXPERIMENTAL
-> >  	default y if ARM || H8300
-> >  	help
-> >  	  Enabling this option will pass "-Os" instead of "-O2" to gcc
-> 
-> This will cause arm and h8300 to accidentally stop using -Os if they have
-> !EXPERIMENTAL.
+Hi,
 
-No, arm and h8300 will use -Os with !EXPERIMENTAL.
+On Tue, 13 Dec 2005, Adrian Bunk wrote:
 
-cu
-Adrian
+> --- linux-2.6.15-rc2-mm1-full/fs/hfsplus/inode.c.old	2005-11-23 16:37:34.000000000 +0100
+> +++ linux-2.6.15-rc2-mm1-full/fs/hfsplus/inode.c	2005-11-23 16:37:48.000000000 +0100
+> @@ -183,7 +183,6 @@
+>  	hlist_add_head(&inode->i_hash, &HFSPLUS_SB(sb).rsrc_inodes);
+>  	mark_inode_dirty(inode);
+>  	{
+> -	void hfsplus_inode_check(struct super_block *sb);
+>  	atomic_inc(&HFSPLUS_SB(sb).inode_cnt);
+>  	hfsplus_inode_check(sb);
+>  	}
+> @@ -322,7 +321,6 @@
+>  		return NULL;
+>  
+>  	{
+> -	void hfsplus_inode_check(struct super_block *sb);
+>  	atomic_inc(&HFSPLUS_SB(sb).inode_cnt);
+>  	hfsplus_inode_check(sb);
+>  	}
 
--- 
+As this is only a debug function I don't see much point in cleaning it up.
+I'd rather remove it completely (including all references to 
+last_inode_cnt and inode_cnt).
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+bye, Roman

@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbVLNTt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbVLNTzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964875AbVLNTt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 14:49:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbVLNTt5
+	id S964907AbVLNTzH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 14:55:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbVLNTzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 14:49:57 -0500
-Received: from gate.crashing.org ([63.228.1.57]:52131 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S964875AbVLNTt4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 14:49:56 -0500
-Date: Wed, 14 Dec 2005 13:45:30 -0600 (CST)
-From: Kumar Gala <galak@gate.crashing.org>
-To: Greg KH <greg@kroah.com>
-cc: linux-kernel@vger.kernel.org, <linux-pci@atrey.karlin.mff.cuni.cz>
-Subject: pci_scan_bridge and cardbus controllers?
-Message-ID: <Pine.LNX.4.44.0512141311140.14530-100000@gate.crashing.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 Dec 2005 14:55:07 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9993 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964907AbVLNTzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 14:55:05 -0500
+Date: Wed, 14 Dec 2005 19:55:00 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
+Message-ID: <20051214195459.GG7124@flint.arm.linux.org.uk>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+References: <1134573803.25663.35.camel@localhost.localdomain> <20051214165549.GE7124@flint.arm.linux.org.uk> <1134587288.25663.61.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1134587288.25663.61.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-in pci_fixup_parent_subordinate_busnr() we will only reassign bus numbers 
-if pcibios_assign_all_busses() returns 1.
+On Wed, Dec 14, 2005 at 07:08:08PM +0000, Alan Cox wrote:
+> On Mer, 2005-12-14 at 16:55 +0000, Russell King wrote:
+> > If we trigger this, we can assume that the port is dead anyway, or
+> > we're in a situation where the host CPU can not keep up with the
+> > data stream.
+> 
+> Not actually true in some cases.
+> 
+> - When your UART has a large FIFO and pretends to be an 8250 you can get
+> a 256 byte burst triggered by the box sleeping for a moment or the BIOS
+> SMI crap going to chat to the battery
 
-If we got to pci_fixup_parent_subordinate_busnr() and
-pcibios_assign_all_busses() returns 0, should we not print out some
-warning since we most likely got here because the bios didn't init things
-properly?
+In which case the receive_chars() function gobbles up to 255 characters
+from the device before relinquishing to the main interrupt loop.  The
+main interrupt loop has two exit conditions - no further interrupts
+are pending from any device, or we run this loop 256 times.
 
-I came across this on an embedded system in which we had a cardbus 
-controller behind a P2P bridge.  The bios did not reserve any bus numbers 
-for the cardbus controller like linux does.  So I ended up with:
+In the case where further characters are waiting, we will re-run the
+receive_chars() function.
 
-03:04.0 CardBus bridge: Texas Instruments PCI4510 PC card Cardbus Controller (rev 03)
-        Flags: bus master, medium devsel, latency 0, IRQ 18
-        Memory at 00000000bb100000 (32-bit, non-prefetchable) [size=4K]
-        Bus: primary=03, secondary=04, subordinate=07, sec-latency=176
-        Memory window 0: b9000000-bafff000
-        Memory window 1: 9dc00000-9efff000 (prefetchable)
-        I/O window 1: 00000000-00000003
-        16-bit legacy interface ports at 0001
+Hence, we will check the device up to 256 times and each will potentially
+receive 255 characters, which gives about 64K of character reception
+before the warning triggers.
 
-and the P2P bridge:
-00:11.0 PCI bridge: Pericom Semiconductor PCI to PCI Bridge (rev 02) (prog-if 00 [Normal decode])
-        Flags: bus master, 66Mhz, medium devsel, latency 0
-        Bus: primary=00, secondary=03, subordinate=04, sec-latency=0
-        I/O behind bridge: 00efe000-00ffdfff
-        Memory behind bridge: b6000000-bb7fffff
-        Prefetchable memory behind bridge: 000000008fc00000-000000009db00000
-        Capabilities: [dc] Power Management version 1
-        Capabilities: [b0] Slot ID: 0 slots, First-, chassis 00
+Therefore, this scenario is _very_ _very_ unlikely.
 
-Seems like a case we should warn about or not update the cardbus 
-controller's subordinate number if pcibios_assign_all_busses() returns 0.
+> - On a virtualised system this trap can trigger because the emulations
+> don't emulate the bit arrival and baud rate.
 
-- kumar
+Again, only if there's more than about 64K of data waiting.
 
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

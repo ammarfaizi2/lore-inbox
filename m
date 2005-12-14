@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbVLNSdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbVLNSiV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964861AbVLNSdg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 13:33:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbVLNSde
+	id S964798AbVLNSiV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 13:38:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbVLNSiV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 13:33:34 -0500
-Received: from relay.axxeo.de ([213.239.199.237]:50834 "EHLO relay.axxeo.de")
-	by vger.kernel.org with ESMTP id S932426AbVLNSdd (ORCPT
+	Wed, 14 Dec 2005 13:38:21 -0500
+Received: from ns2.suse.de ([195.135.220.15]:31955 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964798AbVLNSiU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 13:33:33 -0500
-From: Ingo Oeser <netdev@axxeo.de>
-Organization: Axxeo GmbH
-To: Sridhar Samudrala <sri@us.ibm.com>
-Subject: Re: [RFC][PATCH 3/3] TCP/IP Critical socket communication mechanism
-Date: Wed, 14 Dec 2005 19:33:49 +0100
-User-Agent: KMail/1.7.2
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-References: <Pine.LNX.4.58.0512140052470.31720@w-sridhar.beaverton.ibm.com> <1134559039.25663.12.camel@localhost.localdomain> <1134583896.8698.33.camel@w-sridhar2.beaverton.ibm.com>
-In-Reply-To: <1134583896.8698.33.camel@w-sridhar2.beaverton.ibm.com>
+	Wed, 14 Dec 2005 13:38:20 -0500
+To: Martin Peschke <mp3@de.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 5/6] statistics infrastructure
+References: <43A04C83.2070002@de.ibm.com>
+From: Andi Kleen <ak@suse.de>
+Date: 14 Dec 2005 19:38:19 +0100
+In-Reply-To: <43A04C83.2070002@de.ibm.com>
+Message-ID: <p738xun8qxw.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512141933.49684.netdev@axxeo.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sridhar Samudrala wrote:
-> The only reason i made these macros is that i would expect this to a compile
-> time configurable option so that there is zero overhead for regular users.
-> 
-> #ifdef CONFIG_CRIT_SOCKET
-> #define SK_CRIT_ALLOC(sk, flags) ((sk->sk_allocation & __GFP_CRITICAL) | flags)
-> #define CRIT_ALLOC(flags) (__GFP_CRITICAL | flags)
-> #else
-> #define SK_CRIT_ALLOC(sk, flags) flags
-> #define CRIT_ALLOC(flags) flags
-> #endif
+Martin Peschke <mp3@de.ibm.com> writes:
+> + */
+> +static inline u64 statistic_add(struct statistic *stat, s64 value, u64 incr)
+> +{
+> +	unsigned long flags;
+> +	int retval;
+> +
+> +	if (stat->on != STATISTIC_DEF_ON)
+> +		return 0;
+> +
+> +	statistic_lock(stat->interface, flags);
+> +	retval = stat->add(stat, value, incr);
+> +	statistic_unlock(stat->interface, flags);
 
-Oh, that's much simpler to achieve:
+Locks and indirect function calls? 
 
-#ifdef CONFIG_CRIT_SOCKET
-#define __GFP_CRITICAL_SOCKET __GFP_CRITICAL
-#else
-#define __GFP_CRITICAL_SOCKET 0
-#endif
+It seems very wrong to me to make such heavy weight statistic functions.
+Most likely you will disturb the performance whatever is being counted 
+badly.
 
-Maybe we can get better naming here, but you get the point, I think.
+Take a look at many other subsystems - they do per CPU counters etc.
+to make this all fast.
 
+But it's still unclear why it would need such an heavyweight infrastructure.
+Normally it's not that bad to reimplemented on the fly. Maybe some
+common code can be refactored out of that, but probably not too much.
 
-Regards
+[... lots of other code snipped ... ]
 
-Ingo Oeser
+Looks all very very overdesigned to me. How about you just start
+with a minimum specification and describe what you want to do? 
+And then start with a *simple* base implementation. If it's really
+needed it will grow later anyways, but starting off with such
+a complex monstrosity is just wrong.
 
+-Andi

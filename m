@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbVLNHyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVLNH4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbVLNHyp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 02:54:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932090AbVLNHyp
+	id S1750759AbVLNH4l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 02:56:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbVLNH4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 02:54:45 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:6118 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932089AbVLNHyp (ORCPT
+	Wed, 14 Dec 2005 02:56:41 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:7109 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750759AbVLNH4k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 02:54:45 -0500
-Message-ID: <439FCFC1.4040905@us.ibm.com>
-Date: Tue, 13 Dec 2005 23:54:41 -0800
+	Wed, 14 Dec 2005 02:56:40 -0500
+Message-ID: <439FD031.1040608@us.ibm.com>
+Date: Tue, 13 Dec 2005 23:56:33 -0800
 From: Matthew Dobson <colpatch@us.ibm.com>
 User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
 X-Accept-Language: en-us, en
@@ -19,163 +19,165 @@ To: linux-kernel@vger.kernel.org
 CC: andrea@suse.de, Sridhar Samudrala <sri@us.ibm.com>, pavel@suse.cz,
        Andrew Morton <akpm@osdl.org>,
        Linux Memory Management <linux-mm@kvack.org>
-Subject: [RFC][PATCH 2/6] in_emergency Trigger
+Subject: [RFC][PATCH 3/6] Slab Prep: get/return_object
 References: <439FCECA.3060909@us.ibm.com>
 In-Reply-To: <439FCECA.3060909@us.ibm.com>
 Content-Type: multipart/mixed;
- boundary="------------000701030503020306030708"
+ boundary="------------020304050109020200000006"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------000701030503020306030708
+--------------020304050109020200000006
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-Create the 'in_emergency' trigger, to allow userspace to turn access to the
-critical pool on and off.  The rationale behind this is to ensure that the
-critical pool stays full for *actual* emergency situations, and isn't used
-for transient, low-mem situations.
+Create 2 helper functions in mm/slab.c: get_object() and return_object().
+These functions reduce some existing duplicated code in the slab allocator
+and will be used when adding Critical Page Pool support to the slab allocator.
 
 -Matt
 
---------------000701030503020306030708
+--------------020304050109020200000006
 Content-Type: text/x-patch;
- name="emergency_trigger.patch"
+ name="slab_prep-get_return_object.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="emergency_trigger.patch"
+ filename="slab_prep-get_return_object.patch"
 
-Create a userspace trigger: /proc/sys/vm/in_emergency that notifies the kernel
-that the system is in an emergency state, and allows the kernel to delve into
-the 'critical pool' to satisfy __GFP_CRITICAL allocations.
+Create two helper functions: get_object_from_slab() & return_object_to_slab().
+Use these two helper function to replace duplicated code in mm/slab.c
+
+These functions will also be reused by a later patch in this series.
 
 Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
 
-Index: linux-2.6.15-rc5+critical_pool/Documentation/sysctl/vm.txt
+Index: linux-2.6.15-rc5+critical_pool/mm/slab.c
 ===================================================================
---- linux-2.6.15-rc5+critical_pool.orig/Documentation/sysctl/vm.txt	2005-12-13 16:01:57.783326968 -0800
-+++ linux-2.6.15-rc5+critical_pool/Documentation/sysctl/vm.txt	2005-12-13 16:02:40.935766800 -0800
-@@ -27,6 +27,7 @@ Currently, these files are in /proc/sys/
- - laptop_mode
- - block_dump
- - critical_pages
-+- in_emergency
+--- linux-2.6.15-rc5+critical_pool.orig/mm/slab.c	2005-12-13 15:56:55.459287208 -0800
++++ linux-2.6.15-rc5+critical_pool/mm/slab.c	2005-12-13 16:05:21.308386456 -0800
+@@ -2140,6 +2140,42 @@ static void kmem_flagcheck(kmem_cache_t 
+ 	}
+ }
  
- ==============================================================
- 
-@@ -112,3 +113,12 @@ This is used to force the Linux VM to re
- emergency (__GFP_CRITICAL) allocations.  Allocations with this flag
- MUST succeed.
- The number written into this file is the number of pages to reserve.
-+
-+==============================================================
-+
-+in_emergency:
-+
-+This is used to let the Linux VM know that userspace thinks that the system is
-+in an emergency situation.
-+Writing a non-zero value into this file tells the VM we *are* in an emergency
-+situation & writing zero tells the VM we *are not* in an emergency situation.
-Index: linux-2.6.15-rc5+critical_pool/include/linux/sysctl.h
-===================================================================
---- linux-2.6.15-rc5+critical_pool.orig/include/linux/sysctl.h	2005-12-13 16:02:13.757898464 -0800
-+++ linux-2.6.15-rc5+critical_pool/include/linux/sysctl.h	2005-12-13 16:02:40.937766496 -0800
-@@ -181,6 +181,7 @@ enum
- 	VM_LEGACY_VA_LAYOUT=27, /* legacy/compatibility virtual address space layout */
- 	VM_SWAP_TOKEN_TIMEOUT=28, /* default time for token time out */
- 	VM_CRITICAL_PAGES=29,	/* # of pages to reserve for __GFP_CRITICAL allocs */
-+	VM_IN_EMERGENCY=30,	/* tell the VM if we are/aren't in an emergency */
- };
- 
- 
-Index: linux-2.6.15-rc5+critical_pool/kernel/sysctl.c
-===================================================================
---- linux-2.6.15-rc5+critical_pool.orig/kernel/sysctl.c	2005-12-13 16:01:57.784326816 -0800
-+++ linux-2.6.15-rc5+critical_pool/kernel/sysctl.c	2005-12-13 16:02:40.942765736 -0800
-@@ -859,6 +859,16 @@ static ctl_table vm_table[] = {
- 		.strategy	= &sysctl_intvec,
- 		.extra1		= &zero,
- 	},
-+	{
-+		.ctl_name	= VM_IN_EMERGENCY,
-+		.procname	= "in_emergency",
-+		.data		= &system_in_emergency,
-+		.maxlen		= sizeof(system_in_emergency),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec,
-+		.strategy	= &sysctl_intvec,
-+		.extra1		= &zero,
-+	},
- 	{ .ctl_name = 0 }
- };
- 
-Index: linux-2.6.15-rc5+critical_pool/mm/page_alloc.c
-===================================================================
---- linux-2.6.15-rc5+critical_pool.orig/mm/page_alloc.c	2005-12-13 16:01:57.810322864 -0800
-+++ linux-2.6.15-rc5+critical_pool/mm/page_alloc.c	2005-12-13 16:02:40.946765128 -0800
-@@ -53,6 +53,10 @@ unsigned long totalram_pages __read_most
- unsigned long totalhigh_pages __read_mostly;
- long nr_swap_pages;
- 
-+/* Is the sytem in an emergency situation? */
-+int system_in_emergency = 0;
-+EXPORT_SYMBOL(system_in_emergency);
-+
- /* The number of pages to maintain in the critical page pool */
- int critical_pages = 0;
- 
-@@ -927,7 +931,7 @@ struct page * fastcall
- __alloc_pages(gfp_t gfp_mask, unsigned int order,
- 		struct zonelist *zonelist)
- {
--	const gfp_t wait = gfp_mask & __GFP_WAIT;
-+	gfp_t wait = gfp_mask & __GFP_WAIT;
- 	struct zone **z;
- 	struct page *page;
- 	struct reclaim_state reclaim_state;
-@@ -936,6 +940,16 @@ __alloc_pages(gfp_t gfp_mask, unsigned i
- 	int alloc_flags;
- 	int did_some_progress;
- 
-+	if (is_emergency_alloc(gfp_mask)) {
-+		/*
-+		 * If the system is 'in emergency' and this is a critical
-+		 * allocation, then make sure we don't sleep
-+		 */
-+		gfp_mask &= ~__GFP_WAIT;
-+		gfp_mask |= __GFP_HIGH;
-+		wait = 0;
-+	}
-+
- 	might_sleep_if(wait);
- 
- restart:
-@@ -1070,7 +1084,7 @@ nopage:
- 	 * Rather than fail one of these allocations, take a page,
- 	 * if there are any, from the critical pool.
- 	 */
--	if ((gfp_mask & __GFP_CRITICAL) && !order) {
-+	if (is_emergency_alloc(gfp_mask) && !order) {
- 		page = get_critical_page(gfp_mask);
- 		if (page)
- 			goto got_pg;
-Index: linux-2.6.15-rc5+critical_pool/include/linux/mm.h
-===================================================================
---- linux-2.6.15-rc5+critical_pool.orig/include/linux/mm.h	2005-12-13 16:01:57.783326968 -0800
-+++ linux-2.6.15-rc5+critical_pool/include/linux/mm.h	2005-12-13 16:02:40.950764520 -0800
-@@ -33,6 +33,12 @@ extern int sysctl_legacy_va_layout;
- #endif
- 
- extern int critical_pages;
-+extern int system_in_emergency;
-+
-+static inline int is_emergency_alloc(gfp_t gfpmask)
++static void *get_object(kmem_cache_t *cachep, struct slab *slabp, int nodeid)
 +{
-+	return system_in_emergency && (gfpmask & __GFP_CRITICAL);
++	void *objp = slabp->s_mem + (slabp->free * cachep->objsize);
++	kmem_bufctl_t next;
++
++	slabp->inuse++;
++	next = slab_bufctl(slabp)[slabp->free];
++#if DEBUG
++	slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
++	WARN_ON(slabp->nodeid != nodeid);
++#endif
++	slabp->free = next;
++
++	return objp;
 +}
++
++static void return_object(kmem_cache_t *cachep, struct slab *slabp, void *objp,
++			  int nodeid)
++{
++	unsigned int objnr = (objp - slabp->s_mem) / cachep->objsize;
++
++#if DEBUG
++	/* Verify that the slab belongs to the intended node */
++	WARN_ON(slabp->nodeid != nodeid);
++
++	if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
++		printk(KERN_ERR "slab: double free detected in cache "
++		       "'%s', objp %p\n", cachep->name, objp);
++		BUG();
++	}
++#endif
++	slab_bufctl(slabp)[objnr] = slabp->free;
++	slabp->free = objnr;
++	slabp->inuse--;
++}
++
+ static void set_slab_attr(kmem_cache_t *cachep, struct slab *slabp, void *objp)
+ {
+ 	int i;
+@@ -2418,22 +2454,12 @@ retry:
+ 		check_slabp(cachep, slabp);
+ 		check_spinlock_acquired(cachep);
+ 		while (slabp->inuse < cachep->num && batchcount--) {
+-			kmem_bufctl_t next;
+ 			STATS_INC_ALLOCED(cachep);
+ 			STATS_INC_ACTIVE(cachep);
+ 			STATS_SET_HIGH(cachep);
  
- #include <asm/page.h>
- #include <asm/pgtable.h>
+-			/* get obj pointer */
+-			ac->entry[ac->avail++] = slabp->s_mem +
+-				slabp->free*cachep->objsize;
+-
+-			slabp->inuse++;
+-			next = slab_bufctl(slabp)[slabp->free];
+-#if DEBUG
+-			slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
+-			WARN_ON(numa_node_id() != slabp->nodeid);
+-#endif
+-		       	slabp->free = next;
++			ac->entry[ac->avail++] = get_object(cachep, slabp,
++							    numa_node_id());
+ 		}
+ 		check_slabp(cachep, slabp);
+ 
+@@ -2565,7 +2591,6 @@ static void *__cache_alloc_node(kmem_cac
+  	struct slab *slabp;
+  	struct kmem_list3 *l3;
+  	void *obj;
+- 	kmem_bufctl_t next;
+  	int x;
+ 
+  	l3 = cachep->nodelists[nodeid];
+@@ -2591,14 +2616,7 @@ retry:
+ 
+  	BUG_ON(slabp->inuse == cachep->num);
+ 
+- 	/* get obj pointer */
+- 	obj =  slabp->s_mem + slabp->free*cachep->objsize;
+- 	slabp->inuse++;
+- 	next = slab_bufctl(slabp)[slabp->free];
+-#if DEBUG
+- 	slab_bufctl(slabp)[slabp->free] = BUFCTL_FREE;
+-#endif
+- 	slabp->free = next;
++	obj = get_object(cachep, slabp, nodeid);
+  	check_slabp(cachep, slabp);
+  	l3->free_objects--;
+  	/* move slabp to correct slabp list: */
+@@ -2637,29 +2655,14 @@ static void free_block(kmem_cache_t *cac
+ 	for (i = 0; i < nr_objects; i++) {
+ 		void *objp = objpp[i];
+ 		struct slab *slabp;
+-		unsigned int objnr;
+ 
+ 		slabp = page_get_slab(virt_to_page(objp));
+ 		l3 = cachep->nodelists[node];
+ 		list_del(&slabp->list);
+-		objnr = (objp - slabp->s_mem) / cachep->objsize;
+ 		check_spinlock_acquired_node(cachep, node);
+ 		check_slabp(cachep, slabp);
+-
+-#if DEBUG
+-		/* Verify that the slab belongs to the intended node */
+-		WARN_ON(slabp->nodeid != node);
+-
+-		if (slab_bufctl(slabp)[objnr] != BUFCTL_FREE) {
+-			printk(KERN_ERR "slab: double free detected in cache "
+-					"'%s', objp %p\n", cachep->name, objp);
+-			BUG();
+-		}
+-#endif
+-		slab_bufctl(slabp)[objnr] = slabp->free;
+-		slabp->free = objnr;
++		return_object(cachep, slabp, objp, node);
+ 		STATS_DEC_ACTIVE(cachep);
+-		slabp->inuse--;
+ 		l3->free_objects++;
+ 		check_slabp(cachep, slabp);
+ 
 
---------------000701030503020306030708--
+--------------020304050109020200000006--

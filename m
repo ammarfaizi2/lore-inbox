@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVLNJHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVLNJHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932214AbVLNJHS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 04:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbVLNJHS
+	id S932216AbVLNJHt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 04:07:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbVLNJHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 04:07:18 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:53253 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S932214AbVLNJHQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 04:07:16 -0500
-Subject: Re: [PATCH] Sonypi: convert to the new platform device interface
-From: Stelian Pop <stelian@popies.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Yu, Luming" <luming.yu@intel.com>, dtor_core@ameritech.net,
-       linux-kernel@vger.kernel.org, malattia@linux.it, len.brown@intel.com
-In-Reply-To: <20051213215711.73a79800.akpm@osdl.org>
-References: <3ACA40606221794F80A5670F0AF15F840A6A9A2D@pdsmsx403>
-	 <20051213215711.73a79800.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Wed, 14 Dec 2005 10:07:12 +0100
-Message-Id: <1134551232.4715.13.camel@localhost.localdomain>
+	Wed, 14 Dec 2005 04:07:48 -0500
+Received: from mini.brewt.org ([216.18.5.212]:64785 "HELO mini.brewt.org")
+	by vger.kernel.org with SMTP id S932216AbVLNJHr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 04:07:47 -0500
+Date: Wed, 14 Dec 2005 01:07:47 -0800
+From: "Adrian Yee" <brewt-linux-kernel@brewt.org>
+Subject: Re: tsc clock issues with dual core and question about irq	balancing
+To: john stultz <johnstul@us.ibm.com>
+Cc: Adrian Yee <brewt-linux-kernel@brewt.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <GMail.1134551267.12292355.45625751005@brewt.org>
+In-Reply-To: <1134522289.3897.21.camel@leatherman>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 8bit
+References: <GMail.1134458797.49013860.4106109506@brewt.org>
+ <1134522289.3897.21.camel@leatherman>
+X-Gmail-Account: brewt@brewt.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mardi 13 décembre 2005 à 21:57 -0800, Andrew Morton a écrit :
-> "Yu, Luming" <luming.yu@intel.com> wrote:
-> >
-> > But, from my understanding, sonypi.c should be cleanly implemented in ACPI.
-> >
+Hi John,
+
+>> I'm currently testing the system with "nosmp noapic acpi=off
+>> clock=tsc" (it was losing interrupts and wouldn't boot properly
+>> with apic/acpi on) and so far everything seems to work (this
+>> includes ssh and desktop usage is better).
 > 
-> heh, good luck.  I've spent a decent chunk of this week making Linux suck
-> less than 100% on a new Vaio, Am currently at 95%.  Poking things into
-> sonypi's /proc/acpi/brightness 
+> So keeping the above settings, does removing just the "clock=tsc"
+> cause the sluggishness to appear?
 
-this isn't sonypi's but sony_acpi's /proc/acpi/brightness
+I just tried booting with the pmtmr enabled and incoming ssh is bad
+(I had an ls pause for over 20 seconds, while another connection was
+somewhat fine).  I wish I had more concrete tests since the problems
+I'm seeing are so subjective.  I guess I'll have to ignore this
+problem until I get a better test.
+ 
+> Also would you open a bugzilla bug on this and attach your .config
+> and dmesg?
 
-> is the only way known of controlling the
-> screen brightness.  One of the mysterious and undocumented ACPI calls will
-> do it, but we don't know which, nor how.
+Done: http://bugzilla.kernel.org/show_bug.cgi?id=5740
 
-For the brightness thingy, this is known: it's the SBRT/GBRT functions
-of the "SNC" ACPI device (and this seems to work for all Sony Vaios
-except the ones using nvidia graphic cards, where you have to use
-smartdimmer instead) 
+Thanks.
 
-Yu has somewhat integrated sony_acpi related functions in acpi_hotkey in
-a testing patch (http://bugzilla.kernel.org/show_bug.cgi?id=4876) if you
-like the proposed way to do it. Based on the existence of that patch,
-the integration of sony_acpi into the offical kernel has been rejected
-by ACPI people.
-
-/me still wonders how hotkey.c got integrated into the kernel in its
-current form... 
-
--- 
-Stelian Pop <stelian@popies.net>
-
+Adrian

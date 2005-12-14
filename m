@@ -1,102 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030370AbVLNE6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030293AbVLNFCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030370AbVLNE6f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 23:58:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbVLNE6f
+	id S1030293AbVLNFCl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 00:02:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030332AbVLNFCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 23:58:35 -0500
-Received: from mail.kroah.org ([69.55.234.183]:20659 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030370AbVLNE6e (ORCPT
+	Wed, 14 Dec 2005 00:02:41 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:51323 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030293AbVLNFCk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 23:58:34 -0500
-Date: Tue, 13 Dec 2005 20:58:08 -0800
-From: Greg KH <greg@kroah.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       stable@kernel.org, acpi-devel <acpi-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] Fix oops in asus_acpi.c on Samsung P30/P35 Laptops
-Message-ID: <20051214045808.GA22308@kroah.com>
-References: <4395D945.6080108@gmx.net> <20051206192136.GA22615@kroah.com> <4395F0AB.1080408@gmx.net> <20051208033841.GA25008@kroah.com> <439A23CB.50102@gmx.net> <439FA436.50107@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <439FA436.50107@gmx.net>
-User-Agent: Mutt/1.5.11
+	Wed, 14 Dec 2005 00:02:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=XtVhQR+i1mGJ5Cyn/aXrgmSc2amsApd4fIP3AR/JnkI1NrLBAm2YFQ1MnBVJhDWr168LhPv/MRiQDDNvCGTnrD9YVjbtIMaiDaxAXKB9/dt856IIZfONiycc/z/r+IsaS6aOONUW6v8CrklUiDBM2Q9Mbhc0EvHE+NiPeHE4laQ=
+Message-ID: <81083a450512132102g77f4a92kc894fcda9e9dc2a6@mail.gmail.com>
+Date: Wed, 14 Dec 2005 10:32:40 +0530
+From: Ashutosh Naik <ashutosh.naik@gmail.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC][PATCH] Prevent overriding of Symbols in the Kernel, avoiding Undefined behaviour
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, anandhkrishnan@yahoo.co.in,
+       linux-kernel@vger.kernel.org, rth@redhat.com, akpm@osdl.org,
+       Greg KH <greg@kroah.com>, alan@lxorguk.ukuu.org.uk,
+       Keith Owens <kaos@ocs.com.au>
+In-Reply-To: <81083a450512132010t2596046bsf7a36f85df19b89c@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_6817_11726602.1134536560160"
+References: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com>
+	 <1134424878.22036.13.camel@localhost.localdomain>
+	 <81083a450512130626x417d86c9w31f300555c99fdb2@mail.gmail.com>
+	 <9a8748490512130849o73c14313l166e6dd360f32d70@mail.gmail.com>
+	 <1134525816.30383.13.camel@localhost.localdomain>
+	 <81083a450512132010t2596046bsf7a36f85df19b89c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 05:48:54AM +0100, Carl-Daniel Hailfinger wrote:
-> Linus, Greg,
-> 
-> please apply the following patch to your trees. It fixes
-> http://bugzilla.kernel.org/show_bug.cgi?id=5067
-> 
-> The patch has been tested and verified, is shipped in the
-> SUSE 10.0 kernel and does not cause any regressions.
-> 
-> Unfortunately, the ACPI maintainers have been ignoring
-> this patch for the last few months despite repeated
-> requests for review on acpi-devel. I even CCed all ACPI
-> maintainers personally and didn't receive any response.
+------=_Part_6817_11726602.1134536560160
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Give them a chance to respond.  I'll wait for them to accept this before
-adding it to the -stable tree.
+My mail client is indeed broken.
 
-> +
-> +	/* INIT on Samsung's P35 returns an integer, possible return
-> +	 * values are tested below */
-> +	if (model->type == ACPI_TYPE_INTEGER) {
-> +		if (model->integer.value == -1 ||
-> +			model->integer.value == 0x58 ||
-> +			model->integer.value == 0x38) {
-> +			hotk->model = P30;
-> +			printk(KERN_NOTICE
-> +				       "  Samsung P35 detected, 
-> supported\n");
+Find the attached patch and here is the Changelog
 
-Patch is still linewrapped :(
+This patch ensures that an exported symbol  does not already exist in
+the kernel or in some other module's exported symbol table. This is
+done by checking the symbol tables for the exported symbol at the time
+of loading the module. Currently this is done after the relocation of
+the symbol.
 
-And I still think that this comparison isn't right and want verification
-from the ACPI maintainers about this.  You really have P35 machines that
-both return an error for the model value, and return 58 and 38?
+Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
+Signed-off-by: Anand Krishnan <anandhkrishnan@yahoo.co.in>
 
+------=_Part_6817_11726602.1134536560160
+Content-Type: text/plain; name=module-patch.txt; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="module-patch.txt"
 
-> +			goto out_known;
-> +		} else {
-> +			printk(KERN_WARNING
-> +				"  unknown integer returned by INIT\n");
-> +			goto out_unknown;
-> +		}
-> +	}
+diff -Naurp linux-2.6.15-rc5-vanilla/kernel/module.c linux-2.6.15-rc5/kernel/module.c
+--- linux-2.6.15-rc5-vanilla/kernel/module.c	2005-12-14 10:14:08.000000000 +0530
++++ linux-2.6.15-rc5/kernel/module.c	2005-12-14 10:18:18.000000000 +0530
+@@ -1204,6 +1204,39 @@ void *__symbol_get(const char *symbol)
+ }
+ EXPORT_SYMBOL_GPL(__symbol_get);
+ 
++/*
++ * Ensure that an exported symbol [global namespace] does not already exist
++ * in the Kernel or in some other modules exported symbol table.
++ */
++static int verify_export_symbols(struct module *mod)
++{
++	const char *name = NULL;
++	unsigned long i, ret = 0;
++	struct module *owner;
++	const unsigned long *crc;
++        
++	for (i = 0; i < mod->num_syms; i++)
++	        if (!__find_symbol(mod->syms[i].name, &owner, &crc, 1)) {
++			name = mod->syms[i].name;
++			ret = -ENOEXEC;
++			goto dup;
++		}
++	
++	for (i = 0; i < mod->num_gpl_syms; i++)
++	        if (!__find_symbol(mod->gpl_syms[i].name, &owner, &crc, 1)) {
++			name = mod->gpl_syms[i].name;
++			ret = -ENOEXEC;
++			goto dup;
++		}
++
++dup:
++	if (ret)
++		printk(KERN_ERR "%s: exports duplicate symbol %s (owned by %s)\n", 
++			mod->name, name, module_name(owner));
++
++	return ret;
++}
++
+ /* Change all symbols so that sh_value encodes the pointer directly. */
+ static int simplify_symbols(Elf_Shdr *sechdrs,
+ 			    unsigned int symindex,
+@@ -1767,6 +1800,12 @@ static struct module *load_module(void _
+ 			goto cleanup;
+ 	}
+ 
++        /* Find duplicate symbols */
++	err = verify_export_symbols(mod);
++
++	if (err < 0)
++		goto cleanup;
++
+   	/* Set up and sort exception table */
+ 	mod->num_exentries = sechdrs[exindex].sh_size / sizeof(*mod->extable);
+ 	mod->extable = extable = (void *)sechdrs[exindex].sh_addr;
 
-Why exit so quickly here?  What about the other models?
-
->  	if (model->type == ACPI_TYPE_STRING) {
->  		printk(KERN_NOTICE "  %s model detected, ",
->  		       model->string.pointer);
-> @@ -1057,9 +1075,7 @@ static int __init asus_hotk_get_info(voi
->  		hotk->model = L5x;
-> 
->  	if (hotk->model == END_MODEL) {
-> -		printk("unsupported, trying default values, supply the "
-> -		       "developers with your DSDT\n");
-> -		hotk->model = M2E;
-> +		goto out_unknown;
->  	} else {
->  		printk("supported\n");
->  	}
-> @@ -1088,6 +1104,15 @@ static int __init asus_hotk_get_info(voi
->  	acpi_os_free(model);
-> 
->  	return AE_OK;
-> +
-> +out_unknown:
-> +	printk(KERN_WARNING "  unsupported, trying default values, "
-> +			"supply the developers with your DSDT\n");
-
-What's with the leading spaces here?
-
-thanks,
-
-greg k-h
+------=_Part_6817_11726602.1134536560160--

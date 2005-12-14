@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbVLNXlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965102AbVLNXlo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965098AbVLNXlY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 18:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965074AbVLNXlY
+	id S965102AbVLNXlo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 18:41:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbVLNXln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 18:41:24 -0500
-Received: from [64.71.148.162] ([64.71.148.162]:43936 "EHLO
-	mail.linuxmachines.com") by vger.kernel.org with ESMTP
-	id S965103AbVLNXlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 18:41:23 -0500
-Message-ID: <43A0AF15.7020705@linuxmachines.com>
-Date: Wed, 14 Dec 2005 15:47:33 -0800
-From: Jeff Carr <jcarr@linuxmachines.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Wed, 14 Dec 2005 18:41:43 -0500
+Received: from rtr.ca ([64.26.128.89]:62417 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S965102AbVLNXll (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 18:41:41 -0500
+Message-ID: <43A0ADB0.1060205@rtr.ca>
+Date: Wed, 14 Dec 2005 18:41:36 -0500
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-To: Adrian Yee <brewt-linux-kernel@brewt.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tsc clock issues with dual core and question about irq balancing
-References: <GMail.1134458797.49013860.4106109506@brewt.org>
-In-Reply-To: <GMail.1134458797.49013860.4106109506@brewt.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Brad Barnett <bahb@l8r.net>
+Cc: Erik Meitner <e.spambo1.meitner@willystreet.coop>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Megaraid abort errors
+References: <dnq3qj$hu5$1@sea.gmane.org> <20051214183113.309ac575@be.back.l8r.net>
+In-Reply-To: <20051214183113.309ac575@be.back.l8r.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/12/05 23:26, Adrian Yee wrote:
+Well, there's this bug (patch below) in the megaraid driver,
+but it only affects certain architectures.
 
-> My other question is about irq balancing - I turned it on, but it
-> doesn't seem to be working properly:
-> 
->            CPU0       CPU1       
->   0:     109208        975    IO-APIC-edge  timer
->   1:       1226         10    IO-APIC-edge  i8042
->   8:     275272          1    IO-APIC-edge  rtc
->   9:          0          0   IO-APIC-level  acpi
->  12:       4133          4    IO-APIC-edge  i8042
->  14:       5135          8    IO-APIC-edge  ide0
->  15:         17          8    IO-APIC-edge  ide1
->  16:      25084          1   IO-APIC-level  eth0
->  17:      43597          1   IO-APIC-level  eth1
->  18:        185          5   IO-APIC-level  libata
->  19:          0          0   IO-APIC-level  libata
->  20:      11525          1   IO-APIC-level  EMU10K1
->  21:      24870          1   IO-APIC-level  nvidia
-> NMI:          0          0 
-> LOC:     110119     110118 
-> ERR:          0
-> MIS:          0
+* * *
 
-I think there is an irqbalance userspace daemon.
+The SCSI megaraid drive goes to great effort to kmap
+the scatterlist buffer (if used), but then uses the
+wrong pointer when copying to it afterward.
+
+Signed-off-by:  Mark Lord <lkml@rtr.ca>
+
+
+
+--- linux-2.6.15-rc5/drivers/scsi/megaraid.c.orig	2005-12-04 00:10:42.000000000 -0500
++++ linux/drivers/scsi/megaraid.c	2005-12-07 17:41:30.000000000 -0500
+@@ -664,7 +664,7 @@
+  					sg->offset;
+  			} else
+  				buf = cmd->request_buffer;
+-			memset(cmd->request_buffer, 0, cmd->cmnd[4]);
++			memset(buf, 0, cmd->cmnd[4]);
+  			if (cmd->use_sg) {
+  				struct scatterlist *sg;
+

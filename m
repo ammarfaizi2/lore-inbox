@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbVLNCZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbVLNCko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030243AbVLNCZK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 21:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbVLNCZK
+	id S932464AbVLNCko (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 21:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVLNCko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 21:25:10 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:40334 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030243AbVLNCZI (ORCPT
+	Tue, 13 Dec 2005 21:40:44 -0500
+Received: from ns.suse.de ([195.135.220.2]:29847 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751185AbVLNCkn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 21:25:08 -0500
-Date: Tue, 13 Dec 2005 21:24:57 -0500
-From: Dave Jones <davej@redhat.com>
-To: Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>
-Cc: linux-kernel@vger.kernel.org, coywolf@gmail.com
-Subject: Re: bugs?
-Message-ID: <20051214022457.GA15716@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>,
-	linux-kernel@vger.kernel.org, coywolf@gmail.com
-References: <439F79CE.6040609@ens.etsmtl.ca>
+	Tue, 13 Dec 2005 21:40:43 -0500
+Date: Wed, 14 Dec 2005 03:40:37 +0100
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: ak@suse.de, hch@lst.de, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 3/3] sanitize building of fs/compat_ioctl.c
+Message-ID: <20051214024037.GC23384@wotan.suse.de>
+References: <20051213173434.GP9286@parisc-linux.org> <20051213.145109.20744871.davem@davemloft.net> <p73r78g8nft.fsf@verdi.suse.de> <20051213.182340.102535288.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <439F79CE.6040609@ens.etsmtl.ca>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20051213.182340.102535288.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 08:47:58PM -0500, Caroline GAUDREAU wrote:
- > my cpu is 1400MHz, but why there's cpu MHz         : 598.593
+> I suppose.  We could also funnel down ->compat_{read,write}() and
+> so on down the call chain, but that would likely be even uglier.
 
- > flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mca cmov 
- > pat clflush dts acpi mmx fxsr sse sse2 tm pbe est tm2
-                                                 ^^^
+The problem is that this would need to be done for all variants
+(write, writev, aio_write, send{,msg,to} etc.) Same for read. I probably forgot
+one or two. 
 
-Your CPU is speedstep capable.  Most modern distros include a daemon
-for adjusting CPU speed based upon load.
 
-		Dave
+> I guess with is_compat_task() we can do the netlink and pfkeyv2 compat
+> stuff on ia64/x86_64.  I don't look forward to reviewing a patch
+> implementing that, however :-/
 
+And iptables, although that would be probably *really* ugly.
+It's a bit of a sore spot on x86-64 though. 64bit kernel with full
+32bit userland works usually great except for iptables and ipsec.
+
+-Andi

@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965102AbVLNXlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965069AbVLNXmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965102AbVLNXlo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 18:41:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbVLNXln
+	id S965069AbVLNXmW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 18:42:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965107AbVLNXmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 18:41:43 -0500
-Received: from rtr.ca ([64.26.128.89]:62417 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S965102AbVLNXll (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 18:41:41 -0500
-Message-ID: <43A0ADB0.1060205@rtr.ca>
-Date: Wed, 14 Dec 2005 18:41:36 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Wed, 14 Dec 2005 18:42:21 -0500
+Received: from mail.site.uottawa.ca ([137.122.89.142]:7184 "EHLO
+	mail.site.uottawa.ca") by vger.kernel.org with ESMTP
+	id S965069AbVLNXmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 18:42:20 -0500
+Message-ID: <3374.127.0.0.1.1134603734.squirrel@127.0.0.1>
+Date: Wed, 14 Dec 2005 18:42:14 -0500 (EST)
+Subject: Question
+From: nramirez@site.uottawa.ca
+To: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-To: Brad Barnett <bahb@l8r.net>
-Cc: Erik Meitner <e.spambo1.meitner@willystreet.coop>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Megaraid abort errors
-References: <dnq3qj$hu5$1@sea.gmane.org> <20051214183113.309ac575@be.back.l8r.net>
-In-Reply-To: <20051214183113.309ac575@be.back.l8r.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, there's this bug (patch below) in the megaraid driver,
-but it only affects certain architectures.
+Hi,
 
-* * *
+I want to implement a congestion control algorithm for an Ad-hoc wireless
+network. It means i will make some modifications to TCP and therefore in
+the transport layer.
+Do i need to modify the Kernel to do my implementation? or there are some
+kernel modules i can modify as for the case of implementing a routing
+protocol in the network layer? If both are possible what could be the
+advantage or disadvantage of each? Where can i get more information?
 
-The SCSI megaraid drive goes to great effort to kmap
-the scatterlist buffer (if used), but then uses the
-wrong pointer when copying to it afterward.
+Thank you in advance,
 
-Signed-off-by:  Mark Lord <lkml@rtr.ca>
-
-
-
---- linux-2.6.15-rc5/drivers/scsi/megaraid.c.orig	2005-12-04 00:10:42.000000000 -0500
-+++ linux/drivers/scsi/megaraid.c	2005-12-07 17:41:30.000000000 -0500
-@@ -664,7 +664,7 @@
-  					sg->offset;
-  			} else
-  				buf = cmd->request_buffer;
--			memset(cmd->request_buffer, 0, cmd->cmnd[4]);
-+			memset(buf, 0, cmd->cmnd[4]);
-  			if (cmd->use_sg) {
-  				struct scatterlist *sg;
+Nadia Ramirez
 

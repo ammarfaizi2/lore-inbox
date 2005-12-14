@@ -1,38 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932470AbVLNNH3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVLNNOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932470AbVLNNH3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 08:07:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbVLNNH2
+	id S932453AbVLNNOt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 08:14:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVLNNOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 08:07:28 -0500
-Received: from relay4.usu.ru ([194.226.235.39]:25287 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S932470AbVLNNH2 (ORCPT
+	Wed, 14 Dec 2005 08:14:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:20163 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932453AbVLNNOs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 08:07:28 -0500
-Message-ID: <43A018E4.2090907@ums.usu.ru>
-Date: Wed, 14 Dec 2005 18:06:44 +0500
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kenneth Parrish <Kenneth.Parrish@familynet-international.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, alan@lxorguk.ukuu.org.uk
-Subject: Re: [SERIAL, -mm] CRC failure
-References: <403eda.8e05b5@familynet-international.net>
-In-Reply-To: <403eda.8e05b5@familynet-international.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.0.11; VDF: 6.33.0.25; host: usu2.usu.ru)
+	Wed, 14 Dec 2005 08:14:48 -0500
+Date: Wed, 14 Dec 2005 08:14:28 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andi Kleen <ak@suse.de>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: stall during boot on x86-64.
+Message-ID: <20051214131428.GA3829@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
+	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+	linux-kernel@vger.kernel.org
+References: <88056F38E9E48644A0F562A38C64FB60069E67D8@scsmsx403.amr.corp.intel.com> <p73lkyo87m6.fsf@verdi.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73lkyo87m6.fsf@verdi.suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kenneth Parrish wrote:
->         Three -mm kernels of late, and now v2.6.15-rc5-mm2, give
-> frequent z-modem crc errors with minicom, lrz, and an external v90 modem
-> to a couple of local bb's.  2.6.15-rc5-git2 and before are okay.
+On Wed, Dec 14, 2005 at 08:23:29AM +0100, Andi Kleen wrote:
+ > "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com> writes:
+ > 
+ > > >[    0.000000] time.c: Detected 2793.081 MHz processor.
+ > > >[   27.449661] Console: colour VGA+ 80x25
+ > > >[   28.484309] Dentry cache hash table entries: 131072 (order: 
+ > > >8, 1048576 bytes)
+ > > >[   28.506519] Inode-cache hash table entries: 65536 (order: 
+ > > >7, 524288 bytes)
+ > > >[   28.539543] Memory: 1014240k/1047080k available (2490k 
+ > > >kernel code, 32456k reserved, 1664k data, 236k init)
+ > > >
+ > > >Note the jump in the time value..
+ > > 
+ > > May be this is just the origin of time as far as kernel is concerned.
+ > > No?
+ > 
+ > It is. Before that the timer interrupt doesn't run and jiffies won't 
+ > increase.
 
-Does the error rate vary if you run a CPU hog (e.g. cat /dev/urandom 
- >/dev/null) or glxgears in parallel to minicom?
+Makes sense now. After sleeping on it, I think the stall I see
+is caused by framebuffer console. I'll poke some more at it
+this evening.
 
--- 
-Alexander E. Patrakov
+		Dave
+

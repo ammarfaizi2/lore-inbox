@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbVLNNy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbVLNN5Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964774AbVLNNy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 08:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbVLNNy2
+	id S964779AbVLNN5Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 08:57:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbVLNN5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 08:54:28 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:50098
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S964774AbVLNNy1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 08:54:27 -0500
-Subject: Re: [ANNOUNCE] 2.6.15-rc5-hrt2 - hrtimers based high resolution
-	patches
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1134568080.18921.42.camel@localhost.localdomain>
-References: <1134385343.4205.72.camel@tglx.tec.linutronix.de>
-	 <1134507927.18921.26.camel@localhost.localdomain>
-	 <20051214084019.GA18708@elte.hu>  <20051214084333.GA20284@elte.hu>
-	 <1134568080.18921.42.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: linutronix
-Date: Wed, 14 Dec 2005 15:01:06 +0100
-Message-Id: <1134568867.4275.7.camel@tglx.tec.linutronix.de>
+	Wed, 14 Dec 2005 08:57:24 -0500
+Received: from sipsolutions.net ([66.160.135.76]:2832 "EHLO sipsolutions.net")
+	by vger.kernel.org with ESMTP id S964779AbVLNN5Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 08:57:24 -0500
+Subject: Re: [PATCH 2.6 1/2] usb/input: Add relayfs support to appletouch
+	driver
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Michael Hanselmann <linux-kernel@hansmi.ch>
+Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz,
+       linuxppc-dev@ozlabs.org, stelian@popies.net, kernel-stuff@comcast.net
+In-Reply-To: <20051213223659.GB20017@hansmi.ch>
+References: <20051213223659.GB20017@hansmi.ch>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c8hZw2F4XerfqUK5HNfo"
+Date: Wed, 14 Dec 2005 14:57:00 +0100
+Message-Id: <1134568620.3875.6.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-14 at 08:48 -0500, Steven Rostedt wrote:
-> On Wed, 2005-12-14 at 09:43 +0100, Ingo Molnar wrote:
-> > * Ingo Molnar <mingo@elte.hu> wrote:
 
-> And going into gdb, I get:
-> 
-> (gdb) li *0xc0136b98
-> 0xc0136b98 is in hrtimer_cancel (kernel/hrtimer.c:671).
-> 666     int hrtimer_cancel(struct hrtimer *timer)
-> 667     {
-> 668             for (;;) {
-> 669                     int ret = hrtimer_try_to_cancel(timer);
-> 670
-> 671                     if (ret >= 0)
-> 672                             return ret;
-> 673             }
-> 674     }
-> 675
-> 
-> So it may not really be locked, and if I waited a couple of hours, it
-> might actually finish (the test usually takes a couple of minutes to
-> run, and I let it run here for about 20 minutes).
-> 
-> Yeah, the above code would be very bad if this happens after preempting
-> the running timer.
-> 
-> So the fix to this, in the case of preempting the softirq, that we need
-> to introduce some wait queue that will allow processes to wait for the
-> softirq to finish, and then the softirq will wake up all the processes.
+--=-c8hZw2F4XerfqUK5HNfo
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-We had the waitqueue in the ktimer based -rt patches and did not add it
-back.
+On Tue, 2005-12-13 at 23:36 +0100, Michael Hanselmann wrote:
+> +module_param(relayfs, int, 0644);
 
-	tglx
+Why do you make the parameter writable if writing it doesn't change
+anything?
 
+johannes
+
+--=-c8hZw2F4XerfqUK5HNfo
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Comment: Johannes Berg (SIP Solutions)
+
+iQIVAwUAQ6AkpqVg1VMiehFYAQKm1Q/+Kg15S36YLB/p7hJtyjG9m1eRcdpnHK6l
+RLyOev+yW6vpKPrPHZSv/Babzv69SAnYBeoJYhYUnKqU/ylYtOyE5UKkU13yxwLG
+Hsv+gk4AkZ7rZ/KrfV2+gG/qN0NxuLLNAeeZecjL2dkYTxZR+KWInFPIsPV2f2Fk
+anNpKLruDPRIyWJVybwR34M+Ma7DrJCG/ZlIcUfn4mROyOHNNJFTrBg8kFuBBCJQ
+hbcDRE8ZLm6q/4JgOT6SLZg/npbRt9SBenKGSUJsEbgbQdsYuKVMeH92ya3p6n3s
+j2K/9NhhqS1sW8Fo3OcGjO4RLVM2E4n2w+bs6XftnjhOayvAqEAxa/5DB9R4QJZQ
+aXBXuN4QU7W0o5Sr9IEUieZ9Od2GzHuC6+6q2YI+2Omky5ZBFjbEFJuqE54WnmnJ
++PZup+3HbWU2rdVn0s7tiGBKuwLZ+dmWKSKefOdRfTALlkwfcypd5QG9hicX62x9
+UfP2vR9mMq8JPvguwFUKrEOWYVNRWEHX6LsDOLDavT/SxyeiOVx/iXnva1AhKVTW
+2IPToK9yi+d3Nmwzlpfb1njHmp5P44KeKi09kNQqaYh+5lRnj7Cv7miXyCbdY04P
+MF4jsJeHccZmB5mXuJw4YsTQ284cJllvkRGiIbXRNu6TPyrxplAPPrCVuLJ3SspA
+aE0ITnyqrmU=
+=Lanv
+-----END PGP SIGNATURE-----
+
+--=-c8hZw2F4XerfqUK5HNfo--
 

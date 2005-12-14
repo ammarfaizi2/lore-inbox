@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965097AbVLNXkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbVLNXkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965097AbVLNXkM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 18:40:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbVLNXkM
+	id S965091AbVLNXkO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 18:40:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbVLNXkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 14 Dec 2005 18:40:13 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:19151 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S965091AbVLNXkM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 14 Dec 2005 18:40:12 -0500
-Received: from rtr.ca ([64.26.128.89]:60881 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S965056AbVLNXkK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 18:40:10 -0500
-Message-ID: <43A0AD54.6050109@rtr.ca>
-Date: Wed, 14 Dec 2005 18:40:04 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+Message-ID: <43A0AD68.50107@tmr.com>
+Date: Wed, 14 Dec 2005 18:40:24 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: tglx@linutronix.de
-Cc: David Howells <dhowells@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Paul Jackson <pj@sgi.com>, mingo@elte.hu, hch@infradead.org,
-       akpm@osdl.org, torvalds@osdl.org, arjan@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-References: <1134559121.25663.14.camel@localhost.localdomain>	 <13820.1134558138@warthog.cambridge.redhat.com>	 <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com>	 <dhowells1134431145@warthog.cambridge.redhat.com>	 <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu>	 <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu>	 <20051213100015.GA32194@elte.hu>	 <6281.1134498864@warthog.cambridge.redhat.com>	 <14242.1134558772@warthog.cambridge.redhat.com>	 <16315.1134563707@warthog.cambridge.redhat.com> <1134568731.4275.4.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1134568731.4275.4.camel@tglx.tec.linutronix.de>
+To: Rik van Riel <riel@redhat.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Linux-VServer ML <vserver@list.linux-vserver.org>
+Subject: Re: [ANNOUNCE] second stable release of Linux-VServer
+References: <20051213185650.GA6466@MAIL.13thfloor.at> <Pine.LNX.4.63.0512140832200.2723@cuia.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.63.0512140832200.2723@cuia.boston.redhat.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
->
-> You can do a full scripted rename of up/down to the mutex API and then
-> fix up the 100 places used by semaphores manually.
+Rik van Riel wrote:
+> On Tue, 13 Dec 2005, Herbert Poetzl wrote:
+> 
+> 
+>>Well, as the OpenVZ folks announced their release on LKML
+>>I just decided to do similar for the Linux-VServer release,
+>>so please let me know if that is not considered appropriate.
+> 
+> 
+> Since there is a legitimate (and very popular) use case for
+> virtuozzo / vserver functionality, I think it is a good
+> thing to get all the code out in the open.
+> 
+> I really hope we will get something like BSD jail functionality
+> in the Linux kernel.  It makes perfect sense for hosting
+> environments.
+> 
+Like many needs there are lots of solutions, none of which are perfect, 
+or at least without problems the competition says are important ;-) This 
+is one more thing to study, but it seems as though there is not an 
+overview of the various solutions for easy comparison.
 
-Again, folks, this only works for current in-tree kernel code.
+This list is probably incomplete:
+  linuxjail - BSD jail is the goal
+  VMware - I use this for BSD machines
+  xen - the last I looked ran Linux, not Windows or BSD unpatched
+  UML - run Linux nicely
+  VServer - news to me
 
-There are huge amounts of kernel code out-of-tree that still use
-up/down as (or potentially as) counting semaphores.
-
-Yes, some of that code is closed-source, but most of it is open-source
-stuff in people's "queues", such as the network patch-o-matic queue
-and other stuff.  Lots of open-source out-of-tree drivers, too.
-
-Re-using the existing up()/down() names for a new purpose is
-a very very Bad Idea.  Removing up()/down() entirely is not quite so bad,
-because at least then people will eventually notice the change.
-
-Leaving up()/down() as-is is really the most sensible option.
-
-Cheers
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

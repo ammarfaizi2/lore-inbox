@@ -1,77 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbVLNTih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbVLNTl5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932426AbVLNTih (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 14:38:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVLNTih
+	id S932436AbVLNTl5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 14:41:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbVLNTl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 14:38:37 -0500
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:26206 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S932426AbVLNTig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 14:38:36 -0500
-Date: Wed, 14 Dec 2005 14:38:36 -0500
-From: Jeff Mahoney <jeffm@suse.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: ReiserFS List <reiserfs-list@namesys.com>
-Subject: [PATCH] reiserfs: skip commit on io error
-Message-ID: <20051214193836.GA5982@locomotive.unixthugs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.5-7.201-smp (i686)
-X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
-X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
-User-Agent: Mutt/1.5.6i
+	Wed, 14 Dec 2005 14:41:56 -0500
+Received: from rtsoft3.corbina.net ([85.21.88.6]:54128 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S932436AbVLNTlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 14:41:55 -0500
+Message-ID: <43A07577.5080501@ru.mvista.com>
+Date: Wed, 14 Dec 2005 22:41:43 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: stephen@streetfiresound.com
+CC: linux-kernel@vger.kernel.org, David Brownell <david-b@pacbell.net>,
+       dpervushin@gmail.com, akpm@osdl.org, greg@kroah.com,
+       basicmark@yahoo.com, komal_shah802003@yahoo.com,
+       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
+Subject: Re: [PATCH/RFC] SPI: add async message handing library to David	Brownell's
+ core
+References: <20051212182026.4e393d5a.vwool@ru.mvista.com>	 <20051213170629.7240d211.vwool@ru.mvista.com> <1134586122.24118.52.camel@localhost.localdomain>
+In-Reply-To: <1134586122.24118.52.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- This should have been part of the original io error patch, but got dropped
- somewhere along the way.
+Stephen Street wrote:
 
- It's extremely important when handling the i/o error in the journal to not
- commit the transaction with corrupt data. This patch adds that code back in.
+>On Tue, 2005-12-13 at 17:06 +0300, Vitaly Wool wrote:
+>  
+>
+>>Greetings,
+>>
+>>This thingie hasn't been thoroughly tested yet, but it's lightweight
+>>and easy to understand so I don't think solving the problems that 
+>>may arise will take long. Though I haven't actually done that yet, 
+>>I'm sure that Stephen's PXA SSP driver will become easier to understand 
+>>and less in footprint and will work faster when it's rewritten using 
+>>this library. (Yes, I do expect performance improvement here as the 
+>>current implementation schedules multiple tasklets, so 
+>>scheduling penalty is high.)
+>>    
+>>
+>
+>Is this really true?  Is tasklet scheduling "harder" than kernal thread
+>scheduling?  A close look at my PXA SSP SPI implementation will reveal
+>that my design is nearly lock-less and callable from any execution
+>context (i.e. interrupt context).
+>  
+>
+It's harder in your case because the tasklet is created each time it's 
+scheduled again, as far as I see it in your impleemntation.
+Each SPI controller thread is created only once so it's more lightweight 
+than what you do.
 
- fs/reiserfs/journal.c |   17 +++++++++++++----
- 1 files changed, 13 insertions(+), 4 deletions(-)
+>>+ * spi_queue - (internal) queue the message to be processed asynchronously
+>>+ * @spi: SPI device to perform transfer to/from
+>>+ * @msg: message to be sent
+>>+ * Description:
+>>+ * 	This function queues the message to SPI controller's queue.
+>>+ */
+>>+static int spi_queue(struct spi_device *spi, struct spi_message *msg)
+>>+{
+>>+	struct threaded_async_data *td = spi->master->context;
+>>+	int rc = 0;
+>>+
+>>+	if (!td) {
+>>+		rc = -EINVAL;
+>>+		goto out;
+>>+	}
+>>+
+>>+	msg->spi = spi;
+>>+	down(&td->lock);
+>>+	list_add_tail(&msg->queue, &td->msgs);
+>>+	dev_dbg(spi->dev.parent, "message has been queued\n");
+>>+	up(&td->lock);
+>>+	wake_up_interruptible(&td->wq);
+>>+
+>>+out:
+>>+	return rc;
+>>+}
+>>+
+>>    
+>>
+>
+>This can not be invoke this from "interrupt context" which is a
+>requirement for my SPI devices (CS8415A, CS8405A, CS4341).
+>
+>
+>  
+>
+Okay, not a major issue though. Change mutexes to 
+spin_lock_irq/spin_unlock_irq and it's callable from an interrupt 
+context, right?
 
-Signed-off-by: Jeff Mahoney <jeffm@suse.com>
-
-diff -ruNpX dontdiff linux-2.6.14.orig/fs/reiserfs/journal.c linux-2.6.14.fixed/fs/reiserfs/journal.c
---- linux-2.6.14.orig/fs/reiserfs/journal.c	2005-10-27 20:02:08.000000000 -0400
-+++ linux-2.6.14.fixed/fs/reiserfs/journal.c	2005-12-05 17:15:59.000000000 -0500
-@@ -1039,6 +1039,10 @@ static int flush_commit_list(struct supe
- 	}
- 	atomic_dec(&journal->j_async_throttle);
- 
-+	/* We're skipping the commit if there's an error */
-+	if (retval || reiserfs_is_journal_aborted(journal))
-+		barrier = 0;
-+
- 	/* wait on everything written so far before writing the commit
- 	 * if we are in barrier mode, send the commit down now
- 	 */
-@@ -1077,10 +1081,16 @@ static int flush_commit_list(struct supe
- 	BUG_ON(atomic_read(&(jl->j_commit_left)) != 1);
- 
- 	if (!barrier) {
--		if (buffer_dirty(jl->j_commit_bh))
--			BUG();
--		mark_buffer_dirty(jl->j_commit_bh);
--		sync_dirty_buffer(jl->j_commit_bh);
-+		/* If there was a write error in the journal - we can't commit
-+		 * this transaction - it will be invalid and, if successful,
-+		 * will just end up propogating the write error out to
-+		 * the file system. */
-+		if (likely(!retval && !reiserfs_is_journal_aborted (journal))) {
-+			if (buffer_dirty(jl->j_commit_bh))
-+				BUG();
-+			mark_buffer_dirty(jl->j_commit_bh) ;
-+			sync_dirty_buffer(jl->j_commit_bh) ;
-+		}
- 	} else
- 		wait_on_buffer(jl->j_commit_bh);
- 
--- 
-Jeff Mahoney
-SuSE Labs
+Vitaly

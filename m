@@ -1,98 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932443AbVLNNCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVLNNEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932443AbVLNNCy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 08:02:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbVLNNCy
+	id S932219AbVLNNEX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 08:04:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbVLNNEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 08:02:54 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:8651 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932443AbVLNNCx (ORCPT
+	Wed, 14 Dec 2005 08:04:23 -0500
+Received: from relay4.usu.ru ([194.226.235.39]:6343 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S932219AbVLNNEW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 08:02:53 -0500
-Message-ID: <43A017EF.2000507@us.ibm.com>
-Date: Wed, 14 Dec 2005 08:02:39 -0500
-From: JANAK DESAI <janak@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922
+	Wed, 14 Dec 2005 08:04:22 -0500
+Message-ID: <43A0181C.10205@ums.usu.ru>
+Date: Wed, 14 Dec 2005 18:03:24 +0500
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
-       jamie@shareable.org, serue@us.ibm.com, mingo@elte.hu,
-       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 0/9] unshare system call : updated patch series
-References: <1134513864.11972.156.camel@hobbs.atlanta.ibm.com> <20051213161931.66978418.akpm@osdl.org>
-In-Reply-To: <20051213161931.66978418.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, Kenneth.Parrish@familynet-international.net
+Subject: Re: [SERIAL, -mm] CRC failure
+References: <403eda.8e05b5@familynet-international.net> <1134551256.25663.3.camel@localhost.localdomain>
+In-Reply-To: <1134551256.25663.3.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.0.11; VDF: 6.33.0.25; host: usu2.usu.ru)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Alan Cox wrote:
+> On Mer, 2005-12-14 at 06:45 +0000, Kenneth Parrish wrote:
+> 
+>>        Three -mm kernels of late, and now v2.6.15-rc5-mm2, give
+>>frequent z-modem crc errors with minicom, lrz, and an external v90 modem
+>>to a couple of local bb's.  2.6.15-rc5-git2 and before are okay.
+> 
+> 
+> 
+> Which -mm kernels gave the error, and which do you know ehrre ok. Also
+> can you tell me more about the hardware arrangement you are using - what
+> cpu, what serial driver ?
+> 
+> The -mm tree contains some buffering changes I made and those would be
+> the obvious candidate for suspicion
 
->JANAK DESAI <janak@us.ibm.com> wrote:
->  
->
->>The following patches represent the updated version of the proposed
->>new system call unshare. Patches that registered system call for
->>different architectures were not updated but are being resent in
->>the series along with the updated patches.
->>
->>Changes since the first submission of this patch series on 12/12/05:
->>	- Patches 1, 6, 7, 8, and 9 are updated to incorporate
->>	  feedback from Al Viro. Changes are described in the change
->>	  log for each of the patches (12/13/05)
->>
->>unshare allows a process to disassociate part of the process context (vm
->>namespace, files and fs) that was being shared with a parent.  Unshare 
->>is needed to implement polyinstantiated directories (such as per-user 
->>and/or per-security context /tmp directory) using the kernel's per-process
->>namespace mechanism. For a more detailed description of the justification
->>and approach, please refer to lkml threads from 8/8/05, 10/13/05 & 12/08/05.
->>                                                                                
->>Unshare system call, along with shared tree patches, have been in use
->>in our department for over month and half. We have been using them to
->>maintain per-user and per-context /tmp directory. The latest port to
->>2.6.15-rc5-mm2 has been tested on a uni-processor i386 machine.
->>    
->>
->
->I wouldn't view this as an adequate changelog for a new feature, really. 
->Please prepare a new one which describes what the feature does, how it does
->it and, especially, why we would want to add it to the kernel.
->
->It adds 1.6k to my allnoconfig image which I guess can be lived with, but
->we need a *good* understanding of what we're getting for that cost, and
->apart from sending the reader onto an ill-defied lkml fishing expedition,
->you haven't provided that.
->
->Another downside which we need to weigh when evaluating this contribution
->is the security risk.  You've added code which very, very few people will
->use in real-life.  If it has holes or races they just won't be found by our
->normal testing processes.  Chances are the first time we'll hear about them
->is when some smarty has gone explicitly looking for exploits.
->
->Please demonstrate how each unsharing (fs, ns, sig, mm, fd) is correctly
->locked and refcounted against concurrent users.  I've only checked mm
->against access_process_vm() and it looks OK.
->
->Thanks.
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
->  
->
-Thanks. Yes, I should have done a better job of describing this new 
-feature. I remember
-finding description of shared trees very useful and meant to emulate it 
-for unshare, but
-got caught up in code fixes and didn't update the documentation. I will 
-do so soon and
-send it out so you have a more coherent information from which to make a 
-decision.
+Please CC: me on all replies to this thread, because I think this is 
+also related to the ppp failures (a packet repeating over and over) that 
+I reported earlier on -mm kernels.
 
--Janak
+-- 
+Alexander E. Patrakov

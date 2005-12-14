@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030364AbVLNDWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030368AbVLNDZf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030364AbVLNDWG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 22:22:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030369AbVLNDWG
+	id S1030368AbVLNDZf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 22:25:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030402AbVLNDZf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 22:22:06 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:12464 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030364AbVLNDWF (ORCPT
+	Tue, 13 Dec 2005 22:25:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:7346 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030368AbVLNDZe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 22:22:05 -0500
-Date: Tue, 13 Dec 2005 22:22:03 -0500
+	Tue, 13 Dec 2005 22:25:34 -0500
+Date: Tue, 13 Dec 2005 22:25:18 -0500
 From: Dave Jones <davej@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: stall during boot on x86-64.
-Message-ID: <20051214032202.GA3429@redhat.com>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>,
+       linux-kernel@vger.kernel.org
+Subject: Re: bugs?
+Message-ID: <20051214032518.GA3604@redhat.com>
 Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	Coywolf Qi Hunt <coywolf@gmail.com>,
+	Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>,
+	linux-kernel@vger.kernel.org
+References: <439F79CE.6040609@ens.etsmtl.ca> <20051214022457.GA15716@redhat.com> <2cd57c900512131903i4b79b9e2k@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <2cd57c900512131903i4b79b9e2k@mail.gmail.com>
 User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I boot my EM64T, I get a slight noticable pause
-really early on in boot.  Booting with 'time'
-shows an interesting artifact.
+On Wed, Dec 14, 2005 at 11:03:36AM +0800, Coywolf Qi Hunt wrote:
+ > 2005/12/14, Dave Jones <davej@redhat.com>:
+ > > On Tue, Dec 13, 2005 at 08:47:58PM -0500, Caroline GAUDREAU wrote:
+ > >  > my cpu is 1400MHz, but why there's cpu MHz         : 598.593
+ > >
+ > >  > flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mca cmov
+ > >  > pat clflush dts acpi mmx fxsr sse sse2 tm pbe est tm2
+ > >                                                  ^^^
+ > >
+ > > Your CPU is speedstep capable.  Most modern distros include a daemon
+ > > for adjusting CPU speed based upon load.
+ > 
+ > what daemon? suppose in debian or redhat.
 
-Kernel command line: ro root=/dev/VolGroup00/LogVol00 console=ttyS0,38400 console=tty0 time
-kernel profiling enabled (shift: 1)
-[    0.000000] Initializing CPU#0
-[    0.000000] PID hash table entries: 4096 (order: 12, 131072 bytes)
-[    0.000000] time.c: Using 14.318180 MHz HPET timer.
-[    0.000000] time.c: Detected 2793.081 MHz processor.
-[   27.449661] Console: colour VGA+ 80x25
-[   28.484309] Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
-[   28.506519] Inode-cache hash table entries: 65536 (order: 7, 524288 bytes)
-[   28.539543] Memory: 1014240k/1047080k available (2490k kernel code, 32456k reserved, 1664k data, 236k init)
-
-Note the jump in the time value..
-I'm not sure this is actually where the pause I see is, as the text
-is buffered, but it's something I can't explain.
+'cpuspeed' in Fedora/RHEL.  Debian probably offers a dozen different
+ones most of which I've never heard of :)
 
 		Dave
+
+
 

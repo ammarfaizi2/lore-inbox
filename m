@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbVLNTbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932242AbVLNTeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbVLNTbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 14:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbVLNTbJ
+	id S932242AbVLNTeu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 14:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbVLNTeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 14:31:09 -0500
-Received: from rtsoft3.corbina.net ([85.21.88.6]:43632 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S932400AbVLNTbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 14:31:07 -0500
-Message-ID: <43A072EA.70603@ru.mvista.com>
-Date: Wed, 14 Dec 2005 22:30:50 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
-       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
-       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
-       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
-Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051213170629.7240d211.vwool@ru.mvista.com> <20051213195317.29cfd34a.vwool@ru.mvista.com> <200512131101.02025.david-b@pacbell.net> <20051213191531.GA13751@kroah.com> <43A0230B.1040904@ru.mvista.com> <20051214171842.GB30546@kroah.com> <43A05C32.3070501@ru.mvista.com> <20051214191642.GA31838@kroah.com>
-In-Reply-To: <20051214191642.GA31838@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 14 Dec 2005 14:34:50 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:16322 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932242AbVLNTet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 14:34:49 -0500
+Subject: Re: kernel-2.6.15-rc5-rt2 - compilation error
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, art <art@usfltd.com>
+In-Reply-To: <200512141157.AA15073854@usfltd.com>
+References: <200512141157.AA15073854@usfltd.com>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 14:33:11 -0500
+Message-Id: <1134588791.13138.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+Ingo,
 
->On Wed, Dec 14, 2005 at 08:53:54PM +0300, Vitaly Wool wrote:
->  
->
->>Greg KH wrote:
->>
->>    
->>
->>>What is the speed of your SPI bus?
->>>
->>>And what are your preformance requirements?
->>>
->>>
->>>      
->>>
->>The maximum frequency for the SPI bus is 26 MHz, WLAN driver is to work 
->>at true 10 Mbit/sec.
->>    
->>
->
->Then you should be fine with the copying data and memset stuff, based on
->the workload the rest of the kernel does for other busses which have
->this same requirement of DMAable buffers.
->
->And I'm sure David will be glad to have you point out any places in his
->code where it accidentally takes data off of the stack instead of
->allocating it.
->  
->
-Hmm, I recall I've already posted some pieces of code with that stuff.
+x86_64 wont compile without PREEMPT_RT. It must regardless of PREEMPT_RT
+have RWSEM_GENERIC_SPINLOCK.
 
-Vitaly
+-- Steve
+
+Index: linux-2.6.15-rc5-rt2/arch/x86_64/Kconfig
+===================================================================
+--- linux-2.6.15-rc5-rt2.orig/arch/x86_64/Kconfig	2005-12-14 13:50:24.000000000 -0500
++++ linux-2.6.15-rc5-rt2/arch/x86_64/Kconfig	2005-12-14 14:08:02.000000000 -0500
+@@ -240,13 +240,8 @@
+ 
+ config RWSEM_GENERIC_SPINLOCK
+ 	bool
+-	depends on PREEMPT_RT
+ 	default y
+ 
+-config RWSEM_XCHGADD_ALGORITHM
+-	depends on !RWSEM_GENERIC_SPINLOCK && !PREEMPT_RT
+-	bool
+-
+ config K8_NUMA
+        bool "Old style AMD Opteron NUMA detection"
+        depends on NUMA
+
+
 

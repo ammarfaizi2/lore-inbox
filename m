@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030236AbVLNCKg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030421AbVLNCOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030236AbVLNCKg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 21:10:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030420AbVLNCKg
+	id S1030421AbVLNCOc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 21:14:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030420AbVLNCOc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 21:10:36 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:26036 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030236AbVLNCKf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 21:10:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RDN8qUpGPDCwQvgAOmadjvchhslO+TCQME0OuEsXzaEZoBmR4UNl3kDEbyC4rtbGzRMdzUKYHtg30QyKBtRMAgijzagAQujmxZrEoeblaLgrC9GhvfFvP/orUSpUzcY5t/kBQpYovZpfioBvkgKnpZb1nTYdq3nxrmXG+mUG1eE=
-Message-ID: <105c793f0512131810v44393574t4c44b57db4a1d6cd@mail.gmail.com>
-Date: Tue, 13 Dec 2005 21:10:34 -0500
-From: Andrew Haninger <ahaning@gmail.com>
+	Tue, 13 Dec 2005 21:14:32 -0500
+Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:31395 "HELO
+	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1030419AbVLNCOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 21:14:31 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>
 Subject: Re: bugs?
+Date: Tue, 13 Dec 2005 21:14:23 -0500
+User-Agent: KMail/1.9.1
 Cc: linux-kernel@vger.kernel.org, coywolf@gmail.com
+References: <439F79CE.6040609@ens.etsmtl.ca>
 In-Reply-To: <439F79CE.6040609@ens.etsmtl.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <439F79CE.6040609@ens.etsmtl.ca>
+Message-Id: <200512132114.23496.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/13/05, Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca> wrote:
-=> model name      : Intel(R) Pentium(R) M processor 1400MHz
-> cpu MHz         : 598.593
-You're probably using a notebook. Your CPU is running slower to save
-power since you're probably not doing anything CPU-intensive.
+On Tuesday 13 December 2005 20:47, Caroline GAUDREAU wrote:
+> my cpu is 1400MHz, but why there's cpu MHz         : 598.593
+>
 
-Open a terminal and do 'cat /dev/urandom > /dev/null' and then look at
-your CPU speed. You should find that it will climb to 1400 MHz.
+Do you have cpufreq active?
 
-HTH.
+[root@core ~]# cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 11
+model name      : Intel(R) Pentium(R) III Mobile CPU      1000MHz
+stepping        : 1
+cpu MHz         : 730.646
 
--Andy
+-- 
+Dmitry

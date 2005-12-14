@@ -1,91 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVLNIGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbVLNILR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751119AbVLNIGt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 03:06:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbVLNIGt
+	id S1751259AbVLNILR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 03:11:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbVLNILR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 03:06:49 -0500
-Received: from mf01.sitadelle.com ([212.94.174.68]:24265 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1751119AbVLNIGt
+	Wed, 14 Dec 2005 03:11:17 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:43149 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751259AbVLNILR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 03:06:49 -0500
-Message-ID: <439FD295.7070102@cosmosbay.com>
-Date: Wed, 14 Dec 2005 09:06:45 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
+	Wed, 14 Dec 2005 03:11:17 -0500
+Message-ID: <439FD482.3080806@aitel.hist.no>
+Date: Wed, 14 Dec 2005 09:14:58 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Paul Jackson <pj@sgi.com>
-Cc: clameter@engr.sgi.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au, Simon.Derr@bull.net, ak@suse.de
-Subject: Re: [PATCH] Cpuset: rcu optimization of page alloc hook
-References: <20051211233130.18000.2748.sendpatchset@jackhammer.engr.sgi.com>	<439D39A8.1020806@cosmosbay.com>	<20051212020211.1394bc17.pj@sgi.com>	<20051212021247.388385da.akpm@osdl.org>	<20051213075345.c39f335d.pj@sgi.com>	<439EF75D.50206@cosmosbay.com>	<Pine.LNX.4.62.0512130938130.22803@schroedinger.engr.sgi.com>	<439F0B43.4080500@cosmosbay.com>	<20051213130350.464a3054.pj@sgi.com>	<439F3F6E.6010701@cosmosbay.com> <20051213142346.ccd3081a.pj@sgi.com>
-In-Reply-To: <20051213142346.ccd3081a.pj@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: Nix <nix@esperi.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>	<1133807641.9356.50.camel@laptopd505.fenrus.org>	<4395BBDB.307@ti-wmc.nl> <200512061850.20169.luke-jr@utopios.org>	<4397EB7A.7030404@aitel.hist.no> <87hd9jvgvz.fsf@amaterasu.srvr.nix>	<439D66AF.3010801@aitel.hist.no> <87u0dew12h.fsf@amaterasu.srvr.nix>	<439E81F7.3040803@aitel.hist.no> <87r78gsko7.fsf@amaterasu.srvr.nix>
+In-Reply-To: <87r78gsko7.fsf@amaterasu.srvr.nix>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson a écrit :
-> Eric wrote:
-> 
->>struct kmem_cache  itself will be about 512*8 + some bytes
->>then for each cpu a 'struct array_cache' will be allocated (count 128 bytes 
-> 
-> 
-> Hmmm ... 'struct array_cache' looks to be about 6 integer words,
-> so if that is the main per-CPU cost, the minimal cost of a slab
-> cache (once created, before use) is about 24 bytes per cpu.
+Nix wrote:
 
-Nope, because struct array_cache includes a variable length table of pointers 
-to hold a cache of available objects per cpu. The 'limit' (the number of 
-pointer in this cache) depends on the object size.
+>>No.  While it is bad, it is not as bad as sw rendering. Tuxracer
+>>with sw rendering is unbearable - 2 seconds per frame or so!
+>>    
+>>
+>
+>Ah, yes, tuxracer does have fairly high demands, doesn't it.
+>
+>[delay]
+>
+>I just installed the latest ppracer alpha (the closest out there to
+>tuxracer)
+>
+>OK, I see 25-40fps with that, with DRI. If I turn on stencil buffering
+>it gets unbearable, but that's just asking too much of the card I think
+>
+At what resolution?  25fps is nice enough - as good as movies.
+I no longer remember exactly, but I had to use 640x480 to get
+anything close to playable - lucky to get 10 or so fps.
 
-See enable_cpucache in mm/slab.c for 'limit' determination :
+I have been in touch with DRI developers before - this card isn't
+supposed to be "great",  but it _is_ supposed to beat the
+matrox G550 which it isn't even close to.  The matrox has its
+own problems - it sometimes looses the font in this game, and
+the fps reporting is wrong.  But the game is smooth at 1280x1024 . . .
 
-         if (cachep->objsize > 131072)
-                 limit = 1;
-         else if (cachep->objsize > PAGE_SIZE)
-                 limit = 8;
-         else if (cachep->objsize > 1024)
-                 limit = 24;
-         else if (cachep->objsize > 256)
-                 limit = 54;
-         else
-                 limit = 120;
+>>Well, there is no AGPmode for a PCI card, is there?
+>>    
+>>
+>
+>Ah, this is a pure-PCI 9250, is it? (I wasn't aware you could get hold
+>of those anymore... I think X supports them, but textured stuff is
+>necessarily going to be slower.)
+>  
+>
+Yes - it is a pure pci thing, because the AGP slot is taken by the matrox.
+As for textured stuff being slower, I was under the impression that tuxracer
+use something like a total of 3 different textures, that surely should fit
+in the 64MB of onboard memory?  Now ppracer have more textures, but
+old tuxracer levels don't actually use them.
 
+Getting drawing commands into the card will of course also be slower
+with PCI, but 'I hope that is a small part of the work.
 
-
-Let's take an example :
-
-grep dentry /proc/slabinfo
-
-dentry_cache      157113 425289    224   17    1 : tunables  120   60    8 : 
-slabdata  25017  25017      0
-
-
-'limit' is the number following 'tunable' : 120
-
-On a 64 bits machines, 120*sizeof(void*) = 120*8 = 960
-
-So for small objects (<= 256 bytes), you end with a sizeof(arracy_cache) = 
-1024 bytes per cpu
-
-If 512 CPUS : 512*1024 = 512 Kbytes + all other kmem_cache structures : (If 
-you have a lot of Memory Nodes, then it can be very big too)
-
-If you know that no more than 100 objects are used in 99% of setups, then a 
-dedicated cache is overkill.
-
-> 
-> But whether its 24 or 128 bytes per cpu, that's a heavier weight
-> hammer than is needed here.
-> 
-> Time for me to learn more about rcu.
-> 
-> Thanks for raising this issue.
-> 
-
-You are welcome.
-
-Eric
+Helge Hafting

@@ -1,144 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVLNOML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932541AbVLNOW5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbVLNOML (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 09:12:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbVLNOML
+	id S932541AbVLNOW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 09:22:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVLNOW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 09:12:11 -0500
-Received: from spirit.analogic.com ([204.178.40.4]:18960 "EHLO
-	spirit.analogic.com") by vger.kernel.org with ESMTP id S964784AbVLNOMK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 09:12:10 -0500
+	Wed, 14 Dec 2005 09:22:57 -0500
+Received: from [212.76.84.137] ([212.76.84.137]:1804 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S932091AbVLNOW4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 09:22:56 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Bernd Eckenfels <ecki@lina.inka.de>
+Subject: Re: [RFC] ip / ifconfig redesign
+Date: Wed, 14 Dec 2005 17:19:47 +0300
+User-Agent: KMail/1.5
+Cc: netdev@vger.kernel.org, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <200512022253.19029.a1426z@gawab.com>
+In-Reply-To: <200512022253.19029.a1426z@gawab.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C600B8.5E236C00"
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <360494674@web.de>
-X-OriginalArrivalTime: 14 Dec 2005 14:12:08.0947 (UTC) FILETIME=[5EB3EC30:01C600B8]
-Content-class: urn:content-classes:message
-Subject: Re: Strange delay on PCI-DMA-transfer completion by wait_event_interruptible()
-Date: Wed, 14 Dec 2005 09:12:08 -0500
-Message-ID: <Pine.LNX.4.61.0512140904440.12944@chaos.analogic.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: Strange delay on PCI-DMA-transfer completion by wait_event_interruptible()
-Thread-Index: AcYAuF7EhS64zpoASxmA25YSluF4Ww==
-References: <360494674@web.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: =?iso-8859-1?Q?Burkhard_Sch=F6lpen?= <bschoelpen@web.de>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200512141719.47755.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
-------_=_NextPart_001_01C600B8.5E236C00
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-
-On Wed, 14 Dec 2005, [iso-8859-1] Burkhard Sch=F6lpen wrote:
-
->> On Tue, 13 Dec 2005, [iso-8859-1] Burkhard Sch=F6lpen wrote:
->>
->>> Thanks a lot for your answer!
->>> I just tried out interruptible_sleep_on(), but couriously I got the=
- same
->>> delay as before. On the hardware side, everything seems to be okay,=
- because
->>> the data I'm transferring is relayed to a printhead of a laser printer=
- (by an
->>> FPGA on the PCI-Board), whose LEDs light up as expected. The programmer=
- of
->>> the FPGA (sitting next to me) says there would be no interrupt in the=
- case of
->>> an error (so probably I should sleep with a timeout). But as there is=
- an
->>> interrupt (and MY_DMA_COUNT_REGISTER contains really 0) in fact, I=
- think the
->>> dma transfer succeeds, or could that be misleading? The only problem=
- seems
->>> to be, that the interrupt comes much later, if I put the user process=
- to
->>> sleep than let it do busy waiting. Do you have any idea, what could=
- cause
->>> this strange behaviour? Could it be concerned with my SMP kernel (I use=
- a
->>> processor with 2 cores)?
->>>
-> "linux-os \(Dick Johnson\)" <linux-os@analogic.com> schrieb am 13.12.05=
- 15:30:33:
->>
->> I think I know what is happening. You are writing the count across the
->> PCI bus, thinking this will start the DMA transfer. However, the count
->> won't actually get to the device until the PCI interface is flushed
->> (it's a FIFO, waiting for more activity). You need to force that
->> write to occur NOW, by performing a dummy read in your address-space
->> on the PCI bus.
->>
->> Then, you should find that the DMA seems to occur instantly and you
->> get your interrupt when you expect it. We use the PLX PCI 9656BA
->> for PCI interface on our datalink boards so I have a lot of
->> experience in this area.
->>
->> In the case where you were polling the interface, the first read
->> if its status actually flushed the PCI bus and started the DMA
->> transfer. In the cases where you weren't polling, the count
->> got to the device whenever the PCI interface timed-out or when
->> there was other activity such as network.
+Bernd Eckenfels wrote:
+> Al Boldi wrote:
+> > The current ip / ifconfig configuration is arcane and inflexible.  The
+> > reason being, that they are based on design principles inherited from
+> > the last century.
 >
-> Thank you for your help! The dummy read was a very helpful hint to get=
- the DMA stuff more reliable (although the fpga programmer had to admit=
- that there was some other problem in the hardware after all). I think it=
- should work fine soon.
->
-> I'm glad to meet somebody with dma experience, because I have some other=
- difficulties concerning DMA buffers in RAM. The PCI-Board is to be applied=
- in a large size copying machine, so it essentially has to transfer tons of=
- data in 2 directions very fast without wasting cpu time (because the cpu=
- has to run many image processing algorithms meanwhile on this data). So my=
- approach is to allocate a quite large ringbuffer in kernel space (or more=
- precisely one ringbuffer for each direction) which is capable of dma.=
- Afterwards I would map this buffer to user space to avoid unnecessary=
- memcopies/cpu usage. My problem is for now to get such a large DMA buffer.=
- I tried out several things I read in O'Reilly's book, but they all failed=
- so far. My current attempt is to take a high memory area with ioremap:
->
-> buffer_addr =3D ioremap( virt_to_phys(high_memory), large_size );
->
-> Mapping this buffer to user space works, but it does not seem to be DMA=
- capable. Maybe it's just wrong to use ioremap() for that? I would be very=
- glad for getting some advice.
->
-> Kind regards,
-> Burkhard
+> Yes I agree, however note that some of the asumptions are backed up and
+> required by RFCs. For example the binding of addresses to interfaces.  This
+> is especially strongly required in the IPV6 world with all the scoping and
+> renumbering RFCs.
 
-I have attached a "driver" that does nothing but map DMA-able pages
-to user-space. It should show you what you need to do. It's really
-quite simple, but the devil is in the details.
+Can you point me to those RFCs? Thanks!
 
-Also, if you are using the PLX or similar PCI interface device, you
-can use the scatter-list capability so that the DMA pages don't
-have to be contiguous. The mapping to user-space makes them
-virtually contiguous to the user, but you can use pages from
-anywhere in memory as long as its addressable by your controller.
+> The things you want to change need to be changed in kernel space, btw.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.56 BogoMips).
-Warning : 98.36% of all statistics are fiction.
+True.
 
-****************************************************************
-The information transmitted in this message is confidential and may be=
- privileged.  Any review, retransmission, dissemination, or other use of=
- this information by persons or entities other than the intended recipient=
- is prohibited.  If you are not the intended recipient, please notify=
- Analogic Corporation immediately - by replying to this message or by=
- sending an email to DeliveryErrors@analogic.com - and destroy all copies=
- of this information, including any attachments, without reading or=
- disclosing them.
+I mentioned ip / ifconfig not to imply that they are the culprit, but instead 
+to expose the underlying kernel implementation.
 
-Thank you.
-------_=_NextPart_001_01C600B8.5E236C00--
+This does not mean though, that ip / ifconfig cannot offer an emulated OSI 
+compliant mode, which would be an impetus to change the underlying 
+implementation.
+
+Thanks!
+
+--
+Al
+

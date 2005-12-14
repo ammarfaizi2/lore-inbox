@@ -1,54 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932627AbVLNPtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbVLNPzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932627AbVLNPtF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 10:49:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932624AbVLNPtE
+	id S932198AbVLNPzd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 10:55:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932623AbVLNPzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 10:49:04 -0500
-Received: from atlrel6.hp.com ([156.153.255.205]:11970 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S932622AbVLNPtC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 10:49:02 -0500
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [patch 2/2] /dev/mem validate mmap requests
-Date: Wed, 14 Dec 2005 08:48:56 -0700
-User-Agent: KMail/1.8.3
-Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0531E4BB@scsmsx401.amr.corp.intel.com>
-In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0531E4BB@scsmsx401.amr.corp.intel.com>
+	Wed, 14 Dec 2005 10:55:33 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:17615 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932198AbVLNPzd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 10:55:33 -0500
+Message-ID: <43A0406C.8020108@us.ibm.com>
+Date: Wed, 14 Dec 2005 07:55:24 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Pavel Machek <pavel@suse.cz>
+CC: linux-kernel@vger.kernel.org, andrea@suse.de,
+       Sridhar Samudrala <sri@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH 0/6] Critical Page Pool
+References: <439FCECA.3060909@us.ibm.com> <20051214100841.GA18381@elf.ucw.cz>
+In-Reply-To: <20051214100841.GA18381@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512140848.56570.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 December 2005 5:25 pm, Luck, Tony wrote:
-> > Tony, can you ack/nak this please?  It touches both ia64 and generic
-> > code.
+Pavel Machek wrote:
+> Hi!
 > 
-> So if someone tries to mmap a range that spans across more than
-> one EFI memory descriptor, the size will get trimmed back to an
-> EFI memory boundary.  Isn't that a problem since 1<<EFI_PAGE_SHIFT
-> is less than the default ia64 Linux page size?
+> 
+>>The overall purpose of this patch series is to all a system administrator
+>>to reserve a number of pages in a 'critical pool' that is set aside for
+>>situations when the system is 'in emergency'.  It is up to the individual
+>>administrator to determine when his/her system is 'in emergency'.  This is
+>>not meant to (necessarily) anticipate OOM situations, though that is
+>>certainly one possible use.  The purpose this was originally designed for
+>>is to allow the networking code to keep functioning despite the sytem
+>>losing its (potentially networked) swap device, and thus temporarily
+>>putting the system under exreme memory pressure.
+> 
+> 
+> I don't see how this can ever work.
+> 
+> How can _userspace_ know about what allocations are critical to the
+> kernel?!
 
-The EFI page size is smaller than the Linux page size, but firmware
-typically coalesces adjacent ranges with the same attributes.
+Well, it isn't userspace that is determining *which* allocations are
+critical to the kernel.  That is statically determined at compile time by
+using the flag __GFP_CRITICAL on specific *kernel* allocations.  Sridhar,
+cc'd on this mail, has a set of patches that sprinkle the __GFP_CRITICAL
+flag throughout the networking code to take advantage of this pool.
+Userspace is in charge of determining *when* we're in an emergency
+situation, and should thus use the critical pool, but not *which*
+allocations are critical to surviving this emergency situation.
 
-> I think you may need a more complex checker that does aggregation
-> of adjacent efi memory descriptors with the same attributes.
 
-We could, but I don't think it's worth it at this point.  We've
-been using the same simple-minded scheme for validating /dev/mem
-read & write requests for quite a while with no problems, and I
-don't want to over-engineer this.
+> And as you noticed, it does not work for your original usage case,
+> because reserved memory pool would have to be "sum of all network
+> interface bandwidths * ammount of time expected to survive without
+> network" which is way too much.
 
-If hot-plug memory is ever finished, the checker may have to
-be extended to comprehend regions described by ACPI as well as
-those described in the boot-time EFI memory map.  I think that
-would be the right time to make it smarter about spanning
-descriptors.
+Well, I never suggested it didn't work for my original usage case.  The
+discussion we had is that it would be incredibly difficult to 100%
+iron-clad guarantee that the pool would NEVER run out of pages.  But we can
+size the pool, especially given a decent workload approximation, so as to
+make failure far less likely.
+
+
+> If you want few emergency pages for some strange hack you are doing
+> (swapping over network?), just put swap into ramdisk and swapon() it
+> when you are in emergency, or use memory hotplug and plug few more
+> gigabytes into your machine. But don't go introducing infrastructure
+> that _can't_ be used right.
+
+Well, that's basically the point of posting these patches as an RFC.  I'm
+not quite so delusional as to think they're going to get picked up right
+now.  I was, however, hoping for feedback to figure out how to design
+infrastructure that *can* be used right, as well as trying to find other
+potential users of such a feature.
+
+Thanks!
+
+-Matt

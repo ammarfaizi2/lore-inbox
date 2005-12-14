@@ -1,89 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbVLNIwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbVLNI4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbVLNIwx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 03:52:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbVLNIwx
+	id S932173AbVLNI4H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 03:56:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbVLNI4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 03:52:53 -0500
-Received: from smtp04.auna.com ([62.81.186.14]:43758 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S932162AbVLNIww (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 03:52:52 -0500
-Date: Wed, 14 Dec 2005 09:54:59 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: SMP+nosmp=hang [was: Re: 2.6.15-rc5-mm2]
-Message-ID: <20051214095459.3912d59e@werewolf.auna.net>
-In-Reply-To: <20051211041308.7bb19454.akpm@osdl.org>
-References: <20051211041308.7bb19454.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 1.9.100cvs86 (GTK+ 2.8.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_xE3kqP4ZBrQvc88O8V72s=a";
- protocol="application/pgp-signature"; micalg=PGP-SHA1
-X-Auth-Info: Auth:LOGIN IP:[83.138.219.198] Login:jamagallon@able.es Fecha:Wed, 14 Dec 2005 09:52:46 +0100
+	Wed, 14 Dec 2005 03:56:07 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:61069 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932173AbVLNI4F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 03:56:05 -0500
+Message-ID: <439FDF03.50504@aitel.hist.no>
+Date: Wed, 14 Dec 2005 09:59:47 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bernd Petrovitsch <bernd@firmix.at>
+CC: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       Andrea Arcangeli <andrea@cpushare.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, Rik van Riel <riel@redhat.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux in a binary world... a doomsday scenario
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189F01EE9BB3@otce2k03.adaptec.com>	 <439E8565.3000900@aitel.hist.no> <1134467098.30759.8.camel@tara.firmix.at>
+In-Reply-To: <1134467098.30759.8.camel@tara.firmix.at>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Sig_xE3kqP4ZBrQvc88O8V72s=a
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Bernd Petrovitsch wrote:
 
-On Sun, 11 Dec 2005 04:13:08 -0800, Andrew Morton <akpm@osdl.org> wrote:
+>On Tue, 2005-12-13 at 09:25 +0100, Helge Hafting wrote:
+>  
+>
+>>Salyzyn, Mark wrote:
+>>    
+>>
+>[...]
+>  
+>
+>>>For instance, there are reasons, somewhat outside the control of the
+>>>Hardware Vendor, for binary drivers. Often, in the hopes of achieving
+>>>      
+>>>
+>
+>Even if this is the case it is the decision of the hardware vendor to go
+>that way. The underlying organzation may be equally guilty but that
+>doens't make the hardware vendor innocent - simply he plays the same
+>game just with an excuse.
+>
+>  
+>
+>>>standards compliance, Hardware vendors are cornered by legalities over
+>>>the copyright associated with those standards that ties their hands
+>>>either from releasing interface documentation or from releasing source
+>>>code. Yet all these vendors would be overjoyed to have Linux drivers for
+>>>their Hardware in order to increase the sales of their products.
+>>>      
+>>>
+>
+>Then it is up to them to do something.
+>
+>  
+>
+>>Uh, a copyrighted standard?  They are trying to live up to a secret
+>>standard, one they cannot publish?
+>>Don't sound like a standard to me - a standard is something known,
+>>that is the purpose of standardization.
+>>This sounds like "we standardized the voltage for household lamps, but
+>>we won't tell if it is 110V, 220V or something completely different."
+>>I really hope I misunderstood this.
+>>    
+>>
+>
+>s/copyright/patent/ then you will get it probably more right.
+>Given (beautiful and readable) source code, a patent infringement is
+>probably much easier to proove than with disassembled output of gcc-4.x.
+>  
+>
+Oh.  So they are infringing already, and just trying to hide it?
+This is so common that it applies to most drivers? :-(
 
->=20
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/=
-2.6.15-rc5-mm2/
->=20
+>  
+>
+>>Standards compliance should never get in the way of open source.
+>>Sure - if the owner modifies the source, then the thing may no longer
+>>comply with the standard.  In some cases even illegal or dangerous. 
+>>    
+>>
+>
+>Propriatory vendors (the larger they are, the more it makes sense) do
+>that all the time without telling their customers/users (usually
+>somewhere hidden within some tools which produce not compliant garbage)
+>and the strategy is called "customer lockin".
+>  
+>
+Closed source may lock customers out, not in.  I don't see how an
+open source driver makes it easier for the customer to get away
+from the product.  If the proprietary nvidia driver went open source,
+it still wouldn't work with competing cards - the hw is too different.
+Copying the _hardware_ is still a copyright infringement, and possibly
+also a patent issue.
 
-Booting a SMP built kernel with 'nosmp' just hangs at the VFS layer, with
-the message about 'not being able to find root device sda1'.
-sda is a SATA drive on an Intel ICH5 controller:
+>  
+>
+>>But in that case, it is the fault of the owner, not the vendor. The vendor
+>>can simply say that anyone changing the (distributed) source should get
+>>their own certification.
+>>    
+>>
+>
+>At least for (certified) ISDN stacks any change on the source (including
+>trivial bug fixes) invalidates any official certification AFAIK.
+>  
+>
+And that does not in any way prevent open source.  Sure - if you
+_change_ that source you invalidate certification, but that is
+your problem, not the vendors problem.  It is not a reason to
+keep the code secret.  If anything goes wrong, they can simply
+point the finger, the vendor driver is ok.
 
-libata version 1.20 loaded.
-ata_piix 0000:00:1f.2: version 1.05
-ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
-PCI: Setting latency timer of device 0000:00:1f.2 to 64
-ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
-ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
-ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:=
-407f
-ata1: dev 0 ATA-6, max UDMA/133, 390721968 sectors: LBA48
-ata1: dev 0 configured for UDMA/133
-scsi0 : ata_piix
-ATA: abnormal status 0x7F on port 0xC807
-scsi1 : ata_piix
-  Vendor: ATA       Model: ST3200822AS       Rev: 3.01
-  Type:   Direct-Access                      ANSI SCSI revision: 05
-SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
-SCSI device sda: drive cache: write back
- sda: sda1 sda2 sda3
-sd 0:0:0:0: Attached scsi disk sda
-
-I would have to double check, but I think it even missed the USB keyboard.
-
-Something really strange...
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like se=
-x:
-werewolf!able!es                         \         It's better when it's fr=
-ee
-Mandriva Linux release 2006.1 (Cooker) for i586
-Linux 2.6.14-jam4 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
-
---Sig_xE3kqP4ZBrQvc88O8V72s=a
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDn93jRlIHNEGnKMMRAqhtAKCi0gl+spMr6POtPhjTC8QvlGCumQCfadSc
-FJgV8pJPGlzzFA/grS6iTdA=
-=miOP
------END PGP SIGNATURE-----
-
---Sig_xE3kqP4ZBrQvc88O8V72s=a--
+Helge Hafting

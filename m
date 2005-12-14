@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbVLNIcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbVLNIh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbVLNIcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 03:32:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbVLNIcZ
+	id S932116AbVLNIh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 03:37:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbVLNIh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 03:32:25 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:33944 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932099AbVLNIcY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 03:32:24 -0500
-Date: Wed, 14 Dec 2005 09:31:33 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: David Howells <dhowells@redhat.com>
-Cc: Christopher Friesen <cfriesen@nortel.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org, akpm@osdl.org,
-       hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Message-ID: <20051214083133.GA17532@elte.hu>
-References: <439EDC3D.5040808@nortel.com> <1134479118.11732.14.camel@localhost.localdomain> <dhowells1134431145@warthog.cambridge.redhat.com> <3874.1134480759@warthog.cambridge.redhat.com> <15167.1134488373@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 14 Dec 2005 03:37:29 -0500
+Received: from zproxy.gmail.com ([64.233.162.193]:25789 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932116AbVLNIh2 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 03:37:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WaCyzDW7AJat3gAHWH9SZooTThK11j1NkFFBDsiJ6YQqBjDPHIdUcdRQIoLhXNDXuYJHGtbu7ikapM1bgevRp+0ORhh+sUCMKvh+tUY6B7VgWTh6fhJTMDjmUlZtv3kZXV5AhhUobENH1rEzlGwmMtyDKtqYfdTKHeVY0qUfTaw=
+Message-ID: <9a8748490512140037s32386facq15256636164e6b8f@mail.gmail.com>
+Date: Wed, 14 Dec 2005 09:37:27 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [PATCH] fix warning and missing failure handling for scsi_add_host in aic7xxx driver
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org,
+       "Daniel M. Eischen" <deischen@iworks.interworks.org>,
+       Doug Ledford <dledford@redhat.com>
+In-Reply-To: <1134548429.3262.4.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <15167.1134488373@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <200512140007.20046.jesper.juhl@gmail.com>
+	 <1134534839.3133.2.camel@mulgrave>
+	 <9a8748490512140002s8daf671h6db51bff1c06c834@mail.gmail.com>
+	 <1134548429.3262.4.camel@mulgrave>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/14/05, James Bottomley <James.Bottomley@steeleye.com> wrote:
+> On Wed, 2005-12-14 at 09:02 +0100, Jesper Juhl wrote:
+> > I'll send a new patch later today when I get home from work.
+>
+> Actually, the aic79xx has the identical problem, if you want to fix that
+> too ...
+>
+Sure, will do.
 
-* David Howells <dhowells@redhat.com> wrote:
-
->  (3) Some people want mutexes to be:
-> 
->      (a) only releasable in the same context as they were taken
-> 
->      (b) not accessible in interrupt context, or that (a) applies here also
-> 
->      (c) not initialisable to the locked state
-> 
->      But this means that the current usages all have to be carefully audited,
->      and sometimes that unobvious.
-
-(a) and (c) is not a big problem, are they are essentially the 
-constraints of -rt mutexes. As long as there's good debugging code, it's 
-very much doable. We dont want to change semantics _yet again_, later 
-down the line.
-
-	Ingo
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,100 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbVLNCDe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbVLNCH5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030415AbVLNCDe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 21:03:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030417AbVLNCDe
+	id S1030357AbVLNCH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 21:07:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbVLNCH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 21:03:34 -0500
-Received: from ozlabs.org ([203.10.76.45]:34747 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030415AbVLNCDd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 21:03:33 -0500
-Subject: Re: [RFC][PATCH] Prevent overriding of Symbols in the Kernel,
-	avoiding Undefined behaviour
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Ashutosh Naik <ashutosh.naik@gmail.com>, anandhkrishnan@yahoo.co.in,
-       linux-kernel@vger.kernel.org, rth@redhat.com, akpm@osdl.org,
-       Greg KH <greg@kroah.com>, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <9a8748490512130849o73c14313l166e6dd360f32d70@mail.gmail.com>
-References: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com>
-	 <1134424878.22036.13.camel@localhost.localdomain>
-	 <81083a450512130626x417d86c9w31f300555c99fdb2@mail.gmail.com>
-	 <9a8748490512130849o73c14313l166e6dd360f32d70@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 14 Dec 2005 13:03:35 +1100
-Message-Id: <1134525816.30383.13.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Dec 2005 21:07:57 -0500
+Received: from web32409.mail.mud.yahoo.com ([68.142.207.202]:42139 "HELO
+	web32409.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030357AbVLNCH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 21:07:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=Ow2MFSLNHj/qne9fXTg5NPPe+1VkYCZwSx7y7lvlb4zoqDimcr0M3gL/M13EMnK95/j/XBqcri0kPiQkvSv1nI3/Mc05+c9SuEutR6/ZtXbmvqHo0sHlyrxcW/MRrvMEoWegJKIuf4P8c6SKP1ORvoUxRiG2BXNbvCr0/Sbx4u8=  ;
+Message-ID: <20051214020754.66330.qmail@web32409.mail.mud.yahoo.com>
+Date: Tue, 13 Dec 2005 18:07:54 -0800 (PST)
+From: Anil kumar <anils_r@yahoo.com>
+Subject: driver_attach question
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-13 at 17:49 +0100, Jesper Juhl wrote:
-> On 12/13/05, Ashutosh Naik <ashutosh.naik@gmail.com> wrote:
-> > On 12/13/05, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> > >
-> > > How about something like:
-> > >
-> [snip imrovement suggestion]
-> >
-> > Have tried that in the attached patch. However,  mod->syms[i].name
-> > would be valid only after a long relocation for loop has run through.
-> > While this adds a wee bit extra overhead, that overhead is only in the
-> > case where the module does actually export a Duplicate Symbol.
-> >
-> > This its a question, whether we do the search before relocation ( A
-> > little messier ) or after ( More straight forward)
+Hi,
 
-Hi Ashutosh, Jasper,
+Should driver_attach( ) return an error value?
 
-	Patch looks good!  A few nits still:
+I have disabled a device in the system bios, The
+driver fails to report -ENODEV.
+This is for 2.6.11.1 kernel
+When I dig through the PCI subsystem and driver_attach
+code, I find that :
 
-> > +static int verify_export_symbols(struct module *mod)
-> > +{
-> > +	const char *name=0;
-> 
-> CodingStyle issue :
-> 	const char *name = 0;
+pci_register_driver is returing zero(no error) even
+when the device is not present in the system. 
+But when I check driver_attach( ), I get -ENODEV for
+driver_probe_device(). which is correct. But
+driver_attach( ) does not return this error value. 
+driver attach( ) is called in bus_add_driver( ) and
+bus_add_driver just returns error=0
+Hence I get error=0 in pci_register_driver.
 
-More importantly:
-	const char *name = NULL; /* GCC 4.0 warns */
+Am I missing something in the flow?
 
-(I assume that's why you have the useless initialization).
+int pci_register_driver( )
+{
+.....
+.....
+error = driver_register(&drv->driver);
+return error;
+}
 
-> > +	spin_lock_irq(&modlist_lock);
-> > +	for (i = 0; i < mod->num_syms; i++)
-> > +		if (unlikely(__find_symbol(mod->syms[i].name, &owner, &crc,1))) {
-> 
-> CodingStyle issue :
-> 	if (unlikely(__find_symbol(mod->syms[i].name, &owner, &crc, 1))) {
+int driver_register(struct device_driver * drv)
+{
+.....
+return bus_add_driver(drv);
+}
 
-I would discard the unlikely() here; it's a completely wasted
-micro-optimization in this context
+int bus_add_driver(struct device_driver * drv)
+{
+.....
+driver_attach(drv);
+...
+return error;
+}
 
-> > +	if (ret)
-> > +		printk("%s: exports duplicate symbol %s (owned by %s)\n",
-> 
-> I still think this should be printk(KERN_ERROR ...) and not just a
-> warning, since the loading of the module will fail completely. Others
-> may disagree ofcourse, but that's my oppinion.
+void driver_attach(struct device_driver * drv)
+{
+....
+error = driver_probe_device(drv, dev);
+....
+}
 
-I agree, KERN_ERR is appropriate here.
+with regards,
+  Anil
 
-> I still worry a bit about the spinlock hold time, especially since you
-> are doing two linear searches through what could potentially be a
-> *lot* of symbols.. It may not be a problem (do you have any time
-> measurements?), but it still seems to me that using a lock type that
-> allows you to sleep + a call to schedule() would be a good thing for
-> those loops.
 
-We already do this to resolve (more) symbols, so I don't see it as a
-problem.  However, I believe that lock is redundant here: we need both
-locks to write the list, but either is sufficient for reading, and we
-already hold the sem.
 
-Cheers,
-Rusty.
--- 
- ccontrol: http://ozlabs.org/~rusty/ccontrol
 
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

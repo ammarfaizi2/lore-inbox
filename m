@@ -1,83 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbVLNXnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965105AbVLNXnt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965104AbVLNXnO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 18:43:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965106AbVLNXnN
+	id S965105AbVLNXnt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 18:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965107AbVLNXns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 18:43:13 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:1296 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965107AbVLNXnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 18:43:11 -0500
-Date: Thu, 15 Dec 2005 00:43:10 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [2.6 patch] offer CC_OPTIMIZE_FOR_SIZE only if EXPERIMENTAL
-Message-ID: <20051214234310.GK23349@stusta.de>
-References: <20051214191006.GC23349@stusta.de> <20051214140531.7614152d.akpm@osdl.org> <20051214221304.GE23349@stusta.de> <Pine.LNX.4.64.0512141429030.3292@g5.osdl.org> <20051214224406.GI23349@stusta.de> <Pine.LNX.4.64.0512141528140.3292@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512141528140.3292@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+	Wed, 14 Dec 2005 18:43:48 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:60889 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965103AbVLNXnq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 18:43:46 -0500
+Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
+From: Sridhar Samudrala <sri@us.ibm.com>
+To: Ben Greear <greearb@candelatech.com>
+Cc: James Courtier-Dutton <James@superbug.co.uk>,
+       Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <43A09F08.5000507@candelatech.com>
+References: <Pine.LNX.4.58.0512140042280.31720@w-sridhar.beaverton.ibm.com>
+	 <9a8748490512141216x7e25ca2cucb675f11f0c9d913@mail.gmail.com>
+	 <43A08546.8040708@superbug.co.uk>
+	 <1134597344.8855.1.camel@w-sridhar2.beaverton.ibm.com>
+	 <43A09811.2080909@superbug.co.uk>  <43A09F08.5000507@candelatech.com>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 15:42:20 -0800
+Message-Id: <1134603740.8855.24.camel@w-sridhar2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 03:32:28PM -0800, Linus Torvalds wrote:
+On Wed, 2005-12-14 at 14:39 -0800, Ben Greear wrote:
+> James Courtier-Dutton wrote:
 > 
+> > Have you actually thought about what would happen in a real world senario?
+> > There is no real world requirement for this sort of user land feature.
+> > In memory pressure mode, you don't care about user applications. In 
+> > fact, under memory pressure no user applications are getting scheduled.
+> > All you care about is swapping out memory to achieve a net gain in free 
+> > memory, so that the applications can then run ok again.
 > 
-> On Wed, 14 Dec 2005, Adrian Bunk wrote:
-> > 
-> > My patch has the advantage that it doesn't allow the broken 
-> > CC_OPTIMIZE_FOR_SIZE=y setting on ARM if !EXPERIMENTAL.
+> Low 'ATOMIC' memory is different from the memory that user space typically
+> uses, so just because you can't allocate an SKB does not mean you are swapping
+> out user-space apps.
 > 
-> That isn't how it was before either. 
-> 
-> Before, it _asked_ you if EMBEDDED was set, and "y" was just the default 
-> (but you could select "n" if you wanted to). I don't think it's 
-> necessarily wrong to allow a -O2 ARM or H8300 kernel, although apparently 
-> there are compilers that are broken that way too..
-> 
-> So my patch should give the old behaviour for the EMBEDDED platforms, and 
-> _allow_ it for non-embedded unless SPARC64 is set, or EXPERIMENTAL isn't 
-> set.
->...
+> I have an app that can have 2000+ sockets open.  I would definately like to make
+> the management and other important sockets have priority over others in my app...
 
-No, your patch allows ARM users to set CC_OPTIMIZE_FOR_SIZE=n no matter 
-whether they have any options set.
+The scenario we are trying to address is also a management connection between the 
+nodes of a cluster and a server that manages the swap devices accessible by all the 
+nodes of the cluster. The critical connection is supposed to be used to exchange 
+status notifications of the swap devices so that failover can happen and propagated 
+to all the nodes as quickly as possible. The management apps will be pinned into
+memory so that they are not swapped out.
 
-Before, ARM users had to set EMBEDDED=y, and with my patch they would 
-have to set EXPERIMENTAL=y for getting this broken configuration.
+As such the traffic that flows over the critical sockets is not high but should
+not stall even if we run into a memory constrained situation. That is the reason
+why we would like to have a pre-allocated critical page pool which could be used
+when we run out of ATOMIC memory.
 
+Thanks
+Sridhar
 
-config CC_OPTIMIZE_FOR_SIZE
-	bool "Optimize for size (Look out for broken compilers!)"
-	default y
-	depends on ARM || H8300 || EXPERIMENTAL
-
-
-does allow CC_OPTIMIZE_FOR_SIZE=n if ARM=y and EXPERIMENTAL=n
-(which was reported as being broken).
-
-
-config CC_OPTIMIZE_FOR_SIZE
-	bool "Optimize for size (EXPERIMENTAL)" if EXPERIMENTAL
-	default y if ARM || H8300
-
-does not allow CC_OPTIMIZE_FOR_SIZE=n if ARM=y and EXPERIMENTAL=n.
-
-> 		Linus
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

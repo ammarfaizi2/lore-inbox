@@ -1,69 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbVLNKsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932391AbVLNKyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbVLNKsm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 05:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVLNKsm
+	id S932391AbVLNKyk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 05:54:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbVLNKyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 05:48:42 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:51469
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S932354AbVLNKsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 05:48:41 -0500
-Date: Wed, 14 Dec 2005 11:48:39 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Sridhar Samudrala <sri@us.ibm.com>,
-       pavel@suse.cz, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH 1/6] Create Critical Page Pool
-Message-ID: <20051214104839.GJ23878@opteron.random>
-References: <439FCECA.3060909@us.ibm.com> <439FCF4E.3090202@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <439FCF4E.3090202@us.ibm.com>
+	Wed, 14 Dec 2005 05:54:40 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:25816 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932093AbVLNKyj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 05:54:39 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <439F6EAB.6030903@yahoo.com.au> 
+References: <439F6EAB.6030903@yahoo.com.au>  <439E122E.3080902@yahoo.com.au> <dhowells1134431145@warthog.cambridge.redhat.com> <22479.1134467689@warthog.cambridge.redhat.com> 
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Wed, 14 Dec 2005 10:54:16 +0000
+Message-ID: <13613.1134557656@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matthew,
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-On Tue, Dec 13, 2005 at 11:52:46PM -0800, Matthew Dobson wrote:
-> Create the basic Critical Page Pool.  Any allocation specifying
-> __GFP_CRITICAL will, as a last resort before failing the allocation, try to
-> get a page from the critical pool.  For now, only singleton (order 0) pages
-> are supported.
+> atomic_cmpxchg should be available on all platforms.
 
-Hmm sorry, but this design looks wrong to me. Since the caller has to
-use __GFP_CRITICAL anyway, why don't you build this critical pool
-_outside_ the page allocator exactly like the mempool does?
+Two points:
 
-Then you will also get an huge advantage, that is allowing to create
-more than one critical pool without having to add a __GFP_CRITICAL2 next
-month.
+ (1) If it's using spinlocks, then it's pointless to use atomic_cmpxchg.
 
-So IMHO if something you should create something like a mempool (if the
-mempool isn't good enough already for your usage), so more subsystems
-can register their critical pools. Call it criticalpool.c or similar but
-I wouldn't mess with __GFP_* and page_alloc.c, and the sysctl should be
-in the user subsystem, not global.
+ (2) atomic_t is a 32-bit type, and on a 64-bit platform I will want a 64-bit
+     type so that I can stick the owner address in there (I've got a second
+     variant not yet released).
 
-Or perhaps you can share the mempool code and extend the mempool API to
-refill itself internally automatically as soon as pages are being
-released.
-
-You may still need a single hook in the __free_pages path, to refill
-pools transparently from any freeing (not only the freeing of your
-subsystem) but such an hook is acceptable. You may need to set
-priorities in the criticalpool.c api as well to choose which pool to
-refill first, or if to refill them in round robin when they've the same
-priority.
-
-I would touch page_alloc.c only with regard of the prioritized pool
-refilling with a registration hook and I would definitely not use a
-global pool and I wouldn't use __GFP_ bitflag for it.
-
-Then each slab will be allowed to have its criticalpool too, then, not
-a global one. A global one driven by the __GFP_CRITICAL flag will
-quickly become useless as soon as you've more than one subsystem using
-it, plus it unnecessairly mess with page_alloc.c APIs where the only
-thing you care about is to catch the freeing operation with a hook.
+David

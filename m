@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbVLNWqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbVLNWrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbVLNWqg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 17:46:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbVLNWqg
+	id S965048AbVLNWrK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 17:47:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbVLNWrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 17:46:36 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31503 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965027AbVLNWqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 17:46:35 -0500
-Date: Wed, 14 Dec 2005 23:46:36 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [2.6 patch] offer CC_OPTIMIZE_FOR_SIZE only if EXPERIMENTAL
-Message-ID: <20051214224636.GJ23349@stusta.de>
-References: <20051214191006.GC23349@stusta.de> <20051214140531.7614152d.akpm@osdl.org> <20051214221304.GE23349@stusta.de> <Pine.LNX.4.64.0512141429030.3292@g5.osdl.org> <20051214224406.GI23349@stusta.de>
+	Wed, 14 Dec 2005 17:47:10 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:50137 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965048AbVLNWrI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 17:47:08 -0500
+Message-ID: <43A0A0E6.8030303@pobox.com>
+Date: Wed, 14 Dec 2005 17:47:02 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051214224406.GI23349@stusta.de>
-User-Agent: Mutt/1.5.11
+To: Christoph Hellwig <hch@lst.de>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/6] FS_NOATIME for ocfs
+References: <20051213175646.GD17130@lst.de>
+In-Reply-To: <20051213175646.GD17130@lst.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Christoph Hellwig wrote: > Although I think ocfs should
+	still go into 2.6.15 a an additional driver > that stands on it's own..
+	I ACK the inclusion of ocfs as well, but not in 2.6.15. Standalone or
+	not, we don't need to set an example of including new features at the
+	last minute. That just encourages other folks to submit new features at
+	the last minute. Which leads to lack of review, and unnecessary last
+	minute work for some. Do that enough times, and you'll be seeing
+	reiser4 sent to Linus 24 hours before each -final release :) [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 11:44:06PM +0100, Adrian Bunk wrote:
-> On Wed, Dec 14, 2005 at 02:36:59PM -0800, Linus Torvalds wrote:
-> > 
-> > 
-> > On Wed, 14 Dec 2005, Adrian Bunk wrote:
-> > > 
-> > > What about marking it as EXPERIMENTAL?
-> > 
-> > It's not experimental on other architectures, where it is always used.
-> > 
-> > The best option _may_ be to do something like this, where we use that 
-> > "depends on" to set the expectations, and people shouldn't see it unless 
-> > they ask for EXPERIMENTAL.
-> >...
-> 
-> My patch has the advantage that it doesn't allow the broken 
-> CC_OPTIMIZE_FOR_SIZE=y setting on ARM if !EXPERIMENTAL.
+Christoph Hellwig wrote:
+> Although I think ocfs should still go into 2.6.15 a an additional driver
+> that stands on it's own..
 
-s/CC_OPTIMIZE_FOR_SIZE=y/CC_OPTIMIZE_FOR_SIZE=n/
+I ACK the inclusion of ocfs as well, but not in 2.6.15.
 
-cu
-Adrian
+Standalone or not, we don't need to set an example of including new 
+features at the last minute.  That just encourages other folks to submit 
+new features at the last minute.  Which leads to lack of review, and 
+unnecessary last minute work for some.  Do that enough times, and you'll 
+be seeing reiser4 sent to Linus 24 hours before each -final release :)
 
--- 
+	Jeff
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+
+
+
 

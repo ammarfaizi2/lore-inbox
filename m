@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVLNIUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbVLNITg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbVLNIUp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 03:20:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVLNIUp
+	id S932103AbVLNITg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 03:19:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbVLNITg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 03:20:45 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:5794 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932105AbVLNIUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 03:20:44 -0500
-Subject: Re: [PATCH] fix warning and missing failure handling for
-	scsi_add_host in aic7xxx driver
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org,
-       "Daniel M. Eischen" <deischen@iworks.interworks.org>,
-       Doug Ledford <dledford@redhat.com>
-In-Reply-To: <9a8748490512140002s8daf671h6db51bff1c06c834@mail.gmail.com>
-References: <200512140007.20046.jesper.juhl@gmail.com>
-	 <1134534839.3133.2.camel@mulgrave>
-	 <9a8748490512140002s8daf671h6db51bff1c06c834@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 14 Dec 2005 00:20:29 -0800
-Message-Id: <1134548429.3262.4.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Dec 2005 03:19:36 -0500
+Received: from nproxy.gmail.com ([64.233.182.206]:20325 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932103AbVLNITf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 03:19:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Hsz+MABusyL7C97ppV4CMVh2TDjpH6ziPDU0NzKFnI8Wfnuso0wBA9Wm0BlCCkFdSM8uXl6aMtgzbRnA4C3ovsbri5HnG5oYY+5HsWT1qyO54dBfJikvv9CWp1b2LvhJJ0JBiszMeLr5b0RckB8QGdz1WwFfSz64Dijv+tZOsUo=
+Message-ID: <84144f020512140019h1390c9eayf8b4b0dd03d8be1c@mail.gmail.com>
+Date: Wed, 14 Dec 2005 10:19:33 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Subject: Re: [RFC][PATCH 3/6] Slab Prep: get/return_object
+Cc: linux-kernel@vger.kernel.org, andrea@suse.de,
+       Sridhar Samudrala <sri@us.ibm.com>, pavel@suse.cz,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+In-Reply-To: <439FD031.1040608@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <439FCECA.3060909@us.ibm.com> <439FD031.1040608@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-14 at 09:02 +0100, Jesper Juhl wrote:
-> I'll send a new patch later today when I get home from work.
+Hi Matt,
 
-Actually, the aic79xx has the identical problem, if you want to fix that
-too ...
+On 12/14/05, Matthew Dobson <colpatch@us.ibm.com> wrote:
+> Create 2 helper functions in mm/slab.c: get_object() and return_object().
+> These functions reduce some existing duplicated code in the slab allocator
+> and will be used when adding Critical Page Pool support to the slab allocator.
 
-James
+May I suggest different naming, slab_get_obj and slab_put_obj ?
 
-
+                                            Pekka

@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbVLNLYS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932425AbVLNLYt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbVLNLYS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 06:24:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVLNLYS
+	id S932425AbVLNLYt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 06:24:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbVLNLYt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 06:24:18 -0500
-Received: from xproxy.gmail.com ([66.249.82.200]:57697 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932419AbVLNLYR convert rfc822-to-8bit
+	Wed, 14 Dec 2005 06:24:49 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:16778 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932283AbVLNLYs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 06:24:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=elhFDJEI/4U9TBNfmrIbk8IgeuHOVGaTVnPY0/uR2NK3Wr56PcYd4iCW0VS9aMElBmcPQnQl3606QlqQSCwIZa9ebD1zevmfbLybwlVTi7hgoPjcdSwu0lkeWhrivlDnnm9/MnxAOYZLy5A+bqb5MmSBcYqogf1pTj2uy9wPgSQ=
-Message-ID: <7accf3e60512140324x6570a65bk319f9ff11b6e8c93@mail.gmail.com>
-Date: Wed, 14 Dec 2005 16:54:16 +0530
-From: Prabhat Hegde <hegde.prabhat@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: querry on DMA
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 14 Dec 2005 06:24:48 -0500
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: David Howells <dhowells@redhat.com>,
+       Christopher Friesen <cfriesen@nortel.com>, torvalds@osdl.org,
+       akpm@osdl.org, hch@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+In-Reply-To: <1134558507.2894.22.camel@laptopd505.fenrus.org>
+References: <439EDC3D.5040808@nortel.com>
+	 <1134479118.11732.14.camel@localhost.localdomain>
+	 <dhowells1134431145@warthog.cambridge.redhat.com>
+	 <3874.1134480759@warthog.cambridge.redhat.com>
+	 <15167.1134488373@warthog.cambridge.redhat.com>
+	 <1134490205.11732.97.camel@localhost.localdomain>
+	 <1134556187.2894.7.camel@laptopd505.fenrus.org>
+	 <1134558188.25663.5.camel@localhost.localdomain>
+	 <1134558507.2894.22.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 14 Dec 2005 11:24:30 +0000
+Message-Id: <1134559470.25663.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi friends,
-can any1 point me to a good linux memory management stuff. Actually i
-want to know the conversion of virtual to physical address and when u
-need to do it. I am seeking to do some dma from the host memory to an
-ethernet device. I have registered my own device data structures,
-while booting my device. i.e it seeks all the memory it needs at
-startup. later i put the data to the device specific data structures &
-ring a doorbell register later upon which the device picks up the
-data. This is my plan. But i am facing some problems during dma time.
-So can someone throw some light as to how to do this in a generic way
-so that later i can customise it?
+On Mer, 2005-12-14 at 12:08 +0100, Arjan van de Ven wrote:
+> 1) the BKL change hasn't finished, and we're 5 years down the line. API
+> changes done gradual tend to take forever in practice, esp if there's no
+> "compile" incentive for people to fix things. 
+
+This isn't a "fix" however, its merely a performance tweak. Drivers
+using the old API are not a problem because
+
+a) The old API is needed long term for true counting sem users
+b) Its a minor performance hit at most
+
+Thats rather different to the BKL
+

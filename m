@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932629AbVLNQN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbVLNQSB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932629AbVLNQN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 11:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932628AbVLNQN5
+	id S964808AbVLNQSB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 11:18:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964813AbVLNQSB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 11:13:57 -0500
-Received: from mtagate2.uk.ibm.com ([195.212.29.135]:4566 "EHLO
-	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP id S932629AbVLNQNz
+	Wed, 14 Dec 2005 11:18:01 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:59120 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S964808AbVLNQSA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 11:13:55 -0500
-Message-ID: <43A044C9.2050204@de.ibm.com>
-Date: Wed, 14 Dec 2005 17:14:01 +0100
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org
-Subject: [patch 3/6] statistics infrastructure - prerequisite: list operation
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 14 Dec 2005 11:18:00 -0500
+Subject: Re: [PATCH -RT] Add softirq waitqueue for CONFIG_PREEMPT_SOFTIRQ
+	(was: Re: [ANNOUNCE] 2.6.15-rc5-hrt2 ...)
+From: Daniel Walker <dwalker@mvista.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: tglx@linutronix.de, Ingo Molnar <mingo@elte.hu>,
+       john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1134575022.18921.56.camel@localhost.localdomain>
+References: <1134385343.4205.72.camel@tglx.tec.linutronix.de>
+	 <1134507927.18921.26.camel@localhost.localdomain>
+	 <20051214084019.GA18708@elte.hu>  <20051214084333.GA20284@elte.hu>
+	 <1134568080.18921.42.camel@localhost.localdomain>
+	 <1134568867.4275.7.camel@tglx.tec.linutronix.de>
+	 <1134575022.18921.56.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 08:17:57 -0800
+Message-Id: <1134577078.27681.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 3/6] statistics infrastructure - prerequisite: list operation
+On Wed, 2005-12-14 at 10:43 -0500, Steven Rostedt wrote:
 
-This patch adds another list_for_each_* derivate. I can't work around it
-because there is a list that I need to search both ways.
+> I really would like to add priority inheritance to waitqueues, so things
+> like this can benefit from PI as well.
+> 
 
-Signed-off-by: Martin Peschke <mp3@de.ibm.com>
----
+I submitted a generic PI patch a while back, but the design was not that
+great. It had callback functions for getting the lock owner , and for
+signaling when changing priorities .. 
 
-  list.h |   12 ++++++++++++
-  1 files changed, 12 insertions(+)
+Here it is,
+http://lkml.org/lkml/2005/5/31/288
 
-diff -Nurp c/include/linux/list.h d/include/linux/list.h
---- c/include/linux/list.h	2005-12-14 12:51:52.000000000 +0100
-+++ d/include/linux/list.h	2005-12-14 13:56:08.000000000 +0100
-@@ -409,6 +409,18 @@ static inline void list_splice_init(stru
-  	     pos = list_entry(pos->member.next, typeof(*pos), member))
+I think it may be pretty trivial to add priority sorted waitqueues by
+just adding a plist .
 
-  /**
-+ * list_for_each_entry_continue_reverse -       iterate backwards over list
-+ *                      of given type continuing before existing point
-+ * @pos:        the type * to use as a loop counter.
-+ * @head:       the head for your list.
-+ * @member:     the name of the list_struct within the struct.
-+ */
-+#define list_for_each_entry_continue_reverse(pos, head, member)                 \
-+        for (pos = list_entry(pos->member.prev, typeof(*pos), member);  \
-+             prefetch(pos->member.prev), &pos->member != (head);        \
-+             pos = list_entry(pos->member.prev, typeof(*pos), member))
-+
-+/**
-   * list_for_each_entry_safe - iterate over list of given type safe against removal of list entry
-   * @pos:	the type * to use as a loop counter.
-   * @n:		another type * to use as temporary storage
+Daniel
+

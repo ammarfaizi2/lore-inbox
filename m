@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965023AbVLNWSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbVLNWSN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965023AbVLNWSp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 17:18:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965027AbVLNWSo
+	id S965026AbVLNWSN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 17:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965023AbVLNWSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 17:18:44 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:38114 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S965025AbVLNWSo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 17:18:44 -0500
-Date: Wed, 14 Dec 2005 23:18:32 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Petr Baudis <pasky@suse.cz>
-cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [PATCH 3/3] [kconfig] Direct use of lxdialog routines by menuconfig
-In-Reply-To: <20051212004606.31263.37616.stgit@machine.or.cz>
-Message-ID: <Pine.LNX.4.61.0512142155220.1609@scrub.home>
-References: <20051212004159.31263.89669.stgit@machine.or.cz>
- <20051212004606.31263.37616.stgit@machine.or.cz>
+	Wed, 14 Dec 2005 17:18:13 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:48098 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965025AbVLNWSM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 17:18:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OID/D8BNndrPyLRqIBlfte4HbzR1oOqNNGLpV5hZNyLSZg6vmv8mqoUXzNIiqVNE+V7C3oYyC2JmoSDW0IxIjgE9wQR2rLJquKOCNwzIPC0LwrjxlRUZLRWdF/p5lH51fWaND0lIMK/1OiEvrJbZwZwyeg4XdqvWe27aOa7/gdI=
+Message-ID: <9a8748490512141418w2a3811a9iffe83b5f285e2910@mail.gmail.com>
+Date: Wed, 14 Dec 2005 23:18:11 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: [2.6 patch] offer CC_OPTIMIZE_FOR_SIZE only if EXPERIMENTAL
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051214221304.GE23349@stusta.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051214191006.GC23349@stusta.de>
+	 <20051214140531.7614152d.akpm@osdl.org>
+	 <20051214221304.GE23349@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 12/14/05, Adrian Bunk <bunk@stusta.de> wrote:
+> On Wed, Dec 14, 2005 at 02:05:31PM -0800, Andrew Morton wrote:
+> > Adrian Bunk <bunk@stusta.de> wrote:
+> > >
+> > > Hi Linus,
+> > >
+> > > your patch to allow CC_OPTIMIZE_FOR_SIZE even for EMBEDDED=n has broken
+> > > the EMBEDDED menu.
+> >
+> > It looks like that patch needs to be reverted or altered anyway.  sparc64
+> > machines are failing all over the place, possibly due to newly-exposed
+> > compiler bugs.
+> >
+> > Whether it's the compiler or it's genuine kernel bugs, the same problems
+> > are likely to bite other architectures.
+>
+> The help text already contains a bold warning.
+>
+> What about marking it as EXPERIMENTAL?
+> That is not that heavy as EMBEDDED but expresses this.
+>
 
-On Mon, 12 Dec 2005, Petr Baudis wrote:
+I, for one, definately think this is a good idea.
+Actually, it boggles my mind what this is doing outside of EMBEDDED -
+I just noticed it had moved when I build -git4 and oldconfig promted
+me about it.
 
-> In practice, this means that drawing on the screen is done with _MUCH_
-> less overhead now, the screen updates are better optimalized as ncurses
-> won't get reset everytime you display something, that also implies that
-> the ugly screen flickering is done. As a cute side-effect, the dialogs
-> are now rendered on the top of the menu or help panel.  In the future,
-> this also gives us much more freedom for enhancing the user interface.
 
-At least in the first version I'd prefer not to do draw the dialogs over 
-each other. It's just weird if a string dialog pops up over the help text.
-In the next version we should add some infrastructure to properly layer 
-windows on top of other (and should also help with resizing).
-
-> Compared to the previous version (from February 2003), this one should be
-> less buggy (especially wrt. the escape character handling), should not
-> crash while resizing and the resizing should have immediate effect
-> (although things can still start looking ugly when you are resizing while
-> not in a menu - to fix that properly, more liblxdialog integration is
-> required). Also, the code is considerably simplified on few places.
-
-The <esc><esc> as described in mconf.c still produces two exits, which is 
-a little annoying if one is used to it. I don't know how easy it is to 
-supress that second <esc>.
-
-Otherwise it looks good. Regarding merging please coordinate with Sam and 
-if you move it, I'd prefer to keep it in a subdirectory, e.g. just "mv 
-scripts/lxdialog scripts/kconfig/lxdialog".
-
-bye, Roman
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

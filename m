@@ -1,68 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbVLNSay@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbVLNSbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932492AbVLNSay (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 13:30:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbVLNSay
+	id S964873AbVLNSbL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 13:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbVLNSbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 13:30:54 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:48809 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932093AbVLNSax
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 13:30:53 -0500
-Subject: Re: [RFC][PATCH 3/3] TCP/IP Critical socket communication mechanism
-From: Sridhar Samudrala <sri@us.ibm.com>
-To: Mitchell Blank Jr <mitch@sfgoth.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <20051214121253.GB23393@gaz.sfgoth.com>
-References: <Pine.LNX.4.58.0512140052470.31720@w-sridhar.beaverton.ibm.com>
-	 <1134559039.25663.12.camel@localhost.localdomain>
-	 <20051214121253.GB23393@gaz.sfgoth.com>
-Content-Type: text/plain
-Date: Wed, 14 Dec 2005 10:29:27 -0800
-Message-Id: <1134584967.8698.41.camel@w-sridhar2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Dec 2005 13:31:11 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:11216 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964835AbVLNSbI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 13:31:08 -0500
+To: Dave <dave.jiang@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: x86_64 segfault error codes
+References: <8746466a0512141017j141d61dft3dd2b1ab95dc2351@mail.gmail.com>
+From: Andi Kleen <ak@suse.de>
+Date: 14 Dec 2005 19:31:07 +0100
+In-Reply-To: <8746466a0512141017j141d61dft3dd2b1ab95dc2351@mail.gmail.com>
+Message-ID: <p73hd9b8r9w.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-14 at 04:12 -0800, Mitchell Blank Jr wrote:
-> Alan Cox wrote:
-> > But your user space that would add the routes is not so protected so I'm
-> > not sure this is actually a solution, more of an extended fudge.
-> 
-> Yes, there's no 100% solution -- no matter how much memory you reserve and
-> how many paths you protect if you try hard enough you can come up
-> with cases where it'll fail.  ("I'm swapping to NFS across a tun/tap
-> interface to a custom userland SSL tunnel to a server across a BGP route...")
-> 
-> However, if the 'extended fundge' pushes a problem from "can happen, even
-> in a very normal setup" territory to "only happens if you're doing something
-> pretty weird" then is it really such a bad thing?  I think the cost in code
-> complexity looks pretty reasonable.
+Dave <dave.jiang@gmail.com> writes:
 
-Yes. This should work fine for cases where you need a limited number of
-critical allocation requests to succeed for a short period of time.
+> For segfault error codes on x86_64, bits 0-3 are documented in
+> arch/x86_64/mm/fault.c. However, I am getting error 0x14 and 0x15 with this
+> particular user app when it segfaults. Is bit 4 valid and what does that
+> imply?
 
-> > > +#define SK_CRIT_ALLOC(sk, flags) ((sk->sk_allocation & __GFP_CRITICAL) | flags)
-> > 
-> > Lots of hidden conditional logic on critical paths.
-> 
-> How expensive is it compared to the allocation itself?
+bit 4 is documented too in 2.6. It means it was an instruction fetch.
+The error code is just the architectural error code for page faults
+BTW, see the Intel and AMD manuals for details.
 
-Also, as i said in my other response we could make it a compile-time
-configurable option with zero overhead when turned off.
-
-Thanks
-Sridhar
-
-> 
-> > > +#define CRIT_ALLOC(flags) (__GFP_CRITICAL | flags)
-> > 
-> > Pointless obfuscation
-> 
-> Fully agree.
-> 
-> -Mitch
-
+-Andi

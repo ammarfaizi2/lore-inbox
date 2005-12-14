@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbVLNNet@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbVLNNk1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932531AbVLNNet (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 08:34:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbVLNNet
+	id S932524AbVLNNk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 08:40:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbVLNNk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 08:34:49 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:29700 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932533AbVLNNer
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 08:34:47 -0500
-Date: Tue, 14 Dec 2004 16:01:45 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Rob Landley <rob@landley.net>
-Cc: Bill Davidsen <davidsen@tmr.com>, Mark Lord <lkml@rtr.ca>,
-       Adrian Bunk <bunk@stusta.de>, David Ranson <david@unsolicited.net>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: ipw2200 [was Re: RFC: Starting a stable kernel series off the 2.6 kernel]
-Message-ID: <20041214160145.GA2565@ucw.cz>
-References: <20051203135608.GJ31395@stusta.de> <200512110312.47142.rob@landley.net> <20051212114952.GB6533@elf.ucw.cz> <200512140626.08583.rob@landley.net>
+	Wed, 14 Dec 2005 08:40:26 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:48057 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932524AbVLNNkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 08:40:25 -0500
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+From: Arjan van de Ven <arjan@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>, Paul Jackson <pj@sgi.com>
+In-Reply-To: <20041214152325.GA2377@ucw.cz>
+References: <20051114212341.724084000@sergelap>
+	 <m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
+	 <1133977623.24344.31.camel@localhost>
+	 <m1hd9kd89y.fsf@ebiederm.dsl.xmission.com>
+	 <1133991650.30387.17.camel@localhost>
+	 <m18xuwd015.fsf@ebiederm.dsl.xmission.com>  <20041214152325.GA2377@ucw.cz>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 14:40:08 +0100
+Message-Id: <1134567609.9442.2.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512140626.08583.rob@landley.net>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 14-12-05 06:26:08, Rob Landley wrote:
-> On Monday 12 December 2005 05:49, Pavel Machek wrote:
-> > > Or I could move initramfs extraction earlier in the boot sequence and
-> > > never have to modify any _other_ drivers that want firmware in order to
-> > > be able to make them work too, rather than playing whack-a-mole teaching
-> > > drivers I don't care about how to hold off on wanting firmware.
-> >
-> > Except that whack-a-mole is a right thing to do here, and that
-> > initramfs movement is unlikely to make it into mainline.
-> >        Pavel
+On Tue, 2004-12-14 at 15:23 +0000, Pavel Machek wrote:
+> Hi!
 > 
-> Let me guess: for licensing reasons?
+> > One of my wish list items would be to run my things like my
+> > web browser in a container with only access to a subset of
+> > the things I can normally access.  That way I could be less
+> > concerned about the latest browser security bug.
+> 
+> subterfugue.sf.net (using ptrace), but yes, nicer solution
+> would be welcome.
 
-Wrong. "Fix the driver" is easier to get into the kernel
-than "change the boot sequence".
+selinux too, as well as andrea's syscall filter thing and many others.
 
--- 
-Thanks, Sharp!
+the hardest is the balance between security and usability. You don't
+want your browser to be able to read files in your home dir (Except
+maybe a few selected ones in the browsers own dir)... until you want to
+upload a file via a webform.
+
+

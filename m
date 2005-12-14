@@ -1,142 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVLNIkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbVLNIlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbVLNIkw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 03:40:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVLNIkv
+	id S932158AbVLNIlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 03:41:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbVLNIlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 03:40:51 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:42430 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932144AbVLNIku (ORCPT
+	Wed, 14 Dec 2005 03:41:24 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:50092 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932158AbVLNIlU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 03:40:50 -0500
-Date: Wed, 14 Dec 2005 00:40:37 -0800 (PST)
-From: Paul Jackson <pj@sgi.com>
-To: akpm@osdl.org
-Cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Simon Derr <Simon.Derr@bull.net>,
-       Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
-       Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051214084037.21054.4269.sendpatchset@jackhammer.engr.sgi.com>
-In-Reply-To: <20051214084031.21054.13829.sendpatchset@jackhammer.engr.sgi.com>
-References: <20051214084031.21054.13829.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH 02/04] Cpuset: use rcu directly optimization
+	Wed, 14 Dec 2005 03:41:20 -0500
+Date: Wed, 14 Dec 2005 09:40:19 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: tglx@linutronix.de, john stultz <johnstul@us.ibm.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] 2.6.15-rc5-hrt2 - hrtimers based high resolution patches
+Message-ID: <20051214084019.GA18708@elte.hu>
+References: <1134385343.4205.72.camel@tglx.tec.linutronix.de> <1134507927.18921.26.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1134507927.18921.26.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Optimize the cpuset impact on page allocation, the most
-performance critical cpuset hook in the kernel.
 
-On each page allocation, the cpuset hook needs to check for a
-possible change in the current tasks cpuset.  It can now handle
-the common case, of no change, without taking any spinlock or
-semaphore, thanks to RCU.
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Convert a spinlock on the current task to an rcu_read_lock(),
-saving approximately a memory barrier and an atomic op, depending
-on architecture.
+> Thomas and Ingo,
+> 
+> I found a bug in 2.6.15-rc5-rt1 that was due to a race in the hrtimers 
+> code.  This bug is most likely in the vanilla hrtimers code as well.
+> 
+> I added a HRTIMER_RUNNING state because there's a moment in the 
+> run_hrtimer_queues that turns interrupts on and releases the base 
+> lock. In this time, a remove_hrtimer can be called while the state is 
+> still HRTIMER_PENDING_CALLBACK, but it has been removed off the list.  
+> The remove_hrtimer will then try to remove this again.
+> 
+> Since I couldn't think of which state to use, I created the 
+> HRTIMER_RUNNING, and used that instead.
+> 
+> I have a program (a simple jitter test) that, with out the patch, 
+> reliably crashes the 2.6.15-rc5-rt1 on a slow UP machine.  With the 
+> patch, it runs solidly, so I know this is the reason for the crash.
 
-This is done by adding rcu_assign_pointer() and synchronize_rcu()
-calls to the write side of the task->cpuset pointer, in
-cpuset.c:attach_task(), to delay freeing up a detached cpuset
-until after any critical sections referencing that pointer.
+hm, in that case it should be base->running that protects against this 
+case. Did you run an UP PREEMPT_RT kernel? In that case could you check 
+whether the fix below resolves the crash too?
 
-Thanks to Andi Kleen, Nick Piggin and Eric Dumazet for ideas.
+	Ingo
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
-
----
-
- kernel/cpuset.c |   40 ++++++++++++++++++++++++++++++----------
- 1 files changed, 30 insertions(+), 10 deletions(-)
-
---- 2.6.15-rc3-mm1.orig/kernel/cpuset.c	2005-12-13 16:49:01.767509666 -0800
-+++ 2.6.15-rc3-mm1/kernel/cpuset.c	2005-12-13 17:19:37.989982316 -0800
-@@ -39,6 +39,7 @@
- #include <linux/namei.h>
- #include <linux/pagemap.h>
- #include <linux/proc_fs.h>
-+#include <linux/rcupdate.h>
- #include <linux/sched.h>
- #include <linux/seq_file.h>
- #include <linux/slab.h>
-@@ -248,6 +249,11 @@ static struct super_block *cpuset_sb;
-  * a tasks cpuset pointer we use task_lock(), which acts on a spinlock
-  * (task->alloc_lock) already in the task_struct routinely used for
-  * such matters.
-+ *
-+ * P.S.  One more locking exception.  RCU is used to guard the
-+ * update of a tasks cpuset pointer by attach_task() and the
-+ * access of task->cpuset->mems_generation via that pointer in
-+ * the routine cpuset_update_task_memory_state().
+Index: linux/kernel/hrtimer.c
+===================================================================
+--- linux.orig/kernel/hrtimer.c
++++ linux/kernel/hrtimer.c
+@@ -118,7 +118,7 @@ static DEFINE_PER_CPU(struct hrtimer_bas
+  * Functions and macros which are different for UP/SMP systems are kept in a
+  * single place
   */
+-#ifdef CONFIG_SMP
++#if defined(CONFIG_SMP) || defined(PREEMPT_RT)
  
- static DECLARE_MUTEX(manage_sem);
-@@ -610,12 +616,24 @@ static void guarantee_online_mems(const 
-  * cpuset pointer.  This routine also might acquire callback_sem and
-  * current->mm->mmap_sem during call.
-  *
-- * The task_lock() is required to dereference current->cpuset safely.
-- * Without it, we could pick up the pointer value of current->cpuset
-- * in one instruction, and then attach_task could give us a different
-- * cpuset, and then the cpuset we had could be removed and freed,
-- * and then on our next instruction, we could dereference a no longer
-- * valid cpuset pointer to get its mems_generation field.
-+ * Reading current->cpuset->mems_generation doesn't need task_lock
-+ * to guard the current->cpuset derefence, because it is guarded
-+ * from concurrent freeing of current->cpuset by attach_task(),
-+ * using RCU.
-+ *
-+ * The rcu_dereference() is technically probably not needed,
-+ * as I don't actually mind if I see a new cpuset pointer but
-+ * an old value of mems_generation.  However this really only
-+ * matters on alpha systems using cpusets heavily.  If I dropped
-+ * that rcu_dereference(), it would save them a memory barrier.
-+ * For all other arch's, rcu_dereference is a no-op anyway, and for
-+ * alpha systems not using cpusets, another planned optimization,
-+ * avoiding the rcu critical section for tasks in the root cpuset
-+ * which is statically allocated, so can't vanish, will make this
-+ * irrelevant.  Better to use RCU as intended, than to engage in
-+ * some cute trick to save a memory barrier that is impossible to
-+ * test, for alpha systems using cpusets heavily, which might not
-+ * even exist.
-  *
-  * This routine is needed to update the per-task mems_allowed data,
-  * within the tasks context, when it is trying to allocate memory
-@@ -627,11 +645,12 @@ void cpuset_update_task_memory_state()
- {
- 	int my_cpusets_mem_gen;
- 	struct task_struct *tsk = current;
--	struct cpuset *cs = tsk->cpuset;
-+	struct cpuset *cs;
+ #define set_curr_timer(b, t)		do { (b)->curr_timer = (t); } while (0)
  
--	task_lock(tsk);
-+	rcu_read_lock();
-+	cs = rcu_dereference(tsk->cpuset);
- 	my_cpusets_mem_gen = cs->mems_generation;
--	task_unlock(tsk);
-+	rcu_read_unlock();
- 
- 	if (my_cpusets_mem_gen != tsk->cpuset_mems_generation) {
- 		down(&callback_sem);
-@@ -1131,7 +1150,7 @@ static int attach_task(struct cpuset *cs
- 		return -ESRCH;
- 	}
- 	atomic_inc(&cs->count);
--	tsk->cpuset = cs;
-+	rcu_assign_pointer(tsk->cpuset, cs);
- 	task_unlock(tsk);
- 
- 	guarantee_online_cpus(cs, &cpus);
-@@ -1151,6 +1170,7 @@ static int attach_task(struct cpuset *cs
- 	if (is_memory_migrate(cs))
- 		do_migrate_pages(tsk->mm, &from, &to, MPOL_MF_MOVE_ALL);
- 	put_task_struct(tsk);
-+	synchronize_rcu();
- 	if (atomic_dec_and_test(&oldcs->count))
- 		check_for_release(oldcs, ppathbuf);
- 	return 0;
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

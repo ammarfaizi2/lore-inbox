@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVLNIl5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbVLNIoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbVLNIl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 03:41:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVLNIl2
+	id S932143AbVLNIoW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 03:44:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbVLNIoV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 03:41:28 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:47806 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932149AbVLNIkz (ORCPT
+	Wed, 14 Dec 2005 03:44:21 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:15552 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932143AbVLNIoU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 03:40:55 -0500
-Date: Wed, 14 Dec 2005 00:40:43 -0800 (PST)
-From: Paul Jackson <pj@sgi.com>
-To: akpm@osdl.org
-Cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Simon Derr <Simon.Derr@bull.net>,
-       Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
-       Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051214084043.21054.37648.sendpatchset@jackhammer.engr.sgi.com>
-In-Reply-To: <20051214084031.21054.13829.sendpatchset@jackhammer.engr.sgi.com>
-References: <20051214084031.21054.13829.sendpatchset@jackhammer.engr.sgi.com>
-Subject: [PATCH 03/04] Cpuset: mark number_of_cpusets read_mostly
+	Wed, 14 Dec 2005 03:44:20 -0500
+Date: Wed, 14 Dec 2005 09:43:33 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: tglx@linutronix.de, john stultz <johnstul@us.ibm.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] 2.6.15-rc5-hrt2 - hrtimers based high resolution patches
+Message-ID: <20051214084333.GA20284@elte.hu>
+References: <1134385343.4205.72.camel@tglx.tec.linutronix.de> <1134507927.18921.26.camel@localhost.localdomain> <20051214084019.GA18708@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051214084019.GA18708@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.7
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.7 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark cpuset global 'number_of_cpusets' as __read_mostly.
 
-This global is accessed everytime a zone is considered
-in the zonelist loops beneath __alloc_pages, looking for
-a free memory page.  If number_of_cpusets is just one,
-then we can short circuit the mems_allowed check.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Since this global is read alot on a hot path, and written
-rarely, it is an excellent candidate for __read_mostly.
+> hm, in that case it should be base->running that protects against this 
+> case. Did you run an UP PREEMPT_RT kernel? In that case could you 
+> check whether the fix below resolves the crash too?
 
-Thanks to Christoph Lameter for the suggestion.
+try the patch below instead. (Thomas pointed out that the correct 
+dependency in this case is PREEMPT_SOFTIRQS)
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+	Ingo
 
----
-
- kernel/cpuset.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- 2.6.15-rc3-mm1.orig/kernel/cpuset.c	2005-12-13 18:08:26.644979252 -0800
-+++ 2.6.15-rc3-mm1/kernel/cpuset.c	2005-12-13 18:09:55.658647865 -0800
-@@ -62,7 +62,7 @@
-  * When there is only one cpuset (the root cpuset) we can
-  * short circuit some hooks.
+Index: linux/kernel/hrtimer.c
+===================================================================
+--- linux.orig/kernel/hrtimer.c
++++ linux/kernel/hrtimer.c
+@@ -118,7 +118,7 @@ static DEFINE_PER_CPU(struct hrtimer_bas
+  * Functions and macros which are different for UP/SMP systems are kept in a
+  * single place
   */
--int number_of_cpusets;
-+int number_of_cpusets __read_mostly;
+-#ifdef CONFIG_SMP
++#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT_SOFTIRQS)
  
- /* See "Frequency meter" comments, below. */
+ #define set_curr_timer(b, t)		do { (b)->curr_timer = (t); } while (0)
  
-
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373

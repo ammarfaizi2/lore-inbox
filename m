@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbVLNTzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbVLNT6u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbVLNTzH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 14:55:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964911AbVLNTzH
+	id S964916AbVLNT6u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 14:58:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964921AbVLNT6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 14:55:07 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9993 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964907AbVLNTzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 14:55:05 -0500
-Date: Wed, 14 Dec 2005 19:55:00 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
-Message-ID: <20051214195459.GG7124@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <1134573803.25663.35.camel@localhost.localdomain> <20051214165549.GE7124@flint.arm.linux.org.uk> <1134587288.25663.61.camel@localhost.localdomain>
+	Wed, 14 Dec 2005 14:58:50 -0500
+Received: from ns.suse.de ([195.135.220.2]:2694 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964916AbVLNT6t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 14:58:49 -0500
+Date: Wed, 14 Dec 2005 20:58:48 +0100
+From: Andi Kleen <ak@suse.de>
+To: Dave <dave.jiang@gmail.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: x86_64 segfault error codes
+Message-ID: <20051214195848.GQ23384@wotan.suse.de>
+References: <8746466a0512141017j141d61dft3dd2b1ab95dc2351@mail.gmail.com> <p73hd9b8r9w.fsf@verdi.suse.de> <8746466a0512141124u68c3f5c9o3411c8af64667d8d@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1134587288.25663.61.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <8746466a0512141124u68c3f5c9o3411c8af64667d8d@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 07:08:08PM +0000, Alan Cox wrote:
-> On Mer, 2005-12-14 at 16:55 +0000, Russell King wrote:
-> > If we trigger this, we can assume that the port is dead anyway, or
-> > we're in a situation where the host CPU can not keep up with the
-> > data stream.
-> 
-> Not actually true in some cases.
-> 
-> - When your UART has a large FIFO and pretends to be an 8250 you can get
-> a 256 byte burst triggered by the box sleeping for a moment or the BIOS
-> SMI crap going to chat to the battery
+On Wed, Dec 14, 2005 at 12:24:42PM -0700, Dave wrote:
+> Ah ok, thx! Looks like the comment in mm/fault.c is wrong then.... It
+> says bit 3 is instruction fetch and no mention of bit 4.
 
-In which case the receive_chars() function gobbles up to 255 characters
-from the device before relinquishing to the main interrupt loop.  The
-main interrupt loop has two exit conditions - no further interrupts
-are pending from any device, or we run this loop 256 times.
+Don't know what kernel you're looking at, but 2.6.15rc5 has
 
-In the case where further characters are waiting, we will re-run the
-receive_chars() function.
+ *      bit 0 == 0 means no page found, 1 means protection fault
+ *      bit 1 == 0 means read, 1 means write
+ *      bit 2 == 0 means kernel, 1 means user-mode
+ *      bit 3 == 1 means use of reserved bit detected
+ *      bit 4 == 1 means fault was an instruction fetch
 
-Hence, we will check the device up to 256 times and each will potentially
-receive 255 characters, which gives about 64K of character reception
-before the warning triggers.
 
-Therefore, this scenario is _very_ _very_ unlikely.
 
-> - On a virtualised system this trap can trigger because the emulations
-> don't emulate the bit arrival and baud rate.
-
-Again, only if there's more than about 64K of data waiting.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+-Andi

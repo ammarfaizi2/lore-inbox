@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbVLNSdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbVLNSdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932157AbVLNSdd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 13:33:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbVLNSdd
+	id S964861AbVLNSdg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 13:33:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbVLNSde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 13:33:33 -0500
-Received: from smtp1.xandros.com ([209.87.236.18]:48034 "EHLO xandros.com")
-	by vger.kernel.org with ESMTP id S932157AbVLNSdc (ORCPT
+	Wed, 14 Dec 2005 13:33:34 -0500
+Received: from relay.axxeo.de ([213.239.199.237]:50834 "EHLO relay.axxeo.de")
+	by vger.kernel.org with ESMTP id S932426AbVLNSdd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 13:33:32 -0500
-Message-ID: <43A06578.9080302@xandros.com>
-Date: Wed, 14 Dec 2005 13:33:28 -0500
-From: Woody Suwalski <woodys@xandros.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9a1) Gecko/20051213 SeaMonkey/1.5a
+	Wed, 14 Dec 2005 13:33:33 -0500
+From: Ingo Oeser <netdev@axxeo.de>
+Organization: Axxeo GmbH
+To: Sridhar Samudrala <sri@us.ibm.com>
+Subject: Re: [RFC][PATCH 3/3] TCP/IP Critical socket communication mechanism
+Date: Wed, 14 Dec 2005 19:33:49 +0100
+User-Agent: KMail/1.7.2
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+References: <Pine.LNX.4.58.0512140052470.31720@w-sridhar.beaverton.ibm.com> <1134559039.25663.12.camel@localhost.localdomain> <1134583896.8698.33.camel@w-sridhar2.beaverton.ibm.com>
+In-Reply-To: <1134583896.8698.33.camel@w-sridhar2.beaverton.ibm.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: torvalds@osdl.org, rmk@arm.linux.org.uk
-Subject: [PATCH] ARM: Netwinder ds1620 driver needs an export to be built
- as module
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512141933.49684.netdev@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# Kernel 2.6.14+
-# The ds1620 module is using gpio_read symbol, so works only if "built-in"
-# The symbol needs to be exported from the kernel image
-#
-# Woody Suwalski
-# woodys@xandros.com
+Sridhar Samudrala wrote:
+> The only reason i made these macros is that i would expect this to a compile
+> time configurable option so that there is zero overhead for regular users.
+> 
+> #ifdef CONFIG_CRIT_SOCKET
+> #define SK_CRIT_ALLOC(sk, flags) ((sk->sk_allocation & __GFP_CRITICAL) | flags)
+> #define CRIT_ALLOC(flags) (__GFP_CRITICAL | flags)
+> #else
+> #define SK_CRIT_ALLOC(sk, flags) flags
+> #define CRIT_ALLOC(flags) flags
+> #endif
+
+Oh, that's much simpler to achieve:
+
+#ifdef CONFIG_CRIT_SOCKET
+#define __GFP_CRITICAL_SOCKET __GFP_CRITICAL
+#else
+#define __GFP_CRITICAL_SOCKET 0
+#endif
+
+Maybe we can get better naming here, but you get the point, I think.
 
 
-Signed-off-by: Woody Suwalski <woodys@xandros.com>
+Regards
 
---- a/arch/arm/mach-footbridge/netwinder-hw.c   2005-11-04 
-09:15:21.000000000 -0500
-+++ b/arch/arm/mach-footbridge/netwinder-hw.c   2005-11-04 
-09:17:00.000000000 -0500
-@@ -601,6 +601,7 @@ EXPORT_SYMBOL(gpio_lock);
-  EXPORT_SYMBOL(gpio_modify_op);
-  EXPORT_SYMBOL(gpio_modify_io);
-  EXPORT_SYMBOL(cpld_modify);
-+EXPORT_SYMBOL(gpio_read);
+Ingo Oeser
 
-  /*
-   * Initialise any other hardware after we've got the PCI bus
-
-
--- 
-Xandros Corporation
-Simple. Powerful. Linux.
-Visit us at http://www.xandros.com

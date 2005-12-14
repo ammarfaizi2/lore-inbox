@@ -1,36 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbVLNH3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbVLNHmI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbVLNH3N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 02:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbVLNH3N
+	id S1751298AbVLNHmI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 02:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbVLNHmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 02:29:13 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:29380
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751296AbVLNH3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 02:29:13 -0500
-Date: Tue, 13 Dec 2005 23:29:00 -0800 (PST)
-Message-Id: <20051213.232900.124284513.davem@davemloft.net>
-To: dtor_core@ameritech.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFT/RFC] sparcspkr: register with driver core as a platfrom
- device
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200512140159.43787.dtor_core@ameritech.net>
-References: <200512140105.46090.dtor_core@ameritech.net>
-	<20051213.225023.74302540.davem@davemloft.net>
-	<200512140159.43787.dtor_core@ameritech.net>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 14 Dec 2005 02:42:08 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:35745 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751112AbVLNHmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 02:42:06 -0500
+Subject: Re: [PATCH] fix warning and missing failure handling for
+	scsi_add_host in aic7xxx driver
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org,
+       "Daniel M. Eischen" <deischen@iworks.interworks.org>,
+       Doug Ledford <dledford@redhat.com>
+In-Reply-To: <200512140007.20046.jesper.juhl@gmail.com>
+References: <200512140007.20046.jesper.juhl@gmail.com>
+Content-Type: text/plain
+Date: Tue, 13 Dec 2005 21:33:59 -0700
+Message-Id: <1134534839.3133.2.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Date: Wed, 14 Dec 2005 01:59:43 -0500
+On Wed, 2005-12-14 at 00:07 +0100, Jesper Juhl wrote:
+> +	if (retval) {
+> +		printk(KERN_ERR "aic7xxx: scsi_add_host failed\n");
+> +		goto free_and_out;
+> +	}
+> +
+>  	scsi_scan_host(host);
+> -	return (0);
+> +
+> +out:
+> +	return retval;
+> +free_and_out:
+> +	scsi_remove_host(host);
+> +	goto out;
 
-> One thing that just occured to me - is there any chance of suspend working
-> on sparc? If not then I should probably kill sparcspkr_suspend().
+I'm not incredibly keen on all this jumping around for no reason.  If
+there's a normal out and an error out, then fine, but in this case the
+if (retval) { } could contain the entirety of the error path with an
+else for the normal path.
 
-Not currently, no.
+scsi_remove_host() is the wrong API, it should be scsi_host_put() (for
+an allocated but un added host).
+
+James
+
+

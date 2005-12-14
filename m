@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVLNLza@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbVLNL5s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbVLNLza (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 06:55:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbVLNLza
+	id S932481AbVLNL5s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 06:57:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932480AbVLNL5s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 06:55:30 -0500
-Received: from gaz.sfgoth.com ([69.36.241.230]:14281 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S932467AbVLNLz3 (ORCPT
+	Wed, 14 Dec 2005 06:57:48 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:13969 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932474AbVLNL5r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 06:55:29 -0500
-Date: Wed, 14 Dec 2005 04:12:53 -0800
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Sridhar Samudrala <sri@us.ibm.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 3/3] TCP/IP Critical socket communication mechanism
-Message-ID: <20051214121253.GB23393@gaz.sfgoth.com>
-References: <Pine.LNX.4.58.0512140052470.31720@w-sridhar.beaverton.ibm.com> <1134559039.25663.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1134559039.25663.12.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Wed, 14 Dec 2005 04:12:54 -0800 (PST)
+	Wed, 14 Dec 2005 06:57:47 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <1134560671.2894.30.camel@laptopd505.fenrus.org> 
+References: <1134560671.2894.30.camel@laptopd505.fenrus.org>  <439EDC3D.5040808@nortel.com> <1134479118.11732.14.camel@localhost.localdomain> <dhowells1134431145@warthog.cambridge.redhat.com> <3874.1134480759@warthog.cambridge.redhat.com> <15167.1134488373@warthog.cambridge.redhat.com> <1134490205.11732.97.camel@localhost.localdomain> <1134556187.2894.7.camel@laptopd505.fenrus.org> <1134558188.25663.5.camel@localhost.localdomain> <1134558507.2894.22.camel@laptopd505.fenrus.org> <1134559470.25663.22.camel@localhost.localdomain> <20051214033536.05183668.akpm@osdl.org> 
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       dhowells@redhat.com, cfriesen@nortel.com, torvalds@osdl.org,
+       hch@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Wed, 14 Dec 2005 11:57:12 +0000
+Message-ID: <15412.1134561432@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> But your user space that would add the routes is not so protected so I'm
-> not sure this is actually a solution, more of an extended fudge.
+Arjan van de Ven <arjan@infradead.org> wrote:
 
-Yes, there's no 100% solution -- no matter how much memory you reserve and
-how many paths you protect if you try hard enough you can come up
-with cases where it'll fail.  ("I'm swapping to NFS across a tun/tap
-interface to a custom userland SSL tunnel to a server across a BGP route...")
-
-However, if the 'extended fundge' pushes a problem from "can happen, even
-in a very normal setup" territory to "only happens if you're doing something
-pretty weird" then is it really such a bad thing?  I think the cost in code
-complexity looks pretty reasonable.
-
-> > +#define SK_CRIT_ALLOC(sk, flags) ((sk->sk_allocation & __GFP_CRITICAL) | flags)
+> >  given that
+> > mutex_down() is slightly more costly than current down(), and mutex_up() is
+> > appreciably more costly than current up()?
 > 
-> Lots of hidden conditional logic on critical paths.
+> that's an implementation flaw in the current implementation that is not
+> needed by any means and that Ingo has fixed in his version of this
 
-How expensive is it compared to the allocation itself?
+As do I. I wrote it yesterday with Ingo looking over my shoulder, as it were,
+but I haven't released it yet.
 
-> > +#define CRIT_ALLOC(flags) (__GFP_CRITICAL | flags)
-> 
-> Pointless obfuscation
+What I provided was a base implementation that anything can use provided it
+has an atomic op capable of exchanging between two states, and I suspect
+everything that can do multiprocessing has - if you can do spinlocks, then you
+can do this. I ALSO provided a mechanism by which it could be overridden if
+there's something better available on that arch.
 
-Fully agree.
+As I see it there are four classes of arch:
 
--Mitch
+ (0) Those that have no atomic ops at all - in which case xchg is trivially
+     implemented by disabling interrupts, and spinlocks must be null because
+     they can't be implemented.
+
+ (1) Those that only have a limited exchange functionality. Several archs do
+     fall into this category: arm, frv, mn10300, 68000, i386.
+
+ (2) Those that have CMPXCHG or equivalent: 68020, i486+, x86_64, ia64, sparc.
+
+ (3) Those that have LL/SC or equivalent: mips (some), alpha, powerpc, arm6.
+
+(This isn't an exhaustive list of archs)
+
+Each higher class can emulate all the lower classes, but can probably do a
+better implementation than the lower class because they have more flexibility.
+
+For instance class (1) mutexes can only practically support two states, but
+class (2) and (3) can support multiple states, and so can improve the up()
+fastpath as well as the down() fastpaths.
+
+With some archs, such as FRV, it might be possible to emulate a higher class,
+but it's not necessarily practical in all circumstances.
+
+David

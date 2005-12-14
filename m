@@ -1,39 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVLNMBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932490AbVLNMHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbVLNMBy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 07:01:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932483AbVLNMBy
+	id S932490AbVLNMHR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 07:07:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932485AbVLNMHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 07:01:54 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:6215
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S932211AbVLNMBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 07:01:53 -0500
-Date: Wed, 14 Dec 2005 13:01:52 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Matthew Dobson <colpatch@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Sridhar Samudrala <sri@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH 0/6] Critical Page Pool
-Message-ID: <20051214120152.GB5270@opteron.random>
-References: <439FCECA.3060909@us.ibm.com> <20051214100841.GA18381@elf.ucw.cz>
+	Wed, 14 Dec 2005 07:07:17 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:47542 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S932475AbVLNMHP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 07:07:15 -0500
+Subject: Re: [PATCH 2/3] add ->compat_ioctl to dasd
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Christoph Hellwig <hch@lst.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+In-Reply-To: <20051213172320.GB16392@lst.de>
+References: <20051213172320.GB16392@lst.de>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 13:07:14 +0100
+Message-Id: <1134562034.5496.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051214100841.GA18381@elf.ucw.cz>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 11:08:41AM +0100, Pavel Machek wrote:
-> because reserved memory pool would have to be "sum of all network
-> interface bandwidths * ammount of time expected to survive without
-> network" which is way too much.
+On Tue, 2005-12-13 at 18:23 +0100, Christoph Hellwig wrote:
+> Add a compat_ioctl method to the dasd driver so the last entries in
+> arch/s390/kernel/compat_ioctl.c can go away.  Unlike the previous
+> attempt this one does not replace the ioctl method with an
+> unlocked_ioctl method so that the ioctl_by_bdev calls in s390 partition
+> code continue to work.
 
-Yes, a global pool isn't really useful. A per-subsystem pool would be
-more reasonable...
+Looks better but still doesn't work. The dasd driver specific ioctls do
+work but there are some generic ones that are only available on the
+normal ioctl path, including BLKFLSBUF, BLKROSET and HDIO_GETGEO. That
+makes e.g. the 32 bit version of fdasd fail with "IOCTL error".
 
-> gigabytes into your machine. But don't go introducing infrastructure
-> that _can't_ be used right.
+-- 
+blue skies,
+   Martin
 
-Agreed, the current design of the patch can't be used right.
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+

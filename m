@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVLNTUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbVLNTZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbVLNTUG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 14:20:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbVLNTUG
+	id S964910AbVLNTZX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 14:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbVLNTZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 14:20:06 -0500
-Received: from rtsoft3.corbina.net ([85.21.88.6]:32112 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S964898AbVLNTUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 14:20:05 -0500
-Message-ID: <43A07050.30603@ru.mvista.com>
-Date: Wed, 14 Dec 2005 22:19:44 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
-       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
-       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
-Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051214171842.GB30546@kroah.com> <43A05C32.3070501@ru.mvista.com> <200512141102.53599.david-b@pacbell.net>
-In-Reply-To: <200512141102.53599.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Dec 2005 14:25:22 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.50]:51421 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S964910AbVLNTZV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 14:25:21 -0500
+Date: Wed, 14 Dec 2005 20:25:19 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Kir Kolyshkin <kir@openvz.org>, "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: vserver@list.linux-vserver.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Vserver] Re: [ANNOUNCE] second stable release of Linux-VServer
+Message-ID: <20051214192519.GE6778@MAIL.13thfloor.at>
+Mail-Followup-To: Kir Kolyshkin <kir@openvz.org>,
+	"Serge E. Hallyn" <serue@us.ibm.com>, vserver@list.linux-vserver.org,
+	Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <20051213185650.GA6466@MAIL.13thfloor.at> <Pine.LNX.4.63.0512140832200.2723@cuia.boston.redhat.com> <20051214143819.GB20138@sergelap.austin.ibm.com> <20051214164736.GD6778@MAIL.13thfloor.at> <43A04FC8.4080104@openvz.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43A04FC8.4080104@openvz.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
+On Wed, Dec 14, 2005 at 08:00:56PM +0300, Kir Kolyshkin wrote:
+> Herbert Poetzl wrote:
+> 
+> >>Additionally, the pid virtualization we've
+> >>been discussing (and which should be submitted soon) would remove the
+> >>need for the tasklookup patch, so bsdjail would reduce even further,
+> >>to network and simple access controls.
+> >>   
+> >>
+> >complete pid virtualization would be interesting for
+> >migration and checkpointing too (not just isolation
+> >and security), so I think that might be something of
+> >interest for a broader audience ...
+> > 
+> Just to make sure everybody is aware:
+> pids are already virtualized in OpenVZ.
+> If you want to look at the code, it is available
+> from within diff-openvz-ve patch, see
+> http://ftp.openvz.org/kernel/broken-out/022stab053.1/
 
->On Wednesday 14 December 2005 9:53 am, Vitaly Wool wrote:
->
->  
->
->>	 Sound cards behind the SPI bus will suffer a lot more 
->>since it's their path to use wXrY functions (lotsa small transfers) 
->>rather than WLAN's.
->>    
->>
->
->No, "stupid drivers will suffer"; nothing new.  Just observe
->how the ads7846 touchscreen driver does small async transfers.
->  
->
-So just answer please yes or no: are your spi_wXrY functions intended 
-for usage at all or not?
-Maybe you should remove them completely?
+Serge, Kir,
 
-Vitaly
+would be great if you both could provide a broken
+out version of the pid virtualization for discussion
+
+TIA,
+Herbert
+
+> _______________________________________________
+> Vserver mailing list
+> Vserver@list.linux-vserver.org
+> http://list.linux-vserver.org/mailman/listinfo/vserver

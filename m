@@ -1,69 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbVLNNwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbVLNNy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964777AbVLNNwO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 08:52:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964774AbVLNNwN
+	id S964774AbVLNNy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 08:54:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbVLNNy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 08:52:13 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:49074
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S964773AbVLNNwM
+	Wed, 14 Dec 2005 08:54:28 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:50098
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S964774AbVLNNy1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 08:52:12 -0500
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+	Wed, 14 Dec 2005 08:54:27 -0500
+Subject: Re: [ANNOUNCE] 2.6.15-rc5-hrt2 - hrtimers based high resolution
+	patches
 From: Thomas Gleixner <tglx@linutronix.de>
 Reply-To: tglx@linutronix.de
-To: David Howells <dhowells@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Paul Jackson <pj@sgi.com>,
-       mingo@elte.hu, hch@infradead.org, akpm@osdl.org, torvalds@osdl.org,
-       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-In-Reply-To: <16315.1134563707@warthog.cambridge.redhat.com>
-References: <1134559121.25663.14.camel@localhost.localdomain>
-	 <13820.1134558138@warthog.cambridge.redhat.com>
-	 <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com>
-	 <dhowells1134431145@warthog.cambridge.redhat.com>
-	 <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu>
-	 <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu>
-	 <20051213100015.GA32194@elte.hu>
-	 <6281.1134498864@warthog.cambridge.redhat.com>
-	 <14242.1134558772@warthog.cambridge.redhat.com>
-	 <16315.1134563707@warthog.cambridge.redhat.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1134568080.18921.42.camel@localhost.localdomain>
+References: <1134385343.4205.72.camel@tglx.tec.linutronix.de>
+	 <1134507927.18921.26.camel@localhost.localdomain>
+	 <20051214084019.GA18708@elte.hu>  <20051214084333.GA20284@elte.hu>
+	 <1134568080.18921.42.camel@localhost.localdomain>
 Content-Type: text/plain
 Organization: linutronix
-Date: Wed, 14 Dec 2005 14:58:50 +0100
-Message-Id: <1134568731.4275.4.camel@tglx.tec.linutronix.de>
+Date: Wed, 14 Dec 2005 15:01:06 +0100
+Message-Id: <1134568867.4275.7.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-14 at 12:35 +0000, David Howells wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> 
-> > Why bother. As has already been discussed up and down are the natural
-> > and normal names for counting semaphores. You don't need to obsolete the
-> > old API thats just silly, you need to add a new one and wait for people
-> > to use it.
-> 
-> The vast majority of ups and downs are actually mutex related not semaphore
-> related, so by majority share, up/down perhaps ought to be repurposed to
-> mutexes: they _are_ the preeminent uses.
-> 
-> From my modified tree, I see:
-> 
-> 	semaphore	up	down	down_in	down_try
-> 	Counting	41	59	1	0
-> 	Mutex		4405	2824	362	107
-> 
-> > The old API is still very useful for some applications that want
-> > counting semaphores.
-> 
-> Whilst that is true, they're in a small minority, and it'd be easier to change
-> them.
+On Wed, 2005-12-14 at 08:48 -0500, Steven Rostedt wrote:
+> On Wed, 2005-12-14 at 09:43 +0100, Ingo Molnar wrote:
+> > * Ingo Molnar <mingo@elte.hu> wrote:
 
-You can do a full scripted rename of up/down to the mutex API and then
-fix up the 100 places used by semaphores manually.
+> And going into gdb, I get:
+> 
+> (gdb) li *0xc0136b98
+> 0xc0136b98 is in hrtimer_cancel (kernel/hrtimer.c:671).
+> 666     int hrtimer_cancel(struct hrtimer *timer)
+> 667     {
+> 668             for (;;) {
+> 669                     int ret = hrtimer_try_to_cancel(timer);
+> 670
+> 671                     if (ret >= 0)
+> 672                             return ret;
+> 673             }
+> 674     }
+> 675
+> 
+> So it may not really be locked, and if I waited a couple of hours, it
+> might actually finish (the test usually takes a couple of minutes to
+> run, and I let it run here for about 20 minutes).
+> 
+> Yeah, the above code would be very bad if this happens after preempting
+> the running timer.
+> 
+> So the fix to this, in the case of preempting the softirq, that we need
+> to introduce some wait queue that will allow processes to wait for the
+> softirq to finish, and then the softirq will wake up all the processes.
+
+We had the waitqueue in the ktimer based -rt patches and did not add it
+back.
 
 	tglx
 

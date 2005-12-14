@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbVLNTiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932426AbVLNTih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbVLNTiK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 14:38:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbVLNTiK
+	id S932426AbVLNTih (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 14:38:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVLNTih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 14:38:10 -0500
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:20574 "EHLO
+	Wed, 14 Dec 2005 14:38:37 -0500
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:26206 "EHLO
 	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S932099AbVLNTiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 14:38:09 -0500
-Date: Wed, 14 Dec 2005 14:38:05 -0500
+	id S932426AbVLNTig (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 14:38:36 -0500
+Date: Wed, 14 Dec 2005 14:38:36 -0500
 From: Jeff Mahoney <jeffm@suse.com>
 To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: ReiserFS List <reiserfs-list@namesys.com>
-Subject: [PATCH] reiserfs: close open transactions on error path
-Message-ID: <20051214193805.GA5600@locomotive.unixthugs.org>
+Subject: [PATCH] reiserfs: skip commit on io error
+Message-ID: <20051214193836.GA5982@locomotive.unixthugs.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,87 +26,52 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- The following patch fixes a bug where if the journal is aborted, it can
- leave a transaction open. The result will be a BUG when another code path
- attempts to start a transaction and will get a "nesting into different fs"
- error, since current->journal_info will be left non-NULL.
+ This should have been part of the original io error patch, but got dropped
+ somewhere along the way.
 
- Original fix against SUSE kernel by Chris Mason <mason@suse.com>
+ It's extremely important when handling the i/o error in the journal to not
+ commit the transaction with corrupt data. This patch adds that code back in.
+
+ fs/reiserfs/journal.c |   17 +++++++++++++----
+ 1 files changed, 13 insertions(+), 4 deletions(-)
 
 Signed-off-by: Jeff Mahoney <jeffm@suse.com>
 
-diff -ruNpX dontdiff linux-2.6.14.orig/fs/reiserfs/inode.c linux-2.6.14.fixed/fs/reiserfs/inode.c
---- linux-2.6.14.orig/fs/reiserfs/inode.c	2005-10-27 20:02:08.000000000 -0400
-+++ linux-2.6.14.fixed/fs/reiserfs/inode.c	2005-12-05 17:10:37.000000000 -0500
-@@ -32,6 +32,7 @@ void reiserfs_delete_inode(struct inode 
- 	    JOURNAL_PER_BALANCE_CNT * 2 +
- 	    2 * REISERFS_QUOTA_INIT_BLOCKS(inode->i_sb);
- 	struct reiserfs_transaction_handle th;
-+	int err;
+diff -ruNpX dontdiff linux-2.6.14.orig/fs/reiserfs/journal.c linux-2.6.14.fixed/fs/reiserfs/journal.c
+--- linux-2.6.14.orig/fs/reiserfs/journal.c	2005-10-27 20:02:08.000000000 -0400
++++ linux-2.6.14.fixed/fs/reiserfs/journal.c	2005-12-05 17:15:59.000000000 -0500
+@@ -1039,6 +1039,10 @@ static int flush_commit_list(struct supe
+ 	}
+ 	atomic_dec(&journal->j_async_throttle);
  
- 	truncate_inode_pages(&inode->i_data, 0);
- 
-@@ -49,15 +50,13 @@ void reiserfs_delete_inode(struct inode 
- 		}
- 		reiserfs_update_inode_transaction(inode);
- 
--		if (reiserfs_delete_object(&th, inode)) {
--			up(&inode->i_sem);
--			goto out;
--		}
-+		err = reiserfs_delete_object(&th, inode);
- 
- 		/* Do quota update inside a transaction for journaled quotas. We must do that
- 		 * after delete_object so that quota updates go into the same transaction as
- 		 * stat data deletion */
--		DQUOT_FREE_INODE(inode);
-+		if (!err) 
-+			DQUOT_FREE_INODE(inode);
- 
- 		if (journal_end(&th, inode->i_sb, jbegin_count)) {
- 			up(&inode->i_sem);
-@@ -66,6 +65,12 @@ void reiserfs_delete_inode(struct inode 
- 
- 		up(&inode->i_sem);
- 
-+		/* check return value from reiserfs_delete_object after
-+		 * ending the transaction
-+		 */
-+		if (err)
-+		    goto out;
++	/* We're skipping the commit if there's an error */
++	if (retval || reiserfs_is_journal_aborted(journal))
++		barrier = 0;
 +
- 		/* all items of file are deleted, so we can remove "save" link */
- 		remove_save_link(inode, 0 /* not truncate */ );	/* we can't do anything
- 								 * about an error here */
-@@ -2099,6 +2104,7 @@ int reiserfs_truncate_file(struct inode 
- 	struct page *page = NULL;
- 	int error;
- 	struct buffer_head *bh = NULL;
-+	int err2;
+ 	/* wait on everything written so far before writing the commit
+ 	 * if we are in barrier mode, send the commit down now
+ 	 */
+@@ -1077,10 +1081,16 @@ static int flush_commit_list(struct supe
+ 	BUG_ON(atomic_read(&(jl->j_commit_left)) != 1);
  
- 	reiserfs_write_lock(p_s_inode->i_sb);
+ 	if (!barrier) {
+-		if (buffer_dirty(jl->j_commit_bh))
+-			BUG();
+-		mark_buffer_dirty(jl->j_commit_bh);
+-		sync_dirty_buffer(jl->j_commit_bh);
++		/* If there was a write error in the journal - we can't commit
++		 * this transaction - it will be invalid and, if successful,
++		 * will just end up propogating the write error out to
++		 * the file system. */
++		if (likely(!retval && !reiserfs_is_journal_aborted (journal))) {
++			if (buffer_dirty(jl->j_commit_bh))
++				BUG();
++			mark_buffer_dirty(jl->j_commit_bh) ;
++			sync_dirty_buffer(jl->j_commit_bh) ;
++		}
+ 	} else
+ 		wait_on_buffer(jl->j_commit_bh);
  
-@@ -2137,13 +2143,17 @@ int reiserfs_truncate_file(struct inode 
- 		   either appears truncated properly or not truncated at all */
- 		add_save_link(&th, p_s_inode, 1);
--	error = reiserfs_do_truncate(&th, p_s_inode, page, update_timestamps);
-+	err2 = reiserfs_do_truncate(&th, p_s_inode, page, update_timestamps);
--	if (error)
--		goto out;
- 	error =
- 	    journal_end(&th, p_s_inode->i_sb, JOURNAL_PER_BALANCE_CNT * 2 + 1);
- 	if (error)
- 		goto out;
- 
-+	/* check reiserfs_do_truncate after ending the transaction */
-+	if (err2) {
-+		error = err2;
-+  		goto out;
-+	}
-+	
- 	if (update_timestamps) {
- 		error = remove_save_link(p_s_inode, 1 /* truncate */ );
- 		if (error)
 -- 
 Jeff Mahoney
 SuSE Labs

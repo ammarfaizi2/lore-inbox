@@ -1,86 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030434AbVLNEXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbVLNEtA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030434AbVLNEXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 23:23:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbVLNEXQ
+	id S1030190AbVLNEtA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 23:49:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030363AbVLNEtA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 23:23:16 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:61152 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1030434AbVLNEXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 23:23:15 -0500
-Message-ID: <439F9DC3.5020303@jp.fujitsu.com>
-Date: Wed, 14 Dec 2005 13:21:23 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
+	Tue, 13 Dec 2005 23:49:00 -0500
+Received: from mail.gmx.net ([213.165.64.21]:52440 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030190AbVLNEs7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 23:48:59 -0500
+X-Authenticated: #26200865
+Message-ID: <439FA436.50107@gmx.net>
+Date: Wed, 14 Dec 2005 05:48:54 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
+X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Kristen Accardi <kristen.c.accardi@intel.com>
-CC: pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       rajesh.shah@intel.com, greg@kroah.com
-Subject: Re: [Pcihpd-discuss] [PATCH] acpiphp: only size new bus
-References: <1134524986.6886.77.camel@whizzy>
-In-Reply-To: <1134524986.6886.77.camel@whizzy>
-Content-Type: text/plain; charset=ISO-2022-JP
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       stable@kernel.org, acpi-devel <acpi-devel@lists.sourceforge.net>
+Subject: [PATCH] Fix oops in asus_acpi.c on Samsung P30/P35 Laptops
+References: <4395D945.6080108@gmx.net> <20051206192136.GA22615@kroah.com> <4395F0AB.1080408@gmx.net> <20051208033841.GA25008@kroah.com> <439A23CB.50102@gmx.net>
+In-Reply-To: <439A23CB.50102@gmx.net>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kristen,
+Linus, Greg,
 
-> +				if (pass)
-> +					if (dev->subordinate)
-> +						pci_bus_size_bridges(dev->subordinate);
+please apply the following patch to your trees. It fixes
+http://bugzilla.kernel.org/show_bug.cgi?id=5067
 
-How about doing as follows. This also satisfies 80 columns rule.
+The patch has been tested and verified, is shipped in the
+SUSE 10.0 kernel and does not cause any regressions.
 
-	if (pass && dev->subordinate)
-		pci_bus_size_bridges(dev->subordinate);
+Unfortunately, the ACPI maintainers have been ignoring
+this patch for the last few months despite repeated
+requests for review on acpi-devel. I even CCed all ACPI
+maintainers personally and didn't receive any response.
 
-Thanks,
-Kenji Kaneshige
+Regards,
+Carl-Daniel
 
 
-Kristen Accardi wrote:
-> Only size the bus that has been added.
-> 
-> Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com> 
-> 
-> drivers/pci/hotplug/acpiphp_glue.c |    4 +++-
->  drivers/pci/hotplug/acpiphp_glue.c |    7 +++++--
->  1 files changed, 5 insertions(+), 2 deletions(-)
-> 
-> --- linux-2.6.15-rc5.orig/drivers/pci/hotplug/acpiphp_glue.c
-> +++ linux-2.6.15-rc5/drivers/pci/hotplug/acpiphp_glue.c
-> @@ -794,12 +794,15 @@ static int enable_device(struct acpiphp_
->  			if (PCI_SLOT(dev->devfn) != slot->device)
->  				continue;
->  			if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE ||
-> -			    dev->hdr_type == PCI_HEADER_TYPE_CARDBUS)
-> +			    dev->hdr_type == PCI_HEADER_TYPE_CARDBUS) {
->  				max = pci_scan_bridge(bus, dev, max, pass);
-> +				if (pass)
-> +					if (dev->subordinate)
-> +						pci_bus_size_bridges(dev->subordinate);
-> +			}
->  		}
->  	}
->  
-> -	pci_bus_size_bridges(bus);
->  	pci_bus_assign_resources(bus);
->  	acpiphp_sanitize_bus(bus);
->  	pci_enable_bridges(bus);
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.net email is sponsored by: Splunk Inc. Do you grep through log files
-> for problems?  Stop!  Download the new AJAX search engine that makes
-> searching your log files as easy as surfing the  web.  DOWNLOAD SPLUNK!
-> http://ads.osdn.com/?ad_id=7637&alloc_id=16865&op=click
-> _______________________________________________
-> Pcihpd-discuss mailing list
-> Pcihpd-discuss@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/pcihpd-discuss
-> 
+From: Christian Aichinger <Greek0@gmx.net>
+Subject: [PATCH] acpi: Fix oops in asus_acpi.c on Samsung P30/P35 Laptops
+Date: 2005-09-23 23:36:25 GMT
+
+Samsung P35's INIT returns an integer (instead of a string or a
+plain buffer), which caused an oops when the result was treated as
+string in asus_hotk_get_info() (since an invalid pointer got
+dereferenced).
+
+This patch explicitly checks for ACPI_TYPE_INTEGER and for the
+return values possible on the P30/P35.
+
+Signed-off-by: Christian Aichinger <Greek0@gmx.net>
+
+    drivers/acpi/asus_acpi.c |   31 ++++++++++++++++++++++++++++---
+    1 files changed, 28 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/acpi/asus_acpi.c b/drivers/acpi/asus_acpi.c
+--- a/drivers/acpi/asus_acpi.c
++++ b/drivers/acpi/asus_acpi.c
+@@ -1006,6 +1006,24 @@ static int __init asus_hotk_get_info(voi
+  	}
+
+  	model = (union acpi_object *)buffer.pointer;
++
++	/* INIT on Samsung's P35 returns an integer, possible return
++	 * values are tested below */
++	if (model->type == ACPI_TYPE_INTEGER) {
++		if (model->integer.value == -1 ||
++			model->integer.value == 0x58 ||
++			model->integer.value == 0x38) {
++			hotk->model = P30;
++			printk(KERN_NOTICE
++				       "  Samsung P35 detected, supported\n");
++			goto out_known;
++		} else {
++			printk(KERN_WARNING
++				"  unknown integer returned by INIT\n");
++			goto out_unknown;
++		}
++	}
++
+  	if (model->type == ACPI_TYPE_STRING) {
+  		printk(KERN_NOTICE "  %s model detected, ",
+  		       model->string.pointer);
+@@ -1057,9 +1075,7 @@ static int __init asus_hotk_get_info(voi
+  		hotk->model = L5x;
+
+  	if (hotk->model == END_MODEL) {
+-		printk("unsupported, trying default values, supply the "
+-		       "developers with your DSDT\n");
+-		hotk->model = M2E;
++		goto out_unknown;
+  	} else {
+  		printk("supported\n");
+  	}
+@@ -1088,6 +1104,15 @@ static int __init asus_hotk_get_info(voi
+  	acpi_os_free(model);
+
+  	return AE_OK;
++
++out_unknown:
++	printk(KERN_WARNING "  unsupported, trying default values, "
++			"supply the developers with your DSDT\n");
++	hotk->model = M2E;
++out_known:
++	hotk->methods = &model_conf[hotk->model];
++	acpi_os_free(model);
++	return AE_OK;
+  }
+
+  static int __init asus_hotk_check(void)
 

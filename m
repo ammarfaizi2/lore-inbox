@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVLNNEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbVLNNEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbVLNNEX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 08:04:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbVLNNEX
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 08:04:23 -0500
-Received: from relay4.usu.ru ([194.226.235.39]:6343 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S932219AbVLNNEW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S932068AbVLNNEW (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 14 Dec 2005 08:04:22 -0500
-Message-ID: <43A0181C.10205@ums.usu.ru>
-Date: Wed, 14 Dec 2005 18:03:24 +0500
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Kenneth.Parrish@familynet-international.net
-Subject: Re: [SERIAL, -mm] CRC failure
-References: <403eda.8e05b5@familynet-international.net> <1134551256.25663.3.camel@localhost.localdomain>
-In-Reply-To: <1134551256.25663.3.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbVLNNEV
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 14 Dec 2005 08:04:21 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:56777 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932068AbVLNNEV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 08:04:21 -0500
+Subject: Re: [RFC][PATCH 0/6] Critical Page Pool
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Pavel Machek <pavel@suse.cz>, Matthew Dobson <colpatch@us.ibm.com>,
+       linux-kernel@vger.kernel.org, Sridhar Samudrala <sri@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+In-Reply-To: <20051214120152.GB5270@opteron.random>
+References: <439FCECA.3060909@us.ibm.com>
+	 <20051214100841.GA18381@elf.ucw.cz>  <20051214120152.GB5270@opteron.random>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.0.11; VDF: 6.33.0.25; host: usu2.usu.ru)
+Date: Wed, 14 Dec 2005 13:03:56 +0000
+Message-Id: <1134565436.25663.24.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Mer, 2005-12-14 at 06:45 +0000, Kenneth Parrish wrote:
+On Mer, 2005-12-14 at 13:01 +0100, Andrea Arcangeli wrote:
+> On Wed, Dec 14, 2005 at 11:08:41AM +0100, Pavel Machek wrote:
+> > because reserved memory pool would have to be "sum of all network
+> > interface bandwidths * ammount of time expected to survive without
+> > network" which is way too much.
 > 
->>        Three -mm kernels of late, and now v2.6.15-rc5-mm2, give
->>frequent z-modem crc errors with minicom, lrz, and an external v90 modem
->>to a couple of local bb's.  2.6.15-rc5-git2 and before are okay.
-> 
-> 
-> 
-> Which -mm kernels gave the error, and which do you know ehrre ok. Also
-> can you tell me more about the hardware arrangement you are using - what
-> cpu, what serial driver ?
-> 
-> The -mm tree contains some buffering changes I made and those would be
-> the obvious candidate for suspicion
+> Yes, a global pool isn't really useful. A per-subsystem pool would be
+> more reasonable...
 
-Please CC: me on all replies to this thread, because I think this is 
-also related to the ppp failures (a packet repeating over and over) that 
-I reported earlier on -mm kernels.
 
--- 
-Alexander E. Patrakov
+The whole extra critical level seems dubious in itself. In 2.0/2.2 days
+there were a set of patches that just dropped incoming memory on sockets
+when the memory was tight unless they were marked as critical (ie NFS
+swap). It worked rather well. The rest of the changes beyond that seem
+excessive.
+

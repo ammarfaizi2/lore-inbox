@@ -1,36 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbVLNUVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbVLNUXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964939AbVLNUVV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 15:21:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbVLNUVV
+	id S964940AbVLNUXH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 15:23:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbVLNUXH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 15:21:21 -0500
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:59815 "HELO
-	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964939AbVLNUVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 15:21:20 -0500
-From: David Brownell <david-b@pacbell.net>
-To: spi-devel-general@lists.sourceforge.net
-Subject: Re: [spi-devel-general] Re: [PATCH/RFC] SPI: add DMAUNSAFE analog
-Date: Wed, 14 Dec 2005 11:33:33 -0800
-User-Agent: KMail/1.7.1
-Cc: Vitaly Wool <vwool@ru.mvista.com>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
-       basicmark@yahoo.com, komal_shah802003@yahoo.com,
-       stephen@streetfiresound.com, Joachim_Jaeger@digi.com
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <200512141102.53599.david-b@pacbell.net> <43A07050.30603@ru.mvista.com>
-In-Reply-To: <43A07050.30603@ru.mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512141133.34634.david-b@pacbell.net>
+	Wed, 14 Dec 2005 15:23:07 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:18106 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964940AbVLNUXG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 15:23:06 -0500
+Subject: Re: kernel-2.6.15-rc5-rt2 - compilation error
+	=?ISO-8859-1?Q?=91RWSEM=5FACTIVE=5FBIAS=92?= undeclared
+From: Steven Rostedt <rostedt@goodmis.org>
+To: art@usfltd.com
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <200512141157.AA15073854@usfltd.com>
+References: <200512141157.AA15073854@usfltd.com>
+Content-Type: text/plain; charset=iso-8859-7
+Date: Wed, 14 Dec 2005 15:22:52 -0500
+Message-Id: <1134591773.13138.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-12-14 at 11:57 -0600, art wrote:
+> kernel-2.6.15-rc5-rt2 - compilation error ¡RWSEM_ACTIVE_BIAS¢ undeclared
+> 
+> gcc version 4.0.2
+> ........
+>   CC      lib/kref.o
+>   CC      lib/prio_tree.o
+>   CC      lib/radix-tree.o
+>   CC      lib/rbtree.o
+>   CC      lib/rwsem.o
+> lib/rwsem.c: In function ¡__rwsem_do_wake¢:
+> lib/rwsem.c:57: warning: implicit declaration of function ¡rwsem_atomic_update¢
+> lib/rwsem.c:57: error: ¡RWSEM_ACTIVE_BIAS¢ undeclared (first use in this function)
 
-> So just answer please yes or no: are your spi_wXrY functions intended 
-> for usage at all or not?
+Art,
 
-Certainly.  Not _mis_used though.
+Use this patch.
+
+Ingo,
+
+Could you please apply this.
+
+-- Steve
+
+
+Index: linux-2.6.15-rc5-rt2/arch/i386/Kconfig
+===================================================================
+--- linux-2.6.15-rc5-rt2.orig/arch/i386/Kconfig	2005-12-14 14:37:01.000000000 -0500
++++ linux-2.6.15-rc5-rt2/arch/i386/Kconfig	2005-12-14 15:19:53.000000000 -0500
+@@ -245,8 +245,7 @@
+ 
+ config RWSEM_XCHGADD_ALGORITHM
+ 	bool
+-	depends on !RWSEM_GENERIC_SPINLOCK && !PREEMPT_RT
+-	default y
++	default y if !RWSEM_GENERIC_SPINLOCK
+ 
+ config X86_UP_APIC
+ 	bool "Local APIC support on uniprocessors"
+Index: linux-2.6.15-rc5-rt2/arch/i386/Kconfig.cpu
+===================================================================
+--- linux-2.6.15-rc5-rt2.orig/arch/i386/Kconfig.cpu	2005-12-14 14:36:56.000000000 -0500
++++ linux-2.6.15-rc5-rt2/arch/i386/Kconfig.cpu	2005-12-14 15:19:53.000000000 -0500
+@@ -229,11 +229,6 @@
+ 	depends on M386
+ 	default y
+ 
+-config RWSEM_XCHGADD_ALGORITHM
+-	bool
+-	depends on !M386
+-	default y
+-
+ config GENERIC_CALIBRATE_DELAY
+ 	bool
+ 	default y
+
+

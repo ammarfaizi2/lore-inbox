@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbVLNTDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbVLNTIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbVLNTDM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 14:03:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbVLNTDM
+	id S964890AbVLNTIR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 14:08:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbVLNTIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 14:03:12 -0500
-Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:18363 "HELO
-	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S964865AbVLNTDL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 14:03:11 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Vitaly Wool <vwool@ru.mvista.com>
-Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
-Date: Wed, 14 Dec 2005 11:02:52 -0800
-User-Agent: KMail/1.7.1
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
-       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
-       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051214171842.GB30546@kroah.com> <43A05C32.3070501@ru.mvista.com>
-In-Reply-To: <43A05C32.3070501@ru.mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 14 Dec 2005 14:08:16 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:28123 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964890AbVLNTIQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 14:08:16 -0500
+Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051214165549.GE7124@flint.arm.linux.org.uk>
+References: <1134573803.25663.35.camel@localhost.localdomain>
+	 <20051214165549.GE7124@flint.arm.linux.org.uk>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512141102.53599.david-b@pacbell.net>
+Date: Wed, 14 Dec 2005 19:08:08 +0000
+Message-Id: <1134587288.25663.61.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 December 2005 9:53 am, Vitaly Wool wrote:
+On Mer, 2005-12-14 at 16:55 +0000, Russell King wrote:
+> If we trigger this, we can assume that the port is dead anyway, or
+> we're in a situation where the host CPU can not keep up with the
+> data stream.
 
-> 	 Sound cards behind the SPI bus will suffer a lot more 
-> since it's their path to use wXrY functions (lotsa small transfers) 
-> rather than WLAN's.
+Not actually true in some cases.
 
-No, "stupid drivers will suffer"; nothing new.  Just observe
-how the ads7846 touchscreen driver does small async transfers.
+- When your UART has a large FIFO and pretends to be an 8250 you can get
+a 256 byte burst triggered by the box sleeping for a moment or the BIOS
+SMI crap going to chat to the battery
 
-Remember too that sending audio data over SPI (rather than
-say I2S, McBSP etc) is a different case than using it for the
-mixer controls.
+- On a virtualised system this trap can trigger because the emulations
+don't emulate the bit arrival and baud rate.
 
-- Dave
+In both of those cases recovery is viable. For that matter so is
+recovery when the user responds to the complaint message by unplugging
+the cable, or where a long burst of framing errors hits you from a
+misconfiguration.
+
+Possibly the first two just argue for a larger limit ?
+
+Alan
+

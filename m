@@ -1,95 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbVLNAea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932630AbVLNBAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030379AbVLNAea (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 19:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030382AbVLNAea
+	id S932630AbVLNBAe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 20:00:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932624AbVLNBAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 19:34:30 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6419 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030379AbVLNAea (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 19:34:30 -0500
-Date: Wed, 14 Dec 2005 01:34:30 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/proc/: function prototypes belong into header files
-Message-ID: <20051214003430.GY23349@stusta.de>
+	Tue, 13 Dec 2005 20:00:34 -0500
+Received: from smtp107.plus.mail.mud.yahoo.com ([68.142.206.240]:65213 "HELO
+	smtp107.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932630AbVLNBAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 20:00:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=3FpGC8jn6aJ7AVnKcPlx5GG0uEHpR9w+oRhC4ftCcjYETYmjr9qWFJT9RmUJIUECVUGbk+jwiS1ZuTyyrry61lQ8UU5zxkFp8IkukjEyPvpVj9psnbcSeWe2GRH9Z9whi82+FpFbldCsXXz48P1WhtKIlW1b8r96cEz0EpNqloQ=  ;
+Message-ID: <439F6EAB.6030903@yahoo.com.au>
+Date: Wed, 14 Dec 2005 12:00:27 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+To: David Howells <dhowells@redhat.com>
+CC: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, arjan@infradead.org,
+       matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+References: <439E122E.3080902@yahoo.com.au>  <dhowells1134431145@warthog.cambridge.redhat.com> <22479.1134467689@warthog.cambridge.redhat.com>
+In-Reply-To: <22479.1134467689@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Function prototypes belong into header files.
+David Howells wrote:
+> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> 
+>>We have atomic_cmpxchg. Can you use that for a sufficient generic
+>>implementation?
+> 
+> 
+> No. CMPXCHG/CAS is not as available as XCHG, and it's also unnecessary.
+> 
 
+atomic_cmpxchg should be available on all platforms.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+While it may be strictly unnecessary, if it can be used to avoid
+having a crappy default implementation that requires it to be
+reimplemented in all architectures then that would be a good thing.
 
----
+Any arguments about bad scalability or RT behaviour of the hashed
+spinlock emulation atomic_t implementations are silly because they
+are used by all atomic_ operations. It is an arch implementation
+detail that generic code should not have to worry about.
 
-This patch was already sent on:
-- 3 Dec 2005
+-- 
+SUSE Labs, Novell Inc.
 
- fs/proc/generic.c  |    2 ++
- fs/proc/inode.c    |    2 +-
- fs/proc/internal.h |    4 ++++
- fs/proc/root.c     |    3 ++-
- 4 files changed, 9 insertions(+), 2 deletions(-)
-
---- linux-2.6.15-rc3-mm1/fs/proc/internal.h.old	2005-12-03 11:28:20.000000000 +0100
-+++ linux-2.6.15-rc3-mm1/fs/proc/internal.h	2005-12-03 11:30:53.000000000 +0100
-@@ -37,6 +37,10 @@
- extern int proc_pid_status(struct task_struct *, char *);
- extern int proc_pid_statm(struct task_struct *, char *);
- 
-+void free_proc_entry(struct proc_dir_entry *de);
-+
-+int proc_init_inodecache(void);
-+
- static inline struct task_struct *proc_task(struct inode *inode)
- {
- 	return PROC_I(inode)->task;
---- linux-2.6.15-rc3-mm1/fs/proc/root.c.old	2005-12-03 11:28:41.000000000 +0100
-+++ linux-2.6.15-rc3-mm1/fs/proc/root.c	2005-12-03 11:29:15.000000000 +0100
-@@ -18,6 +18,8 @@
- #include <linux/bitops.h>
- #include <linux/smp_lock.h>
- 
-+#include "internal.h"
-+
- struct proc_dir_entry *proc_net, *proc_net_stat, *proc_bus, *proc_root_fs, *proc_root_driver;
- 
- #ifdef CONFIG_SYSCTL
-@@ -36,7 +38,6 @@
- 	.kill_sb	= kill_anon_super,
- };
- 
--extern int __init proc_init_inodecache(void);
- void __init proc_root_init(void)
- {
- 	int err = proc_init_inodecache();
---- linux-2.6.15-rc3-mm1/fs/proc/inode.c.old	2005-12-03 11:29:30.000000000 +0100
-+++ linux-2.6.15-rc3-mm1/fs/proc/inode.c	2005-12-03 11:30:55.000000000 +0100
-@@ -19,7 +19,7 @@
- #include <asm/system.h>
- #include <asm/uaccess.h>
- 
--extern void free_proc_entry(struct proc_dir_entry *);
-+#include "internal.h"
- 
- static inline struct proc_dir_entry * de_get(struct proc_dir_entry *de)
- {
---- linux-2.6.15-rc3-mm1/fs/proc/generic.c.old	2005-12-03 11:29:59.000000000 +0100
-+++ linux-2.6.15-rc3-mm1/fs/proc/generic.c	2005-12-03 11:30:34.000000000 +0100
-@@ -21,6 +21,8 @@
- #include <linux/bitops.h>
- #include <asm/uaccess.h>
- 
-+#include "internal.h"
-+
- static ssize_t proc_file_read(struct file *file, char __user *buf,
- 			      size_t nbytes, loff_t *ppos);
- static ssize_t proc_file_write(struct file *file, const char __user *buffer,
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

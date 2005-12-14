@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbVLNLE4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVLNLF7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbVLNLE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 06:04:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVLNLE4
+	id S932413AbVLNLF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 06:05:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbVLNLF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 06:04:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:59084 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932275AbVLNLEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 06:04:55 -0500
-Subject: Re: bugs?
-From: Arjan van de Ven <arjan@infradead.org>
-To: sander@humilis.net
-Cc: Willy Tarreau <willy@w.ods.org>,
-       Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>,
-       linux-kernel@vger.kernel.org, coywolf@gmail.com
-In-Reply-To: <20051214105723.GA25166@favonius>
-References: <439F79CE.6040609@ens.etsmtl.ca>
-	 <20051214024316.GG15993@alpha.home.local> <20051214105723.GA25166@favonius>
+	Wed, 14 Dec 2005 06:05:59 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:17092 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932406AbVLNLF6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 06:05:58 -0500
+Subject: Re: [PATCH] Add mem_nmi_panic enable system to panic on hard error
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Cc: Dave Jones <davej@redhat.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <439FDCB0.7030705@jp.fujitsu.com>
+References: <439E6C58.6050301@jp.fujitsu.com>
+	 <20051213064800.GB7401@redhat.com>
+	 <1134476618.11732.7.camel@localhost.localdomain>
+	 <439FDCB0.7030705@jp.fujitsu.com>
 Content-Type: text/plain
-Date: Wed, 14 Dec 2005 12:04:48 +0100
-Message-Id: <1134558289.2894.17.camel@laptopd505.fenrus.org>
+Content-Transfer-Encoding: 7bit
+Date: Wed, 14 Dec 2005 11:05:43 +0000
+Message-Id: <1134558344.25663.8.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I could find your code in the -mm tree. It looks good :-)
+> But just one point, isn't it better to use die_nmi() instead of panic()?
+> 
+>  >>        if (panic_on_unrecovered_nmi)
+>  >>                panic("NMI: Not continuing");
 
-> If you say this based on 'cat /proc/cpuinfo' output: isn't it true that
-> /proc/cpuinfo is static, and doesn't necessarily reflect the actual
-> speed of the processor?
-
-no that's not true.
-
+At the point we halt for an unrecovered NMI the call trace isnt likely
+to be interesting and the message being visible is most important. I'm
+not sure if die_nmi would be better therefore - dunno what other folks
+think ?
 

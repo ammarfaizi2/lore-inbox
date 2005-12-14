@@ -1,26 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbVLNWNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965021AbVLNWRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbVLNWNF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 17:13:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVLNWNF
+	id S965021AbVLNWRM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 17:17:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965022AbVLNWRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 17:13:05 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9231 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965013AbVLNWNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 17:13:04 -0500
-Date: Wed, 14 Dec 2005 23:13:04 +0100
-From: Adrian Bunk <bunk@stusta.de>
+	Wed, 14 Dec 2005 17:17:12 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22793 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S965021AbVLNWRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 17:17:11 -0500
+Date: Wed, 14 Dec 2005 22:17:03 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] offer CC_OPTIMIZE_FOR_SIZE only if EXPERIMENTAL
-Message-ID: <20051214221304.GE23349@stusta.de>
+Cc: Adrian Bunk <bunk@stusta.de>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fix the EMBEDDED menu
+Message-ID: <20051214221702.GH7124@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Adrian Bunk <bunk@stusta.de>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
 References: <20051214191006.GC23349@stusta.de> <20051214140531.7614152d.akpm@osdl.org>
-MIME-Version: 1.0
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20051214140531.7614152d.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -39,33 +43,32 @@ On Wed, Dec 14, 2005 at 02:05:31PM -0800, Andrew Morton wrote:
 > Whether it's the compiler or it's genuine kernel bugs, the same problems
 > are likely to bite other architectures.
 
-The help text already contains a bold warning.
+I believe there are instances where ARM fails if CC_OPTIMIZE_FOR_SIZE
+is not set.  Luckily we have assertions in the generated assembly to
+flag these as assembly errors when they happen, rather than silently
+continuing to build.
 
-What about marking it as EXPERIMENTAL?
-That is not that heavy as EMBEDDED but expresses this.
+Maybe CC_OPTIMIZE_FOR_SIZE should be:
 
-cu
-Adrian
+	bool "..." if BROKEN || (!ARM && !SPARC64)
 
+? 8)
 
-<--  snip  -->
+Note also that the help text:
 
+          WARNING: some versions of gcc may generate incorrect code with this
+          option.  If problems are observed, a gcc upgrade may be needed.
 
-CC_OPTIMIZE_FOR_SIZE is still an experimental feature that doesn't work 
-with all supported gcc/architecture combinations.
+is reversed for the situation we have with ARM.  Hence, I propose we
+change this to something like:
 
+	  WARNING: some versions of gcc may generate incorrect code if this
+	  option is changed form the platform default.  If problems are
+	  observed, either a gcc upgrade may be needed or alternatively
+	  the platform default should be selected (=y for ARM and Sparc64,
+	  n for others.)
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-git/init/Kconfig.old	2005-12-14 23:08:51.000000000 +0100
-+++ linux-git/init/Kconfig	2005-12-14 23:09:09.000000000 +0100
-@@ -257,7 +257,7 @@
- source "usr/Kconfig"
- 
- config CC_OPTIMIZE_FOR_SIZE
--	bool "Optimize for size"
-+	bool "Optimize for size (EXPERIMENTAL)" if EXPERIMENTAL
- 	default y if ARM || H8300
- 	help
- 	  Enabling this option will pass "-Os" instead of "-O2" to gcc
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

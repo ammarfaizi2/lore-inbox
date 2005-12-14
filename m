@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbVLNODo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbVLNOFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbVLNODo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 09:03:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbVLNODo
+	id S964782AbVLNOFF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 09:05:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbVLNOFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 09:03:44 -0500
-Received: from build.arklinux.osuosl.org ([140.211.166.26]:53949 "EHLO
-	mail.arklinux.org") by vger.kernel.org with ESMTP id S964781AbVLNODn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 09:03:43 -0500
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-To: linux-kernel@vger.kernel.org
-Subject: sata_uli fails to see harddisks on an ASRock 939Dual-SATA2 board
-Date: Wed, 14 Dec 2005 15:01:09 +0100
-User-Agent: KMail/1.9
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 14 Dec 2005 09:05:05 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:20971 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964782AbVLNOFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 09:05:02 -0500
+Subject: Re: [ANNOUNCE] 2.6.15-rc5-hrt2 - hrtimers based high resolution
+	patches
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>, Roman Zippel <zippel@linux-m68k.org>,
+       john stultz <johnstul@us.ibm.com>, tglx@linutronix.de
+In-Reply-To: <1134568080.18921.42.camel@localhost.localdomain>
+References: <1134385343.4205.72.camel@tglx.tec.linutronix.de>
+	 <1134507927.18921.26.camel@localhost.localdomain>
+	 <20051214084019.GA18708@elte.hu>  <20051214084333.GA20284@elte.hu>
+	 <1134568080.18921.42.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 09:04:38 -0500
+Message-Id: <1134569078.18921.48.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512141501.10093.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On an ASRock 939Dual-SATA2 board, the sata_uli driver recognizes the onboard 
-SATA controller (PCI ID 10b9:5289 rev 10, Subsystem 1849:5289), but fails to 
-see an attached harddisk (the BIOS identifies the harddisk correctly, so a 
-hardware failure is unlikely). sata_uli apparently sees _something_ is 
-attached, but doesn't get further. dmesg says:
+On Wed, 2005-12-14 at 08:48 -0500, Steven Rostedt wrote:
 
-libata version 1.20 loaded.
-sata_uli 0000:00:12.1: version 0.5
-GSI 18 sharing vector 0xD1 and IRQ 18
-ACPI: PCI Interrupt 0000:00:12.1[A] -> GSI 19 (level, low) -> IRQ 209
-ata1: SATA max UDMA/133 cmd 0xEC00 ctl 0xE082 bmdma 0xD880 irq 209
-ata2: SATA max UDMA/133 cmd 0xE000 ctl 0xDC02 bmdma 0xD888 irq 209
-ata1: SATA link up 1.5 Gbps (SStatus 113)
-scsi0 : sata_uli
-ata2: SATA link down (SStatus 0)
-scsi1 : sata_uli
+> And going into gdb, I get:
+> 
+> (gdb) li *0xc0136b98
+> 0xc0136b98 is in hrtimer_cancel (kernel/hrtimer.c:671).
+> 666     int hrtimer_cancel(struct hrtimer *timer)
+> 667     {
+> 668             for (;;) {
+> 669                     int ret = hrtimer_try_to_cancel(timer);
+> 670
+> 671                     if (ret >= 0)
+> 672                             return ret;
+> 673             }
+> 674     }
+> 675
+> 
+> So it may not really be locked, and if I waited a couple of hours, it
+> might actually finish (the test usually takes a couple of minutes to
+> run, and I let it run here for about 20 minutes).
 
-No disks are found, even though the link (on ata1) is detected.
+Nope, looking at my test code again, I forgot that I set the program to
+max prio, so this would never finish.
 
-Verified both with an x86 and an x86_64 kernel, and both 2.6.15-rc5 and 
-2.6.15-rc5-mm2.
+-- Steve
 
-Any ideas?
+

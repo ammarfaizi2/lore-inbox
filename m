@@ -1,35 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932535AbVLNOZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbVLNO2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932535AbVLNOZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 09:25:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVLNOZ2
+	id S932536AbVLNO2M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 09:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbVLNO2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 09:25:28 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:44379 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932535AbVLNOZ1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 09:25:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=fWpW5CeySenZ8NOvMhURMDFqGhPw7BpG0Km/iR0KBVkfAYiWgybAB4WO6nCQfYW74YjD3BtH+Hy7qvplo1I8B5MjDK9IIoDYVZ6h1qmRnZMAf2p9xQLHzLExAlR6qjVjDgg2BjC6EK2uNIVSRzpYekj+7GlW1KeptOyd7Ih4M9o=
-Message-ID: <81b0412b0512140625i7cc5779ar224de3d64c615fbc@mail.gmail.com>
-Date: Wed, 14 Dec 2005 15:25:24 +0100
-From: Alex Riesen <raa.lkml@gmail.com>
-To: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: Help track down a freezing machine
+	Wed, 14 Dec 2005 09:28:12 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18699 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932536AbVLNO2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 09:28:11 -0500
+Date: Wed, 14 Dec 2005 14:28:04 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Anderson Briglia <briglia.anderson@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <dnp4t9$srl$1@sea.gmane.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Subject: Re: [patch 2/5] [RFC] Add MMC password protection (lock/unlock) support
+Message-ID: <20051214142804.GB7124@flint.arm.linux.org.uk>
+Mail-Followup-To: Anderson Briglia <briglia.anderson@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <e55525570512140531k110169fal9b8b6423b022aafc@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <dnp4t9$srl$1@sea.gmane.org>
+In-Reply-To: <e55525570512140531k110169fal9b8b6423b022aafc@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/14/05, Kalin KOZHUHAROV <kalin@thinrope.net> wrote:
-> Now that I get a repetitive freeze, is there anything to debug the problem?
-> I guess, the point when kernel is still responsive to keyboard, but I cannot login.
+On Wed, Dec 14, 2005 at 09:31:33AM -0400, Anderson Briglia wrote:
+> +	data.blksz_bits = blksz_bits(data_size);
+> +	data.blocks = 1;
 
-try to connect a serial console to it and press Alt+SysRq+t
+See my comments in your first mail about this.
+
+> --- linux-2.6.14-omap2.orig/include/linux/mmc/card.h	2005-12-13 11:41:08.000000000 -0400
+> +++ linux-2.6.14-omap2/include/linux/mmc/card.h	2005-12-13 11:42:06.000000000 -0400
+> @@ -10,6 +10,7 @@
+>  #ifndef LINUX_MMC_CARD_H
+>  #define LINUX_MMC_CARD_H
+>  
+> +#include <linux/key.h>
+>  #include <linux/mmc/mmc.h>
+>  
+>  struct mmc_cid {
+> @@ -109,4 +110,6 @@ static inline int mmc_card_claim_host(st
+>  
+>  #define mmc_card_release_host(c)	mmc_release_host((c)->host)
+>  
+> +extern int mmc_lock_unlock(struct mmc_card *card, struct key *key, int mode);
+> +
+>  #endif
+
+Given that you're not using the contents of struct key, please don't
+include <linux/key.h> here - it adds unnecessary include dependencies.
+
+Instead, use a forward declaration:
+
+struct key;
+
+extern int mmc_lock_unlock(struct mmc_card *card, struct key *key, int mode);
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

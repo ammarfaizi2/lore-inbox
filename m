@@ -1,58 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbVLNEO2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030434AbVLNEXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030314AbVLNEO2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 23:14:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbVLNEO2
+	id S1030434AbVLNEXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 23:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbVLNEXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 23:14:28 -0500
-Received: from thorn.pobox.com ([208.210.124.75]:41916 "EHLO thorn.pobox.com")
-	by vger.kernel.org with ESMTP id S1030314AbVLNEO1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 23:14:27 -0500
-Date: Tue, 13 Dec 2005 23:14:20 -0500
-From: Nathan Lynch <ntl@pobox.com>
-To: "Zhang, Yanmin" <yanmin.zhang@intel.com>
-Cc: linux-kernel@vger.kernel.org,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Subject: Re: [PATCH 1/2] Export cpu info by sysfs
-Message-ID: <20051214041419.GA3475@localhost.localdomain>
-References: <8126E4F969BA254AB43EA03C59F44E840431BB3B@pdsmsx404>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8126E4F969BA254AB43EA03C59F44E840431BB3B@pdsmsx404>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 13 Dec 2005 23:23:16 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:61152 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030434AbVLNEXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 23:23:15 -0500
+Message-ID: <439F9DC3.5020303@jp.fujitsu.com>
+Date: Wed, 14 Dec 2005 13:21:23 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
+To: Kristen Accardi <kristen.c.accardi@intel.com>
+CC: pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       rajesh.shah@intel.com, greg@kroah.com
+Subject: Re: [Pcihpd-discuss] [PATCH] acpiphp: only size new bus
+References: <1134524986.6886.77.camel@whizzy>
+In-Reply-To: <1134524986.6886.77.camel@whizzy>
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello-
+Hi Kristen,
 
-Zhang, Yanmin wrote:
-> I worked out 2 patches to export cpu topology and cache info by sysfs.
+> +				if (pass)
+> +					if (dev->subordinate)
+> +						pci_bus_size_bridges(dev->subordinate);
+
+How about doing as follows. This also satisfies 80 columns rule.
+
+	if (pass && dev->subordinate)
+		pci_bus_size_bridges(dev->subordinate);
+
+Thanks,
+Kenji Kaneshige
+
+
+Kristen Accardi wrote:
+> Only size the bus that has been added.
 > 
-> The first patch is to export cpu topology info including below items
-> (attributes) which are similar to /proc/cpuinfo.
+> Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com> 
 > 
-> /sys/devices/system/cpu/cpuX/topology/physical_package_id(representing
-> the physical package id of  cpu X)
-> /sys/devices/system/cpu/cpuX/topology/core_id (representing the cpu core
-> id  to cpu X)
-> /sys/devices/system/cpu/cpuX/topology/thread_id (representing the cpu
-> thread id  to cpu X)
-> /sys/devices/system/cpu/cpuX/topology/thread_siblings (representing the
-> thread siblings to cpu X)
-> /sys/devices/system/cpu/cpuX/topology/core_siblings (represeting the
-> core siblings to cpu X)
+> drivers/pci/hotplug/acpiphp_glue.c |    4 +++-
+>  drivers/pci/hotplug/acpiphp_glue.c |    7 +++++--
+>  1 files changed, 5 insertions(+), 2 deletions(-)
+> 
+> --- linux-2.6.15-rc5.orig/drivers/pci/hotplug/acpiphp_glue.c
+> +++ linux-2.6.15-rc5/drivers/pci/hotplug/acpiphp_glue.c
+> @@ -794,12 +794,15 @@ static int enable_device(struct acpiphp_
+>  			if (PCI_SLOT(dev->devfn) != slot->device)
+>  				continue;
+>  			if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE ||
+> -			    dev->hdr_type == PCI_HEADER_TYPE_CARDBUS)
+> +			    dev->hdr_type == PCI_HEADER_TYPE_CARDBUS) {
+>  				max = pci_scan_bridge(bus, dev, max, pass);
+> +				if (pass)
+> +					if (dev->subordinate)
+> +						pci_bus_size_bridges(dev->subordinate);
+> +			}
+>  		}
+>  	}
+>  
+> -	pci_bus_size_bridges(bus);
+>  	pci_bus_assign_resources(bus);
+>  	acpiphp_sanitize_bus(bus);
+>  	pci_enable_bridges(bus);
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.net email is sponsored by: Splunk Inc. Do you grep through log files
+> for problems?  Stop!  Download the new AJAX search engine that makes
+> searching your log files as easy as surfing the  web.  DOWNLOAD SPLUNK!
+> http://ads.osdn.com/?ad_id=7637&alloc_id=16865&op=click
+> _______________________________________________
+> Pcihpd-discuss mailing list
+> Pcihpd-discuss@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/pcihpd-discuss
+> 
 
-I haven't looked at the patches in detail, but I have a concern about
-this approach.  How is it that making new architecture-specific
-attributes under cpu directories in sysfs is preferable to the already
-architecture-specific format of /proc/cpuinfo and other proc entries?
-
-If we're going to create a new user interface for exposing system
-topology (cores and threads etc), I would like for it to be as
-architecture-neutral as possible.  We already do this for numa, for
-example.
-
-
-Nathan

@@ -1,38 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932526AbVLNC5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbVLNCzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932526AbVLNC5M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 21:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbVLNC5M
+	id S932175AbVLNCzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 21:55:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbVLNCzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 21:57:12 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:52154 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932526AbVLNC5M (ORCPT
+	Tue, 13 Dec 2005 21:55:16 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.25]:41881 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932175AbVLNCzO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 21:57:12 -0500
-Date: Wed, 14 Dec 2005 03:57:10 +0100
-From: Andi Kleen <ak@suse.de>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org, ak@suse.de
+	Tue, 13 Dec 2005 21:55:14 -0500
+Date: Tue, 13 Dec 2005 18:55:03 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, ak@suse.de
 Subject: Re: [PATCH] atomic_long_t & include/asm-generic/atomic.h V2
-Message-ID: <20051214025710.GD23384@wotan.suse.de>
-References: <Pine.LNX.4.62.0512131417390.24002@schroedinger.engr.sgi.com> <20051213154916.6667b6d8.akpm@osdl.org> <Pine.LNX.4.62.0512131849550.24909@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0512131849550.24909@schroedinger.engr.sgi.com>
+In-Reply-To: <20051213154916.6667b6d8.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0512131849550.24909@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0512131417390.24002@schroedinger.engr.sgi.com>
+ <20051213154916.6667b6d8.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > How about requiring that all 64-bit archs implement atomic64_t and do:
-> 
-> It may be reasonable to have 64 bit arches that are not 
-> capable of 64 bit atomic ops. As far as I can remember sparc was initially
-> a 32 bit platform without 32 bit atomic ops.
+On Tue, 13 Dec 2005, Andrew Morton wrote:
 
-Why? I don't think we have any crippled 64bit platforms like this.
-And if somebody wants to port linux to such a hypothetical crippled
-64bit platform they can do the necessary work themselves.
+> I dunno, this still looks kludgy.  It looks like we couldn't be assed
+> implementing atomic_long_t in each architecture ;)
 
-Or just implement 64bit atomic_t with spinlocks.
+What do you mean by "assed"?
 
--Andi
+> How about requiring that all 64-bit archs implement atomic64_t and do:
+
+It may be reasonable to have 64 bit arches that are not 
+capable of 64 bit atomic ops. As far as I can remember sparc was initially
+a 32 bit platform without 32 bit atomic ops.
+
+> static inline void atomic_long_set(atomic_long_t *vl, long i)
+> {
+> 	/*
+> 	 * Do the cast separately to avoid possible cast-as-lval errors
+> 	 */
+> 	atomic64_t *v = (atomic64_t *)vl;
+> 	atomic64_set(v, i);
+> }
+
+The lval casts only become necessary if you truly define a separate 
+type. Are the #define statements that bad?

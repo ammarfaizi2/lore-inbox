@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbVLNVQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbVLNVRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbVLNVQK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 16:16:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbVLNVQK
+	id S964911AbVLNVRc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 16:17:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVLNVRb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 16:16:10 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:37605 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964969AbVLNVQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 16:16:08 -0500
-Subject: Re: irq balancing question
-From: Arjan van de Ven <arjan@infradead.org>
-To: JaniD++ <djani22@dynamicweb.hu>
+	Wed, 14 Dec 2005 16:17:31 -0500
+Received: from [212.76.84.161] ([212.76.84.161]:15628 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S932335AbVLNVRb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 16:17:31 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Date: Thu, 15 Dec 2005 00:13:29 +0300
+User-Agent: KMail/1.5
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <024501c600f2$24e8ccc0$0400a8c0@dcccs>
-References: <024501c600f2$24e8ccc0$0400a8c0@dcccs>
-Content-Type: text/plain
-Date: Wed, 14 Dec 2005 22:16:04 +0100
-Message-Id: <1134594964.9442.10.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200512150013.29549.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-14 at 22:05 +0100, JaniD++ wrote:
-> Hello, list,
-> 
-> I try to tune my system with manually irq assigning, but this simple not
-> works, and i don't know why. :(
-> I have already read all the documentation in the kernel tree, and search in
-> google, but i can not find any valuable reason.
+Greg KH wrote:
+> For people to think that the kernel developers are just "too dumb" to 
+> make a stable kernel api (and yes, I've had people accuse me of this 
+> many times to my face[1]) shows a total lack of understanding as to 
+> _why_ we change the in-kernel api all the time.  Please see
+> Documentation/stable_api_nonsense.txt for details on this. 
 
+I read this doc, and it doesn't make your case any clearer, on the contrary!
 
-which chipset? there is a chipset that is broken wrt irq balancing so
-the kernel refuses to do it there...
+But first, your work to the kernel represents a not so dumb contribution, 
+especially the replacement of devfs.  Thanks!
 
+Now, to call a stable api nonsense is nonsense.  Really, only a _stable_ api 
+is worth to be considered an API.  Think about it.
+
+The only advantage of not offering a _stable_ api is to enforce some weird 
+kind of copy protection scheme, because let's face it:
+
+An API would benefit everybody, even those that may take advantage of it.
+
+So to limit the kernel by making it awkward to interact with it, because 
+somebody may take advantage, is a rather paranoid way of doing things.
+
+Things are bad enough the kernel being monolithic, and then inhibiting a sane 
+API to develop may only serve to delay the competitiveness of the kernel.
+
+Loose the paranoia and prove GNU/Linux can stand on its own.
+
+Thanks!
+
+--
+Al
 

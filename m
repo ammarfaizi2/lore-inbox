@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030413AbVLNBsF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030414AbVLNBt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030413AbVLNBsF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 20:48:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVLNBsF
+	id S1030414AbVLNBt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 20:49:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbVLNBt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 20:48:05 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:40786 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1030413AbVLNBsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 20:48:04 -0500
-Date: Tue, 13 Dec 2005 20:47:58 -0500
-From: Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>
-Subject: bugs?
-To: linux-kernel@vger.kernel.org
-Cc: coywolf@gmail.com
-Message-id: <439F79CE.6040609@ens.etsmtl.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
+	Tue, 13 Dec 2005 20:49:26 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:60117 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1030414AbVLNBtZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 20:49:25 -0500
+Subject: [PATCH] acpiphp: only size new bus
+From: Kristen Accardi <kristen.c.accardi@intel.com>
+To: pcihpd-discuss@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, rajesh.shah@intel.com, greg@kroah.com
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 13 Dec 2005 17:49:46 -0800
+Message-Id: <1134524986.6886.77.camel@whizzy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-OriginalArrivalTime: 14 Dec 2005 01:49:16.0797 (UTC) FILETIME=[97A192D0:01C60050]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-my cpu is 1400MHz, but why there's cpu MHz         : 598.593
+Only size the bus that has been added.
 
-caro@olymphe:~$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 9
-model name      : Intel(R) Pentium(R) M processor 1400MHz
-stepping        : 5
-cpu MHz         : 598.593
-cache size      : 1024 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mca cmov 
-pat clflush dts acpi mmx fxsr sse sse2 tm pbe est tm2
-bogomips        : 1186.66
+Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com> 
+
+drivers/pci/hotplug/acpiphp_glue.c |    4 +++-
+ drivers/pci/hotplug/acpiphp_glue.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
+
+--- linux-2.6.15-rc5.orig/drivers/pci/hotplug/acpiphp_glue.c
++++ linux-2.6.15-rc5/drivers/pci/hotplug/acpiphp_glue.c
+@@ -794,12 +794,15 @@ static int enable_device(struct acpiphp_
+ 			if (PCI_SLOT(dev->devfn) != slot->device)
+ 				continue;
+ 			if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE ||
+-			    dev->hdr_type == PCI_HEADER_TYPE_CARDBUS)
++			    dev->hdr_type == PCI_HEADER_TYPE_CARDBUS) {
+ 				max = pci_scan_bridge(bus, dev, max, pass);
++				if (pass)
++					if (dev->subordinate)
++						pci_bus_size_bridges(dev->subordinate);
++			}
+ 		}
+ 	}
+ 
+-	pci_bus_size_bridges(bus);
+ 	pci_bus_assign_resources(bus);
+ 	acpiphp_sanitize_bus(bus);
+ 	pci_enable_bridges(bus);
 

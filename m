@@ -1,52 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965106AbVLNXnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965119AbVLNXtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965106AbVLNXnU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 18:43:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965107AbVLNXnU
+	id S965119AbVLNXtE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 18:49:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965121AbVLNXtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 18:43:20 -0500
-Received: from mail.kroah.org ([69.55.234.183]:31127 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965106AbVLNXnS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 18:43:18 -0500
-Date: Wed, 14 Dec 2005 15:42:55 -0800
-From: Greg KH <greg@kroah.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org, katzj@redhat.com
-Subject: Re: "block" symlink in sysfs for a multifunction device
-Message-ID: <20051214234255.GA3275@kroah.com>
-References: <20051212134904.225dcc5d.zaitcev@redhat.com> <20051214055019.GA23036@kroah.com> <20051214152615.13b6b105.zaitcev@redhat.com>
+	Wed, 14 Dec 2005 18:49:04 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:31876
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965119AbVLNXtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 18:49:01 -0500
+Date: Wed, 14 Dec 2005 15:48:07 -0800 (PST)
+Message-Id: <20051214.154807.46858829.davem@davemloft.net>
+To: torvalds@osdl.org
+Cc: bunk@stusta.de, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] offer CC_OPTIMIZE_FOR_SIZE only if EXPERIMENTAL
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.64.0512141429030.3292@g5.osdl.org>
+References: <20051214140531.7614152d.akpm@osdl.org>
+	<20051214221304.GE23349@stusta.de>
+	<Pine.LNX.4.64.0512141429030.3292@g5.osdl.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051214152615.13b6b105.zaitcev@redhat.com>
-User-Agent: Mutt/1.5.11
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 03:26:15PM -0800, Pete Zaitcev wrote:
-> On Tue, 13 Dec 2005 21:50:19 -0800, Greg KH <greg@kroah.com> wrote:
-> 
-> > $ ls -l /sys/block/uba/device/
-> > -r--r--r--  1 root root 4096 Dec 13 21:31 bNumEndpoints
-> > lrwxrwxrwx  1 root root    0 Dec 13 21:31 block:uba -> ../../../../../../block/uba
-> > lrwxrwxrwx  1 root root    0 Dec 13 21:31 block:ubb -> ../../../../../../block/ubb
-> > lrwxrwxrwx  1 root root    0 Dec 13 21:31 block:ubc -> ../../../../../../block/ubc
-> > lrwxrwxrwx  1 root root    0 Dec 13 21:31 block:ubd -> ../../../../../../block/ubd
-> 
-> Greg, Jeremy is not happy about this.
-> 
-> > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=175563
-> > ------- Additional Comments From katzj@redhat.com  2005-12-14 18:05 EST -------
-> > Actually, this is problematic.  It makes it so that the single device directory
-> > corresponds to more than one device which we can't handle with kudzu :-(
+From: Linus Torvalds <torvalds@osdl.org>
+Date: Wed, 14 Dec 2005 14:36:59 -0800 (PST)
 
-Well, how do you handle it for class devices then?
+> It also refuses to turn on for SPARC64, since that seems to be known 
+> broken. Or should it be just "SPARC"? Davem?
 
-And if this isn't acceptable, what would be?
+Refuse it just for SPARC64.
 
-Just because kudzu is messed up... :)
-
-thanks,
-
-greg k-h
+I intend to track down what the problem is eventually.
+But for now, allowing folks to enable it is only
+resulting in tons of duplicate bug reports.

@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964967AbVLNVKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbVLNVJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964967AbVLNVKb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 16:10:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbVLNVKb
+	id S932314AbVLNVJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 16:09:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVLNVJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 16:10:31 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:61433 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S964967AbVLNVKI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 16:10:08 -0500
-Subject: IPMI Panic bug
-From: Paolo Galtieri <pgaltieri@mvista.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Corey Minyard <cminyard@mvista.com>
-Content-Type: text/plain
-Date: Wed, 14 Dec 2005 14:10:07 -0700
-Message-Id: <1134594607.10075.20.camel@playin.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-22) 
+	Wed, 14 Dec 2005 16:09:59 -0500
+Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:5356 "EHLO
+	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
+	id S932314AbVLNVJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 16:09:58 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Bernhard Rosenkraenzer <bero@arklinux.org>
+Subject: Re: sata_uli fails to see harddisks on an ASRock 939Dual-SATA2 board
+Date: Wed, 14 Dec 2005 22:11:06 +0100
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org
+References: <200512141501.10093.bero@arklinux.org>
+In-Reply-To: <200512141501.10093.bero@arklinux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512142211.06532.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
-  while doing some testing I discovered that if the BIOS on a
-board does not properly setup the DMI information it leads to 
-a panic in the IPMI code.  The panic is due to dereferencing 
-a pointer which is not initialized.  The pointer is initialized
-in port_setup() and/or mem_setup() and used in init_one_smi() and
-cleanup_one_si(), however if either port_setup() or mem_setup()
-return ENODEV the pointer does not get initialized.  The patch
-is below done against 2.6.15-rc5-git4
+Hi,
 
-Paolo
+On Wednesday, 14 December 2005 15:01, Bernhard Rosenkraenzer wrote:
+> On an ASRock 939Dual-SATA2 board, the sata_uli driver recognizes the onboard 
+> SATA controller (PCI ID 10b9:5289 rev 10, Subsystem 1849:5289), but fails to 
+> see an attached harddisk (the BIOS identifies the harddisk correctly, so a 
+> hardware failure is unlikely). sata_uli apparently sees _something_ is 
+> attached, but doesn't get further. dmesg says:
+> 
+> libata version 1.20 loaded.
+> sata_uli 0000:00:12.1: version 0.5
+> GSI 18 sharing vector 0xD1 and IRQ 18
+> ACPI: PCI Interrupt 0000:00:12.1[A] -> GSI 19 (level, low) -> IRQ 209
+> ata1: SATA max UDMA/133 cmd 0xEC00 ctl 0xE082 bmdma 0xD880 irq 209
+> ata2: SATA max UDMA/133 cmd 0xE000 ctl 0xDC02 bmdma 0xD888 irq 209
+> ata1: SATA link up 1.5 Gbps (SStatus 113)
+> scsi0 : sata_uli
+> ata2: SATA link down (SStatus 0)
+> scsi1 : sata_uli
+> 
+> No disks are found, even though the link (on ata1) is detected.
+> 
+> Verified both with an x86 and an x86_64 kernel, and both 2.6.15-rc5 and 
+> 2.6.15-rc5-mm2.
 
---- linux-2.6.15-rc5/drivers/char/ipmi/ipmi_si_intf.c	2005-12-05
-10:02:56.000000000 -0700
-+++ new-linux-2.6.15-rc5/drivers/char/ipmi/ipmi_si_intf.c	2005-12-14
-13:57:02.000000000 -0700
-@@ -2399,7 +2399,8 @@
- 			new_smi->handlers->cleanup(new_smi->si_sm);
- 		kfree(new_smi->si_sm);
- 	}
--	new_smi->io_cleanup(new_smi);
-+	if (new_smi->io_cleanup)
-+		new_smi->io_cleanup(new_smi);
- 
- 	return rv;
- }
-@@ -2518,7 +2519,8 @@
- 
- 	kfree(to_clean->si_sm);
- 
--	to_clean->io_cleanup(to_clean);
-+	if (to_clean->io_cleanup)
-+		to_clean->io_cleanup(to_clean);
- }
- 
- static __exit void cleanup_ipmi_si(void)
+I have exactly the same board and 2.6.15-rc5/x86-64 works for me (no problems
+with detecting SATA drives on SATA1 ports).  The drives are jumper-forced to
+SATA1, though, and I haven't tried the SATA2 controller.
+
+Greetings,
+Rafael
 
 
-
+-- 
+Beer is proof that God loves us and wants us to be happy - Benjamin Franklin

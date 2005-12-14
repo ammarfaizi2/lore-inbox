@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbVLNK5R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbVLNLCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbVLNK5R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 05:57:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVLNK5R
+	id S932296AbVLNLCh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 06:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVLNLCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 05:57:17 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:8126 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S932301AbVLNK5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 05:57:16 -0500
-Date: Wed, 14 Dec 2005 11:57:23 +0100
-From: Sander <sander@humilis.net>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>,
-       linux-kernel@vger.kernel.org, coywolf@gmail.com
-Subject: Re: bugs?
-Message-ID: <20051214105723.GA25166@favonius>
-Reply-To: sander@humilis.net
-References: <439F79CE.6040609@ens.etsmtl.ca> <20051214024316.GG15993@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051214024316.GG15993@alpha.home.local>
-X-Uptime: 11:17:14 up 26 days, 21:40, 19 users,  load average: 1.05, 1.11, 1.16
-User-Agent: Mutt/1.5.11
+	Wed, 14 Dec 2005 06:02:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:62173 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932275AbVLNLCg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 06:02:36 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20051213143147.d2a57fb3.pj@sgi.com> 
+References: <20051213143147.d2a57fb3.pj@sgi.com>  <20051213094053.33284360.pj@sgi.com> <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu> <20051213100015.GA32194@elte.hu> <6281.1134498864@warthog.cambridge.redhat.com> 
+To: Paul Jackson <pj@sgi.com>
+Cc: David Howells <dhowells@redhat.com>, mingo@elte.hu, hch@infradead.org,
+       akpm@osdl.org, torvalds@osdl.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Wed, 14 Dec 2005 11:02:18 +0000
+Message-ID: <13820.1134558138@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote (ao):
-> On Tue, Dec 13, 2005 at 08:47:58PM -0500, Caroline GAUDREAU wrote:
-> > my cpu is 1400MHz, but why there's cpu MHz         : 598.593
-> > 
-> > caro@olymphe:~$ cat /proc/cpuinfo
-> > processor       : 0
-> > vendor_id       : GenuineIntel
-> > cpu family      : 6
-> > model           : 9
-> > model name      : Intel(R) Pentium(R) M processor 1400MHz
-> > stepping        : 5
-> > cpu MHz         : 598.593
-> > cache size      : 1024 KB
-> 
-> It's probably a notebook that you started unplugged from the mains
-> power. Mine is stupid enough to believe that I *want* to save power if
-> I plug the mains *after* powering it up ! And there's no way to force
-> it to switch from 600 to nominal freq afterwards ! So I have to
-> connect it to the mains first.
+Paul Jackson <pj@sgi.com> wrote:
 
-If you say this based on 'cat /proc/cpuinfo' output: isn't it true that
-/proc/cpuinfo is static, and doesn't necessarily reflect the actual
-speed of the processor?
+> The sed/perl script to make the textual change should be practical.
+> Indeed, I would claim that the initial big patch -should- be done
+> that way.  Keep refining a sed script until manual inspection and
+> trial builds of all arch's, allconfig, show that it seems to be right.
+> Each time you find an error doing this, don't manually edit the
+> kernel source; rather refine the script and try applying it again.
 
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+Actually, you may have a point.
+
+If the order of patches is:
+
+ (1) Create new mutex as struct mutex/up_mutex/down_mutex, say.
+
+ (2) Make counting semaphore implementation struct semaphore/up_sem/down_sem.
+
+ (3) Convert uses of semaphores that should be completions into completions.
+
+ (4) Convert uses of semaphores that should be counting semaphores to use
+     up_sem/down_sem.
+
+ (5) Mass convert by script all the remaining ups and downs into up_mutex and
+     down_mutex.
+
+ (6) Make wrappers for up/down that map to counting semaphores with the
+     deprecation attribute set.
+
+That might work, and would be a lot easier; except for the humongous patch
+generated at step 5 - which could be regenerated by script. I think I can make
+a simple perl script to do that.
+
+Note that I am assuming above that down == down/down_trylock/down_interruptible
+for clarity.
+
+David

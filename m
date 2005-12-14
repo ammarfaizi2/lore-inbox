@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbVLNCko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbVLNChi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbVLNCko (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 21:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751268AbVLNCko
+	id S1750987AbVLNChi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 21:37:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbVLNChi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 21:40:44 -0500
-Received: from ns.suse.de ([195.135.220.2]:29847 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751185AbVLNCkn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 21:40:43 -0500
-Date: Wed, 14 Dec 2005 03:40:37 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: ak@suse.de, hch@lst.de, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 3/3] sanitize building of fs/compat_ioctl.c
-Message-ID: <20051214024037.GC23384@wotan.suse.de>
-References: <20051213173434.GP9286@parisc-linux.org> <20051213.145109.20744871.davem@davemloft.net> <p73r78g8nft.fsf@verdi.suse.de> <20051213.182340.102535288.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Dec 2005 21:37:38 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:49824 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750987AbVLNChh convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 21:37:37 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=dJhaaZ+PZdFmAdlAMWL2M2gvFbBCQ5YdsoIaLGerXz9kCHeKwTvgLKz3nMq7dXYst5Quf3BpeM5PhmBgUvP+K/m+ztbuXVgLCJZ7+9JMCxrUBeH7+f0Q4wTWCcQiA6hKSFujwZS5bs3HVdTBOy9VDEuEwAqBwOJW4dIuNiJwARs=
+Message-ID: <489ecd0c0512131837p654b7d8bqd63cd3342542d1da@mail.gmail.com>
+Date: Wed, 14 Dec 2005 10:37:36 +0800
+From: Luke Yang <luke.adi@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Two bugs in kernel 2.6.15-rc5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051213.182340.102535288.davem@davemloft.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I suppose.  We could also funnel down ->compat_{read,write}() and
-> so on down the call chain, but that would likely be even uglier.
+Hi all,
 
-The problem is that this would need to be done for all variants
-(write, writev, aio_write, send{,msg,to} etc.) Same for read. I probably forgot
-one or two. 
+   During porting Blackfin architecture to latest kernel, I found two issues:
 
+ 1. kernel/futex.c invokes handle_mm_fault() function, which calls
+__handle_mm_fault(). But __handle_mm_fault() is defined in
+mm/memory.c, which is only compiled when CONFIG_MMU is defined. So
+those without MMUs can not use futex any more.
 
-> I guess with is_compat_task() we can do the netlink and pfkeyv2 compat
-> stuff on ia64/x86_64.  I don't look forward to reviewing a patch
-> implementing that, however :-/
+   How do you think this shall be fixed? Use #ifdef CONFIG_MMU ... #endif?
 
-And iptables, although that would be probably *really* ugly.
-It's a bit of a sore spot on x86-64 though. 64bit kernel with full
-32bit userland works usually great except for iptables and ipsec.
+ 2. In include/linux/module.h, "__crc_" and "__ksymtab_" are hard
+coded to be the   prefix for some kinds of symbols (CRC symbol and
+ksymtab section). But in script /mod/modpost.c,
+MODULE_SYMBOL_PREFIX##"__crc_" is used as the prefix to search CRC
+symbols. So if an architecture (such as h8300 or Blackfin) defines
+MODULE_SYMBOL_PREFIX as not NULL ("_"), modpost will always warn about
+"no invalid crc".
 
--Andi
+   I think we can just remove the MODULE_SYMBOL_PREFIX from  CRC_PFX
+and  KSYMTAB_PFX in modpost.c. If you agree, I can send a patch for
+this.
+
+Best regards,
+Luke Yang
+Analog Device Inc.

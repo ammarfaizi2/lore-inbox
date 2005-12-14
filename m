@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965071AbVLNXWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965028AbVLNXXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965071AbVLNXWo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 18:22:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965072AbVLNXWn
+	id S965028AbVLNXXp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 18:23:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965061AbVLNXXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 18:22:43 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56073 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S965071AbVLNXWm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 18:22:42 -0500
-Date: Wed, 14 Dec 2005 23:22:26 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][expample patch] Make the kernel -Wshadow clean ?
-Message-ID: <20051214232226.GD31955@flint.arm.linux.org.uk>
-Mail-Followup-To: Jesper Juhl <jesper.juhl@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200512150019.57124.jesper.juhl@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512150019.57124.jesper.juhl@gmail.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 14 Dec 2005 18:23:45 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:19677 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965028AbVLNXXo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 18:23:44 -0500
+Date: Wed, 14 Dec 2005 15:23:36 -0800 (PST)
+From: hawkes@sgi.com
+To: Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jack Steiner <steiner@sgi.com>, Keith Owens <kaos@sgi.com>, hawkes@sgi.com
+Message-Id: <20051214232336.8314.29391.sendpatchset@tomahawk.engr.sgi.com>
+Subject: [PATCH] ia64: eliminate softlockup warning
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 12:19:57AM +0100, Jesper Juhl wrote:
-> -			void (*dtor)(struct page *page);
-> +			void (*dtor)(struct page *pge);
+Fix an unnecessary softlockup watchdog warning in the ia64
+uncached_build_memmap() that occurs occasionally at 256p and always at
+512p.  The problem occurs at boot time.
 
-Note that this one just needs to be:
-			void (*dtor)(struct page *);
+It would be good if we had a cleaner mechanism to temporarily silence
+the watchdog thread, e.g.,
+    http://marc.theaimsgroup.com/?l=linux-kernel&m=111552476401175&w=2
+but until that patch gets merged, this fix will have to suffice.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Signed-off-by: John Hawkes <hawkes@sgi.com>
+
+Index: linux/arch/ia64/kernel/uncached.c
+===================================================================
+--- linux.orig/arch/ia64/kernel/uncached.c	2005-12-06 15:12:14.000000000 -0800
++++ linux/arch/ia64/kernel/uncached.c	2005-12-14 14:50:55.000000000 -0800
+@@ -210,6 +210,7 @@
+ 
+ 	dprintk(KERN_ERR "uncached_build_memmap(%lx %lx)\n", start, end);
+ 
++	touch_softlockup_watchdog();
+ 	memset((char *)start, 0, length);
+ 
+ 	node = paddr_to_nid(start - __IA64_UNCACHED_OFFSET);

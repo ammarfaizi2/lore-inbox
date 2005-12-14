@@ -1,58 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965050AbVLNWoH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965049AbVLNWoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965050AbVLNWoH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 17:44:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965048AbVLNWoH
+	id S965049AbVLNWoT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 17:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbVLNWoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 17:44:07 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28687 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965050AbVLNWoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 17:44:05 -0500
-Date: Wed, 14 Dec 2005 23:44:06 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [2.6 patch] offer CC_OPTIMIZE_FOR_SIZE only if EXPERIMENTAL
-Message-ID: <20051214224406.GI23349@stusta.de>
-References: <20051214191006.GC23349@stusta.de> <20051214140531.7614152d.akpm@osdl.org> <20051214221304.GE23349@stusta.de> <Pine.LNX.4.64.0512141429030.3292@g5.osdl.org>
+	Wed, 14 Dec 2005 17:44:19 -0500
+Received: from einhorn.in-berlin.de ([192.109.42.8]:20447 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S965049AbVLNWoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 17:44:17 -0500
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <43A0A017.7000007@s5r6.in-berlin.de>
+Date: Wed, 14 Dec 2005 23:43:35 +0100
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512141429030.3292@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+To: stable@kernel.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.14.3] SCSI: fix transfer direction in scsi_lib and
+ st
+References: <20051209171922.GW19441@conscoop.ottawa.on.ca> <200512101125.jBABP7Z9001085@einhorn.in-berlin.de> <20051210232837.GE11094@kroah.com> <439B7A8F.6000209@s5r6.in-berlin.de> <43A07C05.90800@s5r6.in-berlin.de> <20051214203859.GA568@kroah.com> <tkrat.4cb325c7ad591694@s5r6.in-berlin.de> <tkrat.a92b3c0b86f82868@s5r6.in-berlin.de>
+In-Reply-To: <tkrat.a92b3c0b86f82868@s5r6.in-berlin.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: (-0.801) AWL,BAYES_05
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 02:36:59PM -0800, Linus Torvalds wrote:
-> 
-> 
-> On Wed, 14 Dec 2005, Adrian Bunk wrote:
-> > 
-> > What about marking it as EXPERIMENTAL?
-> 
-> It's not experimental on other architectures, where it is always used.
-> 
-> The best option _may_ be to do something like this, where we use that 
-> "depends on" to set the expectations, and people shouldn't see it unless 
-> they ask for EXPERIMENTAL.
->...
-
-My patch has the advantage that it doesn't allow the broken 
-CC_OPTIMIZE_FOR_SIZE=y setting on ARM if !EXPERIMENTAL.
-
-> 		Linus
->...
-
-cu
-Adrian
-
+PS: This was of course "[PATCH 2.6.14.3 2/2] ...".
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Stefan Richter
+-=====-=-=-= ==-- -===-
+http://arcgraph.de/sr/

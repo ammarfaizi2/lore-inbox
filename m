@@ -1,68 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbVLNCCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbVLNCDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030351AbVLNCCr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 21:02:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030415AbVLNCCr
+	id S1030415AbVLNCDe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 21:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030417AbVLNCDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 21:02:47 -0500
-Received: from nproxy.gmail.com ([64.233.182.202]:9660 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030351AbVLNCCq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 21:02:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MR6son7rdgiWfMorqPBkkDmP8HsBVwBl5br/FtSNu0bz4pvxz5GjbWG8xLQ4EpaIpH3mP4T0mMG6Gwja+L7NLFG6AUpCbubvpzweEv98ya7YZTqAkFtLmB4Jev6+ImYZDAQTIFomCb35uf7f8mo4PfpKbtU1sipKOxnIpuJVrAk=
-Message-ID: <c775eb9b0512131802i386bfa7cu4d2e2c3d4d598069@mail.gmail.com>
-Date: Wed, 14 Dec 2005 07:32:44 +0530
-From: Bharath Ramesh <krosswindz@gmail.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: Only one processor detected in 8-Way opteron in 32-bit mode
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <4396036C.70107@tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <c775eb9b0512011315y40bdbf30w172583cd85e92fa6@mail.gmail.com>
-	 <c775eb9b0512011651kb0e1cb4xf79ca20372f6d76e@mail.gmail.com>
-	 <c775eb9b0512011712x2f4f2f44t4cd11d5d6f60a9d8@mail.gmail.com>
-	 <a762e240512011742p681df3bdic16598a85926dd67@mail.gmail.com>
-	 <c775eb9b0512020732v3f41f91fpb3b4b61b0b539d92@mail.gmail.com>
-	 <a762e240512021407p5a31c0daid902352625701ca2@mail.gmail.com>
-	 <c775eb9b0512021534y693f3bf3i4b85b7cb0dcb08b6@mail.gmail.com>
-	 <a762e240512021701q4ea436d9u563704c4daeb7584@mail.gmail.com>
-	 <c775eb9b0512021806wb8bb3fdh9cd0a0a80fead69@mail.gmail.com>
-	 <4396036C.70107@tmr.com>
+	Tue, 13 Dec 2005 21:03:34 -0500
+Received: from ozlabs.org ([203.10.76.45]:34747 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1030415AbVLNCDd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 21:03:33 -0500
+Subject: Re: [RFC][PATCH] Prevent overriding of Symbols in the Kernel,
+	avoiding Undefined behaviour
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Ashutosh Naik <ashutosh.naik@gmail.com>, anandhkrishnan@yahoo.co.in,
+       linux-kernel@vger.kernel.org, rth@redhat.com, akpm@osdl.org,
+       Greg KH <greg@kroah.com>, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <9a8748490512130849o73c14313l166e6dd360f32d70@mail.gmail.com>
+References: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com>
+	 <1134424878.22036.13.camel@localhost.localdomain>
+	 <81083a450512130626x417d86c9w31f300555c99fdb2@mail.gmail.com>
+	 <9a8748490512130849o73c14313l166e6dd360f32d70@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 13:03:35 +1100
+Message-Id: <1134525816.30383.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/7/05, Bill Davidsen <davidsen@tmr.com> wrote:
-> Bharath Ramesh wrote:
-> > I have attached the kernel config. I will enable debugging and rebuild
-> > the kernel soon and send in the latest dmesg soon.
+On Tue, 2005-12-13 at 17:49 +0100, Jesper Juhl wrote:
+> On 12/13/05, Ashutosh Naik <ashutosh.naik@gmail.com> wrote:
+> > On 12/13/05, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> > >
+> > > How about something like:
+> > >
+> [snip imrovement suggestion]
 > >
-> > Thanks,
+> > Have tried that in the attached patch. However,  mod->syms[i].name
+> > would be valid only after a long relocation for loop has run through.
+> > While this adds a wee bit extra overhead, that overhead is only in the
+> > case where the module does actually export a Duplicate Symbol.
 > >
-> > Bharath
->
-> I'm not at all an expert on x86_64, but I notice the NUMA is not set in
-> this config, and I have a similar config from another post with DOES
-> work, and it has NUMA on (four way only, dual dual-core).
+> > This its a question, whether we do the search before relocation ( A
+> > little messier ) or after ( More straight forward)
 
-I am not sure about it but the NUMA option comes up only when the ARCH
-type is set to x86_64. For some reason when I set the ARCH type to x86
-then the NUMA option is never present. NUMA is only associated with
-x86_64 but I am not sure how it would work if I am trying to run
-x86_64 processor in x86 mode.
+Hi Ashutosh, Jasper,
 
->
-> I have no idea if that can be useful, but if you're still out of ideas
-> you might try it.
->
-> --
->    -bill davidsen (davidsen@tmr.com)
-> "The secret to procrastination is to put things off until the
->  last possible moment - but no longer"  -me
->
->
+	Patch looks good!  A few nits still:
+
+> > +static int verify_export_symbols(struct module *mod)
+> > +{
+> > +	const char *name=0;
+> 
+> CodingStyle issue :
+> 	const char *name = 0;
+
+More importantly:
+	const char *name = NULL; /* GCC 4.0 warns */
+
+(I assume that's why you have the useless initialization).
+
+> > +	spin_lock_irq(&modlist_lock);
+> > +	for (i = 0; i < mod->num_syms; i++)
+> > +		if (unlikely(__find_symbol(mod->syms[i].name, &owner, &crc,1))) {
+> 
+> CodingStyle issue :
+> 	if (unlikely(__find_symbol(mod->syms[i].name, &owner, &crc, 1))) {
+
+I would discard the unlikely() here; it's a completely wasted
+micro-optimization in this context
+
+> > +	if (ret)
+> > +		printk("%s: exports duplicate symbol %s (owned by %s)\n",
+> 
+> I still think this should be printk(KERN_ERROR ...) and not just a
+> warning, since the loading of the module will fail completely. Others
+> may disagree ofcourse, but that's my oppinion.
+
+I agree, KERN_ERR is appropriate here.
+
+> I still worry a bit about the spinlock hold time, especially since you
+> are doing two linear searches through what could potentially be a
+> *lot* of symbols.. It may not be a problem (do you have any time
+> measurements?), but it still seems to me that using a lock type that
+> allows you to sleep + a call to schedule() would be a good thing for
+> those loops.
+
+We already do this to resolve (more) symbols, so I don't see it as a
+problem.  However, I believe that lock is redundant here: we need both
+locks to write the list, but either is sufficient for reading, and we
+already hold the sem.
+
+Cheers,
+Rusty.
+-- 
+ ccontrol: http://ozlabs.org/~rusty/ccontrol
+

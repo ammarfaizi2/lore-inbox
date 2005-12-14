@@ -1,49 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbVLNTaW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbVLNTbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932250AbVLNTaW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 14:30:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932099AbVLNTaW
+	id S932400AbVLNTbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 14:31:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932426AbVLNTbJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 14:30:22 -0500
-Received: from fsmlabs.com ([168.103.115.128]:16797 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932242AbVLNTaT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 14:30:19 -0500
-X-ASG-Debug-ID: 1134588617-4056-163-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Wed, 14 Dec 2005 11:35:46 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Gerd Knorr <kraxel@suse.de>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Xen merge mainline list <xen-merge@lists.xensource.com>
-X-ASG-Orig-Subj: Re: [patch] SMP alternatives for i386
-Subject: Re: [patch] SMP alternatives for i386
-In-Reply-To: <439EE742.5040909@suse.de>
-Message-ID: <Pine.LNX.4.64.0512141129090.1678@montezuma.fsmlabs.com>
-References: <439EE742.5040909@suse.de>
+	Wed, 14 Dec 2005 14:31:09 -0500
+Received: from rtsoft3.corbina.net ([85.21.88.6]:43632 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S932400AbVLNTbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 14:31:07 -0500
+Message-ID: <43A072EA.70603@ru.mvista.com>
+Date: Wed, 14 Dec 2005 22:30:50 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6297
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+To: Greg KH <greg@kroah.com>
+CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
+       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
+       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
+       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
+Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
+References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051213170629.7240d211.vwool@ru.mvista.com> <20051213195317.29cfd34a.vwool@ru.mvista.com> <200512131101.02025.david-b@pacbell.net> <20051213191531.GA13751@kroah.com> <43A0230B.1040904@ru.mvista.com> <20051214171842.GB30546@kroah.com> <43A05C32.3070501@ru.mvista.com> <20051214191642.GA31838@kroah.com>
+In-Reply-To: <20051214191642.GA31838@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urN -x 'build-*' -x '*~' -x Make -x scripts linux-2.6.15-rc5/arch/i386/kernel/smpboot.c work-2.6.15-rc5/arch/i386/kernel/smpboot.c
---- linux-2.6.15-rc5/arch/i386/kernel/smpboot.c	2005-12-06 17:00:36.000000000 +0100
-+++ work-2.6.15-rc5/arch/i386/kernel/smpboot.c	2005-12-06 17:06:48.000000000 +0100
-@@ -1351,6 +1352,9 @@
- 	fixup_irqs(map);
- 	/* It's now safe to remove this processor from the online map */
- 	cpu_clear(cpu, cpu_online_map);
-+
-+	if (1 == num_online_cpus())
-+		alternatives_smp_switch(0);
- 	return 0;
- }
+Greg KH wrote:
 
-Is that really safe there? Ideally you want to do the switch when the 
-processor going offline is no longer executing kernel code.
+>On Wed, Dec 14, 2005 at 08:53:54PM +0300, Vitaly Wool wrote:
+>  
+>
+>>Greg KH wrote:
+>>
+>>    
+>>
+>>>What is the speed of your SPI bus?
+>>>
+>>>And what are your preformance requirements?
+>>>
+>>>
+>>>      
+>>>
+>>The maximum frequency for the SPI bus is 26 MHz, WLAN driver is to work 
+>>at true 10 Mbit/sec.
+>>    
+>>
+>
+>Then you should be fine with the copying data and memset stuff, based on
+>the workload the rest of the kernel does for other busses which have
+>this same requirement of DMAable buffers.
+>
+>And I'm sure David will be glad to have you point out any places in his
+>code where it accidentally takes data off of the stack instead of
+>allocating it.
+>  
+>
+Hmm, I recall I've already posted some pieces of code with that stuff.
+
+Vitaly
 

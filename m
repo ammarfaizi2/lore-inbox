@@ -1,73 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbVLNBEx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030385AbVLNBNB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030308AbVLNBEx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 20:04:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbVLNBEx
+	id S1030385AbVLNBNB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 20:13:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbVLNBNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 20:04:53 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:665 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932624AbVLNBEw (ORCPT
+	Tue, 13 Dec 2005 20:13:01 -0500
+Received: from mx2.suse.de ([195.135.220.15]:51634 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932631AbVLNBNA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 20:04:52 -0500
-Subject: Re: tsc clock issues with dual core and question about irq
-	balancing
-From: john stultz <johnstul@us.ibm.com>
-To: Adrian Yee <brewt-linux-kernel@brewt.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <GMail.1134458797.49013860.4106109506@brewt.org>
-References: <GMail.1134458797.49013860.4106109506@brewt.org>
-Content-Type: text/plain
-Date: Tue, 13 Dec 2005 17:04:48 -0800
-Message-Id: <1134522289.3897.21.camel@leatherman>
+	Tue, 13 Dec 2005 20:13:00 -0500
+Date: Wed, 14 Dec 2005 02:12:53 +0100
+From: Andi Kleen <ak@suse.de>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+Cc: Keith Owens <kaos@sgi.com>, Andi Kleen <ak@suse.de>,
+       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
+       vatsa@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
+       linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
+Message-ID: <20051214011253.GB23384@wotan.suse.de>
+References: <20051213162027.GA14158@us.ibm.com> <17158.1134512861@ocs3.ocs.com.au> <20051213225059.GD14158@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051213225059.GD14158@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-12 at 23:26 -0800, Adrian Yee wrote:
-> I've been having tsc issues where it counts back occasionally causing
-> things like ping to break with errors: "Warning: time of day goes back
-> (-1451987us), taking countermeasures."  It seems related to
-> http://bugzilla.kernel.org/show_bug.cgi?id=5105 , but that bug seems to
-> be closed (and more x86_64 related).  I also get other timing issues
-> like single clicks registering as double clicks, and at times double
-> clicks that don't register.  In addition, if I stress the system with
-> something like prime95, then after about 2 minutes the system clock will
-> speed up where the clock advances by minutes every second.  As suggested
-> in bug 5105, I switched to use the pmtimer (clock=pmtmr, my system
-> doesn't seem to support hpet) and it has fixed the ping and clock issue,
-> but my system doesn't 'feel' right.  For example, ssh'ing out of the
-> machine is fine, but when ssh'ing into the system a dmesg is very slow
-> (spurts out a few pages then pauses for 10-20 seconds, then repeat). 
-> Also, general desktop usage seems a little sluggish and not what a smp
-> system should feel like.
+On Tue, Dec 13, 2005 at 02:50:59PM -0800, Paul E. McKenney wrote:
+> On Wed, Dec 14, 2005 at 09:27:41AM +1100, Keith Owens wrote:
+> > On Tue, 13 Dec 2005 08:20:27 -0800, 
+> > "Paul E. McKenney" <paulmck@us.ibm.com> wrote:
+> > >If the variable p references MMIO rather than normal memory, then
+> > >wmb() and rmb() are needed instead of smp_wmb() and smp_rmb().
+> > 
+> > mmiowb(), not wmb().  IA64 has a different form of memory fence for I/O
+> > space compared to normal memory.  MIPS also has a non-empty form of
+> > mmiowb().
+> 
+> New one on me!
 
-I can't speak about the irq routing issue, but I'm interested in your
-issues with the ACPI PM timer.
+Didn't it make only a difference on the Altix or something like that? 
+I suppose they added it only on the drivers for devices supported by SGI.
 
-> I'm currently running an i386 (ie. not x86_64) 2.6.15-rc5 kernel w/ SMP,
-> APIC and ACPI enabled (AMD Cool & Quiet disabled), an Athlon 64 X2 3800+
-> and EVGA nForce4 SLI (NF41) motherboard.  I previously had the processor
-> running on an Abit AV8 (K8T800 Pro chipset) board and was having similar
-> issues, so it seems to be a dual core issue.  I'd just like to add that
-> I'm currently testing the system with "nosmp noapic acpi=off clock=tsc"
-> (it was losing interrupts and wouldn't boot properly with apic/acpi on)
-> and so far everything seems to work (this includes ssh and desktop usage
-> is better).
-
-So keeping the above settings, does removing just the "clock=tsc" cause
-the sluggishness to appear?
-
-The TSC is *much* faster then the ACPI PM, however it is just not usable
-for reliable timekeeping on many SMP systems. That said, the ACPI PM
-should not cause performance issues unless you are constantly calling
-gettimeofday().
-
-Also would you open a bugzilla bug on this and attach your .config and
-dmesg?
-
-thanks
--john
-
-
+-Andi

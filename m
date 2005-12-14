@@ -1,46 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbVLNRyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVLNR5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932406AbVLNRyN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 12:54:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbVLNRyN
+	id S964786AbVLNR5F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 12:57:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbVLNR5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 12:54:13 -0500
-Received: from rtsoft3.corbina.net ([85.21.88.6]:58991 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S932406AbVLNRyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 12:54:12 -0500
-Message-ID: <43A05C32.3070501@ru.mvista.com>
-Date: Wed, 14 Dec 2005 20:53:54 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
-       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
-       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
-       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
-Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051213170629.7240d211.vwool@ru.mvista.com> <20051213195317.29cfd34a.vwool@ru.mvista.com> <200512131101.02025.david-b@pacbell.net> <20051213191531.GA13751@kroah.com> <43A0230B.1040904@ru.mvista.com> <20051214171842.GB30546@kroah.com>
-In-Reply-To: <20051214171842.GB30546@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Dec 2005 12:57:04 -0500
+Received: from mail.usfltd.com ([69.222.0.23]:8720 "EHLO usfltd.com")
+	by vger.kernel.org with ESMTP id S964773AbVLNR5C convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 12:57:02 -0500
+Subject: =?ISO-8859-1?Q?kernel-2=2E6=2E15-rc5-rt2=20-=20compilation=20error=20=91?=
+ =?ISO-8859-1?Q?RWSEM=5FACTIVE=5FBIAS=92=20undeclared?=
+Date: Wed, 14 Dec 2005 11:57:42 -0600
+Message-Id: <200512141157.AA15073854@usfltd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+From: "art" <art@usfltd.com>
+Reply-To: <art@usfltd.com>
+To: <linux-kernel@vger.kernel.org>
+CC: <mingo@elte.hu>
+X-Mailer: <IMail v8.05>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
 
->What is the speed of your SPI bus?
->
->And what are your preformance requirements?
->  
->
-The maximum frequency for the SPI bus is 26 MHz, WLAN driver is to work 
-at true 10 Mbit/sec.
+kernel-2.6.15-rc5-rt2 - compilation error ‘RWSEM_ACTIVE_BIAS’ undeclared
 
-Vitaly
+gcc version 4.0.2
+........
+  CC      lib/kref.o
+  CC      lib/prio_tree.o
+  CC      lib/radix-tree.o
+  CC      lib/rbtree.o
+  CC      lib/rwsem.o
+lib/rwsem.c: In function ‘__rwsem_do_wake’:
+lib/rwsem.c:57: warning: implicit declaration of function ‘rwsem_atomic_update’
+lib/rwsem.c:57: error: ‘RWSEM_ACTIVE_BIAS’ undeclared (first use in this function)
+lib/rwsem.c:57: error: (Each undeclared identifier is reported only once
+lib/rwsem.c:57: error: for each function it appears in.)
+lib/rwsem.c:59: error: ‘RWSEM_ACTIVE_MASK’ undeclared (first use in this function)
+lib/rwsem.c:62: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
+lib/rwsem.c:85: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
+lib/rwsem.c:99: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
+lib/rwsem.c:108: error: ‘RWSEM_WAITING_BIAS’ undeclared (first use in this function)
+lib/rwsem.c:113: warning: implicit declaration of function ‘rwsem_atomic_add’
+lib/rwsem.c:115: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
+lib/rwsem.c:126: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
+lib/rwsem.c:127: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
+lib/rwsem.c: In function ‘rwsem_down_failed_common’:
+lib/rwsem.c:153: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:153: warning: type defaults to ‘int’ in declaration of ‘type name’
+lib/rwsem.c:153: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:153: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:153: warning: type defaults to ‘int’ in declaration of ‘type name’
+lib/rwsem.c:153: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:157: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
+lib/rwsem.c:163: error: ‘RWSEM_ACTIVE_MASK’ undeclared (first use in this function)
+lib/rwsem.c:166: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:166: warning: type defaults to ‘int’ in declaration of ‘type name’
+lib/rwsem.c:166: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:166: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:166: warning: type defaults to ‘int’ in declaration of ‘type name’
+lib/rwsem.c:166: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c: In function ‘rwsem_down_read_failed’:
+lib/rwsem.c:193: error: ‘RWSEM_WAITING_BIAS’ undeclared (first use in this function)
+lib/rwsem.c:193: error: ‘RWSEM_ACTIVE_BIAS’ undeclared (first use in this function)
+lib/rwsem.c: In function ‘rwsem_down_write_failed’:
+lib/rwsem.c:210: error: ‘RWSEM_ACTIVE_BIAS’ undeclared (first use in this function)
+lib/rwsem.c: In function ‘rwsem_wake’:
+lib/rwsem.c:226: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:226: warning: type defaults to ‘int’ in declaration of ‘type name’
+lib/rwsem.c:226: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:226: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:226: warning: type defaults to ‘int’ in declaration of ‘type name’
+lib/rwsem.c:226: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:229: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
+lib/rwsem.c:232: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:232: warning: type defaults to ‘int’ in declaration of ‘type name’
+lib/rwsem.c:232: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:232: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:232: warning: type defaults to ‘int’ in declaration of ‘type name’
+lib/rwsem.c:232: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c: In function ‘rwsem_downgrade_wake’:
+lib/rwsem.c:250: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:250: warning: type defaults to ‘int’ in declaration of ‘type name’
+lib/rwsem.c:250: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:250: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:250: warning: type defaults to ‘int’ in declaration of ‘type name’
+lib/rwsem.c:250: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:253: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
+lib/rwsem.c:256: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:256: warning: type defaults to ‘int’ in declaration of ‘type name’
+lib/rwsem.c:256: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:256: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+lib/rwsem.c:256: warning: type defaults to ‘int’ in declaration of ‘type name’
+lib/rwsem.c:256: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
+make[1]: *** [lib/rwsem.o] Error 1
+make: *** [lib] Error 2
 
-P. S. I'm speaking not about this particular case during most part of 
-this conversation. Sound cards behind the SPI bus will suffer a lot more 
-since it's their path to use wXrY functions (lotsa small transfers) 
-rather than WLAN's.
+xboom
+

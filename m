@@ -1,126 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030283AbVLNDLH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030318AbVLNDQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030283AbVLNDLH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 22:11:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbVLNDLH
+	id S1030318AbVLNDQK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 22:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030329AbVLNDQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 22:11:07 -0500
-Received: from fmr20.intel.com ([134.134.136.19]:37014 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030283AbVLNDLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 22:11:05 -0500
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C6005C.03E147A9"
-Subject: [PATCH] Export cpu topology for IA32 and x86_64 by sysfs
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Date: Wed, 14 Dec 2005 11:11:00 +0800
-Message-ID: <8126E4F969BA254AB43EA03C59F44E840431BB03@pdsmsx404>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Export cpu topology for IA32 and x86_64 by sysfs
-Thread-Index: AcYAXAIadSeYnIAMR8m+XlfBq0ckUA==
-From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
-To: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-X-OriginalArrivalTime: 14 Dec 2005 03:11:03.0341 (UTC) FILETIME=[0428C5D0:01C6005C]
+	Tue, 13 Dec 2005 22:16:10 -0500
+Received: from smtp4.brturbo.com.br ([200.199.201.180]:23358 "EHLO
+	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S1030318AbVLNDQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 22:16:08 -0500
+Message-Id: <20051214031459.852060000@localhost>
+References: <20051214031344.031534000@localhost>
+Date: Wed, 14 Dec 2005 01:13:47 -0200
+From: mchehab@brturbo.com
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, video4linux-list@redhat.com,
+       linux-dvb-maintainer@linuxtv.org, js@linuxtv.org
+Subject: [patch-mm 3/6] V4L/DVB (3159): Replaces MAX()/MIN() by kernel.h
+	max()/min() macros
+Content-Disposition: inline; filename=v4l_dvb_3159_replaces_max_min_by_kernel_h_max_min_macros.patch
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-1mdk 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
-------_=_NextPart_001_01C6005C.03E147A9
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: quoted-printable
+- Replaces MAX()/MIN() by kernel.h max()/min() macros
 
-The patch exports the cpu topology info through sysfs on ia32/x86_64
-machines. The info is similar to /proc/cpuinfo.
+Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
 
-The exported items are:
-/sys/devices/system/cpu/cpuX/topology/physical_package_id(representing
-the physical package id of  cpu X)
-/sys/devices/system/cpu/cpuX/topology/core_id (representing the cpu core
-id  to cpu X)
-/sys/devices/system/cpu/cpuX/topology/thread_siblings (representing the
-thread siblings to cpu X)
-/sys/devices/system/cpu/cpuX/topology/core_siblings (represeting the
-core siblings to cpu X)
+ drivers/media/video/msp3400.c |   26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
-Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
+--- git.orig/drivers/media/video/msp3400.c
++++ git/drivers/media/video/msp3400.c
+@@ -163,8 +163,6 @@ struct msp3400c {
+ 	int                  watch_stereo:1;
+ };
+ 
+-#define MIN(a,b) (((a)>(b))?(b):(a))
+-#define MAX(a,b) (((a)>(b))?(a):(b))
+ #define HAVE_NICAM(msp)   (((msp->rev2>>8) & 0xff) != 00)
+ #define HAVE_SIMPLE(msp)  ((msp->rev1      & 0xff) >= 'D'-'@')
+ #define HAVE_SIMPLER(msp) ((msp->rev1      & 0xff) >= 'G'-'@')
+@@ -1667,9 +1665,9 @@ static int msp_get_ctrl(struct i2c_clien
+ 		return 0;
+ 	case V4L2_CID_AUDIO_BALANCE:
+ 	{
+-		int volume = MAX(msp->left, msp->right);
++		int volume = max(msp->left, msp->right);
+ 
+-		ctrl->value = (32768 * MIN(msp->left, msp->right)) /
++		ctrl->value = (32768 * min(msp->left, msp->right)) /
+ 		    (volume ? volume : 1);
+ 		ctrl->value = (msp->left < msp->right) ?
+ 		    (65535 - ctrl->value) : ctrl->value;
+@@ -1684,7 +1682,7 @@ static int msp_get_ctrl(struct i2c_clien
+ 		ctrl->value = msp->treble;
+ 		return 0;
+ 	case V4L2_CID_AUDIO_VOLUME:
+-		ctrl->value = MAX(msp->left, msp->right);
++		ctrl->value = max(msp->left, msp->right);
+ 		return 0;
+ 	default:
+ 		return -EINVAL;
+@@ -1707,7 +1705,7 @@ static int msp_set_ctrl(struct i2c_clien
+ 		return 0;
+ 	case V4L2_CID_AUDIO_BALANCE:
+ 		balance=ctrl->value;
+-		volume = MAX(msp->left, msp->right);
++		volume = max(msp->left, msp->right);
+ 		set_volume=1;
+ 		break;
+ 	case V4L2_CID_AUDIO_BASS:
+@@ -1719,9 +1717,9 @@ static int msp_set_ctrl(struct i2c_clien
+ 		msp3400c_settreble(client, msp->treble);
+ 		return 0;
+ 	case V4L2_CID_AUDIO_VOLUME:
+-		volume = MAX(msp->left, msp->right);
++		volume = max(msp->left, msp->right);
+ 
+-		balance = (32768 * MIN(msp->left, msp->right)) /
++		balance = (32768 * min(msp->left, msp->right)) /
+ 					(volume ? volume : 1);
+ 		balance = (msp->left < msp->right) ?
+ 					(65535 - balance) : balance;
+@@ -1736,8 +1734,8 @@ static int msp_set_ctrl(struct i2c_clien
+ 	}
+ 
+ 	if (set_volume) {
+-		msp->left = (MIN(65536 - balance, 32768) * volume) / 32768;
+-		msp->right = (MIN(balance, 32768) * volume) / 32768;
++		msp->left = (min(65536 - balance, 32768) * volume) / 32768;
++		msp->right = (min(balance, 32768) * volume) / 32768;
+ 
+ 		msp3400_dbg("volume=%d, balance=%d, left=%d, right=%d",
+ 			volume,balance,msp->left,msp->right);
+@@ -1858,8 +1856,8 @@ static int msp_command(struct i2c_client
+ 
+ 		if (msp->muted)
+ 			va->flags |= VIDEO_AUDIO_MUTE;
+-		va->volume = MAX(msp->left, msp->right);
+-		va->balance = (32768 * MIN(msp->left, msp->right)) /
++		va->volume = max(msp->left, msp->right);
++		va->balance = (32768 * min(msp->left, msp->right)) /
+ 		    (va->volume ? va->volume : 1);
+ 		va->balance = (msp->left < msp->right) ?
+ 		    (65535 - va->balance) : va->balance;
+@@ -1878,9 +1876,9 @@ static int msp_command(struct i2c_client
+ 
+ 		msp3400_dbg("VIDIOCSAUDIO\n");
+ 		msp->muted = (va->flags & VIDEO_AUDIO_MUTE);
+-		msp->left = (MIN(65536 - va->balance, 32768) *
++		msp->left = (min(65536 - va->balance, 32768) *
+ 			     va->volume) / 32768;
+-		msp->right = (MIN(va->balance, 32768) * va->volume) / 32768;
++		msp->right = (min((int)va->balance, 32768) * va->volume) / 32768;
+ 		msp->bass = va->bass;
+ 		msp->treble = va->treble;
+ 		msp3400_dbg("VIDIOCSAUDIO setting va->volume to %d\n",
 
+--
 
-------_=_NextPart_001_01C6005C.03E147A9
-Content-Type: application/octet-stream;
-	name="cpu_topology_2.6.14_mm1_ia32_x86_64.v6.patch"
-Content-Transfer-Encoding: base64
-Content-Description: cpu_topology_2.6.14_mm1_ia32_x86_64.v6.patch
-Content-Disposition: attachment;
-	filename="cpu_topology_2.6.14_mm1_ia32_x86_64.v6.patch"
-
-LS0tIGxpbnV4LTIuNi4xNF9tbTEvYXJjaC9pMzg2L21hY2gtZGVmYXVsdC90b3BvbG9neS5jCTIw
-MDUtMTEtMDkgMDI6NTU6MjEuMDAwMDAwMDAwICswODAwCisrKyBsaW51eC0yLjYuMTRfbW0xX2Zp
-eC9hcmNoL2kzODYvbWFjaC1kZWZhdWx0L3RvcG9sb2d5LmMJMjAwNS0xMS0wOSAwMzoxNTozMy4w
-MDAwMDAwMDAgKzA4MDAKQEAgLTk1LDMgKzk1LDE0MSBAQCBzdGF0aWMgaW50IF9faW5pdCB0b3Bv
-bG9neV9pbml0KHZvaWQpCiAjZW5kaWYgLyogQ09ORklHX05VTUEgKi8KIAogc3Vic3lzX2luaXRj
-YWxsKHRvcG9sb2d5X2luaXQpOworCisKKyNpZiBkZWZpbmVkKENPTkZJR19TWVNGUykgJiYgZGVm
-aW5lZChDT05GSUdfU01QKQorCisvKgorICogRXhwb3J0IGNwdSB0b3BvbG9neSB0aHJvdWdoIHN5
-c2ZzCisgKi8KKworLyogcG9pbnRlciB0byBrb2JqZWN0IGZvciBjcHVYL3RvcG9sb2d5ICovCitz
-dGF0aWMgc3RydWN0IGtvYmplY3QgKiBjcHVfdG9wb2xvZ3lfa29iamVjdDsKKworI2RlZmluZSBk
-ZWZpbmVfb25lX3JvKF9uYW1lKSBcCitzdGF0aWMgc3RydWN0IGF0dHJpYnV0ZSBfbmFtZSA9IFwK
-Kwl7Lm5hbWUgPSBfX3N0cmluZ2lmeShfbmFtZSksIC5tb2RlID0gMDQ0NCwgLm93bmVyID0gVEhJ
-U19NT0RVTEV9CisKK2RlZmluZV9vbmVfcm8ocGh5c2ljYWxfcGFja2FnZV9pZCk7CitkZWZpbmVf
-b25lX3JvKGNvcmVfaWQpOworZGVmaW5lX29uZV9ybyh0aHJlYWRfc2libGluZ3MpOworZGVmaW5l
-X29uZV9ybyhjb3JlX3NpYmxpbmdzKTsKKworc3RhdGljIHN0cnVjdCBhdHRyaWJ1dGUgKiBkZWZh
-dWx0X2F0dHJzW10gPSB7CisJJnBoeXNpY2FsX3BhY2thZ2VfaWQsCisJJmNvcmVfaWQsCisJJnRo
-cmVhZF9zaWJsaW5ncywKKwkmY29yZV9zaWJsaW5ncywKKwlOVUxMCit9OworCitzdGF0aWMgc3Np
-emVfdCBzaG93KHN0cnVjdCBrb2JqZWN0ICoga29iaiwgc3RydWN0IGF0dHJpYnV0ZSAqIGF0dHIs
-IGNoYXIgKiBidWYpCit7CisJdW5zaWduZWQgaW50IGNwdTsKKwlzc2l6ZV90IGxlbiA9IC0xOwor
-CisJY3B1ID0gY29udGFpbmVyX29mKGtvYmotPnBhcmVudCwgc3RydWN0IHN5c19kZXZpY2UsIGtv
-YmopLT5pZDsKKworCWlmIChhdHRyID09ICZwaHlzaWNhbF9wYWNrYWdlX2lkKQorCQlyZXR1cm4g
-c3ByaW50ZihidWYsICIlZFxuIiwgcGh5c19wcm9jX2lkW2NwdV0pOworCWlmIChhdHRyID09ICZj
-b3JlX2lkKQorCQlyZXR1cm4gc3ByaW50ZihidWYsICIlZFxuIiwgY3B1X2NvcmVfaWRbY3B1XSk7
-CisJaWYgKGF0dHIgPT0gJnRocmVhZF9zaWJsaW5ncykgeworCQlsZW4gPSBjcHVtYXNrX3NjbnBy
-aW50ZihidWYsIE5SX0NQVVMrMSwgY3B1X3NpYmxpbmdfbWFwW2NwdV0pOworCQlsZW4gKz0gc3By
-aW50ZiAoYnVmICsgbGVuLCAiXG4iKTsKKwkJcmV0dXJuIGxlbjsKKwl9CisJaWYgKGF0dHIgPT0g
-JmNvcmVfc2libGluZ3MpIHsKKwkJbGVuID0gY3B1bWFza19zY25wcmludGYoYnVmLCBOUl9DUFVT
-KzEsIGNwdV9jb3JlX21hcFtjcHVdKTsKKwkJbGVuICs9IHNwcmludGYgKGJ1ZiArIGxlbiwgIlxu
-Iik7CisJCXJldHVybiBsZW47CisJfQorCisJcmV0dXJuIGxlbjsKK30KKworc3RhdGljIHNzaXpl
-X3Qgc3RvcmUoc3RydWN0IGtvYmplY3QgKiBrb2JqLCBzdHJ1Y3QgYXR0cmlidXRlICogYXR0ciwK
-KwkJICAgICBjb25zdCBjaGFyICogYnVmLCBzaXplX3QgY291bnQpCit7CisJcmV0dXJuIDA7Cit9
-CisKK3N0YXRpYyBzdHJ1Y3Qgc3lzZnNfb3BzIHN5c2ZzX29wcyA9IHsKKwkuc2hvdyAgID0gc2hv
-dywKKwkuc3RvcmUgID0gc3RvcmUsCit9OworCitzdGF0aWMgc3RydWN0IGtvYmpfdHlwZSBrdHlw
-ZV9jcHVfdG9wb2xvZ3kgPSB7CisJLnN5c2ZzX29wcwk9ICZzeXNmc19vcHMsCisJLmRlZmF1bHRf
-YXR0cnMJPSBkZWZhdWx0X2F0dHJzLAorfTsKKworLyogQWRkL1JlbW92ZSBjcHVfdG9wb2xvZ3kg
-aW50ZXJmYWNlIGZvciBDUFUgZGV2aWNlICovCitzdGF0aWMgaW50IF9fY3B1aW5pdCB0b3BvbG9n
-eV9hZGRfZGV2KHN0cnVjdCBzeXNfZGV2aWNlICogc3lzX2RldikKK3sKKwl1bnNpZ25lZCBpbnQg
-Y3B1ID0gc3lzX2Rldi0+aWQ7CisJaW50IHJldHZhbCA9IDA7CisKKwltZW1zZXQoJmNwdV90b3Bv
-bG9neV9rb2JqZWN0W2NwdV0sIDAsIHNpemVvZihzdHJ1Y3Qga29iamVjdCkpOworCisJY3B1X3Rv
-cG9sb2d5X2tvYmplY3RbY3B1XS5wYXJlbnQgPSAmc3lzX2Rldi0+a29iajsKKwlrb2JqZWN0X3Nl
-dF9uYW1lKCZjcHVfdG9wb2xvZ3lfa29iamVjdFtjcHVdLCAiJXMiLCAidG9wb2xvZ3kiKTsKKwlj
-cHVfdG9wb2xvZ3lfa29iamVjdFtjcHVdLmt0eXBlID0gJmt0eXBlX2NwdV90b3BvbG9neTsKKwly
-ZXR2YWwgPSBrb2JqZWN0X3JlZ2lzdGVyKCZjcHVfdG9wb2xvZ3lfa29iamVjdFtjcHVdKTsKKwor
-CXJldHVybiByZXR2YWw7Cit9CisKK3N0YXRpYyBpbnQgX19jcHVleGl0IHRvcG9sb2d5X3JlbW92
-ZV9kZXYoc3RydWN0IHN5c19kZXZpY2UgKiBzeXNfZGV2KQoreworCXVuc2lnbmVkIGludCBjcHUg
-PSBzeXNfZGV2LT5pZDsKKwlrb2JqZWN0X3VucmVnaXN0ZXIoJmNwdV90b3BvbG9neV9rb2JqZWN0
-W2NwdV0pOworCXJldHVybiAwOworfQorCitzdGF0aWMgaW50IF9fY3B1aW5pdCB0b3BvbG9neV9j
-cHVfY2FsbGJhY2soc3RydWN0IG5vdGlmaWVyX2Jsb2NrICpuZmIsCisJCXVuc2lnbmVkIGxvbmcg
-YWN0aW9uLCB2b2lkICpoY3B1KQoreworCXVuc2lnbmVkIGludCBjcHUgPSAodW5zaWduZWQgbG9u
-ZyloY3B1OworCXN0cnVjdCBzeXNfZGV2aWNlICpzeXNfZGV2OworCisJc3lzX2RldiA9IGdldF9j
-cHVfc3lzZGV2KGNwdSk7CisJc3dpdGNoIChhY3Rpb24pIHsKKwkJY2FzZSBDUFVfT05MSU5FOgor
-CQkJdG9wb2xvZ3lfYWRkX2RldihzeXNfZGV2KTsKKwkJCWJyZWFrOworCQljYXNlIENQVV9ERUFE
-OgorCQkJdG9wb2xvZ3lfcmVtb3ZlX2RldihzeXNfZGV2KTsKKwkJCWJyZWFrOworCX0KKwlyZXR1
-cm4gTk9USUZZX09LOworfQorCitzdGF0aWMgc3RydWN0IG5vdGlmaWVyX2Jsb2NrIHRvcG9sb2d5
-X2NwdV9ub3RpZmllciA9Cit7CisJLm5vdGlmaWVyX2NhbGwgPSB0b3BvbG9neV9jcHVfY2FsbGJh
-Y2ssCit9OworCitzdGF0aWMgaW50IF9fY3B1aW5pdCB0b3BvbG9neV9zeXNmc19pbml0KHZvaWQp
-Cit7CisJaW50IGk7CisKKwljcHVfdG9wb2xvZ3lfa29iamVjdCA9IGttYWxsb2Moc2l6ZW9mKHN0
-cnVjdCBrb2JqZWN0KSAqIE5SX0NQVVMsCisJCQlHRlBfS0VSTkVMKTsKKwlpZiAoIWNwdV90b3Bv
-bG9neV9rb2JqZWN0KQorCQlyZXR1cm4gLUVOT01FTTsKKworCWZvcl9lYWNoX29ubGluZV9jcHUo
-aSkgeworCQl0b3BvbG9neV9jcHVfY2FsbGJhY2soJnRvcG9sb2d5X2NwdV9ub3RpZmllciwgQ1BV
-X09OTElORSwKKwkJCQkodm9pZCAqKShsb25nKWkpOworCX0KKworCXJlZ2lzdGVyX2NwdV9ub3Rp
-ZmllcigmdG9wb2xvZ3lfY3B1X25vdGlmaWVyKTsKKworCXJldHVybiAwOworfQorCitkZXZpY2Vf
-aW5pdGNhbGwodG9wb2xvZ3lfc3lzZnNfaW5pdCk7CisKKyNlbmRpZgkvL2RlZmluZWQoQ09ORklH
-X1NZU0ZTKSAmJiBkZWZpbmVkKENPTkZJR19TTVApCisK
-
-------_=_NextPart_001_01C6005C.03E147A9--

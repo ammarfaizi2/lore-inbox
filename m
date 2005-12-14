@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030352AbVLNBeH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030359AbVLNBlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030352AbVLNBeH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 20:34:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbVLNBeH
+	id S1030359AbVLNBlt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 20:41:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbVLNBls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 20:34:07 -0500
-Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:9079 "HELO
-	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1030352AbVLNBeF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 20:34:05 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.15-rc5-mm1
-Date: Tue, 13 Dec 2005 20:33:51 -0500
-User-Agent: KMail/1.9.1
-Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
-References: <20051204232153.258cd554.akpm@osdl.org> <20051214011738.6c05dc1f@werewolf.auna.net> <20051213162259.5826939a.akpm@osdl.org>
-In-Reply-To: <20051213162259.5826939a.akpm@osdl.org>
+	Tue, 13 Dec 2005 20:41:48 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:63924 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030236AbVLNBls (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 20:41:48 -0500
+To: "David S. Miller" <davem@davemloft.net>
+Cc: hch@lst.de, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 3/3] sanitize building of fs/compat_ioctl.c
+References: <20051213172325.GC16392@lst.de>
+	<20051213173434.GP9286@parisc-linux.org>
+	<20051213.145109.20744871.davem@davemloft.net>
+From: Andi Kleen <ak@suse.de>
+Date: 14 Dec 2005 02:41:42 +0100
+In-Reply-To: <20051213.145109.20744871.davem@davemloft.net>
+Message-ID: <p73r78g8nft.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512132033.52129.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 December 2005 19:22, Andrew Morton wrote:
-> "J.A. Magallon" <jamagallon@able.es> wrote:
-> >
-> > On Tue, 13 Dec 2005 15:24:50 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> > 
-> > > "J.A. Magallon" <jamagallon@able.es> wrote:
-> > > >
-> > > > On Sun, 4 Dec 2005 23:21:53 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> > > > 
-> > > > > 
-> > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm1/
-> > > > > 
-> > > > 
-> > > > mmm, this patch GPL'ed all pci_xxxxxx functions, so it broke what you
-> > > > all know.
-> > > 
-> > > That'll be gregkh-pci-shot-accross-the-bow.patch.
-> > > 
-> > > > Final attack against binary drivers ? Or just an API change ?
-> > > 
-> > > A joke, I believe.
-> > 
-> > :))
-> > Thanks.
-> > 
-> > BTW, is there any easy way to get a reverse patch, apart from patch -R
-> > and rediff ?
+"David S. Miller" <davem@davemloft.net> writes:
+
+> From: Matthew Wilcox <matthew@wil.cx>
+> Date: Tue, 13 Dec 2005 10:34:34 -0700
 > 
-> That's the easiest (only?) way...
->
+> > The 64-bit code doesn't compile because Andi keeps blocking the
+> > is_compat_task() stuff.
+> 
+> The one place where I ever thought that was necessary, the
+> USB async userspace I/O operation stuff, was solved much more
+> cleanly with ->compat_ioctl() file_operations handlers.
+> 
+> What do you really still need it for at this point?
 
-interdiff original.patch /dev/null > reversed.patch
+input needs it :/ Take a look at drivers/input/evdev.c:evdev_write_compat
+Someone should roast in hell for that code.
 
--- 
-Dmitry
+> I also would like to avoid it if possible.
+
+I have given in for now. Assuming the test is done on a flag that is only set
+by the system call entry path. But I still think it will result in
+a lot of ugly code. For for read/write it's hard to avoid because
+there are so many variants and we have too many message passing
+protocols now.
+
+That said I have been too lazy so far to actually implement it:/
+
+-Andi

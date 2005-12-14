@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbVLNCzQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbVLNDCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932175AbVLNCzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 21:55:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbVLNCzQ
+	id S1030202AbVLNDCc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 22:02:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbVLNDCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 21:55:16 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.25]:41881 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932175AbVLNCzO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 21:55:14 -0500
-Date: Tue, 13 Dec 2005 18:55:03 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] atomic_long_t & include/asm-generic/atomic.h V2
-In-Reply-To: <20051213154916.6667b6d8.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0512131849550.24909@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.62.0512131417390.24002@schroedinger.engr.sgi.com>
- <20051213154916.6667b6d8.akpm@osdl.org>
+	Tue, 13 Dec 2005 22:02:32 -0500
+Received: from nproxy.gmail.com ([64.233.182.197]:46525 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030202AbVLNDCb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 22:02:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nKIpXEcdn3dxAKUDKWSHbZAXqunN02GlrS2xvqvExX6veAOh5wjXuo8mUqSxGkytRO9qHshUzi2MwUe7QARs+W/SzmeSfXzygl9jkT1MxJbhPV1/IHfC0i6Z8e8Pd0yzqMaC/f0f+ZRKZ7Pjc0XB4y3pnRd0GeTXpiyst6UqnHw=
+Message-ID: <2cd57c900512131902i2ff9ba1ak@mail.gmail.com>
+Date: Wed, 14 Dec 2005 11:02:29 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: bugs?
+Cc: Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200512132114.23496.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <439F79CE.6040609@ens.etsmtl.ca>
+	 <200512132114.23496.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Dec 2005, Andrew Morton wrote:
+2005/12/14, Dmitry Torokhov <dtor_core@ameritech.net>:
+> On Tuesday 13 December 2005 20:47, Caroline GAUDREAU wrote:
+> > my cpu is 1400MHz, but why there's cpu MHz         : 598.593
+> >
+>
+> Do you have cpufreq active?
 
-> I dunno, this still looks kludgy.  It looks like we couldn't be assed
-> implementing atomic_long_t in each architecture ;)
+Caro, do a "$ grep -i cpufreq /boot/config".
 
-What do you mean by "assed"?
+>
+> [root@core ~]# cat /proc/cpuinfo
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 6
+> model           : 11
+> model name      : Intel(R) Pentium(R) III Mobile CPU      1000MHz
+> stepping        : 1
+> cpu MHz         : 730.646
+>
+> --
+> Dmitry
+>
 
-> How about requiring that all 64-bit archs implement atomic64_t and do:
 
-It may be reasonable to have 64 bit arches that are not 
-capable of 64 bit atomic ops. As far as I can remember sparc was initially
-a 32 bit platform without 32 bit atomic ops.
-
-> static inline void atomic_long_set(atomic_long_t *vl, long i)
-> {
-> 	/*
-> 	 * Do the cast separately to avoid possible cast-as-lval errors
-> 	 */
-> 	atomic64_t *v = (atomic64_t *)vl;
-> 	atomic64_set(v, i);
-> }
-
-The lval casts only become necessary if you truly define a separate 
-type. Are the #define statements that bad?
+--
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

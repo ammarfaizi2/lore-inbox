@@ -1,61 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932307AbVLNKaC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbVLNKdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932307AbVLNKaC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 05:30:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbVLNKaB
+	id S932295AbVLNKdk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 05:33:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbVLNKdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 05:30:01 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:20163 "EHLO
+	Wed, 14 Dec 2005 05:33:40 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:40134 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932301AbVLNKaA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 05:30:00 -0500
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-From: Arjan van de Ven <arjan@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Howells <dhowells@redhat.com>,
-       Christopher Friesen <cfriesen@nortel.com>, torvalds@osdl.org,
-       akpm@osdl.org, hch@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-In-Reply-To: <1134490205.11732.97.camel@localhost.localdomain>
-References: <439EDC3D.5040808@nortel.com>
-	 <1134479118.11732.14.camel@localhost.localdomain>
-	 <dhowells1134431145@warthog.cambridge.redhat.com>
-	 <3874.1134480759@warthog.cambridge.redhat.com>
-	 <15167.1134488373@warthog.cambridge.redhat.com>
-	 <1134490205.11732.97.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Wed, 14 Dec 2005 11:29:41 +0100
-Message-Id: <1134556187.2894.7.camel@laptopd505.fenrus.org>
+	id S932295AbVLNKdj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 05:33:39 -0500
+Subject: Re: No sound from CX23880 tuner w. 2.6.15-rc5
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: "P. Christeas" <p_christ@hol.gr>
+Cc: kraxel@bytesex.org, lkml <linux-kernel@vger.kernel.org>,
+       Linux and Kernel Video <video4linux-list@redhat.com>
+In-Reply-To: <200512122217.56616.p_christ@hol.gr>
+References: <200512122217.56616.p_christ@hol.gr>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Wed, 14 Dec 2005 08:33:27 -0200
+Message-Id: <1134556407.23489.17.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
+X-Mailer: Evolution 2.4.2.1-1mdk 
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: 1.8 (+)
 X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
+	Content analysis details:   (1.8 points, 5.0 required)
 	pts rule name              description
 	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[200.163.0.147 listed in dnsbl.sorbs.net]
+	1.7 RCVD_IN_NJABL_DUL      RBL: NJABL: dialup sender did non-local SMTP
+	[200.163.0.147 listed in combined.njabl.org]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-13 at 16:10 +0000, Alan Cox wrote:
-> On Maw, 2005-12-13 at 15:39 +0000, David Howells wrote:
-> >  (3) Some people want mutexes to be:
-> > 
-> >      (a) only releasable in the same context as they were taken
-> > 
-> >      (b) not accessible in interrupt context, or that (a) applies here also
-> > 
-> >      (c) not initialisable to the locked state
-> > 
-> >      But this means that the current usages all have to be carefully audited,
-> >      and sometimes that unobvious.
-> 
-> Only if you insist on replacing them immediately. If you submit a
-> *small* patch which just adds the new mutexes then a series of small
-> patches can gradually convert code where mutexes are better. 
+Chisteas,
 
-this unfortunately is not very realistic in practice... 
+	Please address this to me c/c to V4L mailing list, since I'm the
+current maintainer of V4L.
+
+Em Seg, 2005-12-12 às 22:17 +0200, P. Christeas escreveu:
+> I upgraded from 2.6.13.2 to 2.6.15-rc5 last week. Unfortunately I can no 
+> longer hear the sound from my tuner (analog tv).
+> lspci -vv -s 02:05.0
+> 02:05.0 Multimedia video controller: Conexant CX23880/1/2/3 PCI Video and 
+> Audio Decoder (rev 05)
+>         Subsystem: LeadTek Research Inc.: Unknown device 663b
+>         Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+> Stepping- SERR- FastB2B-
+>         Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+> <TAbort- <MAbort- >SERR- <PERR-
+> 
+> Is that bug acknowledged? 
+	It maybe related to bad boards descriptions, without including tda9887
+inside.
+> Any early hints before I start a regression test?
+> Radio (w. gnomeradio) works OK on the card. I can also hear 'peaks' whenever I 
+> change the tv channel.
+	Please try to modprobe tda8887. Also send us a dmesg with debug options
+turned on. What's your video and audio standard?
+	
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+Cheers, 
+Mauro.
 

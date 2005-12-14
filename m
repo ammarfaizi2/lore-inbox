@@ -1,66 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965073AbVLNXZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965084AbVLNX0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965073AbVLNXZj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 18:25:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965076AbVLNXZj
+	id S965084AbVLNX0X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 18:26:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbVLNX0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 18:25:39 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:53665 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965073AbVLNXZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 18:25:38 -0500
-Date: Wed, 14 Dec 2005 15:25:26 -0800 (PST)
-From: hawkes@sgi.com
-To: Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jack Steiner <steiner@sgi.com>, Keith Owens <kaos@sgi.com>, hawkes@sgi.com,
-       Dimitri Sivanich <sivanich@sgi.com>
-Message-Id: <20051214232526.9039.15753.sendpatchset@tomahawk.engr.sgi.com>
-Subject: [PATCH] ia64: disable preemption in udelay()
+	Wed, 14 Dec 2005 18:26:23 -0500
+Received: from xenotime.net ([66.160.160.81]:27802 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S965084AbVLNX0W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 18:26:22 -0500
+Date: Wed, 14 Dec 2005 15:26:16 -0800 (PST)
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+X-X-Sender: rddunlap@shark.he.net
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][expample patch] Make the kernel -Wshadow clean ?
+In-Reply-To: <20051214232226.GD31955@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0512141525500.29143@shark.he.net>
+References: <200512150019.57124.jesper.juhl@gmail.com>
+ <20051214232226.GD31955@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sending this to a wider audience:
+On Wed, 14 Dec 2005, Russell King wrote:
 
-The udelay() inline for ia64 uses the ITC.  If CONFIG_PREEMPT is enabled
-and the platform has unsynchronized ITCs and the calling task migrates
-to another CPU while doing the udelay loop, then the effective delay may
-be too short or very, very long.
+> On Thu, Dec 15, 2005 at 12:19:57AM +0100, Jesper Juhl wrote:
+> > -			void (*dtor)(struct page *page);
+> > +			void (*dtor)(struct page *pge);
+>
+> Note that this one just needs to be:
+> 			void (*dtor)(struct page *);
 
-The most simple fix is to disable preemption around the udelay looping.
-The downside is that this inhibits realtime preemption for cases of long
-udelays.  One datapoint:  an SGI realtime engineer reports that if
-CONFIG_PREEMPT is turned off, that no significant holdoffs are
-are attributed to udelay().
+I would rather see <shadowed> names there.
 
-I am reluctant to propose a much more complicated patch (that disables
-preemption only for "short" delays, and uses the global RTC as the time
-base for longer, preemptible delays) unless this patch introduces
-significant and unacceptable preemption delays.
-
-Signed-off-by: John Hawkes <hawkes@sgi.com>
-
-Index: linux/include/asm-ia64/delay.h
-===================================================================
---- linux.orig/include/asm-ia64/delay.h	2005-10-27 17:02:08.000000000 -0700
-+++ linux/include/asm-ia64/delay.h	2005-12-14 10:30:55.000000000 -0800
-@@ -87,11 +87,17 @@
- static __inline__ void
- udelay (unsigned long usecs)
- {
--	unsigned long start = ia64_get_itc();
--	unsigned long cycles = usecs*local_cpu_data->cyc_per_usec;
-+	unsigned long start;
-+	unsigned long cycles;
-+
-+	preempt_disable();
-+	cycles = usecs*local_cpu_data->cyc_per_usec;
-+	start = ia64_get_itc();
- 
- 	while (ia64_get_itc() - start < cycles)
- 		cpu_relax();
-+
-+	preempt_enable();
- }
- 
- #endif /* _ASM_IA64_DELAY_H */
+-- 
+~Randy

@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVLNGUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750902AbVLNGiD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbVLNGUz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 01:20:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVLNGUz
+	id S1750902AbVLNGiD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 01:38:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbVLNGiD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 01:20:55 -0500
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:52353 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S1750720AbVLNGUy (ORCPT
+	Wed, 14 Dec 2005 01:38:03 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:43159 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750902AbVLNGiC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 01:20:54 -0500
-Date: Wed, 14 Dec 2005 02:23:29 -0500
-From: Adam Belay <ambx1@neo.rr.com>
-To: Anil kumar <anils_r@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: driver_attach question
-Message-ID: <20051214072329.GA4639@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Anil kumar <anils_r@yahoo.com>, linux-kernel@vger.kernel.org
-References: <20051214020754.66330.qmail@web32409.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051214020754.66330.qmail@web32409.mail.mud.yahoo.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 14 Dec 2005 01:38:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ZZlbu7bEl34k6oRjBZCp3LNCdofrQmTAXmzW4jAnBhVpDgeF3StXZti7jvVkuTvIT74SfR1gHC4sllvw+jSvfEIT2rhNmeOYT4eq3ceYNNGb5C284NaKxdDeR3CBSodA5dgxK57gjn7HuyLtX/pG8FbAs8dGvvZE1z9HVobGO8w=
+Message-ID: <439FBDC5.5060609@gmail.com>
+Date: Wed, 14 Dec 2005 14:37:57 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051025)
+MIME-Version: 1.0
+To: Kurt Wall <kwallinator@gmail.com>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Console Goes Blank When Booting 2.6.15-rc5
+References: <200512132247.54341.kwallinator@gmail.com>
+In-Reply-To: <200512132247.54341.kwallinator@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 06:07:54PM -0800, Anil kumar wrote:
-> Hi,
+Kurt Wall wrote:
+> As Jesper Juhl has reported, if I boot 2.6.15-rc5 with vga=normal,
+> everything is fine. If I boot using my preferred size (vga=794),
+> the console goes blank. Because I'm a touch typist, I can login and
+> start X and everything is copacetic, but as soon as I leave X, I'm
+> back to the blank screen. From X, if I flip over to a VC, the VC
+> display is garbled and has artifacts from the X display.
 > 
-> Should driver_attach( ) return an error value?
-> 
-> I have disabled a device in the system bios, The
-> driver fails to report -ENODEV.
-> This is for 2.6.11.1 kernel
-> When I dig through the PCI subsystem and driver_attach
-> code, I find that :
-> 
-> pci_register_driver is returing zero(no error) even
-> when the device is not present in the system. 
-> But when I check driver_attach( ), I get -ENODEV for
-> driver_probe_device(). which is correct. But
-> driver_attach( ) does not return this error value. 
-> driver attach( ) is called in bus_add_driver( ) and
-> bus_add_driver just returns error=0
-> Hence I get error=0 in pci_register_driver.
-> 
-> Am I missing something in the flow?
+> This worked fine with 2.6.14.3, and I didn't change the console, 
+> framebuffer, or vesa options between the two kernels. Not sure how 
+> to proceed, but I sure would like my high res console screens back.
 
-The basic strategy is to leave the driver loaded so that
-later, if the a device is hotplugged or the user adds a
-dynamic id to an existing device, it will be available.
-In other words, even if the registration of a driver does
-not result in device detection, the operation can still
-considered successful.
+Can you recheck your .config and make sure that
+CONFIG_FRAMEBUFFER_CONSOLE=y
 
-Does this answer your question?
+If that does not work, please post your dmesg and .config file.
 
-Thanks,
-Adam
+Tony
+

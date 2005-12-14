@@ -1,139 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbVLNSlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbVLNSlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbVLNSlD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 13:41:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbVLNSlD
+	id S964880AbVLNSlw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 13:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbVLNSlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 13:41:03 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:653 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S964867AbVLNSlB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 13:41:01 -0500
-Message-ID: <43A06771.6060808@t-online.de>
-Date: Wed, 14 Dec 2005 19:41:53 +0100
-From: Knut Petersen <Knut_Petersen@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.7) Gecko/20050414
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH 1/1: 2.6.15-rc5-git3] Fixed and
- updated CyblaFB
-References: <439EF4CB.8030007@t-online.de> <43A03568.6010602@gmail.com>
-In-Reply-To: <43A03568.6010602@gmail.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ID: b0WLrGZDZeUt2gWpge1V2dZsLBuYQQ9qGI9Z1AfY423lF5OGGbbdUP@t-dialin.net
-X-TOI-MSGID: 7ae12186-9f71-45b3-8242-411239c2d40a
+	Wed, 14 Dec 2005 13:41:51 -0500
+Received: from mx1.suse.de ([195.135.220.2]:53193 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964874AbVLNSlu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 13:41:50 -0500
+Date: Wed, 14 Dec 2005 19:41:47 +0100
+From: Andi Kleen <ak@suse.de>
+To: Sridhar Samudrala <sri@us.ibm.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
+Message-ID: <20051214184147.GO23384@wotan.suse.de>
+References: <Pine.LNX.4.58.0512140042280.31720@w-sridhar.beaverton.ibm.com> <20051214092228.GC18862@brahms.suse.de> <1134582945.8698.17.camel@w-sridhar2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1134582945.8698.17.camel@w-sridhar2.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antonino Daplas wrote:
+> Here we are assuming that the pre-allocated critical page pool is big enough
+> to satisfy the requirements of all the critical sockets.
 
->But current users of cyblafb will be affected if your patch
->does have a problem.
->
->  
->
-They definitely will be affected when they lock their system
-while trying rotation options ...
+That seems like a lot of assumptions. Is it really better than the 
+existing GFP_ATOMIC which works basically the same?  It has a lot
+more users that compete true, but likely the set of GFP_CRITICAL users
+would grow over time too and it would develop the same problem.
 
->>+    // That should never happen, but it would be fatal
->>    
->>
->
->It won't :-)
->
->  
->
-The graphics engine would not react kindly, and it does not really hurt.
+I think if you really want to attack this problem and improve
+over the GFP_ATOMIC "best effort in smaller pool" approach you should
+probably add real reservations. And then really do a lot of testing
+to see if it actually helps.
 
->>+    if (image->width == 0 || image->height == 0) {
->>+        output("imageblit: width/height 0 detected\n");
->>+        return;
->>+    }
->>+
->>+    if (bpp < 8 || bpp > 32 || bpp % 8 != 0 ||
->>+                   info->pixmap.scan_align > 4 ) {
->>    
->>
->Why this paranoid check?  The check_var() function already
->guaranteed that these conditions will not happen.
->
->  
->
-Yes, I am a bit paranoid. That paranoia led to the discovery of some bugs
-nobody knew or cared about. But you are right, this check might be a bit too
-paranoid.
-
->Do you really have to support scan_align 1 and 2?  Why not just stick
->with scan_align of 4, the code is so much easier to understand? I can't
->find anything useful with this, even for debugging.
->
->  
->
-Well, you are shure that there is really not a single bug left in the 
-bitmap construction
-code? And that the code will never be touched again because it already 
-is optimal? I
-think support for all alignment possibilities will be handy in the near 
-future, and
-although it could be hidden by an #ifdef or stay a private patch, I 
-prefer to include it.
-
-Currently bitmap construction takes longer than blitting the image to 
-the screen with
-cyblafb, and I think I will have a very close look at that code soon.
-
-BTW, something fundamental: Isn´t the pixelmap alignment really a 
-property of the
-image bitmap like the depth of the image data?
-
->>+    // try to be smart about (x|y)res(_virtual) problems.
->>+    //
->>+    if (var->xres % 8 != 0)
->>        return -EINVAL;
->>    
->>
->
->Isn't this too much?  Why not var->xres = (var->xres + 7) & ~7?
->
->  
->
-Do you really think that this is a good idea? I would like to ease the 
-use of
-e.g. fbset in scripts by returning -EINVAL when something as fundamental as
-the selected xres is not acceptable. Ok, it´s always possible to parse 
-the output
-of fbset -s  in those cases.
-
->>+    if (var->xres_virtual % 8 != 0)
->>+        var->xres_virtual &= ~7;
->>    
->>
->
->Or just var->xres_virtual &= ~7 without the if (...)
->  
->
-Yes. That saves a few bytes.
-
->Wrong boolean check?  Should be if (vesafb & 4). Or might as
->well get rid of this check, it's redundant.
->
->Shouldn't this be if (vesafb & 4)?
->  
->
->and this...
->
->  
->
->and this...?
->  
->
-No, no, no, no.
-
-cu,
- Knut
+-Andi

@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030418AbVLNCOB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbVLNCRG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030418AbVLNCOB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 21:14:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030420AbVLNCOB
+	id S1030420AbVLNCRG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 21:17:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030423AbVLNCRG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 21:14:01 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:62757 "EHLO
-	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1030418AbVLNCOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 21:14:00 -0500
-Date: Tue, 13 Dec 2005 20:13:17 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Strange delay on PCI-DMA-transfer completion by
- wait_event_interruptible()
-In-reply-to: <5jnfV-2xy-577@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <439F7FBD.60300@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <5jeNG-740-1@gated-at.bofh.it> <5jnfV-2xy-577@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Tue, 13 Dec 2005 21:17:06 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:32649 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030420AbVLNCRF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 21:17:05 -0500
+Date: Tue, 13 Dec 2005 21:16:44 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: tony.luck@intel.com, holt@sgi.com
+Subject: Re: [IA64] Change SET_PERSONALITY to comply with comment in binfmt_elf.c.
+Message-ID: <20051214021644.GA19695@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	tony.luck@intel.com, holt@sgi.com
+References: <200512130159.jBD1xm1p022559@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200512130159.jBD1xm1p022559@hera.kernel.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> Every time somebody wants to rewrite a macro, they declare that the
-> previous one had some race condition. If, in fact, you have only
-> one DMA occurring from your device then no race is possible with
-> interruptible_sleep_on(). wait_event_interruptible() is the same thing
-> but with an additional access to some memory variable, possibly
-> causing a cache refill which means it might take more time.
+On Mon, Dec 12, 2005 at 05:59:48PM -0800, Linux Kernel wrote:
+ > tree 64fc1ba7d4734ea5ecec8942795b32a32e4623a4
+ > parent acb7f67280128a9ddaa756ff10212391d28caec4
+ > author Robin Holt <holt@sgi.com> Tue, 06 Dec 2005 08:02:31 -0600
+ > committer Tony Luck <tony.luck@intel.com> Wed, 07 Dec 2005 01:12:34 -0800
+ > 
+ > [IA64] Change SET_PERSONALITY to comply with comment in binfmt_elf.c.
 
-This is not correct. Using interruptible_sleep_on, there is no way to 
-prevent the race where the condition being waited on happens between the 
-test to see if it has become true and calling interruptible_sleep_on. 
-wait_event_interruptible puts the caller into the wait queue before 
-testing the condition, which prevents the race.
+This introduces a compile failure.
 
-interruptible_sleep_on is, with good reason, no longer recommended for use.
+arch/ia64/kernel/process.c: In function 'flush_thread':
+arch/ia64/kernel/process.c:731: error: 'IA32_PAGE_OFFSET' undeclared (first use in this function)
+arch/ia64/kernel/process.c:731: error: (Each undeclared identifier is reported only once
+arch/ia64/kernel/process.c:731: error: for each function it appears in.)
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+		Dave
 

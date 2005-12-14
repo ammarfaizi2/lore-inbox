@@ -1,67 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964963AbVLNU5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932316AbVLNVKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964963AbVLNU5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 15:57:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964966AbVLNU5Q
+	id S932316AbVLNVKH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 16:10:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVLNVKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 15:57:16 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:49099 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964963AbVLNU5P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 15:57:15 -0500
-Subject: Re: tsc clock issues with dual core and question about irq
-	balancing
-From: john stultz <johnstul@us.ibm.com>
-To: Adrian Yee <brewt-linux-kernel@brewt.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <GMail.1134592020.1228859.700367237899@brewt.org>
-References: <GMail.1134458797.49013860.4106109506@brewt.org>
-	 <1134522289.3897.21.camel@leatherman>
-	 <GMail.1134551267.12292355.45625751005@brewt.org>
-	 <1134591272.16294.3.camel@cog.beaverton.ibm.com>
-	 <GMail.1134592020.1228859.700367237899@brewt.org>
-Content-Type: text/plain
-Date: Wed, 14 Dec 2005 12:57:10 -0800
-Message-Id: <1134593830.16294.9.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 14 Dec 2005 16:10:07 -0500
+Received: from ns.dynamicweb.hu ([195.228.155.139]:59546 "EHLO dynamicweb.hu")
+	by vger.kernel.org with ESMTP id S932316AbVLNVKG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 16:10:06 -0500
+Message-ID: <024501c600f2$24e8ccc0$0400a8c0@dcccs>
+From: "JaniD++" <djani22@dynamicweb.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: irq balancing question
+Date: Wed, 14 Dec 2005 22:05:41 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-14 at 12:27 -0800, Adrian Yee wrote:
-> Hi John,
-> 
-> > >>>From your dmesg, you're still running w/ smp, apic, acpi as well.
-> > I was curious if you could run just as you had before without issue
-> > using "nosmp noapic acpi=off clock=tsc", only drop the clock=tsc bit.
-> > 
-> > I just want to be sure we're only changing one variable at a time.
-> > :)
-> 
-> I also have a dmesg with those options that I can upload, but I'm not
-> completely sure about the validity of the sluggishness "tests" because
-> the system felt the same after I booted with the different
-> configurations this time around.  ssh seems fine right now, so I guess
-> my Internet just happened to go bad at the same time I started play with
-> my hardware and kernel configurations.
+Hello, list,
 
-Hmm. Please keep an eye on this. If there is something going funky
-either in accessing the PM Timer hardware on your chipset, or some other
-quirk (locking issues, timer starvation, etc) it would be good to
-discover.
+I try to tune my system with manually irq assigning, but this simple not
+works, and i don't know why. :(
+I have already read all the documentation in the kernel tree, and search in
+google, but i can not find any valuable reason.
 
-> I think the only solid problem I've got here is the tsc ocassionally
-> counting back.  Is switching to clock=pmtmr the permanent/proper
-> solution for this, or is there a bug in the kernel/hardware that should
-> be fixable?  Thanks.
+[root@dy-xeon-1 proc]# cat irq/217/smp_affinity
+f
+[root@dy-xeon-1 proc]# echo 1 > irq/217/smp_affinity
+[root@dy-xeon-1 proc]# cat irq/217/smp_affinity
+f
+[root@dy-xeon-1 proc]# /bin/echo 1 > irq/217/smp_affinity
+[root@dy-xeon-1 proc]# cat irq/217/smp_affinity
+f
+[root@dy-xeon-1 proc]# cat interrupts
+           CPU0       CPU1       CPU2       CPU3
+  0:        117          0          0   50302311    IO-APIC-edge  timer
+  1:          0          0          0        560    IO-APIC-edge  i8042
+  8:          0          0          0       8369    IO-APIC-edge  rtc
+  9:          0          0          0          0   IO-APIC-level  acpi
+ 14:          0          0          0    9707311    IO-APIC-edge  ide0
+169:          0          0          0          1   IO-APIC-level
+uhci_hcd:usb2
+177:          0          0          0          0   IO-APIC-level
+uhci_hcd:usb3
+185:          0          0          0          0   IO-APIC-level
+uhci_hcd:usb4
+193:          0          0          0    4335777   IO-APIC-level
+ehci_hcd:usb1
+209:          0          0          0 1777636996   IO-APIC-level  eth0
+217:          0          0          0 2669520977   IO-APIC-level  eth1
+NMI:          0          0          0          0
+LOC:   50307523   50307625   50307006   50302885
+ERR:          0
+MIS:          0
+[root@dy-xeon-1 proc]#
 
-If the ACPI PM timer is enabled it should be used by default (is that
-not the case? if you do not use clock= at all, what clocksource gets
-selected?). Unfortunately using the TSC on some SMP systems is just not
-feasible.
+Can somebody help me?
 
-thanks
--john
-
+Cheers,
+Janos
 

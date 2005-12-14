@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbVLNU1E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964946AbVLNUq7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964941AbVLNU1E (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 15:27:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbVLNU1E
+	id S964946AbVLNUq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 15:46:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbVLNUq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 15:27:04 -0500
-Received: from mini.brewt.org ([216.18.5.212]:7953 "HELO mini.brewt.org")
-	by vger.kernel.org with SMTP id S964941AbVLNU1C convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 15:27:02 -0500
-Date: Wed, 14 Dec 2005 12:27:00 -0800
-From: "Adrian Yee" <brewt-linux-kernel@brewt.org>
-Subject: Re: tsc clock issues with dual core and question about irq balancing
-To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <GMail.1134592020.1228859.700367237899@brewt.org>
-In-Reply-To: <1134591272.16294.3.camel@cog.beaverton.ibm.com>
+	Wed, 14 Dec 2005 15:46:59 -0500
+Received: from mail.kroah.org ([69.55.234.183]:37055 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964946AbVLNUq6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 15:46:58 -0500
+Date: Wed, 14 Dec 2005 12:38:59 -0800
+From: Greg KH <greg@kroah.com>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: stable@kernel.org, torvalds@osdl.org, scjody@modernduck.com,
+       linux1394-devel@lists.sourceforge.net, bcollins@debian.org,
+       adq@lidskialf.net, linux-kernel@vger.kernel.org,
+       James Bottomley <James.Bottomley@SteelEye.com>
+Subject: Re: [stable] [PATCH] sbp2: fix panic when ejecting an ipod
+Message-ID: <20051214203859.GA568@kroah.com>
+References: <20051209171922.GW19441@conscoop.ottawa.on.ca> <200512101125.jBABP7Z9001085@einhorn.in-berlin.de> <20051210232837.GE11094@kroah.com> <439B7A8F.6000209@s5r6.in-berlin.de> <43A07C05.90800@s5r6.in-berlin.de>
 Mime-Version: 1.0
-References: <GMail.1134458797.49013860.4106109506@brewt.org>
- <1134522289.3897.21.camel@leatherman>
- <GMail.1134551267.12292355.45625751005@brewt.org>
- <1134591272.16294.3.camel@cog.beaverton.ibm.com>
-X-Gmail-Account: brewt@brewt.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43A07C05.90800@s5r6.in-berlin.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi John,
-
-> >>>From your dmesg, you're still running w/ smp, apic, acpi as well.
-> I was curious if you could run just as you had before without issue
-> using "nosmp noapic acpi=off clock=tsc", only drop the clock=tsc bit.
+On Wed, Dec 14, 2005 at 09:09:41PM +0100, Stefan Richter wrote:
+> I wrote on 2005-12-11:
+> >Greg KH wrote:
+> >>On Sat, Dec 10, 2005 at 12:24:59PM +0100, Stefan Richter wrote:
+> >>>Sbp2 did not catch some bogus transfer directions in requests from upper
+> >>>layers.
+> ...
+> >>Is this in linus's tree yet? 
+> ...
+> >>Do the 1394 maintainers accept it as a valid fix?
+> ...
+> >Jody posted a NAK a few hours ago:
+> >|| NAK.  James has a patch to fix this in the SCSI layer, which is his
+> >|| preference.
 > 
-> I just want to be sure we're only changing one variable at a time.
-> :)
+> FYI, James' fix for sd_init_command etc. is this one:
+> http://www.kernel.org/git/?p=linux/kernel/git/jejb/scsi-rc-fixes-2.6.git;a=commit;h=c9526497cf03ee775c3a6f8ba62335735f98de7a
+> 
+> It depends on the following patch to apply cleanly (but does not 
+> actually require it to work and fix the iPod related panic):
+> http://www.kernel.org/git/?p=linux/kernel/git/jejb/scsi-rc-fixes-2.6.git;a=commit;h=a8c730e85e80734412f4f73ab28496a0e8b04a7b
+> 
+> Sorry for any confusion I might have created,
 
-I also have a dmesg with those options that I can upload, but I'm not
-completely sure about the validity of the sluggishness "tests" because
-the system felt the same after I booted with the different
-configurations this time around.  ssh seems fine right now, so I guess
-my Internet just happened to go bad at the same time I started play with
-my hardware and kernel configurations.
+Ok, care to submit something to stable@ to get the fix into the next
+2.6.14.y queue?
 
-I think the only solid problem I've got here is the tsc ocassionally
-counting back.  Is switching to clock=pmtmr the permanent/proper
-solution for this, or is there a bug in the kernel/hardware that should
-be fixable?  Thanks.
+thanks,
 
-Adrian
+greg k-h

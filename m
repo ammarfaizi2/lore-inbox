@@ -1,59 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932630AbVLNBAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030308AbVLNBEx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932630AbVLNBAe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 20:00:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932624AbVLNBAe
+	id S1030308AbVLNBEx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 20:04:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932631AbVLNBEx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 20:00:34 -0500
-Received: from smtp107.plus.mail.mud.yahoo.com ([68.142.206.240]:65213 "HELO
-	smtp107.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932630AbVLNBAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 20:00:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=3FpGC8jn6aJ7AVnKcPlx5GG0uEHpR9w+oRhC4ftCcjYETYmjr9qWFJT9RmUJIUECVUGbk+jwiS1ZuTyyrry61lQ8UU5zxkFp8IkukjEyPvpVj9psnbcSeWe2GRH9Z9whi82+FpFbldCsXXz48P1WhtKIlW1b8r96cEz0EpNqloQ=  ;
-Message-ID: <439F6EAB.6030903@yahoo.com.au>
-Date: Wed, 14 Dec 2005 12:00:27 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: torvalds@osdl.org, akpm@osdl.org, hch@infradead.org, arjan@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-References: <439E122E.3080902@yahoo.com.au>  <dhowells1134431145@warthog.cambridge.redhat.com> <22479.1134467689@warthog.cambridge.redhat.com>
-In-Reply-To: <22479.1134467689@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 13 Dec 2005 20:04:53 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:665 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932624AbVLNBEw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 20:04:52 -0500
+Subject: Re: tsc clock issues with dual core and question about irq
+	balancing
+From: john stultz <johnstul@us.ibm.com>
+To: Adrian Yee <brewt-linux-kernel@brewt.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <GMail.1134458797.49013860.4106109506@brewt.org>
+References: <GMail.1134458797.49013860.4106109506@brewt.org>
+Content-Type: text/plain
+Date: Tue, 13 Dec 2005 17:04:48 -0800
+Message-Id: <1134522289.3897.21.camel@leatherman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
-> 
->>We have atomic_cmpxchg. Can you use that for a sufficient generic
->>implementation?
-> 
-> 
-> No. CMPXCHG/CAS is not as available as XCHG, and it's also unnecessary.
-> 
+On Mon, 2005-12-12 at 23:26 -0800, Adrian Yee wrote:
+> I've been having tsc issues where it counts back occasionally causing
+> things like ping to break with errors: "Warning: time of day goes back
+> (-1451987us), taking countermeasures."  It seems related to
+> http://bugzilla.kernel.org/show_bug.cgi?id=5105 , but that bug seems to
+> be closed (and more x86_64 related).  I also get other timing issues
+> like single clicks registering as double clicks, and at times double
+> clicks that don't register.  In addition, if I stress the system with
+> something like prime95, then after about 2 minutes the system clock will
+> speed up where the clock advances by minutes every second.  As suggested
+> in bug 5105, I switched to use the pmtimer (clock=pmtmr, my system
+> doesn't seem to support hpet) and it has fixed the ping and clock issue,
+> but my system doesn't 'feel' right.  For example, ssh'ing out of the
+> machine is fine, but when ssh'ing into the system a dmesg is very slow
+> (spurts out a few pages then pauses for 10-20 seconds, then repeat). 
+> Also, general desktop usage seems a little sluggish and not what a smp
+> system should feel like.
 
-atomic_cmpxchg should be available on all platforms.
+I can't speak about the irq routing issue, but I'm interested in your
+issues with the ACPI PM timer.
 
-While it may be strictly unnecessary, if it can be used to avoid
-having a crappy default implementation that requires it to be
-reimplemented in all architectures then that would be a good thing.
+> I'm currently running an i386 (ie. not x86_64) 2.6.15-rc5 kernel w/ SMP,
+> APIC and ACPI enabled (AMD Cool & Quiet disabled), an Athlon 64 X2 3800+
+> and EVGA nForce4 SLI (NF41) motherboard.  I previously had the processor
+> running on an Abit AV8 (K8T800 Pro chipset) board and was having similar
+> issues, so it seems to be a dual core issue.  I'd just like to add that
+> I'm currently testing the system with "nosmp noapic acpi=off clock=tsc"
+> (it was losing interrupts and wouldn't boot properly with apic/acpi on)
+> and so far everything seems to work (this includes ssh and desktop usage
+> is better).
 
-Any arguments about bad scalability or RT behaviour of the hashed
-spinlock emulation atomic_t implementations are silly because they
-are used by all atomic_ operations. It is an arch implementation
-detail that generic code should not have to worry about.
+So keeping the above settings, does removing just the "clock=tsc" cause
+the sluggishness to appear?
 
--- 
-SUSE Labs, Novell Inc.
+The TSC is *much* faster then the ACPI PM, however it is just not usable
+for reliable timekeeping on many SMP systems. That said, the ACPI PM
+should not cause performance issues unless you are constantly calling
+gettimeofday().
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Also would you open a bugzilla bug on this and attach your .config and
+dmesg?
+
+thanks
+-john
+
+

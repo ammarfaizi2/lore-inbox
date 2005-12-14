@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbVLNQzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964860AbVLNQ4P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbVLNQzz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 11:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbVLNQzz
+	id S964860AbVLNQ4P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 11:56:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbVLNQ4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 11:55:55 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23052 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932400AbVLNQzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 11:55:54 -0500
-Date: Wed, 14 Dec 2005 16:55:49 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
-Message-ID: <20051214165549.GE7124@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <1134573803.25663.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1134573803.25663.35.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Wed, 14 Dec 2005 11:56:15 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:22756 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S964862AbVLNQ4N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 11:56:13 -0500
+Message-ID: <43A04E73.2020808@de.ibm.com>
+Date: Wed, 14 Dec 2005 17:55:15 +0100
+From: Martin Peschke <mp3@de.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Wilcox <matthew@wil.cx>, Andreas Herrmann <AHERRMAN@de.ibm.com>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, linux-scsi@vger.kernel.org
+Subject: Re: [patch 6/6] statistics infrastructure - exploitation: zfcp
+References: <43A044E6.7060403@de.ibm.com> <20051214162437.GW9286@parisc-linux.org>
+In-Reply-To: <20051214162437.GW9286@parisc-linux.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 03:23:23PM +0000, Alan Cox wrote:
-> The receive_chars function is designed to handle the case where the port
-> is jammed full on by aborting after 256 characters in one IRQ.
-> Unfortunately the author of this code forgot that some systems are level
-> triggered. On these systems the IRQ simply gets invoked again and the
-> count loop just makes the problem take longer to clear.
+Matthew Wilcox wrote:
+> On Wed, Dec 14, 2005 at 05:14:30PM +0100, Martin Peschke wrote:
+> 
+>> 	if (device_register(&unit->sysfs_device)) {
+>>+		zfcp_unit_statistic_unregister(unit);
+>> 		kfree(unit);
+>> 		return NULL;
+>> 	}
+>>
+>> 	if (zfcp_sysfs_unit_create_files(&unit->sysfs_device)) {
+>>+		zfcp_unit_statistic_unregister(unit);
+>> 		device_unregister(&unit->sysfs_device);
+>> 		return NULL;
+>> 	}
+> 
+> 
+> Unrelated, but doesn't that error path forget to release unit?
+> 
+> 
 
-If we trigger this, we can assume that the port is dead anyway, or
-we're in a situation where the host CPU can not keep up with the
-data stream.
-
-If we want to handle this more gracefully as you suggest, we need
-to disable the interrupt from the chip entirely, and flag an error
-to the TTY layer.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+correct, I guess ... Andreas, could you fix this?

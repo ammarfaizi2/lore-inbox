@@ -1,106 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbVLNTn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbVLNTt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932495AbVLNTn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 14:43:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbVLNTn7
+	id S964875AbVLNTt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 14:49:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964907AbVLNTt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 14:43:59 -0500
-Received: from ra.tuxdriver.com ([24.172.12.4]:39172 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S932495AbVLNTn7 (ORCPT
+	Wed, 14 Dec 2005 14:49:57 -0500
+Received: from gate.crashing.org ([63.228.1.57]:52131 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S964875AbVLNTt4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 14:43:59 -0500
-Date: Wed, 14 Dec 2005 14:43:42 -0500
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: Re: [PATCH] vm: enhance __alloc_pages to prioritize pagecache eviction when pressed for memory
-Message-ID: <20051214194342.GA5738@hmsreliant.homelinux.net>
-References: <20051207220401.GB13577@hmsreliant.homelinux.net> <20051209162901.71728620.akpm@osdl.org> <20051212182236.GB828@hmsreliant.homelinux.net> <20051212121639.2e5bb1e4.akpm@osdl.org> <20051212214043.GC828@hmsreliant.homelinux.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051212214043.GC828@hmsreliant.homelinux.net>
-User-Agent: Mutt/1.4.1i
+	Wed, 14 Dec 2005 14:49:56 -0500
+Date: Wed, 14 Dec 2005 13:45:30 -0600 (CST)
+From: Kumar Gala <galak@gate.crashing.org>
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org, <linux-pci@atrey.karlin.mff.cuni.cz>
+Subject: pci_scan_bridge and cardbus controllers?
+Message-ID: <Pine.LNX.4.44.0512141311140.14530-100000@gate.crashing.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 12, 2005 at 04:40:43PM -0500, Neil Horman wrote:
-> On Mon, Dec 12, 2005 at 12:16:39PM -0800, Andrew Morton wrote:
-> > Neil Horman <nhorman@tuxdriver.com> wrote:
-> > >
-> > > On Fri, Dec 09, 2005 at 04:29:01PM -0800, Andrew Morton wrote:
-> > > > Neil Horman <nhorman@tuxdriver.com> wrote:
-> > > > >
-> > > > > Hey all-
-> > > > >      I was recently shown this issue, wherein, if the kernel was kept full of
-> > > > > pagecache via applications that were constantly writing large amounts of data to
-> > > > > disk, the box could find itself in a position where the vm, in __alloc_pages
-> > > > > would invoke the oom killer repetatively within try_to_free_pages, until such
-> > > > > time as the box had no candidate processes left to kill, at which point it would
-> > > > > panic.
-> > > > 
-> > > > That's pretty bad.  Are you able to provide a description which would permit
-> > > > others to reproduce this?
-> > > 
-> > > As promised, heres the reproducer that was given to me, and used to reproduce
-> > > this problem:
-> > > 
-> > > 1) setup an nfs serve with a thread count of 2.  Of course, 1 thread might make
-> > > the problem more easy to reproduce.  I haven't tried it yet.
-> > > 
-> > > 2) Setup 4 nodes to hammer the nfs mounted directory.  The 4 nodes should hammer
-> > > out 4 gigs.  2 gigs didn't seem to be enough.
-> > > 
-> > > I used a locally developed tool called ior to reproduce this problem.  The tool
-> > > can be found here:
-> > > 
-> > > http://www.llnl.gov/asci/platforms/purple/rfp/benchmarks/limited/ior/
-> > > 
-> > > I suppose anything that can write to NFS fast should be fine.  But that's what I
-> > > did.
-> > > 
-> > > 
-> > > If you do this, any node writing to the server that has more than 4GB of RAM
-> > > should start oom killing to the point where it runs out of candidate processes
-> > > and panics
-> > 
-> > We merged an NFS fix last week which will help throttling under heavy
-> > writeout conditions..
-> This one?
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=bb713d6d38f7be4f4e7d790cddb1b076e7da6699
-> I guess I must have just missed it during my testing. I'll give it a spin and
-> let you know if it fixes my test case.
-> 
-> Thanks & Regards
-> Neil
-> 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -- 
-> /***************************************************
->  *Neil Horman
->  *Software Engineer
->  *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
->  ***************************************************/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+in pci_fixup_parent_subordinate_busnr() we will only reassign bus numbers 
+if pcibios_assign_all_busses() returns 1.
 
-Just finished testing with the latest kernel, and the problem appears to be
-gone.  I withdraw my patch.  Apologies for the noise.
+If we got to pci_fixup_parent_subordinate_busnr() and
+pcibios_assign_all_busses() returns 0, should we not print out some
+warning since we most likely got here because the bios didn't init things
+properly?
 
-Thanks & Regards
-Neil
+I came across this on an embedded system in which we had a cardbus 
+controller behind a P2P bridge.  The bios did not reserve any bus numbers 
+for the cardbus controller like linux does.  So I ended up with:
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+03:04.0 CardBus bridge: Texas Instruments PCI4510 PC card Cardbus Controller (rev 03)
+        Flags: bus master, medium devsel, latency 0, IRQ 18
+        Memory at 00000000bb100000 (32-bit, non-prefetchable) [size=4K]
+        Bus: primary=03, secondary=04, subordinate=07, sec-latency=176
+        Memory window 0: b9000000-bafff000
+        Memory window 1: 9dc00000-9efff000 (prefetchable)
+        I/O window 1: 00000000-00000003
+        16-bit legacy interface ports at 0001
+
+and the P2P bridge:
+00:11.0 PCI bridge: Pericom Semiconductor PCI to PCI Bridge (rev 02) (prog-if 00 [Normal decode])
+        Flags: bus master, 66Mhz, medium devsel, latency 0
+        Bus: primary=00, secondary=03, subordinate=04, sec-latency=0
+        I/O behind bridge: 00efe000-00ffdfff
+        Memory behind bridge: b6000000-bb7fffff
+        Prefetchable memory behind bridge: 000000008fc00000-000000009db00000
+        Capabilities: [dc] Power Management version 1
+        Capabilities: [b0] Slot ID: 0 slots, First-, chassis 00
+
+Seems like a case we should warn about or not update the cardbus 
+controller's subordinate number if pcibios_assign_all_busses() returns 0.
+
+- kumar
+

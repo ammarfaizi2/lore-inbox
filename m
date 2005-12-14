@@ -1,111 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbVLNH6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVLNH7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbVLNH6L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 02:58:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbVLNH6L
+	id S1751112AbVLNH7K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 02:59:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbVLNH7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 02:58:11 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.150]:31889 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750710AbVLNH6J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 02:58:09 -0500
-Message-ID: <439FD08E.3020401@us.ibm.com>
-Date: Tue, 13 Dec 2005 23:58:06 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Wed, 14 Dec 2005 02:59:10 -0500
+Received: from fmmailgate04.web.de ([217.72.192.242]:4542 "EHLO
+	fmmailgate04.web.de") by vger.kernel.org with ESMTP
+	id S1751120AbVLNH7J convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 02:59:09 -0500
+Date: Wed, 14 Dec 2005 08:59:06 +0100
+Message-Id: <360494674@web.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: andrea@suse.de, Sridhar Samudrala <sri@us.ibm.com>, pavel@suse.cz,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: [RFC][PATCH 4/6] Slab Prep: slab_destruct()
-References: <439FCECA.3060909@us.ibm.com>
-In-Reply-To: <439FCECA.3060909@us.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------030308000601030406020504"
+From: =?iso-8859-1?Q?Burkhard=20Sch=F6lpen?= <bschoelpen@web.de>
+To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange delay on PCI-DMA-transfer completion by wait_event_interruptible()
+Organization: http://freemail.web.de/
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030308000601030406020504
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+>On Tue, 13 Dec 2005, [iso-8859-1] Burkhard Schölpen wrote:
+>
+>> Thanks a lot for your answer!
+>> I just tried out interruptible_sleep_on(), but couriously I got the same
+>> delay as before. On the hardware side, everything seems to be okay, because
+>> the data I'm transferring is relayed to a printhead of a laser printer (by an
+>> FPGA on the PCI-Board), whose LEDs light up as expected. The programmer of
+>> the FPGA (sitting next to me) says there would be no interrupt in the case of
+>> an error (so probably I should sleep with a timeout). But as there is an
+>> interrupt (and MY_DMA_COUNT_REGISTER contains really 0) in fact, I think the
+>> dma transfer succeeds, or could that be misleading? The only problem seems
+>> to be, that the interrupt comes much later, if I put the user process to
+>> sleep than let it do busy waiting. Do you have any idea, what could cause
+>> this strange behaviour? Could it be concerned with my SMP kernel (I use a
+>> processor with 2 cores)?
+>>
+"linux-os \(Dick Johnson\)" <linux-os@analogic.com> schrieb am 13.12.05 15:30:33:
+>
+>I think I know what is happening. You are writing the count across the
+>PCI bus, thinking this will start the DMA transfer. However, the count
+>won't actually get to the device until the PCI interface is flushed
+>(it's a FIFO, waiting for more activity). You need to force that
+>write to occur NOW, by performing a dummy read in your address-space
+>on the PCI bus.
+>
+>Then, you should find that the DMA seems to occur instantly and you
+>get your interrupt when you expect it. We use the PLX PCI 9656BA
+>for PCI interface on our datalink boards so I have a lot of
+>experience in this area.
+>
+>In the case where you were polling the interface, the first read
+>if its status actually flushed the PCI bus and started the DMA
+>transfer. In the cases where you weren't polling, the count
+>got to the device whenever the PCI interface timed-out or when
+>there was other activity such as network.
 
-Create a helper function for slab_destroy() called slab_destruct().  Remove
-some ifdefs inside functions and generally make the slab destroying code
-more readable prior to slab support for the Critical Page Pool.
+Thank you for your help! The dummy read was a very helpful hint to get the DMA stuff more reliable (although the fpga programmer had to admit that there was some other problem in the hardware after all). I think it should work fine soon. 
 
--Matt
+I'm glad to meet somebody with dma experience, because I have some other difficulties concerning DMA buffers in RAM. The PCI-Board is to be applied in a large size copying machine, so it essentially has to transfer tons of data in 2 directions very fast without wasting cpu time (because the cpu has to run many image processing algorithms meanwhile on this data). So my approach is to allocate a quite large ringbuffer in kernel space (or more precisely one ringbuffer for each direction) which is capable of dma. Afterwards I would map this buffer to user space to avoid unnecessary memcopies/cpu usage. My problem is for now to get such a large DMA buffer. I tried out several things I read in O'Reilly's book, but they all failed so far. My current attempt is to take a high memory area with ioremap:
 
---------------030308000601030406020504
-Content-Type: text/x-patch;
- name="slab_prep-slab_destruct.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="slab_prep-slab_destruct.patch"
+buffer_addr = ioremap( virt_to_phys(high_memory), large_size );
 
-Create a helper function, slab_destruct(), called from slab_destroy().  This
-makes slab_destroy() smaller and more readable, and moves ifdefs outside the
-function body.
+Mapping this buffer to user space works, but it does not seem to be DMA capable. Maybe it's just wrong to use ioremap() for that? I would be very glad for getting some advice.
 
-Signed-off-by: Matthew Dobson <colpatch@us.ibm.com>
+Kind regards,
+Burkhard
 
-Index: linux-2.6.15-rc5+critical_pool/mm/slab.c
-===================================================================
---- linux-2.6.15-rc5+critical_pool.orig/mm/slab.c	2005-12-05 10:20:43.886907432 -0800
-+++ linux-2.6.15-rc5+critical_pool/mm/slab.c	2005-12-05 10:20:45.289694176 -0800
-@@ -1401,15 +1401,13 @@ static void check_poison_obj(kmem_cache_
- }
- #endif
- 
--/* Destroy all the objs in a slab, and release the mem back to the system.
-- * Before calling the slab must have been unlinked from the cache.
-- * The cache-lock is not held/needed.
-+#if DEBUG
-+/**
-+ * slab_destruct - call the registered destructor for each object in
-+ *      a slab that is to be destroyed.
-  */
--static void slab_destroy (kmem_cache_t *cachep, struct slab *slabp)
-+static void slab_destruct(kmem_cache_t *cachep, struct slab *slabp)
- {
--	void *addr = slabp->s_mem - slabp->colouroff;
--
--#if DEBUG
- 	int i;
- 	for (i = 0; i < cachep->num; i++) {
- 		void *objp = slabp->s_mem + cachep->objsize * i;
-@@ -1435,7 +1433,10 @@ static void slab_destroy (kmem_cache_t *
- 		if (cachep->dtor && !(cachep->flags & SLAB_POISON))
- 			(cachep->dtor)(objp+obj_dbghead(cachep), cachep, 0);
- 	}
-+}
- #else
-+static void slab_destruct(kmem_cache_t *cachep, struct slab *slabp)
-+{
- 	if (cachep->dtor) {
- 		int i;
- 		for (i = 0; i < cachep->num; i++) {
-@@ -1443,8 +1444,19 @@ static void slab_destroy (kmem_cache_t *
- 			(cachep->dtor)(objp, cachep, 0);
- 		}
- 	}
-+}
- #endif
- 
-+/**
-+ * Destroy all the objs in a slab, and release the mem back to the system.
-+ * Before calling the slab must have been unlinked from the cache.
-+ * The cache-lock is not held/needed.
-+ */
-+static void slab_destroy(kmem_cache_t *cachep, struct slab *slabp)
-+{
-+	void *addr = slabp->s_mem - slabp->colouroff;
-+
-+	slab_destruct(cachep, slabp);
- 	if (unlikely(cachep->flags & SLAB_DESTROY_BY_RCU)) {
- 		struct slab_rcu *slab_rcu;
- 
+______________________________________________________________
+Verschicken Sie romantische, coole und witzige Bilder per SMS!
+Jetzt bei WEB.DE FreeMail: http://f.web.de/?mc=021193
 
---------------030308000601030406020504--

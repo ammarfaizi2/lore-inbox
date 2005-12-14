@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbVLNITg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbVLNIcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbVLNITg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 03:19:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbVLNITg
+	id S932108AbVLNIcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 03:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbVLNIcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 03:19:36 -0500
-Received: from nproxy.gmail.com ([64.233.182.206]:20325 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932103AbVLNITf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 03:19:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Hsz+MABusyL7C97ppV4CMVh2TDjpH6ziPDU0NzKFnI8Wfnuso0wBA9Wm0BlCCkFdSM8uXl6aMtgzbRnA4C3ovsbri5HnG5oYY+5HsWT1qyO54dBfJikvv9CWp1b2LvhJJ0JBiszMeLr5b0RckB8QGdz1WwFfSz64Dijv+tZOsUo=
-Message-ID: <84144f020512140019h1390c9eayf8b4b0dd03d8be1c@mail.gmail.com>
-Date: Wed, 14 Dec 2005 10:19:33 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Subject: Re: [RFC][PATCH 3/6] Slab Prep: get/return_object
-Cc: linux-kernel@vger.kernel.org, andrea@suse.de,
-       Sridhar Samudrala <sri@us.ibm.com>, pavel@suse.cz,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-In-Reply-To: <439FD031.1040608@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 14 Dec 2005 03:32:25 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:33944 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932099AbVLNIcY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 03:32:24 -0500
+Date: Wed, 14 Dec 2005 09:31:33 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: David Howells <dhowells@redhat.com>
+Cc: Christopher Friesen <cfriesen@nortel.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@osdl.org, akpm@osdl.org,
+       hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051214083133.GA17532@elte.hu>
+References: <439EDC3D.5040808@nortel.com> <1134479118.11732.14.camel@localhost.localdomain> <dhowells1134431145@warthog.cambridge.redhat.com> <3874.1134480759@warthog.cambridge.redhat.com> <15167.1134488373@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <439FCECA.3060909@us.ibm.com> <439FD031.1040608@us.ibm.com>
+In-Reply-To: <15167.1134488373@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matt,
 
-On 12/14/05, Matthew Dobson <colpatch@us.ibm.com> wrote:
-> Create 2 helper functions in mm/slab.c: get_object() and return_object().
-> These functions reduce some existing duplicated code in the slab allocator
-> and will be used when adding Critical Page Pool support to the slab allocator.
+* David Howells <dhowells@redhat.com> wrote:
 
-May I suggest different naming, slab_get_obj and slab_put_obj ?
+>  (3) Some people want mutexes to be:
+> 
+>      (a) only releasable in the same context as they were taken
+> 
+>      (b) not accessible in interrupt context, or that (a) applies here also
+> 
+>      (c) not initialisable to the locked state
+> 
+>      But this means that the current usages all have to be carefully audited,
+>      and sometimes that unobvious.
 
-                                            Pekka
+(a) and (c) is not a big problem, are they are essentially the 
+constraints of -rt mutexes. As long as there's good debugging code, it's 
+very much doable. We dont want to change semantics _yet again_, later 
+down the line.
+
+	Ingo

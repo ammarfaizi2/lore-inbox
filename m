@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbVLNBqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030413AbVLNBsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030412AbVLNBqI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 20:46:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVLNBqI
+	id S1030413AbVLNBsF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 20:48:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVLNBsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 20:46:08 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:30147 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030353AbVLNBqG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 20:46:06 -0500
-Date: Tue, 13 Dec 2005 17:46:26 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Keith Owens <kaos@sgi.com>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       vatsa@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
-       linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
-Message-ID: <20051214014626.GF14158@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051213162027.GA14158@us.ibm.com> <17158.1134512861@ocs3.ocs.com.au> <20051213225059.GD14158@us.ibm.com> <20051214011253.GB23384@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051214011253.GB23384@wotan.suse.de>
-User-Agent: Mutt/1.4.1i
+	Tue, 13 Dec 2005 20:48:05 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:40786 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1030413AbVLNBsE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 20:48:04 -0500
+Date: Tue, 13 Dec 2005 20:47:58 -0500
+From: Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>
+Subject: bugs?
+To: linux-kernel@vger.kernel.org
+Cc: coywolf@gmail.com
+Message-id: <439F79CE.6040609@ens.etsmtl.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 02:12:53AM +0100, Andi Kleen wrote:
-> On Tue, Dec 13, 2005 at 02:50:59PM -0800, Paul E. McKenney wrote:
-> > On Wed, Dec 14, 2005 at 09:27:41AM +1100, Keith Owens wrote:
-> > > On Tue, 13 Dec 2005 08:20:27 -0800, 
-> > > "Paul E. McKenney" <paulmck@us.ibm.com> wrote:
-> > > >If the variable p references MMIO rather than normal memory, then
-> > > >wmb() and rmb() are needed instead of smp_wmb() and smp_rmb().
-> > > 
-> > > mmiowb(), not wmb().  IA64 has a different form of memory fence for I/O
-> > > space compared to normal memory.  MIPS also has a non-empty form of
-> > > mmiowb().
-> > 
-> > New one on me!
-> 
-> Didn't it make only a difference on the Altix or something like that? 
-> I suppose they added it only on the drivers for devices supported by SGI.
+my cpu is 1400MHz, but why there's cpu MHz         : 598.593
 
-It could potentially help on a few other CPUs, but quite a few driver
-changes would be needed to really bring out the full benefits.  I am
-concerned that the current state leaves a number of CPU families broken --
-the empty definitions cannot be good for other weakly ordered CPUs!
+caro@olymphe:~$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 9
+model name      : Intel(R) Pentium(R) M processor 1400MHz
+stepping        : 5
+cpu MHz         : 598.593
+cache size      : 1024 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mca cmov 
+pat clflush dts acpi mmx fxsr sse sse2 tm pbe est tm2
+bogomips        : 1186.66
 
-						Thanx, Paul

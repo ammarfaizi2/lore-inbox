@@ -1,46 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVLNItb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbVLNIwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbVLNItb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 03:49:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932162AbVLNItb
+	id S932162AbVLNIwx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 03:52:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbVLNIwx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 03:49:31 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:12004 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932152AbVLNIta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 03:49:30 -0500
-Message-ID: <439FDCB0.7030705@jp.fujitsu.com>
-Date: Wed, 14 Dec 2005 17:49:52 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Dave Jones <davej@redhat.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add mem_nmi_panic enable system to panic on hard error
-References: <439E6C58.6050301@jp.fujitsu.com>	 <20051213064800.GB7401@redhat.com> <1134476618.11732.7.camel@localhost.localdomain>
-In-Reply-To: <1134476618.11732.7.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Dec 2005 03:52:53 -0500
+Received: from smtp04.auna.com ([62.81.186.14]:43758 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S932162AbVLNIww (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 03:52:52 -0500
+Date: Wed, 14 Dec 2005 09:54:59 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: SMP+nosmp=hang [was: Re: 2.6.15-rc5-mm2]
+Message-ID: <20051214095459.3912d59e@werewolf.auna.net>
+In-Reply-To: <20051211041308.7bb19454.akpm@osdl.org>
+References: <20051211041308.7bb19454.akpm@osdl.org>
+X-Mailer: Sylpheed-Claws 1.9.100cvs86 (GTK+ 2.8.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="Sig_xE3kqP4ZBrQvc88O8V72s=a";
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
+X-Auth-Info: Auth:LOGIN IP:[83.138.219.198] Login:jamagallon@able.es Fecha:Wed, 14 Dec 2005 09:52:46 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you Alan,
+--Sig_xE3kqP4ZBrQvc88O8V72s=a
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Alan Cox wrote:
-> This is done deliberately on some systems and is why we have the patches
-> I submitted to Andrew Morton which are in his tree and allow you to set
-> "panic_on_unrecovered_nmi" to halt on a memory error.
-> 
-> See the -mm tree. The functionality is there. Also see the various
-> x86-64 logging tools which can parse out MCE based reports.
+On Sun, 11 Dec 2005 04:13:08 -0800, Andrew Morton <akpm@osdl.org> wrote:
 
-I could find your code in the -mm tree. It looks good :-)
-But just one point, isn't it better to use die_nmi() instead of panic()?
+>=20
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/=
+2.6.15-rc5-mm2/
+>=20
 
- >>        if (panic_on_unrecovered_nmi)
- >>                panic("NMI: Not continuing");
+Booting a SMP built kernel with 'nosmp' just hangs at the VFS layer, with
+the message about 'not being able to find root device sda1'.
+sda is a SATA drive on an Intel ICH5 controller:
 
-H.Seto
+libata version 1.20 loaded.
+ata_piix 0000:00:1f.2: version 1.05
+ACPI: PCI Interrupt 0000:00:1f.2[A] -> GSI 18 (level, low) -> IRQ 16
+PCI: Setting latency timer of device 0000:00:1f.2 to 64
+ata1: SATA max UDMA/133 cmd 0xC000 ctl 0xC402 bmdma 0xD000 irq 16
+ata2: SATA max UDMA/133 cmd 0xC800 ctl 0xCC02 bmdma 0xD008 irq 16
+ata1: dev 0 cfg 49:2f00 82:346b 83:7d01 84:4003 85:3469 86:3c01 87:4003 88:=
+407f
+ata1: dev 0 ATA-6, max UDMA/133, 390721968 sectors: LBA48
+ata1: dev 0 configured for UDMA/133
+scsi0 : ata_piix
+ATA: abnormal status 0x7F on port 0xC807
+scsi1 : ata_piix
+  Vendor: ATA       Model: ST3200822AS       Rev: 3.01
+  Type:   Direct-Access                      ANSI SCSI revision: 05
+SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
+SCSI device sda: drive cache: write back
+SCSI device sda: 390721968 512-byte hdwr sectors (200050 MB)
+SCSI device sda: drive cache: write back
+ sda: sda1 sda2 sda3
+sd 0:0:0:0: Attached scsi disk sda
 
+I would have to double check, but I think it even missed the USB keyboard.
+
+Something really strange...
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.14-jam4 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
+
+--Sig_xE3kqP4ZBrQvc88O8V72s=a
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDn93jRlIHNEGnKMMRAqhtAKCi0gl+spMr6POtPhjTC8QvlGCumQCfadSc
+FJgV8pJPGlzzFA/grS6iTdA=
+=miOP
+-----END PGP SIGNATURE-----
+
+--Sig_xE3kqP4ZBrQvc88O8V72s=a--

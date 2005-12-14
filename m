@@ -1,45 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbVLNTUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbVLNTUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964905AbVLNTUT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 14:20:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbVLNTUT
+	id S964898AbVLNTUG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 14:20:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964900AbVLNTUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 14:20:19 -0500
-Received: from e36.co.us.ibm.com ([32.97.110.154]:34772 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964900AbVLNTUS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 14:20:18 -0500
-In-Reply-To: <20051214184147.GO23384@wotan.suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, netdev-owner@vger.kernel.org, sri@us.ibm.com
+	Wed, 14 Dec 2005 14:20:06 -0500
+Received: from rtsoft3.corbina.net ([85.21.88.6]:32112 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S964898AbVLNTUF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 14:20:05 -0500
+Message-ID: <43A07050.30603@ru.mvista.com>
+Date: Wed, 14 Dec 2005 22:19:44 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF064EFE49.6C80BD18-ON882570D7.00695B9C-882570D7.006A3661@us.ibm.com>
-From: David Stevens <dlstevens@us.ibm.com>
-Date: Wed, 14 Dec 2005 11:20:59 -0800
-X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF654 | July 22, 2005) at
- 12/14/2005 12:21:07,
-	Serialize complete at 12/14/2005 12:21:07
-Content-Type: text/plain; charset="US-ASCII"
+To: David Brownell <david-b@pacbell.net>
+CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
+       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
+       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
+Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
+References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051214171842.GB30546@kroah.com> <43A05C32.3070501@ru.mvista.com> <200512141102.53599.david-b@pacbell.net>
+In-Reply-To: <200512141102.53599.david-b@pacbell.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It has a lot
-> more users that compete true, but likely the set of GFP_CRITICAL users
-> would grow over time too and it would develop the same problem.
+David Brownell wrote:
 
-        No, because the critical set is determined by the user (by setting
-the socket flag).
-        The receive side has some things marked as "critical" until we
-have processed enough to check the socket flag, but then they should
-be released. Those short-lived allocations and frees are more or less
-0 net towards the pool.
-        Certainly, it wouldn't work very well if every socket is
-marked as "critical", but with an adequate pool for the workload, I
-expect it'll work as advertised (esp. since it'll usually be only one
-socket associated with swap management that'll be critical).
+>On Wednesday 14 December 2005 9:53 am, Vitaly Wool wrote:
+>
+>  
+>
+>>	 Sound cards behind the SPI bus will suffer a lot more 
+>>since it's their path to use wXrY functions (lotsa small transfers) 
+>>rather than WLAN's.
+>>    
+>>
+>
+>No, "stupid drivers will suffer"; nothing new.  Just observe
+>how the ads7846 touchscreen driver does small async transfers.
+>  
+>
+So just answer please yes or no: are your spi_wXrY functions intended 
+for usage at all or not?
+Maybe you should remove them completely?
 
-                                                                +-DLS
-
+Vitaly

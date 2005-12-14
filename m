@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932501AbVLNMUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbVLNMYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932501AbVLNMUO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 07:20:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbVLNMUO
+	id S932469AbVLNMYO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 07:24:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932283AbVLNMYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 07:20:14 -0500
-Received: from mail.ccur.com ([66.10.65.12]:56284 "EHLO mail.ccur.com")
-	by vger.kernel.org with ESMTP id S932501AbVLNMUM (ORCPT
+	Wed, 14 Dec 2005 07:24:14 -0500
+Received: from verein.lst.de ([213.95.11.210]:51086 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S932470AbVLNMYN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 07:20:12 -0500
-Subject: insufficent ptrace status when a thread calls exec
-From: Tom Horsley <tom.horsley@ccur.com>
-To: linux-kernel@vger.kernel.org
-Cc: bugsy@ccur.com
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 14 Dec 2005 07:20:11 -0500
-Message-Id: <1134562811.25787.10.camel@tweety>
+	Wed, 14 Dec 2005 07:24:13 -0500
+Date: Wed, 14 Dec 2005 13:24:05 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 2/3] add ->compat_ioctl to dasd
+Message-ID: <20051214122405.GA1556@lst.de>
+References: <20051213172320.GB16392@lst.de> <1134562034.5496.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1134562034.5496.3.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The redhat folks sent me to the kernel folks with this one:
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=171323
+On Wed, Dec 14, 2005 at 01:07:14PM +0100, Martin Schwidefsky wrote:
+> On Tue, 2005-12-13 at 18:23 +0100, Christoph Hellwig wrote:
+> > Add a compat_ioctl method to the dasd driver so the last entries in
+> > arch/s390/kernel/compat_ioctl.c can go away.  Unlike the previous
+> > attempt this one does not replace the ioctl method with an
+> > unlocked_ioctl method so that the ioctl_by_bdev calls in s390 partition
+> > code continue to work.
+> 
+> Looks better but still doesn't work. The dasd driver specific ioctls do
+> work but there are some generic ones that are only available on the
+> normal ioctl path, including BLKFLSBUF, BLKROSET and HDIO_GETGEO. That
+> makes e.g. the 32 bit version of fdasd fail with "IOCTL error".
 
-This bugzilla contains a test program that takes the (admittedly
-weird) action of having a thread in a multi-threaded program
-call exec() (not fork then exec, just exec :-). When a poor
-old debugger is debugging this thing, most of the threads
-just up and disappear, the main thread says it is about to
-exit, then instead of exiting, it actually execs.
+Sorry, that's the ENOIOCTLCMD thing again, I forgot it in the first
+revision of the last patch aswell.
 
-I don't believe there is enough information laying around for
-any debugger to deduce what just happened and handle it
-correctly. The bugzilla proposes the creation of a new
-extended status so the main thread could say "I'm about to
-exec on behalf of one of my threads which are all disappearing"
-instead of saying "I'm about to exit" (which is a lie).
+Here's the fix for that:
 
-I certainly don't know enough to figure out how to actually
-implement this and propose a patch, but I thought I'd at least
-raise the issue with folks who probably know more about ptrace
-than I do.
 
-Thanks.
-
+Index: linux-2.6.15-rc5/drivers/s390/block/dasd_ioctl.c
+===================================================================
+--- linux-2.6.15-rc5.orig/drivers/s390/block/dasd_ioctl.c	2005-12-13 18:25:34.000000000 +0100
++++ linux-2.6.15-rc5/drivers/s390/block/dasd_ioctl.c	2005-12-14 13:23:16.000000000 +0100
+@@ -127,7 +127,7 @@
+ 	rval = dasd_ioctl(filp->f_dentry->d_inode, filp, cmd, arg);
+ 	unlock_kernel();
+ 
+-	return rval;
++	return (rval == -EINVAL) ? -ENOIOCTLCMD : rval;
+ }
+ 
+ static int

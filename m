@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbVLNVRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbVLNVTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964911AbVLNVRc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 16:17:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVLNVRb
+	id S964990AbVLNVTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 16:19:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbVLNVTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 16:17:31 -0500
-Received: from [212.76.84.161] ([212.76.84.161]:15628 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S932335AbVLNVRb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 16:17:31 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Thu, 15 Dec 2005 00:13:29 +0300
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org
+	Wed, 14 Dec 2005 16:19:09 -0500
+Received: from nproxy.gmail.com ([64.233.182.201]:9153 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932352AbVLNVTG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 16:19:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jh5CYi9r7LjDc4g7keWnqqxYSBel85gorJs1f9cOR2b9KEK+AZHTKoxts6tZm191tBcVTxXE+sDxvSam4vUt1WgGC4qmHtDvAyG6Yyt0uKdIMPdsvYGq3ZcD0dj208ZDJRrR6X2fsMnNGKpflVNTV+xc7Ony3p/ZIuxknw3P93k=
+Message-ID: <58cb370e0512141319q2ce4bd9as510b3b353beb78b@mail.gmail.com>
+Date: Wed, 14 Dec 2005 22:19:05 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH RESEND] via82cxxx IDE: Add VT8251 ISA bridge
+Cc: Daniel Drake <dsd@gentoo.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <43989AB9.60203@pobox.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200512150013.29549.a1426z@gawab.com>
+References: <43988D11.80809@gentoo.org> <43989AB9.60203@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> For people to think that the kernel developers are just "too dumb" to 
-> make a stable kernel api (and yes, I've had people accuse me of this 
-> many times to my face[1]) shows a total lack of understanding as to 
-> _why_ we change the in-kernel api all the time.  Please see
-> Documentation/stable_api_nonsense.txt for details on this. 
+applied
 
-I read this doc, and it doesn't make your case any clearer, on the contrary!
-
-But first, your work to the kernel represents a not so dumb contribution, 
-especially the replacement of devfs.  Thanks!
-
-Now, to call a stable api nonsense is nonsense.  Really, only a _stable_ api 
-is worth to be considered an API.  Think about it.
-
-The only advantage of not offering a _stable_ api is to enforce some weird 
-kind of copy protection scheme, because let's face it:
-
-An API would benefit everybody, even those that may take advantage of it.
-
-So to limit the kernel by making it awkward to interact with it, because 
-somebody may take advantage, is a rather paranoid way of doing things.
-
-Things are bad enough the kernel being monolithic, and then inhibiting a sane 
-API to develop may only serve to delay the competitiveness of the kernel.
-
-Loose the paranoia and prove GNU/Linux can stand on its own.
-
-Thanks!
-
---
-Al
-
+On 12/8/05, Jeff Garzik <jgarzik@pobox.com> wrote:
+> Daniel Drake wrote:
+> > Some motherboards (such as the Asus P5V800-MX) ship a
+> > PCI_DEVICE_ID_VIA_82C586_1 IDE controller alongside a VT8251 southbridge.
+> >
+> > This southbridge is currently unrecognised in the via82cxxx IDE driver,
+> > preventing those users from getting DMA access to disks.
+> >
+> > Signed-off-by: Daniel Drake <dsd@gentoo.org>
+> >
+> > --
+> >
+> > Bart, I submitted this 2 weeks ago but sent it to your old pw.edu.pl
+> > address by accident. Sorry about that!
+>
+> ACK.
+>
+> VIA sent me the same patch, privately.

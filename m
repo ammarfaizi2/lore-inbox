@@ -1,79 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbVLNVKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbVLNVQK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964978AbVLNVKq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 16:10:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964969AbVLNVKp
+	id S964969AbVLNVQK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 16:16:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbVLNVQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 16:10:45 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:31246 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964973AbVLNVKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 16:10:41 -0500
-Date: Wed, 14 Dec 2005 22:10:41 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: neilb@cse.unsw.edu.au, trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net,
-       Charles Lever <Charles.Lever@netapp.com>, netdev@vger.kernel.org
-Subject: [2.6 patch] net/sunrpc/xdr.c: remove xdr_decode_string()
-Message-ID: <20051214211041.GD23349@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Wed, 14 Dec 2005 16:16:10 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:37605 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964969AbVLNVQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 16:16:08 -0500
+Subject: Re: irq balancing question
+From: Arjan van de Ven <arjan@infradead.org>
+To: JaniD++ <djani22@dynamicweb.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <024501c600f2$24e8ccc0$0400a8c0@dcccs>
+References: <024501c600f2$24e8ccc0$0400a8c0@dcccs>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 22:16:04 +0100
+Message-Id: <1134594964.9442.10.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes ths unused function xdr_decode_string().
+On Wed, 2005-12-14 at 22:05 +0100, JaniD++ wrote:
+> Hello, list,
+> 
+> I try to tune my system with manually irq assigning, but this simple not
+> works, and i don't know why. :(
+> I have already read all the documentation in the kernel tree, and search in
+> google, but i can not find any valuable reason.
 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-Acked-by: Neil Brown <neilb@suse.de>
-Acked-by: Charles Lever <Charles.Lever@netapp.com>
+which chipset? there is a chipset that is broken wrt irq balancing so
+the kernel refuses to do it there...
 
----
-
- include/linux/sunrpc/xdr.h |    1 -
- net/sunrpc/xdr.c           |   21 ---------------------
- 2 files changed, 22 deletions(-)
-
---- linux-2.6.15-rc1-mm2-full/include/linux/sunrpc/xdr.h.old	2005-11-23 02:03:01.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/include/linux/sunrpc/xdr.h	2005-11-23 02:03:08.000000000 +0100
-@@ -91,7 +91,6 @@
- u32 *	xdr_encode_opaque_fixed(u32 *p, const void *ptr, unsigned int len);
- u32 *	xdr_encode_opaque(u32 *p, const void *ptr, unsigned int len);
- u32 *	xdr_encode_string(u32 *p, const char *s);
--u32 *	xdr_decode_string(u32 *p, char **sp, int *lenp, int maxlen);
- u32 *	xdr_decode_string_inplace(u32 *p, char **sp, int *lenp, int maxlen);
- u32 *	xdr_encode_netobj(u32 *p, const struct xdr_netobj *);
- u32 *	xdr_decode_netobj(u32 *p, struct xdr_netobj *);
---- linux-2.6.15-rc1-mm2-full/net/sunrpc/xdr.c.old	2005-11-23 02:03:17.000000000 +0100
-+++ linux-2.6.15-rc1-mm2-full/net/sunrpc/xdr.c	2005-11-23 02:03:27.000000000 +0100
-@@ -93,27 +93,6 @@
- }
- 
- u32 *
--xdr_decode_string(u32 *p, char **sp, int *lenp, int maxlen)
--{
--	unsigned int	len;
--	char		*string;
--
--	if ((len = ntohl(*p++)) > maxlen)
--		return NULL;
--	if (lenp)
--		*lenp = len;
--	if ((len % 4) != 0) {
--		string = (char *) p;
--	} else {
--		string = (char *) (p - 1);
--		memmove(string, p, len);
--	}
--	string[len] = '\0';
--	*sp = string;
--	return p + XDR_QUADLEN(len);
--}
--
--u32 *
- xdr_decode_string_inplace(u32 *p, char **sp, int *lenp, int maxlen)
- {
- 	unsigned int	len;
 

@@ -1,118 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbVLNOJm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbVLNOML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964783AbVLNOJm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 09:09:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbVLNOJm
+	id S964784AbVLNOML (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 09:12:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbVLNOML
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 09:09:42 -0500
-Received: from L8R.net ([216.58.41.32]:3486 "EHLO l8r.net")
-	by vger.kernel.org with ESMTP id S964783AbVLNOJl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 09:09:41 -0500
-Date: Wed, 14 Dec 2005 09:09:35 -0500
-From: Brad Barnett <bahb@l8r.net>
-To: linux-kernel@vger.kernel.org
-Subject: ahci + software raid (intel E7221, supermicro P8SCT) causes kernel
- BUG at drivers/scsi/scsi.c:295
-Message-ID: <20051214090935.41482f88@be.back.l8r.net>
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Dec 2005 09:12:11 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:18960 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP id S964784AbVLNOMK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 09:12:10 -0500
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----_=_NextPart_001_01C600B8.5E236C00"
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <360494674@web.de>
+X-OriginalArrivalTime: 14 Dec 2005 14:12:08.0947 (UTC) FILETIME=[5EB3EC30:01C600B8]
+Content-class: urn:content-classes:message
+Subject: Re: Strange delay on PCI-DMA-transfer completion by wait_event_interruptible()
+Date: Wed, 14 Dec 2005 09:12:08 -0500
+Message-ID: <Pine.LNX.4.61.0512140904440.12944@chaos.analogic.com>
+X-MS-Has-Attach: yes
+X-MS-TNEF-Correlator: 
+Thread-Topic: Strange delay on PCI-DMA-transfer completion by wait_event_interruptible()
+Thread-Index: AcYAuF7EhS64zpoASxmA25YSluF4Ww==
+References: <360494674@web.de>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: =?iso-8859-1?Q?Burkhard_Sch=F6lpen?= <bschoelpen@web.de>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+
+------_=_NextPart_001_01C600B8.5E236C00
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 
 
-Supermicro P8SCT:
+On Wed, 14 Dec 2005, [iso-8859-1] Burkhard Sch=F6lpen wrote:
 
-http://supermicro.com/products/motherboard/P4/E7221/P8SCT.cfm
+>> On Tue, 13 Dec 2005, [iso-8859-1] Burkhard Sch=F6lpen wrote:
+>>
+>>> Thanks a lot for your answer!
+>>> I just tried out interruptible_sleep_on(), but couriously I got the=
+ same
+>>> delay as before. On the hardware side, everything seems to be okay,=
+ because
+>>> the data I'm transferring is relayed to a printhead of a laser printer=
+ (by an
+>>> FPGA on the PCI-Board), whose LEDs light up as expected. The programmer=
+ of
+>>> the FPGA (sitting next to me) says there would be no interrupt in the=
+ case of
+>>> an error (so probably I should sleep with a timeout). But as there is=
+ an
+>>> interrupt (and MY_DMA_COUNT_REGISTER contains really 0) in fact, I=
+ think the
+>>> dma transfer succeeds, or could that be misleading? The only problem=
+ seems
+>>> to be, that the interrupt comes much later, if I put the user process=
+ to
+>>> sleep than let it do busy waiting. Do you have any idea, what could=
+ cause
+>>> this strange behaviour? Could it be concerned with my SMP kernel (I use=
+ a
+>>> processor with 2 cores)?
+>>>
+> "linux-os \(Dick Johnson\)" <linux-os@analogic.com> schrieb am 13.12.05=
+ 15:30:33:
+>>
+>> I think I know what is happening. You are writing the count across the
+>> PCI bus, thinking this will start the DMA transfer. However, the count
+>> won't actually get to the device until the PCI interface is flushed
+>> (it's a FIFO, waiting for more activity). You need to force that
+>> write to occur NOW, by performing a dummy read in your address-space
+>> on the PCI bus.
+>>
+>> Then, you should find that the DMA seems to occur instantly and you
+>> get your interrupt when you expect it. We use the PLX PCI 9656BA
+>> for PCI interface on our datalink boards so I have a lot of
+>> experience in this area.
+>>
+>> In the case where you were polling the interface, the first read
+>> if its status actually flushed the PCI bus and started the DMA
+>> transfer. In the cases where you weren't polling, the count
+>> got to the device whenever the PCI interface timed-out or when
+>> there was other activity such as network.
+>
+> Thank you for your help! The dummy read was a very helpful hint to get=
+ the DMA stuff more reliable (although the fpga programmer had to admit=
+ that there was some other problem in the hardware after all). I think it=
+ should work fine soon.
+>
+> I'm glad to meet somebody with dma experience, because I have some other=
+ difficulties concerning DMA buffers in RAM. The PCI-Board is to be applied=
+ in a large size copying machine, so it essentially has to transfer tons of=
+ data in 2 directions very fast without wasting cpu time (because the cpu=
+ has to run many image processing algorithms meanwhile on this data). So my=
+ approach is to allocate a quite large ringbuffer in kernel space (or more=
+ precisely one ringbuffer for each direction) which is capable of dma.=
+ Afterwards I would map this buffer to user space to avoid unnecessary=
+ memcopies/cpu usage. My problem is for now to get such a large DMA buffer.=
+ I tried out several things I read in O'Reilly's book, but they all failed=
+ so far. My current attempt is to take a high memory area with ioremap:
+>
+> buffer_addr =3D ioremap( virt_to_phys(high_memory), large_size );
+>
+> Mapping this buffer to user space works, but it does not seem to be DMA=
+ capable. Maybe it's just wrong to use ioremap() for that? I would be very=
+ glad for getting some advice.
+>
+> Kind regards,
+> Burkhard
 
-(uses intel E7221/ahci for SATA controller).  Hot-swap raid cage.  Three
-SATA ports in use.  Also have two MegaRAID SATA 150-6 onboard, one in
-PCI-X slot.
+I have attached a "driver" that does nothing but map DMA-able pages
+to user-space. It should show you what you need to do. It's really
+quite simple, but the devil is in the details.
 
-This box will run stable, but at inconsistent times lock up.  After
-hooking up serial console, we discovered the problem.
+Also, if you are using the PLX or similar PCI interface device, you
+can use the scatter-list capability so that the DMA pages don't
+have to be contiguous. The mapping to user-space makes them
+virtually contiguous to the user, but you can use pages from
+anywhere in memory as long as its addressable by your controller.
 
-FYI, we have three different motherboards from Supermicro, and they all
-exhibit the same issue... it is unlikely a fault with our specific
-hardware.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.56 BogoMips).
+Warning : 98.36% of all statistics are fiction.
 
-It is easiest to trigger this bug (not certain if this is the only way)
-when running software raid, two drives, in stripe mode.  Many times this
-configuration will cause no isses, other times I get this:
+****************************************************************
+The information transmitted in this message is confidential and may be=
+ privileged.  Any review, retransmission, dissemination, or other use of=
+ this information by persons or entities other than the intended recipient=
+ is prohibited.  If you are not the intended recipient, please notify=
+ Analogic Corporation immediately - by replying to this message or by=
+ sending an email to DeliveryErrors@analogic.com - and destroy all copies=
+ of this information, including any attachments, without reading or=
+ disclosing them.
 
-  ata2: handling error/timeout
-ata2: port reset, p_is 0 is 0 pis 0 cmd 4017 tf d0 ss 113 se 0
-ata2: status=0x50 { DriveReady SeekComplete }
-sdb: Current: sense key=0x0
-    ASC=0x0 ASCQ=0x0
-Assertion failed! qc->flags &
-ATA_QCFLAG_ACTIVE,drivers/scsi/libata-core.c,ata_qc_complete,line=351
-3
-------------[ cut here ]------------
-kernel BUG at drivers/scsi/scsi.c:295!
-invalid operand: 0000 [#1]
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c02d54c1>]    Not tainted VLI
-EFLAGS: 00010046   (2.6.15-rc2)
-EIP is at scsi_put_command+0x8b/0x95
-eax: f7f69d90   ebx: f7f98680   ecx: f7f9868c   edx: f7f9868c
-esi: f7f8c000   edi: 00000296   ebp: f7f69c00   esp: f7ff7c0c
-ds: 007b   es: 007b   ss: 0068
-Process scsi_eh_3 (pid: 858, threadinfo=f7ff6000 task=f7ea9030)
-Stack: f7f69df8 c0225720 f7f98680 f7f69d90 f7f62dfc f7f62dfc c02d9cdf
-f7f98680       efadda7c f7f98680 00000282 c02d9e05 f7f98680 00000001
-00000000 efadda7c       f7f98680 00000000 f7f98680 c02da0df f7f98680
-00000001 00000000 00000001 Call Trace:
- [<c0225720>] kobject_get+0x1a/0x24
- [<c02d9cdf>] scsi_next_command+0x2f/0x4f
- [<c02d9e05>] scsi_end_request+0xc4/0xd6
- [<c02da0df>] scsi_io_completion+0x19a/0x41e
- [<c036448e>] sd_rw_intr+0xc6/0x26d
- [<c02d5bc7>] scsi_finish_command+0x82/0xa2
- [<c035b708>] ata_scsi_qc_complete+0x47/0x8d
- [<c0358eb0>] ata_qc_complete+0x40/0xc6
- [<c035cfd9>] ahci_interrupt+0x107/0x1e3
- [<c0112089>] activate_task+0x6d/0x80
- [<c01321d1>] handle_IRQ_event+0x2e/0x64
- [<c013225a>] __do_IRQ+0x53/0xa5
- [<c011d606>] update_process_times+0x7b/0x106
- [<c010455c>] do_IRQ+0x19/0x24
- [<c0102fda>] common_interrupt+0x1a/0x20
- [<c0119bc3>] __do_softirq+0x2f/0x8a
- [<c0119c44>] do_softirq+0x26/0x28
- [<c0104561>] do_IRQ+0x1e/0x24
- [<c0102fda>] common_interrupt+0x1a/0x20
- [<c02daa73>] scsi_request_fn+0x1a9/0x2c2
- [<c0218c27>] blk_run_queue+0x3a/0x3c
- [<c02d9ce7>] scsi_next_command+0x37/0x4f
- [<c02d9e05>] scsi_end_request+0xc4/0xd6
- [<c02da0df>] scsi_io_completion+0x19a/0x41e
- [<c036448e>] sd_rw_intr+0xc6/0x26d
- [<c02d5bc7>] scsi_finish_command+0x82/0xa2
- [<c035b708>] ata_scsi_qc_complete+0x47/0x8d
- [<c0358eb0>] ata_qc_complete+0x40/0xc6
- [<c035cea6>] ahci_eng_timeout+0x85/0xb0
- [<c02d91fb>] scsi_error_handler+0x0/0x99
- [<c035af32>] ata_scsi_error+0x1a/0x31
- [<c02d925a>] scsi_error_handler+0x5f/0x99
- [<c012706d>] kthread+0xb1/0xb7
- [<c0126fbc>] kthread+0x0/0xb7
- [<c0101329>] kernel_thread_helper+0x5/0xb
-Code: 5c 24 08 8b 74 24 0c 89 44 24 1c 8b 7c 24 10 8b 6c 24 14 83 c4 18 e9
-cd b1 fc ff 89 43 0c 89 48 04 31 db 89 51 04 89 4e 14 eb b7 <0f> 0b 27 01
-3f ce 47 c0 eb 95 57
- <0>Kernel panic - not syncing: Fatal exception in interrupt
-
-
-
-
-Put another way, I can setup, prep and create a software raid.. format
-it.. and start to move data onto it.  I can even use it for quite some
-time.  However, once the above happens once, I can not use that software
-raid again until I wipe out the raid and start fresh.  Merely booting with
-the raid in causes the above problem on bootup...
-
+Thank you.
+------_=_NextPart_001_01C600B8.5E236C00--

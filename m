@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbVLNChi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbVLNCnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbVLNChi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 21:37:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbVLNChi
+	id S1030183AbVLNCnY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 21:43:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbVLNCnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 21:37:38 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:49824 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750987AbVLNChh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 21:37:37 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=dJhaaZ+PZdFmAdlAMWL2M2gvFbBCQ5YdsoIaLGerXz9kCHeKwTvgLKz3nMq7dXYst5Quf3BpeM5PhmBgUvP+K/m+ztbuXVgLCJZ7+9JMCxrUBeH7+f0Q4wTWCcQiA6hKSFujwZS5bs3HVdTBOy9VDEuEwAqBwOJW4dIuNiJwARs=
-Message-ID: <489ecd0c0512131837p654b7d8bqd63cd3342542d1da@mail.gmail.com>
-Date: Wed, 14 Dec 2005 10:37:36 +0800
-From: Luke Yang <luke.adi@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Two bugs in kernel 2.6.15-rc5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 13 Dec 2005 21:43:24 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:48389 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S1751366AbVLNCnY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Dec 2005 21:43:24 -0500
+Date: Wed, 14 Dec 2005 03:43:16 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>
+Cc: linux-kernel@vger.kernel.org, coywolf@gmail.com
+Subject: Re: bugs?
+Message-ID: <20051214024316.GG15993@alpha.home.local>
+References: <439F79CE.6040609@ens.etsmtl.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <439F79CE.6040609@ens.etsmtl.ca>
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, Dec 13, 2005 at 08:47:58PM -0500, Caroline GAUDREAU wrote:
+> my cpu is 1400MHz, but why there's cpu MHz         : 598.593
+> 
+> caro@olymphe:~$ cat /proc/cpuinfo
+> processor       : 0
+> vendor_id       : GenuineIntel
+> cpu family      : 6
+> model           : 9
+> model name      : Intel(R) Pentium(R) M processor 1400MHz
+> stepping        : 5
+> cpu MHz         : 598.593
+> cache size      : 1024 KB
+> fdiv_bug        : no
+> hlt_bug         : no
+> f00f_bug        : no
+> coma_bug        : no
+> fpu             : yes
+> fpu_exception   : yes
+> cpuid level     : 2
+> wp              : yes
+> flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mca cmov 
+> pat clflush dts acpi mmx fxsr sse sse2 tm pbe est tm2
+> bogomips        : 1186.66
 
-   During porting Blackfin architecture to latest kernel, I found two issues:
+It's probably a notebook that you started unplugged from the mains power.
+Mine is stupid enough to believe that I *want* to save power if I plug
+the mains *after* powering it up ! And there's no way to force it to
+switch from 600 to nominal freq afterwards ! So I have to connect it to
+the mains first.
 
- 1. kernel/futex.c invokes handle_mm_fault() function, which calls
-__handle_mm_fault(). But __handle_mm_fault() is defined in
-mm/memory.c, which is only compiled when CONFIG_MMU is defined. So
-those without MMUs can not use futex any more.
+Regards,
+Willy
 
-   How do you think this shall be fixed? Use #ifdef CONFIG_MMU ... #endif?
-
- 2. In include/linux/module.h, "__crc_" and "__ksymtab_" are hard
-coded to be the   prefix for some kinds of symbols (CRC symbol and
-ksymtab section). But in script /mod/modpost.c,
-MODULE_SYMBOL_PREFIX##"__crc_" is used as the prefix to search CRC
-symbols. So if an architecture (such as h8300 or Blackfin) defines
-MODULE_SYMBOL_PREFIX as not NULL ("_"), modpost will always warn about
-"no invalid crc".
-
-   I think we can just remove the MODULE_SYMBOL_PREFIX from  CRC_PFX
-and  KSYMTAB_PFX in modpost.c. If you agree, I can send a patch for
-this.
-
-Best regards,
-Luke Yang
-Analog Device Inc.

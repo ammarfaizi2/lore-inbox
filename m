@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965048AbVLNWrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbVLNWra@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965048AbVLNWrK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 17:47:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbVLNWrK
+	id S965059AbVLNWra (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 17:47:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965057AbVLNWr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 17:47:10 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:50137 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965048AbVLNWrI (ORCPT
+	Wed, 14 Dec 2005 17:47:29 -0500
+Received: from ns2.lanforge.com ([66.165.47.211]:64433 "EHLO ns2.lanforge.com")
+	by vger.kernel.org with ESMTP id S965054AbVLNWr2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 17:47:08 -0500
-Message-ID: <43A0A0E6.8030303@pobox.com>
-Date: Wed, 14 Dec 2005 17:47:02 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Wed, 14 Dec 2005 17:47:28 -0500
+Message-ID: <43A09F08.5000507@candelatech.com>
+Date: Wed, 14 Dec 2005 14:39:04 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@lst.de>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/6] FS_NOATIME for ocfs
-References: <20051213175646.GD17130@lst.de>
-In-Reply-To: <20051213175646.GD17130@lst.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: James Courtier-Dutton <James@superbug.co.uk>
+CC: Sridhar Samudrala <sri@us.ibm.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
+References: <Pine.LNX.4.58.0512140042280.31720@w-sridhar.beaverton.ibm.com>	 <9a8748490512141216x7e25ca2cucb675f11f0c9d913@mail.gmail.com>	 <43A08546.8040708@superbug.co.uk> <1134597344.8855.1.camel@w-sridhar2.beaverton.ibm.com> <43A09811.2080909@superbug.co.uk>
+In-Reply-To: <43A09811.2080909@superbug.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Christoph Hellwig wrote: > Although I think ocfs should
-	still go into 2.6.15 a an additional driver > that stands on it's own..
-	I ACK the inclusion of ocfs as well, but not in 2.6.15. Standalone or
-	not, we don't need to set an example of including new features at the
-	last minute. That just encourages other folks to submit new features at
-	the last minute. Which leads to lack of review, and unnecessary last
-	minute work for some. Do that enough times, and you'll be seeing
-	reiser4 sent to Linus 24 hours before each -final release :) [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> Although I think ocfs should still go into 2.6.15 a an additional driver
-> that stands on it's own..
+James Courtier-Dutton wrote:
 
-I ACK the inclusion of ocfs as well, but not in 2.6.15.
+> Have you actually thought about what would happen in a real world senario?
+> There is no real world requirement for this sort of user land feature.
+> In memory pressure mode, you don't care about user applications. In 
+> fact, under memory pressure no user applications are getting scheduled.
+> All you care about is swapping out memory to achieve a net gain in free 
+> memory, so that the applications can then run ok again.
 
-Standalone or not, we don't need to set an example of including new 
-features at the last minute.  That just encourages other folks to submit 
-new features at the last minute.  Which leads to lack of review, and 
-unnecessary last minute work for some.  Do that enough times, and you'll 
-be seeing reiser4 sent to Linus 24 hours before each -final release :)
+Low 'ATOMIC' memory is different from the memory that user space typically
+uses, so just because you can't allocate an SKB does not mean you are swapping
+out user-space apps.
 
-	Jeff
+I have an app that can have 2000+ sockets open.  I would definately like to make
+the management and other important sockets have priority over others in my app...
 
+Ben
 
-
-
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 

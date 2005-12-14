@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbVLNR5W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932406AbVLNRyN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbVLNR5W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 12:57:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964802AbVLNR5W
+	id S932406AbVLNRyN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 12:54:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932465AbVLNRyN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 12:57:22 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:35804 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S964789AbVLNR5U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 12:57:20 -0500
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-From: Sridhar Samudrala <sri@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <20051214092228.GC18862@brahms.suse.de>
-References: <Pine.LNX.4.58.0512140042280.31720@w-sridhar.beaverton.ibm.com>
-	 <20051214092228.GC18862@brahms.suse.de>
-Content-Type: text/plain
-Date: Wed, 14 Dec 2005 09:55:45 -0800
-Message-Id: <1134582945.8698.17.camel@w-sridhar2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Wed, 14 Dec 2005 12:54:13 -0500
+Received: from rtsoft3.corbina.net ([85.21.88.6]:58991 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S932406AbVLNRyM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 12:54:12 -0500
+Message-ID: <43A05C32.3070501@ru.mvista.com>
+Date: Wed, 14 Dec 2005 20:53:54 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
+       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
+       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
+       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
+Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
+References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051213170629.7240d211.vwool@ru.mvista.com> <20051213195317.29cfd34a.vwool@ru.mvista.com> <200512131101.02025.david-b@pacbell.net> <20051213191531.GA13751@kroah.com> <43A0230B.1040904@ru.mvista.com> <20051214171842.GB30546@kroah.com>
+In-Reply-To: <20051214171842.GB30546@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-14 at 10:22 +0100, Andi Kleen wrote:
-> > I would appreciate any feedback or comments on this approach.
-> 
-> Maybe I'm missing something but wouldn't you need an own critical
-> pool (or at least reservation) for each socket to be safe against deadlocks?
-> 
-> Otherwise if a critical sockets needs e.g. 2 pages to finish something
-> and 2 critical sockets are active they can each steal the last pages
-> from each other and deadlock.
+Greg KH wrote:
 
-Here we are assuming that the pre-allocated critical page pool is big enough
-to satisfy the requirements of all the critical sockets.
+>What is the speed of your SPI bus?
+>
+>And what are your preformance requirements?
+>  
+>
+The maximum frequency for the SPI bus is 26 MHz, WLAN driver is to work 
+at true 10 Mbit/sec.
 
-In the current critical page pool implementation, there is also a limitation 
-that only order-0 allocations(single page) are supported. I think in the
-networking send/receive patch, the only place where multi-page allocs are
-requested is in the drivers if the MTU > PAGESIZE. But i guess the drivers
-are getting updated to avoid > order-0 allocations.
+Vitaly
 
-Also during the emergency, we free the memory allocated for non-critical 
-packets as quickly as possible so that it can be re-used for critical
-allocations.
-
-Thanks
-Sridhar
-
+P. S. I'm speaking not about this particular case during most part of 
+this conversation. Sound cards behind the SPI bus will suffer a lot more 
+since it's their path to use wXrY functions (lotsa small transfers) 
+rather than WLAN's.

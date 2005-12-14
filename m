@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbVLNDCc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbVLNDDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030202AbVLNDCc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Dec 2005 22:02:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030263AbVLNDCc
+	id S1030263AbVLNDDj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Dec 2005 22:03:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbVLNDDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 22:02:32 -0500
-Received: from nproxy.gmail.com ([64.233.182.197]:46525 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030202AbVLNDCb convert rfc822-to-8bit
+	Tue, 13 Dec 2005 22:03:38 -0500
+Received: from nproxy.gmail.com ([64.233.182.198]:21224 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030263AbVLNDDi convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 22:02:31 -0500
+	Tue, 13 Dec 2005 22:03:38 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nKIpXEcdn3dxAKUDKWSHbZAXqunN02GlrS2xvqvExX6veAOh5wjXuo8mUqSxGkytRO9qHshUzi2MwUe7QARs+W/SzmeSfXzygl9jkT1MxJbhPV1/IHfC0i6Z8e8Pd0yzqMaC/f0f+ZRKZ7Pjc0XB4y3pnRd0GeTXpiyst6UqnHw=
-Message-ID: <2cd57c900512131902i2ff9ba1ak@mail.gmail.com>
-Date: Wed, 14 Dec 2005 11:02:29 +0800
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BmlqrALATrmfjHQxGC3BlWWFVD3RvQTaj2VKEJZdDOISW/t8E6gUpzp8t7PdQxXTaafPnAPW1BINiGxo+6OzkJWvQyfpOyMbtjro+91vxSvHA1XCCwUVE/v9EcAnpzm1ITWSVA+57dL+yAJy60pIUFMaEx3q4BXhyl/Jt86B5uY=
+Message-ID: <2cd57c900512131903i4b79b9e2k@mail.gmail.com>
+Date: Wed, 14 Dec 2005 11:03:36 +0800
 From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Dave Jones <davej@redhat.com>,
+       Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>,
+       linux-kernel@vger.kernel.org, coywolf@gmail.com
 Subject: Re: bugs?
-Cc: Caroline GAUDREAU <caroline.gaudreau.1@ens.etsmtl.ca>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200512132114.23496.dtor_core@ameritech.net>
+In-Reply-To: <20051214022457.GA15716@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
 References: <439F79CE.6040609@ens.etsmtl.ca>
-	 <200512132114.23496.dtor_core@ameritech.net>
+	 <20051214022457.GA15716@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/12/14, Dmitry Torokhov <dtor_core@ameritech.net>:
-> On Tuesday 13 December 2005 20:47, Caroline GAUDREAU wrote:
-> > my cpu is 1400MHz, but why there's cpu MHz         : 598.593
-> >
+2005/12/14, Dave Jones <davej@redhat.com>:
+> On Tue, Dec 13, 2005 at 08:47:58PM -0500, Caroline GAUDREAU wrote:
+>  > my cpu is 1400MHz, but why there's cpu MHz         : 598.593
 >
-> Do you have cpufreq active?
-
-Caro, do a "$ grep -i cpufreq /boot/config".
-
+>  > flags           : fpu vme de pse tsc msr mce cx8 sep mtrr pge mca cmov
+>  > pat clflush dts acpi mmx fxsr sse sse2 tm pbe est tm2
+>                                                  ^^^
 >
-> [root@core ~]# cat /proc/cpuinfo
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 6
-> model           : 11
-> model name      : Intel(R) Pentium(R) III Mobile CPU      1000MHz
-> stepping        : 1
-> cpu MHz         : 730.646
->
-> --
-> Dmitry
->
+> Your CPU is speedstep capable.  Most modern distros include a daemon
+> for adjusting CPU speed based upon load.
 
-
+what daemon? suppose in debian or redhat.
 --
 Coywolf Qi Hunt
 http://sosdg.org/~coywolf/

@@ -1,44 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965064AbVLNXHY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965065AbVLNXKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965064AbVLNXHY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 18:07:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965044AbVLNXHY
+	id S965065AbVLNXKW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 18:10:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbVLNXKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 18:07:24 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:53203 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S965043AbVLNXHX (ORCPT
+	Wed, 14 Dec 2005 18:10:22 -0500
+Received: from w241.dkm.cz ([62.24.88.241]:59834 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S965065AbVLNXKV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 18:07:23 -0500
-Date: Wed, 14 Dec 2005 15:07:13 -0800 (PST)
-From: hawkes@sgi.com
-To: Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jack Steiner <steiner@sgi.com>, Keith Owens <kaos@sgi.com>, hawkes@sgi.com
-Message-Id: <20051214230713.7528.68477.sendpatchset@tomahawk.engr.sgi.com>
-Subject: [PATCH] ia64: eliminate softlockup warning
+	Wed, 14 Dec 2005 18:10:21 -0500
+Date: Thu, 15 Dec 2005 00:10:19 +0100
+From: Petr Baudis <pasky@suse.cz>
+To: git@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Cogito-0.16.2
+Message-ID: <20051214231019.GK22159@pasky.or.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix an unnecessary softlockup watchdog warning in the ia64
-uncached_build_memmap() that occurs occasionally at 256p and always at
-512p.  The problem occurs at boot time.
+  Hello,
 
-It would be good if we had a cleaner mechanism to temporarily silence
-the watchdog thread, e.g.,
-    http://marc.theaimsgroup.com/?l=linux-kernel&m=111552476401175&w=2
-but until that patch gets merged, this fix will have to suffice.
+  this is Cogito version 0.16.2, the next stable release of the
+human-friendly version control UI for the Linus' GIT tool. Share
+and enjoy at:
 
-Signed-off-by: John Hawkes <hawkes@sgi.com>
+	http://www.kernel.org/pub/software/scm/cogito/
 
-Index: linux/arch/ia64/kernel/uncached.c
-===================================================================
---- linux.orig/arch/ia64/kernel/uncached.c	2005-12-06 15:12:14.000000000 -0800
-+++ linux/arch/ia64/kernel/uncached.c	2005-12-14 14:50:55.000000000 -0800
-@@ -210,6 +210,7 @@
- 
- 	dprintk(KERN_ERR "uncached_build_memmap(%lx %lx)\n", start, end);
- 
-+	touch_softlockup_watchdog();
- 	memset((char *)start, 0, length);
- 
- 	node = paddr_to_nid(start - __IA64_UNCACHED_OFFSET);
+  Very few changes since the last release - one testcase, trivial fix,
+documentation improvements. And one important bugfix! If you are a
+cg-clean user, certainly upgrade - cg-clean in 0.16.1 had a serious bug
+which would cause it remove all subdirectories when running from the
+source root with the -d option - which is rather nasty if you have any
+uncommitted local changes there.
+
+  Now we finally have a testcase for cg-clean, and the cg-clean code was
+further tweaked to reduce potential for any more code mistakes. The
+major reason for both 0.16.1 and 0.16.2 were cg-clean bugs, but
+hopefully no more problems are waiting for us in this realm, and the
+rest of Cogito seems to be thankfully pretty stable throughout the 0.16
+line, so I expect things to finally calm down a bit here.
+
+  I spent the last two hours making a large patch fixing all potentially
+whitespace-unsafe Cogito code, but I've decided to keep it for 0.17 only
+- Cogito meeting with whitespaces is a very rare occasion, and such
+a large patch is bound to contain some new bugs coming from trivial
+mistakes and such.
+
+  Also, Cogito is now very ineffective when cloning big-packed
+repositories over the git protocol or over ssh, since git-fetch-pack
+unpacks the objects on the local side, which bogs things down a lot and
+makes the repository grow into enormous proportions - I'm not yet sure
+if I will backport the fix to 0.16 since I want to be maximally careful
+not to gravely break anything again and keep 0.16 as stable as possible.
+(Hm. Call this "the Debian dilemma". ;-)
+
+  The new stuff since 0.16.1 is:
+
+Pavel Roskin:
+      cg-clean test
+      cg-clean: be safer by running everything from relpath
+
+Petr Baudis:
+      cg-clean testcase: Minor tidyup
+      cg-clean testcase: Clarify description
+      Fixed cg-clean removing ALL subdirs when invoked from root
+            (Discovered and originally fixed by Pavel Roskin.)
+      Fix cg-status reporting every merge as a squash-merge
+      Improve cg-admin-setuprepo documentation
+      In the cg-commit text, give the user hint on how to abort
+      cogito-0.16.2
+
+  Happy hacking,
+
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+VI has two modes: the one in which it beeps and the one in which
+it doesn't.

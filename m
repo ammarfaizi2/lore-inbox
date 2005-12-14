@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbVLNNk1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbVLNNul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932524AbVLNNk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 08:40:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbVLNNk0
+	id S964772AbVLNNul (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 08:50:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964773AbVLNNul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 08:40:26 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:48057 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932524AbVLNNkZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 08:40:25 -0500
-Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
-From: Arjan van de Ven <arjan@infradead.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Hubertus Franke <frankeh@watson.ibm.com>, Paul Jackson <pj@sgi.com>
-In-Reply-To: <20041214152325.GA2377@ucw.cz>
-References: <20051114212341.724084000@sergelap>
-	 <m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
-	 <1133977623.24344.31.camel@localhost>
-	 <m1hd9kd89y.fsf@ebiederm.dsl.xmission.com>
-	 <1133991650.30387.17.camel@localhost>
-	 <m18xuwd015.fsf@ebiederm.dsl.xmission.com>  <20041214152325.GA2377@ucw.cz>
-Content-Type: text/plain
-Date: Wed, 14 Dec 2005 14:40:08 +0100
-Message-Id: <1134567609.9442.2.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 14 Dec 2005 08:50:41 -0500
+Received: from rtsoft3.corbina.net ([85.21.88.6]:48237 "EHLO
+	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
+	id S964772AbVLNNuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 08:50:40 -0500
+Message-ID: <43A0230B.1040904@ru.mvista.com>
+Date: Wed, 14 Dec 2005 16:50:03 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
+       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
+       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
+       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
+Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
+References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051213170629.7240d211.vwool@ru.mvista.com> <20051213195317.29cfd34a.vwool@ru.mvista.com> <200512131101.02025.david-b@pacbell.net> <20051213191531.GA13751@kroah.com>
+In-Reply-To: <20051213191531.GA13751@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-14 at 15:23 +0000, Pavel Machek wrote:
-> Hi!
-> 
-> > One of my wish list items would be to run my things like my
-> > web browser in a container with only access to a subset of
-> > the things I can normally access.  That way I could be less
-> > concerned about the latest browser security bug.
-> 
-> subterfugue.sf.net (using ptrace), but yes, nicer solution
-> would be welcome.
+Greg KH wrote:
 
-selinux too, as well as andrea's syscall filter thing and many others.
+>On Tue, Dec 13, 2005 at 11:01:01AM -0800, David Brownell wrote:
+>  
+>
+>>It's way better to just insist that all I/O buffers (in all
+>>generic APIs) be DMA-safe.  AFAICT that's a pretty standard
+>>rule everywhere in Linux.
+>>    
+>>
+>
+>I agree.
+>  
+>
+Well, why then David doesn't insist on that in his own code?
+His synchronous transfer functions are allocating transfer buffers on 
+stack which is not DMA-safe.
+Then he starts messing with allocate-or-use-preallocated stuff etc. etc.
+Why isn't he just kmalloc'ing/kfree'ing buffers each time these 
+functions are called (as he proposes for upper layer drivers to do)?
+That's a significant inconsistency. Is it also the thing you agree with?
 
-the hardest is the balance between security and usability. You don't
-want your browser to be able to read files in your home dir (Except
-maybe a few selected ones in the browsers own dir)... until you want to
-upload a file via a webform.
+And they way he does it implies redundant memcpy's and kmalloc's: 
+suppose we have two controller drivers working in two threads and 
+calling write_then_read in such a way that the one called later has to 
+allocate a new buffer. Suppose also that both controller drivers are 
+working in *PIO* mode. In this situation you have one redundant kmalloc 
+and two redundant memcpy's, not speaking about overhead brought up by 
+mutexes.
 
+The thing is that only controller driver is aware whether DMA is needed 
+or not, so it's controller driver that should work it out.
+Requesting all the buffers to be DMA-safe will make a significant 
+performance drop on all small transfers!
 
+Vitaly

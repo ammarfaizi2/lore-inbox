@@ -1,53 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751163AbVLNGrh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbVLNGsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751163AbVLNGrh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 01:47:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVLNGrh
+	id S1751266AbVLNGsX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 01:48:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751261AbVLNGsX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 01:47:37 -0500
-Received: from rtsoft3.corbina.net ([85.21.88.6]:61802 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S1751163AbVLNGrg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 01:47:36 -0500
-Message-ID: <439FBFFA.2070804@ru.mvista.com>
-Date: Wed, 14 Dec 2005 09:47:22 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       spi-devel-general@lists.sourceforge.net
-Subject: Re: [spi-devel-general] [patch 2.6.15-rc5-mm2] SPI, priority inversion
- tweak
-References: <200512131028.49291.david-b@pacbell.net>
-In-Reply-To: <200512131028.49291.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 14 Dec 2005 01:48:23 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:22946
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751179AbVLNGsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 01:48:22 -0500
+Date: Tue, 13 Dec 2005 22:47:38 -0800 (PST)
+Message-Id: <20051213.224738.130590565.davem@davemloft.net>
+To: davej@redhat.com
+Cc: linux-kernel@vger.kernel.org, shemminger@osdl.org, jgarzik@pobox.com,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH] skge: get rid of warning on race
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051214053708.GA10486@redhat.com>
+References: <200512130559.jBD5xUjf015319@hera.kernel.org>
+	<20051214053708.GA10486@redhat.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm...
+From: Dave Jones <davej@redhat.com>
+Date: Wed, 14 Dec 2005 00:37:08 -0500
 
->-	down(&lock);
->+	/* ... unless someone else is using the pre-allocated buffer */
->+	if (down_trylock(&lock)) {
->+		local_buf = kmalloc(SPI_BUFSIZ, GFP_KERNEL);
->+		if (!local_buf)
->+			return -ENOMEM;
->+	} else
->+		local_buf = buf;
->+
->  
->
-Okay, so suppose we have two controller drivers working in two threads 
-and calling write_then_read in such a way that the one called later has 
-to allocate a new buffer. Suppose also that both controller drivers are 
-working in PIO mode. In this situation you have one redundant kmalloc 
-and two redundant memcpy's, not speaking about overhead brought up by 
-mutexes. Bad!
-So I still can't say I'm accepting this approach.
+> drivers/net/skge.ko needs unknown symbol netif_stopped
 
-Worth mentioning is that the approach I propose is free from this drawback.
-
-Vitaly
+it's a typo, it should be netif_queue_stopped(). :-/

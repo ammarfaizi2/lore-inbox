@@ -1,118 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932589AbVLNOkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbVLNOif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932589AbVLNOkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 09:40:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932609AbVLNOkZ
+	id S932228AbVLNOif (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 09:38:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbVLNOif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 09:40:25 -0500
-Received: from L8R.net ([216.58.41.32]:23519 "EHLO l8r.net")
-	by vger.kernel.org with ESMTP id S932589AbVLNOkZ (ORCPT
+	Wed, 14 Dec 2005 09:38:35 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:65173 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932228AbVLNOie (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 09:40:25 -0500
-Date: Wed, 14 Dec 2005 09:40:21 -0500
-From: Brad Barnett <lists@l8r.net>
-To: linux-kernel@vger.kernel.org
-Subject: ahci + software raid (intel E7221, supermicro P8SCT) causes kernel
- BUG at drivers/scsi/scsi.c:295
-Message-ID: <20051214094021.2a9930a8@be.back.l8r.net>
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; x86_64-pc-linux-gnu)
+	Wed, 14 Dec 2005 09:38:34 -0500
+Date: Wed, 14 Dec 2005 08:38:19 -0600
+From: "Serge E. Hallyn" <serue@us.ibm.com>
+To: vserver@list.linux-vserver.org
+Cc: Herbert Poetzl <herbert@13thfloor.at>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Vserver] Re: [ANNOUNCE] second stable release of Linux-VServer
+Message-ID: <20051214143819.GB20138@sergelap.austin.ibm.com>
+References: <20051213185650.GA6466@MAIL.13thfloor.at> <Pine.LNX.4.63.0512140832200.2723@cuia.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.63.0512140832200.2723@cuia.boston.redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoting Rik van Riel (riel@redhat.com):
+> On Tue, 13 Dec 2005, Herbert Poetzl wrote:
+> 
+> > Well, as the OpenVZ folks announced their release on LKML
+> > I just decided to do similar for the Linux-VServer release,
+> > so please let me know if that is not considered appropriate.
+> 
+> Since there is a legitimate (and very popular) use case for
+> virtuozzo / vserver functionality, I think it is a good
+> thing to get all the code out in the open.
+> 
+> I really hope we will get something like BSD jail functionality
+> in the Linux kernel.  It makes perfect sense for hosting
+> environments.
 
+Well a version for 2.6.15-rc2 is still at sf.net/projects/linuxjail.  I
+haven't resubmitted to lkml in a long time because I haven't found or
+implemented a better solution for the network virtualization, which
+Christoph wasn't happy with.  The vserver ngnet or openvz networking may
+be a good solution.  Additionally, the pid virtualization we've been
+discussing (and which should be submitted soon) would remove the need
+for the tasklookup patch, so bsdjail would reduce even further, to
+network and simple access controls.
 
-Supermicro P8SCT:
+Note that I would prefer to see the full vserver in the kernel...
 
-http://supermicro.com/products/motherboard/P4/E7221/P8SCT.cfm
-
-(uses intel E7221/ahci for SATA controller).  Hot-swap raid cage.  Three
-SATA ports in use.  Also have two MegaRAID SATA 150-6 onboard, one in
-PCI-X slot.
-
-This box will run stable, but at inconsistent times lock up.  After
-hooking up serial console, we discovered the problem.
-
-FYI, we have three different motherboards from Supermicro, and they all
-exhibit the same issue... it is unlikely a fault with our specific
-hardware.
-
-It is easiest to trigger this bug (not certain if this is the only way)
-when running software raid, two drives, in stripe mode.  Many times this
-configuration will cause no isses, other times I get this:
-
-  ata2: handling error/timeout
-ata2: port reset, p_is 0 is 0 pis 0 cmd 4017 tf d0 ss 113 se 0
-ata2: status=0x50 { DriveReady SeekComplete }
-sdb: Current: sense key=0x0
-    ASC=0x0 ASCQ=0x0
-Assertion failed! qc->flags &
-ATA_QCFLAG_ACTIVE,drivers/scsi/libata-core.c,ata_qc_complete,line=351
-3
-------------[ cut here ]------------
-kernel BUG at drivers/scsi/scsi.c:295!
-invalid operand: 0000 [#1]
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c02d54c1>]    Not tainted VLI
-EFLAGS: 00010046   (2.6.15-rc2)
-EIP is at scsi_put_command+0x8b/0x95
-eax: f7f69d90   ebx: f7f98680   ecx: f7f9868c   edx: f7f9868c
-esi: f7f8c000   edi: 00000296   ebp: f7f69c00   esp: f7ff7c0c
-ds: 007b   es: 007b   ss: 0068
-Process scsi_eh_3 (pid: 858, threadinfo=f7ff6000 task=f7ea9030)
-Stack: f7f69df8 c0225720 f7f98680 f7f69d90 f7f62dfc f7f62dfc c02d9cdf
-f7f98680       efadda7c f7f98680 00000282 c02d9e05 f7f98680 00000001
-00000000 efadda7c       f7f98680 00000000 f7f98680 c02da0df f7f98680
-00000001 00000000 00000001 Call Trace:
- [<c0225720>] kobject_get+0x1a/0x24
- [<c02d9cdf>] scsi_next_command+0x2f/0x4f
- [<c02d9e05>] scsi_end_request+0xc4/0xd6
- [<c02da0df>] scsi_io_completion+0x19a/0x41e
- [<c036448e>] sd_rw_intr+0xc6/0x26d
- [<c02d5bc7>] scsi_finish_command+0x82/0xa2
- [<c035b708>] ata_scsi_qc_complete+0x47/0x8d
- [<c0358eb0>] ata_qc_complete+0x40/0xc6
- [<c035cfd9>] ahci_interrupt+0x107/0x1e3
- [<c0112089>] activate_task+0x6d/0x80
- [<c01321d1>] handle_IRQ_event+0x2e/0x64
- [<c013225a>] __do_IRQ+0x53/0xa5
- [<c011d606>] update_process_times+0x7b/0x106
- [<c010455c>] do_IRQ+0x19/0x24
- [<c0102fda>] common_interrupt+0x1a/0x20
- [<c0119bc3>] __do_softirq+0x2f/0x8a
- [<c0119c44>] do_softirq+0x26/0x28
- [<c0104561>] do_IRQ+0x1e/0x24
- [<c0102fda>] common_interrupt+0x1a/0x20
- [<c02daa73>] scsi_request_fn+0x1a9/0x2c2
- [<c0218c27>] blk_run_queue+0x3a/0x3c
- [<c02d9ce7>] scsi_next_command+0x37/0x4f
- [<c02d9e05>] scsi_end_request+0xc4/0xd6
- [<c02da0df>] scsi_io_completion+0x19a/0x41e
- [<c036448e>] sd_rw_intr+0xc6/0x26d
- [<c02d5bc7>] scsi_finish_command+0x82/0xa2
- [<c035b708>] ata_scsi_qc_complete+0x47/0x8d
- [<c0358eb0>] ata_qc_complete+0x40/0xc6
- [<c035cea6>] ahci_eng_timeout+0x85/0xb0
- [<c02d91fb>] scsi_error_handler+0x0/0x99
- [<c035af32>] ata_scsi_error+0x1a/0x31
- [<c02d925a>] scsi_error_handler+0x5f/0x99
- [<c012706d>] kthread+0xb1/0xb7
- [<c0126fbc>] kthread+0x0/0xb7
- [<c0101329>] kernel_thread_helper+0x5/0xb
-Code: 5c 24 08 8b 74 24 0c 89 44 24 1c 8b 7c 24 10 8b 6c 24 14 83 c4 18 e9
-cd b1 fc ff 89 43 0c 89 48 04 31 db 89 51 04 89 4e 14 eb b7 <0f> 0b 27 01
-3f ce 47 c0 eb 95 57
- <0>Kernel panic - not syncing: Fatal exception in interrupt
-
-
-
-
-Put another way, I can setup, prep and create a software raid.. format
-it.. and start to move data onto it.  I can even use it for quite some
-time.  However, once the above happens once, I can not use that software
-raid again until I wipe out the raid and start fresh.  Merely booting with
-the raid in causes the above problem on bootup...
-
+-serge

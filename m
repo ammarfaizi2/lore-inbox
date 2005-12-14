@@ -1,82 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbVLNWJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbVLNWNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965015AbVLNWJY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 17:09:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbVLNWJY
+	id S965013AbVLNWNF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 17:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVLNWNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 17:09:24 -0500
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:54025 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S965012AbVLNWJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 17:09:23 -0500
-Message-ID: <43A09811.2080909@superbug.co.uk>
-Date: Wed, 14 Dec 2005 22:09:21 +0000
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Wed, 14 Dec 2005 17:13:05 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:9231 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965013AbVLNWNE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 17:13:04 -0500
+Date: Wed, 14 Dec 2005 23:13:04 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] offer CC_OPTIMIZE_FOR_SIZE only if EXPERIMENTAL
+Message-ID: <20051214221304.GE23349@stusta.de>
+References: <20051214191006.GC23349@stusta.de> <20051214140531.7614152d.akpm@osdl.org>
 MIME-Version: 1.0
-To: Sridhar Samudrala <sri@us.ibm.com>
-CC: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-References: <Pine.LNX.4.58.0512140042280.31720@w-sridhar.beaverton.ibm.com>	 <9a8748490512141216x7e25ca2cucb675f11f0c9d913@mail.gmail.com>	 <43A08546.8040708@superbug.co.uk> <1134597344.8855.1.camel@w-sridhar2.beaverton.ibm.com>
-In-Reply-To: <1134597344.8855.1.camel@w-sridhar2.beaverton.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051214140531.7614152d.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sridhar Samudrala wrote:
-> On Wed, 2005-12-14 at 20:49 +0000, James Courtier-Dutton wrote:
+On Wed, Dec 14, 2005 at 02:05:31PM -0800, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > Hi Linus,
+> > 
+> > your patch to allow CC_OPTIMIZE_FOR_SIZE even for EMBEDDED=n has broken 
+> > the EMBEDDED menu.
 > 
->>Jesper Juhl wrote:
->>
->>>On 12/14/05, Sridhar Samudrala <sri@us.ibm.com> wrote:
->>>
->>>
->>>>These set of patches provide a TCP/IP emergency communication mechanism that
->>>>could be used to guarantee high priority communications over a critical socket
->>>>to succeed even under very low memory conditions that last for a couple of
->>>>minutes. It uses the critical page pool facility provided by Matt's patches
->>>>that he posted recently on lkml.
->>>>       http://lkml.org/lkml/2005/12/14/34/index.html
->>>>
->>>>This mechanism provides a new socket option SO_CRITICAL that can be used to
->>>>mark a socket as critical. A critical connection used for emergency
->>>
->>>
->>>So now everyone writing commercial apps for Linux are going to set
->>>SO_CRITICAL on sockets in their apps so their apps can "survive better
->>>under pressure than the competitors aps" and clueless programmers all
->>>over are going to think "cool, with this I can make my app more
->>>important than everyone elses, I'm going to use this".  When everyone
->>>and his dog starts to set this, what's the point?
->>>
->>>
->>
->>I don't think the initial patches that Matt did were intended for what 
->>you are describing.
->>When I had the conversation with Matt at KS, the problem we were trying 
->>to solve was "Memory pressure with network attached swap space".
->>I came up with the idea that I think Matt has implemented.
->>Letting the OS choose which are "critical" TCP/IP sessions is fine. But 
->>letting an application choose is a recipe for disaster.
+> It looks like that patch needs to be reverted or altered anyway.  sparc64
+> machines are failing all over the place, possibly due to newly-exposed
+> compiler bugs.
 > 
-> 
-> We could easily add capable(CAP_NET_ADMIN) check to allow this option to
-> be set only by privileged users.
-> 
-> Thanks
-> Sridhar
-> 
+> Whether it's the compiler or it's genuine kernel bugs, the same problems
+> are likely to bite other architectures.
 
-Sridhar,
+The help text already contains a bold warning.
 
-Have you actually thought about what would happen in a real world senario?
-There is no real world requirement for this sort of user land feature.
-In memory pressure mode, you don't care about user applications. In 
-fact, under memory pressure no user applications are getting scheduled.
-All you care about is swapping out memory to achieve a net gain in free 
-memory, so that the applications can then run ok again.
+What about marking it as EXPERIMENTAL?
+That is not that heavy as EMBEDDED but expresses this.
 
-James
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+CC_OPTIMIZE_FOR_SIZE is still an experimental feature that doesn't work 
+with all supported gcc/architecture combinations.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-git/init/Kconfig.old	2005-12-14 23:08:51.000000000 +0100
++++ linux-git/init/Kconfig	2005-12-14 23:09:09.000000000 +0100
+@@ -257,7 +257,7 @@
+ source "usr/Kconfig"
+ 
+ config CC_OPTIMIZE_FOR_SIZE
+-	bool "Optimize for size"
++	bool "Optimize for size (EXPERIMENTAL)" if EXPERIMENTAL
+ 	default y if ARM || H8300
+ 	help
+ 	  Enabling this option will pass "-Os" instead of "-O2" to gcc
+

@@ -1,103 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVLNR5F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbVLNSNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbVLNR5F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 12:57:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbVLNR5E
+	id S964863AbVLNSNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 13:13:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbVLNSNJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 12:57:04 -0500
-Received: from mail.usfltd.com ([69.222.0.23]:8720 "EHLO usfltd.com")
-	by vger.kernel.org with ESMTP id S964773AbVLNR5C convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 12:57:02 -0500
-Subject: =?ISO-8859-1?Q?kernel-2=2E6=2E15-rc5-rt2=20-=20compilation=20error=20=91?=
- =?ISO-8859-1?Q?RWSEM=5FACTIVE=5FBIAS=92=20undeclared?=
-Date: Wed, 14 Dec 2005 11:57:42 -0600
-Message-Id: <200512141157.AA15073854@usfltd.com>
+	Wed, 14 Dec 2005 13:13:09 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:8854 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964797AbVLNSNH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 13:13:07 -0500
+Subject: Re: [RFC][PATCH 3/3] TCP/IP Critical socket communication mechanism
+From: Sridhar Samudrala <sri@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <1134559039.25663.12.camel@localhost.localdomain>
+References: <Pine.LNX.4.58.0512140052470.31720@w-sridhar.beaverton.ibm.com>
+	 <1134559039.25663.12.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 10:11:36 -0800
+Message-Id: <1134583896.8698.33.camel@w-sridhar2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-From: "art" <art@usfltd.com>
-Reply-To: <art@usfltd.com>
-To: <linux-kernel@vger.kernel.org>
-CC: <mingo@elte.hu>
-X-Mailer: <IMail v8.05>
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-12-14 at 11:17 +0000, Alan Cox wrote:
+> On Mer, 2005-12-14 at 01:12 -0800, Sridhar Samudrala wrote:
+> > Pass __GFP_CRITICAL flag with all allocation requests that are critical.
+> > - All allocations needed to process incoming packets are marked as CRITICAL.
+> >   This includes the allocations
+> >      - made by the driver to receive incoming packets
+> >      - to process and send ARP packets
+> >      - to create new routes for incoming packets
+> 
+> But your user space that would add the routes is not so protected so I'm
+> not sure this is actually a solution, more of an extended fudge. In
+> which case I'm not clear why it is any better than the current
+> GFP_ATOMIC approach.
 
-kernel-2.6.15-rc5-rt2 - compilation error ‘RWSEM_ACTIVE_BIAS’ undeclared
+I am not referring to routes that are added by user-space, but the allocations
+needed for cached routes stored in skb->dst in ip_route_input() path.
 
-gcc version 4.0.2
-........
-  CC      lib/kref.o
-  CC      lib/prio_tree.o
-  CC      lib/radix-tree.o
-  CC      lib/rbtree.o
-  CC      lib/rwsem.o
-lib/rwsem.c: In function ‘__rwsem_do_wake’:
-lib/rwsem.c:57: warning: implicit declaration of function ‘rwsem_atomic_update’
-lib/rwsem.c:57: error: ‘RWSEM_ACTIVE_BIAS’ undeclared (first use in this function)
-lib/rwsem.c:57: error: (Each undeclared identifier is reported only once
-lib/rwsem.c:57: error: for each function it appears in.)
-lib/rwsem.c:59: error: ‘RWSEM_ACTIVE_MASK’ undeclared (first use in this function)
-lib/rwsem.c:62: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
-lib/rwsem.c:85: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
-lib/rwsem.c:99: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
-lib/rwsem.c:108: error: ‘RWSEM_WAITING_BIAS’ undeclared (first use in this function)
-lib/rwsem.c:113: warning: implicit declaration of function ‘rwsem_atomic_add’
-lib/rwsem.c:115: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
-lib/rwsem.c:126: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
-lib/rwsem.c:127: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
-lib/rwsem.c: In function ‘rwsem_down_failed_common’:
-lib/rwsem.c:153: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:153: warning: type defaults to ‘int’ in declaration of ‘type name’
-lib/rwsem.c:153: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:153: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:153: warning: type defaults to ‘int’ in declaration of ‘type name’
-lib/rwsem.c:153: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:157: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
-lib/rwsem.c:163: error: ‘RWSEM_ACTIVE_MASK’ undeclared (first use in this function)
-lib/rwsem.c:166: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:166: warning: type defaults to ‘int’ in declaration of ‘type name’
-lib/rwsem.c:166: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:166: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:166: warning: type defaults to ‘int’ in declaration of ‘type name’
-lib/rwsem.c:166: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c: In function ‘rwsem_down_read_failed’:
-lib/rwsem.c:193: error: ‘RWSEM_WAITING_BIAS’ undeclared (first use in this function)
-lib/rwsem.c:193: error: ‘RWSEM_ACTIVE_BIAS’ undeclared (first use in this function)
-lib/rwsem.c: In function ‘rwsem_down_write_failed’:
-lib/rwsem.c:210: error: ‘RWSEM_ACTIVE_BIAS’ undeclared (first use in this function)
-lib/rwsem.c: In function ‘rwsem_wake’:
-lib/rwsem.c:226: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:226: warning: type defaults to ‘int’ in declaration of ‘type name’
-lib/rwsem.c:226: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:226: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:226: warning: type defaults to ‘int’ in declaration of ‘type name’
-lib/rwsem.c:226: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:229: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
-lib/rwsem.c:232: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:232: warning: type defaults to ‘int’ in declaration of ‘type name’
-lib/rwsem.c:232: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:232: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:232: warning: type defaults to ‘int’ in declaration of ‘type name’
-lib/rwsem.c:232: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c: In function ‘rwsem_downgrade_wake’:
-lib/rwsem.c:250: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:250: warning: type defaults to ‘int’ in declaration of ‘type name’
-lib/rwsem.c:250: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:250: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:250: warning: type defaults to ‘int’ in declaration of ‘type name’
-lib/rwsem.c:250: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:253: error: ‘struct rw_semaphore’ has no member named ‘wait_list’
-lib/rwsem.c:256: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:256: warning: type defaults to ‘int’ in declaration of ‘type name’
-lib/rwsem.c:256: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:256: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-lib/rwsem.c:256: warning: type defaults to ‘int’ in declaration of ‘type name’
-lib/rwsem.c:256: error: ‘struct rw_semaphore’ has no member named ‘wait_lock’
-make[1]: *** [lib/rwsem.o] Error 1
-make: *** [lib] Error 2
+> > +#define SK_CRIT_ALLOC(sk, flags) ((sk->sk_allocation & __GFP_CRITICAL) | flags)
+> 
+> Lots of hidden conditional logic on critical paths. Also sk should be in
+> brackets so that the macro evaluation order is defined as should flags
+> 
+> > +#define CRIT_ALLOC(flags) (__GFP_CRITICAL | flags)
+> 
+> Pointless obfuscation
 
-xboom
+The only reason i made these macros is that i would expect this to a compile
+time configurable option so that there is zero overhead for regular users.
+
+#ifdef CONFIG_CRIT_SOCKET
+#define SK_CRIT_ALLOC(sk, flags) ((sk->sk_allocation & __GFP_CRITICAL) | flags)
+#define CRIT_ALLOC(flags) (__GFP_CRITICAL | flags)
+#else
+#define SK_CRIT_ALLOC(sk, flags) flags
+#define CRIT_ALLOC(flags) flags
+#endif
+
+Thanks
+Sridhar
 

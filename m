@@ -1,65 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932536AbVLNO2M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932617AbVLNO2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932536AbVLNO2M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 09:28:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbVLNO2M
+	id S932617AbVLNO2r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 09:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932589AbVLNO2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 09:28:12 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18699 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932536AbVLNO2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 09:28:11 -0500
-Date: Wed, 14 Dec 2005 14:28:04 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Anderson Briglia <briglia.anderson@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/5] [RFC] Add MMC password protection (lock/unlock) support
-Message-ID: <20051214142804.GB7124@flint.arm.linux.org.uk>
-Mail-Followup-To: Anderson Briglia <briglia.anderson@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <e55525570512140531k110169fal9b8b6423b022aafc@mail.gmail.com>
+	Wed, 14 Dec 2005 09:28:47 -0500
+Received: from mx.laposte.net ([81.255.54.11]:39920 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S932547AbVLNO2q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 09:28:46 -0500
+Subject: Re: [spi-devel-general] Re: [PATCH 2.6-git 0/4] SPI core refresh
+From: Rui Sousa <rui.sousa@laposte.net>
+To: Vitaly Wool <vwool@ru.mvista.com>
+Cc: dmitry pervushin <dpervushin@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Brownell <david-b@pacbell.net>, basicmark@yahoo.com,
+       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
+       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
+In-Reply-To: <439FC259.60103@ru.mvista.com>
+References: <20051212182026.4e393d5a.vwool@ru.mvista.com>
+	 <1134410498.12925.8.camel@localhost.localdomain>
+	 <1134475765.1590.2.camel@fj-laptop>
+	 <1134486683.10394.7.camel@localhost.localdomain>
+	 <439FC259.60103@ru.mvista.com>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 15:28:05 +0100
+Message-Id: <1134570485.26799.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e55525570512140531k110169fal9b8b6423b022aafc@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 09:31:33AM -0400, Anderson Briglia wrote:
-> +	data.blksz_bits = blksz_bits(data_size);
-> +	data.blocks = 1;
+On Wed, 2005-12-14 at 09:57 +0300, Vitaly Wool wrote:
+> Looks like we'll have to remove explicit wait_for_completion from 
+> spi_trasnfer to make it (potentially) work.
+> Rui, your turn will then be
+> a) not to use thread async message handling which is the default but
+> b) use some kind of PIO method for reading from the SPI bus.
 
-See my comments in your first mail about this.
+This is what I'm doing now (sync + PIO). In any case the SPI bus
+controller I'm using only supports PIO.
 
-> --- linux-2.6.14-omap2.orig/include/linux/mmc/card.h	2005-12-13 11:41:08.000000000 -0400
-> +++ linux-2.6.14-omap2/include/linux/mmc/card.h	2005-12-13 11:42:06.000000000 -0400
-> @@ -10,6 +10,7 @@
->  #ifndef LINUX_MMC_CARD_H
->  #define LINUX_MMC_CARD_H
->  
-> +#include <linux/key.h>
->  #include <linux/mmc/mmc.h>
->  
->  struct mmc_cid {
-> @@ -109,4 +110,6 @@ static inline int mmc_card_claim_host(st
->  
->  #define mmc_card_release_host(c)	mmc_release_host((c)->host)
->  
-> +extern int mmc_lock_unlock(struct mmc_card *card, struct key *key, int mode);
-> +
->  #endif
+> The other solution which looks preferable to me is to have a pretty 
+> simple interrupt handler which just wakes up a thread which in turn 
+> reads what it wants not caring much about sleeps (as it's not gonna be 
+> interrupt context any more).
 
-Given that you're not using the contents of struct key, please don't
-include <linux/key.h> here - it adds unnecessary include dependencies.
+The main problem is that just to be able to ack the interrupt I need to
+write on the SPI bus. So now I need to (1) modify my GPIO interrupt
+handler so that it let's me exit before acking the interrupt on the
+device (2) no longer share this GPIO with other devices interrupts...
 
-Instead, use a forward declaration:
+It's possible to use the proposed API, it's just that in my case it will
+increase the SPI slave driver complexity.
 
-struct key;
+> Vitaly
 
-extern int mmc_lock_unlock(struct mmc_card *card, struct key *key, int mode);
+Rui
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+> Rui Sousa wrote:
+> 
+> >On Tue, 2005-12-13 at 15:09 +0300, dmitry pervushin wrote:
+> >  
+> >
+> >>On Mon, 2005-12-12 at 19:01 +0100, Rui Sousa wrote:
+> >>    
+> >>
+> >>>How do you handle IRQ's generated by a SPI device (e.g ack the
+> >>>interrupt, check if it was the SPI device that generated the
+> >>>interrupt, ...) if you can't read/write on the SPI bus from interrupt
+> >>>context?
+> >>>      
+> >>>
+> >>Hmm... what do you mean by "cannot read/write" ? Normally you can
+> >>write/read registers in interrupt context
+> >>    
+> >>
+> >
+> >The registers I want to read are from a SPI device (a SPI slave attached
+> >to a SPI bus). I need to use SPI bus transfers to access them.
+> >
+> >  
+> >
+> >>, and then set the
+> >>flag/complete the completion/what else ?
+> >>    
+> >>
+> >
+> >If I read the API correctly reading/writing a byte from the SPI bus
+> >(synchronously) always implies putting the task doing the read to sleep:
+> >
+> >int spi_transfer(struct spi_msg *msg, void (*callback) (struct spi_msg
+> >*, int))
+> >{
+> >
+> >...
+> >	err = TO_SPI_BUS_DRIVER(bus->driver)->queue(msg);
+> >	wait_for_completion(&msg->sync);
+> >...
+> >}
+> >
+> >So, how can I, from an interrupt handler, read/write a couple of bytes
+> >from my SPI device using this API?
+> >
+> >  
+> >
+> >>In other words, could you please share the code that causes problems ? 
+> >>
+> >>    
+> >>
+> >
+> >Rui
+> >
+> >
+> >  
+> >
+> 
+> 
+
+

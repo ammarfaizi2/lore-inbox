@@ -1,73 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbVLNJvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbVLNKEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbVLNJvn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 04:51:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbVLNJvn
+	id S932267AbVLNKEW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 05:04:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVLNKEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 04:51:43 -0500
-Received: from mailgate-out2.mysql.com ([213.136.52.68]:28066 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S932229AbVLNJvn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 04:51:43 -0500
-Message-ID: <439FEBC3.4030206@mysql.com>
-Date: Wed, 14 Dec 2005 10:54:11 +0100
-From: Jonas Oreland <jonas@mysql.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.11) Gecko/20050915
-X-Accept-Language: en-us, en
+	Wed, 14 Dec 2005 05:04:22 -0500
+Received: from mx.laposte.net ([81.255.54.11]:34399 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S932267AbVLNKEW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 05:04:22 -0500
+Message-ID: <34966.192.54.193.35.1134554604.squirrel@rousalka.dyndns.org>
+In-Reply-To: <439F5B91.4010903@mvista.com>
+References: <17594.192.54.193.25.1134477932.squirrel@rousalka.dyndns.org>
+    <439F5B91.4010903@mvista.com>
+Date: Wed, 14 Dec 2005 11:03:24 +0100 (CET)
+Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
+From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
+To: george@mvista.com
+Cc: "Thomas Gleixner" <tglx@linutronix.de>,
+       "Roman Zippel" <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.6 [CVS]-0.cvs20051204.1.fc5.1.nim
 MIME-Version: 1.0
-To: Adrian Yee <brewt-linux-kernel@brewt.org>
-CC: john stultz <johnstul@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: tsc clock issues with dual core and question about irq	balancing
-References: <GMail.1134458797.49013860.4106109506@brewt.org> <1134522289.3897.21.camel@leatherman> <GMail.1134551267.12292355.45625751005@brewt.org>
-In-Reply-To: <GMail.1134551267.12292355.45625751005@brewt.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Yee wrote:
-> Hi John,
-> 
-> 
->>>I'm currently testing the system with "nosmp noapic acpi=off
->>>clock=tsc" (it was losing interrupts and wouldn't boot properly
->>>with apic/acpi on) and so far everything seems to work (this
->>>includes ssh and desktop usage is better).
+
+On Mer 14 décembre 2005 00:38, George Anzinger wrote:
+> Nicolas Mailhot wrote:
+>> "This is your interpretation and I disagree.
 >>
->>So keeping the above settings, does removing just the "clock=tsc"
->>cause the sluggishness to appear?
-> 
-> 
-> I just tried booting with the pmtmr enabled and incoming ssh is bad
-> (I had an ls pause for over 20 seconds, while another connection was
-> somewhat fine).  I wish I had more concrete tests since the problems
-> I'm seeing are so subjective.  I guess I'll have to ignore this
-> problem until I get a better test.
->  
-> 
->>Also would you open a bugzilla bug on this and attach your .config
->>and dmesg?
-> 
-> 
-> Done: http://bugzilla.kernel.org/show_bug.cgi?id=5740
-> 
-> Thanks.
-> 
-> Adrian
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>> If I set up a timer with a 24 hour interval, which should go off
+>> everyday at 6:00 AM, then I expect that this timer does this even when
+>> the clock is set e.g. by daylight saving. I think, that this is a
+>> completely valid interpretation and makes a lot of sense from a
+>> practical point of view. The existing implementation does it that way
+>> already, so why do we want to change this ?"
+>
+> I think that there is a miss understanding here.  The kernel timers,
+> at this time, do not know or care about daylight savings time.  This
+> is not really a clock set but a time zone change which does not
+> intrude on the kernels notion of time (that being, more or less UTC).
 
-Hi 
+Probably. I freely admit I didn't follow the whole discussion. But the
+example quoted strongly hinted at fudging timers in case of DST, which
+would be very bad if done systematically and not on explicit user request.
 
-Dono if this helps, but
+What I meant to write is "do not assume any random clock adjustement
+should change timer duration". Some people want it, others definitely
+don't.
 
-I also had problems with tsc, and ACPI timer wasnt properly detected
+I case of kernel code legal time should be pretty much irrelevant, so if
+24h timers are adjusted so they still go of at the same legal hour, that
+would be a bug IMHO.
 
-http://bugzilla.kernel.org/show_bug.cgi?id=5283 fixed the ACPI problem.
+-- 
+Nicolas Mailhot
 
-(idle=poll should fix it aswell, i think)
-
-/Jonas

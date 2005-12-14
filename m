@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVLNLhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbVLNLlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbVLNLhI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 06:37:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932436AbVLNLhH
+	id S932429AbVLNLlI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 06:41:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbVLNLlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 06:37:07 -0500
-Received: from posthamster.phnxsoft.com ([195.227.45.4]:45324 "EHLO
-	posthamster.phnxsoft.com") by vger.kernel.org with ESMTP
-	id S932432AbVLNLhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 06:37:06 -0500
-Message-ID: <43A003C0.80207@imap.cc>
-Date: Wed, 14 Dec 2005 12:36:32 +0100
-From: Tilman Schmidt <tilman@imap.cc>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.8) Gecko/20050511
-X-Accept-Language: de, en, fr
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Hansjoerg Lipp <hjlipp@web.de>, Karsten Keil <kkeil@suse.de>,
-       i4ldeveloper@listserv.isdn4linux.de,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: Re: [linux-usb-devel] [PATCH 6/9] isdn4linux: Siemens Gigaset drivers
- - procfs interface
-References: <gigaset307x.2005.12.11.001.0@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.1@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.2@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.3@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.4@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.5@hjlipp.my-fqdn.de> <gigaset307x.2005.12.11.001.6@hjlipp.my-fqdn.de> <20051211183350.GA10329@kroah.com>
-In-Reply-To: <20051211183350.GA10329@kroah.com>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 14 Dec 2005 06:41:07 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44993 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932429AbVLNLlF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 06:41:05 -0500
+Date: Wed, 14 Dec 2005 11:08:41 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Matthew Dobson <colpatch@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, andrea@suse.de,
+       Sridhar Samudrala <sri@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH 0/6] Critical Page Pool
+Message-ID: <20051214100841.GA18381@elf.ucw.cz>
+References: <439FCECA.3060909@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <439FCECA.3060909@us.ibm.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> Are there existing userspace tools that rely on proc files for isdn
-> control?  If not, please do not add new proc files, these should be in
-> sysfs instead.
+Hi!
 
-Thanks for your comment. We'll move everything to sysfs. Most of it is
-done already, but there is a problematic case I'd like your advice on:
-the "info" and "hwinfo" entries, which emit several lines of status
-and statistics information.
+> The overall purpose of this patch series is to all a system administrator
+> to reserve a number of pages in a 'critical pool' that is set aside for
+> situations when the system is 'in emergency'.  It is up to the individual
+> administrator to determine when his/her system is 'in emergency'.  This is
+> not meant to (necessarily) anticipate OOM situations, though that is
+> certainly one possible use.  The purpose this was originally designed for
+> is to allow the networking code to keep functioning despite the sytem
+> losing its (potentially networked) swap device, and thus temporarily
+> putting the system under exreme memory pressure.
 
-According to Documentation/filesystems/sysfs.txt:
-"Mixing types, expressing multiple lines of data, and doing fancy
-formatting of data is heavily frowned upon. Doing these things may get
-you publically humiliated and your code rewritten without notice."
-We certainly don't want to risk that. :-)
+I don't see how this can ever work.
 
-We have tentatively created an entry in /proc/tty/driver/ as proposed
-in LDD3 chapter 18, section "proc and sysfs Handling of TTY Devices"
-as a replacement. But that has the drawback of giving us only a
-single file per driver as opposed to one or two files per device.
-So the driver has to enumerate the devices and concatenate their data,
-which appears cumbersome, even though normal users will probably
-never connect more than one of these devices.
+How can _userspace_ know about what allocations are critical to the
+kernel?!
 
-Is there a better alternative?
+And as you noticed, it does not work for your original usage case,
+because reserved memory pool would have to be "sum of all network
+interface bandwidths * ammount of time expected to survive without
+network" which is way too much.
 
-Thanks
-Tilman
-
+If you want few emergency pages for some strange hack you are doing
+(swapping over network?), just put swap into ramdisk and swapon() it
+when you are in emergency, or use memory hotplug and plug few more
+gigabytes into your machine. But don't go introducing infrastructure
+that _can't_ be used right.
+								Pavel
 -- 
-Tilman Schmidt                    E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Ungeöffnet mindestens haltbar bis: (siehe Rückseite)
+Thanks, Sharp!

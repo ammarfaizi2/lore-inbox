@@ -1,61 +1,185 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965070AbVLNXOv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965068AbVLNXTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965070AbVLNXOv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 18:14:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbVLNXOu
+	id S965068AbVLNXTE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 18:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965069AbVLNXTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 18:14:50 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:20704 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965060AbVLNXOu (ORCPT
+	Wed, 14 Dec 2005 18:19:04 -0500
+Received: from uproxy.gmail.com ([66.249.92.203]:33680 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965068AbVLNXTC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 18:14:50 -0500
-Date: Wed, 14 Dec 2005 15:16:13 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: hawkes@sgi.com
-Cc: tony.luck@gmail.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, steiner@sgi.com, kaos@sgi.com,
-       hawkes@sgi.com
-Subject: Re: [PATCH] ia64: eliminate softlockup warning
-Message-Id: <20051214151613.2afc35b2.akpm@osdl.org>
-In-Reply-To: <20051214230713.7528.68477.sendpatchset@tomahawk.engr.sgi.com>
-References: <20051214230713.7528.68477.sendpatchset@tomahawk.engr.sgi.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 14 Dec 2005 18:19:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=cW/iwOcFxPOkOAnIodadKdF8tOEe520su+lJuEb0mBQWsoIXWRHYtFX8C2+yp+PrVwSWD2tu/FVSXk2Q14X8Ohd1cAEBeYIJYUb1YKY5HIcc4WXzfyQ2DAASUHsJpwYkU2g9aL/Qb5hSWeUfyX37FNC+dIbQEUc6W2hBMqHV25Q=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [RFC][expample patch] Make the kernel -Wshadow clean ?
+Date: Thu, 15 Dec 2005 00:19:57 +0100
+User-Agent: KMail/1.9
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512150019.57124.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hawkes@sgi.com wrote:
->
-> Fix an unnecessary softlockup watchdog warning in the ia64
-> uncached_build_memmap() that occurs occasionally at 256p and always at
-> 512p.  The problem occurs at boot time.
-> 
-> It would be good if we had a cleaner mechanism to temporarily silence
-> the watchdog thread, e.g.,
->     http://marc.theaimsgroup.com/?l=linux-kernel&m=111552476401175&w=2
-> but until that patch gets merged, this fix will have to suffice.
-> 
+Hi,
 
-That patch is for the hangcheck timer driver which is unrelated to the
-softlockup detector.
+Variables shadowing eachother have a nasty potential to contain hard to 
+discover bugs, so I propose we clean that up.
 
-> 
-> Index: linux/arch/ia64/kernel/uncached.c
-> ===================================================================
-> --- linux.orig/arch/ia64/kernel/uncached.c	2005-12-06 15:12:14.000000000 -0800
-> +++ linux/arch/ia64/kernel/uncached.c	2005-12-14 14:50:55.000000000 -0800
-> @@ -210,6 +210,7 @@
->  
->  	dprintk(KERN_ERR "uncached_build_memmap(%lx %lx)\n", start, end);
->  
-> +	touch_softlockup_watchdog();
->  	memset((char *)start, 0, length);
->  
->  	node = paddr_to_nid(start - __IA64_UNCACHED_OFFSET);
+There are *lots* of cases of variable shadowing in the kernel and real bugs 
+could be lurking in there.
 
-Yes, additions like this are a bit awkward, but they're not _that_ bad.  It
-says "this code is doing something unusual".  It's an explicit marker which
-we can grep for and which conveys useful information about an exceptional
-kernel state.
+I'm full willing to audit every single case and clean them up, but before I 
+begin such a task I want to "test the waters".
+
+So to get things started I give you the patch below that cleans up
+
+784 counts of
+include/linux/jiffies.h:331: warning: declaration of 'jiffies' shadows a global declaration
+
+784 counts of
+include/linux/jiffies.h:369: warning: declaration of 'jiffies' shadows a global declaration
+
+30 counts of
+include/linux/usb.h:877: warning: declaration of 'complete' shadows a global declaration
+
+30 counts of
+include/linux/usb.h:908: warning: declaration of 'complete' shadows a global declaration
+
+30 counts of
+include/linux/usb.h:943: warning: declaration of 'complete' shadows a global declaration
+
+1 count of
+mm/swap.c:42: warning: declaration of 'page' shadows a parameter
+
+
+So with just one simple patch we've nuked 1659 -Wshadow warnings out of a total
+of 2403 that this build of mine generated with my regular .config
+Of course I picked some of the easy targets to start with, a lot of the 
+remaining ones are cases of 1-10 identical warnings generated by one instance.
+
+Anyway, I think this is a worthwhile task and I'm willing to do it and we may 
+even discover/fix real bugs along the way, so what do you say?
+
+Comments are very welcome as always, and feel free to merge this patch as a 
+starting point if you agree that this is something that ought to be done.
+
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ include/linux/jiffies.h |    8 ++++----
+ include/linux/usb.h     |   12 ++++++------
+ mm/swap.c               |    2 +-
+ 3 files changed, 11 insertions(+), 11 deletions(-)
+
+--- linux-2.6.15-rc5-git4-orig/include/linux/jiffies.h	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6.15-rc5-git4/include/linux/jiffies.h	2005-12-14 22:52:07.000000000 +0100
+@@ -328,13 +328,13 @@ timespec_to_jiffies(const struct timespe
+ }
+ 
+ static __inline__ void
+-jiffies_to_timespec(const unsigned long jiffies, struct timespec *value)
++jiffies_to_timespec(const unsigned long jiff, struct timespec *value)
+ {
+ 	/*
+ 	 * Convert jiffies to nanoseconds and separate with
+ 	 * one divide.
+ 	 */
+-	u64 nsec = (u64)jiffies * TICK_NSEC;
++	u64 nsec = (u64)jiff * TICK_NSEC;
+ 	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &value->tv_nsec);
+ }
+ 
+@@ -366,13 +366,13 @@ timeval_to_jiffies(const struct timeval 
+ }
+ 
+ static __inline__ void
+-jiffies_to_timeval(const unsigned long jiffies, struct timeval *value)
++jiffies_to_timeval(const unsigned long jiff, struct timeval *value)
+ {
+ 	/*
+ 	 * Convert jiffies to nanoseconds and separate with
+ 	 * one divide.
+ 	 */
+-	u64 nsec = (u64)jiffies * TICK_NSEC;
++	u64 nsec = (u64)jiff * TICK_NSEC;
+ 	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &value->tv_usec);
+ 	value->tv_usec /= NSEC_PER_USEC;
+ }
+--- linux-2.6.15-rc5-git4-orig/include/linux/usb.h	2005-12-04 18:48:51.000000000 +0100
++++ linux-2.6.15-rc5-git4/include/linux/usb.h	2005-12-14 23:57:09.000000000 +0100
+@@ -874,7 +874,7 @@ static inline void usb_fill_control_urb 
+ 					 unsigned char *setup_packet,
+ 					 void *transfer_buffer,
+ 					 int buffer_length,
+-					 usb_complete_t complete,
++					 usb_complete_t comp,
+ 					 void *context)
+ {
+ 	spin_lock_init(&urb->lock);
+@@ -883,7 +883,7 @@ static inline void usb_fill_control_urb 
+ 	urb->setup_packet = setup_packet;
+ 	urb->transfer_buffer = transfer_buffer;
+ 	urb->transfer_buffer_length = buffer_length;
+-	urb->complete = complete;
++	urb->complete = comp;
+ 	urb->context = context;
+ }
+ 
+@@ -905,7 +905,7 @@ static inline void usb_fill_bulk_urb (st
+ 				      unsigned int pipe,
+ 				      void *transfer_buffer,
+ 				      int buffer_length,
+-				      usb_complete_t complete,
++				      usb_complete_t comp,
+ 				      void *context)
+ {
+ 	spin_lock_init(&urb->lock);
+@@ -913,7 +913,7 @@ static inline void usb_fill_bulk_urb (st
+ 	urb->pipe = pipe;
+ 	urb->transfer_buffer = transfer_buffer;
+ 	urb->transfer_buffer_length = buffer_length;
+-	urb->complete = complete;
++	urb->complete = comp;
+ 	urb->context = context;
+ }
+ 
+@@ -940,7 +940,7 @@ static inline void usb_fill_int_urb (str
+ 				     unsigned int pipe,
+ 				     void *transfer_buffer,
+ 				     int buffer_length,
+-				     usb_complete_t complete,
++				     usb_complete_t comp,
+ 				     void *context,
+ 				     int interval)
+ {
+@@ -949,7 +949,7 @@ static inline void usb_fill_int_urb (str
+ 	urb->pipe = pipe;
+ 	urb->transfer_buffer = transfer_buffer;
+ 	urb->transfer_buffer_length = buffer_length;
+-	urb->complete = complete;
++	urb->complete = comp;
+ 	urb->context = context;
+ 	if (dev->speed == USB_SPEED_HIGH)
+ 		urb->interval = 1 << (interval - 1);
+--- linux-2.6.15-rc5-git4-orig/mm/swap.c	2005-12-04 18:48:54.000000000 +0100
++++ linux-2.6.15-rc5-git4/mm/swap.c	2005-12-14 23:04:28.000000000 +0100
+@@ -39,7 +39,7 @@ void put_page(struct page *page)
+ 	if (unlikely(PageCompound(page))) {
+ 		page = (struct page *)page_private(page);
+ 		if (put_page_testzero(page)) {
+-			void (*dtor)(struct page *page);
++			void (*dtor)(struct page *pge);
+ 
+ 			dtor = (void (*)(struct page *))page[1].mapping;
+ 			(*dtor)(page);
+
+
+

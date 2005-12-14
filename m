@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbVLNUJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbVLNUJi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbVLNUJk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 15:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964862AbVLNUJk
+	id S964773AbVLNUJi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 15:09:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbVLNUJi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 15:09:40 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:41604 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964797AbVLNUJj convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 15:09:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=saziPPbbpCfHlWV6fIFE54cCetaEyRmuw0hgVSUdnBHW7BVV1Mq2NmcYySZQFvZRA/2vhacK/l8HGcTvcVjytircUC3RJe756DDArHJw3UYo9UGe0MD9XanVM067KaXXqdrl9WZ8I4mS0q2KkdCggnOtlfGRAmf873uMtTDXnPc=
-Message-ID: <8746466a0512141209g569d2870u4aba3fe7a68fe51c@mail.gmail.com>
-Date: Wed, 14 Dec 2005 13:09:38 -0700
-From: Dave <dave.jiang@gmail.com>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: x86_64 segfault error codes
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051214195848.GQ23384@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <8746466a0512141017j141d61dft3dd2b1ab95dc2351@mail.gmail.com>
-	 <p73hd9b8r9w.fsf@verdi.suse.de>
-	 <8746466a0512141124u68c3f5c9o3411c8af64667d8d@mail.gmail.com>
-	 <20051214195848.GQ23384@wotan.suse.de>
+	Wed, 14 Dec 2005 15:09:38 -0500
+Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:2535 "EHLO mta2.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S964773AbVLNUJh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 15:09:37 -0500
+In-Reply-To: <Pine.LNX.4.64.0512141129090.1678@montezuma.fsmlabs.com>
+References: <439EE742.5040909@suse.de> <Pine.LNX.4.64.0512141129090.1678@montezuma.fsmlabs.com>
+Mime-Version: 1.0 (Apple Message framework v623)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <865100f9f39bd64c72af67447023b1cd@cl.cam.ac.uk>
+Content-Transfer-Encoding: 7bit
+Cc: Gerd Knorr <kraxel@suse.de>,
+       Xen merge mainline list <xen-merge@lists.xensource.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+Subject: Re: [Xen-merge] Re: [patch] SMP alternatives for i386
+Date: Wed, 14 Dec 2005 20:15:01 +0000
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+X-Mailer: Apple Mail (2.623)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/14/05, Andi Kleen <ak@suse.de> wrote:
-> On Wed, Dec 14, 2005 at 12:24:42PM -0700, Dave wrote:
-> > Ah ok, thx! Looks like the comment in mm/fault.c is wrong then.... It
-> > says bit 3 is instruction fetch and no mention of bit 4.
->
-> Don't know what kernel you're looking at, but 2.6.15rc5 has
->
->  *      bit 0 == 0 means no page found, 1 means protection fault
->  *      bit 1 == 0 means read, 1 means write
->  *      bit 2 == 0 means kernel, 1 means user-mode
->  *      bit 3 == 1 means use of reserved bit detected
->  *      bit 4 == 1 means fault was an instruction fetch
 
-Ah sorry. Was looking at 2.6.14.
+On 14 Dec 2005, at 19:35, Zwane Mwaikambo wrote:
 
---
--= Dave =-
+> diff -urN -x 'build-*' -x '*~' -x Make -x scripts 
+> linux-2.6.15-rc5/arch/i386/kernel/smpboot.c 
+> work-2.6.15-rc5/arch/i386/kernel/smpboot.c
+> --- linux-2.6.15-rc5/arch/i386/kernel/smpboot.c	2005-12-06 
+> 17:00:36.000000000 +0100
+> +++ work-2.6.15-rc5/arch/i386/kernel/smpboot.c	2005-12-06 
+> 17:06:48.000000000 +0100
+> @@ -1351,6 +1352,9 @@
+>  	fixup_irqs(map);
+>  	/* It's now safe to remove this processor from the online map */
+>  	cpu_clear(cpu, cpu_online_map);
+> +
+> +	if (1 == num_online_cpus())
+> +		alternatives_smp_switch(0);
+>  	return 0;
+>  }
+>
+> Is that really safe there? Ideally you want to do the switch when the
+> processor going offline is no longer executing kernel code.
+
+Perhaps that check belongs at the end of __cpu_die()? That's where it 
+lives in xen's smpboot.c.
+
+  -- Keir
+

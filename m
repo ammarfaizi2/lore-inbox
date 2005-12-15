@@ -1,66 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbVLOBFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965145AbVLOBIG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965140AbVLOBFq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 20:05:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbVLOBFq
+	id S965145AbVLOBIG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 20:08:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbVLOBIG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 20:05:46 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38416 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965145AbVLOBFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 20:05:45 -0500
-Date: Thu, 15 Dec 2005 02:05:46 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org,
-       kkojima@rr.iij4u.or.jp
-Cc: linuxsh-dev@lists.sourceforge.net
-Subject: [2.6 patch] MAINTAINERS: sh: update the mailing list
-Message-ID: <20051215010546.GM23349@stusta.de>
-References: <20051212231113.GP23349@stusta.de> <20051213032826.GA16720@linux-sh.org>
+	Wed, 14 Dec 2005 20:08:06 -0500
+Received: from fsmlabs.com ([168.103.115.128]:11937 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S965145AbVLOBIE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 20:08:04 -0500
+X-ASG-Debug-ID: 1134608881-23806-10-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Wed, 14 Dec 2005 17:13:26 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Paul Mackerras <paulus@samba.org>, Andrew Morton <akpm@osdl.org>
+X-ASG-Orig-Subj: [PATCH] PPC: Remove unecessary BUG_ON
+Subject: [PATCH] PPC: Remove unecessary BUG_ON
+Message-ID: <Pine.LNX.4.64.0512141706590.1678@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051213032826.GA16720@linux-sh.org>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6305
+	Rule breakdown below pts rule name              description
+	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 13, 2005 at 05:28:26AM +0200, Paul Mundt wrote:
->...
-> If anything, this should be changed to linuxsh-dev@lists.sourceforge.net,
-> since that's been the defacto standard list for quite a long time now,
+Following a NULL function pointer should trigger an instruction access 
+fault.
 
-Updated patch below.
+Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 
-> and is what I thought was in there now, in addition to the m17n.org list
-> as a fallback. Should I assume that this was also removed by a similar
-> "constructive" change?
-
-As far as I can see, linuxsh-dev@lists.sourceforge.net was added in 
-kernel 2.4 but never in kernel 2.5/2.6 .
-
-cu
-Adrian
-
-
-<--  snip  -->
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.15-rc5-mm2-full/MAINTAINERS.old	2005-12-13 00:09:01.000000000 +0100
-+++ linux-2.6.15-rc5-mm2-full/MAINTAINERS	2005-12-15 01:57:21.000000000 +0100
-@@ -2506,11 +2506,11 @@
- SUPERH (sh)
- P:	Paul Mundt
- M:	lethal@linux-sh.org
- P:	Kazumoto Kojima
- M:	kkojima@rr.iij4u.or.jp
--L:	linux-sh@m17n.org
-+L:	linuxsh-dev@lists.sourceforge.net
- W:	http://www.linux-sh.org
- W:	http://www.m17n.org/linux-sh/
- W:	http://www.rr.iij4u.or.jp/~kkojima/linux-sh4.html
- S:	Maintained
+diff -r 5dfcc42643e1 arch/powerpc/kernel/idle_64.c
+--- a/arch/powerpc/kernel/idle_64.c	Wed Dec 14 15:08:24 2005 +0800
++++ b/arch/powerpc/kernel/idle_64.c	Wed Dec 14 17:06:50 2005 -0800
+@@ -84,7 +84,6 @@
  
-
+ void cpu_idle(void)
+ {
+-	BUG_ON(NULL == ppc_md.idle_loop);
+ 	ppc_md.idle_loop();
+ }
+ 

@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750828AbVLOR3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbVLORao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750828AbVLOR3V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 12:29:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVLOR3V
+	id S1750824AbVLORao (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 12:30:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVLORao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 12:29:21 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:41622 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750825AbVLOR3U (ORCPT
+	Thu, 15 Dec 2005 12:30:44 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:6222 "EHLO mtlex01.yok.mtl.com")
+	by vger.kernel.org with ESMTP id S1750824AbVLORan (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 12:29:20 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20051215085602.c98f22ef.pj@sgi.com> 
-References: <20051215085602.c98f22ef.pj@sgi.com>  <17313.37200.728099.873988@gargle.gargle.HOWL> <1134559121.25663.14.camel@localhost.localdomain> <13820.1134558138@warthog.cambridge.redhat.com> <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com> <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu> <20051213100015.GA32194@elte.hu> <6281.1134498864@warthog.cambridge.redhat.com> <14242.1134558772@warthog.cambridge.redhat.com> <16315.1134563707@warthog.cambridge.redhat.com> <1134568731.4275.4.camel@tglx.tec.linutronix.de> <43A0AD54.6050109@rtr.ca> <20051214155432.320f2950.akpm@osdl.org> <17313.29296.170999.539035@gargle.gargle.HOWL> <1134658579.12421.59.camel@localhost.localdomain> <4743.1134662116@warthog.cambridge.redhat.com> 
-To: Paul Jackson <pj@sgi.com>
-Cc: David Howells <dhowells@redhat.com>, nikita@clusterfs.com,
-       alan@lxorguk.ukuu.org.uk, akpm@osdl.org, tglx@linutronix.de,
-       mingo@elte.hu, hch@infradead.org, torvalds@osdl.org,
-       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Thu, 15 Dec 2005 17:28:56 +0000
-Message-ID: <7140.1134667736@warthog.cambridge.redhat.com>
+	Thu, 15 Dec 2005 12:30:43 -0500
+Date: Thu, 15 Dec 2005 19:33:53 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: linux-kernel@vger.kernel.org
+Subject: kmap_atomic slot collision
+Message-ID: <20051215173353.GA29402@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
+Hi!
+I'm trying to use kmap_atomic from both interrupt and task context.
+My idea was to do local_irq_save and then use KM_IRQ0/KM_IRQ1:
+since I'm disabling interrupts I assumed that this should be safe.
+The relevant code is here:
+https://openib.org/svn/gen2/trunk/src/linux-kernel/infiniband/ulp/sdp/sdp_iocb.c
 
-> 
-> A phased change of just the renames:
-> 	DECLARE_MUTEX ==> DECLARE_SEM
-> 	init_MUTEX ==> init_SEM
-> 	DECLARE_MUTEX_LOCKED ==> DECLARE_SEM_LOCKED
-> 	init_MUTEX_LOCKED ==> init_SEM_LOCKED
+However, under stress I see errors from arch/i386/mm/highmem.c:42
+        if (!pte_none(*(kmap_pte-idx)))
+                BUG();
 
-I'd prefer:
+Apparently, my routine, running from a task context, races with
+some other kernel code, and so I'm trying to use a slot that was not
+yet unmapped.
 
-	FROM				TO
-	==============================	=========================
-	DECLARE_MUTEX			DECLARE_SEM_MUTEX
-	DECLARE_MUTEX_LOCKED		DECLARE_SEM_MUTEX_LOCKED
-	Proper counting semaphore	DECLARE_SEM
+Anyone has an idea on what I could be doing wrong?
 
-That way people can show their intent and can be seen more easily when
-violating it.
-
-David
+Thanks,
+-- 
+MST

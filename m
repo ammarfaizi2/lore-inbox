@@ -1,86 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbVLOU6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbVLOVHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751085AbVLOU6w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 15:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbVLOU6w
+	id S1750917AbVLOVHf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 16:07:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbVLOVHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 15:58:52 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:63117 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751081AbVLOU6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 15:58:51 -0500
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, matthew@wil.cx,
-       arjan@infradead.org, hch@infradead.org, mingo@elte.hu,
-       tglx@linutronix.de, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Paul Jackson <pj@sgi.com>, David Howells <dhowells@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <17313.46085.921398.819760@gargle.gargle.HOWL>
-References: <20051215085602.c98f22ef.pj@sgi.com>
-	 <17313.37200.728099.873988@gargle.gargle.HOWL>
-	 <1134559121.25663.14.camel@localhost.localdomain>
-	 <13820.1134558138@warthog.cambridge.redhat.com>
-	 <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com>
-	 <dhowells1134431145@warthog.cambridge.redhat.com>
-	 <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu>
-	 <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu>
-	 <20051213100015.GA32194@elte.hu>
-	 <6281.1134498864@warthog.cambridge.redhat.com>
-	 <14242.1134558772@warthog.cambridge.redhat.com>
-	 <16315.1134563707@warthog.cambridge.redhat.com>
-	 <1134568731.4275.4.camel@tglx.tec.linutronix.de> <43A0AD54.6050109@rtr.ca>
-	 <20051214155432.320f2950.akpm@osdl.org>
-	 <17313.29296.170999.539035@gargle.gargle.HOWL>
-	 <1134658579.12421.59.camel@localhost.localdomain>
-	 <4743.1134662116@warthog.cambridge.redhat.com>
-	 <7140.1134667736@warthog.cambridge.redhat.com>
-	 <Pine.LNX.4.64.0512150945410.3292@g5.osdl.org>
-	 <17313.46085.921398.819760@gargle.gargle.HOWL>
-Content-Type: text/plain
-Date: Thu, 15 Dec 2005 15:58:27 -0500
-Message-Id: <1134680307.13138.74.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Dec 2005 16:07:35 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:23703 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S1750858AbVLOVHe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 16:07:34 -0500
+X-IronPort-AV: i="3.99,258,1131350400"; 
+   d="scan'208"; a="685094799:sNHT31642830"
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>
+Subject: Re: MSI and driver APIs
+X-Message-Flag: Warning: May contain useful information
+References: <1134617893.16880.17.camel@gaston>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 15 Dec 2005 13:07:09 -0800
+Message-ID: <adamzj2nk76.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 15 Dec 2005 21:07:09.0579 (UTC) FILETIME=[830C95B0:01C601BB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-15 at 21:20 +0300, Nikita Danilov wrote:
+    Benjamin> I've been looking at MSI/MSI-X support on POWER
+    Benjamin> platforms, both under hypervisor or directly on machines
+    Benjamin> like the new G5s and I found out that the current code
+    Benjamin> in drivers/pci isn't nearly as generic as it claims to
+    Benjamin> be and cannot really be re-used as is.
 
-> Going off at a tangent (or tangle, rather), why do we need DECLARE_FOO()
-> macros at all? They
-> 
->  - do not look like C variable declarations, hide variable type, and
->  hence are confusing,
-> 
->  - contrary to their naming actually _define_ rather than _declare_ an
->  object.
-> 
-> In most cases 
-> 
->         type var = INIT_FOO;
-> 
-> is much better (more readable and easier to understand) than
-> 
->         DECLARE_FOO(var); /* what is the type of var? */
-> 
-> In the cases where initializer needs an address of object being
-> initialized
-> 
->         type var = INIT_FOO(var);
-> 
-> can be used.
+Excellent!  I've always wanted to find time to make the code generic
+and add MSI support for some new platform like PPC 440SPe, but it's
+never made it very far up my list.
 
-That's just error prone.  In the RT patch we had several bugs caused by
-cut and paste errors like:
+    Benjamin> Thus I would very much like to change the semantics so
+    Benjamin> that a driver can be entered with MSIs already assigned
+    Benjamin> and enabled, though it has the capability to request
+    Benjamin> more MSIs and/or to disable them if the chipset is
+    Benjamin> buggy. That could be done either by adding a callback to
+    Benjamin> check if MSIs are enabled for a given device for
+    Benjamin> example...
 
-type foo = INIT_TYPE(foo);
-type bar = INIT_TYPE(foo);
+It seems OK to me to say that a driver's probe routine could be called
+with MSI enabled.  A naive driver would just use the irq number from
+the PCI device struct and never care whether interrupts were INTx or
+MSI.  This does fall down for hardware like tg3, where something
+beyond the simple PCI header manipulation is required to turn on MSI use.
 
-These are not always easy to find.
+Full MSI-X would be much harder to handle transparently, since
+handling multiple different interrupts typically requires a lot more
+logic in the driver.
 
--- Steve
-
-
+ - R.

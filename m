@@ -1,137 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbVLOVgh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbVLOVgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751103AbVLOVgh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 16:36:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVLOVgh
+	id S1751124AbVLOVgp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 16:36:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbVLOVgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 16:36:37 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:64649 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751103AbVLOVgg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 16:36:36 -0500
-Date: Thu, 15 Dec 2005 13:36:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Jordan Crouse" <jordan.crouse@amd.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       info-linux@ldcmail.amd.com
-Subject: Re: [PATCH 1/3] Base support for AMD Geode GX/LX processors.
-Message-Id: <20051215133615.588d7e80.akpm@osdl.org>
-In-Reply-To: <20051215211248.GE11054@cosmic.amd.com>
-References: <20051215211248.GE11054@cosmic.amd.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Dec 2005 16:36:45 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:15625 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1751124AbVLOVgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 16:36:44 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>
+Subject: Re: MSI and driver APIs
+X-Message-Flag: Warning: May contain useful information
+References: <1134617893.16880.17.camel@gaston> <adamzj2nk76.fsf@cisco.com>
+	<1134680882.16880.37.camel@gaston> <adaek4enjoz.fsf@cisco.com>
+	<1134681498.16880.39.camel@gaston>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 15 Dec 2005 13:36:37 -0800
+In-Reply-To: <1134681498.16880.39.camel@gaston> (Benjamin Herrenschmidt's
+ message of "Fri, 16 Dec 2005 08:18:17 +1100")
+Message-ID: <adawti6m49m.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 15 Dec 2005 21:36:38.0141 (UTC) FILETIME=[A131BAD0:01C601BF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jordan Crouse" <jordan.crouse@amd.com> wrote:
->
-> +static void __init init_nsc(struct cpuinfo_x86 *c)
-> +{
-> +	int r;
-> +
-> +	/* There may be GX1 processors in the wild that are branded
-> +	 * NSC and not Cyrix.
-> +	 *
-> +	 * This function only handles the GX processor, and kicks every
-> +	 * thing else to the Cyrix init function above - that should
-> +	 * cover any processors that might have been branded differently
-> +	 * after NSC aquired Cyrix.
-> +	 *
-> +	 * If this breaks your GX1 horribly, please e-mail
-> +	 * info-linux@ldcmail.amd.com to tell us.
-> +	 */
-> +
-> +	/* Handle the GX (Formally known as the GX2) */
-> +
-> +	if ((c->x86 == 5) && (c->x86_model == 5)) {
-> +		r = get_model_name(c);
-> +		display_cacheinfo(c);
-> +	}
-> +	else
-> +		init_cyrix(c);
-> +}
+    Benjamin> But won't the driver call pci_enable/disable_msi() in
+    Benjamin> those cases ? If not, it's easy enough to add (explicit
+    Benjamin> disable rather than not-enabled).
 
-What's `r' doing there?
+    Benjamin> I'm mostly concerned about "dumb" drivers that don't
+    Benjamin> know about MSI at all...
 
-How's this look?
+Well, a driver for a chip that does MSI may be "dumb" in that sense.
+For example, tg3 only got MSI support in April '05 or so.
 
+Although looking at tg3.c, it seems that nothing special is required
+to disable MSI -- there is a special chip register bit to set to
+enable MSI mode, but it doesn't seem necessary to clear the bit to
+disable MSI.
 
-From: Andrew Morton <akpm@osdl.org>
+The case I'm worried about is a chip where something special has to be
+done to get out of MSI mode, but the driver is totally dumb and just
+does request_irq() on its legacy interrupt.  The core PCI code doesn't
+have the chip-specific knowledge to fully turn off MSI.
 
-- coding style fixes
+But I don't know of a real device that falls into that category, so
+your scheme is probably OK.
 
-- remove unused variable.
-
-- init_nsc() must be __devinit else it'll crash during x86 fake hotplugging.
-  Which swsusp uses.
-
-Cc: Jordan Crouse <jordan.crouse@amd.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- arch/i386/kernel/cpu/amd.c   |    4 +---
- arch/i386/kernel/cpu/cyrix.c |   15 +++++----------
- 2 files changed, 6 insertions(+), 13 deletions(-)
-
-diff -puN arch/i386/kernel/cpu/amd.c~base-support-for-amd-geode-gx-lx-processors-tidy arch/i386/kernel/cpu/amd.c
---- 25/arch/i386/kernel/cpu/amd.c~base-support-for-amd-geode-gx-lx-processors-tidy	Thu Dec 15 13:33:50 2005
-+++ 25-akpm/arch/i386/kernel/cpu/amd.c	Thu Dec 15 13:33:50 2005
-@@ -162,14 +162,12 @@ static void __init init_amd(struct cpuin
- 				break;
- 			}
- 
--			if ( c->x86_model == 10 ) {
-+			if (c->x86_model == 10) {
- 				/* AMD Geode LX is model 10 */
- 				/* placeholder for any needed mods */
- 				break;
- 			}
--
- 			break;
--
- 		case 6: /* An Athlon/Duron */
-  
- 			/* Bit 15 of Athlon specific MSR 15, needs to be 0
-diff -puN arch/i386/kernel/cpu/cyrix.c~base-support-for-amd-geode-gx-lx-processors-tidy arch/i386/kernel/cpu/cyrix.c
---- 25/arch/i386/kernel/cpu/cyrix.c~base-support-for-amd-geode-gx-lx-processors-tidy	Thu Dec 15 13:33:50 2005
-+++ 25-akpm/arch/i386/kernel/cpu/cyrix.c	Thu Dec 15 13:35:25 2005
-@@ -342,13 +342,11 @@ static void __init init_cyrix(struct cpu
- 	return;
- }
- 
--
--/* This function handles National Semiconductor branded processors */
--
--static void __init init_nsc(struct cpuinfo_x86 *c)
-+/*
-+ * Handle National Semiconductor branded processors
-+ */
-+static void __devinit init_nsc(struct cpuinfo_x86 *c)
- {
--	int r;
--
- 	/* There may be GX1 processors in the wild that are branded
- 	 * NSC and not Cyrix.
- 	 *
-@@ -363,15 +361,12 @@ static void __init init_nsc(struct cpuin
- 
- 	/* Handle the GX (Formally known as the GX2) */
- 
--	if ((c->x86 == 5) && (c->x86_model == 5)) {
--		r = get_model_name(c);
-+	if (c->x86 == 5 && c->x86_model == 5)
- 		display_cacheinfo(c);
--	}
- 	else
- 		init_cyrix(c);
- }
- 
--
- /*
-  * Cyrix CPUs without cpuid or with cpuid not yet enabled can be detected
-  * by the fact that they preserve the flags across the division of 5/2.
-_
-
+ - R.

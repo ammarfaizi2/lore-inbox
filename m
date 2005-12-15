@@ -1,109 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVLOOmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbVLOOne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbVLOOmT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 09:42:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbVLOOji
+	id S1750735AbVLOOne (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 09:43:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVLOOix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 09:39:38 -0500
-Received: from igw2.watson.ibm.com ([129.34.20.6]:6299 "EHLO
+	Thu, 15 Dec 2005 09:38:53 -0500
+Received: from igw2.watson.ibm.com ([129.34.20.6]:46234 "EHLO
 	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
-	id S1750733AbVLOOjd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 09:39:33 -0500
+	id S1750723AbVLOOit (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 09:38:49 -0500
 From: Hubertus Franke <frankeh@watson.ibm.com>
-Message-Id: <20051215143926.069085000@elg11.watson.ibm.com>
+Message-Id: <20051215143841.292183000@elg11.watson.ibm.com>
 References: <20051215143557.421393000@elg11.watson.ibm.com>
-Date: Thu, 15 Dec 2005 09:36:16 -0500
+Date: Thu, 15 Dec 2005 09:36:08 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [RFC][patch 19/21] PID Virtualization: Handle special case vpid return cases
-Content-Disposition: inline; filename=G6-vpid-rc-special-handling.patch
+Subject: [RFC][patch 11/21] PID Virtualization: use vpgid_to_pgid function
+Content-Disposition: inline; filename=FB-vpgid-to-pgid-translation.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Certain places in the virtual pid return locations need special handling
-to return the appropriate information back to the user.
+Same as previous patch for pids, but here we focus on virtual
+ids that are interpreted as process group ids. Since process
+groups ids can be negative, they are handled as to deal with
+the negative value.
 
 Signed-off-by: Hubertus Franke <frankeh@watson.ibm.com>
 --
 
- fs/proc/array.c |   17 ++++++++++-------
- fs/proc/base.c  |    2 ++
- kernel/signal.c |    8 ++++++--
- 3 files changed, 18 insertions(+), 9 deletions(-)
+ fs/fcntl.c          |    1 +
+ kernel/capability.c |    1 +
+ kernel/exit.c       |    2 ++
+ 3 files changed, 4 insertions(+)
 
-Index: linux-2.6.15-rc1/fs/proc/base.c
+Index: linux-2.6.15-rc1/fs/fcntl.c
 ===================================================================
---- linux-2.6.15-rc1.orig/fs/proc/base.c	2005-12-12 16:44:15.000000000 -0500
-+++ linux-2.6.15-rc1/fs/proc/base.c	2005-12-12 16:44:33.000000000 -0500
-@@ -2103,6 +2103,8 @@ static int get_tgid_list(int index, unsi
+--- linux-2.6.15-rc1.orig/fs/fcntl.c	2005-12-14 15:13:55.000000000 -0500
++++ linux-2.6.15-rc1/fs/fcntl.c	2005-12-14 15:16:34.000000000 -0500
+@@ -267,6 +267,7 @@ int f_setown(struct file *filp, unsigned
+ 	if (err)
+ 		return err;
  
- 	for ( ; p != &init_task; p = next_task(p)) {
- 		int tgid = task_vpid_ctx(p, current);
-+		if (tgid < 0)
-+			continue;
- 		if (!pid_alive(p))
- 			continue;
- 		if (--index >= 0)
-Index: linux-2.6.15-rc1/fs/proc/array.c
++	arg = vpgid_to_pgid(arg);
+ 	f_modown(filp, arg, current->uid, current->euid, force);
+ 	return 0;
+ }
+Index: linux-2.6.15-rc1/kernel/capability.c
 ===================================================================
---- linux-2.6.15-rc1.orig/fs/proc/array.c	2005-12-12 16:44:15.000000000 -0500
-+++ linux-2.6.15-rc1/fs/proc/array.c	2005-12-12 16:44:15.000000000 -0500
-@@ -164,13 +164,16 @@ static inline char * task_state(struct t
- 	pid_t ppid, tpid;
+--- linux-2.6.15-rc1.orig/kernel/capability.c	2005-12-14 15:14:38.000000000 -0500
++++ linux-2.6.15-rc1/kernel/capability.c	2005-12-14 15:14:42.000000000 -0500
+@@ -188,6 +188,7 @@ asmlinkage long sys_capset(cap_user_head
+      if (get_user(pid, &header->pid))
+ 	     return -EFAULT; 
  
- 	read_lock(&tasklist_lock);
--	if (pid_alive(p))
-+	if (pid_alive(p)) {
- 		ppid = task_vtgid_ctx(p->group_leader->real_parent, current);
--	else
-+		if (ppid < 0) ppid = 1;
-+	} else {
- 		ppid = 0;
--	if (pid_alive(p) && p->ptrace)
-+	}
-+	if (pid_alive(p) && p->ptrace) {
- 		tpid = task_vppid_ctx(p, current);
--	else
-+		if (tpid < 0) tpid = 0;
-+	} else
- 		tpid = 0;
- 	buffer += sprintf(buffer,
- 		"State:\t%s\n"
-@@ -183,8 +186,8 @@ static inline char * task_state(struct t
- 		"Gid:\t%d\t%d\t%d\t%d\n",
- 		get_task_state(p),
- 		(p->sleep_avg/1024)*100/(1020000000/1024),
--	       	task_vtgid_ctx(p,current),
--		task_vpid_ctx(p,current),
-+	       	task_vtgid_ctx(p, current),
-+		task_vpid_ctx(p, current),
- 		ppid, tpid,
- 		p->uid, p->euid, p->suid, p->fsuid,
- 		p->gid, p->egid, p->sgid, p->fsgid);
-Index: linux-2.6.15-rc1/kernel/signal.c
++     pid = vpgid_to_pgid(pid);
+      if (pid && pid != task_pid(current) && !capable(CAP_SETPCAP))
+              return -EPERM;
+ 
+Index: linux-2.6.15-rc1/kernel/exit.c
 ===================================================================
---- linux-2.6.15-rc1.orig/kernel/signal.c	2005-12-12 16:44:15.000000000 -0500
-+++ linux-2.6.15-rc1/kernel/signal.c	2005-12-12 16:44:32.000000000 -0500
-@@ -2266,6 +2266,12 @@ static int do_tkill(int tgid, int pid, i
- 	struct siginfo info;
- 	struct task_struct *p;
+--- linux-2.6.15-rc1.orig/kernel/exit.c	2005-12-14 15:14:38.000000000 -0500
++++ linux-2.6.15-rc1/kernel/exit.c	2005-12-14 15:14:42.000000000 -0500
+@@ -1556,6 +1556,8 @@ asmlinkage long sys_wait4(pid_t pid, int
+ 	if (options & ~(WNOHANG|WUNTRACED|WCONTINUED|
+ 			__WNOTHREAD|__WCLONE|__WALL))
+ 		return -EINVAL;
++	if (pid != -1)
++		pid = vpgid_to_pgid(pid);
+ 	ret = do_wait(pid, options | WEXITED, NULL, stat_addr, ru);
  
-+	pid  = vpid_to_pid(pid);
-+	if (pid < 0)
-+		return pid;
-+	tgid = vpid_to_pid(tgid);
-+	if (tgid < 0)
-+		return tgid;
- 	error = -ESRCH;
- 	info.si_signo = sig;
- 	info.si_errno = 0;
-@@ -2273,8 +2279,6 @@ static int do_tkill(int tgid, int pid, i
- 	info.si_pid = task_vtgid(current);
- 	info.si_uid = current->uid;
- 
--	pid  = vpid_to_pid(pid);
--	tgid = vpid_to_pid(tgid);
- 	read_lock(&tasklist_lock);
- 	p = find_task_by_pid(pid);
- 	if (p && (tgid <= 0 || task_tgid(p) == tgid)) {
+ 	/* avoid REGPARM breakage on x86: */
 
 --

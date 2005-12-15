@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbVLODDw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965141AbVLODFx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965142AbVLODDw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 22:03:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965136AbVLODDv
+	id S965141AbVLODFx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 22:05:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965143AbVLODFx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 22:03:51 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:57490 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S965010AbVLODDv (ORCPT
+	Wed, 14 Dec 2005 22:05:53 -0500
+Received: from rtr.ca ([64.26.128.89]:27868 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S965141AbVLODFx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 22:03:51 -0500
-Date: Wed, 14 Dec 2005 22:00:40 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Yasunori Goto <y-goto@jp.fujitsu.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org, linux-mm@kvack.org, tony.luck@intel.com
-Subject: Re: 2.6.15-rc5-mm2 can't boot on ia64 due to changing on_each_cpu().
-Message-ID: <20051215030040.GA28660@kvack.org>
-References: <20051215103344.241C.Y-GOTO@jp.fujitsu.com> <20051214185658.7a60aa07.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051214185658.7a60aa07.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 14 Dec 2005 22:05:53 -0500
+Message-ID: <43A0DD8A.1000203@rtr.ca>
+Date: Wed, 14 Dec 2005 22:05:46 -0500
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Shem Multinymous <multinymous@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Rovert Love <rlove@rlove.org>,
+       Jens Axboe <axboe@suse.de>, linux-ide@vger.kernel.org
+Subject: Re: tp_smapi conflict with IDE, hdaps
+References: <41840b750512130635p45591633ya1df731f24a87658@mail.gmail.com>	 <1134486203.11732.60.camel@localhost.localdomain>	 <41840b750512130729y49903791xc9ceba4e6a18322e@mail.gmail.com>	 <41840b750512131041i5ae5f021h29eed3492bad88ca@mail.gmail.com>	 <1134501504.11732.120.camel@localhost.localdomain> <41840b750512140703q5c45417ag31dc79ee30d589e3@mail.gmail.com>
+In-Reply-To: <41840b750512140703q5c45417ag31dc79ee30d589e3@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 06:56:58PM -0800, Andrew Morton wrote:
-> Thanks.  I'll drop it.
+Shem Multinymous wrote:
+..
+> Duh! It's set via SET_STREAMING instead of SELECT_SPEED.
 
-Please don't.  Fix ia64's brain damage instead.  Function pointers 
-should not be cast, period.
+Now added onto my TO-DO list for hdparm.
 
-		-ben
--- 
-"You know, I've seen some crystals do some pretty trippy shit, man."
-Don't Email: <dont@kvack.org>.
+Thanks!

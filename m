@@ -1,72 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965042AbVLOFFy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbVLOFKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965042AbVLOFFy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 00:05:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965136AbVLOFFy
+	id S1161036AbVLOFKV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 00:10:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbVLOFKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 00:05:54 -0500
-Received: from smtp102.mail.sc5.yahoo.com ([216.136.174.140]:18552 "HELO
-	smtp102.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S965042AbVLOFFx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 00:05:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=ReUuIlHwBvVUrDgUD5Hphx23qPR1Ma8T+n+JfImyf9x7jhrtFDq9ozMiiG3F0oGU94O5+V65jYCJP0sbLbUZEf7ptk8KJKg9iDANuVmsrUgovvyHjLW7FwhZ6RN7oPZ7k2T3hZyb1uqiju0A1QpsTosNWfrawfZO56NmhBS9cQ4=  ;
-Message-ID: <43A0F9A8.1010109@yahoo.com.au>
-Date: Thu, 15 Dec 2005 16:05:44 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Miles Bader <miles@gnu.org>
-CC: Christoph Hellwig <hch@infradead.org>, Jakub Jelinek <jakub@redhat.com>,
-       Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>, mingo@elte.hu,
-       dhowells@redhat.com, torvalds@osdl.org, arjan@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-References: <dhowells1134431145@warthog.cambridge.redhat.com>	<20051212161944.3185a3f9.akpm@osdl.org>	<20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de>	<20051213004257.0f87d814.akpm@osdl.org>	<20051213084926.GN23384@wotan.suse.de>	<20051213090429.GC27857@infradead.org>	<20051213101141.GI31785@devserv.devel.redhat.com>	<20051213101938.GA30118@infradead.org> <buod5jz6jwo.fsf@dhapc248.dev.necel.com>
-In-Reply-To: <buod5jz6jwo.fsf@dhapc248.dev.necel.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Dec 2005 00:10:21 -0500
+Received: from waste.org ([64.81.244.121]:6279 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S965151AbVLOFKT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 00:10:19 -0500
+Date: Wed, 14 Dec 2005 21:02:50 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: sri@us.ibm.com, ak@suse.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
+Message-ID: <20051215050250.GT8637@waste.org>
+References: <20051214092228.GC18862@brahms.suse.de> <1134582945.8698.17.camel@w-sridhar2.beaverton.ibm.com> <20051215033937.GC11856@waste.org> <20051214.203023.129054759.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051214.203023.129054759.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Bader wrote:
-> Christoph Hellwig <hch@infradead.org> writes:
+On Wed, Dec 14, 2005 at 08:30:23PM -0800, David S. Miller wrote:
+> From: Matt Mackall <mpm@selenic.com>
+> Date: Wed, 14 Dec 2005 19:39:37 -0800
 > 
->>But serious, having to look all over the source instead of just a block
->>beginning decreases code readability a lot.
+> > I think we need a global receive pool and per-socket send pools.
 > 
-> 
-> My experience is quite the opposite.
-> 
-> Being forced to put declarations at the beginning of the block in
-> practice means that people simply separate declarations from the first
-> assignment.  That uglifies and bloats the code, and seems to often cause
-> bugs as well (because people seem to often not pay attention to what
-> happens to a variable between the declaration and first assignment;
-> having it simply _not exist_ before the first assignment helps quite a
-> bit).
-> 
+> Mind telling everyone how you plan to make use of the global receive
+> pool when the allocation happens in the device driver and we have no
+> idea which socket the packet is destined for?  What should be done for
+> non-local packets being routed?  The device drivers allocate packets
+> for the entire system, long before we know who the eventually received
+> packets are for.  It is fully anonymous memory, and it's easy to
+> design cases where the whole pool can be eaten up by non-local
+> forwarded packets.
 
-If your blocks are so big that you lose track of variables like
-this... then it is too big and/or complex.
+There needs to be two rules:
 
-And the argument about having it simply _not exist_ before the
-first assignment isn't convincing to me, because you cannot
-undeclare variables after you finish with them (do you also see
-code where people cause bugs by forgetting about the variable after
-its last use?).
+iff global memory critical flag is set
+- allocate from the global critical receive pool on receive
+- return packet to global pool if not destined for a socket with an
+  attached send mempool
 
-IMO, the system of declaring all variables at the top of the block
-and they all disappear at the end is nice and symmetric... although
-I probably agree with Linus on the 'for (int i = 0;' feature.
+I think this will provide the desired behavior, though only
+probabilistically. That is, we can fill the global receive pool with
+uninteresting packets such that we're forced to drop critical ACKs,
+but the boring packets will eventually be discarded as we walk up the
+stack and we'll eventually have room to receive retried ACKs.
 
-Nick
+> I truly dislike these patches being discussed because they are a
+> complete hack, and admittedly don't even solve the problem fully.  I
+> don't have any concrete better ideas but that doesn't mean this stuff
+> should go into the tree.
+
+Agreed. I'm fairly convinced a full fix is doable, if you make a
+couple assumptions (limited fragmentation), but will unavoidably be
+less than pretty as it needs to cross some layers.
+
+> I think GFP_ATOMIC memory pools are more powerful than they are given
+> credit for.  There is nothing preventing the implementation of dynamic
+> GFP_ATOMIC watermarks, and having "critical" socket behavior "kick in"
+> in response to hitting those water marks.
+
+There are two problems with GFP_ATOMIC. The first is that its users
+don't pre-state their worst-case usage, which means sizing the pool to
+reliably avoid deadlocks is impossible. The second is that there
+aren't any guarantees that GFP_ATOMIC allocations are actually
+critical in the needed-to-make-forward-VM-progress sense or will be
+returned to the pool in a timely fashion.
+
+So I do think we need a distinct pool if we want to tackle this
+problem. Though it's probably worth mentioning that Linus was rather
+adamantly against even trying at KS.
 
 -- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Mathematics is the supreme nostalgia of our time.

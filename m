@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422698AbVLOLrk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbVLOL6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422698AbVLOLrk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 06:47:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422699AbVLOLrk
+	id S965123AbVLOL6r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 06:58:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965188AbVLOL6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 06:47:40 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:41873 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1422698AbVLOLrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 06:47:39 -0500
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-From: Arjan van de Ven <arjan@infradead.org>
-To: James Courtier-Dutton <James@superbug.co.uk>
-Cc: Mitchell Blank Jr <mitch@sfgoth.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Sridhar Samudrala <sri@us.ibm.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <43A155AE.4050105@superbug.co.uk>
-References: <Pine.LNX.4.58.0512140042280.31720@w-sridhar.beaverton.ibm.com>
-	 <9a8748490512141216x7e25ca2cucb675f11f0c9d913@mail.gmail.com>
-	 <43A08546.8040708@superbug.co.uk> <20051215015456.GC23393@gaz.sfgoth.com>
-	 <43A155AE.4050105@superbug.co.uk>
-Content-Type: text/plain
-Date: Thu, 15 Dec 2005 12:47:28 +0100
-Message-Id: <1134647248.16486.37.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 15 Dec 2005 06:58:47 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:11240 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965123AbVLOL6q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 06:58:46 -0500
+Date: Thu, 15 Dec 2005 12:58:12 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-m68k@vger.kernel.org
+Subject: Re: [PATCH 1/3] m68k: compile fix - hardirq checks were in wrong
+ place
+In-Reply-To: <20051215085402.GT27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.61.0512151252110.1605@scrub.home>
+References: <20051215085402.GT27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> 
-> You are using the wrong hammer to crack your nut.
-> You should instead approach your problem of why the ARP entry gets lost.
-> For example, you could give as critical priority to your TCP session, 
-> but that still won't cure your ARP problem.
-> I would suggest that the best way to cure your arp problem, is to 
-> increase the time between arp cache refreshes.
+On Thu, 15 Dec 2005, Al Viro wrote:
 
-or turn it around entirely: all traffic is considered important
-unless... and have a bunch of non-critical sockets (like http requests)
-be marked non-critical.
+> Move the sanity check for NR_IRQS being no more than 1<<HARDIRQ_BITS
+> from asm-m68k/hardirq.h to asm-m68k/irq.h; needed since NR_IRQS is
+> not necessary know at the points of inclusion of asm/hardirq.h due
+> to the rather ugly header dependencies on m68k.  Fix is by far simpler
+> than trying to massage those dependencies...
 
+I disagree.
 
+> diff --git a/include/asm-m68k/hardirq.h b/include/asm-m68k/hardirq.h
+> index 728318b..5e1c582 100644
+> --- a/include/asm-m68k/hardirq.h
+> +++ b/include/asm-m68k/hardirq.h
+> @@ -14,13 +14,4 @@ typedef struct {
+>  
+>  #define HARDIRQ_BITS	8
+>  
+> -/*
+> - * The hardirq mask has to be large enough to have
+> - * space for potentially all IRQ sources in the system
+> - * nesting on a single CPU:
+> - */
+> -#if (1 << HARDIRQ_BITS) < NR_IRQS
+> -# error HARDIRQ_BITS is too low!
+> -#endif
+> -
+>  #endif
+
+You separate the definition from the check, now you push the 
+responsibility to get the order right to the header users.
+Sorry, but I prefer to fix the header dependencies than scatter things 
+which belong together over multiple files.
+
+bye, Roman

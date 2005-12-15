@@ -1,65 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751172AbVLOWr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbVLOWtl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751172AbVLOWr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 17:47:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbVLOWr4
+	id S1751178AbVLOWtl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 17:49:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbVLOWtl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 17:47:56 -0500
-Received: from rwcrmhc11.comcast.net ([216.148.227.151]:60318 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S1751172AbVLOWr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 17:47:56 -0500
-Date: Thu, 15 Dec 2005 14:48:01 -0800
-From: Deepak Saxena <dsaxena@plexity.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, Jordan Crouse <jordan.crouse@amd.com>,
-       linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       info-linux@ldcmail.amd.com
-Subject: Re: Geode LX HW RNG Support
-Message-ID: <20051215224801.GA20307@plexity.net>
-Reply-To: dsaxena@plexity.net
-References: <20051215211248.GE11054@cosmic.amd.com> <20051215211423.GF11054@cosmic.amd.com> <20051215133917.3f0a5171.akpm@osdl.org> <20051215214432.GB14013@cosmic.amd.com> <20051215140622.53c37335.akpm@osdl.org> <43A1E91A.4060400@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43A1E91A.4060400@pobox.com>
-Organization: Plexity Networks
-User-Agent: Mutt/1.5.10i
+	Thu, 15 Dec 2005 17:49:41 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:50843 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751178AbVLOWtk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 17:49:40 -0500
+Date: Thu, 15 Dec 2005 17:49:33 -0500
+From: Ulrich Drepper <drepper@redhat.com>
+Message-Id: <200512152249.jBFMnXU8016756@devserv.devel.redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 3/3] *at syscalls: x64 syscalls
+Cc: akpm@osdl.org, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 15 2005, at 17:07, Jeff Garzik was caught saying:
-> Andrew Morton wrote:
-> >"Jordan Crouse" <jordan.crouse@amd.com> wrote:
-> >
-> >>>Should all the Geode additions to hw_random.c be inside __i386__, like 
-> >>>VIA?
-> >>
-> >>I thought that a early version did that and somebody took exception to 
-> >>it, but I can't find any e-mails to that effect right now.  Obviously, 
-> >>the defines are only useful when you have a Geode CPU (and thus a 
-> >>x86_32), so if nobody complains, I think that would be fine.
-> >
-> >
-> >Fair enough.  Please send an update sometime.
-> >
-> >We might as well do s/__i386__/X86_32/ throughout that file - bit pointless
-> >but it's a little bit more idiomatic.
-> 
-> What about the rng rewrite recently posted?  Any opinions on that?
-> 
-> I lean towards applying it, long term, but IIRC there were problems that 
-> prevented immediate merge.
-
-Looking at the thread from my 2nd attempt, the main thing holding it back 
-from -mm was splitting the VIA/AMD/Intel drivers into separate files but 
-as is often the case, -ETOOMANYPROJECTS. Will try to get to it sometime 
-early next year.
-
-~Deepak
-
--- 
-Deepak Saxena - dsaxena@plexity.net - http://www.plexity.net
-
-For what are your possessions but things you keep and guard for fear
-you may need them tomorrow. - Khalil Gibran, "The Prophet"
+diff -durp linux/arch/x86_64/ia32/ia32entry.S linux/arch/x86_64/ia32/ia32entry.S
+--- linux/arch/x86_64/ia32/ia32entry.S	2005-09-13 17:07:07.000000000 -0700
++++ linux/arch/x86_64/ia32/ia32entry.S	2005-12-14 23:31:30.000000000 -0800
+@@ -643,6 +643,17 @@ ia32_sys_call_table:
+ 	.quad sys_inotify_init
+ 	.quad sys_inotify_add_watch
+ 	.quad sys_inotify_rm_watch
++	.quad compat_sys_openat
++	.quad sys_mkdirat		/* 295 */
++	.quad sys_mknodat
++	.quad sys_fchownat
++	.quad sys_futimesat
++	.quad compat_sys_newfstatat
++	.quad sys_unlinkat		/* 300 */
++	.quad sys_renameat
++	.quad sys_linkat
++	.quad sys_symlinkat
++	.quad sys_readlinkat
+ ia32_syscall_end:		
+ 	.rept IA32_NR_syscalls-(ia32_syscall_end-ia32_sys_call_table)/8
+ 		.quad ni_syscall
+diff -durp linux/include/asm-x86_64/ia32_unistd.h linux/include/asm-x86_64/ia32_unistd.h
+--- linux/include/asm-x86_64/ia32_unistd.h	2005-09-10 16:18:23.000000000 -0700
++++ linux/include/asm-x86_64/ia32_unistd.h	2005-12-14 23:30:31.000000000 -0800
+@@ -299,7 +299,18 @@
+ #define __NR_ia32_inotify_init		291
+ #define __NR_ia32_inotify_add_watch	292
+ #define __NR_ia32_inotify_rm_watch	293
++#define __NR_ia32_opanat		294
++#define __NR_ia32_mkdirat		295
++#define __NR_ia32_mknodat		296
++#define __NR_ia32_fchownat		297
++#define __NR_ia32_futimesat		298
++#define __NR_ia32_newfstatat		299
++#define __NR_ia32_unlinkat		300
++#define __NR_ia32_renameat		301
++#define __NR_ia32_linkat		302
++#define __NR_ia32_symlinkat		303
++#define __NR_ia32_readlinkat		304
+ 
+-#define IA32_NR_syscalls 294	/* must be > than biggest syscall! */
++#define IA32_NR_syscalls 305	/* must be > than biggest syscall! */
+ 
+ #endif /* _ASM_X86_64_IA32_UNISTD_H_ */
+diff -durp linux/include/asm-x86_64/unistd.h linux/include/asm-x86_64/unistd.h
+--- linux/include/asm-x86_64/unistd.h	2005-11-17 18:30:51.000000000 -0800
++++ linux/include/asm-x86_64/unistd.h	2005-12-14 23:28:59.000000000 -0800
+@@ -571,8 +571,30 @@ __SYSCALL(__NR_inotify_init, sys_inotify
+ __SYSCALL(__NR_inotify_add_watch, sys_inotify_add_watch)
+ #define __NR_inotify_rm_watch	255
+ __SYSCALL(__NR_inotify_rm_watch, sys_inotify_rm_watch)
++#define __NR_openat		256
++__SYSCALL(__NR_openat, sys_openat)
++#define __NR_mkdirat		257
++__SYSCALL(__NR_mkdirat, sys_mkdirat)
++#define __NR_mknodat		258
++__SYSCALL(__NR_mknodat, sys_mknodat)
++#define __NR_fchownat		259
++__SYSCALL(__NR_fchownat, sys_fchownat)
++#define __NR_futimesat		260
++__SYSCALL(__NR_futimesat, sys_futimesat)
++#define __NR_newfstatat		261
++__SYSCALL(__NR_newfstatat, sys_newfstatat)
++#define __NR_unlinkat		262
++__SYSCALL(__NR_unlinkat, sys_unlinkat)
++#define __NR_renameat		263
++__SYSCALL(__NR_renameat, sys_renameat)
++#define __NR_linkat		264
++__SYSCALL(__NR_linkat, sys_linkat)
++#define __NR_symlinkat		265
++__SYSCALL(__NR_symlinkat, sys_symlinkat)
++#define __NR_readlinkat		266
++__SYSCALL(__NR_readlinkat, sys_readlinkat)
+ 
+-#define __NR_syscall_max __NR_inotify_rm_watch
++#define __NR_syscall_max __NR_readlinkat
+ #ifndef __NO_STUBS
+ 
+ /* user-visible error numbers are in the range -1 - -4095 */

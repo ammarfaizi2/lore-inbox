@@ -1,45 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbVLOTrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbVLOTrc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750913AbVLOTrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 14:47:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbVLOTrZ
+	id S1750981AbVLOTrc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 14:47:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbVLOTrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 14:47:25 -0500
-Received: from free.hands.com ([83.142.228.128]:41448 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S1750913AbVLOTrY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 14:47:24 -0500
-Date: Thu, 15 Dec 2005 19:47:01 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ordering of suspend/resume for devices.  any clues, anyone?
-Message-ID: <20051215194701.GG14978@lkcl.net>
-References: <20051215143124.GD14978@lkcl.net> <20051215183744.GB16574@kroah.com>
+	Thu, 15 Dec 2005 14:47:32 -0500
+Received: from lakshmi.addtoit.com ([198.99.130.6]:43012 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S1750915AbVLOTrb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 14:47:31 -0500
+Date: Thu, 15 Dec 2005 15:38:18 -0500
+From: Jeff Dike <jdike@addtoit.com>
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: dhowells@redhat.com, Andrew Morton <akpm@osdl.org>,
+       Mark Lord <lkml@rtr.ca>, tglx@linutronix.de, alan@lxorguk.ukuu.org.uk,
+       pj@sgi.com, mingo@elte.hu, hch@infradead.org, torvalds@osdl.org,
+       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051215203818.GA11487@ccure.user-mode-linux.org>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0535A549@scsmsx401.amr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051215183744.GB16574@kroah.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0535A549@scsmsx401.amr.corp.intel.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 10:37:44AM -0800, Greg KH wrote:
+On Thu, Dec 15, 2005 at 09:45:10AM -0800, Luck, Tony wrote:
+> There was a USENIX paper a couple of decades ago that described how
+> to do a fast s/w disable of interrupts on machines where really disabling
+> interrupts was expensive.  The rough gist was that the spl[1-7]()
+> functions would just set a flag in memory to hold the desired interrupt
+> mask.  If an interrupt actually occurred when it was s/w blocked, the
+> handler would set a pending flag, and just rfi with interrupts disabled.
+> Then the splx() code checked to see whether there was a pending interrupt
+> and dealt with it if there was.
 
-> > am seeking some advice regarding power management - specifically
-> > the ordering of devices "resume" functions being called.
+... and this is currently implemented (but not yet merged to mainline) in
+UML.
 
-> > <snip>
-
-> > possible solutions, as i see them:
-> 
-> <snip>
-> 
-> Known issue, I'd take this to the linux-pm mailing list instead, as the
-> people there are working on stuff for this.
- 
- thanks greg.
-
- l.
+				Jeff

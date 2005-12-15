@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030373AbVLOCqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030387AbVLOCrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030373AbVLOCqz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 21:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030363AbVLOCqz
+	id S1030387AbVLOCrn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 21:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbVLOCrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 21:46:55 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:22179 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030349AbVLOCqy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 21:46:54 -0500
-Date: Wed, 14 Dec 2005 18:46:10 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-cc: Mark Lord <lkml@rtr.ca>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Paul Jackson <pj@sgi.com>,
-       mingo@elte.hu, hch@infradead.org, akpm@osdl.org, arjan@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-In-Reply-To: <1134605406.2542.91.camel@tglx.tec.linutronix.de>
-Message-ID: <Pine.LNX.4.64.0512141840370.3292@g5.osdl.org>
-References: <1134559121.25663.14.camel@localhost.localdomain> 
- <13820.1134558138@warthog.cambridge.redhat.com>  <20051213143147.d2a57fb3.pj@sgi.com>
- <20051213094053.33284360.pj@sgi.com>  <dhowells1134431145@warthog.cambridge.redhat.com>
-  <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> 
- <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu> 
- <20051213100015.GA32194@elte.hu>  <6281.1134498864@warthog.cambridge.redhat.com>
-  <14242.1134558772@warthog.cambridge.redhat.com>  <16315.1134563707@warthog.cambridge.redhat.com>
-  <1134568731.4275.4.camel@tglx.tec.linutronix.de> <43A0AD54.6050109@rtr.ca>
-  <1134604667.2542.86.camel@tglx.tec.linutronix.de> <43A0B172.7020800@rtr.ca>
- <1134605406.2542.91.camel@tglx.tec.linutronix.de>
+	Wed, 14 Dec 2005 21:47:19 -0500
+Received: from mgate03.necel.com ([203.180.232.83]:31627 "EHLO
+	mgate03.necel.com") by vger.kernel.org with ESMTP id S1030383AbVLOCrQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 21:47:16 -0500
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Rob Landley <rob@landley.net>, Pavel Machek <pavel@ucw.cz>,
+       Mark Lord <lkml@rtr.ca>, Adrian Bunk <bunk@stusta.de>,
+       David Ranson <david@unsolicited.net>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
+       Matthias Andree <matthias.andree@gmx.de>
+Subject: Re: ipw2200
+References: <20051203135608.GJ31395@stusta.de>
+	<200512102330.31572.rob@landley.net>
+	<20051212173456.GB8209@paranoiacs.org>
+	<200512121402.43957.rob@landley.net> <439DE10E.4080901@tmr.com>
+	<20051212215203.GA8399@paranoiacs.org>
+From: Miles Bader <miles.bader@necel.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+Date: Thu, 15 Dec 2005 11:38:53 +0900
+In-Reply-To: <20051212215203.GA8399@paranoiacs.org> (Ben Slusky's message of "Mon, 12 Dec 2005 16:52:03 -0500")
+Message-Id: <buopsnz6q4i.fsf@dhapc248.dev.necel.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ben Slusky <sluskyb@paranoiacs.org> writes:
+>> I confess I don't see the cpio as being easier to create.  You
+>> presumably still want to include the modules from the fresh built
+>> kernel, so creating a new cpio file would seem needed for most
+>> people.
+>
+> cpio files are somewhat easier to create in that they can created by
+> an unprivileged user. Most of the steps in making an initrd can only
+> be done by root.
 
+Initrds are also annoying because you have to guess/calculate a "disk"
+size big enough to hold all the contents and inevitably waste some space
+providing a margin for error.
 
-On Thu, 15 Dec 2005, Thomas Gleixner wrote:
-> 
-> Well, depends on the POV. A counting sempahore is a different beast than
-> a mutex. At least as far as my limited knowledge of concurrency controls
-> goes.
+Initrd seems at best a kind of kludge anyway; initramfs is just
+all-around a cleaner concept.
 
-A real semaphore is counting. 
-
-Dammit, unless the pure mutex has a _huge_ performance advantage on major 
-architectures, we're not changing it. There's absolutely zero point. A 
-counting semaphore is a perfectly fine mutex - the fact that it can _also_ 
-be used to allow more than 1 user into a critical region and generally do 
-other things is totally immaterial.
-
-It's _extra_ stupid to re-use the names "down()" and "up()" on a 
-non-counting mutex, since then the names make zero sense at all. Use 
-"lock_mutex()" and "unlock_mutex()" or something, and don't break existing 
-code for no measurable gain.
-
-			Linus
+-Miles
+-- 
+`To alcohol!  The cause of, and solution to,
+ all of life's problems' --Homer J. Simpson

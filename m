@@ -1,77 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbVLOOcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbVLOObI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbVLOOcH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 09:32:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbVLOOcG
+	id S1750705AbVLOObI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 09:31:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbVLOObI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 09:32:06 -0500
-Received: from free.hands.com ([83.142.228.128]:32898 "EHLO free.hands.com")
-	by vger.kernel.org with ESMTP id S1750706AbVLOOcF (ORCPT
+	Thu, 15 Dec 2005 09:31:08 -0500
+Received: from relay4.usu.ru ([194.226.235.39]:23684 "EHLO relay4.usu.ru")
+	by vger.kernel.org with ESMTP id S1750705AbVLOObG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 09:32:05 -0500
-Date: Thu, 15 Dec 2005 14:31:24 +0000
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: linux-kernel@vger.kernel.org
-Subject: ordering of suspend/resume for devices.  any clues, anyone?
-Message-ID: <20051215143124.GD14978@lkcl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+	Thu, 15 Dec 2005 09:31:06 -0500
+Message-ID: <43A17DFF.8020804@ums.usu.ru>
+Date: Thu, 15 Dec 2005 19:30:23 +0500
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc5-mm3
+References: <20051214234016.0112a86e.akpm@osdl.org>
+In-Reply-To: <20051214234016.0112a86e.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.0.11; VDF: 6.33.0.29; host: usu2.usu.ru)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[hi, please kindly cc me direct as i am deliberately subscribed with
-settings to not receive posts from this list, but if that is inconvenient
-for you to cc me, don't worry i can always look up the archives
-to keep track of replies, thank you.]
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm3/
+> - I'm not aware of any of the more serious bugs in rc5-mm1 and rc5-mm2
+>   being fixed.  If anyone finds that there's a previously-reported problem
+>   in here then please just re-report it and don't be afraid to spread the
+>   Cc's around.
 
-http://handhelds.org/moin/moin.cgi/BlueAngel
-
-works.
-
-am seeking some advice regarding power management - specifically
-the ordering of devices "resume" functions being called.
-
-we have an LCD, and an ATI chip.  switching on the LCD powers up
-the ATI chip.
-
-unfortunately, resume calls the ATI device initialisation
-_before_ the LCD resume initialisation.  the ATI chip's
-initialisation fails - naturally - because it's not even
-powered up.
-
-of course - this can't be taken care of in userspace as an apm
-event because the framebuffer device cannot be a module [without
-terminating all running x-applications].
-
-so.
-
-possible solutions, as i see them:
-
-1) have some awfulness in the LCD driver and the ATI driver with some
-shared resume initialisation callbacks.
-
-2) work out where the initialisation of the LCD driver is called
-from, and somehow get that inserted into the initialisation order
-in the reverse way from what it is now, such that the linked list
-of device drivers is inverted, such that the resume event will
-end up calling the LCD resume _after_ the ATI resume.
-
-3) some lovely "dependency" work gets done in the linux kernel
-where you can register priorities on the resume order.
-
-this would mirror the way that the old apm "event.d" thing
-would have worked.
-
-4) other - that i don't know about, but would love to hear from
-someone if there already exists a solution.
-
-any clues, anyone?
+The bug with ppp packets autoreplicating and dead keyboard is still 
+there. Be sure to load CPU and disk for faster reproduction of the bug. 
+Original report: http://lkml.org/lkml/2005/11/7/147
 
 -- 
---
-<a href="http://lkcl.net">http://lkcl.net</a>
---
+Alexander E. Patrakov
+

@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161143AbVLOFz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161139AbVLOF7h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161143AbVLOFz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 00:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbVLOFz0
+	id S1161139AbVLOF7h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 00:59:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbVLOF7h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 00:55:26 -0500
-Received: from waste.org ([64.81.244.121]:20421 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1161140AbVLOFzZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 00:55:25 -0500
-Date: Wed, 14 Dec 2005 21:48:01 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: sri@us.ibm.com, ak@suse.de, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-Message-ID: <20051215054800.GU8637@waste.org>
-References: <20051215033937.GC11856@waste.org> <20051214.203023.129054759.davem@davemloft.net> <20051215050250.GT8637@waste.org> <20051214.212309.127095596.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051214.212309.127095596.davem@davemloft.net>
-User-Agent: Mutt/1.5.9i
+	Thu, 15 Dec 2005 00:59:37 -0500
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:40885 "EHLO
+	taverner.CS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id S1161139AbVLOF7g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 00:59:36 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [andrea@cpushare.com: Re: disable tsc with seccomp]
+Date: Thu, 15 Dec 2005 05:59:19 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <dnr0nn$969$1@taverner.CS.Berkeley.EDU>
+References: <20051213053836.GY3092@opteron.random>
+Reply-To: daw-usenet@taverner.CS.Berkeley.EDU (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.CS.Berkeley.EDU 1134626359 9417 128.32.168.222 (15 Dec 2005 05:59:19 GMT)
+X-Complaints-To: news@taverner.CS.Berkeley.EDU
+NNTP-Posting-Date: Thu, 15 Dec 2005 05:59:19 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 09:23:09PM -0800, David S. Miller wrote:
-> From: Matt Mackall <mpm@selenic.com>
-> Date: Wed, 14 Dec 2005 21:02:50 -0800
-> 
-> > There needs to be two rules:
-> > 
-> > iff global memory critical flag is set
-> > - allocate from the global critical receive pool on receive
-> > - return packet to global pool if not destined for a socket with an
-> >   attached send mempool
-> 
-> This shuts off a router and/or firewall just because iSCSI or NFS peed
-> in it's pants.  Not really acceptable.
+Andrea Arcangeli  wrote:
+>I take the opportunity of this reminder email, to ask one more question
+>about the /dev/urandom device.  It would be really nice to have a good
+>random number generator in CPUShare-seccomp mode, so I'm considering
+>changing the CPUShare sell client to open /dev/urandom in O_RDONLY mode
+>before firing seccomp.  However such a change means the urandom device
+>driver will have to be secure in the way it creates the buffer [...]
 
-That'll happen now anyway.
+What you suggest seems reasonable.  I guess I'm not qualified to take
+any position on the specific question you asked.  However, I thought I'd
+add a third option, that you could consider (though please don't consider
+this as a criticism of any of your proposals).
 
-> > I think this will provide the desired behavior
-> 
-> It's not desirable.
-> 
-> What if iSCSI is protected by IPSEC, and the key management daemon has
-> to process a security assosciation expiration and negotiate a new one
-> in order for iSCSI to further communicate with it's peer when this
-> memory shortage occurs?  It needs to send packets back and forth with
-> the remove key management daemon in order to do this, but since you
-> cut it off with this critical receive pool, the negotiation will never
-> succeed.
+The third option: When the seccomp-restricted program is spawned, the
+parent could read 16 bytes from /dev/urandom, then communicate that
+16-byte value to the seccomp-restricted child.  The child could then use
+that as a seed to its own cryptographic pseudorandom generator, and could
+generate all the pseudorandom values it needs starting from that seed,
+without needing to interact with the OS or with /dev/urandom at all.
+Expanding a short 16-byte seed into a long stretch of cryptographically
+pseudorandom data only requires computation, so you can already support
+this in today's seccomp, if I understand correctly how seccomp works.
 
-Ok, encapsulation completely ruins the idea.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+Note that this option does not require SSL, and does not require
+communicating the random bits across the Internet (which seems like a
+questionable practice), so this is much safer than having someone on
+the other side of the Internet pick your random numbers for you.

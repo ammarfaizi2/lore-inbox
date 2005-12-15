@@ -1,59 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965149AbVLODON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965155AbVLODQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965149AbVLODON (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 22:14:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbVLODON
+	id S965155AbVLODQy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 22:16:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbVLODQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 22:14:13 -0500
-Received: from mail.suse.de ([195.135.220.2]:52174 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S965149AbVLODON (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 22:14:13 -0500
-From: Neil Brown <neilb@suse.de>
-To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Date: Thu, 15 Dec 2005 14:14:06 +1100
+	Wed, 14 Dec 2005 22:16:54 -0500
+Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:24728 "EHLO
+	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
+	id S965152AbVLODQy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 22:16:54 -0500
+From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Message-Id: <200512150318.jBF3Ia9B010880@auster.physics.adelaide.edu.au>
+Subject: Re: 2.6.14-rt21: slow-running clock
+To: johnstul@us.ibm.com (john stultz)
+Date: Thu, 15 Dec 2005 13:48:36 +1030 (CST)
+Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1134610897.27117.4.camel@cog.beaverton.ibm.com> from "john stultz" at Dec 14, 2005 05:41:36 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17312.57214.612405.261796@cse.unsw.edu.au>
-Subject: sysfs question:  how to map major:minor to name under /sys
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi John
 
-Hi,
- I have a question about sysfs related usage.
+> > > On Fri, 2005-12-09 at 12:49 +1030, Jonathan Woithe wrote:
+> > > > > I'm now working on why we mis-compensate the c3tsc clocksource in the
+> > > > > -RT tree. 
+> > > > 
+> > > > No problem.  Let me know when you have something to test or need further
+> > > > info.
+> > > 
+> > > 	Attached is a test patch to see if it doesn't resolve the issue for
+> > > you. I get a maximum change in drift of 30ppm when idling between C3
+> > > states by being more careful with the C3 TSC compensation and I also
+> > > force timekeeping updates when cpufreq events occur. 
+> > 
+> > Unfortunately there's still an issue.
+> 
+> Ah, drat. 
+> 
+> I'm just going to dump the c3tsc clocksource for now. If C3 mode is
+> available, the ACPI PM timer is available (since it is used for C3
+> timing), so we'll just fall back to ACPI PM if we see the cpu entering
+> C3 mode.
+>
+> I'm working to respin a new release tonight, hopefully that will make it
+> upstream to -rt soon and that should take care of it. Later I can look
+> at reworking the c3tsc clocksource, but for now things need to just
+> work.
 
- Suppose I have a major:minor number for a block device - maybe from
- fstat of a filedescriptor I was given, or stat of a name in /dev.
- How do I find the directory in /sys/block that contains relevant
- information? 
+Not a problem - I'll test this next release soon (perhaps via -rt) and
+confirm that things "just work" for me.  I'm happy to keep testing things -
+if you do need further tests done for c3tsc in future drop me a line.
 
- It seems to me that there is no direct way, and maybe there should
- be. (I can do a find of 'dev' file and compare, which is fine in a
- one-off shell script, but sub-optimal in general).
-
- The most obvious solution would be to have a directory somewhere full
- of symlinks:
-        /sys/block_dev/8:0 -> ../block/sda
- or whatever.
- Is this reasonable?  Should I try it?
-
- The particular case that I am interested in involves md.
- In this case I can find the right /sys/block/mdX entry easily enough
- because I *know* how the names are generated.  However when a block
- device is added to an array, it gets an entry like
-    /sys/block/md4/md/dev-sda
- I would like to be able to easily find that given just the
- information that 8:0 was added.
- If the above directory of symlinks existed, I could readlink the
- relevant entry, take the basename, and add "md/dev-" to front of
- that. 
-
- Comments?
-
-NeilBrown
+Regards
+  jonathan

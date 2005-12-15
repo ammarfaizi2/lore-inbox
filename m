@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932539AbVLON6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422666AbVLOOBE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932539AbVLON6X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 08:58:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbVLON6W
+	id S1422666AbVLOOBE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 09:01:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932648AbVLOOBE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 08:58:22 -0500
-Received: from science.horizon.com ([192.35.100.1]:44841 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S932539AbVLON6W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 08:58:22 -0500
-Date: 15 Dec 2005 08:58:12 -0500
-Message-ID: <20051215135812.14578.qmail@science.horizon.com>
-From: linux@horizon.com
-To: torvalds@osdl.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Cc: linux-kernel@vger.kernel.org
+	Thu, 15 Dec 2005 09:01:04 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:41399 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S932647AbVLOOBC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 09:01:02 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: irq balancing question
+Date: Thu, 15 Dec 2005 06:00:53 -0800
+Message-ID: <88056F38E9E48644A0F562A38C64FB6006A225B1@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: irq balancing question
+Thread-Index: AcYBWAjm9Y4/QBGxRCyf9y7SGu9lsQAJiqdQ
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "JaniD++" <djani22@dynamicweb.hu>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 15 Dec 2005 14:00:54.0764 (UTC) FILETIME=[F74582C0:01C6017F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Our Fearless Leader, in a fit of madness, intoned:
-> A real semaphore is counting. 
-> 
-> Dammit, unless the pure mutex has a _huge_ performance advantage on major 
-> architectures, we're not changing it. There's absolutely zero point. A 
-> counting semaphore is a perfectly fine mutex - the fact that it can _also_ 
-> be used to allow more than 1 user into a critical region and generally do 
-> other things is totally immaterial.
+>> >----- Original Message ----- 
+>> >From: "Arjan van de Ven" <arjan@infradead.org>
+>> >To: "JaniD++" <djani22@dynamicweb.hu>
+>> >> On Wed, 2005-12-14 at 22:05 +0100, JaniD++ wrote:
+>> >> > Hello, list,
+>> >> >
+>> >> > I try to tune my system with manually irq assigning, but
+>> >this simple not
+>> >> > works, and i don't know why. :(
+>> >> > I have already read all the documentation in the kernel
+>> >tree, and search
+>> >in
+>> >> > google, but i can not find any valuable reason.
+>> >>
+>> >>
+>> >> which chipset? there is a chipset that is broken wrt irq 
+>balancing so
+>> >> the kernel refuses to do it there...
+>> >
+>> >This happens all of my systems, with different hardware.
+>> >
+>> >In the example is Intel SE7520AF2,  IntelR E7520 Chipset, +2x
+>> >Xeon with HT.
+>> >
+>> >And the other systems is Abit IS7, intel 865, and only one P4
+>> >CPU with HT,
+>> >but the issue is the same.
+>> >
+>>
+>> Which kernel and which architecture (i386 or x86-64?)
+>
+>i386, and kernel 2.6.14 - 2.6.15-rc3
 
-You're being thick today.  Pay attention to the arguments.
+Things should work with 2.6.15-rc5. 
+There was a bug with this that was fixed recently. The patch here
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commi
+t;h=fe655d3a06488c8a188461bca493e9f23fc8c448
 
-A counting semaphore is NOT a perfectly fine mutex, and it SHOULD be changed.
+>
+>(the intel xeon CPU can work x86-64 kernels?)
+>
 
-People are indeed unhappy with the naming, and whether patching 95%
-of the callers of up() and down() is a good idea is a valid and active
-subject of debate.  (For an out-of-tree -rt patch, is was certaintly
-an extremely practical solution.)
+Yes. If your CPUs have EM64T capability, then they can run x86-64
+kernels.
 
-But regardless of the eventual naming convention, mutexes are a good idea.
-A mutex is *safer* than a counting semaphore.  That's the main benefit.
-Indeed, unless there's a performance advantage to a counting semaphore,
-you should use a mutex!
-
-It documents in the source what you're doing.  Using a counting semaphore
-for a mutex is as silly as using a float for a loop index.  Even if
-there isn't much speed penalty on modern processors.
-
-Or perhaps I should compare it to using void * everywhere.  That's a
-perfectly fine pointer; why type-check it?
-
-A separate mutex type allows extra error-checking.  You can keep track
-of the current holder (since there can be only one) and check that the
-same person released it and didn't try to double-acquire it.
-
-You can do priority inheritance, which is the main motivation for doing
-this work in the -rt patches.
-
-This isn't about speed, it's about bug-free code.  And having a mutex
-abstraction distinct from a general counting semaphore is damn useful
-error-checking, even if it is simply a thin wrapper over a counting
-semaphore.  The only reason the code is full of counting semaphores
-right now is that that's all people had.
-
-Better to give them the right tool.
+Thanks,
+Venki

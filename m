@@ -1,78 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030295AbVLOCae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbVLOCdz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030295AbVLOCae (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 21:30:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030299AbVLOCae
+	id S1030297AbVLOCdz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 21:33:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030358AbVLOCdz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 21:30:34 -0500
-Received: from gw02.applegatebroadband.net ([207.55.227.2]:52465 "EHLO
-	data.mvista.com") by vger.kernel.org with ESMTP id S1030295AbVLOCad
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 21:30:33 -0500
-Message-ID: <43A0D505.3080507@mvista.com>
-Date: Wed, 14 Dec 2005 18:29:25 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: tglx@linutronix.de, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, rostedt@goodmis.org, johnstul@us.ibm.com,
-       mingo@elte.hu
-Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
-References: <20051206000126.589223000@tglx.tec.linutronix.de>  <Pine.LNX.4.61.0512061628050.1610@scrub.home>  <1133908082.16302.93.camel@tglx.tec.linutronix.de>  <Pine.LNX.4.61.0512070347450.1609@scrub.home>  <1134148980.16302.409.camel@tglx.tec.linutronix.de>  <Pine.LNX.4.61.0512120007010.1609@scrub.home> <1134405768.4205.190.camel@tglx.tec.linutronix.de> <439E2308.1000600@mvista.com> <Pine.LNX.4.61.0512150141050.1609@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0512150141050.1609@scrub.home>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Dec 2005 21:33:55 -0500
+Received: from serv01.siteground.net ([70.85.91.68]:32129 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1030297AbVLOCdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 21:33:55 -0500
+Date: Wed, 14 Dec 2005 18:33:45 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: [patch 1/3] x86_64: Node local pda take 2 -- early cpu_to_node
+Message-ID: <20051215023345.GB3787@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 12 Dec 2005, George Anzinger wrote:
-> 
-> 
->>My $0.02 worth: It is clear (from the standard) that the initial time is to be
->>ABS_TIME.
-> 
-> 
-> Yes.
-> 
-> 
->> It is also clear that the interval is to be added to that time.
-> 
-> 
-> Not necessarily. It says it_interval is a "reload value", it's used to 
-> reload the timer to count down to the next expiration.
-> It's up to the implementation, whether it really counts down this time or 
-> whether it converts it first into an absolute value.
-> 
-> 
->>IMHO then, the result should have the same property, i.e. ABS_TIME.  Sort of
->>like adding an offset to a relative address. The result is still relative.
-> 
-> 
-> If the result is relative, why should have a clock set any effect?
-> IMO the spec makes it quite clear that initial timer and the periodic 
-> timer are two different types of the timer. The initial timer only 
-> specifies how the periodic timer is started and the periodic timer itself 
-> is a "relative time service".
-> 
-Well, I guess we will have to agree to disagree.  That which the 
-interval is added to is an absolute time, so I, and others, take the 
-result as absolute.  At this point there really is no "conversion" to 
-an absolute timer.  Once the timer initial time is absolute, 
-everything derived from it, i.e. all intervals added to it, must be 
-absolute.
+Here is take 2 on x86_64 node local pda allocation.
 
-For what its worth, I do think that the standards folks could have 
-done a bit better here.  I, for example, would have liked to have seen 
-a discussion about what to do with overrun in the face of clock setting.
+This patchset does away with the extra memory reference for non CONFIG_NUMA
+case.  The early cpu_to_node helps AMD and EM64T systems which work well
+with CONFIG_ACPI_NUMA.  cpu_to_node is not inited early for AMD systems
+which work only with old style K8_NUMA. (Tested on EM64 NUMA and Tyan K8
+dual core 4 cpu boxes)
 
+Andi, I could not eliminate the need for a initial static pda array, since
+sched_init needs the static per-cpu offset array for NR_CPUS early.  Hope
+this is OK.
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+Thanks,
+Kiran
+
+---
+
+Patch enables early intialization of cpu_to_node. apicid_to_node is built by reading
+the SRAT table, from acpi_numa_init, and x86_cpu_to_apicid is built by parsing the ACPI
+MADT table, from acpi_boot_init. We combine these two tables and setup cpu_to_node.
+
+Early intialization helps the static per_cpu_areas in getting pages from correct node.
+
+Tested on EM64T NUMA and Tyan K8 dual core board (with CONFIG_ACPI_NUMA + K8)
+
+Signed-off-by: Alok N Kataria <alokk@calsoftinc.com>
+Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+
+Index: linux-2.6.15-rc4/arch/x86_64/kernel/setup.c
+===================================================================
+--- linux-2.6.15-rc4.orig/arch/x86_64/kernel/setup.c	2005-12-02 16:25:19.000000000 -0800
++++ linux-2.6.15-rc4/arch/x86_64/kernel/setup.c	2005-12-12 01:49:00.000000000 -0800
+@@ -669,6 +669,8 @@
+ 	acpi_boot_init();
+ #endif
+ 
++	init_cpu_to_node();
++
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	/*
+ 	 * get boot-time SMP configuration:
+Index: linux-2.6.15-rc4/arch/x86_64/mm/srat.c
+===================================================================
+--- linux-2.6.15-rc4.orig/arch/x86_64/mm/srat.c	2005-12-01 17:09:51.000000000 -0800
++++ linux-2.6.15-rc4/arch/x86_64/mm/srat.c	2005-12-12 01:19:00.000000000 -0800
+@@ -226,4 +226,15 @@
+ 	return acpi_slit->entry[index + node_to_pxm(b)];
+ }
+ 
++/*
++ * Setup cpu_to_node using the SRAT lapcis & ACPI MADT table
++ * info.
++ */
++void __init init_cpu_to_node(void)
++{
++	int i;	
++ 	for (i = 0; i < NR_CPUS; i++)
++ 		cpu_to_node[i] = apicid_to_node[x86_cpu_to_apicid[i]];
++}
++
+ EXPORT_SYMBOL(__node_distance);
+Index: linux-2.6.15-rc4/include/linux/acpi.h
+===================================================================
+--- linux-2.6.15-rc4.orig/include/linux/acpi.h	2005-10-27 17:02:08.000000000 -0700
++++ linux-2.6.15-rc4/include/linux/acpi.h	2005-12-12 01:52:28.000000000 -0800
+@@ -519,11 +519,16 @@
+ 
+ #ifdef CONFIG_ACPI_NUMA
+ int acpi_get_pxm(acpi_handle handle);
++void __init init_cpu_to_node();
+ #else
+ static inline int acpi_get_pxm(acpi_handle handle)
+ {
+ 	return 0;
+ }
++
++static inline void init_cpu_to_node(void)
++{
++}
+ #endif
+ 
+ extern int pnpacpi_disabled;

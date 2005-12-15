@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161037AbVLOEeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030388AbVLOEcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161037AbVLOEeK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 23:34:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161039AbVLOEeJ
+	id S1030388AbVLOEcn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 23:32:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbVLOEcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 23:34:09 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:25171 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1161037AbVLOEeI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 23:34:08 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=S+vG6EW2gVykZfMHtT5bl6BAPyGdgQR+fQJbVif0YKPYPNb3oVrPAcpIACXXqProQskLle5LZ+L5Yw9B6XhFutc8HmB09tv9q4oca9HQD3J76uO62jcN6kCXfjB8rhpE0zuF5ByduRsrDmLxZ4HNxwDXuD2uJNgMNbBfMURRx3E=
-From: Kurt Wall <kwallinator@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] slab gcc fix
-Date: Wed, 14 Dec 2005 23:35:20 -0500
-User-Agent: KMail/1.8.2
-Cc: Christoph Lameter <clameter@engr.sgi.com>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0512131327140.23733@schroedinger.engr.sgi.com> <20051213133942.1f742685.akpm@osdl.org>
-In-Reply-To: <20051213133942.1f742685.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 14 Dec 2005 23:32:43 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:8609
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1030349AbVLOEcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 23:32:42 -0500
+Date: Wed, 14 Dec 2005 20:30:23 -0800 (PST)
+Message-Id: <20051214.203023.129054759.davem@davemloft.net>
+To: mpm@selenic.com
+Cc: sri@us.ibm.com, ak@suse.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051215033937.GC11856@waste.org>
+References: <20051214092228.GC18862@brahms.suse.de>
+	<1134582945.8698.17.camel@w-sridhar2.beaverton.ibm.com>
+	<20051215033937.GC11856@waste.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512142335.20947.kwallinator@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 13 December 2005 04:39 pm, Andrew Morton wrote:
-> Christoph Lameter <clameter@engr.sgi.com> wrote:
-> > Since we no longer support 2.95, we can get rid of this ugly thing.
-> >
-> >  Signed-off-by: Christoph Lameter <clameter@sgi.com>
-> >
-> >  Index: linux-2.6.15-rc5-mm2/mm/slab.c
-> >  ===================================================================
-> >  --- linux-2.6.15-rc5-mm2.orig/mm/slab.c 2005-12-13 13:18:48.000000000
-> > -0800 +++ linux-2.6.15-rc5-mm2/mm/slab.c 2005-12-13 13:19:11.000000000
-> > -0800 @@ -265,11 +265,10 @@ struct array_cache {
-> >    unsigned int batchcount;
-> >    unsigned int touched;
-> >    spinlock_t lock;
-> >  - void *entry[0];  /*
-> >  + void *entry[];  /*
->
-> There are hundreds of instances of this under include/.  I think we just
-> live with it.
+From: Matt Mackall <mpm@selenic.com>
+Date: Wed, 14 Dec 2005 19:39:37 -0800
 
-Good kernel janitors task, perhaps?
+> I think we need a global receive pool and per-socket send pools.
 
-Kurt
--- 
-Loud burping while walking around the airport is prohibited in
-Halstead, Kansas.
+Mind telling everyone how you plan to make use of the global receive
+pool when the allocation happens in the device driver and we have no
+idea which socket the packet is destined for?  What should be done for
+non-local packets being routed?  The device drivers allocate packets
+for the entire system, long before we know who the eventually received
+packets are for.  It is fully anonymous memory, and it's easy to
+design cases where the whole pool can be eaten up by non-local
+forwarded packets.
+
+I truly dislike these patches being discussed because they are a
+complete hack, and admittedly don't even solve the problem fully.  I
+don't have any concrete better ideas but that doesn't mean this stuff
+should go into the tree.
+
+I think GFP_ATOMIC memory pools are more powerful than they are given
+credit for.  There is nothing preventing the implementation of dynamic
+GFP_ATOMIC watermarks, and having "critical" socket behavior "kick in"
+in response to hitting those water marks.

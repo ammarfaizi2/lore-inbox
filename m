@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965156AbVLOGsT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbVLOGrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965156AbVLOGsT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 01:48:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbVLOGsS
+	id S965154AbVLOGrA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 01:47:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965156AbVLOGrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 01:48:18 -0500
-Received: from rtsoft3.corbina.net ([85.21.88.6]:1909 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S965156AbVLOGsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 01:48:18 -0500
-Message-ID: <43A1118E.9040608@ru.mvista.com>
-Date: Thu, 15 Dec 2005 09:47:42 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Thu, 15 Dec 2005 01:47:00 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:63811 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965154AbVLOGq7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 01:46:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=RqN5r3xQ1zwyLcQEdxC8h+/pTT6qlsFz8bwimCSZkOWHMxn+GoIXd36pIgvuYvb2Yga4HaIQs2pxKI7WayFaBVbmbC9fdaRCviSDMdHkdHgZOXMR5wXPuqgDucRDqDzMPmSDjKX0c1q+JPFvjt/V6UKgjhaooQ1iR73P45pK5vE=
+Message-ID: <47f5dce30512142246g53896be6t4aedfe7a133a04af@mail.gmail.com>
+Date: Wed, 14 Dec 2005 22:46:58 -0800
+From: jayakumar alsa <jayakumar.alsa@gmail.com>
+To: =?ISO-8859-1?Q?Ren=E9_Rebe?= <rene@exactcode.de>
+Subject: Re: cs5536 ID for cs5535audio
+Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <47f5dce30512142226n18fc4280m26ce5b0bb4b80d3f@mail.gmail.com>
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
-       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
-       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
-Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051214171842.GB30546@kroah.com> <43A05C32.3070501@ru.mvista.com> <200512141102.53599.david-b@pacbell.net>
-In-Reply-To: <200512141102.53599.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <200512141431.32685.rene@exactcode.de>
+	 <47f5dce30512142226n18fc4280m26ce5b0bb4b80d3f@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
+On 12/14/05, jayakumar alsa <jayakumar.alsa@gmail.com> wrote:
+> On 12/14/05, René Rebe <rene@exactcode.de> wrote:
+> >  static struct pci_device_id snd_cs5535audio_ids[] = {
+> > -	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_CS5535_AUDIO, PCI_ANY_ID,
+> > -		PCI_ANY_ID, 0, 0, 0, },
+> > +	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_CS5535_AUDIO,
+> > +	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0, },
+> > +	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CS5536_AUDIO,
+> > +	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0, },
+> >  	{}
+> >  };
 
->No, "stupid drivers will suffer"; nothing new.  Just observe
->how the ads7846 touchscreen driver does small async transfers.
->  
->
-One cannot allocate memory in interrupt context, so the way to go is 
-allocating it on stack, thus the buffer is not DMA-safe.
-Making it DMA-safe in thread that does the very message processing is a 
-good way of overcoming this.
-Using preallocated buffer is not a good way, since it may well be 
-already used by another interrupt or not yet processed by the worker 
-thread (or tasklet, or whatever).
-The way it's done in this ads7846 driver  is not quite acceptable. 
-Losing the transfer if the previous one is still processed is *not* the 
-way to go in some cases. One can not predict how many transfers are 
-gonna be dropped due to "previous trransfer is being processed" problem, 
-it depends on the system load. And though it's not a problem for 
-touchscreen, it *will* be a problem if it were MMC, for instance.
+René,
 
-Vitaly
+Also, as Jiri suggested, could you change those to:
+
+PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_CS5535_AUDIO)
+PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CS5536_AUDIO)
+
+Thanks,
+jk

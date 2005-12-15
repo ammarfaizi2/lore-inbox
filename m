@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbVLOTzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbVLOUCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750966AbVLOTzG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 14:55:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbVLOTzG
+	id S1750774AbVLOUCx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 15:02:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVLOUCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 14:55:06 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:30410 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1750966AbVLOTzF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 14:55:05 -0500
-To: janak@us.ibm.com
-Cc: viro@ftp.linux.org.uk, chrisw@osdl.org, dwmw2@infradead.org,
-       jamie@shareable.org, serue@us.ibm.com, mingo@elte.hu,
-       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 1/9] unshare system call: system call handler
- function
-References: <1134513959.11972.167.camel@hobbs.atlanta.ibm.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 15 Dec 2005 12:52:53 -0700
-In-Reply-To: <1134513959.11972.167.camel@hobbs.atlanta.ibm.com> (JANAK
- DESAI's message of "Tue, 13 Dec 2005 17:54:34 -0500")
-Message-ID: <m1k6e687e2.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 15 Dec 2005 15:02:53 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:53693 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750774AbVLOUCx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 15:02:53 -0500
+Subject: Re: [ckrm-tech] Re: [RFC][patch 00/21] PID Virtualization:
+	Overview and Patches
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>, ckrm-tech@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, vserver@list.linux-vserver.org,
+       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       pagg@oss.sgi.com
+In-Reply-To: <E1Emz6c-0006c3-00@w-gerrit.beaverton.ibm.com>
+References: <E1Emz6c-0006c3-00@w-gerrit.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Thu, 15 Dec 2005 12:02:41 -0800
+Message-Id: <1134676961.22525.72.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-JANAK DESAI <janak@us.ibm.com> writes:
+On Thu, 2005-12-15 at 11:49 -0800, Gerrit Huizenga wrote:
+> I think perhaps this could also be the basis for a CKRM "class"
+> grouping as well.  Rather than maintaining an independent class
+> affiliation for tasks, why not have a class devolve (evolve?) into
+> a "container" as described here.
 
-> [PATCH -mm 1/9] unshare system call: system call handler function 
->
-> sys_unshare system call handler function accepts the same flags as
-> clone system call, checks constraints on each of the flags and invokes
-> corresponding unshare functions to disassociate respective process
-> context if it was being shared with another task. 
->
-> Changes since the first submission of this patch on 12/12/05:
-> 	- Moved cleaning up of old shared structures outside of the
-> 	  block that holds task_lock (12/13/05)
->  
-> Signed-off-by: Janak Desai <janak@us.ibm.com>
->  
-> ---
->  
->  fork.c | 232 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
->  1 files changed, 232 insertions(+)
->  
-> diff -Naurp 2.6.15-rc5-mm2/kernel/fork.c 2.6.15-rc5-mm2+patch/kernel/fork.c
-> --- 2.6.15-rc5-mm2/kernel/fork.c	2005-12-12 03:05:59.000000000 +0000
-> +++ 2.6.15-rc5-mm2+patch/kernel/fork.c	2005-12-13 18:38:26.000000000 +0000
-> @@ -1330,3 +1330,235 @@ void __init proc_caches_init(void)
->  			sizeof(struct mm_struct), 0,
->  			SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
->  }
-> +
-> +
-> +/*
-> + * Check constraints on flags passed to the unshare system call and
-> + * force unsharing of additional process context as appropriate.
-> + */
+Wasn't one of the grand schemes of CKRM to be able to have application
+instances be shared?  For instance, running a single DB2, Oracle, or
+Apache server, and still accounting for all of the classes separately.
+If so, that wouldn't work with a scheme that requires process
+separation.
 
-If it isn't legal how about we deny the unshare call.
-Then we can share this code with clone.
+But, sharing the application instances is probably mostly (only)
+important for databases anyway.  I would imagine that most of the
+overhead in a server like an Apache instance is for the page cache for
+content, as well as a bit for Apache's executables themselves.  The
+container schemes should be able to share page cache for both cases.
+The main issues would be managing multiple configurations, and the
+increased overhead from having more processes around than with a single
+server.
 
-Eric
+There might also be some serious restrictions on containerized
+applications.  For instance, taking a running application, moving it out
+of one container, and into another might not be feasible.  Is this
+something that is common or desired in the current CKRM framework?
+
+-- Dave
+

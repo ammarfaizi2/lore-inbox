@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750832AbVLORmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbVLORnY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750832AbVLORmd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 12:42:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750833AbVLORmd
+	id S1750833AbVLORnY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 12:43:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVLORnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 12:42:33 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:29279 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750832AbVLORmc convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 12:42:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Kpicf0XvS+85KtSttcBEc+06/SEH3dHuYqL5HoaJtZjmeC/fk1pDAH3yeGcAdzQAjazAs2dERirae8SRbVaQTJDqGqKAP0mBi/kHx7jk1QqaD3h4GRfVPMmQKHHTMESyZb2D1hL07bdIw0S2hF0VXwhVzbP0X3Ifrc4A64mNMws=
-Message-ID: <6bffcb0e0512150942p4eb155e6y@mail.gmail.com>
-Date: Thu, 15 Dec 2005 18:42:31 +0100
-From: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-To: Martin Bligh <mbligh@mbligh.org>
-Subject: Re: 2.6.15-rc5-mm3 (new build failure)
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <43A1A95D.10800@mbligh.org>
+	Thu, 15 Dec 2005 12:43:24 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:40099 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750833AbVLORnX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 12:43:23 -0500
+Date: Thu, 15 Dec 2005 09:42:48 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Coywolf Qi Hunt <qiyong@fc-cn.com>
+cc: willy@debian.org, arnd@arndb.de, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, debian-glibc@lists.debian.org
+Subject: Re: [patch] ioctl BLKGETSIZE64 fix
+In-Reply-To: <20051215122527.GA7762@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0512150936030.3292@g5.osdl.org>
+References: <20051215122527.GA7762@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43A1A95D.10800@mbligh.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On 15/12/05, Martin Bligh <mbligh@mbligh.org> wrote:
-> New build failure since -mm2:
-> Config is
-> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/elm3b67
->
-> I'm guessing it was using gcc 2.95.4, though not sure.
->
 
-Yes. The same thing happen when I run "make CC=gcc-2.95".
+On Thu, 15 Dec 2005, Coywolf Qi Hunt wrote:
+> 
+> Two years ago, "[PATCH] use size_t for the broken ioctl numbers" brought in the problem.
+> <http://lkml.org/lkml/2003/9/7/14> (also FYI: <https://lwn.net/Articles/48360/>)
+> 
+> The patch below fixes the bug on BLKGETSIZE64. typeof(size_t) == 32, but we expect 64. 
+> The choice of `size_t' is also a mistake. We should have taken `int'.  This also affects
+> userland linux-kernel-headers.
+> 
+> Or am I missing something? Thanks.
 
-Regards,
-Michal Piotrowski
+You're missing the fact that we can't just change existing numbers. It 
+just makes the ioctl not work.
+
+A lot of the "size_t"'s got added because people had mis-understood the 
+_IOR/W macros, and had done a "sizeof()" by hand, when the macro itself 
+did the sizeof. Which caused the macro to make the ioctl number be based 
+on "sizeof(sizeof(realsize))", which is the same as "sizeof(size_t)".
+
+And because we MUST NOT change the ioctl number (regardless of whether the 
+number shows the correct size or not), those got changed to use "size_t" 
+to match historical - if incorrect - numbering.
+
+The _IOR/W macros got fixed so that you now _cannot_ use anything but a 
+real type, so the bug shouldn't happen again, but we're stuck with the old 
+broken numbers.
+
+The number is just a number, after all. We shouldn't be using the size 
+encoding in the ioctl number, afaik (since for a _lot_ of them we can't 
+depend on it anyway).
+
+		Linus

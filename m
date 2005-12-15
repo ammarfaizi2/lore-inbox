@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422664AbVLOJoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422671AbVLOJsb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422664AbVLOJoi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 04:44:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422669AbVLOJoi
+	id S1422671AbVLOJsb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 04:48:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422669AbVLOJsb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 04:44:38 -0500
-Received: from mail.suse.de ([195.135.220.2]:26508 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1422664AbVLOJoi (ORCPT
+	Thu, 15 Dec 2005 04:48:31 -0500
+Received: from cantor.suse.de ([195.135.220.2]:54924 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422671AbVLOJsa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 04:44:38 -0500
-Date: Thu, 15 Dec 2005 10:44:37 +0100
+	Thu, 15 Dec 2005 04:48:30 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc5-mm3
+References: <20051214234016.0112a86e.akpm@osdl.org>
 From: Andi Kleen <ak@suse.de>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [discuss] [patch 1/3] x86_64: Node local pda take 2 -- early cpu_to_node
-Message-ID: <20051215094437.GY23384@wotan.suse.de>
-References: <20051215023345.GB3787@localhost.localdomain>
-Mime-Version: 1.0
+Date: 15 Dec 2005 10:48:29 +0100
+In-Reply-To: <20051214234016.0112a86e.akpm@osdl.org>
+Message-ID: <p733bku8zde.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051215023345.GB3787@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 06:33:45PM -0800, Ravikiran G Thirumalai wrote:
-> Here is take 2 on x86_64 node local pda allocation.
+Andrew Morton <akpm@osdl.org> writes:
+
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm3/
 > 
-> This patchset does away with the extra memory reference for non CONFIG_NUMA
-> case.  The early cpu_to_node helps AMD and EM64T systems which work well
-> with CONFIG_ACPI_NUMA.  cpu_to_node is not inited early for AMD systems
-> which work only with old style K8_NUMA. (Tested on EM64 NUMA and Tyan K8
-> dual core 4 cpu boxes)
+> 
+> - This kernel requires gcc-3.2.x or later for all architectures.
+> 
+> - I'll be non-functional from December 16 until January 2.  Will be on email
+>   a bit.  Have fun.
+> 
+> - When reporting any bugs please be extra careful to Cc the appropriate
+>   developer and mailing list.
+> 
+> - I'm not aware of any of the more serious bugs in rc5-mm1 and rc5-mm2
+>   being fixed.  If anyone finds that there's a previously-reported problem
+>   in here then please just re-report it and don't be afraid to spread the
+>   Cc's around.
 
-Thanks for now testing on AMD too - that makes me more confident in your
-patches.
+I have some bad problems on one of my machines (NForce4) with iommu=force and
+SLAB_DEBUG - forcedeth seems to corrupt memory badly then.
+Also now I managed to get the machine into a state where it would
+hang in the SATA driver after boot. Still investigating.
 
-> Andi, I could not eliminate the need for a initial static pda array, since
-> sched_init needs the static per-cpu offset array for NR_CPUS early.  Hope
-> this is OK.
-
-See my comment.
-
-> + * Setup cpu_to_node using the SRAT lapcis & ACPI MADT table
-> + * info.
-> + */
-> +void __init init_cpu_to_node(void)
-> +{
-> +	int i;	
-> + 	for (i = 0; i < NR_CPUS; i++)
-> + 		cpu_to_node[i] = apicid_to_node[x86_cpu_to_apicid[i]];
-> +}
-
-I would prefer it if you moved that to numa.c and run always 
-(even for the k8topology case). Otherwise k8topology will behave
-differently whether CONFIG_ACPI_NUMA is set or not, and I don't like
-that.
+Problem is in rc5 and rc5-git4
 
 -Andi
-

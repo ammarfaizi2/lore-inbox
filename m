@@ -1,24 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbVLOCdz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030354AbVLOCfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030297AbVLOCdz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 21:33:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030358AbVLOCdz
+	id S1030354AbVLOCfh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 21:35:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030358AbVLOCfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 21:33:55 -0500
-Received: from serv01.siteground.net ([70.85.91.68]:32129 "EHLO
+	Wed, 14 Dec 2005 21:35:36 -0500
+Received: from serv01.siteground.net ([70.85.91.68]:33921 "EHLO
 	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1030297AbVLOCdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 21:33:55 -0500
-Date: Wed, 14 Dec 2005 18:33:45 -0800
+	id S1030354AbVLOCfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 21:35:36 -0500
+Date: Wed, 14 Dec 2005 18:35:26 -0800
 From: Ravikiran G Thirumalai <kiran@scalex86.org>
 To: Andi Kleen <ak@suse.de>
 Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
        Andrew Morton <akpm@osdl.org>
-Subject: [patch 1/3] x86_64: Node local pda take 2 -- early cpu_to_node
-Message-ID: <20051215023345.GB3787@localhost.localdomain>
+Subject: [patch 2/3] x86_64: Node local pda take 2 -- cpu_pda_prep
+Message-ID: <20051215023526.GC3787@localhost.localdomain>
+References: <20051215023345.GB3787@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20051215023345.GB3787@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - serv01.siteground.net
@@ -31,85 +33,191 @@ X-Source-Dir:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is take 2 on x86_64 node local pda allocation.
+Helper patch to change cpu_pda users to use macros to access cpu_pda
+instead of the cpu_pda[] array.
 
-This patchset does away with the extra memory reference for non CONFIG_NUMA
-case.  The early cpu_to_node helps AMD and EM64T systems which work well
-with CONFIG_ACPI_NUMA.  cpu_to_node is not inited early for AMD systems
-which work only with old style K8_NUMA. (Tested on EM64 NUMA and Tyan K8
-dual core 4 cpu boxes)
-
-Andi, I could not eliminate the need for a initial static pda array, since
-sched_init needs the static per-cpu offset array for NR_CPUS early.  Hope
-this is OK.
-
-Thanks,
-Kiran
-
----
-
-Patch enables early intialization of cpu_to_node. apicid_to_node is built by reading
-the SRAT table, from acpi_numa_init, and x86_cpu_to_apicid is built by parsing the ACPI
-MADT table, from acpi_boot_init. We combine these two tables and setup cpu_to_node.
-
-Early intialization helps the static per_cpu_areas in getting pages from correct node.
-
-Tested on EM64T NUMA and Tyan K8 dual core board (with CONFIG_ACPI_NUMA + K8)
-
-Signed-off-by: Alok N Kataria <alokk@calsoftinc.com>
 Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+Signed-off-by: Shai Fultheim <shai@scalex86.org>
 
-Index: linux-2.6.15-rc4/arch/x86_64/kernel/setup.c
+Index: linux-2.6.15-rc1git/arch/x86_64/kernel/irq.c
 ===================================================================
---- linux-2.6.15-rc4.orig/arch/x86_64/kernel/setup.c	2005-12-02 16:25:19.000000000 -0800
-+++ linux-2.6.15-rc4/arch/x86_64/kernel/setup.c	2005-12-12 01:49:00.000000000 -0800
-@@ -669,6 +669,8 @@
- 	acpi_boot_init();
- #endif
- 
-+	init_cpu_to_node();
-+
+--- linux-2.6.15-rc1git.orig/arch/x86_64/kernel/irq.c	2005-10-27 17:02:08.000000000 -0700
++++ linux-2.6.15-rc1git/arch/x86_64/kernel/irq.c	2005-11-16 14:08:14.000000000 -0800
+@@ -69,13 +69,13 @@
+ 		seq_printf(p, "NMI: ");
+ 		for (j = 0; j < NR_CPUS; j++)
+ 			if (cpu_online(j))
+-				seq_printf(p, "%10u ", cpu_pda[j].__nmi_count);
++				seq_printf(p, "%10u ", cpu_pda(j)->__nmi_count);
+ 		seq_putc(p, '\n');
  #ifdef CONFIG_X86_LOCAL_APIC
- 	/*
- 	 * get boot-time SMP configuration:
-Index: linux-2.6.15-rc4/arch/x86_64/mm/srat.c
-===================================================================
---- linux-2.6.15-rc4.orig/arch/x86_64/mm/srat.c	2005-12-01 17:09:51.000000000 -0800
-+++ linux-2.6.15-rc4/arch/x86_64/mm/srat.c	2005-12-12 01:19:00.000000000 -0800
-@@ -226,4 +226,15 @@
- 	return acpi_slit->entry[index + node_to_pxm(b)];
- }
- 
-+/*
-+ * Setup cpu_to_node using the SRAT lapcis & ACPI MADT table
-+ * info.
-+ */
-+void __init init_cpu_to_node(void)
-+{
-+	int i;	
-+ 	for (i = 0; i < NR_CPUS; i++)
-+ 		cpu_to_node[i] = apicid_to_node[x86_cpu_to_apicid[i]];
-+}
-+
- EXPORT_SYMBOL(__node_distance);
-Index: linux-2.6.15-rc4/include/linux/acpi.h
-===================================================================
---- linux-2.6.15-rc4.orig/include/linux/acpi.h	2005-10-27 17:02:08.000000000 -0700
-+++ linux-2.6.15-rc4/include/linux/acpi.h	2005-12-12 01:52:28.000000000 -0800
-@@ -519,11 +519,16 @@
- 
- #ifdef CONFIG_ACPI_NUMA
- int acpi_get_pxm(acpi_handle handle);
-+void __init init_cpu_to_node();
- #else
- static inline int acpi_get_pxm(acpi_handle handle)
- {
- 	return 0;
- }
-+
-+static inline void init_cpu_to_node(void)
-+{
-+}
+ 		seq_printf(p, "LOC: ");
+ 		for (j = 0; j < NR_CPUS; j++)
+ 			if (cpu_online(j))
+-				seq_printf(p, "%10u ", cpu_pda[j].apic_timer_irqs);
++				seq_printf(p, "%10u ", cpu_pda(j)->apic_timer_irqs);
+ 		seq_putc(p, '\n');
  #endif
+ 		seq_printf(p, "ERR: %10u\n", atomic_read(&irq_err_count));
+Index: linux-2.6.15-rc1git/arch/x86_64/kernel/nmi.c
+===================================================================
+--- linux-2.6.15-rc1git.orig/arch/x86_64/kernel/nmi.c	2005-10-27 17:02:08.000000000 -0700
++++ linux-2.6.15-rc1git/arch/x86_64/kernel/nmi.c	2005-11-16 14:08:14.000000000 -0800
+@@ -155,19 +155,19 @@
+ 		smp_call_function(nmi_cpu_busy, (void *)&endflag, 0, 0);
  
- extern int pnpacpi_disabled;
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++)
+-		counts[cpu] = cpu_pda[cpu].__nmi_count; 
++		counts[cpu] = cpu_pda(cpu)->__nmi_count; 
+ 	local_irq_enable();
+ 	mdelay((10*1000)/nmi_hz); // wait 10 ticks
+ 
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+ 		if (!cpu_online(cpu))
+ 			continue;
+-		if (cpu_pda[cpu].__nmi_count - counts[cpu] <= 5) {
++		if (cpu_pda(cpu)->__nmi_count - counts[cpu] <= 5) {
+ 			endflag = 1;
+ 			printk("CPU#%d: NMI appears to be stuck (%d->%d)!\n",
+ 			       cpu,
+ 			       counts[cpu],
+-			       cpu_pda[cpu].__nmi_count);
++			       cpu_pda(cpu)->__nmi_count);
+ 			nmi_active = 0;
+ 			lapic_nmi_owner &= ~LAPIC_NMI_WATCHDOG;
+ 			nmi_perfctr_msr = 0;
+Index: linux-2.6.15-rc1git/arch/x86_64/kernel/setup64.c
+===================================================================
+--- linux-2.6.15-rc1git.orig/arch/x86_64/kernel/setup64.c	2005-11-16 12:13:40.000000000 -0800
++++ linux-2.6.15-rc1git/arch/x86_64/kernel/setup64.c	2005-11-16 14:08:14.000000000 -0800
+@@ -30,7 +30,7 @@
+ 
+ cpumask_t cpu_initialized __cpuinitdata = CPU_MASK_NONE;
+ 
+-struct x8664_pda cpu_pda[NR_CPUS] __cacheline_aligned; 
++struct x8664_pda _cpu_pda[NR_CPUS] __cacheline_aligned; 
+ 
+ struct desc_ptr idt_descr = { 256 * 16, (unsigned long) idt_table }; 
+ 
+@@ -110,18 +110,18 @@
+ 		}
+ 		if (!ptr)
+ 			panic("Cannot allocate cpu data for CPU %d\n", i);
+-		cpu_pda[i].data_offset = ptr - __per_cpu_start;
++		cpu_pda(i)->data_offset = ptr - __per_cpu_start;
+ 		memcpy(ptr, __per_cpu_start, __per_cpu_end - __per_cpu_start);
+ 	}
+ } 
+ 
+ void pda_init(int cpu)
+ { 
+-	struct x8664_pda *pda = &cpu_pda[cpu];
++	struct x8664_pda *pda = cpu_pda(cpu);
+ 
+ 	/* Setup up data that may be needed in __get_free_pages early */
+ 	asm volatile("movl %0,%%fs ; movl %0,%%gs" :: "r" (0)); 
+-	wrmsrl(MSR_GS_BASE, cpu_pda + cpu);
++	wrmsrl(MSR_GS_BASE, pda);
+ 
+ 	pda->cpunumber = cpu; 
+ 	pda->irqcount = -1;
+Index: linux-2.6.15-rc1git/arch/x86_64/kernel/smpboot.c
+===================================================================
+--- linux-2.6.15-rc1git.orig/arch/x86_64/kernel/smpboot.c	2005-11-16 12:13:40.000000000 -0800
++++ linux-2.6.15-rc1git/arch/x86_64/kernel/smpboot.c	2005-11-16 14:08:14.000000000 -0800
+@@ -778,7 +778,7 @@
+ 
+ do_rest:
+ 
+-	cpu_pda[cpu].pcurrent = c_idle.idle;
++	cpu_pda(cpu)->pcurrent = c_idle.idle;
+ 
+ 	start_rip = setup_trampoline();
+ 
+Index: linux-2.6.15-rc1git/arch/x86_64/kernel/traps.c
+===================================================================
+--- linux-2.6.15-rc1git.orig/arch/x86_64/kernel/traps.c	2005-11-16 12:13:40.000000000 -0800
++++ linux-2.6.15-rc1git/arch/x86_64/kernel/traps.c	2005-11-16 14:08:14.000000000 -0800
+@@ -158,7 +158,7 @@
+ {
+ 	unsigned long addr;
+ 	const unsigned cpu = safe_smp_processor_id();
+-	unsigned long *irqstack_end = (unsigned long *)cpu_pda[cpu].irqstackptr;
++	unsigned long *irqstack_end = (unsigned long *)cpu_pda(cpu)->irqstackptr;
+ 	int i;
+ 	unsigned used = 0;
+ 
+@@ -226,8 +226,8 @@
+ 	unsigned long *stack;
+ 	int i;
+ 	const int cpu = safe_smp_processor_id();
+-	unsigned long *irqstack_end = (unsigned long *) (cpu_pda[cpu].irqstackptr);
+-	unsigned long *irqstack = (unsigned long *) (cpu_pda[cpu].irqstackptr - IRQSTACKSIZE);    
++	unsigned long *irqstack_end = (unsigned long *) (cpu_pda(cpu)->irqstackptr);
++	unsigned long *irqstack = (unsigned long *) (cpu_pda(cpu)->irqstackptr - IRQSTACKSIZE);    
+ 
+ 	// debugging aid: "show_stack(NULL, NULL);" prints the
+ 	// back trace for this cpu.
+@@ -275,7 +275,7 @@
+ 	int in_kernel = !user_mode(regs);
+ 	unsigned long rsp;
+ 	const int cpu = safe_smp_processor_id(); 
+-	struct task_struct *cur = cpu_pda[cpu].pcurrent; 
++	struct task_struct *cur = cpu_pda(cpu)->pcurrent; 
+ 
+ 		rsp = regs->rsp;
+ 
+Index: linux-2.6.15-rc1git/arch/x86_64/kernel/x8664_ksyms.c
+===================================================================
+--- linux-2.6.15-rc1git.orig/arch/x86_64/kernel/x8664_ksyms.c	2005-11-16 12:13:40.000000000 -0800
++++ linux-2.6.15-rc1git/arch/x86_64/kernel/x8664_ksyms.c	2005-11-16 14:08:14.000000000 -0800
+@@ -109,7 +109,7 @@
+ EXPORT_SYMBOL(copy_page);
+ EXPORT_SYMBOL(clear_page);
+ 
+-EXPORT_SYMBOL(cpu_pda);
++EXPORT_SYMBOL(_cpu_pda);
+ #ifdef CONFIG_SMP
+ EXPORT_SYMBOL(cpu_data);
+ EXPORT_SYMBOL(cpu_online_map);
+Index: linux-2.6.15-rc1git/arch/x86_64/mm/numa.c
+===================================================================
+--- linux-2.6.15-rc1git.orig/arch/x86_64/mm/numa.c	2005-11-16 12:13:40.000000000 -0800
++++ linux-2.6.15-rc1git/arch/x86_64/mm/numa.c	2005-11-16 14:11:41.000000000 -0800
+@@ -270,7 +270,7 @@
+ 
+ void __cpuinit numa_set_node(int cpu, int node)
+ {
+-	cpu_pda[cpu].nodenumber = node;
++	cpu_pda(cpu)->nodenumber = node;
+ 	cpu_to_node[cpu] = node;
+ }
+ 
+Index: linux-2.6.15-rc1git/include/asm-x86_64/pda.h
+===================================================================
+--- linux-2.6.15-rc1git.orig/include/asm-x86_64/pda.h	2005-11-16 12:13:40.000000000 -0800
++++ linux-2.6.15-rc1git/include/asm-x86_64/pda.h	2005-11-16 14:08:14.000000000 -0800
+@@ -27,7 +27,9 @@
+ #define IRQSTACK_ORDER 2
+ #define IRQSTACKSIZE (PAGE_SIZE << IRQSTACK_ORDER) 
+ 
+-extern struct x8664_pda cpu_pda[];
++extern struct x8664_pda _cpu_pda[];
++
++#define cpu_pda(i) (&_cpu_pda[i])
+ 
+ /* 
+  * There is no fast way to get the base address of the PDA, all the accesses
+Index: linux-2.6.15-rc1git/include/asm-x86_64/percpu.h
+===================================================================
+--- linux-2.6.15-rc1git.orig/include/asm-x86_64/percpu.h	2005-10-27 17:02:08.000000000 -0700
++++ linux-2.6.15-rc1git/include/asm-x86_64/percpu.h	2005-11-16 14:08:14.000000000 -0800
+@@ -11,7 +11,7 @@
+ 
+ #include <asm/pda.h>
+ 
+-#define __per_cpu_offset(cpu) (cpu_pda[cpu].data_offset)
++#define __per_cpu_offset(cpu) (cpu_pda(cpu)->data_offset)
+ #define __my_cpu_offset() read_pda(data_offset)
+ 
+ /* Separate out the type, so (int[3], foo) works. */

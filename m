@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030388AbVLOEcn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161039AbVLOEel@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030388AbVLOEcn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 23:32:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbVLOEcn
+	id S1161039AbVLOEel (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 23:34:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161042AbVLOEek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 23:32:43 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:8609
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030349AbVLOEcm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 23:32:42 -0500
-Date: Wed, 14 Dec 2005 20:30:23 -0800 (PST)
-Message-Id: <20051214.203023.129054759.davem@davemloft.net>
-To: mpm@selenic.com
-Cc: sri@us.ibm.com, ak@suse.de, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051215033937.GC11856@waste.org>
-References: <20051214092228.GC18862@brahms.suse.de>
-	<1134582945.8698.17.camel@w-sridhar2.beaverton.ibm.com>
-	<20051215033937.GC11856@waste.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 14 Dec 2005 23:34:40 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:52933 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161039AbVLOEej (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 23:34:39 -0500
+Subject: [PATCH 000/003] Remove getnstimestamp()
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: john stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
+       Shailabh Nagar <nagar@watson.ibm.com>,
+       Christoph Lameter <clameter@engr.sgi.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jay Lan <jlan@sgi.com>,
+       George Anzinger <george@mvista.com>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 20:29:46 -0800
+Message-Id: <1134620987.7372.35.camel@stark>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Matt Mackall <mpm@selenic.com>
-Date: Wed, 14 Dec 2005 19:39:37 -0800
+	This series removes the getnstimestamp() function from kernel/time.c in
+favor of kernel/hrtimer.c's ktime_get_ts() function which currently does
+exactly the same thing: retrieves a high-resolution (ns) timespec
+structure and performs the wall_to_monotonic adjustment.
 
-> I think we need a global receive pool and per-socket send pools.
+	As Jay Lan suggested I was going to replace calls to getnstimestamp()
+with do_posix_clock_monotonic_gettime() but the hrtimer patches switched
+that to a macro. ktime_get_ts() is shorter and avoids unnecessary
+association with posix timers (though it does not emphasize monotonicity
+or resolution).
 
-Mind telling everyone how you plan to make use of the global receive
-pool when the allocation happens in the device driver and we have no
-idea which socket the packet is destined for?  What should be done for
-non-local packets being routed?  The device drivers allocate packets
-for the entire system, long before we know who the eventually received
-packets are for.  It is fully anonymous memory, and it's easy to
-design cases where the whole pool can be eaten up by non-local
-forwarded packets.
+The series:
 
-I truly dislike these patches being discussed because they are a
-complete hack, and admittedly don't even solve the problem fully.  I
-don't have any concrete better ideas but that doesn't mean this stuff
-should go into the tree.
+001/003 export-ktime_get_ts.patch
+	Exports ktime_get_ts()
 
-I think GFP_ATOMIC memory pools are more powerful than they are given
-credit for.  There is nothing preventing the implementation of dynamic
-GFP_ATOMIC watermarks, and having "critical" socket behavior "kick in"
-in response to hitting those water marks.
+002/003 proc-events-use-ktime-for-timestamp.patch
+	Switches the only user of getnstimestamp() to ktime_get_ts()
+
+003/003 rm-getnstimestamp.patch
+	Remove getnstimestamp() from kernel/time.c
+
+
+Thanks,
+	-Matt Helsley
+
+

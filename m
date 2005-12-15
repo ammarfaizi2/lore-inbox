@@ -1,84 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVLOXCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbVLOXMv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbVLOXCy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 18:02:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVLOXCy
+	id S1751097AbVLOXMv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 18:12:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbVLOXMv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 18:02:54 -0500
-Received: from mail.kroah.org ([69.55.234.183]:11427 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751096AbVLOXCx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 18:02:53 -0500
-Date: Thu, 15 Dec 2005 15:02:18 -0800
-From: Greg KH <greg@kroah.com>
-To: Vitaly Wool <vwool@ru.mvista.com>
-Cc: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
-       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
-       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
-       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
-Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
-Message-ID: <20051215230217.GA11880@kroah.com>
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051214171842.GB30546@kroah.com> <43A05C32.3070501@ru.mvista.com> <200512141102.53599.david-b@pacbell.net> <43A1118E.9040608@ru.mvista.com> <20051215164444.GA14870@kroah.com> <43A1ECE4.6010600@ru.mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 15 Dec 2005 18:12:51 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:47270 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1751097AbVLOXMu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 18:12:50 -0500
+From: Ismail Donmez <ismail@uludag.org.tr>
+Organization: TUBITAK/UEKAE
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Date: Fri, 16 Dec 2005 01:12:29 +0200
+User-Agent: KMail/1.9.1
+References: <20051211180536.GM23349@stusta.de> <Pine.LNX.4.61.0512152356190.13568@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0512152356190.13568@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <43A1ECE4.6010600@ru.mvista.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200512160112.30179.ismail@uludag.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 01:23:32AM +0300, Vitaly Wool wrote:
-> Greg KH wrote:
-> 
-> >On Thu, Dec 15, 2005 at 09:47:42AM +0300, Vitaly Wool wrote:
-> > 
+Cuma 16 Aralık 2005 00:57 tarihinde şunları yazmıştınız:
+> >It seems most problems with 4k stacks are already resolved at least
+> >in -mm.
 > >
-> >>David Brownell wrote:
-> >>
-> >>   
-> >>
-> >>>No, "stupid drivers will suffer"; nothing new.  Just observe
-> >>>how the ads7846 touchscreen driver does small async transfers.
-> >>>
-> >>>
-> >>>     
-> >>>
-> >>One cannot allocate memory in interrupt context, so the way to go is 
-> >>allocating it on stack, thus the buffer is not DMA-safe.
-> >>Making it DMA-safe in thread that does the very message processing is a 
-> >>good way of overcoming this.
-> >>Using preallocated buffer is not a good way, since it may well be
-> >>already used by another interrupt or not yet processed by the worker
-> >>thread (or tasklet, or whatever).
-> >>   
-> >>
-> >
-> >Yes it is a good way.  That's the way USB currently works in the kernel,
-> >and it works just fine.  It keeps the rules simple and everyone knows
-> >what needs to be done.
-> > 
-> >
-> Looking at my usbnet stuff, I can't share that opinion :-/
-> Are you really ready to lower the performance and quality of service 
-> just for approach uniformity?
+> >I'd like to see this patch to always use 4k stacks in -mm now for
+> >finding any remaining problems before submitting this patch for Linus'
+> >tree.
+>
+> By chance, I read that windows modules used in ndiswrapper
+> may require >4k-stacks. Will this become a problem?
 
-What performance issues?  As an example, USB has this rule, and we can
-saturate a 480Mbit line with a _userspace_ driver (loads of memcopy
-calles involved there.)
+If 8k stacks get removed, yes. So if you have a chance to choose don't buy a 
+wifi card which doesn't have a native linux driver.
 
-> And, can you please point me out the examples of devices behind USB bus 
-> that need to write registers from an interrupt context?
-
-usb to serial drivers need to allocate buffers for their write functions
-as they can be called in irq context from a tty line dicipline, which
-causes a USB packet to be dynamically created and sent to the USB core.
-I also think the USB network and ATM drivers have these requirements
-too, just search for GFP_ATOMIC in the drivers/usb/ directory to find
-these instances.
-
-Anyway, this is my last response about this issue.  Please consider it
-over.
-
-thanks,
-
-greg k-h
+Regards,
+ismail

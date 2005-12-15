@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161047AbVLOExA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161052AbVLOEx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161047AbVLOExA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 23:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161050AbVLOExA
+	id S1161052AbVLOEx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 23:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161051AbVLOEx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 23:53:00 -0500
-Received: from dial169-93.awalnet.net ([213.184.169.93]:30476 "EHLO
-	raad.intranet") by vger.kernel.org with ESMTP id S1161047AbVLOExA
+	Wed, 14 Dec 2005 23:53:56 -0500
+Received: from mgate03.necel.com ([203.180.232.83]:29353 "EHLO
+	mgate03.necel.com") by vger.kernel.org with ESMTP id S1161050AbVLOExz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 23:53:00 -0500
-From: Al Boldi <a1426z@gawab.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: Linux in a binary world... a doomsday scenario
-Date: Thu, 15 Dec 2005 07:49:28 +0300
-User-Agent: KMail/1.5
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-References: <200512150013.29549.a1426z@gawab.com> <1134595639.9442.14.camel@laptopd505.fenrus.org>
-In-Reply-To: <1134595639.9442.14.camel@laptopd505.fenrus.org>
+	Wed, 14 Dec 2005 23:53:55 -0500
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Jakub Jelinek <jakub@redhat.com>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, dhowells@redhat.com,
+       torvalds@osdl.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+References: <dhowells1134431145@warthog.cambridge.redhat.com>
+	<20051212161944.3185a3f9.akpm@osdl.org>
+	<20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de>
+	<20051213004257.0f87d814.akpm@osdl.org>
+	<20051213084926.GN23384@wotan.suse.de>
+	<20051213090429.GC27857@infradead.org>
+	<20051213101141.GI31785@devserv.devel.redhat.com>
+	<20051213101938.GA30118@infradead.org>
+From: Miles Bader <miles.bader@necel.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+Date: Thu, 15 Dec 2005 13:53:11 +0900
+In-Reply-To: <20051213101938.GA30118@infradead.org> (Christoph Hellwig's message of "Tue, 13 Dec 2005 10:19:38 +0000")
+Message-Id: <buod5jz6jwo.fsf@dhapc248.dev.necel.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200512150749.29064.a1426z@gawab.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Thu, 2005-12-15 at 00:13 +0300, Al Boldi wrote:
-> > Greg KH wrote:
-> > > For people to think that the kernel developers are just "too dumb" to
-> > > make a stable kernel api (and yes, I've had people accuse me of this
-> > > many times to my face[1]) shows a total lack of understanding as to
-> > > _why_ we change the in-kernel api all the time.  Please see
-> > > Documentation/stable_api_nonsense.txt for details on this.
-> >
-> > I read this doc, and it doesn't make your case any clearer, on the
-> > contrary!
-> >
-> > But first, your work to the kernel represents a not so dumb
-> > contribution, especially the replacement of devfs.  Thanks!
-> >
-> > Now, to call a stable api nonsense is nonsense.  Really, only a _stable_
-> > api is worth to be considered an API.  Think about it.
->
-> a stable api/abi for the linux kernel would take at least 2 years to
-> develop. The current API is not designed for stable-ness, a stable API
-> needs stricter separation between the layers and more opaque pointers
-> etc etc.
+Christoph Hellwig <hch@infradead.org> writes:
+> But serious, having to look all over the source instead of just a block
+> beginning decreases code readability a lot.
 
-True.  But it would be time well spent.
+My experience is quite the opposite.
 
-> There is a price you pay for having such a rigid scheme (it arguably has
-> advantages too, those are mostly relevant in a closed source system tho)
-> is that it's a lot harder to implement improvements.
+Being forced to put declarations at the beginning of the block in
+practice means that people simply separate declarations from the first
+assignment.  That uglifies and bloats the code, and seems to often cause
+bugs as well (because people seem to often not pay attention to what
+happens to a variable between the declaration and first assignment;
+having it simply _not exist_ before the first assignment helps quite a
+bit).
 
-This is a common misconception.  What is true is that a closed system is 
-forced to implement a stable api by nature.  In an OpenSource system you can 
-just hack around, which may seem to speed your development cycle when in 
-fact it inhibits it.
-
-> Linux isn't so much designed as evolved, and in evolution, new dominant
-> things emerge regularly. A stable API would prevent those from even coming
-> into existing, let alone become dominant and implemented.
-
-GNU/OpenSource is unguided by nature.  A stable API contributes to a guided 
-development that is scalable.  Scalability is what leads you to new heights, 
-or else could you imagine how ugly it would be to send this message using 
-asm?
-
-Thanks!
-
---
-Al
-
+-Miles
+-- 
+Run away!  Run away!

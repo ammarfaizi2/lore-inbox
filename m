@@ -1,39 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVLOQKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbVLOQP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbVLOQKA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 11:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbVLOQKA
+	id S1750788AbVLOQP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 11:15:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVLOQP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 11:10:00 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:7860 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1750707AbVLOQJ7 (ORCPT
+	Thu, 15 Dec 2005 11:15:59 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:50824 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750788AbVLOQP6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 11:09:59 -0500
-Message-ID: <43A19557.1070605@drzeus.cx>
-Date: Thu, 15 Dec 2005 17:09:59 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mail/News 1.5 (X11/20051129)
+	Thu, 15 Dec 2005 11:15:58 -0500
+Date: Thu, 15 Dec 2005 08:15:49 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: linux@horizon.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+In-Reply-To: <20051215135812.14578.qmail@science.horizon.com>
+Message-ID: <Pine.LNX.4.64.0512150752240.3292@g5.osdl.org>
+References: <20051215135812.14578.qmail@science.horizon.com>
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: wbsd-devel@list.drzeus.cx, linux-kernel@vger.kernel.org,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 3/3] wbsd: make use of ARRAY_SIZE() macro
-References: <20051215053933.125918000.dtor_core@ameritech.net> <20051215054444.854564000.dtor_core@ameritech.net>
-In-Reply-To: <20051215054444.854564000.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
-> wbsd: make use of ARRAY_SIZE() macro
->
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> ---
->
->   
 
-Acked-by: Pierre Ossman <drzeus@drzeus.cx>
 
-(Provided it's fixed to come before the lindent patch.)
+On Thu, 15 Dec 2005, linux@horizon.com wrote:
+> 
+> A counting semaphore is NOT a perfectly fine mutex, and it SHOULD be changed.
 
+Don't be silly.
+
+First off, the data structure is called a "semaphore", and always has 
+been. It's _never_ been called a "mutex" in the first place, and the 
+operations have been called "down()" and "up()", because I thought calling 
+them P() and V() was just too damn traditional and confusing (I don't 
+speak dutch, and even if I did, I think shortening names to that degree is 
+just evil).
+
+And dammit, a counting semaphore (and usually you don't even say the 
+"counting" part, since counting is really always there) is just about 
+_the_ classical mutual exclusion mechanism. If somebody doesn't know that, 
+he has absolutely _no_ place talking about mutexes etc.
+
+And a semaphore _is_ a mutex. Anybody who disputes that is just being a 
+total troll. Even classically, the case where the semaphore was 
+initialized to 1 is very very traditional, and is very much part of the 
+whole point of a semaphore. Sometimes they are called "binary semaphores", 
+but dammit, they are just the same thing.
+
+A patch that
+ - creates a non-counting mutex
+ - .. that is SLOWER than the current counting one
+ - .. and keeps the old "semaphore" and "up/down" naming
+
+is simply INCREDIBLY BROKEN. It has absolutely _zero_ redeeming features. 
+I can't understand how there are a hundred emails in my mailbox even 
+discussing it. 
+
+And I can't understand how somebody has the balls to even say that a 
+semaphore isn't a mutex. That's like saying that an object of type "long" 
+isn't an integer, because only "int" objects are integers. That's just 
+INSANE.
+
+> People are indeed unhappy with the naming, and whether patching 95%
+> of the callers of up() and down() is a good idea is a valid and active
+> subject of debate.  (For an out-of-tree -rt patch, is was certaintly
+> an extremely practical solution.)
+
+Whatever people you claim are unhappy with the naming are
+ - obviously totally unaware of very basic synchronization primitives
+   used in concurrent programming
+ - likely haven't spent any time at all looking at the kernel source code.
+ - haven't _ever_ complained that I've seen before this totally made-up 
+   discussion.
+
+In other words, you are
+ (a) totally making up the claim that people are really unhappy
+ (b) jerking people around who _do_ know about semaphores and _have_ 
+     worked with the kernel locking primitives and understand them well
+
+So tell me, what do you think about your own arguments in that light?
+
+> But regardless of the eventual naming convention, mutexes are a good idea.
+> A mutex is *safer* than a counting semaphore.  That's the main benefit.
+> Indeed, unless there's a performance advantage to a counting semaphore,
+> you should use a mutex!
+
+Hey, feel free to introduce a mutex, but DAMMIT, just call it that, 
+instead of switching people over. 
+
+And even then, it should damn well also:
+ - really _be_ faster. On platforms that matter. 
+ - have enough real other advantages that it's worth introducing another 
+   abstraction, and more conceptual complexity. At least the RT patches 
+   had a reason for them.
+
+And besides, all your "safer" arguments are pretty damn pointless in the 
+face of the fact that we have basically had zero bugs with the semaphores. 
+This is not where the bugs happen. Yeah, yeah, double releases can happen, 
+but it sure as hell isn't on my radar of things I remember people doing.
+
+So when you say "This isn't about speed, this is about bug-free code", 
+you're just making that up. It's doubly silly when your "safer" 
+implementation uses totally illogical names. THAT is what creates bugs.
+
+So go away.
+
+Come back if you have pondered, and accepted reality, and perhaps have an 
+acceptable patch that introduces a separate data structure. 
+
+And no, we're not switching users over whole-sale. First you introduce the 
+new concept. Only THEN can you can switch over INDIVIDUAL LOCKS with 
+reasons for why it's worth it.
+
+And hell yes, performance does matter.
+
+			Linus

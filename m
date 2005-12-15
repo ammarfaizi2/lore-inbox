@@ -1,75 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbVLOQy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbVLOQ4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbVLOQy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 11:54:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVLOQy1
+	id S1750816AbVLOQ4t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 11:56:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbVLOQ4s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 11:54:27 -0500
-Received: from mail.kroah.org ([69.55.234.183]:60550 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750794AbVLOQy0 (ORCPT
+	Thu, 15 Dec 2005 11:56:48 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.25]:28583 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S1750813AbVLOQ4r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 11:54:26 -0500
-Date: Thu, 15 Dec 2005 08:53:57 -0800
-From: Greg KH <greg@kroah.com>
-To: Jeremy Katz <katzj@redhat.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: "block" symlink in sysfs for a multifunction device
-Message-ID: <20051215165357.GA15016@kroah.com>
-References: <20051212134904.225dcc5d.zaitcev@redhat.com> <20051214055019.GA23036@kroah.com> <20051214152615.13b6b105.zaitcev@redhat.com> <20051214234255.GA3275@kroah.com> <1134622055.2864.21.camel@bree.local.net>
+	Thu, 15 Dec 2005 11:56:47 -0500
+Date: Thu, 15 Dec 2005 08:56:02 -0800
+From: Paul Jackson <pj@sgi.com>
+To: David Howells <dhowells@redhat.com>
+Cc: nikita@clusterfs.com, alan@lxorguk.ukuu.org.uk, akpm@osdl.org,
+       tglx@linutronix.de, dhowells@redhat.com, mingo@elte.hu,
+       hch@infradead.org, torvalds@osdl.org, arjan@infradead.org,
+       matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-Id: <20051215085602.c98f22ef.pj@sgi.com>
+In-Reply-To: <4743.1134662116@warthog.cambridge.redhat.com>
+References: <17313.37200.728099.873988@gargle.gargle.HOWL>
+	<1134559121.25663.14.camel@localhost.localdomain>
+	<13820.1134558138@warthog.cambridge.redhat.com>
+	<20051213143147.d2a57fb3.pj@sgi.com>
+	<20051213094053.33284360.pj@sgi.com>
+	<dhowells1134431145@warthog.cambridge.redhat.com>
+	<20051212161944.3185a3f9.akpm@osdl.org>
+	<20051213075441.GB6765@elte.hu>
+	<20051213090219.GA27857@infradead.org>
+	<20051213093949.GC26097@elte.hu>
+	<20051213100015.GA32194@elte.hu>
+	<6281.1134498864@warthog.cambridge.redhat.com>
+	<14242.1134558772@warthog.cambridge.redhat.com>
+	<16315.1134563707@warthog.cambridge.redhat.com>
+	<1134568731.4275.4.camel@tglx.tec.linutronix.de>
+	<43A0AD54.6050109@rtr.ca>
+	<20051214155432.320f2950.akpm@osdl.org>
+	<17313.29296.170999.539035@gargle.gargle.HOWL>
+	<1134658579.12421.59.camel@localhost.localdomain>
+	<4743.1134662116@warthog.cambridge.redhat.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1134622055.2864.21.camel@bree.local.net>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 11:47:35PM -0500, Jeremy Katz wrote:
-> On Wed, 2005-12-14 at 15:42 -0800, Greg KH wrote:
-> > On Wed, Dec 14, 2005 at 03:26:15PM -0800, Pete Zaitcev wrote:
-> > > On Tue, 13 Dec 2005 21:50:19 -0800, Greg KH <greg@kroah.com> wrote:
-> > > > $ ls -l /sys/block/uba/device/
-> > > > -r--r--r--  1 root root 4096 Dec 13 21:31 bNumEndpoints
-> > > > lrwxrwxrwx  1 root root    0 Dec 13 21:31 block:uba -> ../../../../../../block/uba
-> > > > lrwxrwxrwx  1 root root    0 Dec 13 21:31 block:ubb -> ../../../../../../block/ubb
-> > > > lrwxrwxrwx  1 root root    0 Dec 13 21:31 block:ubc -> ../../../../../../block/ubc
-> > > > lrwxrwxrwx  1 root root    0 Dec 13 21:31 block:ubd -> ../../../../../../block/ubd
-> > > 
-> > > Greg, Jeremy is not happy about this.
-> > > 
-> > > > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=175563
-> > > > ------- Additional Comments From katzj@redhat.com  2005-12-14 18:05 EST -------
-> > > > Actually, this is problematic.  It makes it so that the single device directory
-> > > > corresponds to more than one device which we can't handle with kudzu :-(
-> > 
-> > Well, how do you handle it for class devices then?
-> 
-> We don't have any where we need to handle it at present.  
-> 
-> > And if this isn't acceptable, what would be?
-> 
-> By going this route, it really feels like you're hacking around your own
-> rule of a single value per file :-)  Except that instead of having a
-> file that I read five values from, it's five files with naming
-> heuristics to get five values.  Which is, in a lot of ways, worse.
+> But what to do about DECLARE_MUTEX? :-/
 
-What?  These are symlinks, not files.  Why would you want to read the
-name of the block device from a file and then go have to look that
-location up, instead of just following the symlink?
+A phased change of just the renames:
+	DECLARE_MUTEX ==> DECLARE_SEM
+	init_MUTEX ==> init_SEM
+	DECLARE_MUTEX_LOCKED ==> DECLARE_SEM_LOCKED
+	init_MUTEX_LOCKED ==> init_SEM_LOCKED
 
-> I'd much rather see the fact that there are multiple devices be handled
-> by having each device with its own unique directory.  This then keeps
-> all of the abstractions which currently exist.
+seems doable.  A scripted replacement, so long as it specifies whole
+word replacement only, seems to be a very robust replacement for these
+four symbols, unlike "up"/"down", which are scary at best to consider
+wholesale replacement.
 
-Those devices do have their own unique directory.  Look at the pointer
-above :)
+Add the new *_SEM in one release as aliases for the current *_MUTEX,
+do the wholesale replacement of the above names, leaving the old as
+aliases in a second release, remove the old *_MUTEX aliases in a third
+release, and them restore them as new 'real mutex' methods in a fourth
+release.  Be sure that the new *_MUTEX versions will generate a compile
+error if handed the old counting semaphore type.
 
-The point here is that multiple class devices and block devices can bind
-to a single "real device" in the system, and we need to handle that
-representation properly.  We have had the symlink for a while now, and I
-just forgot to put the proper name on the block device one, to match up
-with the class device naming.
+I'm a stickler for names ... at least until Linus/Andrew show me
+the foolishness of my ways, I could find such a change appealing.
 
-thanks,
+Of course, they're the ones with all the sweat equity on the line,
+not me.
 
-greg k-h
+... I'd better duck and get back to bug fixing, before I get hit ...
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

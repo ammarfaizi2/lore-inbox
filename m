@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422672AbVLOJ4E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422673AbVLOJ5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422672AbVLOJ4E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 04:56:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422675AbVLOJ4E
+	id S1422673AbVLOJ5d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 04:57:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422675AbVLOJ5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 04:56:04 -0500
-Received: from gold.veritas.com ([143.127.12.110]:62336 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1422672AbVLOJ4D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 04:56:03 -0500
-Date: Thu, 15 Dec 2005 09:55:40 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andi Kleen <ak@suse.de>
-cc: Dave <dave.jiang@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: x86_64 segfault error codes
-In-Reply-To: <20051214195848.GQ23384@wotan.suse.de>
-Message-ID: <Pine.LNX.4.61.0512150949570.6445@goblin.wat.veritas.com>
-References: <8746466a0512141017j141d61dft3dd2b1ab95dc2351@mail.gmail.com>
- <p73hd9b8r9w.fsf@verdi.suse.de> <8746466a0512141124u68c3f5c9o3411c8af64667d8d@mail.gmail.com>
- <20051214195848.GQ23384@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 15 Dec 2005 09:55:26.0781 (UTC) FILETIME=[ACB5A6D0:01C6015D]
+	Thu, 15 Dec 2005 04:57:33 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:55996 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1422673AbVLOJ5c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 04:57:32 -0500
+Date: Thu, 15 Dec 2005 12:58:00 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+To: linux-kernel@vger.kernel.org
+Cc: spi-devel-general@lists.sourceforge.net, david-b@pacbell.net,
+       dpervushin@gmail.com, akpm@osdl.org, greg@kroah.com,
+       basicmark@yahoo.com, komal_shah802003@yahoo.com,
+       stephen@streetfiresound.com, Joachim_Jaeger@digi.com
+Subject: [PATCH 2.6-git 0/3] SPI core refresh
+Message-Id: <20051215125800.4fa95de6.vwool@ru.mvista.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Dec 2005, Andi Kleen wrote:
-> 
-> Don't know what kernel you're looking at, but 2.6.15rc5 has
-> 
->  *      bit 0 == 0 means no page found, 1 means protection fault
->  *      bit 1 == 0 means read, 1 means write
->  *      bit 2 == 0 means kernel, 1 means user-mode
->  *      bit 3 == 1 means use of reserved bit detected
->  *      bit 4 == 1 means fault was an instruction fetch
+Greetings,
 
-I can't see it there in 2.6.15-rc5 or 2.6.15-rc5-git; but it is there
-in 2.6.15-rc5-mm3: which seems to contains a lot of x86_64 patches,
-perhaps some of which you're expecting already to be in 2.6.15?
+this message fill be followed by the following three ones:
+1) updated SPI core from Dmitry Pervushin/Vitaly Wool
+2) Atmel MTD dataflash driver port for this core
+3) SPI controller driver for Philips SPI controller
 
-Hugh
+This SPI core features:
+* multiple SPI controller support
+* multiple devices on the same bus support
+* DMA support
+* DMA-unsafety check
+* synchronous and asynchronous transfers
+* library for asynchronous transfers on the bus using kernel threads
+* character device interface
+* custom lightweight SPI message allocation mechanism
+* ability to call transfer function from the interrupt context
+* no more explicit redundant memory allocations/copys.
+
+The main differences between the previous version and this one:
+* handling DMA-unsafe buffer is now completely up to the bus driver
+* spi-dev compilation error fixed
+* redundant non-NULL check in bus_suspend/bus_resume removed
+* mutexes changed to spinlocks in queueing function for spi-thread to make it callable from the
+  interrupt context.
+
+I'd also like to encourage those who interested to use CVS on SourceForge to get the latest updates of the SPI core. The CVS root is ':pserver:anonymous@cvs.sourceforge.net:/cvsroot/spi-devel', the module to checkout is spi-core. Hope that helps.
+
+Vitaly

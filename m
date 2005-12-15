@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161052AbVLOEx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161051AbVLOE45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161052AbVLOEx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 23:53:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161051AbVLOEx4
+	id S1161051AbVLOE45 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 23:56:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbVLOE45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 23:53:56 -0500
-Received: from mgate03.necel.com ([203.180.232.83]:29353 "EHLO
-	mgate03.necel.com") by vger.kernel.org with ESMTP id S1161050AbVLOExz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 23:53:55 -0500
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Jakub Jelinek <jakub@redhat.com>, Andi Kleen <ak@suse.de>,
-       Andrew Morton <akpm@osdl.org>, mingo@elte.hu, dhowells@redhat.com,
-       torvalds@osdl.org, arjan@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-References: <dhowells1134431145@warthog.cambridge.redhat.com>
-	<20051212161944.3185a3f9.akpm@osdl.org>
-	<20051213075441.GB6765@elte.hu> <20051213075835.GZ15804@wotan.suse.de>
-	<20051213004257.0f87d814.akpm@osdl.org>
-	<20051213084926.GN23384@wotan.suse.de>
-	<20051213090429.GC27857@infradead.org>
-	<20051213101141.GI31785@devserv.devel.redhat.com>
-	<20051213101938.GA30118@infradead.org>
-From: Miles Bader <miles.bader@necel.com>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-Date: Thu, 15 Dec 2005 13:53:11 +0900
-In-Reply-To: <20051213101938.GA30118@infradead.org> (Christoph Hellwig's message of "Tue, 13 Dec 2005 10:19:38 +0000")
-Message-Id: <buod5jz6jwo.fsf@dhapc248.dev.necel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 14 Dec 2005 23:56:57 -0500
+Received: from gate.crashing.org ([63.228.1.57]:13483 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1161051AbVLOE44 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 23:56:56 -0500
+Subject: Re: [BUG] Xserver startup locks system... git bisect results
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Mark M. Hoffman" <mhoffman@lightlink.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Dave Airlie <airlied@linux.ie>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20051215043212.GA4479@jupiter.solarsys.private>
+References: <20051215043212.GA4479@jupiter.solarsys.private>
+Content-Type: text/plain
+Date: Thu, 15 Dec 2005 15:53:03 +1100
+Message-Id: <1134622384.16880.26.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
-> But serious, having to look all over the source instead of just a block
-> beginning decreases code readability a lot.
+On Wed, 2005-12-14 at 23:32 -0500, Mark M. Hoffman wrote:
+> Hello:
+> 
+> git bisect said:
+> > 47807ce381acc34a7ffee2b42e35e96c0f322e52 is first bad commit
+> > diff-tree 47807ce381acc34a7ffee2b42e35e96c0f322e52 (from 0e670506668a43e1355b8f10c33d081a676bd521)
+> > Author: Dave Airlie <airlied@linux.ie>
+> > Date:   Tue Dec 13 04:18:41 2005 +0000
+> > 
+> >     [drm] fix radeon aperture issue
+> 
+> With this one applied, my machine locks up tight just after starting the
+> Xserver.  Some info (dmesg, lspci, config) is here:
+> 
+> http://members.dca.net/mhoffman/lkml-20051214/
+> 
+> I can put a serial console on it if necessary, but not until about this
+> time tomorrow.
 
-My experience is quite the opposite.
+You have to love this X radeon driver ... you can't fix one bug without
+breaking something else, it's one of the worst piece of crap I've ever
+seen...
 
-Being forced to put declarations at the beginning of the block in
-practice means that people simply separate declarations from the first
-assignment.  That uglifies and bloats the code, and seems to often cause
-bugs as well (because people seem to often not pay attention to what
-happens to a variable between the declaration and first assignment;
-having it simply _not exist_ before the first assignment helps quite a
-bit).
+What would be useful now is the X version and maybe trying a little hack
+in the X driver. Do you have ways to rebuild the X driver at all ?
 
--Miles
--- 
-Run away!  Run away!
+The problem is, that patch actually fixes some users... Ah, also, could
+you maybe add some printk's around the code that is modified by that
+patch and try to catch the value it tries to use before the lockup ?
+
+That is, print the values of:
+
+dev_priv->fb_location
+
+and
+
+RADEON_READ(RADEON_CONFIG_APER_SIZE)
+
+Thanks,
+Ben.
+
+

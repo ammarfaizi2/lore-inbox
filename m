@@ -1,69 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161071AbVLOIfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161072AbVLOIgU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161071AbVLOIfu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 03:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbVLOIfu
+	id S1161072AbVLOIgU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 03:36:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161079AbVLOIgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 03:35:50 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:53429 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161071AbVLOIft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 03:35:49 -0500
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-From: Arjan van de Ven <arjan@infradead.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: sri@us.ibm.com, mpm@selenic.com, ak@suse.de, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <20051215.002120.133621586.davem@davemloft.net>
-References: <20051215033937.GC11856@waste.org>
-	 <20051214.203023.129054759.davem@davemloft.net>
-	 <Pine.LNX.4.58.0512142318410.7197@w-sridhar.beaverton.ibm.com>
-	 <20051215.002120.133621586.davem@davemloft.net>
-Content-Type: text/plain
-Date: Thu, 15 Dec 2005 09:35:20 +0100
-Message-Id: <1134635721.16486.7.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Thu, 15 Dec 2005 03:36:20 -0500
+Received: from dial169-160.awalnet.net ([213.184.169.160]:39436 "EHLO
+	raad.intranet") by vger.kernel.org with ESMTP id S1161072AbVLOIgT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 03:36:19 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Date: Thu, 15 Dec 2005 11:31:39 +0300
+User-Agent: KMail/1.5
+Cc: Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+References: <200512150013.29549.a1426z@gawab.com> <200512150749.29064.a1426z@gawab.com> <43A0FE13.8010303@yahoo.com.au>
+In-Reply-To: <43A0FE13.8010303@yahoo.com.au>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200512151131.39216.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-15 at 00:21 -0800, David S. Miller wrote:
-> From: Sridhar Samudrala <sri@us.ibm.com>
-> Date: Wed, 14 Dec 2005 23:37:37 -0800 (PST)
-> 
-> > Instead, you seem to be suggesting in_emergency to be set dynamically
-> > when we are about to run out of ATOMIC memory. Is this right?
-> 
-> Not when we run out, but rather when we reach some low water mark, the
-> "critical sockets" would still use GFP_ATOMIC memory but only
-> "critical sockets" would be allowed to do so.
-> 
-> But even this has faults, consider the IPSEC scenerio I mentioned, and
-> this applies to any kind of encapsulation actually, even simple
-> tunneling examples can be concocted which make the "critical socket"
-> idea fail.
-> 
-> The knee jerk reaction is "mark IPSEC's sockets critical, and mark the
-> tunneling allocations critical, and... and..."  well you have
-> GFP_ATOMIC then my friend.
-> 
-> In short, these "seperate page pool" and "critical socket" ideas do
-> not work and we need a different solution, I'm sorry folks spent so
-> much time on them, but they are heavily flawed.
+Nick Piggin wrote:
+> Al Boldi wrote:
+> > Arjan van de Ven wrote:
+> >>a stable api/abi for the linux kernel would take at least 2 years to
+> >>develop. The current API is not designed for stable-ness, a stable API
+> >>needs stricter separation between the layers and more opaque pointers
+> >>etc etc.
+> >
+> > True.  But it would be time well spent.
+>
+> Who's time would be well spent?
+>
+> Not mine because I don't want a stable API. Not mine because I
+> don't use binary drivers and I don't care to encourage them.
+> [that is, unless you manage to convince me below ;)]
 
-maybe it should be approached from the other side; having a way to mark
-connections as low priority (say incoming http connections to your
-webserver) or as non-critical/expendable would give the "normal"
-GFP_ATOMIC ones a better chance in case of overload/DDOS etc. It's not
-going to solve the VM deadlock issue wrt iscsi/nfs; however it might be
-useful in the "survive slashdot" sense...
+The fact that somebody may take advantage of a stable API should not lead us 
+to reject the idea per se.
+
+> Anyone else is free to fork the kernel and develop their own
+> stable API for it.
+
+That would be sad.
+
+The objective of a stable API would be to aid the collective effort and not 
+to divide it.
+
+> >>There is a price you pay for having such a rigid scheme (it arguably has
+> >>advantages too, those are mostly relevant in a closed source system tho)
+> >>is that it's a lot harder to implement improvements.
+> >
+> > This is a common misconception.  What is true is that a closed system is
+> > forced to implement a stable api by nature.  In an OpenSource system you
+> > can just hack around, which may seem to speed your development cycle
+> > when in fact it inhibits it.
+>
+> How? I'm quite willing to listen, but throwing around words like 'guided
+> development' and 'scalability' doesn't do anything. How does the lack of a
+> stable API inhibit my kernel development work, exactly?
+
+If you are working alone a stable API would be overkill.  But GNU/Linux is a 
+collective effort, where stability is paramount to aid scalability.
+
+I hope the concepts here are clear.
+
+> >>Linux isn't so much designed as evolved, and in evolution, new dominant
+> >>things emerge regularly. A stable API would prevent those from even
+> >> coming into existing, let alone become dominant and implemented.
+> >
+> > GNU/OpenSource is unguided by nature.
+>
+> I've got a fairly good idea of what work I'm doing, and what I'm planning
+> to do, long term goals, projects, etc. What would be the key differences
+> with "non-GNU/OpenSource" development that would make you say they are not
+> unguided by nature?
+
+The same goes for OpenSource in general, but GNU/OpenSource has a larger 
+community and therefore is in greater need of a stable API.
+
+> >  A stable API contributes to a guided
+> > development that is scalable.  Scalability is what leads you to new
+> > heights, or else could you imagine how ugly it would be to send this
+> > message using asm?
+>
+> Let's not bother with bad analogies and stick to facts. Do you know how
+> many people work on the Linux kernel? And how rapidly the source tree
+> changes? Estimates of how many bugs we have? Comparitive numbers from
+> projects with stable APIs? That would be very interesting.
+
+You got me here!  It's really common sense as in:
+stability breeds scalability, and instability breeds chaos.
+
+Arjan van de Ven wrote:
+> I think Linux proves you wrong (and a bit of a troll to be honest ;)
+
+No troll! Just being IMHO. I hope that's OK?
+
+Of course, if your aim is not to be scalable then please ignore this message 
+as it will not have any meaning.
+
+Thanks!
+
+--
+Al
 

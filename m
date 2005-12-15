@@ -1,59 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbVLOUCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbVLOUFY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbVLOUCx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 15:02:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVLOUCx
+	id S1750789AbVLOUFY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 15:05:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbVLOUFY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 15:02:53 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:53693 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750774AbVLOUCx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 15:02:53 -0500
-Subject: Re: [ckrm-tech] Re: [RFC][patch 00/21] PID Virtualization:
-	Overview and Patches
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Gerrit Huizenga <gh@us.ibm.com>
-Cc: Hubertus Franke <frankeh@watson.ibm.com>, ckrm-tech@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>, vserver@list.linux-vserver.org,
-       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       pagg@oss.sgi.com
-In-Reply-To: <E1Emz6c-0006c3-00@w-gerrit.beaverton.ibm.com>
-References: <E1Emz6c-0006c3-00@w-gerrit.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Thu, 15 Dec 2005 12:02:41 -0800
-Message-Id: <1134676961.22525.72.camel@localhost>
+	Thu, 15 Dec 2005 15:05:24 -0500
+Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:50704
+	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
+	id S1750789AbVLOUFX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 15:05:23 -0500
+Date: Thu, 15 Dec 2005 12:05:21 -0800
+From: Brad Boyer <flar@allandria.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@vger.kernel.org>
+Subject: Re: [PATCH 2/3] m68k: compile fix - ADBREQ_RAW missing declaration
+Message-ID: <20051215200521.GA18346@pants.nu>
+References: <20051215085516.GU27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151258200.1605@scrub.home> <20051215171645.GY27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151832270.1609@scrub.home> <20051215175536.GA27946@ftp.linux.org.uk> <Pine.LNX.4.62.0512151858100.6884@pademelon.sonytel.be> <20051215181405.GB27946@ftp.linux.org.uk> <20051215185829.GC27946@ftp.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051215185829.GC27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-15 at 11:49 -0800, Gerrit Huizenga wrote:
-> I think perhaps this could also be the basis for a CKRM "class"
-> grouping as well.  Rather than maintaining an independent class
-> affiliation for tasks, why not have a class devolve (evolve?) into
-> a "container" as described here.
+On Thu, Dec 15, 2005 at 06:58:29PM +0000, Al Viro wrote:
+> On Thu, Dec 15, 2005 at 06:14:05PM +0000, Al Viro wrote:
+> > >From my reading of the code it's a way for mac/misc.c to send a packet that
+> > starts with CUDA_PACKET or PMU_PACKET instead of ADB_PACKET, but otherwise
+> > is the same as normal adb_request() ones...
+> > 
+> > Used for access to timer, nvram, etc. - looks like that puppy used to
+> > use the same protocol for more than just ADB and the first byte of packet
+> > really selects the destination...
+> 
+> After reading some more...  Is there any reason why mac/misc.c can't
+> simply use cuda_request() and pmu_request() instead?  At least for
+> read/write for time and nvram we end up with identical sequence of
+> operations anyway - if you expand the calls in
+>         adb_request((struct adb_request *) &req, NULL,
+>                         ADBREQ_RAW|ADBREQ_SYNC,
+>                         2, CUDA_PACKET, CUDA_GET_TIME);
+> [m68k]
+> and
+>         if (cuda_request(&req, NULL, 2, CUDA_PACKET, CUDA_GET_TIME) < 0)
+> 		/* bail out */
+>         while (!req.complete)
+>                 cuda_poll();
+> [ppc]
+> until you get to call of cuda_write(), you'll see the same code.  Come
+> to think of that...  Shouldn't the ifdefs for CONFIG_ADB_PMU in there be for
+> CONFIG_ADB_PMU68?  The former depends on PMAC_PPC, so it's not particulary
+> useful thing to check on m68k...
 
-Wasn't one of the grand schemes of CKRM to be able to have application
-instances be shared?  For instance, running a single DB2, Oracle, or
-Apache server, and still accounting for all of the classes separately.
-If so, that wouldn't work with a scheme that requires process
-separation.
+Honestly, the RTC/PRAM code is completely broken in 2.6 for mac68k anyway.
+We definitely shouldn't be using CONFIG_ADB_PMU in the m68k code. I suspect
+that wasn't found due to the fact that the pmu68k driver has never been
+reliable enough to use, so everyone blames that for stuff breaking. Changing
+that use of CONFIG_ADB_PMU to CONFIG_ADB_PMU68K seems like the correct
+thing to do in this case.
 
-But, sharing the application instances is probably mostly (only)
-important for databases anyway.  I would imagine that most of the
-overhead in a server like an Apache instance is for the page cache for
-content, as well as a bit for Apache's executables themselves.  The
-container schemes should be able to share page cache for both cases.
-The main issues would be managing multiple configurations, and the
-increased overhead from having more processes around than with a single
-server.
+I would like to stop using adb_request in mac/misc.c as well, but it's not
+as simple as just changing it to use cuda_request and pmu_request. That
+should do it for the cuda and pmu based models, but the egret (Mac IIsi
+and friends) based models get left out by that fix. If noone else looks
+at it before me, I'll check this out after I fix some other stuff related
+to m68k mac support.
 
-There might also be some serious restrictions on containerized
-applications.  For instance, taking a running application, moving it out
-of one container, and into another might not be feasible.  Is this
-something that is common or desired in the current CKRM framework?
-
--- Dave
+	Brad Boyer
+	flar@allandria.com
 

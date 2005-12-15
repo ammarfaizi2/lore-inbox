@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbVLPAUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbVLPAUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751102AbVLPAUE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 19:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbVLPAUE
+	id S1751210AbVLPAUj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 19:20:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbVLPAUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 19:20:04 -0500
-Received: from cantor.suse.de ([195.135.220.2]:48273 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751102AbVLPAUC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 19:20:02 -0500
-Date: Fri, 16 Dec 2005 01:20:01 +0100
-From: Andi Kleen <ak@suse.de>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [discuss] [patch 1/3] x86_64: Node local pda take 2 -- early cpu_to_node
-Message-ID: <20051216002001.GO23384@wotan.suse.de>
-References: <20051215023345.GB3787@localhost.localdomain> <20051215094437.GY23384@wotan.suse.de> <20051215190142.GB3882@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051215190142.GB3882@localhost.localdomain>
+	Thu, 15 Dec 2005 19:20:39 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:4487 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751210AbVLPAUi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 19:20:38 -0500
+Message-ID: <43A1F368.2080409@wolfmountaingroup.com>
+Date: Thu, 15 Dec 2005 15:51:20 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Fri, 16 Dec 2005 01:08:02 +0100" <grundig@teleline.es>
+Cc: rlrevell@joe-job.com, bunk@stusta.de, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+References: <20051215212447.GR23349@stusta.de>	<20051215140013.7d4ffd5b.akpm@osdl.org>	<20051215223000.GU23349@stusta.de>	<43A1DB18.4030307@wolfmountaingroup.com>	<1134688488.12086.172.camel@mindpipe>	<43A1E451.2090703@wolfmountaingroup.com>	<1134689197.12086.176.camel@mindpipe>	<43A1E876.6050407@wolfmountaingroup.com> <20051216010802.ed7daadc.grundig@teleline.es>
+In-Reply-To: <20051216010802.ed7daadc.grundig@teleline.es>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 11:01:42AM -0800, Ravikiran G Thirumalai wrote:
-> On Thu, Dec 15, 2005 at 10:44:37AM +0100, Andi Kleen wrote:
-> > On Wed, Dec 14, 2005 at 06:33:45PM -0800, Ravikiran G Thirumalai wrote:
-> > > + * info.
-> > > + */
-> > > +void __init init_cpu_to_node(void)
-> > > +{
-> > > +	int i;	
-> > > + 	for (i = 0; i < NR_CPUS; i++)
-> > > + 		cpu_to_node[i] = apicid_to_node[x86_cpu_to_apicid[i]];
-> > > +}
-> > 
-> > I would prefer it if you moved that to numa.c and run always 
-> > (even for the k8topology case). Otherwise k8topology will behave
-> > differently whether CONFIG_ACPI_NUMA is set or not, and I don't like
-> > that.
-> 
-> Sure!  I moved it to srat.c based on your suggestion to my earlier post.  
-> I will move this to numa.c.
+Fri, 16 Dec 2005 01:08:02 +0100 wrote:
 
-Sorry for changing my mind on this. I hope you can bear with me.
+>El Thu, 15 Dec 2005 15:04:38 -0700,
+>"Jeff V. Merkey" <jmerkey@wolfmountaingroup.com> escribió:
+>
+>  
+>
+>>apply to kernel code.  calls from several of our apps (which use
+>>larger than 4K kernel space on a stack) from user space crash -- so do 
+>>wireless drivers -- and kdb crashes as well with some bugs with 4K stacks
+>>turned on when you are trying to debug something. 
+>>    
+>>
+>
+>If you (or other people) don't report those bugs, nobody else except
+>you will care about them, I'm afraid.
+>
+>"My customer says it crashes but I don't want to report it publically".
+>What kind of excuse is that? O_o
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+You need to go back and read the whole thread.  These bugs were reported 
+by me weeks ago.
 
--Andi
+Jeff

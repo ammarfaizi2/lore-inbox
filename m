@@ -1,69 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161051AbVLOE45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161053AbVLOE6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161051AbVLOE45 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 23:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161054AbVLOE45
+	id S1161053AbVLOE6n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 23:58:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161061AbVLOE6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 23:56:57 -0500
-Received: from gate.crashing.org ([63.228.1.57]:13483 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1161051AbVLOE44 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 23:56:56 -0500
-Subject: Re: [BUG] Xserver startup locks system... git bisect results
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Mark M. Hoffman" <mhoffman@lightlink.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Dave Airlie <airlied@linux.ie>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20051215043212.GA4479@jupiter.solarsys.private>
-References: <20051215043212.GA4479@jupiter.solarsys.private>
-Content-Type: text/plain
-Date: Thu, 15 Dec 2005 15:53:03 +1100
-Message-Id: <1134622384.16880.26.camel@gaston>
+	Wed, 14 Dec 2005 23:58:43 -0500
+Received: from ns.miraclelinux.com ([219.118.163.66]:37677 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1161053AbVLOE6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 23:58:42 -0500
+Date: Thu, 15 Dec 2005 13:58:38 +0900
+From: Akinobu Mita <mita@miraclelinux.com>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH] fix scsi host_no allocation
+Message-ID: <20051215045838.GA11403@miraclelinux.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-14 at 23:32 -0500, Mark M. Hoffman wrote:
-> Hello:
-> 
-> git bisect said:
-> > 47807ce381acc34a7ffee2b42e35e96c0f322e52 is first bad commit
-> > diff-tree 47807ce381acc34a7ffee2b42e35e96c0f322e52 (from 0e670506668a43e1355b8f10c33d081a676bd521)
-> > Author: Dave Airlie <airlied@linux.ie>
-> > Date:   Tue Dec 13 04:18:41 2005 +0000
-> > 
-> >     [drm] fix radeon aperture issue
-> 
-> With this one applied, my machine locks up tight just after starting the
-> Xserver.  Some info (dmesg, lspci, config) is here:
-> 
-> http://members.dca.net/mhoffman/lkml-20051214/
-> 
-> I can put a serial console on it if necessary, but not until about this
-> time tomorrow.
 
-You have to love this X radeon driver ... you can't fix one bug without
-breaking something else, it's one of the worst piece of crap I've ever
-seen...
+This patch prevents potential host_no allocation race and
+recycle unused host numbers by using idr.
 
-What would be useful now is the X version and maybe trying a little hack
-in the X driver. Do you have ways to rebuild the X driver at all ?
+Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
-The problem is, that patch actually fixes some users... Ah, also, could
-you maybe add some printk's around the code that is modified by that
-patch and try to catch the value it tries to use before the lockup ?
-
-That is, print the values of:
-
-dev_priv->fb_location
-
-and
-
-RADEON_READ(RADEON_CONFIG_APER_SIZE)
-
-Thanks,
-Ben.
-
-
+--- 2.6-rc/drivers/scsi/hosts.c.orig	2005-12-14 15:22:11.000000000 +0900
++++ 2.6-rc/drivers/scsi/hosts.c	2005-12-14 16:36:15.000000000 +0900
+@@ -31,6 +31,7 @@
+ #include <linux/completion.h>
+ #include <linux/transport_class.h>
+ #include <linux/platform_device.h>
++#include <linux/idr.h>
+ 
+ #include <scsi/scsi_device.h>
+ #include <scsi/scsi_host.h>
+@@ -39,9 +40,9 @@
+ #include "scsi_priv.h"
+ #include "scsi_logging.h"
+ 
+-
+-static int scsi_host_next_hn;		/* host_no for next new host */
+-
++#define MAX_HOST_NO	0xffff
++static DEFINE_IDR(host_no_idr);
++static DEFINE_SPINLOCK(host_no_lock);
+ 
+ static void scsi_host_cls_release(struct class_device *class_dev)
+ {
+@@ -259,6 +260,10 @@ static void scsi_host_dev_release(struct
+ 	struct Scsi_Host *shost = dev_to_shost(dev);
+ 	struct device *parent = dev->parent;
+ 
++	spin_lock(&host_no_lock);
++	idr_remove(&host_no_idr, shost->host_no);
++	spin_unlock(&host_no_lock);
++
+ 	if (shost->ehandler)
+ 		kthread_stop(shost->ehandler);
+ 	if (shost->work_q)
+@@ -290,6 +295,8 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 	struct Scsi_Host *shost;
+ 	gfp_t gfp_mask = GFP_KERNEL;
+ 	int rval;
++	int index;
++	int error;
+ 
+ 	if (sht->unchecked_isa_dma && privsize)
+ 		gfp_mask |= __GFP_DMA;
+@@ -322,7 +329,18 @@ struct Scsi_Host *scsi_host_alloc(struct
+ 
+ 	init_MUTEX(&shost->scan_mutex);
+ 
+-	shost->host_no = scsi_host_next_hn++; /* XXX(hch): still racy */
++host_no_retry:
++	if (!idr_pre_get(&host_no_idr, GFP_KERNEL))
++		goto fail_kfree;
++	spin_lock(&host_no_lock);
++	error = idr_get_new(&host_no_idr, NULL, &index);
++	spin_unlock(&host_no_lock);
++	if (error == -EAGAIN)
++		goto host_no_retry;
++	if ((index >= MAX_HOST_NO) || error)
++		goto fail_kfree;
++
++	shost->host_no = index;
+ 	shost->dma_channel = 0xff;
+ 
+ 	/* These three are default values which can be overridden */

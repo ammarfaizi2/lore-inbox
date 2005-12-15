@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVLOSJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbVLOSOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbVLOSJg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 13:09:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbVLOSJg
+	id S1750903AbVLOSOI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 13:14:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbVLOSOI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 13:09:36 -0500
-Received: from nproxy.gmail.com ([64.233.182.206]:11287 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750778AbVLOSJf convert rfc822-to-8bit
+	Thu, 15 Dec 2005 13:14:08 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:16058 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750827AbVLOSOH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 13:09:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YNtgVaTP0vc4z8wLdsYqSOTzF/2/eSLFTb3TBOXvSiGWPd2ayUjOWspnwU6yVhaov+hfUQw7XOZwxwh5UEsstCtNu8cFFD7rgy4VHaeqdpfmXsfznbpPD0K4XfqOwhf4TtPjxNViogRHm6IBCdyzAeZrBkgtExVLuiCZvwvPTEU=
-Message-ID: <40f323d00512151009h5eece648w80882f0cda078507@mail.gmail.com>
-Date: Thu, 15 Dec 2005 19:09:34 +0100
-From: Benoit Boissinot <bboissin@gmail.com>
-To: Martin Bligh <mbligh@mbligh.org>
-Subject: Re: 2.6.15-rc5-mm3 (new build failure)
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <43A1A95D.10800@mbligh.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 15 Dec 2005 13:14:07 -0500
+Date: Thu, 15 Dec 2005 18:14:05 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@vger.kernel.org>
+Subject: Re: [PATCH 2/3] m68k: compile fix - ADBREQ_RAW missing declaration
+Message-ID: <20051215181405.GB27946@ftp.linux.org.uk>
+References: <20051215085516.GU27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151258200.1605@scrub.home> <20051215171645.GY27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151832270.1609@scrub.home> <20051215175536.GA27946@ftp.linux.org.uk> <Pine.LNX.4.62.0512151858100.6884@pademelon.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <43A1A95D.10800@mbligh.org>
+In-Reply-To: <Pine.LNX.4.62.0512151858100.6884@pademelon.sonytel.be>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/15/05, Martin Bligh <mbligh@mbligh.org> wrote:
-> New build failure since -mm2:
-> Config is
-> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/elm3b67
->
-> I'm guessing it was using gcc 2.95.4, though not sure.
->
->    CC      arch/i386/kernel/asm-offsets.s
-> In file included from include/linux/stddef.h:4,
->                   from include/linux/posix_types.h:4,
->                   from include/linux/types.h:13,
->                   from include/linux/capability.h:16,
->                   from include/linux/sched.h:7,
->                   from arch/i386/kernel/asm-offsets.c:7:
-> include/linux/compiler.h:46: #error Sorry, your compiler is too old/not
-> recognized.
+On Thu, Dec 15, 2005 at 07:00:54PM +0100, Geert Uytterhoeven wrote:
+> Even if behavior is unchanged, this doesn't mean that people like their code
+> being modified behind their back...
+> 
+> Anyway, last time I tried to bring this up with the union of Mac and PowerMac
+> guys, no one seemed to remember why ADBREQ_RAW was really needed...
 
-support for gcc-2.95 was dropped in -mm3.
+>From my reading of the code it's a way for mac/misc.c to send a packet that
+starts with CUDA_PACKET or PMU_PACKET instead of ADB_PACKET, but otherwise
+is the same as normal adb_request() ones...
 
-regards,
-
-Benoit
+Used for access to timer, nvram, etc. - looks like that puppy used to
+use the same protocol for more than just ADB and the first byte of packet
+really selects the destination...

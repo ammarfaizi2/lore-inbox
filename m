@@ -1,92 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbVLOV3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbVLOVcp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751123AbVLOV3A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 16:29:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbVLOV3A
+	id S1751045AbVLOVcp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 16:32:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVLOVcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 16:29:00 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:52425 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751086AbVLOV27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 16:28:59 -0500
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, matthew@wil.cx,
-       arjan@infradead.org, torvalds@osdl.org, hch@infradead.org,
-       mingo@elte.hu, pj@sgi.com, alan@lxorguk.ukuu.org.uk, tglx@linutronix.de,
-       lkml@rtr.ca, dhowells@redhat.com
-In-Reply-To: <20051215121817.2abb0166.akpm@osdl.org>
-References: <20051214155432.320f2950.akpm@osdl.org>
-	 <1134559121.25663.14.camel@localhost.localdomain>
-	 <13820.1134558138@warthog.cambridge.redhat.com>
-	 <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com>
-	 <dhowells1134431145@warthog.cambridge.redhat.com>
-	 <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu>
-	 <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu>
-	 <20051213100015.GA32194@elte.hu>
-	 <6281.1134498864@warthog.cambridge.redhat.com>
-	 <14242.1134558772@warthog.cambridge.redhat.com>
-	 <16315.1134563707@warthog.cambridge.redhat.com>
-	 <1134568731.4275.4.camel@tglx.tec.linutronix.de> <43A0AD54.6050109@rtr.ca>
-	 <4336.1134661053@warthog.cambridge.redhat.com>
-	 <20051215112855.31669dc1.akpm@osdl.org>
-	 <20051215121817.2abb0166.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 15 Dec 2005 16:28:15 -0500
-Message-Id: <1134682095.13138.99.camel@localhost.localdomain>
+	Thu, 15 Dec 2005 16:32:45 -0500
+Received: from mail.shareable.org ([81.29.64.88]:48614 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S1751045AbVLOVco
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 16:32:44 -0500
+Date: Thu, 15 Dec 2005 21:32:34 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: JANAK DESAI <janak@us.ibm.com>, viro@ftp.linux.org.uk, chrisw@osdl.org,
+       dwmw2@infradead.org, serue@us.ibm.com, mingo@elte.hu,
+       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm 1/9] unshare system call: system call handler function
+Message-ID: <20051215213234.GB6990@mail.shareable.org>
+References: <1134513959.11972.167.camel@hobbs.atlanta.ibm.com> <m1k6e687e2.fsf@ebiederm.dsl.xmission.com> <43A1D435.5060602@us.ibm.com> <m1d5jy83nr.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1d5jy83nr.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-15 at 12:18 -0800, Andrew Morton wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > David Howells <dhowells@redhat.com> wrote:
-> > >
-> > > So... Would you then object to an implementation of a mutex appearing in the
-> > >  tree which semaphores that are being used as strict mutexes can be migrated
-> > >  over to as the opportunity arises?
-> > 
-> > That would be sane.
-> >
+Eric W. Biederman wrote:
+> I follow but I am very disturbed.
 > 
-> But not very.
+> You are leaving CLONE_NEWNS to mean you want a new namespace.
 > 
-> Look at it from the POV of major architectures: there's no way the new
-> mutex code will be faster than down() and up(), so we're adding a bunch of
-> new tricky locking code which bloats the kernel and has to be understood
-> and debugged for no gain.
-
-I see it as a stepping stone for RT ;)
-
+> For clone CLONE_FS unset means generate an unshared fs_struct
+>           CLONE_FS set   means share the fs_struct with the parent
 > 
-> And I don't buy the debuggability argument really.  It'd be pretty simple
-> to add debug code to the existing semaphore code to trap non-mutex usages. 
-> Then go through the few valid non-mutex users and do:
+> But for unshare CLONE_FS unset means share the fs_struct with others
+>             and CLONE_FS set   means generate an unshared fs_struct
 > 
-> #if debug
-> 	sem->this_is_not_a_mutex = 1;
-> #endif
+> The meaning of CLONE_FS between the two calls in now flipped,
+> but CLONE_NEWNS is not.  Please let's not implement it this way.
 
-That just looks plain ugly.  Still, if you want to keep the major archs
-unchanged (at least until RT is in!) then just add the following:
+I agree.
 
-#define mutex_lock(x) down(x)
-#define mutex_unlock(x) up(x)
-#define mutex_trylock(x) (!down_trylock(x))  /* see previous email! */
+> Part of the problem is the double negative in the name, leading
+> me to suggest that sys_share might almost be a better name.
 
-Then you can add your ugly patch ;) where on debug we define those
-declared with DEFINE_SEM(x) add the this_is_not_a_mutex = 1
+I agree with that suggestion, too.
 
--- Steve
+Alternatively, we could just add a flag to clone(): CLONE_SELF,
+meaning don't create a new task, just modify the properties of the
+current task.
 
+> So please code don't invert the meaning of the bits.  This will
+> allow sharing of the sanity checks with clone.
+> In addition this leaves open the possibility that routines like
+> copy_fs properly refactored can be shared between clone and unshare.
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+And also make the API less confusing to document and use.
 
+-- Jamie

@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932347AbVLONxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932539AbVLON6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932347AbVLONxo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 08:53:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbVLONxo
+	id S932539AbVLON6X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 08:58:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932646AbVLON6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 08:53:44 -0500
-Received: from xproxy.gmail.com ([66.249.82.207]:40012 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932347AbVLONxn convert rfc822-to-8bit
+	Thu, 15 Dec 2005 08:58:22 -0500
+Received: from science.horizon.com ([192.35.100.1]:44841 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S932539AbVLON6W
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 08:53:43 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=I48Q0KVc5OdZCp5NrTT7D4dGAigiHGJ9hZTBn0ccY+8SeYKxVy31Cpsnfd6PefI83PUwGY8icP6yGmfxOWQqANawpkVVahxlZEdtNknM8MqzTWZOR265hNH2F403YOJpd+We3GVFMzKHVymycNQn8KltKylfzIli76T4b2dBlxU=
-Message-ID: <64c763540512150553y65c62280uf83ce805399ea906@mail.gmail.com>
-Date: Thu, 15 Dec 2005 19:23:42 +0530
-From: Block Device <blockdevice@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Bdev->bd_disk is NULL @ initrd time
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Thu, 15 Dec 2005 08:58:22 -0500
+Date: 15 Dec 2005 08:58:12 -0500
+Message-ID: <20051215135812.14578.qmail@science.horizon.com>
+From: linux@horizon.com
+To: torvalds@osdl.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Our Fearless Leader, in a fit of madness, intoned:
+> A real semaphore is counting. 
+> 
+> Dammit, unless the pure mutex has a _huge_ performance advantage on major 
+> architectures, we're not changing it. There's absolutely zero point. A 
+> counting semaphore is a perfectly fine mutex - the fact that it can _also_ 
+> be used to allow more than 1 user into a critical region and generally do 
+> other things is totally immaterial.
 
-  I have a problem running the following code snippet from a kernel module.
+You're being thick today.  Pay attention to the arguments.
 
-  struct block_device *bdev=bdget(MKDEV(3,10));
+A counting semaphore is NOT a perfectly fine mutex, and it SHOULD be changed.
 
-  if(!bdev){
-	printk(KERN_ALERT "NULL bdev.!!!\n");
-	return -1;
-    }
+People are indeed unhappy with the naming, and whether patching 95%
+of the callers of up() and down() is a good idea is a valid and active
+subject of debate.  (For an out-of-tree -rt patch, is was certaintly
+an extremely practical solution.)
 
-    if(!bdev->bd_disk){
-	printk(KERN_ALERT "NULL bdev bd_disk.!!!\n");
-	return -1;
-    }
-    printk(KERN_ALERT "Diskname is %s.\n",bdev->bd_disk->disk_name);
+But regardless of the eventual naming convention, mutexes are a good idea.
+A mutex is *safer* than a counting semaphore.  That's the main benefit.
+Indeed, unless there's a performance advantage to a counting semaphore,
+you should use a mutex!
 
-When this module is inserted from initrd's init script ( after block
-drivers are loaded ) bdev->bd_disk is always NULL. But when its
-inserted after the system has booted it
-works fine. Can someone please explain this behaviour ?.
+It documents in the source what you're doing.  Using a counting semaphore
+for a mutex is as silly as using a float for a loop index.  Even if
+there isn't much speed penalty on modern processors.
 
-I checked that the block devices are up by spawning a shell just after
-this module is inserted from the init script. When I cat /proc/devices
-the ide device shows up.
+Or perhaps I should compare it to using void * everywhere.  That's a
+perfectly fine pointer; why type-check it?
 
-Thanks
--BD
+A separate mutex type allows extra error-checking.  You can keep track
+of the current holder (since there can be only one) and check that the
+same person released it and didn't try to double-acquire it.
+
+You can do priority inheritance, which is the main motivation for doing
+this work in the -rt patches.
+
+This isn't about speed, it's about bug-free code.  And having a mutex
+abstraction distinct from a general counting semaphore is damn useful
+error-checking, even if it is simply a thin wrapper over a counting
+semaphore.  The only reason the code is full of counting semaphores
+right now is that that's all people had.
+
+Better to give them the right tool.

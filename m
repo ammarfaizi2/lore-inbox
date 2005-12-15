@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965198AbVLOMW6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965197AbVLOMYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965198AbVLOMW6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 07:22:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965194AbVLOMW6
+	id S965197AbVLOMYU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 07:24:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965199AbVLOMYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 07:22:58 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:14220 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965188AbVLOMW5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 07:22:57 -0500
-Date: Thu, 15 Dec 2005 12:22:53 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Subject: Re: [PATCH 1/3] m68k: compile fix - hardirq checks were in wrong place
-Message-ID: <20051215122252.GA23407@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-References: <20051215085402.GT27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151252110.1605@scrub.home>
+	Thu, 15 Dec 2005 07:24:20 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:33766 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965197AbVLOMYT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 07:24:19 -0500
+Subject: Re: 2.6.15-rc5-mm3 -- BUG: using smp_processor_id() in preemptible
+	[00000001] code: swapper/1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Miles Lane <miles.lane@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <a44ae5cd0512150035j1e1a032bpe8b271069ad5d008@mail.gmail.com>
+References: <a44ae5cd0512150035j1e1a032bpe8b271069ad5d008@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 15 Dec 2005 12:24:18 +0000
+Message-Id: <1134649458.12421.35.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0512151252110.1605@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You separate the definition from the check, now you push the 
-> responsibility to get the order right to the header users.
-> Sorry, but I prefer to fix the header dependencies than scatter things 
-> which belong together over multiple files.
+On Iau, 2005-12-15 at 00:35 -0800, Miles Lane wrote:
+> [4294671.491000] PCI- Detected Parity Error on 0000:00:1e.0 0000:00:1e.0
+> [4294671.492000] PCI- Detected Parity Error on 0000:00:1e.0 0000:00:1e.0
 
-For 2.6.16 I'll submit a patch to merge asm/irq.h and asm/hardirq.h.
-Until then this is the much better fix because it doesn't require
-pointless include reordering all over the tree.
+
+Can you send me an lspci -v
+
+Andrew has a box where one of the PCI devices goes away without the
+kernel updating its device list. That would match this behaviour.
+

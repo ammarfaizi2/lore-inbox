@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965147AbVLOCBT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030310AbVLOCCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965147AbVLOCBT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 21:01:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965010AbVLOCAu
+	id S1030310AbVLOCCl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 21:02:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbVLOCCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 21:00:50 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:31174 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751297AbVLOCAR
+	Wed, 14 Dec 2005 21:02:08 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:18352 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030296AbVLOCB2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 21:00:17 -0500
-Date: Wed, 14 Dec 2005 19:00:16 -0700
+	Wed, 14 Dec 2005 21:01:28 -0500
+Date: Wed, 14 Dec 2005 19:01:26 -0700
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
@@ -21,348 +21,578 @@ Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
        Steven Rostedt <rostedt@goodmis.org>,
        Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
        john stultz <johnstul@us.ibm.com>
-Message-Id: <20051215020015.25589.64404.sendpatchset@cog.beaverton.ibm.com>
+Message-Id: <20051215020120.25589.4782.sendpatchset@cog.beaverton.ibm.com>
 In-Reply-To: <20051215020002.25589.55922.sendpatchset@cog.beaverton.ibm.com>
 References: <20051215020002.25589.55922.sendpatchset@cog.beaverton.ibm.com>
-Subject: [PATCH 2/13] Time: Reduced NTP Rework (part 2)
+Subject: [PATCH 11/13] Time: i386/x86-64 Clocksource Drivers
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
-	Here is the second of two patches which try to minimize my ntp 
-rework patches.
-	
-This patch further changes the interrupt time NTP code, breaking out 
-the leapsecond processing and introduces an accessor to a shifted ppm 
-adjustment value. For correctness, I've also introduced a new lock, the 
-ntp_lock, which protects the NTP state machine when accessing it from 
-my timekeeping code (which does not use the xtime_lock).
 
-Again, this patch should not affect the existing behavior, but just 
-separate the logical functionality so it can be re-used by my timeofday 
-patches.
+	This patch implements the time sources shared between i386 and 
+x86-64 (acpi_pm, cyclone, hpet, pit, tsc and tsc-interp). The patch 
+should apply on top of the timeofday-arch-i386-part4 patch as well as 
+the arch-x86-64 patch
+	
+	The patch should be fairly straight forward, only adding the 
+new clocksources.
 
 thanks
 -john
 
 Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
- include/linux/timex.h |   23 +++++++
- kernel/time.c         |    8 +-
- kernel/timer.c        |  144 ++++++++++++++++++++++++++++++++++++++++++++++++--
- 3 files changed, 165 insertions(+), 10 deletions(-)
+ arch/i386/kernel/Makefile     |    1 
+ arch/i386/kernel/hpet.c       |   69 +++++++++++++++++++++++
+ arch/i386/kernel/i8253.c      |   60 ++++++++++++++++++++
+ arch/i386/kernel/tsc.c        |   85 ++++++++++++++++++++++++++++-
+ drivers/Makefile              |    1 
+ drivers/clocksource/Makefile  |    2 
+ drivers/clocksource/acpi_pm.c |  123 ++++++++++++++++++++++++++++++++++++++++++
+ drivers/clocksource/cyclone.c |  121 +++++++++++++++++++++++++++++++++++++++++
+ 8 files changed, 461 insertions(+), 1 deletion(-)
 
-linux-2.6.15-rc5_timeofday-ntp-part2_B14.patch
+linux-2.6.15-rc5_timeofday-clocks-i386_B14.patch
 ============================================
-diff --git a/include/linux/timex.h b/include/linux/timex.h
-index 04a4a8c..e35c683 100644
---- a/include/linux/timex.h
-+++ b/include/linux/timex.h
-@@ -260,6 +260,8 @@ extern long pps_calcnt;		/* calibration 
- extern long pps_errcnt;		/* calibration errors */
- extern long pps_stbcnt;		/* stability limit exceeded */
+diff --git a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
+index 5d1d9c9..984d488 100644
+--- a/arch/i386/kernel/Makefile
++++ b/arch/i386/kernel/Makefile
+@@ -33,6 +33,7 @@ obj-$(CONFIG_ACPI_SRAT) 	+= srat.o
+ obj-$(CONFIG_HPET_TIMER) 	+= time_hpet.o
+ obj-$(CONFIG_EFI) 		+= efi.o efi_stub.o
+ obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
++obj-$(CONFIG_HPET_TIMER) 	+= hpet.o
  
-+extern seqlock_t ntp_lock;
-+
- /**
-  * ntp_clear - Clears the NTP state variables
-  *
-@@ -267,21 +269,40 @@ extern long pps_stbcnt;		/* stability li
-  */
- static inline void ntp_clear(void)
- {
-+	unsigned long flags;
-+
-+	write_seqlock_irqsave(&ntp_lock, flags);
- 	time_adjust = 0;		/* stop active adjtime() */
- 	time_status |= STA_UNSYNC;
- 	time_maxerror = NTP_PHASE_LIMIT;
- 	time_esterror = NTP_PHASE_LIMIT;
-+	write_sequnlock_irqrestore(&ntp_lock, flags);
- }
+ EXTRA_AFLAGS   := -traditional
  
- /**
-  * ntp_synced - Returns 1 if the NTP status is not UNSYNC
-- *
-  */
- static inline int ntp_synced(void)
- {
- 	return !(time_status & STA_UNSYNC);
- }
- 
-+/**
-+ * ntp_get_ppm_adjustment - Returns Shifted PPM adjustment
-+ */
-+extern long ntp_get_ppm_adjustment(void);
+diff --git a/arch/i386/kernel/hpet.c b/arch/i386/kernel/hpet.c
+new file mode 100644
+index 0000000..a620d15
+--- /dev/null
++++ b/arch/i386/kernel/hpet.c
+@@ -0,0 +1,69 @@
++#include <linux/clocksource.h>
++#include <linux/errno.h>
++#include <linux/hpet.h>
++#include <linux/init.h>
 +
-+/**
-+ * ntp_advance - Advances the NTP state machine by interval_ns
-+ */
-+extern void ntp_advance(unsigned long interval_ns);
++#include <asm/hpet.h>
++#include <asm/io.h>
 +
-+/**
-+ * ntp_leapsecond - NTP leapsecond processing code.
-+ */
-+extern int ntp_leapsecond(struct timespec now);
++#define HPET_MASK	0xFFFFFFFF
++#define HPET_SHIFT	22
 +
++/* FSEC = 10^-15 NSEC = 10^-9 */
++#define FSEC_PER_NSEC	1000000
 +
- /* Required to safely shift negative values */
- #define shift_right(x, s) ({	\
- 	__typeof__(x) __x = (x);	\
-diff --git a/kernel/time.c b/kernel/time.c
-index cf5a458..6529064 100644
---- a/kernel/time.c
-+++ b/kernel/time.c
-@@ -258,6 +258,8 @@ int do_adjtimex(struct timex *txc)
- 			return -EINVAL;
- 
- 	write_seqlock_irq(&xtime_lock);
-+	write_seqlock(&ntp_lock);
++static void *hpet_ptr;
 +
- 	result = time_state;	/* mostly `TIME_OK' */
- 
- 	/* Save for later - semantics of adjtime is to return old value */
-@@ -395,6 +397,7 @@ leave:	if ((time_status & (STA_UNSYNC|ST
- 	txc->calcnt	   = pps_calcnt;
- 	txc->errcnt	   = pps_errcnt;
- 	txc->stbcnt	   = pps_stbcnt;
-+	write_sequnlock(&ntp_lock);
- 	write_sequnlock_irq(&xtime_lock);
- 	do_gettimeofday(&txc->time);
- 	notify_arch_cmos_timer();
-@@ -512,10 +515,7 @@ int do_settimeofday (struct timespec *tv
- 		set_normalized_timespec(&xtime, sec, nsec);
- 		set_normalized_timespec(&wall_to_monotonic, wtm_sec, wtm_nsec);
- 
--		time_adjust = 0;		/* stop active adjtime() */
--		time_status |= STA_UNSYNC;
--		time_maxerror = NTP_PHASE_LIMIT;
--		time_esterror = NTP_PHASE_LIMIT;
-+		ntp_clear();
- 		time_interpolator_reset();
- 	}
- 	write_sequnlock_irq(&xtime_lock);
-diff --git a/kernel/timer.c b/kernel/timer.c
-index 2a0a549..a543d54 100644
---- a/kernel/timer.c
-+++ b/kernel/timer.c
-@@ -582,7 +582,6 @@ long time_tolerance = MAXFREQ;		/* frequ
- long time_precision = 1;		/* clock precision (us)		*/
- long time_maxerror = NTP_PHASE_LIMIT;	/* maximum error (us)		*/
- long time_esterror = NTP_PHASE_LIMIT;	/* estimated error (us)		*/
--static long time_phase;			/* phase offset (scaled us)	*/
- long time_freq = (((NSEC_PER_SEC + HZ/2) % HZ - HZ/2) << SHIFT_USEC) / NSEC_PER_USEC;
- 					/* frequency offset (scaled ppm)*/
- static long time_adj;			/* tick adjust (scaled 1 / HZ)	*/
-@@ -591,8 +590,91 @@ long time_adjust;
- long time_next_adjust;
- long time_adjust_step;			/* per tick time_adjust step */
- 
-+long total_sppm;			/* shifted ppm sum of all adjustments */
-+long offset_adj_ppm;
-+long tick_adj_ppm;
-+long singleshot_adj_ppm;
-+
-+#define MAX_SINGLESHOT_ADJ	500	/* (ppm) */
-+#define SEC_PER_DAY		86400
-+#define END_OF_DAY(x)		((x) + SEC_PER_DAY - ((x) % SEC_PER_DAY) - 1)
-+
-+/* NTP lock, protects NTP state machine */
-+seqlock_t ntp_lock = SEQLOCK_UNLOCKED;
-+
-+/**
-+ * ntp_leapsecond - NTP leapsecond processing code.
-+ * now: the current time
-+ *
-+ * Returns the number of seconds (-1, 0, or 1) that
-+ * should be added to the current time to properly
-+ * adjust for leapseconds.
-+ */
-+int ntp_leapsecond(struct timespec now)
++static cycle_t read_hpet(void)
 +{
++	return (cycle_t)readl(hpet_ptr);
++}
++
++struct clocksource clocksource_hpet = {
++	.name		= "hpet",
++	.rating		= 250,
++	.read		= read_hpet,
++	.mask		= (cycle_t)HPET_MASK,
++	.mult		= 0, /* set below */
++	.shift		= HPET_SHIFT,
++	.is_continuous	= 1,
++};
++
++static int __init init_hpet_clocksource(void)
++{
++	unsigned long hpet_period;
++	void __iomem* hpet_base;
++	u64 tmp;
++
++	if (!hpet_address)
++		return -ENODEV;
++
++	/* calculate the hpet address: */
++	hpet_base =
++		(void __iomem*)ioremap_nocache(hpet_address, HPET_MMAP_SIZE);
++	hpet_ptr = hpet_base + HPET_COUNTER;
++
++	/* calculate the frequency: */
++	hpet_period = readl(hpet_base + HPET_PERIOD);
++
 +	/*
-+	 * Leap second processing. If in leap-insert state at
-+	 * the end of the day, the system clock is set back one
-+	 * second; if in leap-delete state, the system clock is
-+	 * set ahead one second.
++	 * hpet period is in femto seconds per cycle
++	 * so we need to convert this to ns/cyc units
++	 * aproximated by mult/2^shift
++	 *
++	 *  fsec/cyc * 1nsec/1000000fsec = nsec/cyc = mult/2^shift
++	 *  fsec/cyc * 1ns/1000000fsec * 2^shift = mult
++	 *  fsec/cyc * 2^shift * 1nsec/1000000fsec = mult
++	 *  (fsec/cyc << shift)/1000000 = mult
++	 *  (hpet_period << shift)/FSEC_PER_NSEC = mult
 +	 */
-+	static time_t leaptime = 0;
++	tmp = (u64)hpet_period << HPET_SHIFT;
++	do_div(tmp, FSEC_PER_NSEC);
++	clocksource_hpet.mult = (u32)tmp;
 +
-+	unsigned long flags;
-+	int ret = 0;
++	register_clocksource(&clocksource_hpet);
 +
-+	write_seqlock_irqsave(&ntp_lock, flags);
++	return 0;
++}
 +
-+	switch (time_state) {
++module_init(init_hpet_clocksource);
+diff --git a/arch/i386/kernel/i8253.c b/arch/i386/kernel/i8253.c
+index e4b7f7d..5e62edd 100644
+--- a/arch/i386/kernel/i8253.c
++++ b/arch/i386/kernel/i8253.c
+@@ -2,6 +2,7 @@
+  * i8253.c  8253/PIT functions
+  *
+  */
++#include <linux/clocksource.h>
+ #include <linux/spinlock.h>
+ #include <linux/jiffies.h>
+ #include <linux/sysdev.h>
+@@ -57,3 +58,62 @@ static int __init init_timer_sysfs(void)
+ }
+ 
+ device_initcall(init_timer_sysfs);
 +
-+	case TIME_OK:
-+		if (time_status & STA_INS) {
-+			time_state = TIME_INS;
-+			leaptime = END_OF_DAY(now.tv_sec);
-+		} else if (time_status & STA_DEL) {
-+			time_state = TIME_DEL;
-+			leaptime = END_OF_DAY(now.tv_sec);
++
++/*
++ * Since the PIT overflows every tick, its not very useful
++ * to just read by itself. So use jiffies to emulate a free
++ * running counter:
++ */
++static cycle_t pit_read(void)
++{
++	unsigned long flags, seq;
++	int count;
++	u64 jifs;
++
++	do {
++		seq = read_seqbegin(&xtime_lock);
++
++		spin_lock_irqsave(&i8253_lock, flags);
++		outb_p(0x00, PIT_MODE);	/* latch the count ASAP */
++		count = inb_p(PIT_CH0);	/* read the latched count */
++		count |= inb_p(PIT_CH0) << 8;
++
++		/* VIA686a test code... reset the latch if count > max + 1 */
++		if (count > LATCH) {
++			outb_p(0x34, PIT_MODE);
++			outb_p(LATCH & 0xff, PIT_CH0);
++			outb(LATCH >> 8, PIT_CH0);
++			count = LATCH - 1;
 +		}
-+		break;
++		spin_unlock_irqrestore(&i8253_lock, flags);
 +
-+	case TIME_INS:
-+		/* Once we are at (or past) leaptime, insert the second */
-+		if (now.tv_sec >= leaptime) {
-+			time_state = TIME_OOP;
-+			printk(KERN_NOTICE "Clock: inserting leap second 23:59:60 UTC\n");
-+			ret = -1;
-+		}
-+		break;
++		jifs = jiffies_64;
++	} while (read_seqretry(&xtime_lock, seq));
 +
-+	case TIME_DEL:
-+		/* Once we are at (or past) leaptime, delete the second */
-+		if (now.tv_sec >= leaptime) {
-+			time_state = TIME_WAIT;
-+			printk(KERN_NOTICE "Clock: deleting leap second 23:59:59 UTC\n");
-+			ret = 1;
-+		}
-+		break;
++	jifs -= INITIAL_JIFFIES;
++	count = (LATCH-1) - count;
 +
-+	case TIME_OOP:
-+		/* Wait for the end of the leap second */
-+		if (now.tv_sec > (leaptime + 1))
-+			time_state = TIME_WAIT;
-+		time_state = TIME_WAIT;
-+		break;
++	return (cycle_t)(jifs * LATCH) + count;
++}
 +
-+	case TIME_WAIT:
-+		if (!(time_status & (STA_INS | STA_DEL)))
-+			time_state = TIME_OK;
-+		break;
-+	}
++static struct clocksource clocksource_pit = {
++	.name	= "pit",
++	.rating = 110,
++	.read	= pit_read,
++	.mask	= (cycle_t)-1,
++	.mult	= 0,
++	.shift	= 20,
++};
 +
-+	write_sequnlock_irqrestore(&ntp_lock, flags);
++static int __init init_pit_clocksource(void)
++{
++	if (num_possible_cpus() > 4) /* PIT does not scale! */
++		return 0;
++
++	clocksource_pit.mult = clocksource_hz2mult(CLOCK_TICK_RATE, 20);
++	register_clocksource(&clocksource_pit);
++
++	return 0;
++}
++module_init(init_pit_clocksource);
+diff --git a/arch/i386/kernel/tsc.c b/arch/i386/kernel/tsc.c
+index bd04f92..d9004dc 100644
+--- a/arch/i386/kernel/tsc.c
++++ b/arch/i386/kernel/tsc.c
+@@ -4,13 +4,14 @@
+  * See comments there for proper credits.
+  */
+ 
++#include <linux/clocksource.h>
+ #include <linux/workqueue.h>
+ #include <linux/cpufreq.h>
+ #include <linux/jiffies.h>
+ #include <linux/init.h>
+ 
+-#include <asm/tsc.h>
+ #include <asm/delay.h>
++#include <asm/tsc.h>
+ #include <asm/io.h>
+ 
+ #include "mach_timer.h"
+@@ -302,3 +303,85 @@ static int __init cpufreq_tsc(void)
+ core_initcall(cpufreq_tsc);
+ 
+ #endif
++
++/* clock source code */
++
++static unsigned long current_tsc_khz = 0;
++static int tsc_update_callback(void);
++
++static cycle_t read_tsc(void)
++{
++	cycle_t ret;
++
++	rdtscll(ret);
 +
 +	return ret;
 +}
 +
- /*
-- * this routine handles the overflow of the microsecond field
-+ * this routine handles the overflow of the nanosecond field
-  *
-  * The tricky bits of code to handle the accurate clock support
-  * were provided by Dave Mills (Mills@UDEL.EDU) of NTP fame.
-@@ -663,6 +745,13 @@ static void second_overflow(void)
- 		time_state = TIME_OK;
- 	}
- 
-+	/* Bump the maxerror field */
-+	time_maxerror += time_tolerance >> SHIFT_USEC;
-+	if ( time_maxerror > NTP_PHASE_LIMIT ) {
-+		time_maxerror = NTP_PHASE_LIMIT;
-+		time_status |= STA_UNSYNC;
++static struct clocksource clocksource_tsc = {
++	.name			= "tsc",
++	.rating			= 300,
++	.read			= read_tsc,
++	.mask			= (cycle_t)-1,
++	.mult			= 0, /* to be set */
++	.shift			= 22,
++	.update_callback	= tsc_update_callback,
++	.is_continuous		= 1,
++};
++
++static int tsc_update_callback(void)
++{
++	int change = 0;
++
++	/* check to see if we should switch to the safe clocksource: */
++	if (clocksource_tsc.rating != 50 && check_tsc_unstable()) {
++		clocksource_tsc.rating = 50;
++		reselect_clocksource();
++		change = 1;
 +	}
 +
- 	/*
- 	 * Compute the phase adjustment for the next second. In PLL mode, the
- 	 * offset is reduced by a fixed factor times the time constant. In FLL
-@@ -678,6 +767,13 @@ static void second_overflow(void)
- 	time_offset -= ltemp;
- 	time_adj = ltemp << (SHIFT_SCALE - SHIFT_HZ - SHIFT_UPDATE);
- 
-+	offset_adj_ppm = shift_right(ltemp, SHIFT_UPDATE); /* ppm */
++	/* only update if tsc_khz has changed: */
++	if (current_tsc_khz != tsc_khz) {
++		current_tsc_khz = tsc_khz;
++		clocksource_tsc.mult = clocksource_khz2mult(current_tsc_khz,
++							clocksource_tsc.shift);
++		change = 1;
++	}
 +
-+	/* first calculate usec/user_tick offset: */
-+	tick_adj_ppm = ((USEC_PER_SEC + USER_HZ/2)/USER_HZ) - tick_usec;
-+	/* multiply by user_hz to get usec/sec => ppm: */
-+	tick_adj_ppm *= USER_HZ;
-+
- 	/*
- 	 * Compute the frequency estimate and additional phase adjustment due
- 	 * to frequency error for the next second. When the PPS signal is
-@@ -718,15 +814,25 @@ static void second_overflow(void)
- }
- 
- /**
-+ * ntp_get_ppm_adjustment - return shifted PPM adjustment
-+ */
-+long ntp_get_ppm_adjustment(void)
-+{
-+	return total_sppm;
++	return change;
 +}
 +
-+/**
-  * ntp_advance - increments the NTP state machine
-  * @interval_ns: interval, in nanoseconds
-- *
-- * Must be holding the xtime writelock when calling.
-  */
--static void ntp_advance(unsigned long interval_ns)
-+void ntp_advance(unsigned long interval_ns)
- {
- 	static unsigned long interval_sum;
- 
-+	unsigned long flags;
-+
-+	write_seqlock_irqsave(&ntp_lock, flags);
-+
- 	/* increment the interval sum: */
- 	interval_sum += interval_ns;
- 
-@@ -753,6 +859,8 @@ static void ntp_advance(unsigned long in
- 		}
- 		interval_ns -= tick_nsec;
- 	}
-+	/* usec/tick => ppm: */
-+	singleshot_adj_ppm = time_adjust_step*(1000000/HZ);
- 
- 	/* Changes by adjtime() do not take effect till next tick. */
- 	if (time_next_adjust != 0) {
-@@ -764,6 +872,14 @@ static void ntp_advance(unsigned long in
- 		interval_sum -= NSEC_PER_SEC;
- 		second_overflow();
- 	}
-+
-+	/* calculate the total continuous ppm adjustment: */
-+	total_sppm = time_freq; /* already shifted by SHIFT_USEC */
-+	total_sppm += offset_adj_ppm << SHIFT_USEC;
-+	total_sppm += tick_adj_ppm << SHIFT_USEC;
-+	total_sppm += singleshot_adj_ppm << SHIFT_USEC;
-+
-+	write_sequnlock_irqrestore(&ntp_lock, flags);
- }
- 
- /**
-@@ -773,6 +889,8 @@ static void ntp_advance(unsigned long in
-  */
- static inline long phase_advance(void)
- {
-+	static long time_phase; /* phase offset (scaled us) */
-+
- 	long delta = 0;
- 
- 	time_phase += time_adj;
-@@ -791,12 +909,28 @@ static inline long phase_advance(void)
-  */
- static inline void xtime_advance(long delta_nsec)
- {
-+	int leapsecond;
-+
- 	xtime.tv_nsec += delta_nsec;
- 	if (likely(xtime.tv_nsec < NSEC_PER_SEC))
- 		return;
- 
- 	xtime.tv_nsec -= NSEC_PER_SEC;
- 	xtime.tv_sec++;
-+
-+	/* process leapsecond: */
-+	leapsecond = ntp_leapsecond(xtime);
-+	if (likely(!leapsecond))
-+		return;
-+
-+	xtime.tv_sec += leapsecond;
-+	wall_to_monotonic.tv_sec -= leapsecond;
++/*
++ * Make an educated guess if the TSC is trustworthy and synchronized
++ * over all CPUs.
++ */
++static __init int unsynchronized_tsc(void)
++{
 +	/*
-+	 * Use of time interpolator for a gradual
-+	 * change of time:
++	 * Intel systems are normally all synchronized.
++	 * Exceptions must mark TSC as unstable:
 +	 */
-+	time_interpolator_update(leapsecond*NSEC_PER_SEC);
-+	clock_was_set();
- }
- 
- /*
++	if (boot_cpu_data.x86_vendor == X86_VENDOR_INTEL)
++ 		return 0;
++
++	/* assume multi socket systems are not synchronized: */
++ 	return num_possible_cpus() > 1;
++}
++
++/* NUMAQ can't use TSC: */
++static int __init init_tsc_clocksource(void)
++{
++	/* TSC initialization is done in arch/i386/kernel/tsc.c */
++	if (cpu_has_tsc && tsc_khz && !tsc_disable) {
++		if (unsynchronized_tsc()) /* lower rating if unsynced */
++			mark_tsc_unstable();
++		current_tsc_khz = tsc_khz;
++		clocksource_tsc.mult = clocksource_khz2mult(current_tsc_khz,
++							clocksource_tsc.shift);
++		register_clocksource(&clocksource_tsc);
++	}
++
++	return 0;
++}
++
++module_init(init_tsc_clocksource);
+diff --git a/drivers/Makefile b/drivers/Makefile
+index ea410b6..b250984 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -70,3 +70,4 @@ obj-$(CONFIG_SGI_IOC4)		+= sn/
+ obj-y				+= firmware/
+ obj-$(CONFIG_CRYPTO)		+= crypto/
+ obj-$(CONFIG_SUPERH)		+= sh/
++obj-$(CONFIG_GENERIC_TIME)	+= clocksource/
+diff --git a/drivers/clocksource/Makefile b/drivers/clocksource/Makefile
+new file mode 100644
+index 0000000..6e98a5e
+--- /dev/null
++++ b/drivers/clocksource/Makefile
+@@ -0,0 +1,2 @@
++obj-$(CONFIG_X86_CYCLONE_TIMER) += cyclone.o
++obj-$(CONFIG_ACPI) += acpi_pm.o
+diff --git a/drivers/clocksource/acpi_pm.c b/drivers/clocksource/acpi_pm.c
+new file mode 100644
+index 0000000..e5bc091
+--- /dev/null
++++ b/drivers/clocksource/acpi_pm.c
+@@ -0,0 +1,123 @@
++/*
++ * linux/drivers/clocksource/acpi_pm.c
++ *
++ * This file contains the ACPI PM based clocksource.
++ *
++ * This code was largely moved from the i386 timer_pm.c file
++ * which was (C) Dominik Brodowski <linux@brodo.de> 2003
++ * and contained the following comments:
++ *
++ * Driver to use the Power Management Timer (PMTMR) available in some
++ * southbridges as primary timing source for the Linux kernel.
++ *
++ * Based on parts of linux/drivers/acpi/hardware/hwtimer.c, timer_pit.c,
++ * timer_hpet.c, and on Arjan van de Ven's implementation for 2.4.
++ *
++ * This file is licensed under the GPL v2.
++ */
++
++#include <linux/clocksource.h>
++#include <linux/errno.h>
++#include <linux/init.h>
++#include <asm/io.h>
++
++/* Number of PMTMR ticks expected during calibration run */
++#define PMTMR_TICKS_PER_SEC 3579545
++
++#if (defined(CONFIG_X86) && (!defined(CONFIG_X86_64)))
++# include "mach_timer.h"
++# define PMTMR_EXPECTED_RATE ((PMTMR_TICKS_PER_SEC*CALIBRATE_TIME_MSEC)/1000)
++#endif
++
++/*
++ * The I/O port the PMTMR resides at.
++ * The location is detected during setup_arch(),
++ * in arch/i386/acpi/boot.c
++ */
++extern u32 acpi_pmtmr_ioport;
++extern int acpi_pmtmr_buggy;
++
++#define ACPI_PM_MASK 0xFFFFFF /* limit it to 24 bits */
++
++static inline u32 read_pmtmr(void)
++{
++	/* mask the output to 24 bits */
++	return inl(acpi_pmtmr_ioport) & ACPI_PM_MASK;
++}
++
++static cycle_t acpi_pm_read_verified(void)
++{
++	u32 v1 = 0, v2 = 0, v3 = 0;
++
++	/*
++	 * It has been reported that because of various broken
++	 * chipsets (ICH4, PIIX4 and PIIX4E) where the ACPI PM clock
++	 * source is not latched, so you must read it multiple
++	 * times to ensure a safe value is read:
++	 */
++	do {
++		v1 = read_pmtmr();
++		v2 = read_pmtmr();
++		v3 = read_pmtmr();
++	} while ((v1 > v2 && v1 < v3) || (v2 > v3 && v2 < v1)
++			|| (v3 > v1 && v3 < v2));
++
++	return (cycle_t)v2;
++}
++
++static cycle_t acpi_pm_read(void)
++{
++	return (cycle_t)read_pmtmr();
++}
++
++struct clocksource clocksource_acpi_pm = {
++	.name		= "acpi_pm",
++	.rating		= 200,
++	.read		= acpi_pm_read,
++	.mask		= (cycle_t)ACPI_PM_MASK,
++	.mult		= 0, /*to be caluclated*/
++	.shift		= 22,
++	.is_continuous	= 1,
++};
++
++static int __init init_acpi_pm_clocksource(void)
++{
++	u32 value1, value2;
++	unsigned int i;
++
++	if (!acpi_pmtmr_ioport)
++		return -ENODEV;
++
++	clocksource_acpi_pm.mult = clocksource_hz2mult(PMTMR_TICKS_PER_SEC,
++						clocksource_acpi_pm.shift);
++
++	/* "verify" this timing source: */
++	value1 = read_pmtmr();
++	for (i = 0; i < 10000; i++) {
++		value2 = read_pmtmr();
++		if (value2 == value1)
++			continue;
++		if (value2 > value1)
++			goto pm_good;
++		if ((value2 < value1) && ((value2) < 0xFFF))
++			goto pm_good;
++		printk(KERN_INFO "PM-Timer had inconsistent results: 0x%#x, 0x%#x - aborting.\n", value1, value2);
++		return -EINVAL;
++	}
++	printk(KERN_INFO "PM-Timer had no reasonable result: 0x%#x - aborting.\n", value1);
++	return -ENODEV;
++
++pm_good:
++
++	/* check to see if pmtmr is known buggy: */
++	if (acpi_pmtmr_buggy) {
++		clocksource_acpi_pm.read = acpi_pm_read_verified;
++		clocksource_acpi_pm.rating = 110;
++	}
++
++	register_clocksource(&clocksource_acpi_pm);
++
++	return 0;
++}
++
++module_init(init_acpi_pm_clocksource);
+diff --git a/drivers/clocksource/cyclone.c b/drivers/clocksource/cyclone.c
+new file mode 100644
+index 0000000..168e78b
+--- /dev/null
++++ b/drivers/clocksource/cyclone.c
+@@ -0,0 +1,121 @@
++#include <linux/clocksource.h>
++#include <linux/string.h>
++#include <linux/errno.h>
++#include <linux/timex.h>
++#include <linux/init.h>
++
++#include <asm/pgtable.h>
++#include <asm/io.h>
++
++#include "mach_timer.h"
++
++#define CYCLONE_CBAR_ADDR	0xFEB00CD0	/* base address ptr */
++#define CYCLONE_PMCC_OFFSET	0x51A0		/* offset to control register */
++#define CYCLONE_MPCS_OFFSET	0x51A8		/* offset to select register */
++#define CYCLONE_MPMC_OFFSET	0x51D0		/* offset to count register */
++#define CYCLONE_TIMER_FREQ	99780000	/* 100Mhz, but not really */
++#define CYCLONE_TIMER_MASK	0xFFFFFFFF	/* 32 bit mask */
++
++int use_cyclone = 0;
++static void __iomem *cyclone_ptr;
++
++static cycle_t read_cyclone(void)
++{
++	return (cycle_t)readl(cyclone_ptr);
++}
++
++struct clocksource clocksource_cyclone = {
++	.name		= "cyclone",
++	.rating		= 250,
++	.read		= read_cyclone,
++	.mask		= (cycle_t)CYCLONE_TIMER_MASK,
++	.mult		= 10,
++	.shift		= 0,
++	.is_continuous	= 1,
++};
++
++static int __init init_cyclone_clocksource(void)
++{
++	unsigned long base;	/* saved value from CBAR */
++	unsigned long offset;
++	u32 __iomem* volatile cyclone_timer;	/* Cyclone MPMC0 register */
++	u32 __iomem* reg;
++	int i;
++
++	/* make sure we're on a summit box: */
++	if (!use_cyclone)
++		return -ENODEV;
++
++	printk(KERN_INFO "Summit chipset: Starting Cyclone Counter.\n");
++
++	/* find base address: */
++	offset = CYCLONE_CBAR_ADDR;
++	reg = ioremap_nocache(offset, sizeof(reg));
++	if (!reg) {
++		printk(KERN_ERR "Summit chipset: Could not find valid CBAR register.\n");
++		return -ENODEV;
++	}
++	/* even on 64bit systems, this is only 32bits: */
++	base = readl(reg);
++	if (!base) {
++		printk(KERN_ERR "Summit chipset: Could not find valid CBAR value.\n");
++		return -ENODEV;
++	}
++	iounmap(reg);
++
++	/* setup PMCC: */
++	offset = base + CYCLONE_PMCC_OFFSET;
++	reg = ioremap_nocache(offset, sizeof(reg));
++	if (!reg) {
++		printk(KERN_ERR "Summit chipset: Could not find valid PMCC register.\n");
++		return -ENODEV;
++	}
++	writel(0x00000001,reg);
++	iounmap(reg);
++
++	/* setup MPCS: */
++	offset = base + CYCLONE_MPCS_OFFSET;
++	reg = ioremap_nocache(offset, sizeof(reg));
++	if (!reg) {
++		printk(KERN_ERR "Summit chipset: Could not find valid MPCS register.\n");
++		return -ENODEV;
++	}
++	writel(0x00000001,reg);
++	iounmap(reg);
++
++	/* map in cyclone_timer: */
++	offset = base + CYCLONE_MPMC_OFFSET;
++	cyclone_timer = ioremap_nocache(offset, sizeof(u64));
++	if (!cyclone_timer) {
++		printk(KERN_ERR "Summit chipset: Could not find valid MPMC register.\n");
++		return -ENODEV;
++	}
++
++	/* quick test to make sure its ticking: */
++	for (i = 0; i < 3; i++){
++		u32 old = readl(cyclone_timer);
++		int stall = 100;
++
++		while (stall--)
++			barrier();
++
++		if (readl(cyclone_timer) == old) {
++			printk(KERN_ERR "Summit chipset: Counter not counting! DISABLED\n");
++			iounmap(cyclone_timer);
++			cyclone_timer = NULL;
++			return -ENODEV;
++		}
++	}
++	cyclone_ptr = cyclone_timer;
++
++	/* sort out mult/shift values: */
++	clocksource_cyclone.shift = 22;
++	clocksource_cyclone.mult = clocksource_hz2mult(CYCLONE_TIMER_FREQ,
++						clocksource_cyclone.shift);
++
++	register_clocksource(&clocksource_cyclone);
++
++	return 0;
++}
++
++module_init(init_cyclone_clocksource);

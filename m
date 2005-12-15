@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965189AbVLOJAj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161087AbVLOJBF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965189AbVLOJAj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 04:00:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbVLOJAi
+	id S1161087AbVLOJBF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 04:01:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161086AbVLOJBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 04:00:38 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:40581 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965189AbVLOJAh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 04:00:37 -0500
-Date: Thu, 15 Dec 2005 09:00:37 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Subject: [PATCH 3/3] m68k: compile fix - updated vmlinux.lds to include LOCK_TEXT
-Message-ID: <20051215090037.GV27946@ftp.linux.org.uk>
+	Thu, 15 Dec 2005 04:01:05 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64133 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161087AbVLOJBC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 04:01:02 -0500
+Date: Thu, 15 Dec 2005 01:00:38 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: miles.lane@gmail.com, linux-kernel@vger.kernel.org, greg@kroah.com,
+       linux@dominikbrodowski.net, alan@lxorguk.ukuu.org.uk,
+       nickpiggin@yahoo.com.au
+Subject: Re: 2.6.15-rc5-mm3 -- BUG: using smp_processor_id() in preemptible
+ [00000001] code: swapper/1
+Message-Id: <20051215010038.12ca576f.akpm@osdl.org>
+In-Reply-To: <20051215004028.0bf9791f.akpm@osdl.org>
+References: <a44ae5cd0512150035j1e1a032bpe8b271069ad5d008@mail.gmail.com>
+	<20051215004028.0bf9791f.akpm@osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-... and that should get m68k to build with gcc 3.x in mainline.  gcc4
-fixes are separate story.
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> > Here's the BUG output:
+>  > 
+>  > [4294671.538000] Freeing unused kernel memory: 220k freed
+>  > [4294671.538000] BUG: using smp_processor_id() in preemptible
+>  > [00000001] code: swapper/1
+>  > [4294671.539000] caller is mod_page_state_offset+0x12/0x28
+>  > [4294671.539000]  [<c1003723>] dump_stack+0x16/0x1a
+>  > [4294671.539000]  [<c110c1eb>] debug_smp_processor_id+0x77/0x90
+>  > [4294671.539000]  [<c10413d3>] mod_page_state_offset+0x12/0x28
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
-[rz: BTW, proposed variant of thread_info patchset is available for review,
-see ftp.linux.org.uk/pub/people/viro/task_thread_info-mbox...  Doesn't
-do any incompatible changes, mergable at leisure, reduces the remaining
-renaming to ~50 lines - the only chunk that will have to go at 2.6.16...]
+This'll plug the above.
 
- arch/m68k/kernel/vmlinux-std.lds  |    1 +
- arch/m68k/kernel/vmlinux-sun3.lds |    1 +
- 2 files changed, 2 insertions(+), 0 deletions(-)
+Nick, please turn on the nice debugging options in future?
 
-cc448b2f798627bc448ca14f3d6fb39f356bb117
-diff --git a/arch/m68k/kernel/vmlinux-std.lds b/arch/m68k/kernel/vmlinux-std.lds
-index e58654f..69d1d3d 100644
---- a/arch/m68k/kernel/vmlinux-std.lds
-+++ b/arch/m68k/kernel/vmlinux-std.lds
-@@ -13,6 +13,7 @@ SECTIONS
-   .text : {
- 	*(.text)
- 	SCHED_TEXT
-+	LOCK_TEXT
- 	*(.fixup)
- 	*(.gnu.warning)
- 	} :text = 0x4e75
-diff --git a/arch/m68k/kernel/vmlinux-sun3.lds b/arch/m68k/kernel/vmlinux-sun3.lds
-index cc37e8d..f814e66 100644
---- a/arch/m68k/kernel/vmlinux-sun3.lds
-+++ b/arch/m68k/kernel/vmlinux-sun3.lds
-@@ -14,6 +14,7 @@ SECTIONS
- 	*(.head)
- 	*(.text)
- 	SCHED_TEXT
-+	LOCK_TEXT
- 	*(.fixup)
- 	*(.gnu.warning)
- 	} :text = 0x4e75
--- 
-0.99.9.GIT
+
+diff -puN mm/page_alloc.c~mm-page_state-opt-fix mm/page_alloc.c
+--- devel/mm/page_alloc.c~mm-page_state-opt-fix	2005-12-15 00:50:56.000000000 -0800
++++ devel-akpm/mm/page_alloc.c	2005-12-15 00:51:07.000000000 -0800
+@@ -1389,8 +1389,8 @@ void mod_page_state_offset(unsigned long
+ 	unsigned long flags;
+ 	void *ptr;
+ 
+-	ptr = &__get_cpu_var(page_states);
+ 	local_irq_save(flags);
++	ptr = &__get_cpu_var(page_states);
+ 	*(unsigned long *)(ptr + offset) += delta;
+ 	local_irq_restore(flags);
+ }
+_
 

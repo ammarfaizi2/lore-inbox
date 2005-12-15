@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbVLOXRO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbVLOXXv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbVLOXRO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 18:17:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVLOXRO
+	id S1751161AbVLOXXv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 18:23:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751201AbVLOXXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 18:17:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:27049 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751200AbVLOXRM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 18:17:12 -0500
-Date: Thu, 15 Dec 2005 18:15:38 -0500
-From: Dave Jones <davej@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org
+	Thu, 15 Dec 2005 18:23:51 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:62340 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751161AbVLOXXu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 18:23:50 -0500
 Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051215231538.GF3419@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, arjan@infradead.org
-References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051215223000.GU23349@stusta.de>
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+In-Reply-To: <43A1E451.2090703@wolfmountaingroup.com>
+References: <20051215212447.GR23349@stusta.de>
+	 <20051215140013.7d4ffd5b.akpm@osdl.org> <20051215223000.GU23349@stusta.de>
+	 <43A1DB18.4030307@wolfmountaingroup.com>
+	 <1134688488.12086.172.camel@mindpipe>
+	 <43A1E451.2090703@wolfmountaingroup.com>
+Content-Type: text/plain
+Date: Thu, 15 Dec 2005 18:26:37 -0500
+Message-Id: <1134689197.12086.176.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051215223000.GU23349@stusta.de>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 11:30:00PM +0100, Adrian Bunk wrote:
+On Thu, 2005-12-15 at 14:46 -0700, Jeff V. Merkey wrote:
+> Lee Revell wrote:
+> 
+> >On Thu, 2005-12-15 at 14:07 -0700, Jeff V. Merkey wrote:
+> >  
+> >
+> >>When you are on the phone with an irrate customer at 2:00 am in the 
+> >>morning, and just turning off your broken 4K stack fix
+> >>and getting the customer running matters. 
+> >>    
+> >>
+> >
+> >Bugzilla link please.  Otherwise STFU.
+> >  
+> >
+> 
+> ??????
+> 
+> Jeff
 
- > An how many weird crashes with _different_ causes have you seen?
- > It could be that there are only _very_ few problems that noone really 
- > debugs brcause disabling 4k stacks fixes the issue.
+You imply that your customer's problem was due to a kernel bug triggered
+by CONFIG_4KSTACKS.  I am asking you to provide a link to the bug report
+or get lost.
 
-the block layer issue that Neil had patches for was the only one
-that rings any bells for me[*] (and the only one in Fedora bugzilla
-that anyone has actually hit -- and that's 2-3 people out of
-a *lot* of users).
-
-		Dave
-
-[*] Plus a few XFS ones, but that's been a lost cause wrt stack usage
-for a long time -- people were reporting overflows there before we
-enabled 4K stacks.
+Lee
 

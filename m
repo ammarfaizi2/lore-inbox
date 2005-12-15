@@ -1,188 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932640AbVLOARK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932641AbVLOARL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932640AbVLOARK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 19:17:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932641AbVLOAPe
+	id S932641AbVLOARL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 19:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932643AbVLOAPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 19:15:34 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:47497 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932640AbVLOAPY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 19:15:24 -0500
-Date: Wed, 14 Dec 2005 16:15:12 -0800 (PST)
+	Wed, 14 Dec 2005 19:15:30 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:8880 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932532AbVLOAPI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 19:15:08 -0500
+Date: Wed, 14 Dec 2005 16:14:56 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
        Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
        Andi Kleen <ak@suse.de>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051215001512.31405.50826.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20051215001456.31405.72393.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20051215001415.31405.24898.sendpatchset@schroedinger.engr.sgi.com>
 References: <20051215001415.31405.24898.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC3 11/14] Convert nr_writeback
+Subject: [RFC3 08/14] Convert nr_slab
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Per zone page writeback counts
+The number of slab pages in use is currently a counter split per cpu.
+Make the number of slab pages a per zone counter so that we can see how
+many slab pages have been allocated in each zone.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
 Index: linux-2.6.15-rc5-mm2/drivers/base/node.c
 ===================================================================
---- linux-2.6.15-rc5-mm2.orig/drivers/base/node.c	2005-12-14 15:34:57.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/drivers/base/node.c	2005-12-14 15:35:38.000000000 -0800
-@@ -52,9 +52,6 @@ static ssize_t node_read_meminfo(struct 
- 	for (j = 0; j < NR_STAT_ITEMS; j++)
- 		nr[j] = node_page_state(nid, j);
- 
--	/* Check for negative values in these approximate counters */
--	if ((long)ps.nr_writeback < 0)
--		ps.nr_writeback = 0;
- 
- 	n = sprintf(buf, "\n"
- 		       "Node %d MemTotal:     %8lu kB\n"
-@@ -81,7 +78,7 @@ static ssize_t node_read_meminfo(struct 
- 		       nid, K(i.totalram - i.totalhigh),
- 		       nid, K(i.freeram - i.freehigh),
- 		       nid, K(nr[NR_DIRTY]),
--		       nid, K(ps.nr_writeback),
-+		       nid, K(nr[NR_WRITEBACK]),
+--- linux-2.6.15-rc5-mm2.orig/drivers/base/node.c	2005-12-14 15:28:34.000000000 -0800
++++ linux-2.6.15-rc5-mm2/drivers/base/node.c	2005-12-14 15:29:13.000000000 -0800
+@@ -88,7 +88,7 @@ static ssize_t node_read_meminfo(struct 
+ 		       nid, K(ps.nr_writeback),
  		       nid, K(nr[NR_MAPPED]),
  		       nid, K(nr[NR_PAGECACHE]),
- 		       nid, K(nr[NR_SLAB]));
+-		       nid, K(ps.nr_slab));
++		       nid, K(nr[NR_SLAB]));
+ 	n += hugetlb_report_node_meminfo(nid, buf + n);
+ 	return n;
+ }
 Index: linux-2.6.15-rc5-mm2/fs/proc/proc_misc.c
 ===================================================================
---- linux-2.6.15-rc5-mm2.orig/fs/proc/proc_misc.c	2005-12-14 15:34:57.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/fs/proc/proc_misc.c	2005-12-14 15:35:38.000000000 -0800
-@@ -189,7 +189,7 @@ static int meminfo_read_proc(char *page,
- 		K(i.totalswap),
- 		K(i.freeswap),
- 		K(global_page_state(NR_DIRTY)),
--		K(ps.nr_writeback),
-+		K(global_page_state(NR_WRITEBACK)),
+--- linux-2.6.15-rc5-mm2.orig/fs/proc/proc_misc.c	2005-12-14 14:57:33.000000000 -0800
++++ linux-2.6.15-rc5-mm2/fs/proc/proc_misc.c	2005-12-14 15:29:13.000000000 -0800
+@@ -191,7 +191,7 @@ static int meminfo_read_proc(char *page,
+ 		K(ps.nr_dirty),
+ 		K(ps.nr_writeback),
  		K(global_page_state(NR_MAPPED)),
- 		K(global_page_state(NR_SLAB)),
+-		K(ps.nr_slab),
++		K(global_page_state(NR_SLAB)),
  		K(allowed),
-Index: linux-2.6.15-rc5-mm2/arch/i386/mm/pgtable.c
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/arch/i386/mm/pgtable.c	2005-12-14 15:34:57.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/arch/i386/mm/pgtable.c	2005-12-14 15:35:38.000000000 -0800
-@@ -60,7 +60,7 @@ void show_mem(void)
- 
- 	get_page_state(&ps);
- 	printk(KERN_INFO "%lu pages dirty\n", global_page_state(NR_DIRTY));
--	printk(KERN_INFO "%lu pages writeback\n", ps.nr_writeback);
-+	printk(KERN_INFO "%lu pages writeback\n", global_page_state(NR_WRITEBACK));
- 	printk(KERN_INFO "%lu pages mapped\n", ps.nr_mapped);
- 	printk(KERN_INFO "%lu pages slab\n", ps.nr_slab);
- 	printk(KERN_INFO "%lu pages pagetables\n", ps.nr_page_table_pages);
-Index: linux-2.6.15-rc5-mm2/mm/swap_prefetch.c
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/mm/swap_prefetch.c	2005-12-14 15:34:57.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/mm/swap_prefetch.c	2005-12-14 15:35:38.000000000 -0800
-@@ -315,7 +315,7 @@ static int prefetch_suitable(void)
- 	get_page_state(&ps);
- 
- 	/* We shouldn't prefetch when we are doing writeback */
--	if (ps.nr_writeback)
-+	if (global_page_state(NR_WRITEBACK))
- 		goto out;
- 
- 	/* Delay prefetching if we have significant amounts of dirty data */
+ 		K(committed),
+ 		K(ps.nr_page_table_pages),
 Index: linux-2.6.15-rc5-mm2/mm/page_alloc.c
 ===================================================================
---- linux-2.6.15-rc5-mm2.orig/mm/page_alloc.c	2005-12-14 15:35:34.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/mm/page_alloc.c	2005-12-14 15:37:34.000000000 -0800
-@@ -597,7 +597,7 @@ static int rmqueue_bulk(struct zone *zon
+--- linux-2.6.15-rc5-mm2.orig/mm/page_alloc.c	2005-12-14 15:28:34.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/page_alloc.c	2005-12-14 15:29:13.000000000 -0800
+@@ -596,7 +596,7 @@ static int rmqueue_bulk(struct zone *zon
+ 	return i;
  }
  
- char *stat_item_descr[NR_STAT_ITEMS] = {
--	"mapped","pagecache", "slab", "pagetable", "dirty"
-+	"mapped","pagecache", "slab", "pagetable", "dirty", "writeback"
- };
+-char *stat_item_descr[NR_STAT_ITEMS] = { "mapped","pagecache" };
++char *stat_item_descr[NR_STAT_ITEMS] = { "mapped","pagecache", "slab" };
  
  /*
-@@ -1780,7 +1780,7 @@ void show_free_areas(void)
- 		active,
- 		inactive,
- 		global_page_state(NR_DIRTY),
--		ps.nr_writeback,
-+		global_page_state(NR_WRITEBACK),
+  * Manage combined zone based / global counters
+@@ -1781,7 +1781,7 @@ void show_free_areas(void)
+ 		ps.nr_writeback,
  		ps.nr_unstable,
  		nr_free_pages(),
- 		global_page_state(NR_SLAB),
+-		ps.nr_slab,
++		global_page_state(NR_SLAB),
+ 		global_page_state(NR_MAPPED),
+ 		ps.nr_page_table_pages);
+ 
+Index: linux-2.6.15-rc5-mm2/mm/slab.c
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/mm/slab.c	2005-12-14 14:45:40.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/slab.c	2005-12-14 15:29:13.000000000 -0800
+@@ -1236,7 +1236,7 @@ static void *kmem_getpages(kmem_cache_t 
+ 	i = (1 << cachep->gfporder);
+ 	if (cachep->flags & SLAB_RECLAIM_ACCOUNT)
+ 		atomic_add(i, &slab_reclaim_pages);
+-	add_page_state(nr_slab, i);
++	add_zone_page_state(page_zone(page), NR_SLAB, i);
+ 	while (i--) {
+ 		SetPageSlab(page);
+ 		page++;
+@@ -1258,7 +1258,7 @@ static void kmem_freepages(kmem_cache_t 
+ 			BUG();
+ 		page++;
+ 	}
+-	sub_page_state(nr_slab, nr_freed);
++	sub_zone_page_state(page_zone(page), NR_SLAB, nr_freed);
+ 	if (current->reclaim_state)
+ 		current->reclaim_state->reclaimed_slab += nr_freed;
+ 	free_pages((unsigned long)addr, cachep->gfporder);
 Index: linux-2.6.15-rc5-mm2/include/linux/page-flags.h
 ===================================================================
---- linux-2.6.15-rc5-mm2.orig/include/linux/page-flags.h	2005-12-14 15:34:57.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/include/linux/page-flags.h	2005-12-14 15:35:38.000000000 -0800
-@@ -82,7 +82,6 @@
-  * allowed.
-  */
- struct page_state {
--	unsigned long nr_writeback;	/* Pages under writeback */
+--- linux-2.6.15-rc5-mm2.orig/include/linux/page-flags.h	2005-12-14 14:57:29.000000000 -0800
++++ linux-2.6.15-rc5-mm2/include/linux/page-flags.h	2005-12-14 15:29:13.000000000 -0800
+@@ -86,8 +86,7 @@ struct page_state {
+ 	unsigned long nr_writeback;	/* Pages under writeback */
  	unsigned long nr_unstable;	/* NFS unstable pages */
- #define GET_PAGE_STATE_LAST nr_unstable
+ 	unsigned long nr_page_table_pages;/* Pages used for pagetables */
+-	unsigned long nr_slab;		/* In slab */
+-#define GET_PAGE_STATE_LAST nr_slab
++#define GET_PAGE_STATE_LAST nr_page_table_pages
  
-@@ -291,7 +290,7 @@ void dec_zone_page_state(const struct pa
- 	do {								\
- 		if (!test_and_set_bit(PG_writeback,			\
- 				&(page)->flags))			\
--			inc_page_state(nr_writeback);			\
-+			inc_zone_page_state(page, NR_WRITEBACK);	\
- 	} while (0)
- #define TestSetPageWriteback(page)					\
- 	({								\
-@@ -299,14 +298,14 @@ void dec_zone_page_state(const struct pa
- 		ret = test_and_set_bit(PG_writeback,			\
- 					&(page)->flags);		\
- 		if (!ret)						\
--			inc_page_state(nr_writeback);			\
-+			inc_zone_page_state(page, NR_WRITEBACK);	\
- 		ret;							\
- 	})
- #define ClearPageWriteback(page)					\
- 	do {								\
- 		if (test_and_clear_bit(PG_writeback,			\
- 				&(page)->flags))			\
--			dec_page_state(nr_writeback);			\
-+			dec_zone_page_state(page, NR_WRITEBACK);	\
- 	} while (0)
- #define TestClearPageWriteback(page)					\
- 	({								\
-@@ -314,7 +313,7 @@ void dec_zone_page_state(const struct pa
- 		ret = test_and_clear_bit(PG_writeback,			\
- 				&(page)->flags);			\
- 		if (ret)						\
--			dec_page_state(nr_writeback);			\
-+			dec_zone_page_state(page, NR_WRITEBACK);	\
- 		ret;							\
- 	})
- 
-Index: linux-2.6.15-rc5-mm2/mm/page-writeback.c
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/mm/page-writeback.c	2005-12-14 15:34:57.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/mm/page-writeback.c	2005-12-14 15:35:38.000000000 -0800
-@@ -112,7 +112,7 @@ static void get_writeback_state(struct w
- 	wbs->nr_dirty = global_page_state(NR_DIRTY);
- 	wbs->nr_unstable = read_page_state(nr_unstable);
- 	wbs->nr_mapped = global_page_state(NR_MAPPED);
--	wbs->nr_writeback = read_page_state(nr_writeback);
-+	wbs->nr_writeback = global_page_state(NR_WRITEBACK);
- }
- 
- /*
+ 	/*
+ 	 * The below are zeroed by get_page_state().  Use get_full_page_state()
 Index: linux-2.6.15-rc5-mm2/include/linux/mmzone.h
 ===================================================================
---- linux-2.6.15-rc5-mm2.orig/include/linux/mmzone.h	2005-12-14 15:34:57.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/include/linux/mmzone.h	2005-12-14 15:35:38.000000000 -0800
+--- linux-2.6.15-rc5-mm2.orig/include/linux/mmzone.h	2005-12-14 14:57:33.000000000 -0800
++++ linux-2.6.15-rc5-mm2/include/linux/mmzone.h	2005-12-14 15:29:13.000000000 -0800
 @@ -44,8 +44,8 @@ struct zone_padding {
  #define ZONE_PADDING(name)
  #endif
  
--enum zone_stat_item { NR_MAPPED, NR_PAGECACHE, NR_SLAB, NR_PAGETABLE, NR_DIRTY };
--#define NR_STAT_ITEMS 5
-+enum zone_stat_item { NR_MAPPED, NR_PAGECACHE, NR_SLAB, NR_PAGETABLE, NR_DIRTY, NR_WRITEBACK };
-+#define NR_STAT_ITEMS 6
+-enum zone_stat_item { NR_MAPPED, NR_PAGECACHE };
+-#define NR_STAT_ITEMS 2
++enum zone_stat_item { NR_MAPPED, NR_PAGECACHE, NR_SLAB };
++#define NR_STAT_ITEMS 3
  
  struct per_cpu_pages {
  	int count;		/* number of pages in the list */
+Index: linux-2.6.15-rc5-mm2/mm/swap_prefetch.c
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/mm/swap_prefetch.c	2005-12-14 14:57:29.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/swap_prefetch.c	2005-12-14 15:29:13.000000000 -0800
+@@ -327,7 +327,7 @@ static int prefetch_suitable(void)
+ 	 * >2/3 of the ram is mapped or swapcache, we need some free for
+ 	 * pagecache
+ 	 */
+-	limit = global_page_state(NR_MAPPED) + ps.nr_slab + pending_writes +
++	limit = global_page_state(NR_MAPPED) + global_page_state(NR_SLAB) + pending_writes +
+ 		total_swapcache_pages;
+ 	if (limit > mapped_limit)
+ 		goto out;

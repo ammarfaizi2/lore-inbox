@@ -1,203 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbVLOAdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932666AbVLOAcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030237AbVLOAdV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 19:33:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932675AbVLOAdU
+	id S932666AbVLOAcu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 19:32:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbVLOAch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 19:33:20 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.25]:40406 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932671AbVLOAdG (ORCPT
+	Wed, 14 Dec 2005 19:32:37 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:47762 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030237AbVLOAce (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 19:33:06 -0500
-Date: Wed, 14 Dec 2005 16:33:05 -0800 (PST)
+	Wed, 14 Dec 2005 19:32:34 -0500
+Date: Wed, 14 Dec 2005 16:32:33 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051215003305.31788.81581.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20051215003233.31788.543.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20051215003151.31788.8755.sendpatchset@schroedinger.engr.sgi.com>
 References: <20051215003151.31788.8755.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC3 14/14] Remove wbs
+Subject: [RFC3 08/14] Convert nr_slab
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove writeback state
-
-We can remove some functions now that were needed to calculate the page
-state.
+The number of slab pages in use is currently a counter split per cpu.
+Make the number of slab pages a per zone counter so that we can see how
+many slab pages have been allocated in each zone.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.15-rc5-mm2/mm/page-writeback.c
+Index: linux-2.6.15-rc5-mm2/drivers/base/node.c
 ===================================================================
---- linux-2.6.15-rc5-mm2.orig/mm/page-writeback.c	2005-12-14 15:37:43.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/mm/page-writeback.c	2005-12-14 15:40:58.000000000 -0800
-@@ -99,22 +99,6 @@ EXPORT_SYMBOL(laptop_mode);
- 
- static void background_writeout(unsigned long _min_pages);
- 
--struct writeback_state
--{
--	unsigned long nr_dirty;
--	unsigned long nr_unstable;
--	unsigned long nr_mapped;
--	unsigned long nr_writeback;
--};
--
--static void get_writeback_state(struct writeback_state *wbs)
--{
--	wbs->nr_dirty = global_page_state(NR_DIRTY);
--	wbs->nr_unstable = global_page_state(NR_UNSTABLE);
--	wbs->nr_mapped = global_page_state(NR_MAPPED);
--	wbs->nr_writeback = global_page_state(NR_WRITEBACK);
--}
--
- /*
-  * Work out the current dirty-memory clamping and background writeout
-  * thresholds.
-@@ -133,8 +117,7 @@ static void get_writeback_state(struct w
-  * clamping level.
-  */
- static void
--get_dirty_limits(struct writeback_state *wbs, long *pbackground, long *pdirty,
--		struct address_space *mapping)
-+get_dirty_limits(long *pbackground, long *pdirty, struct address_space *mapping)
- {
- 	int background_ratio;		/* Percentages */
- 	int dirty_ratio;
-@@ -144,8 +127,6 @@ get_dirty_limits(struct writeback_state 
- 	unsigned long available_memory = total_pages;
- 	struct task_struct *tsk;
- 
--	get_writeback_state(wbs);
--
- #ifdef CONFIG_HIGHMEM
- 	/*
- 	 * If this mapping can only allocate from low memory,
-@@ -156,7 +137,7 @@ get_dirty_limits(struct writeback_state 
- #endif
- 
- 
--	unmapped_ratio = 100 - (wbs->nr_mapped * 100) / total_pages;
-+	unmapped_ratio = 100 - (global_page_state(NR_MAPPED) * 100) / total_pages;
- 
- 	dirty_ratio = vm_dirty_ratio;
- 	if (dirty_ratio > unmapped_ratio / 2)
-@@ -189,7 +170,6 @@ get_dirty_limits(struct writeback_state 
-  */
- static void balance_dirty_pages(struct address_space *mapping)
- {
--	struct writeback_state wbs;
- 	long nr_reclaimable;
- 	long background_thresh;
- 	long dirty_thresh;
-@@ -206,10 +186,9 @@ static void balance_dirty_pages(struct a
- 			.nr_to_write	= write_chunk,
- 		};
- 
--		get_dirty_limits(&wbs, &background_thresh,
--					&dirty_thresh, mapping);
--		nr_reclaimable = wbs.nr_dirty + wbs.nr_unstable;
--		if (nr_reclaimable + wbs.nr_writeback <= dirty_thresh)
-+		get_dirty_limits(&background_thresh, &dirty_thresh, mapping);
-+		nr_reclaimable = global_page_state(NR_DIRTY) + global_page_state(NR_UNSTABLE);
-+		if (nr_reclaimable + global_page_state(NR_WRITEBACK) <= dirty_thresh)
- 			break;
- 
- 		dirty_exceeded = 1;
-@@ -222,10 +201,9 @@ static void balance_dirty_pages(struct a
- 		 */
- 		if (nr_reclaimable) {
- 			writeback_inodes(&wbc);
--			get_dirty_limits(&wbs, &background_thresh,
--					&dirty_thresh, mapping);
--			nr_reclaimable = wbs.nr_dirty + wbs.nr_unstable;
--			if (nr_reclaimable + wbs.nr_writeback <= dirty_thresh)
-+			get_dirty_limits(&background_thresh, &dirty_thresh, mapping);
-+			nr_reclaimable = global_page_state(NR_DIRTY) + global_page_state(NR_UNSTABLE);
-+			if (nr_reclaimable + global_page_state(NR_WRITEBACK) <= dirty_thresh)
- 				break;
- 			pages_written += write_chunk - wbc.nr_to_write;
- 			if (pages_written >= write_chunk)
-@@ -234,7 +212,7 @@ static void balance_dirty_pages(struct a
- 		blk_congestion_wait(WRITE, HZ/10);
- 	}
- 
--	if (nr_reclaimable + wbs.nr_writeback <= dirty_thresh)
-+	if (nr_reclaimable + global_page_state(NR_WRITEBACK) <= dirty_thresh)
- 		dirty_exceeded = 0;
- 
- 	if (writeback_in_progress(bdi))
-@@ -291,12 +269,11 @@ EXPORT_SYMBOL(balance_dirty_pages_rateli
- 
- void throttle_vm_writeout(void)
- {
--	struct writeback_state wbs;
- 	long background_thresh;
- 	long dirty_thresh;
- 
-         for ( ; ; ) {
--		get_dirty_limits(&wbs, &background_thresh, &dirty_thresh, NULL);
-+		get_dirty_limits(&background_thresh, &dirty_thresh, NULL);
- 
-                 /*
-                  * Boost the allowable dirty threshold a bit for page
-@@ -304,7 +281,7 @@ void throttle_vm_writeout(void)
-                  */
-                 dirty_thresh += dirty_thresh / 10;      /* wheeee... */
- 
--                if (wbs.nr_unstable + wbs.nr_writeback <= dirty_thresh)
-+                if (global_page_state(NR_UNSTABLE) + global_page_state(NR_WRITEBACK) <= dirty_thresh)
-                         break;
-                 blk_congestion_wait(WRITE, HZ/10);
-         }
-@@ -327,12 +304,11 @@ static void background_writeout(unsigned
- 	};
- 
- 	for ( ; ; ) {
--		struct writeback_state wbs;
- 		long background_thresh;
- 		long dirty_thresh;
- 
--		get_dirty_limits(&wbs, &background_thresh, &dirty_thresh, NULL);
--		if (wbs.nr_dirty + wbs.nr_unstable < background_thresh
-+		get_dirty_limits(&background_thresh, &dirty_thresh, NULL);
-+		if (global_page_state(NR_DIRTY) + global_page_state(NR_UNSTABLE) < background_thresh
- 				&& min_pages <= 0)
- 			break;
- 		wbc.encountered_congestion = 0;
-@@ -356,12 +332,8 @@ static void background_writeout(unsigned
-  */
- int wakeup_pdflush(long nr_pages)
- {
--	if (nr_pages == 0) {
--		struct writeback_state wbs;
--
--		get_writeback_state(&wbs);
--		nr_pages = wbs.nr_dirty + wbs.nr_unstable;
--	}
-+	if (nr_pages == 0)
-+		nr_pages = global_page_state(NR_DIRTY) + global_page_state(NR_UNSTABLE);
- 	return pdflush_operation(background_writeout, nr_pages);
+--- linux-2.6.15-rc5-mm2.orig/drivers/base/node.c	2005-12-14 15:28:34.000000000 -0800
++++ linux-2.6.15-rc5-mm2/drivers/base/node.c	2005-12-14 15:29:13.000000000 -0800
+@@ -88,7 +88,7 @@ static ssize_t node_read_meminfo(struct 
+ 		       nid, K(ps.nr_writeback),
+ 		       nid, K(nr[NR_MAPPED]),
+ 		       nid, K(nr[NR_PAGECACHE]),
+-		       nid, K(ps.nr_slab));
++		       nid, K(nr[NR_SLAB]));
+ 	n += hugetlb_report_node_meminfo(nid, buf + n);
+ 	return n;
+ }
+Index: linux-2.6.15-rc5-mm2/fs/proc/proc_misc.c
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/fs/proc/proc_misc.c	2005-12-14 14:57:33.000000000 -0800
++++ linux-2.6.15-rc5-mm2/fs/proc/proc_misc.c	2005-12-14 15:29:13.000000000 -0800
+@@ -191,7 +191,7 @@ static int meminfo_read_proc(char *page,
+ 		K(ps.nr_dirty),
+ 		K(ps.nr_writeback),
+ 		K(global_page_state(NR_MAPPED)),
+-		K(ps.nr_slab),
++		K(global_page_state(NR_SLAB)),
+ 		K(allowed),
+ 		K(committed),
+ 		K(ps.nr_page_table_pages),
+Index: linux-2.6.15-rc5-mm2/mm/page_alloc.c
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/mm/page_alloc.c	2005-12-14 15:28:34.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/page_alloc.c	2005-12-14 15:29:13.000000000 -0800
+@@ -596,7 +596,7 @@ static int rmqueue_bulk(struct zone *zon
+ 	return i;
  }
  
-@@ -392,7 +364,6 @@ static void wb_kupdate(unsigned long arg
- 	unsigned long start_jif;
- 	unsigned long next_jif;
- 	long nr_to_write;
--	struct writeback_state wbs;
- 	struct writeback_control wbc = {
- 		.bdi		= NULL,
- 		.sync_mode	= WB_SYNC_NONE,
-@@ -404,11 +375,10 @@ static void wb_kupdate(unsigned long arg
+-char *stat_item_descr[NR_STAT_ITEMS] = { "mapped","pagecache" };
++char *stat_item_descr[NR_STAT_ITEMS] = { "mapped","pagecache", "slab" };
  
- 	sync_supers();
+ /*
+  * Manage combined zone based / global counters
+@@ -1781,7 +1781,7 @@ void show_free_areas(void)
+ 		ps.nr_writeback,
+ 		ps.nr_unstable,
+ 		nr_free_pages(),
+-		ps.nr_slab,
++		global_page_state(NR_SLAB),
+ 		global_page_state(NR_MAPPED),
+ 		ps.nr_page_table_pages);
  
--	get_writeback_state(&wbs);
- 	oldest_jif = jiffies - (dirty_expire_centisecs * HZ) / 100;
- 	start_jif = jiffies;
- 	next_jif = start_jif + (dirty_writeback_centisecs * HZ) / 100;
--	nr_to_write = wbs.nr_dirty + wbs.nr_unstable +
-+	nr_to_write = global_page_state(NR_DIRTY) + global_page_state(NR_UNSTABLE) +
- 			(inodes_stat.nr_inodes - inodes_stat.nr_unused);
- 	while (nr_to_write > 0) {
- 		wbc.encountered_congestion = 0;
+Index: linux-2.6.15-rc5-mm2/mm/slab.c
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/mm/slab.c	2005-12-14 14:45:40.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/slab.c	2005-12-14 15:29:13.000000000 -0800
+@@ -1236,7 +1236,7 @@ static void *kmem_getpages(kmem_cache_t 
+ 	i = (1 << cachep->gfporder);
+ 	if (cachep->flags & SLAB_RECLAIM_ACCOUNT)
+ 		atomic_add(i, &slab_reclaim_pages);
+-	add_page_state(nr_slab, i);
++	add_zone_page_state(page_zone(page), NR_SLAB, i);
+ 	while (i--) {
+ 		SetPageSlab(page);
+ 		page++;
+@@ -1258,7 +1258,7 @@ static void kmem_freepages(kmem_cache_t 
+ 			BUG();
+ 		page++;
+ 	}
+-	sub_page_state(nr_slab, nr_freed);
++	sub_zone_page_state(page_zone(page), NR_SLAB, nr_freed);
+ 	if (current->reclaim_state)
+ 		current->reclaim_state->reclaimed_slab += nr_freed;
+ 	free_pages((unsigned long)addr, cachep->gfporder);
+Index: linux-2.6.15-rc5-mm2/include/linux/page-flags.h
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/include/linux/page-flags.h	2005-12-14 14:57:29.000000000 -0800
++++ linux-2.6.15-rc5-mm2/include/linux/page-flags.h	2005-12-14 15:29:13.000000000 -0800
+@@ -86,8 +86,7 @@ struct page_state {
+ 	unsigned long nr_writeback;	/* Pages under writeback */
+ 	unsigned long nr_unstable;	/* NFS unstable pages */
+ 	unsigned long nr_page_table_pages;/* Pages used for pagetables */
+-	unsigned long nr_slab;		/* In slab */
+-#define GET_PAGE_STATE_LAST nr_slab
++#define GET_PAGE_STATE_LAST nr_page_table_pages
+ 
+ 	/*
+ 	 * The below are zeroed by get_page_state().  Use get_full_page_state()
+Index: linux-2.6.15-rc5-mm2/include/linux/mmzone.h
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/include/linux/mmzone.h	2005-12-14 14:57:33.000000000 -0800
++++ linux-2.6.15-rc5-mm2/include/linux/mmzone.h	2005-12-14 15:29:13.000000000 -0800
+@@ -44,8 +44,8 @@ struct zone_padding {
+ #define ZONE_PADDING(name)
+ #endif
+ 
+-enum zone_stat_item { NR_MAPPED, NR_PAGECACHE };
+-#define NR_STAT_ITEMS 2
++enum zone_stat_item { NR_MAPPED, NR_PAGECACHE, NR_SLAB };
++#define NR_STAT_ITEMS 3
+ 
+ struct per_cpu_pages {
+ 	int count;		/* number of pages in the list */
+Index: linux-2.6.15-rc5-mm2/mm/swap_prefetch.c
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/mm/swap_prefetch.c	2005-12-14 14:57:29.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/swap_prefetch.c	2005-12-14 15:29:13.000000000 -0800
+@@ -327,7 +327,7 @@ static int prefetch_suitable(void)
+ 	 * >2/3 of the ram is mapped or swapcache, we need some free for
+ 	 * pagecache
+ 	 */
+-	limit = global_page_state(NR_MAPPED) + ps.nr_slab + pending_writes +
++	limit = global_page_state(NR_MAPPED) + global_page_state(NR_SLAB) + pending_writes +
+ 		total_swapcache_pages;
+ 	if (limit > mapped_limit)
+ 		goto out;

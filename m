@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbVLORQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbVLORR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbVLORQr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 12:16:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbVLORQr
+	id S1750819AbVLORR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 12:17:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbVLORR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 12:16:47 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:15276 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750789AbVLORQq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 12:16:46 -0500
-Date: Thu, 15 Dec 2005 17:16:45 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-m68k@vger.kernel.org
-Subject: Re: [PATCH 2/3] m68k: compile fix - ADBREQ_RAW missing declaration
-Message-ID: <20051215171645.GY27946@ftp.linux.org.uk>
-References: <20051215085516.GU27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151258200.1605@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0512151258200.1605@scrub.home>
-User-Agent: Mutt/1.4.1i
+	Thu, 15 Dec 2005 12:17:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52620 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750812AbVLORR5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 12:17:57 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20051215090951.9276697c.pj@sgi.com> 
+References: <20051215090951.9276697c.pj@sgi.com>  <17313.37200.728099.873988@gargle.gargle.HOWL> <1134559121.25663.14.camel@localhost.localdomain> <13820.1134558138@warthog.cambridge.redhat.com> <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com> <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu> <20051213100015.GA32194@elte.hu> <6281.1134498864@warthog.cambridge.redhat.com> <14242.1134558772@warthog.cambridge.redhat.com> <16315.1134563707@warthog.cambridge.redhat.com> <1134568731.4275.4.camel@tglx.tec.linutronix.de> <43A0AD54.6050109@rtr.ca> <20051214155432.320f2950.akpm@osdl.org> <17313.29296.170999.539035@gargle.gargle.HOWL> <1134658579.12421.59.camel@localhost.localdomain> <4743.1134662116@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0512150817170.3292@g5.osdl.org> 
+To: Paul Jackson <pj@sgi.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, dhowells@redhat.com,
+       nikita@clusterfs.com, alan@lxorguk.ukuu.org.uk, akpm@osdl.org,
+       tglx@linutronix.de, mingo@elte.hu, hch@infradead.org,
+       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Thu, 15 Dec 2005 17:17:30 +0000
+Message-ID: <6880.1134667050@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 01:00:05PM +0100, Roman Zippel wrote:
-> Hi,
+Paul Jackson <pj@sgi.com> wrote:
+
+> > Hint: we have DECLARE_MUTEX exactly because it's also DOCUMENTATION that 
+> > we use a semaphore as a pure binary mutex. Not because we need it.
 > 
-> On Thu, 15 Dec 2005, Al Viro wrote:
+> That's insane ... 
+
+And abused/misused...
+
+> This is stealth documentation at its finest.  Who besides Linus even
+> knew that's what this spelling of the DECLARE macro was telling us?
 > 
-> > another compile fix, pulled straight from m68k CVS
-> 
-> Thanks, but if you pull changes out of CVS could you please keep the 
-> author intact? CVS may be bad, but it's not that bad.
+>   Paul "Hand me that chain saw, Billy Jo.  This limb is coming -down-" Jackson
 
-CVS users, OTOH...
-   Mon Oct 22 09:34:34 2001 UTC (4 years, 1 month ago) by zippel
-   Branches: MAIN
-   CVS tags: m68k-2_5_9, m68k-2_5_8, m68k-2_5_7, m68k-2_5_65,
-[snip]
-   m68k-2_4_13, m68k-2_4_12
-   Branch point for: m68k-2_4
-   Diff to previous 1.1: preferred, colored
-   Changes since revision 1.1: +1 -0 lines
-import Geert's 2.4.12 m68k patch
+I hope you're talking about trees...
 
-and the same for drivers/macintosh part.
-
-So who should I put as the author?  You or Geert (or whatever attributions
-might have been in said big patch)?  Incidentally,  ADBREQ_RAW had leaked
-into mainline (sans definition) in 2.3.45-pre2, which was Feb 13 2000, i.e.
-more than 1.5 year before your commit, so there's quite a chunk of history
-missing...
-
-I'm serious, BTW - I certainly would have no problem preserving attribution,
-but it simply hadn't been there.  CVS logs are only as good as the data
-being put there by committers...
+David

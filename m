@@ -1,50 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422687AbVLOKKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422693AbVLOKrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422687AbVLOKKF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 05:10:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422688AbVLOKKE
+	id S1422693AbVLOKrW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 05:47:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422692AbVLOKrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 05:10:04 -0500
-Received: from uucp.cistron.nl ([62.216.30.38]:26795 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S1422686AbVLOKKC (ORCPT
+	Thu, 15 Dec 2005 05:47:22 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:24013 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S1422646AbVLOKrV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 05:10:02 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: [GIT PATCH] final SCSI fixes for 2.6.15-rc5
-Date: Thu, 15 Dec 2005 10:10:01 +0000 (UTC)
-Organization: Cistron
-Message-ID: <dnrfdp$6nl$1@news.cistron.nl>
-References: <1134604909.11150.2.camel@mulgrave>
+	Thu, 15 Dec 2005 05:47:21 -0500
+Date: Thu, 15 Dec 2005 02:46:04 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: perfctr-devel@lists.sourceforge.net
+Cc: perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: 2.6.15-rc5-git3 perfmon2 new code base + libpfm available
+Message-ID: <20051215104604.GA16937@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1134641401 6901 194.109.0.112 (15 Dec 2005 10:10:01 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
-To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1134604909.11150.2.camel@mulgrave>,
-James Bottomley  <James.Bottomley@SteelEye.com> wrote:
->These should (hopefully) represent the last few urgent bug fixes that
->have shown up.  The fixes are available here:
->
->master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
+Hello,
 
-While not technically a SCSI driver, dpt_i2o lives in drivers/scsi
-and there is a critical fix in the -mm tree that needs to go
-into 2.6.15:
+I have released a new version of the perfmon base package.
+This release is relative to 2.6.15-rc5-git3.
 
-dpt_i2o-fix-for-deadlock-condition.patch
+I have also updated the library, libpfm-3.2, to match the kernel
+level changes. 
 
-I've experienced several hard lockups in dpt_i2o and I have reports
-of other people that have the same problem - they are solved with
-this patch. It's a pure bugfix, in 2.6.13 the scsi error recovery
-api was changed wrt locking and dpt_i2o only got partially updated.
+This new kernel patch includes several important changes:
 
-It probably needs to go into 2.6.14.stable too..
+  - pfm_create_context() interface has changed. The sampling
+    buffer format argument is now passed explicitly instead
+    of relying on it being contiguous to pfarg_ctx_t.
 
-Mike.
+  - code in perfmon/perfmon.c has been split into 8 
+    different files for improved maintainability. Each
+    file implements one specific function. Perfmon.c
+    remains the core.
 
+  - fixed several important bugs for i386 and x86_64 for
+    Intel P4/Xeon (simple counting was returning 0).
+
+  - added support for virtual PMD (read/write)
+
+  - added notion of read-only PMD
+
+  - Split Pentium M/P 6 PMU description in preparation for
+    Pentium M LBR support
+
+  - Added support for reference counting on PMU description
+    and Sampling buffer modules to avoid panic in case
+    module is removed while being used.
+
+  - On i386/X86_64, added code to handle the NMI watchdog
+    when it is using the Local APIC. We now use
+    reserve_lapic_nmi() and release_lapic_nmi().
+
+  - various other cleanups and bug fixes
+
+You MUST use libpfm-3.2-051215 with this kernel due to
+interface change for pfm_create_context().
+
+As usual, you can download the latest packages from the
+SourceForge website at:
+
+	http://www.sf.net/projects/perfmon2
+
+I will be posting the patches directly to LKML for
+review very shortly.
+
+Enjoy,
+-- 
+
+-Stephane

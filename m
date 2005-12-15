@@ -1,57 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422718AbVLONDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422713AbVLONIF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422718AbVLONDr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 08:03:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbVLONDr
+	id S1422713AbVLONIF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 08:08:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbVLONIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 08:03:47 -0500
-Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:28854 "EHLO
-	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1422712AbVLONDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 08:03:45 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC] Fine-grained memory priorities and PI
-Date: Fri, 16 Dec 2005 00:02:48 +1100
-User-Agent: KMail/1.9
-Cc: "David S. Miller" <davem@davemloft.net>, sri@us.ibm.com, mpm@selenic.com,
-       ak@suse.de, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-References: <20051215033937.GC11856@waste.org> <200512152345.25375.kernel@kolivas.org> <8803F1D1-E647-45A3-B2A4-E3C95AAC11C6@mac.com>
-In-Reply-To: <8803F1D1-E647-45A3-B2A4-E3C95AAC11C6@mac.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 15 Dec 2005 08:08:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:61131 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1422713AbVLONIC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 08:08:02 -0500
+Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
+From: Arjan van de Ven <arjan@infradead.org>
+To: hadi@cyberus.ca
+Cc: James Courtier-Dutton <James@superbug.co.uk>,
+       Mitchell Blank Jr <mitch@sfgoth.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Sridhar Samudrala <sri@us.ibm.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <1134651635.5912.108.camel@localhost.localdomain>
+References: <Pine.LNX.4.58.0512140042280.31720@w-sridhar.beaverton.ibm.com>
+	 <9a8748490512141216x7e25ca2cucb675f11f0c9d913@mail.gmail.com>
+	 <43A08546.8040708@superbug.co.uk> <20051215015456.GC23393@gaz.sfgoth.com>
+	 <43A155AE.4050105@superbug.co.uk>
+	 <1134647248.16486.37.camel@laptopd505.fenrus.org>
+	 <1134651635.5912.108.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 15 Dec 2005 14:07:50 +0100
+Message-Id: <1134652070.16486.44.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512160002.49096.kernel@kolivas.org>
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 December 2005 23:58, Kyle Moffett wrote:
-> On Dec 15, 2005, at 07:45, Con Kolivas wrote:
-> > I have some basic process-that-called the memory allocator link in
-> > the -ck tree already which alters how aggressively memory is
-> > reclaimed according to priority. It does not affect out of memory
-> > management but that could be added to said algorithm; however I
-> > don't see much point at the moment since oom is still an uncommon
-> > condition but regular memory allocation is routine.
->
-> My thought would be to generalize the two special cases of writeback
-> of dirty pages or dropping of clean pages under memory pressure and
-> OOM to be the same general case.  When you are trying to free up
-> pages, it may be permissible to drop dirty mbox pages and kill the
-> postfix process writing them in order to satisfy allocations for the
-> mission-critical database server.  (Or maybe it's the other way
-> around).  If a large chunk of the allocated pages have priorities and
-> lossless/lossy free functions, then the kernel can be much more
-> flexible and configurable about what to do when running low on RAM.
+On Thu, 2005-12-15 at 08:00 -0500, jamal wrote:
+> On Thu, 2005-15-12 at 12:47 +0100, Arjan van de Ven wrote:
+> > > 
+> > > You are using the wrong hammer to crack your nut.
+> > > You should instead approach your problem of why the ARP entry gets lost.
+> > > For example, you could give as critical priority to your TCP session, 
+> > > but that still won't cure your ARP problem.
+> > > I would suggest that the best way to cure your arp problem, is to 
+> > > increase the time between arp cache refreshes.
+> > 
+> > or turn it around entirely: all traffic is considered important
+> > unless... and have a bunch of non-critical sockets (like http requests)
+> > be marked non-critical.
+> 
+> The big hole punched by DaveM is that of dependencies: a http tcp
+> connection is tied to ICMP or the IPSEC example given; so you need a lot
+> more intelligence than just what your app is knowledgeable about at its
+> level. 
 
-Indeed the implementation I currently have is lightweight to say the least but 
-I really didn't think bloating struct page was worth it since the memory cost 
-would be prohibitive, but would allow all sorts of priority effects and vm 
-scheduling to be possible. That is, struct page could have an extra entry 
-keeping track of the highest priority of the process that used it and use 
-that to determine further eviction etc.
+yeah well sort of. You're right of course, but that also doesn't mean
+you can't give hints from the other side. Like "data for this socked is
+NOT critical important". It gets tricky if you only do it for OOM stuff;
+because then that one ACK packet could cause a LOT of memory to be
+freed, and as such can be important for the system even if the socket
+isn't.
 
-Cheers,
-Con
+

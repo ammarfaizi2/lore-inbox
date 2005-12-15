@@ -1,89 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbVLOWeM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVLOWfu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbVLOWeM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 17:34:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVLOWeM
+	id S1751162AbVLOWfu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 17:35:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVLOWfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 17:34:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:16537 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750946AbVLOWeL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 17:34:11 -0500
-Date: Thu, 15 Dec 2005 14:33:22 -0800
-From: Greg KH <greg@kroah.com>
-To: Vitaly Wool <vwool@ru.mvista.com>
-Cc: David Brownell <david-b@pacbell.net>,
-       spi-devel-general@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
-       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
-       Joachim_Jaeger@digi.com
-Subject: Re: [spi-devel-general] Re: [PATCH/RFC] SPI: add DMAUNSAFE analog
-Message-ID: <20051215223322.GA8578@kroah.com>
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <200512141102.53599.david-b@pacbell.net> <43A1118E.9040608@ru.mvista.com> <200512151206.26515.david-b@pacbell.net> <43A1EB94.5040300@ru.mvista.com>
-Mime-Version: 1.0
+	Thu, 15 Dec 2005 17:35:50 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5580 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1751162AbVLOWft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 17:35:49 -0500
+To: Jamie Lokier <jamie@shareable.org>
+Cc: JANAK DESAI <janak@us.ibm.com>, viro@ftp.linux.org.uk, chrisw@osdl.org,
+       dwmw2@infradead.org, serue@us.ibm.com, mingo@elte.hu,
+       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm 1/9] unshare system call: system call handler
+ function
+References: <1134513959.11972.167.camel@hobbs.atlanta.ibm.com>
+	<m1k6e687e2.fsf@ebiederm.dsl.xmission.com>
+	<43A1D435.5060602@us.ibm.com>
+	<m1d5jy83nr.fsf@ebiederm.dsl.xmission.com>
+	<20051215213234.GB6990@mail.shareable.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Thu, 15 Dec 2005 15:34:06 -0700
+In-Reply-To: <20051215213234.GB6990@mail.shareable.org> (Jamie Lokier's
+ message of "Thu, 15 Dec 2005 21:32:34 +0000")
+Message-ID: <m18xum7zxd.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43A1EB94.5040300@ru.mvista.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 01:17:56AM +0300, Vitaly Wool wrote:
-> David Brownell wrote:
-> 
-> >On Wednesday 14 December 2005 10:47 pm, Vitaly Wool wrote:
-> >
-> > 
-> >
-> >>One cannot allocate memory in interrupt context, so the way to go is 
-> >>allocating it on stack, thus the buffer is not DMA-safe.
-> >>   
-> >>
-> >
-> >kmalloc(..., GFP_ATOMIC) is the way to allocate memory in irq context.
-> >It's done that way throughout the kernel.
-> > 
-> >
-> It's not applicable within the RT-related changes. kmalloc anyway takes 
-> mutexes, so allocationg it in interrupt context is buggy.
+Jamie Lokier <jamie@shareable.org> writes:
 
-What RT-related changes cause this?
+>
+>> Part of the problem is the double negative in the name, leading
+>> me to suggest that sys_share might almost be a better name.
+>
+> I agree with that suggestion, too.
+>
+> Alternatively, we could just add a flag to clone(): CLONE_SELF,
+> meaning don't create a new task, just modify the properties of the
+> current task.
 
-> *Legacy* kernel code does that but why produce a new code with that?
+Internally I doubt it would make much difference.  There are
+real differences from modifying current to copying from current.
+Mostly it is ref counting but just enough that CLONE_SELF
+is unlikely to be a sane thing to do.
 
-In this terminoligy, you are calling 2.6.15-rc5 "legacy".  Which is not
-true.
+Of course we could always implement spawn.  The syscall with
+every possible option :)
 
-> >>Making it DMA-safe in thread that does the very message processing is a 
-> >>good way of overcoming this.
-> >>   
-> >>
-> >
-> >The rest of Linux appears to work fine without needing such mechanisms...
-> > 
-> >
-> The rest of Linux still has a lot of bugs. Noone I guess is ready to 
-> argue that.
-
-Huh?  Please point out these bugs in the mainline tree and we will be
-glad to fix them.
-
-> >I really fail to see why you think SPI needs that.  USB isn't the only
-> >counterexample, but it's particularly relevant since both USB and SPI
-> >use asynchronous message passing over serial links ... and USB has a
-> >rather complete driver stack over it.   (None of the USB based WLAN
-> >drivers need those static buffers you worry about, by the way...)
-> > 
-> >
-> I haven't heard of USB device registers needing to be written in IRQ 
-> context. I'm not that well familiar with USB, so if you give such an 
-> example, that'd be fine.
-
-The USB host controller drivers routienly allocate memory in irq context
-as they are being asked to submit a new "packet" from a driver which was
-called in irq context.  Lots of USB drivers also allocate buffers in irq
-context too.
-
-So, please, drop this line of argument, it will not go any further.
-
-greg k-h
+Eric

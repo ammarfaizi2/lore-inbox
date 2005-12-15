@@ -1,64 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965187AbVLOI7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965189AbVLOJAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965187AbVLOI7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 03:59:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965191AbVLOI7X
+	id S965189AbVLOJAj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 04:00:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965192AbVLOJAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 03:59:23 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:4833
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S965187AbVLOI7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 03:59:22 -0500
-Date: Thu, 15 Dec 2005 00:58:05 -0800 (PST)
-Message-Id: <20051215.005805.114145703.davem@davemloft.net>
-To: dlstevens@us.ibm.com
-Cc: shemminger@osdl.org, ak@suse.de, linux-kernel@vger.kernel.org,
-       mpm@selenic.com, netdev@vger.kernel.org, netdev-owner@vger.kernel.org,
-       sri@us.ibm.com
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <OFB8B21C56.4F9E9A3C-ON882570D8.002CBD7B-882570D8.002FF8B1@us.ibm.com>
-References: <20051214215613.70f9cafa@localhost.localdomain>
-	<OFB8B21C56.4F9E9A3C-ON882570D8.002CBD7B-882570D8.002FF8B1@us.ibm.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 15 Dec 2005 04:00:38 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:40581 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965189AbVLOJAh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 04:00:37 -0500
+Date: Thu, 15 Dec 2005 09:00:37 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
+Subject: [PATCH 3/3] m68k: compile fix - updated vmlinux.lds to include LOCK_TEXT
+Message-ID: <20051215090037.GV27946@ftp.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Stevens <dlstevens@us.ibm.com>
-Date: Thu, 15 Dec 2005 00:44:52 -0800
+... and that should get m68k to build with gcc 3.x in mainline.  gcc4
+fixes are separate story.
 
-> In our internal discussions
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+[rz: BTW, proposed variant of thread_info patchset is available for review,
+see ftp.linux.org.uk/pub/people/viro/task_thread_info-mbox...  Doesn't
+do any incompatible changes, mergable at leisure, reduces the remaining
+renaming to ~50 lines - the only chunk that will have to go at 2.6.16...]
 
-I really wish this hadn't been discussed internally before being
-implemented.  Any such internal discussions are lost completely upon
-the community that ends up reviewing such a core and invasive patch
-such as this one.
+ arch/m68k/kernel/vmlinux-std.lds  |    1 +
+ arch/m68k/kernel/vmlinux-sun3.lds |    1 +
+ 2 files changed, 2 insertions(+), 0 deletions(-)
 
->         The critical socket(s) simply have to be out of the zero-sum game
-> for the rest of the allocations, because those are the (only) path to
-> getting a working swap device again.
+cc448b2f798627bc448ca14f3d6fb39f356bb117
+diff --git a/arch/m68k/kernel/vmlinux-std.lds b/arch/m68k/kernel/vmlinux-std.lds
+index e58654f..69d1d3d 100644
+--- a/arch/m68k/kernel/vmlinux-std.lds
++++ b/arch/m68k/kernel/vmlinux-std.lds
+@@ -13,6 +13,7 @@ SECTIONS
+   .text : {
+ 	*(.text)
+ 	SCHED_TEXT
++	LOCK_TEXT
+ 	*(.fixup)
+ 	*(.gnu.warning)
+ 	} :text = 0x4e75
+diff --git a/arch/m68k/kernel/vmlinux-sun3.lds b/arch/m68k/kernel/vmlinux-sun3.lds
+index cc37e8d..f814e66 100644
+--- a/arch/m68k/kernel/vmlinux-sun3.lds
++++ b/arch/m68k/kernel/vmlinux-sun3.lds
+@@ -14,6 +14,7 @@ SECTIONS
+ 	*(.head)
+ 	*(.text)
+ 	SCHED_TEXT
++	LOCK_TEXT
+ 	*(.fixup)
+ 	*(.gnu.warning)
+ 	} :text = 0x4e75
+-- 
+0.99.9.GIT
 
-The core fault of the critical socket idea is that it is painfully
-simple to create a tree of dependant allocations that makes the
-critical pool useless.  IPSEC and tunnels are simple examples.
-
-The idea to mark, for example, IPSEC key management daemon's sockets
-as critical is flawed, because the key management daemon could hit a
-swap page over the iSCSI device.  Don't even start with the idea to
-lock the IPSEC key management daemon into ram with mlock().
-
-Tunnels are similar, and realistic nesting cases can be shown that
-makes sizing via a special pool simply unfeasible, and whats more
-there are no sockets involved.
-
-Sockets do not exist in an allocation vacuum, they need to talk over
-routes, and there are therefore many types of auxiliary data
-associated with sending a packet besides the packet itself.  All you
-need is a routing change of some type and you're going to start
-burning GFP_ATOMIC allocations on the next packet send.
-
-I think making GFP_ATOMIC better would be wise.  Alan's ideas harping
-from the old 2.0.x/2.2.x NFS days could use some consideration as well.

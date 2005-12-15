@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbVLOOoF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbVLOOop@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbVLOOoF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 09:44:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbVLOOi1
+	id S1750724AbVLOOop (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 09:44:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVLOOoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 09:38:27 -0500
-Received: from igw2.watson.ibm.com ([129.34.20.6]:34970 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
-	id S1750721AbVLOOiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 09:38:21 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Message-Id: <20051215143813.600198000@elg11.watson.ibm.com>
-References: <20051215143557.421393000@elg11.watson.ibm.com>
-Date: Thu, 15 Dec 2005 09:36:03 -0500
-To: linux-kernel@vger.kernel.org
-Subject: [RFC][patch 06/21] PID Virtualization: Define pid_to_vpid functions
-Content-Disposition: inline; filename=F6-define-pid-to-vpid-translation.patch
+	Thu, 15 Dec 2005 09:44:38 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20491 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750724AbVLOOoZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 09:44:25 -0500
+Date: Thu, 15 Dec 2005 14:44:19 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Kumar Gala <galak@kernel.crashing.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC] IRQ type flags
+Message-ID: <20051215144419.GC6211@flint.arm.linux.org.uk>
+Mail-Followup-To: Kumar Gala <galak@kernel.crashing.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>
+References: <20051106084012.GB25134@flint.arm.linux.org.uk> <20051212114759.GA10243@flint.arm.linux.org.uk> <192FCF8D-4C27-44DF-9EEA-612AAC427164@kernel.crashing.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <192FCF8D-4C27-44DF-9EEA-612AAC427164@kernel.crashing.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In this patch we introduce convertion functions to 
-translate pids into virtual pids. These are just the APIs
-not the implementation yet.
-Subsequent patches will utilize these internal functions
-to rewrite the task virtual pid/ppid/tgid access functions
-such that finally we only have to rewrite these virtual
-conversion functions to actually obtain the pid virtualization.
+On Tue, Dec 13, 2005 at 08:49:50AM -0600, Kumar Gala wrote:
+> >+ * These correspond with the SA_TRIGGER_* defines, and therefore the
+> >+ * IRQRESOURCE_IRQ_* defines.
+> 
+> comment nit.  Should be IORESOURCE_IRQ_* not IRQRESOURCE_IRQ_*
 
-Signed-off-by: Hubertus Franke <frankeh@watson.ibm.com>
---
+Added, thanks.
 
- include/linux/sched.h |   14 ++++++++++++++
- 1 files changed, 14 insertions(+)
+> >+/*
+> >+ * As above, these correspond to the IORESOURCE_IRQ_* defines in
+> >+ * linux/ioport.h to select the interrupt line behaviour.  When
+> >+ * requesting an interrupt without specifying a SA_TRIGGER, the
+> >+ * setting should be assumed to be "as already configured", which
+> >+ * may be as per machine or firmware initialisation.
+> >+ */
+> 
+> Do you mind expand the comment to convey that LOW/HIGH are related to  
+> level sensitive interrupts and FALLING/RISING are for edge.  This is  
+> different naming that I'm used to with PowerPC and it can get a  
+> little confusing.
 
-Index: linux-2.6.15-rc1/include/linux/sched.h
-===================================================================
---- linux-2.6.15-rc1.orig/include/linux/sched.h	2005-11-30 18:08:02.000000000 -0500
-+++ linux-2.6.15-rc1/include/linux/sched.h	2005-11-30 18:08:03.000000000 -0500
-@@ -866,6 +866,20 @@ static inline pid_t process_group(const 
- }
- 
- /**
-+ *  pid domain translation functions:
-+ *	- from kernel to user pid domain
-+ */
-+static inline pid_t pid_to_vpid(pid_t pid)
-+{
-+	return pid;
-+}
-+
-+static inline pid_t pgid_to_vpgid(pid_t pid)
-+{
-+	return pid;
-+}
-+
-+/**
-  * pid_alive - check that a task structure is not stale
-  * @p: Task structure to be checked.
-  *
+Also added.  Thanks.
 
---
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

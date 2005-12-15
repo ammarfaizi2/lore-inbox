@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbVLOCui@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965139AbVLOC5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030384AbVLOCui (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 21:50:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbVLOCuh
+	id S965139AbVLOC5T (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 21:57:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965136AbVLOC5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 21:50:37 -0500
-Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:24246 "EHLO
-	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
-	id S1030384AbVLOCug (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 21:50:36 -0500
-Date: Thu, 15 Dec 2005 03:03:23 +0100 (CET)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [git patches] ide update
-Message-ID: <Pine.GSO.4.64.0512150224180.19479@mion.elka.pw.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 14 Dec 2005 21:57:19 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:21925 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965042AbVLOC5S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 21:57:18 -0500
+Date: Wed, 14 Dec 2005 18:56:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Yasunori Goto <y-goto@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       linux-mm@kvack.org, bcrl@kvack.org, tony.luck@intel.com
+Subject: Re: 2.6.15-rc5-mm2 can't boot on ia64 due to changing
+ on_each_cpu().
+Message-Id: <20051214185658.7a60aa07.akpm@osdl.org>
+In-Reply-To: <20051215103344.241C.Y-GOTO@jp.fujitsu.com>
+References: <20051215103344.241C.Y-GOTO@jp.fujitsu.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yasunori Goto <y-goto@jp.fujitsu.com> wrote:
+>
+> When I removed following patch which is in 2.6.15-rc5-mm2,
+>  which changes on_each_cpu() from static inline function to macro,
+>  then there was no warning, and kernel could boot up.
+>  So, I guess that gcc was not able to solve a bit messy cast
+>  for calling function "local_flush_tlb_all()" due to its change.
 
-Some missing bits for 2.6.15.
+Thanks.  I'll drop it.
 
-
-Please pull from:
-
-master.kernel.org:/pub/scm/linux/kernel/git/bart/ide-2.6.git/
-
-to obtain following changes:
-
-Bartlomiej Zolnierkiewicz:
-   ide-disk: flush cache after calling del_gendisk()
-   ide: cleanup ide.h
-   ide: cleanup ide_driver_t
-   ide-cd: remove write-only cmd field from struct cdrom_info
-
-Daniel Drake:
-   via82cxxx IDE: Add VT8251 ISA bridge
-
-Jeremy Higdon:
-   sgiioc4: check for no hwifs available
-
-Jordan Crouse:
-   ide: core modifications for AU1200
-   ide: AU1200 IDE update
-
-Marcelo Tosatti:
-   ide: MPC8xx IDE depends on IDE=y && BLK_DEV_IDE=y
-
-
-  drivers/ide/Kconfig                       |   10
-  drivers/ide/ide-cd.c                      |    7
-  drivers/ide/ide-cd.h                      |    1
-  drivers/ide/ide-disk.c                    |    4
-  drivers/ide/ide-dma.c                     |   15
-  drivers/ide/mips/Makefile                 |    3
-  drivers/ide/mips/au1xxx-ide.c             | 1496 ++++++++++--------------------
-  drivers/ide/pci/sgiioc4.c                 |    8
-  drivers/ide/pci/via82cxxx.c               |    1
-  include/asm-mips/mach-au1x00/au1xxx_ide.h |   22
-  include/linux/ide.h                       |  131 --
-  include/linux/pci_ids.h                   |    1
-  12 files changed, 566 insertions(+), 1133 deletions(-)
-
+I built and booted that kernel on my Tiger.  Odd.  I suspect there's
+something very non-aggressive about my .config - this sort of thing has
+happened before.

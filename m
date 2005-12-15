@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbVLOXO4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVLOXP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbVLOXO4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 18:14:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbVLOXO4
+	id S1751119AbVLOXP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 18:15:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbVLOXPZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 18:14:56 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:48002 "HELO
+	Thu, 15 Dec 2005 18:15:25 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:55682 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751099AbVLOXO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 18:14:56 -0500
+	id S1751119AbVLOXPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 18:15:23 -0500
 Subject: Re: [2.6 patch] i386: always use 4k stacks
 From: Lee Revell <rlrevell@joe-job.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
 Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <Pine.LNX.4.61.0512152356190.13568@yvahk01.tjqt.qr>
-References: <20051211180536.GM23349@stusta.de>
-	 <Pine.LNX.4.61.0512152356190.13568@yvahk01.tjqt.qr>
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+In-Reply-To: <43A1DB18.4030307@wolfmountaingroup.com>
+References: <20051215212447.GR23349@stusta.de>
+	 <20051215140013.7d4ffd5b.akpm@osdl.org> <20051215223000.GU23349@stusta.de>
+	 <43A1DB18.4030307@wolfmountaingroup.com>
 Content-Type: text/plain
-Date: Thu, 15 Dec 2005 18:13:25 -0500
-Message-Id: <1134688406.12086.170.camel@mindpipe>
+Date: Thu, 15 Dec 2005 18:14:47 -0500
+Message-Id: <1134688488.12086.172.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-15 at 23:57 +0100, Jan Engelhardt wrote:
-> >It seems most problems with 4k stacks are already resolved at least
-> >in -mm.
-> >
-> >I'd like to see this patch to always use 4k stacks in -mm now for 
-> >finding any remaining problems before submitting this patch for Linus' 
-> >tree.
-> 
-> By chance, I read that windows modules used in ndiswrapper
-> may require >4k-stacks. Will this become a problem?
+On Thu, 2005-12-15 at 14:07 -0700, Jeff V. Merkey wrote:
+> When you are on the phone with an irrate customer at 2:00 am in the 
+> morning, and just turning off your broken 4K stack fix
+> and getting the customer running matters. 
 
-Please refer to the last 5 flamewars on this issue rather than starting
-another one.
+Bugzilla link please.  Otherwise STFU.
 
 Lee
 

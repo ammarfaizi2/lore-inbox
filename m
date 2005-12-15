@@ -1,85 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbVLOBjX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030279AbVLOBlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030265AbVLOBjX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 20:39:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030279AbVLOBjX
+	id S1030279AbVLOBlk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 20:41:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbVLOBlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 20:39:23 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:42192 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1030265AbVLOBjW convert rfc822-to-8bit (ORCPT
+	Wed, 14 Dec 2005 20:41:40 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:419 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030279AbVLOBlj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 20:39:22 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [discuss] [PATCH] Export cpu topology for IA32 and x86_64 by sysfs
-Date: Wed, 14 Dec 2005 17:39:14 -0800
-Message-ID: <88056F38E9E48644A0F562A38C64FB6006A22399@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [discuss] [PATCH] Export cpu topology for IA32 and x86_64 by sysfs
-Thread-Index: AcYAYaKj/4A5V9I9S8+/vQ3gKlyBAQAtarzA
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Andi Kleen" <ak@suse.de>, "Zhang, Yanmin" <yanmin.zhang@intel.com>
-Cc: <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>,
-       "Nathan Lynch" <ntl@pobox.com>
-X-OriginalArrivalTime: 15 Dec 2005 01:39:15.0836 (UTC) FILETIME=[5BD7F3C0:01C60118]
+	Wed, 14 Dec 2005 20:41:39 -0500
+Subject: Re: 2.6.14-rt21: slow-running clock
+From: john stultz <johnstul@us.ibm.com>
+To: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200512140122.jBE1MZlE024707@auster.physics.adelaide.edu.au>
+References: <200512140122.jBE1MZlE024707@auster.physics.adelaide.edu.au>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 17:41:36 -0800
+Message-Id: <1134610897.27117.4.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+On Wed, 2005-12-14 at 11:52 +1030, Jonathan Woithe wrote:
+> Hi John
+> 
+> > On Fri, 2005-12-09 at 12:49 +1030, Jonathan Woithe wrote:
+> > > > Ok, I went digging further and found the c3tsc selection is correct on
+> > > > your hardware. I'm just too used to my own laptop where the TSC varies
+> > > > with cpu speed and we lower the rating value. So that should be ok.
+> > > 
+> > > Ok, good.  That leaves the c3tsc slowdown as the only outstanding issue at
+> > > this stage.
+> > > 
+> > > > I'm now working on why we mis-compensate the c3tsc clocksource in the
+> > > > -RT tree. 
+> > > 
+> > > No problem.  Let me know when you have something to test or need further
+> > > info.
+> > 
+> > 	Attached is a test patch to see if it doesn't resolve the issue for
+> > you. I get a maximum change in drift of 30ppm when idling between C3
+> > states by being more careful with the C3 TSC compensation and I also
+> > force timekeeping updates when cpufreq events occur. 
+> 
+> Unfortunately there's still an issue.
 
->-----Original Message-----
->From: Andi Kleen [mailto:ak@suse.de] 
->Sent: Tuesday, December 13, 2005 7:51 PM
->To: Zhang, Yanmin
->Cc: linux-kernel@vger.kernel.org; discuss@x86-64.org; 
->Pallipadi, Venkatesh
->Subject: Re: [discuss] [PATCH] Export cpu topology for IA32 
->and x86_64 by sysfs
->
->On Wed, Dec 14, 2005 at 11:11:00AM +0800, Zhang, Yanmin wrote:
->> The patch exports the cpu topology info through sysfs on ia32/x86_64
->> machines. The info is similar to /proc/cpuinfo.
->> 
->> The exported items are:
->> 
->/sys/devices/system/cpu/cpuX/topology/physical_package_id(representing
->> the physical package id of  cpu X)
->> /sys/devices/system/cpu/cpuX/topology/core_id (representing 
->the cpu core
->> id  to cpu X)
->> /sys/devices/system/cpu/cpuX/topology/thread_siblings 
->(representing the
->> thread siblings to cpu X)
->> /sys/devices/system/cpu/cpuX/topology/core_siblings (represeting the
->> core siblings to cpu X)
->
->Hmm, I'm not sure it is that useful. Did someone decide to move
->all information from cpuinfo into sysfs? 
->
+Ah, drat. 
 
-Not really. The current display in /proc/cpuinfo, though useful for
-human reader,
-is not very friendly to scripts. And if one wants to find out which
-logical CPUs belong
-to the same core, there will have to be some amount of code in userlevel
-to parse
-the /proc/cpuinfo and get this info. So, we thought that it may be
-useful to 
-export the masks to the user directly in a genric way. And, while doing
-that
-thinking was adding new fields in /sysfs rather than /proc/ was better.
+I'm just going to dump the c3tsc clocksource for now. If C3 mode is
+available, the ACPI PM timer is available (since it is used for C3
+timing), so we'll just fall back to ACPI PM if we see the cpu entering
+C3 mode.
 
-Having said that, I feel Nathan's suggestion of doing it in more
-architecturally-neutral way should be better than this. We will have a
-relook at this one now.
+I'm working to respin a new release tonight, hopefully that will make it
+upstream to -rt soon and that should take care of it. Later I can look
+at reworking the c3tsc clocksource, but for now things need to just
+work.
 
-And this needs some documentation changes as well.
+Thanks again for the testing and feedback, I really appreciate your
+help!
+-john
 
-Thanks for feedback.
-Venki

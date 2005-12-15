@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbVLOSBA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbVLOSBS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750876AbVLOSBA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 13:01:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750878AbVLOSA7
+	id S1750887AbVLOSBS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 13:01:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbVLOSBS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 13:00:59 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:43259 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S1750875AbVLOSA6 (ORCPT
+	Thu, 15 Dec 2005 13:01:18 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:45489 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750880AbVLOSBP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 13:00:58 -0500
-Date: Thu, 15 Dec 2005 19:00:54 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Roman Zippel <zippel@linux-m68k.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [PATCH 2/3] m68k: compile fix - ADBREQ_RAW missing declaration
-In-Reply-To: <20051215175536.GA27946@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.62.0512151858100.6884@pademelon.sonytel.be>
-References: <20051215085516.GU27946@ftp.linux.org.uk>
- <Pine.LNX.4.61.0512151258200.1605@scrub.home> <20051215171645.GY27946@ftp.linux.org.uk>
- <Pine.LNX.4.61.0512151832270.1609@scrub.home> <20051215175536.GA27946@ftp.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Dec 2005 13:01:15 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <B8E391BBE9FE384DAA4C5C003888BE6F0535A549@scsmsx401.amr.corp.intel.com> 
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0535A549@scsmsx401.amr.corp.intel.com> 
+To: "Luck, Tony" <tony.luck@intel.com>
+Cc: dhowells@redhat.com, "Andrew Morton" <akpm@osdl.org>,
+       "Mark Lord" <lkml@rtr.ca>, tglx@linutronix.de, alan@lxorguk.ukuu.org.uk,
+       pj@sgi.com, mingo@elte.hu, hch@infradead.org, torvalds@osdl.org,
+       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Thu, 15 Dec 2005 18:00:32 +0000
+Message-ID: <15324.1134669632@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Dec 2005, Al Viro wrote:
-> On Thu, Dec 15, 2005 at 06:51:40PM +0100, Roman Zippel wrote:
-> > On Thu, 15 Dec 2005, Al Viro wrote:
-> > > So who should I put as the author?  You or Geert (or whatever attributions
-> > > might have been in said big patch)?  Incidentally,  ADBREQ_RAW had leaked
-> > > into mainline (sans definition) in 2.3.45-pre2, which was Feb 13 2000, i.e.
-> > > more than 1.5 year before your commit, so there's quite a chunk of history
-> > > missing...
-> > 
-> > I'd say Geert, but it probably comes from the Mac tree. Anyway, it 
-> > wouldn't be such a bad idea to ask him first why it's in his postponed 
-> > queue:
+Luck, Tony <tony.luck@intel.com> wrote:
 
-Indeed, usually there's a good reason for being in that state instead of not
-being merged ;-)
+> There was a USENIX paper a couple of decades ago that described how
+> to do a fast s/w disable of interrupts on machines where really disabling
+> interrupts was expensive.  The rough gist was that the spl[1-7]()
+> functions would just set a flag in memory to hold the desired interrupt
+> mask.
 
-> > http://linux-m68k-cvs.ubb.ca/~geert/linux-m68k-2.6.x-merging/POSTPONED/130-adbraw.diff
-> > 
-> > My guess it needs some ack from the ppc people.
-> 
-> It doesn't - behaviour in case when ADBREQ_RAW is not passed in flags had
-> been obviously unchanged.  And only m68k passes ADBREQ_RAW in there.
-> So no, it doesn't affect ppc at all.
+Cute. The slow bit on FRV is any time you access the PSR register (read or
+write). It seems to be something on the order of 60 clock cycles a pop - in
+which time the CPU could have executed 120 instructions under ideal
+circumstances.
 
-Even if behavior is unchanged, this doesn't mean that people like their code
-being modified behind their back...
+I do something like this to implement "atomic" operations, playing on the
+FRV's ability to pack two instructions atomically together and to have
+conditionally executed instructions:
 
-Anyway, last time I tried to bring this up with the union of Mac and PowerMac
-guys, no one seemed to remember why ADBREQ_RAW was really needed...
+	Documentation/fujitsu/frv/atomic-ops.txt.
 
-Gr{oetje,eeting}s,
+Trading off against the memory speed might just do it - though you have to do
+a write and a read (the latter of which should hopefully be cached). I could
+always steal another register (I have 31-ish to play with, plus a bunch of
+single-bit condition values).
 
-						Geert
+It'd make the exception prologue even more "interesting" though...:-)
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Hmmm...
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+David

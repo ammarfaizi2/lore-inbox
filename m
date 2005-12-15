@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932602AbVLOBdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030210AbVLOBfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932602AbVLOBdV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 20:33:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbVLOBdV
+	id S1030210AbVLOBfl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 20:35:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbVLOBfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 20:33:21 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:11934 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S932602AbVLOBdU convert rfc822-to-8bit (ORCPT
+	Wed, 14 Dec 2005 20:35:41 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:6628 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030210AbVLOBfk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 20:33:20 -0500
-Content-class: urn:content-classes:message
+	Wed, 14 Dec 2005 20:35:40 -0500
+Date: Thu, 15 Dec 2005 02:35:25 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: George Anzinger <george@mvista.com>
+cc: tglx@linutronix.de, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, rostedt@goodmis.org, johnstul@us.ibm.com,
+       mingo@elte.hu
+Subject: Re: [patch 00/21] hrtimer - High-resolution timer subsystem
+In-Reply-To: <439E2308.1000600@mvista.com>
+Message-ID: <Pine.LNX.4.61.0512150141050.1609@scrub.home>
+References: <20051206000126.589223000@tglx.tec.linutronix.de> 
+ <Pine.LNX.4.61.0512061628050.1610@scrub.home>  <1133908082.16302.93.camel@tglx.tec.linutronix.de>
+  <Pine.LNX.4.61.0512070347450.1609@scrub.home>  <1134148980.16302.409.camel@tglx.tec.linutronix.de>
+  <Pine.LNX.4.61.0512120007010.1609@scrub.home> <1134405768.4205.190.camel@tglx.tec.linutronix.de>
+ <439E2308.1000600@mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="GB2312"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Subject: RE: [PATCH 1/2] Export cpu info by sysfs
-Date: Thu, 15 Dec 2005 09:33:16 +0800
-Message-ID: <8126E4F969BA254AB43EA03C59F44E840431C3E2@pdsmsx404>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 1/2] Export cpu info by sysfs
-Thread-Index: AcYAluW1U053szAgQRavSo9pofa7lQAfjRkg
-From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
-To: "Paul Jackson" <pj@sgi.com>
-Cc: <linux-kernel@vger.kernel.org>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-X-OriginalArrivalTime: 15 Dec 2005 01:33:17.0934 (UTC) FILETIME=[868470E0:01C60117]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>-----Original Message-----
->>From: Paul Jackson [mailto:pj@sgi.com]
->>Sent: 2005Äê12ÔÂ14ÈÕ 18:12
->>To: Zhang, Yanmin
->>Cc: linux-kernel@vger.kernel.org; Pallipadi, Venkatesh
->>Subject: Re: [PATCH 1/2] Export cpu info by sysfs
->>
->>Some comments on your patch ...
-I really appreciate your comments.
+Hi,
 
->>
->>1) It's easier for others to read patches if they are inline text,
->>   or at least attached as text, not as base64.  See further the
->>   kernel source file: Documentation/SubmittingPatches.  If your
->>   company's email client has difficulty attaching patches without
->>   mangling them, then perhaps you will have better luck with a
->>   dedicated patch sending program, such as one I support:
->>	http://www.speakeasy.org/~pj99/sgi/sendpatchset
-Thanks. I use outlook and tried many approaches before, but patches always have unexpected line breaks when I attach them as inline text. Anyway, I found a new approach to avoid that. Next time, I will paste patches as inline.
+On Mon, 12 Dec 2005, George Anzinger wrote:
 
->>
->>2) > cpumask_scnprintf(buf, NR_CPUS+1, cpu_core_map[cpu]);
->>
->>   The 2nd arg, "NR_CPUS+1", is wrong.  It should be the length
->>   of the buffer (1st arg, "buf").  Unfortunately, you probably
->>   aren't passed that length by sysfs.  Your routine was likely
->>   passed a page, so assuming a size of PAGE_SIZE/2 would work
->>   (big enough to print a cpumask, small enough not to allow
->>   buffer overrun.)
-In theory, it's a problem which doesn't exist in fact. The smallest page size on IA64 is 4KB (default is 16KB) and cpumask_scnprintf uses hex format, so one page could store cpumask of (4K-1)*4 cpu. I can't imagine a machine has more than (4K-1)*4 cpu.
+> My $0.02 worth: It is clear (from the standard) that the initial time is to be
+> ABS_TIME.
 
->>
->>3) The patch needs to include reasonable documentation (not
->>   just the patch header that goes in the source control log,
->>   but also documentation that will into the source file and/or
->>   into the Documentation directory.)  Unfortunately, it seems
->>   that the rest of /sys/devices/system is not directly documented
->>   under Documentation, except as it pertains to such subjects as
->>   cpufreq, laptop, numastat and hotplug.  So until someone takes
->>   on the challenge of documenting the rest of this /sys hierarchy,
->>   I see no obvious place to add such items as you propose.
-I agree with you.
+Yes.
 
+>  It is also clear that the interval is to be added to that time.
+
+Not necessarily. It says it_interval is a "reload value", it's used to 
+reload the timer to count down to the next expiration.
+It's up to the implementation, whether it really counts down this time or 
+whether it converts it first into an absolute value.
+
+> IMHO then, the result should have the same property, i.e. ABS_TIME.  Sort of
+> like adding an offset to a relative address. The result is still relative.
+
+If the result is relative, why should have a clock set any effect?
+IMO the spec makes it quite clear that initial timer and the periodic 
+timer are two different types of the timer. The initial timer only 
+specifies how the periodic timer is started and the periodic timer itself 
+is a "relative time service".
+
+bye, Roman

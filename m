@@ -1,55 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750943AbVLOS6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbVLOTAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750943AbVLOS6b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 13:58:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbVLOS6b
+	id S1750930AbVLOTAp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 14:00:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbVLOTAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 13:58:31 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:32920 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750938AbVLOS6a
+	Thu, 15 Dec 2005 14:00:45 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:27381 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1750929AbVLOTAp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 13:58:30 -0500
-Date: Thu, 15 Dec 2005 18:58:29 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [PATCH 2/3] m68k: compile fix - ADBREQ_RAW missing declaration
-Message-ID: <20051215185829.GC27946@ftp.linux.org.uk>
-References: <20051215085516.GU27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151258200.1605@scrub.home> <20051215171645.GY27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151832270.1609@scrub.home> <20051215175536.GA27946@ftp.linux.org.uk> <Pine.LNX.4.62.0512151858100.6884@pademelon.sonytel.be> <20051215181405.GB27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051215181405.GB27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Thu, 15 Dec 2005 14:00:45 -0500
+Message-ID: <43A1BD61.5070409@mvista.com>
+Date: Thu, 15 Dec 2005 11:00:49 -0800
+From: David Singleton <dsingleton@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dino@in.ibm.com
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       robustmutexes@lists.osdl.org
+Subject: Re: Recursion bug in -rt
+References: <20051214223912.GA4716@in.ibm.com>
+In-Reply-To: <20051214223912.GA4716@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 06:14:05PM +0000, Al Viro wrote:
-> >From my reading of the code it's a way for mac/misc.c to send a packet that
-> starts with CUDA_PACKET or PMU_PACKET instead of ADB_PACKET, but otherwise
-> is the same as normal adb_request() ones...
-> 
-> Used for access to timer, nvram, etc. - looks like that puppy used to
-> use the same protocol for more than just ADB and the first byte of packet
-> really selects the destination...
+Dinakar,
+     after further testing and investigation I believe you original 
+assessment was correct.
+The problem you are seeing is not a library problem.
+The changes to down_futex need to be reverted.  There is a new patch at
 
-After reading some more...  Is there any reason why mac/misc.c can't
-simply use cuda_request() and pmu_request() instead?  At least for
-read/write for time and nvram we end up with identical sequence of
-operations anyway - if you expand the calls in
-        adb_request((struct adb_request *) &req, NULL,
-                        ADBREQ_RAW|ADBREQ_SYNC,
-                        2, CUDA_PACKET, CUDA_GET_TIME);
-[m68k]
-and
-        if (cuda_request(&req, NULL, 2, CUDA_PACKET, CUDA_GET_TIME) < 0)
-		/* bail out */
-        while (!req.complete)
-                cuda_poll();
-[ppc]
-until you get to call of cuda_write(), you'll see the same code.  Come
-to think of that...  Shouldn't the ifdefs for CONFIG_ADB_PMU in there be for
-CONFIG_ADB_PMU68?  The former depends on PMAC_PPC, so it's not particulary
-useful thing to check on m68k...
+http://source.mvista.com/~dsingleton/patch-2.6.15-rc5-rt2-rf2.
+
+that reverts the changes to down_futex.
+
+Thanks for testing this.
+
+David
+
+
+
+
+Dinakar Guniguntala wrote:
+
+>Hi David,
+>
+>I hit this bug with -rt22-rf11
+>
+>==========================================
+>[ BUG: lock recursion deadlock detected! |
+>------------------------------------------
+>already locked:  [f7abbc94] {futex}
+>.. held by:          testpi-3: 4595 [f7becdd0,  59]
+>... acquired at:               futex_wait_robust+0x142/0x1f3
+>------------------------------
+>| showing all locks held by: |  (testpi-3/4595 [f7becdd0,  59]):
+>------------------------------
+>
+>#001:             [f7abbc94] {futex}
+>... acquired at:               futex_wait_robust+0x142/0x1f3
+>
+>-{current task's backtrace}----------------->
+> [<c0103e04>] dump_stack+0x1e/0x20 (20)
+> [<c0136bc2>] check_deadlock+0x2d7/0x334 (44)
+> [<c01379bc>] task_blocks_on_lock+0x2c/0x224 (36)
+> [<c03f29c5>] __down_interruptible+0x37c/0x95d (160)
+> [<c013aebf>] down_futex+0xa3/0xe7 (40)
+> [<c013ebc5>] futex_wait_robust+0x142/0x1f3 (72)
+> [<c013f35c>] do_futex+0x9a/0x109 (40)
+> [<c013f4dd>] sys_futex+0x112/0x11e (68)
+> [<c0102f03>] sysenter_past_esp+0x54/0x75 (-8116)
+>------------------------------
+>| showing all locks held by: |  (testpi-3/4595 [f7becdd0,  59]):
+>------------------------------
+>
+>#001:             [f7abbc94] {futex}
+>... acquired at:               futex_wait_robust+0x142/0x1f3
+>
+>---------------------------------------------------------------------
+>
+>futex.c -> futex_wait_robust
+>
+>        if ((curval & FUTEX_PID) == current->pid) {
+>                ret = -EAGAIN;
+>                goto out_unlock;
+>        }
+>
+>rt.c    -> down_futex
+>
+>        if (!owner_task || owner_task == current) {
+>                up(sem);
+>                up_read(&current->mm->mmap_sem);
+>                return -EAGAIN;
+>        }
+>
+>I noticed that both the above checks below have been removed in your
+>patch. I do understand that the futex_wait_robust path has been
+>made similar to the futex_wait path, but I think we are not taking
+>PI into consideration. Basically it looks like we still need to check
+>if the current task has become owner. or are we missing a lock somewhere ?
+>
+>I added the down_futex check above and my test has been
+>running for hours without the oops. Without this check it
+>used to oops within minutes.
+>
+>Patch that works for me attached below.  Thoughts?
+>
+>        -Dinakar
+>
+>
+>  
+>
+>------------------------------------------------------------------------
+>
+>Index: linux-2.6.14-rt22-rayrt5/kernel/rt.c
+>===================================================================
+>--- linux-2.6.14-rt22-rayrt5.orig/kernel/rt.c	2005-12-15 02:15:13.000000000 +0530
+>+++ linux-2.6.14-rt22-rayrt5/kernel/rt.c	2005-12-15 02:18:29.000000000 +0530
+>@@ -3001,7 +3001,7 @@
+> 	 * if the owner can't be found return try again.
+> 	 */
+> 
+>-	if (!owner_task) {
+>+	if (!owner_task || owner_task == current) {
+> 		up(sem);
+> 		up_read(&current->mm->mmap_sem);
+> 		return -EAGAIN;
+>  
+>
+

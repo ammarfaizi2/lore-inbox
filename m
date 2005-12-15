@@ -1,61 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbVLOBZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030204AbVLOBdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932441AbVLOBZv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 20:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbVLOBZv
+	id S1030204AbVLOBdd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 20:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030210AbVLOBdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 20:25:51 -0500
-Received: from xproxy.gmail.com ([66.249.82.193]:63544 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932441AbVLOBZu (ORCPT
+	Wed, 14 Dec 2005 20:33:33 -0500
+Received: from mail.gmx.de ([213.165.64.21]:33688 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030204AbVLOBdb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 20:25:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=LlRT+KkJrz9XyyN2hG1hjTKX3oHkNZVT26vhsOZtwOoqKB0pbOsBWfeEmo00xgkWYK0DQ8Jtp64NGeNlpiyJPbD2mBOYmfGQqZ1Uqn1xQGqYLI9pp954oQT+1oygpr3MQFDvSW4op0doCLJ9zK+a6wKh29QsiZYesBeIIpYaPbY=
-From: Kurt Wall <kwallinator@gmail.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: Console Goes Blank When Booting 2.6.15-rc5
-Date: Wed, 14 Dec 2005 20:27:00 -0500
-User-Agent: KMail/1.8.2
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200512132247.54341.kwallinator@gmail.com> <439FBDC5.5060609@gmail.com>
-In-Reply-To: <439FBDC5.5060609@gmail.com>
+	Wed, 14 Dec 2005 20:33:31 -0500
+Date: Thu, 15 Dec 2005 02:33:30 +0100 (MET)
+From: "Lukas Postupa" <postupa@gmx.de>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: HPT374 RAID bus controller SATA, only UDMA 33
+X-Priority: 3 (Normal)
+X-Authenticated: #21388368
+Message-ID: <7553.1134610410@www88.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512142027.00829.kwallinator@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 December 2005 01:37 am, Antonino A. Daplas wrote:
-> Kurt Wall wrote:
-> > As Jesper Juhl has reported, if I boot 2.6.15-rc5 with vga=normal,
-> > everything is fine. If I boot using my preferred size (vga=794),
-> > the console goes blank. Because I'm a touch typist, I can login and
-> > start X and everything is copacetic, but as soon as I leave X, I'm
-> > back to the blank screen. From X, if I flip over to a VC, the VC
-> > display is garbled and has artifacts from the X display.
-> >
-> > This worked fine with 2.6.14.3, and I didn't change the console,
-> > framebuffer, or vesa options between the two kernels. Not sure how
-> > to proceed, but I sure would like my high res console screens back.
->
-> Can you recheck your .config and make sure that
-> CONFIG_FRAMEBUFFER_CONSOLE=y
+Hi,
 
-Oops. It was defined as a module. Compiling it statically gave me
-the console back. Interestingly, I still lose the first 102 lines
-of console output. After the all-important boot logo displays, I see
-nothing until this line:
+my SAMSUNG 250GB drive connected to HPT374 RAID bus controller (SATA) is
+only working at UDMA 33.
 
-"Console: switching to colour frame buffer device 160x64"
+I am using
+HPT36X/37X chipset support (*).
 
-It's all there in the ring buffer, of course. Thanks, Antonino.
+And here is what dmesg says:
 
-Kurt
+ide5: BM-DMA at 0xc008-0xc00f, BIOS settings: hdk:DMA, hdl:pio
+hdk: SAMSUNG SP2504C, ATA DISK drive
+hdk: max request size: 1024KiB
+hdk: 488397168 sectors (250059 MB) w/8192KiB Cache, CHS=30401/255/63,
+UDMA(33)
+hdk: cache flushes supported
+ hdk:
+
+lspci:
+
+02:05.0 RAID bus controller: Triones Technologies, Inc. HPT374 (rev 07)
+Subsystem: Triones Technologies, Inc.: Unknown device 0001
+Flags: bus master, 66Mhz, medium devsel, latency 120, IRQ 17
+I/O ports at 9c00 [size=8]
+I/O ports at a000 [size=4]
+I/O ports at a400 [size=8]
+I/O ports at a800 [size=4]
+I/O ports at ac00 [size=256]
+Expansion ROM at e0020000 [disabled] [size=128K]
+Capabilities: [60] Power Management version 2
+
+02:05.1 RAID bus controller: Triones Technologies, Inc. HPT374 (rev 07)
+Subsystem: Triones Technologies, Inc.: Unknown device 0001
+Flags: bus master, 66Mhz, medium devsel, latency 120, IRQ 17
+I/O ports at b000 [size=8]
+I/O ports at b400 [size=4]
+I/O ports at b800 [size=8]
+I/O ports at bc00 [size=4]
+I/O ports at c000 [size=256]
+Capabilities: [60] Power Management version 2
+
+
+Trying to set UDMA 3-5 directly doesn't work:
+
+dmesg:
+
+hdk: Speed warnings UDMA 3/4/5 is not functional.
+
+
+hdparm -t /dev/hdk
+
+/dev/hdk:
+ Timing buffered disk reads:   42 MB in  3.06 seconds =  13.74 MB/sec
+
+Does anyone have a solution to fix this bottleneck?
+
+regards,
+
+Lukas
+
 -- 
-The mosquito is the state bird of New Jersey.
-  -- Andy Warhol
+10 GB Mailbox, 100 FreeSMS/Monat http://www.gmx.net/de/go/topmail
++++ GMX - die erste Adresse für Mail, Message, More +++

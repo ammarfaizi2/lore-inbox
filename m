@@ -1,76 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbVLOWaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbVLOWeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbVLOWaA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 17:30:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbVLOWaA
+	id S1750946AbVLOWeM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 17:34:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVLOWeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 17:30:00 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:16651 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751157AbVLOW37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 17:29:59 -0500
-Date: Thu, 15 Dec 2005 23:30:00 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051215223000.GU23349@stusta.de>
-References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org>
-MIME-Version: 1.0
+	Thu, 15 Dec 2005 17:34:12 -0500
+Received: from mail.kroah.org ([69.55.234.183]:16537 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750946AbVLOWeL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 17:34:11 -0500
+Date: Thu, 15 Dec 2005 14:33:22 -0800
+From: Greg KH <greg@kroah.com>
+To: Vitaly Wool <vwool@ru.mvista.com>
+Cc: David Brownell <david-b@pacbell.net>,
+       spi-devel-general@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
+       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
+       Joachim_Jaeger@digi.com
+Subject: Re: [spi-devel-general] Re: [PATCH/RFC] SPI: add DMAUNSAFE analog
+Message-ID: <20051215223322.GA8578@kroah.com>
+References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <200512141102.53599.david-b@pacbell.net> <43A1118E.9040608@ru.mvista.com> <200512151206.26515.david-b@pacbell.net> <43A1EB94.5040300@ru.mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051215140013.7d4ffd5b.akpm@osdl.org>
+In-Reply-To: <43A1EB94.5040300@ru.mvista.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 02:00:13PM -0800, Andrew Morton wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
+On Fri, Dec 16, 2005 at 01:17:56AM +0300, Vitaly Wool wrote:
+> David Brownell wrote:
+> 
+> >On Wednesday 14 December 2005 10:47 pm, Vitaly Wool wrote:
 > >
-> > This patch was already sent on:
-> > - 11 Dec 2005
-> > - 5 Dec 2005
-> > - 30 Nov 2005
-> > - 23 Nov 2005
-> > - 14 Nov 2005
-> 
-> Sigh.  I saw the volume of email last time and though "gee, glad I wasn't
-> cc'ed on that lot".
+> > 
+> >
+> >>One cannot allocate memory in interrupt context, so the way to go is 
+> >>allocating it on stack, thus the buffer is not DMA-safe.
+> >>   
+> >>
+> >
+> >kmalloc(..., GFP_ATOMIC) is the way to allocate memory in irq context.
+> >It's done that way throughout the kernel.
+> > 
+> >
+> It's not applicable within the RT-related changes. kmalloc anyway takes 
+> mutexes, so allocationg it in interrupt context is buggy.
 
-If you substract the "this breaks my binary-only M$ Windows driver" 
-emails there's not much volume left.
+What RT-related changes cause this?
 
-> Supporting 8k stacks is a small amount of code and nobody has seen a need
-> to make changes in there for quite a long time.  So there's little cost to
-> keeping the existing code.
-> 
-> And the existing code is useful:
-> 
-> a) people can enable it to confirm that their weird crash was due to a
->    stack overflow.
-> 
-> b) If I was going to put together a maximally-stable kernel for a
->    complex server machine, I'd select 8k stacks.  We're still just too
->    squeezy, and we've had too many relatively-recent overflows, and there
->    are still some really deep callpaths in there.
+> *Legacy* kernel code does that but why produce a new code with that?
 
-a1) People turn off 4k stacks and never report the problem / noone 
-    really debugs and fixes the reported problem.
+In this terminoligy, you are calling 2.6.15-rc5 "legacy".  Which is not
+true.
 
-Me threatening people with enabling 4k stacks for everyone already 
-resulted in several fixes.
+> >>Making it DMA-safe in thread that does the very message processing is a 
+> >>good way of overcoming this.
+> >>   
+> >>
+> >
+> >The rest of Linux appears to work fine without needing such mechanisms...
+> > 
+> >
+> The rest of Linux still has a lot of bugs. Noone I guess is ready to 
+> argue that.
 
-An how many weird crashes with _different_ causes have you seen?
-It could be that there are only _very_ few problems that noone really 
-debugs brcause disabling 4k stacks fixes the issue.
+Huh?  Please point out these bugs in the mainline tree and we will be
+glad to fix them.
 
-cu
-Adrian
+> >I really fail to see why you think SPI needs that.  USB isn't the only
+> >counterexample, but it's particularly relevant since both USB and SPI
+> >use asynchronous message passing over serial links ... and USB has a
+> >rather complete driver stack over it.   (None of the USB based WLAN
+> >drivers need those static buffers you worry about, by the way...)
+> > 
+> >
+> I haven't heard of USB device registers needing to be written in IRQ 
+> context. I'm not that well familiar with USB, so if you give such an 
+> example, that'd be fine.
 
--- 
+The USB host controller drivers routienly allocate memory in irq context
+as they are being asked to submit a new "packet" from a driver which was
+called in irq context.  Lots of USB drivers also allocate buffers in irq
+context too.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+So, please, drop this line of argument, it will not go any further.
 
+greg k-h

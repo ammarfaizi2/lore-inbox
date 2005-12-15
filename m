@@ -1,118 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbVLOQP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbVLOQTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbVLOQP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 11:15:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVLOQP7
+	id S1750791AbVLOQTd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 11:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbVLOQTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 11:15:59 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:50824 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750788AbVLOQP6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 11:15:58 -0500
-Date: Thu, 15 Dec 2005 08:15:49 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: linux@horizon.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-In-Reply-To: <20051215135812.14578.qmail@science.horizon.com>
-Message-ID: <Pine.LNX.4.64.0512150752240.3292@g5.osdl.org>
-References: <20051215135812.14578.qmail@science.horizon.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Dec 2005 11:19:33 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:46788 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750774AbVLOQTc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 11:19:32 -0500
+Date: Thu, 15 Dec 2005 16:19:31 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-m68k@vger.kernel.org
+Subject: Re: [PATCH 3/3] m68k: compile fix - updated vmlinux.lds to include LOCK_TEXT
+Message-ID: <20051215161931.GW27946@ftp.linux.org.uk>
+References: <20051215090037.GV27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151408560.1605@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0512151408560.1605@scrub.home>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 15 Dec 2005, linux@horizon.com wrote:
+On Thu, Dec 15, 2005 at 02:12:34PM +0100, Roman Zippel wrote:
+> Hi,
 > 
-> A counting semaphore is NOT a perfectly fine mutex, and it SHOULD be changed.
+> On Thu, 15 Dec 2005, Al Viro wrote:
+> 
+> > [rz: BTW, proposed variant of thread_info patchset is available for review,
+> > see ftp.linux.org.uk/pub/people/viro/task_thread_info-mbox...
+> 
+> BTW please fix the comment in the last patch, {get,put}_thread_info() 
+> didn't come from the m68k tree, so don't blame it for this stuff.
+> The thread_info stuff went through a number changes during 2.5.xx and it's 
+> a leftover from this.
 
-Don't be silly.
+<goes to check history>
 
-First off, the data structure is called a "semaphore", and always has 
-been. It's _never_ been called a "mutex" in the first place, and the 
-operations have been called "down()" and "up()", because I thought calling 
-them P() and V() was just too damn traditional and confusing (I don't 
-speak dutch, and even if I did, I think shortening names to that degree is 
-just evil).
+My apologies - that junk predates the events I'd been thinking about.
+The rest of comments still stands - it was never used since the moment
+of introduction...
 
-And dammit, a counting semaphore (and usually you don't even say the 
-"counting" part, since counting is really always there) is just about 
-_the_ classical mutual exclusion mechanism. If somebody doesn't know that, 
-he has absolutely _no_ place talking about mutexes etc.
+Speaking of hardirq.h - come on; even argument about check being not
+in the same place where the value is defined...
 
-And a semaphore _is_ a mutex. Anybody who disputes that is just being a 
-total troll. Even classically, the case where the semaphore was 
-initialized to 1 is very very traditional, and is very much part of the 
-whole point of a semaphore. Sometimes they are called "binary semaphores", 
-but dammit, they are just the same thing.
+* we compare NR_IRQS and HARDIRQ_BITS
+* one of them is defined in irq.h, another - in hardirq.h
+* due to current header ordering, comparison works in irq.h and not in
+hardirq.h
+* if you change that ordering (which is a *big* patchset, even if you
+manage to keep it with zero impact on other architectures) so that check
+can go in either place, you can always put it into the place where it
+would make more sense in new header ordering; it's not going to be make
+patch heavier.
 
-A patch that
- - creates a non-counting mutex
- - .. that is SLOWER than the current counting one
- - .. and keeps the old "semaphore" and "up/down" naming
-
-is simply INCREDIBLY BROKEN. It has absolutely _zero_ redeeming features. 
-I can't understand how there are a hundred emails in my mailbox even 
-discussing it. 
-
-And I can't understand how somebody has the balls to even say that a 
-semaphore isn't a mutex. That's like saying that an object of type "long" 
-isn't an integer, because only "int" objects are integers. That's just 
-INSANE.
-
-> People are indeed unhappy with the naming, and whether patching 95%
-> of the callers of up() and down() is a good idea is a valid and active
-> subject of debate.  (For an out-of-tree -rt patch, is was certaintly
-> an extremely practical solution.)
-
-Whatever people you claim are unhappy with the naming are
- - obviously totally unaware of very basic synchronization primitives
-   used in concurrent programming
- - likely haven't spent any time at all looking at the kernel source code.
- - haven't _ever_ complained that I've seen before this totally made-up 
-   discussion.
-
-In other words, you are
- (a) totally making up the claim that people are really unhappy
- (b) jerking people around who _do_ know about semaphores and _have_ 
-     worked with the kernel locking primitives and understand them well
-
-So tell me, what do you think about your own arguments in that light?
-
-> But regardless of the eventual naming convention, mutexes are a good idea.
-> A mutex is *safer* than a counting semaphore.  That's the main benefit.
-> Indeed, unless there's a performance advantage to a counting semaphore,
-> you should use a mutex!
-
-Hey, feel free to introduce a mutex, but DAMMIT, just call it that, 
-instead of switching people over. 
-
-And even then, it should damn well also:
- - really _be_ faster. On platforms that matter. 
- - have enough real other advantages that it's worth introducing another 
-   abstraction, and more conceptual complexity. At least the RT patches 
-   had a reason for them.
-
-And besides, all your "safer" arguments are pretty damn pointless in the 
-face of the fact that we have basically had zero bugs with the semaphores. 
-This is not where the bugs happen. Yeah, yeah, double releases can happen, 
-but it sure as hell isn't on my radar of things I remember people doing.
-
-So when you say "This isn't about speed, this is about bug-free code", 
-you're just making that up. It's doubly silly when your "safer" 
-implementation uses totally illogical names. THAT is what creates bugs.
-
-So go away.
-
-Come back if you have pondered, and accepted reality, and perhaps have an 
-acceptable patch that introduces a separate data structure. 
-
-And no, we're not switching users over whole-sale. First you introduce the 
-new concept. Only THEN can you can switch over INDIVIDUAL LOCKS with 
-reasons for why it's worth it.
-
-And hell yes, performance does matter.
-
-			Linus
+IMO for now it's a no-brainer - compile fix that moves comparison to the
+place where another side of comparison is defined  vs.  header ordering
+rework...  Sorry.

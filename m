@@ -1,79 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbVLOSrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750910AbVLOSsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750873AbVLOSrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 13:47:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbVLOSrZ
+	id S1750910AbVLOSsz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 13:48:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750923AbVLOSsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 13:47:25 -0500
-Received: from serv01.siteground.net ([70.85.91.68]:24246 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S1750852AbVLOSrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 13:47:25 -0500
-Date: Thu, 15 Dec 2005 10:47:04 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>, dada1@cosmobay.com,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
-Subject: Re: [discuss] [patch 3/3] x86_64: Node local pda take 2 -- node local pda allocation
-Message-ID: <20051215184704.GA3882@localhost.localdomain>
-References: <20051215023345.GB3787@localhost.localdomain> <20051215023748.GD3787@localhost.localdomain> <20051215094232.GX23384@wotan.suse.de>
+	Thu, 15 Dec 2005 13:48:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19162 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750879AbVLOSsy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 13:48:54 -0500
+Date: Thu, 15 Dec 2005 13:48:26 -0500
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: miles.lane@gmail.com, linux-kernel@vger.kernel.org, greg@kroah.com,
+       linux@dominikbrodowski.net, alan@lxorguk.ukuu.org.uk,
+       nickpiggin@yahoo.com.au
+Subject: Re: 2.6.15-rc5-mm3 -- BUG: using smp_processor_id() in preemptible [00000001] code: swapper/1
+Message-ID: <20051215184826.GD19354@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, miles.lane@gmail.com,
+	linux-kernel@vger.kernel.org, greg@kroah.com,
+	linux@dominikbrodowski.net, alan@lxorguk.ukuu.org.uk,
+	nickpiggin@yahoo.com.au
+References: <a44ae5cd0512150035j1e1a032bpe8b271069ad5d008@mail.gmail.com> <20051215004028.0bf9791f.akpm@osdl.org> <20051215010038.12ca576f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051215094232.GX23384@wotan.suse.de>
+In-Reply-To: <20051215010038.12ca576f.akpm@osdl.org>
 User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 10:42:32AM +0100, Andi Kleen wrote:
-> On Wed, Dec 14, 2005 at 06:37:48PM -0800, Ravikiran G Thirumalai wrote:
-> > Patch uses a static PDA array early at boot and reallocates processor PDA
-> > with node local memory when kmalloc is ready, just before pda_init.
-> > The boot_cpu_pda is needed since the cpu_pda is used even before pda_init for
-> > that cpu is called.   
-> > (pda_init is called when APs are brought on at rest_init().  But
-> > setup_per_cpu_areas is called early in start_kernel and 
-> > sched_init uses the per-cpu offset table early)
-> > 
-> 
-> That is why I suggested to allocate it in smpboot.c in advance before
-> starting the AP.  Can you please do that change? 
+On Thu, Dec 15, 2005 at 01:00:38AM -0800, Andrew Morton wrote:
+ > Andrew Morton <akpm@osdl.org> wrote:
+ > >
+ > > > Here's the BUG output:
+ > >  > 
+ > >  > [4294671.538000] Freeing unused kernel memory: 220k freed
+ > >  > [4294671.538000] BUG: using smp_processor_id() in preemptible
+ > >  > [00000001] code: swapper/1
+ > >  > [4294671.539000] caller is mod_page_state_offset+0x12/0x28
+ > >  > [4294671.539000]  [<c1003723>] dump_stack+0x16/0x1a
+ > >  > [4294671.539000]  [<c110c1eb>] debug_smp_processor_id+0x77/0x90
+ > >  > [4294671.539000]  [<c10413d3>] mod_page_state_offset+0x12/0x28
+ > 
+ > This'll plug the above.
+ > 
+ > Nick, please turn on the nice debugging options in future?
 
-Maybe I am missing something, or not getting what you are suggesting;
-As I see it,
+For -mm, perhaps it would make sense to make some of them default to on ?
 
-asmlinkage void __init start_kernel(void)
-{
-	...
-	...
-	...
-	setup_arch(&command_line);  --> (1)
-	setup_per_cpu_areas();	    --> (2)
-	...
-	sched_init();		    --> (3)
-	...
-        vfs_caches_init_early();
-        mem_init();
-        kmem_cache_init();	    --> (4)
-	...
-	rest_init()		    --> (5)
-}
-	
-
-I could allocate memory for pda somewhere in setup_arch after cpu_to_node is
-initialized, but I would have to use alloc_bootmem_node and allocate for 
-NR_CPUS, which could be wasteful.  I cannot use kmalloc_node until after (4) 
-above, and sched_init refers to the per-cpu offset table before that.
-
-So are you suggesting I use alloc_bootmem_node and allocate PDA for
-NR_CPUS?
+		Dave
 

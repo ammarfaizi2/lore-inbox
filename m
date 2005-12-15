@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbVLOQ3S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750802AbVLOQbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbVLOQ3S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 11:29:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVLOQ3S
+	id S1750802AbVLOQbm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 11:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVLOQbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 11:29:18 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:62860 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750792AbVLOQ3R (ORCPT
+	Thu, 15 Dec 2005 11:31:41 -0500
+Received: from mail.kroah.org ([69.55.234.183]:26603 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750802AbVLOQbl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 11:29:17 -0500
-Date: Thu, 15 Dec 2005 08:28:11 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: Nikita Danilov <nikita@clusterfs.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, pj@sgi.com,
-       mingo@elte.hu, hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
-In-Reply-To: <4743.1134662116@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.64.0512150817170.3292@g5.osdl.org>
-References: <17313.37200.728099.873988@gargle.gargle.HOWL> 
- <1134559121.25663.14.camel@localhost.localdomain> <13820.1134558138@warthog.cambridge.redhat.com>
- <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com>
- <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org>
- <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org>
- <20051213093949.GC26097@elte.hu> <20051213100015.GA32194@elte.hu>
- <6281.1134498864@warthog.cambridge.redhat.com> <14242.1134558772@warthog.cambridge.redhat.com>
- <16315.1134563707@warthog.cambridge.redhat.com> <1134568731.4275.4.camel@tglx.tec.linutronix.de>
- <43A0AD54.6050109@rtr.ca> <20051214155432.320f2950.akpm@osdl.org>
- <17313.29296.170999.539035@gargle.gargle.HOWL> <1134658579.12421.59.camel@localhost.localdomain>
-  <4743.1134662116@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Dec 2005 11:31:41 -0500
+Date: Thu, 15 Dec 2005 08:31:22 -0800
+From: Greg KH <greg@kroah.com>
+To: Denny Priebe <spamtrap@siglost.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Repeated USB disconnect and reconnect with Wacom Intuos3 6x11 tablet
+Message-ID: <20051215163122.GC14512@kroah.com>
+References: <20051213184600.GA4283@nostromo.dyndns.info> <20051213193832.GA14047@kroah.com> <20051215144254.GA19794@nostromo.dyndns.info>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051215144254.GA19794@nostromo.dyndns.info>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 15 Dec 2005, David Howells wrote:
+On Thu, Dec 15, 2005 at 03:42:54PM +0100, Denny Priebe wrote:
+> On Tue, Dec 13, 2005 at 11:38:32AM -0800, Greg KH wrote with possible deletions:
 > 
-> But what to do about DECLARE_MUTEX? :-/
+> Hello,
+> 
+> > > These disconnects and reconnects disappear as soon as there's 
+> > > a process reading either /dev/input/mouse0 or /dev/input/event5 
+> > > (mouse0 and event5 according to my setup).
+> 
+> > Sounds like a hardware problem, the kernel can't cause a device to
+> > electronically disconnect itself like this.
+> 
+> thanks for your reply, Greg.
+>  
+> > I suggest plugging this into a different port, using a powered hub, or
+> > checking that the cable is still good.
+> 
+> I tried what you have suggested. Unfortunately, this doesn't change 
+> anything.
+> 
+> What confuses me a bit is that theses USB disconnects do not appear
+> as soon as I read what the tablet provides.
+> 
+> Could it be that the usb driver doesn't check for a connect status change
+> while there's a process reading /dev/input/{mouse,event}? so that I do not
+> see these disconnects while reading the tablet data? 
 
-It's correctly named right now (it _does_ declare a mutex, despite the 
-insane noise from the sidelines).
+No, it's an electronic signal happening on the USB hub, the hub notifies
+the kernel when a disconnect happens, it has nothing to do with the
+driver connected to the actual device.
 
-I would suggest that if you create a new "mutex" type, you just keep the 
-lower-case name. Don't re-use the DECLARE_MUTEX format, just do
+So I really think that this is an electronic issue, sorry.  Can you
+return this device and get a replacement one?
 
-	struct mutex my_mutex = UNLOCKED_MUTEX;
-
-for new code that uses the new stuff.
-
-Think about it a bit. We don't have DECLARE_SPINLOCK either. Why?
-
-Hint: we have DECLARE_MUTEX exactly because it's also DOCUMENTATION that 
-we use a semaphore as a pure binary mutex. Not because we need it.
-
-If you create a real "struct mutex", then something like the current 
-DECLARE_MUTEX() is simply not relevant for the new type.
-
-			Linus
+greg k-h

@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbVLOTAt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbVLOTBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750929AbVLOTAt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 14:00:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbVLOTAt
+	id S1750935AbVLOTBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 14:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbVLOTBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 14:00:49 -0500
-Received: from smarthost2.sentex.ca ([205.211.164.50]:24278 "EHLO
-	smarthost2.sentex.ca") by vger.kernel.org with ESMTP
-	id S1750929AbVLOTAs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 14:00:48 -0500
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, "'Meelis Roos'" <mroos@linux.ee>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Serial: bug in 8250.c when handling PCI or other level triggers
-Date: Thu, 15 Dec 2005 14:00:31 -0500
-Organization: Connect Tech Inc.
-Message-ID: <000901c601a9$d243fe50$294b82ce@stuartm>
+	Thu, 15 Dec 2005 14:01:09 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:55176 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750934AbVLOTBH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 14:01:07 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Z0DfP3FdGEKB7eNK5pD1DnSKW29GLMZJuwnrG2euEkUid0axU+AFrdw8LSMqvXFoLbkBG/j3QEYv/EY2IOwl2GLnF0hIlRWcSk2g/ijGYm4PUcjBljL2iStF+5tY/kquA3pfuwIdENtbEclNGsqqPE2ugYyoI0Vx5hKq+enBZgQ=
+Message-ID: <d120d5000512151101s31930563xb537616c7a712b1f@mail.gmail.com>
+Date: Thu, 15 Dec 2005 14:01:05 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Al Boldi <a1426z@gawab.com>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200512152129.01861.a1426z@gawab.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <1134599362.25663.72.camel@localhost.localdomain>
-Importance: Normal
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200512150013.29549.a1426z@gawab.com>
+	 <200512151131.39216.a1426z@gawab.com> <43A1501F.5070803@aitel.hist.no>
+	 <200512152129.01861.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: On Behalf Of Alan Cox
-> I don't think so. The bug as such is something I can only see being
-> triggerable either by a virtual machine or by something like serious
-> noise on the signal lines (eg put a 10Khz carrier on the 
-> carrier detect
-> line)
+On 12/15/05, Al Boldi <a1426z@gawab.com> wrote:
+>
+> Don't mistake scalability for manageability/mantainability or flexibility.
+> Scalability is more, much more.  It's about extendability and reusability
+> built on a solid foundation that may be stacked.  Layers upon layers, the
+> sky is the limit.  Stability is the key to unlock this scalability.
+>
 
-We found and patched this bug in one of our products. The patch was to
-raise the loop counter to something more appropriate for our hardware.
-The condition: the not-to-speedy embedded CPU and all ports in use.
-The interrupt handler would hit the loop limit because the combination
-of all ports running meant usually there was one port that needed
-servicing, upping the loop count by one.
+There is a game, called "bullsh*t bingo" where you have bunch of
+buzzwords on you scorecard and you cross them out as you sneak them in
+conversation. Well, I think you just have won a round.
 
-..Stu
-
+--
+Dmitry

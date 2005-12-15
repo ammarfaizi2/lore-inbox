@@ -1,136 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVLPD3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbVLPDbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbVLPD3N (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 22:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbVLPD3N
+	id S932090AbVLPDbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 22:31:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVLPDbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 22:29:13 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:17842 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932088AbVLPD3M (ORCPT
+	Thu, 15 Dec 2005 22:31:16 -0500
+Received: from zproxy.gmail.com ([64.233.162.206]:35234 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932090AbVLPDbP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 22:29:12 -0500
-To: Matt Helsley <matthltc@us.ibm.com>
-cc: Hubertus Franke <frankeh@watson.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>, lse-tech@lists.sourceforge.net,
-       vserver@list.linux-vserver.org, Andrew Morton <akpm@osdl.org>,
-       Rik van Riel <riel@redhat.com>, pagg@oss.sgi.com
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [ckrm-tech] Re: [RFC][patch 00/21] PID Virtualization: Overview and Patches 
-In-reply-to: Your message of Thu, 15 Dec 2005 18:20:52 PST.
-             <1134699652.10396.161.camel@stark> 
-Date: Thu, 15 Dec 2005 19:28:48 -0800
-Message-Id: <E1En6H2-0005ok-00@w-gerrit.beaverton.ibm.com>
+	Thu, 15 Dec 2005 22:31:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=mlfKdzur7DyuIQNTrZuqFeDjVbP3n1IM0UBst8BgDmj89rzpuhQlgOxWz3oqBcb6q1vZh1i1DR7BhRCcsiEstkzZkksKgELr+Zrhh9AEYjl6f3nUKPZFw7N7T+DPS1qYBVpD9CpvHNayneVFD3Ymko5/0Gmd8rzUY9TREIO44o8=
+Message-ID: <81083a450512142032h5e9a934u31ed9e4806d0341a@mail.gmail.com>
+Date: Thu, 15 Dec 2005 10:02:42 +0530
+From: Ashutosh Naik <ashutosh.naik@gmail.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: [PATCH] kernel/module.c Getting rid of the redundant spinlock in resolve_symbol()
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, anandhkrishnan@yahoo.co.in,
+       linux-kernel@vger.kernel.org, rth@redhat.com, akpm@osdl.org,
+       Greg KH <greg@kroah.com>, alan@lxorguk.ukuu.org.uk
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_1188_24275014.1134621162496"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+------=_Part_1188_24275014.1134621162496
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Thu, 15 Dec 2005 18:20:52 PST, Matt Helsley wrote:
-> On Thu, 2005-12-15 at 11:49 -0800, Gerrit Huizenga wrote:
-> > On Thu, 15 Dec 2005 09:35:57 EST, Hubertus Franke wrote:
-> > > PID Virtualization is based on the concept of a container.
-> > > The ultimate goal is to checkpoint/restart containers. 
-> > > 
-> > > The mechanism to start a container 
-> > > is to 'echo "container_name" > /proc/container'  which creates a new
-> > > container and associates the calling process with it. All subsequently
-> > > forked tasks then belong to that container.
-> > > There is a separate pid space associated with each container.
-> > > Only processes/task belonging to the same container "see" each other.
-> > > The exception is an implied default system container that has 
-> > > a global view.
-> 
-> <snip>
-> 
-> > I think perhaps this could also be the basis for a CKRM "class"
-> > grouping as well.  Rather than maintaining an independent class
-> > affiliation for tasks, why not have a class devolve (evolve?) into
-> > a "container" as described here.  The container provides much of
-> > the same grouping capabilities as a class as far as I can see.  The
-> > right information would be availble for scheduling and IO resource
-> > management.  The memory component of CKRM is perhaps a bit tricky
-> > still, but an overall strategy (can I use that word here? ;-) might
-> > be to use these "containers" as the single intrinsic grouping mechanism
-> > for vserver, openvz, application checkpoint/restart, resource
-> > management, and possibly others?
-> > 
-> > Opinions, especially from the CKRM folks?  This might even be useful
-> > to the PAGG folks as a grouping mechanism, similar to their jobs or
-> > containers.
-> > 
-> > "This patchset solves multiple problems".
-> > 
-> > gerrit
-> 
-> CKRM classes seem too different from containers to merge the two
-> concepts:
+On 12/15/05, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> On Wed, 2005-12-14 at 11:16 +0530, Ashutosh Naik wrote:
+> > On 12/14/05, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> > Was just wondering, in that case, if we really need the spinlock in
+> > resolve_symbol() function, where there exists a spinlock around the
+> > __find_symbol() function
+>
+> Yes, I think that's redundant as well.  We're not altering the module
+> list itself, so either of the two locks is sufficient, and we have the
+> semaphore.
 
-I agree that the implementation of pid virtualization and classes have
-different characteristics.  However, you bring up interesting points
-about the differences...  But I question whether or not they are
-relevent to an implementation of resource management.  I'm going out
-on a limb here looking at a possibly radical change which might
-simplify things so there is only one grouping mechanism in kernel.
-I could be wrong but...
+Changelog -
+
+This patch gets rid of the redundant spinlock in the function
+resolve_symbol() as we are not altering the module list, and we
+already hold the semaphore.
+
+Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
+
+------=_Part_1188_24275014.1134621162496
+Content-Type: text/plain; name=mod-patch2.txt; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="mod-patch2.txt"
+
+diff -Naurp linux-2.6.15-rc5-vanilla/kernel/module.c linux-2.6.15-rc5/kernel/module.c
+--- linux-2.6.15-rc5-vanilla/kernel/module.c	2005-12-14 10:14:08.000000000 +0530
++++ linux-2.6.15-rc5/kernel/module.c	2005-12-15 09:41:59.000000000 +0530
+@@ -958,7 +958,6 @@ static unsigned long resolve_symbol(Elf_
+ 	unsigned long ret;
+ 	const unsigned long *crc;
  
-> - Classes don't assign class-unique pids to tasks.
-
-What part of this is important to resource management?  A container
-ID is like a class ID.  Yes, I think container ID's are assigned to
-processes rather than tasks, but is that really all that important?
-
-> - Tasks can move between classes.
+-	spin_lock_irq(&modlist_lock);
+ 	ret = __find_symbol(name, &owner, &crc, mod->license_gplok);
+ 	if (ret) {
+ 		/* use_module can fail due to OOM, or module unloading */
+@@ -966,7 +965,6 @@ static unsigned long resolve_symbol(Elf_
+ 		    !use_module(mod, owner))
+ 			ret = 0;
+ 	}
+-	spin_unlock_irq(&modlist_lock);
+ 	return ret;
+ }
  
-In the pid virtualization, I would think that tasks can move between
-containers as well, although it isn't all that useful for most things.
-For instance, checkpoint/restart needs to checkpoint a process and all
-of its threads if it wants to restart it.  So there may be restrictions
-on what you can checkpoint/restart.  Vserver probably wants isolation
-at a process boundary, rather than a task boundary.  Most resource
-management, e.g. Java, probably doesn't care about task vs. process.
 
-> - Tasks move between classes without any need for checkpoint/restart.
- 
-That *should* be possible with a generalized container solution.
-For instance, just like with classes, you have to move things into
-containers in the first place.  And, you could in theory have a classification
-engine that helped choose which container to put a task/process in
-at creation/instantiation/significant event...
-
-> - Classes show up in a filesystem interface rather that using a file
-> in /proc to create them. (trivial interface difference)
- 
-Yep - there will probably be a /proc or /configfs interface to containers
-at some point, I would expect.  No significant difference there.
-
-> - There are no "visibility boundaries" to enforce between tasks in
-> different classes.
- 
-Are there in virtualized pids?  There *can* be - e.g. ps can distinguish,
-but it is possible for tasks to interact across container boundaries.
-Not ideal for vserver, checkpoint/restart, for instance (makes c/r a
-little harder or more limited - signals heading outside the container
-may "disappear" when you checkpoint/restart but for apps that c/r, that
-probably isn't all that likely).
-
-> - Classes are hierarchial.
- 
-Conceptually they are.  But are they in the CKRM f series?  I thought
-that was one area for simplification.  And, how important is that *really*
-for most applications?
-
-> - Unless I am mistaken, a container groups processes (Can one thread run
-> in container A and another in container B?) while a class groups tasks.
-> Since a task represents a thread or a process one thread could be in
-> class A and another in class B.
-
-Definitely useful, and one question is whether pid virtualization is
-container isolation, or simply virtualization to enable container
-isolation.  If it is an enabling technology, perhaps it doesn't have
-that restriction and could be used either way based on resource management
-needs or based on vserver or c/r needs...
-
-Debate away... ;-)
-
-gerrit
+------=_Part_1188_24275014.1134621162496--

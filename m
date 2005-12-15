@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbVLOU3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbVLOUar@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbVLOU3e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 15:29:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbVLOU3e
+	id S1751044AbVLOUar (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 15:30:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbVLOUar
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 15:29:34 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:22418 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751011AbVLOU3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 15:29:33 -0500
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, matthew@wil.cx,
-       arjan@infradead.org, hch@infradead.org, mingo@elte.hu,
-       tglx@linutronix.de, alan@lxorguk.ukuu.org.uk, nikita@clusterfs.com,
-       pj@sgi.com, dhowells@redhat.com, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20051215112115.7c4bfbea.akpm@osdl.org>
-References: <20051215085602.c98f22ef.pj@sgi.com>
-	 <1134559121.25663.14.camel@localhost.localdomain>
-	 <13820.1134558138@warthog.cambridge.redhat.com>
-	 <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com>
-	 <dhowells1134431145@warthog.cambridge.redhat.com>
-	 <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu>
-	 <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu>
-	 <20051213100015.GA32194@elte.hu>
-	 <6281.1134498864@warthog.cambridge.redhat.com>
-	 <14242.1134558772@warthog.cambridge.redhat.com>
-	 <16315.1134563707@warthog.cambridge.redhat.com>
-	 <1134568731.4275.4.camel@tglx.tec.linutronix.de> <43A0AD54.6050109@rtr.ca>
-	 <20051214155432.320f2950.akpm@osdl.org>
-	 <17313.29296.170999.539035@gargle.gargle.HOWL>
-	 <1134658579.12421.59.camel@localhost.localdomain>
-	 <4743.1134662116@warthog.cambridge.redhat.com>
-	 <7140.1134667736@warthog.cambridge.redhat.com>
-	 <Pine.LNX.4.64.0512150945410.3292@g5.osdl.org>
-	 <20051215112115.7c4bfbea.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 15 Dec 2005 15:28:52 -0500
-Message-Id: <1134678532.13138.44.camel@localhost.localdomain>
+	Thu, 15 Dec 2005 15:30:47 -0500
+Received: from mail.kroah.org ([69.55.234.183]:218 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751044AbVLOUaq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 15:30:46 -0500
+Date: Thu, 15 Dec 2005 12:22:04 -0800
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: torvalds@osdl.org
+Subject: Linux 2.6.13.5
+Message-ID: <20051215202204.GA18213@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-15 at 11:21 -0800, Andrew Morton wrote:
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> >
-> > On Thu, 15 Dec 2005, David Howells wrote:
-> >  > 
-> >  > 	FROM				TO
-> >  > 	==============================	=========================
-> >  > 	DECLARE_MUTEX			DECLARE_SEM_MUTEX
-> >  > 	DECLARE_MUTEX_LOCKED		DECLARE_SEM_MUTEX_LOCKED
-> >  > 	Proper counting semaphore	DECLARE_SEM
-> > 
-> >  That sounds fine.
-> 
-> They should be renamed to DEFINE_* while we're there.  A "declaration" is
-> "this thing is defined somewhere else".  A "definition" is "this thing is
-> defined here".
+As mentioned before, since people had been wanting another old release,
+we (the -stable team) are announcing the release of the 2.6.13.5 kernel.
 
-Why have the "MUTEX" part in there?  Shouldn't that just be DECLARE_SEM
-(oops, I mean DEFINE_SEM).  Especially that MUTEX_LOCKED! What is that?
-How does a MUTEX start off as locked.  It can't, since a mutex must
-always have an owner (which, by the way, helped us in the -rt patch to
-find our "compat_semaphores").  So who's the owner of a
-DEFINE_SEM_MUTEX_LOCKED?
+The diffstat and short summary of the fixes are below.
 
--- Steve
+I'll also be replying to this message with a copy of the patch between
+2.6.13.4 and 2.6.13.5, as it is small enough to do so.
 
+The updated 2.6.13.y git tree can be found at:
+ 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/linux-2.6.13.y.git
+and can be browsed at the normal kernel.org git web browser:
+	www.kernel.org/git/
+
+thanks,
+
+greg k-h
+
+--------
+
+ Makefile                           |    2 
+ arch/s390/appldata/appldata_base.c |    7 +
+ arch/sparc64/kernel/irq.c          |    1 
+ include/linux/proc_fs.h            |    1 
+ include/linux/sysctl.h             |    3 
+ kernel/sysctl.c                    |  136 +++++++++++++++++++++++++++++--------
+ net/bridge/br_if.c                 |    2 
+ 7 files changed, 119 insertions(+), 33 deletions(-)
+
+Summary of changes from v2.6.13.4 to v2.6.13.5
+==============================================
+
+Al Viro:
+      CVE-2005-2709 sysctl unregistration oops
+
+Greg Kroah-Hartman:
+      Linux 2.6.13.5
+
+Stephen Hemminger:
+      br: fix race on bridge del if
+
+Sven Hartge:
+      Fix compile error in irq.c
 

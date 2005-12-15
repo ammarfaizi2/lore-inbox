@@ -1,53 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbVLOSGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVLOSJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750896AbVLOSGR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 13:06:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbVLOSGR
+	id S1750778AbVLOSJg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 13:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbVLOSJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 13:06:17 -0500
-Received: from main.gmane.org ([80.91.229.2]:62363 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750888AbVLOSGQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 13:06:16 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: SATA feature list available
-Date: Fri, 16 Dec 2005 03:00:27 +0900
-Message-ID: <dnsavu$4cb$1@sea.gmane.org>
-References: <43A1A37E.4070806@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051023)
-X-Accept-Language: en-us, en
-In-Reply-To: <43A1A37E.4070806@pobox.com>
-X-Enigmail-Version: 0.93.0.0
+	Thu, 15 Dec 2005 13:09:36 -0500
+Received: from nproxy.gmail.com ([64.233.182.206]:11287 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750778AbVLOSJf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 13:09:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=YNtgVaTP0vc4z8wLdsYqSOTzF/2/eSLFTb3TBOXvSiGWPd2ayUjOWspnwU6yVhaov+hfUQw7XOZwxwh5UEsstCtNu8cFFD7rgy4VHaeqdpfmXsfznbpPD0K4XfqOwhf4TtPjxNViogRHm6IBCdyzAeZrBkgtExVLuiCZvwvPTEU=
+Message-ID: <40f323d00512151009h5eece648w80882f0cda078507@mail.gmail.com>
+Date: Thu, 15 Dec 2005 19:09:34 +0100
+From: Benoit Boissinot <bboissin@gmail.com>
+To: Martin Bligh <mbligh@mbligh.org>
+Subject: Re: 2.6.15-rc5-mm3 (new build failure)
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <43A1A95D.10800@mbligh.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43A1A95D.10800@mbligh.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> For people such as marketing types working on a distro, or users just
-> looking for quick answers, I've created a feature list for libata:
-> 
->     http://linux.yyz.us/sata/features.html
-> 
-> Let me know if there is anything missing.  This is just a quick list,
-> details can be found on other pages at that site.
+On 12/15/05, Martin Bligh <mbligh@mbligh.org> wrote:
+> New build failure since -mm2:
+> Config is
+> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/elm3b67
+>
+> I'm guessing it was using gcc 2.95.4, though not sure.
+>
+>    CC      arch/i386/kernel/asm-offsets.s
+> In file included from include/linux/stddef.h:4,
+>                   from include/linux/posix_types.h:4,
+>                   from include/linux/types.h:13,
+>                   from include/linux/capability.h:16,
+>                   from include/linux/sched.h:7,
+>                   from arch/i386/kernel/asm-offsets.c:7:
+> include/linux/compiler.h:46: #error Sorry, your compiler is too old/not
+> recognized.
 
-Nice summary, Jeff! Good work.
+support for gcc-2.95 was dropped in -mm3.
 
-Just being picky, but in the "Not supported" part, the thing that do not have "(patch available)" or
-"(no support planned)" are planned to be supported (someday), right?
+regards,
 
-So might split this into ToDo and Will_NOT_support list. Just my 2 yen.
-
-Kalin.
--- 
-|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
-+-> http://ThinRope.net/ <-+
-|[ ______________________ ]|
-
+Benoit

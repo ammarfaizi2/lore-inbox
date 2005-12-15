@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030294AbVLOCBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbVLOCCm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030294AbVLOCBS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 21:01:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965147AbVLOCAw
+	id S1030296AbVLOCCm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 21:02:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030295AbVLOCB1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 21:00:52 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:20874 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751304AbVLOCAn
+	Wed, 14 Dec 2005 21:01:27 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:28847 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030271AbVLOCBD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 21:00:43 -0500
-Date: Wed, 14 Dec 2005 19:00:41 -0700
+	Wed, 14 Dec 2005 21:01:03 -0500
+Date: Wed, 14 Dec 2005 19:01:01 -0700
 From: john stultz <johnstul@us.ibm.com>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
@@ -21,157 +21,129 @@ Cc: Ingo Molnar <mingo@elte.hu>, Darren Hart <dvhltc@us.ibm.com>,
        Steven Rostedt <rostedt@goodmis.org>,
        Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>,
        john stultz <johnstul@us.ibm.com>
-Message-Id: <20051215020041.25589.98115.sendpatchset@cog.beaverton.ibm.com>
+Message-Id: <20051215020100.25589.40527.sendpatchset@cog.beaverton.ibm.com>
 In-Reply-To: <20051215020002.25589.55922.sendpatchset@cog.beaverton.ibm.com>
 References: <20051215020002.25589.55922.sendpatchset@cog.beaverton.ibm.com>
-Subject: [PATCH 5/13] Time: i386 Conversion - part 1: Move timer_pit.c to i8253.c
+Subject: [PATCH 8/13] Time: i386 Conversion - part 4: ACPI PM variable renaming and config change.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 All,
 	The conversion of i386 to use the generic timeofday subsystem 
-has been split into 6 parts. This patch, the first of six, is just a 
-simple cleanup for the i386 arch in preparation of moving to the 
-generic timeofday infrastructure. It simply moves some code from 
-timer_pit.c to i8253.c.
-	
-It applies on top of my timeofday-core patch. This patch is part the 
-timeofday-arch-i386 patchset, so without the following parts it is not 
-expected to compile (although just this one should).
+has been split into 6 parts. This patch, the fourth of six, renames 
+some ACPI PM variables and removes the CONFIG_X86_PM_TIMER option. 
+
+It applies on top of my timeofday-arch-i386-part3 patch. This patch is 
+part the timeofday-arch-i386 patchset, so without the following parts 
+it is not expected to compile.
 	
 thanks
 -john
 
 Signed-off-by: John Stultz <johnstul@us.ibm.com>
 
- Makefile           |    2 -
- i8253.c            |   59 +++++++++++++++++++++++++++++++++++++++++++++++++++++
- time.c             |    6 -----
- timers/timer_pit.c |   13 -----------
- 4 files changed, 60 insertions(+), 20 deletions(-)
+ arch/i386/kernel/acpi/boot.c |   22 ++++++++++------------
+ drivers/acpi/Kconfig         |   18 ------------------
+ drivers/acpi/osl.c           |    2 --
+ 3 files changed, 10 insertions(+), 32 deletions(-)
 
-linux-2.6.15-rc5_timeofday-arch-i386-part1_B14.patch
+linux-2.6.15-rc5_timeofday-arch-i386-part4_B14.patch
 ============================================
-diff --git a/arch/i386/kernel/Makefile b/arch/i386/kernel/Makefile
-index f10de0f..7bc053f 100644
---- a/arch/i386/kernel/Makefile
-+++ b/arch/i386/kernel/Makefile
-@@ -7,7 +7,7 @@ extra-y := head.o init_task.o vmlinux.ld
- obj-y	:= process.o semaphore.o signal.o entry.o traps.o irq.o vm86.o \
- 		ptrace.o time.o ioport.o ldt.o setup.o i8259.o sys_i386.o \
- 		pci-dma.o i386_ksyms.o i387.o dmi_scan.o bootflag.o \
--		doublefault.o quirks.o i8237.o
-+		doublefault.o quirks.o i8237.o i8253.o
- 
- obj-y				+= cpu/
- obj-y				+= timers/
-diff --git a/arch/i386/kernel/i8253.c b/arch/i386/kernel/i8253.c
-new file mode 100644
-index 0000000..e4b7f7d
---- /dev/null
-+++ b/arch/i386/kernel/i8253.c
-@@ -0,0 +1,59 @@
-+/*
-+ * i8253.c  8253/PIT functions
-+ *
-+ */
-+#include <linux/spinlock.h>
-+#include <linux/jiffies.h>
-+#include <linux/sysdev.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+
-+#include <asm/smp.h>
-+#include <asm/delay.h>
-+#include <asm/i8253.h>
-+#include <asm/io.h>
-+
-+#include "io_ports.h"
-+
-+DEFINE_SPINLOCK(i8253_lock);
-+EXPORT_SYMBOL(i8253_lock);
-+
-+void setup_pit_timer(void)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&i8253_lock, flags);
-+	outb_p(0x34,PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
-+	udelay(10);
-+	outb_p(LATCH & 0xff , PIT_CH0);	/* LSB */
-+	udelay(10);
-+	outb(LATCH >> 8 , PIT_CH0);	/* MSB */
-+	spin_unlock_irqrestore(&i8253_lock, flags);
-+}
-+
-+static int timer_resume(struct sys_device *dev)
-+{
-+	setup_pit_timer();
-+
-+	return 0;
-+}
-+
-+static struct sysdev_class timer_sysclass = {
-+	set_kset_name("timer_pit"),
-+	.resume	= timer_resume,
-+};
-+
-+static struct sys_device device_timer = {
-+	.id	= 0,
-+	.cls	= &timer_sysclass,
-+};
-+
-+static int __init init_timer_sysfs(void)
-+{
-+	int error = sysdev_class_register(&timer_sysclass);
-+	if (!error)
-+		error = sysdev_register(&device_timer);
-+	return error;
-+}
-+
-+device_initcall(init_timer_sysfs);
-diff --git a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
-index 41c5b2d..5a9f253 100644
---- a/arch/i386/kernel/time.c
-+++ b/arch/i386/kernel/time.c
-@@ -82,11 +82,6 @@ extern unsigned long wall_jiffies;
- DEFINE_SPINLOCK(rtc_lock);
- EXPORT_SYMBOL(rtc_lock);
- 
--#include <asm/i8253.h>
--
--DEFINE_SPINLOCK(i8253_lock);
--EXPORT_SYMBOL(i8253_lock);
--
- struct timer_opts *cur_timer __read_mostly = &timer_none;
- 
- /*
-@@ -400,7 +395,6 @@ static int timer_resume(struct sys_devic
- 	if (is_hpet_enabled())
- 		hpet_reenable();
+diff --git a/arch/i386/kernel/acpi/boot.c b/arch/i386/kernel/acpi/boot.c
+index 447fa9e..e3318f4 100644
+--- a/arch/i386/kernel/acpi/boot.c
++++ b/arch/i386/kernel/acpi/boot.c
+@@ -608,9 +608,8 @@ static int __init acpi_parse_hpet(unsign
+ #define	acpi_parse_hpet	NULL
  #endif
--	setup_pit_timer();
- 	sec = get_cmos_time() + clock_cmos_diff;
- 	sleep_length = (get_cmos_time() - sleep_start) * HZ;
- 	write_seqlock_irqsave(&xtime_lock, flags);
-diff --git a/arch/i386/kernel/timers/timer_pit.c b/arch/i386/kernel/timers/timer_pit.c
-index b9b6bd5..44cbdf9 100644
---- a/arch/i386/kernel/timers/timer_pit.c
-+++ b/arch/i386/kernel/timers/timer_pit.c
-@@ -162,16 +162,3 @@ struct init_timer_opts __initdata timer_
- 	.init = init_pit, 
- 	.opts = &timer_pit,
- };
+ 
+-#ifdef CONFIG_X86_PM_TIMER
+-extern u32 pmtmr_ioport;
+-#endif
++u32 acpi_pmtmr_ioport;
++int acpi_pmtmr_buggy;
+ 
+ static int __init acpi_parse_fadt(unsigned long phys, unsigned long size)
+ {
+@@ -629,7 +628,6 @@ static int __init acpi_parse_fadt(unsign
+ 	acpi_fadt.force_apic_physical_destination_mode =
+ 	    fadt->force_apic_physical_destination_mode;
+ 
+-#ifdef CONFIG_X86_PM_TIMER
+ 	/* detect the location of the ACPI PM Timer */
+ 	if (fadt->revision >= FADT2_REVISION_ID) {
+ 		/* FADT rev. 2 */
+@@ -637,22 +635,22 @@ static int __init acpi_parse_fadt(unsign
+ 		    ACPI_ADR_SPACE_SYSTEM_IO)
+ 			return 0;
+ 
+-		pmtmr_ioport = fadt->xpm_tmr_blk.address;
++		acpi_pmtmr_ioport = fadt->xpm_tmr_blk.address;
+ 		/*
+ 		 * "X" fields are optional extensions to the original V1.0
+ 		 * fields, so we must selectively expand V1.0 fields if the
+ 		 * corresponding X field is zero.
+ 	 	 */
+-		if (!pmtmr_ioport)
+-			pmtmr_ioport = fadt->V1_pm_tmr_blk;
++		if (!acpi_pmtmr_ioport)
++			acpi_pmtmr_ioport = fadt->V1_pm_tmr_blk;
+ 	} else {
+ 		/* FADT rev. 1 */
+-		pmtmr_ioport = fadt->V1_pm_tmr_blk;
++		acpi_pmtmr_ioport = fadt->V1_pm_tmr_blk;
+ 	}
+-	if (pmtmr_ioport)
+-		printk(KERN_INFO PREFIX "PM-Timer IO Port: %#x\n",
+-		       pmtmr_ioport);
+-#endif
++
++	if (acpi_pmtmr_ioport)
++		printk(KERN_INFO PREFIX "PM-Timer IO Port: %#x\n", acpi_pmtmr_ioport);
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+index fce21c2..45e6274 100644
+--- a/drivers/acpi/Kconfig
++++ b/drivers/acpi/Kconfig
+@@ -287,24 +287,6 @@ config ACPI_SYSTEM
+ 	  This driver will enable your system to shut down using ACPI, and
+ 	  dump your ACPI DSDT table using /proc/acpi/dsdt.
+ 
+-config X86_PM_TIMER
+-	bool "Power Management Timer Support"
+-	depends on X86
+-	depends on !X86_64
+-	default y
+-	help
+-	  The Power Management Timer is available on all ACPI-capable,
+-	  in most cases even if ACPI is unusable or blacklisted.
 -
--void setup_pit_timer(void)
--{
--	unsigned long flags;
+-	  This timing source is not affected by powermanagement features
+-	  like aggressive processor idling, throttling, frequency and/or
+-	  voltage scaling, unlike the commonly used Time Stamp Counter
+-	  (TSC) timing source.
 -
--	spin_lock_irqsave(&i8253_lock, flags);
--	outb_p(0x34,PIT_MODE);		/* binary, mode 2, LSB/MSB, ch 0 */
--	udelay(10);
--	outb_p(LATCH & 0xff , PIT_CH0);	/* LSB */
--	udelay(10);
--	outb(LATCH >> 8 , PIT_CH0);	/* MSB */
--	spin_unlock_irqrestore(&i8253_lock, flags);
--}
+-	  So, if you see messages like 'Losing too many ticks!' in the
+-	  kernel logs, and/or you are using this on a notebook which
+-	  does not yet have an HPET, you should say "Y" here.
+-
+ config ACPI_CONTAINER
+ 	tristate "ACPI0004,PNP0A05 and PNP0A06 Container Driver (EXPERIMENTAL)"
+ 	depends on EXPERIMENTAL
+diff --git a/drivers/acpi/osl.c b/drivers/acpi/osl.c
+index e3cd0b1..3f2021c 100644
+--- a/drivers/acpi/osl.c
++++ b/drivers/acpi/osl.c
+@@ -346,9 +346,7 @@ u64 acpi_os_get_timer(void)
+ 	/* TBD: use HPET if available */
+ #endif
+ 
+-#ifdef	CONFIG_X86_PM_TIMER
+ 	/* TBD: default to PM timer if HPET was not available */
+-#endif
+ 	if (!t)
+ 		printk(KERN_ERR PREFIX "acpi_os_get_timer() TBD\n");
+ 

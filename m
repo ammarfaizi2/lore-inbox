@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbVLORsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbVLORvt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750884AbVLORsn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 12:48:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbVLORsn
+	id S1750870AbVLORvt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 12:51:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbVLORvt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 12:48:43 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:37286 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750875AbVLORsm (ORCPT
+	Thu, 15 Dec 2005 12:51:49 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:19946 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750867AbVLORvs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 12:48:42 -0500
-Date: Thu, 15 Dec 2005 09:48:07 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Howells <dhowells@redhat.com>
-cc: Paul Jackson <pj@sgi.com>, nikita@clusterfs.com, alan@lxorguk.ukuu.org.uk,
-       akpm@osdl.org, tglx@linutronix.de, mingo@elte.hu, hch@infradead.org,
-       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
-In-Reply-To: <7140.1134667736@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.64.0512150945410.3292@g5.osdl.org>
-References: <20051215085602.c98f22ef.pj@sgi.com>  <17313.37200.728099.873988@gargle.gargle.HOWL>
- <1134559121.25663.14.camel@localhost.localdomain> <13820.1134558138@warthog.cambridge.redhat.com>
- <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com>
- <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org>
- <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org>
- <20051213093949.GC26097@elte.hu> <20051213100015.GA32194@elte.hu>
- <6281.1134498864@warthog.cambridge.redhat.com> <14242.1134558772@warthog.cambridge.redhat.com>
- <16315.1134563707@warthog.cambridge.redhat.com> <1134568731.4275.4.camel@tglx.tec.linutronix.de>
- <43A0AD54.6050109@rtr.ca> <20051214155432.320f2950.akpm@osdl.org>
- <17313.29296.170999.539035@gargle.gargle.HOWL> <1134658579.12421.59.camel@localhost.localdomain>
- <4743.1134662116@warthog.cambridge.redhat.com>  <7140.1134667736@warthog.cambridge.redhat.com>
+	Thu, 15 Dec 2005 12:51:48 -0500
+Date: Thu, 15 Dec 2005 18:51:40 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Linux/m68k <linux-m68k@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH 2/3] m68k: compile fix - ADBREQ_RAW missing declaration
+In-Reply-To: <20051215171645.GY27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.61.0512151832270.1609@scrub.home>
+References: <20051215085516.GU27946@ftp.linux.org.uk>
+ <Pine.LNX.4.61.0512151258200.1605@scrub.home> <20051215171645.GY27946@ftp.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Thu, 15 Dec 2005, Al Viro wrote:
 
-On Thu, 15 Dec 2005, David Howells wrote:
-> 
-> 	FROM				TO
-> 	==============================	=========================
-> 	DECLARE_MUTEX			DECLARE_SEM_MUTEX
-> 	DECLARE_MUTEX_LOCKED		DECLARE_SEM_MUTEX_LOCKED
-> 	Proper counting semaphore	DECLARE_SEM
+> So who should I put as the author?  You or Geert (or whatever attributions
+> might have been in said big patch)?  Incidentally,  ADBREQ_RAW had leaked
+> into mainline (sans definition) in 2.3.45-pre2, which was Feb 13 2000, i.e.
+> more than 1.5 year before your commit, so there's quite a chunk of history
+> missing...
 
-That sounds fine. I wouldn't be adverse to doing that - but it would have 
-to be independently of any other changes, and it would need to simmer for 
-a while for out-of-tree drivers etc to notice (ie you should _not_ just 
-introduce a new "DECLARE_MUTEX()" immediately to confuse things).
+I'd say Geert, but it probably comes from the Mac tree. Anyway, it 
+wouldn't be such a bad idea to ask him first why it's in his postponed 
+queue:
 
-The patch could probably be fairly trivially generated with some trivial 
-sed-script. Not that I'll take it at this point, but after the next 
-release..
+http://linux-m68k-cvs.ubb.ca/~geert/linux-m68k-2.6.x-merging/POSTPONED/130-adbraw.diff
 
-		Linus
+My guess it needs some ack from the ppc people.
+
+bye, Roman

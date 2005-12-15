@@ -1,73 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422634AbVLOIoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbVLOIx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422634AbVLOIoG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 03:44:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422632AbVLOIoG
+	id S965175AbVLOIx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 03:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbVLOIx4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 03:44:06 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.153]:177 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161086AbVLOIoE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 03:44:04 -0500
-In-Reply-To: <20051214215613.70f9cafa@localhost.localdomain>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: ak@suse.de, "David S. Miller" <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, mpm@selenic.com, netdev@vger.kernel.org,
-       netdev-owner@vger.kernel.org, sri@us.ibm.com
-MIME-Version: 1.0
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFB8B21C56.4F9E9A3C-ON882570D8.002CBD7B-882570D8.002FF8B1@us.ibm.com>
-From: David Stevens <dlstevens@us.ibm.com>
-Date: Thu, 15 Dec 2005 00:44:52 -0800
-X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF654 | July 22, 2005) at
- 12/15/2005 01:44:54,
-	Serialize complete at 12/15/2005 01:44:54
-Content-Type: text/plain; charset="US-ASCII"
+	Thu, 15 Dec 2005 03:53:56 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:23447 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965175AbVLOIx4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 03:53:56 -0500
+Subject: Re: Linux in a binary world... a doomsday scenario
+From: Arjan van de Ven <arjan@infradead.org>
+To: Al Boldi <a1426z@gawab.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200512151131.39216.a1426z@gawab.com>
+References: <200512150013.29549.a1426z@gawab.com>
+	 <200512150749.29064.a1426z@gawab.com> <43A0FE13.8010303@yahoo.com.au>
+	 <200512151131.39216.a1426z@gawab.com>
+Content-Type: text/plain
+Date: Thu, 15 Dec 2005 09:53:50 +0100
+Message-Id: <1134636830.16486.13.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Also, all this stuff is just a band aid because linux OOM behavior is so
-> fucked up.
 
-In our internal discussions, characterizing this as "OOM" came
-up a lot, and I don't think of it as that at all. OOM is exactly what the
-scheme is trying to avoid!
+> > Anyone else is free to fork the kernel and develop their own
+> > stable API for it.
+> 
+> That would be sad.
+> 
+> The objective of a stable API would be to aid the collective effort and not 
+> to divide it.
 
-The actual situation we have in mind is a swap device management system
-in a cluster where a remote system tells you (via socket communication to
-a user-land management app) that a swap device is going to fail over and
-it'd be a good idea not to do anything that requires paging out or
-swapping for a short period of time. The socket communication must work,
-but the system is not at all out of memory, and the important point is
-that it never will be if you limit allocations to those things that are
-required for the critical socket to work (and nothing/little else).
-        Receiver side allocations are unavoidable, because you don't know
-if you can drop the packet or not until you look at it. Some 
-infrastructure
-must work. But everything else can fail or succeed based on ordinary churn
-in ordinary memory pools, until the "in_emergency" condition has passed.
-        The critical socket(s) simply have to be out of the zero-sum game
-for the rest of the allocations, because those are the (only) path to
-getting a working swap device again.
+I think you missed how linux development works. Things fork all the
+time. The unsuccessful forks die. The successful ones join the "main
+line" again. Darwinism at work.
 
-If you're out of memory without a network mechanism to get you more,
-this doesn't do anything for you (and it isn't intended to). And if you
-mark any socket that isn't going to get you failed over or otherwise
-get you more swap, it isn't going to help you, either. It isn't a priority
-scheme for low-memory, it's a failover mechanism that relies on 
-networking.
-There are exactly 2 priorities: critical (as in "you might as well crash 
-if
-these aren't satisfied") and everything else.
+You're free to put your coding where your mouth is and design and
+implement a stable API. If it's a success.. it'll get there. If it's
+not.. no harm done to the rest. 
 
-Doing other, more general things that handle low memory, or OOM, or 
-identified
-priorities are great, but the problem we're interested in solving here is
-really just about making socket communication work when the alternative is
-a completely dead system. I think these patches do that in a reasonable 
-way.
-A better solution would be great, too, if there is one. :-)
+> If you are working alone a stable API would be overkill.  But GNU/Linux is a 
+> collective effort, where stability is paramount to aid scalability.
+> 
+> I hope the concepts here are clear.
 
-                                                        +-DLS
+I think I don't get how you come from "stable API" to "aid scalability"
+in the light that the current non-API doesn't seem to prevent
+scalability to the size linux development is today.
+
+
+
+> > I've got a fairly good idea of what work I'm doing, and what I'm planning
+> > to do, long term goals, projects, etc. What would be the key differences
+> > with "non-GNU/OpenSource" development that would make you say they are not
+> > unguided by nature?
+> 
+> The same goes for OpenSource in general, but GNU/OpenSource has a larger 
+> community and therefore is in greater need of a stable API.
+
+again you skip a step. I see how a "large community" leads to "needs a
+visible API". The leap to "need stable API" I don't see in practice.
+
+
+> Arjan van de Ven wrote:
+> > I think Linux proves you wrong (and a bit of a troll to be honest ;)
+> 
+> No troll! Just being IMHO. I hope that's OK?
+
+I hope you're also willing to put your effort where your words are,
+otherwise you are trolling to a large degree.
+
 

@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965129AbVLNX5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbVLOACH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965129AbVLNX5q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 18:57:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965127AbVLNX5p
+	id S932403AbVLOACH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 19:02:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbVLOACH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 18:57:45 -0500
-Received: from rtr.ca ([64.26.128.89]:44475 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S965100AbVLNX5o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 18:57:44 -0500
-Message-ID: <43A0B172.7020800@rtr.ca>
-Date: Wed, 14 Dec 2005 18:57:38 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: tglx@linutronix.de
-Cc: David Howells <dhowells@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Paul Jackson <pj@sgi.com>, mingo@elte.hu, hch@infradead.org,
-       akpm@osdl.org, torvalds@osdl.org, arjan@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-References: <1134559121.25663.14.camel@localhost.localdomain>	 <13820.1134558138@warthog.cambridge.redhat.com>	 <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com>	 <dhowells1134431145@warthog.cambridge.redhat.com>	 <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu>	 <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu>	 <20051213100015.GA32194@elte.hu>	 <6281.1134498864@warthog.cambridge.redhat.com>	 <14242.1134558772@warthog.cambridge.redhat.com>	 <16315.1134563707@warthog.cambridge.redhat.com>	 <1134568731.4275.4.camel@tglx.tec.linutronix.de>  <43A0AD54.6050109@rtr.ca> <1134604667.2542.86.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1134604667.2542.86.camel@tglx.tec.linutronix.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 14 Dec 2005 19:02:07 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:60081 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932403AbVLOACG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 19:02:06 -0500
+Subject: [GIT PATCH] final SCSI fixes for 2.6.15-rc5
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Content-Type: text/plain
+Date: Wed, 14 Dec 2005 16:01:49 -0800
+Message-Id: <1134604909.11150.2.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Gleixner wrote:
-> On Wed, 2005-12-14 at 18:40 -0500, Mark Lord wrote:
-...
->>Leaving up()/down() as-is is really the most sensible option.
-> 
-...
->Doing a s/down/lock_mutex/ s/up/unlock_mutex/ - or whatever naming
-> convention we want to use - all over the place for mutexes while keeping
-> the up/down for counting semaphores is an one time issue.
-> 
-> After the conversion every code breaks at compile time which tries to do
-> up/down(mutex_type).
-> 
-> So the out of tree drivers have a clear indication what to fix. This is
-> also a one time issue.
-> 
-> So where is the problem - except for fixing "huge" amounts of out of
-> kernel code once ?
+These should (hopefully) represent the last few urgent bug fixes that
+have shown up.  The fixes are available here:
 
-Pointless API breakage.  The same functions continue to exist,
-the old names CANNOT be reused for some (longish) time,
-so there's no point in renaming them.  It just breaks an API
-for no good reason whatsoever.
+master.kernel.org:/pub/scm/linux/kernel/git/jejb/scsi-rc-fixes-2.6.git
 
-Cheers
+The short changelog is:
+
+Andrew Vasquez:
+  o qla2xxx: Correct short-WRITE status handling
+  o qla2xxx: Correct mis-handling of AENs
+
+Brian King:
+  o fix double free of scsi request queue
+
+Dave Boutcher:
+  o ibmvscsi kexec fix
+
+James Bottomley:
+  o Consolidate REQ_BLOCK_PC handling path (fix ipod panic)
+
+Jens Axboe:
+  o fix panic when ejecting ieee1394 ipod
+
+Mark Lord:
+  o Fix incorrect pointer in megaraid.c MODE_SENSE emulation
+
+Matthew Wilcox:
+  o Negotiate correctly with async-only devices
+
+Michael Reed:
+  o fix OOPS due to clearing eh_action prior to aborting eh command
+
+And the diffstat:
+
+ drivers/scsi/ibmvscsi/ibmvscsi.h      |    2 +-
+ drivers/scsi/ibmvscsi/iseries_vscsi.c |    3 ++-
+ drivers/scsi/ibmvscsi/rpa_vscsi.c     |    8 +++++++-
+ drivers/scsi/megaraid.c               |    2 +-
+ drivers/scsi/qla2xxx/qla_def.h        |   10 +---------
+ drivers/scsi/qla2xxx/qla_init.c       |    6 +++---
+ drivers/scsi/qla2xxx/qla_isr.c        |   15 +++++++++++++++
+ drivers/scsi/scsi_error.c             |    7 ++++++-
+ drivers/scsi/scsi_lib.c               |   33 +++++++++++++++++++++------------
+ drivers/scsi/scsi_scan.c              |    1 -
+ drivers/scsi/sd.c                     |   16 +---------------
+ drivers/scsi/sr.c                     |   20 +++-----------------
+ drivers/scsi/st.c                     |   19 +------------------
+ drivers/scsi/sym53c8xx_2/sym_hipd.c   |    4 ++--
+ include/scsi/scsi_cmnd.h              |    1 +
+ 15 files changed, 65 insertions(+), 82 deletions(-)
+
+James
+
+

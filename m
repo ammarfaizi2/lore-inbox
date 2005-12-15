@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVLOViE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbVLOVnN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbVLOViE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 16:38:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVLOViE
+	id S1751128AbVLOVnN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 16:43:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVLOVnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 16:38:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:40330 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751126AbVLOViB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 16:38:01 -0500
-Date: Thu, 15 Dec 2005 13:39:17 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Jordan Crouse" <jordan.crouse@amd.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       info-linux@ldcmail.amd.com, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH 2/3] Geode LX HW RNG Support
-Message-Id: <20051215133917.3f0a5171.akpm@osdl.org>
-In-Reply-To: <20051215211423.GF11054@cosmic.amd.com>
-References: <20051215211248.GE11054@cosmic.amd.com>
-	<20051215211423.GF11054@cosmic.amd.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Thu, 15 Dec 2005 16:43:13 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40411
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751128AbVLOVnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 16:43:11 -0500
+Date: Thu, 15 Dec 2005 13:42:16 -0800 (PST)
+Message-Id: <20051215.134216.18400210.davem@davemloft.net>
+To: rdreier@cisco.com
+Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: MSI and driver APIs
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <adaek4enjoz.fsf@cisco.com>
+References: <adamzj2nk76.fsf@cisco.com>
+	<1134680882.16880.37.camel@gaston>
+	<adaek4enjoz.fsf@cisco.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jordan Crouse" <jordan.crouse@amd.com> wrote:
->
-> @@ -95,6 +100,11 @@ static unsigned int via_data_present (vo
->  static u32 via_data_read (void);
->  #endif
->  
-> +static int __init geode_init(struct pci_dev *dev);
-> +static void geode_cleanup(void);
-> +static unsigned int geode_data_present (void);
-> +static u32 geode_data_read (void);
-> +
->  struct rng_operations {
->  	int (*init) (struct pci_dev *dev);
->  	void (*cleanup) (void);
-> @@ -122,6 +132,7 @@ enum {
->  	rng_hw_intel,
->  	rng_hw_amd,
->  	rng_hw_via,
-> +	rng_hw_geode,
->  };
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 15 Dec 2005 13:18:04 -0800
 
-Should all the Geode additions to hw_random.c be inside __i386__, like VIA?
+>     Benjamin> I'm tempted to leave them enabled and only disable them
+>     Benjamin> when request_irq() is done on the legacy INTx... Does
+>     Benjamin> anybody see a problem with this approach ?
+> 
+> You might run into trouble on hardware (think tg3 or its ilk again)
+> where you might have to do something beyond disabling MSI in the PCI
+> header to switch the chip out of MSI mode.
+
+I think because of kinds of cases and other issues, going with
+MSI by default is a non-starter.
+
+Perhaps a better approach is to use a flag in the pci_driver_struct or
+similar that says "you can have MSI enabled by default".  And
+gradually convert drivers over which we know will handle it properly.
+
+Doing some tom foolery with request_irq() sounds like a half-baked
+idea at best.  The biggest argument against that is that this is
+not a PCI interface, so expecting it to have PCI side effects is
+really asking for trouble.

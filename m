@@ -1,261 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbVLOAgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965132AbVLOAgY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965133AbVLOAgA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 19:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbVLOAfj
+	id S965132AbVLOAgY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 19:36:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbVLOAgD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 19:35:39 -0500
-Received: from [64.71.148.162] ([64.71.148.162]:42646 "EHLO
-	mail.linuxmachines.com") by vger.kernel.org with ESMTP
-	id S965131AbVLOAf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 19:35:29 -0500
-Message-ID: <43A0BBC4.7050300@linuxmachines.com>
-Date: Wed, 14 Dec 2005 16:41:40 -0800
-From: Jeff Carr <jcarr@linuxmachines.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: LKML <linux-kernel@vger.kernel.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>
-Subject: Re: [ANNOUNCE] 2.6.15-rc5-hrt2 - hrtimers based high resolution patches
-References: <1134385343.4205.72.camel@tglx.tec.linutronix.de>
-In-Reply-To: <1134385343.4205.72.camel@tglx.tec.linutronix.de>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------090402060107000302090404"
+	Wed, 14 Dec 2005 19:36:03 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:42130 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932659AbVLOAcX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 19:32:23 -0500
+Date: Wed, 14 Dec 2005 16:32:22 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Christoph Lameter <clameter@sgi.com>
+Message-Id: <20051215003222.31788.44654.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051215003151.31788.8755.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051215003151.31788.8755.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [RFC3 06/14] Zone Reclaim
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090402060107000302090404
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Zone reclaim allows the reclaiming of pages from a zone if the number of free
+pages falls below the watermark even if other zones still have enough pages
+available. Zone reclaim is of particular importance for NUMA machines. It can
+be more beneficial to reclaim a page than taking the performance penalties
+that come with allocating a page on a remote zone.
 
-On 12/12/05 03:02, Thomas Gleixner wrote:
-> The rebased version of the high resolution patches on top of the
-> hrtimers base patch is available from the new project home:
-> 
-> http://www.tglx.de/projetcs/hrtimers
-> 
-> The current patch is available here:
-> 
-> http://www.tglx.de/projects/hrtimers/2.6.15-rc5/patch-2.6.15-rc5-hrt2.patch
+Zone reclaim is enabled if the maximum distance to another node is higher
+than RECLAIM_DISTANCE, which may be defined by an arch. By default
+RECLAIM_DISTANCE is 20 meaning the distance to another node in the
+same component (enclosure or motherboard).
 
-This is a simple module to start a hrtimer about 20k times a second. I
-don't see a way to correctly restart a hrtimer or set one to be periodic
-so this is inefficiently bouncing between two timers. Calling
-restart_hrtimer() from within the hrtimer.function causes a panic. I was
-wondering what the correct method would be.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-I had to export some symbols from hrtimer.c so I could build this as a
-module.
-
-
-
-/*
- *
- * A simple module that starts a hrtimer ~20k/sec
- *
- * This software is available to you under the terms of the GNU
- * General Public License (GPL) Version 2, available from the file
- * COPYING in the main directory of this source tree.
- *
- */
-
-#include <asm/semaphore.h>
-#include <linux/device.h>
-#include <linux/err.h>
-#include <linux/module.h>
-#include <linux/moduleparam.h>
-#include <linux/pci.h>
-#include <linux/time.h>
-#include <linux/workqueue.h>
-#include <asm/uaccess.h>
-#include <linux/delay.h>
-#include <linux/proc_fs.h>
-#include <linux/hrtimer.h>
-
-MODULE_AUTHOR("Jeff Carr");
-MODULE_DESCRIPTION("simple hrtimer test");
-MODULE_LICENSE("GPL");
-
-static struct workqueue_struct *testwq;
-static struct work_struct testwork;
-
-static struct hrtimer restart_hrtimer;
-static struct hrtimer trigger_hrtimer;
-
-static int done = 0;
-static int hrtimer_count = 0;
-
-#define HT_TEST_PERIOD 20000; // In nanoseconds
-
-static void do_test_work(void *data)
-{
-	restart_hrtimer.expires.tv64 = (u64) HT_TEST_PERIOD;
-	hrtimer_start(&restart_hrtimer, restart_hrtimer.expires, HRTIMER_REL);
-
-	return;
-}
-
-static int do_restart_hrtimer(void *data)
-{
-	if (!done) {
-		trigger_hrtimer.expires.tv64 = (u64) HT_TEST_PERIOD;
-		hrtimer_start(&trigger_hrtimer, trigger_hrtimer.expires,
-			      HRTIMER_REL);
-	}
-	return 0;
-}
-
-static int do_trigger_hrtimer(void *data)
-{
-	static struct timeval now;
-
-	++hrtimer_count;
-	do_gettimeofday(&now);
-	if (printk_ratelimit())
-		printk(KERN_DEBUG
-		       "do_trigger_hrtimer() ran %d times (%li.%li)\n",
-		       hrtimer_count, now.tv_sec, now.tv_usec);
-
-	if (!done) {
-		restart_hrtimer.expires.tv64 = (u64) HT_TEST_PERIOD;
-		hrtimer_start(&restart_hrtimer, restart_hrtimer.expires,
-			      HRTIMER_REL);
-	}
-	return 0;
-}
-
-static int __init hrtimer_test_init(void)
-{
-	testwq = create_singlethread_workqueue("simple_hrtimer_test");
-	if (!testwq)
-		return -1;
-
-	INIT_WORK(&testwork, do_test_work, NULL);
-
-	hrtimer_init(&restart_hrtimer, (const clockid_t)CLOCK_REALTIME);
-	restart_hrtimer.data = (unsigned long)NULL;
-	restart_hrtimer.function = do_restart_hrtimer;
-
-	hrtimer_init(&trigger_hrtimer, (const clockid_t)CLOCK_REALTIME);
-	trigger_hrtimer.data = (unsigned long)NULL;
-	trigger_hrtimer.function = do_trigger_hrtimer;
-
-	queue_work(testwq, &testwork);
-
-	return 0;
-}
-
-static void __exit hrtimer_test_cleanup(void)
-{
-	done = 1;
-
-	flush_workqueue(testwq);
-	destroy_workqueue(testwq);
-
-	// not sure how to destroy this correctly
-	hrtimer_cancel(&restart_hrtimer);
-	remove_hrtimer(&restart_hrtimer);
-
-	// not sure how to destroy this correctly
-	hrtimer_cancel(&trigger_hrtimer);
-	remove_hrtimer(&trigger_hrtimer);
-}
-
-module_init(hrtimer_test_init);
-module_exit(hrtimer_test_cleanup);
-
---------------090402060107000302090404
-Content-Type: text/x-patch;
- name="export_symbols.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="export_symbols.patch"
-
---- linux-2.6.15-rc5-hrt3/kernel/hrtimer.c	2005-12-14 19:03:20.000000000 -0800
-+++ linux-2.6.15-rc5-hrt2/kernel/hrtimer.c	2005-12-13 03:29:57.000000000 -0800
-@@ -498,6 +495,7 @@
+Index: linux-2.6.15-rc5-mm2/mm/page_alloc.c
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/mm/page_alloc.c	2005-12-14 14:57:33.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/page_alloc.c	2005-12-14 15:24:22.000000000 -0800
+@@ -1186,7 +1186,9 @@ get_page_from_freelist(gfp_t gfp_mask, u
+ 				mark = (*z)->pages_high;
+ 			if (!zone_watermark_ok(*z, order, mark,
+ 				    classzone_idx, alloc_flags))
+-				continue;
++				if (!zone_reclaim_mode ||
++			        	!zone_reclaim(*z, gfp_mask, order))
++						continue;
+ 		}
  
- 	return orun;
+ 		page = buffered_rmqueue(*z, order, gfp_mask);
+@@ -1957,13 +1959,22 @@ static void __init build_zonelists(pg_da
+ 	prev_node = local_node;
+ 	nodes_clear(used_mask);
+ 	while ((node = find_next_best_node(local_node, &used_mask)) >= 0) {
++		int distance = node_distance(local_node, node);
++
++		/*
++		 * If another node is sufficiently far away then it is better
++		 * to reclaim pages in a zone before going off node.
++		 */
++		if (distance > RECLAIM_DISTANCE)
++			zone_reclaim_mode = 1;
++
+ 		/*
+ 		 * We don't want to pressure a particular node.
+ 		 * So adding penalty to the first node in same
+ 		 * distance group to make it round-robin.
+ 		 */
+-		if (node_distance(local_node, node) !=
+-				node_distance(local_node, prev_node))
++
++		if (distance != node_distance(local_node, prev_node))
+ 			node_load[node] += load;
+ 		prev_node = node;
+ 		load--;
+Index: linux-2.6.15-rc5-mm2/include/linux/swap.h
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/include/linux/swap.h	2005-12-13 20:41:05.000000000 -0800
++++ linux-2.6.15-rc5-mm2/include/linux/swap.h	2005-12-14 15:24:22.000000000 -0800
+@@ -172,6 +172,17 @@ extern void swap_setup(void);
+ 
+ /* linux/mm/vmscan.c */
+ extern int try_to_free_pages(struct zone **, gfp_t);
++#ifdef CONFIG_NUMA
++extern int zone_reclaim_mode;
++extern int zone_reclaim(struct zone *, gfp_t, unsigned int);
++#else
++#define zone_reclaim_mode 0
++static inline int zone_reclaim(struct zone *z, gfp_t mask,
++				unsigned int order)
++{
++	return 0;
++}
++#endif
+ extern int shrink_all_memory(int);
+ extern int vm_swappiness;
+ 
+Index: linux-2.6.15-rc5-mm2/include/linux/topology.h
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/include/linux/topology.h	2005-12-12 09:10:34.000000000 -0800
++++ linux-2.6.15-rc5-mm2/include/linux/topology.h	2005-12-14 15:24:22.000000000 -0800
+@@ -56,6 +56,9 @@
+ #define REMOTE_DISTANCE		20
+ #define node_distance(from,to)	((from) == (to) ? LOCAL_DISTANCE : REMOTE_DISTANCE)
+ #endif
++#ifndef RECLAIM_DISTANCE
++#define RECLAIM_DISTANCE 20
++#endif
+ #ifndef PENALTY_FOR_NODE_WITH_CPUS
+ #define PENALTY_FOR_NODE_WITH_CPUS	(1)
+ #endif
+Index: linux-2.6.15-rc5-mm2/mm/vmscan.c
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/mm/vmscan.c	2005-12-14 15:24:19.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/vmscan.c	2005-12-14 15:24:43.000000000 -0800
+@@ -1823,3 +1823,60 @@ static int __init kswapd_init(void)
  }
-+EXPORT_SYMBOL_GPL(hrtimer_forward);
  
- /*
-  * enqueue_hrtimer - internal function to (re)start a timer
-@@ -591,6 +589,7 @@
- 	}
- 	return 0;
- }
-+EXPORT_SYMBOL_GPL(remove_hrtimer);
- 
- /**
-  * hrtimer_start - (re)start an relative timer on the current CPU
-@@ -628,6 +627,7 @@
- 
- 	return ret;
- }
-+EXPORT_SYMBOL_GPL(hrtimer_start);
- 
- /**
-  * hrtimer_try_to_cancel - try to deactivate a timer
-@@ -675,6 +675,7 @@
- 			return ret;
- 	}
- }
-+EXPORT_SYMBOL_GPL(hrtimer_cancel);
- 
- /**
-  * hrtimer_get_remaining - get remaining time for the timer
-@@ -719,6 +720,7 @@
- 	memset(timer, 0, sizeof(struct hrtimer));
- 	hrtimer_rebase(timer, clock_id);
- }
-+EXPORT_SYMBOL_GPL(hrtimer_init);
- 
- /**
-  * hrtimer_get_res - get the timer resolution for a clock
-@@ -992,6 +995,7 @@
- 	else
- 		return (ktime_t) {.tv64 = 0 };
- }
-+EXPORT_SYMBOL_GPL(schedule_hrtimer);
- 
- static inline ktime_t __sched
- schedule_hrtimer_interruptible(struct hrtimer *timer,
-@@ -1001,6 +1005,7 @@
- 
- 	return schedule_hrtimer(timer, mode);
- }
-+EXPORT_SYMBOL_GPL(schedule_hrtimer_interruptible);
- 
- static long __sched
- nanosleep_restart(struct restart_block *restart, clockid_t clockid)
-@@ -1031,6 +1036,7 @@
- 	/* The other values in restart are already filled in */
- 	return -ERESTART_RESTARTBLOCK;
- }
-+EXPORT_SYMBOL_GPL(nanosleep_restart);
- 
- static long __sched nanosleep_restart_mono(struct restart_block *restart)
- {
-@@ -1076,6 +1082,7 @@
- 
- 	return -ERESTART_RESTARTBLOCK;
- }
-+EXPORT_SYMBOL_GPL(hrtimer_nanosleep);
- 
- asmlinkage long
- sys_nanosleep(struct timespec __user *rqtp, struct timespec __user *rmtp)
-@@ -1090,6 +1097,7 @@
- 
- 	return hrtimer_nanosleep(&tu, rmtp, HRTIMER_REL, CLOCK_MONOTONIC);
- }
-+EXPORT_SYMBOL_GPL(sys_nanosleep);
- 
- /*
-  * Functions related to boot-time initialization:
-
---------------090402060107000302090404--
+ module_init(kswapd_init)
++
++#ifdef CONFIG_NUMA
++/*
++ * Zone reclaim mode
++ *
++ * If non-zero call zone_reclaim when the number of free pages falls below
++ * the watermarks.
++ */
++int zone_reclaim_mode __read_mostly;
++
++/*
++ * Try to free up some pages from this zone through reclaim.
++ */
++int zone_reclaim(struct zone *zone, gfp_t gfp_mask, unsigned int order)
++{
++	struct scan_control sc;
++	int nr_pages = 1 << order;
++	struct task_struct *p = current;
++	struct reclaim_state reclaim_state;
++
++	if (!(gfp_mask & __GFP_WAIT) ||
++	    zone->zone_pgdat->node_id != numa_node_id() ||
++	    zone->all_unreclaimable ||
++	    atomic_read(&zone->reclaim_in_progress) > 0)
++		return 0;
++
++	/*
++	 * Check if there is a reasonable amount of recoverable memory before
++	 * doing the scan.
++	 */
++	if (zone_page_state(zone, NR_PAGECACHE) <=
++			zone_page_state(zone, NR_MAPPED) + nr_pages)
++		return 0;
++
++	sc.gfp_mask = gfp_mask;
++	sc.may_writepage = 0;
++	sc.may_swap = 0;
++	sc.nr_mapped = global_page_state(NR_MAPPED);
++	sc.nr_scanned = 0;
++	sc.nr_reclaimed = 0;
++	sc.priority = 0;
++	disable_swap_token();
++
++	sc.swap_cluster_max = max(nr_pages, SWAP_CLUSTER_MAX);
++
++	cond_resched();
++	p->flags |= PF_MEMALLOC;
++	reclaim_state.reclaimed_slab = 0;
++	p->reclaim_state = &reclaim_state;
++	shrink_zone(zone, &sc);
++	p->reclaim_state = NULL;
++	current->flags &= ~PF_MEMALLOC;
++	cond_resched();
++	return sc.nr_reclaimed >= (1 << order);
++}
++#endif
++

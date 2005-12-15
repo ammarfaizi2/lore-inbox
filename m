@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161007AbVLODhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161009AbVLODlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161007AbVLODhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 22:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161009AbVLODhQ
+	id S1161009AbVLODlw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 22:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161005AbVLODlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 22:37:16 -0500
-Received: from mx2.suse.de ([195.135.220.15]:6864 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161007AbVLODhO (ORCPT
+	Wed, 14 Dec 2005 22:41:52 -0500
+Received: from gate.crashing.org ([63.228.1.57]:21418 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1161009AbVLODlv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 22:37:14 -0500
-Date: Thu, 15 Dec 2005 04:37:09 +0100
-From: Andi Kleen <ak@suse.de>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: Andi Kleen <ak@suse.de>, "Zhang, Yanmin" <yanmin.zhang@intel.com>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       Nathan Lynch <ntl@pobox.com>
-Subject: Re: [discuss] [PATCH] Export cpu topology for IA32 and x86_64 by sysfs
-Message-ID: <20051215033709.GS23384@wotan.suse.de>
-References: <88056F38E9E48644A0F562A38C64FB6006A22399@scsmsx403.amr.corp.intel.com>
+	Wed, 14 Dec 2005 22:41:51 -0500
+Subject: MSI and driver APIs
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Cc: linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Date: Thu, 15 Dec 2005 14:38:12 +1100
+Message-Id: <1134617893.16880.17.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6006A22399@scsmsx403.amr.corp.intel.com>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Not really. The current display in /proc/cpuinfo, though useful for
-> human reader,
-> is not very friendly to scripts. And if one wants to find out which
-> logical CPUs belong
-> to the same core, there will have to be some amount of code in userlevel
-> to parse
-> the /proc/cpuinfo and get this info. So, we thought that it may be
-> useful to 
-> export the masks to the user directly in a genric way. And, while doing
-> that
-> thinking was adding new fields in /sysfs rather than /proc/ was better.
+I've been looking at MSI/MSI-X support on POWER platforms, both under
+hypervisor or directly on machines like the new G5s and I found out that
+the current code in drivers/pci isn't nearly as generic as it claims to
+be and cannot really be re-used as is.
 
-Hmm - having written both /proc and /sys parsers i'm not sure your new
-setup will be any easier to handle in a program than /proc/cpuinfo. Probably not.
+So I want to start looking into separate implementation for powerpc, and
+based on what I come up with, find the commonalities and split the
+generic code. However, there is at least one assumption that annoys me:
 
-I would suggest you supply a standard C library and command line utility
-at least - but at least for the later the output would
-be likely not that different from cat /proc/cpuinfo
+Currently, we assume that MSIs are disabled upon discovery of a device.
+That is, a driver probe() routine is called with MSIs off.
 
-> Having said that, I feel Nathan's suggestion of doing it in more
-> architecturally-neutral way should be better than this. We will have a
-> relook at this one now.
+This is annoying on platforms with "intelligent" firmwares like POWER
+with hypervisor, as the firmware will have already configured MSIs for
+the full system & assigned them to devices.
 
-That makes sense. /proc/cpuinfo is not that bad in itself, except that
-it's very architecture dependent.
+The current scenario basically means that I have to walk through all
+devices, disable MSI if it was enabled by the firmware, and re-assign
+MSIs later on upon driver request. In addition to that, the firmware
+goes at lenght to guarantee that at least one MSI can be allocated per
+device. If the OS releases those MSIs by disabling them, however, they
+are returned to a global pool. When we later on request MSIs again from
+that pool, there is no guarantee we don't run out and thus no guarantee
+we succeed in allocating those MSIs.
 
--Andi
+Thus I would very much like to change the semantics so that a driver can
+be entered with MSIs already assigned and enabled, though it has the
+capability to request more MSIs and/or to disable them if the chipset is
+buggy. That could be done either by adding a callback to check if MSIs
+are enabled for a given device for example...
+
+Another solution would be for me to implement a "trick" at the
+architecture level. Since MSIs assigned to a device will have different
+interrupt numbers than it's legacy PCI interrupt, I could leave the MSIs
+enabled at probe() time, and only disable them once the driver does a
+request_irq() on the legacy interrupt (since MSI and old style
+interrupts are exclusive on a given device).
+
+Of course, a subsequent pci_enable_msi/x() would re-enable/re-allocate
+them, but I don't expect drivers to do that _and_ request the legacy
+interrupt...
+
+Or maybe somebody has better ideas ?
+
+Regards,
+Ben.
+
 

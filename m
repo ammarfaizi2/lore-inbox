@@ -1,82 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965162AbVLOHhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbVLOHhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965162AbVLOHhP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 02:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbVLOHhO
+	id S965163AbVLOHhn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 02:37:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbVLOHhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 02:37:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:59349 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965162AbVLOHhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 02:37:12 -0500
-Subject: Re: [patch 6/6] statistics infrastructure - exploitation: zfcp
-From: Arjan van de Ven <arjan@infradead.org>
-To: Martin Peschke <mp3@de.ibm.com>
-Cc: linux-scsi@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>
-In-Reply-To: <43A0E8E7.1060706@de.ibm.com>
-References: <43A044E6.7060403@de.ibm.com>
-	 <20051214165900.GA26580@infradead.org>  <43A0E8E7.1060706@de.ibm.com>
-Content-Type: text/plain
-Date: Thu, 15 Dec 2005 08:37:08 +0100
-Message-Id: <1134632229.16486.3.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 15 Dec 2005 02:37:43 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:25491 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965163AbVLOHhm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 02:37:42 -0500
+Date: Wed, 14 Dec 2005 23:37:37 -0800 (PST)
+From: Sridhar Samudrala <sri@us.ibm.com>
+X-X-Sender: sridhar@w-sridhar.beaverton.ibm.com
+To: "David S. Miller" <davem@davemloft.net>
+cc: mpm@selenic.com, sri@us.ibm.com, ak@suse.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
+In-Reply-To: <20051214.203023.129054759.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.58.0512142318410.7197@w-sridhar.beaverton.ibm.com>
+References: <20051214092228.GC18862@brahms.suse.de>
+ <1134582945.8698.17.camel@w-sridhar2.beaverton.ibm.com> <20051215033937.GC11856@waste.org>
+ <20051214.203023.129054759.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-15 at 04:54 +0100, Martin Peschke wrote:
-> Christoph Hellwig wrote:
-> 
-> >>+	atomic_t		read_num;
-> >>+	atomic_t		write_num;
-> >>+	struct statistic_interface	*stat_if;
-> >>+	struct statistic		*stat_sizes_scsi_write;
-> >>+	struct statistic		*stat_sizes_scsi_read;
-> >>+	struct statistic		*stat_sizes_scsi_nodata;
-> >>+	struct statistic		*stat_sizes_scsi_nofit;
-> >>+	struct statistic		*stat_sizes_scsi_nomem;
-> >>+	struct statistic		*stat_sizes_timedout_write;
-> >>+	struct statistic		*stat_sizes_timedout_read;
-> >>+	struct statistic		*stat_sizes_timedout_nodata;
-> >>+	struct statistic		*stat_latencies_scsi_write;
-> >>+	struct statistic		*stat_latencies_scsi_read;
-> >>+	struct statistic		*stat_latencies_scsi_nodata;
-> >>+	struct statistic		*stat_pending_scsi_write;
-> >>+	struct statistic		*stat_pending_scsi_read;
-> >>+	struct statistic		*stat_erp;
-> >>+	struct statistic		*stat_eh_reset;
-> >>    
-> >>
-> >
-> >NACK.  pretty much all of this is generic and doesn't belong into an LLDD.
-> >We already had this statistics things with emulex and they added various
-> >bits to the core in response.
-> >
-> >
-> >  
-> >
-> Agreed. It's not necessarily up to LLDDs to keep track of request sizes, 
-> request latencies, I/O queue utilization, and error recovery conditions 
-> by means of statistics. This could or maybe should be done in a more 
-> central spot.
-> 
-> With regard to latencies, it might make some difference, though, how 
-> many layers are in between that cause additional delays. Then the 
-> question is which latency one wants to measure.
+On Wed, 14 Dec 2005, David S. Miller wrote:
 
-even if the LLDD measures these, the stats belong a level up, so that
-all LLDD's export the same. I think you got half of Christophs point,
-but not this last bit: even when it's the LLDD that needs to measure the
-stat, it still shouldn't be LLDD specific, and thus defined one if not
-two layers up. 
+> From: Matt Mackall <mpm@selenic.com>
+> Date: Wed, 14 Dec 2005 19:39:37 -0800
+>
+> > I think we need a global receive pool and per-socket send pools.
+>
+> Mind telling everyone how you plan to make use of the global receive
+> pool when the allocation happens in the device driver and we have no
+> idea which socket the packet is destined for?  What should be done for
+> non-local packets being routed?  The device drivers allocate packets
+> for the entire system, long before we know who the eventually received
+> packets are for.  It is fully anonymous memory, and it's easy to
+> design cases where the whole pool can be eaten up by non-local
+> forwarded packets.
+>
+> I truly dislike these patches being discussed because they are a
+> complete hack, and admittedly don't even solve the problem fully.  I
+> don't have any concrete better ideas but that doesn't mean this stuff
+> should go into the tree.
+>
+> I think GFP_ATOMIC memory pools are more powerful than they are given
+> credit for.  There is nothing preventing the implementation of dynamic
+> GFP_ATOMIC watermarks, and having "critical" socket behavior "kick in"
+> in response to hitting those water marks.
 
+Does this mean that you are OK with having a mechanism to mark the
+sockets as critical and dropping the non critical packets under
+emergency, but you do not like having a separate critical page pool.
+
+Instead, you seem to be suggesting in_emergency to be set dynamically
+when we are about to run out of ATOMIC memory. Is this right?
+
+Thanks
+Sridhar

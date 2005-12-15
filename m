@@ -1,55 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbVLOU6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751085AbVLOU6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbVLOU6m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 15:58:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbVLOU6m
+	id S1751085AbVLOU6w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 15:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751084AbVLOU6w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 15:58:42 -0500
-Received: from twinlark.arctic.org ([207.7.145.18]:38021 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id S1751080AbVLOU6m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 15:58:42 -0500
-Date: Thu, 15 Dec 2005 12:58:40 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-cc: martin <stillflame@freegeek.org>, linux-kernel@vger.kernel.org
-Subject: Re: mounting loopback device partitions
-In-Reply-To: <Pine.LNX.4.63.0512142209490.7172@twinlark.arctic.org>
-Message-ID: <Pine.LNX.4.63.0512151258150.7172@twinlark.arctic.org>
-References: <20051215041227.GF43089@faeriemud.org>
- <Pine.LNX.4.64.0512142210490.26888@montezuma.fsmlabs.com>
- <Pine.LNX.4.63.0512142209490.7172@twinlark.arctic.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Dec 2005 15:58:52 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:63117 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751081AbVLOU6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 15:58:51 -0500
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Nikita Danilov <nikita@clusterfs.com>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, matthew@wil.cx,
+       arjan@infradead.org, hch@infradead.org, mingo@elte.hu,
+       tglx@linutronix.de, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Paul Jackson <pj@sgi.com>, David Howells <dhowells@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <17313.46085.921398.819760@gargle.gargle.HOWL>
+References: <20051215085602.c98f22ef.pj@sgi.com>
+	 <17313.37200.728099.873988@gargle.gargle.HOWL>
+	 <1134559121.25663.14.camel@localhost.localdomain>
+	 <13820.1134558138@warthog.cambridge.redhat.com>
+	 <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com>
+	 <dhowells1134431145@warthog.cambridge.redhat.com>
+	 <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu>
+	 <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu>
+	 <20051213100015.GA32194@elte.hu>
+	 <6281.1134498864@warthog.cambridge.redhat.com>
+	 <14242.1134558772@warthog.cambridge.redhat.com>
+	 <16315.1134563707@warthog.cambridge.redhat.com>
+	 <1134568731.4275.4.camel@tglx.tec.linutronix.de> <43A0AD54.6050109@rtr.ca>
+	 <20051214155432.320f2950.akpm@osdl.org>
+	 <17313.29296.170999.539035@gargle.gargle.HOWL>
+	 <1134658579.12421.59.camel@localhost.localdomain>
+	 <4743.1134662116@warthog.cambridge.redhat.com>
+	 <7140.1134667736@warthog.cambridge.redhat.com>
+	 <Pine.LNX.4.64.0512150945410.3292@g5.osdl.org>
+	 <17313.46085.921398.819760@gargle.gargle.HOWL>
+Content-Type: text/plain
+Date: Thu, 15 Dec 2005 15:58:27 -0500
+Message-Id: <1134680307.13138.74.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Dec 2005, dean gaudet wrote:
+On Thu, 2005-12-15 at 21:20 +0300, Nikita Danilov wrote:
 
+> Going off at a tangent (or tangle, rather), why do we need DECLARE_FOO()
+> macros at all? They
 > 
+>  - do not look like C variable declarations, hide variable type, and
+>  hence are confusing,
 > 
-> On Wed, 14 Dec 2005, Zwane Mwaikambo wrote:
+>  - contrary to their naming actually _define_ rather than _declare_ an
+>  object.
 > 
-> > On Wed, 14 Dec 2005, martin wrote:
-> > 
-> > > this is a wishlistish feature request.
-> > > 
-> > > i would like to be able to partition a loopback device,
-> > > and then mount those partitions.
-> > > 
-> > > sorry i couldn't find the loopback maintainer to send this to.
-> > 
-> > http://www.mega-tokyo.com/osfaq2/index.php/Disk%20Images%20Under%20Linux
+> In most cases 
 > 
-> the only problem with this technique is you can't set the limit for a 
-> loopback... only the offset...
+>         type var = INIT_FOO;
 > 
-> istr someone posted a script which used fdisk -l and dmsetup to create 
-> properly offset/limited loopback partition devices... or maybe that was 
-> just what several people said would be the cool way to solve it :)
+> is much better (more readable and easier to understand) than
+> 
+>         DECLARE_FOO(var); /* what is the type of var? */
+> 
+> In the cases where initializer needs an address of object being
+> initialized
+> 
+>         type var = INIT_FOO(var);
+> 
+> can be used.
 
-found it...
+That's just error prone.  In the RT patch we had several bugs caused by
+cut and paste errors like:
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0307.2/0935.html
+type foo = INIT_TYPE(foo);
+type bar = INIT_TYPE(foo);
 
--dean
+These are not always easy to find.
+
+-- Steve
+
+

@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbVLOSD0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbVLOSGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750845AbVLOSD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 13:03:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750885AbVLOSD0
+	id S1750896AbVLOSGR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 13:06:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbVLOSGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 13:03:26 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:665 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S1750844AbVLOSD0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 13:03:26 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Repeated USB disconnect and reconnect with Wacom Intuos3 6x11 tablet
-Date: Thu, 15 Dec 2005 19:03:54 +0100
-User-Agent: KMail/1.8
-Cc: Denny Priebe <spamtrap@siglost.org>, linux-kernel@vger.kernel.org
-References: <20051213184600.GA4283@nostromo.dyndns.info> <20051215144254.GA19794@nostromo.dyndns.info> <20051215163122.GC14512@kroah.com>
-In-Reply-To: <20051215163122.GC14512@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200512151903.54690.oliver@neukum.org>
+	Thu, 15 Dec 2005 13:06:17 -0500
+Received: from main.gmane.org ([80.91.229.2]:62363 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750888AbVLOSGQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 13:06:16 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: SATA feature list available
+Date: Fri, 16 Dec 2005 03:00:27 +0900
+Message-ID: <dnsavu$4cb$1@sea.gmane.org>
+References: <43A1A37E.4070806@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051023)
+X-Accept-Language: en-us, en
+In-Reply-To: <43A1A37E.4070806@pobox.com>
+X-Enigmail-Version: 0.93.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 15. Dezember 2005 17:31 schrieb Greg KH:
-> > Could it be that the usb driver doesn't check for a connect status change
-> > while there's a process reading /dev/input/{mouse,event}? so that I do not
-> > see these disconnects while reading the tablet data? 
+Jeff Garzik wrote:
 > 
-> No, it's an electronic signal happening on the USB hub, the hub notifies
-> the kernel when a disconnect happens, it has nothing to do with the
-> driver connected to the actual device.
+> For people such as marketing types working on a distro, or users just
+> looking for quick answers, I've created a feature list for libata:
 > 
-> So I really think that this is an electronic issue, sorry.  Can you
-> return this device and get a replacement one?
+>     http://linux.yyz.us/sata/features.html
+> 
+> Let me know if there is anything missing.  This is just a quick list,
+> details can be found on other pages at that site.
 
-We start the URB on open and stop it on close. Is it possible that
-Windows keeps it on all the time and we have a device that is so
-broken it cannot cope with anything else?
+Nice summary, Jeff! Good work.
 
-	Regards
-		Oliver
+Just being picky, but in the "Not supported" part, the thing that do not have "(patch available)" or
+"(no support planned)" are planned to be supported (someday), right?
+
+So might split this into ToDo and Will_NOT_support list. Just my 2 yen.
+
+Kalin.
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
+

@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbVLOVnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbVLOVmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbVLOVnN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 16:43:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVLOVnN
+	id S1751101AbVLOVmu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 16:42:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbVLOVmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 16:43:13 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:40411
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751128AbVLOVnL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 16:43:11 -0500
-Date: Thu, 15 Dec 2005 13:42:16 -0800 (PST)
-Message-Id: <20051215.134216.18400210.davem@davemloft.net>
-To: rdreier@cisco.com
-Cc: benh@kernel.crashing.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: MSI and driver APIs
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <adaek4enjoz.fsf@cisco.com>
-References: <adamzj2nk76.fsf@cisco.com>
-	<1134680882.16880.37.camel@gaston>
-	<adaek4enjoz.fsf@cisco.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Thu, 15 Dec 2005 16:42:50 -0500
+Received: from amdext4.amd.com ([163.181.251.6]:40355 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S1751101AbVLOVmu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 16:42:50 -0500
+X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
+Date: Thu, 15 Dec 2005 14:44:32 -0700
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: "Andrew Morton" <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       info-linux@ldcmail.amd.com, "Jeff Garzik" <jgarzik@pobox.com>
+Subject: Re: Geode LX HW RNG Support
+Message-ID: <20051215214432.GB14013@cosmic.amd.com>
+References: <20051215211248.GE11054@cosmic.amd.com>
+ <20051215211423.GF11054@cosmic.amd.com>
+ <20051215133917.3f0a5171.akpm@osdl.org>
+MIME-Version: 1.0
+In-Reply-To: <20051215133917.3f0a5171.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
+X-WSS-ID: 6FBF3CC80C09480-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 15 Dec 2005 13:18:04 -0800
+> Should all the Geode additions to hw_random.c be inside __i386__, like VIA?
 
->     Benjamin> I'm tempted to leave them enabled and only disable them
->     Benjamin> when request_irq() is done on the legacy INTx... Does
->     Benjamin> anybody see a problem with this approach ?
-> 
-> You might run into trouble on hardware (think tg3 or its ilk again)
-> where you might have to do something beyond disabling MSI in the PCI
-> header to switch the chip out of MSI mode.
+I thought that a early version did that and somebody took exception to 
+it, but I can't find any e-mails to that effect right now.  Obviously, 
+the defines are only useful when you have a Geode CPU (and thus a x86_32), 
+so if nobody complains, I think that would be fine.
 
-I think because of kinds of cases and other issues, going with
-MSI by default is a non-starter.
+Jordan
 
-Perhaps a better approach is to use a flag in the pci_driver_struct or
-similar that says "you can have MSI enabled by default".  And
-gradually convert drivers over which we know will handle it properly.
+-- 
+Jordan Crouse
+Senior Linux Engineer
+AMD - Personal Connectivity Solutions Group
+<www.amd.com/embeddedprocessors>
 
-Doing some tom foolery with request_irq() sounds like a half-baked
-idea at best.  The biggest argument against that is that this is
-not a PCI interface, so expecting it to have PCI side effects is
-really asking for trouble.

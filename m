@@ -1,102 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbVLOG0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbVLOGfi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964933AbVLOG0v (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 01:26:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbVLOG0u
+	id S965143AbVLOGfi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 01:35:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbVLOGfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 01:26:50 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:50498 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964933AbVLOG0u convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 01:26:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=i5d3U18MMV1WR8B8pqTKePfxVmLrXEiiP47qAsTdLPRhselEcREXEt8MqzR4kzrphvWRboWhmMxbbpb5x7wVd+kTpB9W0UQ+RkwKzl2l7gjvASb6veqdBYPo1/iK8VfGVkfYTLvn0QzrjEBpiGW36PS+ASmnvgYwuhvR7SH2NnQ=
-Message-ID: <47f5dce30512142226n18fc4280m26ce5b0bb4b80d3f@mail.gmail.com>
-Date: Wed, 14 Dec 2005 22:26:49 -0800
-From: jayakumar alsa <jayakumar.alsa@gmail.com>
-To: =?ISO-8859-1?Q?Ren=E9_Rebe?= <rene@exactcode.de>
-Subject: Re: cs5536 ID for cs5535audio
-Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200512141431.32685.rene@exactcode.de>
+	Thu, 15 Dec 2005 01:35:38 -0500
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:26313 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S964862AbVLOGfh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 01:35:37 -0500
+Date: Thu, 15 Dec 2005 15:34:27 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+       Benjamin LaHaise <bcrl@kvack.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.15-rc5-mm2 can't boot on ia64 due to changing on_each_cpu().
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       linux-mm@kvack.org, tony.luck@intel.com
+In-Reply-To: <43A0FE0D.6030100@jp.fujitsu.com>
+References: <20051215030040.GA28660@kvack.org> <43A0FE0D.6030100@jp.fujitsu.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.054
+Message-Id: <20051215152450.2445.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-References: <200512141431.32685.rene@exactcode.de>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/14/05, René Rebe <rene@exactcode.de> wrote:
-> Hi all,
->
-> relative to 2.6.15-rc5-mm2 / alsa-cvs, works for me:
->
-> Added AMD CS5536 to the cs5535audio driver.
->
+Thanks! It works!
 
-René,
+BTW, I found same casted function at on_each_cpu() in parisc code.
+ (arch/parisc/kernel/cache.c
+  arch/parisc/kernel/smp.c
+  arch/parisc/mm/init.c)
 
-Your patch looks fine to me. If possible, could you add an update for
-the Kconfig to list cs5536 within the cs5535audio entry. One thing
-though, I'm concerned about master mixer control on certain GX3
-boards. There was an issue raised by Stefan Schweizer where the
-cs5535audio driver on GX3 boards (with at least one that used the
-Realtek ALC203 rev 0 ac97 codec) fails to provide functional master
-control. John Zulauf mentioned that certain GX3 reference board
-designs wire headphone out to the connector rather than main. I still
-haven't received the GX3 to test with so perhaps someone else would
-like to test an AC97_TUNE_HP_ONLY ac97_quirk. Here's a rough start
-that someone could use:
+Are they also should fixed? 
+I don't have parisc box. So, I don't know there is same trouble on
+parisc box or not, and I can't test it.
 
-static char *ac97_quirk;
-module_param(ac97_quirk, charp, 0444);
-MODULE_PARM_DESC(ac97_quirk, "AC'97 board specific workarounds.");
+Bye.
 
-static struct ac97_quirk ac97_quirks[] __devinitdata = {
-	{
-		.subvendor = use lspci to find out,
-		.subdevice = something,
-		.name = "boardname",     /* codecname */
-		.type = AC97_TUNE_HP_ONLY
-	},
-	{}
-};
 
-then add:
+> Benjamin LaHaise wrote:
+> > On Wed, Dec 14, 2005 at 06:56:58PM -0800, Andrew Morton wrote:
+> > 
+> >>Thanks.  I'll drop it.
+> > 
+> > 
+> > Please don't.  Fix ia64's brain damage instead.  Function pointers 
+> > should not be cast, period.
+> > 
+> > 		-ben
+> 
+> How about this?
+> 
+> Thanks,
+> Kenji Kaneshige
+> 
+> 
+> We need this patch on ia64 to convert on_each_cpu to a macro.
+> 
+> Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+> 
+>  arch/ia64/kernel/smp.c         |    4 ++--
+>  arch/ia64/kernel/smpboot.c     |    2 +-
+>  arch/ia64/mm/tlb.c             |    6 +++---
+>  include/asm-ia64/mmu_context.h |    4 ++--
+>  include/asm-ia64/tlbflush.h    |    5 +++--
+>  5 files changed, 11 insertions(+), 10 deletions(-)
+> 
+> Index: linux-2.6.15-rc5-mm2/arch/ia64/kernel/smpboot.c
+> ===================================================================
+> --- linux-2.6.15-rc5-mm2.orig/arch/ia64/kernel/smpboot.c
+> +++ linux-2.6.15-rc5-mm2/arch/ia64/kernel/smpboot.c
+> @@ -652,7 +652,7 @@ int __cpu_disable(void)
+>  	remove_siblinginfo(cpu);
+>  	cpu_clear(cpu, cpu_online_map);
+>  	fixup_irqs();
+> -	local_flush_tlb_all();
+> +	local_flush_tlb_all(NULL);
+>  	cpu_clear(cpu, cpu_callin_map);
+>  	return 0;
+>  }
+> Index: linux-2.6.15-rc5-mm2/arch/ia64/mm/tlb.c
+> ===================================================================
+> --- linux-2.6.15-rc5-mm2.orig/arch/ia64/mm/tlb.c
+> +++ linux-2.6.15-rc5-mm2/arch/ia64/mm/tlb.c
+> @@ -81,7 +81,7 @@ wrap_mmu_context (struct mm_struct *mm)
+>  		if (i != cpu)
+>  			per_cpu(ia64_need_tlb_flush, i) = 1;
+>  	put_cpu();
+> -	local_flush_tlb_all();
+> +	local_flush_tlb_all(NULL);
+>  }
+>  
+>  void
+> @@ -111,7 +111,7 @@ ia64_global_tlb_purge (struct mm_struct 
+>  }
+>  
+>  void
+> -local_flush_tlb_all (void)
+> +local_flush_tlb_all (void *dummy)
+>  {
+>  	unsigned long i, j, flags, count0, count1, stride0, stride1, addr;
+>  
+> @@ -192,5 +192,5 @@ ia64_tlb_init (void)
+>  	local_cpu_data->ptce_stride[0] = ptce_info.stride[0];
+>  	local_cpu_data->ptce_stride[1] = ptce_info.stride[1];
+>  
+> -	local_flush_tlb_all();	/* nuke left overs from bootstrapping... */
+> +	local_flush_tlb_all(NULL);/* nuke left overs from bootstrapping... */
+>  }
+> Index: linux-2.6.15-rc5-mm2/arch/ia64/kernel/smp.c
+> ===================================================================
+> --- linux-2.6.15-rc5-mm2.orig/arch/ia64/kernel/smp.c
+> +++ linux-2.6.15-rc5-mm2/arch/ia64/kernel/smp.c
+> @@ -225,7 +225,7 @@ smp_send_reschedule (int cpu)
+>  void
+>  smp_flush_tlb_all (void)
+>  {
+> -	on_each_cpu((void (*)(void *))local_flush_tlb_all, NULL, 1, 1);
+> +	on_each_cpu(local_flush_tlb_all, NULL, 1, 1);
+>  }
+>  
+>  void
+> @@ -248,7 +248,7 @@ smp_flush_tlb_mm (struct mm_struct *mm)
+>  	 * anyhow, and once a CPU is interrupted, the cost of local_flush_tlb_all() is
+>  	 * rather trivial.
+>  	 */
+> -	on_each_cpu((void (*)(void *))local_finish_flush_tlb_mm, mm, 1, 1);
+> +	on_each_cpu(local_finish_flush_tlb_mm, mm, 1, 1);
+>  }
+>  
+>  /*
+> Index: linux-2.6.15-rc5-mm2/include/asm-ia64/tlbflush.h
+> ===================================================================
+> --- linux-2.6.15-rc5-mm2.orig/include/asm-ia64/tlbflush.h
+> +++ linux-2.6.15-rc5-mm2/include/asm-ia64/tlbflush.h
+> @@ -23,7 +23,7 @@
+>   * Flush everything (kernel mapping may also have changed due to
+>   * vmalloc/vfree).
+>   */
+> -extern void local_flush_tlb_all (void);
+> +extern void local_flush_tlb_all (void *dummy);
+>  
+>  #ifdef CONFIG_SMP
+>    extern void smp_flush_tlb_all (void);
+> @@ -34,8 +34,9 @@ extern void local_flush_tlb_all (void);
+>  #endif
+>  
+>  static inline void
+> -local_finish_flush_tlb_mm (struct mm_struct *mm)
+> +local_finish_flush_tlb_mm (void *info)
+>  {
+> +	struct mm_struct *mm = (struct mm_struct *)info;
+>  	if (mm == current->active_mm)
+>  		activate_context(mm);
+>  }
+> Index: linux-2.6.15-rc5-mm2/include/asm-ia64/mmu_context.h
+> ===================================================================
+> --- linux-2.6.15-rc5-mm2.orig/include/asm-ia64/mmu_context.h
+> +++ linux-2.6.15-rc5-mm2/include/asm-ia64/mmu_context.h
+> @@ -60,13 +60,13 @@ enter_lazy_tlb (struct mm_struct *mm, st
+>  static inline void
+>  delayed_tlb_flush (void)
+>  {
+> -	extern void local_flush_tlb_all (void);
+> +	extern void local_flush_tlb_all (void *);
+>  	unsigned long flags;
+>  
+>  	if (unlikely(__ia64_per_cpu_var(ia64_need_tlb_flush))) {
+>  		spin_lock_irqsave(&ia64_ctx.lock, flags);
+>  		if (__ia64_per_cpu_var(ia64_need_tlb_flush)) {
+> -			local_flush_tlb_all();
+> +			local_flush_tlb_all(NULL);
+>  			__ia64_per_cpu_var(ia64_need_tlb_flush) = 0;
+>  		}
+>  		spin_unlock_irqrestore(&ia64_ctx.lock, flags);
+> 
+> 
 
-snd_ac97_tune_hardware(cs5535au->ac97, ac97_quirks, ac97_quirk);
+-- 
+Yasunori Goto 
 
-after the snd_ac97_mixer call.
 
-Thanks,
-jk
 
-> Signed-off-by: René Rebe <rene@exactcode.de>
->
-> --- sound/pci/cs5535audio/cs5535audio.c.orig	2005-12-14 14:39:11.000000000
-> +0100
-> +++ sound/pci/cs5535audio/cs5535audio.c	2005-12-14 14:29:23.000000000 +0100
-> @@ -46,8 +46,10 @@
->  static int enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_PNP;
->
->  static struct pci_device_id snd_cs5535audio_ids[] = {
-> -	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_CS5535_AUDIO, PCI_ANY_ID,
-> -		PCI_ANY_ID, 0, 0, 0, },
-> +	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_CS5535_AUDIO,
-> +	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0, },
-> +	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CS5536_AUDIO,
-> +	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0, },
->  	{}
->  };
->
->
->
-> --
-> René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
->             http://www.exactcode.de | http://www.t2-project.org
->             +49 (0)30  255 897 45
->
->

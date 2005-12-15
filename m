@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750947AbVLOWA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbVLOWCE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750947AbVLOWA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 17:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbVLOWA0
+	id S1751129AbVLOWCE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 17:02:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbVLOWCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 17:00:26 -0500
-Received: from gate.crashing.org ([63.228.1.57]:28856 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750947AbVLOWA0 (ORCPT
+	Thu, 15 Dec 2005 17:02:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:58522 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751129AbVLOWCD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 17:00:26 -0500
-Subject: Re: MSI and driver APIs
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: rdreier@cisco.com, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-In-Reply-To: <20051215.134216.18400210.davem@davemloft.net>
-References: <adamzj2nk76.fsf@cisco.com> <1134680882.16880.37.camel@gaston>
-	 <adaek4enjoz.fsf@cisco.com>  <20051215.134216.18400210.davem@davemloft.net>
-Content-Type: text/plain
-Date: Fri, 16 Dec 2005 08:56:06 +1100
-Message-Id: <1134683766.16880.45.camel@gaston>
+	Thu, 15 Dec 2005 17:02:03 -0500
+Date: Thu, 15 Dec 2005 14:00:13 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-Id: <20051215140013.7d4ffd5b.akpm@osdl.org>
+In-Reply-To: <20051215212447.GR23349@stusta.de>
+References: <20051215212447.GR23349@stusta.de>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> This patch was already sent on:
+> - 11 Dec 2005
+> - 5 Dec 2005
+> - 30 Nov 2005
+> - 23 Nov 2005
+> - 14 Nov 2005
 
-> I think because of kinds of cases and other issues, going with
-> MSI by default is a non-starter.
-> 
-> Perhaps a better approach is to use a flag in the pci_driver_struct or
-> similar that says "you can have MSI enabled by default".  And
-> gradually convert drivers over which we know will handle it properly.
-> 
-> Doing some tom foolery with request_irq() sounds like a half-baked
-> idea at best.  The biggest argument against that is that this is
-> not a PCI interface, so expecting it to have PCI side effects is
-> really asking for trouble.
+Sigh.  I saw the volume of email last time and though "gee, glad I wasn't
+cc'ed on that lot".
 
-Hrm... true enough. I'll look into the driver flags option. I can
-probably always fallback to just turning MSI off everywhere at boot time
-and "reserve" an MSI number per device by simply holding on what was
-allocated by the firmware.
+Supporting 8k stacks is a small amount of code and nobody has seen a need
+to make changes in there for quite a long time.  So there's little cost to
+keeping the existing code.
 
-I was thinking that I might be able to not return the firmware allocated
-MSIs to the firmware, but just disable MSI in the device config space
-myself and keep track that N MSIs are still associated with the device
-even if not currently used. However, the way the IBM architecture is
-worded, it's unclear if that will work, that is, it's unclear that if I
-don't actually disable the MSIs with a firmware call (and thus return
-them), the interrupt controller will accept the INTx, chances are that
-it won't in fact.
+And the existing code is useful:
 
-Ben.
+a) people can enable it to confirm that their weird crash was due to a
+   stack overflow.
 
+b) If I was going to put together a maximally-stable kernel for a
+   complex server machine, I'd select 8k stacks.  We're still just too
+   squeezy, and we've had too many relatively-recent overflows, and there
+   are still some really deep callpaths in there.
 

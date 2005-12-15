@@ -1,61 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVLPCJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVLPCIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbVLPCJv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 21:09:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbVLPCJv
+	id S1751284AbVLPCIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 21:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVLPCII
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 21:09:51 -0500
-Received: from smtp110.plus.mail.mud.yahoo.com ([68.142.206.243]:60793 "HELO
-	smtp110.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932073AbVLPCJu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 21:09:50 -0500
+	Thu, 15 Dec 2005 21:08:08 -0500
+Received: from zproxy.gmail.com ([64.233.162.200]:47646 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751284AbVLPCIH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 21:08:07 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=qoxxwq8UqmaUNSaMMNEqzEU6eJ0ctn4pD5YsucobqdHAyz/RRL+mcsfkwZ9it+cHh8goMVlN3bnPPbtX/RIsRmrFTxHisx6btnmiL08LJsp0l1+GY5Do8uNd8Kl3G6GJQOfKtLPvO10onnxCigYHeS1FplmKGZj6IFCjHG0P2dg=  ;
-Message-ID: <43A221E9.8040505@yahoo.com.au>
-Date: Fri, 16 Dec 2005 13:09:45 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=o22RZ5XShZON/ePhCboWylmHFHYUOfaUbqUWGC3aF+gQoLqXr8Rs9q5TAiyL2S3tVijd+sq9SjiaXqo2oc5uoNEyXelZqGlWCiM6gAsLmXFxmroq9+rvSZc1RGekHPzuGt7hcksJrK11HBy+QdWwHRVOoWes1wU5MVYqHpvdteE=
+Message-ID: <81083a450512142145u56075dfch16ae708f34d93e7c@mail.gmail.com>
+Date: Thu, 15 Dec 2005 11:15:40 +0530
+From: Ashutosh Naik <ashutosh.naik@gmail.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [RFC][PATCH] Prevent overriding of Symbols in the Kernel, avoiding Undefined behaviour
+Cc: Andrew Morton <akpm@osdl.org>, jesper.juhl@gmail.com,
+       anandhkrishnan@yahoo.co.in, linux-kernel@vger.kernel.org,
+       rth@redhat.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
+       kaos@ocs.com.au
+In-Reply-To: <1134623704.7773.34.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-References: <200512150013.29549.a1426z@gawab.com> <200512151131.39216.a1426z@gawab.com> <43A1501F.5070803@aitel.hist.no> <200512152129.01861.a1426z@gawab.com>
-In-Reply-To: <200512152129.01861.a1426z@gawab.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_2205_3853625.1134625540723"
+References: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com>
+	 <1134424878.22036.13.camel@localhost.localdomain>
+	 <81083a450512130626x417d86c9w31f300555c99fdb2@mail.gmail.com>
+	 <9a8748490512130849o73c14313l166e6dd360f32d70@mail.gmail.com>
+	 <1134525816.30383.13.camel@localhost.localdomain>
+	 <81083a450512132010t2596046bsf7a36f85df19b89c@mail.gmail.com>
+	 <81083a450512132102g77f4a92kc894fcda9e9dc2a6@mail.gmail.com>
+	 <20051214204032.57c4c6ae.akpm@osdl.org>
+	 <1134623704.7773.34.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
->>Disadvantages of a stable API:
->>* It encourages binary-only drivers, while we prefer source drivers.
->>   Changing the API often and without warning is one way of
->>   hampering binary-only driver development without harming
->>   open-source drivers.
-> 
-> 
-> You are really shooting yourself in the foot here.
-> 
+------=_Part_2205_3853625.1134625540723
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Replying to different people in the same email gets confusing.
+On 12/15/05, Rusty Russell <rusty@rustcorp.com.au> wrote:
+> On Wed, 2005-12-14 at 20:40 -0800, Andrew Morton wrote:
+
+> +               if (!__find_symbol(mod->syms[i].name, &owner, &crc, 1)) {
+
+if (__find_symbol(mod->syms[i].name, &owner, &crc, 1)) {
+
+>+               if (!__find_symbol(mod->gpl_syms[i].name, &owner, &crc, 1)=
+) {
+
+if (__find_symbol(mod->gpl_syms[i].name, &owner, &crc, 1)) {
+
+Oops... I dunno how we missed it
+
+This code is architecture independent.
+
+Changelog -
+
+This patch ensures that an exported symbol  does not already exist in
+the kernel or in some other module's exported symbol table. This is
+done by checking the symbol tables for the exported symbol at the time
+of loading the module. Currently this is done after the relocation of
+the symbol.
+
+Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
+Signed-off-by: Anand Krishnan <anandhkrishnan@yahoo.co.in>
+
+------=_Part_2205_3853625.1134625540723
+Content-Type: text/plain; name=patch.txt; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch.txt"
+
+diff -Naurp linux-2.6.15-rc5-vanilla/kernel/module.c linux-2.6.15-rc5/kernel/module.c
+--- linux-2.6.15-rc5-vanilla/kernel/module.c	2005-12-14 10:14:08.000000000 +0530
++++ linux-2.6.15-rc5/kernel/module.c	2005-12-15 11:01:17.000000000 +0530
+@@ -1204,6 +1204,39 @@ void *__symbol_get(const char *symbol)
+ }
+ EXPORT_SYMBOL_GPL(__symbol_get);
+ 
++/*
++ * Ensure that an exported symbol [global namespace] does not already exist
++ * in the Kernel or in some other modules exported symbol table.
++ */
++static int verify_export_symbols(struct module *mod)
++{
++	const char *name = NULL;
++	unsigned long i, ret = 0;
++	struct module *owner;
++	const unsigned long *crc;
++        
++	for (i = 0; i < mod->num_syms; i++)
++	        if (__find_symbol(mod->syms[i].name, &owner, &crc, 1)) {
++			name = mod->syms[i].name;
++			ret = -ENOEXEC;
++			goto dup;
++		}
++	
++	for (i = 0; i < mod->num_gpl_syms; i++)
++	        if (__find_symbol(mod->gpl_syms[i].name, &owner, &crc, 1)) {
++			name = mod->gpl_syms[i].name;
++			ret = -ENOEXEC;
++			goto dup;
++		}
++
++dup:
++	if (ret)
++		printk(KERN_ERR "%s: exports duplicate symbol %s (owned by %s)\n", 
++			mod->name, name, module_name(owner));
++
++	return ret;
++}
++
+ /* Change all symbols so that sh_value encodes the pointer directly. */
+ static int simplify_symbols(Elf_Shdr *sechdrs,
+ 			    unsigned int symindex,
+@@ -1767,6 +1800,12 @@ static struct module *load_module(void _
+ 			goto cleanup;
+ 	}
+ 
++        /* Find duplicate symbols */
++	err = verify_export_symbols(mod);
++
++	if (err < 0)
++		goto cleanup;
++
+   	/* Set up and sort exception table */
+ 	mod->num_exentries = sechdrs[exindex].sh_size / sizeof(*mod->extable);
+ 	mod->extable = extable = (void *)sechdrs[exindex].sh_addr;
 
 
-> Don't mistake scalability for manageability/mantainability or flexibility.  
-> Scalability is more, much more.  It's about extendability and reusability 
-> built on a solid foundation that may be stacked.  Layers upon layers, the 
-> sky is the limit.  Stability is the key to unlock this scalability.
-> 
-
-You're just completely making that all up with no reasons or basis.
-What's more it doesn't even mean anything. It is quite obvious that
-you have zero real arguments as to why a stable API is good. So let's
-just leave it at that.
-
-Nick
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+------=_Part_2205_3853625.1134625540723--

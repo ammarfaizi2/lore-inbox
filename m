@@ -1,58 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbVLOVQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbVLOVSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751090AbVLOVQf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 16:16:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbVLOVQf
+	id S1751095AbVLOVSh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 16:18:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVLOVSh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 16:16:35 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:1378 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S1751090AbVLOVQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 16:16:34 -0500
-X-IronPort-AV: i="3.99,258,1131350400"; 
-   d="scan'208"; a="378856971:sNHT1615907338"
-To: Keith Owens <kaos@sgi.com>
-Cc: paulmck@us.ibm.com, Andi Kleen <ak@suse.de>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       vatsa@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
-       linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Semantics of smp_mb()
-X-Message-Flag: Warning: May contain useful information
-References: <17158.1134512861@ocs3.ocs.com.au>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 15 Dec 2005 13:15:38 -0800
-In-Reply-To: <17158.1134512861@ocs3.ocs.com.au> (Keith Owens's message of
- "Wed, 14 Dec 2005 09:27:41 +1100")
-Message-ID: <adairtqnjt1.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 15 Dec 2005 21:15:39.0025 (UTC) FILETIME=[B2B3E010:01C601BC]
+	Thu, 15 Dec 2005 16:18:37 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:14778 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751095AbVLOVSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 16:18:37 -0500
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+From: Steven Rostedt <rostedt@goodmis.org>
+To: linux@horizon.com
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+In-Reply-To: <20051215190937.5869.qmail@science.horizon.com>
+References: <20051215190937.5869.qmail@science.horizon.com>
+Content-Type: text/plain
+Date: Thu, 15 Dec 2005 16:18:21 -0500
+Message-Id: <1134681501.13138.91.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Keith> Why does mmiowb() map to empty on most systems, including
-    Keith> Alpha?  Should it not map to wmb() for everything except
-    Keith> IA64 and MIPS?
+On Thu, 2005-12-15 at 14:09 -0500, linux@horizon.com wrote:
+> >
+> 
+> As I said, as long as the -rt patch was not in the main tree, taking
+> advantage of the fact that 95% of the down() and up() callers just want
+> a mutex was a sensible implementation tradeoff.  For merging it into the
+> tree, it's ugly, and people don't like that.  The -rt folks have gotten
+> used to their naming perversions and so don't feel as much repugnance.
+> 
 
-I think the intention (as spelled out in Documentation/DocBook/deviceiobook.tmpl)
-is that mmiowb() must be used in conjunction with spinlocks or some
-other SMP synchronization mechanism.  The locks themselves are
-sufficient ordering on the archs where mmiowb() is a NOP.
+The naming in the -rt side is to try to keep things as much in parallel
+to the mainline as possible.  I don't think Ingo would have a problem
+with up / down just being used for semaphores, and having true mutex
+names for just that.  In fact that would help us a lot.  A lot of bugs
+fixes that I send to Ingo, is finding places that use mutex when they
+are really counting semaphores, and thus cant have PI.
 
-One way of thinking about this is that the usually barrier operations
-like wmb() affect the order of a single CPU's operations -- that is,
-wmb() is saying that all writes from the current thread of execution
-before the wmb() become visible before any of the writes from the
-current after the wmb().  But wmb() doesn't say anything about how one
-CPU's writes are ordered against anything a different CPU does.
+>
 
-mmiowb() is something else -- it controls the visibility of writes
-from different CPUs.  It says that all writes before the mmiowb()
-become visible before any writes from any CPU after the mmiowb().
-However, this isn't sensible unless we can order the writes between
-CPUs, and that only makes sense if there's a lock that lets us say
-that one CPU is executing something after the mmiowb().
+...
 
- - R.
+> 
+> > So when you say "This isn't about speed, this is about bug-free code", 
+> > you're just making that up.
+> >
+> > It's doubly silly when your "safer" 
+> > implementation uses totally illogical names. THAT is what creates bugs.
+> 
+> If you want to argue about names, go discuss gay marriage.
+
+Are you suggesting a "mutex union"?
+
+> 
+> I don't care what it's *called*.  I care that we have stronger
+> conditions that we can test for correctness.
+
+Well a name is helpful in understanding what's going on.  Especially if
+we want new up and coming kernel programmers to help out.  Instead of
+staying with what is there now.
+
+Also, while we're at it, lets fix that damn down_trylock (or
+mutex_trylock) to return 1 on success, 0 on contention, just like the
+spin_trylock does!!!
+
+Actually, that alone is a good argument to not keep the same names.  We
+can keep down_trylock as the same perverted self, and have mutex_trylock
+do it right.  Of course, special care is needed when doing this
+conversion, but a wrong pick should show itself right away.
+
+> 
+> > So go away.
+> > 
+> > Come back if you have pondered, and accepted reality, and perhaps have an 
+> > acceptable patch that introduces a separate data structure. 
+> 
+> Ha!  I still say you're wrong, and I'm not going to fold over an obvious
+> technical point just because of flaming.
+> 
+> Are we having some communication problems?  I find it hard to believe
+> that you're actually this *stupid*, but we might not be talking about
+> the same thing.
+> 
+> I took your posting to say that
+> 
+> a) Using the names "struct semaphore", "up()" and "down()" for a mutex
+>    is monumentally brain-dead.  I'm not arguing, although I understand
+>    the pragmatic reasons for the original abuse of notation.
+> 
+> b) There is no need for a mutex implementation, because a semaphore can
+>    do anything that a mutex can.  Here, I absolutely disagree.  There
+>    are things you can do with a mutex that you CANNOT do with a
+>    general semaphore, because a mutex has stronger invariants.
+> 
+>    A counting semaphore can do MOST of what a mutex does, and is
+>    demonstrably close enough for a lot of uses.
+> 
+> > And no, we're not switching users over whole-sale.  First you introduce the 
+> > new concept.  Only THEN can you can switch over INDIVIDUAL LOCKS with 
+> > reasons for why it's worth it.
+> 
+> Given that 95% of callers are using it as mutex, you're making this 20
+> times more work than necessary.  Convert 'em all and change the 5%
+> that need the counting back.
+
+I disagree with doing that.  Especially since I've argued that a mutex
+is a semaphore, but a semaphore is not a mutex.  So I rather go slowly
+changing the semaphores that are acting as mutexes, (since those that
+are not changed are not broken) than doing the change all mutexes to
+semaphores, where a mutex can not always act like a semaphore, and then
+go and break those 5%.
+
+In reality, this is what the RT patch did. All semaphores (up / down)
+became mutexes, and then we manually found the counting semaphores and
+started switching them to compat_semaphores (what semaphore is today).
+I'm still sending in patches to fix these.
+
+-- Steve
+
+

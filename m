@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVLOS2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbVLOSag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbVLOS2L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 13:28:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVLOS2L
+	id S1750890AbVLOSag (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 13:30:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbVLOSag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 13:28:11 -0500
-Received: from mail.physik.uni-muenchen.de ([192.54.42.129]:17110 "EHLO
-	mail.physik.uni-muenchen.de") by vger.kernel.org with ESMTP
-	id S1750787AbVLOS2K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 13:28:10 -0500
-Message-ID: <43A1B5B9.2040307@cip.physik.uni-muenchen.de>
-Date: Thu, 15 Dec 2005 19:28:09 +0100
-From: Patrick Fritzsch <fritzsch@cip.physik.uni-muenchen.de>
-User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050908)
+	Thu, 15 Dec 2005 13:30:36 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:50588 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750889AbVLOSaf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 13:30:35 -0500
+Message-ID: <43A1B63F.4030404@sgi.com>
+Date: Thu, 15 Dec 2005 12:30:23 -0600
+From: Eric Sandeen <sandeen@sgi.com>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: slow sync of fat 32 hotplugged devices
-Content-Type: text/plain; charset=UTF-8
+To: Shlomi Fish <shlomif@iglu.org.il>
+CC: Nathan Scott <nathans@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-xfs@oss.sgi.com
+Subject: Re: XFS Mount Hangs the Partition (on latest kernel + many old 2.6.x
+ ones)
+References: <200512071357.39121.shlomif@iglu.org.il> <20051208075512.F7282696@wobbly.melbourne.sgi.com> <200512081755.58078.shlomif@iglu.org.il> <200512151953.16931.shlomif@iglu.org.il>
+In-Reply-To: <200512151953.16931.shlomif@iglu.org.il>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo,
-I checked out suse10 lately and discovered some annoying behaviour in
-hotplugging an USB Stick.
+Shlomi Fish wrote:
+> Replying to myself, I'd like to ask for a response to my previous message, 
+> especially the order in which the operations Mr. Scott mentioned need to be 
+> performed.
 
-It seems that the hal daemon mounts a usbstick in fat32 mode, where
-default the sync option ist on. Actually this is a nice behaviour,
-because a cp to the stick should last so long until the file was
-completly written.
+ >>>- get sysrq-t information for all hung processes, esp. mount;
+ >>>- send xfs_info output for the filesystem in question;
+ >>>- dump the log (xfs_logprint -C) and send it to us.
 
-Actually the performance is very bad. A 200 MB file needs around 10
-Minutes in sync mode, while it needs around 1 Minute in not synchronous
-mode + executing a sync command later.
 
-I guess that the kernel checks after every block of the file, which is
-written, if the stick has really written it, which leads to such a big
-slowdown. There are already lots of comments of this in the web, where
-the solution is always to disable the sync mode in the hal daemon device
-files.
+xfs_logprint -C /dev/foo against the unmounted device.
 
-Wouldnt it be a nice behaviour, if you could mount a file in a new sync
-mode, where it isnt synchronized during writing a file, only when a
-close ioctl command was executed on a filehandle?
-sync writing to hotplugged devices would be a lot faster then.
+sysrq-t when it's hung, after you try to mount
 
-greetings,
-patrick
+xfs_info /mnt/point when it's mounted.
+
+Well, you can't mount, because recovery hangs, so,
+
+mount -o ro,norecovery /dev/foo /mnt/point; xfs_info /mnt/point
+
+-Eric
+

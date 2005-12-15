@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbVLOQ1k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbVLOQ3S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750799AbVLOQ1k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 11:27:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVLOQ1k
+	id S1750801AbVLOQ3S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 11:29:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVLOQ3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 11:27:40 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40381 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750799AbVLOQ1j (ORCPT
+	Thu, 15 Dec 2005 11:29:18 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:62860 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750792AbVLOQ3R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 11:27:39 -0500
-Date: Thu, 15 Dec 2005 17:27:18 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrea Arcangeli <andrea@suse.de>,
-       linux-kernel@vger.kernel.org, Sridhar Samudrala <sri@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH 0/6] Critical Page Pool
-Message-ID: <20051215162717.GK2904@elf.ucw.cz>
-References: <439FCECA.3060909@us.ibm.com> <20051214100841.GA18381@elf.ucw.cz> <20051214120152.GB5270@opteron.random> <1134565436.25663.24.camel@localhost.localdomain> <43A04A38.6020403@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43A04A38.6020403@us.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 15 Dec 2005 11:29:17 -0500
+Date: Thu, 15 Dec 2005 08:28:11 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Howells <dhowells@redhat.com>
+cc: Nikita Danilov <nikita@clusterfs.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, pj@sgi.com,
+       mingo@elte.hu, hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+In-Reply-To: <4743.1134662116@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.64.0512150817170.3292@g5.osdl.org>
+References: <17313.37200.728099.873988@gargle.gargle.HOWL> 
+ <1134559121.25663.14.camel@localhost.localdomain> <13820.1134558138@warthog.cambridge.redhat.com>
+ <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com>
+ <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org>
+ <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org>
+ <20051213093949.GC26097@elte.hu> <20051213100015.GA32194@elte.hu>
+ <6281.1134498864@warthog.cambridge.redhat.com> <14242.1134558772@warthog.cambridge.redhat.com>
+ <16315.1134563707@warthog.cambridge.redhat.com> <1134568731.4275.4.camel@tglx.tec.linutronix.de>
+ <43A0AD54.6050109@rtr.ca> <20051214155432.320f2950.akpm@osdl.org>
+ <17313.29296.170999.539035@gargle.gargle.HOWL> <1134658579.12421.59.camel@localhost.localdomain>
+  <4743.1134662116@warthog.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > The whole extra critical level seems dubious in itself. In 2.0/2.2 days
-> > there were a set of patches that just dropped incoming memory on sockets
-> > when the memory was tight unless they were marked as critical (ie NFS
-> > swap). It worked rather well. The rest of the changes beyond that seem
-> > excessive.
+
+On Thu, 15 Dec 2005, David Howells wrote:
 > 
-> Actually, Sridhar's code (mentioned earlier in this thread) *does* drop
-> incoming packets that are not 'critical', but unfortunately you need to
-> completely copy the packet into kernel memory before you can do any
-> processing on it to determine whether or not it's 'critical', and thus
-> accept or reject it.  If network traffic is coming in at a good clip and
-> the system is already under memory pressure, it's going to be difficult to
-> receive all these packets, which was the inspiration for this patchset.
+> But what to do about DECLARE_MUTEX? :-/
 
-You should be able to do all this with single, MTU-sized buffer.
+It's correctly named right now (it _does_ declare a mutex, despite the 
+insane noise from the sidelines).
 
-Receive packet into buffer. If it is nice, pass it up, otherwise drop
-it. Yes, it may drop some "important" packets, but that's okay, packet
-loss is expected on networks.
-								Pavel
--- 
-Thanks, Sharp!
+I would suggest that if you create a new "mutex" type, you just keep the 
+lower-case name. Don't re-use the DECLARE_MUTEX format, just do
+
+	struct mutex my_mutex = UNLOCKED_MUTEX;
+
+for new code that uses the new stuff.
+
+Think about it a bit. We don't have DECLARE_SPINLOCK either. Why?
+
+Hint: we have DECLARE_MUTEX exactly because it's also DOCUMENTATION that 
+we use a semaphore as a pure binary mutex. Not because we need it.
+
+If you create a real "struct mutex", then something like the current 
+DECLARE_MUTEX() is simply not relevant for the new type.
+
+			Linus

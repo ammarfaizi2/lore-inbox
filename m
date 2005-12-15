@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVLOQxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbVLOQy1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbVLOQxA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 11:53:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbVLOQxA
+	id S1750794AbVLOQy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 11:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbVLOQy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 11:53:00 -0500
-Received: from dtp.xs4all.nl ([80.126.206.180]:45171 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1750759AbVLOQw7 (ORCPT
+	Thu, 15 Dec 2005 11:54:27 -0500
+Received: from mail.kroah.org ([69.55.234.183]:60550 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750794AbVLOQy0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 11:52:59 -0500
-Date: Thu, 15 Dec 2005 17:52:55 +0100
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux@horizon.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Message-ID: <20051215165255.GA5510@harddisk-recovery.com>
-References: <20051215135812.14578.qmail@science.horizon.com> <Pine.LNX.4.64.0512150752240.3292@g5.osdl.org>
+	Thu, 15 Dec 2005 11:54:26 -0500
+Date: Thu, 15 Dec 2005 08:53:57 -0800
+From: Greg KH <greg@kroah.com>
+To: Jeremy Katz <katzj@redhat.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: "block" symlink in sysfs for a multifunction device
+Message-ID: <20051215165357.GA15016@kroah.com>
+References: <20051212134904.225dcc5d.zaitcev@redhat.com> <20051214055019.GA23036@kroah.com> <20051214152615.13b6b105.zaitcev@redhat.com> <20051214234255.GA3275@kroah.com> <1134622055.2864.21.camel@bree.local.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512150752240.3292@g5.osdl.org>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1134622055.2864.21.camel@bree.local.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 08:15:49AM -0800, Linus Torvalds wrote:
-> First off, the data structure is called a "semaphore", and always has 
-> been. It's _never_ been called a "mutex" in the first place, and the 
-> operations have been called "down()" and "up()", because I thought calling 
-> them P() and V() was just too damn traditional and confusing (I don't 
-> speak dutch, and even if I did, I think shortening names to that degree is 
-> just evil).
+On Wed, Dec 14, 2005 at 11:47:35PM -0500, Jeremy Katz wrote:
+> On Wed, 2005-12-14 at 15:42 -0800, Greg KH wrote:
+> > On Wed, Dec 14, 2005 at 03:26:15PM -0800, Pete Zaitcev wrote:
+> > > On Tue, 13 Dec 2005 21:50:19 -0800, Greg KH <greg@kroah.com> wrote:
+> > > > $ ls -l /sys/block/uba/device/
+> > > > -r--r--r--  1 root root 4096 Dec 13 21:31 bNumEndpoints
+> > > > lrwxrwxrwx  1 root root    0 Dec 13 21:31 block:uba -> ../../../../../../block/uba
+> > > > lrwxrwxrwx  1 root root    0 Dec 13 21:31 block:ubb -> ../../../../../../block/ubb
+> > > > lrwxrwxrwx  1 root root    0 Dec 13 21:31 block:ubc -> ../../../../../../block/ubc
+> > > > lrwxrwxrwx  1 root root    0 Dec 13 21:31 block:ubd -> ../../../../../../block/ubd
+> > > 
+> > > Greg, Jeremy is not happy about this.
+> > > 
+> > > > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=175563
+> > > > ------- Additional Comments From katzj@redhat.com  2005-12-14 18:05 EST -------
+> > > > Actually, this is problematic.  It makes it so that the single device directory
+> > > > corresponds to more than one device which we can't handle with kudzu :-(
+> > 
+> > Well, how do you handle it for class devices then?
+> 
+> We don't have any where we need to handle it at present.  
+> 
+> > And if this isn't acceptable, what would be?
+> 
+> By going this route, it really feels like you're hacking around your own
+> rule of a single value per file :-)  Except that instead of having a
+> file that I read five values from, it's five files with naming
+> heuristics to get five values.  Which is, in a lot of ways, worse.
 
-Just FYI, according to Dijkstra[1] V means "verhoog" which is dutch for
-"increase". P means "prolaag" which isn't a dutch word, just something
-Dijkstra invented. I guess he did that because "decrease" is "verlaag"
-in dutch and that would give you the confusing V() and V()
-operations...
+What?  These are symlinks, not files.  Why would you want to read the
+name of the block device from a file and then go have to look that
+location up, instead of just following the symlink?
 
-Other explanations you see in dutch CS courses are "passeer" (pass),
-"probeer" (try), "vrijgave" (unlock).
+> I'd much rather see the fact that there are multiple devices be handled
+> by having each device with its own unique directory.  This then keeps
+> all of the abstractions which currently exist.
 
-I do agree that Dijkstra should have used Prolaag() and Verhoog(), but
-I guess those operations wouldn't have sticked in the english CS
-literature.
+Those devices do have their own unique directory.  Look at the pointer
+above :)
 
+The point here is that multiple class devices and block devices can bind
+to a single "real device" in the system, and we need to handle that
+representation properly.  We have had the symlink for a while now, and I
+just forgot to put the proper name on the block device one, to match up
+with the class device naming.
 
-Erik
+thanks,
 
-[1] http://www.cs.utexas.edu/users/EWD/ewd00xx/EWD74.PDF
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+greg k-h

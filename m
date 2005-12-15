@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161132AbVLOFm5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161133AbVLOFp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161132AbVLOFm5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 00:42:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161131AbVLOFm5
+	id S1161133AbVLOFp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 00:45:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161134AbVLOFp5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 00:42:57 -0500
-Received: from ns.suse.de ([195.135.220.2]:18909 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161129AbVLOFm4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 00:42:56 -0500
-Date: Thu, 15 Dec 2005 06:42:45 +0100
-From: Andi Kleen <ak@suse.de>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: mpm@selenic.com, sri@us.ibm.com, ak@suse.de, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-Message-ID: <20051215054245.GD18862@brahms.suse.de>
-References: <20051214092228.GC18862@brahms.suse.de> <1134582945.8698.17.camel@w-sridhar2.beaverton.ibm.com> <20051215033937.GC11856@waste.org> <20051214.203023.129054759.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051214.203023.129054759.davem@davemloft.net>
+	Thu, 15 Dec 2005 00:45:57 -0500
+Received: from smtp112.sbc.mail.re2.yahoo.com ([68.142.229.93]:5207 "HELO
+	smtp112.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1161130AbVLOFp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 00:45:56 -0500
+Message-Id: <20051215054444.854564000.dtor_core@ameritech.net>
+References: <20051215053933.125918000.dtor_core@ameritech.net>
+Date: Thu, 15 Dec 2005 00:39:36 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: wbsd-devel@list.drzeus.cx, linux-kernel@vger.kernel.org
+Subject: [patch 3/3] wbsd: make use of ARRAY_SIZE() macro
+Content-Disposition: inline; filename=wbsd-array-size.patch
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 08:30:23PM -0800, David S. Miller wrote:
-> From: Matt Mackall <mpm@selenic.com>
-> Date: Wed, 14 Dec 2005 19:39:37 -0800
-> 
-> > I think we need a global receive pool and per-socket send pools.
-> 
-> Mind telling everyone how you plan to make use of the global receive
-> pool when the allocation happens in the device driver and we have no
-> idea which socket the packet is destined for?  What should be done for
+wbsd: make use of ARRAY_SIZE() macro
 
-In theory one could use multiple receive queue on intelligent enough
-NIC with the NIC distingushing the sockets.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-But that would be still a nasty "you need advanced hardware FOO to avoid
-subtle problem Y" case. Also it would require lots of  driver hacking.
+ drivers/mmc/wbsd.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-And most NICs seem to have limits on the size of the socket tables for this, which
-means you would end up in a "only N sockets supported safely" situation,
-with N likely being quite small on common hardware.
-
-I think the idea of the original poster was that just freeing non critical packets
-after a short time again would be good enough, but I'm a bit sceptical
-on that.
-
-> I truly dislike these patches being discussed because they are a
-> complete hack, and admittedly don't even solve the problem fully.  I
-
-I agree. 
-
-> I think GFP_ATOMIC memory pools are more powerful than they are given
-> credit for.  There is nothing preventing the implementation of dynamic
-
-Their main problem is that they are used too widely and in a lot
-of situations that aren't really critical.
-
--Andi
+Index: work/drivers/mmc/wbsd.c
+===================================================================
+--- work.orig/drivers/mmc/wbsd.c
++++ work/drivers/mmc/wbsd.c
+@@ -1399,11 +1399,11 @@ static int __devinit wbsd_scan(struct wb
+ 	 * Iterate through all ports, all codes to
+ 	 * find hardware that is in our known list.
+ 	 */
+-	for (i = 0; i < sizeof(config_ports) / sizeof(int); i++) {
++	for (i = 0; i < ARRAY_SIZE(config_ports); i++) {
+ 		if (!request_region(config_ports[i], 2, DRIVER_NAME))
+ 			continue;
+ 
+-		for (j = 0; j < sizeof(unlock_codes) / sizeof(int); j++) {
++		for (j = 0; j < ARRAY_SIZE(unlock_codes); j++) {
+ 			id = 0xFFFF;
+ 
+ 			host->config = config_ports[i];
+@@ -1419,7 +1419,7 @@ static int __devinit wbsd_scan(struct wb
+ 
+ 			wbsd_lock_config(host);
+ 
+-			for (k = 0; k < sizeof(valid_ids) / sizeof(int); k++) {
++			for (k = 0; k < ARRAY_SIZE(valid_ids); k++) {
+ 				if (id == valid_ids[k]) {
+ 					host->chip_id = id;
+ 
 

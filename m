@@ -1,48 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbVLOGPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbVLOG0v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161148AbVLOGPO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 01:15:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161152AbVLOGPN
+	id S964933AbVLOG0v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 01:26:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964811AbVLOG0u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 01:15:13 -0500
-Received: from twinlark.arctic.org ([207.7.145.18]:53189 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP
-	id S1161148AbVLOGPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 01:15:12 -0500
-Date: Wed, 14 Dec 2005 22:15:11 -0800 (PST)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-cc: martin <stillflame@freegeek.org>, linux-kernel@vger.kernel.org
-Subject: Re: mounting loopback device partitions
-In-Reply-To: <Pine.LNX.4.64.0512142210490.26888@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.63.0512142209490.7172@twinlark.arctic.org>
-References: <20051215041227.GF43089@faeriemud.org>
- <Pine.LNX.4.64.0512142210490.26888@montezuma.fsmlabs.com>
+	Thu, 15 Dec 2005 01:26:50 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:50498 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964933AbVLOG0u convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 01:26:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=i5d3U18MMV1WR8B8pqTKePfxVmLrXEiiP47qAsTdLPRhselEcREXEt8MqzR4kzrphvWRboWhmMxbbpb5x7wVd+kTpB9W0UQ+RkwKzl2l7gjvASb6veqdBYPo1/iK8VfGVkfYTLvn0QzrjEBpiGW36PS+ASmnvgYwuhvR7SH2NnQ=
+Message-ID: <47f5dce30512142226n18fc4280m26ce5b0bb4b80d3f@mail.gmail.com>
+Date: Wed, 14 Dec 2005 22:26:49 -0800
+From: jayakumar alsa <jayakumar.alsa@gmail.com>
+To: =?ISO-8859-1?Q?Ren=E9_Rebe?= <rene@exactcode.de>
+Subject: Re: cs5536 ID for cs5535audio
+Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200512141431.32685.rene@exactcode.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <200512141431.32685.rene@exactcode.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/14/05, René Rebe <rene@exactcode.de> wrote:
+> Hi all,
+>
+> relative to 2.6.15-rc5-mm2 / alsa-cvs, works for me:
+>
+> Added AMD CS5536 to the cs5535audio driver.
+>
 
+René,
 
-On Wed, 14 Dec 2005, Zwane Mwaikambo wrote:
+Your patch looks fine to me. If possible, could you add an update for
+the Kconfig to list cs5536 within the cs5535audio entry. One thing
+though, I'm concerned about master mixer control on certain GX3
+boards. There was an issue raised by Stefan Schweizer where the
+cs5535audio driver on GX3 boards (with at least one that used the
+Realtek ALC203 rev 0 ac97 codec) fails to provide functional master
+control. John Zulauf mentioned that certain GX3 reference board
+designs wire headphone out to the connector rather than main. I still
+haven't received the GX3 to test with so perhaps someone else would
+like to test an AC97_TUNE_HP_ONLY ac97_quirk. Here's a rough start
+that someone could use:
 
-> On Wed, 14 Dec 2005, martin wrote:
-> 
-> > this is a wishlistish feature request.
-> > 
-> > i would like to be able to partition a loopback device,
-> > and then mount those partitions.
-> > 
-> > sorry i couldn't find the loopback maintainer to send this to.
-> 
-> http://www.mega-tokyo.com/osfaq2/index.php/Disk%20Images%20Under%20Linux
+static char *ac97_quirk;
+module_param(ac97_quirk, charp, 0444);
+MODULE_PARM_DESC(ac97_quirk, "AC'97 board specific workarounds.");
 
-the only problem with this technique is you can't set the limit for a 
-loopback... only the offset...
+static struct ac97_quirk ac97_quirks[] __devinitdata = {
+	{
+		.subvendor = use lspci to find out,
+		.subdevice = something,
+		.name = "boardname",     /* codecname */
+		.type = AC97_TUNE_HP_ONLY
+	},
+	{}
+};
 
-istr someone posted a script which used fdisk -l and dmsetup to create 
-properly offset/limited loopback partition devices... or maybe that was 
-just what several people said would be the cool way to solve it :)
+then add:
 
--dean
+snd_ac97_tune_hardware(cs5535au->ac97, ac97_quirks, ac97_quirk);
+
+after the snd_ac97_mixer call.
+
+Thanks,
+jk
+
+> Signed-off-by: René Rebe <rene@exactcode.de>
+>
+> --- sound/pci/cs5535audio/cs5535audio.c.orig	2005-12-14 14:39:11.000000000
+> +0100
+> +++ sound/pci/cs5535audio/cs5535audio.c	2005-12-14 14:29:23.000000000 +0100
+> @@ -46,8 +46,10 @@
+>  static int enable[SNDRV_CARDS] = SNDRV_DEFAULT_ENABLE_PNP;
+>
+>  static struct pci_device_id snd_cs5535audio_ids[] = {
+> -	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_CS5535_AUDIO, PCI_ANY_ID,
+> -		PCI_ANY_ID, 0, 0, 0, },
+> +	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_CS5535_AUDIO,
+> +	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0, },
+> +	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CS5536_AUDIO,
+> +	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0, },
+>  	{}
+>  };
+>
+>
+>
+> --
+> René Rebe - Rubensstr. 64 - 12157 Berlin (Europe / Germany)
+>             http://www.exactcode.de | http://www.t2-project.org
+>             +49 (0)30  255 897 45
+>
+>

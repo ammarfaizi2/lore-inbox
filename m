@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161061AbVLOIW7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161076AbVLOI3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161061AbVLOIW7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 03:22:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161070AbVLOIW7
+	id S1161076AbVLOI3c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 03:29:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbVLOI3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 03:22:59 -0500
-Received: from mf00.sitadelle.com ([212.94.174.67]:56968 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1161061AbVLOIW6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 03:22:58 -0500
-Message-ID: <43A127D3.1070106@cosmosbay.com>
-Date: Thu, 15 Dec 2005 09:22:43 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>, dada1@cosmobay.com
-Subject: Re: [patch 3/3] x86_64: Node local pda take 2 -- node local pda allocation
-References: <20051215023345.GB3787@localhost.localdomain> <20051215023748.GD3787@localhost.localdomain>
-In-Reply-To: <20051215023748.GD3787@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 15 Dec 2005 03:29:32 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:14012
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1161070AbVLOI3b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 03:29:31 -0500
+Date: Thu, 15 Dec 2005 00:21:20 -0800 (PST)
+Message-Id: <20051215.002120.133621586.davem@davemloft.net>
+To: sri@us.ibm.com
+Cc: mpm@selenic.com, ak@suse.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.58.0512142318410.7197@w-sridhar.beaverton.ibm.com>
+References: <20051215033937.GC11856@waste.org>
+	<20051214.203023.129054759.davem@davemloft.net>
+	<Pine.LNX.4.58.0512142318410.7197@w-sridhar.beaverton.ibm.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai a écrit :
-> Patch uses a static PDA array early at boot and reallocates processor PDA
-> with node local memory when kmalloc is ready, just before pda_init.
-> The boot_cpu_pda is needed since the cpu_pda is used even before pda_init for
-> that cpu is called.   
-> (pda_init is called when APs are brought on at rest_init().  But
-> setup_per_cpu_areas is called early in start_kernel and 
-> sched_init uses the per-cpu offset table early)
+From: Sridhar Samudrala <sri@us.ibm.com>
+Date: Wed, 14 Dec 2005 23:37:37 -0800 (PST)
 
-That seems good, thank you !
+> Instead, you seem to be suggesting in_emergency to be set dynamically
+> when we are about to run out of ATOMIC memory. Is this right?
 
-Do you have an idea of the performance gain we could expect from this node 
-local pda allocation ?
+Not when we run out, but rather when we reach some low water mark, the
+"critical sockets" would still use GFP_ATOMIC memory but only
+"critical sockets" would be allowed to do so.
 
-Say a CPU is on Node 1,  was a change in pda (allocated on Node 0) immediatly 
-mirrored on remote node or not ?
+But even this has faults, consider the IPSEC scenerio I mentioned, and
+this applies to any kind of encapsulation actually, even simple
+tunneling examples can be concocted which make the "critical socket"
+idea fail.
 
-Eric
+The knee jerk reaction is "mark IPSEC's sockets critical, and mark the
+tunneling allocations critical, and... and..."  well you have
+GFP_ATOMIC then my friend.
+
+In short, these "seperate page pool" and "critical socket" ideas do
+not work and we need a different solution, I'm sorry folks spent so
+much time on them, but they are heavily flawed.

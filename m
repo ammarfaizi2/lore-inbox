@@ -1,41 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVLOV0i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbVLOV3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbVLOV0i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 16:26:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbVLOV0i
+	id S1751114AbVLOV3K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 16:29:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVLOV3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 16:26:38 -0500
-Received: from hansmi.home.forkbomb.ch ([213.144.146.165]:38173 "EHLO
-	hansmi.home.forkbomb.ch") by vger.kernel.org with ESMTP
-	id S1751112AbVLOV0h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 16:26:37 -0500
-Date: Thu, 15 Dec 2005 22:26:35 +0100
-From: Michael Hanselmann <linux-kernel@hansmi.ch>
-To: Olof Johansson <olof@lixom.net>
-Cc: dtor_core@ameritech.net, kernel-stuff@comcast.net,
-       linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       linux-input@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH 2.6 1/2] usb/input: Add relayfs support to appletouch driver
-Message-ID: <20051215212635.GA6195@hansmi.ch>
-References: <20051213223659.GB20017@hansmi.ch> <1134568620.3875.6.camel@localhost> <20051214213923.GB17548@hansmi.ch> <d120d5000512141404wc86331fo124ebd29b713b07e@mail.gmail.com> <20051214233108.GA20127@hansmi.ch> <20051215195017.GA7195@pb15.lixom.net>
+	Thu, 15 Dec 2005 16:29:10 -0500
+Received: from mail.shareable.org ([81.29.64.88]:30694 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S1751114AbVLOV3J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 16:29:09 -0500
+Date: Thu, 15 Dec 2005 21:28:45 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: JANAK DESAI <janak@us.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, viro@ftp.linux.org.uk,
+       chrisw@osdl.org, dwmw2@infradead.org, serue@us.ibm.com, mingo@elte.hu,
+       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm 1/9] unshare system call: system call handler function
+Message-ID: <20051215212845.GA6990@mail.shareable.org>
+References: <1134513959.11972.167.camel@hobbs.atlanta.ibm.com> <m1k6e687e2.fsf@ebiederm.dsl.xmission.com> <43A1D435.5060602@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051215195017.GA7195@pb15.lixom.net>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <43A1D435.5060602@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 11:50:17AM -0800, Olof Johansson wrote:
-> I think I agree with previous comments regarding debug code in the driver:
-> It's unlikely to ever be used by more than a couple of people at very
-> rare occasions (new hardware releases), and the barrier to using it is
-> still high; new users need to learn how to parse the data anyway. I don't
-> see a reason to include this in mainline.
+JANAK DESAI wrote:
+> clone checks to
+> makes sure that CLONE_NEWNS and CLONE_FS are not specified together, while
+> unshare will force CLONE_FS if CLONE_NEWNS is spefcified.
+[ ... ]
+> since clone and unshare are doing opposite things, sharing code
+> between them that checks constraints on the flags can get
+> convoluted.
 
-Okay, based on your comments, please drop that patch. How about the one
-to support the Geyser 2 device? Should I do a rediff without relayfs
-support?
+clone() and unshare() are not doing opposite things.  They do the same
+thing, which is to unshare some properties while keeping others
+shared, and the only differences are that clone() first creates a new
+task, and the defaults for flags that aren't specified.
 
-Greets,
-Michael
+It is the polarity of _some_ flags which is opposite in your unshare()
+API: In your API, CLONE_FS means "unshare fs", while with clone() it
+means "share fs".  Same for other flags - except for CLONE_NEWNS,
+where unshare() and clone() both take it to mean "unshare ns".
+
+That's a bit of a confusing mixture of polarities, in my opinion.
+
+I think it would be better if this:
+
+	pid = clone(flags);
+
+Could be always equivalent to this:
+
+	pid = clone(CLONE_FLAGS_TO_SHARE_EVERYTHING)
+	if (pid == 0)
+		unshare(flags);
+
+Or, if you don't like that, then this:
+
+	pid = clone(CLONE_FLAGS_TO_SHARE_EVERYTHING)
+	if (pid == 0)
+		unshare(~flags);
+
+However, if the API you've chosen for unshare() must be kept, then you
+can still have the same checks in clone() and unshare().  Just XOR the
+flags word with bits for polarities that are different between the two
+calls, before doing the checks, and XOR again afterwards to include
+any flags that were forced by the checks.
+
+-- Jamie

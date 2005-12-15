@@ -1,86 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbVLOW65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVLOXCy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbVLOW65 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 17:58:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbVLOW64
+	id S1751096AbVLOXCy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 18:02:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbVLOXCy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 17:58:56 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:64203 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751195AbVLOW6z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 17:58:55 -0500
-Subject: Re: [ckrm-tech] Re: [RFC][patch 00/21] PID Virtualization:
-	Overview and Patches
-From: Matt Helsley <matthltc@us.ibm.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Gerrit Huizenga <gh@us.ibm.com>, Hubertus Franke <frankeh@watson.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       LSE <lse-tech@lists.sourceforge.net>, vserver@list.linux-vserver.org,
-       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
-       pagg@oss.sgi.com
-In-Reply-To: <1134676961.22525.72.camel@localhost>
-References: <E1Emz6c-0006c3-00@w-gerrit.beaverton.ibm.com>
-	 <1134676961.22525.72.camel@localhost>
-Content-Type: text/plain
-Date: Thu, 15 Dec 2005 14:52:49 -0800
-Message-Id: <1134687169.10396.33.camel@stark>
+	Thu, 15 Dec 2005 18:02:54 -0500
+Received: from mail.kroah.org ([69.55.234.183]:11427 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751096AbVLOXCx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 18:02:53 -0500
+Date: Thu, 15 Dec 2005 15:02:18 -0800
+From: Greg KH <greg@kroah.com>
+To: Vitaly Wool <vwool@ru.mvista.com>
+Cc: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org,
+       dpervushin@gmail.com, akpm@osdl.org, basicmark@yahoo.com,
+       komal_shah802003@yahoo.com, stephen@streetfiresound.com,
+       spi-devel-general@lists.sourceforge.net, Joachim_Jaeger@digi.com
+Subject: Re: [PATCH/RFC] SPI: add DMAUNSAFE analog to David Brownell's core
+Message-ID: <20051215230217.GA11880@kroah.com>
+References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051214171842.GB30546@kroah.com> <43A05C32.3070501@ru.mvista.com> <200512141102.53599.david-b@pacbell.net> <43A1118E.9040608@ru.mvista.com> <20051215164444.GA14870@kroah.com> <43A1ECE4.6010600@ru.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43A1ECE4.6010600@ru.mvista.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-15 at 12:02 -0800, Dave Hansen wrote:
-> On Thu, 2005-12-15 at 11:49 -0800, Gerrit Huizenga wrote:
-> > I think perhaps this could also be the basis for a CKRM "class"
-> > grouping as well.  Rather than maintaining an independent class
-> > affiliation for tasks, why not have a class devolve (evolve?) into
-> > a "container" as described here.
+On Fri, Dec 16, 2005 at 01:23:32AM +0300, Vitaly Wool wrote:
+> Greg KH wrote:
 > 
-> Wasn't one of the grand schemes of CKRM to be able to have application
-> instances be shared?  For instance, running a single DB2, Oracle, or
-> Apache server, and still accounting for all of the classes separately.
-> If so, that wouldn't work with a scheme that requires process
-> separation.
+> >On Thu, Dec 15, 2005 at 09:47:42AM +0300, Vitaly Wool wrote:
+> > 
+> >
+> >>David Brownell wrote:
+> >>
+> >>   
+> >>
+> >>>No, "stupid drivers will suffer"; nothing new.  Just observe
+> >>>how the ads7846 touchscreen driver does small async transfers.
+> >>>
+> >>>
+> >>>     
+> >>>
+> >>One cannot allocate memory in interrupt context, so the way to go is 
+> >>allocating it on stack, thus the buffer is not DMA-safe.
+> >>Making it DMA-safe in thread that does the very message processing is a 
+> >>good way of overcoming this.
+> >>Using preallocated buffer is not a good way, since it may well be
+> >>already used by another interrupt or not yet processed by the worker
+> >>thread (or tasklet, or whatever).
+> >>   
+> >>
+> >
+> >Yes it is a good way.  That's the way USB currently works in the kernel,
+> >and it works just fine.  It keeps the rules simple and everyone knows
+> >what needs to be done.
+> > 
+> >
+> Looking at my usbnet stuff, I can't share that opinion :-/
+> Are you really ready to lower the performance and quality of service 
+> just for approach uniformity?
 
-	f-series CKRM manages tasks via the task struct -- this means it
-manages each thread and not a process. Since, generally speaking, each
-thread is assigned the same class as the main thread this effectively
-manages processes. So yes, separate DB2, Oracle, Apache, etc. threads
-could be assigned to different classes. This is definitely something a
-strict container could not do.
+What performance issues?  As an example, USB has this rule, and we can
+saturate a 480Mbit line with a _userspace_ driver (loads of memcopy
+calles involved there.)
 
-> But, sharing the application instances is probably mostly (only)
-> important for databases anyway.  I would imagine that most of the
+> And, can you please point me out the examples of devices behind USB bus 
+> that need to write registers from an interrupt context?
 
-<nit>
-I wouldn't say only for databases. human-interaction-bound processes can
-share instances (gnome-terminal). Granted, these probably would never
-need to span a container or a class...
-</nit>
+usb to serial drivers need to allocate buffers for their write functions
+as they can be called in irq context from a tty line dicipline, which
+causes a USB packet to be dynamically created and sent to the USB core.
+I also think the USB network and ATM drivers have these requirements
+too, just search for GFP_ATOMIC in the drivers/usb/ directory to find
+these instances.
 
-> overhead in a server like an Apache instance is for the page cache for
-> content, as well as a bit for Apache's executables themselves.  The
-> container schemes should be able to share page cache for both cases.
-> The main issues would be managing multiple configurations, and the
-> increased overhead from having more processes around than with a single
-> server.
-> 
-> There might also be some serious restrictions on containerized
-> applications.  For instance, taking a running application, moving it out
-> of one container, and into another might not be feasible.  Is this
-> something that is common or desired in the current CKRM framework?
-> 
-> -- Dave
+Anyway, this is my last response about this issue.  Please consider it
+over.
 
-	Yes, being able to move a process from one class to another is
-important. This can happen as a consequence of the system administrator
-deciding to change the distribution of resources without having to
-restart services. The change in distribution can be done by changing
-shares of a class, manually moving processes between classes, by making
-or deleting classes, or a combination of these operations.
+thanks,
 
-Cheers,
-	-Matt Helsley
-
+greg k-h

@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965209AbVLON2y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422724AbVLONbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965209AbVLON2y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 08:28:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965210AbVLON2y
+	id S1422724AbVLONbc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 08:31:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422723AbVLONbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 08:28:54 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56072 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S965209AbVLON2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 08:28:53 -0500
-Date: Thu, 15 Dec 2005 13:28:47 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Anderson Briglia <briglia.anderson@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/5] [RFC] Add MMC password protection (lock/unlock) support
-Message-ID: <20051215132847.GA6211@flint.arm.linux.org.uk>
-Mail-Followup-To: Anderson Briglia <briglia.anderson@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <e55525570512140530u3601e325ha63b1db10209dbcc@mail.gmail.com>
+	Thu, 15 Dec 2005 08:31:32 -0500
+Received: from cantor.suse.de ([195.135.220.2]:65190 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422719AbVLONbc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 08:31:32 -0500
+Date: Thu, 15 Dec 2005 14:31:22 +0100
+From: Andi Kleen <ak@suse.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Andi Kleen <ak@suse.de>, "David S. Miller" <davem@davemloft.net>,
+       sri@us.ibm.com, mpm@selenic.com, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: [RFC] Fine-grained memory priorities and PI
+Message-ID: <20051215133122.GE23384@wotan.suse.de>
+References: <20051215033937.GC11856@waste.org> <20051214.203023.129054759.davem@davemloft.net> <Pine.LNX.4.58.0512142318410.7197@w-sridhar.beaverton.ibm.com> <20051215.002120.133621586.davem@davemloft.net> <9E6D85FF-E546-4057-80EF-7479021AFAA1@mac.com> <20051215090401.GV23384@wotan.suse.de> <8FC3785F-01B3-4F9A-9E3C-89E90CB719B0@mac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <e55525570512140530u3601e325ha63b1db10209dbcc@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <8FC3785F-01B3-4F9A-9E3C-89E90CB719B0@mac.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 09:30:49AM -0400, Anderson Briglia wrote:
-> @@ -69,12 +70,16 @@ struct mmc_card {
->  #define mmc_card_bad(c)		((c)->state & MMC_STATE_BAD)
->  #define mmc_card_sd(c)		((c)->state & MMC_STATE_SDCARD)
->  #define mmc_card_readonly(c)	((c)->state & MMC_STATE_READONLY)
-> +#define mmc_card_locked(c)	((c)->state & MMC_STATE_LOCKED)
-> +
-> +#define mmc_card_lockable(c)	((c)->csd.cmdclass & CCC_LOCK_CARD)
+> Naturally this is all still in the vaporware stage, but I think that  
+> if implemented the concept might at least improve the OOM/low-memory  
+> situation considerably.  Starting to fail allocations for the cluster  
+> programs (including their kernel allocations) well before failing  
+> them for the swap-fallback tool would help the original poster, and I  
+> imagine various tweaked priorities would make true OOM-deadlock far  
+> less likely.
 
-Looking at some of the MMC specs, this is not sufficient to tell whether
-the card supports the lock/unlock commands - eg, the Sandisk cards have
-a CCC value of 0x1ff but do not appear to support CMD42.
+The problem is that deadlocks can happen even without anybody
+running out of virtual memory.  The deadlocks GFP_CRITICAL 
+was supposed to handle are deadlocks while swapping out data
+because the swapping on some devices needs more memory by itself.
+This happens long before anything is running into a true oom. 
+It's just that the memory cleaning stage cannot make progress
+anymore.
 
-It would appear that there are different definitions for command
-classes 6 to 8:
+Your proposal isn't addressing this problem at all I think.
 
-command group:		A				B
-6			write write-protection		write protection
-7			read write-protection		lock card
-8			erase write-protection		app. specific
+Handling true OOM is a quite different issue.
 
-What the interpretation of whether A or B applies is unclear.
-Type A cards have CSD structure 1 and MMC protocol version code 1.
-Type B cards have CSD structure 2 and MMC protocol version code 3.
-
-It would appear that the "CSD structure" field describes the version
-of the CSD structure itself, and in part determines the validity
-of the MMC protocol version field (maybe defining the mapping of
-version codes to MMC spec versions).  Sandisk implies that CSD
-structure 1 has version codes 0=v1.0-v1.2, 1=v1.4.
-
-CSD structure 2 we have less idea about the interpretation of the
-MMC protocol version codes, except that 3 may mean MMC spec v3.1.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+-Andi

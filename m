@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750833AbVLORnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750839AbVLORps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750833AbVLORnY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 12:43:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750835AbVLORnY
+	id S1750839AbVLORps (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 12:45:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbVLORps
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 12:43:24 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:40099 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750833AbVLORnX (ORCPT
+	Thu, 15 Dec 2005 12:45:48 -0500
+Received: from fmr22.intel.com ([143.183.121.14]:3511 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S1750837AbVLORpr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 12:43:23 -0500
-Date: Thu, 15 Dec 2005 09:42:48 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-cc: willy@debian.org, arnd@arndb.de, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, debian-glibc@lists.debian.org
-Subject: Re: [patch] ioctl BLKGETSIZE64 fix
-In-Reply-To: <20051215122527.GA7762@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0512150936030.3292@g5.osdl.org>
-References: <20051215122527.GA7762@localhost.localdomain>
+	Thu, 15 Dec 2005 12:45:47 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+Date: Thu, 15 Dec 2005 09:45:10 -0800
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0535A549@scsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+Thread-Index: AcYBjfrE6sONAJEUSDeHx2Y5kdXuXQAD+5SA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: <dhowells@redhat.com>, "Andrew Morton" <akpm@osdl.org>
+Cc: "Mark Lord" <lkml@rtr.ca>, <tglx@linutronix.de>,
+       <alan@lxorguk.ukuu.org.uk>, <pj@sgi.com>, <mingo@elte.hu>,
+       <hch@infradead.org>, <torvalds@osdl.org>, <arjan@infradead.org>,
+       <matthew@wil.cx>, <linux-kernel@vger.kernel.org>,
+       <linux-arch@vger.kernel.org>
+X-OriginalArrivalTime: 15 Dec 2005 17:45:11.0442 (UTC) FILETIME=[4C139F20:01C6019F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+     Okay, spinlocks are null ops when CONFIG_SMP and CONFIG_DEBUG_SPINLOCK
+     are both disabled, but you still have to disable interrupts, and that
+     slows things down, sometimes quite appreciably. It is, for example,
+     something I really want to avoid doing on FRV as it takes a *lot* of
+     cycles.
 
+There was a USENIX paper a couple of decades ago that described how
+to do a fast s/w disable of interrupts on machines where really disabling
+interrupts was expensive.  The rough gist was that the spl[1-7]()
+functions would just set a flag in memory to hold the desired interrupt
+mask.  If an interrupt actually occurred when it was s/w blocked, the
+handler would set a pending flag, and just rfi with interrupts disabled.
+Then the splx() code checked to see whether there was a pending interrupt
+and dealt with it if there was.
 
-On Thu, 15 Dec 2005, Coywolf Qi Hunt wrote:
-> 
-> Two years ago, "[PATCH] use size_t for the broken ioctl numbers" brought in the problem.
-> <http://lkml.org/lkml/2003/9/7/14> (also FYI: <https://lwn.net/Articles/48360/>)
-> 
-> The patch below fixes the bug on BLKGETSIZE64. typeof(size_t) == 32, but we expect 64. 
-> The choice of `size_t' is also a mistake. We should have taken `int'.  This also affects
-> userland linux-kernel-headers.
-> 
-> Or am I missing something? Thanks.
+-Tony
 
-You're missing the fact that we can't just change existing numbers. It 
-just makes the ioctl not work.
-
-A lot of the "size_t"'s got added because people had mis-understood the 
-_IOR/W macros, and had done a "sizeof()" by hand, when the macro itself 
-did the sizeof. Which caused the macro to make the ioctl number be based 
-on "sizeof(sizeof(realsize))", which is the same as "sizeof(size_t)".
-
-And because we MUST NOT change the ioctl number (regardless of whether the 
-number shows the correct size or not), those got changed to use "size_t" 
-to match historical - if incorrect - numbering.
-
-The _IOR/W macros got fixed so that you now _cannot_ use anything but a 
-real type, so the bug shouldn't happen again, but we're stuck with the old 
-broken numbers.
-
-The number is just a number, after all. We shouldn't be using the size 
-encoding in the ioctl number, afaik (since for a _lot_ of them we can't 
-depend on it anyway).
-
-		Linus
+ 

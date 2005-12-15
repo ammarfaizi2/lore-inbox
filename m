@@ -1,75 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbVLOVzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbVLOWAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbVLOVzM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 16:55:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751137AbVLOVzM
+	id S1751138AbVLOWAp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 17:00:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbVLOWAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 16:55:12 -0500
-Received: from amdext4.amd.com ([163.181.251.6]:28327 "EHLO amdext4.amd.com")
-	by vger.kernel.org with ESMTP id S1751136AbVLOVzK (ORCPT
+	Thu, 15 Dec 2005 17:00:45 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:52922 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S1751137AbVLOWAn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 16:55:10 -0500
-X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
-Date: Thu, 15 Dec 2005 14:56:55 -0700
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: "Andrew Morton" <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-       info-linux@ldcmail.amd.com
-Subject: Re: APM Screen Blanking fix
-Message-ID: <20051215215655.GC14013@cosmic.amd.com>
-References: <20051215211248.GE11054@cosmic.amd.com>
- <20051215211423.GF11054@cosmic.amd.com>
- <20051215211601.GG11054@cosmic.amd.com>
- <LYRIS-4270-4193-2005.12.15-14.45.16--jordan.crouse#amd.com@whitestar.amd.com>
-MIME-Version: 1.0
-In-Reply-To: <LYRIS-4270-4193-2005.12.15-14.45.16--jordan.crouse#amd.com@whitestar.amd.com>
-User-Agent: Mutt/1.5.11
-X-WSS-ID: 6FBF39A30C011924-01-01
-Content-Type: text/plain;
- charset=us-ascii
+	Thu, 15 Dec 2005 17:00:43 -0500
+Date: Thu, 15 Dec 2005 13:59:21 -0800
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: William Cohen <wcohen@redhat.com>
+Cc: perfctr-devel@lists.sourceforge.net, perfmon@napali.hpl.hp.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [Perfctr-devel] 2.6.15-rc5-git3 perfmon2 new code base + libpfm available
+Message-ID: <20051215215921.GJ18331@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+References: <20051215104604.GA16937@frankl.hpl.hp.com> <43A1DE94.8050105@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <43A1DE94.8050105@redhat.com>
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >  	state = blank ? APM_STATE_STANDBY : APM_STATE_READY;
-> > -	/* Blank the first display device */
-> > -	error = set_power_state(0x100, state);
-> > -	if ((error != APM_SUCCESS) && (error != APM_NO_ERROR)) {
-> > -		/* try to blank them all instead */
-> > -		error = set_power_state(0x1ff, state);
-> > -		if ((error != APM_SUCCESS) && (error != APM_NO_ERROR))
-> > -			/* try to blank device one instead */
-> > -			error = set_power_state(0x101, state);
-> > +
-> > +	for (i = 0; i < 3; i++) {
-> > +		error = set_power_state(dev[i], state);
-> > +
-> > +		if ((error == APM_SUCCESS) || (error == APM_NO_ERROR))
-> > +			return 1;
-> > +
-> > +		if (error == APM_NOT_ENGAGED)
-> > +			break;
-> >  	}
-> > -	if ((error == APM_SUCCESS) || (error == APM_NO_ERROR))
-> > -		return 1;
+Will,
+
+
+On Thu, Dec 15, 2005 at 04:22:28PM -0500, William Cohen wrote:
+> Stephane Eranian wrote:
+
+> >I have released a new version of the perfmon base package.
+> >This release is relative to 2.6.15-rc5-git3.
+> >
+> >I have also updated the library, libpfm-3.2, to match the kernel
+> >level changes. 
 > 
-> All the above doesn't actually have any functional changes does it?
-
-No, thats actually the fix - Note that the original code only tried to
-set the state on device 0x100, and then 0x1FF, and I added 0x101 to the
-mix too. I just figured that while I was in there, I would re-do the
-code to avoid a tiny if-then-else mess.
-
-> > -	if (error == APM_NOT_ENGAGED) {
-> > +	if (error == APM_NOT_ENGAGED && state != APM_STATE_READY) {
+> I downloaded the new version of perfmon and the matching libpfm. I built 
+> everything on a p6 based machine. The kernel booted fine. I tried the 
+> task_smpl_user in the libpfm examples. That crashed the kernel. What was 
+> on the xterm:
 > 
-> And this is the actual fix/workaround?
+> $ ./task_smpl_user ls
+> measuring at plm=0x8
+> programming 2 PMCS and 2 PMDS
+> Segmentation fault
+> 
+I have not tried this particular test program in a long time. I nfact, I would
+like to remove it from the suite because it does not make any real sense.
+In any case, it should not crash the kernel. I will investigate this.
+I don't think it it related to you using a P6. This is more the case of
+an error in the cleanup code in case the context cannot be created properly.
 
-Thats just prevents the error message from printing out twice.
-I can't remember if it really fixed a problem with our BIOS returning
-APM_NOT_ENGAGED when the READY state was set, but it still seems like
-a good idea.
+Does task_smpl work properly?
 
-Jordan
 
+> snd_hwdep snd_timer emu10k1_gp snd gameport soundcore snd_page_alloc 
+> Dec 15 15:54:40 trek kernel: EIP is at pfm_smpl_fmt_put+0x11/0x60
+> Dec 15 15:54:40 trek kernel: Call Trace:
+> Dec 15 15:54:40 trek kernel:  [<c0201ee7>] __pfm_create_context+0x167/0x440
+> Dec 15 15:54:40 trek kernel:  [<c010400c>] __switch_to+0x15c/0x220
+> Dec 15 15:54:40 trek kernel:  [<c0203f98>] sys_pfm_create_context+0x78/0xe0
+> Dec 15 15:54:40 trek kernel:  [<c010569d>] syscall_call+0x7/0xb
+
+Thanks.
+
+-- 
+-Stephane

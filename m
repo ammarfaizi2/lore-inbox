@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbVLOQri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbVLOQun@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750811AbVLOQri (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 11:47:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbVLOQri
+	id S1750809AbVLOQun (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 11:50:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbVLOQum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 11:47:38 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:15749 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750808AbVLOQrh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 11:47:37 -0500
-Date: Thu, 15 Dec 2005 16:47:36 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-m68k@vger.kernel.org
-Subject: Re: [PATCH 1/3] m68k: compile fix - hardirq checks were in wrong place
-Message-ID: <20051215164736.GX27946@ftp.linux.org.uk>
-References: <20051215085402.GT27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151252110.1605@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0512151252110.1605@scrub.home>
-User-Agent: Mutt/1.4.1i
+	Thu, 15 Dec 2005 11:50:42 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:64694 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id S1750759AbVLOQum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 11:50:42 -0500
+Message-ID: <43A19EC4.5040505@nortel.com>
+Date: Thu, 15 Dec 2005 10:50:12 -0600
+From: "Christopher Friesen" <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nikita Danilov <nikita@clusterfs.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, dhowells@redhat.com, pj@sgi.com, mingo@elte.hu,
+       hch@infradead.org, torvalds@osdl.org, arjan@infradead.org,
+       matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+References: <1134559121.25663.14.camel@localhost.localdomain>	<13820.1134558138@warthog.cambridge.redhat.com>	<20051213143147.d2a57fb3.pj@sgi.com>	<20051213094053.33284360.pj@sgi.com>	<dhowells1134431145@warthog.cambridge.redhat.com>	<20051212161944.3185a3f9.akpm@osdl.org>	<20051213075441.GB6765@elte.hu>	<20051213090219.GA27857@infradead.org>	<20051213093949.GC26097@elte.hu>	<20051213100015.GA32194@elte.hu>	<6281.1134498864@warthog.cambridge.redhat.com>	<14242.1134558772@warthog.cambridge.redhat.com>	<16315.1134563707@warthog.cambridge.redhat.com>	<1134568731.4275.4.camel@tglx.tec.linutronix.de>	<43A0AD54.6050109@rtr.ca>	<20051214155432.320f2950.akpm@osdl.org>	<17313.29296.170999.539035@gargle.gargle.HOWL>	<1134658579.12421.59.camel@localhost.localdomain> <17313.37200.728099.873988@gargle.gargle.HOWL>
+In-Reply-To: <17313.37200.728099.873988@gargle.gargle.HOWL>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Dec 2005 16:50:15.0311 (UTC) FILETIME=[9F6DF1F0:01C60197]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 12:58:12PM +0100, Roman Zippel wrote:
-> You separate the definition from the check, now you push the 
-> responsibility to get the order right to the header users.
+Nikita Danilov wrote:
 
-There are two definitions, one in old place, another in new one.  You
-need both seen before the check.  On m68k hardirq.h doesn't pull irq.h;
-irq.h, OTOH, *does* pull hardirq.h via linux/interrupt.h -> linux/hardirq.h ->
-asm/hardirq.h.  IOW, it's less responsibility, not more.
+> And to convert almost all calls to down/up to mutex_{down,up}. At which
+> point, it no longer makes sense to share the same data-type for
+> semaphore and mutex.
 
-Moreover, new variant works; old one doesn't.  Both are brittle, but the
-old one is flat-out _broken_.  As in, new one works with the actual
-includes in the tree with no extra changes, old one breaks on a number
-of existing files in the tree.
+If we're going to call it a mutex, it would make sense to use familiar 
+terminology and call it lock/unlock rather than down/up.
 
-How the hell does that push responsibility to header users?
+Chris
+

@@ -1,89 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbVLOXd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbVLOXgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751203AbVLOXd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 18:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVLOXd5
+	id S1751206AbVLOXgw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 18:36:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751207AbVLOXgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 18:33:57 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:63622 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S1751203AbVLOXd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 18:33:57 -0500
-Message-ID: <43A1E876.6050407@wolfmountaingroup.com>
-Date: Thu, 15 Dec 2005 15:04:38 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
+	Thu, 15 Dec 2005 18:36:52 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:32175 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1751206AbVLOXgv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 18:36:51 -0500
+From: Ismail Donmez <ismail@uludag.org.tr>
+Organization: TUBITAK/UEKAE
+To: linux-kernel@vger.kernel.org
 Subject: Re: [2.6 patch] i386: always use 4k stacks
-References: <20051215212447.GR23349@stusta.de>	 <20051215140013.7d4ffd5b.akpm@osdl.org> <20051215223000.GU23349@stusta.de>	 <43A1DB18.4030307@wolfmountaingroup.com>	 <1134688488.12086.172.camel@mindpipe>	 <43A1E451.2090703@wolfmountaingroup.com> <1134689197.12086.176.camel@mindpipe>
-In-Reply-To: <1134689197.12086.176.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Fri, 16 Dec 2005 01:36:31 +0200
+User-Agent: KMail/1.9.1
+References: <20051215212447.GR23349@stusta.de> <1134689197.12086.176.camel@mindpipe> <43A1E876.6050407@wolfmountaingroup.com>
+In-Reply-To: <43A1E876.6050407@wolfmountaingroup.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200512160136.31703.ismail@uludag.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-
->On Thu, 2005-12-15 at 14:46 -0700, Jeff V. Merkey wrote:
->  
+Cuma 16 Aralık 2005 00:04 tarihinde şunları yazmıştınız:
+> Lee Revell wrote:
+> >On Thu, 2005-12-15 at 14:46 -0700, Jeff V. Merkey wrote:
+> >>Lee Revell wrote:
+> >>>On Thu, 2005-12-15 at 14:07 -0700, Jeff V. Merkey wrote:
+> >>>>When you are on the phone with an irrate customer at 2:00 am in the
+> >>>>morning, and just turning off your broken 4K stack fix
+> >>>>and getting the customer running matters.
+> >>>
+> >>>Bugzilla link please.  Otherwise STFU.
+> >>
+> >>??????
+> >>
+> >>Jeff
+> >
+> >You imply that your customer's problem was due to a kernel bug triggered
+> >by CONFIG_4KSTACKS.  I am asking you to provide a link to the bug report
+> >or get lost.
+> >
+> >Lee
 >
->>Lee Revell wrote:
->>
->>    
->>
->>>On Thu, 2005-12-15 at 14:07 -0700, Jeff V. Merkey wrote:
->>> 
->>>
->>>      
->>>
->>>>When you are on the phone with an irrate customer at 2:00 am in the 
->>>>morning, and just turning off your broken 4K stack fix
->>>>and getting the customer running matters. 
->>>>   
->>>>
->>>>        
->>>>
->>>Bugzilla link please.  Otherwise STFU.
->>> 
->>>
->>>      
->>>
->>??????
->>
->>Jeff
->>    
->>
+> You hack on this code base (hack is the right word) -- I sell it,
+> service and support it with customers in a dozen countries.  I don't report
+> company level issues in "bugzilla" or anywhere else public unless they
+> apply to kernel code.  calls from several of our apps (which use
+> larger than 4K kernel space on a stack) from user space crash -- so do
+> wireless drivers -- and kdb crashes as well with some bugs with 4K stacks
+> turned on when you are trying to debug something.
 >
->You imply that your customer's problem was due to a kernel bug triggered
->by CONFIG_4KSTACKS.  I am asking you to provide a link to the bug report
->or get lost.
->
->Lee
->  
->
+> Hope that addresses your concerns "joe job".
 
-You hack on this code base (hack is the right word) -- I sell it, 
-service and support it with customers in a dozen countries.  I don't report
-company level issues in "bugzilla" or anywhere else public unless they 
-apply to kernel code.  calls from several of our apps (which use
-larger than 4K kernel space on a stack) from user space crash -- so do 
-wireless drivers -- and kdb crashes as well with some bugs with 4K stacks
-turned on when you are trying to debug something. 
+You are supposed to report those bugs in a manner it won't conflict with the 
+privacy of your customer(s). Linux distros do this already.
 
-Hope that addresses your concerns "joe job".
-
-Jeff
-
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-
+/ismail

@@ -1,135 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbVLOCgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030369AbVLOCib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161001AbVLOCgn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 21:36:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1160998AbVLOCgn
+	id S1030369AbVLOCib (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 21:38:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbVLOCia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 21:36:43 -0500
-Received: from fed1rmmtao07.cox.net ([68.230.241.32]:37797 "EHLO
-	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S1030389AbVLOCgm convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 21:36:42 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] GIT 0.99.9n aka 1.0rc6
-Date: Wed, 14 Dec 2005 18:36:40 -0800
-Message-ID: <7v7ja7rsqv.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Wed, 14 Dec 2005 21:38:30 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:2792 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1030369AbVLOCi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 21:38:29 -0500
+Date: Thu, 15 Dec 2005 11:37:37 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>, linux-ia64@vger.kernel.org,
+       linux-mm <linux-mm@kvack.org>, Benjamin LaHaise <bcrl@kvack.org>
+Subject: 2.6.15-rc5-mm2 can't boot on ia64 due to changing on_each_cpu().
+Cc: Andrew Morton <akpm@osdl.org>, "Luck, Tony" <tony.luck@intel.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.054
+Message-Id: <20051215103344.241C.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GIT 0.99.9n aka 1.0rc6 is available at the usual places.
 
-	RPM
-		http://kernel.org:/pub/software/scm/git/RPMS/
+Hello.
 
-	Debian
-		http://kernel.org:/pub/software/scm/git/debian/
+I met a trouble in 2.6.15-rc5-mm2 on my ia64 box. (Tiger4)
+The trouble was kernel panic at early boot time due to calling
+strange instruction "break 0" at smp_flush_tlb_all().
 
-I hate to do this, but I ended up merging some more that changes user
-experience.  Two notable non-fixes are:
+I investigated its cause and realized that gcc warned following 
+messages.
+  "arch/ia64/kernel/smp.c:228 Warning: function called through a non-
+   compatible type"
+  "arch/ia64/kernel/smp.c:228: note: if this code is reached,
+   the program will abort"
+  "arch/ia64/kernel/smp.c:251 Warning: function called through a non-
+   compatible type"
+  "arch/ia64/kernel/smp.c:251: note: if this code is reached,
+   the program will abort"
 
- - big usage string cleanups (Fredrik).
+The line 228 and 251 are calling on_each_cpu(). And the last
+instruction of this function was "break 0" indeed.
 
- - git-am enhancements that made a lot of sense for non mbox
-   users (HPA).
+void
+smp_flush_tlb_all (void)
+{
+	on_each_cpu((void (*)(void *))local_flush_tlb_all, NULL, 1, 1);
+}
 
-So git is still in perpetual state of 1.0rc X-<.
 
-No more big changes from now on will be merged to the "master"
-branch, except fixes and documentation enhancements.
+void
+smp_flush_tlb_mm (struct mm_struct *mm)
+{
+             :
+             :
+	 */
+	on_each_cpu((void (*)(void *))local_finish_flush_tlb_mm, mm, 1, 1);
+}
 
-Well, patches are always welcome, but non-fixes will have to
-stay in the proposed updates branch until Wednesday 2005-12-21,
-which is the date I am aiming the final 1.0 for.
+When I removed following patch which is in 2.6.15-rc5-mm2,
+which changes on_each_cpu() from static inline function to macro,
+then there was no warning, and kernel could boot up.
+So, I guess that gcc was not able to solve a bit messy cast
+for calling function "local_flush_tlb_all()" due to its change.
 
-Right now, I have two somewhat debatable patch in the proposed
-updates branch:
+Thanks.
 
- - when merging a branch that renames A->B and another branch
-   that renames A->C, merge-recursive leaves B and C in stage 2
-   and stage 3, instead of registering them at stage 0 as the
-   current "master" branch does.
+--------------------------------------------------------------------------
 
- - diff gets --abbrev option to shorten the blob object names in
-   diff-raw and commit object names in diff-tree headers.
+From: Benjamin LaHaise <bcrl@kvack.org>
 
-These will *not* be in 1.0 final, unless somebody really wants
-them and jumps up-and-down.
+An inline function in smp.h introduces messy ordering requirements on
+thread_info by way of using an inline function instead of macro.  Convert
+on_each_cpu to a macro in order to avoid a big include mess.
 
-I personally feel the "renaming merge" desirable if it works
-correctly, but (1) it is a rare case anyway, (2) I have not
-tested it extensively, and (3) having hacked it myself, I do not
-think I will be able to spot bugs that involve cases I have not
-thought about.  So maybe a good test script and an Ack or two
-could push me into moving it forward but otherwise it is slated
-post 1.0.
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-The "diff --abbrev" addition is lower impact and I find it
-somewhat cute and especially useful while working on an
-80-column terminal, but I'd like to make it find unambiguous
-prefix, which it does not do currently, before pushing it out.
+ include/linux/smp.h |   25 +++++++++++++------------
+ 1 files changed, 13 insertions(+), 12 deletions(-)
 
-I am also holding off another one that changes things to use
-textual symref for .git/HEAD everywhere, but I think it is well
-known that that change is eventually coming sometime after 1.0.
+diff -puN include/linux/smp.h~untangle-smph-vs-thread_info include/linux/smp.h
+--- 25/include/linux/smp.h~untangle-smph-vs-thread_info	Fri Dec  9 15:16:46 2005
++++ 25-akpm/include/linux/smp.h	Fri Dec  9 15:16:46 2005
+@@ -57,19 +57,20 @@ extern int smp_call_function (void (*fun
+ 			      int retry, int wait);
+ 
+ /*
+- * Call a function on all processors
++ * Call a function on all processors.
++ * This needs to be a macro to allow for arch specific dependances on
++ * sched.h in preempt_*().
+  */
+-static inline int on_each_cpu(void (*func) (void *info), void *info,
+-			      int retry, int wait)
+-{
+-	int ret = 0;
+-
+-	preempt_disable();
+-	ret = smp_call_function(func, info, retry, wait);
+-	func(info);
+-	preempt_enable();
+-	return ret;
+-}
++#define on_each_cpu(func, info, retry, wait)			\
++({								\
++	int _ret = 0;						\
++								\
++	preempt_disable();					\
++	_ret = smp_call_function(func, info, retry, wait);	\
++	(func)(info);						\
++	preempt_enable();					\
++	_ret;							\
++})
+ 
+ #define MSG_ALL_BUT_SELF	0x8000	/* Assume <32768 CPU's */
+ #define MSG_ALL			0x8001
+_
 
--- >8 -- shortlog -- >8 --
-Amos Waterland:
-      git rebase loses author name/email if given bad email address
-
-Fredrik Kuivinen:
-      Usage message clean-up, take #2
-      Trivial usage string clean-up
-      git-verify-tag: Usage string clean-up, emit usage string at incorrect invocation
-      git-revert: Usage string clean-up
-      git-am: Usage string clean-up
-      git-applypatch: Usage string clean-up, emit usage string at incorrect invocation
-      git-cherry: Usage string clean-up, use the 'usage' function
-      git-fetch: Usage string clean-up, emit usage string at unrecognized option
-      git-lost-found: Usage string clean-up, emit usage string at incorrect invocation
-      git-prune: Usage string clean-up, use the 'usage' function
-      git-rebase: Usage string clean-up, emit usage string at incorrect invocation
-      git-repack: Usage string clean-up, emit usage at incorrect invocation
-
-H. Peter Anvin:
-      git-am support for naked email messages (take 2)
-
-Junio C Hamano:
-      diffcore-break.c: check diff_delta() return value.
-      Add deltifier test.
-      diff-delta.c: allow delta with empty blob.
-      Everyday: some examples.
-      Revert "diff-delta.c: allow delta with empty blob."
-      Revert "Add deltifier test."
-      diffcore-break: do not break too small filepair.
-      Everyday: a bit more example.
-      Documentation: more examples.
-      Documentation: fix missing links to git(7)
-      Documentation: diff examples.
-      Documentation: not learning core git commands.
-      git-clone: tell the user a bit more about clone-pack failure.
-      allow merging any committish
-      checkout-index: fix checking out specific path.
-      Everyday: a bit more examples.
-      t3200: branch --help does not die anymore.
-      applypatch: no need to do non-portable [[ ... ]]
-      Documentation: topic branches
-      rebase: do not get confused in fast-forward situation.
-      Do not let errors pass by unnoticed when running `make check'.
-      mailinfo and git-am: allow "John Doe <johndoe>"
-
-Lukas Sandström:
-      Bugfixes for git-rebase
-
-Martin Atukunda:
-      define MAXPATHLEN for hosts that don't support it
-
-Petr Baudis:
-      Make git-send-pack exit with error when some refs couldn't be pushed out
+-- 
+Yasunori Goto 
 
 

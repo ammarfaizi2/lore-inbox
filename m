@@ -1,86 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbVLOIx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965176AbVLOIyF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965175AbVLOIx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 03:53:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965176AbVLOIx4
+	id S965176AbVLOIyF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 03:54:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbVLOIyE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 03:53:56 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:23447 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965175AbVLOIx4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 03:53:56 -0500
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: Arjan van de Ven <arjan@infradead.org>
-To: Al Boldi <a1426z@gawab.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200512151131.39216.a1426z@gawab.com>
-References: <200512150013.29549.a1426z@gawab.com>
-	 <200512150749.29064.a1426z@gawab.com> <43A0FE13.8010303@yahoo.com.au>
-	 <200512151131.39216.a1426z@gawab.com>
-Content-Type: text/plain
-Date: Thu, 15 Dec 2005 09:53:50 +0100
-Message-Id: <1134636830.16486.13.camel@laptopd505.fenrus.org>
+	Thu, 15 Dec 2005 03:54:04 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:8122 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965176AbVLOIyD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 03:54:03 -0500
+Date: Thu, 15 Dec 2005 08:54:02 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
+Subject: [PATCH 1/3] m68k: compile fix - hardirq checks were in wrong place
+Message-ID: <20051215085402.GT27946@ftp.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Move the sanity check for NR_IRQS being no more than 1<<HARDIRQ_BITS
+from asm-m68k/hardirq.h to asm-m68k/irq.h; needed since NR_IRQS is
+not necessary know at the points of inclusion of asm/hardirq.h due
+to the rather ugly header dependencies on m68k.  Fix is by far simpler
+than trying to massage those dependencies...
 
-> > Anyone else is free to fork the kernel and develop their own
-> > stable API for it.
-> 
-> That would be sad.
-> 
-> The objective of a stable API would be to aid the collective effort and not 
-> to divide it.
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
 
-I think you missed how linux development works. Things fork all the
-time. The unsuccessful forks die. The successful ones join the "main
-line" again. Darwinism at work.
+ include/asm-m68k/hardirq.h |    9 ---------
+ include/asm-m68k/irq.h     |    9 +++++++++
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-You're free to put your coding where your mouth is and design and
-implement a stable API. If it's a success.. it'll get there. If it's
-not.. no harm done to the rest. 
-
-> If you are working alone a stable API would be overkill.  But GNU/Linux is a 
-> collective effort, where stability is paramount to aid scalability.
-> 
-> I hope the concepts here are clear.
-
-I think I don't get how you come from "stable API" to "aid scalability"
-in the light that the current non-API doesn't seem to prevent
-scalability to the size linux development is today.
-
-
-
-> > I've got a fairly good idea of what work I'm doing, and what I'm planning
-> > to do, long term goals, projects, etc. What would be the key differences
-> > with "non-GNU/OpenSource" development that would make you say they are not
-> > unguided by nature?
-> 
-> The same goes for OpenSource in general, but GNU/OpenSource has a larger 
-> community and therefore is in greater need of a stable API.
-
-again you skip a step. I see how a "large community" leads to "needs a
-visible API". The leap to "need stable API" I don't see in practice.
-
-
-> Arjan van de Ven wrote:
-> > I think Linux proves you wrong (and a bit of a troll to be honest ;)
-> 
-> No troll! Just being IMHO. I hope that's OK?
-
-I hope you're also willing to put your effort where your words are,
-otherwise you are trolling to a large degree.
-
+69139a634877359d1bd7b19c2862c9a01468b614
+diff --git a/include/asm-m68k/hardirq.h b/include/asm-m68k/hardirq.h
+index 728318b..5e1c582 100644
+--- a/include/asm-m68k/hardirq.h
++++ b/include/asm-m68k/hardirq.h
+@@ -14,13 +14,4 @@ typedef struct {
+ 
+ #define HARDIRQ_BITS	8
+ 
+-/*
+- * The hardirq mask has to be large enough to have
+- * space for potentially all IRQ sources in the system
+- * nesting on a single CPU:
+- */
+-#if (1 << HARDIRQ_BITS) < NR_IRQS
+-# error HARDIRQ_BITS is too low!
+-#endif
+-
+ #endif
+diff --git a/include/asm-m68k/irq.h b/include/asm-m68k/irq.h
+index 1f56990..d312674 100644
+--- a/include/asm-m68k/irq.h
++++ b/include/asm-m68k/irq.h
+@@ -23,6 +23,15 @@
+ #endif
+ 
+ /*
++ * The hardirq mask has to be large enough to have
++ * space for potentially all IRQ sources in the system
++ * nesting on a single CPU:
++ */
++#if (1 << HARDIRQ_BITS) < NR_IRQS
++# error HARDIRQ_BITS is too low!
++#endif
++
++/*
+  * Interrupt source definitions
+  * General interrupt sources are the level 1-7.
+  * Adding an interrupt service routine for one of these sources
+-- 
+0.99.9.GIT
 

@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbVLOSf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVLOSiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750880AbVLOSf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 13:35:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbVLOSf1
+	id S1750899AbVLOSiL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 13:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbVLOSiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 13:35:27 -0500
-Received: from mail.kroah.org ([69.55.234.183]:1453 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750880AbVLOSf0 (ORCPT
+	Thu, 15 Dec 2005 13:38:10 -0500
+Received: from mail.kroah.org ([69.55.234.183]:18606 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750899AbVLOSiJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 13:35:26 -0500
-Date: Thu, 15 Dec 2005 10:35:07 -0800
+	Thu, 15 Dec 2005 13:38:09 -0500
+Date: Thu, 15 Dec 2005 10:37:44 -0800
 From: Greg KH <greg@kroah.com>
-To: Patrick Fritzsch <fritzsch@cip.physik.uni-muenchen.de>
+To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: slow sync of fat 32 hotplugged devices
-Message-ID: <20051215183506.GA16574@kroah.com>
-References: <43A1B5B9.2040307@cip.physik.uni-muenchen.de>
+Subject: Re: ordering of suspend/resume for devices.  any clues, anyone?
+Message-ID: <20051215183744.GB16574@kroah.com>
+References: <20051215143124.GD14978@lkcl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43A1B5B9.2040307@cip.physik.uni-muenchen.de>
+In-Reply-To: <20051215143124.GD14978@lkcl.net>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 07:28:09PM +0100, Patrick Fritzsch wrote:
-> Hallo,
-> I checked out suse10 lately and discovered some annoying behaviour in
-> hotplugging an USB Stick.
+On Thu, Dec 15, 2005 at 02:31:24PM +0000, Luke Kenneth Casson Leighton wrote:
+> [hi, please kindly cc me direct as i am deliberately subscribed with
+> settings to not receive posts from this list, but if that is inconvenient
+> for you to cc me, don't worry i can always look up the archives
+> to keep track of replies, thank you.]
 > 
-> It seems that the hal daemon mounts a usbstick in fat32 mode, where
-> default the sync option ist on. Actually this is a nice behaviour,
-> because a cp to the stick should last so long until the file was
-> completly written.
-
-This is a HAL issue, just have it mount without sync enabled and your
-speed will return.
-
-> Actually the performance is very bad. A 200 MB file needs around 10
-> Minutes in sync mode, while it needs around 1 Minute in not synchronous
-> mode + executing a sync command later.
+> http://handhelds.org/moin/moin.cgi/BlueAngel
 > 
-> I guess that the kernel checks after every block of the file, which is
-> written, if the stick has really written it, which leads to such a big
-> slowdown. There are already lots of comments of this in the web, where
-> the solution is always to disable the sync mode in the hal daemon device
-> files.
+> works.
 > 
-> Wouldnt it be a nice behaviour, if you could mount a file in a new sync
-> mode, where it isnt synchronized during writing a file, only when a
-> close ioctl command was executed on a filehandle?
-> sync writing to hotplugged devices would be a lot faster then.
+> am seeking some advice regarding power management - specifically
+> the ordering of devices "resume" functions being called.
+> 
+> we have an LCD, and an ATI chip.  switching on the LCD powers up
+> the ATI chip.
+> 
+> unfortunately, resume calls the ATI device initialisation
+> _before_ the LCD resume initialisation.  the ATI chip's
+> initialisation fails - naturally - because it's not even
+> powered up.
+> 
+> of course - this can't be taken care of in userspace as an apm
+> event because the framebuffer device cannot be a module [without
+> terminating all running x-applications].
+> 
+> so.
+> 
+> possible solutions, as i see them:
 
-Yes it would, and I'm pretty sure people are already working on this :)
+<snip>
 
-But if you have some patches that enable this functionality already,
-please post them.
+Known issue, I'd take this to the linux-pm mailing list instead, as the
+people there are working on stuff for this.
 
 thanks,
 

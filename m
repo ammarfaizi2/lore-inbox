@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbVLOVgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVLOViE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbVLOVgp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 16:36:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbVLOVgp
+	id S1751126AbVLOViE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 16:38:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVLOViE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 16:36:45 -0500
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:15625 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S1751124AbVLOVgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 16:36:44 -0500
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>
-Subject: Re: MSI and driver APIs
-X-Message-Flag: Warning: May contain useful information
-References: <1134617893.16880.17.camel@gaston> <adamzj2nk76.fsf@cisco.com>
-	<1134680882.16880.37.camel@gaston> <adaek4enjoz.fsf@cisco.com>
-	<1134681498.16880.39.camel@gaston>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 15 Dec 2005 13:36:37 -0800
-In-Reply-To: <1134681498.16880.39.camel@gaston> (Benjamin Herrenschmidt's
- message of "Fri, 16 Dec 2005 08:18:17 +1100")
-Message-ID: <adawti6m49m.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-X-OriginalArrivalTime: 15 Dec 2005 21:36:38.0141 (UTC) FILETIME=[A131BAD0:01C601BF]
+	Thu, 15 Dec 2005 16:38:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:40330 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751126AbVLOViB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 16:38:01 -0500
+Date: Thu, 15 Dec 2005 13:39:17 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Jordan Crouse" <jordan.crouse@amd.com>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       info-linux@ldcmail.amd.com, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH 2/3] Geode LX HW RNG Support
+Message-Id: <20051215133917.3f0a5171.akpm@osdl.org>
+In-Reply-To: <20051215211423.GF11054@cosmic.amd.com>
+References: <20051215211248.GE11054@cosmic.amd.com>
+	<20051215211423.GF11054@cosmic.amd.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Benjamin> But won't the driver call pci_enable/disable_msi() in
-    Benjamin> those cases ? If not, it's easy enough to add (explicit
-    Benjamin> disable rather than not-enabled).
+"Jordan Crouse" <jordan.crouse@amd.com> wrote:
+>
+> @@ -95,6 +100,11 @@ static unsigned int via_data_present (vo
+>  static u32 via_data_read (void);
+>  #endif
+>  
+> +static int __init geode_init(struct pci_dev *dev);
+> +static void geode_cleanup(void);
+> +static unsigned int geode_data_present (void);
+> +static u32 geode_data_read (void);
+> +
+>  struct rng_operations {
+>  	int (*init) (struct pci_dev *dev);
+>  	void (*cleanup) (void);
+> @@ -122,6 +132,7 @@ enum {
+>  	rng_hw_intel,
+>  	rng_hw_amd,
+>  	rng_hw_via,
+> +	rng_hw_geode,
+>  };
 
-    Benjamin> I'm mostly concerned about "dumb" drivers that don't
-    Benjamin> know about MSI at all...
-
-Well, a driver for a chip that does MSI may be "dumb" in that sense.
-For example, tg3 only got MSI support in April '05 or so.
-
-Although looking at tg3.c, it seems that nothing special is required
-to disable MSI -- there is a special chip register bit to set to
-enable MSI mode, but it doesn't seem necessary to clear the bit to
-disable MSI.
-
-The case I'm worried about is a chip where something special has to be
-done to get out of MSI mode, but the driver is totally dumb and just
-does request_irq() on its legacy interrupt.  The core PCI code doesn't
-have the chip-specific knowledge to fully turn off MSI.
-
-But I don't know of a real device that falls into that category, so
-your scheme is probably OK.
-
- - R.
+Should all the Geode additions to hw_random.c be inside __i386__, like VIA?

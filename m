@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422714AbVLOM7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965206AbVLONAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422714AbVLOM7e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 07:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422713AbVLOM7e
+	id S965206AbVLONAu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 08:00:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965205AbVLONAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 07:59:34 -0500
-Received: from smtpout.mac.com ([17.250.248.70]:23777 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1422709AbVLOM7d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 07:59:33 -0500
-In-Reply-To: <200512152345.25375.kernel@kolivas.org>
-References: <20051215033937.GC11856@waste.org> <20051215.002120.133621586.davem@davemloft.net> <9E6D85FF-E546-4057-80EF-7479021AFAA1@mac.com> <200512152345.25375.kernel@kolivas.org>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <8803F1D1-E647-45A3-B2A4-E3C95AAC11C6@mac.com>
-Cc: "David S. Miller" <davem@davemloft.net>, sri@us.ibm.com, mpm@selenic.com,
-       ak@suse.de, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+	Thu, 15 Dec 2005 08:00:50 -0500
+Received: from mx02.cybersurf.com ([209.197.145.105]:38332 "EHLO
+	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S965202AbVLONAt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 08:00:49 -0500
+Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: James Courtier-Dutton <James@superbug.co.uk>,
+       Mitchell Blank Jr <mitch@sfgoth.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>, Sridhar Samudrala <sri@us.ibm.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <1134647248.16486.37.camel@laptopd505.fenrus.org>
+References: <Pine.LNX.4.58.0512140042280.31720@w-sridhar.beaverton.ibm.com>
+	 <9a8748490512141216x7e25ca2cucb675f11f0c9d913@mail.gmail.com>
+	 <43A08546.8040708@superbug.co.uk> <20051215015456.GC23393@gaz.sfgoth.com>
+	 <43A155AE.4050105@superbug.co.uk>
+	 <1134647248.16486.37.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Organization: unknown
+Date: Thu, 15 Dec 2005 08:00:35 -0500
+Message-Id: <1134651635.5912.108.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [RFC] Fine-grained memory priorities and PI
-Date: Thu, 15 Dec 2005 07:58:45 -0500
-To: Con Kolivas <kernel@kolivas.org>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 15, 2005, at 07:45, Con Kolivas wrote:
-> I have some basic process-that-called the memory allocator link in  
-> the -ck tree already which alters how aggressively memory is  
-> reclaimed according to priority. It does not affect out of memory  
-> management but that could be added to said algorithm; however I  
-> don't see much point at the moment since oom is still an uncommon  
-> condition but regular memory allocation is routine.
+On Thu, 2005-15-12 at 12:47 +0100, Arjan van de Ven wrote:
+> > 
+> > You are using the wrong hammer to crack your nut.
+> > You should instead approach your problem of why the ARP entry gets lost.
+> > For example, you could give as critical priority to your TCP session, 
+> > but that still won't cure your ARP problem.
+> > I would suggest that the best way to cure your arp problem, is to 
+> > increase the time between arp cache refreshes.
+> 
+> or turn it around entirely: all traffic is considered important
+> unless... and have a bunch of non-critical sockets (like http requests)
+> be marked non-critical.
 
-My thought would be to generalize the two special cases of writeback  
-of dirty pages or dropping of clean pages under memory pressure and  
-OOM to be the same general case.  When you are trying to free up  
-pages, it may be permissible to drop dirty mbox pages and kill the  
-postfix process writing them in order to satisfy allocations for the  
-mission-critical database server.  (Or maybe it's the other way  
-around).  If a large chunk of the allocated pages have priorities and  
-lossless/lossy free functions, then the kernel can be much more  
-flexible and configurable about what to do when running low on RAM.
+The big hole punched by DaveM is that of dependencies: a http tcp
+connection is tied to ICMP or the IPSEC example given; so you need a lot
+more intelligence than just what your app is knowledgeable about at its
+level. 
+You cant really do this shit at the socket level. You need to do it much
+earlier.
+At runtime, when lower memory thresholds gets crossed, you kick
+classification of what packets need to be dropped using something along
+the lines of statefull/connection tracking. When things get better you
+undo.
 
-Cheers,
-Kyle Moffett
-
---
-I lost interest in "blade servers" when I found they didn't throw  
-knives at people who weren't supposed to be in your machine room.
-   -- Anthony de Boer
-
+cheers,
+jamal
 

@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422641AbVLOJfb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422667AbVLOJg6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422641AbVLOJfb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 04:35:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422667AbVLOJfb
+	id S1422667AbVLOJg6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 04:36:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422668AbVLOJg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 04:35:31 -0500
-Received: from bayc1-pasmtp03.bayc1.hotmail.com ([65.54.191.163]:16970 "EHLO
-	BAYC1-PASMTP03.bayc1.hotmail.com") by vger.kernel.org with ESMTP
-	id S1422641AbVLOJfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 04:35:30 -0500
-Message-ID: <BAYC1-PASMTP038CB4D1F79AE7F36E031EAE3B0@CEZ.ICE>
-X-Originating-IP: [69.156.6.171]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Message-ID: <48526.10.10.10.28.1134639327.squirrel@linux1>
-In-Reply-To: <200512151131.39216.a1426z@gawab.com>
-References: <200512150013.29549.a1426z@gawab.com>
-    <200512150749.29064.a1426z@gawab.com> <43A0FE13.8010303@yahoo.com.au>
-    <200512151131.39216.a1426z@gawab.com>
-Date: Thu, 15 Dec 2005 04:35:27 -0500 (EST)
-Subject: Re: Linux in a binary world... a doomsday scenario
-From: "Sean" <seanlkml@sympatico.ca>
-To: "Al Boldi" <a1426z@gawab.com>
-Cc: "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "Arjan van de Ven" <arjan@infradead.org>, "Greg KH" <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.4-2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 15 Dec 2005 09:35:29.0694 (UTC) FILETIME=[E330ABE0:01C6015A]
+	Thu, 15 Dec 2005 04:36:57 -0500
+Received: from mx1.suse.de ([195.135.220.2]:7307 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422667AbVLOJg5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 04:36:57 -0500
+Date: Thu, 15 Dec 2005 10:36:45 +0100
+From: Andi Kleen <ak@suse.de>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>, dada1@cosmobay.com
+Subject: Re: [patch 3/3] x86_64: Node local pda take 2 -- node local pda allocation
+Message-ID: <20051215093645.GW23384@wotan.suse.de>
+References: <20051215023345.GB3787@localhost.localdomain> <20051215023748.GD3787@localhost.localdomain> <43A127D3.1070106@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43A127D3.1070106@cosmosbay.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-15 at 11:31 +0300, Al Boldi wrote:
+> Do you have an idea of the performance gain we could expect from this node 
+> local pda allocation ?
 
-> The fact that somebody may take advantage of a stable API should not lead
->  us to reject the idea per se.
+I wouldn't expect very much.
 
-True.  But then nobody said the idea was rejected for that reason, just
-that supporting binary drivers is not a compelling reason to embrace a
-stable API.  In other words, supporting binary drivers is not nearly as
-important as other factors which would be harmed by a stable API.
+> Say a CPU is on Node 1,  was a change in pda (allocated on Node 0) 
+> immediatly mirrored on remote node or not ?
 
-> The objective of a stable API would be to aid the collective effort and
-> not to divide it.
+The Opteron caches are write back afaik - this means data only leaves
+the L2 cache when other data pushes it out.
+But the additional traffic on the interconnect was likely negligible. 
 
-The collective effort seems to be doing just fine without it.
+If anything I would expect the reduced latency when a user space program eat up all 
+cache and the PDA is needed on the next kernel entry to be helpful.
 
-> If you are working alone a stable API would be overkill.  But GNU/Linux
-> is a collective effort, where stability is paramount to aid scalability.
->
-> I hope the concepts here are clear.
+But it's not very much at least on an Opteron because the NUMA factor
+isn't that bad. On Kiran's machines which likely have a higher NUMA 
+factor I guess it helps more.
 
-No, it's not clear what you mean by scalability.  What is it exactly that
-you think would be more scalable?   As has been mentioned already, there
-is no better example today of scalable development than the Linux kernel. 
-So, I don't think you've laid out at all what it is you're talking about.
-
-> No troll! Just being IMHO. I hope that's OK?
->
-> Of course, if your aim is not to be scalable then please ignore this
-> message as it will not have any meaning.
-
-The linux kernel development model scales very well.  Linux itself scales
-from the smallest embedded processors to the largest parallel computing
-farms today; all without a stable internal API.  So you've failed to make
-a case that there is a problem for which a stable API is the solution.
-
-Cheers,
-Sean
-
+-Andi

@@ -1,86 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbVLOPva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVLOPwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750771AbVLOPva (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 10:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbVLOPva
+	id S1750779AbVLOPwf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 10:52:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbVLOPwf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 10:51:30 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:28066 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S1750771AbVLOPv3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 10:51:29 -0500
-Date: Thu, 15 Dec 2005 10:43:57 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: akpm@odsl.org
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: [AIO] reorder kiocb structure elements to make sync iocb setup faster
-Message-ID: <20051215154357.GC2444@kvack.org>
-Mime-Version: 1.0
+	Thu, 15 Dec 2005 10:52:35 -0500
+Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:37023 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S1750775AbVLOPwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 10:52:33 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+Message-ID: <17313.37200.728099.873988@gargle.gargle.HOWL>
+Date: Thu, 15 Dec 2005 18:52:48 +0300
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, dhowells@redhat.com,
+       pj@sgi.com, mingo@elte.hu, hch@infradead.org, torvalds@osdl.org,
+       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+In-Reply-To: <1134658579.12421.59.camel@localhost.localdomain>
+References: <1134559121.25663.14.camel@localhost.localdomain>
+	<13820.1134558138@warthog.cambridge.redhat.com>
+	<20051213143147.d2a57fb3.pj@sgi.com>
+	<20051213094053.33284360.pj@sgi.com>
+	<dhowells1134431145@warthog.cambridge.redhat.com>
+	<20051212161944.3185a3f9.akpm@osdl.org>
+	<20051213075441.GB6765@elte.hu>
+	<20051213090219.GA27857@infradead.org>
+	<20051213093949.GC26097@elte.hu>
+	<20051213100015.GA32194@elte.hu>
+	<6281.1134498864@warthog.cambridge.redhat.com>
+	<14242.1134558772@warthog.cambridge.redhat.com>
+	<16315.1134563707@warthog.cambridge.redhat.com>
+	<1134568731.4275.4.camel@tglx.tec.linutronix.de>
+	<43A0AD54.6050109@rtr.ca>
+	<20051214155432.320f2950.akpm@osdl.org>
+	<17313.29296.170999.539035@gargle.gargle.HOWL>
+	<1134658579.12421.59.camel@localhost.localdomain>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below reorders members of the kiocb structure to make sync kiocb 
-setup faster.  By setting the elements sequentially, the write combining 
-buffers on the CPU are able to combine the writes into a single burst, 
-which results in fewer cache cycles being consumed, freeing them up for 
-other code.  This results in a 10-20KB/s[*] increase on the bw_unix part 
-of LMbench on my test system.
+Alan Cox writes:
+ > On Iau, 2005-12-15 at 16:41 +0300, Nikita Danilov wrote:
+ > > But this change is about fixing bugs: mutex assumes that
+ > > 
+ > >  - only owner can unlock, and
+ > > 
+ > >  - owner cannot lock (immediate self-deadlock).
+ > 
+ > So add mutex_up/mutex_down that use the same semaphores but do extra
+ > checks if lock debugging is enabled. All you need is an owner field for
+ > debugging.
 
-		-ben
+And to convert almost all calls to down/up to mutex_{down,up}. At which
+point, it no longer makes sense to share the same data-type for
+semaphore and mutex.
 
-* - The improvement varies based on what other patches are in the system, 
-    as there are a number of bottlenecks, so this number is not absolutely 
-    accurate.
+Also, (as was already mentioned several times) having separate data-type
+for mutex makes code easier to understand, as it specifies intended
+usage.
 
-Signed-off-by: Benjamin LaHaise <benjamin.c.lahaise@intel.com>
-diff --git a/include/linux/aio.h b/include/linux/aio.h
-index 49fd376..00c8efa 100644
---- a/include/linux/aio.h
-+++ b/include/linux/aio.h
-@@ -94,26 +94,27 @@ struct kiocb {
- 	ssize_t			(*ki_retry)(struct kiocb *);
- 	void			(*ki_dtor)(struct kiocb *);
- 
--	struct list_head	ki_list;	/* the aio core uses this
--						 * for cancellation */
--
- 	union {
- 		void __user		*user;
- 		struct task_struct	*tsk;
- 	} ki_obj;
-+
- 	__u64			ki_user_data;	/* user's data for completion */
-+	wait_queue_t		ki_wait;
- 	loff_t			ki_pos;
-+
-+	void			*private;
- 	/* State that we remember to be able to restart/retry  */
- 	unsigned short		ki_opcode;
- 	size_t			ki_nbytes; 	/* copy of iocb->aio_nbytes */
- 	char 			__user *ki_buf;	/* remaining iocb->aio_buf */
- 	size_t			ki_left; 	/* remaining bytes */
--	wait_queue_t		ki_wait;
- 	long			ki_retried; 	/* just for testing */
- 	long			ki_kicked; 	/* just for testing */
- 	long			ki_queued; 	/* just for testing */
- 
--	void			*private;
-+	struct list_head	ki_list;	/* the aio core uses this
-+						 * for cancellation */
- };
- 
- #define is_sync_kiocb(iocb)	((iocb)->ki_key == KIOCB_SYNC_KEY)
-@@ -126,6 +127,7 @@ struct kiocb {
- 		(x)->ki_filp = (filp);			\
- 		(x)->ki_ctx = NULL;			\
- 		(x)->ki_cancel = NULL;			\
-+		(x)->ki_retry = NULL;			\
- 		(x)->ki_dtor = NULL;			\
- 		(x)->ki_obj.tsk = tsk;			\
- 		(x)->ki_user_data = 0;                  \
--- 
-"You know, I've seen some crystals do some pretty trippy shit, man."
-Don't Email: <dont@kvack.org>.
+To avoid duplicating code, mutex can be implemented on top of semaphore,
+like
+
+struct mutex {
+        struct semaphore sema;
+#ifdef DEBUG_MUTEX
+        void *owner;
+#endif
+};
+
+or something similar.
+
+ > 
+ > Now generate a trace dump on up when up and to check for sleeping on a
+ > lock you already hold (for both sem and mutex).
+
+Sleeping on a semaphore "held" by the current thread is perfectly
+reasonable usage of a generic counting semaphore, as it can be upped by
+another thread.
+
+ > 
+ > Alan
+
+Nikita.

@@ -1,60 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbVLOAby@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932663AbVLOAcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932508AbVLOAby (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 19:31:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932633AbVLOAby
+	id S932663AbVLOAcu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 19:32:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932647AbVLOAci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 19:31:54 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:15797 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932508AbVLOAbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 19:31:53 -0500
-Date: Wed, 14 Dec 2005 16:31:51 -0800 (PST)
+	Wed, 14 Dec 2005 19:32:38 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:45202 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932661AbVLOAc2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 19:32:28 -0500
+Date: Wed, 14 Dec 2005 16:32:27 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051215003151.31788.8755.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC3 00/14] Zoned VM stats
+Message-Id: <20051215003227.31788.82881.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051215003151.31788.8755.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051215003151.31788.8755.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [RFC3 07/14] Expanded node and zone statistics
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zone based VM statistics are necessary to be able to determine what the state
-of memory in one zone is. In a NUMA system this can be helpful to do local
-reclaim and other memory optimizations by shifting VM load to optimize
-page allocation. It is also helpful to know how the computing load affects
-the memory allocations on various zones.
+Extend zone, node and global statistics by printing all counters from the stats
+array.
 
-The patchset introduces a framework for counters that is a cross between the
-existing page_stats --which are simply global counters split per cpu-- and the
-approach of deferred incremental updates implemented for nr_pagecache.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Small per cpu 8 bit counters are introduced in struct zone. If counting
-exceeds certain threshold then the counters are accumulated in an array in
-the zone of the page and in a global array. This means that access to
-VM counter information for a zone and for the whole machine is possible
-by simply indexing an array. [Thanks to Nick Piggin for pointing me
-at that approach].
-
-The new statistics are then used to realize zone reclaim.
-
-Patchset is against 2.6.15-rc5-mm2. The patches after zone reclaim are optional.
-
-This is expanding and I hope its complete. But I have not tested it in UP and SMP yet.
-There may be yet unforeseen consequences to the changes to various counters.
-
-
-1 Add some consts for inlines in mm.h
-2 Basic counter functionality
-3 Convert nr_mapped
-4 Convert nr_pagecache
-5 Resurrect scan_control.may_swap
-6 Zone Reclaim
-7 Expanded node and zone statistics
-8 Convert nr_slab
-9 Convert nr_page_table
-10 Convert nr_dirty
-11 Convert nr_writeback
-12 Convert nr_unstable
-13 Remove get_page_state functions
-14 Remove wbs
-
+Index: linux-2.6.15-rc5-mm2/drivers/base/node.c
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/drivers/base/node.c	2005-12-14 14:57:29.000000000 -0800
++++ linux-2.6.15-rc5-mm2/drivers/base/node.c	2005-12-14 15:28:34.000000000 -0800
+@@ -43,12 +43,14 @@ static ssize_t node_read_meminfo(struct 
+ 	unsigned long inactive;
+ 	unsigned long active;
+ 	unsigned long free;
+-	unsigned long nr_mapped;
++	int j;
++	unsigned long nr[NR_STAT_ITEMS];
+ 
+ 	si_meminfo_node(&i, nid);
+ 	get_page_state_node(&ps, nid);
+ 	__get_zone_counts(&active, &inactive, &free, NODE_DATA(nid));
+-	nr_mapped = node_page_state(nid, NR_MAPPED);
++	for (j = 0; j < NR_STAT_ITEMS; j++)
++		nr[j] = node_page_state(nid, j);
+ 
+ 	/* Check for negative values in these approximate counters */
+ 	if ((long)ps.nr_dirty < 0)
+@@ -71,6 +73,7 @@ static ssize_t node_read_meminfo(struct 
+ 		       "Node %d Dirty:        %8lu kB\n"
+ 		       "Node %d Writeback:    %8lu kB\n"
+ 		       "Node %d Mapped:       %8lu kB\n"
++		       "Node %d Pagecache:    %8lu kB\n"
+ 		       "Node %d Slab:         %8lu kB\n",
+ 		       nid, K(i.totalram),
+ 		       nid, K(i.freeram),
+@@ -83,7 +86,8 @@ static ssize_t node_read_meminfo(struct 
+ 		       nid, K(i.freeram - i.freehigh),
+ 		       nid, K(ps.nr_dirty),
+ 		       nid, K(ps.nr_writeback),
+-		       nid, K(nr_mapped),
++		       nid, K(nr[NR_MAPPED]),
++		       nid, K(nr[NR_PAGECACHE]),
+ 		       nid, K(ps.nr_slab));
+ 	n += hugetlb_report_node_meminfo(nid, buf + n);
+ 	return n;
+Index: linux-2.6.15-rc5-mm2/mm/page_alloc.c
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/mm/page_alloc.c	2005-12-14 15:27:43.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/page_alloc.c	2005-12-14 15:28:34.000000000 -0800
+@@ -596,6 +596,8 @@ static int rmqueue_bulk(struct zone *zon
+ 	return i;
+ }
+ 
++char *stat_item_descr[NR_STAT_ITEMS] = { "mapped","pagecache" };
++
+ /*
+  * Manage combined zone based / global counters
+  */
+@@ -2602,6 +2604,11 @@ static int zoneinfo_show(struct seq_file
+ 			   zone->nr_scan_active, zone->nr_scan_inactive,
+ 			   zone->spanned_pages,
+ 			   zone->present_pages);
++		for(i = 0; i < NR_STAT_ITEMS; i++)
++			seq_printf(m, "\n        %-8s %lu",
++					stat_item_descr[i],
++					zone_page_state(zone, i));
++
+ 		seq_printf(m,
+ 			   "\n        protection: (%lu",
+ 			   zone->lowmem_reserve[0]);

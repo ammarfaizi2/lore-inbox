@@ -1,42 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbVLOObI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbVLOOhu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbVLOObI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 09:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750707AbVLOObI
+	id S1750709AbVLOOhu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 09:37:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750710AbVLOOhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 09:31:08 -0500
-Received: from relay4.usu.ru ([194.226.235.39]:23684 "EHLO relay4.usu.ru")
-	by vger.kernel.org with ESMTP id S1750705AbVLOObG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 09:31:06 -0500
-Message-ID: <43A17DFF.8020804@ums.usu.ru>
-Date: Thu, 15 Dec 2005 19:30:23 +0500
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-rc5-mm3
-References: <20051214234016.0112a86e.akpm@osdl.org>
-In-Reply-To: <20051214234016.0112a86e.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.15; AVE: 6.33.0.11; VDF: 6.33.0.29; host: usu2.usu.ru)
+	Thu, 15 Dec 2005 09:37:50 -0500
+Received: from igw2.watson.ibm.com ([129.34.20.6]:19098 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
+	id S1750709AbVLOOht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 09:37:49 -0500
+From: Hubertus Franke <frankeh@watson.ibm.com>
+Message-Id: <20051215143557.421393000@elg11.watson.ibm.com>
+Date: Thu, 15 Dec 2005 09:35:57 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [RFC][patch 00/21] PID Virtualization: Overview and Patches
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm3/
-> - I'm not aware of any of the more serious bugs in rc5-mm1 and rc5-mm2
->   being fixed.  If anyone finds that there's a previously-reported problem
->   in here then please just re-report it and don't be afraid to spread the
->   Cc's around.
+This patchset is a followup to the posting by Serge.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=113200410620972&w=2
 
-The bug with ppp packets autoreplicating and dead keyboard is still 
-there. Be sure to load CPU and disk for faster reproduction of the bug. 
-Original report: http://lkml.org/lkml/2005/11/7/147
+In this patchset here, we are providing the pid virtualization mentioned
+in serge's posting.
 
--- 
-Alexander E. Patrakov
+> I'm part of a project implementing checkpoint/restart processes.
+> After a process or group of processes is checkpointed, killed, and
+> restarted, the changing of pids could confuse them.  There are many
+> other such issues, but we wanted to start with pids.
+>
+> This patchset introduces functions to access task->pid and ->tgid,
+> and updates ->pid accessors to use the functions.  This is in
+> preparation for a subsequent patchset which will separate the kernel
+> and virtualized pidspaces.  This will allow us to virtualize pids
+> from users' pov, so that, for instance, a checkpointed set of
+> processes could be restarted with particular pids.  Even though their
+> kernel pids may already be in use by new processes, the checkpointed
+> processes can be started in a new user pidspace with their old
+> virtual pid.  This also gives vserver a simpler way to fake vserver
+> init processes as pid 1.  Note that this does not change the kernel's
+> internal idea of pids, only what users see.
+>
+> The first 12 patches change all locations which access ->pid and
+> ->tgid to use the inlined functions.  The last patch actually
+> introduces task_pid() and task_tgid(), and renames ->pid and ->tgid
+> to __pid and __tgid to make sure any uncaught users error out.
+>
+> Does something like this, presumably after much working over, seem
+> mergeable?
 
+These patches build on top of serge's posted patches (if necessary
+we can repost them here).
+
+PID Virtualization is based on the concept of a container.
+The ultimate goal is to checkpoint/restart containers. 
+
+The mechanism to start a container 
+is to 'echo "container_name" > /proc/container'  which creates a new
+container and associates the calling process with it. All subsequently
+forked tasks then belong to that container.
+There is a separate pid space associated with each container.
+Only processes/task belonging to the same container "see" each other.
+The exception is an implied default system container that has 
+a global view.
+
+The following patches accomplish 3 things:
+1) identify the locations at the user/kernel boundary where pids and 
+   related ids ( pgrp, sessionids, .. ) need to be (de-)virtualized and
+   call appropriate (de-)virtualization functions.
+2) provide the virtualization implementation in these functions.
+3) implement a container object and a simple /proc interface to create one
+4) provide a per container /proc/fs
+
+-- Hubertus Franke    (frankeh@watson.ibm.com)
+-- Cedric Le Goater   (clg@fr.ibm.com)
+-- Serge E Hallyn     (serue@us.ibm.com)
+-- Dave Hansen        (haveblue@us.ibm.com)

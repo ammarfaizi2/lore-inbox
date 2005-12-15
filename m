@@ -1,79 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965144AbVLOBFF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965140AbVLOBFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965144AbVLOBFF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 20:05:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbVLOBFF
+	id S965140AbVLOBFq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 20:05:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965146AbVLOBFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 20:05:05 -0500
-Received: from mail.guam.net ([202.128.0.37]:32968 "EHLO asa.kuentos.guam.net")
-	by vger.kernel.org with ESMTP id S965144AbVLOBFC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 20:05:02 -0500
-From: "Michael D. Setzer II" <mikes@kuentos.guam.net>
-To: linux-kernel@vger.kernel.org
-Date: Thu, 15 Dec 2005 11:03:05 +1000
+	Wed, 14 Dec 2005 20:05:46 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:38416 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965145AbVLOBFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 20:05:45 -0500
+Date: Thu, 15 Dec 2005 02:05:46 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org,
+       kkojima@rr.iij4u.or.jp
+Cc: linuxsh-dev@lists.sourceforge.net
+Subject: [2.6 patch] MAINTAINERS: sh: update the mailing list
+Message-ID: <20051215010546.GM23349@stusta.de>
+References: <20051212231113.GP23349@stusta.de> <20051213032826.GA16720@linux-sh.org>
 MIME-Version: 1.0
-Subject: OT: name resolution problem with cd based kernel
-Message-ID: <43A14D69.10426.A507EF@mikes.kuentos.guam.net>
-X-PM-Encryptor: QDPGP, 4
-X-mailer: Pegasus Mail for Windows (4.30 public beta 1)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051213032826.GA16720@linux-sh.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Dec 13, 2005 at 05:28:26AM +0200, Paul Mundt wrote:
+>...
+> If anything, this should be changed to linuxsh-dev@lists.sourceforge.net,
+> since that's been the defacto standard list for quite a long time now,
 
-Not sure where the problem is coming from. If it is a kernel build 
-problem, or a missing support file(s) problem. I've been working on 
-g4l (Ghost for linux) and have been able to build additional nic and 
-other support by using the later kernel.org kernels. That has all 
-worked well. But I'm know trying to get the system to support the 
-use of names rather than just ip addresses. The system can 
-currently ping by ip number, but ping by name comes back with 
-unknown server error. traceroute doesn't work with number or 
-name. traceroute with ip number gives unknown protocol icmp, but 
-ping works, and the messages I found on this problem point to 
-missing /etc/protocols file, but I added that with no change.
-traceroute with name give Unknown server error.
-nslookup also gives unknown server error.
+Updated patch below.
 
-The g4l uses ncftp with no problem to upload images via the net 
-using ip, but no name support. If I could add the support without 
-major work, I would like to. I had about 9000 downloads of the new 
-version files in November, so am hoping people find the program 
-useful. To me using ip numbers is no problem, but some have asked 
-for it. 
+> and is what I thought was in there now, in addition to the m17n.org list
+> as a fallback. Should I assume that this was also removed by a similar
+> "constructive" change?
 
-If anyone has an answer, or a place that I could look to find it. 
-Currently, the system just uses the bzImage file, and mostly 
-busybox for the system, and a few statically compiled programs.
+As far as I can see, linuxsh-dev@lists.sourceforge.net was added in 
+kernel 2.4 but never in kernel 2.5/2.6 .
 
-Thanks.
-
-+----------------------------------------------------------+
-  Michael D. Setzer II -  Computer Science Instructor      
-  Guam Community College  Computer Center                  
-  mailto:mikes@kuentos.guam.net                            
-  mailto:msetzerii@gmail.com
-  http://www.guam.net/home/mikes
-  Guam - Where America's Day Begins                        
-+----------------------------------------------------------+
-
-http://setiathome.berkeley.edu
-Number of Seti Units Returned:  18,823
-Processing time:  32 years, 168 days, 23 hours, 32 minutes
-(Total Hours: 284,376)
+cu
+Adrian
 
 
------BEGIN PGP SIGNATURE-----
-Version: PGP 6.5.8 -- QDPGP 2.61c
-Comment: http://community.wow.net/grt/qdpgp.html
+<--  snip  -->
 
-iQA/AwUBQ6A0KyzGQcr/2AKZEQKHIgCg91r4OdCuVxOB5bl7fbB25J6Pex8AoIQl
-j8njG0WqO/SEFNYo2TVEuxNP
-=hoeu
------END PGP SIGNATURE-----
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.15-rc5-mm2-full/MAINTAINERS.old	2005-12-13 00:09:01.000000000 +0100
++++ linux-2.6.15-rc5-mm2-full/MAINTAINERS	2005-12-15 01:57:21.000000000 +0100
+@@ -2506,11 +2506,11 @@
+ SUPERH (sh)
+ P:	Paul Mundt
+ M:	lethal@linux-sh.org
+ P:	Kazumoto Kojima
+ M:	kkojima@rr.iij4u.or.jp
+-L:	linux-sh@m17n.org
++L:	linuxsh-dev@lists.sourceforge.net
+ W:	http://www.linux-sh.org
+ W:	http://www.m17n.org/linux-sh/
+ W:	http://www.rr.iij4u.or.jp/~kkojima/linux-sh4.html
+ S:	Maintained
+ 
 

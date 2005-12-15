@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbVLOSOI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbVLOSVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbVLOSOI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 13:14:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbVLOSOI
+	id S1750904AbVLOSVN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 13:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbVLOSVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 13:14:08 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:16058 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750827AbVLOSOH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 13:14:07 -0500
-Date: Thu, 15 Dec 2005 18:14:05 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [PATCH 2/3] m68k: compile fix - ADBREQ_RAW missing declaration
-Message-ID: <20051215181405.GB27946@ftp.linux.org.uk>
-References: <20051215085516.GU27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151258200.1605@scrub.home> <20051215171645.GY27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151832270.1609@scrub.home> <20051215175536.GA27946@ftp.linux.org.uk> <Pine.LNX.4.62.0512151858100.6884@pademelon.sonytel.be>
+	Thu, 15 Dec 2005 13:21:13 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:28552 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S1750904AbVLOSVM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 13:21:12 -0500
+Date: Thu, 15 Dec 2005 19:20:28 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Andrew Morton <akpm@osdl.org>, Miles Lane <miles.lane@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.15-rc5-mm3 -- bus may be hidden warning
+Message-ID: <20051215182028.GA8469@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Andrew Morton <akpm@osdl.org>, Miles Lane <miles.lane@gmail.com>,
+	linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Nick Piggin <nickpiggin@yahoo.com.au>
+References: <a44ae5cd0512150035j1e1a032bpe8b271069ad5d008@mail.gmail.com> <20051215004028.0bf9791f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0512151858100.6884@pademelon.sonytel.be>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051215004028.0bf9791f.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 07:00:54PM +0100, Geert Uytterhoeven wrote:
-> Even if behavior is unchanged, this doesn't mean that people like their code
-> being modified behind their back...
+Hi,
+
+On Thu, Dec 15, 2005 at 12:40:28AM -0800, Andrew Morton wrote:
+> > [4294669.070000] PCI quirk: region 1000-107f claimed by ICH4 ACPI/GPIO/TCO
+> > [4294669.070000] PCI quirk: region 1180-11bf claimed by ICH4 GPIO
+> > [4294669.070000] PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+> > [4294669.070000] PCI: Transparent bridge - 0000:00:1e.0
+> > [4294669.070000] PCI: Bus #03 (-#06) may be hidden behind transparent
+> > bridge #02 (-#02) (try 'pci=assign-busses')
 > 
-> Anyway, last time I tried to bring this up with the union of Mac and PowerMac
-> guys, no one seemed to remember why ADBREQ_RAW was really needed...
+> Greg & Dominik.
 
->From my reading of the code it's a way for mac/misc.c to send a packet that
-starts with CUDA_PACKET or PMU_PACKET instead of ADB_PACKET, but otherwise
-is the same as normal adb_request() ones...
+http://bugzilla.kernel.org/show_bug.cgi?id=5557
 
-Used for access to timer, nvram, etc. - looks like that puppy used to
-use the same protocol for more than just ADB and the first byte of packet
-really selects the destination...
+This is just an information that the CardBus bridge _might_ not work
+correctly (the bus _may_ be hidden, but may also work correctly), and that
+pci=assign-busses should fix this.
+
+	Dominik

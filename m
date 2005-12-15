@@ -1,255 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964949AbVLOGqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVLOGtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964949AbVLOGqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 01:46:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbVLOGqZ
+	id S964789AbVLOGtt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 01:49:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbVLOGts
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 01:46:25 -0500
-Received: from smtp101.sbc.mail.re2.yahoo.com ([68.142.229.104]:7012 "HELO
-	smtp101.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S964949AbVLOGqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 01:46:24 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] vr41xx: convert to the new platform device interface
-Date: Thu, 15 Dec 2005 01:46:20 -0500
-User-Agent: KMail/1.8.3
-Cc: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
+	Thu, 15 Dec 2005 01:49:48 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:6579 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S964789AbVLOGts (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 01:49:48 -0500
+Message-ID: <43A11204.2070403@drzeus.cx>
+Date: Thu, 15 Dec 2005 07:49:40 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.7-2.1.fc4.nr (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Anderson Lizardo <anderson.lizardo@gmail.com>
+CC: Anderson Briglia <anderson.briglia@indt.org.br>,
+       Anderson Lizardo <anderson.lizardo@indt.org.br>,
+       linux-omap-open-source@linux.omap.com, linux-kernel@vger.kernel.org,
+       Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>,
+       Russell King - ARM Linux <linux@arm.linux.org.uk>,
+       Tony Lindgren <tony@atomide.com>, David Brownell <david-b@pacbell.net>
+Subject: Re: [patch 0/5] Add MMC password protection (lock/unlock) support
+References: <20051213213208.303580000@localhost.localdomain>	 <439F4AD6.9090203@indt.org.br> <439FC4A6.4010900@drzeus.cx> <5b5833aa0512141551l638b2c05xcd4588a9370bfa51@mail.gmail.com>
+In-Reply-To: <5b5833aa0512141551l638b2c05xcd4588a9370bfa51@mail.gmail.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512150146.21103.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vr41xx: convert to the new platform device interface
+Anderson Lizardo wrote:
 
-The patch does the following for v441xx seris drivers:
+>Probably using the entire 128-bit CID for the key description would
+>waste too much space though, so we are thinking about using just some
+>CID fields to build a smaller unique ID. The key retention service has
+>quotas for how much space a keyring can use for payload and key
+>description, so we should try to keep the description as short as
+>possible. If a collision occurs and the password is wrong, we can
+>simply invalidate the key and ask for the password again.
+>
+>  
+>
 
- - stop using platform_device_register_simple() as it is going away
- - mark ->probe() and ->remove() methods as __devinit and __devexit
-   respectively
- - initialize "owner" field in driver structure so there is a link
-   from /sys/modules to the driver
- - mark *_init() and *_exit() functions as __init and __exit
+For SD cards we can also use the RCA, which tends to be a bit random.
+Perhaps a generic hash function so that we can extend and tweak this
+algorithm in one place?
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+>I actually just did the following change to the OMAP code (drivers/mmc/omap.c):
+>
+>-
+>-	block_size = 1 << data->blksz_bits;
+>+	/*  password protection: we need to send the exact block size to the
+>+	 *  card (password + 2), not a 2-exponent. */
+>+	if (req->cmd->opcode == MMC_LOCK_UNLOCK)
+>+		block_size = data->sg[0].length;
+>+	else
+>+		block_size = 1 << data->blksz_bits;
+>
+>Given that for the LOCK_UNLOCK command the sg_len will always be 1, we
+>can get the block size directly from the first entry of the
+>scatterlist. For other block operations, the blksz_bits value is used
+>as usual.
+>
+>  
+>
 
- drivers/char/vr41xx_giu.c   |   24 +++++++++++++++---------
- drivers/char/vr41xx_rtc.c   |   29 ++++++++++++++++++++---------
- drivers/serial/vr41xx_siu.c |   24 +++++++++++++++---------
- 3 files changed, 50 insertions(+), 27 deletions(-)
+I can't say that I approve of this code. It's my firm belief that
+drivers that are protocol aware are horribly broken.
 
-Index: work/drivers/char/vr41xx_rtc.c
-===================================================================
---- work.orig/drivers/char/vr41xx_rtc.c
-+++ work/drivers/char/vr41xx_rtc.c
-@@ -560,7 +560,7 @@ static struct miscdevice rtc_miscdevice 
- 	.fops	= &rtc_fops,
- };
- 
--static int rtc_probe(struct platform_device *pdev)
-+static int __devinit rtc_probe(struct platform_device *pdev)
- {
- 	unsigned int irq;
- 	int retval;
-@@ -633,7 +633,7 @@ static int rtc_probe(struct platform_dev
- 	return 0;
- }
- 
--static int rtc_remove(struct platform_device *dev)
-+static int __devexit rtc_remove(struct platform_device *dev)
- {
- 	int retval;
- 
-@@ -655,13 +655,14 @@ static struct platform_device *rtc_platf
- 
- static struct platform_driver rtc_device_driver = {
- 	.probe		= rtc_probe,
--	.remove		= rtc_remove,
-+	.remove		= __devexit_p(rtc_remove),
- 	.driver		= {
- 		.name	= rtc_name,
-+		.owner	= THIS_MODULE,
- 	},
- };
- 
--static int __devinit vr41xx_rtc_init(void)
-+static int __init vr41xx_rtc_init(void)
- {
- 	int retval;
- 
-@@ -686,9 +687,20 @@ static int __devinit vr41xx_rtc_init(voi
- 		break;
- 	}
- 
--	rtc_platform_device = platform_device_register_simple("RTC", -1, rtc_resource, RTC_NUM_RESOURCES);
--	if (IS_ERR(rtc_platform_device))
--		return PTR_ERR(rtc_platform_device);
-+	rtc_platform_device = platform_device_alloc("RTC", -1);
-+	if (!rtc_platform_device)
-+		return -ENOMEM;
-+
-+	retval = platform_device_add_resources(rtc_platform_device,
-+					rtc_resource, RTC_NUM_RESOURCES);
-+
-+	if (retval == 0)
-+		retval = platform_device_add(rtc_platform_device);
-+
-+	if (retval < 0) {
-+		platform_device_put(rtc_platform_device);
-+		return retval;
-+	}
- 
- 	retval = platform_driver_register(&rtc_device_driver);
- 	if (retval < 0)
-@@ -697,10 +709,9 @@ static int __devinit vr41xx_rtc_init(voi
- 	return retval;
- }
- 
--static void __devexit vr41xx_rtc_exit(void)
-+static void __exit vr41xx_rtc_exit(void)
- {
- 	platform_driver_unregister(&rtc_device_driver);
--
- 	platform_device_unregister(rtc_platform_device);
- }
- 
-Index: work/drivers/char/vr41xx_giu.c
-===================================================================
---- work.orig/drivers/char/vr41xx_giu.c
-+++ work/drivers/char/vr41xx_giu.c
-@@ -613,7 +613,7 @@ static struct file_operations gpio_fops 
- 	.release	= gpio_release,
- };
- 
--static int giu_probe(struct platform_device *dev)
-+static int __devinit giu_probe(struct platform_device *dev)
- {
- 	unsigned long start, size, flags = 0;
- 	unsigned int nr_pins = 0;
-@@ -697,7 +697,7 @@ static int giu_probe(struct platform_dev
- 	return cascade_irq(GIUINT_IRQ, giu_get_irq);
- }
- 
--static int giu_remove(struct platform_device *dev)
-+static int __devexit giu_remove(struct platform_device *dev)
- {
- 	iounmap(giu_base);
- 
-@@ -712,19 +712,26 @@ static struct platform_device *giu_platf
- 
- static struct platform_driver giu_device_driver = {
- 	.probe		= giu_probe,
--	.remove		= giu_remove,
-+	.remove		= __devexit_p(giu_remove),
- 	.driver		= {
- 		.name	= "GIU",
-+		.owner	= THIS_MODULE,
- 	},
- };
- 
--static int __devinit vr41xx_giu_init(void)
-+static int __init vr41xx_giu_init(void)
- {
- 	int retval;
- 
--	giu_platform_device = platform_device_register_simple("GIU", -1, NULL, 0);
--	if (IS_ERR(giu_platform_device))
--		return PTR_ERR(giu_platform_device);
-+	giu_platform_device = platform_device_alloc("GIU", -1);
-+	if (!giu_platform_device)
-+		return -ENOMEM;
-+
-+	retval = platform_device_add(giu_platform_device);
-+	if (retval < 0) {
-+		platform_device_put(giu_platform_device);
-+		return retval;
-+	}
- 
- 	retval = platform_driver_register(&giu_device_driver);
- 	if (retval < 0)
-@@ -733,10 +740,9 @@ static int __devinit vr41xx_giu_init(voi
- 	return retval;
- }
- 
--static void __devexit vr41xx_giu_exit(void)
-+static void __exit vr41xx_giu_exit(void)
- {
- 	platform_driver_unregister(&giu_device_driver);
--
- 	platform_device_unregister(giu_platform_device);
- }
- 
-Index: work/drivers/serial/vr41xx_siu.c
-===================================================================
---- work.orig/drivers/serial/vr41xx_siu.c
-+++ work/drivers/serial/vr41xx_siu.c
-@@ -924,7 +924,7 @@ static struct uart_driver siu_uart_drive
- 	.cons		= SERIAL_VR41XX_CONSOLE,
- };
- 
--static int siu_probe(struct platform_device *dev)
-+static int __devinit siu_probe(struct platform_device *dev)
- {
- 	struct uart_port *port;
- 	int num, i, retval;
-@@ -958,7 +958,7 @@ static int siu_probe(struct platform_dev
- 	return 0;
- }
- 
--static int siu_remove(struct platform_device *dev)
-+static int __devexit siu_remove(struct platform_device *dev)
- {
- 	struct uart_port *port;
- 	int i;
-@@ -1011,21 +1011,28 @@ static struct platform_device *siu_platf
- 
- static struct platform_driver siu_device_driver = {
- 	.probe		= siu_probe,
--	.remove		= siu_remove,
-+	.remove		= __devexit_p(siu_remove),
- 	.suspend	= siu_suspend,
- 	.resume		= siu_resume,
- 	.driver		= {
- 		.name	= "SIU",
-+		.owner	= THIS_MODULE,
- 	},
- };
- 
--static int __devinit vr41xx_siu_init(void)
-+static int __init vr41xx_siu_init(void)
- {
- 	int retval;
- 
--	siu_platform_device = platform_device_register_simple("SIU", -1, NULL, 0);
--	if (IS_ERR(siu_platform_device))
--		return PTR_ERR(siu_platform_device);
-+	siu_platform_device = platform_device_alloc("SIU", -1);
-+	if (!siu_platform_device)
-+		return -ENOMEM;
-+
-+	retval = platform_device_add(siu_platform_device);
-+	if (retval < 0) {
-+		platform_device_put(siu_platform_device);
-+		return retval;
-+	}
- 
- 	retval = platform_driver_register(&siu_device_driver);
- 	if (retval < 0)
-@@ -1034,10 +1041,9 @@ static int __devinit vr41xx_siu_init(voi
- 	return retval;
- }
- 
--static void __devexit vr41xx_siu_exit(void)
-+static void __exit vr41xx_siu_exit(void)
- {
- 	platform_driver_unregister(&siu_device_driver);
--
- 	platform_device_unregister(siu_platform_device);
- }
- 
+>Maybe removing blksz_bits and using the block size directly would be
+>better? Is there any host/card which expects to always receive a
+>power-of-2 block size for block operations?
+>  
+>
+
+Sounds like a much better solution. Hacking around problems instead of
+solving them usually lead to even more problems.
+
+I haven't studied all drivers in detail, but I believe all of them
+should be able to handle the transistion.
+
+Rgds
+Pierre
+

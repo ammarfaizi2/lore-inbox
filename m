@@ -1,104 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161041AbVLODy2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030358AbVLOD62@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161041AbVLODy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 22:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbVLODy2
+	id S1030358AbVLOD62 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 22:58:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbVLOD62
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 22:54:28 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:44481 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1161036AbVLODy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 22:54:27 -0500
-Message-ID: <43A0E8E7.1060706@de.ibm.com>
-Date: Thu, 15 Dec 2005 04:54:15 +0100
-From: Martin Peschke <mp3@de.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, linux-scsi@vger.kernel.org
-Subject: Re: [patch 6/6] statistics infrastructure - exploitation: zfcp
-References: <43A044E6.7060403@de.ibm.com> <20051214165900.GA26580@infradead.org>
-In-Reply-To: <20051214165900.GA26580@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 14 Dec 2005 22:58:28 -0500
+Received: from smtpout.mac.com ([17.250.248.84]:33494 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1030358AbVLOD61 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 22:58:27 -0500
+In-Reply-To: <Pine.LNX.4.61.0512091523520.8080@yvahk01.tjqt.qr>
+References: <20051129002801.GA9785@mipter.zuzino.mipt.ru> <D6440692-33C3-45F0-9112-C22332ED7072@bootc.net> <20051129013354.GA17749@mipter.zuzino.mipt.ru> <20051129054819.GR11266@alpha.home.local> <20051130102111.GK9949@vanheusden.com> <20051130212350.GV11266@alpha.home.local> <Pine.LNX.4.61.0512091523520.8080@yvahk01.tjqt.qr>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <E7365ED3-3761-430C-A11A-2E7AB898BAF9@mac.com>
+Cc: Willy Tarreau <willy@w.ods.org>,
+       Folkert van Heusden <folkert@vanheusden.com>,
+       Alexey Dobriyan <adobriyan@gmail.com>, Chris Boot <bootc@bootc.net>,
+       linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC] un petite hack: /proc/*/ctl
+Date: Wed, 14 Dec 2005 22:58:06 -0500
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-
->>+	atomic_t		read_num;
->>+	atomic_t		write_num;
->>+	struct statistic_interface	*stat_if;
->>+	struct statistic		*stat_sizes_scsi_write;
->>+	struct statistic		*stat_sizes_scsi_read;
->>+	struct statistic		*stat_sizes_scsi_nodata;
->>+	struct statistic		*stat_sizes_scsi_nofit;
->>+	struct statistic		*stat_sizes_scsi_nomem;
->>+	struct statistic		*stat_sizes_timedout_write;
->>+	struct statistic		*stat_sizes_timedout_read;
->>+	struct statistic		*stat_sizes_timedout_nodata;
->>+	struct statistic		*stat_latencies_scsi_write;
->>+	struct statistic		*stat_latencies_scsi_read;
->>+	struct statistic		*stat_latencies_scsi_nodata;
->>+	struct statistic		*stat_pending_scsi_write;
->>+	struct statistic		*stat_pending_scsi_read;
->>+	struct statistic		*stat_erp;
->>+	struct statistic		*stat_eh_reset;
->>    
->>
+On Dec 09, 2005, at 09:24, Jan Engelhardt wrote:
+>> not at all. It's just that patches on the list take more and more  
+>> time to check, we're around something like 1 patch for 5 mails.  
+>> And when the author himself suggests that the patch is not for  
+>> inclusion, it wastes time. However, I agree that Alexey announced  
+>> it as [RFC] and not [PATCH],
 >
->NACK.  pretty much all of this is generic and doesn't belong into an LLDD.
->We already had this statistics things with emulex and they added various
->bits to the core in response.
->
->
->  
->
-Agreed. It's not necessarily up to LLDDs to keep track of request sizes, 
-request latencies, I/O queue utilization, and error recovery conditions 
-by means of statistics. This could or maybe should be done in a more 
-central spot.
+> Such things should be tagged as [OT] then, they are not worth  
+> enough to be named [RFC].
 
-With regard to latencies, it might make some difference, though, how 
-many layers are in between that cause additional delays. Then the 
-question is which latency one wants to measure.
+Just thinking about this a bit more, this does have some practical  
+value.  This would allow a process to acquire a "PID handle", such  
+that it could later reliably send a signal to this process without  
+worrying about any of the traditional PID reuse issues.  This would  
+also solve some of the problems of the process checkpointing people.
 
-There is some very basic measurement data on FC-4 or FCP level in the FC 
-transport class code:
+Cheers,
+Kyle Moffett
 
-        &class_device_attr_host_fcp_input_requests.attr,
-        &class_device_attr_host_fcp_output_requests.attr,
-        &class_device_attr_host_fcp_control_requests.attr,
-        &class_device_attr_host_fcp_input_megabytes.attr,
-        &class_device_attr_host_fcp_output_megabytes.attr,
-        &class_device_attr_host_reset_statistics.attr,
+--
+Simple things should be simple and complex things should be possible
+   -- Alan Kay
 
-Looks like
-- counters for the number of read and write requests and requests 
-without any data
-- counters for the number of megabytes read and written
-- a counter for one out of several recovery conditions
 
-The gap between the statistics posted by me and the FCP transport 
-statistics is
-- no information about the actual traffic pattern generated by Linux
-   (no information - e.g. histogram - about request size,
-    no information - e.g. histogram - about latencies)
-- no information about command timeouts
-- no information about I/O concurrency caused by TCQ
-
-I am not sure whether the transport statistics refer to the overall 
-utilization of an actual FC port - let's call it physical HBA -, or to 
-the share of an FC port utilized by one out of several sharing OS 
-instances - let's call these shares, carved out of an FC port, virtual HBAs.
-
-I won't object to move some stuff. But neither think I that a transport 
-class would be the right place for latencies etc. nor would I like to 
-give up certain functionality, like histograms.
-Would it be fine with you to move such statistics to the scsi mid layer, 
-provided I can get lkml's approval for some form of a generic statistic 
-code as it comes with my zfcp patch?
-
-Martin
 

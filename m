@@ -1,35 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbVLOQvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVLOQxA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbVLOQvi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 11:51:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbVLOQvi
+	id S1750759AbVLOQxA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 11:53:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbVLOQxA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 11:51:38 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:64483 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750810AbVLOQvg (ORCPT
+	Thu, 15 Dec 2005 11:53:00 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:45171 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1750759AbVLOQw7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 11:51:36 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <Pine.LNX.4.64.0512150817170.3292@g5.osdl.org> 
-References: <Pine.LNX.4.64.0512150817170.3292@g5.osdl.org>  <17313.37200.728099.873988@gargle.gargle.HOWL> <1134559121.25663.14.camel@localhost.localdomain> <13820.1134558138@warthog.cambridge.redhat.com> <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com> <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu> <20051213100015.GA32194@elte.hu> <6281.1134498864@warthog.cambridge.redhat.com> <14242.1134558772@warthog.cambridge.redhat.com> <16315.1134563707@warthog.cambridge.redhat.com> <1134568731.4275.4.camel@tglx.tec.linutronix.de> <43A0AD54.6050109@rtr.ca> <20051214155432.320f2950.akpm@osdl.org> <17313.29296.170999.539035@gargle.gargle.HOWL> <1134658579.12421.59.camel@localhost.localdomain> <4743.1134662116@warthog.cambridge.redhat.com> 
+	Thu, 15 Dec 2005 11:52:59 -0500
+Date: Thu, 15 Dec 2005 17:52:55 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, Nikita Danilov <nikita@clusterfs.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, pj@sgi.com, mingo@elte.hu, hch@infradead.org,
-       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Thu, 15 Dec 2005 16:51:02 +0000
-Message-ID: <6256.1134665462@warthog.cambridge.redhat.com>
+Cc: linux@horizon.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051215165255.GA5510@harddisk-recovery.com>
+References: <20051215135812.14578.qmail@science.horizon.com> <Pine.LNX.4.64.0512150752240.3292@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512150752240.3292@g5.osdl.org>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
+On Thu, Dec 15, 2005 at 08:15:49AM -0800, Linus Torvalds wrote:
+> First off, the data structure is called a "semaphore", and always has 
+> been. It's _never_ been called a "mutex" in the first place, and the 
+> operations have been called "down()" and "up()", because I thought calling 
+> them P() and V() was just too damn traditional and confusing (I don't 
+> speak dutch, and even if I did, I think shortening names to that degree is 
+> just evil).
 
-> Think about it a bit. We don't have DECLARE_SPINLOCK either. Why?
+Just FYI, according to Dijkstra[1] V means "verhoog" which is dutch for
+"increase". P means "prolaag" which isn't a dutch word, just something
+Dijkstra invented. I guess he did that because "decrease" is "verlaag"
+in dutch and that would give you the confusing V() and V()
+operations...
 
-I thought it was something to do with initialising struct list_heads, which
-spinlocks don't have.
+Other explanations you see in dutch CS courses are "passeer" (pass),
+"probeer" (try), "vrijgave" (unlock).
 
-David
+I do agree that Dijkstra should have used Prolaag() and Verhoog(), but
+I guess those operations wouldn't have sticked in the english CS
+literature.
+
+
+Erik
+
+[1] http://www.cs.utexas.edu/users/EWD/ewd00xx/EWD74.PDF
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

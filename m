@@ -1,99 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbVLOOjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVLOOjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbVLOOjh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 09:39:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbVLOOjG
+	id S1750727AbVLOOjn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 09:39:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbVLOOjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 09:39:06 -0500
-Received: from igw2.watson.ibm.com ([129.34.20.6]:51354 "EHLO
+	Thu, 15 Dec 2005 09:39:42 -0500
+Received: from igw2.watson.ibm.com ([129.34.20.6]:61850 "EHLO
 	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
-	id S1750722AbVLOOi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 09:38:59 -0500
+	id S1750727AbVLOOjQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 09:39:16 -0500
 From: Hubertus Franke <frankeh@watson.ibm.com>
-Message-Id: <20051215143852.495458000@elg11.watson.ibm.com>
+Message-Id: <20051215143909.434438000@elg11.watson.ibm.com>
 References: <20051215143557.421393000@elg11.watson.ibm.com>
-Date: Thu, 15 Dec 2005 09:36:10 -0500
+Date: Thu, 15 Dec 2005 09:36:13 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [RFC][patch 13/21] PID Virtualization: Documentation
-Content-Disposition: inline; filename=G0-documentation.patch
+Subject: [RFC][patch 16/21] PID Virtualization: container attach/detach calls
+Content-Disposition: inline; filename=G3-container-fork-exit.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First (incomplete) attempt of documentation
+Call the container attach and detach functions at their respective
+locations. This happens during the fork and exit functions.
+
 Signed-off-by: Hubertus Franke <frankeh@watson.ibm.com>
 --
 
- Documentation/pidvirtualization.txt |   64 ++++++++++++++++++++++++++++++++++++
- 1 files changed, 64 insertions(+)
+ kernel/exit.c |    1 +
+ kernel/fork.c |    5 ++++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-Index: linux-2.6.15-rc1/Documentation/containers.txt
+Index: linux-2.6.15-rc1/kernel/exit.c
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.15-rc1/Documentation/containers.txt	2005-12-08 01:30:42.000000000 -0500
-@@ -0,0 +1,64 @@
-+This document describes the basics of the container
-+
-+Hubertus Franke	<frankeh@watson.ibm.com>
-+Serge E Hallyn	<serue@us.ibm.com>
-+Cedric Legoater <clg@fr.ibm.com>
-+
-+Applications and associated processes can be containerized into
-+"isolated" soft partitions. The goal is to make containers
-+transparently migratable. To do so certain resources identifiers
-+need to be virtualized.
-+These includes
-+	- pids, gids,
-+	- SysV ids
-+	- procfs
-+Only resource belonging to a container can be accessed within
-+the container.
-+
-+A "container" is created through a helper program <contexe>,
-+that is supplied separately.
-+A process moves itself to a container by writing
-+the name of the container to create to /proc/container.
-+Doing so makes the calling process the pseudo init process
-+of the container.
-+
-+
-+For example "contexe -j2 /bin/bash" spawns a bash within
-+a new container <cont_2> and make the contexe process
-+the containers virtual initproc.
-+
-+
-+PID-VIRTUALIZATION:
-+-------------------
-+
-+Let Process <A> be the currently running process ( e.g. bash with pid 913 )
-+Each container has an associated pidspace id associated. Each pidspace
-+id is managed like the standard pid range in linux.
-+
-+We obtain the following tree, where <pidspace | vpid > denotes the
-+internal pid which is obtained by bitmasking.
-+
-+A some older bash < 0 | 913 >
-+	|
-+	\/
-+B == contexe == < 0 | 1087 >      ( also container->init_proc := A
-+				   	 container->init_pid  := 1087
-+	|
-+	\/
-+C == /bin/bash == < 1 | 2 >
-+
-+
-+let's define the results here we are expecting.
-+
-+C in context of B:      vpid = 2
-+B in context of C:	vpid = 1
-+
-+B in context of A:	vpid = pid = 1087
-+C in context of A:	vpid = pid = < 1 | 2 >
-+
-+A in context of B:	vpid = pid = 913
-+A in context of C:	vpid = -1
-+
-+< More to Follow >
-+
-+
+--- linux-2.6.15-rc1.orig/kernel/exit.c	2005-12-12 18:39:51.000000000 -0500
++++ linux-2.6.15-rc1/kernel/exit.c	2005-12-12 18:41:09.000000000 -0500
+@@ -101,6 +101,7 @@ repeat: 
+ 		zap_leader = (leader->exit_signal == -1);
+ 	}
+ 
++	container_detach(p);
+ 	sched_exit(p);
+ 	write_unlock_irq(&tasklist_lock);
+ 	spin_unlock(&p->proc_lock);
+Index: linux-2.6.15-rc1/kernel/fork.c
+===================================================================
+--- linux-2.6.15-rc1.orig/kernel/fork.c	2005-12-12 18:40:32.000000000 -0500
++++ linux-2.6.15-rc1/kernel/fork.c	2005-12-12 18:41:36.000000000 -0500
+@@ -43,6 +43,7 @@
+ #include <linux/rmap.h>
+ #include <linux/acct.h>
+ #include <linux/cn_proc.h>
++#include <linux/container.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -1001,6 +1002,7 @@ static task_t *copy_process(unsigned lon
+ 		goto bad_fork_cleanup_mm;
+ 	if ((retval = copy_namespace(clone_flags, p)))
+ 		goto bad_fork_cleanup_keys;
++	container_attach(p);
+ 	retval = copy_thread(0, clone_flags, stack_start, stack_size, p, regs);
+ 	if (retval)
+ 		goto bad_fork_cleanup_namespace;
+@@ -1178,6 +1180,7 @@ bad_fork_cleanup_policy:
+ 	mpol_free(p->mempolicy);
+ #endif
+ bad_fork_cleanup:
++	container_detach(p);
+ 	if (p->binfmt)
+ 		module_put(p->binfmt->module);
+ bad_fork_cleanup_put_domain:
+@@ -1241,7 +1244,7 @@ long do_fork(unsigned long clone_flags,
+ {
+ 	struct task_struct *p;
+ 	int trace = 0;
+-	long pid = alloc_pidmap(DEFAULT_PIDSPACE);
++	long pid = alloc_pidmap(task_pidspace_id(current));
+ 	long vpid;
+ 
+ 	if (pid < 0)
 
 --

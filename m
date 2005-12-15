@@ -1,199 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932622AbVLOAP1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932642AbVLOAPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932622AbVLOAP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 19:15:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbVLOAPA
+	id S932642AbVLOAPv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 19:15:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932634AbVLOAPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 19:15:00 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.25]:20165 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932628AbVLOAOl (ORCPT
+	Wed, 14 Dec 2005 19:15:42 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:23945 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965089AbVLOAPA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 19:14:41 -0500
-Date: Wed, 14 Dec 2005 16:14:30 -0800 (PST)
+	Wed, 14 Dec 2005 19:15:00 -0500
+Date: Wed, 14 Dec 2005 16:14:46 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: akpm@osdl.org, Hugh Dickins <hugh@veritas.com>,
        Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
        Andi Kleen <ak@suse.de>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
        Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051215001430.31405.65171.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20051215001446.31405.63375.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20051215001415.31405.24898.sendpatchset@schroedinger.engr.sgi.com>
 References: <20051215001415.31405.24898.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [RFC3 03/14] Convert nr_mapped
+Subject: [RFC3 06/14] Zone Reclaim
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make nr_mapped a per zone counter
+Zone reclaim allows the reclaiming of pages from a zone if the number of free
+pages falls below the watermark even if other zones still have enough pages
+available. Zone reclaim is of particular importance for NUMA machines. It can
+be more beneficial to reclaim a page than taking the performance penalties
+that come with allocating a page on a remote zone.
 
-nr_mapped is important because it allows a determination how many pages of a
-zone are not mapped, which would allow a more efficient means of determining
-when we need to reclaim memory in a zone.
+Zone reclaim is enabled if the maximum distance to another node is higher
+than RECLAIM_DISTANCE, which may be defined by an arch. By default
+RECLAIM_DISTANCE is 20 meaning the distance to another node in the
+same component (enclosure or motherboard).
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.15-rc5-mm2/include/linux/page-flags.h
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/include/linux/page-flags.h	2005-12-14 14:45:40.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/include/linux/page-flags.h	2005-12-14 14:57:29.000000000 -0800
-@@ -86,7 +86,6 @@ struct page_state {
- 	unsigned long nr_writeback;	/* Pages under writeback */
- 	unsigned long nr_unstable;	/* NFS unstable pages */
- 	unsigned long nr_page_table_pages;/* Pages used for pagetables */
--	unsigned long nr_mapped;	/* mapped into pagetables */
- 	unsigned long nr_slab;		/* In slab */
- #define GET_PAGE_STATE_LAST nr_slab
- 
-Index: linux-2.6.15-rc5-mm2/drivers/base/node.c
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/drivers/base/node.c	2005-12-03 21:10:42.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/drivers/base/node.c	2005-12-14 14:57:29.000000000 -0800
-@@ -43,18 +43,18 @@ static ssize_t node_read_meminfo(struct 
- 	unsigned long inactive;
- 	unsigned long active;
- 	unsigned long free;
-+	unsigned long nr_mapped;
- 
- 	si_meminfo_node(&i, nid);
- 	get_page_state_node(&ps, nid);
- 	__get_zone_counts(&active, &inactive, &free, NODE_DATA(nid));
-+	nr_mapped = node_page_state(nid, NR_MAPPED);
- 
- 	/* Check for negative values in these approximate counters */
- 	if ((long)ps.nr_dirty < 0)
- 		ps.nr_dirty = 0;
- 	if ((long)ps.nr_writeback < 0)
- 		ps.nr_writeback = 0;
--	if ((long)ps.nr_mapped < 0)
--		ps.nr_mapped = 0;
- 	if ((long)ps.nr_slab < 0)
- 		ps.nr_slab = 0;
- 
-@@ -83,7 +83,7 @@ static ssize_t node_read_meminfo(struct 
- 		       nid, K(i.freeram - i.freehigh),
- 		       nid, K(ps.nr_dirty),
- 		       nid, K(ps.nr_writeback),
--		       nid, K(ps.nr_mapped),
-+		       nid, K(nr_mapped),
- 		       nid, K(ps.nr_slab));
- 	n += hugetlb_report_node_meminfo(nid, buf + n);
- 	return n;
-Index: linux-2.6.15-rc5-mm2/fs/proc/proc_misc.c
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/fs/proc/proc_misc.c	2005-12-12 09:10:33.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/fs/proc/proc_misc.c	2005-12-14 14:57:29.000000000 -0800
-@@ -190,7 +190,7 @@ static int meminfo_read_proc(char *page,
- 		K(i.freeswap),
- 		K(ps.nr_dirty),
- 		K(ps.nr_writeback),
--		K(ps.nr_mapped),
-+		K(global_page_state(NR_MAPPED)),
- 		K(ps.nr_slab),
- 		K(allowed),
- 		K(committed),
-Index: linux-2.6.15-rc5-mm2/mm/vmscan.c
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/mm/vmscan.c	2005-12-13 20:41:05.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/mm/vmscan.c	2005-12-14 14:57:29.000000000 -0800
-@@ -1429,7 +1429,7 @@ int try_to_free_pages(struct zone **zone
- 	}
- 
- 	for (priority = DEF_PRIORITY; priority >= 0; priority--) {
--		sc.nr_mapped = read_page_state(nr_mapped);
-+		sc.nr_mapped = global_page_state(NR_MAPPED);
- 		sc.nr_scanned = 0;
- 		sc.nr_reclaimed = 0;
- 		sc.priority = priority;
-@@ -1517,7 +1517,7 @@ loop_again:
- 	total_reclaimed = 0;
- 	sc.gfp_mask = GFP_KERNEL;
- 	sc.may_writepage = 0;
--	sc.nr_mapped = read_page_state(nr_mapped);
-+	sc.nr_mapped = global_page_state(NR_MAPPED);
- 
- 	inc_page_state(pageoutrun);
- 
-Index: linux-2.6.15-rc5-mm2/mm/page-writeback.c
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/mm/page-writeback.c	2005-12-12 09:10:34.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/mm/page-writeback.c	2005-12-14 14:57:29.000000000 -0800
-@@ -111,7 +111,7 @@ static void get_writeback_state(struct w
- {
- 	wbs->nr_dirty = read_page_state(nr_dirty);
- 	wbs->nr_unstable = read_page_state(nr_unstable);
--	wbs->nr_mapped = read_page_state(nr_mapped);
-+	wbs->nr_mapped = global_page_state(NR_MAPPED);
- 	wbs->nr_writeback = read_page_state(nr_writeback);
- }
- 
 Index: linux-2.6.15-rc5-mm2/mm/page_alloc.c
 ===================================================================
---- linux-2.6.15-rc5-mm2.orig/mm/page_alloc.c	2005-12-14 14:57:22.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/mm/page_alloc.c	2005-12-14 14:57:29.000000000 -0800
-@@ -1784,7 +1784,7 @@ void show_free_areas(void)
- 		ps.nr_unstable,
- 		nr_free_pages(),
- 		ps.nr_slab,
--		ps.nr_mapped,
-+		global_page_state(NR_MAPPED),
- 		ps.nr_page_table_pages);
+--- linux-2.6.15-rc5-mm2.orig/mm/page_alloc.c	2005-12-14 14:57:33.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/page_alloc.c	2005-12-14 15:24:22.000000000 -0800
+@@ -1186,7 +1186,9 @@ get_page_from_freelist(gfp_t gfp_mask, u
+ 				mark = (*z)->pages_high;
+ 			if (!zone_watermark_ok(*z, order, mark,
+ 				    classzone_idx, alloc_flags))
+-				continue;
++				if (!zone_reclaim_mode ||
++			        	!zone_reclaim(*z, gfp_mask, order))
++						continue;
+ 		}
  
- 	for_each_zone(zone) {
-Index: linux-2.6.15-rc5-mm2/mm/rmap.c
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/mm/rmap.c	2005-12-14 10:54:05.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/mm/rmap.c	2005-12-14 14:57:29.000000000 -0800
-@@ -473,7 +473,7 @@ static void __page_set_anon_rmap(struct 
- 
- 	page->index = linear_page_index(vma, address);
- 
--	inc_page_state(nr_mapped);
-+	inc_zone_page_state(page, NR_MAPPED);
- }
- 
- /**
-@@ -520,7 +520,7 @@ void page_add_file_rmap(struct page *pag
- 	BUG_ON(!pfn_valid(page_to_pfn(page)));
- 
- 	if (atomic_inc_and_test(&page->_mapcount))
--		inc_page_state(nr_mapped);
-+		inc_zone_page_state(page, NR_MAPPED);
- }
- 
- /**
-@@ -544,7 +544,7 @@ void page_remove_rmap(struct page *page)
+ 		page = buffered_rmqueue(*z, order, gfp_mask);
+@@ -1957,13 +1959,22 @@ static void __init build_zonelists(pg_da
+ 	prev_node = local_node;
+ 	nodes_clear(used_mask);
+ 	while ((node = find_next_best_node(local_node, &used_mask)) >= 0) {
++		int distance = node_distance(local_node, node);
++
++		/*
++		 * If another node is sufficiently far away then it is better
++		 * to reclaim pages in a zone before going off node.
++		 */
++		if (distance > RECLAIM_DISTANCE)
++			zone_reclaim_mode = 1;
++
+ 		/*
+ 		 * We don't want to pressure a particular node.
+ 		 * So adding penalty to the first node in same
+ 		 * distance group to make it round-robin.
  		 */
- 		if (page_test_and_clear_dirty(page))
- 			set_page_dirty(page);
--		dec_page_state(nr_mapped);
-+		dec_zone_page_state(page, NR_MAPPED);
- 	}
+-		if (node_distance(local_node, node) !=
+-				node_distance(local_node, prev_node))
++
++		if (distance != node_distance(local_node, prev_node))
+ 			node_load[node] += load;
+ 		prev_node = node;
+ 		load--;
+Index: linux-2.6.15-rc5-mm2/include/linux/swap.h
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/include/linux/swap.h	2005-12-13 20:41:05.000000000 -0800
++++ linux-2.6.15-rc5-mm2/include/linux/swap.h	2005-12-14 15:24:22.000000000 -0800
+@@ -172,6 +172,17 @@ extern void swap_setup(void);
+ 
+ /* linux/mm/vmscan.c */
+ extern int try_to_free_pages(struct zone **, gfp_t);
++#ifdef CONFIG_NUMA
++extern int zone_reclaim_mode;
++extern int zone_reclaim(struct zone *, gfp_t, unsigned int);
++#else
++#define zone_reclaim_mode 0
++static inline int zone_reclaim(struct zone *z, gfp_t mask,
++				unsigned int order)
++{
++	return 0;
++}
++#endif
+ extern int shrink_all_memory(int);
+ extern int vm_swappiness;
+ 
+Index: linux-2.6.15-rc5-mm2/include/linux/topology.h
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/include/linux/topology.h	2005-12-12 09:10:34.000000000 -0800
++++ linux-2.6.15-rc5-mm2/include/linux/topology.h	2005-12-14 15:24:22.000000000 -0800
+@@ -56,6 +56,9 @@
+ #define REMOTE_DISTANCE		20
+ #define node_distance(from,to)	((from) == (to) ? LOCAL_DISTANCE : REMOTE_DISTANCE)
+ #endif
++#ifndef RECLAIM_DISTANCE
++#define RECLAIM_DISTANCE 20
++#endif
+ #ifndef PENALTY_FOR_NODE_WITH_CPUS
+ #define PENALTY_FOR_NODE_WITH_CPUS	(1)
+ #endif
+Index: linux-2.6.15-rc5-mm2/mm/vmscan.c
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/mm/vmscan.c	2005-12-14 15:24:19.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/vmscan.c	2005-12-14 15:24:43.000000000 -0800
+@@ -1823,3 +1823,60 @@ static int __init kswapd_init(void)
  }
  
-Index: linux-2.6.15-rc5-mm2/mm/swap_prefetch.c
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/mm/swap_prefetch.c	2005-12-12 09:10:34.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/mm/swap_prefetch.c	2005-12-14 14:57:29.000000000 -0800
-@@ -327,7 +327,7 @@ static int prefetch_suitable(void)
- 	 * >2/3 of the ram is mapped or swapcache, we need some free for
- 	 * pagecache
- 	 */
--	limit = ps.nr_mapped + ps.nr_slab + pending_writes +
-+	limit = global_page_state(NR_MAPPED) + ps.nr_slab + pending_writes +
- 		total_swapcache_pages;
- 	if (limit > mapped_limit)
- 		goto out;
-Index: linux-2.6.15-rc5-mm2/include/linux/mmzone.h
-===================================================================
---- linux-2.6.15-rc5-mm2.orig/include/linux/mmzone.h	2005-12-14 14:46:34.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/include/linux/mmzone.h	2005-12-14 14:57:29.000000000 -0800
-@@ -44,8 +44,8 @@ struct zone_padding {
- #define ZONE_PADDING(name)
- #endif
- 
--enum zone_stat_item { };
--#define NR_STAT_ITEMS 0
-+enum zone_stat_item { NR_MAPPED };
-+#define NR_STAT_ITEMS 1
- 
- struct per_cpu_pages {
- 	int count;		/* number of pages in the list */
+ module_init(kswapd_init)
++
++#ifdef CONFIG_NUMA
++/*
++ * Zone reclaim mode
++ *
++ * If non-zero call zone_reclaim when the number of free pages falls below
++ * the watermarks.
++ */
++int zone_reclaim_mode __read_mostly;
++
++/*
++ * Try to free up some pages from this zone through reclaim.
++ */
++int zone_reclaim(struct zone *zone, gfp_t gfp_mask, unsigned int order)
++{
++	struct scan_control sc;
++	int nr_pages = 1 << order;
++	struct task_struct *p = current;
++	struct reclaim_state reclaim_state;
++
++	if (!(gfp_mask & __GFP_WAIT) ||
++	    zone->zone_pgdat->node_id != numa_node_id() ||
++	    zone->all_unreclaimable ||
++	    atomic_read(&zone->reclaim_in_progress) > 0)
++		return 0;
++
++	/*
++	 * Check if there is a reasonable amount of recoverable memory before
++	 * doing the scan.
++	 */
++	if (zone_page_state(zone, NR_PAGECACHE) <=
++			zone_page_state(zone, NR_MAPPED) + nr_pages)
++		return 0;
++
++	sc.gfp_mask = gfp_mask;
++	sc.may_writepage = 0;
++	sc.may_swap = 0;
++	sc.nr_mapped = global_page_state(NR_MAPPED);
++	sc.nr_scanned = 0;
++	sc.nr_reclaimed = 0;
++	sc.priority = 0;
++	disable_swap_token();
++
++	sc.swap_cluster_max = max(nr_pages, SWAP_CLUSTER_MAX);
++
++	cond_resched();
++	p->flags |= PF_MEMALLOC;
++	reclaim_state.reclaimed_slab = 0;
++	p->reclaim_state = &reclaim_state;
++	shrink_zone(zone, &sc);
++	p->reclaim_state = NULL;
++	current->flags &= ~PF_MEMALLOC;
++	cond_resched();
++	return sc.nr_reclaimed >= (1 << order);
++}
++#endif
++

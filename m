@@ -1,36 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbVLOPzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbVLOQBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750784AbVLOPzi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 10:55:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVLOPzh
+	id S1750783AbVLOQBh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 11:01:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbVLOQBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 10:55:37 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:49335 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750787AbVLOPzh (ORCPT
+	Thu, 15 Dec 2005 11:01:37 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:64435 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S1750783AbVLOQBg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 10:55:37 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <17313.37200.728099.873988@gargle.gargle.HOWL> 
-References: <17313.37200.728099.873988@gargle.gargle.HOWL>  <1134559121.25663.14.camel@localhost.localdomain> <13820.1134558138@warthog.cambridge.redhat.com> <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com> <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu> <20051213100015.GA32194@elte.hu> <6281.1134498864@warthog.cambridge.redhat.com> <14242.1134558772@warthog.cambridge.redhat.com> <16315.1134563707@warthog.cambridge.redhat.com> <1134568731.4275.4.camel@tglx.tec.linutronix.de> <43A0AD54.6050109@rtr.ca> <20051214155432.320f2950.akpm@osdl.org> <17313.29296.170999.539035@gargle.gargle.HOWL> <1134658579.12421.59.camel@localhost.localdomain> 
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, dhowells@redhat.com, pj@sgi.com, mingo@elte.hu,
-       hch@infradead.org, torvalds@osdl.org, arjan@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Thu, 15 Dec 2005 15:55:16 +0000
-Message-ID: <4743.1134662116@warthog.cambridge.redhat.com>
+	Thu, 15 Dec 2005 11:01:36 -0500
+Message-ID: <43A1935A.4020902@drzeus.cx>
+Date: Thu, 15 Dec 2005 17:01:30 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mail/News 1.5 (X11/20051129)
+MIME-Version: 1.0
+To: Pierre Ossman <drzeus-list@drzeus.cx>,
+       Anderson Lizardo <anderson.lizardo@gmail.com>,
+       Anderson Briglia <anderson.briglia@indt.org.br>,
+       Anderson Lizardo <anderson.lizardo@indt.org.br>,
+       linux-omap-open-source@linux.omap.com, linux-kernel@vger.kernel.org,
+       Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>,
+       Russell King - ARM Linux <linux@arm.linux.org.uk>,
+       Tony Lindgren <tony@atomide.com>, David Brownell <david-b@pacbell.net>
+Subject: Re: [patch 0/5] Add MMC password protection (lock/unlock) support
+References: <20051213213208.303580000@localhost.localdomain> <439F4AD6.9090203@indt.org.br> <439FC4A6.4010900@drzeus.cx> <5b5833aa0512141551l638b2c05xcd4588a9370bfa51@mail.gmail.com> <43A11204.2070403@drzeus.cx> <20051215091220.GA29620@flint.arm.linux.org.uk> <43A136F1.3040700@drzeus.cx> <20051215100657.GC32490@flint.arm.linux.org.uk> <20051215134436.GB6211@flint.arm.linux.org.uk>
+In-Reply-To: <20051215134436.GB6211@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita Danilov <nikita@clusterfs.com> wrote:
+Russell King wrote:
+> Reading through the specs I have here, block sizes seem to be all over
+> the place.  The MMC card specs seem to imply that any block size can
+> be set, from 0 bytes to 2^32-1 bytes.
+>
+> The PXA MMC interface specification allows the block size to be anything
+> from 1 to 1023 bytes, excluding CRC.  It is unclear whether a value of 0
+> means 1024.
+>
+> The MMCI specification allows the block size to be specified as a power
+> of two, from 1 to 2048 bytes, excluding CRC.
+>
+> Pierre - can you comment on wbsd's capabilities please?
+>
+>   
 
-> And to convert almost all calls to down/up to mutex_{down,up}. At which
-> point, it no longer makes sense to share the same data-type for
-> semaphore and mutex.
+wbsd can do 1 to 4087 (it wants CRC bytes in the size so it goes to 4095
+including those). Which means I probably set incorrect sg limits... I
+guess I should fix that.
 
-But what to do about DECLARE_MUTEX? :-/
+sdhci, which I'm currently developing, can do up to 0x7FFF. The register
+is 16-bits, but the upper bit never sticks so I assume it cannot be used.
 
-David
+Rgds
+Pierre

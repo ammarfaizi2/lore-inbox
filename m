@@ -1,62 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbVLOVcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751103AbVLOVgh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbVLOVcp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 16:32:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVLOVcp
+	id S1751103AbVLOVgh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 16:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbVLOVgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 16:32:45 -0500
-Received: from mail.shareable.org ([81.29.64.88]:48614 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S1751045AbVLOVco
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 16:32:44 -0500
-Date: Thu, 15 Dec 2005 21:32:34 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: JANAK DESAI <janak@us.ibm.com>, viro@ftp.linux.org.uk, chrisw@osdl.org,
-       dwmw2@infradead.org, serue@us.ibm.com, mingo@elte.hu,
-       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 1/9] unshare system call: system call handler function
-Message-ID: <20051215213234.GB6990@mail.shareable.org>
-References: <1134513959.11972.167.camel@hobbs.atlanta.ibm.com> <m1k6e687e2.fsf@ebiederm.dsl.xmission.com> <43A1D435.5060602@us.ibm.com> <m1d5jy83nr.fsf@ebiederm.dsl.xmission.com>
+	Thu, 15 Dec 2005 16:36:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:64649 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751103AbVLOVgg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 16:36:36 -0500
+Date: Thu, 15 Dec 2005 13:36:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Jordan Crouse" <jordan.crouse@amd.com>
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
+       info-linux@ldcmail.amd.com
+Subject: Re: [PATCH 1/3] Base support for AMD Geode GX/LX processors.
+Message-Id: <20051215133615.588d7e80.akpm@osdl.org>
+In-Reply-To: <20051215211248.GE11054@cosmic.amd.com>
+References: <20051215211248.GE11054@cosmic.amd.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1d5jy83nr.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> I follow but I am very disturbed.
-> 
-> You are leaving CLONE_NEWNS to mean you want a new namespace.
-> 
-> For clone CLONE_FS unset means generate an unshared fs_struct
->           CLONE_FS set   means share the fs_struct with the parent
-> 
-> But for unshare CLONE_FS unset means share the fs_struct with others
->             and CLONE_FS set   means generate an unshared fs_struct
-> 
-> The meaning of CLONE_FS between the two calls in now flipped,
-> but CLONE_NEWNS is not.  Please let's not implement it this way.
+"Jordan Crouse" <jordan.crouse@amd.com> wrote:
+>
+> +static void __init init_nsc(struct cpuinfo_x86 *c)
+> +{
+> +	int r;
+> +
+> +	/* There may be GX1 processors in the wild that are branded
+> +	 * NSC and not Cyrix.
+> +	 *
+> +	 * This function only handles the GX processor, and kicks every
+> +	 * thing else to the Cyrix init function above - that should
+> +	 * cover any processors that might have been branded differently
+> +	 * after NSC aquired Cyrix.
+> +	 *
+> +	 * If this breaks your GX1 horribly, please e-mail
+> +	 * info-linux@ldcmail.amd.com to tell us.
+> +	 */
+> +
+> +	/* Handle the GX (Formally known as the GX2) */
+> +
+> +	if ((c->x86 == 5) && (c->x86_model == 5)) {
+> +		r = get_model_name(c);
+> +		display_cacheinfo(c);
+> +	}
+> +	else
+> +		init_cyrix(c);
+> +}
 
-I agree.
+What's `r' doing there?
 
-> Part of the problem is the double negative in the name, leading
-> me to suggest that sys_share might almost be a better name.
+How's this look?
 
-I agree with that suggestion, too.
 
-Alternatively, we could just add a flag to clone(): CLONE_SELF,
-meaning don't create a new task, just modify the properties of the
-current task.
+From: Andrew Morton <akpm@osdl.org>
 
-> So please code don't invert the meaning of the bits.  This will
-> allow sharing of the sanity checks with clone.
-> In addition this leaves open the possibility that routines like
-> copy_fs properly refactored can be shared between clone and unshare.
+- coding style fixes
 
-And also make the API less confusing to document and use.
+- remove unused variable.
 
--- Jamie
+- init_nsc() must be __devinit else it'll crash during x86 fake hotplugging.
+  Which swsusp uses.
+
+Cc: Jordan Crouse <jordan.crouse@amd.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ arch/i386/kernel/cpu/amd.c   |    4 +---
+ arch/i386/kernel/cpu/cyrix.c |   15 +++++----------
+ 2 files changed, 6 insertions(+), 13 deletions(-)
+
+diff -puN arch/i386/kernel/cpu/amd.c~base-support-for-amd-geode-gx-lx-processors-tidy arch/i386/kernel/cpu/amd.c
+--- 25/arch/i386/kernel/cpu/amd.c~base-support-for-amd-geode-gx-lx-processors-tidy	Thu Dec 15 13:33:50 2005
++++ 25-akpm/arch/i386/kernel/cpu/amd.c	Thu Dec 15 13:33:50 2005
+@@ -162,14 +162,12 @@ static void __init init_amd(struct cpuin
+ 				break;
+ 			}
+ 
+-			if ( c->x86_model == 10 ) {
++			if (c->x86_model == 10) {
+ 				/* AMD Geode LX is model 10 */
+ 				/* placeholder for any needed mods */
+ 				break;
+ 			}
+-
+ 			break;
+-
+ 		case 6: /* An Athlon/Duron */
+  
+ 			/* Bit 15 of Athlon specific MSR 15, needs to be 0
+diff -puN arch/i386/kernel/cpu/cyrix.c~base-support-for-amd-geode-gx-lx-processors-tidy arch/i386/kernel/cpu/cyrix.c
+--- 25/arch/i386/kernel/cpu/cyrix.c~base-support-for-amd-geode-gx-lx-processors-tidy	Thu Dec 15 13:33:50 2005
++++ 25-akpm/arch/i386/kernel/cpu/cyrix.c	Thu Dec 15 13:35:25 2005
+@@ -342,13 +342,11 @@ static void __init init_cyrix(struct cpu
+ 	return;
+ }
+ 
+-
+-/* This function handles National Semiconductor branded processors */
+-
+-static void __init init_nsc(struct cpuinfo_x86 *c)
++/*
++ * Handle National Semiconductor branded processors
++ */
++static void __devinit init_nsc(struct cpuinfo_x86 *c)
+ {
+-	int r;
+-
+ 	/* There may be GX1 processors in the wild that are branded
+ 	 * NSC and not Cyrix.
+ 	 *
+@@ -363,15 +361,12 @@ static void __init init_nsc(struct cpuin
+ 
+ 	/* Handle the GX (Formally known as the GX2) */
+ 
+-	if ((c->x86 == 5) && (c->x86_model == 5)) {
+-		r = get_model_name(c);
++	if (c->x86 == 5 && c->x86_model == 5)
+ 		display_cacheinfo(c);
+-	}
+ 	else
+ 		init_cyrix(c);
+ }
+ 
+-
+ /*
+  * Cyrix CPUs without cpuid or with cpuid not yet enabled can be detected
+  * by the fact that they preserve the flags across the division of 5/2.
+_
+

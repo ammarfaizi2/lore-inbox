@@ -1,72 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422717AbVLONBu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422718AbVLONDr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422717AbVLONBu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 08:01:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbVLONBu
+	id S1422718AbVLONDr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 08:03:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbVLONDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 08:01:50 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:18131 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1422715AbVLONBt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 08:01:49 -0500
-Date: Thu, 15 Dec 2005 06:01:48 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-Cc: torvalds@osdl.org, willy@debian.org, arnd@arndb.de, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, debian-glibc@lists.debian.org
-Subject: Re: [patch] ioctl BLKGETSIZE64 fix
-Message-ID: <20051215130148.GA9286@parisc-linux.org>
-References: <20051215122527.GA7762@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 15 Dec 2005 08:03:47 -0500
+Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:28854 "EHLO
+	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1422712AbVLONDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 08:03:45 -0500
+From: Con Kolivas <kernel@kolivas.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [RFC] Fine-grained memory priorities and PI
+Date: Fri, 16 Dec 2005 00:02:48 +1100
+User-Agent: KMail/1.9
+Cc: "David S. Miller" <davem@davemloft.net>, sri@us.ibm.com, mpm@selenic.com,
+       ak@suse.de, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20051215033937.GC11856@waste.org> <200512152345.25375.kernel@kolivas.org> <8803F1D1-E647-45A3-B2A4-E3C95AAC11C6@mac.com>
+In-Reply-To: <8803F1D1-E647-45A3-B2A4-E3C95AAC11C6@mac.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051215122527.GA7762@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200512160002.49096.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 08:25:27PM +0800, Coywolf Qi Hunt wrote:
-> Two years ago, "[PATCH] use size_t for the broken ioctl numbers" brought in the problem.
-> <http://lkml.org/lkml/2003/9/7/14> (also FYI: <https://lwn.net/Articles/48360/>)
-> 
-> The patch below fixes the bug on BLKGETSIZE64. typeof(size_t) == 32, but we expect 64. 
-> The choice of `size_t' is also a mistake. We should have taken `int'.  This also affects
-> userland linux-kernel-headers.
-> 
-> Or am I missing something? Thanks.
+On Thursday 15 December 2005 23:58, Kyle Moffett wrote:
+> On Dec 15, 2005, at 07:45, Con Kolivas wrote:
+> > I have some basic process-that-called the memory allocator link in
+> > the -ck tree already which alters how aggressively memory is
+> > reclaimed according to priority. It does not affect out of memory
+> > management but that could be added to said algorithm; however I
+> > don't see much point at the moment since oom is still an uncommon
+> > condition but regular memory allocation is routine.
+>
+> My thought would be to generalize the two special cases of writeback
+> of dirty pages or dropping of clean pages under memory pressure and
+> OOM to be the same general case.  When you are trying to free up
+> pages, it may be permissible to drop dirty mbox pages and kill the
+> postfix process writing them in order to satisfy allocations for the
+> mission-critical database server.  (Or maybe it's the other way
+> around).  If a large chunk of the allocated pages have priorities and
+> lossless/lossy free functions, then the kernel can be much more
+> flexible and configurable about what to do when running low on RAM.
 
-Did you test this change?  I don't think you understood what the original
-problem was.
+Indeed the implementation I currently have is lightweight to say the least but 
+I really didn't think bloating struct page was worth it since the memory cost 
+would be prohibitive, but would allow all sorts of priority effects and vm 
+scheduling to be possible. That is, struct page could have an extra entry 
+keeping track of the highest priority of the process that used it and use 
+that to determine further eviction etc.
 
-This is the original definition:
--#define BLKGETSIZE64 _IOR(0x12,114,sizeof(u64))	/* return device
-size in bytes (u64 *arg) */
-
-What the author *meant* was to use u64.  What they *got* was size_t.
-Unfortunately, changing this to u64 breaks compatibility with userspace.
-So we put in some checking code to make sure that people wouldn't make
-this kind of mistake any more and converted all the bad users to size_t.
-
-With Linux the size argument is *just* a convention.  Some Unices do
-the copyin/copyout thing in the ioctl dispatcher; Linux has the ioctl
-handler do the copyin/copyout.  So it does no harm to have the wrong size.
-
-In summary: This change is wrong and causes ABI breakage for
-architectures which have sizeof(u64) != sizeof(size_t).
-
-> 	Coywolf
-> 
-> Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
-> ---
-> diff -pruN 2.6.15-rc5-mm3/include/linux/fs.h 2.6.15-rc5-mm3~BLKGETSIZE64-fix/include/linux/fs.h
-> --- 2.6.15-rc5-mm3/include/linux/fs.h	2005-12-15 16:55:22.000000000 +0800
-> +++ 2.6.15-rc5-mm3~BLKGETSIZE64-fix/include/linux/fs.h	2005-12-15 20:08:52.000000000 +0800
-> @@ -197,7 +197,7 @@ extern int dir_notify_enable;
->  /* A jump here: 108-111 have been used for various private purposes. */
->  #define BLKBSZGET  _IOR(0x12,112,size_t)
->  #define BLKBSZSET  _IOW(0x12,113,size_t)
-> -#define BLKGETSIZE64 _IOR(0x12,114,size_t)	/* return device size in bytes (u64 *arg) */
-> +#define BLKGETSIZE64 _IOR(0x12,114,u64)	/* return device size in bytes (u64 *arg) */
->  #define BLKSTARTTRACE _IOWR(0x12,115,struct blk_user_trace_setup)
->  #define BLKSTOPTRACE _IO(0x12,116)
->  
+Cheers,
+Con

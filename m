@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422673AbVLOJ5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422675AbVLOJ6B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422673AbVLOJ5d (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 04:57:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422675AbVLOJ5d
+	id S1422675AbVLOJ6B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 04:58:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422677AbVLOJ6B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 04:57:33 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:55996 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1422673AbVLOJ5c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 04:57:32 -0500
-Date: Thu, 15 Dec 2005 12:58:00 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-To: linux-kernel@vger.kernel.org
-Cc: spi-devel-general@lists.sourceforge.net, david-b@pacbell.net,
-       dpervushin@gmail.com, akpm@osdl.org, greg@kroah.com,
-       basicmark@yahoo.com, komal_shah802003@yahoo.com,
-       stephen@streetfiresound.com, Joachim_Jaeger@digi.com
-Subject: [PATCH 2.6-git 0/3] SPI core refresh
-Message-Id: <20051215125800.4fa95de6.vwool@ru.mvista.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 15 Dec 2005 04:58:01 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64264 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1422675AbVLOJ6A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 04:58:00 -0500
+Date: Thu, 15 Dec 2005 09:57:54 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tlclk.c: pointers are handled by %p
+Message-ID: <20051215095754.GA32490@flint.arm.linux.org.uk>
+Mail-Followup-To: Al Viro <viro@ftp.linux.org.uk>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <E1EmpFz-00080I-2r@ZenIV.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1EmpFz-00080I-2r@ZenIV.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings,
+On Thu, Dec 15, 2005 at 09:18:35AM +0000, Al Viro wrote:
+> diff --git a/drivers/char/tlclk.c b/drivers/char/tlclk.c
+> index 12167c0..e8467dc 100644
+> --- a/drivers/char/tlclk.c
+> +++ b/drivers/char/tlclk.c
+> @@ -776,8 +776,8 @@ static int __init tlclk_init(void)
+>  	tlclk_device = platform_device_register_simple("telco_clock",
+>  				-1, NULL, 0);
+>  	if (!tlclk_device) {
+> -		printk(KERN_ERR " platform_device_register retruns 0x%X\n",
+> -			(unsigned int) tlclk_device);
+> +		printk(KERN_ERR " platform_device_register retruns 0x%p\n",
+> +			tlclk_device);
 
-this message fill be followed by the following three ones:
-1) updated SPI core from Dmitry Pervushin/Vitaly Wool
-2) Atmel MTD dataflash driver port for this core
-3) SPI controller driver for Philips SPI controller
+This looks really strange - we know what tlclk_device will be at that
+printk - it'll be NULL because if it's anything different we wouldn't
+be inside this if(){ }.
 
-This SPI core features:
-* multiple SPI controller support
-* multiple devices on the same bus support
-* DMA support
-* DMA-unsafety check
-* synchronous and asynchronous transfers
-* library for asynchronous transfers on the bus using kernel threads
-* character device interface
-* custom lightweight SPI message allocation mechanism
-* ability to call transfer function from the interrupt context
-* no more explicit redundant memory allocations/copys.
+Moreover, this code is obviously bogus.  platform_device_register_simple
+does not return NULL for the error case.  It should be something like:
 
-The main differences between the previous version and this one:
-* handling DMA-unsafe buffer is now completely up to the bus driver
-* spi-dev compilation error fixed
-* redundant non-NULL check in bus_suspend/bus_resume removed
-* mutexes changed to spinlocks in queueing function for spi-thread to make it callable from the
-  interrupt context.
+	if (IS_ERR(tlclk_device)) {
+		ret = PTR_ERR(tlclk_device);
+		printk(KERN_ERR "platform_device_register returns %d\n",
+		        ret);
+		goto out4;
+	}
 
-I'd also like to encourage those who interested to use CVS on SourceForge to get the latest updates of the SPI core. The CVS root is ':pserver:anonymous@cvs.sourceforge.net:/cvsroot/spi-devel', the module to checkout is spi-core. Hope that helps.
-
-Vitaly
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

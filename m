@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161046AbVLOIWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161061AbVLOIW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161046AbVLOIWu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 03:22:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161061AbVLOIWu
+	id S1161061AbVLOIW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 03:22:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161070AbVLOIW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 03:22:50 -0500
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:20107 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S1161046AbVLOIWt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 03:22:49 -0500
-Date: Thu, 15 Dec 2005 04:25:36 -0500
-From: Adam Belay <ambx1@neo.rr.com>
-To: Ed Sweetman <safemode@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pci unsupported PM regs version (7), means hardware isn't working?
-Message-ID: <20051215092536.GA8122@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Ed Sweetman <safemode@comcast.net>, linux-kernel@vger.kernel.org
-References: <438F800C.1050903@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <438F800C.1050903@comcast.net>
-User-Agent: Mutt/1.5.9i
+	Thu, 15 Dec 2005 03:22:59 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:56968 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1161061AbVLOIW6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 03:22:58 -0500
+Message-ID: <43A127D3.1070106@cosmosbay.com>
+Date: Thu, 15 Dec 2005 09:22:43 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>, dada1@cosmobay.com
+Subject: Re: [patch 3/3] x86_64: Node local pda take 2 -- node local pda allocation
+References: <20051215023345.GB3787@localhost.localdomain> <20051215023748.GD3787@localhost.localdomain>
+In-Reply-To: <20051215023748.GD3787@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 01, 2005 at 05:58:20PM -0500, Ed Sweetman wrote:
-> I'm getting this warning when i try to load the madwifi drivers on my 
-> WRAP board for the WMIA-166AG mini-pci card using kernel 2.6.13.3 and 
-> the latest trunk of madwifi.  
-> 
-> This is the only error that's printed before the HAL driver for madwifi 
-> responds with "no hardware found or unsupported hardware" etc etc.   I 
-> had to add the pcid's to madwifi for it to even detect it enough to try 
-> and send it to the HAL module, but the madwifi dev team isn't looking at 
-> any bug reports because of this printk that's being made by the PCI 
-> subsystem in the kernel. 
-> 
-> So, does this printk mean anything (i've seen posts where the hardware 
-> producing it was working, the printks were just a nuissance) or does it 
-> indicate some issue the PCI subsystem is having in powering the card up 
-> and communicating with it.   In either case, I'd be more than happy with 
-> providing anyone able to patch the pci code with information i have on 
-> the card. 
-> 
-> If it's nothing but a harmless warning, i'll forward the response to the 
-> madwifi wiki and mailing list, so something can be done upstream to the 
-> hal module to work the card. 
-> 
-> Thanks in advance. 
+Ravikiran G Thirumalai a écrit :
+> Patch uses a static PDA array early at boot and reallocates processor PDA
+> with node local memory when kmalloc is ready, just before pda_init.
+> The boot_cpu_pda is needed since the cpu_pda is used even before pda_init for
+> that cpu is called.   
+> (pda_init is called when APs are brought on at rest_init().  But
+> setup_per_cpu_areas is called early in start_kernel and 
+> sched_init uses the per-cpu offset table early)
 
-The power management spec version reported by the driver doesn't exist as
-far as I know.  Would it be possible to see the output of "lspci -xxx"?
+That seems good, thank you !
 
-Even if the kernel isn't able to understand the PM registers, we may want
-to assume the device is in D0 and print a warning. The bar restore changes
-possibly have changed this behavior.  As a result, pci_enable_device() would
-return an error.
+Do you have an idea of the performance gain we could expect from this node 
+local pda allocation ?
 
-Thanks,
-Adam
+Say a CPU is on Node 1,  was a change in pda (allocated on Node 0) immediatly 
+mirrored on remote node or not ?
+
+Eric

@@ -1,90 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbVLOPwf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbVLOPyR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbVLOPwf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 10:52:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbVLOPwf
+	id S1750782AbVLOPyR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 10:54:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbVLOPyR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 10:52:35 -0500
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:37023 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S1750775AbVLOPwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 10:52:33 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17313.37200.728099.873988@gargle.gargle.HOWL>
-Date: Thu, 15 Dec 2005 18:52:48 +0300
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, dhowells@redhat.com,
-       pj@sgi.com, mingo@elte.hu, hch@infradead.org, torvalds@osdl.org,
-       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+	Thu, 15 Dec 2005 10:54:17 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46518 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750776AbVLOPyQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 10:54:16 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0512141840370.3292@g5.osdl.org> 
+References: <Pine.LNX.4.64.0512141840370.3292@g5.osdl.org>  <1134559121.25663.14.camel@localhost.localdomain> <13820.1134558138@warthog.cambridge.redhat.com> <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com> <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu> <20051213100015.GA32194@elte.hu> <6281.1134498864@warthog.cambridge.redhat.com> <14242.1134558772@warthog.cambridge.redhat.com> <16315.1134563707@warthog.cambridge.redhat.com> <1134568731.4275.4.camel@tglx.tec.linutronix.de> <43A0AD54.6050109@rtr.ca> <1134604667.2542.86.camel@tglx.tec.linutronix.de> <43A0B172.7020800@rtr.ca> <1134605406.2542.91.camel@tglx.tec.linutronix.de> 
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Mark Lord <lkml@rtr.ca>,
+       David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Paul Jackson <pj@sgi.com>,
+       mingo@elte.hu, hch@infradead.org, akpm@osdl.org, arjan@infradead.org,
+       matthew@wil.cx, linux-kernel@vger.kernel.org,
        linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-In-Reply-To: <1134658579.12421.59.camel@localhost.localdomain>
-References: <1134559121.25663.14.camel@localhost.localdomain>
-	<13820.1134558138@warthog.cambridge.redhat.com>
-	<20051213143147.d2a57fb3.pj@sgi.com>
-	<20051213094053.33284360.pj@sgi.com>
-	<dhowells1134431145@warthog.cambridge.redhat.com>
-	<20051212161944.3185a3f9.akpm@osdl.org>
-	<20051213075441.GB6765@elte.hu>
-	<20051213090219.GA27857@infradead.org>
-	<20051213093949.GC26097@elte.hu>
-	<20051213100015.GA32194@elte.hu>
-	<6281.1134498864@warthog.cambridge.redhat.com>
-	<14242.1134558772@warthog.cambridge.redhat.com>
-	<16315.1134563707@warthog.cambridge.redhat.com>
-	<1134568731.4275.4.camel@tglx.tec.linutronix.de>
-	<43A0AD54.6050109@rtr.ca>
-	<20051214155432.320f2950.akpm@osdl.org>
-	<17313.29296.170999.539035@gargle.gargle.HOWL>
-	<1134658579.12421.59.camel@localhost.localdomain>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Thu, 15 Dec 2005 15:53:48 +0000
+Message-ID: <4691.1134662028@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
- > On Iau, 2005-12-15 at 16:41 +0300, Nikita Danilov wrote:
- > > But this change is about fixing bugs: mutex assumes that
- > > 
- > >  - only owner can unlock, and
- > > 
- > >  - owner cannot lock (immediate self-deadlock).
- > 
- > So add mutex_up/mutex_down that use the same semaphores but do extra
- > checks if lock debugging is enabled. All you need is an owner field for
- > debugging.
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-And to convert almost all calls to down/up to mutex_{down,up}. At which
-point, it no longer makes sense to share the same data-type for
-semaphore and mutex.
+> Dammit, unless the pure mutex has a _huge_ performance advantage on major 
+> architectures, we're not changing it.
 
-Also, (as was already mentioned several times) having separate data-type
-for mutex makes code easier to understand, as it specifies intended
-usage.
+Whilst it's true that the major archs are generally where the least advantage
+will be seen, consider the following points:
 
-To avoid duplicating code, mutex can be implemented on top of semaphore,
-like
+ (1) The major archs are generally the ones where consuming a few extra bytes
+     of kernel code so as to hold the slow paths for the mutexes would matter
+     least.
 
-struct mutex {
-        struct semaphore sema;
-#ifdef DEBUG_MUTEX
-        void *owner;
-#endif
-};
+ (2) The minor archs are where the performance gain would be most noticable
+     because many of them only have unconditional state substitution
+     capabilities (XCHG/TAS/SWAP/BSET), and no matter how much you may not
+     care for them, they do matter.
 
-or something similar.
+     Having to use spinlocks and interrupt disablement in lieu of conditional
+     state substitution (such as CMPXCHG) can cost quite a bit.
 
- > 
- > Now generate a trace dump on up when up and to check for sleeping on a
- > lock you already hold (for both sem and mutex).
+ (3) Mutex performance should in no way be slower on any arch than counting
+     semaphores being used to do the same job. Now, admittedly, my first
+     attempt was suboptimal for archs that have better-than-XCHG capabilities,
+     but I've amended that with Ingo's help, just not released it yet.
 
-Sleeping on a semaphore "held" by the current thread is perfectly
-reasonable usage of a generic counting semaphore, as it can be upped by
-another thread.
+> There's absolutely zero point. A counting semaphore is a perfectly fine
+> mutex
 
- > 
- > Alan
+But that isn't so in one particular case: debugging. A mutex would balk at a
+double-release, but a counting semaphore will just silently let things go
+wrong, because that's the nature of the beast.
 
-Nikita.
+> - the fact that it can _also_ be used to allow more than 1 user into a
+> critical region and generally do other things is totally immaterial.
+
+There are about a dozen such uses of counting semaphores in the kernel, and
+they're mainly used as token/message counters.
+
+> It's _extra_ stupid to re-use the names "down()" and "up()" on a 
+> non-counting mutex, since then the names make zero sense at all. Use 
+> "lock_mutex()" and "unlock_mutex()" or something, and don't break existing 
+> code for no measurable gain.
+
+Okay. Repurposing up(), down(), DECLARE_MUTEX() and init_MUTEX() had the major
+benefit that the kernel required relatively few changes. The biggest problem
+with doing a whole new mutex type with a new and different API is that
+DECLARE_MUTEX and init_MUTEX are already taken... :-/
+
+David

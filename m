@@ -1,76 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751150AbVLOWLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbVLOWRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751150AbVLOWLr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 17:11:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVLOWLr
+	id S1750986AbVLOWRE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 17:17:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750992AbVLOWRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 17:11:47 -0500
-Received: from master.soleranetworks.com ([67.137.28.188]:53126 "EHLO
-	master.soleranetworks.com") by vger.kernel.org with ESMTP
-	id S1751150AbVLOWLq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 17:11:46 -0500
-Message-ID: <43A1D52F.7070707@wolfmountaingroup.com>
-Date: Thu, 15 Dec 2005 13:42:23 -0700
-From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org>
-In-Reply-To: <20051215140013.7d4ffd5b.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Dec 2005 17:17:03 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:28627 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750986AbVLOWRB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 17:17:01 -0500
+Subject: Re: SATA feature list available
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Velu Erwan <erwan@seanodes.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+In-Reply-To: <43A1AEA7.60101@seanodes.com>
+References: <43A1A37E.4070806@pobox.com>
+	 <1134669106.12421.67.camel@localhost.localdomain>
+	 <43A1AEA7.60101@seanodes.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Date: Thu, 15 Dec 2005 22:16:59 +0000
+Message-Id: <1134685019.20495.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Iau, 2005-12-15 at 18:57 +0100, Velu Erwan wrote:
+> Alan Cox a écrit :
+> 
+> >ATIIXP
+> >  
+> >
+> Did your patch includes a patch for ATIIXP to solve the troubles we 
+> tried to fix with bruno ?
 
-
-Andrew,
-
-Thanks. I concur.
-
-Jeff
-
-Andrew Morton wrote:
-
->Adrian Bunk <bunk@stusta.de> wrote:
->  
->
->>This patch was already sent on:
->>- 11 Dec 2005
->>- 5 Dec 2005
->>- 30 Nov 2005
->>- 23 Nov 2005
->>- 14 Nov 2005
->>    
->>
->
->Sigh.  I saw the volume of email last time and though "gee, glad I wasn't
->cc'ed on that lot".
->
->Supporting 8k stacks is a small amount of code and nobody has seen a need
->to make changes in there for quite a long time.  So there's little cost to
->keeping the existing code.
->
->And the existing code is useful:
->
->a) people can enable it to confirm that their weird crash was due to a
->   stack overflow.
->
->b) If I was going to put together a maximally-stable kernel for a
->   complex server machine, I'd select 8k stacks.  We're still just too
->   squeezy, and we've had too many relatively-recent overflows, and there
->   are still some really deep callpaths in there.
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+No. I'd actually expect libata to handle that internally as its drive
+level, but I'm not sure it does. Added to the 'to investigate' list.
 

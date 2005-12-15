@@ -1,55 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422684AbVLOKHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422685AbVLOKJf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422684AbVLOKHK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 05:07:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422685AbVLOKHK
+	id S1422685AbVLOKJf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 05:09:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422686AbVLOKJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 05:07:10 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27145 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1422684AbVLOKHI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 05:07:08 -0500
-Date: Thu, 15 Dec 2005 10:06:57 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: Anderson Lizardo <anderson.lizardo@gmail.com>,
-       Anderson Briglia <anderson.briglia@indt.org.br>,
-       Anderson Lizardo <anderson.lizardo@indt.org.br>,
-       linux-omap-open-source@linux.omap.com, linux-kernel@vger.kernel.org,
-       Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>,
-       Russell King - ARM Linux <linux@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>, David Brownell <david-b@pacbell.net>
-Subject: Re: [patch 0/5] Add MMC password protection (lock/unlock) support
-Message-ID: <20051215100657.GC32490@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	Anderson Lizardo <anderson.lizardo@gmail.com>,
-	Anderson Briglia <anderson.briglia@indt.org.br>,
-	Anderson Lizardo <anderson.lizardo@indt.org.br>,
-	linux-omap-open-source@linux.omap.com, linux-kernel@vger.kernel.org,
-	Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	Tony Lindgren <tony@atomide.com>,
-	David Brownell <david-b@pacbell.net>
-References: <20051213213208.303580000@localhost.localdomain> <439F4AD6.9090203@indt.org.br> <439FC4A6.4010900@drzeus.cx> <5b5833aa0512141551l638b2c05xcd4588a9370bfa51@mail.gmail.com> <43A11204.2070403@drzeus.cx> <20051215091220.GA29620@flint.arm.linux.org.uk> <43A136F1.3040700@drzeus.cx>
+	Thu, 15 Dec 2005 05:09:34 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:21952 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1422685AbVLOKJe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 05:09:34 -0500
+Subject: Re: [spi-devel-general] Re: [PATCH/RFC] SPI: add DMAUNSAFE analog
+	to David Brownell's core
+From: dmitry pervushin <dpervushin@gmail.com>
+To: Vitaly Wool <vwool@ru.mvista.com>
+Cc: Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       basicmark@yahoo.com, komal_shah802003@yahoo.com,
+       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
+       Joachim_Jaeger@digi.com
+In-Reply-To: <43A05C32.3070501@ru.mvista.com>
+References: <20051212182026.4e393d5a.vwool@ru.mvista.com>
+	 <20051213170629.7240d211.vwool@ru.mvista.com>
+	 <20051213195317.29cfd34a.vwool@ru.mvista.com>
+	 <200512131101.02025.david-b@pacbell.net> <20051213191531.GA13751@kroah.com>
+	 <43A0230B.1040904@ru.mvista.com> <20051214171842.GB30546@kroah.com>
+	 <43A05C32.3070501@ru.mvista.com>
+Content-Type: text/plain
+Date: Thu, 15 Dec 2005 13:00:17 +0300
+Message-Id: <1134640817.5596.4.camel@fj-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43A136F1.3040700@drzeus.cx>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 10:27:13AM +0100, Pierre Ossman wrote:
-> The spec I have says that this is a single block command. So such
-> trickery would not work. It isn't explicit about padding so it might be
-> possible to pad the data (since password length is specified in the
-> data). If not, then we either ignore this function or have a system
-> where we can detect limited hosts and print warnings.
+On Wed, 2005-12-14 at 20:53 +0300, Vitaly Wool wrote:
+> Greg KH wrote:
+> 
+> >What is the speed of your SPI bus?
+> >
+> >And what are your preformance requirements?
+> >  
+> >
+> The maximum frequency for the SPI bus is 26 MHz, WLAN driver is to work 
+> at true 10 Mbit/sec.
+My two cents: the faster is better; SPI bus itself can work on 52MHz,
+and AFAIK WLAN developers limit the speed due to their firmware
+reqiorements.  
+> 
+> Vitaly
+> 
+> P. S. I'm speaking not about this particular case during most part of 
+> this conversation. Sound cards behind the SPI bus will suffer a lot more 
+> since it's their path to use wXrY functions (lotsa small transfers) 
+> rather than WLAN's.
+> 
+> 
+> -------------------------------------------------------
+> This SF.net email is sponsored by: Splunk Inc. Do you grep through log files
+> for problems?  Stop!  Download the new AJAX search engine that makes
+> searching your log files as easy as surfing the  web.  DOWNLOAD SPLUNK!
+> http://ads.osdn.com/?ad_id=7637&alloc_id=16865&op=click
+> _______________________________________________
+> spi-devel-general mailing list
+> spi-devel-general@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/spi-devel-general
+> 
+> 
 
-What we need is someone with the real MMC spec to tell us about the
-requirements here.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

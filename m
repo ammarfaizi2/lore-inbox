@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbVLORR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750812AbVLORX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbVLORR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 12:17:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbVLORR6
+	id S1750812AbVLORX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 12:23:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVLORX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 12:17:58 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:52620 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750812AbVLORR5 (ORCPT
+	Thu, 15 Dec 2005 12:23:58 -0500
+Received: from ns.tasking.nl ([195.193.207.2]:25035 "EHLO ns.tasking.nl")
+	by vger.kernel.org with ESMTP id S1750812AbVLORX5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 12:17:57 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20051215090951.9276697c.pj@sgi.com> 
-References: <20051215090951.9276697c.pj@sgi.com>  <17313.37200.728099.873988@gargle.gargle.HOWL> <1134559121.25663.14.camel@localhost.localdomain> <13820.1134558138@warthog.cambridge.redhat.com> <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com> <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu> <20051213100015.GA32194@elte.hu> <6281.1134498864@warthog.cambridge.redhat.com> <14242.1134558772@warthog.cambridge.redhat.com> <16315.1134563707@warthog.cambridge.redhat.com> <1134568731.4275.4.camel@tglx.tec.linutronix.de> <43A0AD54.6050109@rtr.ca> <20051214155432.320f2950.akpm@osdl.org> <17313.29296.170999.539035@gargle.gargle.HOWL> <1134658579.12421.59.camel@localhost.localdomain> <4743.1134662116@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0512150817170.3292@g5.osdl.org> 
-To: Paul Jackson <pj@sgi.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, dhowells@redhat.com,
-       nikita@clusterfs.com, alan@lxorguk.ukuu.org.uk, akpm@osdl.org,
-       tglx@linutronix.de, mingo@elte.hu, hch@infradead.org,
-       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Thu, 15 Dec 2005 17:17:30 +0000
-Message-ID: <6880.1134667050@warthog.cambridge.redhat.com>
+	Thu, 15 Dec 2005 12:23:57 -0500
+To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+X-Newsreader: knews 1.0b.1
+Reply-To: dick.streefland@altium.nl (Dick Streefland)
+Organization: Altium BV
+X-Face: "`*@3nW;mP[=Z(!`?W;}cn~3M5O_/vMjX&Pe!o7y?xi@;wnA&Tvx&kjv'N\P&&5Xqf{2CaT 9HXfUFg}Y/TT^?G1j26Qr[TZY%v-1A<3?zpTYD5E759Q?lEoR*U1oj[.9\yg_o.~O.$wj:t(B+Q_?D XX57?U,#b,iM$[zX'I(!'VCQM)N)x~knSj>M*@l}y9(tK\rYwdv%~+&*jV"epphm>|q~?ys:g:K#R" 2PuAzy-N9cKM<Ml/%yPQxpq"Ttm{GzBn-*:;619QM2HLuRX4]~361+,[uFp6f"JF5R`y
+References: <20051215135812.14578.qmail@science.horizon.com> <Pine.LNX.4.64.0512150752240.3292@g5.osdl.org> <Pine.LNX.4.64.0512150752240.3292@g5.osdl.org> <20051215165255.GA5510@harddisk-recovery.com>
+From: dick.streefland@altium.nl (Dick Streefland)
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Content-Type: text/plain; charset=us-ascii
+NNTP-Posting-Host: 172.17.1.66
+Message-ID: <4115.43a1a67f.21762@altium.nl>
+Date: Thu, 15 Dec 2005 17:23:11 -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
+Erik Mouw <erik@harddisk-recovery.com> wrote:
+| Just FYI, according to Dijkstra[1] V means "verhoog" which is dutch for
+| "increase". P means "prolaag" which isn't a dutch word, just something
+| Dijkstra invented. I guess he did that because "decrease" is "verlaag"
+| in dutch and that would give you the confusing V() and V()
+| operations...
+| 
+| Other explanations you see in dutch CS courses are "passeer" (pass),
+| "probeer" (try), "vrijgave" (unlock).
 
-> > Hint: we have DECLARE_MUTEX exactly because it's also DOCUMENTATION that 
-> > we use a semaphore as a pure binary mutex. Not because we need it.
-> 
-> That's insane ... 
+As far as I can remember, P() stands for "pakken" (grab) and V()
+stands for "vrijgeven" (release).
 
-And abused/misused...
+-- 
+Dick Streefland                      ////                      Altium BV
+dick.streefland@altium.nl           (@ @)          http://www.altium.com
+--------------------------------oOO--(_)--OOo---------------------------
 
-> This is stealth documentation at its finest.  Who besides Linus even
-> knew that's what this spelling of the DECLARE macro was telling us?
-> 
->   Paul "Hand me that chain saw, Billy Jo.  This limb is coming -down-" Jackson
-
-I hope you're talking about trees...
-
-David

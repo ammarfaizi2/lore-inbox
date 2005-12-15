@@ -1,205 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964929AbVLOLK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965058AbVLOLOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964929AbVLOLK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 06:10:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965058AbVLOLK4
+	id S965058AbVLOLOh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 06:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbVLOLOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 06:10:56 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:59796 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S964929AbVLOLK4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 06:10:56 -0500
-Message-ID: <43A1501F.5070803@aitel.hist.no>
-Date: Thu, 15 Dec 2005 12:14:39 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+	Thu, 15 Dec 2005 06:14:37 -0500
+Received: from cantor2.suse.de ([195.135.220.15]:31116 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965058AbVLOLOh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 06:14:37 -0500
+Message-ID: <43A1500E.1080606@suse.de>
+Date: Thu, 15 Dec 2005 12:14:22 +0100
+From: Gerd Knorr <kraxel@suse.de>
+User-Agent: Mozilla Thunderbird 1.0.6 (X11/20050715)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-References: <200512150013.29549.a1426z@gawab.com> <200512150749.29064.a1426z@gawab.com> <43A0FE13.8010303@yahoo.com.au> <200512151131.39216.a1426z@gawab.com>
-In-Reply-To: <200512151131.39216.a1426z@gawab.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Gerd Knorr <kraxel@suse.de>
+Cc: Jeff Dike <jdike@addtoit.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2/2] uml: Framebuffer driver for UML
+References: <439EE38C.6020602@suse.de> <439EE5B0.2030709@suse.de> <20051213221548.GB9769@ccure.user-mode-linux.org> <43A13206.3080704@suse.de>
+In-Reply-To: <43A13206.3080704@suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------070407060307060200020704"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
+This is a multi-part message in MIME format.
+--------------070407060307060200020704
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
->Nick Piggin wrote:
->  
->
->>Al Boldi wrote:
->>    
->>
->>>Arjan van de Ven wrote:
->>>      
->>>
->>>>a stable api/abi for the linux kernel would take at least 2 years to
->>>>develop. The current API is not designed for stable-ness, a stable API
->>>>needs stricter separation between the layers and more opaque pointers
->>>>etc etc.
->>>>        
->>>>
->>>True.  But it would be time well spent.
->>>      
->>>
->>Who's time would be well spent?
->>
->>Not mine because I don't want a stable API. Not mine because I
->>don't use binary drivers and I don't care to encourage them.
->>[that is, unless you manage to convince me below ;)]
->>    
->>
->
->The fact that somebody may take advantage of a stable API should not lead us 
->to reject the idea per se.
->  
->
-It is all about advantages and disadvantages.
-Disadvantages of a stable API:
-* It encourages binary-only drivers, while we prefer source drivers.
-   Changing the API often and without warning is one way of
-   hampering binary-only driver development without harming
-   open-source drivers.
-* A stable API isn't really possible.  There will be revisions due
-   to new compilers, new processors, new needs.  So the only
-   question is how often do we change.  Hanging onto an obsolete
-   API too long will hamper _kernel_ development and performance.
-   Example: smp changed a lot of things.  The old idea
-   that cli/sti was a way of implementing a critical section had to go.
+>> drivers/built-in.o(.text+0x18b): In function `vgacon_deinit':
+>> /home/jdike/linux/2.6/linux-2.6.15/drivers/video/console/vgacon.c:151: 
+>> undefined reference to `outw'
 
-To argue for a stable API then, you need to come up
-with advantages, and they have to outweigh the disadvantages too.
+> Should be trivially fixable with some Kconfig tweaks, I'll have a look.
 
-Do a stable API save us work?  No, because whoever changes the API
-also fixes all in-kernel users of said API. Some API changes, like
-using more or less register parameters, don't even need to fix API users
-as the compiler does it all.
+Here we go, this patch disables vga console and the mouse/kbd hardware 
+drivers on UML.  Running a "allmodconfig" testbuild right now, but I 
+hope that everything else is catched by PCI + ISA dependencies ...
 
-Outside users we don't care about at all, because they are all welcome
-to get their driver in. (Assuming it is useful and the code quality is 
-good...)
+cheers,
 
->>Anyone else is free to fork the kernel and develop their own
->>stable API for it.
->>    
->>
->
->That would be sad.
->
->The objective of a stable API would be to aid the collective effort and not 
->to divide it.
->  
->
-Forks are not a problem. Anything useful in a fork will usually
-be merged back sooner or later.  And think about the
-"normal" development process:  If I were to write a driver,
-I would get the kernel source, make my driver, then submit it.
-In the meantime, I effectively have my own short-lived fork.
+   Gerd
 
->>>>There is a price you pay for having such a rigid scheme (it arguably has
->>>>advantages too, those are mostly relevant in a closed source system tho)
->>>>is that it's a lot harder to implement improvements.
->>>>        
->>>>
->>>This is a common misconception.  What is true is that a closed system is
->>>forced to implement a stable api by nature.  In an OpenSource system you
->>>can just hack around, which may seem to speed your development cycle
->>>when in fact it inhibits it.
->>>      
->>>
->>How? I'm quite willing to listen, but throwing around words like 'guided
->>development' and 'scalability' doesn't do anything. How does the lack of a
->>stable API inhibit my kernel development work, exactly?
->>    
->>
->
->If you are working alone a stable API would be overkill.  But GNU/Linux is a 
->collective effort, where stability is paramount to aid scalability.
->  
->
-This doesn't actually hold when the source is available for all
-to get and update.  The source API doesn't change so often,
-so it is time enough to develop a source driver without spending
-all the time on adapting to the source API.  Once you get the driver
-in, you no longer have to keep up. 
 
-The binary api can change several times with every revision, with no
-impact on open-source developers. So, no need to stabilize it.
-Specs already says that a driver has to be compiled for the kernel
-it is used with - a binary driver working with two releases (even
-concecutive releases) are pure luck. So a binary vendor has to
-at least compile for every release (and every supported platform).
-If the source api changes too, then there is some programming
-to do as well.  Both of these have a price, and there is the hope
-that more will see the light - that they can support linux fully without
-these costs by going open source.
+--------------070407060307060200020704
+Content-Type: text/plain;
+ name="uml-kconfig"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="uml-kconfig"
 
->>
->>I've got a fairly good idea of what work I'm doing, and what I'm planning
->>to do, long term goals, projects, etc. What would be the key differences
->>with "non-GNU/OpenSource" development that would make you say they are not
->>unguided by nature?
->>    
->>
->
->The same goes for OpenSource in general, but GNU/OpenSource has a larger 
->community and therefore is in greater need of a stable API.
->  
->
-A large community may find some kind of stability useful, the
-line does not have to be drawn at the binary api level though.
-The source API is much more stable than the binary API.  And
-source changes is usually only withing some subsytem.
-I.e. a change in the pci driver API don't affect filesystem drivers
-and so on.
+Index: linux-2.6.14/drivers/input/keyboard/Kconfig
+===================================================================
+--- linux-2.6.14.orig/drivers/input/keyboard/Kconfig	2005-12-12 18:24:51.000000000 +0100
++++ linux-2.6.14/drivers/input/keyboard/Kconfig	2005-12-15 12:07:26.000000000 +0100
+@@ -10,7 +10,7 @@ menuconfig INPUT_KEYBOARD
+ 
+ 	  If unsure, say Y.
+ 
+-if INPUT_KEYBOARD
++if INPUT_KEYBOARD && !UML
+ 
+ config KEYBOARD_ATKBD
+ 	tristate "AT keyboard" if !X86_PC
+Index: linux-2.6.14/drivers/input/mouse/Kconfig
+===================================================================
+--- linux-2.6.14.orig/drivers/input/mouse/Kconfig	2005-12-12 18:24:51.000000000 +0100
++++ linux-2.6.14/drivers/input/mouse/Kconfig	2005-12-15 12:06:59.000000000 +0100
+@@ -10,7 +10,7 @@ menuconfig INPUT_MOUSE
+ 
+ 	  If unsure, say Y.
+ 
+-if INPUT_MOUSE
++if INPUT_MOUSE && !UML
+ 
+ config MOUSE_PS2
+ 	tristate "PS/2 mouse"
+Index: linux-2.6.14/drivers/input/serio/Kconfig
+===================================================================
+--- linux-2.6.14.orig/drivers/input/serio/Kconfig	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6.14/drivers/input/serio/Kconfig	2005-12-15 12:06:11.000000000 +0100
+@@ -21,7 +21,7 @@ if SERIO
+ config SERIO_I8042
+ 	tristate "i8042 PC Keyboard controller" if EMBEDDED || !X86
+ 	default y
+-	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && !M68K
++	depends on !PARISC && (!ARM || ARCH_SHARK || FOOTBRIDGE_HOST) && !M68K && !UML
+ 	---help---
+ 	  i8042 is the chip over which the standard AT keyboard and PS/2
+ 	  mouse are connected to the computer. If you use these devices,
+Index: linux-2.6.14/drivers/video/console/Kconfig
+===================================================================
+--- linux-2.6.14.orig/drivers/video/console/Kconfig	2005-12-12 18:25:03.000000000 +0100
++++ linux-2.6.14/drivers/video/console/Kconfig	2005-12-15 12:01:31.000000000 +0100
+@@ -6,7 +6,7 @@ menu "Console display driver support"
+ 
+ config VGA_CONSOLE
+ 	bool "VGA text console" if EMBEDDED || !X86
+-	depends on !ARCH_ACORN && !ARCH_EBSA110 && !4xx && !8xx && !SPARC32 && !SPARC64 && !M68K && !PARISC && !ARCH_VERSATILE
++	depends on !ARCH_ACORN && !ARCH_EBSA110 && !4xx && !8xx && !SPARC32 && !SPARC64 && !M68K && !PARISC && !ARCH_VERSATILE && !UML
+ 	default y
+ 	help
+ 	  Saying Y here will allow you to use Linux in text mode through a
 
->  
->
->>> A stable API contributes to a guided
->>>development that is scalable.  Scalability is what leads you to new
->>>heights, or else could you imagine how ugly it would be to send this
->>>message using asm?
->>>      
->>>
->>Let's not bother with bad analogies and stick to facts. Do you know how
->>many people work on the Linux kernel? And how rapidly the source tree
->>changes? Estimates of how many bugs we have? Comparitive numbers from
->>projects with stable APIs? That would be very interesting.
->>    
->>
->
->You got me here!  It's really common sense as in:
->stability breeds scalability, and instability breeds chaos.
->  
->
-This saying doesn't necessarily apply to an API in a open-source
-project.  Especially not when talking about an internal API.
-The kernel has an external binary API that is stable, it is
-the syscall interface.
-
->Arjan van de Ven wrote:
->  
->
->>I think Linux proves you wrong (and a bit of a troll to be honest ;)
->>    
->>
->
->No troll! Just being IMHO. I hope that's OK?
->
->Of course, if your aim is not to be scalable then please ignore this message 
->as it will not have any meaning.
->  
->
-Another option is that your assumption about "stability as a requirement
-for scalability" is wrong at least in case of the kernel.  The kernel
-development scales very well so far.  I can't see any delays caused by
-developers trying to keep up with a change in binary APIs.  Well,
-except a handful of closed source vendors, but that is more or less
-intentional.  If they get tired, they can hand in their source.
-
-Helge Hafting
+--------------070407060307060200020704--

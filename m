@@ -1,81 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422721AbVLONkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422689AbVLONlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422721AbVLONkv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 08:40:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbVLONkv
+	id S1422689AbVLONlS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 08:41:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422727AbVLONlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 08:40:51 -0500
-Received: from moraine.clusterfs.com ([66.96.26.190]:55441 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S1422689AbVLONku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 08:40:50 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
+	Thu, 15 Dec 2005 08:41:18 -0500
+Received: from tornado.reub.net ([202.89.145.182]:64479 "EHLO tornado.reub.net")
+	by vger.kernel.org with ESMTP id S1422689AbVLONlQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 08:41:16 -0500
+Message-ID: <43A17276.6010109@reub.net>
+Date: Fri, 16 Dec 2005 00:41:10 +1100
+From: Reuben Farrelly <reuben-lkml@reub.net>
+User-Agent: Thunderbird 1.6a1 (Windows/20051214)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17313.29296.170999.539035@gargle.gargle.HOWL>
-Date: Thu, 15 Dec 2005 16:41:04 +0300
 To: Andrew Morton <akpm@osdl.org>
-Cc: tglx@linutronix.de, dhowells@redhat.com, alan@lxorguk.ukuu.org.uk,
-       pj@sgi.com, mingo@elte.hu, hch@infradead.org, torvalds@osdl.org,
-       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Newsgroups: gmane.linux.kernel
-In-Reply-To: <20051214155432.320f2950.akpm@osdl.org>
-References: <1134559121.25663.14.camel@localhost.localdomain>
-	<13820.1134558138@warthog.cambridge.redhat.com>
-	<20051213143147.d2a57fb3.pj@sgi.com>
-	<20051213094053.33284360.pj@sgi.com>
-	<dhowells1134431145@warthog.cambridge.redhat.com>
-	<20051212161944.3185a3f9.akpm@osdl.org>
-	<20051213075441.GB6765@elte.hu>
-	<20051213090219.GA27857@infradead.org>
-	<20051213093949.GC26097@elte.hu>
-	<20051213100015.GA32194@elte.hu>
-	<6281.1134498864@warthog.cambridge.redhat.com>
-	<14242.1134558772@warthog.cambridge.redhat.com>
-	<16315.1134563707@warthog.cambridge.redhat.com>
-	<1134568731.4275.4.camel@tglx.tec.linutronix.de>
-	<43A0AD54.6050109@rtr.ca>
-	<20051214155432.320f2950.akpm@osdl.org>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc5-mm2
+References: <20051211041308.7bb19454.akpm@osdl.org>
+In-Reply-To: <20051211041308.7bb19454.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
- > Mark Lord <lkml@rtr.ca> wrote:
- > >
- > > Leaving up()/down() as-is is really the most sensible option.
- > >
- > 
- > Absolutely.
- > 
- > I must say that my interest in this stuff is down in
- > needs-an-electron-microscope-to-locate territory.  down() and up() work
- > just fine and they're small, efficient, well-debugged and well-understood. 
- > We need a damn good reason for taking on tree-wide churn or incompatible
- > renames or addition of risk.  What's the damn good reason here?
- > 
- > Please.  Go fix some bugs.  We're not short of them.
+Hi,
 
-But this change is about fixing bugs: mutex assumes that
+On 11/12/2005 11:13 p.m., Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-rc5/2.6.15-rc5-mm2/
+> 
+> - Many new driver updates and architecture updates
+> 
+> - New CPU scheduler policy: SCHED_BATCH.
+> 
+> - New version of the hrtimers code.
 
- - only owner can unlock, and
+I've just had my kernel suffer a meltdown with 2.6.15-rc5-mm2, there was a
+massive amount of console output streaming for an hour or so till I got control
+but this was logged in the messages log immediately after it went amiss.
 
- - owner cannot lock (immediate self-deadlock).
+I'm about to run up -mm3 but didn't see any obvious fix for this so possibly
+it's still a problem in that one too?
 
-This can be checked by the debugging code, and yes, these kinds of
-errors do happen.
+Dec 16 00:01:41 tornado kernel: BUG: soft lockup detected on CPU#0!
+Dec 16 00:01:41 tornado kernel:
+Dec 16 00:01:41 tornado kernel: Pid: 8, comm:             events/0
+Dec 16 00:01:41 tornado kernel: EIP: 0060:[<c031fb4b>] CPU: 0
+Dec 16 00:01:41 tornado kernel: EIP is at _spin_unlock_irqrestore+0x5/0x6
+Dec 16 00:01:41 tornado kernel:  EFLAGS: 00000286    Not tainted  (2.6.15-rc5-mm2)
+Dec 16 00:01:41 tornado kernel: EAX: c0444e60 EBX: 0000003e ECX: 00000a19 EDX:
+00000286
+Dec 16 00:01:41 tornado kernel: ESI: 00000000 EDI: cecd5981 EBP: f76b7000 DS:
+007b ES: 007b
+Dec 16 00:01:41 tornado kernel: CR0: 8005003b CR2: b7aff004 CR3: 0040f000 CR4:
+000006d0
+Dec 16 00:01:41 tornado kernel:  [<c021f458>] n_tty_receive_buf+0x664/0xa03
+Dec 16 00:01:41 tornado kernel:  [<c011635e>] load_balance+0x4e/0x1eb
+Dec 16 00:01:41 tornado kernel:  [<c01169cb>] scheduler_tick+0x31/0x36f
+Dec 16 00:01:41 tornado kernel:  [<c01107ba>] smp_apic_timer_interrupt+0xc1/0xca
+Dec 16 00:01:41 tornado kernel:  [<c0104dd1>] do_IRQ+0x41/0x52
+Dec 16 00:01:41 tornado kernel:  [<c01034e6>] common_interrupt+0x1a/0x20
+Dec 16 00:01:41 tornado kernel:  [<c021d92a>] flush_to_ldisc+0x64/0xcb
+Dec 16 00:01:41 tornado kernel:  [<c012a94e>] worker_thread+0x1bf/0x249
+Dec 16 00:01:41 tornado kernel:  [<c021d8c6>] flush_to_ldisc+0x0/0xcb
+Dec 16 00:01:41 tornado kernel:  [<c0116d09>] default_wake_function+0x0/0xc
+Dec 16 00:01:41 tornado kernel:  [<c012a78f>] worker_thread+0x0/0x249
+Dec 16 00:01:41 tornado kernel:  [<c012d8f9>] kthread+0x93/0x97
+Dec 16 00:01:41 tornado kernel:  [<c012d866>] kthread+0x0/0x97
+Dec 16 00:01:41 tornado kernel:  [<c0100fcd>] kernel_thread_helper+0x5/0xb
+Dec 16 00:01:51 tornado kernel: BUG: soft lockup detected on CPU#0!
+Dec 16 00:01:51 tornado kernel:
+Dec 16 00:01:51 tornado kernel: Pid: 8, comm:             events/0
+Dec 16 00:01:51 tornado kernel: EIP: 0060:[<c021f686>] CPU: 0
+Dec 16 00:01:51 tornado kernel: EIP is at n_tty_receive_buf+0x892/0xa03
+Dec 16 00:01:51 tornado kernel:  EFLAGS: 00000246    Not tainted  (2.6.15-rc5-mm2)
+Dec 16 00:01:51 tornado kernel: EAX: f76b7404 EBX: f76b7404 ECX: f76b7000 EDX:
+00000246
+Dec 16 00:01:51 tornado kernel: ESI: 00000246 EDI: cecd59c6 EBP: f76b7000 DS:
+007b ES: 007b
+Dec 16 00:01:51 tornado kernel: CR0: 8005003b CR2: b7aff004 CR3: 0040f000 CR4:
+000006d0
+Dec 16 00:01:51 tornado kernel:  [<c011635e>] load_balance+0x4e/0x1eb
+Dec 16 00:01:51 tornado kernel:  [<c01107ba>] smp_apic_timer_interrupt+0xc1/0xca
+Dec 16 00:01:51 tornado kernel:  [<c0104dd1>] do_IRQ+0x41/0x52
+Dec 16 00:01:51 tornado kernel:  [<c01034e6>] common_interrupt+0x1a/0x20
+Dec 16 00:01:51 tornado kernel:  [<c021edf6>] n_tty_receive_buf+0x2/0xa03
+Dec 16 00:01:51 tornado kernel:  [<c021d92a>] flush_to_ldisc+0x64/0xcb
+Dec 16 00:01:51 tornado kernel:  [<c012a94e>] worker_thread+0x1bf/0x249
+Dec 16 00:01:51 tornado kernel:  [<c021d8c6>] flush_to_ldisc+0x0/0xcb
+Dec 16 00:01:51 tornado kernel:  [<c0116d09>] default_wake_function+0x0/0xc
+Dec 16 00:01:51 tornado kernel:  [<c012a78f>] worker_thread+0x0/0x249
+Dec 16 00:01:51 tornado kernel:  [<c012d8f9>] kthread+0x93/0x97
+Dec 16 00:01:51 tornado kernel:  [<c012d866>] kthread+0x0/0x97
+Dec 16 00:01:51 tornado kernel:  [<c0100fcd>] kernel_thread_helper+0x5/0xb
+Dec 16 00:02:01 tornado kernel: BUG: soft lockup detected on CPU#0!
+Dec 16 00:02:01 tornado kernel:
+Dec 16 00:02:01 tornado kernel: Pid: 8, comm:             events/0
+Dec 16 00:02:01 tornado kernel: EIP: 0060:[<c01674b4>] CPU: 0
+Dec 16 00:02:01 tornado kernel: EIP is at kill_fasync+0x2d/0x39
+Dec 16 00:02:01 tornado kernel:  EFLAGS: 00000246    Not tainted  (2.6.15-rc5-mm2)
+Dec 16 00:02:01 tornado kernel: EAX: f76b70d4 EBX: f76b7404 ECX: 00000000 EDX:
+0000001d
+Dec 16 00:02:01 tornado kernel: ESI: 00000246 EDI: 0000001d EBP: f76b7000 DS:
+007b ES: 007b
+Dec 16 00:02:01 tornado kernel: CR0: 8005003b CR2: b7aff004 CR3: 0040f000 CR4:
+000006d0
+Dec 16 00:02:01 tornado kernel:  [<c021f69b>] n_tty_receive_buf+0x8a7/0xa03
+Dec 16 00:02:01 tornado kernel:  [<c011635e>] load_balance+0x4e/0x1eb
+Dec 16 00:02:01 tornado kernel:  [<c01169cb>] scheduler_tick+0x31/0x36f
+Dec 16 00:02:01 tornado kernel:  [<c01107ba>] smp_apic_timer_interrupt+0xc1/0xca
+Dec 16 00:02:01 tornado kernel:  [<c0104dd1>] do_IRQ+0x41/0x52
+Dec 16 00:02:01 tornado kernel:  [<c01034e6>] common_interrupt+0x1a/0x20
+Dec 16 00:02:01 tornado kernel:  [<c021007b>] acpi_ec_gpe_intr_handler+0x35/0xa6
+Dec 16 00:02:01 tornado kernel:  [<c021d92a>] flush_to_ldisc+0x64/0xcb
+Dec 16 00:02:01 tornado kernel:  [<c012a94e>] worker_thread+0x1bf/0x249
+Dec 16 00:02:01 tornado kernel:  [<c021d8c6>] flush_to_ldisc+0x0/0xcb
+Dec 16 00:02:01 tornado kernel:  [<c0116d09>] default_wake_function+0x0/0xc
+Dec 16 00:02:01 tornado kernel:  [<c012a78f>] worker_thread+0x0/0x249
+Dec 16 00:02:01 tornado kernel:  [<c012d8f9>] kthread+0x93/0x97
+Dec 16 00:02:01 tornado kernel:  [<c012d866>] kthread+0x0/0x97
+Dec 16 00:02:01 tornado kernel:  [<c0100fcd>] kernel_thread_helper+0x5/0xb
+Dec 16 00:02:11 tornado kernel: BUG: soft lockup detected on CPU#0!
+Dec 16 00:02:11 tornado kernel:
+Dec 16 00:02:11 tornado kernel: Pid: 8, comm:             events/0
+Dec 16 00:02:11 tornado kernel: EIP: 0060:[<c0230455>] CPU: 0
+Dec 16 00:02:11 tornado kernel: EIP is at uart_write_room+0x0/0x18
+Dec 16 00:02:11 tornado kernel:  EFLAGS: 00000286    Not tainted  (2.6.15-rc5-mm2)
+Dec 16 00:02:11 tornado kernel: EAX: f76b7000 EBX: 0000000a ECX: 00000439 EDX:
+f7cac400
+Dec 16 00:02:11 tornado kernel: ESI: f76b7000 EDI: cecd593f EBP: f76b7000 DS:
+007b ES: 007b
+Dec 16 00:02:11 tornado kernel: CR0: 8005003b CR2: b7aff004 CR3: 0040f000 CR4:
+000006d0
+Dec 16 00:02:11 tornado kernel:  [<c021e5d2>] opost+0x12/0x1cd
+Dec 16 00:02:11 tornado kernel:  [<c021f63a>] n_tty_receive_buf+0x846/0xa03
+Dec 16 00:02:11 tornado kernel:  [<c011635e>] load_balance+0x4e/0x1eb
+Dec 16 00:02:11 tornado kernel:  [<c011679f>] rebalance_tick+0xec/0x10b
+Dec 16 00:02:11 tornado kernel:  [<c01107ba>] smp_apic_timer_interrupt+0xc1/0xca
+Dec 16 00:02:11 tornado kernel:  [<c0104dd1>] do_IRQ+0x41/0x52
+Dec 16 00:02:11 tornado kernel:  [<c01034e6>] common_interrupt+0x1a/0x20
+Dec 16 00:02:11 tornado kernel:  [<c021007b>] acpi_ec_gpe_intr_handler+0x35/0xa6
+Dec 16 00:02:11 tornado kernel:  [<c021d92a>] flush_to_ldisc+0x64/0xcb
+Dec 16 00:02:11 tornado kernel:  [<c012a94e>] worker_thread+0x1bf/0x249
+Dec 16 00:02:11 tornado kernel:  [<c021d8c6>] flush_to_ldisc+0x0/0xcb
+Dec 16 00:02:11 tornado kernel:  [<c0116d09>] default_wake_function+0x0/0xc
+Dec 16 00:02:11 tornado kernel:  [<c012a78f>] worker_thread+0x0/0x249
+Dec 16 00:02:11 tornado kernel:  [<c012d8f9>] kthread+0x93/0x97
+Dec 16 00:02:11 tornado kernel:  [<c012d866>] kthread+0x0/0x97
+Dec 16 00:02:11 tornado kernel:  [<c0100fcd>] kernel_thread_helper+0x5/0xb
+Dec 16 00:02:21 tornado kernel: BUG: soft lockup detected on CPU#0!
+Dec 16 00:02:21 tornado kernel:
 
-Not to say that by looking at
+Usual details including .config are up at http://www.reub.net/files/kernel/
 
-        struct foo_bar_baz {
-                struct mutex fbb_mutex;
-                ...
-        };
+reuben
 
-one can instantly infer that ->fbb_mutex is used to serialize something
-rather than serves as some fancy signaling mechanism.
-
-Nikita.

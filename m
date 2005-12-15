@@ -1,55 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbVLOTJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbVLOTJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750911AbVLOTJA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 14:09:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbVLOTI7
+	id S1750951AbVLOTJj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 14:09:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbVLOTJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 14:08:59 -0500
-Received: from outmx017.isp.belgacom.be ([195.238.2.116]:10706 "EHLO
-	outmx017.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S1750911AbVLOTI7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 14:08:59 -0500
-From: Laurent Pinchart <laurent.pinchart@skynet.be>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: VM_RESERVED and PG_reserved : Allocating memory for video buffers
-Date: Thu, 15 Dec 2005 20:09:33 +0100
-User-Agent: KMail/1.9
-X-Face: 4Mf^tnii7k\_EnR5aobBm6Di[DZ9@AX1wJ"okBdX-UoJ>:SRn]c6DDU"qUIwfs98vF>=?utf-8?q?Tnf=0A=09SacR=7B?=(0Du"N%_.#X]"TXx)A'gKB1i7SK$CTLuy{h})c=g:'w3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512152009.33758.laurent.pinchart@skynet.be>
+	Thu, 15 Dec 2005 14:09:39 -0500
+Received: from science.horizon.com ([192.35.100.1]:23368 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1750937AbVLOTJi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 14:09:38 -0500
+Date: 15 Dec 2005 14:09:37 -0500
+Message-ID: <20051215190937.5869.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux@horizon.com, torvalds@osdl.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0512150752240.3292@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody,
+> And I can't understand how somebody has the balls to even say that a 
+> semaphore isn't a mutex. That's like saying that an object of type "long" 
+> isn't an integer, because only "int" objects are integers. That's just 
+> INSANE.
 
-I'm writing a Linux driver for a USB Video Class compliant USB device. I 
-manage to understand pretty much everything on my own until the point where I 
-have to allocate video buffers.
+I didn't say it isn't a mutex, I said it isn't a GOOD one!
 
-I read other drivers to understand how they proceed. Most of them used vmalloc 
-with SetPageReserved and remap_pfn_range to map the memory to user space. I 
-thought I understood that, when I noticed that vm_insert_page has been added 
-in 2.6.15. I wasn't sure how to prevent pages from being swapped out, so I 
-read the excellent "Understanding the Linux Virtual Memory Manager", but I'm 
-still not sure to understand everything. This is where I ask for your help.
+The fundamental reason is that a semaphore doesn't have an owner, and
+a mutex does.  And you can do a lot when you know who owns the lock.
 
-I need to allocate big buffers, so vmalloc is the way to go, as I don't need 
-contiguous memory. I need to map those buffers to user space, and I 
-understand that vm_insert_page will do the job nicely. My fears come from 
-pages being swapped out. I suppose I need to prevent that, as a page fault in 
-interrupt is a Bad Thing(TM). I'm not sure how PG_reserved and VM_RESERVED 
-interract with eachother. Can kernel pages be swapped out if they are not 
-mapped to user space ? Or does kswapd only walk VMAs when it tries to find 
-pages that will be swapped out ? If the later is true, is it enough to set 
-VM_RESERVED on the VMA in the mmap handler ?
+>> People are indeed unhappy with the naming, and whether patching 95%
+>> of the callers of up() and down() is a good idea is a valid and active
+>> subject of debate.  (For an out-of-tree -rt patch, is was certaintly
+>> an extremely practical solution.)
 
-Memory management is quite complex in the Linux kernel, and I definitely need 
-some help to understand how all the magic is performed :-)
+> In other words, you are
+>  (a) totally making up the claim that people are really unhappy
 
-Best regards,
+Huh?  I thought *you* were violently unhappy with the idea of naming
+mutex acquire and release down() and up(), and your e-mail is an example
+of this unhapiness.
 
-Laurent Pinchart
+Am I making it up that you are unhappy with usurping the down() and up()
+names for mutex use?  If this is you being happy, I'd hate to see
+unhappy.
+
+> So tell me, what do you think about your own arguments in that light?
+
+I think they're still completely valid.  Nothing you've said even seems
+to address the points I've raised.
+
+>> But regardless of the eventual naming convention, mutexes are a good idea.
+>> A mutex is *safer* than a counting semaphore.  That's the main benefit.
+>> Indeed, unless there's a performance advantage to a counting semaphore,
+>> you should use a mutex!
+
+> Hey, feel free to introduce a mutex, but DAMMIT, just call it that, 
+> instead of switching people over. 
+
+As I said, as long as the -rt patch was not in the main tree, taking
+advantage of the fact that 95% of the down() and up() callers just want
+a mutex was a sensible implementation tradeoff.  For merging it into the
+tree, it's ugly, and people don't like that.  The -rt folks have gotten
+used to their naming perversions and so don't feel as much repugnance.
+
+> And even then, it should damn well also:
+>  - really _be_ faster. On platforms that matter. 
+>  - have enough real other advantages that it's worth introducing another 
+>    abstraction, and more conceptual complexity. At least the RT patches 
+>    had a reason for them.
+
+Agreed.  A mutex that's slower than a counting semaphore needs to be
+dragged out behind the wodshed and strangled.  If you can't do
+any better, it can just *be* a counting semaphore.
+
+> And besides, all your "safer" arguments are pretty damn pointless in the 
+> face of the fact that we have basically had zero bugs with the semaphores. 
+> This is not where the bugs happen. Yeah, yeah, double releases can happen, 
+> but it sure as hell isn't on my radar of things I remember people doing.
+
+There haven't been problems with the semaphore *implementation*, but
+people screw up and deadlock themselves often enough.  I sure remember
+double-acquire lockups.  Forgive me if I don't grep the archives, but
+I remember people showing code paths that led to them.
+
+Admittedly, lock *ordering* problems are the most common deadlock
+situtation but hey, guess what!  Priority inheritance code can be
+extended to notice that, too.  (There's a performance hit, so it'd
+be a debug option.)
+
+But all of this requires that a lock have an identifiable owner, which
+is something hat a mutex has and a semaphore fundamentally doesn't.
+
+> So when you say "This isn't about speed, this is about bug-free code", 
+> you're just making that up.
+>
+> It's doubly silly when your "safer" 
+> implementation uses totally illogical names. THAT is what creates bugs.
+
+If you want to argue about names, go discuss gay marriage.
+
+I don't care what it's *called*.  I care that we have stronger
+conditions that we can test for correctness.
+
+> So go away.
+> 
+> Come back if you have pondered, and accepted reality, and perhaps have an 
+> acceptable patch that introduces a separate data structure. 
+
+Ha!  I still say you're wrong, and I'm not going to fold over an obvious
+technical point just because of flaming.
+
+Are we having some communication problems?  I find it hard to believe
+that you're actually this *stupid*, but we might not be talking about
+the same thing.
+
+I took your posting to say that
+
+a) Using the names "struct semaphore", "up()" and "down()" for a mutex
+   is monumentally brain-dead.  I'm not arguing, although I understand
+   the pragmatic reasons for the original abuse of notation.
+
+b) There is no need for a mutex implementation, because a semaphore can
+   do anything that a mutex can.  Here, I absolutely disagree.  There
+   are things you can do with a mutex that you CANNOT do with a
+   general semaphore, because a mutex has stronger invariants.
+
+   A counting semaphore can do MOST of what a mutex does, and is
+   demonstrably close enough for a lot of uses.
+
+> And no, we're not switching users over whole-sale.  First you introduce the 
+> new concept.  Only THEN can you can switch over INDIVIDUAL LOCKS with 
+> reasons for why it's worth it.
+
+Given that 95% of callers are using it as mutex, you're making this 20
+times more work than necessary.  Convert 'em all and change the 5%
+that need the counting back.
+
+> And hell yes, performance does matter.
+
+I'm not arguing, but this seems to be at odds with your earlier statement:
+>>> Dammit, unless the pure mutex has a _huge_ performance advantage on major 
+>>> architectures, we're not changing it.
+
+There is obviously no reason to accept a performance *decrease*, but
+any potential performance *increase* is unimportant and incidental.
+
+Which is exactly what I said:
+>> Indeed, unless there's a performance advantage to a counting semaphore,
+>> you should use a mutex!

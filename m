@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965190AbVLOJEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161086AbVLOJGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965190AbVLOJEL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 04:04:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965181AbVLOJEL
+	id S1161086AbVLOJGg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 04:06:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161106AbVLOJGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 04:04:11 -0500
-Received: from mail.suse.de ([195.135.220.2]:24197 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932494AbVLOJEJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 04:04:09 -0500
-Date: Thu, 15 Dec 2005 10:04:01 +0100
-From: Andi Kleen <ak@suse.de>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: "David S. Miller" <davem@davemloft.net>, sri@us.ibm.com, mpm@selenic.com,
-       ak@suse.de, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC] Fine-grained memory priorities and PI
-Message-ID: <20051215090401.GV23384@wotan.suse.de>
-References: <20051215033937.GC11856@waste.org> <20051214.203023.129054759.davem@davemloft.net> <Pine.LNX.4.58.0512142318410.7197@w-sridhar.beaverton.ibm.com> <20051215.002120.133621586.davem@davemloft.net> <9E6D85FF-E546-4057-80EF-7479021AFAA1@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9E6D85FF-E546-4057-80EF-7479021AFAA1@mac.com>
+	Thu, 15 Dec 2005 04:06:36 -0500
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:59576 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S1161086AbVLOJGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 04:06:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=rtUnyyUTPsFHt57HFy1zl64hyQLFTxaUo/8crKxoprV7cDL2Q8mEEOb+9KeOpI8rWaVPRDDoOo9i5FqnGg3MfG2BcZ6AHgQPqqOjPfJDQIF5rap3ZixdiSsUp0h2gu2vhoGhQ69Bl5GVrR/KFlAI18nRX84pyC22vYXPu39kJ2s=  ;
+Message-ID: <43A13216.8000104@yahoo.com.au>
+Date: Thu, 15 Dec 2005 20:06:30 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Miles Lane <miles.lane@gmail.com>, linux-kernel@vger.kernel.org,
+       Greg KH <greg@kroah.com>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: 2.6.15-rc5-mm3 -- BUG: using smp_processor_id() in preemptible
+ [00000001] code: swapper/1
+References: <a44ae5cd0512150035j1e1a032bpe8b271069ad5d008@mail.gmail.com> <20051215004028.0bf9791f.akpm@osdl.org>
+In-Reply-To: <20051215004028.0bf9791f.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When processes request memory through any subsystem, their memory  
-> priority would be passed through the kernel layers to the allocator,  
-> along with any associated information about how to free the memory in  
-> a low-memory condition.  As a result, I could configure my database  
-> to have a much higher priority than SETI@home (or boinc or whatever),  
-> so that when the database server wants to fill memory with clean DB  
-> cache pages, the kernel will kill SETI@home for it's memory, even if  
-> we could just leave some DB cache pages unfaulted.
+Andrew Morton wrote:
 
-Iirc most of the freeing happens in process context anyways,
-so process priority information is already available. At least
-for CPU cost it might even be taken into account during schedules
-(Freeing can take up quite a lot of CPU time)
-
-The problem with GFP_ATOMIC is though that someone else needs
-to free the memory in advance for you because you cannot
-do it yourself. 
-
-(you could call it a kind of "parasite" in the normally
-very cooperative society of memory allocators ...) 
-
-That would mess up your scheme too. The priority 
-cannot be expressed because it's more a case of 
-"somewhen someone in the future might need it" 
-
+>>A little later, I get this:
+>>
+>>[4294676.542000] BUG: using smp_processor_id() in preemptible
+>>[00000001] code: rcS/942
+>>[4294676.542000] caller is mod_page_state_offset+0x12/0x28
+>>[4294676.542000]  [<c1003723>] dump_stack+0x16/0x1a
+>>[4294676.554000]  [<c110c1eb>] debug_smp_processor_id+0x77/0x90
+>>[4294676.565000]  [<c10413d3>] mod_page_state_offset+0x12/0x28
+>>[4294676.577000]  [<c104911b>] __handle_mm_fault+0x1f/0x18e
+>>[4294676.589000]  [<c1013d7f>] do_page_fault+0x170/0x492
+>>[4294676.600000]  [<c10033f7>] error_code+0x4f/0x54
+>>[4294676.612000]  [<c10027ae>] ret_from_fork+0x6/0x14
 > 
-> Questions? Comments? "This is a terrible idea that should never have  
-> seen the light of day"? Both constructive and destructive criticism  
-> welcomed! (Just please keep the language clean! :-D)
+> 
+> Nick.
+> 
+> 
 
-This won't help for this problem here - even with perfect
-priorities you could still get into situations where you
-can't make any progress if progress needs more memory.
+Silly me, it is doing the local_irq_save *after* the __get_cpu_var.
+Sorry for the typo. However the bug is harmless and will just result
+in skewed statistics in the very rare chance of a race.
 
-Only preallocating or prereservation can help you out of 
-that trap.
+Thanks for reporting.
 
--Andi
+-- 
+SUSE Labs, Novell Inc.
 
+Send instant messages to your online friends http://au.messenger.yahoo.com 

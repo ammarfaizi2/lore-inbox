@@ -1,72 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422726AbVLONcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422721AbVLONkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422726AbVLONcm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 08:32:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422721AbVLONcl
+	id S1422721AbVLONkv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 08:40:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422716AbVLONkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 08:32:41 -0500
-Received: from mx03.cybersurf.com ([209.197.145.106]:48344 "EHLO
-	mx03.cybersurf.com") by vger.kernel.org with ESMTP id S1422723AbVLONck
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 08:32:40 -0500
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: James Courtier-Dutton <James@superbug.co.uk>,
-       Mitchell Blank Jr <mitch@sfgoth.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>, Sridhar Samudrala <sri@us.ibm.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-In-Reply-To: <1134652070.16486.44.camel@laptopd505.fenrus.org>
-References: <Pine.LNX.4.58.0512140042280.31720@w-sridhar.beaverton.ibm.com>
-	 <9a8748490512141216x7e25ca2cucb675f11f0c9d913@mail.gmail.com>
-	 <43A08546.8040708@superbug.co.uk> <20051215015456.GC23393@gaz.sfgoth.com>
-	 <43A155AE.4050105@superbug.co.uk>
-	 <1134647248.16486.37.camel@laptopd505.fenrus.org>
-	 <1134651635.5912.108.camel@localhost.localdomain>
-	 <1134652070.16486.44.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Organization: unknown
-Date: Thu, 15 Dec 2005 08:32:35 -0500
-Message-Id: <1134653556.5912.126.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Thu, 15 Dec 2005 08:40:51 -0500
+Received: from moraine.clusterfs.com ([66.96.26.190]:55441 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S1422689AbVLONku (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 08:40:50 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17313.29296.170999.539035@gargle.gargle.HOWL>
+Date: Thu, 15 Dec 2005 16:41:04 +0300
+To: Andrew Morton <akpm@osdl.org>
+Cc: tglx@linutronix.de, dhowells@redhat.com, alan@lxorguk.ukuu.org.uk,
+       pj@sgi.com, mingo@elte.hu, hch@infradead.org, torvalds@osdl.org,
+       arjan@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Newsgroups: gmane.linux.kernel
+In-Reply-To: <20051214155432.320f2950.akpm@osdl.org>
+References: <1134559121.25663.14.camel@localhost.localdomain>
+	<13820.1134558138@warthog.cambridge.redhat.com>
+	<20051213143147.d2a57fb3.pj@sgi.com>
+	<20051213094053.33284360.pj@sgi.com>
+	<dhowells1134431145@warthog.cambridge.redhat.com>
+	<20051212161944.3185a3f9.akpm@osdl.org>
+	<20051213075441.GB6765@elte.hu>
+	<20051213090219.GA27857@infradead.org>
+	<20051213093949.GC26097@elte.hu>
+	<20051213100015.GA32194@elte.hu>
+	<6281.1134498864@warthog.cambridge.redhat.com>
+	<14242.1134558772@warthog.cambridge.redhat.com>
+	<16315.1134563707@warthog.cambridge.redhat.com>
+	<1134568731.4275.4.camel@tglx.tec.linutronix.de>
+	<43A0AD54.6050109@rtr.ca>
+	<20051214155432.320f2950.akpm@osdl.org>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-15-12 at 14:07 +0100, Arjan van de Ven wrote:
-> On Thu, 2005-12-15 at 08:00 -0500, jamal wrote:
+Andrew Morton writes:
+ > Mark Lord <lkml@rtr.ca> wrote:
+ > >
+ > > Leaving up()/down() as-is is really the most sensible option.
+ > >
+ > 
+ > Absolutely.
+ > 
+ > I must say that my interest in this stuff is down in
+ > needs-an-electron-microscope-to-locate territory.  down() and up() work
+ > just fine and they're small, efficient, well-debugged and well-understood. 
+ > We need a damn good reason for taking on tree-wide churn or incompatible
+ > renames or addition of risk.  What's the damn good reason here?
+ > 
+ > Please.  Go fix some bugs.  We're not short of them.
 
-> > The big hole punched by DaveM is that of dependencies: a http tcp
-> > connection is tied to ICMP or the IPSEC example given; so you need a lot
-> > more intelligence than just what your app is knowledgeable about at its
-> > level. 
-> 
-> yeah well sort of. You're right of course, but that also doesn't mean
-> you can't give hints from the other side. Like "data for this socked is
-> NOT critical important". It gets tricky if you only do it for OOM stuff;
-> because then that one ACK packet could cause a LOT of memory to be
-> freed, and as such can be important for the system even if the socket
-> isn't.
-> 
+But this change is about fixing bugs: mutex assumes that
 
-true - but thats _just one input_ into a complex policy decision
-process. The other is clearly VM realizing some type of threshold has
-been crossed. The output being a policy decision of what to drop - which
-gets very interesting if one looks at it being as fine grained as "drop
-ACKS". 
+ - only owner can unlock, and
 
-The fallacy in the proposed solution is that it simplisticly ties 
-the decision to VM input and the network level input to sockets; as in
-the example of sockets doing http requests.
+ - owner cannot lock (immediate self-deadlock).
 
-Methinks what is needed is something which keeps state and takes input
-from the sockets and the VM and then runs some algorithm to decide what
-needs to be the final policy that gets installed at the low level kernel
-(tc classifier level or hardware). Sockets provide hints that they are
-critical. The box admin could override what is important.
+This can be checked by the debugging code, and yes, these kinds of
+errors do happen.
 
-cheers,
-jamal
+Not to say that by looking at
 
+        struct foo_bar_baz {
+                struct mutex fbb_mutex;
+                ...
+        };
+
+one can instantly infer that ->fbb_mutex is used to serialize something
+rather than serves as some fancy signaling mechanism.
+
+Nikita.

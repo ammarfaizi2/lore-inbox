@@ -1,87 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965185AbVLOI4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965187AbVLOI7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965185AbVLOI4V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 03:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965184AbVLOI4V
+	id S965187AbVLOI7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 03:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965191AbVLOI7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 03:56:21 -0500
-Received: from smtpout.mac.com ([17.250.248.46]:31211 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S965179AbVLOI4U (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 03:56:20 -0500
-In-Reply-To: <20051215.002120.133621586.davem@davemloft.net>
-References: <20051215033937.GC11856@waste.org> <20051214.203023.129054759.davem@davemloft.net> <Pine.LNX.4.58.0512142318410.7197@w-sridhar.beaverton.ibm.com> <20051215.002120.133621586.davem@davemloft.net>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <9E6D85FF-E546-4057-80EF-7479021AFAA1@mac.com>
-Cc: sri@us.ibm.com, mpm@selenic.com, ak@suse.de, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
+	Thu, 15 Dec 2005 03:59:23 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:4833
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965187AbVLOI7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 03:59:22 -0500
+Date: Thu, 15 Dec 2005 00:58:05 -0800 (PST)
+Message-Id: <20051215.005805.114145703.davem@davemloft.net>
+To: dlstevens@us.ibm.com
+Cc: shemminger@osdl.org, ak@suse.de, linux-kernel@vger.kernel.org,
+       mpm@selenic.com, netdev@vger.kernel.org, netdev-owner@vger.kernel.org,
+       sri@us.ibm.com
+Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <OFB8B21C56.4F9E9A3C-ON882570D8.002CBD7B-882570D8.002FF8B1@us.ibm.com>
+References: <20051214215613.70f9cafa@localhost.localdomain>
+	<OFB8B21C56.4F9E9A3C-ON882570D8.002CBD7B-882570D8.002FF8B1@us.ibm.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: [RFC] Fine-grained memory priorities and PI
-Date: Thu, 15 Dec 2005 03:55:53 -0500
-To: "David S. Miller" <davem@davemloft.net>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 15, 2005, at 03:21, David S. Miller wrote:
-> Not when we run out, but rather when we reach some low water mark,  
-> the "critical sockets" would still use GFP_ATOMIC memory but only  
-> "critical sockets" would be allowed to do so.
->
-> But even this has faults, consider the IPSEC scenerio I mentioned,  
-> and this applies to any kind of encapsulation actually, even simple  
-> tunneling examples can be concocted which make the "critical  
-> socket" idea fail.
->
-> The knee jerk reaction is "mark IPSEC's sockets critical, and mark  
-> the tunneling allocations critical, and... and..."  well you have  
-> GFP_ATOMIC then my friend.
->
-> In short, these "seperate page pool" and "critical socket" ideas do  
-> not work and we need a different solution, I'm sorry folks spent so  
-> much time on them, but they are heavily flawed.
+From: David Stevens <dlstevens@us.ibm.com>
+Date: Thu, 15 Dec 2005 00:44:52 -0800
 
-What we really need in the kernel is a more fine-grained memory  
-priority system with PI, similar in concept to what's being done to  
-the scheduler in some of the RT patchsets.  Currently we have a very  
-black-and-white memory subsystem; when we go OOM, we just start  
-killing processes until we are no longer OOM.  Perhaps we should have  
-some way to pass memory allocation priorities throughout the kernel,  
-including a "this request has X priority", "this request will help  
-free up X pages of RAM", and "drop while dirty under certain OOM to  
-free X memory using this method".
+> In our internal discussions
 
-The initial benefit would be that OOM handling would become more  
-reliable and less of a special case.  When we start to run low on  
-free pages, it might be OK to kill the SETI@home process long before  
-we OOM if such action might prevent the OOM.  Likewise, you might be  
-able to flag certain file pages as being "less critical", such that  
-the kernel can kill a process and drop its dirty pages for files in / 
-tmp.  Or the kernel might do a variety of other things just by  
-failing new allocations with low priority and forcing existing  
-allocations with low priority to go away using preregistered handlers.
+I really wish this hadn't been discussed internally before being
+implemented.  Any such internal discussions are lost completely upon
+the community that ends up reviewing such a core and invasive patch
+such as this one.
 
-When processes request memory through any subsystem, their memory  
-priority would be passed through the kernel layers to the allocator,  
-along with any associated information about how to free the memory in  
-a low-memory condition.  As a result, I could configure my database  
-to have a much higher priority than SETI@home (or boinc or whatever),  
-so that when the database server wants to fill memory with clean DB  
-cache pages, the kernel will kill SETI@home for it's memory, even if  
-we could just leave some DB cache pages unfaulted.
+>         The critical socket(s) simply have to be out of the zero-sum game
+> for the rest of the allocations, because those are the (only) path to
+> getting a working swap device again.
 
-Questions? Comments? "This is a terrible idea that should never have  
-seen the light of day"? Both constructive and destructive criticism  
-welcomed! (Just please keep the language clean! :-D)
+The core fault of the critical socket idea is that it is painfully
+simple to create a tree of dependant allocations that makes the
+critical pool useless.  IPSEC and tunnels are simple examples.
 
-Cheers,
-Kyle Moffett
+The idea to mark, for example, IPSEC key management daemon's sockets
+as critical is flawed, because the key management daemon could hit a
+swap page over the iSCSI device.  Don't even start with the idea to
+lock the IPSEC key management daemon into ram with mlock().
 
---
-Q: Why do programmers confuse Halloween and Christmas?
-A: Because OCT 31 == DEC 25.
+Tunnels are similar, and realistic nesting cases can be shown that
+makes sizing via a special pool simply unfeasible, and whats more
+there are no sockets involved.
 
+Sockets do not exist in an allocation vacuum, they need to talk over
+routes, and there are therefore many types of auxiliary data
+associated with sending a packet besides the packet itself.  All you
+need is a routing change of some type and you're going to start
+burning GFP_ATOMIC allocations on the next packet send.
 
-
+I think making GFP_ATOMIC better would be wise.  Alan's ideas harping
+from the old 2.0.x/2.2.x NFS days could use some consideration as well.

@@ -1,55 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbVLOWfu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbVLOWgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751162AbVLOWfu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 17:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751164AbVLOWfu
+	id S1751168AbVLOWgz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 17:36:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbVLOWgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 17:35:50 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5580 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751162AbVLOWft (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 17:35:49 -0500
-To: Jamie Lokier <jamie@shareable.org>
-Cc: JANAK DESAI <janak@us.ibm.com>, viro@ftp.linux.org.uk, chrisw@osdl.org,
-       dwmw2@infradead.org, serue@us.ibm.com, mingo@elte.hu,
-       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 1/9] unshare system call: system call handler
- function
-References: <1134513959.11972.167.camel@hobbs.atlanta.ibm.com>
-	<m1k6e687e2.fsf@ebiederm.dsl.xmission.com>
-	<43A1D435.5060602@us.ibm.com>
-	<m1d5jy83nr.fsf@ebiederm.dsl.xmission.com>
-	<20051215213234.GB6990@mail.shareable.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Thu, 15 Dec 2005 15:34:06 -0700
-In-Reply-To: <20051215213234.GB6990@mail.shareable.org> (Jamie Lokier's
- message of "Thu, 15 Dec 2005 21:32:34 +0000")
-Message-ID: <m18xum7zxd.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Thu, 15 Dec 2005 17:36:55 -0500
+Received: from master.soleranetworks.com ([67.137.28.188]:57478 "EHLO
+	master.soleranetworks.com") by vger.kernel.org with ESMTP
+	id S1751168AbVLOWgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 17:36:55 -0500
+Message-ID: <43A1DB18.4030307@wolfmountaingroup.com>
+Date: Thu, 15 Dec 2005 14:07:36 -0700
+From: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051215223000.GU23349@stusta.de>
+In-Reply-To: <20051215223000.GU23349@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
+Adrian Bunk wrote:
 
+>On Thu, Dec 15, 2005 at 02:00:13PM -0800, Andrew Morton wrote:
+>  
 >
->> Part of the problem is the double negative in the name, leading
->> me to suggest that sys_share might almost be a better name.
+>>Adrian Bunk <bunk@stusta.de> wrote:
+>>    
+>>
+>>>This patch was already sent on:
+>>>- 11 Dec 2005
+>>>- 5 Dec 2005
+>>>- 30 Nov 2005
+>>>- 23 Nov 2005
+>>>- 14 Nov 2005
+>>>      
+>>>
+>>Sigh.  I saw the volume of email last time and though "gee, glad I wasn't
+>>cc'ed on that lot".
+>>    
+>>
 >
-> I agree with that suggestion, too.
+>If you substract the "this breaks my binary-only M$ Windows driver" 
+>emails there's not much volume left.
 >
-> Alternatively, we could just add a flag to clone(): CLONE_SELF,
-> meaning don't create a new task, just modify the properties of the
-> current task.
+>  
+>
+>>Supporting 8k stacks is a small amount of code and nobody has seen a need
+>>to make changes in there for quite a long time.  So there's little cost to
+>>keeping the existing code.
+>>
+>>And the existing code is useful:
+>>
+>>a) people can enable it to confirm that their weird crash was due to a
+>>   stack overflow.
+>>
+>>b) If I was going to put together a maximally-stable kernel for a
+>>   complex server machine, I'd select 8k stacks.  We're still just too
+>>   squeezy, and we've had too many relatively-recent overflows, and there
+>>   are still some really deep callpaths in there.
+>>    
+>>
+>
+>a1) People turn off 4k stacks and never report the problem / noone 
+>    really debugs and fixes the reported problem.
+>
+>Me threatening people with enabling 4k stacks for everyone already 
+>resulted in several fixes.
+>
+>An how many weird crashes with _different_ causes have you seen?
+>It could be that there are only _very_ few problems that noone really 
+>debugs brcause disabling 4k stacks fixes the issue.
+>  
+>
 
-Internally I doubt it would make much difference.  There are
-real differences from modifying current to copying from current.
-Mostly it is ref counting but just enough that CLONE_SELF
-is unlikely to be a sane thing to do.
+When you are on the phone with an irrate customer at 2:00 am in the 
+morning, and just turning off your broken 4K stack fix
+and getting the customer running matters. 4K stacks are a BAD idea. I 
+have even found USER SPACE apps
+that crash linux without the 8K option. Andrew has spoken. Suck it up 
+and deal with it. It's not a problem limited to Windows
+drivers.
 
-Of course we could always implement spawn.  The syscall with
-every possible option :)
+Jeff
 
-Eric
+>cu
+>Adrian
+>
+>  
+>
+

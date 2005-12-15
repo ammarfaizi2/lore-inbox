@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbVLOBWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbVLOBZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965099AbVLOBWq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Dec 2005 20:22:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965143AbVLOBWq
+	id S932441AbVLOBZv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Dec 2005 20:25:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbVLOBZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Dec 2005 20:22:46 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:18152 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S965099AbVLOBWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Dec 2005 20:22:45 -0500
-Date: Wed, 14 Dec 2005 19:22:37 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Strange delay on PCI-DMA-transfer completion by
- wait_event_interruptible()
-In-reply-to: <5jzIB-3pY-5@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43A0C55D.2070500@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 8BIT
-X-Accept-Language: en-us, en
-References: <5jzIB-3pY-5@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Wed, 14 Dec 2005 20:25:51 -0500
+Received: from xproxy.gmail.com ([66.249.82.193]:63544 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932441AbVLOBZu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Dec 2005 20:25:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=LlRT+KkJrz9XyyN2hG1hjTKX3oHkNZVT26vhsOZtwOoqKB0pbOsBWfeEmo00xgkWYK0DQ8Jtp64NGeNlpiyJPbD2mBOYmfGQqZ1Uqn1xQGqYLI9pp954oQT+1oygpr3MQFDvSW4op0doCLJ9zK+a6wKh29QsiZYesBeIIpYaPbY=
+From: Kurt Wall <kwallinator@gmail.com>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Subject: Re: Console Goes Blank When Booting 2.6.15-rc5
+Date: Wed, 14 Dec 2005 20:27:00 -0500
+User-Agent: KMail/1.8.2
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <200512132247.54341.kwallinator@gmail.com> <439FBDC5.5060609@gmail.com>
+In-Reply-To: <439FBDC5.5060609@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512142027.00829.kwallinator@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Burkhard Schölpen wrote:
-> I'm glad to meet somebody with dma experience, because I have
-> some other difficulties concerning DMA buffers in RAM. The PCI-Board
-> is to be applied in a large size copying machine, so it essentially
-> has to transfer tons of data in 2 directions very fast without wasting
-> cpu time (because the cpu has to run many image processing algorithms
-> meanwhile on this data). So my approach is to allocate a quite large
-> ringbuffer in kernel space (or more precisely one ringbuffer for each
-> direction) which is capable of dma. Afterwards I would map this buffer
-> to user space to avoid unnecessary memcopies/cpu usage. My problem is
-> for now to get such a large DMA buffer. I tried out several things I
-> read in O'Reilly's book, but they all failed so far. My current
-> attempt is to take a high memory area with ioremap:
+On Wednesday 14 December 2005 01:37 am, Antonino A. Daplas wrote:
+> Kurt Wall wrote:
+> > As Jesper Juhl has reported, if I boot 2.6.15-rc5 with vga=normal,
+> > everything is fine. If I boot using my preferred size (vga=794),
+> > the console goes blank. Because I'm a touch typist, I can login and
+> > start X and everything is copacetic, but as soon as I leave X, I'm
+> > back to the blank screen. From X, if I flip over to a VC, the VC
+> > display is garbled and has artifacts from the X display.
+> >
+> > This worked fine with 2.6.14.3, and I didn't change the console,
+> > framebuffer, or vesa options between the two kernels. Not sure how
+> > to proceed, but I sure would like my high res console screens back.
+>
+> Can you recheck your .config and make sure that
+> CONFIG_FRAMEBUFFER_CONSOLE=y
 
-You can't ioremap normal memory like that. ioremap is only for MMIO 
-address regions.
+Oops. It was defined as a module. Compiling it statically gave me
+the console back. Interestingly, I still lose the first 102 lines
+of console output. After the all-important boot logo displays, I see
+nothing until this line:
 
-Better than trying to allocate lots of memory in the kernel (which you 
-can't, really), would be to make the userspace application allocate the 
-ringbuffer and do DMA from the device to userspace memory. To do this, 
-you'll have to either make the device do a separate DMA for every 
-contiguous chunk, or better yet make the device support scatter-gather 
-DMA so that it can read/write from discontiguous physical blocks of 
-memory. Have a look at Documentation/DMA-mapping.txt and 
-Documentation/DMA-API.txt, also at the Linux Device Drivers 3rd ed. 
-online book, these all have info on how this can be done.
+"Console: switching to colour frame buffer device 160x64"
 
+It's all there in the ring buffer, of course. Thanks, Antonino.
+
+Kurt
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+The mosquito is the state bird of New Jersey.
+  -- Andy Warhol

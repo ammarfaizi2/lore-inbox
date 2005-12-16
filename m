@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbVLPPuB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbVLPPyI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbVLPPuB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 10:50:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbVLPPuB
+	id S932334AbVLPPyI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 10:54:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVLPPyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 10:50:01 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:45267 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S1750715AbVLPPt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 10:49:59 -0500
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: David Howells <dhowells@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Christopher Friesen" <cfriesen@nortel.com>, torvalds@osdl.org,
-       hch@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-References: <1134556187.2894.7.camel@laptopd505.fenrus.org>
-	<1134558188.25663.5.camel@localhost.localdomain>
-	<1134558507.2894.22.camel@laptopd505.fenrus.org>
-	<1134559470.25663.22.camel@localhost.localdomain>
-	<20051214033536.05183668.akpm@osdl.org>
-	<15412.1134561432@warthog.cambridge.redhat.com>
-	<11202.1134730942@warthog.cambridge.redhat.com>
-	<43A2BAA7.5000807@yahoo.com.au>
-	<20051216132123.GB1222@flint.arm.linux.org.uk>
-	<wn564ppnohn.fsf@linhd-2.ca.nortel.com>
-	<20051216143110.GC1222@flint.arm.linux.org.uk>
-From: "Linh Dang" <linhd@nortel.com>
-Organization: Null
-Date: Fri, 16 Dec 2005 10:49:03 -0500
-In-Reply-To: <20051216143110.GC1222@flint.arm.linux.org.uk> (Russell King's
- message of "Fri, 16 Dec 2005 14:31:10 +0000")
-Message-ID: <wn57ja5m49c.fsf@linhd-2.ca.nortel.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
+	Fri, 16 Dec 2005 10:54:08 -0500
+Received: from mail29.messagelabs.com ([140.174.2.227]:23447 "HELO
+	mail29.messagelabs.com") by vger.kernel.org with SMTP
+	id S932334AbVLPPyH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 10:54:07 -0500
+X-VirusChecked: Checked
+X-Env-Sender: Scott_Kilau@digi.com
+X-Msg-Ref: server-11.tower-29.messagelabs.com!1134748434!27893444!1
+X-StarScan-Version: 5.5.9.1; banners=-,-,-
+X-Originating-IP: [66.77.174.21]
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Support for Digi Neo 8p board in jsm driver
+Date: Fri, 16 Dec 2005 09:53:53 -0600
+Message-ID: <335DD0B75189FB428E5C32680089FB9F36B3D0@mtk-sms-mail01.digi.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Support for Digi Neo 8p board in jsm driver
+Thread-Index: AcYCTsOx473ZsjSgRYe17AdlVKYKOwACJLMw
+From: "Kilau, Scott" <Scott_Kilau@digi.com>
+To: "Adrian Bunk" <bunk@stusta.de>,
+       "Alexander V. Inyukhin" <shurick@sectorb.msk.ru>
+Cc: <linux-kernel@vger.kernel.org>,
+       "Ananda K Venkataraman" <avenkat@us.ibm.com>
+X-OriginalArrivalTime: 16 Dec 2005 15:53:54.0255 (UTC) FILETIME=[EA937DF0:01C60258]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> Do you now see what I mean?  (yup, ARM is a llsc architecture.)
+Hi Alex, all,
 
-Oh, I do see your point now! sorry for all the newbie noise!
+> Jsm driver is claimed to support Digi Neo multiport
+> serial boards but according to PCI id table
+> only 2port boards are supported.
+> 
+> Is it possible to support other Digi Neo boards by jsm
+> or original dgnc driver should be used instead?
 
--- 
-Linh Dang
+Either the in-tree JSM driver or the out-of-tree DGNC driver will work
+fine.
+
+The out-of-tree DGNC driver was the intended driver to be used with
+the all the various Digi Neo boards.
+
+The JSM driver was intended to be used with only the 2 port Digi Neo
+board,
+however, I am not aware of any reason why the 8 port wouldn't work as
+well.
+
+If you use the JSM driver, you will need to update the PCI id table
+in the JSM driver to add in the 8 port PCI ID.
+
+Scott

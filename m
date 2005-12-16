@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932292AbVLPOt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbVLPO4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932292AbVLPOt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 09:49:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932318AbVLPOt5
+	id S932322AbVLPO4b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 09:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbVLPO4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 09:49:57 -0500
-Received: from smtp13.wanadoo.fr ([193.252.22.54]:17709 "EHLO
-	smtp13.wanadoo.fr") by vger.kernel.org with ESMTP id S932292AbVLPOt4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 09:49:56 -0500
-X-ME-UUID: 20051216144955162.03F137000095@mwinf1309.wanadoo.fr
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
-In-Reply-To: <Pine.LNX.4.61.0512160927390.30350@chaos.analogic.com>
-References: <20051215212447.GR23349@stusta.de>
-	 <20051215140013.7d4ffd5b.akpm@osdl.org> <20051215223000.GU23349@stusta.de>
-	 <43A1DB18.4030307@wolfmountaingroup.com>
-	 <1134688488.12086.172.camel@mindpipe>
-	 <43A1E451.2090703@wolfmountaingroup.com>
-	 <1134689197.12086.176.camel@mindpipe>
-	 <Pine.LNX.4.61.0512160927390.30350@chaos.analogic.com>
-Content-Type: text/plain
-Message-Id: <1134744579.6493.1.camel@capoeira>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Fri, 16 Dec 2005 15:49:40 +0100
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Dec 2005 09:56:31 -0500
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:2263
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S932322AbVLPO4b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 09:56:31 -0500
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: debian-devel@lists.debian.org
+Cc: linux-kernel@vger.kernel.org
+Subject: gtkpod and Filesystem
+Date: Fri, 16 Dec 2005 08:56:34 -0600
+Message-Id: <20051216145234.M78009@linuxwireless.org>
+X-Mailer: Open WebMail 2.40 20040816
+X-OriginatingIP: 16.90.18.24 (abonilla@linuxwireless.org)
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-16 at 15:39, linux-os (Dick Johnson) wrote:
+Hi,
 
-> Throughout the past two years of 4k stack-wars, I never heard why
-> such a small stack was needed (not wanted, needed).
+I have Debian Sid with 2.6.15-rc5, I wonder if this could be either with a bug
+in gtkpod or the kernel (FS Panic).
 
-Because after some prolonged uptime, memory can be heavily fragmented.
-In this case an order-0 allocation will always succeed (as long as some
-memory is free), whereas an order-1 allocation may easily fail.
+Whenever I try to sync my Ipod it comes up and says the FS is Write-Procteted
+or Read-Only. (This is on the gtkpod interface)
+"Error opening '/media/IPOD/iPod_Control/Music/F15/gtkpod108107.mp3' for
+writing (Read-only file system)."
 
-	Xav
+drivers/usb/core/inode.c: creating file '003'
+Initializing USB Mass Storage driver...
+usb-storage 1-4:1.0: usb_probe_interface
+usb-storage 1-4:1.0: usb_probe_interface - got id
+scsi1 : SCSI emulation for USB Mass Storage devices
+usb-storage: device found at 3
+usb-storage: waiting for device to settle before scanning
+usbcore: registered new driver usb-storage
+USB Mass Storage support registered.
+  Vendor: Apple     Model: iPod              Rev: 1.62
+  Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sdb: 3999743 512-byte hdwr sectors (2048 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 68 00 00 08
+sdb: assuming drive cache: write through
+SCSI device sdb: 3999743 512-byte hdwr sectors (2048 MB)
+sdb: Write Protect is off
+sdb: Mode Sense: 68 00 00 08
+sdb: assuming drive cache: write through
+ sdb: sdb1 sdb2
+sd 1:0:0:0: Attached scsi removable disk sdb
+sd 1:0:0:0: Attached scsi generic sg1 type 0
+usb-storage: device scan complete
+FAT: Filesystem panic (dev sdb2)
+    fat_get_cluster: invalid cluster chain (i_pos 120196)
+    File system has been set read-only
+FAT: Filesystem panic (dev sdb2)
+    fat_get_cluster: invalid cluster chain (i_pos 120196)
+FAT: Filesystem panic (dev sdb2)
+    fat_get_cluster: invalid cluster chain (i_pos 120196)
+FAT: Filesystem panic (dev sdb2)
+    fat_get_cluster: invalid cluster chain (i_pos 120196)
+FAT: Filesystem panic (dev sdb2)
+    fat_get_cluster: invalid cluster chain (i_pos 120196)
 
+
+--
+Open WebMail Project (http://openwebmail.org)
 

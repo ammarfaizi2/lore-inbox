@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVLPP6Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbVLPP6Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbVLPP6Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 10:58:24 -0500
+	id S932339AbVLPP6Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 10:58:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVLPP6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Fri, 16 Dec 2005 10:58:24 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:25363 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932332AbVLPP6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56331 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932339AbVLPP6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 16 Dec 2005 10:58:23 -0500
-Date: Fri, 16 Dec 2005 16:58:24 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051216155824.GE23349@stusta.de>
-References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Date: Fri, 16 Dec 2005 15:58:11 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: David Howells <dhowells@redhat.com>
+Cc: Linh Dang <linhd@nortel.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christopher Friesen <cfriesen@nortel.com>, torvalds@osdl.org,
+       hch@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051216155811.GE1222@flint.arm.linux.org.uk>
+Mail-Followup-To: David Howells <dhowells@redhat.com>,
+	Linh Dang <linhd@nortel.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Christopher Friesen <cfriesen@nortel.com>, torvalds@osdl.org,
+	hch@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+	linux-arch@vger.kernel.org
+References: <1134558188.25663.5.camel@localhost.localdomain> <1134558507.2894.22.camel@laptopd505.fenrus.org> <1134559470.25663.22.camel@localhost.localdomain> <20051214033536.05183668.akpm@osdl.org> <15412.1134561432@warthog.cambridge.redhat.com> <11202.1134730942@warthog.cambridge.redhat.com> <43A2BAA7.5000807@yahoo.com.au> <20051216132123.GB1222@flint.arm.linux.org.uk> <wn564ppnohn.fsf@linhd-2.ca.nortel.com> <20058.1134748001@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051216163503.289d491e.diegocg@gmail.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20058.1134748001@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 04:35:03PM +0100, Diego Calleja wrote:
-> El Fri, 16 Dec 2005 15:04:25 +0100,
-> Adrian Bunk <bunk@stusta.de> escribió:
+On Fri, Dec 16, 2005 at 03:46:41PM +0000, David Howells wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 > 
-> > My count of bug reports for problems with 4k stacks after Neil's patch
-> > went into -mm is still at 0.
-> > 
-> > Either there are no problems left or noone pays attention to them since 
-> > disabling 4k stacks "fixed" the problem.
-> > 
-> > In both cases there's no reason against applying my patch.
+> > Do you now see what I mean?  (yup, ARM is a llsc architecture.)
 > 
-> I know, but there's too much resistance to the "pure" 4kb patch. The
-> 8 KB patch does the same thing (enables 4kb stacks)  and at the same
-> time the 8kb groupies can't flamewar you for it, it covers akpm's
+> Out of interest, at what point did ARM become so? ARM6?
 
-I have no problems with people flaming me.
+Yes, ARM architecture version 6.
 
-I had problems if people would actually find technical reasons where my 
-patch breaks in-kernel code.  ;-)
-
-> concerns, it puts some pressure on the ndiswrapper guys and leaves
-> time for the broadcom driver developers to finish, merge and push
-> to the distributions their driver. The 8kb config option can be
-> removed in the future when we're sure that it's 100% safe (neil
-> brown's patch isn''t a good sign). It makes every happy IMO ;)
-
-Neil's patch fixes the last known poroblems.
-
-My count of bug reports for problems with 4k stacks after Neil's patch
-went into -mm is still at 0.
-
-cu
-Adrian
+See the ldrex (load exclusive) / strex (store exclusive) instructions.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

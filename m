@@ -1,90 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbVLPFDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbVLPFUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751050AbVLPFDq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 00:03:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVLPFDp
+	id S932130AbVLPFUy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 00:20:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbVLPFUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 00:03:45 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:53376 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751050AbVLPFDp (ORCPT
+	Fri, 16 Dec 2005 00:20:54 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:45469 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932130AbVLPFUx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 00:03:45 -0500
-Message-ID: <43A24A6F.5090907@us.ibm.com>
-Date: Thu, 15 Dec 2005 21:02:39 -0800
-From: Sridhar Samudrala <sri@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Dobson <colpatch@us.ibm.com>
-CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org, andrea@suse.de,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH 0/6] Critical Page Pool
-References: <439FCECA.3060909@us.ibm.com> <20051214100841.GA18381@elf.ucw.cz> <43A0406C.8020108@us.ibm.com> <20051215162601.GJ2904@elf.ucw.cz> <43A1E551.1090403@us.ibm.com>
-In-Reply-To: <43A1E551.1090403@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Dec 2005 00:20:53 -0500
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
+From: Keith Owens <kaos@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>
+Subject: [RFC] Add thread_info flag for "no cpu migration"
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 16 Dec 2005 16:20:41 +1100
+Message-ID: <9019.1134710441@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Dobson wrote:
+The thread below talks about disabling preemption in udelay() because
+different cpus can have hardware clocks that move at different rates.
 
->Pavel Machek wrote:
->  
->
->>>>And as you noticed, it does not work for your original usage case,
->>>>because reserved memory pool would have to be "sum of all network
->>>>interface bandwidths * ammount of time expected to survive without
->>>>network" which is way too much.
->>>>        
->>>>
->>>Well, I never suggested it didn't work for my original usage case.  The
->>>discussion we had is that it would be incredibly difficult to 100%
->>>iron-clad guarantee that the pool would NEVER run out of pages.  But we can
->>>size the pool, especially given a decent workload approximation, so as to
->>>make failure far less likely.
->>>      
->>>
->>Perhaps you should add file in Documentation/ explaining it is not
->>reliable?
->>    
->>
->
->That's a good suggestion.  I will rework the patch's additions to
->Documentation/sysctl/vm.txt to be more clear about exactly what we're
->providing.
->
->
->  
->
->>>>If you want few emergency pages for some strange hack you are doing
->>>>(swapping over network?), just put swap into ramdisk and swapon() it
->>>>when you are in emergency, or use memory hotplug and plug few more
->>>>gigabytes into your machine. But don't go introducing infrastructure
->>>>that _can't_ be used right.
->>>>        
->>>>
->>>Well, that's basically the point of posting these patches as an RFC.  I'm
->>>not quite so delusional as to think they're going to get picked up right
->>>now.  I was, however, hoping for feedback to figure out how to design
->>>infrastructure that *can* be used right, as well as trying to find other
->>>potential users of such a feature.
->>>      
->>>
->>Well, we don't usually take infrastructure that has no in-kernel
->>users, and example user would indeed be nice.
->>							Pavel
->>    
->>
->
->Understood.  I certainly wouldn't expect otherwise.  I'll see if I can get
->Sridhar to post his networking changes that take advantage of this.
->  
->
-I have posted these patches yesterday on lkml and netdev and here is a 
-link to the thread.
-    http://thread.gmane.org/gmane.linux.kernel/357835
-  
-Thanks
-Sridhar
+http://marc.theaimsgroup.com/?l=linux-ia64&m=113460274218885&w=2
+
+preempt_disable() is overkill for this class of problem.  Code that
+uses per cpu variables and/or hardware often only has the requirement
+that it not be migrated off the current cpu, it can cope with
+preemption as long as it gets scheduled back onto the same cpu.
+Disabling preemption just to prevent cpu migration can introduce
+additional preemption delays.
+
+The normal way of pinning a task to a cpu is to use set_cpus_allowed(),
+but that requires that the caller hold no locks and be running enabled.
+Code such as udelay() can be called in any context, it may or may not
+be runing atomic.
+
+Could we add a TIF_ flag that says "no migration to another cpu"?  It
+would be very light weight, functions cpu_migration_save(flags) and
+cpu_migration_restore(flags) plus a couple of tests in the scheduler.
+
+#define cpu_migration_save(flags) do { flags = test_and_set_thread_flag(TIF_NO_CPU_MIGRATION); } while(0)
+#define cpu_migration_restore(flags) do { if (!flags) clear_thread_flag(TIF_NO_CPU_MIGRATION); } while(0)
+
+Unlike set_cpus_allowed(), TIF_NO_CPU_MIGRATION can be set in any
+context.  This makes it far more useful for lower level code, which may
+be called with interrupts or preemption enabled or disabled.
+
+I do not know enough about the scheduler to be completely sure of what
+changes are required there, but at a quick glance -
+
+set_cpus_allowed() returns -EBUSY if TIF_NO_CPU_MIGRATION is set and
+the new mask does not include the current cpu.
+
+can_migrate_task() returns 0 if TIF_NO_CPU_MIGRATION is set.
+
+sched_fork() and sched_exec() BUG if TIF_NO_CPU_MIGRATION is set, it
+makes no sense to fork/exec with migration disabled.  These are sanity
+checks, and may not be absolutely required.
+
+If this feature is added, some uses of get_cpu() could be redefined to
+use cpu_migration_save(), further reducing the size of code that runs
+with preempt disabled.
+
+The debug version of smp_processor_id() would accept
+TIF_NO_CPU_MIGRATION being set as one of the criteria for not
+complaining.
 

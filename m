@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbVLPBql@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbVLPByf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbVLPBql (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 20:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbVLPBql
+	id S932072AbVLPByf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 20:54:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbVLPByf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 20:46:41 -0500
-Received: from fsmlabs.com ([168.103.115.128]:7603 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1751277AbVLPBqk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 20:46:40 -0500
-X-ASG-Debug-ID: 1134697594-4654-95-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Thu, 15 Dec 2005 17:52:02 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: "Luck, Tony" <tony.luck@intel.com>
-cc: hawkes@sgi.com, Tony Luck <tony.luck@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jack Steiner <steiner@sgi.com>,
-       Keith Owens <kaos@sgi.com>, Dimitri Sivanich <sivanich@sgi.com>
-X-ASG-Orig-Subj: Re: [PATCH] ia64: disable preemption in udelay()
-Subject: Re: [PATCH] ia64: disable preemption in udelay()
-In-Reply-To: <20051215225040.GA9086@agluck-lia64.sc.intel.com>
-Message-ID: <Pine.LNX.4.64.0512151750500.1678@montezuma.fsmlabs.com>
-References: <20051214232526.9039.15753.sendpatchset@tomahawk.engr.sgi.com>
- <20051215225040.GA9086@agluck-lia64.sc.intel.com>
+	Thu, 15 Dec 2005 20:54:35 -0500
+Received: from smtp107.plus.mail.mud.yahoo.com ([68.142.206.240]:54657 "HELO
+	smtp107.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932072AbVLPBye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 20:54:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ce6q4IDyOpA2ENzQDK0SEXWanJywcoxre3G2dlFPBul5dgjHaAd2nzT3dTkIL6x+bnP5Fx/Nqi4it95YlDTyw9/2cwLqQcMtgIiImAvEebLhDl+LHZsDFNsx5s3r6vFwS7MLveqpiOI/QprtFcfDtFpXnKObveoz2IpMt0QSmRk=  ;
+Message-ID: <43A21E55.3060907@yahoo.com.au>
+Date: Fri, 16 Dec 2005 12:54:29 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6340
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+To: David Howells <dhowells@redhat.com>
+CC: Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, cfriesen@nortel.com,
+       torvalds@osdl.org, hch@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+References: <1134560671.2894.30.camel@laptopd505.fenrus.org>  <439EDC3D.5040808@nortel.com> <1134479118.11732.14.camel@localhost.localdomain> <dhowells1134431145@warthog.cambridge.redhat.com> <3874.1134480759@warthog.cambridge.redhat.com> <15167.1134488373@warthog.cambridge.redhat.com> <1134490205.11732.97.camel@localhost.localdomain> <1134556187.2894.7.camel@laptopd505.fenrus.org> <1134558188.25663.5.camel@localhost.localdomain> <1134558507.2894.22.camel@laptopd505.fenrus.org> <1134559470.25663.22.camel@localhost.localdomain> <20051214033536.05183668.akpm@osdl.org> <15412.1134561432@warthog.cambridge.redhat.com>
+In-Reply-To: <15412.1134561432@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Dec 2005, Luck, Tony wrote:
-
-> On Wed, Dec 14, 2005 at 03:25:26PM -0800, hawkes@sgi.com wrote:
-> > Sending this to a wider audience:
-> > 
-> > The udelay() inline for ia64 uses the ITC.  If CONFIG_PREEMPT is enabled
-> > and the platform has unsynchronized ITCs and the calling task migrates
-> > to another CPU while doing the udelay loop, then the effective delay may
-> > be too short or very, very long.
-> > 
-> > The most simple fix is to disable preemption around the udelay looping.
-> > The downside is that this inhibits realtime preemption for cases of long
-> > udelays.  One datapoint:  an SGI realtime engineer reports that if
-> > CONFIG_PREEMPT is turned off, that no significant holdoffs are
-> > are attributed to udelay().
-> > 
-> > I am reluctant to propose a much more complicated patch (that disables
-> > preemption only for "short" delays, and uses the global RTC as the time
-> > base for longer, preemptible delays) unless this patch introduces
-> > significant and unacceptable preemption delays.
+David Howells wrote:
+> Arjan van de Ven <arjan@infradead.org> wrote:
 > 
-> Stuck between a rock and the proverbial hard place.
 > 
-> I think that the more complex patch is needed though.  If some crazy
-> driver has a pre-emptible udelay(10000), then you really don't want
-> to spin for that long without allowing preemption.
+>>> given that
+>>>mutex_down() is slightly more costly than current down(), and mutex_up() is
+>>>appreciably more costly than current up()?
+>>
+>>that's an implementation flaw in the current implementation that is not
+>>needed by any means and that Ingo has fixed in his version of this
+> 
+> 
+> As do I. I wrote it yesterday with Ingo looking over my shoulder, as it were,
+> but I haven't released it yet.
+> 
+> What I provided was a base implementation that anything can use provided it
+> has an atomic op capable of exchanging between two states, and I suspect
+> everything that can do multiprocessing has - if you can do spinlocks, then you
+> can do this. I ALSO provided a mechanism by which it could be overridden if
+> there's something better available on that arch.
+> 
+> As I see it there are four classes of arch:
+> 
+>  (0) Those that have no atomic ops at all - in which case xchg is trivially
+>      implemented by disabling interrupts, and spinlocks must be null because
+>      they can't be implemented.
+> 
+>  (1) Those that only have a limited exchange functionality. Several archs do
+>      fall into this category: arm, frv, mn10300, 68000, i386.
+> 
+>  (2) Those that have CMPXCHG or equivalent: 68020, i486+, x86_64, ia64, sparc.
+> 
+>  (3) Those that have LL/SC or equivalent: mips (some), alpha, powerpc, arm6.
+> 
 
-If it's a preemptible sleep period it should just use msleep.
+cmpxchg is basically exactly equivalent to a store-conditional, so 2 and 3
+are the same level.
+
+I don't know why you don't implement a "good" default implementation with
+atomic_cmpxchg.
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751335AbVLPUHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbVLPUJE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751335AbVLPUHS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 15:07:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbVLPUHR
+	id S1750807AbVLPUJE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 15:09:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbVLPUJE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 15:07:17 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:426 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751335AbVLPUHQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 15:07:16 -0500
-Date: Fri, 16 Dec 2005 12:06:51 -0800
-From: Paul Jackson <pj@sgi.com>
-To: paulmck@us.ibm.com
-Cc: akpm@osdl.org, dada1@cosmosbay.com, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au, Simon.Derr@bull.net, ak@suse.de,
-       clameter@sgi.com
-Subject: Re: [PATCH 04/04] Cpuset: skip rcu check if task is in root cpuset
-Message-Id: <20051216120651.cb57ad2e.pj@sgi.com>
-In-Reply-To: <20051216175201.GA24876@us.ibm.com>
-References: <20051214084031.21054.13829.sendpatchset@jackhammer.engr.sgi.com>
-	<20051214084049.21054.34108.sendpatchset@jackhammer.engr.sgi.com>
-	<20051216175201.GA24876@us.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+	Fri, 16 Dec 2005 15:09:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:18389 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750807AbVLPUJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 15:09:02 -0500
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+From: Arjan van de Ven <arjan@infradead.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Michael Buesch <mbuesch@freenet.de>, linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Adrian Bunk <bunk@stusta.de>,
+       akpm@osdl.org, Diego Calleja <diegocg@gmail.com>
+In-Reply-To: <1134763370.28761.61.camel@localhost.localdomain>
+References: <20051215212447.GR23349@stusta.de>
+	 <20051216163503.289d491e.diegocg@gmail.com>
+	 <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com>
+	 <200512161723.19965.mbuesch@freenet.de>
+	 <1134763370.28761.61.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 16 Dec 2005 21:08:57 +0100
+Message-Id: <1134763738.2992.72.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul wrote:
-> So I am not convinced that this optimization is worthwhile.
+On Fri, 2005-12-16 at 20:02 +0000, Alan Cox wrote:
+> On Gwe, 2005-12-16 at 17:23 +0100, Michael Buesch wrote:
+> > Now, I want to test bcm43xx on 4k stacks. But only have a
+> > ppc32 machine with such a broadcom card. ppc32 has 8k stacks.
+> > How am I supposed to test the driver for 4kstack conformance?
+> 
+> Unless you've been writing fairly careless code putting a lot of objects
+> on stack a driver is going to work fine with 4K stacks.
 
-Nice analysis - thanks.
+there is also "make checkstack" that works on many architectures, and
+lists offenders. If you're clean there it's very likely you're very
+ok ;)
 
-I read from your analysis that, except on alpha, we're down to
-so little that it's going to be difficult on PREEMPT kernels to
-discern a clear difference, and on non-PREEMPT kernels, the
-rcu read lock is a no-op, so definitely not worth trying to
-optimize away.
-
-On the ia64 sn2_defconfig kernel (which is CONFIG_PREEMPT and
-CONFIG_DEBUG_PREEMPT, and is the one I happen to care most about) I see
-one short branch with this optimization, versus two calls, to the
-add_preempt_count() and sub_preempt_count() routines, if I don't have
-this optimization.  These two *_preempt_count() routines in
-kernel/sched.c generate 172 lines of assembly code, containing
-several branches, due to the BUG checks.
-
-So in that case (obviously not one of the cases with a huge installed
-base ;) this optimization seems well worth it.  One short branch is
-cheaper than two subroutine calls to a couple of pages of code.
-
-I can easily accept either way on this one - keeping or removing this
-optimization.  And it involves tradeoffs that vary by architecture and
-configuration, but that aren't (so far as I know) worth custom per-arch
-optimized code.
-
-I'd slightly prefer to leave this optimization in, on the grounds that
-it makes a worthwhile (albeit modest) improvement in the cases, and is
-only trivially worse (an added short branch) in other cases.
-
-What's your recommendation, Paul?  You have far more experience here than I.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

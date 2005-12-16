@@ -1,61 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbVLPMuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbVLPMzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbVLPMuz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 07:50:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbVLPMuz
+	id S932284AbVLPMzk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 07:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932388AbVLPMzj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 07:50:55 -0500
-Received: from tristate.vision.ee ([194.204.30.144]:52695 "HELO mail.city.ee")
-	by vger.kernel.org with SMTP id S932232AbVLPMuy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 07:50:54 -0500
-Message-ID: <43A2B82C.2060403@vision.ee>
-Date: Fri, 16 Dec 2005 14:50:52 +0200
-From: =?UTF-8?B?TGVuYXIgTMO1aG11cw==?= <lenar@vision.ee>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: en-us, en
+	Fri, 16 Dec 2005 07:55:39 -0500
+Received: from fuz.mail.t-online.hu ([195.228.240.97]:16909 "EHLO
+	fuz.mail.t-online.hu") by vger.kernel.org with ESMTP
+	id S932284AbVLPMzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 07:55:39 -0500
+From: "Szloboda Zsolt" <slobo@t-online.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: raid over sata - write barrier
+Date: Fri, 16 Dec 2005 13:55:37 +0100
+Message-ID: <JDEMIGCBPIDENEAIIGKPAEBMCLAA.slobo@t-online.hu>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc5-mm3
-References: <20051214234016.0112a86e.akpm@osdl.org>
-In-Reply-To: <20051214234016.0112a86e.akpm@osdl.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
+X-vbmsrv: scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+I've found that ext3 + sata + kernel 2.6.12 supports the write barrier mount
+option (-o barrier=1)
+(found it here: http://marc.10east.com/?l=linux-scsi&m=112019898711806)
 
->mm/ microoptimisations
->
->-mm-implement-swap-prefetching.patch
->-mm-implement-swap-prefetching-default-y.patch
->-mm-implement-swap-prefetching-tweaks.patch
->-mm-implement-swap-prefetching-tweaks-2.patch
->-mm-swap-prefetch-magnify.patch
->
-> Dropped swap prefetching, sorry.  I wasn't able to notice much benefit from
-> it in my testing, and the number of mm/ patches in getting crazy, so we don't
-> have capacity for speculative things at present.
->
-For me it seems it is not so speculative. It really has effect when 
-running with not-so-uber
-memory/machine configuration.
+is write barrier supported with RAID (md) over sata, with ext3? (which
+kernel version?)
+(or we have to disable write cache in HD in this case?)
 
-After some big compile during lunch-time everything slowly crawls back 
-to the screen when
-I enter my password to unlock screen without these patches.
-
-But with these applied I came back from my lunch and everything is as 
-snappy as it was when
-I left it.
-
-This is with 256M of memory and old Duron CPU in machine. Hard disk 
-being not too speedy either.
-
-So, I'm really sorry to see these patches dropped instead pushing 
-towards mainline.
-
-Lenar
+thanks
 

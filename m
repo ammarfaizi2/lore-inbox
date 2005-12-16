@@ -1,84 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbVLPHH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbVLPHiM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbVLPHH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 02:07:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbVLPHH0
+	id S932164AbVLPHiM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 02:38:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932166AbVLPHiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 02:07:26 -0500
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:27552 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932142AbVLPHH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 02:07:26 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+	Fri, 16 Dec 2005 02:38:12 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:44808 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932164AbVLPHiL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 02:38:11 -0500
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Airlie <airlied@linux.ie>
 Subject: Re: Linux in a binary world... a doomsday scenario
-To: Al Boldi <a1426z@gawab.com>, Helge Hafting <helge.hafting@aitel.hist.no>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Fri, 16 Dec 2005 07:57:21 +0100
-References: <5jMcG-5mY-19@gated-at.bofh.it> <5jWON-3xQ-29@gated-at.bofh.it> <5jZk7-7iD-19@gated-at.bofh.it> <5k6bw-AI-19@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+References: <1133779953.9356.9.camel@laptopd505.fenrus.org>
+	<1133807641.9356.50.camel@laptopd505.fenrus.org>
+	<4395BBDB.307@ti-wmc.nl> <200512061850.20169.luke-jr@utopios.org>
+	<4397EB7A.7030404@aitel.hist.no> <87hd9jvgvz.fsf@amaterasu.srvr.nix>
+	<439D66AF.3010801@aitel.hist.no> <87u0dew12h.fsf@amaterasu.srvr.nix>
+	<439E81F7.3040803@aitel.hist.no> <87r78gsko7.fsf@amaterasu.srvr.nix>
+	<439FD482.3080806@aitel.hist.no>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: the answer to the world surplus of CPU cycles.
+Date: Fri, 16 Dec 2005 07:38:02 +0000
+In-Reply-To: <439FD482.3080806@aitel.hist.no> (Helge Hafting's message of
+ "Wed, 14 Dec 2005 09:14:58 +0100")
+Message-ID: <87r78dh4px.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1En9Ws-00057W-3q@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi <a1426z@gawab.com> wrote:
->> Disadvantages of a stable API:
+[My Radeon 9250-AGP is fine, Helge's 9250-PCI is dog slow]
 
->> * It encourages binary-only drivers, while we prefer source drivers.
->>    Changing the API often and without warning is one way of
->>    hampering binary-only driver development without harming
->>    open-source drivers.
+On Wed, 14 Dec 2005, Helge Hafting wrote:
+> Nix wrote:
 > 
-> You are really shooting yourself in the foot here.
+>>OK, I see 25-40fps with that, with DRI. If I turn on stencil buffering
+>>it gets unbearable, but that's just asking too much of the card I think
+>>
+> At what resolution?  25fps is nice enough - as good as movies.
+> I no longer remember exactly, but I had to use 640x480 to get
+> anything close to playable - lucky to get 10 or so fps.
 
-If binary drivers were a nice idea, it would be so, but unfortunately they
-aren't. E.g.:
+1280x1024.
 
-Nvidia stuffes a userspace library into the kernel. BAD.
+I think we can fairly say that there's a system config difference here
+of some kind. :)
 
-Ati can't work correctly if there are other graphic cards in the system,
-because they include functions from a different layer in their driver,
-which off cause can't interface correctly. The WXP divers are affected,
-too. Doubleplusungood.
+> I have been in touch with DRI developers before - this card isn't
+> supposed to be "great",  but it _is_ supposed to beat the
+> matrox G550 which it isn't even close to.  The matrox has its
+> own problems - it sometimes looses the font in this game, and
+> the fps reporting is wrong.  But the game is smooth at 1280x1024 . . .
 
-Both of these drivers are about 7 times larger than the whole kernel image.
-Other binary drivers are similar. That's a waste of resources.
+... as with my 9250.
 
-DOS didn't have an API for non-FAT filesystems. In order to support ISO9660,
-the network support was abused instead of changing the internals. Obviously
-this defeated reasonable caching, and the drivers needed to add their own
-cache implementation, which had to be maintained seperately. Double work,
-and a waste of resources.
+>>Ah, this is a pure-PCI 9250, is it? (I wasn't aware you could get hold
+>>of those anymore... I think X supports them, but textured stuff is
+>>necessarily going to be slower.)
+>>
+> Yes - it is a pure pci thing, because the AGP slot is taken by the matrox.
+> As for textured stuff being slower, I was under the impression that tuxracer
+> use something like a total of 3 different textures, that surely should fit
+> in the 64MB of onboard memory?  Now ppracer have more textures, but
+> old tuxracer levels don't actually use them.
 
-(The DOS internals usurally can't be changed because they are stable. The
-stable API was too cumbersome for the programmer's needs, so they started
-using the internal structures directly. Therefore there was no way to
-increase the max. path length beyond 64 bytes.)
+True enough.
 
->> Do a stable API save us work?  No, because whoever changes the API
->> also fixes all in-kernel users of said API.
-> 
-> That's very inefficient.
 
-More inefficient than adding a compatibility layer?
+I'll admit I'm not sure why you're seeing such a speed difference if
+hardware rendering is on; an order of magnitude seems a bit much just
+for PCI versus AGP. Perhaps Dave knows?
 
-If each change has to add another compatibility layer, the calls will have
-to traverse several functions without doing anything usefull. Multiply this
-with the number of users, and you'll see that one millisecond of CPU time
-will accumulate to a quarter of an hour for each million users. Multiply
-this with thousands of calls each user will do within each hour, and you'll
-see that within each hour, you'd waste more than eleven days of CPU time.
-Within one day and a half, you have wasted a whole year. Within that time,
-you can easily change the API several times. That is, unless you hold
-meetings about how it should look like.
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+`I must caution that dipping fingers into molten lead
+ presents several serious dangers.' --- Jearl Walker

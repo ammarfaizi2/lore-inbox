@@ -1,81 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbVLPD14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbVLPD3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbVLPD14 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 22:27:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbVLPD14
+	id S932088AbVLPD3N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 22:29:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbVLPD3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 22:27:56 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:34751 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932086AbVLPD1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 22:27:55 -0500
-Subject: Re: severe jitter experienced with "select()" in linux 2.6.14-rt22
-From: Lee Revell <rlrevell@joe-job.com>
-To: Gautam Thaker <gthaker@comcast.net>
-Cc: linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <43A21324.2050905@comcast.net>
-References: <43A21324.2050905@comcast.net>
-Content-Type: text/plain
-Date: Thu, 15 Dec 2005 22:30:44 -0500
-Message-Id: <1134703845.12086.237.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Dec 2005 22:29:13 -0500
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:17842 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932088AbVLPD3M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 22:29:12 -0500
+To: Matt Helsley <matthltc@us.ibm.com>
+cc: Hubertus Franke <frankeh@watson.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>, lse-tech@lists.sourceforge.net,
+       vserver@list.linux-vserver.org, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@redhat.com>, pagg@oss.sgi.com
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [ckrm-tech] Re: [RFC][patch 00/21] PID Virtualization: Overview and Patches 
+In-reply-to: Your message of Thu, 15 Dec 2005 18:20:52 PST.
+             <1134699652.10396.161.camel@stark> 
+Date: Thu, 15 Dec 2005 19:28:48 -0800
+Message-Id: <E1En6H2-0005ok-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-15 at 20:06 -0500, Gautam Thaker wrote:
+
+On Thu, 15 Dec 2005 18:20:52 PST, Matt Helsley wrote:
+> On Thu, 2005-12-15 at 11:49 -0800, Gerrit Huizenga wrote:
+> > On Thu, 15 Dec 2005 09:35:57 EST, Hubertus Franke wrote:
+> > > PID Virtualization is based on the concept of a container.
+> > > The ultimate goal is to checkpoint/restart containers. 
+> > > 
+> > > The mechanism to start a container 
+> > > is to 'echo "container_name" > /proc/container'  which creates a new
+> > > container and associates the calling process with it. All subsequently
+> > > forked tasks then belong to that container.
+> > > There is a separate pid space associated with each container.
+> > > Only processes/task belonging to the same container "see" each other.
+> > > The exception is an implied default system container that has 
+> > > a global view.
 > 
-> /proc/latency trace is full of lines such as these:
+> <snip>
 > 
->    <...>-3     0.... 20317us : __down_mutex (rt_run_flush)
->    <...>-3     0.... 20317us : __up_mutex_savestate (rt_run_flush)
->    <...>-3     0.... 20317us : __down_mutex (rt_run_flush)
->    <...>-3     0.... 20317us : __up_mutex_savestate (rt_run_flush)
->    <...>-3     0.... 20317us : __down_mutex (rt_run_flush)
->    <...>-3     0.... 20317us : __up_mutex_savestate (rt_run_flush)
->    <...>-3     0.... 20318us : __down_mutex (rt_run_flush)
->    <...>-3     0.... 20318us : __up_mutex_savestate (rt_run_flush)
->    <...>-3     0.... 20318us : __down_mutex (rt_run_flush)
->    <...>-3     0.... 20318us : __up_mutex_savestate (rt_run_flush)
->    <...>-3     0.... 20318us : __down_mutex (rt_run_flush)
->    <...>-3     0.... 20318us : __up_mutex_savestate (rt_run_flush)
->    <...>-3     0.... 20319us : __down_mutex (rt_run_flush)
+> > I think perhaps this could also be the basis for a CKRM "class"
+> > grouping as well.  Rather than maintaining an independent class
+> > affiliation for tasks, why not have a class devolve (evolve?) into
+> > a "container" as described here.  The container provides much of
+> > the same grouping capabilities as a class as far as I can see.  The
+> > right information would be availble for scheduling and IO resource
+> > management.  The memory component of CKRM is perhaps a bit tricky
+> > still, but an overall strategy (can I use that word here? ;-) might
+> > be to use these "containers" as the single intrinsic grouping mechanism
+> > for vserver, openvz, application checkpoint/restart, resource
+> > management, and possibly others?
+> > 
+> > Opinions, especially from the CKRM folks?  This might even be useful
+> > to the PAGG folks as a grouping mechanism, similar to their jobs or
+> > containers.
+> > 
+> > "This patchset solves multiple problems".
+> > 
+> > gerrit
 > 
-> and
-> 
-> "dmesg" says somethign like this:
-> 
-> (        ubersock-4032 |#0): new 131 us user-latency.
-> (        ubersock-4032 |#0): new 131 us user-latency.
-> (        ubersock-4032 |#0): new 133 us user-latency.
-> (        ubersock-4032 |#0): new 221 us user-latency.
-> (        ubersock-4032 |#0): new 223 us user-latency.
-> (        ubersock-4032 |#0): new 20629 us user-latency.
-> root@blade8>
-> 
-> When tracing I exit my test when a large latency is observed (in the
-> case above a 20,629 usec value was observed by the "select()" test. 
-> 
+> CKRM classes seem too different from containers to merge the two
+> concepts:
 
-AI've seen this in my tests too, I think it's still a problem that
-rt_run_flush can cause a 20ms+ non preemptible section.
+I agree that the implementation of pid virtualization and classes have
+different characteristics.  However, you bring up interesting points
+about the differences...  But I question whether or not they are
+relevent to an implementation of resource management.  I'm going out
+on a limb here looking at a possibly radical change which might
+simplify things so there is only one grouping mechanism in kernel.
+I could be wrong but...
+ 
+> - Classes don't assign class-unique pids to tasks.
 
-Ingo mentioned that he may push softirq preemption upstream which would
-fix this.  You can also try tweaking these sysctls:
+What part of this is important to resource management?  A container
+ID is like a class ID.  Yes, I think container ID's are assigned to
+processes rather than tasks, but is that really all that important?
 
-net.ipv4.route.gc_elasticity = 8
-net.ipv4.route.gc_interval = 60
-net.ipv4.route.gc_timeout = 300
-net.ipv4.route.gc_min_interval_ms = 500
-net.ipv4.route.gc_min_interval = 0
-net.ipv4.route.gc_thresh = 4096
+> - Tasks can move between classes.
+ 
+In the pid virtualization, I would think that tasks can move between
+containers as well, although it isn't all that useful for most things.
+For instance, checkpoint/restart needs to checkpoint a process and all
+of its threads if it wants to restart it.  So there may be restrictions
+on what you can checkpoint/restart.  Vserver probably wants isolation
+at a process boundary, rather than a task boundary.  Most resource
+management, e.g. Java, probably doesn't care about task vs. process.
 
-which AFAICT should let you tune the route cache garbage collection to
-run more often and hopefully process fewer routes per run.
+> - Tasks move between classes without any need for checkpoint/restart.
+ 
+That *should* be possible with a generalized container solution.
+For instance, just like with classes, you have to move things into
+containers in the first place.  And, you could in theory have a classification
+engine that helped choose which container to put a task/process in
+at creation/instantiation/significant event...
 
-Lee
+> - Classes show up in a filesystem interface rather that using a file
+> in /proc to create them. (trivial interface difference)
+ 
+Yep - there will probably be a /proc or /configfs interface to containers
+at some point, I would expect.  No significant difference there.
 
+> - There are no "visibility boundaries" to enforce between tasks in
+> different classes.
+ 
+Are there in virtualized pids?  There *can* be - e.g. ps can distinguish,
+but it is possible for tasks to interact across container boundaries.
+Not ideal for vserver, checkpoint/restart, for instance (makes c/r a
+little harder or more limited - signals heading outside the container
+may "disappear" when you checkpoint/restart but for apps that c/r, that
+probably isn't all that likely).
 
+> - Classes are hierarchial.
+ 
+Conceptually they are.  But are they in the CKRM f series?  I thought
+that was one area for simplification.  And, how important is that *really*
+for most applications?
 
+> - Unless I am mistaken, a container groups processes (Can one thread run
+> in container A and another in container B?) while a class groups tasks.
+> Since a task represents a thread or a process one thread could be in
+> class A and another in class B.
+
+Definitely useful, and one question is whether pid virtualization is
+container isolation, or simply virtualization to enable container
+isolation.  If it is an enabling technology, perhaps it doesn't have
+that restriction and could be used either way based on resource management
+needs or based on vserver or c/r needs...
+
+Debate away... ;-)
+
+gerrit

@@ -1,194 +1,267 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbVLPAbf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbVLPAbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbVLPAbf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 19:31:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbVLPAa4
+	id S1751205AbVLPAbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 19:31:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVLPAa6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 19:30:56 -0500
-Received: from s0003.shadowconnect.net ([213.239.201.226]:5060 "EHLO
+	Thu, 15 Dec 2005 19:30:58 -0500
+Received: from s0003.shadowconnect.net ([213.239.201.226]:4036 "EHLO
 	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S1751205AbVLPAap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 19:30:45 -0500
-Message-ID: <43A20AB1.6060408@shadowconnect.com>
-Date: Fri, 16 Dec 2005 01:30:41 +0100
+	id S1751219AbVLPAak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 19:30:40 -0500
+Message-ID: <43A20AAB.5060303@shadowconnect.com>
+Date: Fri, 16 Dec 2005 01:30:35 +0100
 From: Markus Lidel <Markus.Lidel@shadowconnect.com>
 User-Agent: Thunderbird 1.5 (Windows/20051025)
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>
 CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 7/7] I2O: Lindent run
+Subject: [PATCH 6/7] I2O: Optimizing
 Content-Type: multipart/mixed;
- boundary="------------040600000804030905020603"
+ boundary="------------070905090704080200060108"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------040600000804030905020603
+--------------070905090704080200060108
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Changes:
 --------
-- Lindent run
+- make i2o_iop_free() static inline (from Adrian Bunk)
+- changed kmalloc() + memset(0) into kzalloc()
 
 Signed-off-by: Markus Lidel <Markus.Lidel@shadowconnect.com>
 
---------------040600000804030905020603
+--------------070905090704080200060108
 Content-Type: text/x-patch;
- name="i2o-lindent-run.patch"
+ name="i2o-optimizing.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="i2o-lindent-run.patch"
+ filename="i2o-optimizing.patch"
 
+Index: linux-2.6/drivers/message/i2o/core.h
+===================================================================
+--- linux-2.6.orig/drivers/message/i2o/core.h
++++ linux-2.6/drivers/message/i2o/core.h
+@@ -40,7 +40,16 @@ extern int i2o_device_parse_lct(struct i
+ 
+ /* IOP */
+ extern struct i2o_controller *i2o_iop_alloc(void);
+-extern void i2o_iop_free(struct i2o_controller *);
++
++/**
++ *	i2o_iop_free - Free the i2o_controller struct
++ *	@c: I2O controller to free
++ */
++static inline void i2o_iop_free(struct i2o_controller *c)
++{
++	i2o_pool_free(&c->in_msg);
++	kfree(c);
++}
+ 
+ extern int i2o_iop_add(struct i2o_controller *);
+ extern void i2o_iop_remove(struct i2o_controller *);
+Index: linux-2.6/drivers/message/i2o/iop.c
+===================================================================
+--- linux-2.6.orig/drivers/message/i2o/iop.c
++++ linux-2.6/drivers/message/i2o/iop.c
+@@ -32,7 +32,7 @@
+ #include "core.h"
+ 
+ #define OSM_NAME	"i2o"
+-#define OSM_VERSION	"1.316"
++#define OSM_VERSION	"1.325"
+ #define OSM_DESCRIPTION	"I2O subsystem"
+ 
+ /* global I2O controller list */
+@@ -838,12 +838,11 @@ static int i2o_systab_build(void)
+ 	i2o_systab.len = sizeof(struct i2o_sys_tbl) + num_controllers *
+ 	    sizeof(struct i2o_sys_tbl_entry);
+ 
+-	systab = i2o_systab.virt = kmalloc(i2o_systab.len, GFP_KERNEL);
++	systab = i2o_systab.virt = kzalloc(i2o_systab.len, GFP_KERNEL);
+ 	if (!systab) {
+ 		osm_err("unable to allocate memory for System Table\n");
+ 		return -ENOMEM;
+ 	}
+-	memset(systab, 0, i2o_systab.len);
+ 
+ 	systab->version = I2OVERSION;
+ 	systab->change_ind = change_ind + 1;
+@@ -1020,16 +1019,6 @@ static int i2o_hrt_get(struct i2o_contro
+ }
+ 
+ /**
+- *	i2o_iop_free - Free the i2o_controller struct
+- *	@c: I2O controller to free
+- */
+-void i2o_iop_free(struct i2o_controller *c)
+-{
+-	i2o_pool_free(&c->in_msg);
+-	kfree(c);
+-};
+-
+-/**
+  *	i2o_iop_release - release the memory for a I2O controller
+  *	@dev: I2O controller which should be released
+  *
+@@ -1058,13 +1047,12 @@ struct i2o_controller *i2o_iop_alloc(voi
+ 	struct i2o_controller *c;
+ 	char poolname[32];
+ 
+-	c = kmalloc(sizeof(*c), GFP_KERNEL);
++	c = kzalloc(sizeof(*c), GFP_KERNEL);
+ 	if (!c) {
+ 		osm_err("i2o: Insufficient memory to allocate a I2O controller."
+ 			"\n");
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+-	memset(c, 0, sizeof(*c));
+ 
+ 	c->unit = unit++;
+ 	sprintf(c->name, "iop%d", c->unit);
+Index: linux-2.6/drivers/message/i2o/config-osm.c
+===================================================================
+--- linux-2.6.orig/drivers/message/i2o/config-osm.c
++++ linux-2.6/drivers/message/i2o/config-osm.c
+@@ -22,7 +22,7 @@
+ #include <asm/uaccess.h>
+ 
+ #define OSM_NAME	"config-osm"
+-#define OSM_VERSION	"1.317"
++#define OSM_VERSION	"1.323"
+ #define OSM_DESCRIPTION	"I2O Configuration OSM"
+ 
+ /* access mode user rw */
 Index: linux-2.6/drivers/message/i2o/device.c
 ===================================================================
 --- linux-2.6.orig/drivers/message/i2o/device.c
 +++ linux-2.6/drivers/message/i2o/device.c
-@@ -43,7 +43,7 @@ static inline int i2o_device_issue_claim
+@@ -195,12 +195,10 @@ static struct i2o_device *i2o_device_all
+ {
+ 	struct i2o_device *dev;
  
- 	msg->u.head[0] = cpu_to_le32(FIVE_WORD_MSG_SIZE | SGL_OFFSET_0);
- 	msg->u.head[1] =
--		cpu_to_le32(cmd << 24 | HOST_TID << 12 | dev->lct_data.tid);
-+	    cpu_to_le32(cmd << 24 | HOST_TID << 12 | dev->lct_data.tid);
- 	msg->body[0] = cpu_to_le32(type);
+-	dev = kmalloc(sizeof(*dev), GFP_KERNEL);
++	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+ 	if (!dev)
+ 		return ERR_PTR(-ENOMEM);
  
- 	return i2o_msg_post_wait(dev->iop, msg, 60);
-@@ -123,7 +123,6 @@ int i2o_device_claim_release(struct i2o_
- 	return rc;
- }
- 
+-	memset(dev, 0, sizeof(*dev));
 -
- /**
-  *	i2o_device_release - release the memory for a I2O device
-  *	@dev: I2O device which should be released
-@@ -140,7 +139,6 @@ static void i2o_device_release(struct de
- 	kfree(i2o_dev);
- }
+ 	INIT_LIST_HEAD(&dev->list);
+ 	init_MUTEX(&dev->lock);
  
+Index: linux-2.6/drivers/message/i2o/driver.c
+===================================================================
+--- linux-2.6.orig/drivers/message/i2o/driver.c
++++ linux-2.6/drivers/message/i2o/driver.c
+@@ -217,10 +217,9 @@ int i2o_driver_dispatch(struct i2o_contr
+ 		/* cut of header from message size (in 32-bit words) */
+ 		size = (le32_to_cpu(msg->u.head[0]) >> 16) - 5;
+ 
+-		evt = kmalloc(size * 4 + sizeof(*evt), GFP_ATOMIC);
++		evt = kzalloc(size * 4 + sizeof(*evt), GFP_ATOMIC);
+ 		if (!evt)
+ 			return -ENOMEM;
+-		memset(evt, 0, size * 4 + sizeof(*evt));
+ 
+ 		evt->size = size;
+ 		evt->tcntxt = le32_to_cpu(msg->u.s.tcntxt);
+@@ -348,12 +347,10 @@ int __init i2o_driver_init(void)
+ 	osm_info("max drivers = %d\n", i2o_max_drivers);
+ 
+ 	i2o_drivers =
+-	    kmalloc(i2o_max_drivers * sizeof(*i2o_drivers), GFP_KERNEL);
++	    kzalloc(i2o_max_drivers * sizeof(*i2o_drivers), GFP_KERNEL);
+ 	if (!i2o_drivers)
+ 		return -ENOMEM;
+ 
+-	memset(i2o_drivers, 0, i2o_max_drivers * sizeof(*i2o_drivers));
 -
- /**
-  *	i2o_device_show_class_id - Displays class id of I2O device
-  *	@dev: device of which the class id should be displayed
-@@ -250,10 +248,10 @@ static struct i2o_device *i2o_device_add
+ 	rc = bus_register(&i2o_bus_type);
  
- 	/* create user entries refering to this device */
- 	list_for_each_entry(tmp, &c->devices, list)
--		if ((tmp->lct_data.user_tid == i2o_dev->lct_data.tid)
--		    && (tmp != i2o_dev))
--		    sysfs_create_link(&tmp->device.kobj,
--				      &i2o_dev->device.kobj, "user");
-+	    if ((tmp->lct_data.user_tid == i2o_dev->lct_data.tid)
-+		&& (tmp != i2o_dev))
-+		sysfs_create_link(&tmp->device.kobj,
-+				  &i2o_dev->device.kobj, "user");
- 
- 	/* create parent entries for this device */
- 	tmp = i2o_iop_find_device(i2o_dev->iop, i2o_dev->lct_data.parent_tid);
-@@ -263,10 +261,10 @@ static struct i2o_device *i2o_device_add
- 
- 	/* create parent entries refering to this device */
- 	list_for_each_entry(tmp, &c->devices, list)
--		if ((tmp->lct_data.parent_tid == i2o_dev->lct_data.tid)
--		    && (tmp != i2o_dev))
--			sysfs_create_link(&tmp->device.kobj,
--					  &i2o_dev->device.kobj, "parent");
-+	    if ((tmp->lct_data.parent_tid == i2o_dev->lct_data.tid)
-+		&& (tmp != i2o_dev))
-+		sysfs_create_link(&tmp->device.kobj,
-+				  &i2o_dev->device.kobj, "parent");
- 
- 	i2o_driver_notify_device_add_all(i2o_dev);
- 
-@@ -410,7 +408,6 @@ int i2o_device_parse_lct(struct i2o_cont
- 	return 0;
- }
- 
--
- /*
-  *	Run time support routines
-  */
+ 	if (rc < 0)
 Index: linux-2.6/drivers/message/i2o/exec-osm.c
 ===================================================================
 --- linux-2.6.orig/drivers/message/i2o/exec-osm.c
 +++ linux-2.6/drivers/message/i2o/exec-osm.c
-@@ -33,7 +33,7 @@
- #include <linux/workqueue.h>
- #include <linux/string.h>
- #include <linux/slab.h>
--#include <linux/sched.h>   /* wait_event_interruptible_timeout() needs this */
-+#include <linux/sched.h>	/* wait_event_interruptible_timeout() needs this */
- #include <asm/param.h>		/* HZ */
- #include "core.h"
+@@ -75,12 +75,10 @@ static struct i2o_exec_wait *i2o_exec_wa
+ {
+ 	struct i2o_exec_wait *wait;
  
-Index: linux-2.6/drivers/message/i2o/i2o_lan.h
+-	wait = kmalloc(sizeof(*wait), GFP_KERNEL);
++	wait = kzalloc(sizeof(*wait), GFP_KERNEL);
+ 	if (!wait)
+ 		return NULL;
+ 
+-	memset(wait, 0, sizeof(*wait));
+-
+ 	INIT_LIST_HEAD(&wait->list);
+ 
+ 	return wait;
+Index: linux-2.6/drivers/message/i2o/i2o_block.c
 ===================================================================
---- linux-2.6.orig/drivers/message/i2o/i2o_lan.h
-+++ linux-2.6/drivers/message/i2o/i2o_lan.h
-@@ -103,14 +103,14 @@
- #define I2O_LAN_DSC_SUSPENDED			0x11
+--- linux-2.6.orig/drivers/message/i2o/i2o_block.c
++++ linux-2.6/drivers/message/i2o/i2o_block.c
+@@ -64,7 +64,7 @@
+ #include "i2o_block.h"
  
- struct i2o_packet_info {
--	u32 offset : 24;
--	u32 flags  : 8;
--	u32 len    : 24;
--	u32 status : 8;
-+	u32 offset:24;
-+	u32 flags:8;
-+	u32 len:24;
-+	u32 status:8;
- };
+ #define OSM_NAME	"block-osm"
+-#define OSM_VERSION	"1.316"
++#define OSM_VERSION	"1.325"
+ #define OSM_DESCRIPTION	"I2O Block Device OSM"
  
- struct i2o_bucket_descriptor {
--	u32 context; 			/* FIXME: 64bit support */
-+	u32 context;		/* FIXME: 64bit support */
- 	struct i2o_packet_info packet_info[1];
- };
+ static struct i2o_driver i2o_block_driver;
+@@ -981,13 +981,12 @@ static struct i2o_block_device *i2o_bloc
+ 	struct request_queue *queue;
+ 	int rc;
  
-@@ -127,14 +127,14 @@ struct i2o_lan_local {
- 	u8 unit;
- 	struct i2o_device *i2o_dev;
+-	dev = kmalloc(sizeof(*dev), GFP_KERNEL);
++	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+ 	if (!dev) {
+ 		osm_err("Insufficient memory to allocate I2O Block disk.\n");
+ 		rc = -ENOMEM;
+ 		goto exit;
+ 	}
+-	memset(dev, 0, sizeof(*dev));
  
--	struct fddi_statistics stats;   /* see also struct net_device_stats */
--	unsigned short (*type_trans)(struct sk_buff *, struct net_device *);
--	atomic_t buckets_out;  		/* nbr of unused buckets on DDM */
--	atomic_t tx_out;		/* outstanding TXes */
--	u8 tx_count;  			/* packets in one TX message frame */
--	u16 tx_max_out;	   		/* DDM's Tx queue len */
--	u8 sgl_max;			/* max SGLs in one message frame */
--	u32 m;				/* IOP address of the batch msg frame */
-+	struct fddi_statistics stats;	/* see also struct net_device_stats */
-+	unsigned short (*type_trans) (struct sk_buff *, struct net_device *);
-+	atomic_t buckets_out;	/* nbr of unused buckets on DDM */
-+	atomic_t tx_out;	/* outstanding TXes */
-+	u8 tx_count;		/* packets in one TX message frame */
-+	u16 tx_max_out;		/* DDM's Tx queue len */
-+	u8 sgl_max;		/* max SGLs in one message frame */
-+	u32 m;			/* IOP address of the batch msg frame */
+ 	INIT_LIST_HEAD(&dev->open_queue);
+ 	spin_lock_init(&dev->lock);
+Index: linux-2.6/drivers/message/i2o/i2o_config.c
+===================================================================
+--- linux-2.6.orig/drivers/message/i2o/i2o_config.c
++++ linux-2.6/drivers/message/i2o/i2o_config.c
+@@ -583,13 +583,12 @@ static int i2o_cfg_passthru32(struct fil
+ 	reply_size >>= 16;
+ 	reply_size <<= 2;
  
- 	struct work_struct i2o_batch_send_task;
- 	int send_active;
-@@ -144,16 +144,16 @@ struct i2o_lan_local {
+-	reply = kmalloc(reply_size, GFP_KERNEL);
++	reply = kzalloc(reply_size, GFP_KERNEL);
+ 	if (!reply) {
+ 		printk(KERN_WARNING "%s: Could not allocate reply buffer\n",
+ 		       c->name);
+ 		return -ENOMEM;
+ 	}
+-	memset(reply, 0, reply_size);
  
- 	spinlock_t tx_lock;
+ 	sg_offset = (msg->u.head[0] >> 4) & 0x0f;
  
--	u32 max_size_mc_table;		/* max number of multicast addresses */
-+	u32 max_size_mc_table;	/* max number of multicast addresses */
+@@ -817,13 +816,12 @@ static int i2o_cfg_passthru(unsigned lon
+ 	reply_size >>= 16;
+ 	reply_size <<= 2;
  
- 	/* LAN OSM configurable parameters are here: */
+-	reply = kmalloc(reply_size, GFP_KERNEL);
++	reply = kzalloc(reply_size, GFP_KERNEL);
+ 	if (!reply) {
+ 		printk(KERN_WARNING "%s: Could not allocate reply buffer\n",
+ 		       c->name);
+ 		return -ENOMEM;
+ 	}
+-	memset(reply, 0, reply_size);
  
--	u16 max_buckets_out;		/* max nbr of buckets to send to DDM */
--	u16 bucket_thresh;		/* send more when this many used */
-+	u16 max_buckets_out;	/* max nbr of buckets to send to DDM */
-+	u16 bucket_thresh;	/* send more when this many used */
- 	u16 rx_copybreak;
+ 	sg_offset = (msg->u.head[0] >> 4) & 0x0f;
  
--	u8  tx_batch_mode;		/* Set when using batch mode sends */
--	u32 i2o_event_mask;		/* To turn on interesting event flags */
-+	u8 tx_batch_mode;	/* Set when using batch mode sends */
-+	u32 i2o_event_mask;	/* To turn on interesting event flags */
- };
- 
--#endif /* _I2O_LAN_H */
-+#endif				/* _I2O_LAN_H */
 
---------------040600000804030905020603--
+--------------070905090704080200060108--

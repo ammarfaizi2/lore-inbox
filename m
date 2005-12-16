@@ -1,73 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVLPO0l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932288AbVLPO1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbVLPO0l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 09:26:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbVLPO0l
+	id S932288AbVLPO1M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 09:27:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbVLPO1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 09:26:41 -0500
-Received: from xproxy.gmail.com ([66.249.82.199]:28042 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932279AbVLPO0l convert rfc822-to-8bit
+	Fri, 16 Dec 2005 09:27:12 -0500
+Received: from mxout01.versatel.de ([212.7.152.117]:5290 "EHLO
+	mxout01.versatel.de") by vger.kernel.org with ESMTP id S932288AbVLPO1K
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 09:26:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=YLFI9QqA16Zgiz1PisSw3qHRz+9vS3A9Oo5GQjuiIM/N45gYyCQ3dhIRAoxDeeVWauQoJFNlns7BOl0C39/8xGMFsirNTAWTTozyznbIboilgfXl+ilyKG4qJZ39PKOBYuMdp3mumsEEfl1qNUV/IfCctoStnhzTkhZltrT06RM=
-Message-ID: <b681c62b0512160626u11d45368mae9f0df98dc54425@mail.gmail.com>
-Date: Fri, 16 Dec 2005 19:56:40 +0530
-From: yogeshwar sonawane <yogyas@gmail.com>
-To: Qi Yong <qiyong@fc-cn.com>
-Subject: driver loading during boot
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 16 Dec 2005 09:27:10 -0500
+Date: Fri, 16 Dec 2005 15:26:47 +0100
+From: Christian Trefzer <ctrefzer@gmx.de>
+To: Stefan Seyfried <seife@suse.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC/RFT] swsusp: image size tunable (was: Re: [PATCH][mm] swsusp: limit image size)
+Message-ID: <20051216142543.GA20069@zeus.uziel.local>
+References: <200512072246.06222.rjw@sisk.pl> <20051210160641.GB5047@elf.ucw.cz> <200512102106.41952.rjw@sisk.pl> <200512102356.27271.rjw@sisk.pl> <20051216020903.GB26568@hexapodia.org> <20051216101623.GA7878@suse.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RASg3xLB4tUQ4RcS"
 Content-Disposition: inline
+In-Reply-To: <20051216101623.GA7878@suse.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/16/05, Qi Yong <qiyong@fc-cn.com> wrote:
-> yogeshwar sonawane wrote:
->
-> > Hello,
-> >
-> > Long time back u helped me about udev. i tried to write a rule to
-> > create one device file. its working fine. thanks for that.
->
->
-> Bother to CC lkml? Keep both lkml and me in the recipients please.
 
-ok .
->
-> >
-> > Then i am not able to autoload my driver after reboots?
-> > actually this device file will get created only when that module is
-> > loaded. And i want both loading as well as device file creation to
-> > happen on boot? After googling i got that we can write modprobe for
-> > particular driver in /etc/rc.d/rc.local. But this is the correct way?
-> > or there is some other way?
-> >
-> > Actually where is the information for loading of drivers during boot
-> > is stored?
-> >
-> > Kindly help me.
-> >
-> > Yogeshwar
-> >
-> > On 10/28/05, *Coywolf Qi Hunt* <qiyong@fc-cn.com
-> > <mailto:qiyong@fc-cn.com>> wrote:
-> >
-> >     On Fri, Oct 28, 2005 at 12:29:33PM +0530, yogeshwar sonawane wrote:
-> >     > hello,
-> >     >
-> >     > I am trying a pseudo character driver. But after reboot, my device
-> >     > file from /dev directory is getting deleted. This is for 2.6 kernel.
-> >     > Is there a way to create a file permanently which will be not
-> >     deleted
-> >     > after reboot? Earlier in 2.4, this was not the case.
-> >
-> >     udev?
-> >
-> >
->
->
+--RASg3xLB4tUQ4RcS
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Dec 16, 2005 at 11:16:23AM +0100, Stefan Seyfried wrote:
+> This is almost trivially solvable from userspace (not tested, beware :-):
+> - check the return code of your write() to /sys/power/state
+> - if it is ENOMEM (better look into the kernel code if this is what is
+>   actually reported...), then write "0" to image_size and try again.
+>=20
+> or (not as sophisticated, and i am not sure if the paths are all correct):
+> ----
+> #!/bin/sh
+> echo 150  > /sys/power/image_size
+> echo disk > /sys/power/state
+> if [ $? -ne 0 ]; then
+>     echo 0 > /sys/power/image_size
+>     echo disk > /sys/power/state
+> fi
+> ----
+> this will retry on any error (e.g. process not stopped, no swap space
+> at all, device refused to suspend...) not only on ENOMEM, but echo
+> unfortunately does not return the error code, only success or failure.
+> Easy solution would be a small perl or C program.
+>=20
+> I am not convinced that this should be handled in the kernel.
+
+I do not see a horrific logical problem here, given that the maximum
+desired image size is the minimum of max_image_size and free swap space
+available. The main question is the one of implementation, though.
+
+Yours,
+Chris
+
+
+--RASg3xLB4tUQ4RcS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iQIVAwUBQ6LOp12m8MprmeOlAQKHVBAAstBrxobbzn/L0BaNTKIr/uKcn0Wq9QOG
+sRE/q4iGlYYV5NtUFrUSOxH3ZRt/ThMXMU0K9YDsYAcOHDiGTGJAEiWeP504qazy
+Px2p41Vjd3/iBVbiq7bOfQTnAFwOwIZrnYi9JgfjojvA3Xj8qQEpmEjuZ3N2dsL4
+9WeOfiRCqILTLXxQxhehFxj+3nfUbN4mebGyWLzv2Ypr4NbPUS4CqKzgFactrLDM
+b+Jc7KXcGIxABQAO+Vw8ynqa8TI6v/Bb3t/xhae3HFbBdn1dWhM3cxHd6+Aq0Me7
+tU9SiNcLGxy6KqVOvMcwDZ1ZFxsFTtYzrv6yGDf5S/nuww1SbAwOLeDEPDFr/Rnb
+ZRHukqLJk1BcnUuMOEClpkkueTndfl12oMTT9S/vuN96TvBevIFMHb2dDgIUVBP1
+ijpzcOkTYAwVAtRclzGelNgDfmp0FjIwO7e3rwbzMl+zrOUs68kRLqrMRDPeTWgi
+Y2h5M5djxp8pcnXYPYE0A2bdvxLGEmSNhSToWmV6xtX0Z/1c0C0+4yNjk3t1ofbd
+RZGX80PivbWj7CLCbAgs7WdAAGXcvBVZyTD2YBGW1g6e7VstNQtAQRuNruqdQwBN
+8UVgYTvsqTOWNrJ3tlwLhPF9AFDBwfLBvwYtrjHUOnCHfhvypL5lgRHqlVude1iu
+e4yEmOLeU18=
+=xAAW
+-----END PGP SIGNATURE-----
+
+--RASg3xLB4tUQ4RcS--
+

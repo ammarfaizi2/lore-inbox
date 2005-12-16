@@ -1,136 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbVLPCIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVLPCKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbVLPCIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 21:08:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbVLPCII
+	id S932078AbVLPCKv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 21:10:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbVLPCKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 21:08:08 -0500
-Received: from zproxy.gmail.com ([64.233.162.200]:47646 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751284AbVLPCIH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 21:08:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=o22RZ5XShZON/ePhCboWylmHFHYUOfaUbqUWGC3aF+gQoLqXr8Rs9q5TAiyL2S3tVijd+sq9SjiaXqo2oc5uoNEyXelZqGlWCiM6gAsLmXFxmroq9+rvSZc1RGekHPzuGt7hcksJrK11HBy+QdWwHRVOoWes1wU5MVYqHpvdteE=
-Message-ID: <81083a450512142145u56075dfch16ae708f34d93e7c@mail.gmail.com>
-Date: Thu, 15 Dec 2005 11:15:40 +0530
-From: Ashutosh Naik <ashutosh.naik@gmail.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [RFC][PATCH] Prevent overriding of Symbols in the Kernel, avoiding Undefined behaviour
-Cc: Andrew Morton <akpm@osdl.org>, jesper.juhl@gmail.com,
-       anandhkrishnan@yahoo.co.in, linux-kernel@vger.kernel.org,
-       rth@redhat.com, greg@kroah.com, alan@lxorguk.ukuu.org.uk,
-       kaos@ocs.com.au
-In-Reply-To: <1134623704.7773.34.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_2205_3853625.1134625540723"
-References: <81083a450512120439h69ccf938m12301985458ea69f@mail.gmail.com>
-	 <1134424878.22036.13.camel@localhost.localdomain>
-	 <81083a450512130626x417d86c9w31f300555c99fdb2@mail.gmail.com>
-	 <9a8748490512130849o73c14313l166e6dd360f32d70@mail.gmail.com>
-	 <1134525816.30383.13.camel@localhost.localdomain>
-	 <81083a450512132010t2596046bsf7a36f85df19b89c@mail.gmail.com>
-	 <81083a450512132102g77f4a92kc894fcda9e9dc2a6@mail.gmail.com>
-	 <20051214204032.57c4c6ae.akpm@osdl.org>
-	 <1134623704.7773.34.camel@localhost.localdomain>
+	Thu, 15 Dec 2005 21:10:51 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.150]:14516 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932074AbVLPCKt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 21:10:49 -0500
+Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
+From: Sridhar Samudrala <sri@us.ibm.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: mpm@selenic.com, ak@suse.de, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+In-Reply-To: <20051215.002120.133621586.davem@davemloft.net>
+References: <20051215033937.GC11856@waste.org>
+	 <20051214.203023.129054759.davem@davemloft.net>
+	 <Pine.LNX.4.58.0512142318410.7197@w-sridhar.beaverton.ibm.com>
+	 <20051215.002120.133621586.davem@davemloft.net>
+Content-Type: text/plain
+Date: Thu, 15 Dec 2005 18:09:22 -0800
+Message-Id: <1134698963.10101.43.camel@w-sridhar2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_2205_3853625.1134625540723
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, 2005-12-15 at 00:21 -0800, David S. Miller wrote:
+> From: Sridhar Samudrala <sri@us.ibm.com>
+> Date: Wed, 14 Dec 2005 23:37:37 -0800 (PST)
+> 
+> > Instead, you seem to be suggesting in_emergency to be set dynamically
+> > when we are about to run out of ATOMIC memory. Is this right?
+> 
+> Not when we run out, but rather when we reach some low water mark, the
+> "critical sockets" would still use GFP_ATOMIC memory but only
+> "critical sockets" would be allowed to do so.
+> 
+> But even this has faults, consider the IPSEC scenerio I mentioned, and
+> this applies to any kind of encapsulation actually, even simple
+> tunneling examples can be concocted which make the "critical socket"
+> idea fail.
+> 
+> The knee jerk reaction is "mark IPSEC's sockets critical, and mark the
+> tunneling allocations critical, and... and..."  well you have
+> GFP_ATOMIC then my friend.
 
-On 12/15/05, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> On Wed, 2005-12-14 at 20:40 -0800, Andrew Morton wrote:
+I would like to mention another reason why we need to have a new 
+GFP_CRITICAL flag for an allocation request. When we are in emergency,
+even the GFP_KERNEL allocations for a critical socket should not 
+sleep. This is because the swap device may have failed and we would
+like to communicate this event to a management server over the 
+critical socket so that it can initiate the failover.
 
-> +               if (!__find_symbol(mod->syms[i].name, &owner, &crc, 1)) {
+We are not trying to solve swapping over network problem. It is much
+simpler. The critical sockets are to be used only to send/receive
+a few critical messages reliably during a short period of emergency.
 
-if (__find_symbol(mod->syms[i].name, &owner, &crc, 1)) {
-
->+               if (!__find_symbol(mod->gpl_syms[i].name, &owner, &crc, 1)=
-) {
-
-if (__find_symbol(mod->gpl_syms[i].name, &owner, &crc, 1)) {
-
-Oops... I dunno how we missed it
-
-This code is architecture independent.
-
-Changelog -
-
-This patch ensures that an exported symbol  does not already exist in
-the kernel or in some other module's exported symbol table. This is
-done by checking the symbol tables for the exported symbol at the time
-of loading the module. Currently this is done after the relocation of
-the symbol.
-
-Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
-Signed-off-by: Anand Krishnan <anandhkrishnan@yahoo.co.in>
-
-------=_Part_2205_3853625.1134625540723
-Content-Type: text/plain; name=patch.txt; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch.txt"
-
-diff -Naurp linux-2.6.15-rc5-vanilla/kernel/module.c linux-2.6.15-rc5/kernel/module.c
---- linux-2.6.15-rc5-vanilla/kernel/module.c	2005-12-14 10:14:08.000000000 +0530
-+++ linux-2.6.15-rc5/kernel/module.c	2005-12-15 11:01:17.000000000 +0530
-@@ -1204,6 +1204,39 @@ void *__symbol_get(const char *symbol)
- }
- EXPORT_SYMBOL_GPL(__symbol_get);
- 
-+/*
-+ * Ensure that an exported symbol [global namespace] does not already exist
-+ * in the Kernel or in some other modules exported symbol table.
-+ */
-+static int verify_export_symbols(struct module *mod)
-+{
-+	const char *name = NULL;
-+	unsigned long i, ret = 0;
-+	struct module *owner;
-+	const unsigned long *crc;
-+        
-+	for (i = 0; i < mod->num_syms; i++)
-+	        if (__find_symbol(mod->syms[i].name, &owner, &crc, 1)) {
-+			name = mod->syms[i].name;
-+			ret = -ENOEXEC;
-+			goto dup;
-+		}
-+	
-+	for (i = 0; i < mod->num_gpl_syms; i++)
-+	        if (__find_symbol(mod->gpl_syms[i].name, &owner, &crc, 1)) {
-+			name = mod->gpl_syms[i].name;
-+			ret = -ENOEXEC;
-+			goto dup;
-+		}
-+
-+dup:
-+	if (ret)
-+		printk(KERN_ERR "%s: exports duplicate symbol %s (owned by %s)\n", 
-+			mod->name, name, module_name(owner));
-+
-+	return ret;
-+}
-+
- /* Change all symbols so that sh_value encodes the pointer directly. */
- static int simplify_symbols(Elf_Shdr *sechdrs,
- 			    unsigned int symindex,
-@@ -1767,6 +1800,12 @@ static struct module *load_module(void _
- 			goto cleanup;
- 	}
- 
-+        /* Find duplicate symbols */
-+	err = verify_export_symbols(mod);
-+
-+	if (err < 0)
-+		goto cleanup;
-+
-   	/* Set up and sort exception table */
- 	mod->num_exentries = sechdrs[exindex].sh_size / sizeof(*mod->extable);
- 	mod->extable = extable = (void *)sechdrs[exindex].sh_addr;
+Thanks
+Sridhar
 
 
-------=_Part_2205_3853625.1134625540723--

@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbVLPPyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVLPPx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbVLPPyI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 10:54:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932332AbVLPPyI
+	id S932336AbVLPPx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 10:53:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbVLPPx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 10:54:08 -0500
-Received: from mail29.messagelabs.com ([140.174.2.227]:23447 "HELO
-	mail29.messagelabs.com") by vger.kernel.org with SMTP
-	id S932334AbVLPPyH convert rfc822-to-8bit (ORCPT
+	Fri, 16 Dec 2005 10:53:59 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:17580 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932291AbVLPPx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 10:54:07 -0500
-X-VirusChecked: Checked
-X-Env-Sender: Scott_Kilau@digi.com
-X-Msg-Ref: server-11.tower-29.messagelabs.com!1134748434!27893444!1
-X-StarScan-Version: 5.5.9.1; banners=-,-,-
-X-Originating-IP: [66.77.174.21]
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Support for Digi Neo 8p board in jsm driver
-Date: Fri, 16 Dec 2005 09:53:53 -0600
-Message-ID: <335DD0B75189FB428E5C32680089FB9F36B3D0@mtk-sms-mail01.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Support for Digi Neo 8p board in jsm driver
-Thread-Index: AcYCTsOx473ZsjSgRYe17AdlVKYKOwACJLMw
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: "Adrian Bunk" <bunk@stusta.de>,
-       "Alexander V. Inyukhin" <shurick@sectorb.msk.ru>
-Cc: <linux-kernel@vger.kernel.org>,
-       "Ananda K Venkataraman" <avenkat@us.ibm.com>
-X-OriginalArrivalTime: 16 Dec 2005 15:53:54.0255 (UTC) FILETIME=[EA937DF0:01C60258]
+	Fri, 16 Dec 2005 10:53:58 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <43A2BE49.4000102@yahoo.com.au> 
+References: <43A2BE49.4000102@yahoo.com.au>  <43A08D50.30707@yahoo.com.au> <439FFF63.6020105@yahoo.com.au> <439F6EAB.6030903@yahoo.com.au> <439E122E.3080902@yahoo.com.au> <dhowells1134431145@warthog.cambridge.redhat.com> <22479.1134467689@warthog.cambridge.redhat.com> <13613.1134557656@warthog.cambridge.redhat.com> <15157.1134560767@warthog.cambridge.redhat.com> <12832.1134734438@warthog.cambridge.redhat.com> 
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Fri, 16 Dec 2005 15:53:51 +0000
+Message-ID: <20220.1134748431@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alex, all,
+Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-> Jsm driver is claimed to support Digi Neo multiport
-> serial boards but according to PCI id table
-> only 2port boards are supported.
-> 
-> Is it possible to support other Digi Neo boards by jsm
-> or original dgnc driver should be used instead?
+> Yes, the architecture code knows whether or not it implements atomic ops
+> with spinlocks, so that architecture is in the position to decide to override
+> the mutex implementation. *generic* code shouldn't worry about that, it should
+> use the interfaces available, and if that isn't optimal on some architecture
+> then that architecture can override it.
 
-Either the in-tree JSM driver or the out-of-tree DGNC driver will work
-fine.
+However, a number of generic templates can be provided if it makes things
+easier for the arches because all they need to is:
 
-The out-of-tree DGNC driver was the intended driver to be used with
-the all the various Digi Neo boards.
+	[arch/wibble/Kconfig]
+	config MUTEX_TYPE_FOO
+		bool
+		default y
 
-The JSM driver was intended to be used with only the 2 port Digi Neo
-board,
-however, I am not aware of any reason why the 8 port wouldn't work as
-well.
+	[include/asm-wibble/system.h]
+	#define __mutex_foo_this() { ... }
+	#define __mutex_foo_that() { ... }
 
-If you use the JSM driver, you will need to update the PCI id table
-in the JSM driver to add in the 8 port PCI ID.
+The unconditional two-state exchange I think will be a useful template for a
+number of archs that don't have anything more advanced than XCHG/TAS/BSET/SWAP.
 
-Scott
+> It is not even clear that any ll/sc based architectures would need to override
+> an atomic_cmpxchg variant at all because you can assume an unlocked fastpath
+
+That's irrelevant. Any arch that has LL/SC almost certainly emulates CMPXCHG
+with LL/SC.
+
+> and not do the additional initial load to prime the cmpxchg.
+
+Two points:
+
+ (1) LL/SC does not require an additional initial load.
+
+ (2) CMPXCHG does an implicit load; how else can it compare?
+
+LL/SC can never be worse than CMPXCHG, if only because you're very unlikely to
+have both, but it can be better.
+
+David

@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVLPTJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbVLPTKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932385AbVLPTJo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 14:09:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVLPTJo
+	id S932393AbVLPTKP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 14:10:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVLPTJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 14:09:44 -0500
-Received: from mail.kroah.org ([69.55.234.183]:63638 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932342AbVLPTJn (ORCPT
+	Fri, 16 Dec 2005 14:09:48 -0500
+Received: from mail.kroah.org ([69.55.234.183]:407 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932342AbVLPTJo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 14:09:43 -0500
-Date: Fri, 16 Dec 2005 11:08:55 -0800
+	Fri, 16 Dec 2005 14:09:44 -0500
+Date: Fri, 16 Dec 2005 11:09:01 -0800
 From: Greg Kroah-Hartman <gregkh@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       ak@suse.de
-Subject: [patch 3/4] PCI: Fix dumb bug in mmconfig fix
-Message-ID: <20051216190855.GD4594@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       stern@rowland.harvard.edu
+Subject: [patch 4/4] UHCI: add missing memory barriers
+Message-ID: <20051216190901.GE4594@kroah.com>
 References: <20051216185442.633779000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fix-dumb-bug-in-mmconfig-fix.patch"
+Content-Disposition: inline; filename="uhci-add-missing-memory-barriers.patch"
 In-Reply-To: <20051216190828.GA4594@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen <ak@suse.de>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-Use correct address when referencing mmconfig aperture while checking
-for broken MCFG.  This was a typo when porting the code from 64bit to
-32bit.  It caused oopses at boot on some ThinkPads.
+This patch (as617) adds a couple of memory barriers that Ben H. forgot in
+his recent suspend/resume fix.
 
-Should definitely go into 2.6.15.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
- arch/i386/pci/mmconfig.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/uhci-hcd.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- gregkh-2.6.orig/arch/i386/pci/mmconfig.c
-+++ gregkh-2.6/arch/i386/pci/mmconfig.c
-@@ -155,7 +155,7 @@ static __init void unreachable_devices(v
- 		addr = get_base_addr(0, 0, PCI_DEVFN(i, 0));
- 		if (addr != 0)
- 			pci_exp_set_dev_base(addr, 0, PCI_DEVFN(i, 0));
--		if (addr == 0 || readl((u32 __iomem *)addr) != val1)
-+		if (addr == 0 || readl((u32 __iomem *)mmcfg_virt_addr) != val1)
- 			set_bit(i, fallback_slots);
- 		spin_unlock_irqrestore(&pci_config_lock, flags);
- 	}
+--- gregkh-2.6.orig/drivers/usb/host/uhci-hcd.c
++++ gregkh-2.6/drivers/usb/host/uhci-hcd.c
+@@ -717,6 +717,7 @@ static int uhci_suspend(struct usb_hcd *
+ 	 * at the source, so we must turn off PIRQ.
+ 	 */
+ 	pci_write_config_word(to_pci_dev(uhci_dev(uhci)), USBLEGSUP, 0);
++	mb();
+ 	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+ 	uhci->hc_inaccessible = 1;
+ 	hcd->poll_rh = 0;
+@@ -738,6 +739,7 @@ static int uhci_resume(struct usb_hcd *h
+ 	 * really don't want to keep a stale HCD_FLAG_HW_ACCESSIBLE=0
+ 	 */
+ 	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
++	mb();
+ 
+ 	if (uhci->rh_state == UHCI_RH_RESET)	/* Dead */
+ 		return 0;
 
 --

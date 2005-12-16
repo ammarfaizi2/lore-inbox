@@ -1,79 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbVLPDbQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbVLPDeh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbVLPDbQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 22:31:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVLPDbQ
+	id S932094AbVLPDeh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 22:34:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVLPDeh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 22:31:16 -0500
-Received: from zproxy.gmail.com ([64.233.162.206]:35234 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932090AbVLPDbP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 22:31:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
-        b=mlfKdzur7DyuIQNTrZuqFeDjVbP3n1IM0UBst8BgDmj89rzpuhQlgOxWz3oqBcb6q1vZh1i1DR7BhRCcsiEstkzZkksKgELr+Zrhh9AEYjl6f3nUKPZFw7N7T+DPS1qYBVpD9CpvHNayneVFD3Ymko5/0Gmd8rzUY9TREIO44o8=
-Message-ID: <81083a450512142032h5e9a934u31ed9e4806d0341a@mail.gmail.com>
-Date: Thu, 15 Dec 2005 10:02:42 +0530
-From: Ashutosh Naik <ashutosh.naik@gmail.com>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Subject: [PATCH] kernel/module.c Getting rid of the redundant spinlock in resolve_symbol()
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, anandhkrishnan@yahoo.co.in,
-       linux-kernel@vger.kernel.org, rth@redhat.com, akpm@osdl.org,
-       Greg KH <greg@kroah.com>, alan@lxorguk.ukuu.org.uk
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_1188_24275014.1134621162496"
+	Thu, 15 Dec 2005 22:34:37 -0500
+Received: from straum.hexapodia.org ([64.81.70.185]:38204 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S932094AbVLPDeg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 22:34:36 -0500
+Date: Thu, 15 Dec 2005 19:34:35 -0800
+From: Andy Isaacson <adi@hexapodia.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Reduce nr of ptr derefs in fs/jffs2/summary.c
+Message-ID: <20051216033435.GA21600@hexapodia.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0512152354240.13568@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_1188_24275014.1134621162496
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, Dec 15, 2005 at 11:55:05PM +0100, Jan Engelhardt wrote:
+> >Benefits:
+> > - micro speed optimization due to fewer pointer derefs
+> > - generated code is slightly smaller
+> 
+> Should not these two at best be done by the compiler?
 
-On 12/15/05, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> On Wed, 2005-12-14 at 11:16 +0530, Ashutosh Naik wrote:
-> > On 12/14/05, Rusty Russell <rusty@rustcorp.com.au> wrote:
-> > Was just wondering, in that case, if we really need the spinlock in
-> > resolve_symbol() function, where there exists a spinlock around the
-> > __find_symbol() function
->
-> Yes, I think that's redundant as well.  We're not altering the module
-> list itself, so either of the two locks is sufficient, and we have the
-> semaphore.
+The compiler cannot, in general, do CSE on pointer dereferences.
+Consider the following snippet from fs/jffs2/summary.c, both before
 
-Changelog -
+ 610    sdrnt_ptr->type = c->summary->sum_list_head->d.type;
+ 612    memcpy(sdrnt_ptr->name, c->summary->sum_list_head->d.name,
+ 613                            c->summary->sum_list_head->d.nsize);
+ 615    wpage += JFFS2_SUMMARY_DIRENT_SIZE(c->summary->sum_list_head->d.nsize);
 
-This patch gets rid of the redundant spinlock in the function
-resolve_symbol() as we are not altering the module list, and we
-already hold the semaphore.
+and after Jesper's patch:
 
-Signed-off-by: Ashutosh Naik <ashutosh.naik@gmail.com>
+ 611    sdrnt_ptr->type = temp->d.type;
+ 613    memcpy(sdrnt_ptr->name, temp->d.name,
+ 614                            temp->d.nsize);
+ 616    wpage += JFFS2_SUMMARY_DIRENT_SIZE(temp->d.nsize);
 
-------=_Part_1188_24275014.1134621162496
-Content-Type: text/plain; name=mod-patch2.txt; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="mod-patch2.txt"
+Assuming that memcpy is an out-of-line function, the compiler has to
+handle the worst case, that it might modify c->summary->sum_list_head
+and thus make the saved value stale.  (In the specific case of memcpy
+the compiler can take advantage of special knowledge about the function,
+and it's probably inline anyways, so this *particular* example is not
+real; but it's a nice clean classroom example.)
 
-diff -Naurp linux-2.6.15-rc5-vanilla/kernel/module.c linux-2.6.15-rc5/kernel/module.c
---- linux-2.6.15-rc5-vanilla/kernel/module.c	2005-12-14 10:14:08.000000000 +0530
-+++ linux-2.6.15-rc5/kernel/module.c	2005-12-15 09:41:59.000000000 +0530
-@@ -958,7 +958,6 @@ static unsigned long resolve_symbol(Elf_
- 	unsigned long ret;
- 	const unsigned long *crc;
- 
--	spin_lock_irq(&modlist_lock);
- 	ret = __find_symbol(name, &owner, &crc, mod->license_gplok);
- 	if (ret) {
- 		/* use_module can fail due to OOM, or module unloading */
-@@ -966,7 +965,6 @@ static unsigned long resolve_symbol(Elf_
- 		    !use_module(mod, owner))
- 			ret = 0;
- 	}
--	spin_unlock_irq(&modlist_lock);
- 	return ret;
- }
- 
+But a human *can* make the obvious leap and tell the compiler that the
+value can be computed once and then saved.  And besides, isn't the code
+just *much* nicer to look at, above?
 
-------=_Part_1188_24275014.1134621162496--
+-andy

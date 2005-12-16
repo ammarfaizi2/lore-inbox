@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbVLPLgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbVLPLmj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbVLPLgP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 06:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbVLPLgO
+	id S932103AbVLPLmj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 06:42:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbVLPLmj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 06:36:14 -0500
-Received: from main.gmane.org ([80.91.229.2]:18067 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751256AbVLPLgO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 06:36:14 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
-Subject: 2.6.15-rc5-rt2 slowness
-Date: Fri, 16 Dec 2005 12:30:30 +0100
-Message-ID: <dnu8ku$ie4$1@sea.gmane.org>
-Reply-To: G.Ohrner@post.rwth-aachen.de
+	Fri, 16 Dec 2005 06:42:39 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:30652 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S932103AbVLPLmi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 06:42:38 -0500
+Subject: [PATCH] [0/6] TIF_RESTORE_SIGMASK, pselect() and ppoll()
+From: David Woodhouse <dwmw2@infradead.org>
+To: akpm@osdl.org
+Cc: dhowells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Fri, 16 Dec 2005 11:42:25 +0000
+Message-Id: <1134733345.7104.86.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 134.130.238.18
-User-Agent: KNode/0.10
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+The following implementation of ppoll() and pselect() system calls
+depends on the architecture providing a TIF_RESTORE_SIGMASK flag in the
+thread_info.
 
-Thanks to Steven's Kconfig fixes I was able to compile 2.6.15-rc5 with
-Ingo's rt2-patch just fine.
+These system calls have to change the signal mask during their
+operation, and signal handlers must be invoked using the new, temporary
+signal mask. The old signal mask must be restored either upon successful
+exit from the system call, or upon returning from the invoked signal
+handler if the system call is interrupted. We can't simply restore the
+original signal mask and return to userspace, since the restored signal
+mask may actually block the signal which interrupted the system call.
 
-I have two small problem with it, however. One is the Oops just posted, the
-other is a high system load and bad responsiveness of the system as a
-whole. I didn't even bother to measure timer/sleep jitters as the system
-was dog slow and the fans started to run a full speed nearly immediately.
+The TIF_RESTORE_SIGMASK flag deals with this by causing the syscall exit
+path to trap into do_signal() just as TIF_SIGPENDING does, and by
+causing do_signal() to use the saved signal mask instead of the current
+signal mask when setting up the stack frame for the signal handler -- or
+by causing do_signal() to simply restore the saved signal mask in the
+case where there is no handler to be invoked.
 
-We observed this on two different systems, one with the config attached to
-my mail with the Oops/backtrace.
+The first patch implements the sys_pselect() and sys_ppoll() system
+calls, which are present only if TIF_RESTORE_SIGMASK is defined. That
+#ifdef should go away in time when all architectures have implemented
+it. The second patch implements TIF_RESTORE_SIGMASK for the PowerPC
+kernel (in the -mm tree), and the third patch then removes the
+arch-specific implementations of sys_rt_sigsuspend() and replaces them
+with generic versions using the same trick.
 
-I'll try to recompile the kernel with some debug options, if anyone knows if
-there's something I should specifically look for this may be helpful.
+The fourth and fifth patches, provided by David Howells, implement
+TIF_RESTORE_SIGMASK for FR-V and i386 respectively, and the sixth patch
+adds the syscalls to the i386 syscall table.
 
-Greetings,
-
-  Gunter
+-- 
+dwmw2
 

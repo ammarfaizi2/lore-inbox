@@ -1,71 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932563AbVLPXXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbVLPXhi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932563AbVLPXXH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 18:23:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932559AbVLPXXH
+	id S1750823AbVLPXhi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 18:37:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVLPXhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 18:23:07 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:6093
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S932550AbVLPXXF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 18:23:05 -0500
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
-       linux-arch@vger.kernel.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>, matthew@wil.cx,
-       arjan@infradead.org, Christoph Hellwig <hch@infradead.org>,
-       mingo@elte.hu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       nikita@clusterfs.com, pj@sgi.com, dhowells@redhat.com
-In-Reply-To: <Pine.LNX.4.64.0512161439330.3698@g5.osdl.org>
-References: <20051215085602.c98f22ef.pj@sgi.com>
-	 <20051213143147.d2a57fb3.pj@sgi.com> <43A0AD54.6050109@rtr.ca>
-	 <20051214155432.320f2950.akpm@osdl.org>
-	 <17313.29296.170999.539035@gargle.gargle.HOWL>
-	 <1134658579.12421.59.camel@localhost.localdomain>
-	 <4743.1134662116@warthog.cambridge.redhat.com>
-	 <7140.1134667736@warthog.cambridge.redhat.com>
-	 <Pine.LNX.4.64.0512150945410.3292@g5.osdl.org>
-	 <20051215112115.7c4bfbea.akpm@osdl.org>
-	 <1134678532.13138.44.camel@localhost.localdomain>
-	 <Pine.LNX.4.62.0512152130390.16426@pademelon.sonytel.be>
-	 <1134769269.2806.17.camel@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.64.0512161339140.3698@g5.osdl.org>
-	 <1134770778.2806.31.camel@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.64.0512161414370.3698@g5.osdl.org>
-	 <1134772964.2806.50.camel@tglx.tec.linutronix.de>
-	 <Pine.LNX.4.64.0512161439330.3698@g5.osdl.org>
+	Fri, 16 Dec 2005 18:37:38 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:9955 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750823AbVLPXhh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 18:37:37 -0500
+Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051211000039.GR11190@wotan.suse.de>
+References: <1134154208.14363.8.camel@mindpipe> <439A0746.80208@mnsu.edu>
+	 <1134173138.18432.41.camel@mindpipe> <439A201D.7030103@mnsu.edu>
+	 <1134179410.18432.66.camel@mindpipe> <p73oe3ppbxj.fsf@verdi.suse.de>
+	 <1134191524.18432.82.camel@mindpipe> <20051210071935.GQ11190@wotan.suse.de>
+	 <1134243273.18432.104.camel@mindpipe>
+	 <20051211000039.GR11190@wotan.suse.de>
 Content-Type: text/plain
-Organization: linutronix
-Date: Sat, 17 Dec 2005 00:29:59 +0100
-Message-Id: <1134775799.2806.82.camel@tglx.tec.linutronix.de>
+Date: Fri, 16 Dec 2005 18:40:39 -0500
+Message-Id: <1134776439.19091.19.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-16 at 14:41 -0800, Linus Torvalds wrote:
-
-> > You can still implement (chose a mechanism) a mutex on top - or in case
-> > of lack of priority inheritance or debugging with exactly the same -
-> > mechanism as a semaphore, but this does not change the semantical
-> > difference at all.
+On Sun, 2005-12-11 at 01:00 +0100, Andi Kleen wrote:
+> > Here are the relevant lines of arch/x86_64/kernel/vmlinux.lds:
+> > 
+> >     382 OUTPUT_FORMAT("elf64-x86-64", "elf64-x86-64", "elf64-x86-64")
+> >     383 OUTPUT_ARCH(1:x86-64)
+> >     384 ENTRY(phys_startup_64)
+> > 
+> > Any ideas?  Another toolchain quirk?
 > 
-> "Friends don't let friends use priority inheritance".
+> The original is 
 > 
-> Just don't do it. If you really need it, your system is broken anyway.
+> OUTPUT_ARCH(i386:x86-64)
+> 
+> It replaced the i386 with 1, which obviously doesn't work.
+> 
+> Try (full patch again) 
+> 
 
-We are not talking about priority inheritance and its usefulness at all.
+It still gives one error, at the final link step:
 
-Fact is that you can implement two semanticaly different concurrency
-controls with or on top of the same mechanism under given circumstances
-(no debugging, no ...). But the reverse attempt is wrong by defintion.
+  LD      arch/x86_64/boot/compressed/vmlinux
+ld: warning: i386:x86-64 architecture of input file
+`arch/x86_64/boot/compressed/head.o' is incompatible with i386 output
 
-
-	tglx
-
+Lee
 

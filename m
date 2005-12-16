@@ -1,86 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbVLPTB0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVLPTCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932372AbVLPTB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 14:01:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVLPTB0
+	id S932376AbVLPTCO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 14:02:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVLPTCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 14:01:26 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:27909 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932372AbVLPTBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 14:01:25 -0500
-Date: Fri, 16 Dec 2005 20:01:26 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [-mm patch] more updates for the gcc >= 3.2 requirement
-Message-ID: <20051216190126.GF23349@stusta.de>
-References: <20051215212452.GS23349@stusta.de> <200512161828.jBGISe4k003326@laptop11.inf.utfsm.cl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512161828.jBGISe4k003326@laptop11.inf.utfsm.cl>
-User-Agent: Mutt/1.5.11
+	Fri, 16 Dec 2005 14:02:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:59607 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932377AbVLPTCN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 14:02:13 -0500
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+From: Arjan van de Ven <arjan@infradead.org>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43A30D36.5090406@didntduck.org>
+References: <200512161842.jBGIgjZG003433@laptop11.inf.utfsm.cl>
+	 <43A30D36.5090406@didntduck.org>
+Content-Type: text/plain
+Date: Fri, 16 Dec 2005 20:02:10 +0100
+Message-Id: <1134759731.2992.57.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 03:28:40PM -0300, Horst von Brand wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
-> > This patch contains some documentation updates and removes some code 
-> > paths for gcc < 3.2.
+
 > 
-> [...]
-> 
-> > --- linux-2.6.15-rc5-mm3-full/arch/arm/kernel/asm-offsets.c.old	2005-12-15 13:34:55.000000000 +0100
-> > +++ linux-2.6.15-rc5-mm3-full/arch/arm/kernel/asm-offsets.c	2005-12-15 13:35:11.000000000 +0100
-> > @@ -27,11 +27,11 @@
-> >   * GCC 3.2.0: incorrect function argument offset calculation.
-> >   * GCC 3.2.x: miscompiles NEW_AUX_ENT in fs/binfmt_elf.c
-> >   *            (http://gcc.gnu.org/PR8896) and incorrect structure
-> >   *	      initialisation in fs/jffs2/erase.c
-> >   */
-> > -#if __GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ < 3)
-> > +#if (__GNUC__ == 3 && __GNUC_MINOR__ < 3)
-> >  #error Your compiler is too buggy; it is known to miscompile kernels.
-> >  #error    Known good compilers: 3.3
-> >  #endif
-> 
-> Better leave the original, in case some clown comes along with an ancient
-> compiler.
->...
+> So what about arches where single-page stacks aren't viable (for example 
+> x86_64)?  Are we just screwed?
 
-That's what the check in init/main.c is for.
 
-> > --- linux-2.6.15-rc5-mm3-full/include/asm-sparc64/system.h.old	2005-12-15 13:40:55.000000000 +0100
-> > +++ linux-2.6.15-rc5-mm3-full/include/asm-sparc64/system.h	2005-12-15 13:41:03.000000000 +0100
-> > @@ -191,15 +191,11 @@
-> >  	 * the output value of 'last'.  'next' is not referenced again
-> >  	 * past the invocation of switch_to in the scheduler, so we need
-> >  	 * not preserve it's value.  Hairy, but it lets us remove 2 loads
-> >  	 * and 2 stores in this critical code path.  -DaveM
-> >  	 */
-> > -#if __GNUC__ >= 3
-> >  #define EXTRA_CLOBBER ,"%l1"
-> > -#else
-> > -#define EXTRA_CLOBBER
-> > -#endif
-> 
-> If EXTRA_CLOBBER is now constant, you can get rid of it completely.
->...
+x86 is specially handicapped due to the fact that the stacks need to be
+in the lowmem zone. Even if you have 8Gb ram, the lowmem zone is still
+800Mb and a bit, and this gets to be under a high pressure, like
+hyper-fragmentation. Same for bounce buffers etc etc.
 
-It's now a codingstyle issue, and DaveM (Cc'ed) can change it if he 
-wants to.
-
-> Nice job!
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+note that the order thing is by far not the only advantage, pure memory
+usage alone and cache locality also are wins. The memory usage halves
+for kernel stacks after all (which means you can do more threads in
+java, or use the memory for disk cache ;)
 

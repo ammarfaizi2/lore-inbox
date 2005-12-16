@@ -1,91 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbVLPBUh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbVLPBVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751181AbVLPBUh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 20:20:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbVLPBUh
+	id S1751244AbVLPBVY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 20:21:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbVLPBVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 20:20:37 -0500
-Received: from [202.67.154.148] ([202.67.154.148]:29147 "EHLO ns666.com")
-	by vger.kernel.org with ESMTP id S1751181AbVLPBUg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 20:20:36 -0500
-Message-ID: <43A21825.2020300@ns666.com>
-Date: Fri, 16 Dec 2005 02:28:05 +0100
-From: Trilight <trilight@ns666.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)
-X-Accept-Language: en-us
+	Thu, 15 Dec 2005 20:21:23 -0500
+Received: from loopy.telegraphics.com.au ([202.45.126.152]:62165 "EHLO
+	loopy.telegraphics.com.au") by vger.kernel.org with ESMTP
+	id S1751239AbVLPBVW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 20:21:22 -0500
+Date: Fri, 16 Dec 2005 12:21:17 +1100 (EST)
+From: Finn Thain <fthain@telegraphics.com.au>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
+Subject: Re: [PATCH 2/3] m68k: compile fix - ADBREQ_RAW missing declaration
+In-Reply-To: <20051215174725.GZ27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0512161158580.9726@loopy.telegraphics.com.au>
+References: <20051215085516.GU27946@ftp.linux.org.uk>
+ <Pine.LNX.4.61.0512151258200.1605@scrub.home> <20051215171645.GY27946@ftp.linux.org.uk>
+ <20051215174725.GZ27946@ftp.linux.org.uk>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: serious issue with acpi on a dual/HT xeon dell workstation
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-I'm currently trying to find a solution for as it looks like an acpi
-problem on a dell precision workstation 650, dual xeon w/HT.
-
-Kernel: 2.6.14.3
-
-Tried:
-
-I tried all the conventional stuff of almost all acpi commands on the
-bootprompt and things like (no)apic and so on.
-
-The only way to make the box boot is by disabling every shred of acpi
-and using noapic but that means for example no HT anymore.
-
-Or by letting it reboot 5 to 12 times to get it to continue WITH acpi
-and apic and end up with a suddenly working system. Seeing 2 real cpu's
-and 2 virtual cpu's.
 
 
-Just before the moment, during boot, when it's going to crash i see
-something like:
+On Thu, 15 Dec 2005, Al Viro wrote:
 
-...remote apic #(some number here) ...
+> With some archaeology...  It looks like drivers/macintosh part is from
+> Geert (with chunks from benh? not sure) circa Dec 2000; adb.h is a missing
+> piece of earlier patch (one that had leaked in Feb 2000, $DEITY knowns how
+> much older it is)...
 
-Then when it's probing the apic #<numbers> to get ID/Version of the
-cpu's they all come back with FAILED, then it reboots. Nothing is
-logged, it just reboots quickly.
 
-ACPI/DSDT:
+> --- a/drivers/macintosh/adb.c
+> +++ b/drivers/macintosh/adb.c
+> @@ -476,13 +476,15 @@ adb_request(struct adb_request *req, voi
+>                 use_sreq = 1;
+>         } else
+>                 use_sreq = 0;
+> -       req->nbytes = nbytes+1;
+> +       i = (flags & ADBREQ_RAW) ? 0 : 1;
+> +       req->nbytes = nbytes+i;
+>         req->done = done;
+>         req->reply_expected = flags & ADBREQ_REPLY;
+>         req->data[0] = ADB_PACKET;
+>         va_start(list, nbytes);
+> -       for (i = 0; i < nbytes; ++i)
+> -               req->data[i+1] = va_arg(list, int);
+> +       while (i < req->nbytes) {
+> +               req->data[i++] = va_arg(list, int);
+> +       }
 
-Now i'm trying to see if this issue sits in the DSDT table or somewhere
-else in the acpi data. The DSDT contains errors when trying to recompile
-it with the intel compiler (IASL). I'm pasting here below the errors, it
-would be great if some one can give a helping hand or at least if the
-DSDT is responsible for this behaviour:
+According to the the Linx-mac68k repo, one line of that change belongs to 
+Joshua M. Thompson, while the rest of that code was committed by Ray 
+Knight, (the changelog says it was a merge from 2.4.0).
 
-Intel ACPI Component Architecture
-ASL Optimizing Compiler version 20050930 [Dec 15 2005]
-Copyright (C) 2000 - 2005 Intel Corporation
-Supports ACPI Specification Revision 3.0
+http://cvs.sourceforge.net/viewcvs.py/linux-mac68k/linux-mac68k/drivers/macintosh/adb.c?annotate=1.25
 
-dsdt.dsl   338:         Notify (\_SB.PCI0.USB0, 0x02)
-Error    1061 -        Object does not exist ^  (\_SB.PCI0.USB0)
 
-dsdt.dsl   351:         Notify (\_SB.PCI0.USB1, 0x02)
-Error    1061 -        Object does not exist ^  (\_SB.PCI0.USB1)
+>         va_end(list);
+>  
+>         if (flags & ADBREQ_NOSEND)
+> diff --git a/include/linux/adb.h b/include/linux/adb.h
+> index e9fdc63..aad7b1c 100644
+> --- a/include/linux/adb.h
+> +++ b/include/linux/adb.h
+> @@ -76,6 +76,7 @@ struct adb_driver {
+>  #define ADBREQ_REPLY   1       /* expect reply */
+>  #define ADBREQ_SYNC    2       /* poll until done */
+>  #define ADBREQ_NOSEND  4       /* build the request, but don't send it */
+> +#define ADBREQ_RAW     8       /* send raw packet (don't prepend 
+> ADB_PACKET) */
+> 
 
-dsdt.dsl   364:         Notify (\_SB.PCI0.USB2, 0x02)
-Error    1061 -        Object does not exist ^  (\_SB.PCI0.USB2)
+Credit for that change is due to Joshua M. Thompson.
 
-dsdt.dsl   377:         Notify (\_SB.PCI0, 0x02)
-Error    1061 -   Object does not exist ^  (\_SB.PCI0)
+http://cvs.sourceforge.net/viewcvs.py/linux-mac68k/linux-mac68k/include/linux/adb.h?annotate=1.7
 
-dsdt.dsl   384:         Notify (\_SB.PCI0.PCI4, 0x02)
-Error    1061 -        Object does not exist ^  (\_SB.PCI0.PCI4)
-
-dsdt.dsl   400:         Notify (\_SB.PCI0.ISA.KBD, 0x02)
-Error    1061 -           Object does not exist ^  (\_SB.PCI0.ISA.KBD)
-
-dsdt.dsl  1784:                 Device (DMA)
-Error    1094 -                           ^ syntax error, unexpected
-PARSEOP_DMA, expecting PARSEOP_NAMESEG or PARSEOP_NAMESTRING
-
-ASL Input:  dsdt.dsl - 3096 lines, 93624 bytes, 515 keywords
-Compilation complete. 7 Errors, 0 Warnings, 0 Remarks, 53 Optimizations
+-f

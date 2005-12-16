@@ -1,59 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbVLPCYR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbVLPC3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbVLPCYR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 21:24:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751288AbVLPCYR
+	id S932084AbVLPC3D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 21:29:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbVLPC3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 21:24:17 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:19056 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751287AbVLPCYQ (ORCPT
+	Thu, 15 Dec 2005 21:29:03 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:1997 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932084AbVLPC3B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 21:24:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=R7A6yyK5gcrsv2SHW6xWN9unZ0jGaHuwsPl5e16su5T14mebJ/517xiujdebm9vPusSa0UjfTwIJ9st5bLupucIfUs1Alvs/uvNggY7QzDNBWkSAvtAoCtd9WwWdeKAvMiFQB530xTVQhKQGBhQXnzl6oHYVebrceRwgSVaAP5Q=
-Message-ID: <43A11E89.2090805@gmail.com>
-Date: Thu, 15 Dec 2005 15:43:05 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051025)
-MIME-Version: 1.0
-To: Kurt Wall <kwallinator@gmail.com>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Console Goes Blank When Booting 2.6.15-rc5
-References: <200512132247.54341.kwallinator@gmail.com> <439FBDC5.5060609@gmail.com> <200512142027.00829.kwallinator@gmail.com>
-In-Reply-To: <200512142027.00829.kwallinator@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 15 Dec 2005 21:29:01 -0500
+Subject: Re: [ckrm-tech] Re: [RFC][patch 00/21] PID Virtualization:
+	Overview and Patches
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>, lse-tech@lists.sourceforge.net,
+       vserver@list.linux-vserver.org, Andrew Morton <akpm@osdl.org>,
+       Rik van Riel <riel@redhat.com>, pagg@oss.sgi.com
+In-Reply-To: <E1Emz6c-0006c3-00@w-gerrit.beaverton.ibm.com>
+References: <E1Emz6c-0006c3-00@w-gerrit.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Thu, 15 Dec 2005 18:20:52 -0800
+Message-Id: <1134699652.10396.161.camel@stark>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt Wall wrote:
-> On Wednesday 14 December 2005 01:37 am, Antonino A. Daplas wrote:
->> Kurt Wall wrote:
->>> As Jesper Juhl has reported, if I boot 2.6.15-rc5 with vga=normal,
->>> everything is fine. If I boot using my preferred size (vga=794),
->>> the console goes blank. Because I'm a touch typist, I can login and
->>> start X and everything is copacetic, but as soon as I leave X, I'm
->>> back to the blank screen. From X, if I flip over to a VC, the VC
->>> display is garbled and has artifacts from the X display.
->>>
->>> This worked fine with 2.6.14.3, and I didn't change the console,
->>> framebuffer, or vesa options between the two kernels. Not sure how
->>> to proceed, but I sure would like my high res console screens back.
->> Can you recheck your .config and make sure that
->> CONFIG_FRAMEBUFFER_CONSOLE=y
+On Thu, 2005-12-15 at 11:49 -0800, Gerrit Huizenga wrote:
+> On Thu, 15 Dec 2005 09:35:57 EST, Hubertus Franke wrote:
+> > This patchset is a followup to the posting by Serge.
+> > http://marc.theaimsgroup.com/?l=linux-kernel&m=113200410620972&w=2
+> > 
+> > In this patchset here, we are providing the pid virtualization mentioned
+> > in serge's posting.
+> > 
+> > > I'm part of a project implementing checkpoint/restart processes.
+> > > After a process or group of processes is checkpointed, killed, and
+> > > restarted, the changing of pids could confuse them.  There are many
+> > > other such issues, but we wanted to start with pids.
+> > >
+> > > This patchset introduces functions to access task->pid and ->tgid,
+> > > and updates ->pid accessors to use the functions.  This is in
+> > > preparation for a subsequent patchset which will separate the kernel
+> > > and virtualized pidspaces.  This will allow us to virtualize pids
+> > > from users' pov, so that, for instance, a checkpointed set of
+> > > processes could be restarted with particular pids.  Even though their
+> > > kernel pids may already be in use by new processes, the checkpointed
+> > > processes can be started in a new user pidspace with their old
+> > > virtual pid.  This also gives vserver a simpler way to fake vserver
+> > > init processes as pid 1.  Note that this does not change the kernel's
+> > > internal idea of pids, only what users see.
+> > >
+> > > The first 12 patches change all locations which access ->pid and
+> > > ->tgid to use the inlined functions.  The last patch actually
+> > > introduces task_pid() and task_tgid(), and renames ->pid and ->tgid
+> > > to __pid and __tgid to make sure any uncaught users error out.
+> > >
+> > > Does something like this, presumably after much working over, seem
+> > > mergeable?
+> > 
+> > These patches build on top of serge's posted patches (if necessary
+> > we can repost them here).
+> > 
+> > PID Virtualization is based on the concept of a container.
+> > The ultimate goal is to checkpoint/restart containers. 
+> > 
+> > The mechanism to start a container 
+> > is to 'echo "container_name" > /proc/container'  which creates a new
+> > container and associates the calling process with it. All subsequently
+> > forked tasks then belong to that container.
+> > There is a separate pid space associated with each container.
+> > Only processes/task belonging to the same container "see" each other.
+> > The exception is an implied default system container that has 
+> > a global view.
+
+<snip>
+
+> I think perhaps this could also be the basis for a CKRM "class"
+> grouping as well.  Rather than maintaining an independent class
+> affiliation for tasks, why not have a class devolve (evolve?) into
+> a "container" as described here.  The container provides much of
+> the same grouping capabilities as a class as far as I can see.  The
+> right information would be availble for scheduling and IO resource
+> management.  The memory component of CKRM is perhaps a bit tricky
+> still, but an overall strategy (can I use that word here? ;-) might
+> be to use these "containers" as the single intrinsic grouping mechanism
+> for vserver, openvz, application checkpoint/restart, resource
+> management, and possibly others?
 > 
-> Oops. It was defined as a module. Compiling it statically gave me
-> the console back. Interestingly, I still lose the first 102 lines
-> of console output. After the all-important boot logo displays, I see
-> nothing until this line:
+> Opinions, especially from the CKRM folks?  This might even be useful
+> to the PAGG folks as a grouping mechanism, similar to their jobs or
+> containers.
+> 
+> "This patchset solves multiple problems".
+> 
+> gerrit
 
-Yes, that should be expected behavior with vesafb.  The adapter was
-set very early during the boot process, when machine is still in
-real mode, vgacon will never load, and you will only see any semblance
-of display until the framebuffer console is loaded.  You should
-see different behavior with chipset-specific drivers, ie, you will
-have vgacon momentarily until fbcon takes over.
+CKRM classes seem too different from containers to merge the two
+concepts:
 
-Tony
+- Classes don't assign class-unique pids to tasks.
+
+- Tasks can move between classes.
+
+- Tasks move between classes without any need for checkpoint/restart.
+
+- Classes show up in a filesystem interface rather that using a file
+in /proc to create them. (trivial interface difference)
+
+- There are no "visibility boundaries" to enforce between tasks in
+different classes.
+
+- Classes are hierarchial.
+
+- Unless I am mistaken, a container groups processes (Can one thread run
+in container A and another in container B?) while a class groups tasks.
+Since a task represents a thread or a process one thread could be in
+class A and another in class B.
+
+Cheers,
+	-Matt Helsley
+

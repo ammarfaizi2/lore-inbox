@@ -1,76 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbVLPKvS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbVLPK7M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750915AbVLPKvS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 05:51:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVLPKvS
+	id S1751249AbVLPK7M (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 05:59:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVLPK7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 05:51:18 -0500
-Received: from mail.shareable.org ([81.29.64.88]:36012 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S1750915AbVLPKvR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 05:51:17 -0500
-Date: Fri, 16 Dec 2005 10:50:48 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: JANAK DESAI <janak@us.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, viro@ftp.linux.org.uk,
-       chrisw@osdl.org, dwmw2@infradead.org, serue@us.ibm.com, mingo@elte.hu,
-       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 1/9] unshare system call: system call handler function
-Message-ID: <20051216105048.GA32305@mail.shareable.org>
-References: <1134513959.11972.167.camel@hobbs.atlanta.ibm.com> <m1k6e687e2.fsf@ebiederm.dsl.xmission.com> <43A1D435.5060602@us.ibm.com> <m1d5jy83nr.fsf@ebiederm.dsl.xmission.com> <43A24362.6000602@us.ibm.com>
+	Fri, 16 Dec 2005 05:59:12 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26768 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751249AbVLPK7L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 05:59:11 -0500
+Date: Fri, 16 Dec 2005 11:58:52 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: swsusp: documentation fixes
+Message-ID: <20051216105852.GJ8476@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43A24362.6000602@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-JANAK DESAI wrote:
-> >I follow but I am very disturbed.
-> >
-> >You are leaving CLONE_NEWNS to mean you want a new namespace.
-> >
-> >For clone CLONE_FS unset means generate an unshared fs_struct
-> >         CLONE_FS set   means share the fs_struct with the parent
-> >
-> >But for unshare CLONE_FS unset means share the fs_struct with others
-> >           and CLONE_FS set   means generate an unshared fs_struct
-> >
-> >The meaning of CLONE_FS between the two calls in now flipped,
-> >but CLONE_NEWNS is not.  Please let's not implement it this way.
-> >
-> > 
-> CLONE_FS unset for unshare doesn't mean that share the fs_struct with
-> others. It just means that you leave the fs_struct alone (which may or
-> maynot be shared). I agree that it is confusing, but I am having difficulty
-> in seeing this reversal of flag meaning. clone creates a second task and
-> allows you to pick what you want to share with the parent. unshare allows
-> you to pick what you don't want to share anymore. The "what" in both
-> cases can be same and still you can end up with a task with "share" state
-> for a perticular structure. 
+Documentation and printk updates. Document "modular SATA" trap.
 
-> For example, if we #define  FS   CLONE_FS,
-> then clone(FS) will imply that you want to share fs_struct but unshare(FS)
-> will imply that we want to unshare fs_struct.
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 
-Right.
+---
+commit bd607a6d78db651cf6e4b199eae3476f4c935db6
+tree 5a781c7cfcfb78a3d3cab2c518ea00bf46ab6e6f
+parent 45a5301637600fc7e517c3308e957b3fac7cfd86
+author <pavel@amd.(none)> Fri, 16 Dec 2005 11:45:58 +0100
+committer <pavel@amd.(none)> Fri, 16 Dec 2005 11:45:58 +0100
 
-But clone(CLONE_NEWNS) and unshare(CLONE_NEWNS) _don't_ behave like
-that: clone(CLONE_NEWNS) unshares ns, and unshare(CLONE_NEWNFS) _also_
-unshares ns.
+ Documentation/power/swsusp.txt |   18 +++++++++++-------
+ Documentation/power/video.txt  |    1 +
+ kernel/power/swsusp.c          |    2 +-
+ 3 files changed, 13 insertions(+), 8 deletions(-)
 
-That is the inconsistency: some flags to clone() mean "keep sharing
-this thing", and some flags mean "make a new instance of this thing".
-It's not your fault that clone() has that inconsistency.  It's because
-clone() needs to treat a value of 0 for any bit as the historically
-default behaviour.
+diff --git a/Documentation/power/swsusp.txt b/Documentation/power/swsusp.txt
+--- a/Documentation/power/swsusp.txt
++++ b/Documentation/power/swsusp.txt
+@@ -27,13 +27,11 @@ echo shutdown > /sys/power/disk; echo di
+ 
+ echo platform > /sys/power/disk; echo disk > /sys/power/state
+ 
+-
+-Encrypted suspend image:
+-------------------------
+-If you want to store your suspend image encrypted with a temporary
+-key to prevent data gathering after resume you must compile
+-crypto and the aes algorithm into the kernel - modules won't work
+-as they cannot be loaded at resume time.
++. If you have SATA disks, you'll need recent kernels with SATA suspend
++support. For suspend and resume to work, make sure your disk drivers
++are built into kernel -- not modules. [There's way to make
++suspend/resume with modular disk drivers, see FAQ, but you should
++better not do that.]
+ 
+ 
+ Article about goals and implementation of Software Suspend for Linux
+@@ -328,4 +326,10 @@ init=/bin/bash, then swapon and starting
+ usually does the trick. Then it is good idea to try with latest
+ vanilla kernel.
+ 
++Q: How can RH ship a swsusp-supporting kernel with modular SATA
++drivers?
+ 
++A: Well, it can be done, load the drivers, then do echo into resume
++file from initrd. Be sure not to mount anything, not even read-only
++mount, or you are going to loose your filesystem same way Dave Jones
++did.
+diff --git a/Documentation/power/video.txt b/Documentation/power/video.txt
+--- a/Documentation/power/video.txt
++++ b/Documentation/power/video.txt
+@@ -132,6 +132,7 @@ Sony Vaio PCG-F403		??? (*)
+ Sony Vaio PCG-N505SN		??? (*)
+ Sony Vaio PCG-GRT995MP		none (1), works with 'nv' X driver
+ Sony Vaio vgn-s260		X or boot-radeon can init it (5)
++Sony Vaio vgn-S580BH		vga=normal, but suspend from X. Console will be blank unless you return to X. 
+ Sony Vaio vgn-FS115B		s3_bios (2),s3_mode (4)
+ Toshiba Libretto L5		none (1)
+ Toshiba Portege 3020CT		s3_mode (3)
+diff --git a/kernel/power/swsusp.c b/kernel/power/swsusp.c
+--- a/kernel/power/swsusp.c
++++ b/kernel/power/swsusp.c
+@@ -988,7 +988,7 @@ int swsusp_check(void)
+ 	if (!error)
+ 		pr_debug("swsusp: resume file found\n");
+ 	else
+-		pr_debug("swsusp: Error %d check for resume file\n", error);
++		pr_debug("swsusp: Error %d checking for resume file (are your disk drivers built-in?)\n", error);
+ 	return error;
+ }
+ 
 
-Like clone(), unshare() will have to change from year to year, as new
-flags are added.  It would be good if the default behaviour of 0 bits
-to unshare() also did the right thing, so that programs compiled in
-2006 still function as expected in 2010.  Hmm, this
-forward-compatibility does not look pretty.
-
--- Jamie
+-- 
+Thanks, Sharp!

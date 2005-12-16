@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964801AbVLPWks@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbVLPWmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964801AbVLPWks (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 17:40:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932558AbVLPWks
+	id S932561AbVLPWmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 17:42:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbVLPWmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 17:40:48 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:23728 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932543AbVLPWks
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 17:40:48 -0500
-Date: Fri, 16 Dec 2005 22:40:47 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: ralf@linux-mips.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] mips: namespace pollution: dump_regs() -> elf_dump_regs()
-Message-ID: <20051216224047.GE27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 16 Dec 2005 17:42:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:52131 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932543AbVLPWmG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 17:42:06 -0500
+Date: Fri, 16 Dec 2005 14:41:16 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
+       linux-arch@vger.kernel.org,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>, matthew@wil.cx,
+       arjan@infradead.org, Christoph Hellwig <hch@infradead.org>,
+       mingo@elte.hu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       nikita@clusterfs.com, pj@sgi.com, dhowells@redhat.com
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+In-Reply-To: <1134772964.2806.50.camel@tglx.tec.linutronix.de>
+Message-ID: <Pine.LNX.4.64.0512161439330.3698@g5.osdl.org>
+References: <20051215085602.c98f22ef.pj@sgi.com>  <20051213143147.d2a57fb3.pj@sgi.com>
+ <43A0AD54.6050109@rtr.ca>  <20051214155432.320f2950.akpm@osdl.org> 
+ <17313.29296.170999.539035@gargle.gargle.HOWL>  <1134658579.12421.59.camel@localhost.localdomain>
+  <4743.1134662116@warthog.cambridge.redhat.com>  <7140.1134667736@warthog.cambridge.redhat.com>
+  <Pine.LNX.4.64.0512150945410.3292@g5.osdl.org>  <20051215112115.7c4bfbea.akpm@osdl.org>
+  <1134678532.13138.44.camel@localhost.localdomain> 
+ <Pine.LNX.4.62.0512152130390.16426@pademelon.sonytel.be> 
+ <1134769269.2806.17.camel@tglx.tec.linutronix.de>  <Pine.LNX.4.64.0512161339140.3698@g5.osdl.org>
+  <1134770778.2806.31.camel@tglx.tec.linutronix.de> 
+ <Pine.LNX.4.64.0512161414370.3698@g5.osdl.org> <1134772964.2806.50.camel@tglx.tec.linutronix.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dump_regs() is used by a bunch of drivers for their internal stuff;
-renamed mips instance (one that is seen in system-wide headers)
-to elf_dump_regs()
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
 
- arch/mips/kernel/process.c |    4 ++--
- include/asm-mips/elf.h     |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+On Fri, 16 Dec 2005, Thomas Gleixner wrote:
+> 
+> Therefor, if you want to handle that "init protection" scenario, do not
+> use a mutex, because the owner can not be defined at compile -
+> allocation time.
 
-7cb0f5ab7ecf09fc83483f3f2b0d2005d789dba5
-diff --git a/arch/mips/kernel/process.c b/arch/mips/kernel/process.c
-index dd72577..0476a4d 100644
---- a/arch/mips/kernel/process.c
-+++ b/arch/mips/kernel/process.c
-@@ -205,7 +205,7 @@ int dump_fpu(struct pt_regs *regs, elf_f
- 	return 1;
- }
- 
--void dump_regs(elf_greg_t *gp, struct pt_regs *regs)
-+void elf_dump_regs(elf_greg_t *gp, struct pt_regs *regs)
- {
- 	int i;
- 
-@@ -231,7 +231,7 @@ int dump_task_regs (struct task_struct *
- {
- 	struct thread_info *ti = tsk->thread_info;
- 	long ksp = (unsigned long)ti + THREAD_SIZE - 32;
--	dump_regs(&(*regs)[0], (struct pt_regs *) ksp - 1);
-+	elf_dump_regs(&(*regs)[0], (struct pt_regs *) ksp - 1);
- 	return 1;
- }
- 
-diff --git a/include/asm-mips/elf.h b/include/asm-mips/elf.h
-index d2c9a25..851f013 100644
---- a/include/asm-mips/elf.h
-+++ b/include/asm-mips/elf.h
-@@ -277,12 +277,12 @@ do {									\
- 
- struct task_struct;
- 
--extern void dump_regs(elf_greg_t *, struct pt_regs *regs);
-+extern void elf_dump_regs(elf_greg_t *, struct pt_regs *regs);
- extern int dump_task_regs (struct task_struct *, elf_gregset_t *);
- extern int dump_task_fpu(struct task_struct *, elf_fpregset_t *);
- 
- #define ELF_CORE_COPY_REGS(elf_regs, regs)			\
--	dump_regs((elf_greg_t *)&(elf_regs), regs);
-+	elf_dump_regs((elf_greg_t *)&(elf_regs), regs);
- #define ELF_CORE_COPY_TASK_REGS(tsk, elf_regs) dump_task_regs(tsk, elf_regs)
- #define ELF_CORE_COPY_FPREGS(tsk, elf_fpregs)			\
- 	dump_task_fpu(tsk, elf_fpregs)
--- 
-0.99.9.GIT
+Sure it could. We certainly have "init_task", for example. It may or may 
+not be the right thing to use, of course. Depends on what the situation 
+is.
+
+> You can still implement (chose a mechanism) a mutex on top - or in case
+> of lack of priority inheritance or debugging with exactly the same -
+> mechanism as a semaphore, but this does not change the semantical
+> difference at all.
+
+"Friends don't let friends use priority inheritance".
+
+Just don't do it. If you really need it, your system is broken anyway.
+
+		Linus

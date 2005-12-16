@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbVLPIC6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932175AbVLPIKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932173AbVLPIC6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 03:02:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVLPIC6
+	id S932175AbVLPIKL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 03:10:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbVLPIKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 03:02:58 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:24963 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932173AbVLPIC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 03:02:57 -0500
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-From: Arjan van de Ven <arjan@infradead.org>
+	Fri, 16 Dec 2005 03:10:11 -0500
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:46951 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S932175AbVLPIKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 03:10:10 -0500
+X-IronPort-AV: i="3.99,260,1131343200"; 
+   d="scan'208"; a="353966956:sNHT27323140"
+Date: Fri, 16 Dec 2005 02:10:09 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
 To: Alex Davis <alex14641@yahoo.com>
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051216061605.46520.qmail@web50211.mail.yahoo.com>
-References: <20051216061605.46520.qmail@web50211.mail.yahoo.com>
-Content-Type: text/plain
-Date: Fri, 16 Dec 2005 09:02:48 +0100
-Message-Id: <1134720168.2992.8.camel@laptopd505.fenrus.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-ID: <20051216081009.GA12167@lists.us.dell.com>
+References: <20051216052054.83256.qmail@web50209.mail.yahoo.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051216052054.83256.qmail@web50209.mail.yahoo.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> I understand that, and am grateful for the effort, but the point is it's not ready. Are you
-> expecting people to lose an important feature of their
-> laptop until you get the driver ready? 
+On Thu, Dec 15, 2005 at 09:20:54PM -0800, Alex Davis wrote:
+> The problem is that, with laptops, most of the time you DON'T have a choice:
+> HP and Dell primarily use a Broadcomm integrated wireless card in ther products.
+> As of yet, there is no open source driver for Broadcomm wireless.
 > 
-> 
-> I code, therefore I am
+> >If 8k stacks get removed, yes. So if you have a chance to choose don't buy a 
+> >wifi card which doesn't have a native linux driver.
 
-if you code.. why don't you go help coding with the people writing the
-broadcom drivers? How is this ONLY our problem? Linux is a cooperative
-thing: you take but you also give back. If you're a coder, this is the
-perfect opportunity to give something back and help the bcm43xx guys
-with debugging and coding and testing....
+Dell "Software & Peripherals" sells "customer kits" of the Intel
+ipw2915 for $59 US, so even if you bought the "wrong" wireless NIC
+when you bought the laptop, this can be remedied.
 
-
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

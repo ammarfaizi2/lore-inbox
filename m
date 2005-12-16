@@ -1,81 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbVLPFkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbVLPFwp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932137AbVLPFkF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 00:40:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbVLPFkF
+	id S932139AbVLPFwp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 00:52:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932140AbVLPFwp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 00:40:05 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:46733 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932137AbVLPFkE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 00:40:04 -0500
-Message-ID: <43A25331.8000306@comcast.net>
-Date: Fri, 16 Dec 2005 00:40:01 -0500
-From: Gautam Thaker <gthaker@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, john stultz <johnstul@us.ibm.com>
-Subject: Re: severe jitter experienced with "select()" in linux 2.6.14-rt22
-References: <43A21324.2050905@comcast.net> <1134702598.13138.113.camel@localhost.localdomain>
-In-Reply-To: <1134702598.13138.113.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 16 Dec 2005 00:52:45 -0500
+Received: from gate.crashing.org ([63.228.1.57]:49341 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932139AbVLPFwo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 00:52:44 -0500
+Subject: Re: [BUG] Xserver startup locks system... git bisect results
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Mark M. Hoffman" <mhoffman@lightlink.com>
+Cc: Paul Mackerras <paulus@samba.org>, LKML <linux-kernel@vger.kernel.org>,
+       Dave Airlie <airlied@linux.ie>, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20051216035032.GA4026@jupiter.solarsys.private>
+References: <20051215043212.GA4479@jupiter.solarsys.private>
+	 <1134622384.16880.26.camel@gaston> <1134623242.16880.30.camel@gaston>
+	 <1134623748.16880.32.camel@gaston>
+	 <17313.12671.661715.211100@cargo.ozlabs.ibm.com>
+	 <20051216035032.GA4026@jupiter.solarsys.private>
+Content-Type: text/plain
+Date: Fri, 16 Dec 2005 16:52:22 +1100
+Message-Id: <1134712343.6316.2.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
+Finally fixes the radeon memory mapping bug that was incorrectly
+fixed by the previous patch. This time, we use the actual vram
+size as the size to calculate how far to move the AGP aperture
+from the framebuffer in card's memory space. If there are still
+issues with this patch, they are due to bugs in the X driver that
+I'm working on fixing too.
 
->Please always CC Ingo Molnar on all -rt related issues.  And Thomas
->Gleixner and John Stultz on timer issues with -rt. (CC John on timer
->issues in mainline too).
->  
->
-Will do so in future, did not know anyone else well enough.
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
->
->Is there any requirement that select must sleep the full time? At least
->have you checked the value of the timeout to see if there was reported
->time left?  The return value wont be zero.  I believe that the select my
->return early with reported time left.
-> 
->  
->
-
-Yes, select is permitted to return before full timeout value, but on an 
-idle, fast machine one hopes this does not happen too too often. And one 
-also hopes that overruns are not too frequent. However, the results I 
-get were, as can be seen from the select histogram, rather all over. 
-
->The simple answer is that the select system call uses the non high
->resolution timers.  There's really no reason to use select for timing.
->That's really just a side effect of the system call.  If you need
->accurate timing, that's what nanosleep is for.  IIRC, others on LKML
->have stated that it is considered bad programming to use select as a
->timer when nanosleep is available.
->  
->
-well, there are a large number of applications that we have that use 
-select(). These include CORBA ORBs etc and we would like to run them and 
-get the benefits of excellent RT properties of -rt kernel.  It would be 
-too too difficult for us, at least for now, to rewrite an ORB in such a 
-way that it does not use any select() but instead uses nanosleep().  I 
-assume high resolution timers must be more expensive - that is why they 
-do not get used by select(). But there are cases where I don't mind 
-paying the extra overhead, if any, to obtain good behaviour out of 
-select().
-
->So, what you show is what I would expect.
->  
->
-Sigh, but thanks for the comments.
-
->-- Steve
->  
->
-
-Gautam
+Index: linux-work/drivers/char/drm/radeon_cp.c
+===================================================================
+--- linux-work.orig/drivers/char/drm/radeon_cp.c	2005-12-13 20:23:00.000000000 +1100
++++ linux-work/drivers/char/drm/radeon_cp.c	2005-12-16 16:17:30.000000000 +1100
+@@ -1312,6 +1312,8 @@
+ static int radeon_do_init_cp(drm_device_t * dev, drm_radeon_init_t * init)
+ {
+ 	drm_radeon_private_t *dev_priv = dev->dev_private;;
++	unsigned int mem_size;
++
+ 	DRM_DEBUG("\n");
+ 
+ 	dev_priv->is_pci = init->is_pci;
+@@ -1521,8 +1523,11 @@
+ 					  + dev_priv->fb_location) >> 10));
+ 
+ 	dev_priv->gart_size = init->gart_size;
+-	dev_priv->gart_vm_start = dev_priv->fb_location
+-	    + RADEON_READ(RADEON_CONFIG_APER_SIZE) * 2;
++
++	mem_size = RADEON_READ(RADEON_CONFIG_MEMSIZE);
++	if (mem_size == 0)
++		mem_size = 0x800000;
++	dev_priv->gart_vm_start = dev_priv->fb_location + mem_size;
+ 
+ #if __OS_HAS_AGP
+ 	if (!dev_priv->is_pci)
+Index: linux-work/drivers/char/drm/radeon_drv.h
+===================================================================
+--- linux-work.orig/drivers/char/drm/radeon_drv.h	2005-11-25 15:03:35.000000000 +1100
++++ linux-work/drivers/char/drm/radeon_drv.h	2005-12-16 16:14:43.000000000 +1100
+@@ -379,6 +379,7 @@
+ #	define RADEON_PLL_WR_EN			(1 << 7)
+ #define RADEON_CLOCK_CNTL_INDEX		0x0008
+ #define RADEON_CONFIG_APER_SIZE		0x0108
++#define RADEON_CONFIG_MEMSIZE		0x00f8
+ #define RADEON_CRTC_OFFSET		0x0224
+ #define RADEON_CRTC_OFFSET_CNTL		0x0228
+ #	define RADEON_CRTC_TILE_EN		(1 << 15)
 
 

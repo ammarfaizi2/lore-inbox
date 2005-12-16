@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751295AbVLPDTQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbVLPDTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751295AbVLPDTQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 22:19:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbVLPDTQ
+	id S1751296AbVLPDTV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 22:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751297AbVLPDTU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 22:19:16 -0500
-Received: from mail.kroah.org ([69.55.234.183]:44186 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751295AbVLPDTQ (ORCPT
+	Thu, 15 Dec 2005 22:19:20 -0500
+Received: from mail.kroah.org ([69.55.234.183]:46490 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751296AbVLPDTU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 22:19:16 -0500
-Date: Thu, 15 Dec 2005 16:51:38 -0800
+	Thu, 15 Dec 2005 22:19:20 -0500
+Date: Thu, 15 Dec 2005 17:33:43 -0800
 From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci <linux-pci@atrey.karlin.mff.cuni.cz>
-Subject: Re: MSI and driver APIs
-Message-ID: <20051216005138.GA20547@kroah.com>
-References: <1134617893.16880.17.camel@gaston>
+To: Neil Brown <neilb@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sysfs question:  how to map major:minor to name under /sys
+Message-ID: <20051216013343.GD23832@kroah.com>
+References: <17312.57214.612405.261796@cse.unsw.edu.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1134617893.16880.17.camel@gaston>
+In-Reply-To: <17312.57214.612405.261796@cse.unsw.edu.au>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 02:38:12PM +1100, Benjamin Herrenschmidt wrote:
-> So I want to start looking into separate implementation for powerpc, and
-> based on what I come up with, find the commonalities and split the
-> generic code.
-
-That would be great, as it really is i386/x86-64 specific right now.
-
-> However, there is at least one assumption that annoys me:
+On Thu, Dec 15, 2005 at 02:14:06PM +1100, Neil Brown wrote:
 > 
-> Currently, we assume that MSIs are disabled upon discovery of a device.
-> That is, a driver probe() routine is called with MSIs off.
+> Hi,
+>  I have a question about sysfs related usage.
 > 
-> This is annoying on platforms with "intelligent" firmwares like POWER
-> with hypervisor, as the firmware will have already configured MSIs for
-> the full system & assigned them to devices.
+>  Suppose I have a major:minor number for a block device - maybe from
+>  fstat of a filedescriptor I was given, or stat of a name in /dev.
+>  How do I find the directory in /sys/block that contains relevant
+>  information? 
+> 
+>  It seems to me that there is no direct way, and maybe there should
+>  be. (I can do a find of 'dev' file and compare, which is fine in a
+>  one-off shell script, but sub-optimal in general).
 
-If you are curious as to why this is, look at the lkml archives about a
-month or two ago, where I tried to enable MSI by default.  It was a real
-mess and caused way more problems than it tried to solve.
+So you want this info from userspace, not from within the kernel, right?
 
-So, as David said, I don't think this is going to work out, sorry.
+>  The most obvious solution would be to have a directory somewhere full
+>  of symlinks:
+>         /sys/block_dev/8:0 -> ../block/sda
+>  or whatever.
+>  Is this reasonable?  Should I try it?
+
+It seems a bit md specific to add a lot of kernel code for something
+that can be solved with a userspace shell script :)
+
+But if you want to try it, use a class, and a class_device for this, not
+raw kobjects.  It should be a bit easier that way.
 
 thanks,
 

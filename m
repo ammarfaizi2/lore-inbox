@@ -1,75 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbVLPDg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVLPDul@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbVLPDg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 22:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932098AbVLPDg2
+	id S932107AbVLPDul (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 22:50:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVLPDul
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 22:36:28 -0500
-Received: from mail.suse.de ([195.135.220.2]:64677 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932095AbVLPDg1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 22:36:27 -0500
-From: Neil Brown <neilb@suse.de>
-To: Greg KH <greg@kroah.com>
-Date: Fri, 16 Dec 2005 14:36:19 +1100
-MIME-Version: 1.0
+	Thu, 15 Dec 2005 22:50:41 -0500
+Received: from smtp-relay.dca.net ([216.158.48.66]:5557 "EHLO
+	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S932107AbVLPDul
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 22:50:41 -0500
+Date: Thu, 15 Dec 2005 22:50:32 -0500
+From: "Mark M. Hoffman" <mhoffman@lightlink.com>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       LKML <linux-kernel@vger.kernel.org>, Dave Airlie <airlied@linux.ie>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [BUG] Xserver startup locks system... git bisect results
+Message-ID: <20051216035032.GA4026@jupiter.solarsys.private>
+References: <20051215043212.GA4479@jupiter.solarsys.private> <1134622384.16880.26.camel@gaston> <1134623242.16880.30.camel@gaston> <1134623748.16880.32.camel@gaston> <17313.12671.661715.211100@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17314.13875.902212.799030@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sysfs question:  how to map major:minor to name under /sys
-In-Reply-To: message from Greg KH on Thursday December 15
-References: <17312.57214.612405.261796@cse.unsw.edu.au>
-	<20051216013343.GD23832@kroah.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <17313.12671.661715.211100@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday December 15, greg@kroah.com wrote:
-> On Thu, Dec 15, 2005 at 02:14:06PM +1100, Neil Brown wrote:
+Hi Paul, Benjamin:
+
+* Paul Mackerras <paulus@samba.org> [2005-12-15 20:03:59 +1100]:
+> Benjamin Herrenschmidt writes:
+> 
+> > On Thu, 2005-12-15 at 16:07 +1100, Benjamin Herrenschmidt wrote:
+> > > Ah, also, something else you can try, is replace
+> > > 
+> > > 	dev_priv->gart_vm_start = dev_priv->fb_location
+> > > 	    + RADEON_READ(RADEON_CONFIG_APER_SIZE);
 > > 
-> > Hi,
-> >  I have a question about sysfs related usage.
+> > Actually, the above should read
 > > 
-> >  Suppose I have a major:minor number for a block device - maybe from
-> >  fstat of a filedescriptor I was given, or stat of a name in /dev.
-> >  How do I find the directory in /sys/block that contains relevant
-> >  information? 
-> > 
-> >  It seems to me that there is no direct way, and maybe there should
-> >  be. (I can do a find of 'dev' file and compare, which is fine in a
-> >  one-off shell script, but sub-optimal in general).
+> > 	    + RADEON_READ(RADEON_CONFIG_APER_SIZE) * 2;
 > 
-> So you want this info from userspace, not from within the kernel,
-> right?
+> With the patch below, my powerbook will sleep and wake up
+> successfully.
 
-Right.
+I added the printk's you (BH) asked for to Paul's patch, resulting in the
+patch below.  It works fine so far.  Here's the relevant kernel log:
 
-> 
-> >  The most obvious solution would be to have a directory somewhere full
-> >  of symlinks:
-> >         /sys/block_dev/8:0 -> ../block/sda
-> >  or whatever.
-> >  Is this reasonable?  Should I try it?
-> 
-> It seems a bit md specific to add a lot of kernel code for something
-> that can be solved with a userspace shell script :)
+Dec 15 22:39:47 jupiter kernel: dev_priv->fb_location is 0xe8000000
+Dec 15 22:39:47 jupiter kernel: RADEON_READ(RADEON_CONFIG_APER_SIZE) is 0x08000000
+Dec 15 22:39:47 jupiter kernel: [drm] Loading R200 Microcode
 
-I don't see it as md specific.  
-Suppose I want to change the IO scheduler under the filesystem /foo.
-I look that up in mtab and find it is mounted on /dev/blah.
-To find the corresponding /sys/block entry I have to search.  That's
-fine if I only have a few block devices.  But I keep hearing storing
-of people with thousands.  Having to search just feels clumsy.
+Let me know if you need any more info.  Thanks.
 
-> 
-> But if you want to try it, use a class, and a class_device for this, not
-> raw kobjects.  It should be a bit easier that way.
+--- linux-2.6.15-rc5-radeon-test.orig/drivers/char/drm/radeon_cp.c
++++ linux-2.6.15-rc5-radeon-test/drivers/char/drm/radeon_cp.c
+@@ -1522,7 +1522,12 @@ static int radeon_do_init_cp(drm_device_
+ 
+ 	dev_priv->gart_size = init->gart_size;
+ 	dev_priv->gart_vm_start = dev_priv->fb_location
+-	    + RADEON_READ(RADEON_CONFIG_APER_SIZE) * 2;
++	    + RADEON_READ(RADEON_CONFIG_MEMSIZE);
++
++printk(KERN_INFO "dev_priv->fb_location is 0x%08x\n",
++	dev_priv->fb_location);
++printk(KERN_INFO "RADEON_READ(RADEON_CONFIG_APER_SIZE) is 0x%08x\n",
++	RADEON_READ(RADEON_CONFIG_APER_SIZE));
+ 
+ #if __OS_HAS_AGP
+ 	if (!dev_priv->is_pci)
+--- linux-2.6.15-rc5-radeon-test.orig/drivers/char/drm/radeon_drv.h
++++ linux-2.6.15-rc5-radeon-test/drivers/char/drm/radeon_drv.h
+@@ -379,6 +379,7 @@ extern int r300_do_cp_cmdbuf(drm_device_
+ #	define RADEON_PLL_WR_EN			(1 << 7)
+ #define RADEON_CLOCK_CNTL_INDEX		0x0008
+ #define RADEON_CONFIG_APER_SIZE		0x0108
++#define RADEON_CONFIG_MEMSIZE		0x00f8
+ #define RADEON_CRTC_OFFSET		0x0224
+ #define RADEON_CRTC_OFFSET_CNTL		0x0228
+ #	define RADEON_CRTC_TILE_EN		(1 << 15)
 
-Well, maybe it'll be a good excuse to learn more about 'class' and
-'class_device' anyway.
-Thanks,
-NeilBrown
+-- 
+Mark M. Hoffman
+mhoffman@lightlink.com
+

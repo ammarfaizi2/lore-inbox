@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbVLPHtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVLPHyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbVLPHtM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 02:49:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVLPHtM
+	id S932075AbVLPHyH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 02:54:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVLPHyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 02:49:12 -0500
-Received: from smtpout.mac.com ([17.250.248.86]:18391 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932071AbVLPHtL (ORCPT
+	Fri, 16 Dec 2005 02:54:07 -0500
+Received: from smtpout.mac.com ([17.250.248.83]:14547 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932075AbVLPHyG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 02:49:11 -0500
+	Fri, 16 Dec 2005 02:54:06 -0500
 In-Reply-To: <20051216061605.46520.qmail@web50211.mail.yahoo.com>
 References: <20051216061605.46520.qmail@web50211.mail.yahoo.com>
 Mime-Version: 1.0 (Apple Message framework v746.2)
 Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <39B15930-235E-4E6A-817E-1F51BE17BC60@mac.com>
+Message-Id: <0FBF6CD3-9E95-4A1B-8886-7DD0853679DC@mac.com>
 Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
 From: Kyle Moffett <mrmacman_g4@mac.com>
 Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Fri, 16 Dec 2005 02:43:39 -0500
+Date: Fri, 16 Dec 2005 02:53:56 -0500
 To: Alex Davis <alex14641@yahoo.com>
 X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org

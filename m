@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbVLPWQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932537AbVLPWUo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932523AbVLPWQO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 17:16:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbVLPWQO
+	id S932537AbVLPWUo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 17:20:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932530AbVLPWUo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 17:16:14 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:23231 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932523AbVLPWQN (ORCPT
+	Fri, 16 Dec 2005 17:20:44 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:63133 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932529AbVLPWUn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 17:16:13 -0500
-Date: Fri, 16 Dec 2005 17:14:48 -0500
-From: Dave Jones <davej@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Mike Snitzer <snitzer@gmail.com>, Arjan van de Ven <arjan@infradead.org>,
-       Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051216221448.GP2821@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Adrian Bunk <bunk@stusta.de>, Mike Snitzer <snitzer@gmail.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>,
-	linux-kernel@vger.kernel.org
-References: <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com> <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com> <dnv0d3$4jl$1@sea.gmane.org> <1134758219.2992.52.camel@laptopd505.fenrus.org> <170fa0d20512161132g34c62593p39b109f07cf30b7d@mail.gmail.com> <1134762379.2992.69.camel@laptopd505.fenrus.org> <170fa0d20512161328n7e879b5ao29a4227e9c87491e@mail.gmail.com> <20051216215054.GJ23349@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051216215054.GJ23349@stusta.de>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 16 Dec 2005 17:20:43 -0500
+Date: Fri, 16 Dec 2005 14:19:58 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Steven Rostedt <rostedt@goodmis.org>, Andrew Morton <akpm@osdl.org>,
+       linux-arch@vger.kernel.org,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>, matthew@wil.cx,
+       arjan@infradead.org, Christoph Hellwig <hch@infradead.org>,
+       mingo@elte.hu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       nikita@clusterfs.com, pj@sgi.com, dhowells@redhat.com
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+In-Reply-To: <1134770778.2806.31.camel@tglx.tec.linutronix.de>
+Message-ID: <Pine.LNX.4.64.0512161414370.3698@g5.osdl.org>
+References: <20051215085602.c98f22ef.pj@sgi.com>  <20051213143147.d2a57fb3.pj@sgi.com>
+ <20051213093949.GC26097@elte.hu>  <20051213100015.GA32194@elte.hu> 
+ <6281.1134498864@warthog.cambridge.redhat.com>  <14242.1134558772@warthog.cambridge.redhat.com>
+  <16315.1134563707@warthog.cambridge.redhat.com>  <1134568731.4275.4.camel@tglx.tec.linutronix.de>
+ <43A0AD54.6050109@rtr.ca>  <20051214155432.320f2950.akpm@osdl.org> 
+ <17313.29296.170999.539035@gargle.gargle.HOWL>  <1134658579.12421.59.camel@localhost.localdomain>
+  <4743.1134662116@warthog.cambridge.redhat.com>  <7140.1134667736@warthog.cambridge.redhat.com>
+  <Pine.LNX.4.64.0512150945410.3292@g5.osdl.org>  <20051215112115.7c4bfbea.akpm@osdl.org>
+  <1134678532.13138.44.camel@localhost.localdomain> 
+ <Pine.LNX.4.62.0512152130390.16426@pademelon.sonytel.be> 
+ <1134769269.2806.17.camel@tglx.tec.linutronix.de>  <Pine.LNX.4.64.0512161339140.3698@g5.osdl.org>
+ <1134770778.2806.31.camel@tglx.tec.linutronix.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 10:50:54PM +0100, Adrian Bunk wrote:
- > On Fri, Dec 16, 2005 at 04:28:15PM -0500, Mike Snitzer wrote:
- > >...
- > > Given Neil Brown's fix for the block layer these stack-heavy workloads
- > > that included DM in the call chain need to be revisited.  However, the
- > > savings associated with those particular fixes still may not leave
- > > sufficient breathing room.  The logic that all users must NOW provide
- > > workloads which undermine 4K stack viability otherwise the 8K option
- > > will be completely removed _seems_ quite irrational (even though we
- > > are _supposedly_ just talking about doing so in -mm).
- > > 
- > > All of us appreciate the desire to have Linux be more efficient and 4K
- > > stacks will get us that.  If it comes with the cost of instability
- > > under more exotic workloads then the bad outweighs the perceived good
- > > of imposed 4K stacks.  With RHEL4 it would seem we're past the point
- > > of no-return for supported 8K stacks.  I'm merely advocating upstream
- > > give users the 8K+IRQ stack _options_ and set the default to 4K.
- > 
- > My count of bug reports for problems with in-kernel code with 4k stacks 
- > after Neil's patch went into -mm is still at 0. That's amazing 
- > considering how many people have claimed in this thread how unstable
- > 4k stacks were...
- > 
- > Enabling 4k stacks unconditionally for all -mm users will give us a 
- > wider testing coverage and will tell us whether we have really fixed all 
- > bugs that become visible with 4k stacks or whether there are still bugs 
- > left.
 
-As another anecdotal point, the number of oomkill/page alloc failure
-related bugs that get filed against Fedora these days you can count
-on one hand.  Before we switched over to 4K stacks, we were
-getting regular reports from users having quite sane workloads on
-capable machines getting jobs killed left and right.
 
-Now the only cases we're seeing is usually loonies trying to
-put silly amounts of RAM in 32bit systems, and the occasional
-bug which turns out to be a slab leak or something similar.
-(There's one oddball right now where someone sees his 5GB
- x86-64 run out of DMA zone, but that might 'go away' when
- we push out a kernel with the DMA32 zone).
+On Fri, 16 Dec 2005, Thomas Gleixner wrote:
+> 
+> Well, in case of a semaphore it is a semantically correct use case. In
+> case of of a mutex it is not.
 
-		Dave
+I disagree.
 
+Think of "initialization" as a user. The system starts out initializing 
+stuff, and as such the mutex should start out being held. It's that 
+simple. It _is_ mutual exclusion, with one user being the early bootup 
+state.
+
+		Linus

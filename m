@@ -1,165 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbVLPRz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbVLPR5V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbVLPRz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 12:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbVLPRz0
+	id S1751323AbVLPR5V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 12:57:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbVLPR5V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 12:55:26 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:25288 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751321AbVLPRzZ (ORCPT
+	Fri, 16 Dec 2005 12:57:21 -0500
+Received: from main.gmane.org ([80.91.229.2]:10990 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751323AbVLPR5U (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 12:55:25 -0500
-Date: Fri, 16 Dec 2005 09:55:40 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, Eric Dumazet <dada1@cosmosbay.com>,
-       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Simon Derr <Simon.Derr@bull.net>, Andi Kleen <ak@suse.de>,
-       Christoph Lameter <clameter@sgi.com>
-Subject: Re: [PATCH 02/04] Cpuset: use rcu directly optimization
-Message-ID: <20051216175540.GB24876@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051214084031.21054.13829.sendpatchset@jackhammer.engr.sgi.com> <20051214084037.21054.4269.sendpatchset@jackhammer.engr.sgi.com>
+	Fri, 16 Dec 2005 12:57:20 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: Re: Help track down a freezing machine
+Date: Sat, 17 Dec 2005 02:52:52 +0900
+Message-ID: <dnuutm$v10$1@sea.gmane.org>
+References: <dnp4t9$srl$1@sea.gmane.org> <81b0412b0512140625i7cc5779ar224de3d64c615fbc@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051214084037.21054.4269.sendpatchset@jackhammer.engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051023)
+X-Accept-Language: en-us, en
+In-Reply-To: <81b0412b0512140625i7cc5779ar224de3d64c615fbc@mail.gmail.com>
+X-Enigmail-Version: 0.93.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 14, 2005 at 12:40:37AM -0800, Paul Jackson wrote:
-> Optimize the cpuset impact on page allocation, the most
-> performance critical cpuset hook in the kernel.
+Alex Riesen wrote:
+> On 12/14/05, Kalin KOZHUHAROV <kalin@thinrope.net> wrote:
 > 
-> On each page allocation, the cpuset hook needs to check for a
-> possible change in the current tasks cpuset.  It can now handle
-> the common case, of no change, without taking any spinlock or
-> semaphore, thanks to RCU.
+>>Now that I get a repetitive freeze, is there anything to debug the problem?
+>>I guess, the point when kernel is still responsive to keyboard, but I cannot login.
 > 
-> Convert a spinlock on the current task to an rcu_read_lock(),
-> saving approximately a memory barrier and an atomic op, depending
-> on architecture.
 > 
-> This is done by adding rcu_assign_pointer() and synchronize_rcu()
-> calls to the write side of the task->cpuset pointer, in
-> cpuset.c:attach_task(), to delay freeing up a detached cpuset
-> until after any critical sections referencing that pointer.
-> 
-> Thanks to Andi Kleen, Nick Piggin and Eric Dumazet for ideas.
+> try to connect a serial console to it and press Alt+SysRq+t
 
-Looks good to me from an RCU perspective!
+Thank you for the suggestio, Alex.
 
-Moving from synchronize_rcu() to call_rcu() would be tricky, since
-the check_for_release() function can block in kmalloc().  If updates
-become a bottleneck, one approach would be to invoke work queues
-from within the RCU callback.
+I was always trying to avoid the serial console till now (it just seems difficult, and I DO know it
+is not), and didn't even bother with the netconsole...
 
-						Thanx, Paul
+However, now that I spent almost an hour, trying to OCR and fix a screenshot of an oops, I am
+convinced: I DO need serial console! First thing tomorrow.
 
-Acked-by: <paulmck@us.ibm.com>
-> Signed-off-by: Paul Jackson <pj@sgi.com>
-> 
-> ---
-> 
->  kernel/cpuset.c |   40 ++++++++++++++++++++++++++++++----------
->  1 files changed, 30 insertions(+), 10 deletions(-)
-> 
-> --- 2.6.15-rc3-mm1.orig/kernel/cpuset.c	2005-12-13 16:49:01.767509666 -0800
-> +++ 2.6.15-rc3-mm1/kernel/cpuset.c	2005-12-13 17:19:37.989982316 -0800
-> @@ -39,6 +39,7 @@
->  #include <linux/namei.h>
->  #include <linux/pagemap.h>
->  #include <linux/proc_fs.h>
-> +#include <linux/rcupdate.h>
->  #include <linux/sched.h>
->  #include <linux/seq_file.h>
->  #include <linux/slab.h>
-> @@ -248,6 +249,11 @@ static struct super_block *cpuset_sb;
->   * a tasks cpuset pointer we use task_lock(), which acts on a spinlock
->   * (task->alloc_lock) already in the task_struct routinely used for
->   * such matters.
-> + *
-> + * P.S.  One more locking exception.  RCU is used to guard the
-> + * update of a tasks cpuset pointer by attach_task() and the
-> + * access of task->cpuset->mems_generation via that pointer in
-> + * the routine cpuset_update_task_memory_state().
->   */
->  
->  static DECLARE_MUTEX(manage_sem);
-> @@ -610,12 +616,24 @@ static void guarantee_online_mems(const 
->   * cpuset pointer.  This routine also might acquire callback_sem and
->   * current->mm->mmap_sem during call.
->   *
-> - * The task_lock() is required to dereference current->cpuset safely.
-> - * Without it, we could pick up the pointer value of current->cpuset
-> - * in one instruction, and then attach_task could give us a different
-> - * cpuset, and then the cpuset we had could be removed and freed,
-> - * and then on our next instruction, we could dereference a no longer
-> - * valid cpuset pointer to get its mems_generation field.
-> + * Reading current->cpuset->mems_generation doesn't need task_lock
-> + * to guard the current->cpuset derefence, because it is guarded
-> + * from concurrent freeing of current->cpuset by attach_task(),
-> + * using RCU.
-> + *
-> + * The rcu_dereference() is technically probably not needed,
-> + * as I don't actually mind if I see a new cpuset pointer but
-> + * an old value of mems_generation.  However this really only
-> + * matters on alpha systems using cpusets heavily.  If I dropped
-> + * that rcu_dereference(), it would save them a memory barrier.
-> + * For all other arch's, rcu_dereference is a no-op anyway, and for
-> + * alpha systems not using cpusets, another planned optimization,
-> + * avoiding the rcu critical section for tasks in the root cpuset
-> + * which is statically allocated, so can't vanish, will make this
-> + * irrelevant.  Better to use RCU as intended, than to engage in
-> + * some cute trick to save a memory barrier that is impossible to
-> + * test, for alpha systems using cpusets heavily, which might not
-> + * even exist.
->   *
->   * This routine is needed to update the per-task mems_allowed data,
->   * within the tasks context, when it is trying to allocate memory
-> @@ -627,11 +645,12 @@ void cpuset_update_task_memory_state()
->  {
->  	int my_cpusets_mem_gen;
->  	struct task_struct *tsk = current;
-> -	struct cpuset *cs = tsk->cpuset;
-> +	struct cpuset *cs;
->  
-> -	task_lock(tsk);
-> +	rcu_read_lock();
-> +	cs = rcu_dereference(tsk->cpuset);
->  	my_cpusets_mem_gen = cs->mems_generation;
-> -	task_unlock(tsk);
-> +	rcu_read_unlock();
->  
->  	if (my_cpusets_mem_gen != tsk->cpuset_mems_generation) {
->  		down(&callback_sem);
-> @@ -1131,7 +1150,7 @@ static int attach_task(struct cpuset *cs
->  		return -ESRCH;
->  	}
->  	atomic_inc(&cs->count);
-> -	tsk->cpuset = cs;
-> +	rcu_assign_pointer(tsk->cpuset, cs);
->  	task_unlock(tsk);
->  
->  	guarantee_online_cpus(cs, &cpus);
-> @@ -1151,6 +1170,7 @@ static int attach_task(struct cpuset *cs
->  	if (is_memory_migrate(cs))
->  		do_migrate_pages(tsk->mm, &from, &to, MPOL_MF_MOVE_ALL);
->  	put_task_struct(tsk);
-> +	synchronize_rcu();
->  	if (atomic_dec_and_test(&oldcs->count))
->  		check_for_release(oldcs, ppathbuf);
->  	return 0;
-> 
-> -- 
->                           I won't rest till it's the best ...
->                           Programmer, Linux Scalability
->                           Paul Jackson <pj@sgi.com> 1.650.933.1373
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+So until now, here is an oops, the first I saw in a few months, captured by my camera and then
+digitally enhanced: http://linux.tar.bz/reports/oopses/char/2.6.14.3-K01_char__oops1.jpg
+
+The OCRed/handwritten text ( http://linux.tar.bz/reports/oopses/char/2.6.14.3-K01_char__oops1.txt )
+says:
+
+Call trace:
+SCSI device sda: 145226112 512-byte hdwr sectors (74356 MB)
+SCSI device sda: drive cache: write back
+[<c01ec22f>] kobject_put+0x1f/0x30
+[<c028c8fd>] scsi_end_request+0xdd/0xf0
+[<c028ccae>] scsi_io_completion+0x26e/0x570
+[<c011b623>] load_balance_newidle+0x43/0x110
+[<c028d255>] scsi_generic_done+0x35/0x50
+[<c02873ee>] scsi_finish_command+0x8e/0xd0
+[<c0318dea>] schedule+0x4da/0xd50
+[<c0318e1d>] schedule+0x50d/0xd50
+[<c028728f>] scsi_sortirq+0xdf/0x160
+[<c0125836>] __do_softirq+0xd6/0xf0
+[<c0125885>] do_softirq+0x35/0x40
+[<c0125e35>] ksoftirqd+0x95/0xe0
+[<c0125da0>] ksoftirqd+0x0/0xe0
+[<c0135b9a>] kthread+0xba/0xc0
+[<c0135ae0>] kthread+0x0/0xc0
+[<c0101245>] kernel_thread_helper+0x5/0x10
+Code: e1 08 00 89 44 24 04 89 1c 24 e8 27 b0 ff ff eb a5 90 8d 74 26 00 55 57 56
+ 53 83 ec 08 8b 44 24 1c 89 44 24 04 8b 80 ec 00 00 00 <8b> 38 f6 80 79 01 00 00
+ 80 0f 85 98 00 00 00 8b 47 2c 8d 6f 20
+<0>Kernel panic - not syncing: Fatal exception in interrupt
+
+Unfortunately everything was frozen (KBD too), so I couldn't scroll up to see the beginning. As you
+may guess, it was not written to the disk.
+
+The oops happened on boot (after a hard power-off) and is probbably related to the SATA system.
+
+The .config is available at http://linux.tar.bz/reports/oopses/char/2.6.14.3-K01_char.config
+
+Any insights?
+
+I will be "fighting" with the machine this weekend as well and keep posting.
+Removed the fcron job (to restart every 4h) and now it has been running almost 11h...
+
+Kalin.
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
+

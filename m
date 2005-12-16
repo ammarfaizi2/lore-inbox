@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbVLPNr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbVLPNr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbVLPNr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 08:47:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbVLPNr2
+	id S932258AbVLPNr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 08:47:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932271AbVLPNr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 08:47:28 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:13979 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S932150AbVLPNr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 08:47:27 -0500
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: David Howells <dhowells@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Christopher Friesen" <cfriesen@nortel.com>, torvalds@osdl.org,
-       hch@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-References: <15167.1134488373@warthog.cambridge.redhat.com>
-	<1134490205.11732.97.camel@localhost.localdomain>
-	<1134556187.2894.7.camel@laptopd505.fenrus.org>
-	<1134558188.25663.5.camel@localhost.localdomain>
-	<1134558507.2894.22.camel@laptopd505.fenrus.org>
-	<1134559470.25663.22.camel@localhost.localdomain>
-	<20051214033536.05183668.akpm@osdl.org>
-	<15412.1134561432@warthog.cambridge.redhat.com>
-	<11202.1134730942@warthog.cambridge.redhat.com>
-	<43A2BAA7.5000807@yahoo.com.au>
-	<20051216132123.GB1222@flint.arm.linux.org.uk>
-From: "Linh Dang" <linhd@nortel.com>
-Organization: Null
-Date: Fri, 16 Dec 2005 08:46:44 -0500
-In-Reply-To: <20051216132123.GB1222@flint.arm.linux.org.uk> (Russell King's
- message of "Fri, 16 Dec 2005 13:21:23 +0000")
-Message-ID: <wn564ppnohn.fsf@linhd-2.ca.nortel.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Fri, 16 Dec 2005 08:47:58 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:17128 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932258AbVLPNr6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 08:47:58 -0500
+Date: Fri, 16 Dec 2005 13:47:54 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: akpm@osdl.org, wein@de.ibm.com, Horst.Hummel@de.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 3/3] s390: dasd extended error reporting module.
+Message-ID: <20051216134754.GA23964@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
+	wein@de.ibm.com, Horst.Hummel@de.ibm.com,
+	linux-kernel@vger.kernel.org
+References: <20051216132953.GD8877@skybase.boeblingen.de.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051216132953.GD8877@skybase.boeblingen.de.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 16, 2005 at 02:29:53PM +0100, Martin Schwidefsky wrote:
+> From: Stefan Weinhuber <wein@de.ibm.com>
+> 
+> [patch 3/3] s390: dasd extended error reporting module.
+> 
+> The DASD extended error reporting is a facility that allows to
+> get detailed information about certain problems in the DASD I/O.
+> This information can be used to implement fail-over applications
+> that can recover these problems.
+> 
+> Signed-off-by: Stefan Weinhuber <wein@de.ibm.com>
+> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> 
+> ---
+> 
+>  arch/s390/kernel/compat_ioctl.c    |    2 
+>  drivers/s390/block/Kconfig         |   14 
+>  drivers/s390/block/Makefile        |    2 
+>  drivers/s390/block/dasd.c          |   76 ++
+>  drivers/s390/block/dasd_3990_erp.c |    5 
+>  drivers/s390/block/dasd_eckd.h     |    3 
+>  drivers/s390/block/dasd_eer.c      | 1091 +++++++++++++++++++++++++++++++++++++
+>  drivers/s390/block/dasd_int.h      |   37 +
+>  include/asm-s390/dasd.h            |   15 
+>  9 files changed, 1237 insertions(+), 8 deletions(-)
+> 
+> diff -urpN linux-2.6/arch/s390/kernel/compat_ioctl.c linux-2.6-patched/arch/s390/kernel/compat_ioctl.c
+> --- linux-2.6/arch/s390/kernel/compat_ioctl.c	2005-12-16 10:56:42.000000000 +0100
+> +++ linux-2.6-patched/arch/s390/kernel/compat_ioctl.c	2005-12-16 10:57:24.000000000 +0100
+> @@ -63,6 +63,8 @@ COMPATIBLE_IOCTL(BIODASDSATTR)
+>  COMPATIBLE_IOCTL(BIODASDCMFENABLE)
+>  COMPATIBLE_IOCTL(BIODASDCMFDISABLE)
+>  COMPATIBLE_IOCTL(BIODASDREADALLCMB)
+> +COMPATIBLE_IOCTL(BIODASDEERSET)
+> +COMPATIBLE_IOCTL(BIODASDEERGET)
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+Nack, now new ioctls in compat_ioctl.c, please.  In fact that file is
+gone in -mm, so please submit this patch ontop of the -mm tree.
 
-> On Sat, Dec 17, 2005 at 12:01:27AM +1100, Nick Piggin wrote:
->> You were proposing a worse default, which is the reason I suggested
->> it.
->
-> I'd like to qualify that.  "for architectures with native cmpxchg".
->
-> For general consumption (not specifically related to mutex stuff)...
->
-> For architectures with llsc, sequences stuch as:
->
-> 	load
-> 	modify
-> 	cmpxchg
->
-> are inefficient because they have to be implemented as:
->
-> 	load
-> 	modify
-> 	load
-> 	compare
-> 	store conditional
->
 
-I dont know what arch u have in mind but for ppc it is:
-
-        load-reserve
-        modify
-        store-conditional
-
-and NOT the sequence you show.
-
--- 
-Linh Dang
+And is there a chance for a better interface than the notifier lists?
+The code looks rather awkward because of it.

@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932464AbVLPTOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbVLPTRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932464AbVLPTOU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 14:14:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbVLPTOT
+	id S932411AbVLPTRK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 14:17:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVLPTRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 14:14:19 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:44681 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S932460AbVLPTOR (ORCPT
+	Fri, 16 Dec 2005 14:17:09 -0500
+Received: from mail.kroah.org ([69.55.234.183]:40857 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932377AbVLPTRI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 14:14:17 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Fri, 16 Dec 2005 20:14:35 +0100
-User-Agent: KMail/1.8
-Cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
-References: <200512161842.jBGIgjZG003433@laptop11.inf.utfsm.cl> <43A30D36.5090406@didntduck.org> <1134759731.2992.57.camel@laptopd505.fenrus.org>
-In-Reply-To: <1134759731.2992.57.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Dec 2005 14:17:08 -0500
+Date: Fri, 16 Dec 2005 11:16:48 -0800
+From: Greg KH <greg@kroah.com>
+To: Jan De Luyck <lkml@kcore.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.14.3] S3 and USB
+Message-ID: <20051216191648.GA4796@kroah.com>
+References: <200512161535.13650.lkml@kcore.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512162014.35965.oliver@neukum.org>
+In-Reply-To: <200512161535.13650.lkml@kcore.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 16. Dezember 2005 20:02 schrieb Arjan van de Ven:
+On Fri, Dec 16, 2005 at 03:35:13PM +0100, Jan De Luyck wrote:
+> Hello list,
 > 
-> > 
-> > So what about arches where single-page stacks aren't viable (for example 
-> > x86_64)?  Are we just screwed?
+> I'm currently running 2.6.14.3, with S3 suspending, works like a charm.
+> The only things i need to disable prior to suspending (just so that I can 
+> re-enable them afterwards and have them working is:
+> - nsc_ircc (+irda_tools)
+> - acerhk 
 > 
+> USB and the like work without problems. The only problem I have is that if I 
+> leave USB 'on' and suspend, any activity to the USB ports causes my laptop to 
+> resume but it never resumes correctly. I get a black screen, no entries in 
+> the system logs, and I need to hold the power button to power off the 
+> machine. Which is very annoying since I tend to plug in my USB mouse before I 
+> open the screen.
 > 
-> x86 is specially handicapped due to the fact that the stacks need to be
-> in the lowmem zone. Even if you have 8Gb ram, the lowmem zone is still
-> 800Mb and a bit, and this gets to be under a high pressure, like
-> hyper-fragmentation. Same for bounce buffers etc etc.
-> 
-> note that the order thing is by far not the only advantage, pure memory
-> usage alone and cache locality also are wins. The memory usage halves
-> for kernel stacks after all (which means you can do more threads in
-> java, or use the memory for disk cache ;)
+> Any ideas?
 
-1. Cache usage depends on actual stack usage. How much you allocate
-doesn't matter
-2. You are surely getting a cache effect by using interrupt stacks. Which
-is larger?
-3. When you use kmalloc instead of the stack you are reducing locality.
+Can you try 2.6.15-rc5?  USB suspend issues are still being worked out
+:)
 
-	Regards
-		Oliver
+thanks,
+
+greg k-h

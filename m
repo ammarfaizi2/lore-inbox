@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932285AbVLPScL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbVLPSfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932285AbVLPScL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 13:32:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVLPScL
+	id S932366AbVLPSfg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 13:35:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbVLPSfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 13:32:11 -0500
-Received: from smtp103.sbc.mail.mud.yahoo.com ([68.142.198.202]:51121 "HELO
-	smtp103.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932285AbVLPScK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 13:32:10 -0500
-From: David Brownell <david-b@pacbell.net>
-To: spi-devel-general@lists.sourceforge.net
-Subject: Re: [spi-devel-general] Re: [PATCH/RFC] SPI: add DMAUNSAFE analog
-Date: Fri, 16 Dec 2005 10:32:05 -0800
-User-Agent: KMail/1.7.1
-Cc: Greg KH <greg@kroah.com>, Vitaly Wool <vwool@ru.mvista.com>,
-       linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
-       basicmark@yahoo.com, komal_shah802003@yahoo.com,
-       stephen@streetfiresound.com, Joachim_Jaeger@digi.com
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <43A27CDA.4020304@ru.mvista.com> <20051216173406.GC2122@kroah.com>
-In-Reply-To: <20051216173406.GC2122@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 16 Dec 2005 13:35:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:21418 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932366AbVLPSfg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 13:35:36 -0500
+Date: Fri, 16 Dec 2005 13:35:23 -0500
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: documentation fixes
+Message-ID: <20051216183523.GF2821@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+	kernel list <linux-kernel@vger.kernel.org>
+References: <20051216105852.GJ8476@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512161032.06144.david-b@pacbell.net>
+In-Reply-To: <20051216105852.GJ8476@elf.ucw.cz>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Dec 16, 2005 at 11:58:52AM +0100, Pavel Machek wrote:
 
-> > Oh BTW... I'm experiencing constant problems with root filesystem over 
-> > NFS over usbnet on my target
+ > +Q: How can RH ship a swsusp-supporting kernel with modular SATA
+ > +drivers?
+ >  
+ > +A: Well, it can be done, load the drivers, then do echo into resume
+ > +file from initrd. Be sure not to mount anything, not even read-only
+ > +mount, or you are going to loose your filesystem same way Dave Jones
+ > +did.
 
-As you clarified off-line ... it's "pegasus", not "usbnet",
-which is giving you problems.  That's entirely different code;
-although "pegasus" could be modified to run on top of the
-core that "usbnet" provides.
+I don't need the fame here thanks.
+I've hit a thousand other ways to corrupt my rootfs, I don't think
+it's worth documenting them.  It's arguable this whole item is needed
+to be documented, but if you feel compelled to write Red Hat specific
+documentation in the swsusp docs, feel free to note that
+'make modules_install ; make install' just does the right thing,
+including building an initrd for you with all the right pieces.
 
-The problems I've seen with "pegasus" have more to do with
-wierd chip behaviors (and weak fault recovery logic) than
-with anything DMA-related.
+		Dave
 
-- Dave

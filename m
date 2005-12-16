@@ -1,74 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbVLPIsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbVLPJI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932192AbVLPIsU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 03:48:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932194AbVLPIsU
+	id S932195AbVLPJI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 04:08:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbVLPJI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 03:48:20 -0500
-Received: from web50204.mail.yahoo.com ([206.190.38.45]:5807 "HELO
-	web50204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932192AbVLPIsT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 03:48:19 -0500
+	Fri, 16 Dec 2005 04:08:29 -0500
+Received: from web35007.mail.mud.yahoo.com ([209.191.68.201]:40830 "HELO
+	web35007.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932195AbVLPJI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 04:08:29 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=5jXWu2PnvrNkLzTRqzk6C3Vp3GevOz6FSEt3D2XTox7vRgtXAvRhkwakS7+No50mQ1l5JuFtOfnHTlk6v5bvcladV3k8Y7JURYfiWzGCURBS5MzYs4K7e6xEHmst+wJQ0qkozB6mga1SHR1G29x/hW91gfLNkeUL3bGo4i2FAps=  ;
-Message-ID: <20051216084818.66343.qmail@web50204.mail.yahoo.com>
-Date: Fri, 16 Dec 2005 00:48:18 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-To: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org
-In-Reply-To: <EC9B7A4A-2CD2-4EA4-B9B3-D35F8F5DFA4B@mac.com>
+  s=s1024; d=yahoo.com.br;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=AMbQkgGzlKvOlD+ZCMOSIR8VclFkSdZEbV5K3QjaEt5ZIixohrfKhiZjvc8wnbM+Y69T8/VDRY4kfrOG8OVg0ARprr6MiAWhnqFNzpGDiROa5JQI9uVGOVm3xTV4GSOVrsEpwM46eN/RxKkcHkyji2zNTjjz5OnGn/QNANZRsVI=  ;
+Message-ID: <20051216090826.10626.qmail@web35007.mail.mud.yahoo.com>
+Date: Fri, 16 Dec 2005 09:08:26 +0000 (GMT)
+From: =?iso-8859-1?q?Jos=E9=20Toneh?= <tohnehn@yahoo.com.br>
+Subject: wrong SWAP values in top's output
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
+
+I'm running Debian Sarge's stock 2.6 kernel here:
+
+$ uname -a
+Linux localhost 2.6.8-2-k7 #1 Thu May 19 18:03:29 JST 2005 i686 GNU/Linux
+
+$ vmstat -s | grep -1 'used swap'
+       799992  total swap
+       463680  used swap
+       336312  free swap
+
+$ top -bn1 | awk 'NR > 6 && NR < 20 { t += $4; print }
+> END { print "Total SWAP for the first 12 processes: " t "m" }'
+  PID %MEM  VIRT SWAP  RES CODE DATA  SHR nFLT nDRT S PR  NI %CPU COMMAND      
+18551 14.1  345m 273m  71m 1712 343m 101m 1373    0 S 5 -10  4.0 XFree86      
+25397 49.5  505m 255m 249m  164 505m  40m 3700    0 S 15   0  2.0 mozilla-bin  
+24759  0.5  236m 234m 2416   16 236m  54m  138    0 S 17   0  0.0 java_vm      
+ 3107  4.6  113m  89m  23m  164 112m  34m 1462    0 S 15   0  0.0 mozilla-bin  
+31064  1.5 65956  57m 7572  568  63m  19m  291    0 S 15   0  0.0 beep-media-  
+27359  0.2 51756  49m 1224  124  50m 2424    0    0 S 25   0  0.0 pdnsd        
+19098  3.0 45592  29m  15m  960  43m  15m  368    0 S 15   0  0.0 nicotine     
+18653  1.9 37656  27m 9684  644  36m  19m  472    0 S 16   0  0.0 nautilus     
+16887  1.6 27544  18m 8416  428  26m  14m  146    0 S 15   0  0.0 xchat        
+12479  3.1 33560  16m  15m  428  32m  14m  147    0 S 15   0  0.0 xchat        
+18615  0.4 17832  15m 1932   52  17m 3572  320    0 S 16   0  0.0 gconfd-2     
+18628  0.8 18896  14m 4332  160  18m  17m    6    0 S 16   0  0.0 gnome-setti  
+Total SWAP for the first 12 processes: 1076m
+
+Seems like a bug to me.
+
+Regards,
+
+José Toneh
 
 
---- Kyle Moffett <mrmacman_g4@mac.com> wrote:
-
-> On Dec 16, 2005, at 03:20, Alex Davis wrote:
-> > Maybe nobody YOU know cares. I know a few people who do!!
-> 
-> I care a lot about having working wireless on my laptop (a  
-> PowerBook).  The only way that's going to happen is the bcm43xx  
-> project, which I have supported as much as possible from the very  
-> beginning.  The reluctance of many people to try out the now WORKING  
-> bcm43xx driver or help out with development before it was working has  
-> meant that I've had to wait a lot longer than I probably otherwise  
-> would have.  ndiswrapper is NOT an answer
- although if you think so,  
-> you're welcome to fix it to work with 4k stacks (although it's not  
-> like it really ever "worked" with 8k stacks either, NT has 12k).
-
-> So go f*** off and quit trolling the LKML.  If your argument isn't  
-> reasonable with valid open-source *technical* basis, I'm sure you  
-> have a wide variety of orifices in which you can shove it, because we  
-> don't care at all!
-
-So profanity and getting emootional are technical arguments/reasons to
-stop stating my opinions??
-
-Hmmm...
 
 
-> Cheers,
-> Kyle Moffett
-> 
-> --
-> Premature optimization is the root of all evil in programming
->    -- C.A.R. Hoare
-> 
-> 
-> 
-> 
+	
 
 
-I code, therefore I am
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+	
+		
+_______________________________________________________ 
+Yahoo! doce lar. Faça do Yahoo! sua homepage. 
+http://br.yahoo.com/homepageset.html 
+

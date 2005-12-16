@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbVLPAwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbVLPAzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbVLPAwR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 19:52:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVLPAwR
+	id S1751231AbVLPAzG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 19:55:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751232AbVLPAzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 19:52:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:21208 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751122AbVLPAwQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 19:52:16 -0500
-Date: Thu, 15 Dec 2005 19:50:56 -0500
-From: Dave Jones <davej@redhat.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org, xfs-masters@oss.sgi.com, nathans@sgi.com
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051216005056.GG3419@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, arjan@infradead.org,
-	xfs-masters@oss.sgi.com, nathans@sgi.com
-References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051215223000.GU23349@stusta.de> <20051215231538.GF3419@redhat.com> <20051216004740.GV23349@stusta.de>
-Mime-Version: 1.0
+	Thu, 15 Dec 2005 19:55:06 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:61196 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751231AbVLPAzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 19:55:04 -0500
+Date: Fri, 16 Dec 2005 01:55:05 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: dwmw2@infradead.org, linux-mtd@lists.infradead.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: drivers/mtd/onenand/: unacceptable stack usage
+Message-ID: <20051216005505.GW23349@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051216004740.GV23349@stusta.de>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 01:47:40AM +0100, Adrian Bunk wrote:
+In 2.6.15-rc, the following driver was added:
 
- > > [*] Plus a few XFS ones, but that's been a lost cause wrt stack usage
- > > for a long time -- people were reporting overflows there before we
- > > enabled 4K stacks.
- > 
- > I remember someone from the XFS maintainers (Nathan?) saying they 
- > believe having solved all XFS stack issues.
- > 
- > If there are any XFS issues left, do you have a pointer to them?
 
-The last one I saw may have been actually been more related
-to the block layer problem. iirc that was a user NFS exporting
-XFS on a raid1 array.
+include/linux/mtd/onenand.h:
+#define MAX_ONENAND_PAGESIZE        (2048 + 64)
 
-		Dave
+
+drivers/mtd/onenand/onenand_base.c:
+static int onenand_writev_ecc(struct mtd_info *mtd, const struct kvec *vecs,
+        unsigned long count, loff_t to, size_t *retlen,
+        u_char *eccbuf, struct nand_oobinfo *oobsel)
+{
+        struct onenand_chip *this = mtd->priv;
+        unsigned char buffer[MAX_ONENAND_PAGESIZE], *pbuf;
+
+
+drivers/mtd/onenand/onenand_bbt.c:
+static inline int onenand_memory_bbt (struct mtd_info *mtd, struct nand_bbt_descr *bd)
+{
+        unsigned char data_buf[MAX_ONENAND_PAGESIZE];
+
+
+These are variables on the stack that are > 2kB which is not acceptable 
+since the complete stack might be only 4kB.
+
+
+Please either fix this before 2.6.15 or mark the MTD_ONENAND driver as 
+BROKEN until it's fixed.
+
+
+TIA
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

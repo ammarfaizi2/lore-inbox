@@ -1,60 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbVLPBkF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbVLPBoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbVLPBkF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 20:40:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751273AbVLPBkF
+	id S1751275AbVLPBoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 20:44:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751277AbVLPBoY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 20:40:05 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:3299 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751272AbVLPBkC (ORCPT
+	Thu, 15 Dec 2005 20:44:24 -0500
+Received: from fsmlabs.com ([168.103.115.128]:2227 "EHLO spamalot.fsmlabs.com")
+	by vger.kernel.org with ESMTP id S1751275AbVLPBoY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 20:40:02 -0500
-Message-ID: <43A21AED.5020700@pobox.com>
-Date: Thu, 15 Dec 2005 20:39:57 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 15 Dec 2005 20:44:24 -0500
+X-ASG-Debug-ID: 1134697458-4757-81-0
+X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
+Date: Thu, 15 Dec 2005 17:49:45 -0800 (PST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+X-ASG-Orig-Subj: Re: [2.6 patch] i386: always use 4k stacks
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+In-Reply-To: <20051215223000.GU23349@stusta.de>
+Message-ID: <Pine.LNX.4.64.0512151746270.1678@montezuma.fsmlabs.com>
+References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org>
+ <20051215223000.GU23349@stusta.de>
 MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [PATCH 0/3] *at syscalls: Intro
-References: <200512152249.jBFMnXAA016747@devserv.devel.redhat.com> <43A20B0B.5090205@pobox.com> <43A2187B.2050909@redhat.com>
-In-Reply-To: <43A2187B.2050909@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Ulrich Drepper wrote: > Jeff Garzik wrote: > >> It
-	would be nice to add the additional argument to path_lookup(), >>
-	rather than calling do_path_lookup() everywhere. > > > path_lookup is
-	unfortunately exported. If breaking the ABI is no issue > I'll change
-	it. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Barracuda-Spam-Score: 0.00
+X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
+X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6340
+	Rule breakdown below pts rule name              description
 	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> Jeff Garzik wrote:
+On Thu, 15 Dec 2005, Adrian Bunk wrote:
+
+> On Thu, Dec 15, 2005 at 02:00:13PM -0800, Andrew Morton wrote:
 > 
->> It would be nice to add the additional argument to path_lookup(), 
->> rather than calling do_path_lookup() everywhere.
+> > Supporting 8k stacks is a small amount of code and nobody has seen a need
+> > to make changes in there for quite a long time.  So there's little cost to
+> > keeping the existing code.
+> > 
+> > And the existing code is useful:
+> > 
+> > a) people can enable it to confirm that their weird crash was due to a
+> >    stack overflow.
+> > 
+> > b) If I was going to put together a maximally-stable kernel for a
+> >    complex server machine, I'd select 8k stacks.  We're still just too
+> >    squeezy, and we've had too many relatively-recent overflows, and there
+> >    are still some really deep callpaths in there.
 > 
+> a1) People turn off 4k stacks and never report the problem / noone 
+>     really debugs and fixes the reported problem.
 > 
-> path_lookup is unfortunately exported.  If breaking the ABI is no issue 
-> I'll change it.
+> Me threatening people with enabling 4k stacks for everyone already 
+> resulted in several fixes.
 
-Yep, I saw it was exported.  I would prefer to change the API, but my 
-preference doesn't carry much weight:  I have no idea if there are any 
-important out-of-tree users or not.
-
-	Jeff
-
-
+How about this, we apply this patch and perhaps add some debug option to 
+enable 8k by changing THREAD_SIZE. This way we have the seperate interrupt 
+stacks and 8k stacks for when someone suspects a stack overflow.

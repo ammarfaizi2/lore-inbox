@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVLPRT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751311AbVLPRbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932359AbVLPRT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 12:19:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932361AbVLPRT7
+	id S1751311AbVLPRbu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 12:31:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVLPRbu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 12:19:59 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:60800 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S932359AbVLPRT6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 12:19:58 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Re: gtkpod and Filesystem
-Date: Fri, 16 Dec 2005 11:19:55 -0600
-Message-ID: <F265D57E1F28274EA189ED0566D227DE7F2343@PGJEXC01.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: gtkpod and Filesystem
-Thread-Index: AcYCZJzfVnA1QZcHQIqeBJ1GK2Sj+gAABlmg
-From: "Bonilla, Alejandro" <alejandro.bonilla@hp.com>
-To: "Kasper Sandberg" <lkml@metanurb.dk>
-Cc: "Gunter Ohrner" <G.Ohrner@post.rwth-aachen.de>,
-       <linux-kernel@vger.kernel.org>, <debian-devel@lists.debian.org>
-X-OriginalArrivalTime: 16 Dec 2005 17:19:56.0899 (UTC) FILETIME=[EFC07330:01C60264]
+	Fri, 16 Dec 2005 12:31:50 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:62625 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1751311AbVLPRbu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 12:31:50 -0500
+Message-Id: <200512161729.jBGHTlGR017130@laptop11.inf.utfsm.cl>
+To: Olof Johansson <olof@lixom.net>
+cc: Michael Hanselmann <linux-kernel@hansmi.ch>, dtor_core@ameritech.net,
+       kernel-stuff@comcast.net, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org, linux-input@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH 2.6 1/2] usb/input: Add relayfs support to appletouch driver 
+In-Reply-To: Message from Olof Johansson <olof@lixom.net> 
+   of "Thu, 15 Dec 2005 11:50:17 -0800." <20051215195017.GA7195@pb15.lixom.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Fri, 16 Dec 2005 14:29:47 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 16 Dec 2005 14:30:09 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Olof Johansson <olof@lixom.net> wrote:
 
-|On Fri, 2005-12-16 at 10:32 -0600, Bonilla, Alejandro wrote:
-|> Gunter,
-|> 
-|> 	Actually. Issue fixed. It is really odd that a dosfsck fixed it.
-|i dont see how that is odd.. if the filesystem was somehow corrupted
-|dosfsck would have corrected it.
+Just saw this.
 
-Odd how it got "corrupted" and odd on why it would work on Windows and
-not in Linux.
+> On Thu, Dec 15, 2005 at 12:31:08AM +0100, Michael Hanselmann wrote:
 
-Anyway, it works now. I was more worried on the FS Panic than anything
-else.
+> > diff -rup linux-2.6.15-rc5.orig/drivers/usb/input/appletouch.c b/drivers/usb/input/appletouch.c
+> > --- linux-2.6.15-rc5.orig/drivers/usb/input/appletouch.c	2005-12-13 22:44:24.000000000 +0100
+> > +++ b/drivers/usb/input/appletouch.c	2005-12-15 00:25:09.000000000 +0100
 
-.Alejandro
+[...]
 
-|> ;-)
-|> 
-|> Thanks,
-|> 
-|> .Alejandro
-|> 
-|> ||Alejandro Bonilla wrote:
-|> ||> I have Debian Sid with 2.6.15-rc5, I wonder if this could be 
-|> ||either with a
-|> ||> bug in gtkpod or the kernel (FS Panic).
-|> ||
-|> ||Maybe an FS error on your iPod? Did you try to reformat or 
-|dosfsck it?
-|> |
-|> |I doubt it, I mean, it works well in Windows and while 
-|> |playing. It is only giving trouble in Linux.
-|> |
-|> |I will look deeper into it, I was just wondering if the FS 
-|> |Errors where familiar.
-|> |
-|> |Thanks,
-|> |
-|> |.Alejandro
-|> |
-|> ||
-|> ||Greetings,
-|> ||
-|> ||  Gunter
+> > +#if defined(CONFIG_RELAYFS_FS) || defined(CONFIG_RELAYFS_FS_MODULE)
+> > +#include <linux/relayfs_fs.h>
+> > +#endif
+
+Why can't this be included regardless? If it does something that only makes
+sense if relayfs is in use, better have that decision inside the header
+file (least somebody just includes it and...).
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

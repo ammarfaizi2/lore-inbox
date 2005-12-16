@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbVLPPLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbVLPPLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932327AbVLPPLE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 10:11:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbVLPPLE
+	id S932328AbVLPPLu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 10:11:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbVLPPLu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 10:11:04 -0500
-Received: from smtpout.mac.com ([17.250.248.88]:1751 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932327AbVLPPLD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 10:11:03 -0500
-In-Reply-To: <20051216144514.36687.qmail@web50210.mail.yahoo.com>
-References: <20051216144514.36687.qmail@web50210.mail.yahoo.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <C3FB7A35-9973-486C-BB6E-6702F4392E7A@mac.com>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Fri, 16 Dec 2005 10:11:04 -0500
-To: Alex Davis <alex14641@yahoo.com>
-X-Mailer: Apple Mail (2.746.2)
+	Fri, 16 Dec 2005 10:11:50 -0500
+Received: from moutvdom.kundenserver.de ([212.227.126.249]:50916 "EHLO
+	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932328AbVLPPLt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 10:11:49 -0500
+Message-ID: <43A2D932.3030909@anagramm.de>
+Date: Fri, 16 Dec 2005 16:11:46 +0100
+From: Clemens Koller <clemens.koller@anagramm.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] idle.c fix unused var compile warning
+Content-Type: multipart/mixed;
+ boundary="------------090208030907010108070000"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 16, 2005, at 09:45, Alex Davis wrote:
-> --- Kyle Moffett <mrmacman_g4@mac.com> wrote:
->> (BTW: Way to CC a private thread to a public list)
->>
-> Ahhh!!!  So when you get upset and show a less pleasant side of  
-> your personality, you don't want others to see?
+This is a multi-part message in MIME format.
+--------------090208030907010108070000
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Personally, I don't care much, however it does reflect rather poorly  
-on _your_ netiquette.  Might I remind you that _you_ were the one who  
-made the thread private in the first place?  It is generally  
-considered poor form to reply privately to someone (indicating that  
-you want to continue off-list), and then as soon as they continue  
-discussion in off-list fashion, bringing it back on-list whining  
-about how they called you names in a private thread.
+This fixes a little warning about unused cpu variable for non SMP PPC systems.
 
-I've had enough of this nonsense, and I'm just beginning to realize  
-that I've been feeding the troll and lowering the S/N ratio.  PLONK!
+Signed-off-by: Clemens Koller <clemens.koller@anagramm.de>
+-- 
 
-On a slightly nicer note, I would like to formally apologize to the  
-list for the noise that has resulted, and will attempt to be more  
-reserved with my replies in the future.
+--------------090208030907010108070000
+Content-Type: text/plain;
+ name="idle_c-fix-unused-var-warning.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="idle_c-fix-unused-var-warning.patch"
 
-Cheers,
-Kyle Moffett
+--- linux-2.6/arch/ppc/kernel/idle.c.ori	2005-12-14 12:27:26.000000000 +0100
++++ linux-2.6/arch/ppc/kernel/idle.c	2005-12-16 16:02:18.000000000 +0100
+@@ -37,7 +37,9 @@
+ void default_idle(void)
+ {
+ 	void (*powersave)(void);
++#ifdef CONFIG_SMP
+ 	int cpu = smp_processor_id();
++#endif
+ 
+ 	powersave = ppc_md.power_save;
+ 
 
---
-Unix was not designed to stop people from doing stupid things,  
-because that would also stop them from doing clever things.
-   -- Doug Gwyn
-
-
+--------------090208030907010108070000--

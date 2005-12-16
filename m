@@ -1,153 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVLPV0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbVLPV2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932439AbVLPV0k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 16:26:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbVLPV0j
+	id S932452AbVLPV2R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 16:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbVLPV2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 16:26:39 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:4849 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S932439AbVLPV0i
+	Fri, 16 Dec 2005 16:28:17 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:27120 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932452AbVLPV2Q convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 16:26:38 -0500
-Message-ID: <43A33114.6060701@mvista.com>
-Date: Fri, 16 Dec 2005 13:26:44 -0800
-From: David Singleton <dsingleton@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
+	Fri, 16 Dec 2005 16:28:16 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nvd5xpiVPJZLZPo2Mk2CaVFJ4GM1r+tag6sNO372aXH1//bbXI7H3znflhxzvfkFmQkX4q8KlKu3XuQ2E+2p3rTm/lxiEjemu+n9gKMq2wyUbl86H/f743FSb4sJqoSmygxIOK/luijPXwoVH8XvR1EwxZFxhkNaY1fZ5Ou/w7U=
+Message-ID: <170fa0d20512161328n7e879b5ao29a4227e9c87491e@mail.gmail.com>
+Date: Fri, 16 Dec 2005 16:28:15 -0500
+From: Mike Snitzer <snitzer@gmail.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Cc: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1134762379.2992.69.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: dino@in.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       robustmutexes@lists.osdl.org
-Subject: Re: Recursion bug in -rt
-References: <20051214223912.GA4716@in.ibm.com> <9175126B-6D06-11DA-AA1B-000A959BB91E@mvista.com> <20051215194434.GA4741@in.ibm.com> <43F8915C-6DC7-11DA-A45A-000A959BB91E@mvista.com> <20051216184209.GD4732@in.ibm.com>
-In-Reply-To: <20051216184209.GD4732@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051215212447.GR23349@stusta.de>
+	 <20051215140013.7d4ffd5b.akpm@osdl.org>
+	 <20051216141002.2b54e87d.diegocg@gmail.com>
+	 <20051216140425.GY23349@stusta.de>
+	 <20051216163503.289d491e.diegocg@gmail.com>
+	 <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com>
+	 <dnv0d3$4jl$1@sea.gmane.org>
+	 <1134758219.2992.52.camel@laptopd505.fenrus.org>
+	 <170fa0d20512161132g34c62593p39b109f07cf30b7d@mail.gmail.com>
+	 <1134762379.2992.69.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dinakar,
+Arjan,
 
-     I believe this patch will give you the behavior you expect.
+I'm aware that RedHat has been shipping FC and RHEL kernels with 4K
+stacks for some time.  The recent 4K stack fixes pretty much establish
+that RedHat's early adoption of 4K stacks was a "cowbody development"
+no?  I don't think RedHat kept similar 4K stack fixes from upstream,
+so a bit of luck maybe?  I do agree that at this point the 4K-only
+proposal is NOT an overly rash decision given continued adequate
+vetting in -mm.  But even then there may be untested workloads that
+expose stack issues.  Which is perfectly fine if users have the option
+to use _supported_ alternate configs.
 
-    http://source.mvista.com/~dsingleton/patch-2.6.15-rc5-rt2-rf3
-   
-    With this patch your app that tries to lock a non-recursive 
-pthread_mutex twice
-    will not get EAGAIN back,  it will hang.
+I got the sense that you were trying to paint me as something of a
+closet "ndiswrapper addict".  Amusing and all but my motivations for
+requesting continued options on the stack size are rooted in concerns
+that long call chains can and still do result when running kernel.org
+and RHEL4 kernels under particular workloads.  An example workload
+being cluster filesystems that in a single call chain historically
+_could_ leverage iptables + RPC (tcp) + DM (LVM) + etc.
 
-    I should point out that you will still get the new, and I had hoped, 
-added
-    benefit feature of being able to detect when you app would deadlock 
-itself
-    by turning on DEBUG_DEADLOCKS.  It will give you the same
-    behavior that you originally posted.   The kernel will inform you
-    of the deadlock.
+Given Neil Brown's fix for the block layer these stack-heavy workloads
+that included DM in the call chain need to be revisited.  However, the
+savings associated with those particular fixes still may not leave
+sufficient breathing room.  The logic that all users must NOW provide
+workloads which undermine 4K stack viability otherwise the 8K option
+will be completely removed _seems_ quite irrational (even though we
+are _supposedly_ just talking about doing so in -mm).
 
-    If you need the POSIX behavior of having an app hang if it tries
-    to lock the same, non-recursive pthread_mutex twice then you need to 
-turn off
-    DEBUG_DEADLOCKS.
-   
-    If you can send on the Priority Boost test I can start looking at it 
-as well.
+All of us appreciate the desire to have Linux be more efficient and 4K
+stacks will get us that.  If it comes with the cost of instability
+under more exotic workloads then the bad outweighs the perceived good
+of imposed 4K stacks.  With RHEL4 it would seem we're past the point
+of no-return for supported 8K stacks.  I'm merely advocating upstream
+give users the 8K+IRQ stack _options_ and set the default to 4K.
 
-
-David
+Mike
 
 
->On Thu, Dec 15, 2005 at 04:02:36PM -0800, david singleton wrote:
->  
+On 12/16/05, Arjan van de Ven <arjan@infradead.org> wrote:
 >
->>Dinakar,
->>
->>	I believe the problem we have is that the library is not checking
->>to see if the mutex is a recursive mutex, and then checking to see
->>if the recursive mutex is already owned by the calling thread.  If a 
->>recursive mutex
->>is owned by the calling thread the library should increment the lock
->>count (POSIX says recursive mutexes must be unlocked as
->>many times as they are locked) and return 0 (success) to the caller.
->>    
->>
+> > You're using overly generalized assertions to try to convince others
 >
->Sorry I seem to have confused you. I am _not_ talking about recursive
->mutexes here.
+> I'm no longer interested in arguing removing this thing. Too much
+> whining by ndiswrapper addicts [1].
 >
->I have two testcases. Here is a code snippet of testcase I
+> > that the configurability of a particularly important (to some, albeit
+> > not you) config option is unnecessary.  4K vs 8K is hardly a "trivial"
+> > configuration option of the Linux kernel.
 >
->        void* test_thread (void* arg)
->        {
->            pthread_mutex_lock(&child_mutex);
->            printf("test_thread got lock\n");
+> Compared to many of the other changes that went in since 2.6.0? 4K
+> stacks is a minor change. There's no config option for 4 level
+> pagetables for example, and that's a far more invasive change in many
+> ways.
 >
->            pthread_mutex_lock(&child_mutex);
->            printf("test_thread got lock 2nd time !!\n");
+> >  At this point in time it
+> > has not been sufficiently demonstrated that 4K "just works".
 >
->            printf("test_thread exiting\n");
->            return NULL;
->        }
+> Excuse me?
+> Fedora released 3 distributions with it enabled, and Red Hat uses it in
+> an enterprise distribution. That's a whopping lot of users right there
+> with a very wide range of workloads.
 >
->        main ()
->        {
->            ...
+> >  kernel to get the desired safety?  IF upstream
+> > kernel.org doesn't even provide the knobs to ensure safety at all
+> > costs (and vendors like Redhat have people at the helm who are
+> > advocating 4K stacks in the "Enterprise" Linux kernel configurations
+> > of the world) how does one get a Linux kernel that provides a sizable
+> > safety net that is _SUPPORTED_ for true enterprise-grade applications?
 >
->            if (pthread_mutexattr_init(&mutexattr) != 0) {
->              printf("Failed to init mutexattr\n");
->            };
->            if (pthread_mutexattr_setprotocol(&mutexattr,
->                                        PTHREAD_PRIO_INHERIT) != 0) {
->              printf("Can't set protocol prio inherit\n");
->            }
->            if (pthread_mutexattr_getprotocol(&mutexattr, &protocol) != 0) {
->              printf("Can't get mutexattr protocol\n");
->            } else {
->              printf("protocol in mutexattr is %d\n", protocol);
->            }
->            if ((retc = pthread_mutex_init(&child_mutex, &mutexattr)) != 0) {
->              printf("Failed to init mutex: %d\n", retc);
->            }
+> eh I don't know if you paid attention, but Red Hat Enterprise Linux 4
+> only has 4Kb stacks kernels... so that covers your supported true
+> enterprise-grade application thing.
 >
->            ...
->        }
+> > Simply put 4K vs 8K is not as trivial a decision as you'd have people believe.
+>
+> that's too simply put in fact, especially if you look at it
+> historically. It's a bit of irony that part of the reason 4K stacks was
+> developed was that the 2.4 kernels ran out of stack space for customers
+> occasionally (just as example look at lkml this week, there was a report
+> about such an overflow there as well). Remember that 4K+4K has more
+> stack space than the 4K+2K as 2.4 kernels have. Sure 2.6 bumped this to
+> 5.5k/2.5k roughly in the "8K" case, but fundamentally the change to
+> 4k/4k isn't all that big even inside 2.6.
+>
+> You can go on and keep painting this as a cowboy development, but it
+> really isn't....
 >
 >
->Clearly what the application is doing here is wrong. However,
 >
->1. In the case of normal (non-robust) non recursive mutexes, the
->behaviour when we make the second pthread_mutex_lock call is for glibc
->to make a futex_wait call which will block forever.
->(Which is the right behaviour)
+> [1] Yes addicts; binary drivers are in many ways similar to heroin;
+> they're really hard to get rid of for example and highly addictive, they
+> also cause some people to act like junkies-in-withdrawl when their
+> binary driver breaks, or when someone suggests breaking it.
 >
->2. In the case of a robust/PI non recursive mutex, the current
->behaviour is the glibc makes a futex_wait_robust call (which is right)
->The kernel (2.6.15-rc5-rt1) rt_mutex lock is currently unowned and
->since we do not call down_try_futex if current == owner_task, we end
->up grabbing the lock in __down_interruptible and returning succesfully !
 >
->3. Adding the check below in down_futex is also wrong
->
->   if (!owner_task || owner_task == current) {
->        up(sem);
->        up_read(&current->mm->mmap_sem);
->        return -EAGAIN;
->   }
->
->   This will result in glibc calling the kernel continuosly in a
->   loop and we will end up context switching to death
->
->I guess we need to cleanup this path to ensure that the application
->blocks forever.
->
->I also have testcase II which does not do anything illegal as the
->above one, instead it exercises the PI boosting code path in the
->kernel and that is where I see the system hang up yet again
->and this is the race that I am currently investigating
->
->Hope that clearls up things a bit
->
->	-Dinakar
->
->  
->
-

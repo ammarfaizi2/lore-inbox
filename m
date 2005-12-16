@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbVLPDvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbVLPDzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932113AbVLPDvk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 22:51:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVLPDvk
+	id S932112AbVLPDzx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 22:55:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbVLPDzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 22:51:40 -0500
-Received: from xproxy.gmail.com ([66.249.82.205]:28449 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932113AbVLPDvk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 22:51:40 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=AYPkycm2rRdg+iOQnimAGTpYxLYDueyC83HzKlM0eUbi3NPhx+62PH57K2KUqWRG35CjBKWsB+UMIMwH50GWLQC9vXipKKj19Sb+lGeiw7PXAsCQH/jHxMpqnqtK+r1bw6S5u9w50zV3TNqA2lbRFDaql6i0zI9FSpX5xxEAAhw=
-Message-ID: <43A239B4.8010309@gmail.com>
-Date: Thu, 15 Dec 2005 22:51:16 -0500
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ismail Donmez <ismail@uludag.org.tr>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-References: <20051211180536.GM23349@stusta.de> <Pine.LNX.4.61.0512152356190.13568@yvahk01.tjqt.qr> <200512160112.30179.ismail@uludag.org.tr>
-In-Reply-To: <200512160112.30179.ismail@uludag.org.tr>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-From: Puneet Vyas <puneetvyas@gmail.com>
+	Thu, 15 Dec 2005 22:55:53 -0500
+Received: from serv01.siteground.net ([70.85.91.68]:12508 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S932112AbVLPDzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 22:55:52 -0500
+Date: Thu, 15 Dec 2005 19:55:39 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       Andrew Morton <akpm@osdl.org>, dada1@cosmobay.com,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
+Subject: Re: [discuss] [patch 3/3] x86_64: Node local pda take 2 -- node local pda allocation
+Message-ID: <20051216035539.GA3736@localhost.localdomain>
+References: <20051215023345.GB3787@localhost.localdomain> <20051215023748.GD3787@localhost.localdomain> <20051215094232.GX23384@wotan.suse.de> <20051215184704.GA3882@localhost.localdomain> <20051216001934.GN23384@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051216001934.GN23384@wotan.suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ismail Donmez wrote:
+On Fri, Dec 16, 2005 at 01:19:34AM +0100, Andi Kleen wrote:
+> 
+> And for the APs you allocate the PDA in smpboot.c before actually sending
+> the startup IPI to the AP. 
 
->Cuma 16 Aralık 2005 00:57 tarihinde şunları yazmıştınız:
->  
->
->>>It seems most problems with 4k stacks are already resolved at least
->>>in -mm.
->>>
->>>I'd like to see this patch to always use 4k stacks in -mm now for
->>>finding any remaining problems before submitting this patch for Linus'
->>>tree.
->>>      
->>>
->>By chance, I read that windows modules used in ndiswrapper
->>may require >4k-stacks. Will this become a problem?
->>    
->>
->
->If 8k stacks get removed, yes. So if you have a chance to choose don't buy a 
->wifi card which doesn't have a native linux driver.
->
->  
->
-If the learned folks here think that "ndiswrapper" is some user space 
-program that people can live without than at least
-3 people in my house are doomed. We like to use linux but do not have 
-luxury that Ismail enjoys. At least windows
-does not make such decisions on my behalf. Sigh.
+You mean wakeup_secondary_via_INIT, called by do_boot_cpu?
+That is too late. sched_init happens much earlier, and the per-cpu offset
+table for all AP cpus not present is referenced, and I hit an early exception.
+sched_init is executed on the BP very early and sched_init does this:
 
-~Puneet
+        for (i = 0; i < NR_CPUS; i++) {
+                prio_array_t *array;
+
+                rq = cpu_rq(i); 
+
+The cpu_rq macro ends up needing per-cpu offset table stored in cpu_pda of
+the AP cpus, even before we hit the code to send startup IPIs.
+(#define __per_cpu_offset(cpu) (cpu_pda[cpu].data_offset))
+This is way before slab is ready.  So I either use alloc_bootmem before
+sched_init in setup_arch, or keep the static boot_cpu_pda.
+
+Am I missing something?
+
+Thanks,
+Kiran

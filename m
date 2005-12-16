@@ -1,83 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932143AbVLPGGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVLPGQJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932143AbVLPGGU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 01:06:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbVLPGGU
+	id S932147AbVLPGQJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 01:16:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVLPGQJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 01:06:20 -0500
-Received: from xproxy.gmail.com ([66.249.82.192]:7286 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932143AbVLPGGT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 01:06:19 -0500
+	Fri, 16 Dec 2005 01:16:09 -0500
+Received: from web50211.mail.yahoo.com ([206.190.39.175]:29034 "HELO
+	web50211.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932147AbVLPGQI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 01:16:08 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=H4SY6mFtfhuNK38BYPU6Qq64sTCAtgiVQHWFOEM0yolFgdR+FdqiLb4SmhHEtCjWX7dGRF3RwUqquQgKytpPIT/nL/e1pXqv8Jg7cgJa4AG1nWuL3zrBms0d7ywhb3bCkG/cMkdtu0LCwBXXmTA9D8N4rIY12MxvYhS+/Bp9lZI=
-Message-ID: <4807377b0512152206l32ac2627t48a4e0881e1790ae@mail.gmail.com>
-Date: Thu, 15 Dec 2005 22:06:18 -0800
-From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-To: Kalin KOZHUHAROV <kalin@thinrope.net>
-Subject: Re: Help track a memory leak in 2.6.0..14
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=wICZp8UKazJrP0o642qFrIYNw7uxiCL0R68i//YmiRpokT5DicUTM/d/LEB109TJvjBNk1F1sTRFItT/dHDWymNXyVQGZFVbjUxUWtyO2ZSc7GHki5/0A/Uq2lgMSyn3xR7pLOi3ZDDsBqRmyd8wYiQl1A2enLyfFHUgMLBNo5o=  ;
+Message-ID: <20051216061605.46520.qmail@web50211.mail.yahoo.com>
+Date: Thu, 15 Dec 2005 22:16:05 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+To: Dave Jones <davej@redhat.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <dnqp0b$96k$1@sea.gmane.org>
+In-Reply-To: <20051216052913.GD30754@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43954489.5040309@thinrope.net>
-	 <1133856214.2858.13.camel@laptopd505.fenrus.org>
-	 <dnqp0b$96k$1@sea.gmane.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/14/05, Kalin KOZHUHAROV <kalin@thinrope.net> wrote:
-<snip>
-> According to slabtop:
->  Active / Total Objects (% used)    : 1806688 / 1826914 (98.9%)
->  Active / Total Slabs (% used)      : 36958 / 36958 (100.0%)
->  Active / Total Caches (% used)     : 64 / 106 (60.4%)
->  Active / Total Size (% used)       : 138777.10K / 143195.01K (96.9%)
->  Minimum / Average / Maximum Object : 0.02K / 0.08K / 128.00K
->
->   OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME
-> 1768936 1768884  99%    0.07K  34018       52    136072K size-64
->  19642  16616  84%    0.06K    322       61      1288K buffer_head
->  10152   4828  47%    0.14K    376       27      1504K dentry_cache
->
-> ss ~ # cat /proc/slabinfo |grep "size-64 "
-> size-64           1767932 1768000     76   52    1 : tunables   32   16    0 : slabdata  33999
-> 34000      0 : globalstat 21513120 1767964 34005    0    0    1   84    0 : cpustat 614583639
-> 1370079 612951759 1234047
->
-> ss ~ # lsmod
-> Module                  Size  Used by
-> nfs                   114540  1
-> lockd                  66920  2 nfs
-> nfs_acl                 3680  1 nfs
-> sunrpc                152004  4 nfs,lockd,nfs_acl
-> usbhid                 27876  0
-> yenta_socket           26028  2
-> rsrc_nonstatic         14112  1 yenta_socket
-> ehci_hcd               33224  0
-> ohci_hcd               21988  0
-> usbcore               125660  4 usbhid,ehci_hcd,ohci_hcd
-> e100                   37984  0
-> mii                     5568  1 e100
 
-<snip>
 
-size-64 is pretty tiny, and I don't think e100 makes any allocations
-that tiny, so you should be able to eliminate e100.  If you try an
-older kernel and it works you might be able to get an idea of where
-changes have been made to start looking for kmallocs of size <= 64
-bytes
+--- Dave Jones <davej@redhat.com> wrote:
 
-your unloading module case is a bit of a misnomer because the item
-that leaked may not know it leaked and therefore could unload without
-freeing the things it leaked.
+> On Thu, Dec 15, 2005 at 09:20:54PM -0800, Alex Davis wrote:
+>  > The problem is that, with laptops, most of the time you DON'T have a choice:
+>  > HP and Dell primarily use a Broadcomm integrated wireless card in ther products.
+>  > As of yet, there is no open source driver for Broadcomm wireless.
+> 
+> We've already been through all this the previous times this came up.
+> 
+> http://bcm43xx.berlios.de
+> 
+> Whilst it's in early stages, it's making progress.
+> 
+> 		Dave
+> 
+> 
+I understand that, and am grateful for the effort, but the point is it's not ready. Are you
+expecting people to lose an important feature of their
+laptop until you get the driver ready? 
 
-I'm not sure how to help you from here, have you tried a kernel.org
-kernel like 2.6.14.3?  You're likely to get more help from here if you
-do.
 
-Jesse
+I code, therefore I am
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

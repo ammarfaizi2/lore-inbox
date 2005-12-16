@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVLPPQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbVLPPZU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbVLPPQa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 10:16:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVLPPQ3
+	id S932326AbVLPPZU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 10:25:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVLPPZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 10:16:29 -0500
-Received: from atlrel7.hp.com ([156.153.255.213]:47050 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S1750863AbVLPPQ3 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 10:16:29 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE:  Re: gtkpod and Filesystem
-Date: Fri, 16 Dec 2005 09:16:24 -0600
-Message-ID: <F265D57E1F28274EA189ED0566D227DE7F21EC@PGJEXC01.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: gtkpod and Filesystem
-Thread-Index: AcYCUxDWoH5+PpknTXmRADEYWJVnngAAFvpA
-From: "Bonilla, Alejandro" <alejandro.bonilla@hp.com>
-To: "Gunter Ohrner" <G.Ohrner@post.rwth-aachen.de>,
-       <linux-kernel@vger.kernel.org>
-Cc: <debian-devel@lists.debian.org>
-X-OriginalArrivalTime: 16 Dec 2005 15:16:26.0073 (UTC) FILETIME=[AE8E2490:01C60253]
+	Fri, 16 Dec 2005 10:25:20 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55446 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932326AbVLPPZS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 10:25:18 -0500
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20051216124924.23264.qmail@science.horizon.com> 
+References: <20051216124924.23264.qmail@science.horizon.com> 
+To: linux@horizon.com
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
+Date: Fri, 16 Dec 2005 15:24:42 +0000
+Message-ID: <19559.1134746682@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-|Alejandro Bonilla wrote:
-|> I have Debian Sid with 2.6.15-rc5, I wonder if this could be 
-|either with a
-|> bug in gtkpod or the kernel (FS Panic).
-|
-|Maybe an FS error on your iPod? Did you try to reformat or dosfsck it?
+linux@horizon.com wrote:
 
-I doubt it, I mean, it works well in Windows and while playing. It is
-only giving trouble in Linux.
+> > Can be turned into:
+> > 
+> > 	1,C,A	x = LL()
+> > 	1,C,A	x |= 2;
+> > 	1,C,A	SC(3) [success]
+> > 	3,C,A	...
+> 
+> ... which can be turned back into
+> 
+>  	1,C,A	x = load()
+>  	1,C,A	x' = x | 2;
+>  	1,C,A	cmpxchg(x,x') [success]
+>  	3,C,A	...
 
-I will look deeper into it, I was just wondering if the FS Errors where
-familiar.
+Which would be totally pointless.
 
-Thanks,
+If you have LL/SC, then the odds are you _don't_ have CMPXCHG, and that
+CMPXCHG is implemented using LL/SC, so what you end up with is:
 
-.Alejandro
 
-|
-|Greetings,
-|
-|  Gunter
+ 	1,C,A	x = load()
+ 	1,C,A	x' = x | 2;
+	1,C,A	y = LL()
+	1,C,A	if (y == x)
+	1,X,A		SC(x');
+ 	3,C,A	...
+
+David

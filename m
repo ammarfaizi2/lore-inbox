@@ -1,43 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbVLPT7w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVLPUFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932394AbVLPT7w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 14:59:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVLPT7v
+	id S1750803AbVLPUFN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 15:05:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751335AbVLPUFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 14:59:51 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:58632 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932394AbVLPT7u convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 14:59:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IoXFpOAxhVYl1wC4HFmEmRAAS6YxK+KvFR70CwHQGdsCf6q3w0zb/SXfl8SciuN+1Mj4N9A/fQcMDElIKdD8TIyoQYzo+MR+mQCUyy7mIHsPovaMJo9aIiW81erEC5dOBP5BVCQNGeb8Duesu66/eSQvhJyDjz38Hc2rOSVyBtU=
-Message-ID: <eeb5c3c50512161159j1e41bd1u14f8cb025c4e79de@mail.gmail.com>
-Date: Fri, 16 Dec 2005 20:59:49 +0100
-From: Jim Meyering <jim@meyering.net>
-To: Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [PATCH 0/3] *at syscalls: Intro
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, torvalds@osdl.org
-In-Reply-To: <43A2EA55.9070602@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200512152249.jBFMnXAA016747@devserv.devel.redhat.com>
-	 <43A20B0B.5090205@pobox.com>
-	 <eeb5c3c50512160332v3f026766w2c954f1482e84616@mail.gmail.com>
-	 <43A2EA55.9070602@redhat.com>
+	Fri, 16 Dec 2005 15:05:12 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:17829 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750803AbVLPUFK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 15:05:10 -0500
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Buesch <mbuesch@freenet.de>
+Cc: linux-kernel@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>, Adrian Bunk <bunk@stusta.de>,
+       akpm@osdl.org, arjan@infradead.org, Diego Calleja <diegocg@gmail.com>
+In-Reply-To: <200512161723.19965.mbuesch@freenet.de>
+References: <20051215212447.GR23349@stusta.de>
+	 <20051216163503.289d491e.diegocg@gmail.com>
+	 <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com>
+	 <200512161723.19965.mbuesch@freenet.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 16 Dec 2005 20:02:50 +0000
+Message-Id: <1134763370.28761.61.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/16/05, Ulrich Drepper <drepper@redhat.com> wrote:
-> Jim Meyering wrote:
-> > FYI, the rm in coreutils-cvs is finally thread-safe and race-free,
-> > when using openat et al.
->
-> Actually, Jim, I doubt it.
+On Gwe, 2005-12-16 at 17:23 +0100, Michael Buesch wrote:
+> Now, I want to test bcm43xx on 4k stacks. But only have a
+> ppc32 machine with such a broadcom card. ppc32 has 8k stacks.
+> How am I supposed to test the driver for 4kstack conformance?
 
-You seem to have misread.  I mentioned only `rm'.
-I know full well that the other dir-traversing tools are not as robust.
+Unless you've been writing fairly careless code putting a lot of objects
+on stack a driver is going to work fine with 4K stacks.
+
+> Given this, why aren't there people working on 4kstacks for
+> ppc32? Is it not needed there, or did simply nobody care to
+> do this now?
+
+AFAIK nobody is working on 4K stack for PPC32. I've no idea myself if it
+is needed or useful there. In terms of debugging if your code exceeds a
+4K stack you'll find out quite rapidly from x86 users. One thing the
+seperate IRQ stacks mean is that stack overflows generally show up as
+overflows and consistently rather than as weird crashes when timing
+co-incides between your heavy stack usage and IRQ heavy stack usage, at
+which point the mess is rarely repeatable or debuggable
+

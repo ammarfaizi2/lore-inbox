@@ -1,71 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbVLPWzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbVLPW60@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbVLPWzT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 17:55:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbVLPWzT
+	id S964817AbVLPW60 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 17:58:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbVLPW6Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 17:55:19 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:45519
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932560AbVLPWzR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 17:55:17 -0500
-Date: Fri, 16 Dec 2005 14:53:06 -0800 (PST)
-Message-Id: <20051216.145306.132052494.davem@davemloft.net>
-To: torvalds@osdl.org
-Cc: dhowells@redhat.com, nickpiggin@yahoo.com.au, arjan@infradead.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, cfriesen@nortel.com,
-       hch@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.64.0512161429500.3698@g5.osdl.org>
-References: <Pine.LNX.4.64.0512160829180.3060@g5.osdl.org>
-	<20051216.142349.89717140.davem@davemloft.net>
-	<Pine.LNX.4.64.0512161429500.3698@g5.osdl.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 16 Dec 2005 17:58:25 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:56201 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S964817AbVLPW6Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 17:58:25 -0500
+Subject: Re: 2.6.15-rc5-rt2 slowness
+From: john stultz <johnstul@us.ibm.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: G.Ohrner@post.rwth-aachen.de, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1134736325.13138.119.camel@localhost.localdomain>
+References: <dnu8ku$ie4$1@sea.gmane.org>
+	 <1134736325.13138.119.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 16 Dec 2005 14:58:22 -0800
+Message-Id: <1134773902.27117.14.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Linus Torvalds <torvalds@osdl.org>
-Date: Fri, 16 Dec 2005 14:38:47 -0800 (PST)
+On Fri, 2005-12-16 at 07:32 -0500, Steven Rostedt wrote:
+> I'll look into your oops later (or maybe Ingo has some time), but I've
+> also notice the slowness of 2.6.15-rc5-rt2, and I'm investigating it
+> now.
 
-> A number of architectures have a "prefetch for write ownership" 
-> instruction that you can use for this. Exactly because "ld+cas" should 
-> not get a shared line initially.
-> 
-> I though sparc had an ASI to do the same? No?
+Hey Steven,
+	Do check that the slowness you're seeing isn't related to the
+CONFIG_PARANIOD_GENERIC_TIME option being enabled. It is expected that
+the extra checks made by that config option would slow things down a
+bit.
 
-No, no special ASI exists to do that, although it would be nice. :-)
-I'd have to use a prefetch for write.
+thanks
+-john
 
-BTW, it is interesting that you can use CAS to get a cache line into
-the local processor in Owned state with %100 certainty (unlike
-prefetch for write which might get cancelled) by doing something like:
-
-	CAS	[MEM], ZERO, ZERO
-
-and you can do this to any valid memory address without changing the
-contents.  This is useful for doing things like resetting parity bits
-while doing memory error recorvery.
-
-> It would seem to be the obvious thing to do for better lock performance, 
-> and I'd assume that locks are some of the most common cases of real cache 
-> interactions, so maybe the shared case only effectively happens if two 
-> CPU's are reading at the same time.
-> 
-> Somebody who looks at cache protocol diagrams could check. I'm too lazy.
-
-For both MOESI and MOSI cache coherency protocols, misses on loads
-result in a Shared state cache line when another processor has the
-data in it's cache too, regardless of whether that line in the other
-cpu is dirty or not.
-
-When the write comes along, the next transaction occurs to kick it
-out the other cpu(s) caches and then the local line is placed into
-Owned state.
-
-I'll have to add "put write prefetch in CAS sequences" onto my sparc64
-TODO list :-)

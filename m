@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVLPPx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbVLPP6Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbVLPPx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 10:53:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932334AbVLPPx7
+	id S932332AbVLPP6Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 10:58:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVLPP6Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 10:53:59 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:17580 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932291AbVLPPx6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 10:53:58 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <43A2BE49.4000102@yahoo.com.au> 
-References: <43A2BE49.4000102@yahoo.com.au>  <43A08D50.30707@yahoo.com.au> <439FFF63.6020105@yahoo.com.au> <439F6EAB.6030903@yahoo.com.au> <439E122E.3080902@yahoo.com.au> <dhowells1134431145@warthog.cambridge.redhat.com> <22479.1134467689@warthog.cambridge.redhat.com> <13613.1134557656@warthog.cambridge.redhat.com> <15157.1134560767@warthog.cambridge.redhat.com> <12832.1134734438@warthog.cambridge.redhat.com> 
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       hch@infradead.org, arjan@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Fri, 16 Dec 2005 15:53:51 +0000
-Message-ID: <20220.1134748431@warthog.cambridge.redhat.com>
+	Fri, 16 Dec 2005 10:58:24 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:25363 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932332AbVLPP6X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 10:58:23 -0500
+Date: Fri, 16 Dec 2005 16:58:24 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-ID: <20051216155824.GE23349@stusta.de>
+References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051216163503.289d491e.diegocg@gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Fri, Dec 16, 2005 at 04:35:03PM +0100, Diego Calleja wrote:
+> El Fri, 16 Dec 2005 15:04:25 +0100,
+> Adrian Bunk <bunk@stusta.de> escribió:
+> 
+> > My count of bug reports for problems with 4k stacks after Neil's patch
+> > went into -mm is still at 0.
+> > 
+> > Either there are no problems left or noone pays attention to them since 
+> > disabling 4k stacks "fixed" the problem.
+> > 
+> > In both cases there's no reason against applying my patch.
+> 
+> I know, but there's too much resistance to the "pure" 4kb patch. The
+> 8 KB patch does the same thing (enables 4kb stacks)  and at the same
+> time the 8kb groupies can't flamewar you for it, it covers akpm's
 
-> Yes, the architecture code knows whether or not it implements atomic ops
-> with spinlocks, so that architecture is in the position to decide to override
-> the mutex implementation. *generic* code shouldn't worry about that, it should
-> use the interfaces available, and if that isn't optimal on some architecture
-> then that architecture can override it.
+I have no problems with people flaming me.
 
-However, a number of generic templates can be provided if it makes things
-easier for the arches because all they need to is:
+I had problems if people would actually find technical reasons where my 
+patch breaks in-kernel code.  ;-)
 
-	[arch/wibble/Kconfig]
-	config MUTEX_TYPE_FOO
-		bool
-		default y
+> concerns, it puts some pressure on the ndiswrapper guys and leaves
+> time for the broadcom driver developers to finish, merge and push
+> to the distributions their driver. The 8kb config option can be
+> removed in the future when we're sure that it's 100% safe (neil
+> brown's patch isn''t a good sign). It makes every happy IMO ;)
 
-	[include/asm-wibble/system.h]
-	#define __mutex_foo_this() { ... }
-	#define __mutex_foo_that() { ... }
+Neil's patch fixes the last known poroblems.
 
-The unconditional two-state exchange I think will be a useful template for a
-number of archs that don't have anything more advanced than XCHG/TAS/BSET/SWAP.
+My count of bug reports for problems with 4k stacks after Neil's patch
+went into -mm is still at 0.
 
-> It is not even clear that any ll/sc based architectures would need to override
-> an atomic_cmpxchg variant at all because you can assume an unlocked fastpath
+cu
+Adrian
 
-That's irrelevant. Any arch that has LL/SC almost certainly emulates CMPXCHG
-with LL/SC.
+-- 
 
-> and not do the additional initial load to prime the cmpxchg.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-Two points:
-
- (1) LL/SC does not require an additional initial load.
-
- (2) CMPXCHG does an implicit load; how else can it compare?
-
-LL/SC can never be worse than CMPXCHG, if only because you're very unlikely to
-have both, but it can be better.
-
-David

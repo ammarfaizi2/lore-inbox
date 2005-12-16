@@ -1,52 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbVLPCfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVLPCnE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932087AbVLPCfF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 21:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVLPCfF
+	id S932092AbVLPCnE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 21:43:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVLPCnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 21:35:05 -0500
-Received: from fsmlabs.com ([168.103.115.128]:52147 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1751143AbVLPCfD (ORCPT
+	Thu, 15 Dec 2005 21:43:04 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:6596 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751143AbVLPCnB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 21:35:03 -0500
-X-ASG-Debug-ID: 1134700499-8050-87-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Thu, 15 Dec 2005 18:40:27 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: John Hawkes <hawkes@sgi.com>
-cc: Lee Revell <rlrevell@joe-job.com>, "Luck, Tony" <tony.luck@intel.com>,
-       Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jack Steiner <steiner@sgi.com>, Keith Owens <kaos@sgi.com>,
+	Thu, 15 Dec 2005 21:43:01 -0500
+Date: Thu, 15 Dec 2005 18:42:52 -0800 (PST)
+From: hawkes@sgi.com
+To: Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Jack Steiner <steiner@sgi.com>, Keith Owens <kaos@sgi.com>, hawkes@sgi.com,
        Dimitri Sivanich <sivanich@sgi.com>
-X-ASG-Orig-Subj: Re: [PATCH] ia64: disable preemption in udelay()
+Message-Id: <20051216024252.27639.63120.sendpatchset@tomahawk.engr.sgi.com>
 Subject: Re: [PATCH] ia64: disable preemption in udelay()
-In-Reply-To: <00b201c601e6$30c87ff0$d6069aa3@johnhaonw7lw1r>
-Message-ID: <Pine.LNX.4.64.0512151837480.20020@montezuma.fsmlabs.com>
-References: <20051214232526.9039.15753.sendpatchset@tomahawk.engr.sgi.com>
- <20051215225040.GA9086@agluck-lia64.sc.intel.com>
- <Pine.LNX.4.64.0512151750500.1678@montezuma.fsmlabs.com>
- <1134698636.12086.222.camel@mindpipe> <00b201c601e6$30c87ff0$d6069aa3@johnhaonw7lw1r>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6341
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Dec 2005, John Hawkes wrote:
+Resubmitting using Tony Luck's suggested alternative.
 
-> From: "Lee Revell" <rlrevell@joe-job.com>
-> > There are 10 drivers that udelay(10000) or more and a TON that
-> > udelay(1000).  Turning those all into 1ms+ non preemptible sections will
-> > be very bad.
-> 
-> What about 100usec non-preemptible sections?
-> John Hawkes
+The udelay() inline for ia64 uses the ITC.  If CONFIG_PREEMPT is enabled
+and the platform has unsynchronized ITCs and the calling task migrates
+to another CPU while doing the udelay loop, then the effective delay may
+be too short or very, very long.
 
-100usec should be ok as a non-preemptible udelay is this 1 specific 
-driver?
+This patch disables preemption around 100 usec chunks of the overall
+desired udelay time.  This minimizes preemption-holdoffs.
 
+Signed-off-by: John Hawkes <hawkes@sgi.com>
+
+Index: linux/include/asm-ia64/delay.h
+===================================================================
+--- linux.orig/include/asm-ia64/delay.h	2005-12-15 15:34:16.000000000 -0800
++++ linux/include/asm-ia64/delay.h	2005-12-15 15:34:57.000000000 -0800
+@@ -84,14 +84,6 @@
+ 	ia64_delay_loop (loops - 1);
+ }
+ 
+-static __inline__ void
+-udelay (unsigned long usecs)
+-{
+-	unsigned long start = ia64_get_itc();
+-	unsigned long cycles = usecs*local_cpu_data->cyc_per_usec;
+-
+-	while (ia64_get_itc() - start < cycles)
+-		cpu_relax();
+-}
++extern void udelay (unsigned long usecs);
+ 
+ #endif /* _ASM_IA64_DELAY_H */
+Index: linux/arch/ia64/kernel/time.c
+===================================================================
+--- linux.orig/arch/ia64/kernel/time.c	2005-12-15 15:34:16.000000000 -0800
++++ linux/arch/ia64/kernel/time.c	2005-12-15 15:34:57.000000000 -0800
+@@ -249,3 +249,31 @@
+ 	 */
+ 	set_normalized_timespec(&wall_to_monotonic, -xtime.tv_sec, -xtime.tv_nsec);
+ }
++
++#define SMALLUSECS 100
++
++void
++udelay (unsigned long usecs)
++{
++	unsigned long start;
++	unsigned long cycles;
++	unsigned long smallusecs;
++
++	/*
++	 * Execute the non-preemptible delay loop (because the ITC might
++	 * not be synchronized between CPUS) in relatively short time
++	 * chunks, allowing preemption between the chunks.
++	 */
++	while (usecs > 0) {
++		smallusecs = (usecs > SMALLUSECS) ? SMALLUSECS : usecs;
++		preempt_disable();
++		cycles = smallusecs*local_cpu_data->cyc_per_usec;
++		start = ia64_get_itc();
++
++		while (ia64_get_itc() - start < cycles)
++			cpu_relax();
++
++		preempt_enable();
++		usecs -= smallusecs;
++	}
++}

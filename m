@@ -1,90 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVLPCnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbVLPC5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbVLPCnE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 21:43:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVLPCnE
+	id S932082AbVLPC5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 21:57:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbVLPC5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 21:43:04 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:6596 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751143AbVLPCnB (ORCPT
+	Thu, 15 Dec 2005 21:57:16 -0500
+Received: from cantor.suse.de ([195.135.220.2]:21666 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751247AbVLPC5P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 21:43:01 -0500
-Date: Thu, 15 Dec 2005 18:42:52 -0800 (PST)
-From: hawkes@sgi.com
-To: Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Jack Steiner <steiner@sgi.com>, Keith Owens <kaos@sgi.com>, hawkes@sgi.com,
-       Dimitri Sivanich <sivanich@sgi.com>
-Message-Id: <20051216024252.27639.63120.sendpatchset@tomahawk.engr.sgi.com>
-Subject: Re: [PATCH] ia64: disable preemption in udelay()
+	Thu, 15 Dec 2005 21:57:15 -0500
+From: Neil Brown <neilb@suse.de>
+To: Dave Jones <davej@redhat.com>
+Date: Fri, 16 Dec 2005 13:56:58 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17314.11514.650036.686071@cse.unsw.edu.au>
+Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, arjan@infradead.org,
+       xfs-masters@oss.sgi.com, nathans@sgi.com
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+In-Reply-To: message from Dave Jones on Thursday December 15
+References: <20051215212447.GR23349@stusta.de>
+	<20051215140013.7d4ffd5b.akpm@osdl.org>
+	<20051215223000.GU23349@stusta.de>
+	<20051215231538.GF3419@redhat.com>
+	<20051216004740.GV23349@stusta.de>
+	<20051216005056.GG3419@redhat.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resubmitting using Tony Luck's suggested alternative.
+On Thursday December 15, davej@redhat.com wrote:
+> On Fri, Dec 16, 2005 at 01:47:40AM +0100, Adrian Bunk wrote:
+> 
+>  > > [*] Plus a few XFS ones, but that's been a lost cause wrt stack usage
+>  > > for a long time -- people were reporting overflows there before we
+>  > > enabled 4K stacks.
+>  > 
+>  > I remember someone from the XFS maintainers (Nathan?) saying they 
+>  > believe having solved all XFS stack issues.
+>  > 
+>  > If there are any XFS issues left, do you have a pointer to them?
+> 
+> The last one I saw may have been actually been more related
+> to the block layer problem. iirc that was a user NFS exporting
+> XFS on a raid1 array.
 
-The udelay() inline for ia64 uses the ITC.  If CONFIG_PREEMPT is enabled
-and the platform has unsynchronized ITCs and the calling task migrates
-to another CPU while doing the udelay loop, then the effective delay may
-be too short or very, very long.
+Yeh, I've noticed that nfsd seems to figure often in these.  As nfsd
+lives on the same (in-kernel) stack as the filesystem and device
+drives, it will add a couple of hundred bytes to the call trace.
 
-This patch disables preemption around 100 usec chunks of the overall
-desired udelay time.  This minimizes preemption-holdoffs.
+A typical nfsd call trace is
+ nfsd -> svc_process -> nfsd_dispatch -> nfsd3_proc_write ->
+   nfsd_write ->nfsd_vfs_write -> vfs_writev
 
-Signed-off-by: John Hawkes <hawkes@sgi.com>
+(errr. nfsd_vfs_write is inline, large, and called twice, that ain't
+good)
 
-Index: linux/include/asm-ia64/delay.h
-===================================================================
---- linux.orig/include/asm-ia64/delay.h	2005-12-15 15:34:16.000000000 -0800
-+++ linux/include/asm-ia64/delay.h	2005-12-15 15:34:57.000000000 -0800
-@@ -84,14 +84,6 @@
- 	ia64_delay_loop (loops - 1);
+These add up to over 300 bytes on the stack.
+Looking at each of these, I see that nfsd_write (which includes
+ nfsd_vfs_write) contributes 0x8c to stack usage itself!!
+
+It turns out this is because it puts a 'struct iattr' on the stack so
+it can kill suid if needed.  The following patch saves about 50 bytes
+off the stack in this call path.
+
+I sometimes wish that gcc could be told to optimise for stack usage -
+a lot of variables on the stack are dead at some call points, yet they
+stay there using space anyway.  The only way to save this space seem
+to be to move the code which uses those variable into a separate
+function, but we really shouldn't *have* to do these optimisations by
+hand!
+
+NeilBrown
+
+Signed-off-by: Neil Brown <neilb@suse.de>
+
+### Diffstat output
+ ./fs/nfsd/vfs.c |   20 ++++++++++++--------
+ 1 file changed, 12 insertions(+), 8 deletions(-)
+
+diff ./fs/nfsd/vfs.c~current~ ./fs/nfsd/vfs.c
+--- ./fs/nfsd/vfs.c~current~	2005-12-12 16:00:40.000000000 +1100
++++ ./fs/nfsd/vfs.c	2005-12-16 13:48:31.000000000 +1100
+@@ -869,6 +869,16 @@ out:
+ 	return err;
  }
  
--static __inline__ void
--udelay (unsigned long usecs)
--{
--	unsigned long start = ia64_get_itc();
--	unsigned long cycles = usecs*local_cpu_data->cyc_per_usec;
--
--	while (ia64_get_itc() - start < cycles)
--		cpu_relax();
--}
-+extern void udelay (unsigned long usecs);
- 
- #endif /* _ASM_IA64_DELAY_H */
-Index: linux/arch/ia64/kernel/time.c
-===================================================================
---- linux.orig/arch/ia64/kernel/time.c	2005-12-15 15:34:16.000000000 -0800
-+++ linux/arch/ia64/kernel/time.c	2005-12-15 15:34:57.000000000 -0800
-@@ -249,3 +249,31 @@
- 	 */
- 	set_normalized_timespec(&wall_to_monotonic, -xtime.tv_sec, -xtime.tv_nsec);
- }
-+
-+#define SMALLUSECS 100
-+
-+void
-+udelay (unsigned long usecs)
++static void kill_suid(struct dentry *dentry)
 +{
-+	unsigned long start;
-+	unsigned long cycles;
-+	unsigned long smallusecs;
++	struct iattr	ia;
++	ia.ia_valid = ATTR_KILL_SUID | ATTR_KILL_SGID;
 +
-+	/*
-+	 * Execute the non-preemptible delay loop (because the ITC might
-+	 * not be synchronized between CPUS) in relatively short time
-+	 * chunks, allowing preemption between the chunks.
-+	 */
-+	while (usecs > 0) {
-+		smallusecs = (usecs > SMALLUSECS) ? SMALLUSECS : usecs;
-+		preempt_disable();
-+		cycles = smallusecs*local_cpu_data->cyc_per_usec;
-+		start = ia64_get_itc();
-+
-+		while (ia64_get_itc() - start < cycles)
-+			cpu_relax();
-+
-+		preempt_enable();
-+		usecs -= smallusecs;
-+	}
++	down(&dentry->d_inode->i_sem);
++	notify_change(dentry, &ia);
++	up(&dentry->d_inode->i_sem);
 +}
++
+ static inline int
+ nfsd_vfs_write(struct svc_rqst *rqstp, struct svc_fh *fhp, struct file *file,
+ 				loff_t offset, struct kvec *vec, int vlen,
+@@ -922,14 +932,8 @@ nfsd_vfs_write(struct svc_rqst *rqstp, s
+ 	}
+ 
+ 	/* clear setuid/setgid flag after write */
+-	if (err >= 0 && (inode->i_mode & (S_ISUID | S_ISGID))) {
+-		struct iattr	ia;
+-		ia.ia_valid = ATTR_KILL_SUID | ATTR_KILL_SGID;
+-
+-		down(&inode->i_sem);
+-		notify_change(dentry, &ia);
+-		up(&inode->i_sem);
+-	}
++	if (err >= 0 && (inode->i_mode & (S_ISUID | S_ISGID)))
++		kill_suid(dentry);
+ 
+ 	if (err >= 0 && stable) {
+ 		static ino_t	last_ino;

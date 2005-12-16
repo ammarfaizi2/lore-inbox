@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbVLPVHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVLPVIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbVLPVHa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 16:07:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932408AbVLPVHa
+	id S932413AbVLPVIW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 16:08:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVLPVIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 16:07:30 -0500
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:20655 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932204AbVLPVH2
+	Fri, 16 Dec 2005 16:08:21 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:58799 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932389AbVLPVII
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 16:07:28 -0500
-Date: Fri, 16 Dec 2005 22:07:28 +0100
+	Fri, 16 Dec 2005 16:08:08 -0500
+Date: Fri, 16 Dec 2005 22:08:09 +0100
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: linux-mm@kvack.org, linux-kernel@vger.kernel.org, frankeh@watson.ibm.com,
        rhim@cc.gatech.edu
-Subject: [rfc][patch 2/6] Page host virtual assist: make mlocked pages stable.
-Message-ID: <20051216210728.GC11062@skybase.boeblingen.de.ibm.com>
+Subject: [rfc][patch 5/6] Page host virtual assist: discarded page list.
+Message-ID: <20051216210809.GF11062@skybase.boeblingen.de.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -26,124 +26,171 @@ From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 From: Hubertus Franke <frankeh@watson.ibm.com>
 From: Himanshu Raj <rhim@cc.gatech.edu>
 
-[rfc][patch 2/6] Page host virtual assist: make mlocked pages stable.
+[rfc][patch 5/6] Page host virtual assist: discarded page list.
 
-Add code to get mlock() working with page host virtual assist. The
-problem is that mlocked pages may not be removed from page cache.
-That means they need to be stable. page_hva_make_volatile needs a
-way to check if a page has been locked. To avoid traversing vma
-lists - which would hurt performance a lot - a field is added in
-the struct address space. This bit is set in mlock_fixup if a vma
-gets mlocked. The bit never gets removed - once a file had an
-mlocked vma all future pages added to it will stay stable. To
-complete the picture make_pages_present has to check for the
-host page state besides making the pages present in the linux
-page table. This is done by a call to get_user_pages with a pages
-parameter. After get_user_pages is back the pages are stable.
-The references to the pages can be returned immediatly, the pages
-will stay in stable because the mlocked bit is not set for the
-mapping.
+The implementation of the page host virtual assist on s390 has an
+additional hazard that is quite difficult to resolve. The discard
+fault exception calls the guest system with the absolute address
+of the page that caused the fault instead of the virtual address
+of the access. With the virtual address we could have used the
+page table entry of the current process to safely get a reference
+to the discarded page. We can get the struct page pointer from the
+absolute page address but its rather hard to get to a proper page
+reference. The page that caused the fault could have already been
+freed and reused for a different purpose. None of the fields in
+the struct page are reliable to use. 
+
+To get around this problem discarded pages that are about to be
+freed need special handling because there might be a pending
+discard fault for them we haven't completed yet.
+A check is added in __remove_from_page_cache that sets the
+PG_discarded bit if the page has been removed by the host. That bit
+is tested for each page that gets freed via free_hot_cold_page.
+If it is set the page is put on a list of discarded pages.
+The pages on this list are only freed after all cpus have gone
+through enabled state at least once. With the requirement that
+a cpu that gets a discard fault is disabled for interrupts while
+handling the fault it is possible for the discard fault handler to
+safely get a page reference from the struct page by using an
+atomic_inc_if_not_zero operation on the reference count.
+
+The nice thing about the discard list is that discarded pages do
+not get reused immediatly. The host system needs to back discarded
+guest pages again before they can be reused. So even for "nice"
+platforms who deliver the virtual page address on the discard fault
+get a benefit out of this patch.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 ---
 
- include/linux/fs.h       |    1 +
- include/linux/page_hva.h |    2 ++
- mm/memory.c              |   25 +++++++++++++++++++++++++
- mm/mlock.c               |    2 ++
- mm/page_hva.c            |    5 ++++-
- 5 files changed, 34 insertions(+), 1 deletion(-)
+ include/linux/page_hva.h |    5 +++++
+ mm/filemap.c             |    4 +++-
+ mm/page_alloc.c          |   26 ++++++++++++++++++++++++++
+ mm/vmscan.c              |   28 ++++++++++++++++++++++++++++
+ 4 files changed, 62 insertions(+), 1 deletion(-)
 
-diff -urpN linux-2.6/include/linux/fs.h linux-2.6-patched/include/linux/fs.h
---- linux-2.6/include/linux/fs.h	2005-12-16 20:40:34.000000000 +0100
-+++ linux-2.6-patched/include/linux/fs.h	2005-12-16 20:40:50.000000000 +0100
-@@ -386,6 +386,7 @@ struct address_space {
- 	spinlock_t		private_lock;	/* for use by the address_space */
- 	struct list_head	private_list;	/* ditto */
- 	struct address_space	*assoc_mapping;	/* ditto */
-+	unsigned int		mlocked;	/* set if VM_LOCKED vmas present */
- } __attribute__((aligned(sizeof(long))));
- 	/*
- 	 * On most architectures that alignment is already the case; but
 diff -urpN linux-2.6/include/linux/page_hva.h linux-2.6-patched/include/linux/page_hva.h
---- linux-2.6/include/linux/page_hva.h	2005-12-16 20:40:50.000000000 +0100
-+++ linux-2.6-patched/include/linux/page_hva.h	2005-12-16 20:40:50.000000000 +0100
-@@ -31,6 +31,8 @@ static inline void page_hva_make_volatil
+--- linux-2.6/include/linux/page_hva.h	2005-12-16 20:40:52.000000000 +0100
++++ linux-2.6-patched/include/linux/page_hva.h	2005-12-16 20:40:53.000000000 +0100
+@@ -16,6 +16,9 @@
  
- #else
+ #include <asm/page_hva.h>
  
-+#define page_hva_enabled()			(0)
++extern spinlock_t page_hva_discard_list_lock;
++extern struct list_head page_hva_discard_list;
 +
- #define page_hva_set_unused(_page)		do { } while (0)
- #define page_hva_set_stable(_page)		do { } while (0)
+ extern int page_hva_make_stable(struct page *page);
+ extern void page_hva_discard_page(struct page *page);
+ extern void __page_hva_discard_page(struct page *page);
+@@ -54,6 +57,8 @@ static inline void page_hva_reset_write(
  #define page_hva_set_volatile(_page)		do { } while (0)
-diff -urpN linux-2.6/mm/memory.c linux-2.6-patched/mm/memory.c
---- linux-2.6/mm/memory.c	2005-12-16 20:40:50.000000000 +0100
-+++ linux-2.6-patched/mm/memory.c	2005-12-16 20:40:50.000000000 +0100
-@@ -2402,6 +2402,31 @@ int make_pages_present(unsigned long add
- 	if (end > vma->vm_end)
- 		BUG();
- 	len = (end+PAGE_SIZE-1)/PAGE_SIZE-addr/PAGE_SIZE;
-+
-+	if (page_hva_enabled() && (vma->vm_flags & VM_LOCKED)) {
-+		int rlen = len;
-+		ret = 0;
-+		while (rlen > 0) {
-+			struct page *page_refs[32];
-+			int chunk, cret, i;
-+
-+			chunk = rlen < 32 ? rlen : 32;
-+			cret = get_user_pages(current, current->mm, addr,
-+					      chunk, write, 0,
-+					      page_refs, NULL);
-+			if (cret > 0) {
-+				for (i = 0; i < cret; i++)
-+					page_cache_release(page_refs[i]);
-+				ret += cret;
-+			}
-+			if (cret < chunk)
-+				return ret ? : cret;
-+			addr += 32*PAGE_SIZE;
-+			rlen -= 32;
-+		}
-+		return ret == len ? 0 : -1;
-+	}
-+
- 	ret = get_user_pages(current, current->mm, addr,
- 			len, write, 0, NULL, NULL);
- 	if (ret < 0)
-diff -urpN linux-2.6/mm/mlock.c linux-2.6-patched/mm/mlock.c
---- linux-2.6/mm/mlock.c	2005-10-28 02:02:08.000000000 +0200
-+++ linux-2.6-patched/mm/mlock.c	2005-12-16 20:40:50.000000000 +0100
-@@ -59,6 +59,8 @@ success:
- 	 */
- 	pages = (end - start) >> PAGE_SHIFT;
- 	if (newflags & VM_LOCKED) {
-+		if (vma->vm_file && vma->vm_file->f_mapping)
-+			vma->vm_file->f_mapping->mlocked = 1;
- 		pages = -pages;
- 		if (!(newflags & VM_IO))
- 			ret = make_pages_present(start, end);
-diff -urpN linux-2.6/mm/page_hva.c linux-2.6-patched/mm/page_hva.c
---- linux-2.6/mm/page_hva.c	2005-12-16 20:40:50.000000000 +0100
-+++ linux-2.6-patched/mm/page_hva.c	2005-12-16 20:40:50.000000000 +0100
-@@ -23,6 +23,8 @@
-  */
- static inline int __page_hva_discardable(struct page *page,unsigned int offset)
- {
-+	struct address_space *mapping;
-+
- 	/*
- 	 * There are several conditions that prevent a page from becoming
- 	 * volatile. The first check is for the page bits, if the page
-@@ -40,7 +42,8 @@ static inline int __page_hva_discardable
- 	 * If the page has been truncated there is no point in makeing
- 	 * it volatile. It will be freed soon.
- 	 */
--	if (!page_mapping(page))
-+	mapping = page_mapping(page);
-+	if (!mapping || mapping->mlocked)
- 		return 0;
+ #define page_hva_set_stable_if_resident(_page)	(1)
  
- 	/*
++#define page_hva_discarded(_page)		(0)
++
+ #define page_hva_make_stable(_page)		(1)
+ #define page_hva_make_volatile(_page,_offset)	do { } while (0)
+ 
+diff -urpN linux-2.6/mm/filemap.c linux-2.6-patched/mm/filemap.c
+--- linux-2.6/mm/filemap.c	2005-12-16 20:40:53.000000000 +0100
++++ linux-2.6-patched/mm/filemap.c	2005-12-16 20:40:53.000000000 +0100
+@@ -121,7 +121,9 @@ void __remove_from_page_cache(struct pag
+ 	 * in the discard fault for multiple discards of a single
+ 	 * page. Clear the mapping now.
+ 	 */
+-	if (unlikely(PageDiscarded(page))) {
++	if (unlikely(PageDiscarded(page) ||
++		     (page_hva_discarded(page) &&
++		      TestSetPageDiscarded(page)))) {
+ 		page->mapping = NULL;
+ 		return;
+ 	}
+diff -urpN linux-2.6/mm/page_alloc.c linux-2.6-patched/mm/page_alloc.c
+--- linux-2.6/mm/page_alloc.c	2005-12-16 20:40:52.000000000 +0100
++++ linux-2.6-patched/mm/page_alloc.c	2005-12-16 20:40:53.000000000 +0100
+@@ -742,6 +742,12 @@ static void zone_statistics(struct zonel
+ #endif
+ }
+ 
++#ifdef CONFIG_PAGE_HVA
++static DEFINE_PER_CPU(struct pagevec, page_hva_discard_pvecs) = { 0, };
++DEFINE_SPINLOCK(page_hva_discard_list_lock);
++LIST_HEAD(page_hva_discard_list);
++#endif
++
+ /*
+  * Free a 0-order page
+  */
+@@ -751,6 +757,26 @@ static void fastcall free_hot_cold_page(
+ 	struct per_cpu_pages *pcp;
+ 	unsigned long flags;
+ 
++#ifdef CONFIG_PAGE_HVA
++	if (unlikely(PageDiscarded(page))) {
++		struct pagevec *pvec;
++		pvec = &get_cpu_var(page_hva_discard_pvecs);
++		if (!pagevec_add(pvec, page)) {
++			int i;
++			spin_lock(&page_hva_discard_list_lock);
++			for (i = 0; i < pagevec_count(pvec); i++) {
++				struct page *page = pvec->pages[i];
++				list_add_tail(&page->lru,
++					      &page_hva_discard_list);
++			}
++			spin_unlock(&page_hva_discard_list_lock);
++			pagevec_reinit(pvec);
++		}
++		put_cpu_var(page_hva_discard_pvecs);
++		return;
++	}
++#endif
++
+ 	arch_free_page(page, 0);
+ 
+ 	if (PageAnon(page))
+diff -urpN linux-2.6/mm/vmscan.c linux-2.6-patched/mm/vmscan.c
+--- linux-2.6/mm/vmscan.c	2005-12-16 20:40:50.000000000 +0100
++++ linux-2.6-patched/mm/vmscan.c	2005-12-16 20:40:53.000000000 +0100
+@@ -668,6 +668,33 @@ void page_hva_discard_page(struct page *
+ 	unlock_page(page);
+ }
+ EXPORT_SYMBOL(page_hva_discard_page);
++
++static void page_hva_sync(void *info)
++{
++}
++
++void shrink_discards(struct scan_control *sc)
++{
++	struct list_head pages_to_free = LIST_HEAD_INIT(pages_to_free);
++	struct page *page, *next;
++
++	spin_lock(&page_hva_discard_list_lock);
++	list_splice_init(&page_hva_discard_list, &pages_to_free);
++	spin_unlock(&page_hva_discard_list_lock);
++
++	if (list_empty(&pages_to_free))
++		return;
++
++	smp_call_function(page_hva_sync, NULL, 0, 1);
++
++	list_for_each_entry_safe(page, next, &pages_to_free, lru) {
++		ClearPageDiscarded(page);
++		page->mapping = NULL;
++		free_cold_page(page);
++	}
++}
++#else
++#define shrink_discards(sc)	do { } while (0)
+ #endif
+ 
+ #ifdef CONFIG_MIGRATION
+@@ -1300,6 +1327,7 @@ int try_to_free_pages(struct zone **zone
+ 		sc.swap_cluster_max = SWAP_CLUSTER_MAX;
+ 		if (!priority)
+ 			disable_swap_token();
++		shrink_discards(&sc);
+ 		shrink_caches(zones, &sc);
+ 		shrink_slab(sc.nr_scanned, gfp_mask, lru_pages);
+ 		if (reclaim_state) {

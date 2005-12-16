@@ -1,171 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932447AbVLPV0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932439AbVLPV0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932447AbVLPV0E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 16:26:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932439AbVLPV0E
+	id S932439AbVLPV0k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 16:26:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbVLPV0j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 16:26:04 -0500
-Received: from smtp04.wanadoo.nl ([194.134.35.144]:10023 "EHLO
-	smtp04.wanadoo.nl") by vger.kernel.org with ESMTP id S932447AbVLPV0C
+	Fri, 16 Dec 2005 16:26:39 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:4849 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S932439AbVLPV0i
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 16:26:02 -0500
-Mime-Version: 1.0 (Apple Message framework v746.2)
+	Fri, 16 Dec 2005 16:26:38 -0500
+Message-ID: <43A33114.6060701@mvista.com>
+Date: Fri, 16 Dec 2005 13:26:44 -0800
+From: David Singleton <dsingleton@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dino@in.ibm.com
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       robustmutexes@lists.osdl.org
+Subject: Re: Recursion bug in -rt
+References: <20051214223912.GA4716@in.ibm.com> <9175126B-6D06-11DA-AA1B-000A959BB91E@mvista.com> <20051215194434.GA4741@in.ibm.com> <43F8915C-6DC7-11DA-A45A-000A959BB91E@mvista.com> <20051216184209.GD4732@in.ibm.com>
+In-Reply-To: <20051216184209.GD4732@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <A77AD032-AA74-4F2E-B393-F18528BBEC81@lazarenko.net>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-To: LKML <linux-kernel@vger.kernel.org>
-From: Vladimir Lazarenko <vlad@lazarenko.net>
-Subject: tulip on alpha ds10l 100MbpsFD problem
-Date: Fri, 16 Dec 2005 22:25:59 +0100
-X-Mailer: Apple Mail (2.746.2)
-X-Spam-Score: 0.2 (/)
-X-Spam-Report: Spam detection software, running on the system "dinosaur.lazarenko.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Hello, I'm trying to get this DS 10L going with Linux,
-	and I hit the ceiling with the onboard ethernet. Whenever the device is
-	in 10Mbps, and switch is in 10 Mbps, everything works ok (half-duplex
-	mode). Whenever I switch to 100Mbps, I'm not able to receive packets. At
-	all. Sending goes ok, i.e. I see DHCP requests on another server, but
-	nothing reaches the box when data is sent to it. [...] 
-	Content analysis details:   (0.2 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.2 AWL                    AWL: From: address is in the auto white-list
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Dinakar,
 
-I'm trying to get this DS 10L going with Linux, and I hit the ceiling  
-with the onboard ethernet.
-Whenever the device is in 10Mbps, and switch is in 10 Mbps,  
-everything works ok (half-duplex mode). Whenever I switch to 100Mbps,  
-I'm not able to receive packets. At all. Sending goes ok, i.e. I see  
-DHCP requests on another server, but nothing reaches the box when  
-data is sent to it.
+     I believe this patch will give you the behavior you expect.
 
-Similar behaviour with both de4x5 and tulip drivers.
+    http://source.mvista.com/~dsingleton/patch-2.6.15-rc5-rt2-rf3
+   
+    With this patch your app that tries to lock a non-recursive 
+pthread_mutex twice
+    will not get EAGAIN back,  it will hang.
 
-lspci -vvv:
+    I should point out that you will still get the new, and I had hoped, 
+added
+    benefit feature of being able to detect when you app would deadlock 
+itself
+    by turning on DEBUG_DEADLOCKS.  It will give you the same
+    behavior that you originally posted.   The kernel will inform you
+    of the deadlock.
 
-0000:00:09.0 Ethernet controller: Digital Equipment Corporation  
-DECchip 21142/4)        Subsystem: Digital Equipment Corporation  
-DE500B Fast Ethernet
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-  
-ParErr- Ste-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr-  
-DEVSEL=medium >TAbort- <TAbor-        Latency: 255 (5000ns min,  
-10000ns max), Cache Line Size: 0x10 (64 bytes)        Interrupt: pin  
-A routed to IRQ 29
-         Region 0: I/O ports at 8000 [size=128]
-         Region 1: Memory at 0000000009080000 (32-bit, non- 
-prefetchable) [size=1]        Expansion ROM at 0000000009000000  
-[disabled] [size=256K]
-
-0000:00:0b.0 Ethernet controller: Digital Equipment Corporation  
-DECchip 21142/4)        Subsystem: Digital Equipment Corporation  
-DE500B Fast Ethernet
-         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-  
-ParErr- Ste-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr-  
-DEVSEL=medium >TAbort- <TAbor-        Latency: 255 (5000ns min,  
-10000ns max), Cache Line Size: 0x10 (64 bytes)        Interrupt: pin  
-A routed to IRQ 30
-         Region 0: I/O ports at 8080 [size=128]
-         Region 1: Memory at 0000000009081000 (32-bit, non- 
-prefetchable) [size=1]        Expansion ROM at 0000000009040000  
-[disabled] [size=256K]
+    If you need the POSIX behavior of having an app hang if it tries
+    to lock the same, non-recursive pthread_mutex twice then you need to 
+turn off
+    DEBUG_DEADLOCKS.
+   
+    If you can send on the Priority Boost test I can start looking at it 
+as well.
 
 
-tulip-diag -aem:
-
-da-ds10-l:~# tulip-diag -aem
-tulip-diag.c:v2.17 5/6/2003 Donald Becker (becker@scyld.com)
-http://www.scyld.com/diag/index.html
-Index #1: Found a Digital DS21143 Tulip adapter at 0x8000.
-Digital DS21143 Tulip chip registers at 0x8000:
-0x00: f8a0e000 ffffffff ffffffff 9c2d6000 9c2d6800 f0000000 b2420200  
-fbfffbff
-0x40: e0000000 ffffcbf8 ffffffff 00000000 000012ce ffff0001 fffbffff  
-8ff00000
-Port selection is 10mpbs-serial, full-duplex.
-Transmit stopped, Receive stopped.
-   The Rx process state is 'Stopped'.
-   The Tx process state is 'Stopped'.
-   The transmit threshold is 72.
-   The NWay status register is 000012ce.
-EEPROM 64 words, 6 address bits.
-PCI Subsystem IDs, vendor 1011, device 500b.
-CardBus Information Structure at offset 00000000.
-Ethernet MAC Station Address 00:10:64:30:44:55.
-EEPROM transceiver/media description table.
-Leaf node at offset 46, default media type 0800 (Autosense).
-4 transceiver description blocks:
-   Media 10baseT, block type 2, length 6.
-    Serial transceiver for 10baseT (media type 0).
-     GP pin direction 08af  GP pin data 00a0.
-   Media 10baseT-Full Duplex, block type 2, length 6.
-    Serial transceiver for 10baseT-Full Duplex (media type 4).
-     GP pin direction 08af  GP pin data 00a0.
-   Media 100baseTx, block type 4, length 8.
-    SYM transceiver for 100baseTx (media type 3).
-     GP pin direction 08af  GP pin data 00a0.
-     No media detection indication (command 80 61).
-   Media 100baseTx Full Duplex, block type 4, length 8.
-    SYM transceiver for 100baseTx Full Duplex (media type 5).
-     GP pin direction 08af  GP pin data 00a0.
-     No media detection indication (command 80 61).
-    No MII transceivers found!
-   Internal autonegotiation state is 'Ability detect'.
-Index #2: Found a Digital DS21143 Tulip adapter at 0x8080.
-Digital DS21143 Tulip chip registers at 0x8080:
-0x00: f8004800 ffffffff ffffffff 9faf0000 9faf0080 f0000000 b2420200  
-f3fe0000
-0x40: e0000000 ffffcbf8 ffffffff 00000000 000021c6 ffff0001 fffbffff  
-8ff00000
-Port selection is 10mpbs-serial, full-duplex.
-Transmit stopped, Receive stopped.
-   The Rx process state is 'Stopped'.
-   The Tx process state is 'Stopped'.
-   The transmit threshold is 72.
-   The NWay status register is 000021c6.
-EEPROM 64 words, 6 address bits.
-PCI Subsystem IDs, vendor 1011, device 500b.
-CardBus Information Structure at offset 00000000.
-Ethernet MAC Station Address 00:10:64:30:44:56.
-EEPROM transceiver/media description table.
-Leaf node at offset 46, default media type 0800 (Autosense).
-4 transceiver description blocks:
-   Media 10baseT, block type 2, length 6.
-    Serial transceiver for 10baseT (media type 0).
-     GP pin direction 08af  GP pin data 00a0.
-   Media 10baseT-Full Duplex, block type 2, length 6.
-    Serial transceiver for 10baseT-Full Duplex (media type 4).
-     GP pin direction 08af  GP pin data 00a0.
-   Media 100baseTx, block type 4, length 8.
-    SYM transceiver for 100baseTx (media type 3).
-     GP pin direction 08af  GP pin data 00a0.
-     No media detection indication (command 80 61).
-   Media 100baseTx Full Duplex, block type 4, length 8.
-    SYM transceiver for 100baseTx Full Duplex (media type 5).
-     GP pin direction 08af  GP pin data 00a0.
-     No media detection indication (command 80 61).
-    No MII transceivers found!
-   Internal autonegotiation state is 'Ability detect'.
+David
 
 
-Note, that it thinks that the device is in 10mbps full duplex mode,  
-however when i force 10mbps on the switch, it will report 10mbps half- 
-duplex, and that's the only configuration it works properly in.
+>On Thu, Dec 15, 2005 at 04:02:36PM -0800, david singleton wrote:
+>  
+>
+>>Dinakar,
+>>
+>>	I believe the problem we have is that the library is not checking
+>>to see if the mutex is a recursive mutex, and then checking to see
+>>if the recursive mutex is already owned by the calling thread.  If a 
+>>recursive mutex
+>>is owned by the calling thread the library should increment the lock
+>>count (POSIX says recursive mutexes must be unlocked as
+>>many times as they are locked) and return 0 (success) to the caller.
+>>    
+>>
+>
+>Sorry I seem to have confused you. I am _not_ talking about recursive
+>mutexes here.
+>
+>I have two testcases. Here is a code snippet of testcase I
+>
+>        void* test_thread (void* arg)
+>        {
+>            pthread_mutex_lock(&child_mutex);
+>            printf("test_thread got lock\n");
+>
+>            pthread_mutex_lock(&child_mutex);
+>            printf("test_thread got lock 2nd time !!\n");
+>
+>            printf("test_thread exiting\n");
+>            return NULL;
+>        }
+>
+>        main ()
+>        {
+>            ...
+>
+>            if (pthread_mutexattr_init(&mutexattr) != 0) {
+>              printf("Failed to init mutexattr\n");
+>            };
+>            if (pthread_mutexattr_setprotocol(&mutexattr,
+>                                        PTHREAD_PRIO_INHERIT) != 0) {
+>              printf("Can't set protocol prio inherit\n");
+>            }
+>            if (pthread_mutexattr_getprotocol(&mutexattr, &protocol) != 0) {
+>              printf("Can't get mutexattr protocol\n");
+>            } else {
+>              printf("protocol in mutexattr is %d\n", protocol);
+>            }
+>            if ((retc = pthread_mutex_init(&child_mutex, &mutexattr)) != 0) {
+>              printf("Failed to init mutex: %d\n", retc);
+>            }
+>
+>            ...
+>        }
+>
+>
+>Clearly what the application is doing here is wrong. However,
+>
+>1. In the case of normal (non-robust) non recursive mutexes, the
+>behaviour when we make the second pthread_mutex_lock call is for glibc
+>to make a futex_wait call which will block forever.
+>(Which is the right behaviour)
+>
+>2. In the case of a robust/PI non recursive mutex, the current
+>behaviour is the glibc makes a futex_wait_robust call (which is right)
+>The kernel (2.6.15-rc5-rt1) rt_mutex lock is currently unowned and
+>since we do not call down_try_futex if current == owner_task, we end
+>up grabbing the lock in __down_interruptible and returning succesfully !
+>
+>3. Adding the check below in down_futex is also wrong
+>
+>   if (!owner_task || owner_task == current) {
+>        up(sem);
+>        up_read(&current->mm->mmap_sem);
+>        return -EAGAIN;
+>   }
+>
+>   This will result in glibc calling the kernel continuosly in a
+>   loop and we will end up context switching to death
+>
+>I guess we need to cleanup this path to ensure that the application
+>blocks forever.
+>
+>I also have testcase II which does not do anything illegal as the
+>above one, instead it exercises the PI boosting code path in the
+>kernel and that is where I see the system hang up yet again
+>and this is the race that I am currently investigating
+>
+>Hope that clearls up things a bit
+>
+>	-Dinakar
+>
+>  
+>
 
-SRM ewa0_mode is set to FastFD. It doesn't work with Auto-Negotiate  
-either.
-
-Any ideas would be very welcome. I'd be very happy to get this baby  
-going in 100Mbps mode.
-As a sidenote, alphaserver800 which is next to it, works in 100MbpsFD  
-perfectly.
-
-Regards,
-Vladimir

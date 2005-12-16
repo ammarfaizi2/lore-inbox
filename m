@@ -1,71 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbVLPFUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVLPFU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbVLPFUy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 00:20:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbVLPFUy
+	id S932133AbVLPFU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 00:20:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVLPFU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 00:20:54 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:45469 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932130AbVLPFUx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 00:20:53 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
+	Fri, 16 Dec 2005 00:20:57 -0500
+Received: from web50209.mail.yahoo.com ([206.190.38.50]:44733 "HELO
+	web50209.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S932133AbVLPFU5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 00:20:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=bYJCt1wfBbWHvhj8s6EhiHOVlIk/MUTJM81+NUuZXkHpKiAFp0NvvA13syewgRswvDA946USzZzotxuPACZ/Mj2LSbKBt8Ae/1BLKe4dYHAvRLbJvz1V0PLHNExbc6mSMG3VBqZDC7vo/8jHGuKAKuZ+owk5t/wJPI1DSCHm3pY=  ;
+Message-ID: <20051216052054.83256.qmail@web50209.mail.yahoo.com>
+Date: Thu, 15 Dec 2005 21:20:54 -0800 (PST)
+From: Alex Davis <alex14641@yahoo.com>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
 To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>
-Subject: [RFC] Add thread_info flag for "no cpu migration"
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 16 Dec 2005 16:20:41 +1100
-Message-ID: <9019.1134710441@kao2.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The thread below talks about disabling preemption in udelay() because
-different cpus can have hardware clocks that move at different rates.
+The problem is that, with laptops, most of the time you DON'T have a choice:
+HP and Dell primarily use a Broadcomm integrated wireless card in ther products.
+As of yet, there is no open source driver for Broadcomm wireless.
 
-http://marc.theaimsgroup.com/?l=linux-ia64&m=113460274218885&w=2
+>If 8k stacks get removed, yes. So if you have a chance to choose don't buy a 
+>wifi card which doesn't have a native linux driver.
+>
+>Regards,
+>ismail
 
-preempt_disable() is overkill for this class of problem.  Code that
-uses per cpu variables and/or hardware often only has the requirement
-that it not be migrated off the current cpu, it can cope with
-preemption as long as it gets scheduled back onto the same cpu.
-Disabling preemption just to prevent cpu migration can introduce
-additional preemption delays.
+I code, therefore I am
 
-The normal way of pinning a task to a cpu is to use set_cpus_allowed(),
-but that requires that the caller hold no locks and be running enabled.
-Code such as udelay() can be called in any context, it may or may not
-be runing atomic.
-
-Could we add a TIF_ flag that says "no migration to another cpu"?  It
-would be very light weight, functions cpu_migration_save(flags) and
-cpu_migration_restore(flags) plus a couple of tests in the scheduler.
-
-#define cpu_migration_save(flags) do { flags = test_and_set_thread_flag(TIF_NO_CPU_MIGRATION); } while(0)
-#define cpu_migration_restore(flags) do { if (!flags) clear_thread_flag(TIF_NO_CPU_MIGRATION); } while(0)
-
-Unlike set_cpus_allowed(), TIF_NO_CPU_MIGRATION can be set in any
-context.  This makes it far more useful for lower level code, which may
-be called with interrupts or preemption enabled or disabled.
-
-I do not know enough about the scheduler to be completely sure of what
-changes are required there, but at a quick glance -
-
-set_cpus_allowed() returns -EBUSY if TIF_NO_CPU_MIGRATION is set and
-the new mask does not include the current cpu.
-
-can_migrate_task() returns 0 if TIF_NO_CPU_MIGRATION is set.
-
-sched_fork() and sched_exec() BUG if TIF_NO_CPU_MIGRATION is set, it
-makes no sense to fork/exec with migration disabled.  These are sanity
-checks, and may not be absolutely required.
-
-If this feature is added, some uses of get_cpu() could be redefined to
-use cpu_migration_save(), further reducing the size of code that runs
-with preempt disabled.
-
-The debug version of smp_processor_id() would accept
-TIF_NO_CPU_MIGRATION being set as one of the criteria for not
-complaining.
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

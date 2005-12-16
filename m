@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbVLPPLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVLPPQa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932328AbVLPPLu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 10:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932329AbVLPPLu
+	id S1750863AbVLPPQa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 10:16:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbVLPPQ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 10:11:50 -0500
-Received: from moutvdom.kundenserver.de ([212.227.126.249]:50916 "EHLO
-	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932328AbVLPPLt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 10:11:49 -0500
-Message-ID: <43A2D932.3030909@anagramm.de>
-Date: Fri, 16 Dec 2005 16:11:46 +0100
-From: Clemens Koller <clemens.koller@anagramm.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Fri, 16 Dec 2005 10:16:29 -0500
+Received: from atlrel7.hp.com ([156.153.255.213]:47050 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S1750863AbVLPPQ3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 10:16:29 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] idle.c fix unused var compile warning
-Content-Type: multipart/mixed;
- boundary="------------090208030907010108070000"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE:  Re: gtkpod and Filesystem
+Date: Fri, 16 Dec 2005 09:16:24 -0600
+Message-ID: <F265D57E1F28274EA189ED0566D227DE7F21EC@PGJEXC01.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Re: gtkpod and Filesystem
+Thread-Index: AcYCUxDWoH5+PpknTXmRADEYWJVnngAAFvpA
+From: "Bonilla, Alejandro" <alejandro.bonilla@hp.com>
+To: "Gunter Ohrner" <G.Ohrner@post.rwth-aachen.de>,
+       <linux-kernel@vger.kernel.org>
+Cc: <debian-devel@lists.debian.org>
+X-OriginalArrivalTime: 16 Dec 2005 15:16:26.0073 (UTC) FILETIME=[AE8E2490:01C60253]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090208030907010108070000
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+|Alejandro Bonilla wrote:
+|> I have Debian Sid with 2.6.15-rc5, I wonder if this could be 
+|either with a
+|> bug in gtkpod or the kernel (FS Panic).
+|
+|Maybe an FS error on your iPod? Did you try to reformat or dosfsck it?
 
-This fixes a little warning about unused cpu variable for non SMP PPC systems.
+I doubt it, I mean, it works well in Windows and while playing. It is
+only giving trouble in Linux.
 
-Signed-off-by: Clemens Koller <clemens.koller@anagramm.de>
--- 
+I will look deeper into it, I was just wondering if the FS Errors where
+familiar.
 
---------------090208030907010108070000
-Content-Type: text/plain;
- name="idle_c-fix-unused-var-warning.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="idle_c-fix-unused-var-warning.patch"
+Thanks,
 
---- linux-2.6/arch/ppc/kernel/idle.c.ori	2005-12-14 12:27:26.000000000 +0100
-+++ linux-2.6/arch/ppc/kernel/idle.c	2005-12-16 16:02:18.000000000 +0100
-@@ -37,7 +37,9 @@
- void default_idle(void)
- {
- 	void (*powersave)(void);
-+#ifdef CONFIG_SMP
- 	int cpu = smp_processor_id();
-+#endif
- 
- 	powersave = ppc_md.power_save;
- 
+.Alejandro
 
---------------090208030907010108070000--
+|
+|Greetings,
+|
+|  Gunter

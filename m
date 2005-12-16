@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbVLPOfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbVLPOfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932312AbVLPOfn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 09:35:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVLPOfn
+	id S932308AbVLPOfe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 09:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVLPOfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 09:35:43 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:7080 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932312AbVLPOfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 09:35:42 -0500
-Date: Fri, 16 Dec 2005 14:35:40 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org, wein@de.ibm.com,
-       Horst.Hummel@de.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/3] s390: dasd extended error reporting module.
-Message-ID: <20051216143540.GA25097@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
-	wein@de.ibm.com, Horst.Hummel@de.ibm.com,
-	linux-kernel@vger.kernel.org
-References: <20051216132953.GD8877@skybase.boeblingen.de.ibm.com> <20051216134754.GA23964@infradead.org> <1134743589.5495.16.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Dec 2005 09:35:34 -0500
+Received: from outmx024.isp.belgacom.be ([195.238.2.128]:27293 "EHLO
+	outmx024.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S932308AbVLPOfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 09:35:33 -0500
+From: Jan De Luyck <lkml@kcore.org>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6.14.3] S3 and USB
+Date: Fri, 16 Dec 2005 15:35:13 +0100
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1134743589.5495.16.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200512161535.13650.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 03:33:09PM +0100, Martin Schwidefsky wrote:
-> On a side not, Arnd just told my about the bug in the dasd_eckd
-> discipline. We need to check the discipline in the eckd specific ioctls.
-> I'll tell the appropriate people (well in fact I already did because
-> they are on CC:). As for adding a per discipline .ioctl function, that
-> won't work because of cmb and eer. These modules do not implement a
-> discipline but still have to add ioctls.
+Hello list,
 
-cmd shouldn't be a module of it's own (see patch just sent), and the
-same is true of this module.  Functionality that doesn't have it's own
-fundamental objects to operate on should be separate modules.  If you
-use modules ala dlopen()ed .so libraries in userspace you will always
-get code that's a piece of junk and full of bugs.
+I'm currently running 2.6.14.3, with S3 suspending, works like a charm.
+The only things i need to disable prior to suspending (just so that I can 
+re-enable them afterwards and have them working is:
+- nsc_ircc (+irda_tools)
+- acerhk 
+
+USB and the like work without problems. The only problem I have is that if I 
+leave USB 'on' and suspend, any activity to the USB ports causes my laptop to 
+resume but it never resumes correctly. I get a black screen, no entries in 
+the system logs, and I need to hold the power button to power off the 
+machine. Which is very annoying since I tend to plug in my USB mouse before I 
+open the screen.
+
+Any ideas?
+
+Jan
+-- 
+<RoboHak> hmm, lunch does sound like a good idea
+<Knghtbrd> would taste like a good idea too

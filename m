@@ -1,63 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbVLPSWn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbVLPSaM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbVLPSWn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 13:22:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbVLPSWm
+	id S1751326AbVLPSaM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 13:30:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbVLPSaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 13:22:42 -0500
-Received: from main.gmane.org ([80.91.229.2]:5022 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751313AbVLPSWm (ORCPT
+	Fri, 16 Dec 2005 13:30:12 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:28636 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1751326AbVLPSaJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 13:22:42 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Fri, 16 Dec 2005 13:18:10 -0500
-Message-ID: <dnv0d3$4jl$1@sea.gmane.org>
-References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com> <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: lmcgw.cs.sunysb.edu
-User-Agent: KNode/0.10
+	Fri, 16 Dec 2005 13:30:09 -0500
+Message-Id: <200512161828.jBGISe4k003326@laptop11.inf.utfsm.cl>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch] more updates for the gcc >= 3.2 requirement 
+In-Reply-To: Message from Adrian Bunk <bunk@stusta.de> 
+   of "Thu, 15 Dec 2005 22:24:52 BST." <20051215212452.GS23349@stusta.de> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Fri, 16 Dec 2005 15:28:40 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 16 Dec 2005 15:28:41 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett wrote:
+Adrian Bunk <bunk@stusta.de> wrote:
+> This patch contains some documentation updates and removes some code 
+> paths for gcc < 3.2.
 
-> I have yet to see any resistance to the 4Kb patch this time around
-> that was not "*whine* don't break my ndiswrapper plz".   There are
+[...]
 
-I haven't seen anyone demanding others not to have 4k stacks; only requests
-to leave 4k/8k stack option as it is. If _you_ want to have 4k stacks, you
-already have that option. You are only pushing what you want on others and
-bad mouthing people that are requesting the option to have either 4k or 8k
-stacks.
+> --- linux-2.6.15-rc5-mm3-full/arch/arm/kernel/asm-offsets.c.old	2005-12-15 13:34:55.000000000 +0100
+> +++ linux-2.6.15-rc5-mm3-full/arch/arm/kernel/asm-offsets.c	2005-12-15 13:35:11.000000000 +0100
+> @@ -27,11 +27,11 @@
+>   * GCC 3.2.0: incorrect function argument offset calculation.
+>   * GCC 3.2.x: miscompiles NEW_AUX_ENT in fs/binfmt_elf.c
+>   *            (http://gcc.gnu.org/PR8896) and incorrect structure
+>   *	      initialisation in fs/jffs2/erase.c
+>   */
+> -#if __GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ < 3)
+> +#if (__GNUC__ == 3 && __GNUC_MINOR__ < 3)
+>  #error Your compiler is too buggy; it is known to miscompile kernels.
+>  #error    Known good compilers: 3.3
+>  #endif
 
-> It's working partially now.  This is the time when we should really
+Better leave the original, in case some clown comes along with an ancient
+compiler.
 
-ndiswrapper is used not just for broadcom. There are plenty of other
-chipsets that don't even have a project started to write open source
-driver.
+[...]
 
-> try to force ndiswrapper junkies over to the driver to get it tested
-                           ^^^^^^^
-Shame on you. Your last mail was a promise to be "more reserved". Even
-otherwise, such profanities against a group of people are unwarranted.
+> --- linux-2.6.15-rc5-mm3-full/include/asm-ia64/spinlock.h.old	2005-12-15 13:38:00.000000000 +0100
+> +++ linux-2.6.15-rc5-mm3-full/include/asm-ia64/spinlock.h	2005-12-15 13:38:07.000000000 +0100
+> @@ -32,11 +32,11 @@
+>  static inline void
+>  __raw_spin_lock_flags (raw_spinlock_t *lock, unsigned long flags)
+>  {
+>  	register volatile unsigned int *ptr asm ("r31") = &lock->lock;
+>  
+> -#if __GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ < 3)
+> +#if (__GNUC__ == 3 && __GNUC_MINOR__ < 3)
 
-To kernel developers: I have earlier requested if it is possible to create
-threads with different stack sizes (e.g., 4k/8k/16k etc.) at run-time, ala
-FreeBSD. In that case, one could chose whatever it is that fits their
-needs. Any comments on this idea?
+Ditto.
 
-To those that depend on ndiswrapper to have wireless in Linux: A few days
-ago I started working on NDIS implementation in user space. However, it
-will take considerable time before this is usable. Moreover, I only have
-hope with USB drivers. PCI/mini-PCI/PCMCIA drivers need to run interrupt
-service routines, which can't be run in user space, so they won't work in
-user space.
+[...]
 
-Giri
+> --- linux-2.6.15-rc5-mm3-full/include/asm-sparc64/system.h.old	2005-12-15 13:40:55.000000000 +0100
+> +++ linux-2.6.15-rc5-mm3-full/include/asm-sparc64/system.h	2005-12-15 13:41:03.000000000 +0100
+> @@ -191,15 +191,11 @@
+>  	 * the output value of 'last'.  'next' is not referenced again
+>  	 * past the invocation of switch_to in the scheduler, so we need
+>  	 * not preserve it's value.  Hairy, but it lets us remove 2 loads
+>  	 * and 2 stores in this critical code path.  -DaveM
+>  	 */
+> -#if __GNUC__ >= 3
+>  #define EXTRA_CLOBBER ,"%l1"
+> -#else
+> -#define EXTRA_CLOBBER
+> -#endif
 
+If EXTRA_CLOBBER is now constant, you can get rid of it completely.
+
+[...]
+
+> --- linux-2.6.15-rc5-mm3-full/include/linux/byteorder/swabb.h.old	2005-12-15 13:41:52.000000000 +0100
+> +++ linux-2.6.15-rc5-mm3-full/include/linux/byteorder/swabb.h	2005-12-15 13:42:00.000000000 +0100
+> @@ -75,11 +75,11 @@
+>  
+>  
+>  /*
+>   * Allow constant folding
+>   */
+> -#if defined(__GNUC__) && (__GNUC__ >= 2) && defined(__OPTIMIZE__)
+> +#if defined(__GNUC__) && defined(__OPTIMIZE__)
+
+AFAIU, now __GNUC__ should be defined always. Even with intel's compiler
+for compatibility, I'd assume. Perhaps we can get rid of it?
+
+Nice job!
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

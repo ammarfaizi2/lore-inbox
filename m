@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932553AbVLPWdp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbVLPWf3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932553AbVLPWdp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 17:33:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932554AbVLPWdp
+	id S964790AbVLPWf3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 17:35:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbVLPWf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 17:33:45 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:59823 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S932553AbVLPWdo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 17:33:44 -0500
-Date: Fri, 16 Dec 2005 23:33:42 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
-cc: linux-kernel@vger.kernel.org, debian-devel@lists.debian.org
-Subject: Re: gtkpod and Filesystem
-In-Reply-To: <dnveja$i7i$1@sea.gmane.org>
-Message-ID: <Pine.LNX.4.61.0512162329320.24996@yvahk01.tjqt.qr>
-References: <20051216145234.M78009@linuxwireless.org> <dnul89$r4k$1@sea.gmane.org>
- <Pine.LNX.4.61.0512162311180.24996@yvahk01.tjqt.qr> <dnveja$i7i$1@sea.gmane.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 16 Dec 2005 17:35:29 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:25832 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964790AbVLPWf2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 17:35:28 -0500
+To: torvalds@osdl.org
+Subject: [PATCH] ppc: ppc4xx_dma DMA_MODE_{READ,WRITE} fix
+Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Message-Id: <E1EnOAd-0006JR-TM@ZenIV.linux.org.uk>
+From: Al Viro <viro@ftp.linux.org.uk>
+Date: Fri, 16 Dec 2005 22:35:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> a bug in gtkpod or the kernel (FS Panic).
->>>Maybe an FS error on your iPod? Did you try to reformat or dosfsck it?
->> Even then, the filesystem code should handle corrupt filesystems more
->> gracefully.
->
->Mh, what's "more gracefully" in the light of fs corruption?
+DMA_MODE_{READ,WRITE} are declared in asm-powerpc/dma.h and their
+declarations there match the definitions.  Old declarations in
+ppc4xx_dma.h are not right anymore (wrong type, to start with).
+Killed them, added include of asm/dma.h where needed.
 
-	return -EIO;
-
-through all instances back to userspace and keep returning EIO for all 
-future requests. But let the user still umount the device.
-
->The driver just
->blocked write access to avoid further damage caused by writing to an
->inconsistent file system which sound perfectly reasonable to me. Writing to
->a corrupted fs could cause anything to it, depending on the corruption, so
->better act safe than sorry...
-
-The interesting part comes when the filesystem corrupts itself
- (= the code corrupts the on-disk data), and/plus it does not 
-notice quickly enough.
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 
-Jan Engelhardt
+---
+
+ arch/ppc/syslib/ppc4xx_dma.c |    1 +
+ include/asm-ppc/ppc4xx_dma.h |    3 ---
+ 2 files changed, 1 insertions(+), 3 deletions(-)
+
+fc830a6f62230c04590f711798ea8de44e567439
+diff --git a/arch/ppc/syslib/ppc4xx_dma.c b/arch/ppc/syslib/ppc4xx_dma.c
+index f15e642..05ccd59 100644
+--- a/arch/ppc/syslib/ppc4xx_dma.c
++++ b/arch/ppc/syslib/ppc4xx_dma.c
+@@ -30,6 +30,7 @@
+ 
+ #include <asm/system.h>
+ #include <asm/io.h>
++#include <asm/dma.h>
+ #include <asm/ppc4xx_dma.h>
+ 
+ ppc_dma_ch_t dma_channels[MAX_PPC4xx_DMA_CHANNELS];
+diff --git a/include/asm-ppc/ppc4xx_dma.h b/include/asm-ppc/ppc4xx_dma.h
+index a415001..46a086f 100644
+--- a/include/asm-ppc/ppc4xx_dma.h
++++ b/include/asm-ppc/ppc4xx_dma.h
+@@ -33,9 +33,6 @@
+ 
+ #define MAX_PPC4xx_DMA_CHANNELS		4
+ 
+-/* in arch/ppc/kernel/setup.c -- Cort */
+-extern unsigned long DMA_MODE_WRITE, DMA_MODE_READ;
+-
+ /*
+  * Function return status codes
+  * These values are used to indicate whether or not the function
 -- 
+0.99.9.GIT
+

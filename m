@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbVLPDzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbVLPEAV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbVLPDzx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 22:55:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbVLPDzx
+	id S932114AbVLPEAV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 23:00:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVLPEAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 22:55:53 -0500
-Received: from serv01.siteground.net ([70.85.91.68]:12508 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S932112AbVLPDzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 22:55:52 -0500
-Date: Thu, 15 Dec 2005 19:55:39 -0800
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       Andrew Morton <akpm@osdl.org>, dada1@cosmobay.com,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
-Subject: Re: [discuss] [patch 3/3] x86_64: Node local pda take 2 -- node local pda allocation
-Message-ID: <20051216035539.GA3736@localhost.localdomain>
-References: <20051215023345.GB3787@localhost.localdomain> <20051215023748.GD3787@localhost.localdomain> <20051215094232.GX23384@wotan.suse.de> <20051215184704.GA3882@localhost.localdomain> <20051216001934.GN23384@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051216001934.GN23384@wotan.suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Thu, 15 Dec 2005 23:00:20 -0500
+Received: from sj-iport-1-in.cisco.com ([171.71.176.70]:14458 "EHLO
+	sj-iport-1.cisco.com") by vger.kernel.org with ESMTP
+	id S932114AbVLPEAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 23:00:19 -0500
+X-IronPort-AV: i="3.99,259,1131350400"; 
+   d="scan'208"; a="685293687:sNHT31735884"
+Subject: [git patch review 2/7] IB/mthca: correct log2 calculation
+From: Roland Dreier <rolandd@cisco.com>
+Date: Fri, 16 Dec 2005 04:00:17 +0000
+To: linux-kernel@vger.kernel.org, openib-general@openib.org
+X-Mailer: IB-patch-reviewer
+Content-Transfer-Encoding: 8bit
+Message-ID: <1134705617067-bb88e1b23a3e36b6@cisco.com>
+In-Reply-To: <1134705617067-b51dec64cec55f52@cisco.com>
+X-OriginalArrivalTime: 16 Dec 2005 04:00:17.0697 (UTC) FILETIME=[39EB3910:01C601F5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 01:19:34AM +0100, Andi Kleen wrote:
-> 
-> And for the APs you allocate the PDA in smpboot.c before actually sending
-> the startup IPI to the AP. 
+Fix thinko in rd_atomic calculation: ffs(x) - 1 does not find the next
+power of 2 -- it should be fls(x - 1).
 
-You mean wakeup_secondary_via_INIT, called by do_boot_cpu?
-That is too late. sched_init happens much earlier, and the per-cpu offset
-table for all AP cpus not present is referenced, and I hit an early exception.
-sched_init is executed on the BP very early and sched_init does this:
+Signed-off-by: Jack Morgenstein <jackm@mellanox.co.il>
+Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
+Signed-off-by: Roland Dreier <rolandd@cisco.com>
 
-        for (i = 0; i < NR_CPUS; i++) {
-                prio_array_t *array;
+---
 
-                rq = cpu_rq(i); 
+ drivers/infiniband/hw/mthca/mthca_qp.c |   17 ++++++-----------
+ 1 files changed, 6 insertions(+), 11 deletions(-)
 
-The cpu_rq macro ends up needing per-cpu offset table stored in cpu_pda of
-the AP cpus, even before we hit the code to send startup IPIs.
-(#define __per_cpu_offset(cpu) (cpu_pda[cpu].data_offset))
-This is way before slab is ready.  So I either use alloc_bootmem before
-sched_init in setup_arch, or keep the static boot_cpu_pda.
-
-Am I missing something?
-
-Thanks,
-Kiran
+6aa2e4e8063114bd7cea8616dd5848d3c64b4c36
+diff --git a/drivers/infiniband/hw/mthca/mthca_qp.c b/drivers/infiniband/hw/mthca/mthca_qp.c
+index c5c3d0e..84056a8 100644
+--- a/drivers/infiniband/hw/mthca/mthca_qp.c
++++ b/drivers/infiniband/hw/mthca/mthca_qp.c
+@@ -728,9 +728,9 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 	}
+ 
+ 	if (attr_mask & IB_QP_MAX_QP_RD_ATOMIC) {
+-		qp_context->params1 |= cpu_to_be32(min(attr->max_rd_atomic ?
+-						       ffs(attr->max_rd_atomic) - 1 : 0,
+-						       7) << 21);
++		if (attr->max_rd_atomic)
++			qp_context->params1 |=
++				cpu_to_be32(fls(attr->max_rd_atomic - 1) << 21);
+ 		qp_param->opt_param_mask |= cpu_to_be32(MTHCA_QP_OPTPAR_SRA_MAX);
+ 	}
+ 
+@@ -769,8 +769,6 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 	}
+ 
+ 	if (attr_mask & IB_QP_MAX_DEST_RD_ATOMIC) {
+-		u8 rra_max;
+-
+ 		if (qp->resp_depth && !attr->max_dest_rd_atomic) {
+ 			/*
+ 			 * Lowering our responder resources to zero.
+@@ -798,13 +796,10 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
+ 								MTHCA_QP_OPTPAR_RAE);
+ 		}
+ 
+-		for (rra_max = 0;
+-		     1 << rra_max < attr->max_dest_rd_atomic &&
+-			     rra_max < dev->qp_table.rdb_shift;
+-		     ++rra_max)
+-			; /* nothing */
++		if (attr->max_dest_rd_atomic)
++			qp_context->params2 |=
++				cpu_to_be32(fls(attr->max_dest_rd_atomic - 1) << 21);
+ 
+-		qp_context->params2      |= cpu_to_be32(rra_max << 21);
+ 		qp_param->opt_param_mask |= cpu_to_be32(MTHCA_QP_OPTPAR_RRA_MAX);
+ 
+ 		qp->resp_depth = attr->max_dest_rd_atomic;
+-- 
+0.99.9n

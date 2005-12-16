@@ -1,136 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbVLPAcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbVLPAhL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbVLPAcT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 19:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbVLPAcT
+	id S1751192AbVLPAhL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 19:37:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbVLPAhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 19:32:19 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:55522 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751218AbVLPAcS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 19:32:18 -0500
-Message-ID: <43A20B0B.5090205@pobox.com>
-Date: Thu, 15 Dec 2005 19:32:11 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Thu, 15 Dec 2005 19:37:11 -0500
+Received: from xproxy.gmail.com ([66.249.82.197]:45201 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751192AbVLPAhJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 19:37:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=sPGZ5j+t0sAKM28rSLTgsfwJliu6q+VCaPj5Gban4gVSTWdmeIfpnoS98yAF/94P3wNKOqO1v8YnO4aQNv3wPOC6UNGY/fXapeEYyyeqXqEMM97WSvGEq24tqutzSeeob+Cax3H4LPvXesKAb7EcBkr0dYmB6IKWN0O0WzK3nGw=
+Message-ID: <2c0942db0512151637o3c95239ha2f2bee20923b276@mail.gmail.com>
+Date: Thu, 15 Dec 2005 16:37:08 -0800
+From: Ray Lee <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Cc: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+In-Reply-To: <1134688488.12086.172.camel@mindpipe>
 MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
-Subject: Re: [PATCH 0/3] *at syscalls: Intro
-References: <200512152249.jBFMnXAA016747@devserv.devel.redhat.com>
-In-Reply-To: <200512152249.jBFMnXAA016747@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Ulrich Drepper wrote: > Here is a series of patches
-	which introduce in total 11 new system calls > which take a file
-	descriptor/filename pair instead of a single file name. > These
-	functions, openat etc, have been discussed on numerous occasions. >
-	They are needed to implement race-free filesystem traversal, they are >
-	necessary to implement a virtual per-thread current working directory >
-	(think multi-threaded backup software), etc. > > We have in glibc today
-	implementations of the interfaces which use the > /proc/self/fd magic.
-	But this code is rather expensive. Here are some > results (similar to
-	what Jim Meyering posted before): > > The test creates a deep directory
-	hierarchy on a tmpfs filesystem. > Then rm -fr is used to remove all
-	directories. Without syscall support > I get this: > > real 0m31.921s >
-	user 0m0.688s > sys 0m31.234s > > With syscall support the results are
-	much better: > > real 0m20.699s > user 0m0.536s > sys 0m20.149s > > >
-	The implemenation is really small: > > arch/i386/kernel/syscall_table.S
-	| 11 ++ > arch/x86_64/ia32/ia32entry.S | 11 ++ > fs/compat.c | 48
-	+++++++++-- > fs/exec.c | 2 > fs/namei.c | 167
-	++++++++++++++++++++++++++++++--------- > fs/open.c | 60 +++++++++++---
-	> fs/stat.c | 54 ++++++++++-- > include/asm-i386/unistd.h | 13 ++- >
-	include/asm-x86_64/ia32_unistd.h | 13 ++- > include/asm-x86_64/unistd.h
-	| 24 +++++ > include/linux/fcntl.h | 7 + > include/linux/fs.h | 7 + >
-	include/linux/namei.h | 7 - > include/linux/time.h | 2 > 14 files
-	changed, 355 insertions(+), 71 deletions(-) > > I've split the patch in
-	three parts. The first part is the actual > code change. It mostly
-	consists of passing down an additional parameter > with a file
-	descriptor and add wrapper functions which pass down the > default
-	parameter AT_FDCWD. Three new constants are defined in >
-	<linux/fcntl.h> which must correspond to the values already in use > in
-	glibc. In a few cases I've modified some code which would not >
-	necesarily need changing but the change makes it a bit more efficient >
-	in presence of the [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051215212447.GR23349@stusta.de>
+	 <20051215140013.7d4ffd5b.akpm@osdl.org>
+	 <20051215223000.GU23349@stusta.de>
+	 <43A1DB18.4030307@wolfmountaingroup.com>
+	 <1134688488.12086.172.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> Here is a series of patches which introduce in total 11 new system calls
-> which take a file descriptor/filename pair instead of a single file name.
-> These functions, openat etc, have been discussed on numerous occasions.
-> They are needed to implement race-free filesystem traversal, they are
-> necessary to implement a virtual per-thread current working directory
-> (think multi-threaded backup software), etc.
-> 
-> We have in glibc today implementations of the interfaces which use the
-> /proc/self/fd magic.  But this code is rather expensive.  Here are some
-> results (similar to what Jim Meyering posted before):
-> 
-> The test creates a deep directory hierarchy on a tmpfs filesystem.
-> Then rm -fr is used to remove all directories.  Without syscall support
-> I get this:
-> 
-> real    0m31.921s
-> user    0m0.688s
-> sys     0m31.234s
-> 
-> With syscall support the results are much better:
-> 
-> real    0m20.699s
-> user    0m0.536s
-> sys     0m20.149s
-> 
-> 
-> The implemenation is really small:
-> 
->  arch/i386/kernel/syscall_table.S |   11 ++
->  arch/x86_64/ia32/ia32entry.S     |   11 ++
->  fs/compat.c                      |   48 +++++++++--
->  fs/exec.c                        |    2 
->  fs/namei.c                       |  167 ++++++++++++++++++++++++++++++---------
->  fs/open.c                        |   60 +++++++++++---
->  fs/stat.c                        |   54 ++++++++++--
->  include/asm-i386/unistd.h        |   13 ++-
->  include/asm-x86_64/ia32_unistd.h |   13 ++-
->  include/asm-x86_64/unistd.h      |   24 +++++
->  include/linux/fcntl.h            |    7 +
->  include/linux/fs.h               |    7 +
->  include/linux/namei.h            |    7 -
->  include/linux/time.h             |    2 
->  14 files changed, 355 insertions(+), 71 deletions(-)
-> 
-> I've split the patch in three parts.  The first part is the actual
-> code change.  It mostly consists of passing down an additional parameter
-> with a file descriptor and add wrapper functions which pass down the
-> default parameter AT_FDCWD.  Three new constants are defined in
-> <linux/fcntl.h> which must correspond to the values already in use
-> in glibc.  In a few cases I've modified some code which would not
-> necesarily need changing but the change makes it a bit more efficient
-> in presence of the wrapper functions.
-> 
-> The real change needed is the additional else-clause in what is now
-> do_path_lookup.  That's it.
+(Man, I've been holding my tongue on this conversation for a while,
+but it seems my better angels have deserted me.)
 
-Definitely gets my ACK, for my own motivations:  I want to create 
-race-free cp(1)/mv(1)/rm(1) utilities for my posixutils project.
+On 12/15/05, Lee Revell <rlrevell@joe-job.com> wrote:
+> Bugzilla link please.
 
-It would be nice to add the additional argument to path_lookup(), rather 
-than calling do_path_lookup() everywhere.
+No, that's not how failure engineering is done. A guy designing a
+bridge doesn't cut all the supports back to the bare minimum just to
+save money because his design says that the remaining metal should be
+strong enough. If you can't prove it, and it's a safety issue
+(continuing my analogy in the physical world), then you engineer for
+failure. Can you handle all occurrences? No, a hurricane Katrina comes
+along every once in a while. Can you weather more than you did before?
+Yes. In the meantime, their are fewer poor sods falling off the bridge
+that have to open a bugzilla report.
 
-	Jeff
+The world of software is no different. If someone wants to remove the
+8k stacks option, they'd better prove that they're making my servers
+more reliable. I've seen zero arguments for why 8k stacks is unviable.
+(I've also wondered why we can't just have IRQ stacks plus 8k thread
+stacks -- seemingly the best of both worlds) Instead, what I've seen
+is that we have coders who don't like the idea of any non-order-zero
+allocations taking place, because big systems running poorly coded
+Java apps with massive threading can hit problems with allocations
+from time to time.
 
+The answer for that is the same answer the kernel community usually
+gives about poorly designed userspace applications: rewrite them.
 
+I'm quite open to being proved wrong. If someone has a counter case
+they can toss forth, please do so. Systems taking lots of interrupts?
+Then how about 8k + IRQ stacks? With a counterexample I'll gladly
+concede that I'm an ignorant slut[*] -- excuse me, Saturday Night Live
+flashbacks -- an ignorant git, and shut up. ([*] is only half right,
+I'm not all that ignorant).
 
+If someone doesn't show a counter case, then may I suggest people
+consider the possibility that this is not proper engineering. Prove
+it, or provide a safety blanket. But don't yank the blanket without
+proving the lack of problem.
+
+Ray

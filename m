@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbVLPRd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbVLPRfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbVLPRd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 12:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751312AbVLPRd4
+	id S1751312AbVLPRfq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 12:35:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751314AbVLPRfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 12:33:56 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:29133 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S1751310AbVLPRdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 12:33:55 -0500
-Date: Fri, 16 Dec 2005 09:33:42 -0800
-From: "Luck, Tony" <tony.luck@intel.com>
-To: Robin Holt <holt@sgi.com>
-Cc: hawkes@sgi.com, Tony Luck <tony.luck@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jack Steiner <steiner@sgi.com>,
-       Keith Owens <kaos@sgi.com>, Dimitri Sivanich <sivanich@sgi.com>
-Subject: Re: [PATCH] ia64: disable preemption in udelay()
-Message-ID: <20051216173342.GA12205@agluck-lia64.sc.intel.com>
-References: <20051216024252.27639.63120.sendpatchset@tomahawk.engr.sgi.com> <20051216122854.GA10375@lnx-holt.americas.sgi.com>
+	Fri, 16 Dec 2005 12:35:45 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:41110 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751312AbVLPRfp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 12:35:45 -0500
+Subject: Re: [ckrm-tech] Re: [RFC][patch 00/21] PID Virtualization:
+	Overview and Patches
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Matt Helsley <matthltc@us.ibm.com>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, vserver@list.linux-vserver.org,
+       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       pagg@oss.sgi.com
+In-Reply-To: <E1En6H2-0005ok-00@w-gerrit.beaverton.ibm.com>
+References: <E1En6H2-0005ok-00@w-gerrit.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Fri, 16 Dec 2005 09:35:19 -0800
+Message-Id: <1134754519.19403.6.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051216122854.GA10375@lnx-holt.americas.sgi.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 06:28:54AM -0600, Robin Holt wrote:
-> > +#define SMALLUSECS 100
-> 
-> John, I did not see your posts until this had already made it out.
-> I would think that the folks running realtime applications would expect
-> udelay to hold off for even shorter periods of time.  I would expect
-> something along the line of 20 or 25 uSec.
+On Thu, 2005-12-15 at 19:28 -0800, Gerrit Huizenga wrote:
+> In the pid virtualization, I would think that tasks can move between
+> containers as well,
 
-A good question ... I'm going to put John's change in as-is for now so
-that 2.6.15 can benefit from the reduced code size of the out-of-line
-and avoid the ugly bug when preemption is enabled on a drifty system.
+I don't think tasks can not be permitted to move between containers.  As
+a simple exercise, imagine that you have two processes with the same
+pid, one in container A and one in container B.  You wish to have them
+both run in container A.  They can't both have the same pid.  What do
+you do?
 
-We can make fine tune changes to the udelay() implementation after we
-get some data on what is needed.
+I've been talking a lot lately about how important filesystem isolation
+between containers is to implement containers properly.  Isolating the
+filesystem namespaces makes it much easier to do things like fs-based
+shared memory during a checkpoint/resume.  If we want to allow tasks to
+move around, we'll have to throw out this entire concept.  That means
+that a _lot_ of things get a notch closer to the too-costly-to-implement
+category.
 
-> How much drift would you expect from this?  I have not tried this, but
-> what about something more along the lines of:
-> 
-> #define MAX_USECS_WHILE_NOT_PREMPTIBLE	20
+-- Dave
 
-As we reduce the non-preemtible window drift in my version of udelay()
-would get worse ... but I haven't done any measurements on how much worse.
-
-> 		timeout += next * local_cpu_data->cyc_per_usec;
-> 		while (ia64_get_itc() < timeout)
-> 			cpu_relax();
-
-Bad news if your ar.itc wraps around (less than four centuries of uptime
-at 1.6GHz :-)
-
--Tony

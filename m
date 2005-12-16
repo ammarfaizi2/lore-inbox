@@ -1,40 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbVLPKqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbVLPKvS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751082AbVLPKqi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 05:46:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750939AbVLPKqi
+	id S1750915AbVLPKvS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 05:51:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVLPKvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 05:46:38 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:32185 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750938AbVLPKqh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 05:46:37 -0500
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20051215121817.2abb0166.akpm@osdl.org> 
-References: <20051215121817.2abb0166.akpm@osdl.org>  <20051214155432.320f2950.akpm@osdl.org> <1134559121.25663.14.camel@localhost.localdomain> <13820.1134558138@warthog.cambridge.redhat.com> <20051213143147.d2a57fb3.pj@sgi.com> <20051213094053.33284360.pj@sgi.com> <dhowells1134431145@warthog.cambridge.redhat.com> <20051212161944.3185a3f9.akpm@osdl.org> <20051213075441.GB6765@elte.hu> <20051213090219.GA27857@infradead.org> <20051213093949.GC26097@elte.hu> <20051213100015.GA32194@elte.hu> <6281.1134498864@warthog.cambridge.redhat.com> <14242.1134558772@warthog.cambridge.redhat.com> <16315.1134563707@warthog.cambridge.redhat.com> <1134568731.4275.4.camel@tglx.tec.linutronix.de> <43A0AD54.6050109@rtr.ca> <4336.1134661053@warthog.cambridge.redhat.com> <20051215112855.31669dc1.akpm@osdl.org> 
-To: Andrew Morton <akpm@osdl.org>
-Cc: dhowells@redhat.com, lkml@rtr.ca, tglx@linutronix.de,
-       alan@lxorguk.ukuu.org.uk, pj@sgi.com, mingo@elte.hu, hch@infradead.org,
-       torvalds@osdl.org, arjan@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
-X-Mailer: MH-E 7.84; nmh 1.1; GNU Emacs 22.0.50.1
-Date: Fri, 16 Dec 2005 10:45:58 +0000
-Message-ID: <10838.1134729958@warthog.cambridge.redhat.com>
+	Fri, 16 Dec 2005 05:51:18 -0500
+Received: from mail.shareable.org ([81.29.64.88]:36012 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S1750915AbVLPKvR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 05:51:17 -0500
+Date: Fri, 16 Dec 2005 10:50:48 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: JANAK DESAI <janak@us.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, viro@ftp.linux.org.uk,
+       chrisw@osdl.org, dwmw2@infradead.org, serue@us.ibm.com, mingo@elte.hu,
+       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH -mm 1/9] unshare system call: system call handler function
+Message-ID: <20051216105048.GA32305@mail.shareable.org>
+References: <1134513959.11972.167.camel@hobbs.atlanta.ibm.com> <m1k6e687e2.fsf@ebiederm.dsl.xmission.com> <43A1D435.5060602@us.ibm.com> <m1d5jy83nr.fsf@ebiederm.dsl.xmission.com> <43A24362.6000602@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43A24362.6000602@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
+JANAK DESAI wrote:
+> >I follow but I am very disturbed.
+> >
+> >You are leaving CLONE_NEWNS to mean you want a new namespace.
+> >
+> >For clone CLONE_FS unset means generate an unshared fs_struct
+> >         CLONE_FS set   means share the fs_struct with the parent
+> >
+> >But for unshare CLONE_FS unset means share the fs_struct with others
+> >           and CLONE_FS set   means generate an unshared fs_struct
+> >
+> >The meaning of CLONE_FS between the two calls in now flipped,
+> >but CLONE_NEWNS is not.  Please let's not implement it this way.
+> >
+> > 
+> CLONE_FS unset for unshare doesn't mean that share the fs_struct with
+> others. It just means that you leave the fs_struct alone (which may or
+> maynot be shared). I agree that it is confusing, but I am having difficulty
+> in seeing this reversal of flag meaning. clone creates a second task and
+> allows you to pick what you want to share with the parent. unshare allows
+> you to pick what you don't want to share anymore. The "what" in both
+> cases can be same and still you can end up with a task with "share" state
+> for a perticular structure. 
 
-> Look at it from the POV of major architectures: there's no way the new
-> mutex code will be faster than down() and up()
+> For example, if we #define  FS   CLONE_FS,
+> then clone(FS) will imply that you want to share fs_struct but unshare(FS)
+> will imply that we want to unshare fs_struct.
 
-I'm thinking of making the default implementation of mutexes a straight
-wrapper around down() and up(). That way it'll be exactly the same as counting
-semaphores, just with extra constraints when the debugging is enabled _and_
-effectively extra inline documentation.
+Right.
 
-But! for archs where it does matter (and we have several - you might not care,
-but others do), it can be overridden with something faster.
+But clone(CLONE_NEWNS) and unshare(CLONE_NEWNS) _don't_ behave like
+that: clone(CLONE_NEWNS) unshares ns, and unshare(CLONE_NEWNFS) _also_
+unshares ns.
 
-David
+That is the inconsistency: some flags to clone() mean "keep sharing
+this thing", and some flags mean "make a new instance of this thing".
+It's not your fault that clone() has that inconsistency.  It's because
+clone() needs to treat a value of 0 for any bit as the historically
+default behaviour.
+
+Like clone(), unshare() will have to change from year to year, as new
+flags are added.  It would be good if the default behaviour of 0 bits
+to unshare() also did the right thing, so that programs compiled in
+2006 still function as expected in 2010.  Hmm, this
+forward-compatibility does not look pretty.
+
+-- Jamie

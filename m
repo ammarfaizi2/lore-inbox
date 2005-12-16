@@ -1,73 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVLPEBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbVLPECf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbVLPEBN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 23:01:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVLPEAo
+	id S1751107AbVLPECf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 23:02:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751292AbVLPECe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 23:00:44 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:35388 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S932117AbVLPEAY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 23:00:24 -0500
-X-IronPort-AV: i="3.99,259,1131350400"; 
-   d="scan'208"; a="379132358:sNHT31010216"
-Subject: [git patch review 7/7] IB/mthca: Fix corner cases in max_rd_atomic
-	value handling in modify QP
-From: Roland Dreier <rolandd@cisco.com>
-Date: Fri, 16 Dec 2005 04:00:17 +0000
-To: linux-kernel@vger.kernel.org, openib-general@openib.org
-X-Mailer: IB-patch-reviewer
-Content-Transfer-Encoding: 8bit
-Message-ID: <1134705617068-3687c807077d2ef3@cisco.com>
-In-Reply-To: <1134705617068-7e5f92b5a82fa6a2@cisco.com>
-X-OriginalArrivalTime: 16 Dec 2005 04:00:17.0931 (UTC) FILETIME=[3A0EEDB0:01C601F5]
+	Thu, 15 Dec 2005 23:02:34 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:29388 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751107AbVLPECd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 23:02:33 -0500
+Subject: Re: Fw: crash on x86_64 - mm related?
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <20051215190930.GA20156@tau.solarneutrino.net>
+References: <Pine.LNX.4.61.0512022037230.6058@goblin.wat.veritas.com>
+	 <20051206160815.GC11560@tau.solarneutrino.net>
+	 <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com>
+	 <20051206204336.GA12248@tau.solarneutrino.net>
+	 <Pine.LNX.4.61.0512071803300.2975@goblin.wat.veritas.com>
+	 <20051212165443.GD17295@tau.solarneutrino.net>
+	 <Pine.LNX.4.64.0512120928110.15597@g5.osdl.org>
+	 <1134409531.9994.13.camel@mulgrave>
+	 <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org>
+	 <1134411882.9994.18.camel@mulgrave>
+	 <20051215190930.GA20156@tau.solarneutrino.net>
+Content-Type: text/plain
+Date: Thu, 15 Dec 2005 20:01:43 -0800
+Message-Id: <1134705703.3906.1.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sae and sre bits should only be set when setting sra_max.  Further, in
-the old code, if the caller specifies max_rd_atomic = 0, the sre and
-sae bits are still set, with the result that the QP ends up with
-max_rd_atomic = 1 in effect.
+On Thu, 2005-12-15 at 14:09 -0500, Ryan Richter wrote:
+> On Mon, Dec 12, 2005 at 12:24:42PM -0600, James Bottomley wrote:
+> > I'll find a fix for the real problem, but this patch isn't the cause.
+> 
+> Is the patch set you posted yesterday supposed to fix this?  If so, is
+> it available in patch form anywhere?
 
-Signed-off-by: Jack Morgenstein <jackm@mellanox.co.il>
-Signed-off-by: Michael S. Tsirkin <mst@mellanox.co.il>
-Signed-off-by: Roland Dreier <rolandd@cisco.com>
+No, I've been too busin integrating other people's patches to work on
+ones of my own.  Try this.
 
----
+James
 
- drivers/infiniband/hw/mthca/mthca_qp.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
-
-c4342d8a4d95e18b957b898dbf5bfce28fca2780
-diff --git a/drivers/infiniband/hw/mthca/mthca_qp.c b/drivers/infiniband/hw/mthca/mthca_qp.c
-index e826c9f..d786ef4 100644
---- a/drivers/infiniband/hw/mthca/mthca_qp.c
-+++ b/drivers/infiniband/hw/mthca/mthca_qp.c
-@@ -747,9 +747,7 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
- 	qp_context->wqe_lkey   = cpu_to_be32(qp->mr.ibmr.lkey);
- 	qp_context->params1    = cpu_to_be32((MTHCA_ACK_REQ_FREQ << 28) |
- 					     (MTHCA_FLIGHT_LIMIT << 24) |
--					     MTHCA_QP_BIT_SRE           |
--					     MTHCA_QP_BIT_SWE           |
--					     MTHCA_QP_BIT_SAE);
-+					     MTHCA_QP_BIT_SWE);
- 	if (qp->sq_policy == IB_SIGNAL_ALL_WR)
- 		qp_context->params1 |= cpu_to_be32(MTHCA_QP_BIT_SSC);
- 	if (attr_mask & IB_QP_RETRY_CNT) {
-@@ -758,9 +756,13 @@ int mthca_modify_qp(struct ib_qp *ibqp, 
- 	}
+diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+--- a/drivers/scsi/scsi_scan.c
++++ b/drivers/scsi/scsi_scan.c
+@@ -400,6 +400,35 @@ static struct scsi_target *scsi_alloc_ta
+ 	return found_target;
+ }
  
- 	if (attr_mask & IB_QP_MAX_QP_RD_ATOMIC) {
--		if (attr->max_rd_atomic)
-+		if (attr->max_rd_atomic) {
-+			qp_context->params1 |=
-+				cpu_to_be32(MTHCA_QP_BIT_SRE |
-+					    MTHCA_QP_BIT_SAE);
- 			qp_context->params1 |=
- 				cpu_to_be32(fls(attr->max_rd_atomic - 1) << 21);
-+		}
- 		qp_param->opt_param_mask |= cpu_to_be32(MTHCA_QP_OPTPAR_SRA_MAX);
- 	}
++struct work_queue_wrapper {
++	struct work_struct	work;
++	struct scsi_target	*starget;
++};
++
++static void scsi_target_reap_work(void *data) {
++	struct work_queue_wrapper *wqw = (struct work_queue_wrapper *)data;
++	struct scsi_target *starget = wqw->starget;
++	struct Scsi_Host *shost = dev_to_shost(starget->dev.parent);
++	unsigned long flags;
++
++	kfree(wqw);
++
++	spin_lock_irqsave(shost->host_lock, flags);
++
++	if (--starget->reap_ref == 0 && list_empty(&starget->devices)) {
++		list_del_init(&starget->siblings);
++		spin_unlock_irqrestore(shost->host_lock, flags);
++		device_del(&starget->dev);
++		transport_unregister_device(&starget->dev);
++		put_device(&starget->dev);
++		return;
++
++	}
++	spin_unlock_irqrestore(shost->host_lock, flags);
++
++	return;
++}
++
+ /**
+  * scsi_target_reap - check to see if target is in use and destroy if not
+  *
+@@ -411,19 +440,18 @@ static struct scsi_target *scsi_alloc_ta
+  */
+ void scsi_target_reap(struct scsi_target *starget)
+ {
+-	struct Scsi_Host *shost = dev_to_shost(starget->dev.parent);
+-	unsigned long flags;
+-	spin_lock_irqsave(shost->host_lock, flags);
++	struct work_queue_wrapper *wqw = 
++		kzalloc(sizeof(struct work_queue_wrapper), GFP_ATOMIC);
  
--- 
-0.99.9n
+-	if (--starget->reap_ref == 0 && list_empty(&starget->devices)) {
+-		list_del_init(&starget->siblings);
+-		spin_unlock_irqrestore(shost->host_lock, flags);
+-		device_del(&starget->dev);
+-		transport_unregister_device(&starget->dev);
+-		put_device(&starget->dev);
++	if (!wqw) {
++		starget_printk(KERN_ERR, starget,
++			       "Failed to allocate memory in scsi_reap_target()\n");
+ 		return;
+ 	}
+-	spin_unlock_irqrestore(shost->host_lock, flags);
++
++	INIT_WORK(&wqw->work, scsi_target_reap_work, wqw);
++	wqw->starget = starget;
++	schedule_work(&wqw->work);
+ }
+ 
+ /**
+
+

@@ -1,77 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVLOXpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbVLPACo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbVLOXpo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 18:45:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbVLOXpn
+	id S1751214AbVLPACo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 19:02:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbVLPACn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 18:45:43 -0500
-Received: from chilli.pcug.org.au ([203.10.76.44]:27877 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S1751143AbVLOXpn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 18:45:43 -0500
-Date: Fri, 16 Dec 2005 10:45:08 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: tony.luck@intel.com, dhowells@redhat.com, akpm@osdl.org, lkml@rtr.ca,
-       tglx@linutronix.de, alan@lxorguk.ukuu.org.uk, pj@sgi.com, mingo@elte.hu,
-       hch@infradead.org, torvalds@osdl.org, arjan@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Message-Id: <20051216104508.40f2281f.sfr@canb.auug.org.au>
-In-Reply-To: <20051215203818.GA11487@ccure.user-mode-linux.org>
-References: <B8E391BBE9FE384DAA4C5C003888BE6F0535A549@scsmsx401.amr.corp.intel.com>
-	<20051215203818.GA11487@ccure.user-mode-linux.org>
-X-Mailer: Sylpheed version 1.0.6 (GTK+ 1.2.10; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__16_Dec_2005_10_45_08_+1100_+EYlZj8dVwFJjKEj"
+	Thu, 15 Dec 2005 19:02:43 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:6910 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S1751214AbVLPACn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 19:02:43 -0500
+In-Reply-To: <20051215194434.GA4741@in.ibm.com>
+References: <20051214223912.GA4716@in.ibm.com> <9175126B-6D06-11DA-AA1B-000A959BB91E@mvista.com> <20051215194434.GA4741@in.ibm.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <43F8915C-6DC7-11DA-A45A-000A959BB91E@mvista.com>
+Content-Transfer-Encoding: 7bit
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       robustmutexes@lists.osdl.org
+From: david singleton <dsingleton@mvista.com>
+Subject: Re: Recursion bug in -rt
+Date: Thu, 15 Dec 2005 16:02:36 -0800
+To: dino@in.ibm.com
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__16_Dec_2005_10_45_08_+1100_+EYlZj8dVwFJjKEj
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Dinakar,
 
-On Thu, 15 Dec 2005 15:38:18 -0500 Jeff Dike <jdike@addtoit.com> wrote:
+	I believe the problem we have is that the library is not checking
+to see if the mutex is a recursive mutex, and then checking to see
+if the recursive mutex is already owned by the calling thread.  If a 
+recursive mutex
+is owned by the calling thread the library should increment the lock
+count (POSIX says recursive mutexes must be unlocked as
+many times as they are locked) and return 0 (success) to the caller.
+
+      I don't see anywhere in the library where the check for a recursive
+mutex is being made.  The mutex_trylock code just does a compare
+and exchange on the lock to see if it can get it.  A recursive mutex
+will fail this test and erroneously enter the kernel.
+
+     I believe we need the down_futex change and a patch
+to glibc in which recursive mutexes are handled in the library.
+
+     I'm talking to the library people now to see if that's the way
+it's supposed to work for recursive mutexes.  If it is we'll have
+to provide a new glibc patch along with the kernel patch.
+
+      I think I'll have to provide a new glibc patch anyways to
+fix the INLINE_SYSCALL problem.
+
+      Does this make sense?
+
+David
+
+On Dec 15, 2005, at 11:44 AM, Dinakar Guniguntala wrote:
+
+> On Wed, Dec 14, 2005 at 05:03:13PM -0800, david singleton wrote:
+>> Dinakar,
+>> you may be correct, since reverting the change in down_futex seems
+>> to work.
 >
-> On Thu, Dec 15, 2005 at 09:45:10AM -0800, Luck, Tony wrote:
-> > There was a USENIX paper a couple of decades ago that described how
-> > to do a fast s/w disable of interrupts on machines where really disabli=
-ng
-> > interrupts was expensive.  The rough gist was that the spl[1-7]()
-> > functions would just set a flag in memory to hold the desired interrupt
-> > mask.  If an interrupt actually occurred when it was s/w blocked, the
-> > handler would set a pending flag, and just rfi with interrupts disabled.
-> > Then the splx() code checked to see whether there was a pending interru=
-pt
-> > and dealt with it if there was.
->=20
-> ... and this is currently implemented (but not yet merged to mainline) in
-> UML.
+> Well it did not. It ran for much longer than previously but still
+> hung up.
+>
+> Well we have a very basic problem in the current implementation.
+>
+> Currently if a thread calls pthread_mutex_lock on the same lock
+> (normal, non recursive lock) twice without unlocking in between, the
+> application hangs. Which is the right behaviour.
+> However if the same thing is done with a non recursive robust mutex,
+> it manages to acquire the lock.
+>
+> I see many problems here (I am assuming that the right behaviour
+> with robust mutexes is for application to ultimately block
+> indefinitely in the kernel)
+>
+> 1. In down_futex we do the following check
+>
+> 	if (owner_task != current)
+> 		down_try_futex(lock, owner_task->thread_info __EIP__);
+>
+>    In the above scenario, the thread would have acquired the 
+> uncontended
+>    lock first time around in userspace. The second time it tries to
+>    acquire the same mutex, because of the above check, does not
+>    call down_try_futex and hence will not initialize the lock structure
+>    in the kernel. It then goes to __down_interruptible where it is
+>    granted the lock, which is wrong.
+>
+>    So IMO the above check is not right. However removing this check
+>    is not the end of story.  This time it gets to task_blocks_on_lock
+>    and tries to grab the task->pi_lock of the owvner which is itself
+>    and results in a system hang. (Assuming CONFIG_DEBUG_DEADLOCKS
+>    is not set). So it looks like we need to add some check to
+>    prevent this below in case lock_owner happens to be current.
+>
+>     _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
+>
+>
+>> However, I'm  wondering if you've hit a bug that Dave Carlson is
+>> reporting that he's tracked down to an inline in the glibc patch.
+>
+> Yes I noticed that, basically it looks like INLINE_SYSCALL, on error
+> returns -1 with the error code in errno. Whereas we expect the
+> return code to be the same as the kernel return code. Are you referring
+> to this or something else ??
+>
+> However even with all of the above fixes (remove the check in 
+> down_futex
+> as mentioned above, add a check in task_blocks_on_lock and the glibc
+> changes) my test program continues to hang up the system, though it
+> takes a lot longer to recreate the problem now
+>
+> [snip]
+>
+>> 1) Why did the library call into the kernel if the calling thread
+>> owned the lock?
+>
+> This is something I still havent figured out and leads me to believe
+> that we still have a tiny race race somewhere
+>
+> 	-Dinakar
 
-And, of course, this is the way the PowerPC iSeries has always worked becau=
-se
-we are not allowed to disable hardware interrupts for long periods of time =
-or
-the hypervisor will consider that our logical partition is dead.
-
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Fri__16_Dec_2005_10_45_08_+1100_+EYlZj8dVwFJjKEj
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDogAJFdBgD/zoJvwRArRWAJ0bPwkMQYITF4mMPa03bCV1YqfzFwCfZMC6
-zyIod/e5yGhzpZr8LRlXboM=
-=MJ3A
------END PGP SIGNATURE-----
-
---Signature=_Fri__16_Dec_2005_10_45_08_+1100_+EYlZj8dVwFJjKEj--

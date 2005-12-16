@@ -1,98 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbVLPM3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVLPMcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932229AbVLPM3K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 07:29:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVLPM3J
+	id S932220AbVLPMcU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 07:32:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbVLPMcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 07:29:09 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:59300 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932229AbVLPM3H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 07:29:07 -0500
-Date: Fri, 16 Dec 2005 06:28:54 -0600
-From: Robin Holt <holt@sgi.com>
-To: hawkes@sgi.com
-Cc: Tony Luck <tony.luck@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Jack Steiner <steiner@sgi.com>, Keith Owens <kaos@sgi.com>,
-       Dimitri Sivanich <sivanich@sgi.com>
-Subject: Re: [PATCH] ia64: disable preemption in udelay()
-Message-ID: <20051216122854.GA10375@lnx-holt.americas.sgi.com>
-References: <20051216024252.27639.63120.sendpatchset@tomahawk.engr.sgi.com>
+	Fri, 16 Dec 2005 07:32:19 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:2044 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932220AbVLPMcT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 07:32:19 -0500
+Subject: Re: 2.6.15-rc5-rt2 slowness
+From: Steven Rostedt <rostedt@goodmis.org>
+To: G.Ohrner@post.rwth-aachen.de
+Cc: john stultz <johnstul@us.ibm.com>, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <dnu8ku$ie4$1@sea.gmane.org>
+References: <dnu8ku$ie4$1@sea.gmane.org>
+Content-Type: text/plain
+Date: Fri, 16 Dec 2005 07:32:05 -0500
+Message-Id: <1134736325.13138.119.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051216024252.27639.63120.sendpatchset@tomahawk.engr.sgi.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 06:42:52PM -0800, hawkes@sgi.com wrote:
-> +
-> +#define SMALLUSECS 100
+On Fri, 2005-12-16 at 12:30 +0100, Gunter Ohrner wrote:
+> Hi!
+> 
+> Thanks to Steven's Kconfig fixes I was able to compile 2.6.15-rc5 with
+> Ingo's rt2-patch just fine.
+> 
+> I have two small problem with it, however. One is the Oops just posted, the
+> other is a high system load and bad responsiveness of the system as a
+> whole. I didn't even bother to measure timer/sleep jitters as the system
+> was dog slow and the fans started to run a full speed nearly immediately.
+> 
+> We observed this on two different systems, one with the config attached to
+> my mail with the Oops/backtrace.
+> 
+> I'll try to recompile the kernel with some debug options, if anyone knows if
+> there's something I should specifically look for this may be helpful.
 
-John, I did not see your posts until this had already made it out.
-I would think that the folks running realtime applications would expect
-udelay to hold off for even shorter periods of time.  I would expect
-something along the line of 20 or 25 uSec.
+I'll look into your oops later (or maybe Ingo has some time), but I've
+also notice the slowness of 2.6.15-rc5-rt2, and I'm investigating it
+now.
 
-> +
-> +void
-> +udelay (unsigned long usecs)
-> +{
-> +	unsigned long start;
-> +	unsigned long cycles;
-> +	unsigned long smallusecs;
-> +
-> +	/*
-> +	 * Execute the non-preemptible delay loop (because the ITC might
-> +	 * not be synchronized between CPUS) in relatively short time
-> +	 * chunks, allowing preemption between the chunks.
-> +	 */
-> +	while (usecs > 0) {
-> +		smallusecs = (usecs > SMALLUSECS) ? SMALLUSECS : usecs;
-> +		preempt_disable();
-> +		cycles = smallusecs*local_cpu_data->cyc_per_usec;
-> +		start = ia64_get_itc();
-> +
-> +		while (ia64_get_itc() - start < cycles)
-> +			cpu_relax();
-> +
-> +		preempt_enable();
-> +		usecs -= smallusecs;
-> +	}
-> +}
+Thanks,
 
-How much drift would you expect from this?  I have not tried this, but
-what about something more along the lines of:
-
-#define MAX_USECS_WHILE_NOT_PREMPTIBLE	20
-
-void
-udelay (unsigned long usecs)
-{
-	unsigned long next, timeout;
-	long last_processor = -1;
-
-
-	/*
-	 * Execute the non-preemptible delay loop (because the ITC might
-	 * not be synchronized between CPUS) in relatively short time
-	 * chunks, allowing preemption between the chunks.
-	 */
-	while (usecs > 0) {
-		next = min(usecs, MAX_USECS_WHILE_NOT_PREMPTIBLE);
-		preempt_disable;
-		if (last_processor != smp_processor_id()) {
-			last_processor = smp_processor_id();
-			timeout = ia64_get_itc();
-		}
-		timeout += next * local_cpu_data->cyc_per_usec;
-		while (ia64_get_itc() < timeout)
-			cpu_relax();
-
-		preempt_enable;
-		usecs -= next;
-	}
-}
+-- Steve
 

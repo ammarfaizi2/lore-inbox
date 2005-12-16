@@ -1,86 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVLPDul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbVLPDvk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbVLPDul (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 22:50:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVLPDul
+	id S932113AbVLPDvk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 22:51:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVLPDvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 22:50:41 -0500
-Received: from smtp-relay.dca.net ([216.158.48.66]:5557 "EHLO
-	smtp-relay.dca.net") by vger.kernel.org with ESMTP id S932107AbVLPDul
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 22:50:41 -0500
-Date: Thu, 15 Dec 2005 22:50:32 -0500
-From: "Mark M. Hoffman" <mhoffman@lightlink.com>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       LKML <linux-kernel@vger.kernel.org>, Dave Airlie <airlied@linux.ie>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [BUG] Xserver startup locks system... git bisect results
-Message-ID: <20051216035032.GA4026@jupiter.solarsys.private>
-References: <20051215043212.GA4479@jupiter.solarsys.private> <1134622384.16880.26.camel@gaston> <1134623242.16880.30.camel@gaston> <1134623748.16880.32.camel@gaston> <17313.12671.661715.211100@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17313.12671.661715.211100@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 15 Dec 2005 22:51:40 -0500
+Received: from xproxy.gmail.com ([66.249.82.205]:28449 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932113AbVLPDvk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 22:51:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=AYPkycm2rRdg+iOQnimAGTpYxLYDueyC83HzKlM0eUbi3NPhx+62PH57K2KUqWRG35CjBKWsB+UMIMwH50GWLQC9vXipKKj19Sb+lGeiw7PXAsCQH/jHxMpqnqtK+r1bw6S5u9w50zV3TNqA2lbRFDaql6i0zI9FSpX5xxEAAhw=
+Message-ID: <43A239B4.8010309@gmail.com>
+Date: Thu, 15 Dec 2005 22:51:16 -0500
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ismail Donmez <ismail@uludag.org.tr>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+References: <20051211180536.GM23349@stusta.de> <Pine.LNX.4.61.0512152356190.13568@yvahk01.tjqt.qr> <200512160112.30179.ismail@uludag.org.tr>
+In-Reply-To: <200512160112.30179.ismail@uludag.org.tr>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+From: Puneet Vyas <puneetvyas@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul, Benjamin:
+Ismail Donmez wrote:
 
-* Paul Mackerras <paulus@samba.org> [2005-12-15 20:03:59 +1100]:
-> Benjamin Herrenschmidt writes:
-> 
-> > On Thu, 2005-12-15 at 16:07 +1100, Benjamin Herrenschmidt wrote:
-> > > Ah, also, something else you can try, is replace
-> > > 
-> > > 	dev_priv->gart_vm_start = dev_priv->fb_location
-> > > 	    + RADEON_READ(RADEON_CONFIG_APER_SIZE);
-> > 
-> > Actually, the above should read
-> > 
-> > 	    + RADEON_READ(RADEON_CONFIG_APER_SIZE) * 2;
-> 
-> With the patch below, my powerbook will sleep and wake up
-> successfully.
+>Cuma 16 Aralık 2005 00:57 tarihinde şunları yazmıştınız:
+>  
+>
+>>>It seems most problems with 4k stacks are already resolved at least
+>>>in -mm.
+>>>
+>>>I'd like to see this patch to always use 4k stacks in -mm now for
+>>>finding any remaining problems before submitting this patch for Linus'
+>>>tree.
+>>>      
+>>>
+>>By chance, I read that windows modules used in ndiswrapper
+>>may require >4k-stacks. Will this become a problem?
+>>    
+>>
+>
+>If 8k stacks get removed, yes. So if you have a chance to choose don't buy a 
+>wifi card which doesn't have a native linux driver.
+>
+>  
+>
+If the learned folks here think that "ndiswrapper" is some user space 
+program that people can live without than at least
+3 people in my house are doomed. We like to use linux but do not have 
+luxury that Ismail enjoys. At least windows
+does not make such decisions on my behalf. Sigh.
 
-I added the printk's you (BH) asked for to Paul's patch, resulting in the
-patch below.  It works fine so far.  Here's the relevant kernel log:
-
-Dec 15 22:39:47 jupiter kernel: dev_priv->fb_location is 0xe8000000
-Dec 15 22:39:47 jupiter kernel: RADEON_READ(RADEON_CONFIG_APER_SIZE) is 0x08000000
-Dec 15 22:39:47 jupiter kernel: [drm] Loading R200 Microcode
-
-Let me know if you need any more info.  Thanks.
-
---- linux-2.6.15-rc5-radeon-test.orig/drivers/char/drm/radeon_cp.c
-+++ linux-2.6.15-rc5-radeon-test/drivers/char/drm/radeon_cp.c
-@@ -1522,7 +1522,12 @@ static int radeon_do_init_cp(drm_device_
- 
- 	dev_priv->gart_size = init->gart_size;
- 	dev_priv->gart_vm_start = dev_priv->fb_location
--	    + RADEON_READ(RADEON_CONFIG_APER_SIZE) * 2;
-+	    + RADEON_READ(RADEON_CONFIG_MEMSIZE);
-+
-+printk(KERN_INFO "dev_priv->fb_location is 0x%08x\n",
-+	dev_priv->fb_location);
-+printk(KERN_INFO "RADEON_READ(RADEON_CONFIG_APER_SIZE) is 0x%08x\n",
-+	RADEON_READ(RADEON_CONFIG_APER_SIZE));
- 
- #if __OS_HAS_AGP
- 	if (!dev_priv->is_pci)
---- linux-2.6.15-rc5-radeon-test.orig/drivers/char/drm/radeon_drv.h
-+++ linux-2.6.15-rc5-radeon-test/drivers/char/drm/radeon_drv.h
-@@ -379,6 +379,7 @@ extern int r300_do_cp_cmdbuf(drm_device_
- #	define RADEON_PLL_WR_EN			(1 << 7)
- #define RADEON_CLOCK_CNTL_INDEX		0x0008
- #define RADEON_CONFIG_APER_SIZE		0x0108
-+#define RADEON_CONFIG_MEMSIZE		0x00f8
- #define RADEON_CRTC_OFFSET		0x0224
- #define RADEON_CRTC_OFFSET_CNTL		0x0228
- #	define RADEON_CRTC_TILE_EN		(1 << 15)
-
--- 
-Mark M. Hoffman
-mhoffman@lightlink.com
-
+~Puneet

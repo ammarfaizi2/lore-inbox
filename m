@@ -1,117 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbVLPNeu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932267AbVLPNlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932266AbVLPNeu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 08:34:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbVLPNeu
+	id S932267AbVLPNlh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 08:41:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVLPNlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 08:34:50 -0500
-Received: from smtp102.plus.mail.mud.yahoo.com ([68.142.206.235]:1960 "HELO
-	smtp102.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932266AbVLPNet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 08:34:49 -0500
+	Fri, 16 Dec 2005 08:41:37 -0500
+Received: from smtp101.plus.mail.mud.yahoo.com ([68.142.206.234]:4514 "HELO
+	smtp101.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932267AbVLPNlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 08:41:36 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=yahoo.com.au;
   h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=P830MxiaJr9P5HzycNIQ391h4QrpKCNyRZUUWcxPGvgPGqtTrWqrfvnNcB3OZ16N8bJoQES6eRQ42dj7wZ9T8PEGdpAclvCpNpPB1NY1iH5JZwzWfPbdM+u4DiL5Yhre/dGWOystRL4wdls5XgplzBOvkMSYNL3HsFjCayeeoAM=  ;
-Message-ID: <43A2C26F.3060101@yahoo.com.au>
-Date: Sat, 17 Dec 2005 00:34:39 +1100
+  b=ZXVuSc3XBK5bDlbGBCBBKcB0UYBY1oqPCzx9E4SYhHDucRgWYcgIIhiwJZgp+H/gQ7QCzHZu2YJfSHoyx92js7jWOYsZ6kp3EFDCSR9yL2PnnuBb8EnrutBejvcm9SsqiaQ96N0/Jt127DIiAEpQsOpOZyqgXHjK+3MBEkLxwVs=  ;
+Message-ID: <43A2C40B.1020102@yahoo.com.au>
+Date: Sat, 17 Dec 2005 00:41:31 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Laurent Pinchart <laurent.pinchart@skynet.be>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: VM_RESERVED and PG_reserved : Allocating memory for video buffers
-References: <200512152009.33758.laurent.pinchart@skynet.be> <43A21807.70504@yahoo.com.au> <200512161233.05411.laurent.pinchart@skynet.be>
-In-Reply-To: <200512161233.05411.laurent.pinchart@skynet.be>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: David Howells <dhowells@redhat.com>,
+       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, cfriesen@nortel.com,
+       torvalds@osdl.org, hch@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+References: <15167.1134488373@warthog.cambridge.redhat.com> <1134490205.11732.97.camel@localhost.localdomain> <1134556187.2894.7.camel@laptopd505.fenrus.org> <1134558188.25663.5.camel@localhost.localdomain> <1134558507.2894.22.camel@laptopd505.fenrus.org> <1134559470.25663.22.camel@localhost.localdomain> <20051214033536.05183668.akpm@osdl.org> <15412.1134561432@warthog.cambridge.redhat.com> <11202.1134730942@warthog.cambridge.redhat.com> <43A2BAA7.5000807@yahoo.com.au> <20051216132123.GB1222@flint.arm.linux.org.uk>
+In-Reply-To: <20051216132123.GB1222@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Laurent Pinchart wrote:
-> On Friday 16 December 2005 02:27, Nick Piggin wrote:
-
->>vm_insert_page is indeed the right interface for mapping these pages
->>into userspace.
+Russell King wrote:
+> On Sat, Dec 17, 2005 at 12:01:27AM +1100, Nick Piggin wrote:
+> 
+>>You were proposing a worse default, which is the reason I suggested it.
 > 
 > 
-> Ok, that's what I intended to do.
+> I'd like to qualify that.  "for architectures with native cmpxchg".
 > 
+> For general consumption (not specifically related to mutex stuff)...
 > 
->>You do not have to worry about pages being swapped out, and you shouldn't
->>need to set any unusual vma or page flags. kswapd only walks the lru lists,
->>and it won't even look at any other pages.
+> For architectures with llsc, sequences stuch as:
 > 
+> 	load
+> 	modify
+> 	cmpxchg
 > 
-> I'd still like to understand how things work (I'm one of those programmers who 
-> don't like to code without understanding).
+> are inefficient because they have to be implemented as:
 > 
-> I think I understand how disk buffers or non-shared pages mapped by a regular 
-> file can be reclaimed, but I have trouble with anonymous pages and shared 
-> pages.
+> 	load
+> 	modify
+> 	load
+> 	compare
+> 	store conditional
 > 
-> First of all, I haven't been to find a definition of an anonymous page. I 
-> understand it as a page of memory not backed by a file (pages allocated by 
-> vmalloc for instance). If this is wrong, what I'm about to say if probably 
-> very wrong as well.
+> Now, if we consider using llsc as the basis of atomic operations:
 > 
-
-Anonymous memory is memory not backed by a file. However the userspace
-program will gain access to your vmalloc memory by mmaping a /dev file,
-right?
-
-So the mm kind of treats these pages as file pages (not anonymous),
-although it doesn't make much difference because it really has very little
-to do with them aside from what you see in vm_insert_page.
-
-> Are anonymous pages ever added to the LRU active list ? I suppose they are 
-> not, which is why they are not reclaimed.
+> 	load
+> 	modify
+> 	store conditional
 > 
-
-They are, see the line
-
-	lru_cache_add_active(page);
-
-in mm/memory.c:do_anonymous_page()
-
-Anonymous memory is basically memory allocated by malloc(), to put simply.
-
-Reclaiming anonymous memory involves writing it out to swap.
-
-> How does the kernel handle shared pages, (if for instance two processes map a 
-> regular file with MAP_SHARED) ? They can't be reclaimed before all processes 
-> which map them have had their PTEs modified. Is this where reverse mapping 
-> comes into play ?
+> and for cmpxchg-based architectures:
+> 
+> 	load
+> 	modify
+> 	cmpxchg
+> 
+> Notice that the cmpxchg-based case does _not_ get any worse - in fact
+> it's exactly identical.  Note, however, that the llsc case becomes
+> more efficient.
 > 
 
-That's right. mm/rmap.c:try_to_unmap()
+True in many cases. However in a lock fastpath one could do the
+atomic_cmpxchg without an initial load, assuming the lock is
+unlocked.
 
-> Finally, how are devices which map anonymous kernel memory to user space 
-> handled ? When a page is inserted in a process VMA using vm_insert_page, it 
-> becomes shared between the kernel and user space. Does the kernel see the 
-> page as a regular device backed page, and put it in the LRU active list ? You 
+atomic_cmpxchg(&lock, UNLOCKED, LOCKED)
 
-No, the kernel won't do anything with it after vm_insert_page (which does
-not put it on the LRU) until the process unmaps that page, at which time
-all the accounting done by vm_insert_page is undone.
+which should basically wind up to the most optimal code on both the
+cmpxchg and ll/sc platforms (aside from other quirks David pointed
+out like cmpxchg being worse than lock inc on x86).
 
-> said I shouldn't need to set any unusual VMA or page flags. What's the exact 
-> purpose of VM_RESERVED and VM_IO then ? And when should they be set ?
-> 
+Ah - I see you pointed out "for general consumption", I missed that.
+Indeed for general consumption one should still be careful using
+atomic_cmpxchg.
 
-VM_RESERVED I think was in 2.4 to stop the swapout code looking at that
-vma. I don't think you should ever need to set it in 2.6.
-
-VM_IO should be set on memory areas that have can have side effects when
-accessing them, like memory mapped IO regions.
-
-> Hope I'm not bothering you too much with all those questions. I don't feel at 
-> ease when developping kernel code if I don't have at least a basic 
-> understanding of what I'm doing.
-> 
-
-That's OK, hope this is of some help.
+Nick
 
 -- 
 SUSE Labs, Novell Inc.

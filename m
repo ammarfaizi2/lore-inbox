@@ -1,65 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVLPGzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932153AbVLPG7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbVLPGzz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 01:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbVLPGzz
+	id S932153AbVLPG7P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 01:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932158AbVLPG7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 01:55:55 -0500
-Received: from smtp110.sbc.mail.re2.yahoo.com ([68.142.229.95]:4235 "HELO
-	smtp110.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932152AbVLPGzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 01:55:54 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [PATCH] tlclk.c: pointers are handled by %p
-Date: Fri, 16 Dec 2005 01:55:51 -0500
-User-Agent: KMail/1.8.3
-Cc: Al Viro <viro@ftp.linux.org.uk>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-References: <E1EmpFz-00080I-2r@ZenIV.linux.org.uk> <20051215095754.GA32490@flint.arm.linux.org.uk>
-In-Reply-To: <20051215095754.GA32490@flint.arm.linux.org.uk>
+	Fri, 16 Dec 2005 01:59:15 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:7840 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S932153AbVLPG7O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 01:59:14 -0500
+Date: Fri, 16 Dec 2005 06:59:01 +0000 (GMT)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: "Mark M. Hoffman" <mhoffman@lightlink.com>,
+       Paul Mackerras <paulus@samba.org>, LKML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [BUG] Xserver startup locks system... git bisect results
+In-Reply-To: <1134712343.6316.2.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0512160658220.22102@skynet>
+References: <20051215043212.GA4479@jupiter.solarsys.private> 
+ <1134622384.16880.26.camel@gaston> <1134623242.16880.30.camel@gaston> 
+ <1134623748.16880.32.camel@gaston>  <17313.12671.661715.211100@cargo.ozlabs.ibm.com>
+  <20051216035032.GA4026@jupiter.solarsys.private> <1134712343.6316.2.camel@gaston>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512160155.52397.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 December 2005 04:57, Russell King wrote:
-> On Thu, Dec 15, 2005 at 09:18:35AM +0000, Al Viro wrote:
-> > diff --git a/drivers/char/tlclk.c b/drivers/char/tlclk.c
-> > index 12167c0..e8467dc 100644
-> > --- a/drivers/char/tlclk.c
-> > +++ b/drivers/char/tlclk.c
-> > @@ -776,8 +776,8 @@ static int __init tlclk_init(void)
-> >  	tlclk_device = platform_device_register_simple("telco_clock",
-> >  				-1, NULL, 0);
-> >  	if (!tlclk_device) {
-> > -		printk(KERN_ERR " platform_device_register retruns 0x%X\n",
-> > -			(unsigned int) tlclk_device);
-> > +		printk(KERN_ERR " platform_device_register retruns 0x%p\n",
-> > +			tlclk_device);
-> 
-> This looks really strange - we know what tlclk_device will be at that
-> printk - it'll be NULL because if it's anything different we wouldn't
-> be inside this if(){ }.
-> 
-> Moreover, this code is obviously bogus.  platform_device_register_simple
-> does not return NULL for the error case.  It should be something like:
-> 
-> 	if (IS_ERR(tlclk_device)) {
-> 		ret = PTR_ERR(tlclk_device);
-> 		printk(KERN_ERR "platform_device_register returns %d\n",
-> 		        ret);
-> 		goto out4;
-> 	}
-> 
 
-I have a patch killing usage of platform_register_device_simple in this
-driver (converting to platform_device_alloc() + _add()). Will post in a
-minute.
+> Finally fixes the radeon memory mapping bug that was incorrectly
+> fixed by the previous patch. This time, we use the actual vram
+> size as the size to calculate how far to move the AGP aperture> from the
+> framebuffer in card's memory space. If there are still issues with this
+> patch, they are due to bugs in the X driver that I'm working on fixing
+> too.
+>
+> Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+
+Acked-by: Dave Airlie <airlied@linux.ie>
+
+>
+> Index: linux-work/drivers/char/drm/radeon_cp.c
+> ===================================================================
+> --- linux-work.orig/drivers/char/drm/radeon_cp.c	2005-12-13 20:23:00.000000000 +1100
+> +++ linux-work/drivers/char/drm/radeon_cp.c	2005-12-16 16:17:30.000000000 +1100
+> @@ -1312,6 +1312,8 @@
+>  static int radeon_do_init_cp(drm_device_t * dev, drm_radeon_init_t * init)
+>  {
+>  	drm_radeon_private_t *dev_priv = dev->dev_private;;
+> +	unsigned int mem_size;
+> +
+>  	DRM_DEBUG("\n");
+>
+>  	dev_priv->is_pci = init->is_pci;
+> @@ -1521,8 +1523,11 @@
+>  					  + dev_priv->fb_location) >> 10));
+>
+>  	dev_priv->gart_size = init->gart_size;
+> -	dev_priv->gart_vm_start = dev_priv->fb_location
+> -	    + RADEON_READ(RADEON_CONFIG_APER_SIZE) * 2;
+> +
+> +	mem_size = RADEON_READ(RADEON_CONFIG_MEMSIZE);
+> +	if (mem_size == 0)
+> +		mem_size = 0x800000;
+> +	dev_priv->gart_vm_start = dev_priv->fb_location + mem_size;
+>
+>  #if __OS_HAS_AGP
+>  	if (!dev_priv->is_pci)
+> Index: linux-work/drivers/char/drm/radeon_drv.h
+> ===================================================================
+> --- linux-work.orig/drivers/char/drm/radeon_drv.h	2005-11-25 15:03:35.000000000 +1100
+> +++ linux-work/drivers/char/drm/radeon_drv.h	2005-12-16 16:14:43.000000000 +1100
+> @@ -379,6 +379,7 @@
+>  #	define RADEON_PLL_WR_EN			(1 << 7)
+>  #define RADEON_CLOCK_CNTL_INDEX		0x0008
+>  #define RADEON_CONFIG_APER_SIZE		0x0108
+> +#define RADEON_CONFIG_MEMSIZE		0x00f8
+>  #define RADEON_CRTC_OFFSET		0x0224
+>  #define RADEON_CRTC_OFFSET_CNTL		0x0228
+>  #	define RADEON_CRTC_TILE_EN		(1 << 15)
+>
+>
 
 -- 
-Dmitry
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
+

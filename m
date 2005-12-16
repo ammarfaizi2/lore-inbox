@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVLPN50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbVLPOEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932271AbVLPN50 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 08:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbVLPN50
+	id S932272AbVLPOEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 09:04:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbVLPOEY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 08:57:26 -0500
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:24975 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932271AbVLPN5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 08:57:25 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-Subject: Re: slow sync of fat 32 hotplugged devices
-To: Patrick Fritzsch <fritzsch@cip.physik.uni-muenchen.de>,
-       Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Fri, 16 Dec 2005 06:48:04 +0100
-References: <5k61N-oO-5@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Fri, 16 Dec 2005 09:04:24 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:65297 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932272AbVLPOEY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 09:04:24 -0500
+Date: Fri, 16 Dec 2005 15:04:25 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-ID: <20051216140425.GY23349@stusta.de>
+References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1En8Rp-00050N-Gk@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051216141002.2b54e87d.diegocg@gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick Fritzsch <fritzsch@cip.physik.uni-muenchen.de> wrote:
+On Fri, Dec 16, 2005 at 02:10:02PM +0100, Diego Calleja wrote:
+> El Thu, 15 Dec 2005 14:00:13 -0800,
+> Andrew Morton <akpm@osdl.org> escribió:
+> 
+> 
+> > Supporting 8k stacks is a small amount of code and nobody has seen a need
+> > to make changes in there for quite a long time.  So there's little cost to
+> > keeping the existing code.
+> > 
+> > And the existing code is useful:
+> 
+> Maybe this slighty different approach is better? 
+>...
 
-> It seems that the hal daemon mounts a usbstick in fat32 mode, where
-> default the sync option ist on. Actually this is a nice behaviour,
-> because a cp to the stick should last so long until the file was
-> completly written.
+My count of bug reports for problems with 4k stacks after Neil's patch
+went into -mm is still at 0.
 
-[...]
-> I guess that the kernel checks after every block of the file, which is
-> written, if the stick has really written it, which leads to such a big
-> slowdown. There are already lots of comments of this in the web, where
-> the solution is always to disable the sync mode in the hal daemon device
-> files.
+Either there are no problems left or noone pays attention to them since 
+disabling 4k stacks "fixed" the problem.
 
-The situation is worse: It will update the FAT each time a block is written.
-Therefore the FAT area will wear out very quickly.
+In both cases there's no reason against applying my patch.
 
-> Wouldnt it be a nice behaviour, if you could mount a file in a new sync
-> mode, where it isnt synchronized during writing a file, only when a
-> close ioctl command was executed on a filehandle?
-> sync writing to hotplugged devices would be a lot faster then.
+cu
+Adrian
 
-IMO it should sync on committed dentry updates, too.
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

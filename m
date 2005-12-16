@@ -1,43 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751346AbVLPSIf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbVLPSLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751346AbVLPSIf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 13:08:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbVLPSIf
+	id S1750755AbVLPSLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 13:11:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbVLPSLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 13:08:35 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44441 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751336AbVLPSIe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 13:08:34 -0500
-Date: Fri, 16 Dec 2005 13:08:17 -0500
-From: Dave Jones <davej@redhat.com>
-To: 7eggert@gmx.de
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org,
-       Alex Davis <alex14641@yahoo.com>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051216180816.GC2821@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, 7eggert@gmx.de,
-	Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org,
-	Alex Davis <alex14641@yahoo.com>
-References: <5kh6K-7KC-3@gated-at.bofh.it> <5kiFR-1mi-11@gated-at.bofh.it> <E1EnDOo-0006Gd-Na@be1.lrz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1EnDOo-0006Gd-Na@be1.lrz>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 16 Dec 2005 13:11:25 -0500
+Received: from node1.usercenter.de ([62.112.158.193]:42655 "EHLO
+	node1.UserCenter.de") by vger.kernel.org with ESMTP
+	id S1750755AbVLPSLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 13:11:24 -0500
+From: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
+Organization: Gunter Ohrner Datensysteme
+To: "Bonilla, Alejandro" <alejandro.bonilla@hp.com>
+Subject: Re: gtkpod and Filesystem
+Date: Fri, 16 Dec 2005 19:09:04 +0100
+User-Agent: KMail/1.9.1
+References: <F265D57E1F28274EA189ED0566D227DE7F2343@PGJEXC01.americas.cpqcorp.net>
+In-Reply-To: <F265D57E1F28274EA189ED0566D227DE7F2343@PGJEXC01.americas.cpqcorp.net>
+Cc: linux-kernel@vger.kernel.org, debian-devel@lists.debian.org
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1511752.2tZkOEQWCl";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200512161909.12075.G.Ohrner@post.rwth-aachen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 12:05:18PM +0100, Bodo Eggert wrote:
+--nextPart1511752.2tZkOEQWCl
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
- > ACK. So where is the driver for the Netgear WG511 Softmac card I'm supposed
- > to test? I bought this card because it was labled as being supported, and it
- > turned out that it wasn't, and just nobody cared to update the list of
- > supported cards with the warning about the unsupported variant.
+Am Freitag, 16. Dezember 2005 18:19 schrieben Sie:
+> |> 	Actually. Issue fixed. It is really odd that a dosfsck fixed it.
 
-There are two models of that card with the same name.
-The one made in taiwan is a prism54, the one made in china is
-something else.  I guess yours is made in China ?
+I'm glad it helped. :-)
 
-		Dave
+> |i dont see how that is odd.. if the filesystem was somehow corrupted
+> |dosfsck would have corrected it.
+> Odd how it got "corrupted" and odd on why it would work on Windows and
+> not in Linux.
 
+Mh, that's just the same phenomenon one always sees with web sites. If=20
+some data structure, be it a file system or an HTML-like tag soup,=20
+doesn't conform to the specification, the processors (fs driber or web=20
+browser) behavoiur will be implementation dependant... One specific error=20
+will break one implementation but not the other, while another error will=20
+just cause the opposite, there may be implementations which are more=20
+sensitive to specification violation and so on...
+
+So the behaviour you observed is not that surprising, after all. ;)
+
+> Anyway, it works now. I was more worried on the FS Panic than anything
+> else.
+
+Well, as I understood it this message just stated that the fs driver was=20
+confused and blocked write access for safety reasons, to avoid further=20
+damage.
+
+It had nothing to do with a "kernel panic" or similar.
+
+Greetings and happy music listening,
+
+  Gunter
+
+--nextPart1511752.2tZkOEQWCl
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDowLI0ORHvREo8l8RAubcAJ9jf6R0eG1hZ1C/+L6hWjBoxjHqLQCeMdDQ
+2Vl18hLwsGLv7om41YoAzV8=
+=cdrX
+-----END PGP SIGNATURE-----
+
+--nextPart1511752.2tZkOEQWCl--

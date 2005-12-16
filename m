@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbVLPUhY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbVLPUqO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbVLPUhY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 15:37:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932401AbVLPUhY
+	id S932405AbVLPUqO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 15:46:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbVLPUqO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 15:37:24 -0500
-Received: from pat.uio.no ([129.240.130.16]:65187 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932388AbVLPUhX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 15:37:23 -0500
-Subject: Re: [PATCH 3/3] Fix problems on multi-TB filesystem and file
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: Takashi Sato <sho@tnes.nec.co.jp>, viro@zeniv.linux.org.uk,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <2cd57c900512161224i1079572ao@mail.gmail.com>
-References: <000201c60242$318eff70$4168010a@bsd.tnes.nec.co.jp>
-	 <2cd57c900512161139n7d738415q@mail.gmail.com>
-	 <1134763048.18635.3.camel@lade.trondhjem.org>
-	 <2cd57c900512161224i1079572ao@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 16 Dec 2005 15:37:11 -0500
-Message-Id: <1134765431.7941.3.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.861, required 12,
-	autolearn=disabled, AWL 1.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 16 Dec 2005 15:46:14 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:36540 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932405AbVLPUqN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 15:46:13 -0500
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Matt Helsley <matthltc@us.ibm.com>,
+       Hubertus Franke <frankeh@watson.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, vserver@list.linux-vserver.org,
+       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       pagg@oss.sgi.com
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: [ckrm-tech] Re: [RFC][patch 00/21] PID Virtualization: Overview and Patches 
+In-reply-to: Your message of Fri, 16 Dec 2005 09:35:19 PST.
+             <1134754519.19403.6.camel@localhost> 
+Date: Fri, 16 Dec 2005 12:45:42 -0800
+Message-Id: <E1EnMSU-0004pH-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-17 at 04:24 +0800, Coywolf Qi Hunt wrote:
 
-> >
-> > It may surprise you to learn that not all network filesystems are block
-> > based.
-> >
-> > NFS has no truck with CONFIG_LBD at all.
+On Fri, 16 Dec 2005 09:35:19 PST, Dave Hansen wrote:
+> On Thu, 2005-12-15 at 19:28 -0800, Gerrit Huizenga wrote:
+> > In the pid virtualization, I would think that tasks can move between
+> > containers as well,
 > 
-> I thought no network filesystems are block based from a client
-> viewpoint.  (There's a network block driver though.) Client kernel
-> needn't enable LBD.
+> I don't think tasks can not be permitted to move between containers.  As
+> a simple exercise, imagine that you have two processes with the same
+> pid, one in container A and one in container B.  You wish to have them
+> both run in container A.  They can't both have the same pid.  What do
+> you do?
+> 
+> I've been talking a lot lately about how important filesystem isolation
+> between containers is to implement containers properly.  Isolating the
+> filesystem namespaces makes it much easier to do things like fs-based
+> shared memory during a checkpoint/resume.  If we want to allow tasks to
+> move around, we'll have to throw out this entire concept.  That means
+> that a _lot_ of things get a notch closer to the too-costly-to-implement
+> category.
 
-Without this patch, the client _would_ have to enable LBD if it wanted
-to correctly report the size of a large disk on the remote server.
+Interesting...  So how to tasks get *into* a container?  And can they
+ever get back "out" of a container?  Are most processes on the system
+initially not in a container?  And then they can be stuffed in a container?
+And then containers can be moved around or be isolated from each other?
 
-The main point, though is that sector_t is a handle to a block. It is
-_NOT_ the right type to use for reporting a disk size.
+And, is pid virtualization the point where this happens?  Or is that
+a slightly higher level?  In other words, is pid virtualization the
+full implementation of container isolation?  Or is it a significant
+element on which additional policy, restrictions, and usage models
+can be built?
 
-Cheers,
-  Trond
-
+gerrit

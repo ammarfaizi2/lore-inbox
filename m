@@ -1,45 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932529AbVLPWYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbVLPW1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932529AbVLPWYK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 17:24:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932542AbVLPWYK
+	id S932548AbVLPW1U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 17:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbVLPW1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 17:24:10 -0500
-Received: from main.gmane.org ([80.91.229.2]:28621 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932529AbVLPWYI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 17:24:08 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
-Subject: Re: gtkpod and Filesystem
-Followup-To: gmane.linux.kernel
-Date: Fri, 16 Dec 2005 23:20:30 +0100
-Message-ID: <dnveja$i7i$1@sea.gmane.org>
-References: <20051216145234.M78009@linuxwireless.org> <dnul89$r4k$1@sea.gmane.org> <Pine.LNX.4.61.0512162311180.24996@yvahk01.tjqt.qr>
+	Fri, 16 Dec 2005 17:27:20 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:14287
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932543AbVLPW1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 17:27:19 -0500
+Date: Fri, 16 Dec 2005 14:23:49 -0800 (PST)
+Message-Id: <20051216.142349.89717140.davem@davemloft.net>
+To: torvalds@osdl.org
+Cc: dhowells@redhat.com, nickpiggin@yahoo.com.au, arjan@infradead.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, cfriesen@nortel.com,
+       hch@infradead.org, matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation 
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.64.0512160829180.3060@g5.osdl.org>
+References: <15412.1134561432@warthog.cambridge.redhat.com>
+	<12186.1134732601@warthog.cambridge.redhat.com>
+	<Pine.LNX.4.64.0512160829180.3060@g5.osdl.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 212.117.85.179
-User-Agent: KNode/0.10
-Cc: debian-devel@lists.debian.org
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>> a bug in gtkpod or the kernel (FS Panic).
->>Maybe an FS error on your iPod? Did you try to reformat or dosfsck it?
-> Even then, the filesystem code should handle corrupt filesystems more
-> gracefully.
+From: Linus Torvalds <torvalds@osdl.org>
+Date: Fri, 16 Dec 2005 08:33:10 -0800 (PST)
 
-Mh, what's "more gracefully" in the light of fs corruption? The driver just
-blocked write access to avoid further damage caused by writing to an
-inconsistent file system which sound perfectly reasonable to me. Writing to
-a corrupted fs could cause anything to it, depending on the corruption, so
-better act safe than sorry...
+> From a bus standpoint you _have_ to do the initial read with intent to 
+> write, nothing else makes any sense. You'll just waste bus cycles 
+> otherwise. Sure, the write may never come, but it just isn't sensible to 
+> optimize for the case where the compare will fail. If that's the common 
+> case, then software is doing something wrong (it should do just a much 
+> cheaper "load + compare" first if it knows it's probably going to fail).
 
-Greetings,
+Actually, this points out a problem with "compare and swap".  The
+typical loop is of the form:
 
-  Gunter
+	LOAD [MEM], REG1
+	OP   REG1, X, REG2
+	CAS  [MEM], REG1, REG2
 
+That first LOAD instruction, if it misses in the L2, causes the cache
+line to be requested for sharing.  Then the CAS instruction will need
+to issue another cache coherency transaction to get the cache line
+into owned state.
+
+Basically, this guarentees that you'll have 2 cache coherency
+transactions, a huge waste, every time an atomic update sequence
+executes for a data item not in cache already.
+
+(Are there any CPUs that peek forward and look for the CAS
+ instruction to decide to issue the more appropriate request
+ for the cache line in Owned state?  That would be cool...)
+
+At least with "load locked / store conditional" the cpu is being told
+that we intend to write to that cache line, so it can request sole
+ownership on the bus when the load misses.
+
+The only workaround I can come up with is the do a prefetch for write
+right before the LOAD.  I've been tempted to add this on sparc64 for a
+long time.

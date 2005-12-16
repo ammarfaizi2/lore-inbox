@@ -1,36 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVLPSw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbVLPS4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932364AbVLPSw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 13:52:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbVLPSw7
+	id S932369AbVLPS4V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 13:56:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbVLPS4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 13:52:59 -0500
-Received: from mail1.kontent.de ([81.88.34.36]:7886 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S932364AbVLPSw6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 13:52:58 -0500
-From: Oliver Neukum <oliver@neukum.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Fri, 16 Dec 2005 13:56:21 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:57747 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932369AbVLPS4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 13:56:20 -0500
 Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Fri, 16 Dec 2005 19:53:28 +0100
-User-Agent: KMail/1.8
-Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
-       "Lee Revell" <rlrevell@joe-job.com>,
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: arjan@infradead.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
        "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
-       "Adrian Bunk" <bunk@stusta.de>, "Andrew Morton" <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
-References: <200512161842.jBGIgjZG003433@laptop11.inf.utfsm.cl>
+       Lee Revell <rlrevell@joe-job.com>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>
 In-Reply-To: <200512161842.jBGIgjZG003433@laptop11.inf.utfsm.cl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+References: <200512161842.jBGIgjZG003433@laptop11.inf.utfsm.cl>
+Content-Type: text/plain
+Date: Fri, 16 Dec 2005 13:55:29 -0500
+Message-Id: <1134759329.13138.129.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512161953.28986.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Freitag, 16. Dezember 2005 19:42 schrieb Horst von Brand:
+On Fri, 2005-12-16 at 15:42 -0300, Horst von Brand wrote:
 > linux-os \(Dick Johnson\) <linux-os@analogic.com> wrote:
 > 
 > [...]
@@ -52,9 +50,10 @@ Am Freitag, 16. Dezember 2005 19:42 schrieb Horst von Brand:
 > is, and Linux routinely running for months at a time) you are in a whole
 > new world of pain.
 
-How about ignoring physical pages and going to virtual, say, 16K pages?
-After all, 4K is 15 years old. Disks and RAM have grown enormously.
+So people should really be asking for a PAGE_SIZE = 8k option ;)
 
-	Regards
-		Oliver
+Sorry,
+
+-- Steve
+
 

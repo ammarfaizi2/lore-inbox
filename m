@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbVLPSlP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbVLPSpc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbVLPSlP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 13:41:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbVLPSlP
+	id S932361AbVLPSpc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 13:45:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932364AbVLPSpc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 13:41:15 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.25]:12231 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932371AbVLPSlO (ORCPT
+	Fri, 16 Dec 2005 13:45:32 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:9897 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932361AbVLPSpc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 13:41:14 -0500
-Message-ID: <007001c60270$1066c0c0$6f00a8c0@comcast.net>
-From: "John Hawkes" <hawkes@sgi.com>
-To: "Luck, Tony" <tony.luck@intel.com>, "Robin Holt" <holt@sgi.com>
-Cc: "Tony Luck" <tony.luck@gmail.com>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       "Jack Steiner" <steiner@sgi.com>, "Keith Owens" <kaos@sgi.com>,
-       "Dimitri Sivanich" <sivanich@sgi.com>
-References: <20051216024252.27639.63120.sendpatchset@tomahawk.engr.sgi.com> <20051216122854.GA10375@lnx-holt.americas.sgi.com> <20051216173342.GA12205@agluck-lia64.sc.intel.com>
-Subject: Re: [PATCH] ia64: disable preemption in udelay()
-Date: Fri, 16 Dec 2005 10:39:34 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2919.6600
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+	Fri, 16 Dec 2005 13:45:32 -0500
+Message-Id: <200512161842.jBGIgjZG003433@laptop11.inf.utfsm.cl>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+cc: "Lee Revell" <rlrevell@joe-job.com>,
+       "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>,
+       "Adrian Bunk" <bunk@stusta.de>, "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks 
+In-Reply-To: Message from "linux-os \(Dick Johnson\)" <linux-os@analogic.com> 
+   of "Fri, 16 Dec 2005 09:39:56 CDT." <Pine.LNX.4.61.0512160927390.30350@chaos.analogic.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Fri, 16 Dec 2005 15:42:45 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Fri, 16 Dec 2005 15:42:58 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Luck, Tony" <tony.luck@intel.com>
-...
-> A good question ... I'm going to put John's change in as-is for now so
-> that 2.6.15 can benefit from the reduced code size of the out-of-line
-> and avoid the ugly bug when preemption is enabled on a drifty system.
+linux-os \(Dick Johnson\) <linux-os@analogic.com> wrote:
 
-Okay, but I'll propose some changes to that soon, probably using Robin Holt's
-suggestions.  I'm concerned about the impact of interrupts outside of the
-inner loop and inside the outer loop, which would increase the effective delay
-time.
+[...]
 
-John Hawkes
+> Throughout the past two years of 4k stack-wars, I never heard why
+> such a small stack was needed (not wanted, needed). It seems that
+> everybody "knows" that smaller is better and most everybody thinks
+> that one page in ix86 land is "optimum". However I don't think
+> anybody ever even tried to analyze what was better from a technical
+> perspective. Instead it's been analyzed as religious dogma, i.e.,
+> keep the stack small, it will prevent idiots from doing bad things.
 
+OK, so here goes again...
+
+The kernel stack has to be contiguous in /physical/ memory. Keep the stack
+/one/ page, that way you can always get a new stack when needed (== each
+fork(2) or clone(2)). If the stack is 2 (or more) pages, you'll have to
+find (or create) a multi-page free area, and (fragmentation being what it
+is, and Linux routinely running for months at a time) you are in a whole
+new world of pain.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

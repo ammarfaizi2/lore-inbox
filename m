@@ -1,267 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbVLPAbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbVLPAcT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbVLPAbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 19:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVLPAa6
+	id S1751227AbVLPAcT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 19:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbVLPAcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 19:30:58 -0500
-Received: from s0003.shadowconnect.net ([213.239.201.226]:4036 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S1751219AbVLPAak (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 19:30:40 -0500
-Message-ID: <43A20AAB.5060303@shadowconnect.com>
-Date: Fri, 16 Dec 2005 01:30:35 +0100
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Thunderbird 1.5 (Windows/20051025)
+	Thu, 15 Dec 2005 19:32:19 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:55522 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751218AbVLPAcS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 19:32:18 -0500
+Message-ID: <43A20B0B.5090205@pobox.com>
+Date: Thu, 15 Dec 2005 19:32:11 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 6/7] I2O: Optimizing
-Content-Type: multipart/mixed;
- boundary="------------070905090704080200060108"
+To: Ulrich Drepper <drepper@redhat.com>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+Subject: Re: [PATCH 0/3] *at syscalls: Intro
+References: <200512152249.jBFMnXAA016747@devserv.devel.redhat.com>
+In-Reply-To: <200512152249.jBFMnXAA016747@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Ulrich Drepper wrote: > Here is a series of patches
+	which introduce in total 11 new system calls > which take a file
+	descriptor/filename pair instead of a single file name. > These
+	functions, openat etc, have been discussed on numerous occasions. >
+	They are needed to implement race-free filesystem traversal, they are >
+	necessary to implement a virtual per-thread current working directory >
+	(think multi-threaded backup software), etc. > > We have in glibc today
+	implementations of the interfaces which use the > /proc/self/fd magic.
+	But this code is rather expensive. Here are some > results (similar to
+	what Jim Meyering posted before): > > The test creates a deep directory
+	hierarchy on a tmpfs filesystem. > Then rm -fr is used to remove all
+	directories. Without syscall support > I get this: > > real 0m31.921s >
+	user 0m0.688s > sys 0m31.234s > > With syscall support the results are
+	much better: > > real 0m20.699s > user 0m0.536s > sys 0m20.149s > > >
+	The implemenation is really small: > > arch/i386/kernel/syscall_table.S
+	| 11 ++ > arch/x86_64/ia32/ia32entry.S | 11 ++ > fs/compat.c | 48
+	+++++++++-- > fs/exec.c | 2 > fs/namei.c | 167
+	++++++++++++++++++++++++++++++--------- > fs/open.c | 60 +++++++++++---
+	> fs/stat.c | 54 ++++++++++-- > include/asm-i386/unistd.h | 13 ++- >
+	include/asm-x86_64/ia32_unistd.h | 13 ++- > include/asm-x86_64/unistd.h
+	| 24 +++++ > include/linux/fcntl.h | 7 + > include/linux/fs.h | 7 + >
+	include/linux/namei.h | 7 - > include/linux/time.h | 2 > 14 files
+	changed, 355 insertions(+), 71 deletions(-) > > I've split the patch in
+	three parts. The first part is the actual > code change. It mostly
+	consists of passing down an additional parameter > with a file
+	descriptor and add wrapper functions which pass down the > default
+	parameter AT_FDCWD. Three new constants are defined in >
+	<linux/fcntl.h> which must correspond to the values already in use > in
+	glibc. In a few cases I've modified some code which would not >
+	necesarily need changing but the change makes it a bit more efficient >
+	in presence of the [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070905090704080200060108
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Ulrich Drepper wrote:
+> Here is a series of patches which introduce in total 11 new system calls
+> which take a file descriptor/filename pair instead of a single file name.
+> These functions, openat etc, have been discussed on numerous occasions.
+> They are needed to implement race-free filesystem traversal, they are
+> necessary to implement a virtual per-thread current working directory
+> (think multi-threaded backup software), etc.
+> 
+> We have in glibc today implementations of the interfaces which use the
+> /proc/self/fd magic.  But this code is rather expensive.  Here are some
+> results (similar to what Jim Meyering posted before):
+> 
+> The test creates a deep directory hierarchy on a tmpfs filesystem.
+> Then rm -fr is used to remove all directories.  Without syscall support
+> I get this:
+> 
+> real    0m31.921s
+> user    0m0.688s
+> sys     0m31.234s
+> 
+> With syscall support the results are much better:
+> 
+> real    0m20.699s
+> user    0m0.536s
+> sys     0m20.149s
+> 
+> 
+> The implemenation is really small:
+> 
+>  arch/i386/kernel/syscall_table.S |   11 ++
+>  arch/x86_64/ia32/ia32entry.S     |   11 ++
+>  fs/compat.c                      |   48 +++++++++--
+>  fs/exec.c                        |    2 
+>  fs/namei.c                       |  167 ++++++++++++++++++++++++++++++---------
+>  fs/open.c                        |   60 +++++++++++---
+>  fs/stat.c                        |   54 ++++++++++--
+>  include/asm-i386/unistd.h        |   13 ++-
+>  include/asm-x86_64/ia32_unistd.h |   13 ++-
+>  include/asm-x86_64/unistd.h      |   24 +++++
+>  include/linux/fcntl.h            |    7 +
+>  include/linux/fs.h               |    7 +
+>  include/linux/namei.h            |    7 -
+>  include/linux/time.h             |    2 
+>  14 files changed, 355 insertions(+), 71 deletions(-)
+> 
+> I've split the patch in three parts.  The first part is the actual
+> code change.  It mostly consists of passing down an additional parameter
+> with a file descriptor and add wrapper functions which pass down the
+> default parameter AT_FDCWD.  Three new constants are defined in
+> <linux/fcntl.h> which must correspond to the values already in use
+> in glibc.  In a few cases I've modified some code which would not
+> necesarily need changing but the change makes it a bit more efficient
+> in presence of the wrapper functions.
+> 
+> The real change needed is the additional else-clause in what is now
+> do_path_lookup.  That's it.
 
-Changes:
---------
-- make i2o_iop_free() static inline (from Adrian Bunk)
-- changed kmalloc() + memset(0) into kzalloc()
+Definitely gets my ACK, for my own motivations:  I want to create 
+race-free cp(1)/mv(1)/rm(1) utilities for my posixutils project.
 
-Signed-off-by: Markus Lidel <Markus.Lidel@shadowconnect.com>
+It would be nice to add the additional argument to path_lookup(), rather 
+than calling do_path_lookup() everywhere.
 
---------------070905090704080200060108
-Content-Type: text/x-patch;
- name="i2o-optimizing.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i2o-optimizing.patch"
+	Jeff
 
-Index: linux-2.6/drivers/message/i2o/core.h
-===================================================================
---- linux-2.6.orig/drivers/message/i2o/core.h
-+++ linux-2.6/drivers/message/i2o/core.h
-@@ -40,7 +40,16 @@ extern int i2o_device_parse_lct(struct i
- 
- /* IOP */
- extern struct i2o_controller *i2o_iop_alloc(void);
--extern void i2o_iop_free(struct i2o_controller *);
-+
-+/**
-+ *	i2o_iop_free - Free the i2o_controller struct
-+ *	@c: I2O controller to free
-+ */
-+static inline void i2o_iop_free(struct i2o_controller *c)
-+{
-+	i2o_pool_free(&c->in_msg);
-+	kfree(c);
-+}
- 
- extern int i2o_iop_add(struct i2o_controller *);
- extern void i2o_iop_remove(struct i2o_controller *);
-Index: linux-2.6/drivers/message/i2o/iop.c
-===================================================================
---- linux-2.6.orig/drivers/message/i2o/iop.c
-+++ linux-2.6/drivers/message/i2o/iop.c
-@@ -32,7 +32,7 @@
- #include "core.h"
- 
- #define OSM_NAME	"i2o"
--#define OSM_VERSION	"1.316"
-+#define OSM_VERSION	"1.325"
- #define OSM_DESCRIPTION	"I2O subsystem"
- 
- /* global I2O controller list */
-@@ -838,12 +838,11 @@ static int i2o_systab_build(void)
- 	i2o_systab.len = sizeof(struct i2o_sys_tbl) + num_controllers *
- 	    sizeof(struct i2o_sys_tbl_entry);
- 
--	systab = i2o_systab.virt = kmalloc(i2o_systab.len, GFP_KERNEL);
-+	systab = i2o_systab.virt = kzalloc(i2o_systab.len, GFP_KERNEL);
- 	if (!systab) {
- 		osm_err("unable to allocate memory for System Table\n");
- 		return -ENOMEM;
- 	}
--	memset(systab, 0, i2o_systab.len);
- 
- 	systab->version = I2OVERSION;
- 	systab->change_ind = change_ind + 1;
-@@ -1020,16 +1019,6 @@ static int i2o_hrt_get(struct i2o_contro
- }
- 
- /**
-- *	i2o_iop_free - Free the i2o_controller struct
-- *	@c: I2O controller to free
-- */
--void i2o_iop_free(struct i2o_controller *c)
--{
--	i2o_pool_free(&c->in_msg);
--	kfree(c);
--};
--
--/**
-  *	i2o_iop_release - release the memory for a I2O controller
-  *	@dev: I2O controller which should be released
-  *
-@@ -1058,13 +1047,12 @@ struct i2o_controller *i2o_iop_alloc(voi
- 	struct i2o_controller *c;
- 	char poolname[32];
- 
--	c = kmalloc(sizeof(*c), GFP_KERNEL);
-+	c = kzalloc(sizeof(*c), GFP_KERNEL);
- 	if (!c) {
- 		osm_err("i2o: Insufficient memory to allocate a I2O controller."
- 			"\n");
- 		return ERR_PTR(-ENOMEM);
- 	}
--	memset(c, 0, sizeof(*c));
- 
- 	c->unit = unit++;
- 	sprintf(c->name, "iop%d", c->unit);
-Index: linux-2.6/drivers/message/i2o/config-osm.c
-===================================================================
---- linux-2.6.orig/drivers/message/i2o/config-osm.c
-+++ linux-2.6/drivers/message/i2o/config-osm.c
-@@ -22,7 +22,7 @@
- #include <asm/uaccess.h>
- 
- #define OSM_NAME	"config-osm"
--#define OSM_VERSION	"1.317"
-+#define OSM_VERSION	"1.323"
- #define OSM_DESCRIPTION	"I2O Configuration OSM"
- 
- /* access mode user rw */
-Index: linux-2.6/drivers/message/i2o/device.c
-===================================================================
---- linux-2.6.orig/drivers/message/i2o/device.c
-+++ linux-2.6/drivers/message/i2o/device.c
-@@ -195,12 +195,10 @@ static struct i2o_device *i2o_device_all
- {
- 	struct i2o_device *dev;
- 
--	dev = kmalloc(sizeof(*dev), GFP_KERNEL);
-+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
- 	if (!dev)
- 		return ERR_PTR(-ENOMEM);
- 
--	memset(dev, 0, sizeof(*dev));
--
- 	INIT_LIST_HEAD(&dev->list);
- 	init_MUTEX(&dev->lock);
- 
-Index: linux-2.6/drivers/message/i2o/driver.c
-===================================================================
---- linux-2.6.orig/drivers/message/i2o/driver.c
-+++ linux-2.6/drivers/message/i2o/driver.c
-@@ -217,10 +217,9 @@ int i2o_driver_dispatch(struct i2o_contr
- 		/* cut of header from message size (in 32-bit words) */
- 		size = (le32_to_cpu(msg->u.head[0]) >> 16) - 5;
- 
--		evt = kmalloc(size * 4 + sizeof(*evt), GFP_ATOMIC);
-+		evt = kzalloc(size * 4 + sizeof(*evt), GFP_ATOMIC);
- 		if (!evt)
- 			return -ENOMEM;
--		memset(evt, 0, size * 4 + sizeof(*evt));
- 
- 		evt->size = size;
- 		evt->tcntxt = le32_to_cpu(msg->u.s.tcntxt);
-@@ -348,12 +347,10 @@ int __init i2o_driver_init(void)
- 	osm_info("max drivers = %d\n", i2o_max_drivers);
- 
- 	i2o_drivers =
--	    kmalloc(i2o_max_drivers * sizeof(*i2o_drivers), GFP_KERNEL);
-+	    kzalloc(i2o_max_drivers * sizeof(*i2o_drivers), GFP_KERNEL);
- 	if (!i2o_drivers)
- 		return -ENOMEM;
- 
--	memset(i2o_drivers, 0, i2o_max_drivers * sizeof(*i2o_drivers));
--
- 	rc = bus_register(&i2o_bus_type);
- 
- 	if (rc < 0)
-Index: linux-2.6/drivers/message/i2o/exec-osm.c
-===================================================================
---- linux-2.6.orig/drivers/message/i2o/exec-osm.c
-+++ linux-2.6/drivers/message/i2o/exec-osm.c
-@@ -75,12 +75,10 @@ static struct i2o_exec_wait *i2o_exec_wa
- {
- 	struct i2o_exec_wait *wait;
- 
--	wait = kmalloc(sizeof(*wait), GFP_KERNEL);
-+	wait = kzalloc(sizeof(*wait), GFP_KERNEL);
- 	if (!wait)
- 		return NULL;
- 
--	memset(wait, 0, sizeof(*wait));
--
- 	INIT_LIST_HEAD(&wait->list);
- 
- 	return wait;
-Index: linux-2.6/drivers/message/i2o/i2o_block.c
-===================================================================
---- linux-2.6.orig/drivers/message/i2o/i2o_block.c
-+++ linux-2.6/drivers/message/i2o/i2o_block.c
-@@ -64,7 +64,7 @@
- #include "i2o_block.h"
- 
- #define OSM_NAME	"block-osm"
--#define OSM_VERSION	"1.316"
-+#define OSM_VERSION	"1.325"
- #define OSM_DESCRIPTION	"I2O Block Device OSM"
- 
- static struct i2o_driver i2o_block_driver;
-@@ -981,13 +981,12 @@ static struct i2o_block_device *i2o_bloc
- 	struct request_queue *queue;
- 	int rc;
- 
--	dev = kmalloc(sizeof(*dev), GFP_KERNEL);
-+	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
- 	if (!dev) {
- 		osm_err("Insufficient memory to allocate I2O Block disk.\n");
- 		rc = -ENOMEM;
- 		goto exit;
- 	}
--	memset(dev, 0, sizeof(*dev));
- 
- 	INIT_LIST_HEAD(&dev->open_queue);
- 	spin_lock_init(&dev->lock);
-Index: linux-2.6/drivers/message/i2o/i2o_config.c
-===================================================================
---- linux-2.6.orig/drivers/message/i2o/i2o_config.c
-+++ linux-2.6/drivers/message/i2o/i2o_config.c
-@@ -583,13 +583,12 @@ static int i2o_cfg_passthru32(struct fil
- 	reply_size >>= 16;
- 	reply_size <<= 2;
- 
--	reply = kmalloc(reply_size, GFP_KERNEL);
-+	reply = kzalloc(reply_size, GFP_KERNEL);
- 	if (!reply) {
- 		printk(KERN_WARNING "%s: Could not allocate reply buffer\n",
- 		       c->name);
- 		return -ENOMEM;
- 	}
--	memset(reply, 0, reply_size);
- 
- 	sg_offset = (msg->u.head[0] >> 4) & 0x0f;
- 
-@@ -817,13 +816,12 @@ static int i2o_cfg_passthru(unsigned lon
- 	reply_size >>= 16;
- 	reply_size <<= 2;
- 
--	reply = kmalloc(reply_size, GFP_KERNEL);
-+	reply = kzalloc(reply_size, GFP_KERNEL);
- 	if (!reply) {
- 		printk(KERN_WARNING "%s: Could not allocate reply buffer\n",
- 		       c->name);
- 		return -ENOMEM;
- 	}
--	memset(reply, 0, reply_size);
- 
- 	sg_offset = (msg->u.head[0] >> 4) & 0x0f;
- 
 
---------------070905090704080200060108--
+

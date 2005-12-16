@@ -1,73 +1,168 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbVLPA6R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751243AbVLPBAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751232AbVLPA6R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 19:58:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbVLPA6R
+	id S1751243AbVLPBAk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 20:00:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbVLPBAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 19:58:17 -0500
-Received: from mout2.freenet.de ([194.97.50.155]:61321 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S1751232AbVLPA6Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 19:58:16 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: "Fri, 16 Dec 2005 01:08:02 +0100" <grundig@teleline.es>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Fri, 16 Dec 2005 01:57:48 +0100
-User-Agent: KMail/1.8.3
-References: <20051215212447.GR23349@stusta.de> <43A1E876.6050407@wolfmountaingroup.com> <20051216010802.ed7daadc.grundig@teleline.es>
-In-Reply-To: <20051216010802.ed7daadc.grundig@teleline.es>
-Cc: rlrevell@joe-job.com, bunk@stusta.de, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
+	Thu, 15 Dec 2005 20:00:40 -0500
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:58558 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751243AbVLPBAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 20:00:39 -0500
+Message-ID: <43A211A9.2060807@de.ibm.com>
+Date: Fri, 16 Dec 2005 02:00:25 +0100
+From: Martin Peschke <mp3@de.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Message-Id: <200512160157.49165.mbuesch@freenet.de>
-Content-Type: multipart/signed;
-  boundary="nextPart1455115.mUlZHbu71t";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Andi Kleen <ak@suse.de>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 5/6] statistics infrastructure
+References: <43A04C83.2070002@de.ibm.com> <p738xun8qxw.fsf@verdi.suse.de>
+In-Reply-To: <p738xun8qxw.fsf@verdi.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1455115.mUlZHbu71t
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Andi Kleen wrote:
 
-On Friday 16 December 2005 01:08, you wrote:
-> El Thu, 15 Dec 2005 15:04:38 -0700,
-> "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com> escribi=F3:
->=20
-> > apply to kernel code.  calls from several of our apps (which use
-> > larger than 4K kernel space on a stack) from user space crash -- so do=
-=20
-> > wireless drivers -- and kdb crashes as well with some bugs with 4K stac=
-ks
-> > turned on when you are trying to debug something.=20
->=20
-> If you (or other people) don't report those bugs, nobody else except
-> you will care about them, I'm afraid.
->=20
-> "My customer says it crashes but I don't want to report it publically".
-> What kind of excuse is that? O_o
+>Locks and indirect function calls? 
+>
+>It seems very wrong to me to make such heavy weight statistic functions.
+>Most likely you will disturb the performance whatever is being counted 
+>badly.
+>  
+>
+Well, that's a tradeoff between flexibility/function and performance.
 
-Your customer runs an -mm kernel on his production systems?
-Smash him.
-This is about removing 8k support in the -mm kernel, to
-find the remaining bugs (if there are any).
+I don't have any reliable numbers ready at hand. At least, doing I/O to 
+my SCSI devices with enabled statistics didn't feel bad.
 
-=2D-=20
-Greetings Michael.
+Here is the rational for both the indirect function call and the lock:
 
---nextPart1455115.mUlZHbu71t
-Content-Type: application/pgp-signature
+If a statistic is disabled (that's the default) neither is locking done 
+nor is a function called indirectly.
+So far so good, I would say.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+If a statistic is enabled the lock for this entity is grabbed and one 
+indirect function call is done.
+Anything else is inlined. I use granular per-interface (per-entity, for 
+example per-LUN or per-HBA) locking.
 
-iD8DBQBDohENlb09HEdWDKgRAqOBAJ97KDrezjnLgvSsPlCCPI0vu3qQmACdHkBi
-VV0Rh/lyT2ZvoH3tdzBZfSs=
-=HSC3
------END PGP SIGNATURE-----
+The indirect function call allows customization of the ways data 
+processing is done for particular statistics.
+For example, one could deflate a histogram of latencies into a counter 
+providing the total of latency measurements, that is the total of 
+requests observed; or inflate a statistic the other way around if required.
+Another example: one can make a statistic gather data for recurring 
+periods of time, like megabytes per seconds instead of just the total 
+amount of bytes transferred, or like queue utilization per 
+whatever-unit-of-time instead of just an overall utilization.
 
---nextPart1455115.mUlZHbu71t--
+A statistic that feeds on request sizes can be setup to provide the 
+following "views":
+- number of requests observed (counter)
+- number of requests per unit of time (history based on a counter)
+- number of bytes transfered (counter)
+- number of bytes transfered per unit of time = transfer rate (history 
+based on a counter)
+- traffic pattern (histogram for descrete request sizes or for ranges of 
+request sizes)
+- raw measurement data gathered
+- etc.
+
+As a device driver programmer I might pick a "view" a user is interested 
+in. My pick might miss by a mile. I simply don't know for sure beforehand.
+
+The indirect function call could be a replaced by a switch statement. 
+Not sure whether this is less critical and more acceptable than indirect 
+function calls. Might be architucture dependent.
+
+We can get rid of the indirect function call (or an alternative switch 
+statement) if the vote is against this level of flexibility.
+Then it would be solely up to the exploiter to define once and for all 
+whether a particular sort of data is shown as a simple counter, a 
+histogram, a fill level indicator, this history-type statistic thing in 
+a ringbuffer etc.
+This might be fine for a considerable number of cases.
+
+The lock is there to avoid trouble with concurrent updates to a 
+statistic. If per-CPU data was used, concurrent updates are fine as long 
+as they are done on different CPUs. Precautions for concurrent updates 
+to the same per-CPU is still needed, though.
+
+The current interface allows to use the lock this way:
+
+lock(stat_x->interface);
+statistics_inc_nolock(stat_x, y);
+statistics_inc_nolock(stat_m, n);
+statistics_add_nolock(stat_a, e, f);
+unlock(stat_x->interface);
+
+Because we hold the same lock when creating output for users, coherency 
+of several statistics of a single entity can be achieved if statistic 
+updates are done within one critical section as shown above.
+
+The lock is also used to make sure that updates to a statistic don't 
+happen while the setup of a statistic is changed by users. If we get rid 
+of the indirect function call, some of these setup changes go away, 
+anyway. Other cases, like statistic resets or inflating a 5-counter 
+histogram to a 25-counter histogram, don't go away. If I can figure out 
+how to reallocate, say, an array of counters for a histogram without 
+holding a lock while updates happen... Maybe I could temporarily turn of 
+a statistic.
+
+>Take a look at many other subsystems - they do per CPU counters etc.
+>to make this all fast.
+>  
+>
+I am looking into per CPU data.
+
+But, is this really required for _all_ statistics? I see that it makes 
+sense to have per CPU optimizations for very critical components, like 
+parts of VM. But there are still a lot of do-it-yourself type statistics 
+around that use an atomic_t, for example, without implementing it per CPU.
+
+Then, I am not sure yet whether per CPU data is feasible for histograms 
+and other more complex statistics. I have got to find out.
+
+I tried to write the code in a way that allows to add other statistic 
+type, like counters, histograms and so on, with moderate effort. Maybe I 
+can use the internal interface to plug in some disclipline based on per 
+CPU counters...
+
+>But it's still unclear why it would need such an heavyweight infrastructure.
+>Normally it's not that bad to reimplemented on the fly. Maybe some
+>common code can be refactored out of that, but probably not too much.
+>
+>[... lots of other code snipped ... ]
+>
+>Looks all very very overdesigned to me. How about you just start
+>with a minimum specification and describe what you want to do? 
+>  
+>
+As a device driver programmer I don't want to reinvent the wheel when 
+coding statistics. I would prefer to use a few and easy to use library 
+functions. I don't want to worry about getting my personal wheel being 
+functional. I'd rather use my time to worry about which kind of data is 
+really needed and which is not.
+
+I'd like to provide a tool that can be customized at run time to a 
+certain degree because it might not be acceptable for customers to 
+install private kernels in order to get tuned statistics.
+As a device driver programmer I can make an educated guess, at best, 
+about certain parameters that impact the processing of statistic data.
+Users might know better whether they need to focus on latencies from 2 
+ms up to 64 ms or  from 100 ms up to 500 ms, because this kind of 
+decisions depends on the environment to be measured, e.g. devices attached.
+
+In a device driver, I don't want to spent much thought about the 
+statistic's user interface. Particularly not if the statistic is a 
+little bit more complex than a simple counter. Would be really nice to 
+have a user interface that looks the same for all exploiters, i.e. to 
+have common output formats for counters, histograms, fill level 
+indicators etc.
+
+Martin
+

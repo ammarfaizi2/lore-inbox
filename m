@@ -1,45 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbVLPErw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbVLPFDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbVLPErw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 23:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbVLPErw
+	id S1751050AbVLPFDq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 00:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVLPFDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 23:47:52 -0500
-Received: from gate.crashing.org ([63.228.1.57]:14013 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932122AbVLPErw (ORCPT
+	Fri, 16 Dec 2005 00:03:45 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:53376 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751050AbVLPFDp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 23:47:52 -0500
-Subject: Re: [BUG] Xserver startup locks system... git bisect results
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Mark M. Hoffman" <mhoffman@lightlink.com>
-Cc: Paul Mackerras <paulus@samba.org>, LKML <linux-kernel@vger.kernel.org>,
-       Dave Airlie <airlied@linux.ie>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20051216035032.GA4026@jupiter.solarsys.private>
-References: <20051215043212.GA4479@jupiter.solarsys.private>
-	 <1134622384.16880.26.camel@gaston> <1134623242.16880.30.camel@gaston>
-	 <1134623748.16880.32.camel@gaston>
-	 <17313.12671.661715.211100@cargo.ozlabs.ibm.com>
-	 <20051216035032.GA4026@jupiter.solarsys.private>
-Content-Type: text/plain
-Date: Fri, 16 Dec 2005 15:43:10 +1100
-Message-Id: <1134708190.16880.59.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Fri, 16 Dec 2005 00:03:45 -0500
+Message-ID: <43A24A6F.5090907@us.ibm.com>
+Date: Thu, 15 Dec 2005 21:02:39 -0800
+From: Sridhar Samudrala <sri@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Dobson <colpatch@us.ibm.com>
+CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org, andrea@suse.de,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [RFC][PATCH 0/6] Critical Page Pool
+References: <439FCECA.3060909@us.ibm.com> <20051214100841.GA18381@elf.ucw.cz> <43A0406C.8020108@us.ibm.com> <20051215162601.GJ2904@elf.ucw.cz> <43A1E551.1090403@us.ibm.com>
+In-Reply-To: <43A1E551.1090403@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-15 at 22:50 -0500, Mark M. Hoffman wrote:
+Matthew Dobson wrote:
 
-> I added the printk's you (BH) asked for to Paul's patch, resulting in the
-> patch below.  It works fine so far.  Here's the relevant kernel log:
-
-Ok, sounds good, it's also the right way to go. However, Linus, don't
-merge that patch "as-is" as some chips have a bug with CONFIG_MEMSIZE
-being 0 instead of 8k. I'll send you a proper patch and I'll fix the
-remaining problems on X side (it's still bogus, though the DRM "fixes it
-up" now).
-
-Ben.
-
+>Pavel Machek wrote:
+>  
+>
+>>>>And as you noticed, it does not work for your original usage case,
+>>>>because reserved memory pool would have to be "sum of all network
+>>>>interface bandwidths * ammount of time expected to survive without
+>>>>network" which is way too much.
+>>>>        
+>>>>
+>>>Well, I never suggested it didn't work for my original usage case.  The
+>>>discussion we had is that it would be incredibly difficult to 100%
+>>>iron-clad guarantee that the pool would NEVER run out of pages.  But we can
+>>>size the pool, especially given a decent workload approximation, so as to
+>>>make failure far less likely.
+>>>      
+>>>
+>>Perhaps you should add file in Documentation/ explaining it is not
+>>reliable?
+>>    
+>>
+>
+>That's a good suggestion.  I will rework the patch's additions to
+>Documentation/sysctl/vm.txt to be more clear about exactly what we're
+>providing.
+>
+>
+>  
+>
+>>>>If you want few emergency pages for some strange hack you are doing
+>>>>(swapping over network?), just put swap into ramdisk and swapon() it
+>>>>when you are in emergency, or use memory hotplug and plug few more
+>>>>gigabytes into your machine. But don't go introducing infrastructure
+>>>>that _can't_ be used right.
+>>>>        
+>>>>
+>>>Well, that's basically the point of posting these patches as an RFC.  I'm
+>>>not quite so delusional as to think they're going to get picked up right
+>>>now.  I was, however, hoping for feedback to figure out how to design
+>>>infrastructure that *can* be used right, as well as trying to find other
+>>>potential users of such a feature.
+>>>      
+>>>
+>>Well, we don't usually take infrastructure that has no in-kernel
+>>users, and example user would indeed be nice.
+>>							Pavel
+>>    
+>>
+>
+>Understood.  I certainly wouldn't expect otherwise.  I'll see if I can get
+>Sridhar to post his networking changes that take advantage of this.
+>  
+>
+I have posted these patches yesterday on lkml and netdev and here is a 
+link to the thread.
+    http://thread.gmane.org/gmane.linux.kernel/357835
+  
+Thanks
+Sridhar
 

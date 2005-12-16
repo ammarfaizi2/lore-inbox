@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVLPNWD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbVLPN2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932168AbVLPNWD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 08:22:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932248AbVLPNWD
+	id S932241AbVLPN2e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 08:28:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932245AbVLPN2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 08:22:03 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:56593 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932168AbVLPNWB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 08:22:01 -0500
-Date: Fri, 16 Dec 2005 13:21:23 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: David Howells <dhowells@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, cfriesen@nortel.com,
-       torvalds@osdl.org, hch@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Message-ID: <20051216132123.GB1222@flint.arm.linux.org.uk>
-Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
-	David Howells <dhowells@redhat.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	cfriesen@nortel.com, torvalds@osdl.org, hch@infradead.org,
-	matthew@wil.cx, linux-kernel@vger.kernel.org,
-	linux-arch@vger.kernel.org
-References: <15167.1134488373@warthog.cambridge.redhat.com> <1134490205.11732.97.camel@localhost.localdomain> <1134556187.2894.7.camel@laptopd505.fenrus.org> <1134558188.25663.5.camel@localhost.localdomain> <1134558507.2894.22.camel@laptopd505.fenrus.org> <1134559470.25663.22.camel@localhost.localdomain> <20051214033536.05183668.akpm@osdl.org> <15412.1134561432@warthog.cambridge.redhat.com> <11202.1134730942@warthog.cambridge.redhat.com> <43A2BAA7.5000807@yahoo.com.au>
-Mime-Version: 1.0
+	Fri, 16 Dec 2005 08:28:34 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:42683 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S932241AbVLPN2d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 08:28:33 -0500
+Date: Fri, 16 Dec 2005 14:28:34 +0100
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, peter.oberparleiter@de.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: [patch 1/3] s390: fix invalid return code in sclp_cpi.
+Message-ID: <20051216132834.GB8877@skybase.boeblingen.de.ibm.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43A2BAA7.5000807@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 17, 2005 at 12:01:27AM +1100, Nick Piggin wrote:
-> You were proposing a worse default, which is the reason I suggested it.
+From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 
-I'd like to qualify that.  "for architectures with native cmpxchg".
+[patch 1/3] s390: fix invalid return code in sclp_cpi.
 
-For general consumption (not specifically related to mutex stuff)...
+When the sclp_cpi module is loaded on a system which does not
+support the required SCLP call (e.g. on z/VM), ENOSUPP is
+returned to user space. The correct return value is EOPNOTSUPP.
 
-For architectures with llsc, sequences stuch as:
+Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-	load
-	modify
-	cmpxchg
+---
 
-are inefficient because they have to be implemented as:
+ drivers/s390/char/sclp_cpi.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-	load
-	modify
-	load
-	compare
-	store conditional
-
-Now, if we consider using llsc as the basis of atomic operations:
-
-	load
-	modify
-	store conditional
-
-and for cmpxchg-based architectures:
-
-	load
-	modify
-	cmpxchg
-
-Notice that the cmpxchg-based case does _not_ get any worse - in fact
-it's exactly identical.  Note, however, that the llsc case becomes
-more efficient.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+diff -urpN linux-2.6/drivers/s390/char/sclp_cpi.c linux-2.6-patched/drivers/s390/char/sclp_cpi.c
+--- linux-2.6/drivers/s390/char/sclp_cpi.c	2005-10-28 02:02:08.000000000 +0200
++++ linux-2.6-patched/drivers/s390/char/sclp_cpi.c	2005-12-16 10:57:22.000000000 +0100
+@@ -204,7 +204,7 @@ cpi_module_init(void)
+ 		printk(KERN_WARNING "cpi: no control program identification "
+ 		       "support\n");
+ 		sclp_unregister(&sclp_cpi_event);
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 	}
+ 
+ 	req = cpi_prepare_req();

@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbVLPHq6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbVLPHtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbVLPHq6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 02:46:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbVLPHq6
+	id S932071AbVLPHtM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 02:49:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbVLPHtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 02:46:58 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:59864 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932171AbVLPHq6 (ORCPT
+	Fri, 16 Dec 2005 02:49:12 -0500
+Received: from smtpout.mac.com ([17.250.248.86]:18391 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932071AbVLPHtL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 02:46:58 -0500
-Date: Thu, 15 Dec 2005 23:46:26 -0800
-From: Jeremy Higdon <jeremy@sgi.com>
-To: Keith Owens <kaos@sgi.com>
-Cc: paulmck@us.ibm.com, Andi Kleen <ak@suse.de>,
-       ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com,
-       vatsa@in.ibm.com, Oleg Nesterov <oleg@tv-sign.ru>,
-       linux-kernel@vger.kernel.org, Dipankar Sarma <dipankar@in.ibm.com>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Semantics of smp_mb() [was : Re: [PATCH] Fix RCU race in access of nohz_cpu_mask ]
-Message-ID: <20051216074626.GB201289@sgi.com>
-References: <20051213162027.GA14158@us.ibm.com> <17158.1134512861@ocs3.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17158.1134512861@ocs3.ocs.com.au>
-User-Agent: Mutt/1.4.1i
+	Fri, 16 Dec 2005 02:49:11 -0500
+In-Reply-To: <20051216061605.46520.qmail@web50211.mail.yahoo.com>
+References: <20051216061605.46520.qmail@web50211.mail.yahoo.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <39B15930-235E-4E6A-817E-1F51BE17BC60@mac.com>
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Date: Fri, 16 Dec 2005 02:43:39 -0500
+To: Alex Davis <alex14641@yahoo.com>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier got this right.  The purpose of the mmiowb is
-to ensure that writes to I/O devices while holding a spinlock
-are ordered with respect to writes issued after the original
-processor releases and a second processor acquires said
-spinlock.
+On Dec 16, 2005, at 01:16, Alex Davis wrote:
+> [flamewar]
 
-A MMIO read would be sufficient, but is much heavier weight.
+Enough already!  These concerns have been raised already, and found  
+to be insufficient.  There are several points:
 
-On the SGI MIPS-based systems, the "sync" instruction was used.
-On the Altix systems, a register on the hub chip is read.
+1)	ndiswrapper is broken already, and works sheerly by luck anyways;  
+NT stacks are 12kb, so you're already asking for stack overflows by  
+using it.
+2)	ndiswrapper encourages use of binary drivers instead of the open- 
+source ones that need the testers, so you're only hurting yourselves  
+in the long run.
+3)	All the in-kernel problems have been fixed, and this makes a lot  
+of stuff less fragmentation-prone and more reliable.
 
->From comments by jejb, we're looking at modifying the mmiowb
-API by adding an argument which would be a register to read
-from if the architecture in question needs ordering in this
-way but does not have a lighter weight mechanism like the Altix
-mmiowb.  Since there will now need to be a width indication,
-mmiowb will be replaced with mmiowb[bwlq].
+Does anybody have any _in_kernel_ bugreports which are unaddressed,  
+or maybe something out-of-kernel that is not handled by the above  
+points?
 
-jeremy
+Cheers,
+Kyle Moffett
+
+--
+There is no way to make Linux robust with unreliable memory  
+subsystems, sorry.  It would be like trying to make a human more  
+robust with an unreliable O2 supply. Memory just has to work.
+   -- Andi Kleen
+
+

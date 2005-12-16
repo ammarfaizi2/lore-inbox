@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVLPLpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbVLPLpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbVLPLpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 06:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbVLPLpY
+	id S932209AbVLPLpH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 06:45:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbVLPLpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 06:45:24 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:24762 "EHLO
+	Fri, 16 Dec 2005 06:45:06 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:23738 "EHLO
 	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S932213AbVLPLpV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 06:45:21 -0500
-Subject: [PATCH] [5/6] Handle TIF_RESTORE_SIGMASK for i386
+	id S932209AbVLPLpC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 06:45:02 -0500
+Subject: [PATCH] [4/6] Handle TIF_RESTORE_SIGMASK for FRV
 From: David Woodhouse <dwmw2@infradead.org>
 To: akpm@osdl.org
 Cc: dhowells <dhowells@redhat.com>, linux-kernel@vger.kernel.org
 In-Reply-To: <1134732739.7104.54.camel@pmac.infradead.org>
 References: <1134732739.7104.54.camel@pmac.infradead.org>
 Content-Type: text/plain
-Date: Fri, 16 Dec 2005 11:45:11 +0000
-Message-Id: <1134733511.7104.99.camel@pmac.infradead.org>
+Date: Fri, 16 Dec 2005 11:44:55 +0000
+Message-Id: <1134733495.7104.98.camel@pmac.infradead.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -38,7 +38,7 @@ patch entitled:
 
 It does the following:
 
- (1) Declares TIF_RESTORE_SIGMASK for i386.
+ (1) Declares TIF_RESTORE_SIGMASK for FRV.
 
  (2) Invokes it over to do_signal() when TIF_RESTORE_SIGMASK is set.
 
@@ -55,45 +55,41 @@ It does the following:
 
  (7) Makes setup_frame(), setup_rt_frame() and handle_signal() return 0 or
      -EFAULT rather than true/false to be consistent with the rest of the
-     kernel.
+      kernel.
 
 Due to the fact do_signal() is then only called from one place:
 
- (8) Makes do_signal() no longer have a return value is it was just being
+ (8) Make do_signal() no longer have a return value is it was just being
      ignored; force_sig() takes care of this.
 
  (9) Discards the old sigmask argument to do_signal() as it's no longer
      necessary.
 
-(10) Makes do_signal() static.
-
-(11) Marks the second argument to do_notify_resume() as unused. The unused
-     argument should remain in the middle as the arguments are passed in as
-     registers, and the ordering is specific in entry.S
-
-Given the way do_signal() is now no longer called from sys_{,rt_}sigsuspend(),
-they no longer need access to the exception frame, and so can just take
-arguments normally.
-
-This patch depends on sys_rt_sigsuspend patch.
+This patch depends on the FRV signalling patches as well as the
+sys_rt_sigsuspend patch.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 Signed-Off-By: David Woodhouse <dwmw2@infradead.org>
 
- arch/i386/kernel/signal.c      |  109 ++++++++++++++++++-----------------------
- include/asm-i386/signal.h      |    1 
- include/asm-i386/thread_info.h |    2 
- include/asm-i386/unistd.h      |    1 
- 4 files changed, 51 insertions(+), 62 deletions(-)
+ arch/frv/kernel/signal.c      |  120 +++++++++++++++---------------------------
+ include/asm-frv/thread_info.h |    2 
+ include/asm-frv/unistd.h      |    1 
+ 3 files changed, 47 insertions(+), 76 deletions(-)
 
-diff -rup linux-2.6.15-rc5-mm3-pselect4/arch/i386/kernel/signal.c linux-2.6.15-rc5-mm3-pselect5/arch/i386/kernel/signal.c
---- linux-2.6.15-rc5-mm3-pselect4/arch/i386/kernel/signal.c	2005-10-28 01:02:08.000000000 +0100
-+++ linux-2.6.15-rc5-mm3-pselect5/arch/i386/kernel/signal.c	2005-12-16 11:09:59.000000000 +0000
-@@ -37,51 +37,17 @@
- asmlinkage int
- sys_sigsuspend(int history0, int history1, old_sigset_t mask)
+diff -rup linux-2.6.15-rc5-mm3-pselect3/arch/frv/kernel/signal.c linux-2.6.15-rc5-mm3-pselect4/arch/frv/kernel/signal.c
+--- linux-2.6.15-rc5-mm3-pselect3/arch/frv/kernel/signal.c	2005-12-16 10:56:08.000000000 +0000
++++ linux-2.6.15-rc5-mm3-pselect4/arch/frv/kernel/signal.c	2005-12-16 11:09:23.000000000 +0000
+@@ -35,74 +35,22 @@ struct fdpic_func_descriptor {
+ 	unsigned long	GOT;
+ };
+ 
+-static int do_signal(sigset_t *oldset);
+-
+ /*
+  * Atomically swap in the new signal mask, and wait for a signal.
+  */
+ asmlinkage int sys_sigsuspend(int history0, int history1, old_sigset_t mask)
  {
--	struct pt_regs * regs = (struct pt_regs *) &history0;
 -	sigset_t saveset;
 -
  	mask &= _BLOCKABLE;
@@ -104,25 +100,33 @@ diff -rup linux-2.6.15-rc5-mm3-pselect4/arch/i386/kernel/signal.c linux-2.6.15-r
  	recalc_sigpending();
  	spin_unlock_irq(&current->sighand->siglock);
  
--	regs->eax = -EINTR;
+-	__frame->gr8 = -EINTR;
 -	while (1) {
 -		current->state = TASK_INTERRUPTIBLE;
 -		schedule();
--		if (do_signal(regs, &saveset))
--			return -EINTR;
+-		if (do_signal(&saveset))
+-			/* return the signal number as the return value of this function
+-			 * - this is an utterly evil hack. syscalls should not invoke do_signal()
+-			 *   as entry.S sets regs->gr8 to the return value of the system call
+-			 * - we can't just use sigpending() as we'd have to discard SIG_IGN signals
+-			 *   and call waitpid() if SIGCHLD needed discarding
+-			 * - this only works on the i386 because it passes arguments to the signal
+-			 *   handler on the stack, and the return value in EAX is effectively
+-			 *   discarded
+-			 */
+-			return __frame->gr8;
 -	}
 -}
 -
--asmlinkage int
--sys_rt_sigsuspend(struct pt_regs regs)
+-asmlinkage int sys_rt_sigsuspend(sigset_t __user *unewset, size_t sigsetsize)
 -{
 -	sigset_t saveset, newset;
 -
 -	/* XXX: Don't preclude handling different sized sigset_t's.  */
--	if (regs.ecx != sizeof(sigset_t))
+-	if (sigsetsize != sizeof(sigset_t))
 -		return -EINVAL;
 -
--	if (copy_from_user(&newset, (sigset_t __user *)regs.ebx, sizeof(newset)))
+-	if (copy_from_user(&newset, unewset, sizeof(newset)))
 -		return -EFAULT;
 -	sigdelsetmask(&newset, ~_BLOCKABLE);
 -
@@ -132,12 +136,21 @@ diff -rup linux-2.6.15-rc5-mm3-pselect4/arch/i386/kernel/signal.c linux-2.6.15-r
 -	recalc_sigpending();
 -	spin_unlock_irq(&current->sighand->siglock);
 -
--	regs.eax = -EINTR;
+-	__frame->gr8 = -EINTR;
 -	while (1) {
 -		current->state = TASK_INTERRUPTIBLE;
 -		schedule();
--		if (do_signal(&regs, &saveset))
--			return -EINTR;
+-		if (do_signal(&saveset))
+-			/* return the signal number as the return value of this function
+-			 * - this is an utterly evil hack. syscalls should not invoke do_signal()
+-			 *   as entry.S sets regs->gr8 to the return value of the system call
+-			 * - we can't just use sigpending() as we'd have to discard SIG_IGN signals
+-			 *   and call waitpid() if SIGCHLD needed discarding
+-			 * - this only works on the i386 because it passes arguments to the signal
+-			 *   handler on the stack, and the return value in EAX is effectively
+-			 *   discarded
+-			 */
+-			return __frame->gr8;
 -	}
 +	current->state = TASK_INTERRUPTIBLE;
 +	schedule();
@@ -145,62 +158,61 @@ diff -rup linux-2.6.15-rc5-mm3-pselect4/arch/i386/kernel/signal.c linux-2.6.15-r
 +	return -ERESTARTNOHAND;
  }
  
- asmlinkage int 
-@@ -433,11 +399,11 @@ static int setup_frame(int sig, struct k
- 		current->comm, current->pid, frame, regs->eip, frame->pretcode);
+ asmlinkage int sys_sigaction(int sig,
+@@ -372,11 +320,11 @@ static int setup_frame(int sig, struct k
+ 	       frame->pretcode);
  #endif
  
 -	return 1;
 +	return 0;
  
  give_sigsegv:
- 	force_sigsegv(sig, current);
+ 	force_sig(SIGSEGV, current);
 -	return 0;
 +	return -EFAULT;
- }
  
- static int setup_rt_frame(int sig, struct k_sigaction *ka, siginfo_t *info,
-@@ -527,11 +493,11 @@ static int setup_rt_frame(int sig, struc
- 		current->comm, current->pid, frame, regs->eip, frame->pretcode);
+ } /* end setup_frame() */
+ 
+@@ -471,11 +419,11 @@ static int setup_rt_frame(int sig, struc
+ 	       frame->pretcode);
  #endif
  
 -	return 1;
 +	return 0;
  
  give_sigsegv:
- 	force_sigsegv(sig, current);
+ 	force_sig(SIGSEGV, current);
 -	return 0;
 +	return -EFAULT;
- }
  
- /*
-@@ -581,7 +547,7 @@ handle_signal(unsigned long sig, siginfo
+ } /* end setup_rt_frame() */
+ 
+@@ -516,7 +464,7 @@ static int handle_signal(unsigned long s
  	else
- 		ret = setup_frame(sig, ka, oldset, regs);
+ 		ret = setup_frame(sig, ka, oldset);
  
 -	if (ret) {
 +	if (ret == 0) {
  		spin_lock_irq(&current->sighand->siglock);
- 		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
- 		if (!(ka->sa.sa_flags & SA_NODEFER))
-@@ -598,11 +564,12 @@ handle_signal(unsigned long sig, siginfo
+ 		sigorsets(&current->blocked, &current->blocked,
+ 			  &ka->sa.sa_mask);
+@@ -536,10 +484,11 @@ static int handle_signal(unsigned long s
   * want to handle. Thus you cannot kill init even with a SIGKILL even by
   * mistake.
   */
--int fastcall do_signal(struct pt_regs *regs, sigset_t *oldset)
-+static void fastcall do_signal(struct pt_regs *regs)
+-static int do_signal(sigset_t *oldset)
++static void do_signal(void)
  {
- 	siginfo_t info;
- 	int signr;
  	struct k_sigaction ka;
+ 	siginfo_t info;
 +	sigset_t *oldset;
+ 	int signr;
  
  	/*
- 	 * We want the common case to go fast, which
-@@ -613,12 +580,14 @@ int fastcall do_signal(struct pt_regs *r
-  	 * CS suffices.
+@@ -549,43 +498,62 @@ static int do_signal(sigset_t *oldset)
+ 	 * if so.
  	 */
- 	if (!user_mode(regs))
+ 	if (!user_mode(__frame))
 -		return 1;
 +		return;
  
@@ -213,19 +225,11 @@ diff -rup linux-2.6.15-rc5-mm3-pselect4/arch/i386/kernel/signal.c linux-2.6.15-r
 +	else
  		oldset = &current->blocked;
  
- 	signr = get_signal_to_deliver(&info, &ka, regs, NULL);
-@@ -628,38 +597,55 @@ int fastcall do_signal(struct pt_regs *r
- 		 * have been cleared if the watchpoint triggered
- 		 * inside the kernel.
- 		 */
--		if (unlikely(current->thread.debugreg[7])) {
-+		if (unlikely(current->thread.debugreg[7]))
- 			set_debugreg(current->thread.debugreg[7], 7);
--		}
- 
- 		/* Whee!  Actually deliver the signal.  */
--		return handle_signal(signr, &info, &ka, oldset, regs);
-+		if (handle_signal(signr, &info, &ka, oldset, regs) == 0) {
+ 	signr = get_signal_to_deliver(&info, &ka, __frame, NULL);
+-	if (signr > 0)
+-		return handle_signal(signr, &info, &ka, oldset);
++	if (signr > 0) {
++		if (handle_signal(signr, &info, &ka, oldset) == 0) {
 +			/* a signal was successfully delivered; the saved
 +			 * sigmask will have been stored in the signal frame,
 +			 * and will be restored by sigreturn, so we can simply
@@ -235,108 +239,90 @@ diff -rup linux-2.6.15-rc5-mm3-pselect4/arch/i386/kernel/signal.c linux-2.6.15-r
 +		}
 +
 +		return;
- 	}
++	}
  
-- no_signal:
-+no_signal:
+ no_signal:
  	/* Did we come from a system call? */
- 	if (regs->orig_eax >= 0) {
+ 	if (__frame->syscallno >= 0) {
  		/* Restart the system call - no handlers present */
--		if (regs->eax == -ERESTARTNOHAND ||
--		    regs->eax == -ERESTARTSYS ||
--		    regs->eax == -ERESTARTNOINTR) {
-+		switch (regs->eax) {
+-		if (__frame->gr8 == -ERESTARTNOHAND ||
+-		    __frame->gr8 == -ERESTARTSYS ||
+-		    __frame->gr8 == -ERESTARTNOINTR) {
++		switch (__frame->gr8) {
 +		case -ERESTARTNOHAND:
 +		case -ERESTARTSYS:
 +		case -ERESTARTNOINTR:
- 			regs->eax = regs->orig_eax;
- 			regs->eip -= 2;
+ 			__frame->gr8 = __frame->orig_gr8;
+ 			__frame->pc -= 4;
 -		}
--		if (regs->eax == -ERESTART_RESTARTBLOCK){
 +			break;
-+
+ 
+-		if (__frame->gr8 == -ERESTART_RESTARTBLOCK){
 +		case -ERESTART_RESTARTBLOCK:
- 			regs->eax = __NR_restart_syscall;
- 			regs->eip -= 2;
+ 			__frame->gr8 = __NR_restart_syscall;
+ 			__frame->pc -= 4;
 +			break;
  		}
  	}
+ 
 -	return 0;
-+
 +	/* if there's no signal to deliver, we just put the saved sigmask
 +	 * back */
 +	if (test_thread_flag(TIF_RESTORE_SIGMASK)) {
 +		clear_thread_flag(TIF_RESTORE_SIGMASK);
 +		sigprocmask(SIG_SETMASK, &current->saved_sigmask, NULL);
 +	}
- }
  
+ } /* end do_signal() */
+ 
+ /*****************************************************************************/
  /*
   * notification of userspace execution resumption
 - * - triggered by current->work.notify_resume
 + * - triggered by the TIF_WORK_MASK flags
   */
- __attribute__((regparm(3)))
--void do_notify_resume(struct pt_regs *regs, sigset_t *oldset,
-+void do_notify_resume(struct pt_regs *regs, void *_unused,
- 		      __u32 thread_info_flags)
+ asmlinkage void do_notify_resume(__u32 thread_info_flags)
  {
- 	/* Pending single-step? */
-@@ -667,9 +653,10 @@ void do_notify_resume(struct pt_regs *re
- 		regs->eflags |= TF_MASK;
+@@ -594,7 +562,7 @@ asmlinkage void do_notify_resume(__u32 t
  		clear_thread_flag(TIF_SINGLESTEP);
- 	}
-+
+ 
  	/* deal with pending signal delivery */
 -	if (thread_info_flags & _TIF_SIGPENDING)
--		do_signal(regs,oldset);
+-		do_signal(NULL);
 +	if (thread_info_flags & (_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK))
-+		do_signal(regs);
- 	
- 	clear_thread_flag(TIF_IRET);
- }
-diff -rup linux-2.6.15-rc5-mm3-pselect4/include/asm-i386/signal.h linux-2.6.15-rc5-mm3-pselect5/include/asm-i386/signal.h
---- linux-2.6.15-rc5-mm3-pselect4/include/asm-i386/signal.h	2005-12-16 10:51:25.000000000 +0000
-+++ linux-2.6.15-rc5-mm3-pselect5/include/asm-i386/signal.h	2005-12-16 11:09:59.000000000 +0000
-@@ -218,7 +218,6 @@ static __inline__ int sigfindinword(unsi
- }
++		do_signal();
  
- struct pt_regs;
--extern int FASTCALL(do_signal(struct pt_regs *regs, sigset_t *oldset));
- 
- #define ptrace_signal_deliver(regs, cookie)		\
- 	do {						\
-diff -rup linux-2.6.15-rc5-mm3-pselect4/include/asm-i386/thread_info.h linux-2.6.15-rc5-mm3-pselect5/include/asm-i386/thread_info.h
---- linux-2.6.15-rc5-mm3-pselect4/include/asm-i386/thread_info.h	2005-10-28 01:02:08.000000000 +0100
-+++ linux-2.6.15-rc5-mm3-pselect5/include/asm-i386/thread_info.h	2005-12-16 11:09:59.000000000 +0000
-@@ -142,6 +142,7 @@ register unsigned long current_stack_poi
- #define TIF_SYSCALL_EMU		6	/* syscall emulation active */
- #define TIF_SYSCALL_AUDIT	7	/* syscall auditing active */
- #define TIF_SECCOMP		8	/* secure computing */
-+#define TIF_RESTORE_SIGMASK	9	/* restore signal mask in do_signal() */
+ } /* end do_notify_resume() */
+diff -rup linux-2.6.15-rc5-mm3-pselect3/include/asm-frv/thread_info.h linux-2.6.15-rc5-mm3-pselect4/include/asm-frv/thread_info.h
+--- linux-2.6.15-rc5-mm3-pselect3/include/asm-frv/thread_info.h	2005-12-16 10:51:25.000000000 +0000
++++ linux-2.6.15-rc5-mm3-pselect4/include/asm-frv/thread_info.h	2005-12-16 11:09:23.000000000 +0000
+@@ -131,6 +131,7 @@ register struct thread_info *__current_t
+ #define TIF_NEED_RESCHED	3	/* rescheduling necessary */
+ #define TIF_SINGLESTEP		4	/* restore singlestep on return to user mode */
+ #define TIF_IRET		5	/* return with iret */
++#define TIF_RESTORE_SIGMASK	6	/* restore signal mask in do_signal() */
  #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
- #define TIF_MEMDIE		17
+ #define TIF_MEMDIE		17	/* OOM killer killed process */
  
-@@ -154,6 +155,7 @@ register unsigned long current_stack_poi
- #define _TIF_SYSCALL_EMU	(1<<TIF_SYSCALL_EMU)
- #define _TIF_SYSCALL_AUDIT	(1<<TIF_SYSCALL_AUDIT)
- #define _TIF_SECCOMP		(1<<TIF_SECCOMP)
-+#define _TIF_RESTORE_SIGMASK	(1<<TIF_RESTORE_SIGMASK)
- #define _TIF_POLLING_NRFLAG	(1<<TIF_POLLING_NRFLAG)
+@@ -140,6 +141,7 @@ register struct thread_info *__current_t
+ #define _TIF_NEED_RESCHED	(1 << TIF_NEED_RESCHED)
+ #define _TIF_SINGLESTEP		(1 << TIF_SINGLESTEP)
+ #define _TIF_IRET		(1 << TIF_IRET)
++#define _TIF_RESTORE_SIGMASK	(1 << TIF_RESTORE_SIGMASK)
+ #define _TIF_POLLING_NRFLAG	(1 << TIF_POLLING_NRFLAG)
  
- /* work to do on interrupt/exception return */
-diff -rup linux-2.6.15-rc5-mm3-pselect4/include/asm-i386/unistd.h linux-2.6.15-rc5-mm3-pselect5/include/asm-i386/unistd.h
---- linux-2.6.15-rc5-mm3-pselect4/include/asm-i386/unistd.h	2005-12-16 10:56:18.000000000 +0000
-+++ linux-2.6.15-rc5-mm3-pselect5/include/asm-i386/unistd.h	2005-12-16 11:09:59.000000000 +0000
-@@ -420,6 +420,7 @@ __syscall_return(type,__res); \
- #define __ARCH_WANT_SYS_SIGPENDING
+ #define _TIF_WORK_MASK		0x0000FFFE	/* work to do on interrupt/exception return */
+diff -rup linux-2.6.15-rc5-mm3-pselect3/include/asm-frv/unistd.h linux-2.6.15-rc5-mm3-pselect4/include/asm-frv/unistd.h
+--- linux-2.6.15-rc5-mm3-pselect3/include/asm-frv/unistd.h	2005-10-28 01:02:08.000000000 +0100
++++ linux-2.6.15-rc5-mm3-pselect4/include/asm-frv/unistd.h	2005-12-16 11:09:23.000000000 +0000
+@@ -486,6 +486,7 @@ static inline pid_t wait(int * wait_stat
+ /* #define __ARCH_WANT_SYS_SIGPENDING */
  #define __ARCH_WANT_SYS_SIGPROCMASK
  #define __ARCH_WANT_SYS_RT_SIGACTION
 +#define __ARCH_WANT_SYS_RT_SIGSUSPEND
  #endif
  
- #ifdef __KERNEL_SYSCALLS__
-
+ /*
 
 -- 
 dwmw2

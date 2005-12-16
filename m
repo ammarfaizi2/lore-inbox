@@ -1,76 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbVLPRsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbVLPRvz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751319AbVLPRsk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 12:48:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVLPRsk
+	id S1751317AbVLPRvz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 12:51:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbVLPRvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 12:48:40 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:7615 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750741AbVLPRsj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 12:48:39 -0500
-Date: Fri, 16 Dec 2005 09:48:10 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Sridhar Samudrala <sri@us.ibm.com>
-Cc: "David S. Miller" <davem@davemloft.net>, mpm@selenic.com, ak@suse.de,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-Message-ID: <20051216094810.70082caa@dxpl.pdx.osdl.net>
-In-Reply-To: <1134698963.10101.43.camel@w-sridhar2.beaverton.ibm.com>
-References: <20051215033937.GC11856@waste.org>
-	<20051214.203023.129054759.davem@davemloft.net>
-	<Pine.LNX.4.58.0512142318410.7197@w-sridhar.beaverton.ibm.com>
-	<20051215.002120.133621586.davem@davemloft.net>
-	<1134698963.10101.43.camel@w-sridhar2.beaverton.ibm.com>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Fri, 16 Dec 2005 12:51:55 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.153]:34192 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751317AbVLPRvy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 12:51:54 -0500
+Date: Fri, 16 Dec 2005 09:52:01 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: akpm@osdl.org, Eric Dumazet <dada1@cosmosbay.com>,
+       linux-kernel@vger.kernel.org, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Simon Derr <Simon.Derr@bull.net>, Andi Kleen <ak@suse.de>,
+       Christoph Lameter <clameter@sgi.com>
+Subject: Re: [PATCH 04/04] Cpuset: skip rcu check if task is in root cpuset
+Message-ID: <20051216175201.GA24876@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051214084031.21054.13829.sendpatchset@jackhammer.engr.sgi.com> <20051214084049.21054.34108.sendpatchset@jackhammer.engr.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051214084049.21054.34108.sendpatchset@jackhammer.engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Dec 2005 18:09:22 -0800
-Sridhar Samudrala <sri@us.ibm.com> wrote:
-
-> On Thu, 2005-12-15 at 00:21 -0800, David S. Miller wrote:
-> > From: Sridhar Samudrala <sri@us.ibm.com>
-> > Date: Wed, 14 Dec 2005 23:37:37 -0800 (PST)
-> > 
-> > > Instead, you seem to be suggesting in_emergency to be set dynamically
-> > > when we are about to run out of ATOMIC memory. Is this right?
-> > 
-> > Not when we run out, but rather when we reach some low water mark, the
-> > "critical sockets" would still use GFP_ATOMIC memory but only
-> > "critical sockets" would be allowed to do so.
-> > 
-> > But even this has faults, consider the IPSEC scenerio I mentioned, and
-> > this applies to any kind of encapsulation actually, even simple
-> > tunneling examples can be concocted which make the "critical socket"
-> > idea fail.
-> > 
-> > The knee jerk reaction is "mark IPSEC's sockets critical, and mark the
-> > tunneling allocations critical, and... and..."  well you have
-> > GFP_ATOMIC then my friend.
+On Wed, Dec 14, 2005 at 12:40:49AM -0800, Paul Jackson wrote:
+> For systems that aren't using cpusets, but have them
+> CONFIG_CPUSET enabled in their kernel (eventually this
+> may be most distribution kernels), this patch removes
+> even the minimal rcu_read_lock() from the memory page
+> allocation path.
 > 
-> I would like to mention another reason why we need to have a new 
-> GFP_CRITICAL flag for an allocation request. When we are in emergency,
-> even the GFP_KERNEL allocations for a critical socket should not 
-> sleep. This is because the swap device may have failed and we would
-> like to communicate this event to a management server over the 
-> critical socket so that it can initiate the failover.
+> Actually, it removes that rcu call for any task that is
+> in the root cpuset (top_cpuset), which on systems not
+> actively using cpusets, is all tasks.
 > 
-> We are not trying to solve swapping over network problem. It is much
-> simpler. The critical sockets are to be used only to send/receive
-> a few critical messages reliably during a short period of emergency.
+> We don't need the rcu check for tasks in the top_cpuset,
+> because the top_cpuset is statically allocated, so at
+> no risk of being freed out from underneath us.
 > 
+> Signed-off-by: Paul Jackson <pj@sgi.com>
+> 
+> ---
+> 
+>  kernel/cpuset.c |   13 +++++++++----
+>  1 files changed, 9 insertions(+), 4 deletions(-)
+> 
+> --- 2.6.15-rc3-mm1.orig/kernel/cpuset.c	2005-12-13 18:14:42.529952708 -0800
+> +++ 2.6.15-rc3-mm1/kernel/cpuset.c	2005-12-13 20:54:26.323911532 -0800
+> @@ -647,10 +647,15 @@ void cpuset_update_task_memory_state()
+>  	struct task_struct *tsk = current;
+>  	struct cpuset *cs;
+>  
+> -	rcu_read_lock();
+> -	cs = rcu_dereference(tsk->cpuset);
+> -	my_cpusets_mem_gen = cs->mems_generation;
+> -	rcu_read_unlock();
+> +	if (tsk->cpuset == &top_cpuset) {
+> +		/* Don't need rcu for top_cpuset.  It's never freed. */
+> +		my_cpusets_mem_gen = top_cpuset.mems_generation;
+> +	} else {
+> +		rcu_read_lock();
+> +		cs = rcu_dereference(tsk->cpuset);
+> +		my_cpusets_mem_gen = cs->mems_generation;
+> +		rcu_read_unlock();
+> +	}
 
-If it is only one place, why not pre-allocate one "I'm sick now"
-skb and hold onto it. Any bigger solution seems to snowball into
-a huge mess.
+Hmmm...  In non-CONFIG_PREEMPT kernels on non-Alpha CPUs, rcu_read_lock(),
+rcu_read_unlock(), and rcu_reference() do nothing.  So in such cases, the
+above code will be slower than unconditionally using RCU read side.
 
+In CONFIG_PREEMPT kernels on non-Alpha CPUs, rcu_read_lock() and
+rcu_read_unlock() are private non-atomic increment and decrement,
+so are likely to be about the same cost as the branch.
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+In CONFIG_PREEMPT_RT kernels, this optimization would currently buy
+you something, but might not once we get rcu_read_lock() and
+rcu_read_unlock() more fully optimized.
+
+So I am not convinced that this optimization is worthwhile.
+
+							Thanx, Paul
+
+>  
+>  	if (my_cpusets_mem_gen != tsk->cpuset_mems_generation) {
+>  		down(&callback_sem);
+> 
+> -- 
+>                           I won't rest till it's the best ...
+>                           Programmer, Linux Scalability
+>                           Paul Jackson <pj@sgi.com> 1.650.933.1373
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 

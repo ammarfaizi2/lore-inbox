@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbVLPXOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbVLPXNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964908AbVLPXOb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 18:14:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbVLPXOR
+	id S964852AbVLPXNw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 18:13:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbVLPXNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 18:14:17 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:34268 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964821AbVLPXN0 (ORCPT
+	Fri, 16 Dec 2005 18:13:51 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46812 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964834AbVLPXNf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 18:13:26 -0500
-Date: Fri, 16 Dec 2005 23:13:07 GMT
-Message-Id: <200512162313.jBGND7g4019623@warthog.cambridge.redhat.com>
+	Fri, 16 Dec 2005 18:13:35 -0500
+Date: Fri, 16 Dec 2005 23:13:08 GMT
+Message-Id: <200512162313.jBGND8HD019639@warthog.cambridge.redhat.com>
 From: David Howells <dhowells@redhat.com>
 To: torvalds@osdl.org, akpm@osdl.org, mingo@redhat.com
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
 Fcc: outgoing
-Subject: [PATCH 1/12]: MUTEX: Implement mutexes
+Subject: [PATCH 9/12]: MUTEX: Rename DECLARE_MUTEX for net/ dir
 In-Reply-To: <dhowells1134774786@warthog.cambridge.redhat.com>
 References: <dhowells1134774786@warthog.cambridge.redhat.com>
 MIME-Version: 1.0
@@ -23,589 +23,415 @@ Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The attached patch introduces a simple mutex implementation as an alternative
-to the usual semaphore implementation where simple mutex functionality is all
-that is required.
-
-This is useful in two ways:
-
- (1) A number of archs only provide very simple atomic instructions (such as
-     XCHG on i386, TAS on M68K, SWAP on FRV) which aren't sufficient to
-     implement full semaphore support directly. Instead spinlocks must be
-     employed to implement fuller functionality.
-
- (2) This makes it more obvious that a mutex is a mutex and restricts the
-     capabilites to make it more easier to debug.
-
-This patch set does the following:
-
- (1) Renames DECLARE_MUTEX and DECLARE_MUTEX_LOCKED to be DECLARE_SEM_MUTEX and
-     DECLARE_SEM_MUTEX_LOCKED for counting semaphores.
-
- (2) Provides a wrapper around the counting semaphore to provide a default
-     mutex implementation with certain added debugging capabilities that aren't
-     appropriate for a counting semaphore due to the nature of such. The
-     type is:
-
-	struct mutex
-
-     Available mutex operations are:
-
-	mutex_init()
-	mutex_init_locked()
-	mutex_trylock()
-	mutex_lock()
-	mutex_lock_interruptible()
-	mutex_unlock()
-	mutex_is_locked()
-
-     Note that the trylock op has the opposite result logic to down_trylock,
-     but in keeping with rwsems and spinlocks it returns true on success. In
-     addition the following static initialisers are available:
-
-	DECLARE_MUTEX();
-	struct mutex name = MUTEX_UNLOCKED(name);
-
- (3) Provides an xchg() based mutex template selectable by setting
-     CONFIG_ARCH_XCHG_MUTEX that, by default, uses xchg() to manipulate the
-     state. This mutex only requires two states.
-
-     If something more appropriate is available, the use of xchg() may be
-     overridden by the arch by #defining the following macros in asm/system.h:
-
-	__mutex_trylock(mutex)
-	__mutex_release(mutex)
-	mutex_is_locked(mutex)
-
-     Furthermore the two state values involved may also be overridden by
-     #defining:
-
-	__MUTEX_STATE_UNLOCKED
-	__MUTEX_STATE_LOCKED
-
-
-     Overriding is possible by setting CONFIG_ARCH_IMPLEMENTS_MUTEX and
-     supplying asm/mutex.h
-
-     Partial overriding is possible by #defining mutex_grab(), mutex_release()
-     and is_mutex_locked() to perform the appropriate optimised functions.
-
- (4) Provides a cmpxchg() based semaphore template selectable by setting
-     CONFIG_ARCH_CMPXCHG_MUTEX that, by default, uses cmpxchg() to manipulate
-     the state. This mutex requires three states.
-
-     The use of cmpxchg() may be overridden by #defining the following macro in
-     asm/system.h:
-
-	__mutex_cmpxchg().
-
-     The macro should be able to deal with unsigned long values as it's used to
-     store the address of the thread info struct when mutex owner debugging is
-     enabled.
-
- (5) If the arch wishes to provide the entire mutex implementation itself, it
-     should set CONFIG_ARCH_IMPLEMENTS_MUTEX and provide asm/mutex.h.
-
- (6) Provides linux/mutex.h as a common include for gaining access to mutex
-     semaphores.
-
- (7) Provides a debugging config option CONFIG_DEBUG_MUTEX_OWNER by which the
-     mutex owner can be tracked and by which over-upping can be detected.
+The attached patch renames DECLARE_MUTEX*() to DECLARE_SEM_MUTEX*() for the
+net/ directory.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
-warthog>diffstat -p1 mutex-core-2615rc5-2.diff
- include/linux/mutex-cmpxchg.h |  109 ++++++++++++++++++++++++++
- include/linux/mutex-default.h |  127 +++++++++++++++++++++++++++++++
- include/linux/mutex-xchg.h    |  171 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/mutex.h         |   46 +++++++++++
- lib/Kconfig.debug             |    8 +
- 5 files changed, 461 insertions(+)
+warthog>diffstat -p1 mutex-net-2615rc5-2.diff
+ net/atm/ioctl.c                    |    2 +-
+ net/atm/resources.c                |    2 +-
+ net/bluetooth/rfcomm/core.c        |    2 +-
+ net/bridge/netfilter/ebtables.c    |    2 +-
+ net/core/dev.c                     |    2 +-
+ net/core/flow.c                    |    2 +-
+ net/core/pktgen.c                  |    2 +-
+ net/core/rtnetlink.c               |    2 +-
+ net/ipv4/ipcomp.c                  |    2 +-
+ net/ipv4/ipvs/ip_vs_app.c          |    2 +-
+ net/ipv4/ipvs/ip_vs_ctl.c          |    2 +-
+ net/ipv4/netfilter/arp_tables.c    |    2 +-
+ net/ipv4/netfilter/ip_queue.c      |    2 +-
+ net/ipv4/netfilter/ip_tables.c     |    2 +-
+ net/ipv4/netfilter/ipt_hashlimit.c |    2 +-
+ net/ipv4/xfrm4_tunnel.c            |    2 +-
+ net/ipv6/ipcomp6.c                 |    2 +-
+ net/ipv6/netfilter/ip6_queue.c     |    2 +-
+ net/ipv6/netfilter/ip6_tables.c    |    2 +-
+ net/ipv6/xfrm6_tunnel.c            |    2 +-
+ net/netfilter/nf_conntrack_core.c  |    2 +-
+ net/netfilter/nf_sockopt.c         |    2 +-
+ net/netfilter/nfnetlink.c          |    2 +-
+ net/netlink/genetlink.c            |    2 +-
+ net/socket.c                       |    6 +++---
+ net/sunrpc/cache.c                 |    2 +-
+ net/sunrpc/sched.c                 |    4 ++--
+ net/unix/garbage.c                 |    2 +-
+ net/xfrm/xfrm_policy.c             |    2 +-
+ 29 files changed, 32 insertions(+), 32 deletions(-)
 
-diff -uNrp linux-2.6.15-rc5/include/linux/mutex-cmpxchg.h linux-2.6.15-rc5-mutex/include/linux/mutex-cmpxchg.h
---- linux-2.6.15-rc5/include/linux/mutex-cmpxchg.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.15-rc5-mutex/include/linux/mutex-cmpxchg.h	2005-12-15 19:40:48.000000000 +0000
-@@ -0,0 +1,109 @@
-+/* mutex-cmpxchg.h: compare-and-exchange-based mutexes
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ *
-+ *
-+ * This requires the arch to define CONFIG_ARCH_CMPXCHG_MUTEX
-+ *
-+ * The arch must also provide a cmpxchg() capable of dealing with a long
-+ *
-+ * See kernel/mutex-cmpxchg.c for the slow-path implementation.
-+ */
-+#ifndef _LINUX_MUTEX_CMPXCHG_H
-+#define _LINUX_MUTEX_CMPXCHG_H
-+
-+#ifndef _LINUX_MUTEX_H
-+#error linux/mutex-cmpxchg.h should not be included directly; use linux/mutex.h instead
-+#endif
-+
-+#ifndef __ASSEMBLY__
-+
-+#include <linux/linkage.h>
-+#include <linux/wait.h>
-+#include <linux/spinlock.h>
-+#include <asm/system.h>
-+
-+/*
-+ * the mutex semaphore definition
-+ * - if state is 0, then the mutex is available
-+ * - if state is non-zero, then the mutex is busy and the state points to the
-+ *   owner if debugging
-+ *   - if the bottom bit is clear, then there are no waiters
-+ *   - if the bottom bit is set, then there are processes waiting for the mutex
-+ * - if wait_list is not empty, then there are processes waiting for the mutex
-+ */
-+struct mutex {
-+	volatile unsigned long	state;
-+	spinlock_t		wait_lock;
-+	struct list_head	wait_list;
-+};
-+
-+/*
-+ * attempt to exchange the state of the mutex for a different one
-+ */
-+#ifndef __mutex_cmpxchg
-+#define __mutex_cmpxchg(m, old, new) cmpxchg(&(m)->state, (old), (new))
-+#endif
-+
-+/*
-+ * mutex_is_locked() returns non-zero if the mutex is locked
-+ */
-+#define mutex_is_locked(mutex)	((mutex)->state)
-+
-+#ifdef CONFIG_DEBUG_MUTEX_OWNER
-+#define __mutex_owner() ((unsigned long) current_thread_info())
-+#else
-+#define __mutex_owner() 2UL
-+#endif
-+
-+#define MUTEX_UNLOCKED(name)					\
-+{								\
-+	.state		= 0,					\
-+	.wait_lock	= SPIN_LOCK_UNLOCKED,			\
-+	.wait_list	= LIST_HEAD_INIT((name).wait_list)	\
-+}
-+
-+#define DECLARE_MUTEX(name) \
-+	struct mutex name = MUTEX_UNLOCKED(name)
-+
-+static inline void __mutex_init(struct mutex *mutex, unsigned state)
-+{
-+	mutex->state = state;
-+	spin_lock_init(&mutex->wait_lock);
-+	INIT_LIST_HEAD(&mutex->wait_list);
-+}
-+
-+static inline void mutex_init(struct mutex *mutex)
-+{
-+	__mutex_init(mutex, 0);
-+}
-+
-+static inline void mutex_init_locked(struct mutex *mutex)
-+{
-+	__mutex_init(mutex, __mutex_owner());
-+}
-+
-+/*
-+ * attempt to grab the mutex without waiting for it to become available
-+ * - returns true if we acquired it
-+ */
-+static inline int mutex_trylock(struct mutex *mutex)
-+{
-+	unsigned long state = __mutex_owner();
-+
-+	return likely(__mutex_cmpxchg(mutex, 0, state) == 0);
-+}
-+
-+extern void fastcall mutex_lock(struct mutex *mutex);
-+extern int fastcall  mutex_lock_interruptible(struct mutex *mutex);
-+extern void fastcall mutex_unlock(struct mutex *mutex);
-+
-+
-+#endif /* __ASSEMBLY__ */
-+#endif /* _LINUX_MUTEX_CMPXCHG_H */
-diff -uNrp linux-2.6.15-rc5/include/linux/mutex-default.h linux-2.6.15-rc5-mutex/include/linux/mutex-default.h
---- linux-2.6.15-rc5/include/linux/mutex-default.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.15-rc5-mutex/include/linux/mutex-default.h	2005-12-16 17:41:27.000000000 +0000
-@@ -0,0 +1,127 @@
-+/* mutex-default.h: default mutex implementation: wrap semaphores
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+
-+#ifndef _LINUX_MUTEX_DEFAULT_H
-+#define _LINUX_MUTEX_DEFAULT_H
-+
-+#ifndef _LINUX_MUTEX_H
-+#error linux/mutex-cmpxchg.h should not be included directly; use linux/mutex.h instead
-+#endif
-+
-+#ifndef __ASSEMBLY__
-+
-+#include <asm/semaphore.h>
-+
-+/*
-+ * the mutex definition
-+ */
-+struct mutex {
-+	struct semaphore	sem;
-+#ifdef CONFIG_DEBUG_MUTEX_OWNER
-+	struct thread_info	*__owner;
-+#endif
-+};
-+
-+#ifdef CONFIG_DEBUG_MUTEX_OWNER
-+# define __MUTEX_OWNER_INIT(owner) , .__owner = NULL
-+#else
-+# define __MUTEX_OWNER_INIT(owner)
-+#endif
-+
-+#define MUTEX_UNLOCKED(name)				\
-+{							\
-+	.sem = __SEMAPHORE_INITIALIZER(name.sem, 1)	\
-+	__MUTEX_OWNER_INIT(owner)			\
-+}
-+
-+#define DECLARE_MUTEX(name) \
-+	struct mutex name = MUTEX_UNLOCKED(name)
-+
-+static inline void mutex_init(struct mutex *mutex)
-+{
-+	sema_init(&mutex->sem, 1);
-+}
-+
-+static inline void mutex_init_locked(struct mutex *mutex)
-+{
-+	sema_init(&mutex->sem, 0);
-+#ifdef CONFIG_DEBUG_MUTEX_OWNER
-+	mutex->__owner = current_thread_info();
-+#endif
-+}
-+
-+/*
-+ * attempt to grab the mutex without waiting for it to become available
-+ * - returns true if we acquired it
-+ */
-+static inline
-+int mutex_trylock(struct mutex *mutex)
-+{
-+	int successful = (down_trylock(&mutex->sem) == 0);
-+
-+#ifdef CONFIG_DEBUG_MUTEX_OWNER
-+	if (likely(successful))
-+		mutex->__owner = current_thread_info();
-+#endif
-+
-+	return successful;
-+}
-+
-+/*
-+ * fast path for attempting to grab the mutex
-+ */
-+static inline fastcall __sched
-+void mutex_lock(struct mutex *mutex)
-+{
-+	down(&mutex->sem);
-+#ifdef CONFIG_DEBUG_MUTEX_OWNER
-+	mutex->__owner = current_thread_info();
-+#endif
-+}
-+
-+/*
-+ * attempt to grab the mutex interruptibly
-+ */
-+static inline fastcall __sched
-+int mutex_lock_interruptible(struct mutex *mutex)
-+{
-+	int ret = down_interruptible(&mutex->sem);
-+
-+#ifdef CONFIG_DEBUG_MUTEX_OWNER
-+	if (unlikely(ret < 0))
-+		mutex->__owner = current_thread_info();
-+#endif
-+
-+	return ret;
-+}
-+
-+/*
-+ * unlock the mutex
-+ */
-+static inline fastcall __sched
-+void fastcall mutex_unlock(struct mutex *mutex)
-+{
-+#ifdef CONFIG_DEBUG_MUTEX_OWNER
-+	if (mutex->__owner != current_thread_info())
-+		BUG();
-+	mutex->__owner = NULL;
-+#endif
-+
-+	up(&mutex->sem);
-+}
-+
-+/*
-+ * see if the mutex is locked
-+ */
-+#define mutex_is_locked(mutex)	(sem_is_locked(&(mutex)->sem))
-+
-+#endif /* __ASSEMBLY__ */
-+#endif /* _LINUX_MUTEX_DEFAULT_H */
-diff -uNrp linux-2.6.15-rc5/include/linux/mutex-xchg.h linux-2.6.15-rc5-mutex/include/linux/mutex-xchg.h
---- linux-2.6.15-rc5/include/linux/mutex-xchg.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.15-rc5-mutex/include/linux/mutex-xchg.h	2005-12-16 17:20:27.000000000 +0000
-@@ -0,0 +1,171 @@
-+/* mutex-xchg.h: simple exchange-based mutexes
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ *
-+ *
-+ * This doesn't require the arch to do anything for straightforward xchg()
-+ * based mutexes
-+ *
-+ * If the sets CONFIG_ARCH_IMPLEMENTS_MUTEX then this implementation will not
-+ * be used, and the arch should supply asm/mutex.h.
-+ *
-+ * If the arch defines __mutex_trylock(), __mutex_release() and
-+ * mutex_is_locked() for itself, then those will be used to provide the
-+ * appropriate functionality.
-+ *
-+ * The arch may also override the mutex state values if it wishes.
-+ *
-+ * See kernel/mutex-xchg.c for the slow-path implementation.
-+ */
-+#ifndef _LINUX_MUTEX_XCHG_H
-+#define _LINUX_MUTEX_XCHG_H
-+
-+#ifndef _LINUX_MUTEX_H
-+#error linux/mutex-xchg.h should not be included directly; use linux/mutex.h instead
-+#endif
-+
-+#ifndef __ASSEMBLY__
-+
-+#include <linux/linkage.h>
-+#include <linux/wait.h>
-+#include <linux/spinlock.h>
-+#include <asm/system.h>
-+
-+/*
-+ * the values corresponding to the possible states of the mutex
-+ */
-+#ifndef __MUTEX_STATE_UNLOCKED
-+#define __MUTEX_STATE_UNLOCKED	0
-+#define __MUTEX_STATE_LOCKED	1
-+#endif
-+
-+/*
-+ * the mutex semaphore definition
-+ * - if state is 0, then the mutex is available
-+ * - if state is non-zero, then the mutex is locked
-+ * - if wait_list is not empty, then there are processes waiting for the mutex
-+ */
-+struct mutex {
-+	volatile int		state;
-+	spinlock_t		wait_lock;
-+	struct list_head	wait_list;
-+#ifdef CONFIG_DEBUG_MUTEX_OWNER
-+	struct thread_info	*__owner;
-+#endif
-+};
-+
-+#ifndef __mutex_trylock
-+/*
-+ * __mutex_trylock() attempts to grab the mutex and returns true if successful
-+ */
-+#define __mutex_trylock(mutex) \
-+	(xchg(&(mutex)->state, __MUTEX_STATE_LOCKED) == __MUTEX_STATE_UNLOCKED)
-+
-+/*
-+ * __mutex_release() releases the mutex
-+ */
-+#define __mutex_release(mutex) \
-+	do { (mutex)->state = __MUTEX_STATE_UNLOCKED; } while(0)
-+
-+/*
-+ * mutex_is_locked() returns true if the mutex is locked
-+ */
-+#define mutex_is_locked(mutex)	((mutex)->state == __MUTEX_STATE_LOCKED)
-+#endif
-+
-+#ifdef CONFIG_DEBUG_MUTEX_OWNER
-+# define __MUTEX_OWNER_INIT(owner) , .__owner = NULL
-+#else
-+# define __MUTEX_OWNER_INIT(owner)
-+#endif
-+
-+#define MUTEX_UNLOCKED(name)					\
-+{								\
-+	.state		= __MUTEX_STATE_UNLOCKED,		\
-+	.wait_lock	= SPIN_LOCK_UNLOCKED,			\
-+	.wait_list	= LIST_HEAD_INIT((name).wait_list)	\
-+	__MUTEX_OWNER_INIT(owner)				\
-+}
-+
-+#define DECLARE_MUTEX(name) \
-+	struct mutex name = MUTEX_UNLOCKED(name)
-+
-+static inline void __mutex_init(struct mutex *mutex, unsigned state)
-+{
-+	mutex->state = state;
-+	spin_lock_init(&mutex->wait_lock);
-+	INIT_LIST_HEAD(&mutex->wait_list);
-+#ifdef CONFIG_DEBUG_MUTEX_OWNER
-+	if (state == __MUTEX_STATE_LOCKED)
-+		mutex->__owner = current_thread_info();
-+	else
-+		mutex->__owner = NULL;
-+#endif
-+}
-+
-+static inline void mutex_init(struct mutex *mutex)
-+{
-+	__mutex_init(mutex, __MUTEX_STATE_UNLOCKED);
-+}
-+
-+static inline void mutex_init_locked(struct mutex *mutex)
-+{
-+	__mutex_init(mutex, __MUTEX_STATE_LOCKED);
-+}
-+
-+/*
-+ * attempt to grab the mutex without waiting for it to become available
-+ * - returns true if we acquired it
-+ */
-+static inline
-+int mutex_trylock(struct mutex *mutex)
-+{
-+	if (likely(__mutex_trylock(mutex))) {
-+		/* success */
-+#ifdef CONFIG_DEBUG_MUTEX_OWNER
-+		mutex->__owner = current_thread_info();
-+#endif
-+		return 1;
-+	}
-+
-+	/* failure */
-+	return 0;
-+}
-+
-+/*
-+ * slow paths
-+ */
-+extern void fastcall __mutex_lock(struct mutex *mutex);
-+extern int fastcall __mutex_lock_interruptible(struct mutex *mutex);
-+extern void fastcall mutex_unlock(struct mutex *mutex);
-+
-+/*
-+ * fast path for attempting to grab the mutex
-+ */
-+static inline fastcall __sched
-+void mutex_lock(struct mutex *mutex)
-+{
-+	if (!mutex_trylock(mutex))
-+		__mutex_lock(mutex);
-+}
-+
-+/*
-+ * fast path for attempting to grab the mutex interruptibly
-+ */
-+static inline fastcall __sched
-+int mutex_lock_interruptible(struct mutex *mutex)
-+{
-+	if (mutex_trylock(mutex))
-+		return 0;
-+
-+	return __mutex_lock_interruptible(mutex);
-+}
-+
-+#endif /* __ASSEMBLY__ */
-+#endif /* _LINUX_MUTEX_XCHG_H */
-diff -uNrp linux-2.6.15-rc5/include/linux/mutex.h linux-2.6.15-rc5-mutex/include/linux/mutex.h
---- linux-2.6.15-rc5/include/linux/mutex.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.15-rc5-mutex/include/linux/mutex.h	2005-12-16 17:40:46.000000000 +0000
-@@ -0,0 +1,46 @@
-+/* mutex.h: mutex implementation base
-+ *
-+ * Copyright (C) 2005 Red Hat, Inc. All Rights Reserved.
-+ * Written by David Howells (dhowells@redhat.com)
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of the GNU General Public License
-+ * as published by the Free Software Foundation; either version
-+ * 2 of the License, or (at your option) any later version.
-+ */
-+#ifndef _LINUX_MUTEX_H
-+#define _LINUX_MUTEX_H
-+
-+#include <linux/config.h>
-+
-+#if defined(CONFIG_ARCH_IMPLEMENTS_MUTEX)
-+/*
-+ * the arch wants to implement the whole mutex itself
-+ */
-+#include <asm/mutex.h>
-+
-+#elif defined(CONFIG_ARCH_CMPXCHG_MUTEX)
-+/*
-+ * use the compare-and-exchange based mutex template
-+ * - the arch may override __mutex_cmpxchg() to provide a long-sized cmpxchg()
-+ */
-+#include <linux/mutex-cmpxchg.h>
-+
-+#elif defined(CONFIG_ARCH_XCHG_MUTEX)
-+/*
-+ * use the simple two-state exchange based mutex template
-+ * - the arch may override __mutex_trylock(), __mutex_release() and mutex_is_locked()
-+ *   to use something other than xchg() by #defining __mutex_trylock
-+ * - __MUTEX_STATE_UNLOCKED and __MUTEX_STATE_LOCKED may also be overridden
-+ */
-+#include <linux/mutex-xchg.h>
-+
-+#else
-+/*
-+ * default counting semaphore wrapping mutex
-+ */
-+#include <linux/mutex-default.h>
-+
-+#endif
-+
-+#endif /* _LINUX_MUTEX_H */
-diff -uNrp linux-2.6.15-rc5/lib/Kconfig.debug linux-2.6.15-rc5-mutex/lib/Kconfig.debug
---- linux-2.6.15-rc5/lib/Kconfig.debug	2005-12-08 16:23:56.000000000 +0000
-+++ linux-2.6.15-rc5-mutex/lib/Kconfig.debug	2005-12-15 17:44:11.000000000 +0000
-@@ -111,6 +111,14 @@ config DEBUG_SPINLOCK_SLEEP
- 	  If you say Y here, various routines which may sleep will become very
- 	  noisy if they are called with a spinlock held.
+diff -uNrp linux-2.6.15-rc5/net/atm/ioctl.c linux-2.6.15-rc5-mutex/net/atm/ioctl.c
+--- linux-2.6.15-rc5/net/atm/ioctl.c	2005-11-01 13:19:23.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/atm/ioctl.c	2005-12-15 17:14:56.000000000 +0000
+@@ -24,7 +24,7 @@
+ #include "common.h"
  
-+config DEBUG_MUTEX_OWNER
-+	bool "Mutex owner tracking and checking"
-+	depends on DEBUG_KERNEL
-+	help
-+	  If you say Y here, the process currently owning a mutex will be
-+	  remembered, and a warning will be issued if anyone other than that
-+	  process releases it.
-+
- config DEBUG_KOBJECT
- 	bool "kobject debugging"
- 	depends on DEBUG_KERNEL
+ 
+-static DECLARE_MUTEX(ioctl_mutex);
++static DECLARE_SEM_MUTEX(ioctl_mutex);
+ static LIST_HEAD(ioctl_list);
+ 
+ 
+diff -uNrp linux-2.6.15-rc5/net/atm/resources.c linux-2.6.15-rc5-mutex/net/atm/resources.c
+--- linux-2.6.15-rc5/net/atm/resources.c	2005-12-08 16:23:56.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/atm/resources.c	2005-12-15 17:14:56.000000000 +0000
+@@ -25,7 +25,7 @@
+ 
+ 
+ LIST_HEAD(atm_devs);
+-DECLARE_MUTEX(atm_dev_mutex);
++DECLARE_SEM_MUTEX(atm_dev_mutex);
+ 
+ static struct atm_dev *__alloc_atm_dev(const char *type)
+ {
+diff -uNrp linux-2.6.15-rc5/net/bluetooth/rfcomm/core.c linux-2.6.15-rc5-mutex/net/bluetooth/rfcomm/core.c
+--- linux-2.6.15-rc5/net/bluetooth/rfcomm/core.c	2005-12-08 16:23:56.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/bluetooth/rfcomm/core.c	2005-12-15 17:14:56.000000000 +0000
+@@ -55,7 +55,7 @@
+ 
+ static struct task_struct *rfcomm_thread;
+ 
+-static DECLARE_MUTEX(rfcomm_sem);
++static DECLARE_SEM_MUTEX(rfcomm_sem);
+ #define rfcomm_lock()	down(&rfcomm_sem);
+ #define rfcomm_unlock()	up(&rfcomm_sem);
+ 
+diff -uNrp linux-2.6.15-rc5/net/bridge/netfilter/ebtables.c linux-2.6.15-rc5-mutex/net/bridge/netfilter/ebtables.c
+--- linux-2.6.15-rc5/net/bridge/netfilter/ebtables.c	2005-11-01 13:19:23.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/bridge/netfilter/ebtables.c	2005-12-15 17:14:56.000000000 +0000
+@@ -81,7 +81,7 @@ static void print_string(char *str)
+ 
+ 
+ 
+-static DECLARE_MUTEX(ebt_mutex);
++static DECLARE_SEM_MUTEX(ebt_mutex);
+ static LIST_HEAD(ebt_tables);
+ static LIST_HEAD(ebt_targets);
+ static LIST_HEAD(ebt_matches);
+diff -uNrp linux-2.6.15-rc5/net/core/dev.c linux-2.6.15-rc5-mutex/net/core/dev.c
+--- linux-2.6.15-rc5/net/core/dev.c	2005-12-08 16:23:56.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/core/dev.c	2005-12-15 17:14:56.000000000 +0000
+@@ -2902,7 +2902,7 @@ static void netdev_wait_allrefs(struct n
+  * 2) Since we run with the RTNL semaphore not held, we can sleep
+  *    safely in order to wait for the netdev refcnt to drop to zero.
+  */
+-static DECLARE_MUTEX(net_todo_run_mutex);
++static DECLARE_SEM_MUTEX(net_todo_run_mutex);
+ void netdev_run_todo(void)
+ {
+ 	struct list_head list = LIST_HEAD_INIT(list);
+diff -uNrp linux-2.6.15-rc5/net/core/flow.c linux-2.6.15-rc5-mutex/net/core/flow.c
+--- linux-2.6.15-rc5/net/core/flow.c	2005-11-01 13:19:23.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/core/flow.c	2005-12-15 17:14:56.000000000 +0000
+@@ -283,7 +283,7 @@ static void flow_cache_flush_per_cpu(voi
+ void flow_cache_flush(void)
+ {
+ 	struct flow_flush_info info;
+-	static DECLARE_MUTEX(flow_flush_sem);
++	static DECLARE_SEM_MUTEX(flow_flush_sem);
+ 
+ 	/* Don't want cpus going down or up during this. */
+ 	lock_cpu_hotplug();
+diff -uNrp linux-2.6.15-rc5/net/core/pktgen.c linux-2.6.15-rc5-mutex/net/core/pktgen.c
+--- linux-2.6.15-rc5/net/core/pktgen.c	2005-12-08 16:23:56.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/core/pktgen.c	2005-12-15 17:14:56.000000000 +0000
+@@ -491,7 +491,7 @@ static int pg_delay_d = 0;
+ static int pg_clone_skb_d = 0;
+ static int debug = 0;
+ 
+-static DECLARE_MUTEX(pktgen_sem);
++static DECLARE_SEM_MUTEX(pktgen_sem);
+ static struct pktgen_thread *pktgen_threads = NULL;
+ 
+ static struct notifier_block pktgen_notifier_block = {
+diff -uNrp linux-2.6.15-rc5/net/core/rtnetlink.c linux-2.6.15-rc5-mutex/net/core/rtnetlink.c
+--- linux-2.6.15-rc5/net/core/rtnetlink.c	2005-12-08 16:23:56.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/core/rtnetlink.c	2005-12-15 17:14:56.000000000 +0000
+@@ -51,7 +51,7 @@
+ #include <net/pkt_sched.h>
+ #include <net/netlink.h>
+ 
+-DECLARE_MUTEX(rtnl_sem);
++DECLARE_SEM_MUTEX(rtnl_sem);
+ 
+ void rtnl_lock(void)
+ {
+diff -uNrp linux-2.6.15-rc5/net/ipv4/ipcomp.c linux-2.6.15-rc5-mutex/net/ipv4/ipcomp.c
+--- linux-2.6.15-rc5/net/ipv4/ipcomp.c	2005-11-01 13:19:24.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/ipv4/ipcomp.c	2005-12-15 17:14:57.000000000 +0000
+@@ -35,7 +35,7 @@ struct ipcomp_tfms {
+ 	int users;
+ };
+ 
+-static DECLARE_MUTEX(ipcomp_resource_sem);
++static DECLARE_SEM_MUTEX(ipcomp_resource_sem);
+ static void **ipcomp_scratches;
+ static int ipcomp_scratch_users;
+ static LIST_HEAD(ipcomp_tfms_list);
+diff -uNrp linux-2.6.15-rc5/net/ipv4/ipvs/ip_vs_app.c linux-2.6.15-rc5-mutex/net/ipv4/ipvs/ip_vs_app.c
+--- linux-2.6.15-rc5/net/ipv4/ipvs/ip_vs_app.c	2005-12-08 16:23:56.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/ipv4/ipvs/ip_vs_app.c	2005-12-15 17:14:57.000000000 +0000
+@@ -40,7 +40,7 @@ EXPORT_SYMBOL(register_ip_vs_app_inc);
+ 
+ /* ipvs application list head */
+ static LIST_HEAD(ip_vs_app_list);
+-static DECLARE_MUTEX(__ip_vs_app_mutex);
++static DECLARE_SEM_MUTEX(__ip_vs_app_mutex);
+ 
+ 
+ /*
+diff -uNrp linux-2.6.15-rc5/net/ipv4/ipvs/ip_vs_ctl.c linux-2.6.15-rc5-mutex/net/ipv4/ipvs/ip_vs_ctl.c
+--- linux-2.6.15-rc5/net/ipv4/ipvs/ip_vs_ctl.c	2005-12-08 16:23:56.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/ipv4/ipvs/ip_vs_ctl.c	2005-12-15 17:14:57.000000000 +0000
+@@ -42,7 +42,7 @@
+ #include <net/ip_vs.h>
+ 
+ /* semaphore for IPVS sockopts. And, [gs]etsockopt may sleep. */
+-static DECLARE_MUTEX(__ip_vs_mutex);
++static DECLARE_SEM_MUTEX(__ip_vs_mutex);
+ 
+ /* lock for service table */
+ static DEFINE_RWLOCK(__ip_vs_svc_lock);
+diff -uNrp linux-2.6.15-rc5/net/ipv4/netfilter/arp_tables.c linux-2.6.15-rc5-mutex/net/ipv4/netfilter/arp_tables.c
+--- linux-2.6.15-rc5/net/ipv4/netfilter/arp_tables.c	2005-12-08 16:23:56.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/ipv4/netfilter/arp_tables.c	2005-12-15 17:14:57.000000000 +0000
+@@ -56,7 +56,7 @@ do {								\
+ #endif
+ #define SMP_ALIGN(x) (((x) + SMP_CACHE_BYTES-1) & ~(SMP_CACHE_BYTES-1))
+ 
+-static DECLARE_MUTEX(arpt_mutex);
++static DECLARE_SEM_MUTEX(arpt_mutex);
+ 
+ #define ASSERT_READ_LOCK(x) ARP_NF_ASSERT(down_trylock(&arpt_mutex) != 0)
+ #define ASSERT_WRITE_LOCK(x) ARP_NF_ASSERT(down_trylock(&arpt_mutex) != 0)
+diff -uNrp linux-2.6.15-rc5/net/ipv4/netfilter/ip_queue.c linux-2.6.15-rc5-mutex/net/ipv4/netfilter/ip_queue.c
+--- linux-2.6.15-rc5/net/ipv4/netfilter/ip_queue.c	2005-11-01 13:19:24.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/ipv4/netfilter/ip_queue.c	2005-12-15 17:14:57.000000000 +0000
+@@ -61,7 +61,7 @@ static unsigned int queue_dropped = 0;
+ static unsigned int queue_user_dropped = 0;
+ static struct sock *ipqnl;
+ static LIST_HEAD(queue_list);
+-static DECLARE_MUTEX(ipqnl_sem);
++static DECLARE_SEM_MUTEX(ipqnl_sem);
+ 
+ static void
+ ipq_issue_verdict(struct ipq_queue_entry *entry, int verdict)
+diff -uNrp linux-2.6.15-rc5/net/ipv4/netfilter/ip_tables.c linux-2.6.15-rc5-mutex/net/ipv4/netfilter/ip_tables.c
+--- linux-2.6.15-rc5/net/ipv4/netfilter/ip_tables.c	2005-12-08 16:23:56.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/ipv4/netfilter/ip_tables.c	2005-12-15 17:14:57.000000000 +0000
+@@ -63,7 +63,7 @@ do {								\
+ #endif
+ #define SMP_ALIGN(x) (((x) + SMP_CACHE_BYTES-1) & ~(SMP_CACHE_BYTES-1))
+ 
+-static DECLARE_MUTEX(ipt_mutex);
++static DECLARE_SEM_MUTEX(ipt_mutex);
+ 
+ /* Must have mutex */
+ #define ASSERT_READ_LOCK(x) IP_NF_ASSERT(down_trylock(&ipt_mutex) != 0)
+diff -uNrp linux-2.6.15-rc5/net/ipv4/netfilter/ipt_hashlimit.c linux-2.6.15-rc5-mutex/net/ipv4/netfilter/ipt_hashlimit.c
+--- linux-2.6.15-rc5/net/ipv4/netfilter/ipt_hashlimit.c	2005-11-01 13:19:24.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/ipv4/netfilter/ipt_hashlimit.c	2005-12-15 17:14:57.000000000 +0000
+@@ -92,7 +92,7 @@ struct ipt_hashlimit_htable {
+ };
+ 
+ static DEFINE_SPINLOCK(hashlimit_lock);	/* protects htables list */
+-static DECLARE_MUTEX(hlimit_mutex);	/* additional checkentry protection */
++static DECLARE_SEM_MUTEX(hlimit_mutex);	/* additional checkentry protection */
+ static HLIST_HEAD(hashlimit_htables);
+ static kmem_cache_t *hashlimit_cachep __read_mostly;
+ 
+diff -uNrp linux-2.6.15-rc5/net/ipv4/xfrm4_tunnel.c linux-2.6.15-rc5-mutex/net/ipv4/xfrm4_tunnel.c
+--- linux-2.6.15-rc5/net/ipv4/xfrm4_tunnel.c	2005-08-30 13:56:41.000000000 +0100
++++ linux-2.6.15-rc5-mutex/net/ipv4/xfrm4_tunnel.c	2005-12-15 17:14:57.000000000 +0000
+@@ -26,7 +26,7 @@ static int ipip_xfrm_rcv(struct xfrm_sta
+ }
+ 
+ static struct xfrm_tunnel *ipip_handler;
+-static DECLARE_MUTEX(xfrm4_tunnel_sem);
++static DECLARE_SEM_MUTEX(xfrm4_tunnel_sem);
+ 
+ int xfrm4_tunnel_register(struct xfrm_tunnel *handler)
+ {
+diff -uNrp linux-2.6.15-rc5/net/ipv6/ipcomp6.c linux-2.6.15-rc5-mutex/net/ipv6/ipcomp6.c
+--- linux-2.6.15-rc5/net/ipv6/ipcomp6.c	2005-12-08 16:23:56.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/ipv6/ipcomp6.c	2005-12-15 17:14:57.000000000 +0000
+@@ -56,7 +56,7 @@ struct ipcomp6_tfms {
+ 	int users;
+ };
+ 
+-static DECLARE_MUTEX(ipcomp6_resource_sem);
++static DECLARE_SEM_MUTEX(ipcomp6_resource_sem);
+ static void **ipcomp6_scratches;
+ static int ipcomp6_scratch_users;
+ static LIST_HEAD(ipcomp6_tfms_list);
+diff -uNrp linux-2.6.15-rc5/net/ipv6/netfilter/ip6_queue.c linux-2.6.15-rc5-mutex/net/ipv6/netfilter/ip6_queue.c
+--- linux-2.6.15-rc5/net/ipv6/netfilter/ip6_queue.c	2005-11-01 13:19:25.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/ipv6/netfilter/ip6_queue.c	2005-12-15 17:14:57.000000000 +0000
+@@ -65,7 +65,7 @@ static unsigned int queue_dropped = 0;
+ static unsigned int queue_user_dropped = 0;
+ static struct sock *ipqnl;
+ static LIST_HEAD(queue_list);
+-static DECLARE_MUTEX(ipqnl_sem);
++static DECLARE_SEM_MUTEX(ipqnl_sem);
+ 
+ static void
+ ipq_issue_verdict(struct ipq_queue_entry *entry, int verdict)
+diff -uNrp linux-2.6.15-rc5/net/ipv6/netfilter/ip6_tables.c linux-2.6.15-rc5-mutex/net/ipv6/netfilter/ip6_tables.c
+--- linux-2.6.15-rc5/net/ipv6/netfilter/ip6_tables.c	2005-12-08 16:23:57.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/ipv6/netfilter/ip6_tables.c	2005-12-15 17:14:57.000000000 +0000
+@@ -66,7 +66,7 @@ do {								\
+ #endif
+ #define SMP_ALIGN(x) (((x) + SMP_CACHE_BYTES-1) & ~(SMP_CACHE_BYTES-1))
+ 
+-static DECLARE_MUTEX(ip6t_mutex);
++static DECLARE_SEM_MUTEX(ip6t_mutex);
+ 
+ /* Must have mutex */
+ #define ASSERT_READ_LOCK(x) IP_NF_ASSERT(down_trylock(&ip6t_mutex) != 0)
+diff -uNrp linux-2.6.15-rc5/net/ipv6/xfrm6_tunnel.c linux-2.6.15-rc5-mutex/net/ipv6/xfrm6_tunnel.c
+--- linux-2.6.15-rc5/net/ipv6/xfrm6_tunnel.c	2005-11-01 13:19:25.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/ipv6/xfrm6_tunnel.c	2005-12-15 17:14:57.000000000 +0000
+@@ -359,7 +359,7 @@ static int xfrm6_tunnel_input(struct xfr
+ }
+ 
+ static struct xfrm6_tunnel *xfrm6_tunnel_handler;
+-static DECLARE_MUTEX(xfrm6_tunnel_sem);
++static DECLARE_SEM_MUTEX(xfrm6_tunnel_sem);
+ 
+ int xfrm6_tunnel_register(struct xfrm6_tunnel *handler)
+ {
+diff -uNrp linux-2.6.15-rc5/net/netfilter/nf_conntrack_core.c linux-2.6.15-rc5-mutex/net/netfilter/nf_conntrack_core.c
+--- linux-2.6.15-rc5/net/netfilter/nf_conntrack_core.c	2005-12-08 16:23:57.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/netfilter/nf_conntrack_core.c	2005-12-15 17:14:57.000000000 +0000
+@@ -180,7 +180,7 @@ static struct {
+ DEFINE_RWLOCK(nf_ct_cache_lock);
+ 
+ /* This avoids calling kmem_cache_create() with same name simultaneously */
+-DECLARE_MUTEX(nf_ct_cache_mutex);
++DECLARE_SEM_MUTEX(nf_ct_cache_mutex);
+ 
+ extern struct nf_conntrack_protocol nf_conntrack_generic_protocol;
+ struct nf_conntrack_protocol *
+diff -uNrp linux-2.6.15-rc5/net/netfilter/nf_sockopt.c linux-2.6.15-rc5-mutex/net/netfilter/nf_sockopt.c
+--- linux-2.6.15-rc5/net/netfilter/nf_sockopt.c	2005-11-01 13:19:25.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/netfilter/nf_sockopt.c	2005-12-15 17:14:56.000000000 +0000
+@@ -11,7 +11,7 @@
+ /* Sockopts only registered and called from user context, so
+    net locking would be overkill.  Also, [gs]etsockopt calls may
+    sleep. */
+-static DECLARE_MUTEX(nf_sockopt_mutex);
++static DECLARE_SEM_MUTEX(nf_sockopt_mutex);
+ static LIST_HEAD(nf_sockopts);
+ 
+ /* Do exclusive ranges overlap? */
+diff -uNrp linux-2.6.15-rc5/net/netfilter/nfnetlink.c linux-2.6.15-rc5-mutex/net/netfilter/nfnetlink.c
+--- linux-2.6.15-rc5/net/netfilter/nfnetlink.c	2005-12-08 16:23:57.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/netfilter/nfnetlink.c	2005-12-15 17:14:56.000000000 +0000
+@@ -53,7 +53,7 @@ static char __initdata nfversion[] = "0.
+ 
+ static struct sock *nfnl = NULL;
+ static struct nfnetlink_subsystem *subsys_table[NFNL_SUBSYS_COUNT];
+-DECLARE_MUTEX(nfnl_sem);
++DECLARE_SEM_MUTEX(nfnl_sem);
+ 
+ void nfnl_lock(void)
+ {
+diff -uNrp linux-2.6.15-rc5/net/netlink/genetlink.c linux-2.6.15-rc5-mutex/net/netlink/genetlink.c
+--- linux-2.6.15-rc5/net/netlink/genetlink.c	2005-12-08 16:23:57.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/netlink/genetlink.c	2005-12-15 17:14:56.000000000 +0000
+@@ -18,7 +18,7 @@
+ 
+ struct sock *genl_sock = NULL;
+ 
+-static DECLARE_MUTEX(genl_sem); /* serialization of message processing */
++static DECLARE_SEM_MUTEX(genl_sem); /* serialization of message processing */
+ 
+ static void genl_lock(void)
+ {
+diff -uNrp linux-2.6.15-rc5/net/socket.c linux-2.6.15-rc5-mutex/net/socket.c
+--- linux-2.6.15-rc5/net/socket.c	2005-11-01 13:19:26.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/socket.c	2005-12-15 17:14:56.000000000 +0000
+@@ -796,7 +796,7 @@ static ssize_t sock_writev(struct file *
+  * with module unload.
+  */
+ 
+-static DECLARE_MUTEX(br_ioctl_mutex);
++static DECLARE_SEM_MUTEX(br_ioctl_mutex);
+ static int (*br_ioctl_hook)(unsigned int cmd, void __user *arg) = NULL;
+ 
+ void brioctl_set(int (*hook)(unsigned int, void __user *))
+@@ -807,7 +807,7 @@ void brioctl_set(int (*hook)(unsigned in
+ }
+ EXPORT_SYMBOL(brioctl_set);
+ 
+-static DECLARE_MUTEX(vlan_ioctl_mutex);
++static DECLARE_SEM_MUTEX(vlan_ioctl_mutex);
+ static int (*vlan_ioctl_hook)(void __user *arg);
+ 
+ void vlan_ioctl_set(int (*hook)(void __user *))
+@@ -818,7 +818,7 @@ void vlan_ioctl_set(int (*hook)(void __u
+ }
+ EXPORT_SYMBOL(vlan_ioctl_set);
+ 
+-static DECLARE_MUTEX(dlci_ioctl_mutex);
++static DECLARE_SEM_MUTEX(dlci_ioctl_mutex);
+ static int (*dlci_ioctl_hook)(unsigned int, void __user *);
+ 
+ void dlci_ioctl_set(int (*hook)(unsigned int, void __user *))
+diff -uNrp linux-2.6.15-rc5/net/sunrpc/cache.c linux-2.6.15-rc5-mutex/net/sunrpc/cache.c
+--- linux-2.6.15-rc5/net/sunrpc/cache.c	2005-11-01 13:19:26.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/sunrpc/cache.c	2005-12-15 17:14:56.000000000 +0000
+@@ -532,7 +532,7 @@ void cache_clean_deferred(void *owner)
+  */
+ 
+ static DEFINE_SPINLOCK(queue_lock);
+-static DECLARE_MUTEX(queue_io_sem);
++static DECLARE_SEM_MUTEX(queue_io_sem);
+ 
+ struct cache_queue {
+ 	struct list_head	list;
+diff -uNrp linux-2.6.15-rc5/net/sunrpc/sched.c linux-2.6.15-rc5-mutex/net/sunrpc/sched.c
+--- linux-2.6.15-rc5/net/sunrpc/sched.c	2005-11-01 13:19:26.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/sunrpc/sched.c	2005-12-15 17:14:56.000000000 +0000
+@@ -64,7 +64,7 @@ static LIST_HEAD(all_tasks);
+ /*
+  * rpciod-related stuff
+  */
+-static DECLARE_MUTEX(rpciod_sema);
++static DECLARE_SEM_MUTEX(rpciod_sema);
+ static unsigned int		rpciod_users;
+ static struct workqueue_struct *rpciod_workqueue;
+ 
+@@ -971,7 +971,7 @@ void rpc_killall_tasks(struct rpc_clnt *
+ 	spin_unlock(&rpc_sched_lock);
+ }
+ 
+-static DECLARE_MUTEX_LOCKED(rpciod_running);
++static DECLARE_SEM_MUTEX_LOCKED(rpciod_running);
+ 
+ static void rpciod_killall(void)
+ {
+diff -uNrp linux-2.6.15-rc5/net/unix/garbage.c linux-2.6.15-rc5-mutex/net/unix/garbage.c
+--- linux-2.6.15-rc5/net/unix/garbage.c	2005-11-01 13:19:26.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/unix/garbage.c	2005-12-15 17:14:56.000000000 +0000
+@@ -169,7 +169,7 @@ static void maybe_unmark_and_push(struct
+ 
+ void unix_gc(void)
+ {
+-	static DECLARE_MUTEX(unix_gc_sem);
++	static DECLARE_SEM_MUTEX(unix_gc_sem);
+ 	int i;
+ 	struct sock *s;
+ 	struct sk_buff_head hitlist;
+diff -uNrp linux-2.6.15-rc5/net/xfrm/xfrm_policy.c linux-2.6.15-rc5-mutex/net/xfrm/xfrm_policy.c
+--- linux-2.6.15-rc5/net/xfrm/xfrm_policy.c	2005-12-08 16:23:57.000000000 +0000
++++ linux-2.6.15-rc5-mutex/net/xfrm/xfrm_policy.c	2005-12-15 17:14:57.000000000 +0000
+@@ -26,7 +26,7 @@
+ #include <net/xfrm.h>
+ #include <net/ip.h>
+ 
+-DECLARE_MUTEX(xfrm_cfg_sem);
++DECLARE_SEM_MUTEX(xfrm_cfg_sem);
+ EXPORT_SYMBOL(xfrm_cfg_sem);
+ 
+ static DEFINE_RWLOCK(xfrm_policy_lock);

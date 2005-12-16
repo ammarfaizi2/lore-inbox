@@ -1,57 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbVLPXhi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbVLPXkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbVLPXhi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 18:37:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVLPXhi
+	id S1750834AbVLPXkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 18:40:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751171AbVLPXkP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 18:37:38 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:9955 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1750823AbVLPXhh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 18:37:37 -0500
-Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051211000039.GR11190@wotan.suse.de>
-References: <1134154208.14363.8.camel@mindpipe> <439A0746.80208@mnsu.edu>
-	 <1134173138.18432.41.camel@mindpipe> <439A201D.7030103@mnsu.edu>
-	 <1134179410.18432.66.camel@mindpipe> <p73oe3ppbxj.fsf@verdi.suse.de>
-	 <1134191524.18432.82.camel@mindpipe> <20051210071935.GQ11190@wotan.suse.de>
-	 <1134243273.18432.104.camel@mindpipe>
-	 <20051211000039.GR11190@wotan.suse.de>
+	Fri, 16 Dec 2005 18:40:15 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:25305 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750834AbVLPXkN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 18:40:13 -0500
+Subject: Re: [ckrm-tech] Re: [RFC][patch 00/21] PID Virtualization:
+	Overview and Patches
+From: Hubertus Franke <frankeh@watson.ibm.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Gerrit Huizenga <gh@us.ibm.com>, Matt Helsley <matthltc@us.ibm.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LSE <lse-tech@lists.sourceforge.net>, vserver@list.linux-vserver.org,
+       Andrew Morton <akpm@osdl.org>, Rik van Riel <riel@redhat.com>,
+       pagg@oss.sgi.com
+In-Reply-To: <1134767454.19403.12.camel@localhost>
+References: <E1EnMSU-0004pH-00@w-gerrit.beaverton.ibm.com>
+	 <1134767454.19403.12.camel@localhost>
 Content-Type: text/plain
-Date: Fri, 16 Dec 2005 18:40:39 -0500
-Message-Id: <1134776439.19091.19.camel@mindpipe>
+Date: Fri, 16 Dec 2005 18:40:04 -0500
+Message-Id: <1134776404.28779.12.camel@elg11.watson.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.0.2 (2.0.2-22) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-12-11 at 01:00 +0100, Andi Kleen wrote:
-> > Here are the relevant lines of arch/x86_64/kernel/vmlinux.lds:
-> > 
-> >     382 OUTPUT_FORMAT("elf64-x86-64", "elf64-x86-64", "elf64-x86-64")
-> >     383 OUTPUT_ARCH(1:x86-64)
-> >     384 ENTRY(phys_startup_64)
-> > 
-> > Any ideas?  Another toolchain quirk?
+On Fri, 2005-12-16 at 13:10 -0800, Dave Hansen wrote:
+> On Fri, 2005-12-16 at 12:45 -0800, Gerrit Huizenga wrote:
+> > Interesting...  So how to tasks get *into* a container?
 > 
-> The original is 
+> Only by inheritance.  
+
+That is only true today. There is no reason (other then introducing
+some heavy code complexity (haven't thought about that) 
+why we can't at some point move a process group/tree into a container.
+The reason for this is that for the global container V=R in pid space
+terms (read the vpid=realpid). Moving an entire group into a container
+requires to assign new kernel pids to each task, while keeping the 
+the vpid part constant. Lots of kpid related references though..
+Don't know whether that's worth the trouble, particularly at this stage.
+
 > 
-> OUTPUT_ARCH(i386:x86-64)
+> > And can they ever get back "out" of a container?
 > 
-> It replaced the i386 with 1, which obviously doesn't work.
+> No.  Think of the pids again.  Even the "outside" of a container, things
+> like the real init, have to have unique pids.  What if the process's pid
+> is the same as one in use in the default container?
+
+Correct..look at my answer above  moving from global to container can be
+accomplished because in a fresh container all pids are available, so we
+can simply reoccupy the same vpids in the new pidspace. This keeps all
+user level "references" and pid values valid.
+The only way we could EVER go back is if we could guarantee that the
+pids the global space are free, hence they would have to be reserved.
+NOWAY.... particularly if migration is involved later on..
+
 > 
-> Try (full patch again) 
+> > Are most processes on the system
+> > initially not in a container?  And then they can be stuffed in a container?
+> > And then containers can be moved around or be isolated from each other?
+> 
+> The current idea is that processes are assigned at fork-time.  The
+> isolation is for the lifetime of the process.
+> 
+> > And, is pid virtualization the point where this happens?  Or is that
+> > a slightly higher level?  In other words, is pid virtualization the
+> > full implementation of container isolation?  Or is it a significant
+> > element on which additional policy, restrictions, and usage models
+> > can be built?
+> 
+> pid virtualization is simply the one that's easiest to understand, and
+> the one that demonstrates the largest number of issues.  It is a small
+> piece of the puzzle, but an important one.
 > 
 
-It still gives one error, at the final link step:
+Ditto..
 
-  LD      arch/x86_64/boot/compressed/vmlinux
-ld: warning: i386:x86-64 architecture of input file
-`arch/x86_64/boot/compressed/head.o' is incompatible with i386 output
-
-Lee
+> -- Dave
+> 
+> 
+-- 
+Hubertus Franke <frankeh@watson.ibm.com>
 

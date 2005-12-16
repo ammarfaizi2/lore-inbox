@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbVLPAEr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751149AbVLPAH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbVLPAEr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Dec 2005 19:04:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbVLPAEq
+	id S1751149AbVLPAH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Dec 2005 19:07:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbVLPAH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Dec 2005 19:04:46 -0500
-Received: from cantor.suse.de ([195.135.220.2]:53903 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750885AbVLPAEq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Dec 2005 19:04:46 -0500
-Date: Fri, 16 Dec 2005 01:04:45 +0100
-From: Andi Kleen <ak@suse.de>
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] [for 2.6.15] Fix dumb bug in mmconfig fix
-Message-ID: <20051216000445.GN15804@wotan.suse.de>
+	Thu, 15 Dec 2005 19:07:58 -0500
+Received: from smtp.terra.es ([213.4.129.129]:33643 "EHLO tsmtp2.mail.isp")
+	by vger.kernel.org with ESMTP id S1751149AbVLPAH6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Dec 2005 19:07:58 -0500
+Date: Fri, 16 Dec 2005 01:08:02 +0100
+From: "Fri, 16 Dec 2005 01:08:02 +0100" <grundig@teleline.es>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: rlrevell@joe-job.com, bunk@stusta.de, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-Id: <20051216010802.ed7daadc.grundig@teleline.es>
+In-Reply-To: <43A1E876.6050407@wolfmountaingroup.com>
+References: <20051215212447.GR23349@stusta.de>
+	<20051215140013.7d4ffd5b.akpm@osdl.org>
+	<20051215223000.GU23349@stusta.de>
+	<43A1DB18.4030307@wolfmountaingroup.com>
+	<1134688488.12086.172.camel@mindpipe>
+	<43A1E451.2090703@wolfmountaingroup.com>
+	<1134689197.12086.176.camel@mindpipe>
+	<43A1E876.6050407@wolfmountaingroup.com>
+X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.3; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+El Thu, 15 Dec 2005 15:04:38 -0700,
+"Jeff V. Merkey" <jmerkey@wolfmountaingroup.com> escribió:
 
-Use correct address when referencing mmconfig aperture while checking
-for broken MCFG.  This was a typo when porting the code from 64bit to 
-32bit.  It caused oopses at boot on some ThinkPads. 
+> apply to kernel code.  calls from several of our apps (which use
+> larger than 4K kernel space on a stack) from user space crash -- so do 
+> wireless drivers -- and kdb crashes as well with some bugs with 4K stacks
+> turned on when you are trying to debug something. 
 
-Should definitely go into 2.6.15.
+If you (or other people) don't report those bugs, nobody else except
+you will care about them, I'm afraid.
 
-Signed-off-by: Andi Kleen <ak@suse.de>
-
-Index: linux/arch/i386/pci/mmconfig.c
-===================================================================
---- linux.orig/arch/i386/pci/mmconfig.c
-+++ linux/arch/i386/pci/mmconfig.c
-@@ -155,7 +155,7 @@ static __init void unreachable_devices(v
- 		addr = get_base_addr(0, 0, PCI_DEVFN(i, 0));
- 		if (addr != 0)
- 			pci_exp_set_dev_base(addr, 0, PCI_DEVFN(i, 0));
--		if (addr == 0 || readl((u32 *)addr) != val1)
-+		if (addr == 0 || readl((u32 *)mmcfg_virt_addr) != val1)
- 			set_bit(i, fallback_slots);
- 		spin_unlock_irqrestore(&pci_config_lock, flags);
- 	}
-
+"My customer says it crashes but I don't want to report it publically".
+What kind of excuse is that? O_o

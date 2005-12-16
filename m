@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbVLPRF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbVLPRR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbVLPRF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 12:05:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbVLPRF6
+	id S932357AbVLPRR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 12:17:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932358AbVLPRR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 12:05:58 -0500
-Received: from mail.shareable.org ([81.29.64.88]:18878 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S1750715AbVLPRF6
+	Fri, 16 Dec 2005 12:17:26 -0500
+Received: from wproxy.gmail.com ([64.233.184.205]:35112 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932357AbVLPRRZ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 12:05:58 -0500
-Date: Fri, 16 Dec 2005 17:00:21 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: JANAK DESAI <janak@us.ibm.com>, viro@ftp.linux.org.uk, chrisw@osdl.org,
-       dwmw2@infradead.org, serue@us.ibm.com, mingo@elte.hu,
-       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 1/9] unshare system call: system call handler function
-Message-ID: <20051216170021.GA12495@mail.shareable.org>
-References: <1134513959.11972.167.camel@hobbs.atlanta.ibm.com> <m1k6e687e2.fsf@ebiederm.dsl.xmission.com> <43A1D435.5060602@us.ibm.com> <m1d5jy83nr.fsf@ebiederm.dsl.xmission.com> <43A24362.6000602@us.ibm.com> <20051216105048.GA32305@mail.shareable.org> <m1wti56wgw.fsf@ebiederm.dsl.xmission.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 16 Dec 2005 12:17:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=t0sC4msrSFxHqjJoBeKC3LVFOpJXmipwrF8C58NAsoiewuJvawZq2NBYLc9Tvfr+JT2HSELwcKfi+mWPY+TcSOAl74c8/PjeRYpZySp7dwpLXbDtjvDsEjDvtw1ky4ZsK4fWNLdYbkFoiilBwNDgar/UxF0owbjyVtl78XYpXAA=
+Message-ID: <170fa0d20512160917m7de06442x61bfbe3c3842fc2a@mail.gmail.com>
+Date: Fri, 16 Dec 2005 12:17:24 -0500
+From: Mike Snitzer <snitzer@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: [2.6 patch] i386: always use 4k stacks
+In-Reply-To: <170fa0d20512160902g26eefc2eua519617d3e760de@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <m1wti56wgw.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.1i
+References: <20051215212447.GR23349@stusta.de>
+	 <20051215140013.7d4ffd5b.akpm@osdl.org>
+	 <20051216141002.2b54e87d.diegocg@gmail.com>
+	 <1134751589.2992.43.camel@laptopd505.fenrus.org>
+	 <170fa0d20512160902g26eefc2eua519617d3e760de@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-> > Like clone(), unshare() will have to change from year to year, as new
-> > flags are added.  It would be good if the default behaviour of 0 bits
-> > to unshare() also did the right thing, so that programs compiled in
-> > 2006 still function as expected in 2010.  Hmm, this
-> > forward-compatibility does not look pretty.
-> 
-> Why all it requires is that whenever someone updates clone they update
-> unshare.  Given the tiniest bit of refactoring we should be
-> able to share all of the interesting code paths.
+---------- Forwarded message ----------
+From: Mike Snitzer <snitzer@gmail.com>
+Date: Dec 16, 2005 12:02 PM
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Diego Calleja <diegocg@gmail.com>, Andrew Morton <akpm@osdl.org>,
+bunk@stusta.de, linux-kernel@vger.kernel.org
 
-That only works if unshare() should always mean "unshare everything
-except specified things", including things that we currently don't
-unshare.
 
-I guess that is probably fine.  Anything that would break
-unshare()-using programs in future if it unshared by default, would be
-likely to break clone()-using programs too.  Is that right?  Any
-counterexamples?
 
--- Jamie
+On 12/16/05, Arjan van de Ven <arjan@infradead.org> wrote:
+>  On Fri, 2005-12-16 at 14:10 +0100, Diego Calleja wrote:
+> > El Thu, 15 Dec 2005 14:00:13 -0800,
+> > Andrew Morton <akpm@osdl.org> escribió:
+> >
+> >
+> > > Supporting 8k stacks is a small amount of code and nobody has seen a need
+> > > to make changes in there for quite a long time.  So there's little cost to
+> > > keeping the existing code.
+> > >
+> > > And the existing code is useful:
+> >
+> > Maybe this slighty different approach is better?
+> >
+> >
+> >
+> > Signed-off-by: Diego Calleja <diegocg@gmail.com>
+>
+>
+> I like this one; it makes the default 4K while leaving the 8K option for
+> those who really want it...
+>
+> Acked-by: Arjan van de Ven <arjan@infradead.org>
+
+ Any chance that IRQ stacks could be made available with 8K?  Set
+default to 4K but expose the _option_ for choice of 8K+IRQ stacks?  I
+realize it takes away from the fanatical push toward imposed 4K purity
+but Linux is really all about options.

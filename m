@@ -1,40 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932579AbVLQNSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbVLQOKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932579AbVLQNSK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 08:18:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932581AbVLQNSK
+	id S932582AbVLQOKt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 09:10:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932586AbVLQOKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 08:18:10 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:40090 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932579AbVLQNSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 08:18:09 -0500
-Date: Sat, 17 Dec 2005 13:18:07 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org, Matt Mackall <mpm@selenic.com>
-Subject: Re: remove CONFIG_UID16
-Message-ID: <20051217131807.GD13043@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
-	Matt Mackall <mpm@selenic.com>
-References: <20051217044410.GO23349@stusta.de>
-Mime-Version: 1.0
+	Sat, 17 Dec 2005 09:10:49 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:58890 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932582AbVLQOKs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 09:10:48 -0500
+Date: Sat, 17 Dec 2005 15:10:49 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Gerhard Mack <gmack@innerfire.net>, wli@holomorphy.com,
+       davem@davemloft.net, ecd@brainaid.de, jj@sunsite.ms.mff.cuni.cz,
+       anton@samba.org
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: [2.6 patch] on sparc{,64}, RTC must depend on PCI
+Message-ID: <20051217141049.GP23349@stusta.de>
+References: <Pine.LNX.4.64.0512160832350.995@innerfire.net> <20051216222154.GK23349@stusta.de> <Pine.LNX.4.64.0512161908460.20531@innerfire.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051217044410.GO23349@stusta.de>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <Pine.LNX.4.64.0512161908460.20531@innerfire.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 17, 2005 at 05:44:10AM +0100, Adrian Bunk wrote:
-> It seems noone noticed that CONFIG_UID16 was accidentially always 
-> disabled in the latest -mm kernels.
+On Fri, Dec 16, 2005 at 07:10:05PM -0500, Gerhard Mack wrote:
 > 
-> Is there any reason against removing it completely?
+> I always forget that for some reason.
+> If I disable CONFIG_RTC it compiles cleanly.
 
-Yes, it breaks backwards-compatilbity for not even that old binaries.
+That's expected since this is the driver that breaks the build.
 
-There's not way we're ever going to remove it.
+The patch below adds the dependency of CONFIG_RTC on CONFIG_PCI on the 
+sparc architecture.
+
+> 	Gerhard
+
+cu
+Adrian
+
+BTW: @sparc maintainers:
+     Is there any reason against introducing a SPARC Kconfig symbol
+     that is set on both the sparc and sparc64 architectures?
+
+
+<--  snip  -->
+
+
+On sparc and sparc64, the rtc driver doesn't compile with PCI support 
+disabled.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.14.4/drivers/char/Kconfig.old	2005-12-17 15:03:06.000000000 +0100
++++ linux-2.6.14.4/drivers/char/Kconfig	2005-12-17 15:03:33.000000000 +0100
+@@ -687,7 +687,7 @@
+ 
+ config RTC
+ 	tristate "Enhanced Real Time Clock Support"
+-	depends on !PPC32 && !PARISC && !IA64 && !M68K
++	depends on !PPC32 && !PARISC && !IA64 && !M68K && (!(SPARC32 || SPARC64) || PCI)
+ 	---help---
+ 	  If you say Y here and create a character special file /dev/rtc with
+ 	  major number 10 and minor number 135 using mknod ("man mknod"), you
+

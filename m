@@ -1,46 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbVLQDbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbVLQDdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964920AbVLQDbP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 22:31:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbVLQDbP
+	id S1751364AbVLQDdf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 22:33:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbVLQDdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 22:31:15 -0500
-Received: from solarneutrino.net ([66.199.224.43]:57862 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S1751364AbVLQDbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 22:31:14 -0500
-Date: Fri, 16 Dec 2005 22:31:06 -0500
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
-       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       ryan@tau.solarneutrino.net
-Subject: Re: Fw: crash on x86_64 - mm related?
-Message-ID: <20051217033106.GB20539@tau.solarneutrino.net>
-References: <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com> <20051206204336.GA12248@tau.solarneutrino.net> <Pine.LNX.4.61.0512071803300.2975@goblin.wat.veritas.com> <20051212165443.GD17295@tau.solarneutrino.net> <Pine.LNX.4.64.0512120928110.15597@g5.osdl.org> <1134409531.9994.13.camel@mulgrave> <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org> <1134411882.9994.18.camel@mulgrave> <20051215190930.GA20156@tau.solarneutrino.net> <1134705703.3906.1.camel@mulgrave>
+	Fri, 16 Dec 2005 22:33:35 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:3555 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751364AbVLQDdf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 22:33:35 -0500
+Subject: Re: 2.6.15-rc5-rt2 slowness
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: john stultz <johnstul@us.ibm.com>,
+       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <dnu8ku$ie4$1@sea.gmane.org>
+References: <dnu8ku$ie4$1@sea.gmane.org>
+Content-Type: text/plain
+Date: Fri, 16 Dec 2005 22:33:20 -0500
+Message-Id: <1134790400.13138.160.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1134705703.3906.1.camel@mulgrave>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 15, 2005 at 08:01:43PM -0800, James Bottomley wrote:
-> On Thu, 2005-12-15 at 14:09 -0500, Ryan Richter wrote:
-> > On Mon, Dec 12, 2005 at 12:24:42PM -0600, James Bottomley wrote:
-> > > I'll find a fix for the real problem, but this patch isn't the cause.
-> > 
-> > Is the patch set you posted yesterday supposed to fix this?  If so, is
-> > it available in patch form anywhere?
-> 
-> No, I've been too busin integrating other people's patches to work on
-> ones of my own.  Try this.
+Ingo,
 
-Thanks for the patch, I'm testing it now.  If this survives the next few
-days I'll leave it running while I'm away, otherwise testing will have
-to wait until the new year.
+After searching all over to find out where the slowness is, I finally
+discovered it.  It's the SLOB!
 
-Cheers,
--ryan
+I noticed a that a make install of the kernel over NFS took on
+2.6.15-rc5 ~26 seconds to complete, and on 2.6.15-rc5-rt2 it took almost
+2 minutes for the same operation on the same machine.
+
+I added my logdev device to record lots of output, and it found the
+place that is taking the longest:
+
+In 2.6.15-rc5-rt2:
+
+[  789.171773] cpu:0 kfree_skbmem:291 in
+[  789.171873] cpu:0 kfree_skbmem:295 1
+[  789.172357] cpu:0 kfree_skbmem:320 out
+
+in 2.6.15-rc5:
+
+[  343.253988] cpu:0 kfree_skbmem:291 in
+[  343.253990] cpu:0 kfree_skbmem:295 1
+[  343.253991] cpu:0 kfree_skbmem:320 out
+
+Here's the code for both systems (they are identical here):
+
+void kfree_skbmem(struct sk_buff *skb)
+{
+	struct sk_buff *other;
+	atomic_t *fclone_ref;
+
+	edprint("in");
+	skb_release_data(skb);
+	switch (skb->fclone) {
+	case SKB_FCLONE_UNAVAILABLE:
+	edprint("1");
+		kmem_cache_free(skbuff_head_cache, skb);
+		break;
+
+	case SKB_FCLONE_ORIG:
+	edprint("2");
+		fclone_ref = (atomic_t *) (skb + 2);
+		if (atomic_dec_and_test(fclone_ref))
+			kmem_cache_free(skbuff_fclone_cache, skb);
+		break;
+
+	case SKB_FCLONE_CLONE:
+	edprint("3");
+		fclone_ref = (atomic_t *) (skb + 1);
+		other = skb - 1;
+
+		/* The clone portion is available for
+		 * fast-cloning again.
+		 */
+		skb->fclone = SKB_FCLONE_UNAVAILABLE;
+
+		if (atomic_dec_and_test(fclone_ref))
+			kmem_cache_free(skbuff_fclone_cache, other);
+		break;
+	};
+	edprint("out");
+}
+
+My edprint records in a ring buffer (much like relayfs), and produces
+the above output.  The time in brackets is in seconds. We see the
+difference between "1" and "out" is greatly different.  (Note, I have a
+edprint in all interrupts, so I would know if one was taken, and these
+times are not a one time deal, but show up like this every time).
+
+So for 2.6.15-rc5 the time difference is 343.253991 - 343.253990 or
+1 usec, where as the time for 2.6.15-rc5-rt2 is 789.172357 - 789.171873
+or 484 usecs!  We're talking about a 48,400% increase here!
+
+The difference here is that the kmem_cache_free in rt is a SLOB where as
+the vanilla kernel still uses SLABs,  What's the rational for SLOB now?
+
+The patches used are here:
+
+For the logdev device:
+http://www.kihontech.com/logdev/logdev-2.6.15-rc5-rt2.patch
+http://www.kihontech.com/logdev/logdev-2.6.15-rc5.patch
+
+For debugging (on top of logdev):
+http://www.kihontech.com/logdev/debug-2.6.15-rc5-rt2.patch
+http://www.kihontech.com/logdev/debug-2.6.15-rc5.patch
+
+(I also added my patches previously posted to get it to compile and
+handle the softirq hrtimer problems).
+
+Thanks,
+
+-- Steve
+
+

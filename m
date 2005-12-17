@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbVLQDNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbVLQDYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751369AbVLQDNg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 22:13:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751368AbVLQDNg
+	id S964930AbVLQDYv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 22:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbVLQDYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 22:13:36 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:36251 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751365AbVLQDNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 22:13:35 -0500
-Date: Fri, 16 Dec 2005 22:13:14 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Joe Korty <joe.korty@ccur.com>, Thomas Gleixner <tglx@linutronix.de>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>, matthew@wil.cx,
-       arjan@infradead.org, Christoph Hellwig <hch@infradead.org>,
-       mingo@elte.hu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       nikita@clusterfs.com, pj@sgi.com, dhowells@redhat.com
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-In-Reply-To: <Pine.LNX.4.64.0512161647570.3698@g5.osdl.org>
-Message-ID: <Pine.LNX.4.58.0512162211320.6498@gandalf.stny.rr.com>
-References: <Pine.LNX.4.64.0512150945410.3292@g5.osdl.org>
- <20051215112115.7c4bfbea.akpm@osdl.org> <1134678532.13138.44.camel@localhost.localdomain>
- <Pine.LNX.4.62.0512152130390.16426@pademelon.sonytel.be>
- <1134769269.2806.17.camel@tglx.tec.linutronix.de> <Pine.LNX.4.64.0512161339140.3698@g5.osdl.org>
- <1134770778.2806.31.camel@tglx.tec.linutronix.de> <Pine.LNX.4.64.0512161414370.3698@g5.osdl.org>
- <1134772964.2806.50.camel@tglx.tec.linutronix.de> <Pine.LNX.4.64.0512161439330.3698@g5.osdl.org>
- <20051217002929.GA7151@tsunami.ccur.com> <Pine.LNX.4.64.0512161647570.3698@g5.osdl.org>
+	Fri, 16 Dec 2005 22:24:51 -0500
+Received: from mx1.rowland.org ([192.131.102.7]:7685 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S964913AbVLQDYv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 22:24:51 -0500
+Date: Fri, 16 Dec 2005 22:24:49 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Linus Torvalds <torvalds@g5.osdl.org>
+Subject: Re: [PATCH] UHCI: add missing memory barriers
+In-Reply-To: <1134777482.6102.9.camel@gaston>
+Message-ID: <Pine.LNX.4.44L0.0512162216580.15902-100000@netrider.rowland.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 17 Dec 2005, Benjamin Herrenschmidt wrote:
 
-On Fri, 16 Dec 2005, Linus Torvalds wrote:
->
-> On Fri, 16 Dec 2005, Joe Korty wrote:
-> >
-> > The Mars Pathfinder incident is sufficient proof that some solution to
-> > the priority inversion problem is required in real systems.
->
-> Ehh.
->
-> The Mars Pathfinder is just about the worst case "real system", and if I
-> recall correctly, the reason it was able to continue was _not_ because it
-> handled priority inversion, but because it reset itself every 24 hours or
-> something like that, and had debugging facilities..
->
-> The _real_ lesson you should take away from it is not that priority
-> inheritance is a good solution to priority inversion, but that having a
-> failsafe switch when everthing goes wrong is critical. You don't know
-> _what_ bug you'll encounter.
->
-> The bug itself could have been solved without priority inheritance,
-> although I think in this case enabling that in VxWorks was the particular
-> solution to the problem as being the least invasive.
->
-> Personally, I don't care what user space does. If some app wants to use
-> priority inheritance to solve its bugs, that's fine. But it's like
-> recursive locks: it's generally a _bandaid_ for bad locking. I definitely
-> don't want the kernel depending on either.
+> > This patch (as617) adds a couple of memory barriers that Ben H. forgot in
+> > his recent suspend/resume fix.
+> 
+> I didn't think they were necessary but they certainly won't hurt and
+> it's not a hot code path...
 
-So how does one handle real-time tasks that must contend with locks within
-the kernel that is shared with low priority tasks?  Do you prefer the RTAI
-approach?
+True.
 
--- Steve
+> >  	pci_write_config_word(to_pci_dev(uhci_dev(uhci)), USBLEGSUP, 0);
+> > +	mb();
+> 
+> Isn't pci config space access always fully synchronous ?
+
+If it is, it's not documented.
+
+Looking at the PCI code, I see that the accesses are protected by a 
+spinlock.  Does that guarantee in-order execution of writes to 
+configuration space with respect to writes to regular memory?  On all 
+platforms?  If yes, then this barrier is not needed.
+
+> > @@ -738,6 +739,7 @@ static int uhci_resume(struct usb_hcd *h
+> >  	 * really don't want to keep a stale HCD_FLAG_HW_ACCESSIBLE=0
+> >  	 */
+> >  	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
+> > +	mb();
+> 
+> I don't think that one matters much but it won't hurt for sure.
+
+Actually this one only needs to be smp_mb(), although the reasoning is a
+bit subtle.  Anyway, as you said, leaving the barriers in certainly won't
+hurt anything.
+
+Alan Stern
 

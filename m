@@ -1,57 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964895AbVLQUrf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbVLQUub@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964895AbVLQUrf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 15:47:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbVLQUrf
+	id S964955AbVLQUub (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 15:50:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVLQUub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 15:47:35 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:45469 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S964895AbVLQUre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 15:47:34 -0500
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-From: Arjan van de Ven <arjan@infradead.org>
-To: rol@witbe.net
-Cc: "'Kyle Moffett'" <mrmacman_g4@mac.com>, "'Andi Kleen'" <ak@suse.de>,
-       "'Adrian Bunk'" <bunk@stusta.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200512172023.jBHKNiD15808@tag.witbe.net>
-References: <200512172023.jBHKNiD15808@tag.witbe.net>
-Content-Type: text/plain
-Date: Sat, 17 Dec 2005 21:47:11 +0100
-Message-Id: <1134852432.2997.8.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 17 Dec 2005 15:50:31 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:47936 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S964955AbVLQUua convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 15:50:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jei2dnr7Tf7hjoBjlgJwn+f0WxM6/6XzQCmg5bAyVg+beidyOD0XzNr2JQlf/ycUKYcR8wEJ4CtHemkTfYybvgjo5aRdtlO2EAD15/EvHATxcCx8hdis/+AvnNZh0D+hjSaahZqg2n/JIp5hKKkVGBI95R0UYkD1Ug4CPfBwHEc=
+Message-ID: <5a4c581d0512171250j1572c086j4fa56c41d19fa0ae@mail.gmail.com>
+Date: Sat, 17 Dec 2005 21:50:29 +0100
+From: Alessandro Suardi <alessandro.suardi@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6.15-rc5-git3] hpet.c causes FC4 GCC 4.0.2 to bomb with unrecognizable insn
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051217123636.cdd53270.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <5a4c581d0512130507n698846ao719c389f3c3ee416@mail.gmail.com>
+	 <20051217123636.cdd53270.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-17 at 21:23 +0100, Paul Rolland wrote:
-> Hello,
-> 
-> > One comment on x86-64 vs. x86:  There are restrictions on where in  
-> > memory your process stacks can be located on a 32-bit 
-> > platform.  They  
-> > need to reside in lowmem, which means under certain circumstances  
-> > your lowmem can get too fragmented to create new processes even  
-> > though you still have a lot of available RAM.
-> 
-> But where does these restrictions come from ? As far as I know, stack
-> is referenced to by SS:ESP registers, and nothing in the x86 architecture
-> prevents them from pointing outside of lowmem... Isn't this simply a
-> Linux design restriction ?
+On 12/17/05, Andrew Morton <akpm@osdl.org> wrote:
+> Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
+> >
+> >  CC      drivers/char/hpet.o
+> > drivers/char/hpet.c: In function `hpet_calibrate':
+> > drivers/char/hpet.c:803: Unrecognizable insn:
+> > (insn/i 95 270 264 (parallel[
+> >             (set (reg:SI 0 eax)
+> >                 (asm_operands ("") ("=a") 0[
+> >                         (reg:DI 1 edx)
+> >                     ]
+> >                     [
+> >                         (asm_input:DI ("A"))
+> >                     ]  ("drivers/char/hpet.c") 452))
+> >             (set (reg:SI 1 edx)
+> >                 (asm_operands ("") ("=d") 1[
+> >                         (reg:DI 1 edx)
+> >                     ]
+> >                     [
+> >                         (asm_input:DI ("A"))
+> >                     ]  ("drivers/char/hpet.c") 452))
+> >             (clobber (reg:QI 19 dirflag))
+> >             (clobber (reg:QI 18 fpsr))
+> >             (clobber (reg:QI 17 flags))
+> >         ] ) -1 (insn_list 92 (nil))
+> >     (nil))
+> > drivers/char/hpet.c:803: confused by earlier errors, bailing out
+> > make[2]: *** [drivers/char/hpet.o] Error 1
+> > make[1]: *** [drivers/char] Error 2
+> > make: *** [drivers] Error 2
+> >
+>
+> Same compiler works OK here, so it's presumably "fixed" by some some good
+> .config luck.
+>
+> If we can find a decent workaround in-kernel it's worth putting it in.
+> It's quite possible that inlined hpet_time_div() - please try uninlining
+> it.
+>
 
-lowmem is a linux design restriction; only lowmem is directly
-addressable.
+Coincidence - I was about to post the fact that my earlier report
+ was due to a pilot error (TM).
 
-(also remember that you can have 36 bits of physical ram, but only 32
-bit in a pointer, so even if lowmem wasn't 870Mb itd be limited to 4Gb)
+I had installed the compat-gcc packages due to legacy software
+ which expected /usr/bin/gcc to be the FC2 2.96 GCC, then I
+ forgot to point /usr/bin/gcc back to FC4 4.0.2 GCC.
 
+So there is a compiler which bombs, but it's this one:
+
+[asuardi@sandman ~]$ /usr/bin/gcc296 -v
+Reading specs from /usr/lib/gcc-lib/i386-redhat-linux7/2.96/specs
+gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-126)
+
+Sorry for the false alarm about GCC 4.0.2. According to the
+ current Documentation/Changes the 2.96 compiler seems to
+ be expected to build these kernels, so perhaps there still is
+ something to be looked into.
+
+If anyone is interested I can try uninlining hpet_time_div()
+ and rebuild with 2.96 then report back.
+
+Thanks,
+
+--alessandro
+
+ "Somehow all you ever need is, never really quite enough, you know"
+
+   (Bruce Springsteen - "Reno")

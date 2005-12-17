@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbVLQASm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbVLQAYk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbVLQASm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 19:18:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbVLQASm
+	id S964876AbVLQAYk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 19:24:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932560AbVLQAYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 19:18:42 -0500
-Received: from [139.30.44.16] ([139.30.44.16]:11857 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S964791AbVLQASm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 19:18:42 -0500
-Date: Sat, 17 Dec 2005 01:18:38 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Vladimir Lazarenko <vlad@lazarenko.net>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: tulip on alpha ds10l 100MbpsFD problem
-In-Reply-To: <A77AD032-AA74-4F2E-B393-F18528BBEC81@lazarenko.net>
-Message-ID: <Pine.LNX.4.63.0512170110430.30990@gockel.physik3.uni-rostock.de>
-References: <A77AD032-AA74-4F2E-B393-F18528BBEC81@lazarenko.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 16 Dec 2005 19:24:40 -0500
+Received: from main.gmane.org ([80.91.229.2]:42465 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932552AbVLQAYj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 19:24:39 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>
+Subject: Re: 2.6.15-rc5-rt2 slowness
+Date: Sat, 17 Dec 2005 01:22:35 +0100
+Message-ID: <dnvlo7$5rm$1@sea.gmane.org>
+References: <dnu8ku$ie4$1@sea.gmane.org> <1134736325.13138.119.camel@localhost.localdomain> <1134773902.27117.14.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 212.117.85.179
+User-Agent: KNode/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Dec 2005, Vladimir Lazarenko wrote:
+john stultz wrote:
+> Do check that the slowness you're seeing isn't related to the
+> CONFIG_PARANIOD_GENERIC_TIME option being enabled. It is expected that
+> the extra checks made by that config option would slow things down a
+> bit.
 
-> Hello,
-> 
-> I'm trying to get this DS 10L going with Linux, and I hit the ceiling with the
-> onboard ethernet.
-> Whenever the device is in 10Mbps, and switch is in 10 Mbps, everything works
-> ok (half-duplex mode). Whenever I switch to 100Mbps, I'm not able to receive
-> packets. At all. Sending goes ok, i.e. I see DHCP requests on another server,
-> but nothing reaches the box when data is sent to it.
-> 
-> Similar behaviour with both de4x5 and tulip drivers.
+The first kernel I built which showed this behaviour had no debugging
+options enabled.
 
-Try to connect them to a different switch.
+It happens if the system is mostly idle, in this state "top" will show a
+kernel usage of 20%-50%, and as soon as something cpu intensive is started,
+the whole system becomes extremely unresponsive.
 
-I had the same problem with some XP1000s some years ago. It went away when 
-I connected them to a different switch. Since then, the machines have been 
-on four different switches, and only had the problem with one of them. 
-Strangely it was an expensive managed switch that didn't work, while two 
-el cheapo 8 port switches had no problems. Somewhere I read this was a 
-hardware bug of the cards.
+Greetings,
 
-Good luck!
-Tim
+  Gunter
+

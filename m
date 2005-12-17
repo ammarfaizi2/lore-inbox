@@ -1,99 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964955AbVLQUub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964948AbVLQUuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964955AbVLQUub (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 15:50:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbVLQUub
+	id S964948AbVLQUuE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 15:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbVLQUuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 15:50:31 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:47936 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964955AbVLQUua convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 15:50:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jei2dnr7Tf7hjoBjlgJwn+f0WxM6/6XzQCmg5bAyVg+beidyOD0XzNr2JQlf/ycUKYcR8wEJ4CtHemkTfYybvgjo5aRdtlO2EAD15/EvHATxcCx8hdis/+AvnNZh0D+hjSaahZqg2n/JIp5hKKkVGBI95R0UYkD1Ug4CPfBwHEc=
-Message-ID: <5a4c581d0512171250j1572c086j4fa56c41d19fa0ae@mail.gmail.com>
-Date: Sat, 17 Dec 2005 21:50:29 +0100
-From: Alessandro Suardi <alessandro.suardi@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [2.6.15-rc5-git3] hpet.c causes FC4 GCC 4.0.2 to bomb with unrecognizable insn
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051217123636.cdd53270.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sat, 17 Dec 2005 15:50:04 -0500
+Received: from solarneutrino.net ([66.199.224.43]:64006 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S964948AbVLQUuC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 15:50:02 -0500
+Date: Sat, 17 Dec 2005 14:45:53 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       ryan@tau.solarneutrino.net
+Subject: Re: lockd: couldn't create RPC handle for (host)
+Message-ID: <20051217194553.GE20539@tau.solarneutrino.net>
+References: <20051216205536.GA20497@tau.solarneutrino.net> <1134776945.7952.4.camel@lade.trondhjem.org> <20051216235841.GA20539@tau.solarneutrino.net> <1134797577.20929.2.camel@lade.trondhjem.org> <20051217055907.GC20539@tau.solarneutrino.net> <1134801822.7946.4.camel@lade.trondhjem.org> <20051217070222.GD20539@tau.solarneutrino.net> <1134847699.7950.25.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-References: <5a4c581d0512130507n698846ao719c389f3c3ee416@mail.gmail.com>
-	 <20051217123636.cdd53270.akpm@osdl.org>
+In-Reply-To: <1134847699.7950.25.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/17/05, Andrew Morton <akpm@osdl.org> wrote:
-> Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
-> >
-> >  CC      drivers/char/hpet.o
-> > drivers/char/hpet.c: In function `hpet_calibrate':
-> > drivers/char/hpet.c:803: Unrecognizable insn:
-> > (insn/i 95 270 264 (parallel[
-> >             (set (reg:SI 0 eax)
-> >                 (asm_operands ("") ("=a") 0[
-> >                         (reg:DI 1 edx)
-> >                     ]
-> >                     [
-> >                         (asm_input:DI ("A"))
-> >                     ]  ("drivers/char/hpet.c") 452))
-> >             (set (reg:SI 1 edx)
-> >                 (asm_operands ("") ("=d") 1[
-> >                         (reg:DI 1 edx)
-> >                     ]
-> >                     [
-> >                         (asm_input:DI ("A"))
-> >                     ]  ("drivers/char/hpet.c") 452))
-> >             (clobber (reg:QI 19 dirflag))
-> >             (clobber (reg:QI 18 fpsr))
-> >             (clobber (reg:QI 17 flags))
-> >         ] ) -1 (insn_list 92 (nil))
-> >     (nil))
-> > drivers/char/hpet.c:803: confused by earlier errors, bailing out
-> > make[2]: *** [drivers/char/hpet.o] Error 1
-> > make[1]: *** [drivers/char] Error 2
-> > make: *** [drivers] Error 2
-> >
->
-> Same compiler works OK here, so it's presumably "fixed" by some some good
-> .config luck.
->
-> If we can find a decent workaround in-kernel it's worth putting it in.
-> It's quite possible that inlined hpet_time_div() - please try uninlining
-> it.
->
+On Sat, Dec 17, 2005 at 02:28:19PM -0500, Trond Myklebust wrote:
+> On Sat, 2005-12-17 at 02:02 -0500, Ryan Richter wrote:
+> > > > There's no filtering between the two.  I get this on the machine itself:
+> > > > $ rpcinfo -u localhost 100021
+> > > > rpcinfo: RPC: Timed out
+> > > > program 100021 version 0 is not available
+> > > > zsh: exit 1     rpcinfo -u localhost 100021
+> > > > 
+> > > > There's no lockd process running on this client machine anymore.
+> > > 
+> > > ...yet the client still has the partition mounted, and isn't using the
+> > > -onolock option? That sounds weird.
+> > 
+> > There are lots of nfs mounts, the root is ro nolock, but the trouble is
+> > with the home directories which are rw lock.  Everything is still
+> > mounted, I can ssh in fine etc.  The problem is with people using kde -
+> > it tries to lock some file in the home directory during the login
+> > process and hangs.
+> 
+> So what do you mean when you say that there is "no lockd process
+> running" on the client?
+> 
+> Is it not appearing in the output of 'ps -ef' either?
 
-Coincidence - I was about to post the fact that my earlier report
- was due to a pilot error (TM).
+Nope.
 
-I had installed the compat-gcc packages due to legacy software
- which expected /usr/bin/gcc to be the FC2 2.96 GCC, then I
- forgot to point /usr/bin/gcc back to FC4 4.0.2 GCC.
+$ ps -ef|grep lock
+root        77     5  0 Nov20 ?        00:00:00 [kblockd/0]
+foo       6811  6800  0 14:29 pts/0    00:00:00 grep -E lock
 
-So there is a compiler which bombs, but it's this one:
+> Is anything at all listening on port 32768 on 'jacquere'? (check using
+> 'netstat -ap | grep 32768').
 
-[asuardi@sandman ~]$ /usr/bin/gcc296 -v
-Reading specs from /usr/lib/gcc-lib/i386-redhat-linux7/2.96/specs
-gcc version 2.96 20000731 (Red Hat Linux 7.3 2.96-126)
+Er... sort of?
 
-Sorry for the false alarm about GCC 4.0.2. According to the
- current Documentation/Changes the 2.96 compiler seems to
- be expected to build these kernels, so perhaps there still is
- something to be looked into.
+# netstat -ap | grep 32768
+udp    11144      0 *:32768                 *:*                                -                   
+I'm not sure what that means...  lsof|grep 32768 returns nothing.
 
-If anyone is interested I can try uninlining hpet_time_div()
- and rebuild with 2.96 then report back.
+> Could anything be playing around with the 'pmap_set' utility so as to
+> corrupt portmap?
+
+Not that I know of.
+
+> Are you perhaps setting /proc/sys/fs/nfs/nlm_udpport and/or the kernel
+> parameter nfs.nlm_udpport? If so, to what?
+
+Nope, that file contains a 0.  I can't think of anything that would be
+changing parameters like this.
+
+There are several identical workstations like this, and all the ones
+that are used regularly have lost their lockd.  There's one that's
+located in an inconvenient place and nobody ever uses it - this one
+still has lockd running.
 
 Thanks,
-
---alessandro
-
- "Somehow all you ever need is, never really quite enough, you know"
-
-   (Bruce Springsteen - "Reno")
+-ryan

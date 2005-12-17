@@ -1,52 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbVLQHC1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbVLQHFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbVLQHC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 02:02:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVLQHC1
+	id S1751370AbVLQHFP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 02:05:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVLQHFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 02:02:27 -0500
-Received: from solarneutrino.net ([66.199.224.43]:61190 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S1751159AbVLQHC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 02:02:26 -0500
-Date: Sat, 17 Dec 2005 02:02:22 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       ryan@tau.solarneutrino.net
-Subject: Re: lockd: couldn't create RPC handle for (host)
-Message-ID: <20051217070222.GD20539@tau.solarneutrino.net>
-References: <20051216205536.GA20497@tau.solarneutrino.net> <1134776945.7952.4.camel@lade.trondhjem.org> <20051216235841.GA20539@tau.solarneutrino.net> <1134797577.20929.2.camel@lade.trondhjem.org> <20051217055907.GC20539@tau.solarneutrino.net> <1134801822.7946.4.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Sat, 17 Dec 2005 02:05:14 -0500
+Received: from smtp101.sbc.mail.re2.yahoo.com ([68.142.229.104]:52140 "HELO
+	smtp101.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751365AbVLQHFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 02:05:13 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [PATCH] serial8250: convert to the new platform device interface
+Date: Sat, 17 Dec 2005 02:05:07 -0500
+User-Agent: KMail/1.8.3
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1134801822.7946.4.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+Message-Id: <200512170205.07926.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 17, 2005 at 01:43:42AM -0500, Trond Myklebust wrote:
-> On Sat, 2005-12-17 at 00:59 -0500, Ryan Richter wrote:
-> 
-> > There's no filtering between the two.  I get this on the machine itself:
-> > $ rpcinfo -u localhost 100021
-> > rpcinfo: RPC: Timed out
-> > program 100021 version 0 is not available
-> > zsh: exit 1     rpcinfo -u localhost 100021
-> > 
-> > There's no lockd process running on this client machine anymore.
-> 
-> ...yet the client still has the partition mounted, and isn't using the
-> -onolock option? That sounds weird.
+Do not use platform_device_register_simple() as it is going away.
+Also set up driver's owner to create link driver->module in sysfs. 
 
-There are lots of nfs mounts, the root is ro nolock, but the trouble is
-with the home directories which are rw lock.  Everything is still
-mounted, I can ssh in fine etc.  The problem is with people using kde -
-it tries to lock some file in the home directory during the login
-process and hangs.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-> Is the client also running 2.6.15-rc5?
+ drivers/serial/8250.c |   30 ++++++++++++++++++++----------
+ 1 files changed, 20 insertions(+), 10 deletions(-)
 
-No, 2.6.14.2.
-
--ryan
+Index: work/drivers/serial/8250.c
+===================================================================
+--- work.orig/drivers/serial/8250.c
++++ work/drivers/serial/8250.c
+@@ -2466,6 +2466,7 @@ static struct platform_driver serial8250
+ 	.resume		= serial8250_resume,
+ 	.driver		= {
+ 		.name	= "serial8250",
++		.owner	= THIS_MODULE,
+ 	},
+ };
+ 
+@@ -2603,21 +2604,30 @@ static int __init serial8250_init(void)
+ 	if (ret)
+ 		goto out;
+ 
+-	serial8250_isa_devs = platform_device_register_simple("serial8250",
+-					 PLAT8250_DEV_LEGACY, NULL, 0);
+-	if (IS_ERR(serial8250_isa_devs)) {
+-		ret = PTR_ERR(serial8250_isa_devs);
+-		goto unreg;
++	ret = platform_driver_register(&serial8250_isa_driver);
++	if (ret)
++		goto unreg_uart_drv;
++
++	serial8250_isa_devs = platform_device_alloc("serial8250",
++						    PLAT8250_DEV_LEGACY);
++	if (!serial8250_isa_devs) {
++		ret = -ENOMEM;
++		goto unreg_plat_drv;
+ 	}
+ 
++	ret = platform_device_add(serial8250_isa_devs);
++	if (ret)
++		goto put_dev;
++
+ 	serial8250_register_ports(&serial8250_reg, &serial8250_isa_devs->dev);
+ 
+-	ret = platform_driver_register(&serial8250_isa_driver);
+-	if (ret == 0)
+-		goto out;
++	goto out;
+ 
+-	platform_device_unregister(serial8250_isa_devs);
+- unreg:
++ put_dev:
++	platform_device_put(serial8250_isa_devs);
++ unreg_plat_drv:
++	platform_driver_unregister(&serial8250_isa_driver);
++ unreg_uart_drv:
+ 	uart_unregister_driver(&serial8250_reg);
+  out:
+ 	return ret;

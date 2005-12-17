@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbVLQNAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbVLQNIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932573AbVLQNAk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 08:00:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVLQNAk
+	id S932146AbVLQNIl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 08:08:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932577AbVLQNIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 08:00:40 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:46772 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S932573AbVLQNAj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 08:00:39 -0500
-Message-ID: <43A40BEA.4080603@drzeus.cx>
-Date: Sat, 17 Dec 2005 14:00:26 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.7-2.1.fc4.nr (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Secure Digital Host Controller PCI class
-References: <4381B364.2020808@drzeus.cx> <20051121214733.GA17793@suse.de> <4382B596.5080001@drzeus.cx> <20051122063904.GA24853@suse.de> <4382DF18.5040400@drzeus.cx> <438D61FD.3030700@drzeus.cx>
-In-Reply-To: <438D61FD.3030700@drzeus.cx>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Dec 2005 08:08:41 -0500
+Received: from smtp-out-02.utu.fi ([130.232.202.172]:53993 "EHLO
+	smtp-out-02.utu.fi") by vger.kernel.org with ESMTP id S932146AbVLQNIl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 08:08:41 -0500
+Date: Sat, 17 Dec 2005 15:08:38 +0200
+From: Jan Knutar <jk-lkml@sci.fi>
+Subject: Re: wrong SWAP values in top's output
+In-reply-to: <20051216090826.10626.qmail@web35007.mail.mud.yahoo.com>
+To: =?iso-8859-1?q?Jos=E9_Toneh?= <tohnehn@yahoo.com.br>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <200512171508.38912.jk-lkml@sci.fi>
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <20051216090826.10626.qmail@web35007.mail.mud.yahoo.com>
+User-Agent: KMail/1.6.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pierre Ossman wrote:
-> Pierre Ossman wrote:
-> 
->> Greg KH wrote:
->>
->>> I do have access to the PCI specs from the SIG website by virtue of my
->>> current employer, not by any recognition by the PCI-SIG that Linux is
->>> important at all...
->>>
->>> If you let me know what document you think this might be in, I'll dig
->>> around to see if I can find it.
->>>
->>>   
->>
->>
->> It's difficult to tell what is inside each document without being a
->> member. But this sounds promising:
->>
->> Appendix D -- Class codes updates
->> <http://www.pcisig.com/members/downloads/specifications/conventional/appd_latest.pdf>
->>
->> (61k PDF)
->> http://www.pcisig.com/members/downloads/specifications/conventional/appd_latest.pdf
->>
->>
-> 
-> Greg, have you had time to have a look at this? Just a reminder in case
-> you forgot (and before I do as well). :)
-> 
+On Friday 16 December 2005 11:08, you wrote:
 
-*poke again*
+>        463680  used swap
+
+>   PID %MEM  VIRT SWAP  RES CODE DATA  SHR nFLT nDRT S PR  NI %CPU COMMAND      
+> 18551 14.1  345m 273m  71m 1712 343m 101m 1373    0 S 5 -10  4.0 XFree86      
+> 25397 49.5  505m 255m 249m  164 505m  40m 3700    0 S 15   0  2.0 mozilla-bin  
+> 24759  0.5  236m 234m 2416   16 236m  54m  138    0 S 17   0  0.0 java_vm   
+
+Shared pages and similar?
+
+Seens like top's "SWAP" column is simply VIRT-RES.
+
+Let's not also forget that read-only executable code just gets discarded
+from memory, and not pushed to swap. If needed again, it gets read back
+in from the file.
+
+Oh, it's supposedly also bad to renice X to -10 with recent kernels ;-)
+

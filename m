@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbVLQC0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbVLQCbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751357AbVLQC0A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 21:26:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbVLQC0A
+	id S1751358AbVLQCbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 21:31:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbVLQCbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 21:26:00 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60891 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1751357AbVLQC0A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 21:26:00 -0500
-To: Jamie Lokier <jamie@shareable.org>
-Cc: JANAK DESAI <janak@us.ibm.com>, viro@ftp.linux.org.uk, chrisw@osdl.org,
-       dwmw2@infradead.org, serue@us.ibm.com, mingo@elte.hu,
-       linuxram@us.ibm.com, jmorris@namei.org, sds@tycho.nsa.gov,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm 1/9] unshare system call: system call handler
- function
-References: <1134513959.11972.167.camel@hobbs.atlanta.ibm.com>
-	<m1k6e687e2.fsf@ebiederm.dsl.xmission.com>
-	<43A1D435.5060602@us.ibm.com>
-	<m1d5jy83nr.fsf@ebiederm.dsl.xmission.com>
-	<43A24362.6000602@us.ibm.com>
-	<20051216105048.GA32305@mail.shareable.org>
-	<m1wti56wgw.fsf@ebiederm.dsl.xmission.com>
-	<20051216170021.GA12495@mail.shareable.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: Fri, 16 Dec 2005 19:23:33 -0700
-In-Reply-To: <20051216170021.GA12495@mail.shareable.org> (Jamie Lokier's
- message of "Fri, 16 Dec 2005 17:00:21 +0000")
-Message-ID: <m1slss797e.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+	Fri, 16 Dec 2005 21:31:08 -0500
+Received: from smtp113.sbc.mail.re2.yahoo.com ([68.142.229.92]:2386 "HELO
+	smtp113.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1751358AbVLQCbI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 21:31:08 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] Input: fix an OOPS in HID driver
+Date: Fri, 16 Dec 2005 21:31:04 -0500
+User-Agent: KMail/1.8.3
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512162131.04544.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> writes:
+Subject: 
 
-> Eric W. Biederman wrote:
->> > Like clone(), unshare() will have to change from year to year, as new
->> > flags are added.  It would be good if the default behaviour of 0 bits
->> > to unshare() also did the right thing, so that programs compiled in
->> > 2006 still function as expected in 2010.  Hmm, this
->> > forward-compatibility does not look pretty.
->> 
->> Why all it requires is that whenever someone updates clone they update
->> unshare.  Given the tiniest bit of refactoring we should be
->> able to share all of the interesting code paths.
->
-> That only works if unshare() should always mean "unshare everything
-> except specified things", including things that we currently don't
-> unshare.
->
-> I guess that is probably fine.  Anything that would break
-> unshare()-using programs in future if it unshared by default, would be
-> likely to break clone()-using programs too.  Is that right?  Any
-> counterexamples?
+This patch fixes an OOPS in HID driver when connecting simulation
+devices generating unknown simulation events.
 
-The only way I can see to confuse unshare is to add a clone
-flag and not implement it in unshare.    If there is enough
-in common between the implementations I don't see that being
-a problem.
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-Eric
+ drivers/usb/input/hid-input.c |    1 +
+ 1 files changed, 1 insertion(+)
+
+Index: work/drivers/usb/input/hid-input.c
+===================================================================
+--- work.orig/drivers/usb/input/hid-input.c
++++ work/drivers/usb/input/hid-input.c
+@@ -137,6 +137,7 @@ static void hidinput_configure_usage(str
+ 			switch (usage->hid & 0xffff) {
+ 				case 0xba: map_abs(ABS_RUDDER); break;
+ 				case 0xbb: map_abs(ABS_THROTTLE); break;
++				default:   goto unknown;
+ 			}
+ 			break;
+ 

@@ -1,36 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932630AbVLQSZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932598AbVLQS1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932630AbVLQSZK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 13:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932647AbVLQSZK
+	id S932598AbVLQS1d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 13:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932655AbVLQS1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 13:25:10 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:55584 "EHLO
-	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S932630AbVLQSZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 13:25:08 -0500
-Date: Sat, 17 Dec 2005 12:24:33 -0600
-From: Robert Hancock <hancockr@shaw.ca>
+	Sat, 17 Dec 2005 13:27:33 -0500
+Received: from 213-140-2-69.ip.fastwebnet.it ([213.140.2.69]:29657 "EHLO
+	aa002msg.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S932598AbVLQS1c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 13:27:32 -0500
+Date: Sat, 17 Dec 2005 19:27:45 +0100
+From: Mattia Dongili <malattia@linux.it>
+To: Claudio Scordino <cloud.of.andor@gmail.com>
+Cc: cpufreq@lists.linux.org.uk, kernelnewbies@nl.linux.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: Help: Using cpufreq from kernel level
-In-reply-to: <5kOPa-5vo-23@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <43A457E1.9090909@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <5kOPa-5vo-23@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+Message-ID: <20051217182744.GB7339@inferi.kami.home>
+Mail-Followup-To: Claudio Scordino <cloud.of.andor@gmail.com>,
+	cpufreq@lists.linux.org.uk, kernelnewbies@nl.linux.org,
+	linux-kernel@vger.kernel.org
+References: <200512171310.34014.cloud.of.andor@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200512171310.34014.cloud.of.andor@gmail.com>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.15-rc5-mm3-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Claudio Scordino wrote:
+On Sat, Dec 17, 2005 at 01:10:33PM -0500, Claudio Scordino wrote:
 > Hi all,
 > 
 >    I'm writing a kernel module that needs to get info about the available 
 > frequencies on the current processor and to periodically change the current 
 > frequency.
-> 
+
+So it seems you're writing a governor. See
+Documentation/cpu-freq/governors.txt and
+drivers/cpufreq/cpufreq_conservative.c
+drivers/cpufreq/cpufreq_ondemand.c
+drivers/cpufreq/cpufreq_performance.c
+drivers/cpufreq/cpufreq_powersave.c
+drivers/cpufreq/cpufreq_userspace.c
+
+for a first reference.
+
 > At user level it can be done through
 > 
 > /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
@@ -55,13 +73,13 @@ Claudio Scordino wrote:
 > spin_unlock_irqrestore(&cpufreq_driver_lock, flags);
 > 
 > but it crashes the system.
-> 
-> Please, can somebody tell me how this can be done ?
 
-For one thing, you cannot put such a huge buffer on the kernel stack.
+of course it does, this is just the sysfs -show function and you're
+passing it a null pointer as first parameter. If you look at
+show_available_freqs code you'll see that cpufreq_cpu_data is
+dereferenced and this happening with interrupts disabled..
 
+hth
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+mattia
+:wq!

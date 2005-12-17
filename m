@@ -1,78 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932614AbVLQRaT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932616AbVLQRoU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932614AbVLQRaT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 12:30:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbVLQRaT
+	id S932616AbVLQRoU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 12:44:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbVLQRoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 12:30:19 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:30923 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932614AbVLQRaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 12:30:18 -0500
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] quiet IDE resource reservation messages
-Date: Sat, 17 Dec 2005 09:30:24 -0800
-User-Agent: KMail/1.9
+	Sat, 17 Dec 2005 12:44:20 -0500
+Received: from mx1.suse.de ([195.135.220.2]:17608 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932616AbVLQRoT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 12:44:19 -0500
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Adrian Bunk <bunk@stusta.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+References: <20051215212447.GR23349@stusta.de>
+	<20051215140013.7d4ffd5b.akpm@osdl.org>
+	<20051216141002.2b54e87d.diegocg@gmail.com>
+	<20051216140425.GY23349@stusta.de>
+	<20051216163503.289d491e.diegocg@gmail.com>
+	<632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com>
+From: Andi Kleen <ak@suse.de>
+Date: 17 Dec 2005 18:44:07 +0100
+In-Reply-To: <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com>
+Message-ID: <p73slsrehzs.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_wsEpD4XeiYlzRXS"
-Message-Id: <200512170930.24218.jbarnes@virtuousgeek.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_wsEpD4XeiYlzRXS
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Kyle Moffett <mrmacman_g4@mac.com> writes:
 
-In combined mode, having IDE resources reserved before the IDE driver 
-can get to them is normal and expected, so quiet the 'resource 
-conflict' messages a bit so as not to alarm anyone (and clean up my 
-'quiet' boot a bit).
+> On Dec 16, 2005, at 10:35, Diego Calleja wrote:
+> > I know, but there's too much resistance to the "pure" 4kb patch.
+> 
+> I have yet to see any resistance to the 4Kb patch this time around
+> that was not "*whine* don't break my ndiswrapper plz".  
 
-Signed-off-by: Jesse Barnes <jbarnes@virtuousgeek.org>
+My comment from last time about the missing safety net still applies 100%.
 
-Thanks,
-Jesse
+Kernel code is getting more complex all the time and running with
+very tight stack is just risky.
 
---Boundary-00=_wsEpD4XeiYlzRXS
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="ide-silence-info.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ide-silence-info.patch"
+> The point is to force it in -mm so most people can't just disable it
+> because it fixes their problem.  We want 8k stacks to go away, and
 
-diff --git a/drivers/ide/ide-probe.c b/drivers/ide/ide-probe.c
-index 02167a5..57325a2 100644
---- a/drivers/ide/ide-probe.c
-+++ b/drivers/ide/ide-probe.c
-@@ -773,7 +773,7 @@ static void probe_hwif(ide_hwif_t *hwif)
- 			}
- 		}
- 		if (!msgout)
--			printk(KERN_ERR "%s: ports already in use, skipping probe\n",
-+			printk(KERN_INFO "%s: ports already in use, skipping probe\n",
- 				hwif->name);
- 		return;	
- 	}
-diff --git a/drivers/ide/ide.c b/drivers/ide/ide.c
-index 8af179b..84dd69b 100644
---- a/drivers/ide/ide.c
-+++ b/drivers/ide/ide.c
-@@ -366,8 +366,8 @@ static struct resource* hwif_request_reg
- 	struct resource *res = request_region(addr, num, hwif->name);
- 
- 	if (!res)
--		printk(KERN_ERR "%s: I/O resource 0x%lX-0x%lX not free.\n",
--				hwif->name, addr, addr+num-1);
-+		printk(KERN_INFO "%s: I/O resource 0x%lX-0x%lX not free.\n",
-+				 hwif->name, addr, addr+num-1);
- 	return res;
- }
- 
+Who is we? And why? 
 
---Boundary-00=_wsEpD4XeiYlzRXS--
+About the only half way credible arguments I've seen for it were:  
+
+- "it might reduce stalls in the VM with order 1". Didn't quite
+convince me because there were no numbers presented and at least on
+x86-64 I've never noticed or got reported significant stalls because
+of this.
+
+- "it allows more threads for 32bit which might run out of lowmem" - i
+think everybody agrees that the 10k threads case is not really
+something to encourage. And even when you want to add it then only a factor
+two increase (which this patch brings) is not really too helpful.
+
+The main argument thrown around seems to be "but it will break
+binary only modules" - while I'm not fully unsympathetic I don't
+think technical issues in the kernel should be guided by 
+such political considerations.
+
+I suspect you will be reposting it so often till the voices
+of reasons get tired? 
+
+-Andi

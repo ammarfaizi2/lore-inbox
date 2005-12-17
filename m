@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbVLQK0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbVLQK07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932408AbVLQK0y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 05:26:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVLQK0y
+	id S932419AbVLQK07 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 05:26:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbVLQK07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 05:26:54 -0500
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:20188 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S932408AbVLQK0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 05:26:52 -0500
-Date: Sat, 17 Dec 2005 11:26:43 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Dave Jones <davej@redhat.com>
-cc: 7eggert@gmx.de, Kyle Moffett <mrmacman_g4@mac.com>,
-       linux-kernel@vger.kernel.org, Alex Davis <alex14641@yahoo.com>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-In-Reply-To: <20051216180816.GC2821@redhat.com>
-Message-ID: <Pine.LNX.4.58.0512171125440.12637@be1.lrz>
-References: <5kh6K-7KC-3@gated-at.bofh.it> <5kiFR-1mi-11@gated-at.bofh.it>
- <E1EnDOo-0006Gd-Na@be1.lrz> <20051216180816.GC2821@redhat.com>
+	Sat, 17 Dec 2005 05:26:59 -0500
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:30403 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932419AbVLQK06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 05:26:58 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: remove CONFIG_UID16
+To: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Sat, 17 Dec 2005 11:28:18 +0100
+References: <5kCbe-45z-7@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EnZIZ-0003Px-3c@be1.lrz>
 X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
 X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Dec 2005, Dave Jones wrote:
-> On Fri, Dec 16, 2005 at 12:05:18PM +0100, Bodo Eggert wrote:
+Adrian Bunk <bunk@stusta.de> wrote:
 
->  > ACK. So where is the driver for the Netgear WG511 Softmac card I'm supposed
->  > to test? I bought this card because it was labled as being supported, and it
->  > turned out that it wasn't, and just nobody cared to update the list of
->  > supported cards with the warning about the unsupported variant.
+> It seems noone noticed that CONFIG_UID16 was accidentially always
+> disabled in the latest -mm kernels.
 > 
-> There are two models of that card with the same name.
-> The one made in taiwan is a prism54, the one made in china is
-> something else.  I guess yours is made in China ?
+> Is there any reason against removing it completely?
 
-Yes.
+Maybe embedded systems.
 -- 
-Saying your system is secure should be considered the same as saying your food
-is too hot. Its a temporary condition which is going away even as you speak.
-	-- Gandalf Parker
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

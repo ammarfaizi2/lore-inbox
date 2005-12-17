@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbVLQDYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964920AbVLQDbP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964930AbVLQDYv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 22:24:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbVLQDYv
+	id S964920AbVLQDbP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 22:31:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964913AbVLQDbP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 22:24:51 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:7685 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S964913AbVLQDYv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 22:24:51 -0500
-Date: Fri, 16 Dec 2005 22:24:49 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Linus Torvalds <torvalds@g5.osdl.org>
-Subject: Re: [PATCH] UHCI: add missing memory barriers
-In-Reply-To: <1134777482.6102.9.camel@gaston>
-Message-ID: <Pine.LNX.4.44L0.0512162216580.15902-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 16 Dec 2005 22:31:15 -0500
+Received: from solarneutrino.net ([66.199.224.43]:57862 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S1751364AbVLQDbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 22:31:14 -0500
+Date: Fri, 16 Dec 2005 22:31:06 -0500
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Hugh Dickins <hugh@veritas.com>,
+       Kai Makisara <Kai.Makisara@kolumbus.fi>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       ryan@tau.solarneutrino.net
+Subject: Re: Fw: crash on x86_64 - mm related?
+Message-ID: <20051217033106.GB20539@tau.solarneutrino.net>
+References: <Pine.LNX.4.61.0512062025230.28217@goblin.wat.veritas.com> <20051206204336.GA12248@tau.solarneutrino.net> <Pine.LNX.4.61.0512071803300.2975@goblin.wat.veritas.com> <20051212165443.GD17295@tau.solarneutrino.net> <Pine.LNX.4.64.0512120928110.15597@g5.osdl.org> <1134409531.9994.13.camel@mulgrave> <Pine.LNX.4.64.0512121007220.15597@g5.osdl.org> <1134411882.9994.18.camel@mulgrave> <20051215190930.GA20156@tau.solarneutrino.net> <1134705703.3906.1.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1134705703.3906.1.camel@mulgrave>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Dec 2005, Benjamin Herrenschmidt wrote:
-
-> > This patch (as617) adds a couple of memory barriers that Ben H. forgot in
-> > his recent suspend/resume fix.
+On Thu, Dec 15, 2005 at 08:01:43PM -0800, James Bottomley wrote:
+> On Thu, 2005-12-15 at 14:09 -0500, Ryan Richter wrote:
+> > On Mon, Dec 12, 2005 at 12:24:42PM -0600, James Bottomley wrote:
+> > > I'll find a fix for the real problem, but this patch isn't the cause.
+> > 
+> > Is the patch set you posted yesterday supposed to fix this?  If so, is
+> > it available in patch form anywhere?
 > 
-> I didn't think they were necessary but they certainly won't hurt and
-> it's not a hot code path...
+> No, I've been too busin integrating other people's patches to work on
+> ones of my own.  Try this.
 
-True.
+Thanks for the patch, I'm testing it now.  If this survives the next few
+days I'll leave it running while I'm away, otherwise testing will have
+to wait until the new year.
 
-> >  	pci_write_config_word(to_pci_dev(uhci_dev(uhci)), USBLEGSUP, 0);
-> > +	mb();
-> 
-> Isn't pci config space access always fully synchronous ?
-
-If it is, it's not documented.
-
-Looking at the PCI code, I see that the accesses are protected by a 
-spinlock.  Does that guarantee in-order execution of writes to 
-configuration space with respect to writes to regular memory?  On all 
-platforms?  If yes, then this barrier is not needed.
-
-> > @@ -738,6 +739,7 @@ static int uhci_resume(struct usb_hcd *h
-> >  	 * really don't want to keep a stale HCD_FLAG_HW_ACCESSIBLE=0
-> >  	 */
-> >  	set_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
-> > +	mb();
-> 
-> I don't think that one matters much but it won't hurt for sure.
-
-Actually this one only needs to be smp_mb(), although the reasoning is a
-bit subtle.  Anyway, as you said, leaving the barriers in certainly won't
-hurt anything.
-
-Alan Stern
-
+Cheers,
+-ryan

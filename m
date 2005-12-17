@@ -1,56 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbVLQHl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbVLQHzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932154AbVLQHl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 02:41:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbVLQHl2
+	id S932174AbVLQHzU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 02:55:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932178AbVLQHzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 02:41:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:52357 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932105AbVLQHl1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 02:41:27 -0500
-Date: Fri, 16 Dec 2005 23:40:55 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "David S. Miller" <davem@davemloft.net>
-cc: jbarnes@virtuousgeek.org, dhowells@redhat.com, nickpiggin@yahoo.com.au,
-       arjan@infradead.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       cfriesen@nortel.com, hch@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-In-Reply-To: <20051216.231056.124758189.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.64.0512162336210.3698@g5.osdl.org>
-References: <Pine.LNX.4.64.0512161429500.3698@g5.osdl.org>
- <20051216.145306.132052494.davem@davemloft.net> <200512161641.49571.jbarnes@virtuousgeek.org>
- <20051216.231056.124758189.davem@davemloft.net>
+	Sat, 17 Dec 2005 02:55:20 -0500
+Received: from smtp109.plus.mail.mud.yahoo.com ([68.142.206.242]:54925 "HELO
+	smtp109.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932174AbVLQHzT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 02:55:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=G4AenE+lRDdJwe56agk3Z8FXwwtwQ9M9qrYmjDTFKYI8eMtSCa0xiSka0vGlwZhm2pAc+N7YAz1RGLH6hoCk/HkYvGOLPO/4G9yGvdxNBoqa0TRErZl1YMDCPbd0Yt3cD/Ppr7DOQtWeHAdWgdJCXlHaw1pDXmLn+Y/qeBMt1sg=  ;
+Message-ID: <43A3C461.2030900@yahoo.com.au>
+Date: Sat, 17 Dec 2005 18:55:13 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steven Rostedt <rostedt@goodmis.org>
+CC: David Howells <dhowells@redhat.com>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org, mingo@redhat.com, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH 1/12]: MUTEX: Implement mutexes
+References: <dhowells1134774786@warthog.cambridge.redhat.com>	 <200512162313.jBGND7g4019623@warthog.cambridge.redhat.com> <1134791914.13138.167.camel@localhost.localdomain>
+In-Reply-To: <1134791914.13138.167.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steven Rostedt wrote:
+> On Fri, 2005-12-16 at 23:13 +0000, David Howells wrote:
 
-
-On Fri, 16 Dec 2005, David S. Miller wrote:
+>>This patch set does the following:
+>>
+>> (1) Renames DECLARE_MUTEX and DECLARE_MUTEX_LOCKED to be DECLARE_SEM_MUTEX and
+>>     DECLARE_SEM_MUTEX_LOCKED for counting semaphores.
+>>
 > 
-> If there is some test guarding the CAS, yes.
 > 
-> But if there isn't, for things like atomic increment and
-> decrement, where the CAS is unconditional, you'll always
-> eat the two bus transactions without the prefetch for write.
+> Could we really get rid of that "MUTEX" part.  A counting semaphore is
+> _not_ a mutex, although a mutex _is_ a counting semaphore.  As is a Jack
+> Russell is a dog, but a dog is not a Jack Russell.
+> 
 
-Side note: there may be hardware cache protocol _scheduling_ reasons why 
-some particular hw platform might prefer to go through the "Shared" state 
-in their cache protocol.
+Really?
 
-For example, you might have hardware that otherwise ends up being very 
-unfair, where the two-stage lock aquire might actually allow another node 
-to come in at all. Fairness and balance often comes at a cost, both in hw 
-and in sw.
+A Jack Russell is a dog because anything you say about a dog can
+also be said about a Jack Russell.
 
-Arguably such hardware sounds pretty broken, but the point is that these 
-things can certainly depend on the platform around the CPU as well as on 
-what the CPU itself does.
+A counting semaphore is a mutex for the same reason (and observe
+that 99% of users use the semaphore as a mutex). A mutex definitely
+is not a counting semaphore. David's implementation of mutexes
+don't count at all.
 
-I'm not saying that that is necessarily what Jesse was arguing about, but 
-lock contention behaviour can be "interesting".
+If you want to use a semaphore as a mutex, DECLARE_SEM_MUTEX isn't
+a terrible name.
 
-			Linus
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

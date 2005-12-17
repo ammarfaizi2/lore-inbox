@@ -1,57 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932626AbVLQRWc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932613AbVLQR1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932626AbVLQRWc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 12:22:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbVLQRWc
+	id S932613AbVLQR1r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 12:27:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbVLQR1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 12:22:32 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:1959 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S932618AbVLQRWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 12:22:31 -0500
+	Sat, 17 Dec 2005 12:27:47 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:44433 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932613AbVLQR1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 12:27:46 -0500
 From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Date: Sat, 17 Dec 2005 09:22:34 -0800
+To: gregkh@suse.de, linux-kernel@vger.kernel.org
+Subject: [PATCH] update Toshiba ohci quirk DMI table
+Date: Sat, 17 Dec 2005 09:27:50 -0800
 User-Agent: KMail/1.9
-Cc: "David S. Miller" <davem@davemloft.net>, dhowells@redhat.com,
-       nickpiggin@yahoo.com.au, arjan@infradead.org, akpm@osdl.org,
-       alan@lxorguk.ukuu.org.uk, cfriesen@nortel.com, hch@infradead.org,
-       matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-References: <Pine.LNX.4.64.0512161429500.3698@g5.osdl.org> <20051216.231056.124758189.davem@davemloft.net> <Pine.LNX.4.64.0512162336210.3698@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0512162336210.3698@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512170922.34830.jbarnes@virtuousgeek.org>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_WqEpDdXvTMJc39X"
+Message-Id: <200512170927.50760.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, December 16, 2005 11:40 pm, Linus Torvalds wrote:
-> Side note: there may be hardware cache protocol _scheduling_ reasons
-> why some particular hw platform might prefer to go through the
-> "Shared" state in their cache protocol.
->
-> For example, you might have hardware that otherwise ends up being
-> very unfair, where the two-stage lock aquire might actually allow
-> another node to come in at all. Fairness and balance often comes at a
-> cost, both in hw and in sw.
->
-> Arguably such hardware sounds pretty broken, but the point is that
-> these things can certainly depend on the platform around the CPU as
-> well as on what the CPU itself does.
->
-> I'm not saying that that is necessarily what Jesse was arguing about,
-> but lock contention behaviour can be "interesting".
+--Boundary-00=_WqEpDdXvTMJc39X
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Yeah, that's a good point.  Getting lock behavior 'just right' can get 
-pretty platform specific.  For instance, on a CMP type machine, 
-bouncing a lock between CPUs can be nearly free, whereas on a large 
-directory based machine like the Altix, pretty much any cache line 
-write (or fake write like ia64's ld.bias) is an expensive operation 
-since it involves lots of relatively slow network activity.
+I upgraded my Toshiba Satellite BIOS recently to see if it would fix an 
+ACPI related problem I have 
+(http://bugzilla.kernel.org/show_bug.cgi?id=5727).  Unfortunately, it 
+didn't, and moreover, Toshiba chose to change the system version in the 
+DMI table with the update, causing the OHCI1394 related quirk to break.  
+This patch updates the DMI table for the quirk to include Toshiba's new 
+version name for this machine; I've tested it and it seems to work 
+fine.
 
-Jesse
+Signed-off-by: Jesse Barnes <jbarnes@virtuousgeek.org>
+
+--Boundary-00=_WqEpDdXvTMJc39X
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="toshiba-ohci1394-fixup-dmitable-update.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="toshiba-ohci1394-fixup-dmitable-update.patch"
+
+diff --git a/arch/i386/pci/fixup.c b/arch/i386/pci/fixup.c
+index eeb1b1f..65f6707 100644
+--- a/arch/i386/pci/fixup.c
++++ b/arch/i386/pci/fixup.c
+@@ -413,6 +413,13 @@ static struct dmi_system_id __devinitdat
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "PSM4"),
+ 		},
+ 	},
++	{
++		.ident = "Toshiba A40 based laptop",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "TOSHIBA"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "PSA40U"),
++		},
++	},
+ 	{ }
+ };
+ 
+
+--Boundary-00=_WqEpDdXvTMJc39X--

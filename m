@@ -1,65 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbVLQV3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbVLQVaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932100AbVLQV3a (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 16:29:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbVLQV3a
+	id S932125AbVLQVaz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 16:30:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbVLQVaz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 16:29:30 -0500
-Received: from lame.durables.org ([64.81.244.120]:58539 "EHLO
-	calliope.durables.org") by vger.kernel.org with ESMTP
-	id S932100AbVLQV3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 16:29:30 -0500
-Subject: Re: [PATCH 07/13]  [RFC] ipath core misc files
-From: Robert Walsh <rjwalsh@pathscale.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <20051217123850.aa6cfd53.akpm@osdl.org>
-References: <200512161548.KglSM2YESlGlEQfQ@cisco.com>
-	 <200512161548.3fqe3fMerrheBMdX@cisco.com>
-	 <20051217123850.aa6cfd53.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 17 Dec 2005 13:29:23 -0800
-Message-Id: <1134854963.20575.17.camel@phosphene.durables.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Dec 2005 16:30:55 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36877 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932125AbVLQVay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 16:30:54 -0500
+Date: Sat, 17 Dec 2005 22:30:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Joel Becker <joel.becker@oracle.com>, Mark Fasheh <mark.fasheh@oracle.com>,
+       Kurt Hackel <kurt.hackel@oracle.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] fs/ocfs2/: small cleanups
+Message-ID: <20051217213056.GS23349@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > +void ipath_init_picotime(void)
-> > +{
-> > +	int i;
-> > +	u_int64_t ts, te, delta = -1ULL;
-> > +
-> > +	for (i = 0; i < 5; i++) {
-> > +		ts = get_cycles();
-> > +		udelay(250);
-> > +		te = get_cycles();
-> > +		if ((te - ts) < delta)
-> > +			delta = te - ts;
-> > +		yield();
-> > +	}
-> > +	_ipath_pico_per_cycle = 250000000 / delta;
-> > +}
-> 
-> hm, I hope this is debug code which is going away.  If not, we should take
-> a look at what it's trying to do here.
+This patch contains the following cleanups:
+- cluster/sys.c: make needlessly global code static
+- dlm/: "extern" declarations for variables belong into header files
+        (and in this case, they are already in dlmdomain.h)
 
-This isn't debug code.  It's used to calculate the roughly number
-picoseconds per cycle.  This is used in the driver to make sure
-HyperTransport reads haven't timed out (see ipath_snap_cntr in
-ipath_driver.c) when reading chip counters.  If you can think of a
-better way of figuring out whether a read took greater than a certain
-length of time, I'd be interested in knowing it.
 
-Regards,
- Robert.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-Robert Walsh                                 Email: rjwalsh@pathscale.com
-PathScale, Inc.                              Phone: +1 650 934 8117
-2071 Stierlin Court, Suite 200                 Fax: +1 650 428 1969
-Mountain View, CA 94043.
+---
 
+BTW: Could you add a MAINTAINERS entry for ocfs2?
+
+ fs/ocfs2/cluster/sys.c   |    4 ++--
+ fs/ocfs2/dlm/dlmmaster.c |    4 +---
+ fs/ocfs2/dlm/dlmthread.c |    3 ---
+ 3 files changed, 3 insertions(+), 8 deletions(-)
+
+--- linux-2.6.15-rc5-mm3-full/fs/ocfs2/cluster/sys.c.old	2005-12-17 20:07:58.000000000 +0100
++++ linux-2.6.15-rc5-mm3-full/fs/ocfs2/cluster/sys.c	2005-12-17 20:09:46.000000000 +0100
+@@ -50,7 +50,7 @@
+ 	return snprintf(buf, PAGE_SIZE, "%u\n", O2NM_API_VERSION);
+ }
+ 
+-O2CB_ATTR(interface_revision, S_IFREG | S_IRUGO, o2cb_interface_revision_show, NULL);
++static O2CB_ATTR(interface_revision, S_IFREG | S_IRUGO, o2cb_interface_revision_show, NULL);
+ 
+ static struct attribute *o2cb_attrs[] = {
+ 	&o2cb_attr_interface_revision.attr,
+@@ -73,7 +73,7 @@
+ };
+ 
+ /* gives us o2cb_subsys */
+-decl_subsys(o2cb, NULL, NULL);
++static decl_subsys(o2cb, NULL, NULL);
+ 
+ static ssize_t
+ o2cb_show(struct kobject * kobj, struct attribute * attr, char * buffer)
+--- linux-2.6.15-rc5-mm3-full/fs/ocfs2/dlm/dlmmaster.c.old	2005-12-17 20:10:22.000000000 +0100
++++ linux-2.6.15-rc5-mm3-full/fs/ocfs2/dlm/dlmmaster.c	2005-12-17 20:11:00.000000000 +0100
+@@ -48,6 +48,7 @@
+ #include "dlmapi.h"
+ #include "dlmcommon.h"
+ #include "dlmdebug.h"
++#include "dlmdomain.h"
+ 
+ #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_MASTER)
+ #include "cluster/masklog.h"
+@@ -173,9 +174,6 @@
+ 	spin_unlock(&dlm->master_lock);
+ }
+ 
+-extern spinlock_t dlm_domain_lock;
+-extern struct list_head dlm_domains;
+-
+ int dlm_dump_all_mles(const char __user *data, unsigned int len)
+ {
+ 	struct list_head *iter;
+--- linux-2.6.15-rc5-mm3-full/fs/ocfs2/dlm/dlmthread.c.old	2005-12-17 20:11:11.000000000 +0100
++++ linux-2.6.15-rc5-mm3-full/fs/ocfs2/dlm/dlmthread.c	2005-12-17 20:11:31.000000000 +0100
+@@ -52,9 +52,6 @@
+ #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_THREAD)
+ #include "cluster/masklog.h"
+ 
+-extern spinlock_t dlm_domain_lock;
+-extern struct list_head dlm_domains;
+-
+ static int dlm_thread(void *data);
+ 
+ static void dlm_flush_asts(struct dlm_ctxt *dlm);
 

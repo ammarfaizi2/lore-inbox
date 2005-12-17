@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932647AbVLQSiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932656AbVLQS6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932647AbVLQSiy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 13:38:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbVLQSiy
+	id S932656AbVLQS6m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 13:58:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbVLQS6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 13:38:54 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:28940 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932647AbVLQSix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 13:38:53 -0500
-Date: Sat, 17 Dec 2005 19:38:54 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: remove CONFIG_UID16
-Message-ID: <20051217183854.GQ23349@stusta.de>
-References: <20051217044410.GO23349@stusta.de> <20051217131807.GD13043@infradead.org>
+	Sat, 17 Dec 2005 13:58:42 -0500
+Received: from mail.gmx.net ([213.165.64.21]:5292 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932656AbVLQS6l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 13:58:41 -0500
+X-Authenticated: #7534793
+Date: Sat, 17 Dec 2005 19:58:38 +0100
+From: Gerhard Schrenk <deb.gschrenk@gmx.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Gerhard Schrenk <deb.gschrenk@gmx.de>, linux-kernel@vger.kernel.org
+Subject: Re: Correction for broken MCFG tables on K8 breaks acpi for MSI S260
+Message-ID: <20051217185838.GA5605@mailhub.uni-konstanz.de>
+References: <20051217005109.GA11982@mailhub.uni-konstanz.de> <20051217034755.GV23384@wotan.suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051217131807.GD13043@infradead.org>
+In-Reply-To: <20051217034755.GV23384@wotan.suse.de>
 User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 17, 2005 at 01:18:07PM +0000, Christoph Hellwig wrote:
-> On Sat, Dec 17, 2005 at 05:44:10AM +0100, Adrian Bunk wrote:
-> > It seems noone noticed that CONFIG_UID16 was accidentially always 
-> > disabled in the latest -mm kernels.
-> > 
-> > Is there any reason against removing it completely?
+* Andi Kleen <ak@suse.de> [2005-12-17 13:33]:
+> On Sat, Dec 17, 2005 at 01:51:09AM +0100, Gerhard Schrenk wrote:
+> > commit d6ece5491ae71ded1237f59def88bcd1b19b6f60 breaks acpi for my
+> > Medion MD 95600 (aka MSI S260) notebook.
 > 
-> Yes, it breaks backwards-compatilbity for not even that old binaries.
-> 
-> There's not way we're ever going to remove it.
+> Should be already fixed in Linus' tree.
 
-You are right.
+Yes, current kernel boots for me with option noapic. Sorry for the false
+alarm.  You guys do simply fix bugs quicker than I can get a digicam
+from a friend of mine...
 
-Sorry, this was a dumb idea
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-- Gerhard

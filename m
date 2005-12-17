@@ -1,139 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932571AbVLQMdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932574AbVLQMg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932571AbVLQMdV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 07:33:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932572AbVLQMdV
+	id S932574AbVLQMg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 07:36:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932573AbVLQMg7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 07:33:21 -0500
-Received: from nproxy.gmail.com ([64.233.182.199]:20340 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932571AbVLQMdV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 07:33:21 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hHO3Cua1J95CcleDDPkfVLz3BWuc6mV//LMuMXeAr/irdjOCVsCzU7HRMILWevY+gV6rBZQ0BH0V+/mO1I7c4vELbmz50mo0yuxNIYojIVUdhpQds2wf3u+cqK78sGhjwCQbxD4r5nFr9jYbvQM6NC1IMqSyFecNQtjpVp8EAgI=
-Message-ID: <84144f020512170433h151a7667o42c382242f81347b@mail.gmail.com>
-Date: Sat, 17 Dec 2005 14:33:16 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Roland Dreier <rolandd@cisco.com>
-Subject: Re: [PATCH 01/13] [RFC] ipath basic headers
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <200512161548.aLjaDpGm5aqk0k0p@cisco.com>
+	Sat, 17 Dec 2005 07:36:59 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:38359 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932572AbVLQMg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 07:36:58 -0500
+Date: Sat, 17 Dec 2005 07:36:50 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: David Howells <dhowells@redhat.com>, linux-arch@vger.kernel.org,
+       linux-kernel@vger.kernel.org, mingo@redhat.com, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH 1/12]: MUTEX: Implement mutexes
+In-Reply-To: <43A3C461.2030900@yahoo.com.au>
+Message-ID: <Pine.LNX.4.58.0512170731271.12362@gandalf.stny.rr.com>
+References: <dhowells1134774786@warthog.cambridge.redhat.com> 
+ <200512162313.jBGND7g4019623@warthog.cambridge.redhat.com>
+ <1134791914.13138.167.camel@localhost.localdomain> <43A3C461.2030900@yahoo.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200512161548.jRuyTS0HPMLd7V81@cisco.com>
-	 <200512161548.aLjaDpGm5aqk0k0p@cisco.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Roland,
 
-On 12/17/05, Roland Dreier <rolandd@cisco.com> wrote:
-> +/*
-> + * This file contains defines, structures, etc. that are used
-> + * to communicate between kernel and user code.
-> + */
-> +
-> +#ifdef __KERNEL__
-> +#include <linux/ioctl.h>
-> +#include <linux/uio.h>
-> +#include <asm/atomic.h>
-> +#else                          /* !__KERNEL__; user mode */
-> +#include <sys/ioctl.h>
-> +#include <sys/uio.h>
-> +#include <sys/types.h>
-> +#include <stdint.h>
-> +
-> +/* these aren't implemented for user mode, which is OK until we multi-thread */
-> +typedef struct _atomic {
-> +       uint32_t counter;
-> +} atomic_t;                    /* no atomic_t type in user-land */
-> +#define atomic_set(a,v) ((a)->counter = (v))
-> +#define atomic_inc_return(a)  (++(a)->counter)
-> +#define likely(x) (x)
-> +#define unlikely(x) (x)
-> +
-> +#define yield() sched_yield()
-> +
-> +/*
-> + * too horrible to try and use the kernel get_cycles() or equivalent,
-> + * so define and inline it here
-> + */
-> +
-> +#if !defined(rdtscll)
-> +#if defined(__x86_64) || defined(__i386)
-> +#define rdtscll(v) do {uint32_t a,d;asm volatile("rdtsc" : "=a" (a), "=d" (d)); \
-> +         (v) = ((uint64_t)a) | (((uint64_t)d)<<32); \
-> +} while(0)
-> +#else
-> +#error "No cycle counter routine implemented yet for this platform"
-> +#endif
-> +#endif                         /* !defined(rdtscll) */
+On Sat, 17 Dec 2005, Nick Piggin wrote:
 
-Do we really need this ugly userspace emulation code in the kernel?
+> Steven Rostedt wrote:
+> > On Fri, 2005-12-16 at 23:13 +0000, David Howells wrote:
+>
+> >>This patch set does the following:
+> >>
+> >> (1) Renames DECLARE_MUTEX and DECLARE_MUTEX_LOCKED to be DECLARE_SEM_MUTEX and
+> >>     DECLARE_SEM_MUTEX_LOCKED for counting semaphores.
+> >>
+> >
+> >
+> > Could we really get rid of that "MUTEX" part.  A counting semaphore is
+> > _not_ a mutex, although a mutex _is_ a counting semaphore.  As is a Jack
+> > Russell is a dog, but a dog is not a Jack Russell.
+> >
+>
+> Really?
+>
+> A Jack Russell is a dog because anything you say about a dog can
+> also be said about a Jack Russell.
 
-> +/*
-> + * this is used for very short copies, usually 1 - 8 bytes,
-> + * *NEVER* to the PIO buffers!!!!!!!  use ipath_dwordcpy for longer
-> + * copies, or any copy to the PIO buffers.  Works for 32 and 64 bit
-> + * gcc and pathcc
-> + */
-> +static __inline__ void ipath_shortcopy(void *dest, void *src, uint32_t cnt)
-> +{
-> +       void *ssv, *dsv;
-> +       uint32_t csv;
-> +       __asm__ __volatile__("cld\n\trep\n\tmovsb":"=&c"(csv), "=&D"(dsv),
-> +                            "=&S"(ssv)
-> +                            :"0"(cnt), "1"(dest), "2"(src)
-> +                            :"memory");
-> +}
-> +
-> +/*
-> + * optimized word copy; good for rev C and later opterons.  Among the best for
-> + * short copies, and does as well or slightly better than the optimizization
-> + * guide copies 6 and 8 at 2KB.
-> + */
-> +void ipath_dwordcpy(uint32_t * dest, uint32_t * src, uint32_t ndwords);
+I said a Jack Russell _is_ a dog, but a dog is not a Jack Russell.
+Everything you can say about a dog you can't say about a Jack Russell.
+Since, a dog can have other characteristics than a Jack Russell has. A dog
+can be big and lazy, but I would not say that about a Jack Russell.
 
-What is this used for? Why can't yo use memcpy?
+>
+> A counting semaphore is a mutex for the same reason (and observe
+> that 99% of users use the semaphore as a mutex). A mutex definitely
+> is not a counting semaphore. David's implementation of mutexes
+> don't count at all.
 
-> +#define round_up(v,sz) (((v) + (sz)-1) & ~((sz)-1))
+But a counting semaphore of (one) _is_ a mutex!  But a mutex can't have
+more than one.   As for David's code, that's just arguing implementation,
+and not the semantics of it.
 
-Please use ALIGN().
+-- Steve
 
-> +/* These are used in the driver, don't use them elsewhere */
-> +#define _IPATH_SIMFUNC_IOCTL_LOW 1
-> +#define _IPATH_SIMFUNC_IOCTL_HIGH 7
-> +
-> +/*
-> + * These tell the driver which ioctl's belong to the diags interface.
-> + * As above, don't use them elsewhere.
-> + */
-> +#define _IPATH_DIAG_IOCTL_LOW 100
-> +#define _IPATH_DIAG_IOCTL_HIGH 109
-
-[snip, snip]
-
-You seem to be introducing loads of new ioctls. Any reason you can't
-use sysfs and/or configfs?
-
-> +/* macros for processing rcvhdrq entries */
-> +#define ips_get_hdr_err_flags(StartOfBuffer) *(((uint32_t *)(StartOfBuffer))+1)
-> +#define ips_get_index(StartOfBuffer) (((*((uint32_t *)(StartOfBuffer))) >> \
-> +        INFINIPATH_RHF_EGRINDEX_SHIFT) & INFINIPATH_RHF_EGRINDEX_MASK)
-> +#define ips_get_rcv_type(StartOfBuffer)  ((*(((uint32_t *)(StartOfBuffer))) >> \
-> +        INFINIPATH_RHF_RCVTYPE_SHIFT) & INFINIPATH_RHF_RCVTYPE_MASK)
-> +#define ips_get_length_in_bytes(StartOfBuffer) \
-> +        (uint32_t)(((*(((uint32_t *)(StartOfBuffer))) >> \
-> +        INFINIPATH_RHF_LENGTH_SHIFT) & INFINIPATH_RHF_LENGTH_MASK) << 2)
-> +#define ips_get_first_protocol_header(StartOfBuffer) (void *) \
-> +        ((uint32_t *)(StartOfBuffer) + 2)
-> +#define ips_get_ips_header(StartOfBuffer) ((ips_message_header_typ *) \
-> +        ((uint32_t *)(StartOfBuffer) + 2))
-> +#define ips_get_ipath_ver(ipath_header) (((ipath_header) >> INFINIPATH_I_VERS_SHIFT) \
-> +        & INFINIPATH_I_VERS_MASK)
-
-Please use static inlines instead for readability.

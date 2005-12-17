@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbVLQD6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbVLQEUO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751372AbVLQD6w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 22:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVLQD6w
+	id S1751079AbVLQEUO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 23:20:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbVLQEUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 22:58:52 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:61366 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751365AbVLQD6w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 22:58:52 -0500
-Subject: Re: [PATCH 1/12]: MUTEX: Implement mutexes
-From: Steven Rostedt <rostedt@goodmis.org>
-To: David Howells <dhowells@redhat.com>
-Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@redhat.com,
-       akpm@osdl.org, torvalds@osdl.org
-In-Reply-To: <200512162313.jBGND7g4019623@warthog.cambridge.redhat.com>
-References: <dhowells1134774786@warthog.cambridge.redhat.com>
-	 <200512162313.jBGND7g4019623@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Fri, 16 Dec 2005 22:58:34 -0500
-Message-Id: <1134791914.13138.167.camel@localhost.localdomain>
+	Fri, 16 Dec 2005 23:20:14 -0500
+Received: from hera.kernel.org ([140.211.167.34]:64738 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1751079AbVLQEUM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 23:20:12 -0500
+Date: Sat, 17 Dec 2005 02:19:50 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Hugh Dickins <hugh@veritas.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-mm@kvack.org, Andi Kleen <ak@suse.de>
+Subject: Re: [RFC3 02/14] Basic counter functionality
+Message-ID: <20051217041950.GA7710@dmt.cnet>
+References: <20051215001415.31405.24898.sendpatchset@schroedinger.engr.sgi.com> <20051215001425.31405.74009.sendpatchset@schroedinger.engr.sgi.com> <20051217040115.GA6975@dmt.cnet>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051217040115.GA6975@dmt.cnet>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-16 at 23:13 +0000, David Howells wrote:
-> The attached patch introduces a simple mutex implementation as an alternative
-> to the usual semaphore implementation where simple mutex functionality is all
-> that is required.
-> 
-> This is useful in two ways:
-> 
->  (1) A number of archs only provide very simple atomic instructions (such as
->      XCHG on i386, TAS on M68K, SWAP on FRV) which aren't sufficient to
->      implement full semaphore support directly. Instead spinlocks must be
->      employed to implement fuller functionality.
-> 
->  (2) This makes it more obvious that a mutex is a mutex and restricts the
->      capabilites to make it more easier to debug.
-> 
-> This patch set does the following:
-> 
->  (1) Renames DECLARE_MUTEX and DECLARE_MUTEX_LOCKED to be DECLARE_SEM_MUTEX and
->      DECLARE_SEM_MUTEX_LOCKED for counting semaphores.
-> 
 
-Could we really get rid of that "MUTEX" part.  A counting semaphore is
-_not_ a mutex, although a mutex _is_ a counting semaphore.  As is a Jack
-Russell is a dog, but a dog is not a Jack Russell.
+> There is no need to disable interrupts AFAICS, but only preemption
+> (which could cause problems as your comment above describes). I suppose
+> that these counters are not accessed at interrupt time and are not meant
+> to be, right?
+> 
+> Which means that if an interrupt happens at any point in the code,
+> the state will be consistent after the IRQ(s) handler(s) finish and
+> execution restarts where it had been interrupted.
+> 
+> Why not use preempt_disable/preempt_enable? Those would disappear
+> if !CONFIG_PREEMPT, and could be faster than the interrupt
+> disabling/enabling (no need to save "flags" on stack, but increment
+> preempt count, which has a chance to be on cache, I guess).
 
-What's the reason not to just use DECLARE_SEM and DECLARE_SEM_LOCKED?
+Which is what local_t does for BITS_PER_LONG==32 arches:
 
--- Steve
+#define LOCAL_INIT(i)   { ATOMIC_INIT(i) }
 
+#define local_read(l)   ((unsigned long)atomic_read(&(l)->a))
+#define local_set(l,i)  atomic_set((&(l)->a),(i))
+#define local_inc(l)    atomic_inc(&(l)->a)
+#define local_dec(l)    atomic_dec(&(l)->a)
+#define local_add(i,l)  atomic_add((i),(&(l)->a))
+#define local_sub(i,l)  atomic_sub((i),(&(l)->a))
 
+/* Non-atomic variants, ie. preemption disabled and won't be touched
+ * in interrupt, etc.  Some archs can optimize this case well. */
+#define __local_inc(l)          local_set((l), local_read(l) + 1)
+#define __local_dec(l)          local_set((l), local_read(l) - 1)
+#define __local_add(i,l)        local_set((l), local_read(l) + (i))
+#define __local_sub(i,l)        local_set((l), local_read(l) - (i))
+
+> It would also be nice to have all code related to debugging only
+> counters selectable at compile time, since it might not be interesting
+> data for some scenarios (but unnecessary bloat) - seems that was the
+> original intent by Andrew as you noted.

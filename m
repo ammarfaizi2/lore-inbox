@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbVLQVwu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964982AbVLQVzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964984AbVLQVwu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 16:52:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVLQVwu
+	id S964982AbVLQVzz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 16:55:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964983AbVLQVzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 16:52:50 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:49677 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964982AbVLQVwt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 16:52:49 -0500
-Date: Sat, 17 Dec 2005 22:52:51 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Roland Dreier <rolandd@cisco.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH 13/13]  [RFC] ipath Kconfig and Makefile
-Message-ID: <20051217215251.GV23349@stusta.de>
-References: <200512161548.MdcxE8ZQTy1yj4v1@cisco.com> <200512161548.lokgvLraSGi0enUH@cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512161548.lokgvLraSGi0enUH@cisco.com>
-User-Agent: Mutt/1.5.11
+	Sat, 17 Dec 2005 16:55:55 -0500
+Received: from lame.durables.org ([64.81.244.120]:17584 "EHLO
+	calliope.durables.org") by vger.kernel.org with ESMTP
+	id S964982AbVLQVzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 16:55:54 -0500
+Subject: Re: [PATCH 01/13] [RFC] ipath basic headers
+From: Robert Walsh <rjwalsh@pathscale.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <84144f020512170433h151a7667o42c382242f81347b@mail.gmail.com>
+References: <200512161548.jRuyTS0HPMLd7V81@cisco.com>
+	 <200512161548.aLjaDpGm5aqk0k0p@cisco.com>
+	 <84144f020512170433h151a7667o42c382242f81347b@mail.gmail.com>
+Content-Type: text/plain
+Date: Sat, 17 Dec 2005 13:55:47 -0800
+Message-Id: <1134856547.20575.39.camel@phosphene.durables.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 03:48:55PM -0800, Roland Dreier wrote:
+> Do we really need this ugly userspace emulation code in the kernel?
 
->...
-> --- /dev/null
-> +++ b/drivers/infiniband/hw/ipath/Kconfig
-> @@ -0,0 +1,18 @@
-> +config IPATH_CORE
-> +	tristate "PathScale InfiniPath Driver"
-> +	depends on PCI_MSI && X86_64
->...
+Probably not.  I'll look into removing it.
 
-The driver shouldn't use assembler code and therefore no longer depend 
-on X86_64.
+> What is this used for? Why can't yo use memcpy?
 
-> --- /dev/null
-> +++ b/drivers/infiniband/hw/ipath/Makefile
-> @@ -0,0 +1,15 @@
-> +EXTRA_CFLAGS += -Idrivers/infiniband/include
-> +
-> +EXTRA_CFLAGS += -Wall -O3 -g3
+Our chip can only handle double-word copies.
 
--Wall is always set when compiling the kernel.
+> > +#define round_up(v,sz) (((v) + (sz)-1) & ~((sz)-1))
+> 
+> Please use ALIGN().
 
--O3 doesn't make much sense since the fight for producing the fastest 
-code is between -O2 and -Os.
+Fair enough.
 
-You don't want to always compile your driver with -g3.
+> You seem to be introducing loads of new ioctls. Any reason you can't
+> use sysfs and/or configfs?
 
-> +_ipath_idstr:="$$""Id: kernel.org InfiniPath Release 1.1 $$"" $$""Date: $(shell date +%F-%R)"" $$"
-> +EXTRA_CFLAGS += -D_IPATH_IDSTR='$(_ipath_idstr)' -DIPATH_KERN_TYPE=0
->...
+I'll see what people here think of that idea.
 
-Please move the _IPATH_IDSTR revision tag to a header file and remove 
-IPATH_KERN_TYPE.
+> > +#define ips_get_ipath_ver(ipath_header) (((ipath_header) >> INFINIPATH_I_VERS_SHIFT) \
+> > +        & INFINIPATH_I_VERS_MASK)
+> 
+> Please use static inlines instead for readability.
 
-cu
-Adrian
+OK.
+
+Regards,
+ Robert.
 
 -- 
+Robert Walsh                                 Email: rjwalsh@pathscale.com
+PathScale, Inc.                              Phone: +1 650 934 8117
+2071 Stierlin Court, Suite 200                 Fax: +1 650 428 1969
+Mountain View, CA 94043.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

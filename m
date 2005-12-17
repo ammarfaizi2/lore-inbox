@@ -1,109 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751359AbVLQClL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbVLQCzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751359AbVLQClL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 21:41:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVLQClL
+	id S1751360AbVLQCzk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 21:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbVLQCzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 21:41:11 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:5236 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751359AbVLQClJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 21:41:09 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FJXhm4zM8HKi4vw2bXIbHxu5/LXFxAM7zzDN2RRkC1LNmhFd7PLtoRdQWYLOQTBG3AvxJZVL5m4MlZ6oGjNC2+zKAJeKLjF79gYikjUxL4Jem8vwS3KXazpSoPFFWPuOrnZRxdxg8sIV2FmZ7y8CukATizfpO+Yx3gWCu7KUrNY=
-Message-ID: <9929d2390512161841m516b3728i8c08af3e83a4472f@mail.gmail.com>
-Date: Fri, 16 Dec 2005 18:41:09 -0800
-From: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: Re: [BUG][PATCH] e1000: Fix invalid memory reference
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <439EA1F4.3000204@jp.fujitsu.com>
-MIME-Version: 1.0
+	Fri, 16 Dec 2005 21:55:40 -0500
+Received: from xenotime.net ([66.160.160.81]:10430 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751360AbVLQCzj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 21:55:39 -0500
+Date: Fri, 16 Dec 2005 18:56:11 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: kernel coder <lhrkernelcoder@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ENDEC port and MII interface
+Message-Id: <20051216185611.09544658.rdunlap@xenotime.net>
+In-Reply-To: <f69849430512132327h74949755sa1d646bb0d4ad5b5@mail.gmail.com>
+References: <f69849430512132327h74949755sa1d646bb0d4ad5b5@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <439EA1F4.3000204@jp.fujitsu.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/13/05, Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> wrote:
-> Hi,
->
-> I encountered a kernel panic which was caused by the invalid memory
-> access by e1000 driver. The following patch fixes this issue.
->
-> Thanks,
-> Kenji Kaneshige
->
->
-> This patch fixes invalid memory reference in the e1000 driver which
-> would cause kernel panic.
->
-> Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
->
->  drivers/net/e1000/e1000_param.c |   10 +++++++---
->  1 files changed, 7 insertions(+), 3 deletions(-)
->
-> Index: linux-2.6.15-rc5/drivers/net/e1000/e1000_param.c
-> ===================================================================
-> --- linux-2.6.15-rc5.orig/drivers/net/e1000/e1000_param.c
-> +++ linux-2.6.15-rc5/drivers/net/e1000/e1000_param.c
-> @@ -545,7 +545,7 @@ e1000_check_fiber_options(struct e1000_a
->  static void __devinit
->  e1000_check_copper_options(struct e1000_adapter *adapter)
->  {
-> -       int speed, dplx;
-> +       int speed, dplx, an;
->         int bd = adapter->bd_number;
->
->         { /* Speed */
-> @@ -641,8 +641,12 @@ e1000_check_copper_options(struct e1000_
->                                          .p = an_list }}
->                 };
->
-> -               int an = AutoNeg[bd];
-> -               e1000_validate_option(&an, &opt, adapter);
-> +               if (num_AutoNeg > bd) {
-> +                       an = AutoNeg[bd];
-> +                       e1000_validate_option(&an, &opt, adapter);
-> +               } else {
-> +                       an = opt.def;
-> +               }
->                 adapter->hw.autoneg_advertised = an;
->         }
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+On Tue, 13 Dec 2005 23:27:05 -0800 kernel coder wrote:
 
-Could you provide the test case you used to get the kernel panic? and
-system related information.
+> hi,
+>     I'm trying to write ethernet driver.I need some explaination on
+> ENDEC port and MII interface.By googling i've come to know that MII is
+> used for phy communication by modern ethernet cards,but i haven't
+> found much info on  ENDEC ports.
+> 
+> Actually mine card has option to select ENDEC port or MII interface
+> for transmit and recieve.
+> 
+> Please tell me  which one should i choose and why.
 
-num_Autoneg > bd will never be true  at this point in the code because
-we do the following test before we execute this branch.
+A little googling tells me that ENDECs are probably limited to
+10 Mbps ethernet.  E.g., one ethernet controller spec says:
 
-   if ((num_AutoNeg > bd) && (speed != 0 || dplx != 0)) {
-        DPRINTK(PROBE, INFO,
-               "AutoNeg specified along with Speed or Duplex, "
-               "parameter ignored\n");
-        adapter->hw.autoneg_advertised = AUTONEG_ADV_DEFAULT;
-    } else { /* Autoneg */
-                          .
-                          .
-                          .
+     Flexible IEEE 802.3 MII (10/100Mbps) and ENDEC 
+    (10Mbps) Interfaces Allow Selection of PHY
 
-        int an = AutoNeg[bd];
-        e1000_validate_option(&an, &opt, adapter);
-        adapter->hw.autoneg_advertised = an;
-    }
+ENDECs just convert from 8bit data to 10bit data on Transmit
+(8b/10b) and from 10bit data to 8bit data on Receive.
+Is ENDEC vs. MII selection a software config on your adapter
+or a hardware config?
 
-
---
-Cheers,
-Jeff
+---
+~Randy

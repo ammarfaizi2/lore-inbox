@@ -1,43 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbVLQHNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbVLQHW1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751378AbVLQHNF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 02:13:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbVLQHNF
+	id S932070AbVLQHW1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 02:22:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbVLQHW1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 02:13:05 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50320
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751375AbVLQHND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 02:13:03 -0500
-Date: Fri, 16 Dec 2005 23:10:56 -0800 (PST)
-Message-Id: <20051216.231056.124758189.davem@davemloft.net>
-To: jbarnes@virtuousgeek.org
-Cc: torvalds@osdl.org, dhowells@redhat.com, nickpiggin@yahoo.com.au,
-       arjan@infradead.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       cfriesen@nortel.com, hch@infradead.org, matthew@wil.cx,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200512161641.49571.jbarnes@virtuousgeek.org>
-References: <Pine.LNX.4.64.0512161429500.3698@g5.osdl.org>
-	<20051216.145306.132052494.davem@davemloft.net>
-	<200512161641.49571.jbarnes@virtuousgeek.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 17 Dec 2005 02:22:27 -0500
+Received: from 0x55511dab.adsl.cybercity.dk ([85.81.29.171]:4700 "EHLO
+	hunin.borkware.net") by vger.kernel.org with ESMTP id S932070AbVLQHW0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 02:22:26 -0500
+Subject: Re: cpufreq broken in 2.6.15-rc5 (Invalid)
+From: Mark Rosenstand <mark@borkware.net>
+To: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1134770405.1111.10.camel@mjollnir>
+References: <1134770405.1111.10.camel@mjollnir>
+Content-Type: text/plain
+Date: Sat, 17 Dec 2005 08:22:25 +0100
+Message-Id: <1134804145.11513.3.camel@mjollnir>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-Date: Fri, 16 Dec 2005 16:41:49 -0800
+On Fri, 2005-12-16 at 23:00 +0100, Mark Rosenstand wrote:
+> Hi,
+> 
+> I'm using the ondemand governor with powernow-k8 on an Athlon 64 3200+
+> desktop. However, it's acting a bit strange:
 
-> Note that under contention prefetching with a write bias can cause a lot 
-> more cache line bouncing than a regular load into shared state (assuming 
-> you do a load and test before you try the CAS).
+Local screw-up. I'm sorry about the noise.
 
-If there is some test guarding the CAS, yes.
-
-But if there isn't, for things like atomic increment and
-decrement, where the CAS is unconditional, you'll always
-eat the two bus transactions without the prefetch for write.

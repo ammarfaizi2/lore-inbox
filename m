@@ -1,95 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932125AbVLQVaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbVLQVdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932125AbVLQVaz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 16:30:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932657AbVLQVaz
+	id S964917AbVLQVdP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 16:33:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbVLQVdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 16:30:55 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:36877 "HELO
+	Sat, 17 Dec 2005 16:33:15 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:39693 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932125AbVLQVay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 16:30:54 -0500
-Date: Sat, 17 Dec 2005 22:30:56 +0100
+	id S932657AbVLQVdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 16:33:15 -0500
+Date: Sat, 17 Dec 2005 22:33:16 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: Joel Becker <joel.becker@oracle.com>, Mark Fasheh <mark.fasheh@oracle.com>,
-       Kurt Hackel <kurt.hackel@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] fs/ocfs2/: small cleanups
-Message-ID: <20051217213056.GS23349@stusta.de>
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.15-rc5-git3] hpet.c causes FC4 GCC 4.0.2 to bomb with unrecognizable insn
+Message-ID: <20051217213316.GT23349@stusta.de>
+References: <5a4c581d0512130507n698846ao719c389f3c3ee416@mail.gmail.com> <20051217123636.cdd53270.akpm@osdl.org> <5a4c581d0512171250j1572c086j4fa56c41d19fa0ae@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <5a4c581d0512171250j1572c086j4fa56c41d19fa0ae@mail.gmail.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following cleanups:
-- cluster/sys.c: make needlessly global code static
-- dlm/: "extern" declarations for variables belong into header files
-        (and in this case, they are already in dlmdomain.h)
+On Sat, Dec 17, 2005 at 09:50:29PM +0100, Alessandro Suardi wrote:
+>...
+> Sorry for the false alarm about GCC 4.0.2. According to the
+>  current Documentation/Changes the 2.96 compiler seems to
+>  be expected to build these kernels, so perhaps there still is
+>  something to be looked into.
+> 
+> If anyone is interested I can try uninlining hpet_time_div()
+>  and rebuild with 2.96 then report back.
 
+In -mm, support for gcc < 3.2 has already been dropped making it 
+relatively useless to work around gcc 2.96 internal errors.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Thanks,
+> 
+> --alessandro
 
----
+cu
+Adrian
 
-BTW: Could you add a MAINTAINERS entry for ocfs2?
+-- 
 
- fs/ocfs2/cluster/sys.c   |    4 ++--
- fs/ocfs2/dlm/dlmmaster.c |    4 +---
- fs/ocfs2/dlm/dlmthread.c |    3 ---
- 3 files changed, 3 insertions(+), 8 deletions(-)
-
---- linux-2.6.15-rc5-mm3-full/fs/ocfs2/cluster/sys.c.old	2005-12-17 20:07:58.000000000 +0100
-+++ linux-2.6.15-rc5-mm3-full/fs/ocfs2/cluster/sys.c	2005-12-17 20:09:46.000000000 +0100
-@@ -50,7 +50,7 @@
- 	return snprintf(buf, PAGE_SIZE, "%u\n", O2NM_API_VERSION);
- }
- 
--O2CB_ATTR(interface_revision, S_IFREG | S_IRUGO, o2cb_interface_revision_show, NULL);
-+static O2CB_ATTR(interface_revision, S_IFREG | S_IRUGO, o2cb_interface_revision_show, NULL);
- 
- static struct attribute *o2cb_attrs[] = {
- 	&o2cb_attr_interface_revision.attr,
-@@ -73,7 +73,7 @@
- };
- 
- /* gives us o2cb_subsys */
--decl_subsys(o2cb, NULL, NULL);
-+static decl_subsys(o2cb, NULL, NULL);
- 
- static ssize_t
- o2cb_show(struct kobject * kobj, struct attribute * attr, char * buffer)
---- linux-2.6.15-rc5-mm3-full/fs/ocfs2/dlm/dlmmaster.c.old	2005-12-17 20:10:22.000000000 +0100
-+++ linux-2.6.15-rc5-mm3-full/fs/ocfs2/dlm/dlmmaster.c	2005-12-17 20:11:00.000000000 +0100
-@@ -48,6 +48,7 @@
- #include "dlmapi.h"
- #include "dlmcommon.h"
- #include "dlmdebug.h"
-+#include "dlmdomain.h"
- 
- #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_MASTER)
- #include "cluster/masklog.h"
-@@ -173,9 +174,6 @@
- 	spin_unlock(&dlm->master_lock);
- }
- 
--extern spinlock_t dlm_domain_lock;
--extern struct list_head dlm_domains;
--
- int dlm_dump_all_mles(const char __user *data, unsigned int len)
- {
- 	struct list_head *iter;
---- linux-2.6.15-rc5-mm3-full/fs/ocfs2/dlm/dlmthread.c.old	2005-12-17 20:11:11.000000000 +0100
-+++ linux-2.6.15-rc5-mm3-full/fs/ocfs2/dlm/dlmthread.c	2005-12-17 20:11:31.000000000 +0100
-@@ -52,9 +52,6 @@
- #define MLOG_MASK_PREFIX (ML_DLM|ML_DLM_THREAD)
- #include "cluster/masklog.h"
- 
--extern spinlock_t dlm_domain_lock;
--extern struct list_head dlm_domains;
--
- static int dlm_thread(void *data);
- 
- static void dlm_flush_asts(struct dlm_ctxt *dlm);
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

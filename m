@@ -1,61 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964977AbVLQVk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbVLQVoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964977AbVLQVk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 16:40:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbVLQVk5
+	id S964980AbVLQVoN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 16:44:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbVLQVoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 16:40:57 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:42509 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964977AbVLQVk5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 16:40:57 -0500
-Date: Sat, 17 Dec 2005 22:40:58 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] re-enable UID16 for !EMBEDDED
-Message-ID: <20051217214058.GU23349@stusta.de>
-References: <20051217044410.GO23349@stusta.de> <20051217195447.GG8637@waste.org>
-MIME-Version: 1.0
+	Sat, 17 Dec 2005 16:44:13 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62732 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964980AbVLQVoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 16:44:12 -0500
+Date: Sat, 17 Dec 2005 21:44:02 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, Steven Rostedt <rostedt@goodmis.org>,
+       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
+       mingo@redhat.com, akpm@osdl.org
+Subject: Re: [PATCH 1/12]: MUTEX: Implement mutexes
+Message-ID: <20051217214401.GB31551@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	David Howells <dhowells@redhat.com>,
+	Steven Rostedt <rostedt@goodmis.org>, linux-arch@vger.kernel.org,
+	linux-kernel@vger.kernel.org, mingo@redhat.com, akpm@osdl.org
+References: <Pine.LNX.4.64.0512162334440.3698@g5.osdl.org> <dhowells1134774786@warthog.cambridge.redhat.com> <200512162313.jBGND7g4019623@warthog.cambridge.redhat.com> <1134791914.13138.167.camel@localhost.localdomain> <14917.1134847311@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0512171201200.3698@g5.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051217195447.GG8637@waste.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <Pine.LNX.4.64.0512171201200.3698@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 17, 2005 at 11:54:48AM -0800, Matt Mackall wrote:
-> On Sat, Dec 17, 2005 at 05:44:10AM +0100, Adrian Bunk wrote:
-> > It seems noone noticed that CONFIG_UID16 was accidentially always 
-> > disabled in the latest -mm kernels.
-> 
-> Hmm, did I break it?
+On Sat, Dec 17, 2005 at 12:11:39PM -0800, Linus Torvalds wrote:
+> Of the other architectures you list, only ARM is really important. And no, 
+> arm doesn't do swap. It does LL/SC (except they call it "ldrex/strex", 
+> which I assume stands for "load/store with reservation and X just because 
+> X is cool. Yeah, we're cool" (*)).
 
-Yes, patch below.
+> (*) Actually, some arm docs I found implies that "ex" stands for 
+> "exclusive", but that leaves me wondering what the "r" stands for? 
 
-cu
-Adrian
+FYI.  The standard instructions:
 
+ldr = load register
+str = store register
 
-<--  snip  -->
+The new (ARM architecture v6 and above) atomic instructions:
 
+ldrex = load register exclusive
+strex = store register exclusive
 
-UID16 was accidentially disabled for !EMBEDDED.
+Previous architecture versions only have the 32-bit and 8 bit
+unconditional swap instructions.  Luckily they're unlikely to be
+used for SMP in the field.
 
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.15-rc5-mm3-full/init/Kconfig.old	2005-12-17 19:55:58.000000000 +0100
-+++ linux-2.6.15-rc5-mm3-full/init/Kconfig	2005-12-17 19:56:12.000000000 +0100
-@@ -337,10 +337,11 @@
- config UID16
- 	bool "Enable 16-bit UID system calls" if EMBEDDED
- 	depends !ALPHA && !PPC && !PPC64 && !PARISC && !V850 && !ARCH_S390X
- 	depends !X86_64 || IA32_EMULATION
- 	depends !SPARC64 || SPARC32_COMPAT
-+	default y
- 	help
- 	  This enables the legacy 16-bit UID syscall wrappers.
- 
- config CC_OPTIMIZE_FOR_SIZE
- 	bool "Optimize for size"
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

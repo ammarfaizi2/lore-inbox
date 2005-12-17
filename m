@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932650AbVLQSjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932647AbVLQSiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932650AbVLQSjs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 13:39:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbVLQSjs
+	id S932647AbVLQSiy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 13:38:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932650AbVLQSiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 13:39:48 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:26819 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932650AbVLQSjs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 13:39:48 -0500
-Subject: Re: Dianogsing a hard lockup
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0512171655390.2227@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0512171655390.2227@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Sat, 17 Dec 2005 13:41:23 -0500
-Message-Id: <1134844883.11227.11.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Sat, 17 Dec 2005 13:38:54 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:28940 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932647AbVLQSix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 13:38:53 -0500
+Date: Sat, 17 Dec 2005 19:38:54 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Matt Mackall <mpm@selenic.com>
+Subject: Re: remove CONFIG_UID16
+Message-ID: <20051217183854.GQ23349@stusta.de>
+References: <20051217044410.GO23349@stusta.de> <20051217131807.GD13043@infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051217131807.GD13043@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-17 at 17:09 +0100, Jan Engelhardt wrote:
-> Hi list,
+On Sat, Dec 17, 2005 at 01:18:07PM +0000, Christoph Hellwig wrote:
+> On Sat, Dec 17, 2005 at 05:44:10AM +0100, Adrian Bunk wrote:
+> > It seems noone noticed that CONFIG_UID16 was accidentially always 
+> > disabled in the latest -mm kernels.
+> > 
+> > Is there any reason against removing it completely?
 > 
+> Yes, it breaks backwards-compatilbity for not even that old binaries.
 > 
-> some time after I load drivers (any, rt2500 or via ndiswrap) for a 
-> rt2500-based wlan card, the box locks up hard. Sysrq does not work, so I 
-> suppose it is during irq-disabled context. How could I find out where this 
-> happens?
+> There's not way we're ever going to remove it.
 
+You are right.
 
-First, stick to rt2500 as you won't get help with binary only drivers
-here.
+Sorry, this was a dumb idea
 
-Try to reproduce the problem from the console, you're more likely to get
-a usable Oops.
+cu
+Adrian
 
-Check the driver code & make sure it can't get stuck looping in the
-interrupt handler due to an unhandled IRQ.  Add printks.
+-- 
 
-Finally report it to the rt2500 maintainer.
-
-Lee
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

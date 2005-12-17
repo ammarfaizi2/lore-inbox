@@ -1,59 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbVLQVoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVLQVwh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964980AbVLQVoN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 16:44:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbVLQVoN
+	id S964981AbVLQVwh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 16:52:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbVLQVwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 16:44:13 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:62732 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964980AbVLQVoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 16:44:12 -0500
-Date: Sat, 17 Dec 2005 21:44:02 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, Steven Rostedt <rostedt@goodmis.org>,
-       linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
-       mingo@redhat.com, akpm@osdl.org
-Subject: Re: [PATCH 1/12]: MUTEX: Implement mutexes
-Message-ID: <20051217214401.GB31551@flint.arm.linux.org.uk>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	David Howells <dhowells@redhat.com>,
-	Steven Rostedt <rostedt@goodmis.org>, linux-arch@vger.kernel.org,
-	linux-kernel@vger.kernel.org, mingo@redhat.com, akpm@osdl.org
-References: <Pine.LNX.4.64.0512162334440.3698@g5.osdl.org> <dhowells1134774786@warthog.cambridge.redhat.com> <200512162313.jBGND7g4019623@warthog.cambridge.redhat.com> <1134791914.13138.167.camel@localhost.localdomain> <14917.1134847311@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0512171201200.3698@g5.osdl.org>
-Mime-Version: 1.0
+	Sat, 17 Dec 2005 16:52:37 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27367 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964981AbVLQVwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 16:52:37 -0500
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 01/13]  [RFC] ipath basic headers
+References: <200512161548.jRuyTS0HPMLd7V81@cisco.com>
+	<200512161548.aLjaDpGm5aqk0k0p@cisco.com>
+	<20051217131456.GA13043@infradead.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Sat, 17 Dec 2005 14:51:19 -0700
+In-Reply-To: <20051217131456.GA13043@infradead.org> (Christoph Hellwig's
+ message of "Sat, 17 Dec 2005 13:14:56 +0000")
+Message-ID: <m1irtn75pk.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512171201200.3698@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 17, 2005 at 12:11:39PM -0800, Linus Torvalds wrote:
-> Of the other architectures you list, only ARM is really important. And no, 
-> arm doesn't do swap. It does LL/SC (except they call it "ldrex/strex", 
-> which I assume stands for "load/store with reservation and X just because 
-> X is cool. Yeah, we're cool" (*)).
+Christoph Hellwig <hch@infradead.org> writes:
 
-> (*) Actually, some arm docs I found implies that "ex" stands for 
-> "exclusive", but that leaves me wondering what the "r" stands for? 
+> please always used fixes-size types for user communication.  also please
+> avoid ioctls like the rest of the IB codebase.
 
-FYI.  The standard instructions:
+Could someone please explain to me how the uverbs abuse of write
+is better that ioctl?  
 
-ldr = load register
-str = store register
+Every single command seems to have a __u64 response fields that is a
+pointer into user space.  When you write your commands and read your
+responses like the netlink layer does I can see the sense of it.  But
+making write an ioctl by another name...
 
-The new (ARM architecture v6 and above) atomic instructions:
+One of the scarier comments I have seen lately from ib_user_verbs.h
+/*
+ * Make sure that all structs defined in this file remain laid out so
+ * that they pack the same way on 32-bit and 64-bit architectures (to
+ * avoid incompatibility between 32-bit userspace and 64-bit kernels).
+ * Specifically:
+ *  - Do not use pointer types -- pass pointers in __u64 instead.
+ *  - Make sure that any structure larger than 4 bytes is padded to a
+ *    multiple of 8 bytes.  Otherwise the structure size will be
+ *    different between 32-bit and 64-bit architectures.
+ */
 
-ldrex = load register exclusive
-strex = store register exclusive
+The two points that get called out.
+- Embedded pointers are a large part of what make ioctl a maintenance
+  nightmare.  I admit we are 15-20 years away before big machines
+  exhaust the capability of 64bit pointers so we aren't likely
+  to run into size issues soon.  But a write that changes your address
+  space is ugly, and unexpected.
 
-Previous architecture versions only have the 32-bit and 8 bit
-unconditional swap instructions.  Luckily they're unlikely to be
-used for SMP in the field.
+  What looks like a reimplementation of readv/writev using this
+  technique is also scary.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+- 64bit compilers will not pad every structure to 8 bytes.  This
+  only will happen if you happen to have an 8 byte element in your
+  structure that is only aligned to 32bits by a 32bit structure.
+  Unfortunately the 32bit gcc only aligns long long to 32bits on
+  x86, which triggers the described behavior.
+
+
+
+Eric

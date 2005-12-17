@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbVLQRsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbVLQR7S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932618AbVLQRsV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 12:48:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932619AbVLQRsV
+	id S932619AbVLQR7S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 12:59:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932630AbVLQR7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 12:48:21 -0500
-Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:33980
-	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
-	id S932618AbVLQRsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 12:48:21 -0500
-Message-ID: <43A44F5F.7020207@ev-en.org>
-Date: Sat, 17 Dec 2005 17:48:15 +0000
-From: Baruch Even <baruch@ev-en.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+	Sat, 17 Dec 2005 12:59:18 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:51061 "EHLO
+	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932619AbVLQR7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 12:59:18 -0500
+Date: Sat, 17 Dec 2005 11:58:32 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Dianogsing a hard lockup
+In-reply-to: <5kMWZ-2PF-7@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <43A451C8.9090304@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
 X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Huess <huexxx@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Error compiling linux-2.6.9
-References: <be2547710512151912w1593ff4eh@mail.gmail.com> <be2547710512151915k3ff5ba78j@mail.gmail.com>
-In-Reply-To: <be2547710512151915k3ff5ba78j@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+References: <5kMWZ-2PF-7@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Huess wrote:
-> [1.] Error compiling linux-2.6.9
-> [2.] When I try to compile the kernel, executing make, the script
-> returns an error.
-> [3.]
-> [4.] Linux version 2.6.13-15-smp (geeko@buildhost) (gcc version 4.0.2
-> 20050901 (prerelease) (SUSE Linux)) #1 SMP Tue Sep 13 14:56:15 UTC
-> 2005
-> [5.]
-> [6.] Running make, I obtain the following:
-> piv2800ht:/usr/src/linux-2.6.9 # make vmlinux
->   CHK     include/linux/version.h
-> make[1]: `arch/i386/kernel/asm-offsets.s' está actualizado.
->   CHK     include/linux/compile.h
+Jan Engelhardt wrote:
+> Hi list,
 > 
->   CC      arch/i386/kernel/process.o
-> arch/i386/kernel/process.c: In function 'show_regs':
-> arch/i386/kernel/process.c:252: warning: pointer targets in passing
-> argument 2 of 'show_trace' differ in signedness
-> {entrada estándar}: Mensajes del ensamblador:
 > 
-> {entrada estándar}:741: Error: sufijo u operandos inválidos para `mov'
-> {entrada estándar}:742: Error: sufijo u operandos inválidos para `mov'
-> {entrada estándar}:950: Error: sufijo u operandos inválidos para `mov'
+> some time after I load drivers (any, rt2500 or via ndiswrap) for a 
+> rt2500-based wlan card, the box locks up hard. Sysrq does not work, so I 
+> suppose it is during irq-disabled context. How could I find out where this 
+> happens?
 > 
-> {entrada estándar}:951: Error: sufijo u operandos inválidos para `mov'
-> {entrada estándar}:1027: Error: sufijo u operandos inválidos para `mov'
-> {entrada estándar}:1028: Error: sufijo u operandos inválidos para `mov'
 > 
-> {entrada estándar}:1125: Error: sufijo u operandos inválidos para `mov'
-> {entrada estándar}:1126: Error: sufijo u operandos inválidos para `mov'
-> {entrada estándar}:1220: Error: sufijo u operandos inválidos para `mov'
-> 
-> {entrada estándar}:1232: Error: sufijo u operandos inválidos para `mov'
-> make[1]: *** [arch/i386/kernel/process.o] Error 1
-> make: *** [arch/i386/kernel] Error 2
+> Jan Engelhardt
 
-Use http://www.google.ie/search?hl=en&q=linux-2.6-seg-5.patch to search
-for the patch I used to solve a similar problem.
+Try nmi_watchdog=1 on the kernel command line. That may get you a stack 
+trace for the lockup.
 
-As Adrian said, the newer binutils are more strict on what they accept.
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-Baruch

@@ -1,25 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932172AbVLQHgN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbVLQHl2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932172AbVLQHgN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 02:36:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbVLQHgN
+	id S932154AbVLQHl2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 02:41:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbVLQHl2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 02:36:13 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:62596 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932146AbVLQHgM (ORCPT
+	Sat, 17 Dec 2005 02:41:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:52357 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932105AbVLQHl1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 02:36:12 -0500
-Date: Fri, 16 Dec 2005 23:35:53 -0800 (PST)
+	Sat, 17 Dec 2005 02:41:27 -0500
+Date: Fri, 16 Dec 2005 23:40:55 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: David Howells <dhowells@redhat.com>, linux-arch@vger.kernel.org,
-       linux-kernel@vger.kernel.org, mingo@redhat.com, akpm@osdl.org
-Subject: Re: [PATCH 1/12]: MUTEX: Implement mutexes
-In-Reply-To: <1134791914.13138.167.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0512162334440.3698@g5.osdl.org>
-References: <dhowells1134774786@warthog.cambridge.redhat.com> 
- <200512162313.jBGND7g4019623@warthog.cambridge.redhat.com>
- <1134791914.13138.167.camel@localhost.localdomain>
+To: "David S. Miller" <davem@davemloft.net>
+cc: jbarnes@virtuousgeek.org, dhowells@redhat.com, nickpiggin@yahoo.com.au,
+       arjan@infradead.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       cfriesen@nortel.com, hch@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+In-Reply-To: <20051216.231056.124758189.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.64.0512162336210.3698@g5.osdl.org>
+References: <Pine.LNX.4.64.0512161429500.3698@g5.osdl.org>
+ <20051216.145306.132052494.davem@davemloft.net> <200512161641.49571.jbarnes@virtuousgeek.org>
+ <20051216.231056.124758189.davem@davemloft.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,15 +29,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 16 Dec 2005, Steven Rostedt wrote:
+On Fri, 16 Dec 2005, David S. Miller wrote:
 > 
-> What's the reason not to just use DECLARE_SEM and DECLARE_SEM_LOCKED?
+> If there is some test guarding the CAS, yes.
+> 
+> But if there isn't, for things like atomic increment and
+> decrement, where the CAS is unconditional, you'll always
+> eat the two bus transactions without the prefetch for write.
 
-I still don't see the reason for _any_ of these changes.
+Side note: there may be hardware cache protocol _scheduling_ reasons why 
+some particular hw platform might prefer to go through the "Shared" state 
+in their cache protocol.
 
-There's one big reason to stay with what we have: it's always better to 
-not make changes unnecessarily. That's a BIG reason. It's the _changes_ 
-that need to have strong arguments for them as actually buying us 
-something.
+For example, you might have hardware that otherwise ends up being very 
+unfair, where the two-stage lock aquire might actually allow another node 
+to come in at all. Fairness and balance often comes at a cost, both in hw 
+and in sw.
+
+Arguably such hardware sounds pretty broken, but the point is that these 
+things can certainly depend on the platform around the CPU as well as on 
+what the CPU itself does.
+
+I'm not saying that that is necessarily what Jesse was arguing about, but 
+lock contention behaviour can be "interesting".
 
 			Linus

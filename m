@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbVLQVUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932600AbVLQV1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbVLQVUP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 16:20:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932600AbVLQVUP
+	id S932600AbVLQV1N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 16:27:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932653AbVLQV1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 16:20:15 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:12457 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S932069AbVLQVUN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 16:20:13 -0500
-Date: Sat, 17 Dec 2005 16:20:12 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [2.6 patch] fix the EMBEDDED menu
-In-reply-to: <20051214221702.GH7124@flint.arm.linux.org.uk>
-X-X-Sender: nico@localhost.localdomain
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       torvalds@osdl.org, lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0512171614040.26663@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20051214191006.GC23349@stusta.de>
- <20051214140531.7614152d.akpm@osdl.org>
- <20051214221702.GH7124@flint.arm.linux.org.uk>
+	Sat, 17 Dec 2005 16:27:13 -0500
+Received: from [194.90.237.34] ([194.90.237.34]:3113 "EHLO mtlex01.yok.mtl.com")
+	by vger.kernel.org with ESMTP id S932600AbVLQV1M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 16:27:12 -0500
+Date: Sat, 17 Dec 2005 23:30:30 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [git patch review 2/7] IB/mthca: correct log2 calculation
+Message-ID: <20051217213030.GB19246@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20051217123816.18ad94e0.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051217123816.18ad94e0.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Dec 2005, Russell King wrote:
+Quoting r. Andrew Morton <akpm@osdl.org>:
+> Subject: Re: [git patch review 2/7] IB/mthca: correct log2 calculation
+> 
+> Roland Dreier <rolandd@cisco.com> wrote:
+> >
+> > Fix thinko in rd_atomic calculation: ffs(x) - 1 does not find the next
+> > power of 2 -- it should be fls(x - 1).
+> 
+> Please use round_up_pow_of_two().
 
-> I believe there are instances where ARM fails if CC_OPTIMIZE_FOR_SIZE 
-> is not set. Luckily we have assertions in the generated assembly to 
-> flag these as assembly errors when they happen, rather than silently 
-> continuing to build.
+Yes, but we want the bit number. roundup_pow_of_two does a shift.
 
-Actually that gcc problem was unrelated to -Os vs -O2.  I was able to 
-produce a test case that triggered the bug even with -Os at the time.  
-It is true that, for the kernel, using -Os made the gcc bug more 
-unlikely, but it could have happened regardless.  This particular gcc 
-bug was fixed quite a while ago so using either -O2 and -Os on ARM 
-should be fine (especially since we fail the compilation if a bad 
-compiler triggers the bug).
-
-
-Nicolas
+-- 
+MST

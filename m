@@ -1,22 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbVLQUi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964938AbVLQUiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964943AbVLQUi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 15:38:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964917AbVLQUi1
+	id S964938AbVLQUiH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 15:38:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbVLQUiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 15:38:27 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:31713 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964943AbVLQUiY (ORCPT
+	Sat, 17 Dec 2005 15:38:06 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:24545 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964943AbVLQUiC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 15:38:24 -0500
-Date: Sat, 17 Dec 2005 12:37:55 -0800
+	Sat, 17 Dec 2005 15:38:02 -0500
+Date: Sat, 17 Dec 2005 12:37:29 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Patch Devil <lkpatches@paypc.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: kmap_atomic slot collision
-Message-Id: <20051217123755.aaa73edf.akpm@osdl.org>
-In-Reply-To: <20051215173353.GA29402@mellanox.co.il>
-References: <20051215173353.GA29402@mellanox.co.il>
+Subject: Re: [PATCH 2.6] i8xx_tco - Add SuperMicro ICH[56] Pentium 4
+ watchdog support
+Message-Id: <20051217123729.498c7919.akpm@osdl.org>
+In-Reply-To: <1134600697.43a0a1f9de94e@www.paypc.com>
+References: <1134600697.43a0a1f9de94e@www.paypc.com>
 X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,50 +25,55 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Michael S. Tsirkin" <mst@mellanox.co.il> wrote:
+Patch Devil <lkpatches@paypc.com> wrote:
 >
-> Hi!
-> I'm trying to use kmap_atomic from both interrupt and task context.
-> My idea was to do local_irq_save and then use KM_IRQ0/KM_IRQ1:
-> since I'm disabling interrupts I assumed that this should be safe.
-> The relevant code is here:
-> https://openib.org/svn/gen2/trunk/src/linux-kernel/infiniband/ulp/sdp/sdp_iocb.c
+> Hello friends of LK:
 > 
-> However, under stress I see errors from arch/i386/mm/highmem.c:42
->         if (!pte_none(*(kmap_pte-idx)))
->                 BUG();
+> It seems that SuperMicro P4-based motherboards DO actually have working
+> watchdog hardware (be sure jumpers *and* BIOS settings are configured
+> appropriately), however the setup of their internal ports and registers
+> deviate from canonical Intel specification.
 > 
-> Apparently, my routine, running from a task context, races with
-> some other kernel code, and so I'm trying to use a slot that was not
-> yet unmapped.
+> Because it seems impossible/difficult to do a proper auto-detection for these
+> deviations, I've added a module_param to the TCO module to provide minor
+> changes to the existing i8xx TCO code.  I've given it some testing on i845
+> (Northwood P4) and E7520 (Nacona/EM64T SMP-Xeon) and it does indeed activate
+> watchdog (reset/reboot) functionality and provide WDT resets to keep the
+> system up.
 > 
-> Anyone has an idea on what I could be doing wrong?
+> SuperMicro had provided me with some documentation for their Pentium III
+> motherboards, however I was not able to ever get it functioning on my SSE370+,
+> however I've incorporated the logic as documented as a bit of a "bookmark" for
+> future implementors who MAY be lucky to have P3 SuperMicros with working WDT
+> functionality.
+> 
+> My patch activates the watchdog even if the BIOS setting disables it, however
+> it cannot override the jumper on the motherboard.
+> 
+> Naturally, users should do two-way testing before deploying this on production
+> hardware: 1) Verify that the watchdog IS actually able to reset the machine --
+> so you'll need to deliberately lockup or kill the WDT refresh and make sure
+> the machine reboots, and then 2) Verify that the watchdog timer is being
+> properly reset.
+> 
+> This patch was made against 2.6.13.2, and I provide some background detail in
+> the patched source.
+> 
+> I've had this working in production for a couple of months now without any
+> issues.  Of course, these very reliable systems never lockup (typical uptimes
+> are over 300-400 days, and are rebooted for kernel upgrades only).  But hey, I
+> was a bit annoyed that an advertised feature wasn't available to me.
+> 
+> Cheers,
+> Robert
+> 
 
-kmap slots are like any other CPU-local resources - they need to be
-protected from context switches and from interrupts.  The slots such as
-KM_USER0 are protected by preempt_disable() to prevent this CPU from
-context switching and scribbling on this CPU's kmap slot from with another
-task.  kmap_atomic() does this preempt_disable() internally.
+Thanks for doing this work.
 
-The IRQ-context per-cpu kmap slots need to be protected from another IRQ on
-this CPU by taking local_irq_disable().  IOW:
+Unfortunately we shouldn't be merging nontrivial patches from new
+contributors with names like "Robert the Patch Devil" ;)
 
-	local_irq_save(flags);
-	vaddr = kmap_atomic(page, KM_IRQ0);
-	diddle(*vaddr);
-	kunmap_atomic(vaddr, KM_IRQ0);
-	local_irq_restore(flags);
+Please review Section 11 of Documentation/SubmittingPatches.txt and, if you
+find the terms there to be acceptable, resend the patch with a
+Signed-off-by: and your real name, thanks.
 
-Plus we should do flush_dcache_page() if the page can possibly be mapped
-into process pagetables.  I forget whether flush_dcache_page() is safe from
-hard IRQ context...
-
-If your interrupt handler is using SA_SHIRQ (and most are), then the
-local_irq_save() is needed even within the IRQ handler.
-
-And lo, a bunch of places in the kernel are forgetting to disable local
-interrupts.  So if your ode is correctly coded as above, you can scribble
-on their kmap, but they cannot scribble on yours.
-
-Failing to disable local IRQs while taking KM_IRQn is a ghastly bug.  I'll
-fix 'em up.

@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbVLQDqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbVLQDvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751362AbVLQDqq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Dec 2005 22:46:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbVLQDqq
+	id S964922AbVLQDvy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Dec 2005 22:51:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbVLQDvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Dec 2005 22:46:46 -0500
-Received: from mail-in-08.arcor-online.net ([151.189.21.48]:35271 "EHLO
-	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751362AbVLQDqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Dec 2005 22:46:45 -0500
-Date: Sat, 17 Dec 2005 04:47:07 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Lee Revell <rlrevell@joe-job.com>
-cc: 7eggert@gmx.de, Kyle Moffett <mrmacman_g4@mac.com>,
-       Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       Alex Davis <alex14641@yahoo.com>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-In-Reply-To: <1134761158.18119.9.camel@mindpipe>
-Message-ID: <Pine.LNX.4.58.0512170442110.2279@be1.lrz>
-References: <5kh6K-7KC-3@gated-at.bofh.it> <5kiFR-1mi-11@gated-at.bofh.it> 
- <E1EnDOo-0006Gd-Na@be1.lrz> <1134761158.18119.9.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: 7eggert@web.de
+	Fri, 16 Dec 2005 22:51:54 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:54690 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S964922AbVLQDvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Dec 2005 22:51:54 -0500
+Subject: Re: 2.6.15-rc5-rt2 slowness
+From: Steven Rostedt <rostedt@goodmis.org>
+To: john stultz <johnstul@us.ibm.com>
+Cc: G.Ohrner@post.rwth-aachen.de, Thomas Gleixner <tglx@linutronix.de>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1134773902.27117.14.camel@cog.beaverton.ibm.com>
+References: <dnu8ku$ie4$1@sea.gmane.org>
+	 <1134736325.13138.119.camel@localhost.localdomain>
+	 <1134773902.27117.14.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain
+Date: Fri, 16 Dec 2005 22:51:42 -0500
+Message-Id: <1134791502.13138.164.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Dec 2005, Lee Revell wrote:
-> On Fri, 2005-12-16 at 12:05 +0100, Bodo Eggert wrote:
-
-> > So where is the driver for the Netgear WG511 Softmac card I'm supposed
-> > to test? I bought this card because it was labled as being supported, and it
-> > turned out that it wasn't, and just nobody cared to update the list of
-> > supported cards with the warning about the unsupported variant.
+On Fri, 2005-12-16 at 14:58 -0800, john stultz wrote:
+> On Fri, 2005-12-16 at 07:32 -0500, Steven Rostedt wrote:
+> > I'll look into your oops later (or maybe Ingo has some time), but I've
+> > also notice the slowness of 2.6.15-rc5-rt2, and I'm investigating it
+> > now.
 > 
-> Um, this is not the developers fault.  Do you think the vendors call the
-> driver developers to tell them "hey, we just released a new product,
-> with a name confusingly similar to the one your driver supports, but we
-> changed the chipset a tiny bit so it won't work with your driver"?
-> Dream on.
+> Hey Steven,
+> 	Do check that the slowness you're seeing isn't related to the
+> CONFIG_PARANIOD_GENERIC_TIME option being enabled. It is expected that
+> the extra checks made by that config option would slow things down a
+> bit.
+> 
 
-> Driver developers are not psychic.  If no USER reported that the new
-> FooBar1002X is completely different from the FooBar1002, there's no way
-> for us to know.  Sorry you were unfortunate enough to be the first user
-> to learn the hard way.  Complain to the vendor not LKML.
+Hi John,
 
-I found the information hidden on the developer's website, IIRC in the 
-developer forum and in several threads. I think it's reasonable to beleave 
-that the devteam knew.
+Thanks for the suggestion, but I've been running my tests with that
+turned off.  Actually, I've turned off pretty much all debugging, and
+added my own logdev device.  As mentioned in my previous email, that I
+CC you on, I found the culprit.
 
--- 
-Top 100 things you don't want the sysadmin to say:
-90. Wow....that seemed _fast_.....
+Seems, the SLOB is not as fast as the SLAB. I'll look more into this
+tomorrow. (My wife is taking by daughter out of town for gymnastics, so
+I get to stay home and work :-/ )
+
+-- Steve
+
+

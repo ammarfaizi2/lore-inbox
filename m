@@ -1,88 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbVLQHFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbVLQHNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbVLQHFP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 02:05:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbVLQHFO
+	id S1751378AbVLQHNF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 02:13:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbVLQHNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 02:05:14 -0500
-Received: from smtp101.sbc.mail.re2.yahoo.com ([68.142.229.104]:52140 "HELO
-	smtp101.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751365AbVLQHFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 02:05:13 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [PATCH] serial8250: convert to the new platform device interface
-Date: Sat, 17 Dec 2005 02:05:07 -0500
-User-Agent: KMail/1.8.3
-Cc: LKML <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 17 Dec 2005 02:13:05 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50320
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751375AbVLQHND (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 02:13:03 -0500
+Date: Fri, 16 Dec 2005 23:10:56 -0800 (PST)
+Message-Id: <20051216.231056.124758189.davem@davemloft.net>
+To: jbarnes@virtuousgeek.org
+Cc: torvalds@osdl.org, dhowells@redhat.com, nickpiggin@yahoo.com.au,
+       arjan@infradead.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       cfriesen@nortel.com, hch@infradead.org, matthew@wil.cx,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <200512161641.49571.jbarnes@virtuousgeek.org>
+References: <Pine.LNX.4.64.0512161429500.3698@g5.osdl.org>
+	<20051216.145306.132052494.davem@davemloft.net>
+	<200512161641.49571.jbarnes@virtuousgeek.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512170205.07926.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do not use platform_device_register_simple() as it is going away.
-Also set up driver's owner to create link driver->module in sysfs. 
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+Date: Fri, 16 Dec 2005 16:41:49 -0800
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
+> Note that under contention prefetching with a write bias can cause a lot 
+> more cache line bouncing than a regular load into shared state (assuming 
+> you do a load and test before you try the CAS).
 
- drivers/serial/8250.c |   30 ++++++++++++++++++++----------
- 1 files changed, 20 insertions(+), 10 deletions(-)
+If there is some test guarding the CAS, yes.
 
-Index: work/drivers/serial/8250.c
-===================================================================
---- work.orig/drivers/serial/8250.c
-+++ work/drivers/serial/8250.c
-@@ -2466,6 +2466,7 @@ static struct platform_driver serial8250
- 	.resume		= serial8250_resume,
- 	.driver		= {
- 		.name	= "serial8250",
-+		.owner	= THIS_MODULE,
- 	},
- };
- 
-@@ -2603,21 +2604,30 @@ static int __init serial8250_init(void)
- 	if (ret)
- 		goto out;
- 
--	serial8250_isa_devs = platform_device_register_simple("serial8250",
--					 PLAT8250_DEV_LEGACY, NULL, 0);
--	if (IS_ERR(serial8250_isa_devs)) {
--		ret = PTR_ERR(serial8250_isa_devs);
--		goto unreg;
-+	ret = platform_driver_register(&serial8250_isa_driver);
-+	if (ret)
-+		goto unreg_uart_drv;
-+
-+	serial8250_isa_devs = platform_device_alloc("serial8250",
-+						    PLAT8250_DEV_LEGACY);
-+	if (!serial8250_isa_devs) {
-+		ret = -ENOMEM;
-+		goto unreg_plat_drv;
- 	}
- 
-+	ret = platform_device_add(serial8250_isa_devs);
-+	if (ret)
-+		goto put_dev;
-+
- 	serial8250_register_ports(&serial8250_reg, &serial8250_isa_devs->dev);
- 
--	ret = platform_driver_register(&serial8250_isa_driver);
--	if (ret == 0)
--		goto out;
-+	goto out;
- 
--	platform_device_unregister(serial8250_isa_devs);
-- unreg:
-+ put_dev:
-+	platform_device_put(serial8250_isa_devs);
-+ unreg_plat_drv:
-+	platform_driver_unregister(&serial8250_isa_driver);
-+ unreg_uart_drv:
- 	uart_unregister_driver(&serial8250_reg);
-  out:
- 	return ret;
+But if there isn't, for things like atomic increment and
+decrement, where the CAS is unconditional, you'll always
+eat the two bus transactions without the prefetch for write.

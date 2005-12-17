@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964917AbVLQVdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932657AbVLQVd6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964917AbVLQVdP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 16:33:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbVLQVdP
+	id S932657AbVLQVd6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 16:33:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932658AbVLQVd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 16:33:15 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:39693 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932657AbVLQVdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 16:33:15 -0500
-Date: Sat, 17 Dec 2005 22:33:16 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.15-rc5-git3] hpet.c causes FC4 GCC 4.0.2 to bomb with unrecognizable insn
-Message-ID: <20051217213316.GT23349@stusta.de>
-References: <5a4c581d0512130507n698846ao719c389f3c3ee416@mail.gmail.com> <20051217123636.cdd53270.akpm@osdl.org> <5a4c581d0512171250j1572c086j4fa56c41d19fa0ae@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5a4c581d0512171250j1572c086j4fa56c41d19fa0ae@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+	Sat, 17 Dec 2005 16:33:58 -0500
+Received: from lame.durables.org ([64.81.244.120]:42435 "EHLO
+	calliope.durables.org") by vger.kernel.org with ESMTP
+	id S932657AbVLQVd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 16:33:57 -0500
+Subject: Re: [PATCH 07/13]  [RFC] ipath core misc files
+From: Robert Walsh <rjwalsh@pathscale.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <20051217123850.aa6cfd53.akpm@osdl.org>
+References: <200512161548.KglSM2YESlGlEQfQ@cisco.com>
+	 <200512161548.3fqe3fMerrheBMdX@cisco.com>
+	 <20051217123850.aa6cfd53.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 17 Dec 2005 13:33:55 -0800
+Message-Id: <1134855235.20575.22.camel@phosphene.durables.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 17, 2005 at 09:50:29PM +0100, Alessandro Suardi wrote:
->...
-> Sorry for the false alarm about GCC 4.0.2. According to the
->  current Documentation/Changes the 2.96 compiler seems to
->  be expected to build these kernels, so perhaps there still is
->  something to be looked into.
+> > +int ipath_mlock(unsigned long start_page, size_t num_pages, struct page **p)
+> OK.  It's perhaps not a very well named function.
+
+Really?  Suggestion for a better name?
+
+> > +	}
+> > +	vm->vm_flags |= VM_SHM | VM_LOCKED;
+> > +
+> > +	return 0;
+> > +}
 > 
-> If anyone is interested I can try uninlining hpet_time_div()
->  and rebuild with 2.96 then report back.
+> I don't think we want to be setting the user's VMA's vm_flags in this
+> manner.  This is purely to retain the physical page across fork?
 
-In -mm, support for gcc < 3.2 has already been dropped making it 
-relatively useless to work around gcc 2.96 internal errors.
+I didn't write this bit of the driver, but I believe this is the case.
+Is there a better way of doing this?
 
-> Thanks,
+> > +int ipath_munlock(size_t num_pages, struct page **p)
+> > +{
+> > +	int i;
+> > +
+> > +	for (i = 0; i < num_pages; i++) {
+> > +		_IPATH_MMDBG("%u/%lu put_page %p\n", i, num_pages, p[i]);
+> > +		SetPageDirty(p[i]);
+> > +		put_page(p[i]);
+> > +	}
+> > +	return 0;
+> > +}
 > 
-> --alessandro
+> Nope, SetPageDirty() doesn't tell the VM that the page is dirty - it'll
+> never get written out.  Use set_page_dirty_lock().
 
-cu
-Adrian
+OK.
+
+Regards,
+ Robert.
 
 -- 
+Robert Walsh                                 Email: rjwalsh@pathscale.com
+PathScale, Inc.                              Phone: +1 650 934 8117
+2071 Stierlin Court, Suite 200                 Fax: +1 650 428 1969
+Mountain View, CA 94043.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

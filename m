@@ -1,38 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932572AbVLQMjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932573AbVLQNAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932572AbVLQMjA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 07:39:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVLQMi7
+	id S932573AbVLQNAk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 08:00:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932576AbVLQNAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 07:38:59 -0500
-Received: from nproxy.gmail.com ([64.233.182.195]:8367 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932572AbVLQMi7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 07:38:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GZyR9WPAZBl+1YMyhnj/g20ftVc01WHSBzTzmw9ZydMA8uO9P3dGqXvLLiyL9roag6Zh2ioPdE+kvbNNh54rtrG58/Kv48aD7lLHZTsLceDML9UxABGc6NvK5bI3WcGjBQ+lOwMLdFDuPm2s/v5NtPyRg4xBF5wuaT7IASIJPX8=
-Message-ID: <84144f020512170438p5acbc445v30f275aca2d09afe@mail.gmail.com>
-Date: Sat, 17 Dec 2005 14:38:57 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Roland Dreier <rolandd@cisco.com>
-Subject: Re: [PATCH 03/13] [RFC] ipath copy routines
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <200512161548.lRw6KI369ooIXS9o@cisco.com>
+	Sat, 17 Dec 2005 08:00:40 -0500
+Received: from [85.8.13.51] ([85.8.13.51]:46772 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S932573AbVLQNAj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 08:00:39 -0500
+Message-ID: <43A40BEA.4080603@drzeus.cx>
+Date: Sat, 17 Dec 2005 14:00:26 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.7-2.1.fc4.nr (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200512161548.HbgfRzF2TysjsR2G@cisco.com>
-	 <200512161548.lRw6KI369ooIXS9o@cisco.com>
+To: Greg KH <gregkh@suse.de>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Secure Digital Host Controller PCI class
+References: <4381B364.2020808@drzeus.cx> <20051121214733.GA17793@suse.de> <4382B596.5080001@drzeus.cx> <20051122063904.GA24853@suse.de> <4382DF18.5040400@drzeus.cx> <438D61FD.3030700@drzeus.cx>
+In-Reply-To: <438D61FD.3030700@drzeus.cx>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/17/05, Roland Dreier <rolandd@cisco.com> wrote:
-> +#define TRUE 1
-> +#define FALSE 0
+Pierre Ossman wrote:
+> Pierre Ossman wrote:
+> 
+>> Greg KH wrote:
+>>
+>>> I do have access to the PCI specs from the SIG website by virtue of my
+>>> current employer, not by any recognition by the PCI-SIG that Linux is
+>>> important at all...
+>>>
+>>> If you let me know what document you think this might be in, I'll dig
+>>> around to see if I can find it.
+>>>
+>>>   
+>>
+>>
+>> It's difficult to tell what is inside each document without being a
+>> member. But this sounds promising:
+>>
+>> Appendix D -- Class codes updates
+>> <http://www.pcisig.com/members/downloads/specifications/conventional/appd_latest.pdf>
+>>
+>> (61k PDF)
+>> http://www.pcisig.com/members/downloads/specifications/conventional/appd_latest.pdf
+>>
+>>
+> 
+> Greg, have you had time to have a look at this? Just a reminder in case
+> you forgot (and before I do as well). :)
+> 
 
-Please kill these.
-
-                             Pekka
+*poke again*

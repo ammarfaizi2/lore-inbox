@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbVLRMEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932566AbVLRMDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932694AbVLRMEz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 07:04:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbVLRMEz
+	id S932566AbVLRMDy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 07:03:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932694AbVLRMDy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 07:04:55 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:32393 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932694AbVLRMEy
+	Sun, 18 Dec 2005 07:03:54 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:23548 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S932566AbVLRMDx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 07:04:54 -0500
-Subject: Re: IT821x driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Kernel - Noah Blumenfeld <kernel@fireether.net>
+	Sun, 18 Dec 2005 07:03:53 -0500
+From: Stefan Rompf <stefan@loplof.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [2.6 patch] i386: always use 4k/4k stacks
+Date: Sun, 18 Dec 2005 13:04:37 +0100
+User-Agent: KMail/1.8
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43A54683.3030202@fireether.net>
-References: <43A54683.3030202@fireether.net>
-Content-Type: text/plain
+References: <200512181149.02009.stefan@loplof.de> <1134904884.9626.7.camel@laptopd505.fenrus.org>
+In-Reply-To: <1134904884.9626.7.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Date: Sun, 18 Dec 2005 12:05:08 +0000
-Message-Id: <1134907508.26141.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Disposition: inline
+Message-Id: <200512181304.38054.stefan@loplof.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2005-12-18 at 06:22 -0500, Kernel - Noah Blumenfeld wrote:
-> As far as I can tell - and from the information within the driver's file 
->   /drivers/ide/pci/it821x.c - the current driver does not support mwdma 
-> or dma, only udma. It also says that if - and I quote Alan Cox -
+Am Sonntag 18 Dezember 2005 12:21 schrieb Arjan van de Ven:
 
-The 2.6.14 kernel has a version of the driver built in that should
-support all modes properly. In hardware raid mode DMA mode selection is
-handled by the controller and we actually don't deal with it.
+> the kernel has a stack overflow detector, which checks at irq entry time
+> if the stack is "rather high" (7kb into the stack on a 8kb stack, 3.5kb
+> on a 4k stack). When this warning hits there's still runway left (like
+> 12.5 percent), but lets say the end becomes in sight. If the stack usage
+> would be really tight, this "early warning" detector would be hitting a
+> lot of people, right?
 
-In pass through/atapi supporting mode we handle the mode selection and
-support MWDMA/UDMA. The chip is really designed to be best for UDMA (as
-you'd expect) but does handle other modes.
+Wrong. The probability that an interrupt happens just during the codepath with 
+highest stack usage is very small. Anyway CONFIG_DEBUG_STACKOVERFLOW is not 
+enabled in 2.6.14.4 i386 defconfig. Don't know about vendor kernel kernels 
+though.
 
-> Is there a way to restrict the size of the files being written by the 
-> kernel to a hardware device? I.e. make it so it will not write LBA48 
+I thought more about filling the stack with some arbitrary value on thread 
+startup and checking how much has been overwritten on a regular basis. Part 
+of it is alreay there, hidden unter CONFIG_DEBUG_STACK_USAGE. The 
+verification should just happen timer-controlled, not only on sysrq-whatever.
 
+> (and the "safety net" is a bit of misnomer, since it's not really safe,
+> just "statistically different" if the shit hits the fan)
 
-We do the following in init_hwif_it821x already
+If you can't even guarantee that 8k (or 6k) is enough, how can you vote for 4k 
+then ;-) Just a little provocation, I don't plan getting too involved into 
+this dicussion, hell, this is just about a ridiculously small amount of self 
+contained #ifdef'd code ;-)
 
-    if(conf & 1) {
-                idev->smart = 1;
-                hwif->atapi_dma = 0;
-                /* Long I/O's although allowed in LBA48 space cause the
-                   onboard firmware to enter the twighlight zone */
-                hwif->rqsize = 256;
-        }
-
-So the driver should be doing this correctly. Also for DMA on the smart
-mode, use hdparm -d1, but don't try and program the drives - that is
-handled by the controller and that may be upsetting it. Let me know if
-that helps.
-
-If you are doing raid0 btw its faster in non-raid mode and using
-software raid. In raid1 it seems to be faster to use the chip in smart
-mode.
-
-Alan
-
+Stefan

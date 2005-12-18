@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965188AbVLRPpt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965180AbVLRPtg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965188AbVLRPpt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 10:45:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbVLRPpZ
+	id S965180AbVLRPtg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 10:49:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbVLRPtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 10:45:25 -0500
-Received: from smtp3.brturbo.com.br ([200.199.201.164]:27296 "EHLO
-	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S965151AbVLRPpX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 10:45:23 -0500
-Subject: [PATCH 2/5] - Tuner 100 was absent in tveeprom
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: linux-kernel@vger.kernel.org
-Cc: js@linuxtv.org, linux-dvb-maintainer@linuxtv.org,
-       video4linux-list@redhat.com
-Date: Sun, 18 Dec 2005 13:23:45 -0200
-Message-Id: <1134920704.6702.30.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-1mdk 
+	Sun, 18 Dec 2005 10:49:36 -0500
+Received: from sccrmhc11.comcast.net ([63.240.77.81]:48040 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S965180AbVLRPtf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 10:49:35 -0500
+In-Reply-To: <20051218120900.GA23349@stusta.de>
+References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com> <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com> <p73slsrehzs.fsf@verdi.suse.de> <20051217205238.GR23349@stusta.de> <61D4A300-4967-4DC1-AD2C-765A3D2D9743@comcast.net> <20051218120900.GA23349@stusta.de>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <2C3FD086-5582-4697-AB9F-578C80BA5811@comcast.net>
+Cc: Andi Kleen <ak@suse.de>, Kyle Moffett <mrmacman_g4@mac.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
 Content-Transfer-Encoding: 7bit
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Date: Sun, 18 Dec 2005 10:49:31 -0500
+To: Adrian Bunk <bunk@stusta.de>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Tuner 100 is the TUNER_PHILIPS_FMD1216ME_MK3, not TUNER_ABSENT. This
-was causing the tuner module to be skipped, and rendered boards with this
-value in the eeprom (like the HVR1100) unable to tune
 
-Signed-off-by: Ricardo Cerqueira <v4l@cerqueira.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+On Dec 18, 2005, at 7:09 AM, Adrian Bunk wrote:
 
----
+> There is no workload where 8kB suits better.
 
- drivers/media/video/tveeprom.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+People have pointed out that there is currently at least one  
+incompatibility introduced by 4K stacks and there may be many others  
+which are corner cases, that only occur under high load in obscure  
+exceptional circumstances with large configurations and suitable  
+nesting.
 
-d5aaf794494f4592b211cf11951aadb540bf9e93
-diff --git a/drivers/media/video/tveeprom.c b/drivers/media/video/tveeprom.c
-index cd7cf1b..5ac2353 100644
---- a/drivers/media/video/tveeprom.c
-+++ b/drivers/media/video/tveeprom.c
-@@ -206,7 +206,7 @@ hauppauge_tuner[] =
- 	{ TUNER_ABSENT,        "TCL 2002MI_3H"},
- 	{ TUNER_TCL_2002N,     "TCL 2002N 5H"},
- 	/* 100-109 */
--	{ TUNER_ABSENT,        "Philips FMD1216ME"},
-+	{ TUNER_PHILIPS_FMD1216ME_MK3, "Philips FMD1216ME"},
- 	{ TUNER_TEA5767,       "Philips TEA5768HL FM Radio"},
- 	{ TUNER_ABSENT,        "Panasonic ENV57H12D5"},
- 	{ TUNER_PHILIPS_FM1236_MK3, "TCL MFNM05-4"},
--- 
-0.99.9.GIT
+Moreover for 64 bit architectures there is no proven point that 4Kb  
+stacks are solving a specific problem there (Like the lowmem  
+fragmentation on i386 for e.g.). Nor can we predict for sure that in  
+future no type of functionality will require more stack. So taking  
+away 8Kb stack size on such arches solves no known problems and  
+introduces artificial limitations on code complexity.
 
+All I am asking is what is wrong with having options? You can even  
+default to 4Kb and let people choose 8Kb when they absolutely benefit  
+from it. Does having options introduce code bloat or what is it that  
+is pressing so hard to remove the 8Kb "option"?
+
+Parag

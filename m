@@ -1,72 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965116AbVLRPXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965117AbVLRP0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965116AbVLRPXY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 10:23:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965117AbVLRPXY
+	id S965117AbVLRP0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 10:26:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965135AbVLRP0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 10:23:24 -0500
-Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:40116 "EHLO
-	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S965116AbVLRPXX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 10:23:23 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386 No Idle HZ aka dynticks 051217
-Date: Mon, 19 Dec 2005 02:22:37 +1100
-User-Agent: KMail/1.9
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Petrini <d.pensator@gmail.com>, Tony Lindgren <tony@atomide.com>,
-       vatsa@in.ibm.com, ck list <ck@vds.kolivas.org>,
-       Pavel Machek <pavel@ucw.cz>, Adam Belay <abelay@novell.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-References: <200512190219.40631.kernel@kolivas.org>
-In-Reply-To: <200512190219.40631.kernel@kolivas.org>
+	Sun, 18 Dec 2005 10:26:25 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:232 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S965117AbVLRP0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 10:26:24 -0500
+Date: Sun, 18 Dec 2005 10:26:14 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@gandalf.stny.rr.com
+To: Pavel Machek <pavel@ucw.cz>
+cc: Ingo Molnar <mingo@elte.hu>, acpi-devel@lists.sourceforge.net,
+       len.brown@intel.com, Andrew Morton <akpm@osdl.org>,
+       Fernando Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, "K.R. Foley" <kr@cybsft.com>,
+       Thomas Gleixner <tglx@linutronix.de>, pluto@agmk.net,
+       john cooper <john.cooper@timesys.com>,
+       Benedikt Spranger <bene@linutronix.de>,
+       Daniel Walker <dwalker@mvista.com>,
+       Tom Rini <trini@kernel.crashing.org>,
+       George Anzinger <george@mvista.com>
+Subject: Re: [RFC][PATCH] Runtime switching of the idle function [take 2]
+In-Reply-To: <20051129130843.GA9991@openzaurus.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0512181021170.20098@gandalf.stny.rr.com>
+References: <1132336954.20672.11.camel@cmn3.stanford.edu>
+ <1132350882.6874.23.camel@mindpipe> <1132351533.4735.37.camel@cmn3.stanford.edu>
+ <20051118220755.GA3029@elte.hu> <1132353689.4735.43.camel@cmn3.stanford.edu>
+ <1132367947.5706.11.camel@localhost.localdomain> <20051124150731.GD2717@elte.hu>
+ <1132952191.24417.14.camel@localhost.localdomain> <20051126130548.GA6503@elte.hu>
+ <1133232503.6328.18.camel@localhost.localdomain> <20051129130843.GA9991@openzaurus.ucw.cz>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1143537.1ldKsETfQD";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200512190222.40399.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1143537.1ldKsETfQD
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-On Monday 19 December 2005 02:19, Con Kolivas wrote:
-> Here is yet another updated version of the dynticks code.
+On Tue, 29 Nov 2005, Pavel Machek wrote:
+
+> Hi!
 >
-> Changes:
+> > Description:
+> >
+> > This patch creates a directory in /sys/kernel called idle.  This
+> > directory contains two files: idle_ctrl and idle_methods.  Reading
+> > idle_ctrl will show the function that is currently being used for idle,
+> > and idle_methods shows the available methods for the user to send write
+> > into idle_ctrl to change which function to use for idle.
 >
-> Numerous cleanups, microoptimisations and locking improvements.
+> Pretty ugly interface, I'd say... is listing function really neccessary?
 >
-> One bugfix for the next tick accounting used in early_dyn_reprogram
->
-> I've yet to find the cause for grossly high cpu accounting on SMP. I'd
-> appreciate any help in this area as it's the last showstopper for this
-> code.
->
-> Obvious power savings are evident on uniprocessor now in on/off comparisons
-> using pmstats.
 
-That would be dynticks-051218 I mean, sorry.
+What interface would you prefer?  And the listing was a feature request
+made by Ingo.
 
-Cheers,
-Con
+But this is pretty much moot, since the patch is not going any further
+than the RT patch. And even then, it probably is only temporary, if it is
+even still in there (I haven't checked).
 
---nextPart1143537.1ldKsETfQD
-Content-Type: application/pgp-signature
+--Steve
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDpX7AZUg7+tp6mRURAsivAJ0fReHZPyI5zL2z2EdVar9N5ZKcVQCfaJV2
-cAJh/ZYjepmMqWtjY1xjPC4=
-=JVRn
------END PGP SIGNATURE-----
-
---nextPart1143537.1ldKsETfQD--

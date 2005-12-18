@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965290AbVLRWKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965292AbVLRWL3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965290AbVLRWKa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 17:10:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965292AbVLRWKa
+	id S965292AbVLRWL3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 17:11:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965293AbVLRWL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 17:10:30 -0500
-Received: from mail.kroah.org ([69.55.234.183]:34727 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965290AbVLRWK3 (ORCPT
+	Sun, 18 Dec 2005 17:11:29 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:51439 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S965292AbVLRWL2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 17:10:29 -0500
-Date: Sun, 18 Dec 2005 13:50:51 -0800
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       David Brownell <david-b@pacbell.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: USB rejecting sleep
-Message-ID: <20051218215051.GA18257@kroah.com>
-References: <1134937642.6102.85.camel@gaston>
+	Sun, 18 Dec 2005 17:11:28 -0500
+Date: Sun, 18 Dec 2005 23:14:01 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "Linux-Kernel, " <linux-kernel@vger.kernel.org>
+Subject: About 4k kernel stack size....
+Message-ID: <20051218231401.6ded8de2@werewolf.auna.net>
+X-Mailer: Sylpheed-Claws 1.9.100cvs93 (GTK+ 2.8.9; i686-pc-linux-gnu)
+To: nel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1134937642.6102.85.camel@gaston>
-User-Agent: Mutt/1.5.11
+Content-Type: multipart/signed; boundary="Sig_k+28=n5xw0up1oXA0nR=nls";
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
+X-Auth-Info: Auth:LOGIN IP:[83.138.219.198] Login:jamagallon@able.es Fecha:Sun, 18 Dec 2005 23:11:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 19, 2005 at 07:27:21AM +1100, Benjamin Herrenschmidt wrote:
-> Hi David, Alan !
-> 
-> What exactly changed in the recent USB stacks that is causing it to
-> abort system suspend much more often ? I'm getting lots of user reports
-> with 2.6.15-rc5 saying that they can't put their internal laptops to
-> sleep, apparently because a driver doesn't have a suspend method
-> (internal bluetooth in this case).
-> 
-> It's never been mandatory so far for all drivers of all connected
-> devices to have a suspend method... didn't we decide back then that
-> disconneting those was the right way to go ?
+--Sig_k+28=n5xw0up1oXA0nR=nls
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Yes it is, and I have a patch in my tree now that fixes this up and
-keeps the suspend process working properly for usb drivers that do not
-have a suspend function.
+Hi...
 
-Hm, I wonder if it should go in for 2.6.15?
+I'm following the intense thread about stack size, and I see only one
+solution.
 
-thanks,
+Ship the nest stable, development, -mm, everything release of everything
+with a maximum kernel/interrupt stack usage meter. The ask a poll for
+everyone to send  /proc/sys/stack_usage_max to a mailing list.
 
-greg k-h
+Until that, you wont know if current code is razoring the 4k limit or
+never passes the 1K size.
+
+Just one idea, to try to end with this endless flamewar.
+
+BTW, I run 4k stacks in 3 boxes since long ago, and had 0 (zero) problems.
+Including nsf/afp over ext3 on md.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.14-jam5 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
+
+--Sig_k+28=n5xw0up1oXA0nR=nls
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDpd8pRlIHNEGnKMMRAixPAKCjTJW51f9Cbz7goeMwLnZg69+1FgCfQ3EM
+DknhXfK2LIEkH77XmrAcoTQ=
+=w/AQ
+-----END PGP SIGNATURE-----
+
+--Sig_k+28=n5xw0up1oXA0nR=nls--

@@ -1,76 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965239AbVLRSYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965214AbVLRSis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965239AbVLRSYf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 13:24:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbVLRSYf
+	id S965214AbVLRSis (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 13:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932707AbVLRSis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 13:24:35 -0500
-Received: from mxout02.versatel.de ([212.7.152.119]:56733 "EHLO
-	mxout02.versatel.de") by vger.kernel.org with ESMTP id S932484AbVLRSYf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 13:24:35 -0500
-Date: Sun, 18 Dec 2005 19:24:00 +0100
-From: Christian Trefzer <ctrefzer@gmx.de>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Christian Trefzer <ctrefzer@gmx.de>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       Stefan Seyfried <seife@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] swsusp: brainstorming on a freaked-out approach
-Message-ID: <20051218182400.GA10167@zeus.uziel.local>
-References: <200512162209.53128.rjw@sisk.pl> <20051217164726.GA12021@hermes.uziel.local> <20051218174453.GA9679@elf.ucw.cz>
+	Sun, 18 Dec 2005 13:38:48 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:61847 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932704AbVLRSis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 13:38:48 -0500
+Subject: Re: [PATCH] micro optimization of cache_estimate in slab.c
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: Luuk van der Duim <luukvanderduim@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <84144f020512180927lc6492abpb28c047f9e0c535c@mail.gmail.com>
+References: <1134894189.13138.208.camel@localhost.localdomain>
+	 <84144f020512180927lc6492abpb28c047f9e0c535c@mail.gmail.com>
+Content-Type: text/plain
+Date: Sun, 18 Dec 2005 13:37:42 -0500
+Message-Id: <1134931062.13138.214.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
-Content-Disposition: inline
-In-Reply-To: <20051218174453.GA9679@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2005-12-18 at 19:27 +0200, Pekka Enberg wrote:
+> Hi Steven,
+> 
+> On 12/18/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+> > +       do {
+> > +               x = 1;
+> > +               while ((x+i)*size + ALIGN(base+(x+i)*extra, align) <= wastage)
+> > +                       x <<= 1;
+> > +               i += (x >> 1);
+> > +       } while (x > 1);
+> 
+> The above is pretty hard to read. Perhaps we could give x and i better
+> names? Also, couldn't we move left part of the expression into a
+> separate static inline function for readability?
 
---fdj2RfSjLxBAspz7
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Actually, Luuk sent me this patch made by Balbir Singh that was done a
+while ago.
 
-On Sun, Dec 18, 2005 at 06:44:53PM +0100, Pavel Machek wrote:
-> > Well, so much for "quick" brainstorming on the issue... Don't bother
-> > flaming me for any misunderstanding or misconception : )
->=20
-> That's empty reply for you, then.
-> 								Pavel
+                extra = sizeof(kmem_bufctl_t);
+        }
+-       i = 0;
++       i = (wastage - base)/(size + extra);
+        while (i*size + L1_CACHE_ALIGN(base+i*extra) <= wastage)
+                i++;
 
-Argh. Looks like I said the opposite of what I was trying to express.
-Corrections are of course warmly welcome, even if the tone might not
-exactly be nice.
+-       if (i > 0)
++       while (i*size + L1_CACHE_ALIGN(base+i*extra) > wastage)
+                i--;
 
-> [mm layer already discards most usefull pages last, so Rafael's
-> patches do the right thing]
 
-So I wasted my time and will now quit wasting yours. Thanks anyway : )
+This actually has a O(1) with a K=2.  Analyzing this further, I've come
+up with the below patch.  This patch removes the need for the second
+while, and adds a comment to why. The size is already calculated to be
+no smaller than the alignment. So that the division will not return
+something greater than 1 of what is needed.  So the if (i > 0) after the
+while is all that is needed.  So this patch is O(1) K=1.
 
-Chris
+-- Steve
 
---fdj2RfSjLxBAspz7
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Index: linux-2.6.15-rc5/mm/slab.c
+===================================================================
+--- linux-2.6.15-rc5.orig/mm/slab.c	2005-12-16 16:24:09.000000000 -0500
++++ linux-2.6.15-rc5/mm/slab.c	2005-12-18 13:30:13.000000000 -0500
+@@ -708,7 +708,14 @@
+ 		base = sizeof(struct slab);
+ 		extra = sizeof(kmem_bufctl_t);
+ 	}
+-	i = 0;
++	/*
++	 * Divide the amount we have, by the amount we need for
++	 * each object.  Since the size is already calculated
++	 * to be no less than the alignment, this result will
++	 * not be any greater than 1 that we need, and this will
++	 * be subtracted after the while loop.
++	 */
++	i = (wastage - base)/(size + extra);
+ 	while (i*size + ALIGN(base+i*extra, align) <= wastage)
+ 		i++;
+ 	if (i > 0)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iQIVAwUBQ6WpQF2m8MprmeOlAQKKOw//UKVOLAErmHM7MhAmIKosteabSbftCAcy
-QuAc1WJNvH9ZHSG1aNl2TGGnkDO+bcf5OYrpJmLvSyO07v++uJwTPOp36l/Eh35B
-SvumxSIzhwsrEZLsalsyN6vm7ChV177BHE2pzWiLBK1m9jh+sFvZcYHUX+AolV1H
-ZKzDDoSKjpWbYTYOCLEEXlFziRK5ZLWRejHo+JsRpeal4jrEplQ93HuGZNYjceDy
-4Tez5az6vYHrQQO1goa30yMxvGUrkBIRsnOM+OkVGxgcA1aUYShKZAjf+bh3AajG
-rlUdPOw4wcU+Bz4vPDCYqppPaxf1PhxiAUY4iMgIkvIvC4s/Gh6cOz+cVRiyoOwP
-QoepyPPzjWMtn2/S/WIzl8NSRAlXYX7kxurKTCOG4objUT/etwVc5RaPoWCYrtCb
-6sq1JyUwjwNdDcsQ+IV/aGuhvDgy1En2f22h42F4rzUWn4EFY4arAuToCcKDDVBe
-hc/kq0g2KkC6Z4lyLObo9wUu90bwH2l71IMWjX7zmgbeGloZiJQO30ZFq/Y4g+vi
-zVMlzIc7Ikq8aibrCg7rEFRfJenX5FGF/29yYrPnbhZL1RImwsaY3HZcbYKENapA
-XbPVoqQQSiafO4VtipE4oAZUI/DU9+punPWa7n1uyQ8/Lxgf4N5WAYinfuRB4Jz9
-tTN6Q8eiWxc=
-=HtLF
------END PGP SIGNATURE-----
-
---fdj2RfSjLxBAspz7--
 

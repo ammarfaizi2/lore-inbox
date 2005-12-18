@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965304AbVLRXWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965305AbVLRX1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965304AbVLRXWK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 18:22:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965305AbVLRXWJ
+	id S965305AbVLRX1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 18:27:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965306AbVLRX1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 18:22:09 -0500
-Received: from gate.crashing.org ([63.228.1.57]:18398 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965304AbVLRXWI (ORCPT
+	Sun, 18 Dec 2005 18:27:24 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:42956 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S965305AbVLRX1X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 18:22:08 -0500
-Subject: Re: USB rejecting sleep
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       David Brownell <david-b@pacbell.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051218222516.GA19183@kroah.com>
-References: <1134937642.6102.85.camel@gaston>
-	 <20051218215051.GA18257@kroah.com> <1134944031.6102.103.camel@gaston>
-	 <20051218222516.GA19183@kroah.com>
-Content-Type: text/plain
-Date: Mon, 19 Dec 2005 10:16:49 +1100
-Message-Id: <1134947810.6102.110.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+	Sun, 18 Dec 2005 18:27:23 -0500
+Message-ID: <43A5F058.1060102@tlinx.org>
+Date: Sun, 18 Dec 2005 15:27:20 -0800
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en, en_US
+MIME-Version: 1.0
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Makefile targets: tar & rpm pkgs, while using O=<dir> as non-root
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-12-18 at 14:25 -0800, Greg KH wrote:
-> On Mon, Dec 19, 2005 at 09:13:50AM +1100, Benjamin Herrenschmidt wrote:
-> > On Sun, 2005-12-18 at 13:50 -0800, Greg KH wrote:
-> > 
-> > > Yes it is, and I have a patch in my tree now that fixes this up and
-> > > keeps the suspend process working properly for usb drivers that do not
-> > > have a suspend function.
-> > > 
-> > > Hm, I wonder if it should go in for 2.6.15?
-> > 
-> > Do you have an URL I can send to those users to test ?
-> 
-> Here's the patch itself, feel free to spread it around.
-> 
-> It's also at:
->   kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/usb/usbcore-allow-suspend-resume-even-if-drivers-don-t-support-it.patch
+Unpacked 2.6.13.3 and made it read-only.
 
-Initial user reports are that it fixes the problem with the Bluetooth
-driver preventing newer powerbooks from sleeping.
+Using the "O=" param, built output tree for another machine as
+a non-root user.
 
-Thanks !
-Ben.
+I wanted to create an installable kernel & module package to copy
+to the new machine & install.
+
+I noted new targets:
+    binrpm-pkg [& rpm-pkg], and
+    tarbz2-pkg [& targz-pkg, & tar-pkg].
+
+Both seem to fail either for reasons that appear to be related to
+not honoring the "O=" param, or attempting to actually install into
+the root of my build-machine.
+
+Should these targets work or have they not yet been converted to work
+within the "O=" framework?  In cases where the Makefile is attempting
+to install into "<Root>/boot" or "<Root>/lib/modules" ,should I
+expect the output to appear in "$O/boot" and "$O/lib/modules/"?
+
+Please Cc responses to me, in addition to list, thanks.
+
+-linda
+
+
+
+
 

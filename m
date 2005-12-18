@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751046AbVLRUkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965269AbVLRUlk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751046AbVLRUkt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 15:40:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbVLRUkt
+	id S965269AbVLRUlk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 15:41:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932578AbVLRUlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 15:40:49 -0500
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:6041 "HELO
-	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751046AbVLRUks (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 15:40:48 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Vitaly Wool <vwool@ru.mvista.com>
-Subject: Re: [PATCH/RFC] SPI core: turn transfers to be linked list
-Date: Sun, 18 Dec 2005 12:40:46 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-References: <43A480C0.9080201@ru.mvista.com>
-In-Reply-To: <43A480C0.9080201@ru.mvista.com>
+	Sun, 18 Dec 2005 15:41:40 -0500
+Received: from nproxy.gmail.com ([64.233.182.207]:6708 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932185AbVLRUlj convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 15:41:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=nisKRO3fPmj3AHmkYhLY4+KtwoWam1rKvBllGqAEQBUz9A7RwMGJlydcoHMZb1B7y2n6n22hpQnWD5hqs3dA4PvcpRAtP+MHr0tSm/UJSkNtjtRbIIH2IwMlDs/mBHde9uq+Z9cuvQYQBgZ3JMRVGUIyHhWQhhj9iljiFHif2d8=
+Message-ID: <84144f020512181241q72f289f5x5076824aa7f73286@mail.gmail.com>
+Date: Sun, 18 Dec 2005 22:41:37 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: "Valdis.Kletnieks@vt.edu" <Valdis.Kletnieks@vt.edu>
+Subject: Re: 2.6.16-rc5-mm2 - kzalloc() considered harmful for debugging.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200512181258.jBICwMdj003410@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200512181240.46841.david-b@pacbell.net>
+References: <200512181258.jBICwMdj003410@turing-police.cc.vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 17 December 2005 1:18 pm, Vitaly Wool wrote:
-> Greetings,
-> 
-> the patch attached changes the way transfers are chained in the SPI 
-> core. Namely, they are turned into linked lists instead of array. The 
-> reason behind is that we'd like to be able to use lightweight memory 
-> allocation  mechanism to use it in interrupt context. 
+Hi Valdis,
 
-Hmm, color me confused.  Is there something preventing a driver from
-having its own freelist (or whatever), in cases where kmalloc doesn't
-suffice?  If not, why should the core change?  And what sort of driver
-measurements are you doing, to conclude that kmalloc doesn't suffice?
+On 12/18/05, Valdis.Kletnieks@vt.edu <Valdis.Kletnieks@vt.edu> wrote:
+> Blargh.  It's tempting to do something like this in include/linux/slab.h:
+>
+> #ifdef CONFIG_SLAB_DEBUG
+> static inline void* kzalloc(size_t size, gfp_t flags)
+> {
+>         void *ret = kmalloc(size, flags);
+>         if (ret)
+>                 memset(ret, 0, size);
+>         return ret;
+> }
+> #else
+> extern void *kzalloc(size_t, gfp_t);
+> #end
 
+I don't see CONFIG_SLAB_DEBUG in 2.6.15-rc5-mm2. Is it an external patch?
 
-> An example of such  
-> kind of mechanism can be found in spi-alloc.c file in our core. The 
-> lightweightness is achieved by the knowledge that all the blocks to be 
-> allocated are of the same size. 
+> or maybe some ad-crock macro implementation, just so the actual calling site of
+> kmalloc is recorded, rather than losing the caller of kzalloc.
 
-I'd have said that since this increases the per-transfer costs (to set
-up and manage the list memberships) you want to increase the weight of
-that part of the API, not decrease it.  ;)
+I would prefer this. Both kzalloc and kstrdup should override the call
+site of kmalloc. Preferably, all of them should use something like
+__kmalloc_tracked() and pass the call site as an parameter.
 
-Note that your current API maps to mine roughly by equating
-
-	allocate your spi_msg 
-	allocate my { spi_message + one spi_transfer }
-
-So if you're doing one allocation anyway, you already have the relevant
-linked list (in spi_message) and pre-known size.  So this patch wouldn't
-improve any direct translation of your driver stack.
-
-
-> We'd like to use this allocation  
-> technique for both message structure and transfer structure The problem 
-> with the current code is that transfers are represnted as an array so it 
-> can be of any size effectively.
-
-Could you elaborate on this problem you perceive?  This isn't the only
-driver API in Linux to talk in terms of arrays describing transfers,
-even potentially large arrays.
-
-Consider how "struct scatterlist" is used, and how USB manages the
-descriptors for isochronous transfers.  They don't use linked lists
-there, and haven't seemed to suffer from it.
-
-- Dave
+                          Pekka

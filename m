@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbVLRFjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbVLRFlw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbVLRFjc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 00:39:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbVLRFjc
+	id S1030186AbVLRFlw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 00:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbVLRFlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 00:39:32 -0500
-Received: from web50112.mail.yahoo.com ([206.190.39.149]:32957 "HELO
-	web50112.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1030185AbVLRFjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 00:39:32 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=WC21lvk1692bW8oLrIHQo8eRP3NXew3+cUsHQqOyBuSA+J1kklGz+G4QXSTseKoM/MOx4UT248XLGIvKucBiRAqRbU6KUPW+TQEbEpOSSeUxPuP7J2ureYpK7K6E8bHjORacRXl3E1vz3zQkB1unWgPIierkrDGXCgJexpggigA=  ;
-Message-ID: <20051218053931.99054.qmail@web50112.mail.yahoo.com>
-Date: Sat, 17 Dec 2005 21:39:31 -0800 (PST)
-From: Doug Thompson <norsk5@yahoo.com>
-Subject: Re: [PATCH]  EDAC with new sysfs interface - remove /proc interfaces on  -mm3
-To: Bernd Eckenfels <ecki@lina.inka.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <E1EnpGy-0003TI-00@calista.inka.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 18 Dec 2005 00:41:52 -0500
+Received: from ns2.suse.de ([195.135.220.15]:31959 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030186AbVLRFlv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 00:41:51 -0500
+Date: Sun, 18 Dec 2005 06:41:50 +0100
+From: Andi Kleen <ak@suse.de>
+To: Robert Walsh <rjwalsh@pathscale.com>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 03/13]  [RFC] ipath copy routines
+Message-ID: <20051218054149.GE23384@wotan.suse.de>
+References: <200512161548.HbgfRzF2TysjsR2G@cisco.com> <200512161548.lRw6KI369ooIXS9o@cisco.com> <20051217123833.1aa430ab.akpm@osdl.org> <1134859243.20575.84.camel@phosphene.durables.org> <p73k6e3dr05.fsf@verdi.suse.de> <1134884189.20575.129.camel@phosphene.durables.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1134884189.20575.129.camel@phosphene.durables.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---- Bernd Eckenfels <ecki@lina.inka.de> wrote:
-
-> In article <20051218030721.82963.qmail@web50113.mail.yahoo.com> you wrote:
-> > +       errors that have occurred on this csrow. This
-> > +       c
+On Sat, Dec 17, 2005 at 09:36:29PM -0800, Robert Walsh wrote:
+> On Sun, 2005-12-18 at 04:27 +0100, Andi Kleen wrote:
+> > Robert Walsh <rjwalsh@pathscale.com> writes:
+> > > 
+> > > Any chance we could get these moved into the x86_64 arch directory,
+> > > then?  We have to do double-word copies, or our chip gets unhappy.
+> > 
+> > Standard memcpy will do double word copies if everything is suitably
+> > aligned. Just use that.
 > 
-> i think there is something missing at the end of file.
+> This is dealing with buffers that may be passed in from user space, so
+> there's no guarantee of alignment for either the start address or the
+> length.
 
-yeah, sorry about. Thanks for pointing that out. I will reform email and re-post
+So how can you do double word access when the length is not a multiple of four? 
 
-> 
-> BTW: is chipkill, ECC and other features in that area supported by  the modules?
+The current x86-64 copy_from_user will use double work access even in that case,
+except for the end of course.
 
-yes, EDAC contains drivers for several memory controllers,and reports on these error detectors you
-mentioned. It currently is already in the -mm tree, waiting for this patch.
+But what you're doing is so deeply unportable it's not funny. I am not
+sure such a unportable driver even belongs in the kernel.
 
-doug t
+If the code was really intended to run on user space addresses it 
+was totally broken btw because it didn't handle exceptions.
 
-> 
-> Gruss
-> Bernd
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
-
-"If you think Education is expensive, just try Ignorance"
-
-"Don't tell people HOW to do things, tell them WHAT you
-want and they will surprise you with their ingenuity."
-                   Gen George Patton
+-Andi
 

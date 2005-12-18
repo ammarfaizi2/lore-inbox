@@ -1,43 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbVLRFnf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbVLRGGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030187AbVLRFnf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 00:43:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbVLRFnf
+	id S1751049AbVLRGGa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 01:06:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbVLRGGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 00:43:35 -0500
-Received: from mx2.suse.de ([195.135.220.15]:39895 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030187AbVLRFnf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 00:43:35 -0500
-Date: Sun, 18 Dec 2005 06:43:23 +0100
-From: Andi Kleen <ak@suse.de>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
+	Sun, 18 Dec 2005 01:06:30 -0500
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:14775 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751049AbVLRGG3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 01:06:29 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+To: Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
        Kyle Moffett <mrmacman_g4@mac.com>, akpm@osdl.org,
        linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051218054323.GF23384@wotan.suse.de>
-References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com> <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com> <p73slsrehzs.fsf@verdi.suse.de> <20051217205238.GR23349@stusta.de> <61D4A300-4967-4DC1-AD2C-765A3D2D9743@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <61D4A300-4967-4DC1-AD2C-765A3D2D9743@comcast.net>
+Reply-To: 7eggert@gmx.de
+Date: Sun, 18 Dec 2005 06:57:44 +0100
+References: <5k8PZ-4xt-9@gated-at.bofh.it> <5k9sD-5yh-13@gated-at.bofh.it> <5knFp-kU-51@gated-at.bofh.it> <5korL-1xX-33@gated-at.bofh.it> <5kpRh-3sK-11@gated-at.bofh.it> <5kq0L-3FB-37@gated-at.bofh.it> <5kOma-4K1-23@gated-at.bofh.it> <5kRk3-xO-11@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EnrYH-00019M-Ep@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 18, 2005 at 12:03:39AM -0500, Parag Warudkar wrote:
-> 
-> On Dec 17, 2005, at 3:52 PM, Adrian Bunk wrote:
-> 
-> >And in my experience, many stack problems don't come from code getting
-> >more complex but from people allocating 1kB structs or arrays of
-> 
-> And we catch this type of problems fairly easily in the patch review  
-> itself, even before accepting the code in mainline. Plus there is  
+Adrian Bunk <bunk@stusta.de> wrote:
 
-You can catch the obvious ones, but the really hard ones
-that only occur under high load in obscure exceptional
-circumstances with large configurations and suitable nesting you won't. 
-These would be only found at real world users.
+> I'm with you that we need a safety net, but I don't see a problem with
+> this being between 3kB and 4kB. The goal should be to _never_ use more
+> than 3kB stack having a 1kB safety net.
+> 
+> And in my experience, many stack problems don't come from code getting
+> more complex but from people allocating 1kB structs or arrays of
+> > 2k chars on the stack. In these cases, the code has to be fixed and
+> "make checkstack" makes it easy to find such cases.
+> 
+> And as a data point, my count of bug reports for problems with in-kernel
+> code with 4k stacks after Neil's patch went into -mm is still at 0.
 
--Andi
+Would you run a desktop with an nfs server on xfs on lvm on dm on SCSI?
+Or a productive server on -mm?
+
+IMO it's OK to push 4K stacks in -mm, but one week of no error reports from
+a few testers don't make a reliable system.
+
+[...]
+
+> Unfortunately, "is not really something to encourage" doesn'a make
+> "happens in real-life applications" impossible...
+
+The same applies to using kernel stack. Therefore I'll want to choose
+a bigger stack for my server, which runs less than 100 processes.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

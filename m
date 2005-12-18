@@ -1,33 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965296AbVLRWZn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965300AbVLRW1A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965296AbVLRWZn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 17:25:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965297AbVLRWZn
+	id S965300AbVLRW1A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 17:27:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965297AbVLRW07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 17:25:43 -0500
-Received: from ns1.heckrath.net ([213.239.205.18]:53458 "EHLO
-	mail.heckrath.net") by vger.kernel.org with ESMTP id S965296AbVLRWZm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 17:25:42 -0500
-Date: Sun, 18 Dec 2005 23:25:40 +0100
-From: Sebastian Kaergel <mailing@wodkahexe.de>
-To: Greg KH <greg@kroah.com>
-Cc: mailing@wodkahexe.de, linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [stable] Re: Linux 2.6.14.4 [intelfb problem]
-Message-Id: <20051218232540.2c7a2a31.mailing@wodkahexe.de>
-In-Reply-To: <20051218205146.GA16453@kroah.com>
-References: <20051215005041.GB4148@kroah.com>
-	<20051218204253.b32a4f61.mailing@wodkahexe.de>
-	<20051218205146.GA16453@kroah.com>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 18 Dec 2005 17:26:59 -0500
+Received: from ns2.suse.de ([195.135.220.15]:11186 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965300AbVLRW06 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 17:26:58 -0500
+From: Neil Brown <neilb@suse.de>
+To: "Szloboda Zsolt" <slobo@t-online.hu>
+Date: Mon, 19 Dec 2005 09:26:47 +1100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17317.57895.187139.651739@cse.unsw.edu.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: raid over sata - write barrier
+In-Reply-To: message from Szloboda Zsolt on Sunday December 18
+References: <17317.51966.827057.524008@cse.unsw.edu.au>
+	<JDEMIGCBPIDENEAIIGKPMECCCLAA.slobo@t-online.hu>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
-> Any chance you can try applying the different patches that were posted
-> to lkml to 2.6.14.3 and see which one causes the problem?
+On Sunday December 18, slobo@t-online.hu wrote:
+> with kernel 2.6.15, raid1
+> do I have to use the
+> -o barrier=1
+> mount option (or something else) when I mount the md device?
 
-sure. it'll try and post again.
+You don't have to do anything special to the raid1.
+
+If the filesystem requires "-o barrier=1" (which I believe it does),
+then you need to use that no-matter what device the filesystem is
+mounted from.
+
+NeilBrown

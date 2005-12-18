@@ -1,39 +1,39 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbVLMJMW (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 13 Dec 2005 04:12:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964840AbVLMJMW
+	id S965307AbVLRXzf (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 18 Dec 2005 18:55:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965309AbVLRXzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Dec 2005 04:12:22 -0500
-Received: from [202.108.9.192] ([202.108.9.192]:63388 "HELO 163.com")
-	by vger.kernel.org with SMTP id S964836AbVLMJMV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Dec 2005 04:12:21 -0500
-X-Originating-IP: [166.111.123.115]
-Date: Tue, 13 Dec 2005 17:13:33 +0800
-From: "cccf_2003" <cccf_2003@163.com>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-Subject: apply to the linux-kernel maillist
-X-mailer: Foxmail 5.0 [cn]
+	Sun, 18 Dec 2005 18:55:35 -0500
+Received: from 84-105-106-207.cable.quicknet.nl ([84.105.106.207]:24584 "HELO
+	84-105-106-207.cable.quicknet.nl") by vger.kernel.org with SMTP
+	id S965307AbVLRXze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 18:55:34 -0500
+Reply-To: "Dan Toc Viet Nam" <cpvntd@gmail.com>
+From: "Dan Toc Viet Nam" <cpvntd@gmail.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Hoi Dong Cach Mang Cuu Quoc
+Date: Mon, 19 Dec 2005 00:55:31 +0100
+Message-ID: <200512190055.FODBZSVMTA@84-105-106-207.cable.quicknet.nl>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 7bit
-Message-Id: <439E9070.4CA888.02628>
+Content-Type: multipart/mixed;
+	boundary="= Multipart Boundary 1219050055"
+X-Priority: 1 (Highest)
+X-MSMail-Priority: High
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+Importance: High
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964836AbVLMJMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965307AbVLRXzf@vger.kernel.org>
 
-Dear linux-kernel
+This is a multipart MIME message.
 
-	
-          Apply to the linux-kernel maillist
-		
+--= Multipart Boundary 1219050055
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 
-
- 				
-Best regards
-cccf_2003
-cccf_2003@163.com
-2005-12-13
-
-
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--= Multipart Boundary 1219050055--

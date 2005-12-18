@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932668AbVLRBaF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932661AbVLRB7P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932668AbVLRBaF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 20:30:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932662AbVLRBaF
+	id S932661AbVLRB7P (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 20:59:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932662AbVLRB7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 20:30:05 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:33621 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S932660AbVLRBaB
+	Sat, 17 Dec 2005 20:59:14 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:53918 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932661AbVLRB7O convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 20:30:01 -0500
-Date: Sat, 17 Dec 2005 20:29:58 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [PATCH 1/12]: MUTEX: Implement mutexes
-In-reply-to: <Pine.LNX.4.64.0512171201200.3698@g5.osdl.org>
-X-X-Sender: nico@localhost.localdomain
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, Steven Rostedt <rostedt@goodmis.org>,
-       linux-arch@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
-       mingo@redhat.com, Andrew Morton <akpm@osdl.org>
-Message-id: <Pine.LNX.4.64.0512172018410.26663@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.64.0512162334440.3698@g5.osdl.org>
- <dhowells1134774786@warthog.cambridge.redhat.com>
- <200512162313.jBGND7g4019623@warthog.cambridge.redhat.com>
- <1134791914.13138.167.camel@localhost.localdomain>
- <14917.1134847311@warthog.cambridge.redhat.com>
- <Pine.LNX.4.64.0512171201200.3698@g5.osdl.org>
+	Sat, 17 Dec 2005 20:59:14 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MG8JGbsGBg7DflykgyE8lN5QEVCgnPiT5yOJZYRsM55zkZLLin/xYBd+ALToJYWtZQ2EZe2Tg1JQ420Vum4JUaPOvATPcPTWck1AKoZgsLn95R8Z+x1/3RoD7Rr487LAoSw1PH6tqb7hMRp1Y6vrU/xPYBTma99nfVZuMoAHltQ=
+Message-ID: <758a2bbf0512171759i35df21e7t8a1b00f72c362614@mail.gmail.com>
+Date: Sat, 17 Dec 2005 17:59:13 -0800
+From: Vijay Sampath <vsampath@gmail.com>
+To: gcoady@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MTD (kernel 2.4.32): kernel stuck in tight loop occasionally on flash access
+In-Reply-To: <02DAE179D5CEED4C992055C823ED90FF8ACE8E@ex1>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <02DAE179D5CEED4C992055C823ED90FF8ACE8E@ex1>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Dec 2005, Linus Torvalds wrote:
+>         Leaves me confused :)  Description and patch should match?
 
-> Of the other architectures you list, only ARM is really important. And no, 
-> arm doesn't do swap. It does LL/SC (except they call it "ldrex/strex", 
-> which I assume stands for "load/store with reservation and X just because 
-> X is cool. Yeah, we're cool" (*)).
+Description has a typo. Patch is accurate. Unless somebody more
+knowledgeable than me on the intricacies would want to differ.
 
-Well, if you really want to be honest, you have to consider that the 
-ldrex/strex instructions are available only on ARM architecture level 6 
-and above, or in other words with only about 1% of all ARM deployments 
-out there.  The other 99% of actual ARM processors in the field only 
-have the atomic swap (swp) instruction which is insufficient for 
-implementing a counting semaphore (we therefore have to disable 
-interrupts, do the semaphore update and enable interrupts again which is 
-much slower than a swp-based mutex).
+>         Something is wrong here?  Your patch should not alter dontdiff.
 
+It didn't. 2.4 kernel doesn't have dontdiff, so I had to download it.
+But I only downloaded to one of the directories, hence the messed up
+output. Maybe dontdiff should have "dontdiff" as one of the files not
+to diff! :)
 
-Nicolas
+Thanks,
+
+Vijay

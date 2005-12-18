@@ -1,72 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965083AbVLRLV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965100AbVLRLXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965083AbVLRLV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 06:21:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965085AbVLRLV2
+	id S965100AbVLRLXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 06:23:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbVLRLXQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 06:21:28 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:10218 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965083AbVLRLV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 06:21:27 -0500
-Subject: Re: [2.6 patch] i386: always use 4k/4k stacks
-From: Arjan van de Ven <arjan@infradead.org>
-To: Stefan Rompf <stefan@loplof.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200512181149.02009.stefan@loplof.de>
-References: <200512181149.02009.stefan@loplof.de>
-Content-Type: text/plain
-Date: Sun, 18 Dec 2005 12:21:23 +0100
-Message-Id: <1134904884.9626.7.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Sun, 18 Dec 2005 06:23:16 -0500
+Received: from cpe-68-173-12-128.nyc.res.rr.com ([68.173.12.128]:40117 "EHLO
+	fireether.net") by vger.kernel.org with ESMTP id S965100AbVLRLXP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 06:23:15 -0500
+Message-ID: <43A54683.3030202@fireether.net>
+Date: Sun, 18 Dec 2005 06:22:43 -0500
+From: Kernel - Noah Blumenfeld <kernel@fireether.net>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: IT821x driver
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greetings..
 
-> Btw., has anyone yet *measured* maximum stack usage for some weeks on several 
-> machines, e.g. desktop system with one NIC, reiserfs; server with several 
-> NICs, stacked device-mapper targets, fiber channel, appletalk...; web server 
-> with SQL database running on it etc?
+I'm not 100% positive if this is the correct place to post about this 
+driver, but seeing that it related to the kernel, I believe its related 
+to this mailing list.
 
-partially, see below
+I've been running into many problems with the ITE 8212F chip, which is 
+used as both an IDE controller and as a RAID controller (0, 1, and 1+0).
 
-> Right now I have the impression that the 4k stack flamewars base on make 
-> checkstack output, waiting for bugreports and other guesswork. Removing the 
-> safety net on such a basis is just *very bad engineering*.
+I've done the following - all with the same results:
 
-your impression is wrong.
+-Downloaded Gentoo-sources (2.6.14-r5), configurated kernel with the 
+it821x driver, and tried to enable dma.
+-Downloaded a vanilla kernel 2.6.11 from www.kernel.org, and applied the 
+ac7 patches, configurated and then tried to enable dma.
 
-the kernel has a stack overflow detector, which checks at irq entry time
-if the stack is "rather high" (7kb into the stack on a 8kb stack, 3.5kb
-on a 4k stack). When this warning hits there's still runway left (like
-12.5 percent), but lets say the end becomes in sight. If the stack usage
-would be really tight, this "early warning" detector would be hitting a
-lot of people, right? Well the good news is that it isn't being hit in
-the distributions that use 4Kb stacks (at least the fedora releases and
-RHEL, maybe others), with a few exceptions related to XFS use several
-months ago (which got fixed since). 
+As far as I can tell - and from the information within the driver's file 
+  /drivers/ide/pci/it821x.c - the current driver does not support mwdma 
+or dma, only udma. It also says that if - and I quote Alan Cox -
 
-While this isn't a measure of how deep things ACTUALLY go, it's a
-measure that they don't go past the 3.5Kb limit, let alone go past 4Kb
-limit. 
+"If you write LBA48 sized I/O's (ie > 256 sector) in smart mode raid 
+then the controller firmware dies"
 
-In addition someone did a chain analysis (which no doubt isn't 100%
-complete but still a pretty good effort) and that didn't show major
-problems either.
+I recently brought it for $40 from compusa, and I'm sure this problem 
+may come up more often soon.
 
-The guesswork in this thread is all from the people on the other side of
-the argument, with lots fear and doubt but with no data ;)
+It works fine in PIO mode, I've transmitted files to it via samba (I'm 
+setting it up as a file server) - with a rate of about 2.378 MB/sec.
 
-(and the "safety net" is a bit of misnomer, since it's not really safe,
-just "statistically different" if the shit hits the fan)
+When I enable it in UDMA mode using hdparm -X64 -d1 /dev/hdc - or in ANY 
+dma mode.. It will accept a certain amount of data before literally 
+crapping its pants. As the quote above says, when LBA48 sized I/O's are 
+written to the raid card, it will die. I'm using it as a RAID 0, so its 
+in smart mode, and it will die when LBA48 sized I/O's are written to it.
 
+My question is then, and if this doesnt belong here, please let me know.
+
+Is there a way to restrict the size of the files being written by the 
+kernel to a hardware device? I.e. make it so it will not write LBA48 
+sized I/O's, but still work in UDMA mode - because not using DMA mode 
+makes hard drive write painfully slow - and unsuitable for a network 
+file server.
+
+I've also tried compiling the SCSI driver given by the company - and the 
+kernel doesnt even boot up with it. The only way I could boot up with 
+the it821x driver is to configure the kernel not to enable DMA mode for 
+hard drives by default.
+
+If the chip was dying out (not being sold anymore) I wouldnt bring this 
+up. But it appears it will be sold more.. And so this may become a 
+problem further down the road. I'm considering taking Alan Cox's driver 
+for it and modifying it. Several people reported that it worked great 
+for through mode (using the chip as a IDE controller) - few kernel 
+versions ago (2.6.9, 2.6.11) - thats why I downloaded 2.6.11 to patch 
+with the AC7 patches and to test it. Didnt work in RAID mode.
+
+Thanks you,
+Noah Blumenfeld

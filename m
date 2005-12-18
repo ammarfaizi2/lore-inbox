@@ -1,62 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965238AbVLRRsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVLRSKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965238AbVLRRsO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 12:48:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965239AbVLRRsO
+	id S932422AbVLRSKL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 13:10:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbVLRSKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 12:48:14 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51598 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S965238AbVLRRsN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 12:48:13 -0500
-Date: Sun, 18 Dec 2005 18:47:52 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp: documentation fixes
-Message-ID: <20051218174752.GB9679@elf.ucw.cz>
-References: <20051216105852.GJ8476@elf.ucw.cz> <20051216183523.GF2821@redhat.com>
+	Sun, 18 Dec 2005 13:10:11 -0500
+Received: from h80ad2567.async.vt.edu ([128.173.37.103]:48829 "EHLO
+	h80ad2567.async.vt.edu") by vger.kernel.org with ESMTP
+	id S932422AbVLRSKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 13:10:10 -0500
+Message-Id: <200512181258.jBICwMdj003410@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.16-rc5-mm2 - kzalloc() considered harmful for debugging.
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051216183523.GF2821@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: multipart/signed; boundary="==_Exmh_1134910701_2933P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 18 Dec 2005 07:58:21 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+--==_Exmh_1134910701_2933P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <3388.1134910683.1@turing-police.cc.vt.edu>
 
->  > +Q: How can RH ship a swsusp-supporting kernel with modular SATA
->  > +drivers?
->  >  
->  > +A: Well, it can be done, load the drivers, then do echo into resume
->  > +file from initrd. Be sure not to mount anything, not even read-only
->  > +mount, or you are going to loose your filesystem same way Dave Jones
->  > +did.
-> 
-> I don't need the fame here thanks.
-> I've hit a thousand other ways to corrupt my rootfs, I don't think
-> it's worth documenting them.  It's arguable this whole item is needed
-> to be documented, but if you feel compelled to write Red Hat specific
-> documentation in the swsusp docs, feel free to note that
-> 'make modules_install ; make install' just does the right thing,
-> including building an initrd for you with all the right pieces.
+So I've got a (probably self-inflicted) memory leak in slab-64 and slab-32.
+Rebuild the kernel with CONFIG_DEBUG_SLAB, reboot, and wait for a bit of
+leak to pile up, and then echo 'slab-32 0 0 0' > /proc/slabinfo
 
-Sorry... This entry was originally real question from akpm, and I did
-reply for him. I should have rewritten in when I decided to put it
-into FAQ.
+And ta-DA! the top offender is... (drum roll): <kzalloc+0xe/0x36>
 
-This should be better:
+Blargh.  It's tempting to do something like this in include/linux/slab.h:
 
-Q: How can distributions ship a swsusp-supporting kernel with modular
-disk drivers (especially SATA)?
+#ifdef CONFIG_SLAB_DEBUG
+static inline void* kzalloc(size_t size, gfp_t flags)
+{
+        void *ret = kmalloc(size, flags);
+        if (ret)
+                memset(ret, 0, size);
+        return ret;
+}
+#else
+extern void *kzalloc(size_t, gfp_t);
+#end
 
-A: Well, it can be done, load the drivers, then do echo into
-/sys/power/disk/resume file from initrd. Be sure not to mount
-anything, not even read-only mount, or you are going to loose your
-data.
-								Pavel
+or maybe some ad-crock macro implementation, just so the actual calling site of
+kmalloc is recorded, rather than losing the caller of kzalloc.
 
--- 
-Thanks, Sharp!
+Only problems are that (a) changing CONFIG_DEBUG_SLAB will probably recompile
+the world rather than just mm/slab.c, and (b) it's 7AM and I've been chasing this
+for 6 hours and not sure how to handle the actual body in mm/util.c (wrap the
+kzalloc() with a #ifndev CONFIG_DEBUG_SLAB maybe)?
+
+--==_Exmh_1134910701_2933P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFDpVztcC3lWbTT17ARAr6WAJ9HI0BI/HmPD2vokAJMDooPvdo0ewCfeT0l
+7BtZfOs7hKynRxMk3/3GS6I=
+=PiED
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1134910701_2933P--

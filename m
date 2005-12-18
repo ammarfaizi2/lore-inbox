@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965284AbVLRWTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965294AbVLRWYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965284AbVLRWTL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 17:19:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965293AbVLRWTL
+	id S965294AbVLRWYc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 17:24:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965295AbVLRWYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 17:19:11 -0500
-Received: from gate.crashing.org ([63.228.1.57]:48349 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965284AbVLRWTK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 17:19:10 -0500
-Subject: Re: USB rejecting sleep
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       David Brownell <david-b@pacbell.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051218215051.GA18257@kroah.com>
-References: <1134937642.6102.85.camel@gaston>
-	 <20051218215051.GA18257@kroah.com>
-Content-Type: text/plain
-Date: Mon, 19 Dec 2005 09:13:50 +1100
-Message-Id: <1134944031.6102.103.camel@gaston>
+	Sun, 18 Dec 2005 17:24:32 -0500
+Received: from ns1.heckrath.net ([213.239.205.18]:62856 "EHLO
+	mail.heckrath.net") by vger.kernel.org with ESMTP id S965294AbVLRWYb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 17:24:31 -0500
+Date: Sun, 18 Dec 2005 23:24:28 +0100
+From: Sebastian Kaergel <mailing@wodkahexe.de>
+To: "Antonino A. Daplas" <adaplas@gmail.com>
+Cc: mailing@wodkahexe.de, gregkh@suse.de, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: Linux 2.6.14.4 [intelfb problem]
+Message-Id: <20051218232428.01d5f315.mailing@wodkahexe.de>
+In-Reply-To: <43A5D963.9020201@gmail.com>
+References: <20051215005041.GB4148@kroah.com>
+	<20051218204253.b32a4f61.mailing@wodkahexe.de>
+	<43A5D963.9020201@gmail.com>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-12-18 at 13:50 -0800, Greg KH wrote:
-
-> Yes it is, and I have a patch in my tree now that fixes this up and
-> keeps the suspend process working properly for usb drivers that do not
-> have a suspend function.
+"Antonino A. Daplas" <adaplas@gmail.com> wrote:
+> Sometimes, this is just a problem with the bootloader not recognizing
+> the option parameters.
 > 
-> Hm, I wonder if it should go in for 2.6.15?
+> > image=/boot/2.6.14.4-3
+> >  append="video=intelfb"
+> 
+> 'cat /proc/cmdline' should confirm if your options where actually passed
+> unchanged to the kernel.
 
-Do you have an URL I can send to those users to test ?
+ $ cat /proc/cmdline 
+BOOT_IMAGE=2.6.14.4 ro root=301 lapic video=intelfb
 
-Thanks !
-Ben.
-
-
+cmdline looks fine

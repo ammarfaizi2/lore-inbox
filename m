@@ -1,81 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVLRIfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932691AbVLRIgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbVLRIfF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 03:35:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932691AbVLRIfF
+	id S932691AbVLRIgg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 03:36:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932692AbVLRIgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 03:35:05 -0500
-Received: from pat.uio.no ([129.240.130.16]:30963 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932395AbVLRIfE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 03:35:04 -0500
-Subject: Re: lockd: couldn't create RPC handle for (host)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ryan Richter <ryan@tau.solarneutrino.net>
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-In-Reply-To: <20051217194553.GE20539@tau.solarneutrino.net>
-References: <20051216205536.GA20497@tau.solarneutrino.net>
-	 <1134776945.7952.4.camel@lade.trondhjem.org>
-	 <20051216235841.GA20539@tau.solarneutrino.net>
-	 <1134797577.20929.2.camel@lade.trondhjem.org>
-	 <20051217055907.GC20539@tau.solarneutrino.net>
-	 <1134801822.7946.4.camel@lade.trondhjem.org>
-	 <20051217070222.GD20539@tau.solarneutrino.net>
-	 <1134847699.7950.25.camel@lade.trondhjem.org>
-	 <20051217194553.GE20539@tau.solarneutrino.net>
-Content-Type: text/plain
-Date: Sun, 18 Dec 2005 03:33:56 -0500
-Message-Id: <1134894836.7931.17.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.236, required 12,
-	autolearn=disabled, AWL 1.63, RCVD_IN_SORBS_DUL 0.14,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Sun, 18 Dec 2005 03:36:36 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:62065 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932691AbVLRIgf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 03:36:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JmoPdNx0gDwb7bb5BNJzF5Am9U6B6zoqQI3JZbD6wgn1bvlUXCXzNsTU14uAZKhblpY3wLIlX1XKzeS+0mJfzNU8g5I6Z/qw6c9DfKWsrUs/UawiJH4VtGVXa7DP1RKmHmD/trie/mZUFwtO7ITp17YzHU6nCro0hVwcoJRU/CU=
+Message-ID: <f0309ff0512180036q179b9f12n16609f86743c1b9c@mail.gmail.com>
+Date: Sun, 18 Dec 2005 00:36:34 -0800
+From: Nauman Tahir <nauman.tahir@gmail.com>
+To: Hua Feijun <hua.feijun@gmail.com>
+Subject: Re: stop threads failed!
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3fe1d240512170057h2a1e0929o@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3fe1d240512170057h2a1e0929o@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-17 at 14:45 -0500, Ryan Richter wrote:
-> > So what do you mean when you say that there is "no lockd process
-> > running" on the client?
-> > 
-> > Is it not appearing in the output of 'ps -ef' either?
-> 
-> Nope.
-> 
-> $ ps -ef|grep lock
-> root        77     5  0 Nov20 ?        00:00:00 [kblockd/0]
-> foo       6811  6800  0 14:29 pts/0    00:00:00 grep -E lock
+On 12/17/05, Hua Feijun <hua.feijun@gmail.com> wrote:
+> I want to set threads's status to TASK_STOPPED by the following
+> code.The syslog has show this rourine has been executed,buf the thread
+> is still running.Who can tell me the reason?Thanks very much!
+> write_lock(&tasklist_lock);
+> do
+> {
+> printk("set threads stopped\n");
+> p->state = TASK_STOPPED;
+> } while ((p = next_thread(p)) != leader);
+> write_unlock(&tasklist_lock);
+> schedule();
+> -
 
-Any Oopses? (use 'dmesg')
-
-Could you also check dmesg for any entries of the form
-
-'lockd: new process, skipping host shutdown'
-or
-'lockd_up: makesock failed, error='
-
-> > Is anything at all listening on port 32768 on 'jacquere'? (check using
-> > 'netstat -ap | grep 32768').
-> 
-> Er... sort of?
-> 
-> # netstat -ap | grep 32768
-> udp    11144      0 *:32768                 *:*                                -                   
-> I'm not sure what that means...  lsof|grep 32768 returns nothing.
-
-That could be a kernel process. The RPC client has no reason to set up a
-full file descriptor for the socket.
-
-Could you please finally double-check that the entries in /proc/mounts
-for your NFS mounts do contain the 'lock' mount option.
-
-Finally, please do
-
-echo 1 > /proc/sys/sunrpc/rpc_lockd
-then unmount one of your NFS partitions, and then mount it again.
+Have you specified the state TASK_INTERRUPTIBLE when you wake up the
+thread? If not then do it to ba able to stop it later.
+Anybody else correct me if I am wrong please
+Regards
+Nauman
 
 
-Cheers,
-  Trond
 
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965274AbVLRUG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965270AbVLRUcf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965274AbVLRUG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 15:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965277AbVLRUG7
+	id S965270AbVLRUcf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 15:32:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965275AbVLRUcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 15:06:59 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13061 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965274AbVLRUG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 15:06:58 -0500
-Date: Sun, 18 Dec 2005 21:06:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: urban@teststation.com
-Cc: samba@samba.org, linux-kernel@vger.kernel.org, macro@linux-mips.org,
-       marcelo.tosatti@cyclades.com
-Subject: [patch] fs/smbfs/proc.c: fix data corruption in smb_proc_setattr_unix()
-Message-ID: <20051218200659.GL23349@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+	Sun, 18 Dec 2005 15:32:35 -0500
+Received: from gate.crashing.org ([63.228.1.57]:51420 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S965270AbVLRUce (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 15:32:34 -0500
+Subject: USB rejecting sleep
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Stern <stern@rowland.harvard.edu>,
+       David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 19 Dec 2005 07:27:21 +1100
+Message-Id: <1134937642.6102.85.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@linux-mips.org>
+Hi David, Alan !
 
+What exactly changed in the recent USB stacks that is causing it to
+abort system suspend much more often ? I'm getting lots of user reports
+with 2.6.15-rc5 saying that they can't put their internal laptops to
+sleep, apparently because a driver doesn't have a suspend method
+(internal bluetooth in this case).
 
-This patch fixes a data corruption in smb_proc_setattr_unix() 
-(smb_filetype_from_mode() returns an u32, and there are only four bytes 
-reserved for it in data.
+It's never been mandatory so far for all drivers of all connected
+devices to have a suspend method... didn't we decide back then that
+disconneting those was the right way to go ?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Any reason we are rejecting the sleep process for these currently ? A
+locking issue that makes disconnecting not yet feasible ? What changed
+from the previous version where that worked ?
 
-
---- linux-2.6.14-rc3-git3/fs/smbfs/proc.c	2005-10-04 19:24:37.000000000 +1000
-+++ .6877.trivial/fs/smbfs/proc.c	2005-10-04 19:29:50.000000000 +1000
-@@ -3113,7 +3113,7 @@ smb_proc_setattr_unix(struct dentry *d, 
- 	LSET(data, 32, SMB_TIME_NO_CHANGE);
- 	LSET(data, 40, SMB_UID_NO_CHANGE);
- 	LSET(data, 48, SMB_GID_NO_CHANGE);
--	LSET(data, 56, smb_filetype_from_mode(attr->ia_mode));
-+	DSET(data, 56, smb_filetype_from_mode(attr->ia_mode));
- 	LSET(data, 60, major);
- 	LSET(data, 68, minor);
- 	LSET(data, 76, 0);
+Cheers,
+Ben.
 

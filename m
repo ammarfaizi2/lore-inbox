@@ -1,67 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965182AbVLRPvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965191AbVLRP40@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965182AbVLRPvI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 10:51:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965191AbVLRPvH
+	id S965191AbVLRP40 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 10:56:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965196AbVLRP40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 10:51:07 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:39954 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965182AbVLRPvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 10:51:06 -0500
-Date: Sun, 18 Dec 2005 16:51:08 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Andi Kleen <ak@suse.de>, Kyle Moffett <mrmacman_g4@mac.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051218155108.GF23349@stusta.de>
-References: <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com> <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com> <p73slsrehzs.fsf@verdi.suse.de> <20051217205238.GR23349@stusta.de> <61D4A300-4967-4DC1-AD2C-765A3D2D9743@comcast.net> <20051218054323.GF23384@wotan.suse.de> <5DB2F520-5666-4C7F-9065-51117A0F54B9@comcast.net>
-MIME-Version: 1.0
+	Sun, 18 Dec 2005 10:56:26 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:27373 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965191AbVLRP4Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 10:56:25 -0500
+Date: Sun, 18 Dec 2005 15:56:22 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Cc: linux-kernel@vger.kernel.org, js@linuxtv.org,
+       linux-dvb-maintainer@linuxtv.org, video4linux-list@redhat.com
+Subject: Re: [PATCH 1/5] - Fix 64-bit compile warnings
+Message-ID: <20051218155622.GG27946@ftp.linux.org.uk>
+References: <1134920704.6702.26.camel@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5DB2F520-5666-4C7F-9065-51117A0F54B9@comcast.net>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1134920704.6702.26.camel@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 18, 2005 at 01:05:52AM -0500, Parag Warudkar wrote:
-> 
-> On Dec 18, 2005, at 12:43 AM, Andi Kleen wrote:
-> 
-> >You can catch the obvious ones, but the really hard ones
-> >that only occur under high load in obscure exceptional
-> >circumstances with large configurations and suitable nesting you  
-> >won't.
-> >These would be only found at real world users.
-> 
-> Yep, as it all depends on code complexity, some of these cases might  
-> not be "errors" at all - instead for that kind of functionality they  
-> might _require_ bigger stacks.
+On Sun, Dec 18, 2005 at 01:23:45PM -0200, Mauro Carvalho Chehab wrote:
+> Fix 64-bit compile warnings
+> diff --git a/drivers/media/common/saa7146_hlp.c b/drivers/media/common/saa7146_hlp.c
+> index ec52dff..be34ec4 100644
+> --- a/drivers/media/common/saa7146_hlp.c
+> +++ b/drivers/media/common/saa7146_hlp.c
+> @@ -562,7 +562,7 @@ static void saa7146_set_position(struct 
+>  
+>  	int b_depth = vv->ov_fmt->depth;
+>  	int b_bpl = vv->ov_fb.fmt.bytesperline;
+> -	u32 base = (u32)vv->ov_fb.base;
+> +	u32 base = (u32)(unsigned long)vv->ov_fb.base;
 
-Is this just FUD or can you give an example where this is a real 
-problem that can't be solved by using kmalloc()?
-
-> If you have 64 bit machines common place and memory a lot cheaper I  
-> don't see how it is beneficial to force smaller stack sizes without  
-> giving consideration to the code complexity, architecture and  
-> requirements.
->...
-
-Note that we are talking about reducing the stack size _by one third_.
-
-Therefore, your point it would make code much more complex sounds 
-strange.
-
-> Parag
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+That's not "fix", that's "confuse gcc so it doesn't notice the problem
+anymore"...

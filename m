@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbVLRLrG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932694AbVLRMEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbVLRLrG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 06:47:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbVLRLrG
+	id S932694AbVLRMEz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 07:04:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932695AbVLRMEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 06:47:06 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5137 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932511AbVLRLrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 06:47:05 -0500
-Date: Sun, 18 Dec 2005 12:47:06 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [-mm patch] more updates for the gcc >= 3.2 requirement
-Message-ID: <20051218114706.GZ23349@stusta.de>
-References: <20051216190126.GF23349@stusta.de> <200512170104.jBH143Hj005327@quelen.inf.utfsm.cl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512170104.jBH143Hj005327@quelen.inf.utfsm.cl>
-User-Agent: Mutt/1.5.11
+	Sun, 18 Dec 2005 07:04:55 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:32393 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932694AbVLRMEy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 07:04:54 -0500
+Subject: Re: IT821x driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kernel - Noah Blumenfeld <kernel@fireether.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43A54683.3030202@fireether.net>
+References: <43A54683.3030202@fireether.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 18 Dec 2005 12:05:08 +0000
+Message-Id: <1134907508.26141.8.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 10:04:03PM -0300, Horst von Brand wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
-> > On Fri, Dec 16, 2005 at 03:28:40PM -0300, Horst von Brand wrote:
-> > > Adrian Bunk <bunk@stusta.de> wrote:
-> > > > This patch contains some documentation updates and removes some code 
-> > > > paths for gcc < 3.2.
-> > > 
-> > > [...]
-> > > 
-> > > > --- linux-2.6.15-rc5-mm3-full/arch/arm/kernel/asm-offsets.c.old	2005-12-15 13:34:55.000000000 +0100
-> > > > +++ linux-2.6.15-rc5-mm3-full/arch/arm/kernel/asm-offsets.c	2005-12-15 13:35:11.000000000 +0100
-> > > > @@ -27,11 +27,11 @@
-> > > >   * GCC 3.2.0: incorrect function argument offset calculation.
-> > > >   * GCC 3.2.x: miscompiles NEW_AUX_ENT in fs/binfmt_elf.c
-> > > >   *            (http://gcc.gnu.org/PR8896) and incorrect structure
-> > > >   *	      initialisation in fs/jffs2/erase.c
-> > > >   */
-> > > > -#if __GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ < 3)
-> > > > +#if (__GNUC__ == 3 && __GNUC_MINOR__ < 3)
-> > > >  #error Your compiler is too buggy; it is known to miscompile kernels.
-> > > >  #error    Known good compilers: 3.3
-> > > >  #endif
-> > > 
-> > > Better leave the original, in case some clown comes along with an ancient
-> > > compiler.
-> > >...
-> 
-> > That's what the check in init/main.c is for.
-> 
-> But in that case this is redundant, no? Or move the checks into there.
+On Sul, 2005-12-18 at 06:22 -0500, Kernel - Noah Blumenfeld wrote:
+> As far as I can tell - and from the information within the driver's file 
+>   /drivers/ide/pci/it821x.c - the current driver does not support mwdma 
+> or dma, only udma. It also says that if - and I quote Alan Cox -
 
-No, the kernel now generally requires gcc >= 3.2, but on arm it requires 
-gcc >= 3.3.
+The 2.6.14 kernel has a version of the driver built in that should
+support all modes properly. In hardware raid mode DMA mode selection is
+handled by the controller and we actually don't deal with it.
 
-Whether the arm specifically check is in init/main.c or 
-arch/arm/kernel/asm-offsets.c doesn't matter, and traditionally it is at 
-the latter place.
+In pass through/atapi supporting mode we handle the mode selection and
+support MWDMA/UDMA. The chip is really designed to be best for UDMA (as
+you'd expect) but does handle other modes.
 
-cu
-Adrian
+> Is there a way to restrict the size of the files being written by the 
+> kernel to a hardware device? I.e. make it so it will not write LBA48 
 
--- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+We do the following in init_hwif_it821x already
+
+    if(conf & 1) {
+                idev->smart = 1;
+                hwif->atapi_dma = 0;
+                /* Long I/O's although allowed in LBA48 space cause the
+                   onboard firmware to enter the twighlight zone */
+                hwif->rqsize = 256;
+        }
+
+So the driver should be doing this correctly. Also for DMA on the smart
+mode, use hdparm -d1, but don't try and program the drives - that is
+handled by the controller and that may be upsetting it. Let me know if
+that helps.
+
+If you are doing raid0 btw its faster in non-raid mode and using
+software raid. In raid1 it seems to be faster to use the chip in smart
+mode.
+
+Alan
 

@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbVLRDsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965054AbVLRD7v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbVLRDsP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 22:48:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbVLRDsP
+	id S965054AbVLRD7v (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 22:59:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965055AbVLRD7v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 22:48:15 -0500
-Received: from www.swissdisk.com ([216.144.233.50]:41641 "EHLO
-	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
-	id S965045AbVLRDsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 22:48:14 -0500
-Date: Sat, 17 Dec 2005 18:39:23 -0800
-From: Ben Collins <bcollins@ubuntu.com>
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org, akpm@osdl.org
-Subject: [PATCH 2.6.15-git] i2o: Do not disable pci device when it's in use
-Message-ID: <20051218023923.GA15246@swissdisk.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 17 Dec 2005 22:59:51 -0500
+Received: from smtp108.sbc.mail.re2.yahoo.com ([68.142.229.97]:5308 "HELO
+	smtp108.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S965054AbVLRD7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 22:59:50 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Ben Collins <bcollins@ubuntu.com>
+Subject: Re: [PATCH 2.6.15-git] alps: Add Fujitsu Siemens S6010 support to alps driver.
+Date: Sat, 17 Dec 2005 22:59:47 -0500
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org
+References: <20051218023835.GA15232@swissdisk.com>
+In-Reply-To: <20051218023835.GA15232@swissdisk.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Reference: https://bugzilla.ubuntu.com/17897
-User-Agent: Mutt/1.5.9i
+Message-Id: <200512172259.48015.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When dpt_i2o is loaded first, i2o being loaded would cause it to call
-pci_device_disable, thus breaking dpt_i2o's use of the device. Based on
-similar usage of pci_disable_device in other drivers.
-    
-Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+On Saturday 17 December 2005 21:38, Ben Collins wrote:
+> PatchAuthor: andrew.waldrom@siemens.com
+> Reference: http://bugzilla.ubuntu.com/13404
+>     
+> Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+> 
+> diff --git a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+> index a80d6b9..3cffe1d 100644
+> --- a/drivers/input/mouse/alps.c
+> +++ b/drivers/input/mouse/alps.c
+> @@ -42,7 +42,7 @@ static struct alps_model_info alps_model
+>  	{ { 0x53, 0x02, 0x14 },	0xf8, 0xf8, 0 },
+>  	{ { 0x63, 0x02, 0x0a },	0xf8, 0xf8, 0 },
+>  	{ { 0x63, 0x02, 0x14 },	0xf8, 0xf8, 0 },
+> -	{ { 0x63, 0x02, 0x28 },	0xf8, 0xf8, 0 },
+> +	{ { 0x63, 0x02, 0x28 },	0xf8, 0xf8, ALPS_FW_BK_2 },		/* Fujitsu Siemens S6010 */
+>  	{ { 0x63, 0x02, 0x3c },	0x8f, 0x8f, ALPS_WHEEL },		/* Toshiba Satellite S2400-103 */
+>  	{ { 0x63, 0x02, 0x50 },	0xef, 0xef, ALPS_FW_BK_1 },		/* NEC Versa L320 */
+>  	{ { 0x63, 0x02, 0x64 },	0xf8, 0xf8, 0 },
 
-diff --git a/drivers/message/i2o/pci.c b/drivers/message/i2o/pci.c
-index 81ef306..8859c8a 100644
---- a/drivers/message/i2o/pci.c
-+++ b/drivers/message/i2o/pci.c
-@@ -303,6 +303,7 @@ static int __devinit i2o_pci_probe(struc
- 	struct i2o_controller *c;
- 	int rc;
- 	struct pci_dev *i960 = NULL;
-+	int pci_dev_busy = 0;
- 
- 	printk(KERN_INFO "i2o: Checking for PCI I2O controllers...\n");
- 
-@@ -395,6 +396,8 @@ static int __devinit i2o_pci_probe(struc
- 	if ((rc = i2o_pci_alloc(c))) {
- 		printk(KERN_ERR "%s: DMA / IO allocation for I2O controller "
- 		       " failed\n", c->name);
-+		if (rc == -ENODEV)
-+			pci_dev_busy = 1;
- 		goto free_controller;
- 	}
- 
-@@ -425,7 +428,8 @@ static int __devinit i2o_pci_probe(struc
- 	i2o_iop_free(c);
- 
-       disable:
--	pci_disable_device(pdev);
-+	if (!pci_dev_busy)
-+		pci_disable_device(pdev);
- 
- 	return rc;
- }
+This one is already in Linus's tree.
+
+-- 
+Dmitry

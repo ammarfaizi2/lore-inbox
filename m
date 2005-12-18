@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932676AbVLRDNR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932677AbVLRDOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932676AbVLRDNR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 22:13:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932677AbVLRDNR
+	id S932677AbVLRDOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 22:14:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932678AbVLRDOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 22:13:17 -0500
-Received: from lame.durables.org ([64.81.244.120]:9138 "EHLO
-	calliope.durables.org") by vger.kernel.org with ESMTP
-	id S932676AbVLRDNQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 22:13:16 -0500
-Subject: Re: [PATCH 07/13]  [RFC] ipath core misc files
-From: Robert Walsh <rjwalsh@pathscale.com>
-To: Andrew Morton <akpm@osdl.org>
+	Sat, 17 Dec 2005 22:14:25 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14984 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932677AbVLRDOZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 22:14:25 -0500
+Date: Sat, 17 Dec 2005 19:14:17 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Robert Walsh <rjwalsh@pathscale.com>
 Cc: rolandd@cisco.com, linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <20051217191007.a77d23af.akpm@osdl.org>
-References: <200512161548.KglSM2YESlGlEQfQ@cisco.com>
-	 <200512161548.3fqe3fMerrheBMdX@cisco.com>
-	 <20051217123850.aa6cfd53.akpm@osdl.org>
-	 <1134855235.20575.22.camel@phosphene.durables.org>
-	 <20051217191007.a77d23af.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 17 Dec 2005 19:13:09 -0800
-Message-Id: <1134875589.20575.122.camel@phosphene.durables.org>
+Subject: Re: [PATCH 01/13]  [RFC] ipath basic headers
+Message-Id: <20051217191417.f16011bb.akpm@osdl.org>
+In-Reply-To: <1134859158.20575.82.camel@phosphene.durables.org>
+References: <200512161548.jRuyTS0HPMLd7V81@cisco.com>
+	<200512161548.aLjaDpGm5aqk0k0p@cisco.com>
+	<20051217123827.32f119da.akpm@osdl.org>
+	<1134859158.20575.82.camel@phosphene.durables.org>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-17 at 19:10 -0800, Andrew Morton wrote:
-> Robert Walsh <rjwalsh@pathscale.com> wrote:
-> >
-> > > > +int ipath_mlock(unsigned long start_page, size_t num_pages, struct page **p)
-> > > OK.  It's perhaps not a very well named function.
-> > 
-> > Really?  Suggestion for a better name?
-> > 
+Robert Walsh <rjwalsh@pathscale.com> wrote:
+>
+> > I'd be inclined to stick BITS_PER_BYTE into include/linux/types.h.
 > 
-> ipath_get_user_pages() would cause the least surprise.
-
-Seems reasonable.  I'll look at the related functions, too.
-
-> > > I don't think we want to be setting the user's VMA's vm_flags in this
-> > > manner.  This is purely to retain the physical page across fork?
-> > 
-> > I didn't write this bit of the driver, but I believe this is the case.
-> > Is there a better way of doing this?
+> Really?  I was just going to suggest removing it, but if sticking it in
+> types.h works for you, then fine.
 > 
-> This stuff has been churning a bit lately.  I've drawn Hugh Dickins's
-> attention to the patch - he'd have a better handle on what the best
-> approach would be.
 
-OK then - I'll wait and see.
+I think it's a readbility thing.
 
-Regards,
- Robert.
+	x += 8;			/* wtf? */
 
--- 
-Robert Walsh                                 Email: rjwalsh@pathscale.com
-PathScale, Inc.                              Phone: +1 650 934 8117
-2071 Stierlin Court, Suite 200                 Fax: +1 650 428 1969
-Mountain View, CA 94043.
+vs
 
-
+	x += BITS_PER_BYTE;	/* ah! */

@@ -1,32 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965222AbVLRQwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965220AbVLRRCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965222AbVLRQwi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 11:52:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965220AbVLRQwa
+	id S965220AbVLRRCK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 12:02:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965226AbVLRRCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 11:52:30 -0500
-Received: from host229-46.pool8259.interbusiness.it ([82.59.46.229]:59864 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S965224AbVLRQwI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 11:52:08 -0500
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 0/4] Uml: basic fixups for 2.6.15
-Date: Sun, 18 Dec 2005 17:49:16 +0100
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20051218164916.441.69564.stgit@zion.home.lan>
+	Sun, 18 Dec 2005 12:02:10 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:51645 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S965220AbVLRRCG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 12:02:06 -0500
+Message-ID: <43A5A7B5.21A4CAAE@tv-sign.ru>
+Date: Sun, 18 Dec 2005 21:17:25 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+       Daniel Walker <dwalker@mvista.com>,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+Subject: [PATCH rc5-rt2 0/3] plist: alternative implementation
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are some important fixes for 2.6.15 to merge. A couple of them are
-already in -mm, but I'm resending them anyway since they haven't been merged,
-and since akpm is "non-functional". They are:
+Rediff against patch-2.6.15-rc5-rt2.
 
-uml-arch-um-scripts-makefilerules-remove-duplicated-code.patch
-uml-fix-dynamic-linking-on-some-64-bit-distros.patch
+Nothing was changed except s/plist_next_entry/plist_first_entry/
+to match the current naming.
 
---
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+These patches were only compile tested. This is beacuse I can't
+even compile 2.6.15-rc5-rt2, I had to comment out this line
+
+	lib-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
+
+in lib/Makefile. I think CONFIG_RWSEM_GENERIC_SPINLOCK means that
+lib/rwsem.c should be ignored.
+
+After that the kernel panics at boot time, the call trace shows
+
+	set_workqueue_thread_prio
+	wake_up_process
+	set_workqueue_prio
+	init_workqueues
+
+will try to look further on Tuesday.
+
+Just to make it clear, these problems were _without_ these patches.
+
+Oleg.

@@ -1,55 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965076AbVLRFDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030184AbVLRFeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965076AbVLRFDx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 00:03:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbVLRFDx
+	id S1030184AbVLRFeA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 00:34:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965082AbVLRFeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 00:03:53 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:19658 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S965076AbVLRFDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 00:03:52 -0500
-In-Reply-To: <20051217205238.GR23349@stusta.de>
-References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com> <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com> <p73slsrehzs.fsf@verdi.suse.de> <20051217205238.GR23349@stusta.de>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <61D4A300-4967-4DC1-AD2C-765A3D2D9743@comcast.net>
-Cc: Andi Kleen <ak@suse.de>, Kyle Moffett <mrmacman_g4@mac.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
+	Sun, 18 Dec 2005 00:34:00 -0500
+Received: from lame.durables.org ([64.81.244.120]:32641 "EHLO
+	calliope.durables.org") by vger.kernel.org with ESMTP
+	id S965081AbVLRFeA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 00:34:00 -0500
+Subject: Re: [PATCH 03/13]  [RFC] ipath copy routines
+From: Robert Walsh <rjwalsh@pathscale.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rolandd@cisco.com, linux-kernel@vger.kernel.org, openib-general@openib.org
+In-Reply-To: <20051217191932.af2b422c.akpm@osdl.org>
+References: <200512161548.HbgfRzF2TysjsR2G@cisco.com>
+	 <200512161548.lRw6KI369ooIXS9o@cisco.com>
+	 <20051217123833.1aa430ab.akpm@osdl.org>
+	 <1134859243.20575.84.camel@phosphene.durables.org>
+	 <20051217191932.af2b422c.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 17 Dec 2005 21:33:51 -0800
+Message-Id: <1134884031.20575.126.camel@phosphene.durables.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-From: Parag Warudkar <kernel-stuff@comcast.net>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Sun, 18 Dec 2005 00:03:39 -0500
-To: Adrian Bunk <bunk@stusta.de>
-X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Any chance we could get these moved into the x86_64 arch directory,
+> > then?
+> 
+> That would make sense.  Give it a non-ipath-related name and require that
+> all architectures which wish to run this driver must implement that
+> (documented) function.
+> 
+> And, in Kconfig, make sure that architectures which don't implement that
+> library function do not attempt to build this driver.  To avoid breaking
+> `make allmodconfig'.
 
-On Dec 17, 2005, at 3:52 PM, Adrian Bunk wrote:
+Sounds good.  I'll get something together next week.
 
-> And in my experience, many stack problems don't come from code getting
-> more complex but from people allocating 1kB structs or arrays of
+> >  We have to do double-word copies, or our chip gets unhappy.
+> 
+> In what form is this chip available?  As a standard PCI/PCIX card which
+> people will want to plug into power4/ia64/x86 machines?  Or is it in some
+> way exclusively tied to x86_64?
 
-And we catch this type of problems fairly easily in the patch review  
-itself, even before accepting the code in mainline. Plus there is  
-make checkstack to help find and fix any such issues, isn't it? So  
-it's not like forcing the stack to 4Kb and making the offending code  
-to crash is the best solution to force people to write code which  
-plays nice with the stack.
+It's a HyperTransport card, not PCI/PCIe/PCIX.  It plugs into the HTX
+slot on a suitably-equipped motherboard.  On some machines, it's
+available on the motherboard itself (e.g. the Linux Networx LS/X.)
 
-I think on i386 most people do fine with the 8Kb stack - whoever  
-benefits from 4Kb stack, can always choose the 4Kb stack config  
-option and recompile.
+Regards,
+ Robert.
 
-Alternatively, default to 4Kb and let people choose 8Kb and recompile  
-if that's what suits their workloads.
-
-In any case having options doesn't hurt anything and we don't benefit  
-in any way from taking away the 8Kb option.
-
-My 2 cents.
-
-Parag
+-- 
+Robert Walsh                                 Email: rjwalsh@pathscale.com
+PathScale, Inc.                              Phone: +1 650 934 8117
+2071 Stierlin Court, Suite 200                 Fax: +1 650 428 1969
+Mountain View, CA 94043.
 
 

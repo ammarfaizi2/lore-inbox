@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965263AbVLRUBI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965271AbVLRUCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965263AbVLRUBI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 15:01:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965264AbVLRUBI
+	id S965271AbVLRUCu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 15:02:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965273AbVLRUCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 15:01:08 -0500
-Received: from solarneutrino.net ([66.199.224.43]:3591 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S965263AbVLRUBH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 15:01:07 -0500
-Date: Sun, 18 Dec 2005 15:00:52 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       ryan@tau.solarneutrino.net
-Subject: Re: lockd: couldn't create RPC handle for (host)
-Message-ID: <20051218200052.GA21665@tau.solarneutrino.net>
-References: <20051216235841.GA20539@tau.solarneutrino.net> <1134797577.20929.2.camel@lade.trondhjem.org> <20051217055907.GC20539@tau.solarneutrino.net> <1134801822.7946.4.camel@lade.trondhjem.org> <20051217070222.GD20539@tau.solarneutrino.net> <1134847699.7950.25.camel@lade.trondhjem.org> <20051217194553.GE20539@tau.solarneutrino.net> <1134894836.7931.17.camel@lade.trondhjem.org> <20051218180150.GF20539@tau.solarneutrino.net> <1134934267.7966.37.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Sun, 18 Dec 2005 15:02:50 -0500
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:4798 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965271AbVLRUCu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 15:02:50 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Vitaly Wool <vwool@ru.mvista.com>
+Subject: Re: [PATCH 2.6-git 3/3] SPI core refresh: SPI/PNX bus driver and EEPROM driver
+Date: Sun, 18 Dec 2005 12:02:48 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net
+References: <20051215125800.4fa95de6.vwool@ru.mvista.com> <20051215130205.2ebdea18.vwool@ru.mvista.com> <20051215130354.5ca3d99f.vwool@ru.mvista.com>
+In-Reply-To: <20051215130354.5ca3d99f.vwool@ru.mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1134934267.7966.37.camel@lade.trondhjem.org>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+Message-Id: <200512181202.48218.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 18, 2005 at 02:31:07PM -0500, Trond Myklebust wrote:
-> On Sun, 2005-12-18 at 13:01 -0500, Ryan Richter wrote:
-> > Code: 48 39 78 18 75 1c 8b 86 8c 00 00 00 a8 01 74 12 83 c8 02 89 
-> > RIP <ffffffff801dbd9e>{nlmclnt_mark_reclaim+62} RSP <ffff81007dfade70>
-> > CR2: 0000000000000018
-> 
-> Looks like the global lock list is corrupted. Could you cat the contents
-> of /proc/locks?
+> --- /dev/null
+> +++ linux-2.6.orig/drivers/spi/pnx4008-eeprom.c
+> @@ -0,0 +1,121 @@
+> ...
+> +#define EEPROM_SIZE		256
+> +#define DRIVER_NAME		"EEPROM"
+> +#define READ_BUFF_SIZE 160
 
-$ cat /proc/locks
-1: POSIX  ADVISORY  WRITE 1657 00:0e:1771273 0 EOF
-2: FLOCK  ADVISORY  WRITE 1486 00:0e:1770759 0 EOF
-3: FLOCK  ADVISORY  WRITE 1478 00:0e:1770399 0 EOF
+Wouldn't it be better to have an EEPROM driver that's not hard-wired
+to this particular devel board?  And which could work on at least all
+chips using eight bit addressing?
 
-> > Every machine with a dead lockd has had this oops.  Other stuff that
-> > looks related (these came after the oops, a few days later):
-> 
-> Those errors are unrelated. These errors come from the server.
-> 
-> > lockd: unexpected unlock status: 1
-> > lockd: weird return 7 for CANCEL call
-> 
-> Error "7" is the equivalent of "ESTALE" (stale filehandle). That means
-> either someone deleted the file you are trying to lock on the server, or
-> that a bug caused nfsd  to somehow lose track of the file.
-> 
-> I suspect the Error "1" is related to the same issue.
+This seems to match the 25020 series SPI EEPROMS.  (2 Kbits, 256 bytes.)
+But the 25010 and 25040 also use 8 bit address protoocol ... and then
+there are also chips using 16 bit addresses, and 24 bit ones.
 
-Unfortunately I don't have a date stamp for these messages.  I think
-they might be from my initial efforts to debug the problem - I deleted
-some lock files once or twice.  None of the other machines had these
-messages.
+Shouldn't board init code be able to just say "25640 at spi1 chipselect 3",
+and have the driver know that means 8 KBytes with pagesize 32?
 
-> 
-> > > Finally, please do
-> > > 
-> > > echo 1 > /proc/sys/sunrpc/rpc_lockd
-> > > then unmount one of your NFS partitions, and then mount it again.
-> > 
-> > That file doesn't exist.
-> > 
-> > $ ls /proc/sys/sunrpc 
-> > nfs_debug  nfsd_debug  nlm_debug  rpc_debug  tcp_slot_table_entries
-> > udp_slot_table_entries
-> 
-> Sorry, I meant 'nlm_debug'.
+- Dave
 
-OK, I did that and unmounted and remounted the home directories.
-There's still no lockd process.  I had someone using kde log in, and the
-login hung for a couple of minutes but then proceeded - it didn't do
-that before.  There were no kernel messages.
-
--ryan

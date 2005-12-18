@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965212AbVLRQIB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965217AbVLRQXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965212AbVLRQIB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 11:08:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965214AbVLRQIB
+	id S965217AbVLRQXF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 11:23:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965219AbVLRQXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 11:08:01 -0500
-Received: from mxsf14.cluster1.charter.net ([209.225.28.214]:36530 "EHLO
-	mxsf14.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S965212AbVLRQIA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 11:08:00 -0500
-X-IronPort-AV: i="3.99,266,1131339600"; 
-   d="scan'208"; a="553663743:sNHT24650332"
-Message-ID: <43A588C5.4020907@cybsft.com>
-Date: Sun, 18 Dec 2005 10:05:25 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Thunderbird 1.5 (X11/20051025)
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: 2.6.15-rc5-rt2 slowness
-References: <dnu8ku$ie4$1@sea.gmane.org>	 <1134790400.13138.160.camel@localhost.localdomain> <1134860251.13138.193.camel@localhost.localdomain>
-In-Reply-To: <1134860251.13138.193.camel@localhost.localdomain>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 18 Dec 2005 11:23:05 -0500
+Received: from host229-46.pool8259.interbusiness.it ([82.59.46.229]:9147 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S965217AbVLRQXE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 11:23:04 -0500
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH] PTRACE_SYSEMU is only for i386 and clashes with other ptrace codes of other archs
+Date: Sun, 18 Dec 2005 17:22:35 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20051218162235.31825.43300.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> Ingo,
-> 
-> I ported your old changes of 2.6.14-rt22 of mm/slab.c to 2.6.15-rc5-rt2
-> and tried it out.  I believe that this confirms that the SLOB _is_ the
-> problem in the slowness.  Booting with this slab patch, gives the old
-> speeds that we use to have.
-> 
-> Now, is the solution to bring the SLOB up to par with the SLAB, or to
-> make the SLAB as close to possible to the mainline (why remove NUMA?)
-> and keep it for PREEMPT_RT?
-> 
-> Below is the port of the slab changes if anyone else would like to see
-> if this speeds things up for them.
-> 
-> -- Steve
-> 
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
-This drastically improves performance on my slower uniprocessor system.
-2.6.15-rc5-rt2 still doesn't boot on my dual 933 box, with or without
-this patch. I will try to dig into that a bit more today.
+PTRACE_SYSEMU{,_SINGLESTEP} is actually arch specific, for now, and the current
+allocated number clashes with a ptrace code of frv, i.e. PTRACE_GETFDPIC. I
+should have submitted this much earlier, anyway we get no breakage for this.
 
--- 
-   kr
+CC: Daniel Jacobowitz <dan@debian.org>
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
+
+ include/asm-i386/ptrace.h |    3 +++
+ include/linux/ptrace.h    |    2 --
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/include/asm-i386/ptrace.h b/include/asm-i386/ptrace.h
+index 7e0f294..f324c53 100644
+--- a/include/asm-i386/ptrace.h
++++ b/include/asm-i386/ptrace.h
+@@ -54,6 +54,9 @@ struct pt_regs {
+ #define PTRACE_GET_THREAD_AREA    25
+ #define PTRACE_SET_THREAD_AREA    26
+ 
++#define PTRACE_SYSEMU		  31
++#define PTRACE_SYSEMU_SINGLESTEP  32
++
+ #ifdef __KERNEL__
+ 
+ #include <asm/vm86.h>
+diff --git a/include/linux/ptrace.h b/include/linux/ptrace.h
+index b2b3dba..8b64478 100644
+--- a/include/linux/ptrace.h
++++ b/include/linux/ptrace.h
+@@ -20,8 +20,6 @@
+ #define PTRACE_DETACH		0x11
+ 
+ #define PTRACE_SYSCALL		  24
+-#define PTRACE_SYSEMU		  31
+-#define PTRACE_SYSEMU_SINGLESTEP  32
+ 
+ /* 0x4200-0x4300 are reserved for architecture-independent additions.  */
+ #define PTRACE_SETOPTIONS	0x4200
+

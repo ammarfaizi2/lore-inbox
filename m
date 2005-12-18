@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932660AbVLRCUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932673AbVLRCf0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932660AbVLRCUA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Dec 2005 21:20:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932662AbVLRCUA
+	id S932673AbVLRCf0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Dec 2005 21:35:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932672AbVLRCf0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Dec 2005 21:20:00 -0500
-Received: from wproxy.gmail.com ([64.233.184.192]:51689 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932660AbVLRCUA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Dec 2005 21:20:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=e4n2/t5jxJckb0FHa1jxODheC800wCrXLOGBMh82RLKMWTp0SK75IEeD5f+8SVFqhhvYk40DCINr/Qcgk/2F6BbfKcozArOTulNGLTAS6lgk5I3opeq68KT0RJ/Rqn8+vaenUjAeoWb2FxoV1Ge+kXt7c2Q7href8iV9H/Y3xkM=
-Message-ID: <758a2bbf0512171819j6a9400cflf3d53951fe35a67a@mail.gmail.com>
-Date: Sat, 17 Dec 2005 18:19:58 -0800
-From: Vijay Sampath <vsampath@gmail.com>
-To: gcoady@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MTD (kernel 2.4.32): kernel stuck in tight loop occasionally on flash access
-In-Reply-To: <758a2bbf0512171759i35df21e7t8a1b00f72c362614@mail.gmail.com>
+	Sat, 17 Dec 2005 21:35:26 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:17635 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932670AbVLRCfZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Dec 2005 21:35:25 -0500
+Date: Sat, 17 Dec 2005 18:34:46 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nicolas Pitre <nico@cam.org>
+cc: David Howells <dhowells@redhat.com>, Steven Rostedt <rostedt@goodmis.org>,
+       linux-arch@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+       mingo@redhat.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/12]: MUTEX: Implement mutexes
+In-Reply-To: <Pine.LNX.4.64.0512172018410.26663@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0512171803580.3698@g5.osdl.org>
+References: <Pine.LNX.4.64.0512162334440.3698@g5.osdl.org>
+ <dhowells1134774786@warthog.cambridge.redhat.com>
+ <200512162313.jBGND7g4019623@warthog.cambridge.redhat.com>
+ <1134791914.13138.167.camel@localhost.localdomain>
+ <14917.1134847311@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0512171201200.3698@g5.osdl.org>
+ <Pine.LNX.4.64.0512172018410.26663@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <02DAE179D5CEED4C992055C823ED90FF8ACE8E@ex1>
-	 <758a2bbf0512171759i35df21e7t8a1b00f72c362614@mail.gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/17/05, Vijay Sampath <vsampath@gmail.com> wrote:
-> >         Leaves me confused :)  Description and patch should match?
->
-> Description has a typo. Patch is accurate. Unless somebody more
-> knowledgeable than me on the intricacies would want to differ.
->
-> >         Something is wrong here?  Your patch should not alter dontdiff.
->
-> It didn't. 2.4 kernel doesn't have dontdiff, so I had to download it.
-> But I only downloaded to one of the directories, hence the messed up
-> output. Maybe dontdiff should have "dontdiff" as one of the files not
-> to diff! :)
->
-> Thanks,
->
-> Vijay
->
+
+
+On Sat, 17 Dec 2005, Nicolas Pitre wrote:
+> 
+> Well, if you really want to be honest, you have to consider that the 
+> ldrex/strex instructions are available only on ARM architecture level 6 
+> and above, or in other words with only about 1% of all ARM deployments 
+> out there.  The other 99% of actual ARM processors in the field only 
+> have the atomic swap (swp) instruction which is insufficient for 
+> implementing a counting semaphore (we therefore have to disable 
+> interrupts, do the semaphore update and enable interrupts again which is 
+> much slower than a swp-based mutex).
+
+Ehh.. Have you seen any SMP arm machines with the old ones?
+
+Yes, there are some shared-memory things out there. I thought they were 
+basically never used in SMP configs, but just with two independent CPU's 
+that just happened to share (at least part of) memory.
+
+In fact, I thought it was more common that you had one ARM core, and then 
+a specialized comm chip or something?
+
+As far as I can tell from the Linux arm assembly (which I admittedly don't 
+read very well at all), the non-ARMv6 semaphore code just disables 
+interrupts and does the semaphore without any atomic instructions at all. 
+Which is fine for UP (in fact, I'm not even convinced you need to disable 
+interrupts, since any interrupts - even if they do a "trylock+up" - should 
+always leave the counter in the same state it was before).
+
+So afaik, Linux simply doesn't support pre-ARMv6 in SMP configurations, 
+and never has (and I'd assume never will).
+
+Or am I missing something?
+
+		Linus

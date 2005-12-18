@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965233AbVLRRZb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965234AbVLRR1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965233AbVLRRZb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 12:25:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965234AbVLRRZb
+	id S965234AbVLRR1k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 12:27:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965235AbVLRR1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 12:25:31 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:63659 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S965233AbVLRRZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 12:25:30 -0500
-Date: Sun, 18 Dec 2005 12:25:18 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Daniel Walker <dwalker@mvista.com>,
-       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
-Subject: Re: [PATCH rc5-rt2 0/3] plist: alternative implementation
-In-Reply-To: <Pine.LNX.4.58.0512181220420.21304@gandalf.stny.rr.com>
-Message-ID: <Pine.LNX.4.58.0512181224390.21304@gandalf.stny.rr.com>
-References: <43A5A7B5.21A4CAAE@tv-sign.ru> <Pine.LNX.4.58.0512181220420.21304@gandalf.stny.rr.com>
+	Sun, 18 Dec 2005 12:27:40 -0500
+Received: from nproxy.gmail.com ([64.233.182.201]:57735 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965234AbVLRR1k convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 12:27:40 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pFPlZ8rIC6RA+Tt8PelfPl1p7eciK0ekQx5xujzwEOb3gB2NIjAPLG+otIsmwt79RTGNiEzLnMNizwj+blXOZHlZtjfiiZhzbhLKNxQeu8/hkEXE5UeMwVyoqui34bASQJCno5MWI0WAynUPzn+NLQzX1b13i1GZSFxy7TuB848=
+Message-ID: <84144f020512180927lc6492abpb28c047f9e0c535c@mail.gmail.com>
+Date: Sun, 18 Dec 2005 19:27:38 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH] micro optimization of cache_estimate in slab.c
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1134894189.13138.208.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1134894189.13138.208.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Steven,
 
+On 12/18/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+> +       do {
+> +               x = 1;
+> +               while ((x+i)*size + ALIGN(base+(x+i)*extra, align) <= wastage)
+> +                       x <<= 1;
+> +               i += (x >> 1);
+> +       } while (x > 1);
 
-On Sun, 18 Dec 2005, Steven Rostedt wrote:
+The above is pretty hard to read. Perhaps we could give x and i better
+names? Also, couldn't we move left part of the expression into a
+separate static inline function for readability?
 
->
-> On Sun, 18 Dec 2005, Oleg Nesterov wrote:
->
-> > Rediff against patch-2.6.15-rc5-rt2.
-> >
-> > Nothing was changed except s/plist_next_entry/plist_first_entry/
-> > to match the current naming.
-> >
-> > These patches were only compile tested. This is beacuse I can't
-> > even compile 2.6.15-rc5-rt2, I had to comment out this line
-> >
-> > 	lib-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
-> >
-> > in lib/Makefile. I think CONFIG_RWSEM_GENERIC_SPINLOCK means that
-> > lib/rwsem.c should be ignored.
-> >
->
-> I've already submitted patches to Ingo to fix this.
->
-
-Oh, and here's the link to that post.
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=113448476303030&w=2
-
--- Steve
-
+                              Pekka

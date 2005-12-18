@@ -1,69 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbVLRSKL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965239AbVLRSYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932422AbVLRSKL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 13:10:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbVLRSKL
+	id S965239AbVLRSYf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 13:24:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932700AbVLRSYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 13:10:11 -0500
-Received: from h80ad2567.async.vt.edu ([128.173.37.103]:48829 "EHLO
-	h80ad2567.async.vt.edu") by vger.kernel.org with ESMTP
-	id S932422AbVLRSKK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 13:10:10 -0500
-Message-Id: <200512181258.jBICwMdj003410@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.16-rc5-mm2 - kzalloc() considered harmful for debugging.
-From: Valdis.Kletnieks@vt.edu
+	Sun, 18 Dec 2005 13:24:35 -0500
+Received: from mxout02.versatel.de ([212.7.152.119]:56733 "EHLO
+	mxout02.versatel.de") by vger.kernel.org with ESMTP id S932484AbVLRSYf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 13:24:35 -0500
+Date: Sun, 18 Dec 2005 19:24:00 +0100
+From: Christian Trefzer <ctrefzer@gmx.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Christian Trefzer <ctrefzer@gmx.de>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Stefan Seyfried <seife@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] swsusp: brainstorming on a freaked-out approach
+Message-ID: <20051218182400.GA10167@zeus.uziel.local>
+References: <200512162209.53128.rjw@sisk.pl> <20051217164726.GA12021@hermes.uziel.local> <20051218174453.GA9679@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1134910701_2933P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 18 Dec 2005 07:58:21 -0500
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+Content-Disposition: inline
+In-Reply-To: <20051218174453.GA9679@elf.ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1134910701_2933P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <3388.1134910683.1@turing-police.cc.vt.edu>
 
-So I've got a (probably self-inflicted) memory leak in slab-64 and slab-32.
-Rebuild the kernel with CONFIG_DEBUG_SLAB, reboot, and wait for a bit of
-leak to pile up, and then echo 'slab-32 0 0 0' > /proc/slabinfo
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-And ta-DA! the top offender is... (drum roll): <kzalloc+0xe/0x36>
+On Sun, Dec 18, 2005 at 06:44:53PM +0100, Pavel Machek wrote:
+> > Well, so much for "quick" brainstorming on the issue... Don't bother
+> > flaming me for any misunderstanding or misconception : )
+>=20
+> That's empty reply for you, then.
+> 								Pavel
 
-Blargh.  It's tempting to do something like this in include/linux/slab.h:
+Argh. Looks like I said the opposite of what I was trying to express.
+Corrections are of course warmly welcome, even if the tone might not
+exactly be nice.
 
-#ifdef CONFIG_SLAB_DEBUG
-static inline void* kzalloc(size_t size, gfp_t flags)
-{
-        void *ret = kmalloc(size, flags);
-        if (ret)
-                memset(ret, 0, size);
-        return ret;
-}
-#else
-extern void *kzalloc(size_t, gfp_t);
-#end
+> [mm layer already discards most usefull pages last, so Rafael's
+> patches do the right thing]
 
-or maybe some ad-crock macro implementation, just so the actual calling site of
-kmalloc is recorded, rather than losing the caller of kzalloc.
+So I wasted my time and will now quit wasting yours. Thanks anyway : )
 
-Only problems are that (a) changing CONFIG_DEBUG_SLAB will probably recompile
-the world rather than just mm/slab.c, and (b) it's 7AM and I've been chasing this
-for 6 hours and not sure how to handle the actual body in mm/util.c (wrap the
-kzalloc() with a #ifndev CONFIG_DEBUG_SLAB maybe)?
+Chris
 
---==_Exmh_1134910701_2933P
+--fdj2RfSjLxBAspz7
 Content-Type: application/pgp-signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFDpVztcC3lWbTT17ARAr6WAJ9HI0BI/HmPD2vokAJMDooPvdo0ewCfeT0l
-7BtZfOs7hKynRxMk3/3GS6I=
-=PiED
+iQIVAwUBQ6WpQF2m8MprmeOlAQKKOw//UKVOLAErmHM7MhAmIKosteabSbftCAcy
+QuAc1WJNvH9ZHSG1aNl2TGGnkDO+bcf5OYrpJmLvSyO07v++uJwTPOp36l/Eh35B
+SvumxSIzhwsrEZLsalsyN6vm7ChV177BHE2pzWiLBK1m9jh+sFvZcYHUX+AolV1H
+ZKzDDoSKjpWbYTYOCLEEXlFziRK5ZLWRejHo+JsRpeal4jrEplQ93HuGZNYjceDy
+4Tez5az6vYHrQQO1goa30yMxvGUrkBIRsnOM+OkVGxgcA1aUYShKZAjf+bh3AajG
+rlUdPOw4wcU+Bz4vPDCYqppPaxf1PhxiAUY4iMgIkvIvC4s/Gh6cOz+cVRiyoOwP
+QoepyPPzjWMtn2/S/WIzl8NSRAlXYX7kxurKTCOG4objUT/etwVc5RaPoWCYrtCb
+6sq1JyUwjwNdDcsQ+IV/aGuhvDgy1En2f22h42F4rzUWn4EFY4arAuToCcKDDVBe
+hc/kq0g2KkC6Z4lyLObo9wUu90bwH2l71IMWjX7zmgbeGloZiJQO30ZFq/Y4g+vi
+zVMlzIc7Ikq8aibrCg7rEFRfJenX5FGF/29yYrPnbhZL1RImwsaY3HZcbYKENapA
+XbPVoqQQSiafO4VtipE4oAZUI/DU9+punPWa7n1uyQ8/Lxgf4N5WAYinfuRB4Jz9
+tTN6Q8eiWxc=
+=HtLF
 -----END PGP SIGNATURE-----
 
---==_Exmh_1134910701_2933P--
+--fdj2RfSjLxBAspz7--
+

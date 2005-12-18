@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030186AbVLRFlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbVLRFnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030186AbVLRFlw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 00:41:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbVLRFlw
+	id S1030187AbVLRFnf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 00:43:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030188AbVLRFnf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 00:41:52 -0500
-Received: from ns2.suse.de ([195.135.220.15]:31959 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1030186AbVLRFlv (ORCPT
+	Sun, 18 Dec 2005 00:43:35 -0500
+Received: from mx2.suse.de ([195.135.220.15]:39895 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1030187AbVLRFnf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 00:41:51 -0500
-Date: Sun, 18 Dec 2005 06:41:50 +0100
+	Sun, 18 Dec 2005 00:43:35 -0500
+Date: Sun, 18 Dec 2005 06:43:23 +0100
 From: Andi Kleen <ak@suse.de>
-To: Robert Walsh <rjwalsh@pathscale.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-Subject: Re: [PATCH 03/13]  [RFC] ipath copy routines
-Message-ID: <20051218054149.GE23384@wotan.suse.de>
-References: <200512161548.HbgfRzF2TysjsR2G@cisco.com> <200512161548.lRw6KI369ooIXS9o@cisco.com> <20051217123833.1aa430ab.akpm@osdl.org> <1134859243.20575.84.camel@phosphene.durables.org> <p73k6e3dr05.fsf@verdi.suse.de> <1134884189.20575.129.camel@phosphene.durables.org>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-ID: <20051218054323.GF23384@wotan.suse.de>
+References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com> <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com> <p73slsrehzs.fsf@verdi.suse.de> <20051217205238.GR23349@stusta.de> <61D4A300-4967-4DC1-AD2C-765A3D2D9743@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1134884189.20575.129.camel@phosphene.durables.org>
+In-Reply-To: <61D4A300-4967-4DC1-AD2C-765A3D2D9743@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 17, 2005 at 09:36:29PM -0800, Robert Walsh wrote:
-> On Sun, 2005-12-18 at 04:27 +0100, Andi Kleen wrote:
-> > Robert Walsh <rjwalsh@pathscale.com> writes:
-> > > 
-> > > Any chance we could get these moved into the x86_64 arch directory,
-> > > then?  We have to do double-word copies, or our chip gets unhappy.
-> > 
-> > Standard memcpy will do double word copies if everything is suitably
-> > aligned. Just use that.
+On Sun, Dec 18, 2005 at 12:03:39AM -0500, Parag Warudkar wrote:
 > 
-> This is dealing with buffers that may be passed in from user space, so
-> there's no guarantee of alignment for either the start address or the
-> length.
+> On Dec 17, 2005, at 3:52 PM, Adrian Bunk wrote:
+> 
+> >And in my experience, many stack problems don't come from code getting
+> >more complex but from people allocating 1kB structs or arrays of
+> 
+> And we catch this type of problems fairly easily in the patch review  
+> itself, even before accepting the code in mainline. Plus there is  
 
-So how can you do double word access when the length is not a multiple of four? 
-
-The current x86-64 copy_from_user will use double work access even in that case,
-except for the end of course.
-
-But what you're doing is so deeply unportable it's not funny. I am not
-sure such a unportable driver even belongs in the kernel.
-
-If the code was really intended to run on user space addresses it 
-was totally broken btw because it didn't handle exceptions.
+You can catch the obvious ones, but the really hard ones
+that only occur under high load in obscure exceptional
+circumstances with large configurations and suitable nesting you won't. 
+These would be only found at real world users.
 
 -Andi
-

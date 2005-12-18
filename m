@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965288AbVLRWHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965290AbVLRWKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965288AbVLRWHT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 17:07:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965289AbVLRWHT
+	id S965290AbVLRWKa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 17:10:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965292AbVLRWKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 17:07:19 -0500
-Received: from coyote.holtmann.net ([217.160.111.169]:45996 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S965288AbVLRWHR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 17:07:17 -0500
-Subject: Re: USB rejecting sleep
-From: Marcel Holtmann <marcel@holtmann.org>
+	Sun, 18 Dec 2005 17:10:30 -0500
+Received: from mail.kroah.org ([69.55.234.183]:34727 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965290AbVLRWK3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 17:10:29 -0500
+Date: Sun, 18 Dec 2005 13:50:51 -0800
+From: Greg KH <greg@kroah.com>
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>,
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       David Brownell <david-b@pacbell.net>,
        Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1134939687.6102.99.camel@gaston>
+Subject: Re: USB rejecting sleep
+Message-ID: <20051218215051.GA18257@kroah.com>
 References: <1134937642.6102.85.camel@gaston>
-	 <200512181258.47030.david-b@pacbell.net>  <1134939687.6102.99.camel@gaston>
-Content-Type: text/plain
-Date: Sun, 18 Dec 2005 23:07:01 +0100
-Message-Id: <1134943621.6881.43.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.5.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1134937642.6102.85.camel@gaston>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
-
-> > > What exactly changed in the recent USB stacks that is causing it to
-> > > abort system suspend much more often ? I'm getting lots of user reports
-> > > with 2.6.15-rc5 saying that they can't put their internal laptops to
-> > > sleep, apparently because a driver doesn't have a suspend method
-> > > (internal bluetooth in this case).
-> > 
-> > Which I hope _did_ generate a bug report to the maintainer of that
-> > bluetooth code.  :)
+On Mon, Dec 19, 2005 at 07:27:21AM +1100, Benjamin Herrenschmidt wrote:
+> Hi David, Alan !
 > 
-> I'm working on it :)
+> What exactly changed in the recent USB stacks that is causing it to
+> abort system suspend much more often ? I'm getting lots of user reports
+> with 2.6.15-rc5 saying that they can't put their internal laptops to
+> sleep, apparently because a driver doesn't have a suspend method
+> (internal bluetooth in this case).
+> 
+> It's never been mandatory so far for all drivers of all connected
+> devices to have a suspend method... didn't we decide back then that
+> disconneting those was the right way to go ?
 
-did I mention that this driver really needs a rewrite :(
+Yes it is, and I have a patch in my tree now that fixes this up and
+keeps the suspend process working properly for usb drivers that do not
+have a suspend function.
 
-It is full of ugly hacks around the URB structure. The use of the URBs
-for the bulk and isoc endpoints is not really how it should look like.
-It will consume USB bandwidth even if there are not active data or audio
-connections from this device. I am still curious that it is still
-working (except for suspend).
+Hm, I wonder if it should go in for 2.6.15?
 
-Regards
+thanks,
 
-Marcel
-
-
+greg k-h

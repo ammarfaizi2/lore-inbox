@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965294AbVLRWYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965293AbVLRWXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965294AbVLRWYc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 17:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965295AbVLRWYc
+	id S965293AbVLRWXa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 17:23:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965294AbVLRWX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 17:24:32 -0500
-Received: from ns1.heckrath.net ([213.239.205.18]:62856 "EHLO
-	mail.heckrath.net") by vger.kernel.org with ESMTP id S965294AbVLRWYb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 17:24:31 -0500
-Date: Sun, 18 Dec 2005 23:24:28 +0100
-From: Sebastian Kaergel <mailing@wodkahexe.de>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Cc: mailing@wodkahexe.de, gregkh@suse.de, linux-kernel@vger.kernel.org,
-       stable@kernel.org
-Subject: Re: Linux 2.6.14.4 [intelfb problem]
-Message-Id: <20051218232428.01d5f315.mailing@wodkahexe.de>
-In-Reply-To: <43A5D963.9020201@gmail.com>
-References: <20051215005041.GB4148@kroah.com>
-	<20051218204253.b32a4f61.mailing@wodkahexe.de>
-	<43A5D963.9020201@gmail.com>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.9; i686-pc-linux-gnu)
+	Sun, 18 Dec 2005 17:23:29 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:5040 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S965293AbVLRWX3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 17:23:29 -0500
+Subject: Re: 2.6.15-rc5-rt2 build error
+From: Lee Revell <rlrevell@joe-job.com>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <20051218210614.75f424eb@mango.fruits.de>
+References: <20051218210614.75f424eb@mango.fruits.de>
+Content-Type: text/plain
+Date: Sun, 18 Dec 2005 17:00:55 -0500
+Message-Id: <1134943256.14510.13.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Antonino A. Daplas" <adaplas@gmail.com> wrote:
-> Sometimes, this is just a problem with the bootloader not recognizing
-> the option parameters.
+On Sun, 2005-12-18 at 21:06 +0100, Florian Schmidt wrote:
+> config attached [cat .config|grep -v "#" >config]
 > 
-> > image=/boot/2.6.14.4-3
-> >  append="video=intelfb"
-> 
-> 'cat /proc/cmdline' should confirm if your options where actually passed
-> unchanged to the kernel.
+>   CC      lib/rwsem.o
 
- $ cat /proc/cmdline 
-BOOT_IMAGE=2.6.14.4 ro root=301 lapic video=intelfb
+Try the patches that Steven Rostedt posted in the "2.6.15-rc5-rt1 will
+not compile" thread.  Not all of those seem to have made it into -rt2.
 
-cmdline looks fine
+FWIW in order to compile -rt2 on x86-64 with !PREEMPT_RT this patch is
+required:
+
+Index: linux-2.6.15-rc5-rt1/arch/x86_64/Kconfig
+===================================================================
+--- linux-2.6.15-rc5-rt1.orig/arch/x86_64/Kconfig       2005-12-12
+10:56:37.000000000 -0500
++++ linux-2.6.15-rc5-rt1/arch/x86_64/Kconfig    2005-12-12
+21:33:56.000000000 -0500
+@@ -240,7 +240,6 @@
+ 
+ config RWSEM_GENERIC_SPINLOCK
+        bool
+-       depends on PREEMPT_RT
+        default y
+ 
+ config RWSEM_XCHGADD_ALGORITHM
+
+
+Lee
+

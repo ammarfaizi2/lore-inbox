@@ -1,70 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbVLRVGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965277AbVLRVV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbVLRVGj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 16:06:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbVLRVGj
+	id S965277AbVLRVV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 16:21:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965278AbVLRVV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 16:06:39 -0500
-Received: from gate.crashing.org ([63.228.1.57]:3037 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751180AbVLRVGi (ORCPT
+	Sun, 18 Dec 2005 16:21:27 -0500
+Received: from mail.gmx.net ([213.165.64.21]:42141 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965277AbVLRVV0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 16:06:38 -0500
-Subject: Re: USB rejecting sleep
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200512181258.47030.david-b@pacbell.net>
-References: <1134937642.6102.85.camel@gaston>
-	 <200512181258.47030.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Mon, 19 Dec 2005 08:01:26 +1100
-Message-Id: <1134939687.6102.99.camel@gaston>
+	Sun, 18 Dec 2005 16:21:26 -0500
+X-Authenticated: #19855039
+Date: Sun, 18 Dec 2005 22:21:23 +0100
+From: Marc-Jano Knopp <pub_ml_lkml@marc-jano.de>
+To: linux-kernel@vger.kernel.org
+Subject: [Bug] mlockall() not working properly in 2.6.x
+Message-ID: <20051218212123.GC4029@mjk.myfqdn.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.1i
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-12-18 at 12:58 -0800, David Brownell wrote:
-> On Sunday 18 December 2005 12:27 pm, Benjamin Herrenschmidt wrote:
-> > Hi David, Alan !
-> > 
-> > What exactly changed in the recent USB stacks that is causing it to
-> > abort system suspend much more often ? I'm getting lots of user reports
-> > with 2.6.15-rc5 saying that they can't put their internal laptops to
-> > sleep, apparently because a driver doesn't have a suspend method
-> > (internal bluetooth in this case).
-> 
-> Which I hope _did_ generate a bug report to the maintainer of that
-> bluetooth code.  :)
+Hi!
 
-I'm working on it :)
+A year ago, I wrote a small mlockall()-wrapper ("noswap") to make
+certain programs unswappable. It used to work perfectly, until I
+upgraded to kernel 2.6.x (2.6.13.1 in my case, but that shouldn't
+matter), which made the mlockall() execute without error, but also
+without any effect (the "L" in the STAT column of "ps axf" which
+indicates locked pages is missing).
 
-> Right, but the system never stopped self-deadlocking when we did the
-> disconnect at suspend time.  My notes say "driver core suspend()
-> calls are made with dev->sem held, so usb_driver_release_interface()
-> always deadlocks when they try to claim the same lock" and presumably
-> that's still true.
 
-Ok.
+The complete program source and the strace log of
 
-> I guess I didn't realize the consequence of not fixing that as part
-> of the other PM updates, once I found that the "most natural" fix
-> was (still?) not possible.
+  strace -v -f -s 4096 noswap sleep 9999
 
-Makes sense. Just wanted to be sure.
+is here:
 
-> So the issue is now how to handle this error case.  I think it should
-> be possible to just mark the device as disconnected right as soon as
-> we notice it can't be suspended; resume processing will do the work,
-> it already does so for real disconnect.  And disconnect paths in USB
-> drivers are now pretty solid.
+  http://marc-jano.de/tmp/noswap-10935/
 
-Ok, and so at the parent hub level, we can do either the actual suspend
-of the port, or even power the port off if the device got into this
-"latent disconnect" state.
 
-Ben.
- 
+Here are the most important lines:
 
+-----< snip >-----
+
+  /* mark process as unswappable for all times */
+  if (ret = mlockall (MCL_CURRENT | MCL_FUTURE))
+    perror ("mlockall()");
+
+  /* give up root privileges */
+  if (ret = setuid (getuid()) ) { perror ("setuid()"); exit (ret); };
+  if (ret = setgid (getgid()) ) { perror ("setgid()"); exit (ret); };
+
+  /* execute program */
+  if (ret = execvp (argv[1], exec_argv)) perror ("execvp()");
+
+  exit (ret);
+
+-----< snip >-----
+
+The strace log shows that mlockall() returns with no error.
+
+
+If I replace the execvp() call with a sleep(9999), then the current
+process (noswap) is properly locked, as can be checked by looking
+for a capital "L" in the ps STAT column.
+
+So it seems that the mlockall() flags are not passed somehow when
+using execvp().
+
+
+Best regards
+
+  Marc-Jano (not subscribed to the list, so for further questions,
+  please Cc:)

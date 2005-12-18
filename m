@@ -1,401 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965226AbVLRRCd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbVLRRVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965226AbVLRRCd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 12:02:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965228AbVLRRCd
+	id S965231AbVLRRVl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 12:21:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965230AbVLRRVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 12:02:33 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:54973 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S965226AbVLRRCO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 12:02:14 -0500
-Message-ID: <43A5A7B8.2540496F@tv-sign.ru>
-Date: Sun, 18 Dec 2005 21:17:28 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
-       Daniel Walker <dwalker@mvista.com>,
-       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
-Subject: [PATCH rc5-rt2 1/3] plist: remove old implementation
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sun, 18 Dec 2005 12:21:41 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:62018 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S965229AbVLRRVj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 12:21:39 -0500
+Date: Sun, 18 Dec 2005 12:21:38 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [PATCH 1/12]: MUTEX: Implement mutexes
+In-reply-to: <1134913093.26141.30.camel@localhost.localdomain>
+X-X-Sender: nico@localhost.localdomain
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, David Howells <dhowells@redhat.com>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-arch@vger.kernel.org,
+       lkml <linux-kernel@vger.kernel.org>, mingo@redhat.com,
+       Andrew Morton <akpm@osdl.org>
+Message-id: <Pine.LNX.4.64.0512181217340.26663@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.64.0512162334440.3698@g5.osdl.org>
+ <dhowells1134774786@warthog.cambridge.redhat.com>
+ <200512162313.jBGND7g4019623@warthog.cambridge.redhat.com>
+ <1134791914.13138.167.camel@localhost.localdomain>
+ <14917.1134847311@warthog.cambridge.redhat.com>
+ <Pine.LNX.4.64.0512171201200.3698@g5.osdl.org>
+ <Pine.LNX.4.64.0512172018410.26663@localhost.localdomain>
+ <1134913093.26141.30.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove old implementation.
+On Sun, 18 Dec 2005, Alan Cox wrote:
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+> On Sad, 2005-12-17 at 20:29 -0500, Nicolas Pitre wrote:
+> > out there.  The other 99% of actual ARM processors in the field only 
+> > have the atomic swap (swp) instruction which is insufficient for 
+> > implementing a counting semaphore (we therefore have to disable 
+> > interrupts, do the semaphore update and enable interrupts again which is 
+> > much slower than a swp-based mutex).
+> 
+> There are other approaches depending on how your CPU behaves and the
+> probability of splitting an "atomic operation" including checking the
+> return address range in the IRQ handler and ifs its in the 'atomic ops'
+> page jumping to a recovery function. If you are sneaky in how you lay
+> out your virtual address space it becomes a single unconditional or on
+> kernel->kernel interrupt returns.
 
---- RT/include/linux/plist.h
-+++ /dev/null
-@@ -1,189 +0,0 @@
--/*
-- * Descending-priority-sorted double-linked list
-- *
-- * (C) 2002-2003 Intel Corp
-- * Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>.
-- *
-- * 2001-2005 (c) MontaVista Software, Inc.
-- * Daniel Walker <dwalker@mvista.com>
-- *
-- * (C) 2005 Thomas Gleixner <tglx@linutronix.de>
-- * Tested and made it functional.
-- *
-- * Licensed under the FSF's GNU Public License v2 or later.
-- *
-- * Based on simple lists (include/linux/list.h).
-- *
-- *
-- * This is a priority-sorted list of nodes; each node has a >= 0
-- * priority from 0 (highest) to INT_MAX (lowest). The list itself has
-- * a priority too (the highest of all the nodes), stored in the head
-- * of the list (that is a node itself).
-- *
-- * Addition is O(K), removal is O(1), change of priority of a node is
-- * O(K) and K is the number of RT priority levels used in the system.
-- * (1 <= K <= 99)
-- *
-- * This list is really a list of lists:
-- *
-- *  - The tier 1 list is the dp list (Different Priority)
-- *
-- *  - The tier 2 list is the sp list (Serialized Priority)
-- *
-- * Simple ASCII art explanation:
-- *
-- * |HEAD   |
-- * |       |
-- * |dp.prev|<------------------------------------|
-- * |dp.next|<->|dp|<->|dp|<--------------->|dp|<-|
-- * |10     |   |10|   |21|   |21|   |21|   |40|   (prio)
-- * |       |   |  |   |  |   |  |   |  |   |  |
-- * |       |   |  |   |  |   |  |   |  |   |  |
-- * |sp.next|<->|sp|<->|sp|<->|sp|<->|sp|<->|sp|<-|
-- * |sp.prev|<------------------------------------|
-- *
-- * The nodes on the dp list are sorted by priority to simplify
-- * the insertion of new nodes. There are no nodes with duplicate
-- * priorites on the list.
-- *
-- * The nodes on the sp list are ordered by priority and can contain
-- * entries which have the same priority. Those entries are ordered
-- * FIFO
-- *
-- * Addition means: look for the dp node in the dp list for the
-- * priority of the node and insert it before the sp entry of the next
-- * dp node. If it is the first node of that priority, add it to the
-- * dp list in the right position and insert it into the serialized
-- * sp list
-- *
-- * Removal means remove it from the sp list and remove it from the dp
-- * list if the dp list_head is non empty. In case of removal from the
-- * dp list it must be checked whether other entries of the same
-- * priority are on the list or not. If there is another entry of
-- * the same priority then this entry has to replace the
-- * removed entry on the dp list. If the entry which is removed is
-- * the only entry of this priority then a simple remove from both
-- * list is sufficient.
-- *
-- * INT_MIN is the highest priority, 0 is the medium highest, INT_MAX
-- * is lowest priority.
-- *
-- * No locking is done, up to the caller.
-- *
-- * NOTE: This implementation does not offer as many interfaces as
-- *       linux/list.h does -- it is lazily minimal. You are welcome to
-- *       add them.
-- */
--
--#ifndef _LINUX_PLIST_H_
--#define _LINUX_PLIST_H_
--
--#include <linux/kernel.h>
--#include <linux/list.h>
--
--/* Priority-sorted list */
--struct plist {
--	int prio;
--	struct list_head dp_node;
--	struct list_head sp_node;
--};
--
--#define PLIST_INIT(p,__prio)				\
--{							\
--	.prio = __prio,					\
--	.dp_node = LIST_HEAD_INIT((p).dp_node),	\
--	.sp_node = LIST_HEAD_INIT((p).sp_node),	\
--}
--
--/**
-- * plist_entry - get the struct for this entry
-- * @ptr:        the &struct plist pointer.
-- * @type:       the type of the struct this is embedded in.
-- * @member:     the name of the list_struct within the struct.
-- */
--#define plist_entry(ptr, type, member) \
--        container_of(ptr, type, member)
--
--/**
-- * plist_first_entry - get the struct for the first entry
-- * @ptr:        the &struct plist pointer.
-- * @type:       the type of the struct this is embedded in.
-- * @member:     the name of the list_struct within the struct.
-- */
--#define plist_first_entry(ptr, type, member) \
--        container_of(plist_first(ptr), type, member)
--
--/**
-- * plist_for_each  -       iterate over the plist
-- * @pos1:        the type * to use as a loop counter.
-- * @head:       the head for your list.
-- */
--#define plist_for_each(pos1, head)	\
--	list_for_each_entry(pos1, &((head)->sp_node), sp_node)
--/**
-- * plist_for_each_entry_safe - iterate over a plist of given type safe against removal of list entry
-- * @pos1:        the type * to use as a loop counter.
-- * @n1:          another type * to use as temporary storage
-- * @head:       the head for your list.
-- */
--#define plist_for_each_safe(pos1, n1, head)			\
--	list_for_each_entry_safe(pos1, n1, &((head)->sp_node), sp_node)
--
--/* Initialize a pl */
--extern void plist_init(struct plist *pl, int prio);
--
--/* Return the first node (and thus, highest priority)
-- *
-- * Assumes the plist is _not_ empty.
-- */
--static inline
--struct plist * plist_first(struct plist *plist)
--{
--	return list_entry(plist->dp_node.next, struct plist, dp_node);
--}
--
--/* Return if the plist is empty. */
--static inline
--unsigned plist_empty(struct plist *plist)
--{
--	return list_empty(&plist->sp_node);
--}
--
--/* Update the maximum priority of the whole list
-- *
-- * @returns !0 if the plist prio changed, 0 otherwise.
-- */
--extern unsigned plist_update_prio(struct plist *plist);
--
--/**
-- * Add node @pl to @plist @returns !0 if the plist prio changed, 0
-- * otherwise.
-- */
--extern unsigned plist_add(struct plist *pl, struct plist *plist);
--
--/**
-- * Remove a node @pl from @plist. @returns !0 if the plist prio
-- * changed, 0 otherwise.
-- */
--extern unsigned plist_del(struct plist *pl, struct plist *plist);
--
--/**
-- * plist_del_init - deletes entry from list and reinitialize it.
-- * @entry: the element to delete from the list.
-- */
--extern void plist_del_init(struct plist *pl, struct plist *plist);
--
--/* Return the priority a pl node */
--static inline int plist_prio(struct plist *pl)
--{
--	return pl->prio;
--}
--
--/**
-- * Change the priority of node @pl in @plist (updating the list's max
-- * priority).  @returns !0 if the plist's maximum priority changes
-- */
--extern unsigned plist_chprio(struct plist *plist, struct plist *pl, int new_prio);
--
--#endif /* #ifndef _LINUX_PLIST_H_ */
--
---- RT/lib/plist.c
-+++ /dev/null
-@@ -1,175 +0,0 @@
--/*
-- * lib/plist.c
-- *
-- * Descending-priority-sorted double-linked list
-- *
-- * (C) 2002-2003 Intel Corp
-- * Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>.
-- *
-- * 2001-2005 (c) MontaVista Software, Inc.
-- * Daniel Walker <dwalker@mvista.com>
-- *
-- * (C) 2005 Thomas Gleixner <tglx@linutronix.de>
-- * Tested and made it functional.
-- *
-- * Licensed under the FSF's GNU Public License v2 or later.
-- *
-- * Based on simple lists (include/linux/list.h).
-- */
--
--#include <linux/sched.h>
--#include <linux/rt_lock.h>
--
--
--/* Initialize a pl */
--void plist_init(struct plist *pl, int prio)
--{
--#ifdef CONFIG_PREEMPT_DEBUG
--	WARN_ON(!preempt_count() && !raw_irqs_disabled());
--#endif
--	pl->prio = prio;
--	INIT_LIST_HEAD(&pl->dp_node);
--	INIT_LIST_HEAD(&pl->sp_node);
--}
--
--/* Update the maximum priority of the whole list
-- *
-- * @returns !0 if the plist prio changed, 0 otherwise.
-- *
-- * __plist_update_prio() assumes the plist is not empty.
-- */
--static inline unsigned __plist_update_prio(struct plist *plist)
--{
--	int prio = plist_first(plist)->prio;
--	if (plist->prio == prio)
--		return 0;
--	plist->prio = prio;
--	return !0;
--}
--
--unsigned plist_update_prio(struct plist *plist)
--{
--	int old_prio = plist->prio;
--	/* plist empty, lowest prio = INT_MAX */
--	plist->prio = plist_empty(plist) ? INT_MAX : plist_first(plist)->prio;
--
--	return old_prio != plist->prio;
--}
--
--/* Add a node to the plist [internal]
-- *
-- * pl->prio == INT_MAX is an special case, means low priority, get
-- * down to the end of the plist. Note the we want FIFO behaviour on
-- * the same priority.
-- */
--static inline void __plist_add_sorted(struct plist *plist, struct plist *pl)
--{
--	struct list_head *itr;
--	struct plist *itr_pl, *itr_pl2;
--
--	if (pl->prio < INT_MAX) {
--		list_for_each(itr, &plist->dp_node) {
--			itr_pl = list_entry(itr, struct plist, dp_node);
--			if (pl->prio == itr_pl->prio)
--				goto existing_sp_head;
--			else if (pl->prio < itr_pl->prio)
--				goto new_sp_head;
--		}
--		itr_pl = plist;
--		goto new_sp_head;
--	}
--	/* Append to end, SP list for prio INT_MAX */
--	itr_pl = container_of(plist->dp_node.prev, struct plist, dp_node);
--	if (!list_empty(&plist->dp_node) && itr_pl->prio == INT_MAX)
--		goto existing_sp_head;
--	itr_pl = plist;
--
--new_sp_head:
--	list_add_tail(&pl->dp_node, &itr_pl->dp_node);
--	list_add_tail(&pl->sp_node, &itr_pl->sp_node);
--	return;
--existing_sp_head:
--	itr_pl2 = container_of(itr_pl->dp_node.next, struct plist, dp_node);
--	list_add_tail(&pl->sp_node, &itr_pl2->sp_node);
--	return;
--}
--
--/**
-- * Add node @pl to @plist @returns !0 if the plist prio changed, 0
-- * otherwise.
-- */
--unsigned plist_add(struct plist *pl, struct plist *plist)
--{
--	__plist_add_sorted(plist, pl);
--	/* Are we setting a higher priority? */
--	if (pl->prio < plist->prio) {
--		plist->prio = pl->prio;
--		return !0;
--	}
--	return 0;
--}
--
--/* Grunt to do the real removal work of @pl from the plist. */
--static inline
--void  __plist_del(struct plist *pl)
--{
--	if (!list_empty(&pl->dp_node)) {
--		struct plist *pl_new = container_of(pl->sp_node.next,
--						    struct plist, sp_node);
--
--		if (pl->dp_node.next == &pl_new->dp_node) {
--			/* end of this priorities list */
--			list_del_init(&pl->dp_node);
--		} else {
--			list_replace_rcu(&pl->dp_node, &pl_new->dp_node);
--			INIT_LIST_HEAD(&pl->dp_node);
--		}
--	}
--	list_del_init(&pl->sp_node);
--}
--
--/**
-- * Remove a node @pl from @plist. @returns !0 if the plist prio
-- * changed, 0 otherwise.
-- */
--unsigned plist_del(struct plist *pl, struct plist *plist)
--{
--	__plist_del(pl);
--	return plist_update_prio(plist);
--}
--
--/**
-- * plist_del_init - deletes entry from list and reinitialize it.
-- * @entry: the element to delete from the list.
-- */
--void plist_del_init(struct plist *pl, struct plist *plist)
--{
--	plist_del(pl, plist);
--	plist_init(pl, INT_MAX);
--}
--
--/* Change the priority of a pl node, without updating plist position */
--static inline
--void __plist_chprio(struct plist *pl, int new_prio)
--{
--	pl->prio = new_prio;
--}
--
--/**
-- * Change the priority of node @pl in @plist (updating the list's max
-- * priority).
-- *
-- * @returns !0 if the plist's maximum priority changes
-- */
--unsigned plist_chprio(struct plist *plist, struct plist *pl, int new_prio)
--{
--	if (new_prio == pl->prio)
--		return 0;
--
--	__plist_chprio(pl, new_prio);
--	__plist_del(pl);
--	__plist_add_sorted(plist, pl);
--
--	return __plist_update_prio(plist);
--}
--
+Well we sort of do something similar to implement cmpxchg for NPTL usage 
+from user space (forcing the abortion of the operation if an interrupt 
+happens in the middle of it).  But it's more hassle to do in kernel 
+space.
+
+
+Nicolas

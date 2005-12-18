@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965300AbVLRW1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbVLRWbs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965300AbVLRW1A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 17:27:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965297AbVLRW07
+	id S932455AbVLRWbs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 17:31:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932578AbVLRWbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 17:26:59 -0500
-Received: from ns2.suse.de ([195.135.220.15]:11186 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965300AbVLRW06 (ORCPT
+	Sun, 18 Dec 2005 17:31:48 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:33688 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S932455AbVLRWbr convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 17:26:58 -0500
-From: Neil Brown <neilb@suse.de>
-To: "Szloboda Zsolt" <slobo@t-online.hu>
-Date: Mon, 19 Dec 2005 09:26:47 +1100
+	Sun, 18 Dec 2005 17:31:47 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17317.57895.187139.651739@cse.unsw.edu.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: raid over sata - write barrier
-In-Reply-To: message from Szloboda Zsolt on Sunday December 18
-References: <17317.51966.827057.524008@cse.unsw.edu.au>
-	<JDEMIGCBPIDENEAIIGKPMECCCLAA.slobo@t-online.hu>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH rc5-rt2 2/3] plist: add new implementation
+Date: Sun, 18 Dec 2005 14:31:26 -0800
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A05050EF4@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH rc5-rt2 2/3] plist: add new implementation
+thread-index: AcYD9MVryrxqRiiJQvqQuQ7TrLBcSwALP9Cw
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Oleg Nesterov" <oleg@tv-sign.ru>, "Ingo Molnar" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>, "Steven Rostedt" <rostedt@goodmis.org>,
+       "Daniel Walker" <dwalker@mvista.com>
+X-OriginalArrivalTime: 18 Dec 2005 22:31:28.0633 (UTC) FILETIME=[C9B83690:01C60422]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday December 18, slobo@t-online.hu wrote:
-> with kernel 2.6.15, raid1
-> do I have to use the
-> -o barrier=1
-> mount option (or something else) when I mount the md device?
+>From: Oleg Nesterov
+>
+>New implementation. It is smaller, and in my opinion cleaner.
+>User-space test: http://www.tv-sign.ru/oleg/plist.tgz
+>
+>Like hlist, it has different types for head and node: pl_head/pl_node.
+>
+>pl_head does not have ->prio field. This saves sizeof(int), and we
+>don't need to have it in plist_del's parameter list. This is also good
+>for typechecking.
+>
+>Like list_add(), plist_add() does not require initialization on
+pl_node,
+>except ->prio.
 
-You don't have to do anything special to the raid1.
+/me suggests adding documentation to the header file succintly
+explaining how it is implemented and a quick usage guide (along
+with (C) info).
 
-If the filesystem requires "-o barrier=1" (which I believe it does),
-then you need to use that no-matter what device the filesystem is
-mounted from.
-
-NeilBrown
+-- Inaky 

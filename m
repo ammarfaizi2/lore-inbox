@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751049AbVLRGGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030188AbVLRGF4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751049AbVLRGGa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 01:06:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030189AbVLRGGa
+	id S1030188AbVLRGF4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 01:05:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbVLRGF4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 01:06:30 -0500
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:14775 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1751049AbVLRGG3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 01:06:29 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+	Sun, 18 Dec 2005 01:05:56 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.152]:44000 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751167AbVLRGFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 01:05:55 -0500
+In-Reply-To: <20051218054323.GF23384@wotan.suse.de>
+References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com> <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com> <p73slsrehzs.fsf@verdi.suse.de> <20051217205238.GR23349@stusta.de> <61D4A300-4967-4DC1-AD2C-765A3D2D9743@comcast.net> <20051218054323.GF23384@wotan.suse.de>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <5DB2F520-5666-4C7F-9065-51117A0F54B9@comcast.net>
+Cc: Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
+Content-Transfer-Encoding: 7bit
+From: Parag Warudkar <kernel-stuff@comcast.net>
 Subject: Re: [2.6 patch] i386: always use 4k stacks
-To: Adrian Bunk <bunk@stusta.de>, Andi Kleen <ak@suse.de>,
-       Kyle Moffett <mrmacman_g4@mac.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, arjan@infradead.org
-Reply-To: 7eggert@gmx.de
-Date: Sun, 18 Dec 2005 06:57:44 +0100
-References: <5k8PZ-4xt-9@gated-at.bofh.it> <5k9sD-5yh-13@gated-at.bofh.it> <5knFp-kU-51@gated-at.bofh.it> <5korL-1xX-33@gated-at.bofh.it> <5kpRh-3sK-11@gated-at.bofh.it> <5kq0L-3FB-37@gated-at.bofh.it> <5kOma-4K1-23@gated-at.bofh.it> <5kRk3-xO-11@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1EnrYH-00019M-Ep@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
+Date: Sun, 18 Dec 2005 01:05:52 -0500
+To: Andi Kleen <ak@suse.de>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk <bunk@stusta.de> wrote:
 
-> I'm with you that we need a safety net, but I don't see a problem with
-> this being between 3kB and 4kB. The goal should be to _never_ use more
-> than 3kB stack having a 1kB safety net.
-> 
-> And in my experience, many stack problems don't come from code getting
-> more complex but from people allocating 1kB structs or arrays of
-> > 2k chars on the stack. In these cases, the code has to be fixed and
-> "make checkstack" makes it easy to find such cases.
-> 
-> And as a data point, my count of bug reports for problems with in-kernel
-> code with 4k stacks after Neil's patch went into -mm is still at 0.
+On Dec 18, 2005, at 12:43 AM, Andi Kleen wrote:
 
-Would you run a desktop with an nfs server on xfs on lvm on dm on SCSI?
-Or a productive server on -mm?
+> You can catch the obvious ones, but the really hard ones
+> that only occur under high load in obscure exceptional
+> circumstances with large configurations and suitable nesting you  
+> won't.
+> These would be only found at real world users.
 
-IMO it's OK to push 4K stacks in -mm, but one week of no error reports from
-a few testers don't make a reliable system.
+Yep, as it all depends on code complexity, some of these cases might  
+not be "errors" at all - instead for that kind of functionality they  
+might _require_ bigger stacks.
 
-[...]
+If you have 64 bit machines common place and memory a lot cheaper I  
+don't see how it is beneficial to force smaller stack sizes without  
+giving consideration to the code complexity, architecture and  
+requirements.
+(Solaris for example, seems to be going to have 16Kb kernel stacks on  
+64 bit machines.)
 
-> Unfortunately, "is not really something to encourage" doesn'a make
-> "happens in real-life applications" impossible...
+So, please let's leave stack size as an option for users to choose  
+and stop this 4Kb stack war. May be after a little rest I will start  
+another one demanding 16Kb stacks :)
 
-The same applies to using kernel stack. Therefore I'll want to choose
-a bigger stack for my server, which runs less than 100 processes.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Parag

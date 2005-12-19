@@ -1,97 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbVLSFln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965208AbVLSG3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030268AbVLSFln (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 00:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030283AbVLSFln
+	id S965208AbVLSG3N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 01:29:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965229AbVLSG3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 00:41:43 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:52230 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1030268AbVLSFlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 00:41:42 -0500
-Date: Mon, 19 Dec 2005 06:41:24 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       matthltc@us.ibm.com
-Subject: Re: Linux 2.6.15-rc6
-Message-ID: <20051219054124.GL15993@alpha.home.local>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org> <20051219023058.6d94b13d.diegocg@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051219023058.6d94b13d.diegocg@gmail.com>
-User-Agent: Mutt/1.5.10i
+	Mon, 19 Dec 2005 01:29:13 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9619 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965208AbVLSG3N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 01:29:13 -0500
+Date: Sun, 18 Dec 2005 22:24:55 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [patch 00/15] Generic Mutex Subsystem
+In-Reply-To: <20051219042248.GG23384@wotan.suse.de>
+Message-ID: <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org>
+References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 19, 2005 at 02:30:58AM +0100, Diego Calleja wrote:
-> El Sun, 18 Dec 2005 16:47:33 -0800 (PST),
-> Linus Torvalds <torvalds@osdl.org> escribió:
-> 
-> > Matt Helsley:
-> >       Add getnstimestamp function
-> >       Add timestamp field to process events
-> 
-> 
-> This last change (5650b736ad328f7f3e4120e8790940289b8ac144) "broke" a
-> small process event connector test program (the one matt posted here
-> http://lkml.org/lkml/2005/9/28/347, slighty modified) due to a headers
-> conflict. I think it's due to my setup, but...
-> 
-> --- a/include/linux/cn_proc.h
-> +++ b/include/linux/cn_proc.h
-> @@ -26,6 +26,7 @@
-> #define CN_PROC_H
-> #include <linux/types.h>
-> +#include <linux/time.h>
-> #include <linux/connector.h>
-> 
-> 
-> 
-> and the program:
-> 31: #include <stdio.h>
-> 32: #include <stdlib.h>
-> 33: #include <string.h>
-> 34: #include <unistd.h>
-> 35: 
-> 36: #include <sys/socket.h>
-> 37: #include <sys/types.h>
-> 38: 
-> 39: #include <linux/connector.h>
-> 40: #include <linux/netlink.h>
-> 41: #include <linux/cn_proc.h>
-> 
-> 
-> 
-> This gives me 
-> 
-> diego@estel 2J2 ~/kernel # LC_ALL='C' make
-> gcc -I 2.6/include test_cn_proc.c -o test_cn_proc
-> In file included from 2.6/include/linux/cn_proc.h:29,
->                  from test_cn_proc.c:41:
-> 2.6/include/linux/time.h:12: error: redefinition of 'struct timespec'
-> 2.6/include/linux/time.h:18: error: redefinition of 'struct timeval'
-> In file included from 2.6/include/linux/cn_proc.h:29,
->                  from test_cn_proc.c:41:
-> 2.6/include/linux/time.h:121:1: warning: "FD_SET" redefined
-> In file included from /usr/include/sys/types.h:216,
->                  from /usr/include/stdlib.h:433,
->                  from test_cn_proc.c:32:
-> /usr/include/sys/select.h:93:1: warning: this is the location of the previous definitio
-> 
-> (My "debian testing" box supplies an old and apparently incompatible
-> version of connector.h so I had to point gcc to kernel's headers directly)
 
-As a dirty trick, you should be able to avoid this by adding the
-following line just before #include <linux/cn_proc.h> :
 
-   #define _LINUX_TIME_H
+On Mon, 19 Dec 2005, Andi Kleen wrote:
+> 
+> Do you have an idea where this big difference comes from? It doesn't look
+> it's from the fast path which is essentially the same.  Do the mutexes have
+> that much better scheduling behaviour than semaphores? It is a bit hard to 
+> believe.
 
-So that the preprocessor will think it has already included <linux/time.h>
-definitions and will not load them again. Of course, if they are needed,
-you're lost.
+Are ingo's mutex'es perhaps not trying to be fair?
 
-Willy
+The normal mutexes try to make sure that if a process comes in and gets 
+stuck on a mutex, and then another CPU releases the mutex and immediately 
+tries to grab it again, the other CPU will _not_ get it.
 
+That's a huge performance disadvantage, but it's done on purpose, because 
+otherwise you end up in a situation where the semaphore release code did 
+wake up the waiter, but before the waiter actually had time to grab it (it 
+has to go through the IPI and scheduling logic), the same CPU just grabbed 
+it again.
+
+The original semaphores were unfair, and it works really well most of the 
+time. But then it really sucks in some nasty cases.
+
+The numbers make me suspect that Ingo's mutexes are unfair too, but I've 
+not looked at the code yet.
+
+NOTE! I'm not a huge fan of fairness per se. I think unfair is often ok, 
+and the performance advantages are certainly real. It may well be that the 
+cases that caused problems before are now done differently (eg we switched 
+the VM semaphore over to an rwsem), and that we can have an unfair and 
+fast mutex for those cases where we don't care.
+
+I just suspect the comparison isn't fair.
+
+		Linus

@@ -1,43 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbVLSSHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbVLSSjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbVLSSHB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 13:07:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVLSSHA
+	id S964875AbVLSSjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 13:39:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVLSSjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 13:07:00 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:52418 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932340AbVLSSHA (ORCPT
+	Mon, 19 Dec 2005 13:39:09 -0500
+Received: from zlynx.org ([199.45.143.209]:63247 "EHLO 199.45.143.209")
+	by vger.kernel.org with ESMTP id S932352AbVLSSjI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 13:07:00 -0500
-Message-ID: <43A70877.DA99207@tv-sign.ru>
-Date: Mon, 19 Dec 2005 22:22:31 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [PATCH rc5-rt2 2/3] plist: add new implementation
-References: <F989B1573A3A644BAB3920FBECA4D25A05050EF4@orsmsx407>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Dec 2005 13:39:08 -0500
+Subject: Re: [Bug] mlockall() not working properly in 2.6.x
+From: Zan Lynx <zlynx@acm.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       Marc-Jano Knopp <pub_ml_lkml@marc-jano.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1135014451.6051.23.camel@localhost.localdomain>
+References: <20051218212123.GC4029@mjk.myfqdn.de>
+	 <20051219022108.307e68b8.akpm@osdl.org>
+	 <20051219114231.GA2830@mjk.myfqdn.de>  <20051219172735.GL13985@lug-owl.de>
+	 <1135014451.6051.23.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6AsB6ohjnTJUO7F2hXEv"
+Date: Mon, 19 Dec 2005 11:38:35 -0700
+Message-Id: <1135017515.13318.11.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Perez-Gonzalez, Inaky" wrote:
-> 
-> >From: Oleg Nesterov
-> >
-> >New implementation. It is smaller, and in my opinion cleaner.
-> >User-space test: http://www.tv-sign.ru/oleg/plist.tgz
->
-> /me suggests adding documentation to the header file succintly
-> explaining how it is implemented and a quick usage guide (along
-> with (C) info).
 
-Ok, I'll try to steal some doc bits from current header and send
-as a separate patch. Can't do it before Friday, sorry.
+--=-6AsB6ohjnTJUO7F2hXEv
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Oleg.
+On Mon, 2005-12-19 at 17:47 +0000, Alan Cox wrote:
+> On Llu, 2005-12-19 at 18:27 +0100, Jan-Benedict Glaw wrote:
+> > > > that we did this because inheriting MCL_FUTURE is standards-incorre=
+ct.
+> > >=20
+> > > Oh! So how can I make programs unswappable with kernel 2.6.x then?
+> >=20
+> > That would mean that you cannot just exec() another program that will
+> > also be mlockall()ed. The new program has to do that on its own...
+>=20
+> mlockall MCL_FUTURE applies to this image only and the 2.6 behaviour is
+> correct if less useful in some ways. It would be possible to add an
+> inheriting MCL_ flag that was Linux specific but then how do you control
+> the depth of inheritance ? If that isn't an issue it looks the easiest.
+>=20
+> Another possibility would be pmlockall(pid, flag), but that looks even
+> more nasty if it races an exec.
+
+How about clearing MCL_FUTURE on fork but allow exec to inherit it?
+That way a parent process could fork, mlockall in the child and exec a
+memlocked child.  A regular fork,exec by a memlocked parent would not
+create a memlocked child.
+
+Seems less messy than a new flag, while keeping the benefits.
+--=20
+Zan Lynx <zlynx@acm.org>
+
+--=-6AsB6ohjnTJUO7F2hXEv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBDpv4pG8fHaOLTWwgRAvixAJ9Iq8tsfBIP4q4fOq0gxX+Ipl93WgCfR6In
+IvQj/zGgmXSAqpggT8uTGMs=
+=G+ti
+-----END PGP SIGNATURE-----
+
+--=-6AsB6ohjnTJUO7F2hXEv--
+

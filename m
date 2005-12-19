@@ -1,39 +1,44 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965307AbVLRXzf (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 18 Dec 2005 18:55:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965309AbVLRXzf
+	id S964877AbVLSSJz (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 19 Dec 2005 13:09:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbVLSSJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 18:55:35 -0500
-Received: from 84-105-106-207.cable.quicknet.nl ([84.105.106.207]:24584 "HELO
-	84-105-106-207.cable.quicknet.nl") by vger.kernel.org with SMTP
-	id S965307AbVLRXze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 18:55:34 -0500
-Reply-To: "Dan Toc Viet Nam" <cpvntd@gmail.com>
-From: "Dan Toc Viet Nam" <cpvntd@gmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Hoi Dong Cach Mang Cuu Quoc
-Date: Mon, 19 Dec 2005 00:55:31 +0100
-Message-ID: <200512190055.FODBZSVMTA@84-105-106-207.cable.quicknet.nl>
+	Mon, 19 Dec 2005 13:09:55 -0500
+Received: from omc1-s19.bay6.hotmail.com ([65.54.248.221]:55604 "EHLO
+	omc1-s19.bay6.hotmail.com") by vger.kernel.org with ESMTP
+	id S932341AbVLSSJy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 13:09:54 -0500
+Message-ID: <BAY5-F7E0299C5E13C1D0E174B3DB3F0@phx.gbl>
+X-Originating-IP: [213.185.118.225]
+X-Originating-Email: [chaung_czwdjx_ltd_3@msn.com]
+Reply-To: wangolee2000@yahoo.co.uk
+From: "Mr.Cheung Pui" <chaung_czwdjx_ltd_3@msn.com>
+Subject: A REPRESENTATIVE NEEDED
+Date: Mon, 19 Dec 2005 18:09:53 +0000
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="= Multipart Boundary 1219050055"
-X-Priority: 1 (Highest)
-X-MSMail-Priority: High
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-Importance: High
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 19 Dec 2005 18:09:54.0207 (UTC) FILETIME=[69869AF0:01C604C7]
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965307AbVLRXzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S964877AbVLSSJz@vger.kernel.org>
 
-This is a multipart MIME message.
+CHINA METALLURGICAL IMPORT AND EXPORT COMPANY
 
---= Multipart Boundary 1219050055
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+  Dear Sir/Madam,
+We are a production, import and export company searching for
+representatives who can help us establish a medium of getting to our 
+customers from Canada, America and Europe as well as making payments through 
+you to us. We also need clients who require our products in theses areas.
+If you are interested in transacting business with us, contact us for
+more information through:
+Email: wangolee2000@yahoo.co.uk CHINA METALLURGICAL IMPORT AND EXPORT 
+COMPANY (CMIEC).
+COMPANY ADDRESS: 338, YINGZE AVENUE, YINGZE, TAIYUAN, SHANXI, CHINA.
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---= Multipart Boundary 1219050055--
+We can negotiate the mode of payment for goods and services subject to your 
+satisfaction. Thank you.
+Mr. Wango lee.
+General Manager.
+
+

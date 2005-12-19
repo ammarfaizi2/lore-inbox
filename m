@@ -1,112 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbVLSXgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbVLSXiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbVLSXgA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 18:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbVLSXgA
+	id S1750705AbVLSXiF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 18:38:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750727AbVLSXiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 18:36:00 -0500
-Received: from xproxy.gmail.com ([66.249.82.204]:50825 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750717AbVLSXf7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 18:35:59 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jAbNTJ6v6TcfZoK4UziM/aJvKopWIaDZlIDa1rZXj72BtT3dddAE2VFP10nmWZCtA5d1aOosceR+pg1wQiTwoO+qI9amzLppM3ypbDTQwclmkme28OOrm9rEm0e/58jxjYJIcLIT2v8n5VxniUvSRmSMGQJjtmz4Y9P3xAlLFy8=
-Message-ID: <4807377b0512191535i13d00b8chd97872b3e540e2b5@mail.gmail.com>
-Date: Mon, 19 Dec 2005 15:35:57 -0800
-From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
-To: c-otto@gmx.de
-Subject: Re: Intel e1000 fails after RAM upgrade
-Cc: linux-kernel@vger.kernel.org, NetDEV list <netdev@vger.kernel.org>
-In-Reply-To: <20051219195458.GA23650@carsten-otto.halifax.rwth-aachen.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 19 Dec 2005 18:38:05 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:17055 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750705AbVLSXiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 18:38:03 -0500
+Date: Mon, 19 Dec 2005 23:37:54 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Benjamin LaHaise <bcrl@kvack.org>
+Subject: Re: [patch 00/15] Generic Mutex Subsystem
+Message-ID: <20051219233754.GA20058@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+	Andi Kleen <ak@suse.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Arjan van de Ven <arjanv@infradead.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	David Howells <dhowells@redhat.com>,
+	Alexander Viro <viro@ftp.linux.org.uk>,
+	Oleg Nesterov <oleg@tv-sign.ru>, Benjamin LaHaise <bcrl@kvack.org>
+References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de> <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org> <20051219155010.GA7790@elte.hu> <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org> <20051219195553.GA14155@elte.hu> <Pine.LNX.4.64.0512191203120.4827@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051219195458.GA23650@carsten-otto.halifax.rwth-aachen.de>
+In-Reply-To: <Pine.LNX.4.64.0512191203120.4827@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/19/05, Carsten Otto <c-otto@gmx.de> wrote:
-> Hi there!
->
-> First the basic system specs:
-> Athlon64 3500+ S939, Winchester
-> Kernel 2.6.14.4, X86_64
-> 4*1 GB RAM DDR 333, Dual Channel [before: 2*1 GB RAM DDR 400, Dual Channel]
-> Intel Gigabit PCI (Intel Corporation 82540EM Gigabit Ethernet Controller (rev 02))
-> Abit AV8
->
-> After upgrading the memory to 4 GB I noticed my e1000 did not work.
-> dmesg shows:
->
-> e1000: eth0: e1000_watchdog_task: NIC Link is Up 1000 Mbps Full Duplex
-> e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
->   TDH                  <2000>
->   TDT                  <2000>
->   next_to_use          <6>
->   next_to_clean        <0>
-> buffer_info[next_to_clean]
->   dma                  <13024c002>
->   time_stamp           <ffffd8c7>
->   next_to_watch        <0>
->   jiffies              <ffffe096>
->   next_to_watch.status <0>
+On Mon, Dec 19, 2005 at 12:12:26PM -0800, Linus Torvalds wrote:
+> And don't get me wrong: if it's easier to just ignore the performance bug, 
+> and introduce a new "struct mutex" that just doesn't have it, I'm all for 
+> it. However, if so, I do NOT want to do the unnecessary renaming. "struct 
+> semaphore" should stay as "struct semaphore", and we should not affect old 
+> code in the _least_.
+> 
+> Then code can switch to "struct mutex" if people want to. And if one 
+> reason for it ends up being that the code avoids a performance bug in the 
+> process, all the better ;)
+> 
+> IOW, I really think this should be a series of small patches that don't 
+> touch old users of "struct semaphore" at all. None of this "semaphore" to 
+> "arch_semaphore" stuff, and the new "struct mutex" would not re-use _any_ 
+> of the names that the old "struct semaphore" uses.
 
-are you using 4096 tx descriptors?  what is your MTU configured to? 
-I'm confused because it appears you have 8192 (0x2000) descriptors but
-the driver only allows 4096
-
-> e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
->   TDH                  <2000>
->   TDT                  <2000>
->   next_to_use          <6>
->   next_to_clean        <0>
-> buffer_info[next_to_clean]
->   dma                  <13024c002>
->   time_stamp           <ffffd8c7>
->   next_to_watch        <0>
->   jiffies              <ffffe28a>
->   next_to_watch.status <0>
-> eth0: no IPv6 routers present
-> e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
->   TDH                  <2000>
->   TDT                  <2000>
->   next_to_use          <6>
->   next_to_clean        <0>
-> buffer_info[next_to_clean]
->   dma                  <13024c002>
->   time_stamp           <ffffd8c7>
->   next_to_watch        <0>
->   jiffies              <ffffe47e>
->   next_to_watch.status <0>
-> e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
->   TDH                  <2000>
->   TDT                  <2000>
->   next_to_use          <6>
->   next_to_clean        <0>
-> buffer_info[next_to_clean]
->   dma                  <13024c002>
->   time_stamp           <ffffd8c7>
->   next_to_watch        <0>
->   jiffies              <ffffe672>
->   next_to_watch.status <0>
->
-> ethtool -t eth0 offline:
-> The test result is FAIL
-> The test extra info:
-> Register test  (offline)         40
-> Eeprom test    (offline)         0
-> Interrupt test (offline)         4
-> Loopback test  (offline)         13
-> Link test   (on/offline)         1
->
-> I have two of these cards. Both run fine in my (old, 32bit) server. I
-> tested with both cards with both systems. Only in my 64bit machine this
-> error occurs - with both cards.
->
-> Please tell me what to do. I have to live with the VIA onboard in the
-> meantime and that is not the best network card...
-
-well, lets work on what is occuring, because this should work just fine.
+That's exactly what Ingo's series does if you ignore the two odd patches ;-)

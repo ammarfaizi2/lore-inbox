@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbVLSRoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932317AbVLSRqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbVLSRoP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 12:44:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932316AbVLSRoP
+	id S932317AbVLSRqu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 12:46:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbVLSRqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 12:44:15 -0500
-Received: from fsmlabs.com ([168.103.115.128]:30444 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S932289AbVLSRoO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 12:44:14 -0500
-X-ASG-Debug-ID: 1135014248-12064-71-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Mon, 19 Dec 2005 09:49:32 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
-X-ASG-Orig-Subj: Re: [patch 04/15] Generic Mutex Subsystem, add-atomic-call-func-x86_64.patch
-Subject: Re: [patch 04/15] Generic Mutex Subsystem, add-atomic-call-func-x86_64.patch
-In-Reply-To: <20051219013507.GE27658@elte.hu>
-Message-ID: <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com>
-References: <20051219013507.GE27658@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.60
-X-Barracuda-Spam-Status: No, SCORE=0.60 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=MARKETING_SUBJECT
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6435
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.60 MARKETING_SUBJECT      Subject contains popular marketing words
+	Mon, 19 Dec 2005 12:46:50 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:8320 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932317AbVLSRqt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 12:46:49 -0500
+Subject: Re: [Bug] mlockall() not working properly in 2.6.x
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: Marc-Jano Knopp <pub_ml_lkml@marc-jano.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20051219172735.GL13985@lug-owl.de>
+References: <20051218212123.GC4029@mjk.myfqdn.de>
+	 <20051219022108.307e68b8.akpm@osdl.org>
+	 <20051219114231.GA2830@mjk.myfqdn.de>  <20051219172735.GL13985@lug-owl.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 19 Dec 2005 17:47:30 +0000
+Message-Id: <1135014451.6051.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Dec 2005, Ingo Molnar wrote:
+On Llu, 2005-12-19 at 18:27 +0100, Jan-Benedict Glaw wrote:
+> > > that we did this because inheriting MCL_FUTURE is standards-incorrect.
+> > 
+> > Oh! So how can I make programs unswappable with kernel 2.6.x then?
+> 
+> That would mean that you cannot just exec() another program that will
+> also be mlockall()ed. The new program has to do that on its own...
 
-> +#define atomic_dec_call_if_negative(v, fn_name)				\
-> +do {									\
-> +	fastcall void (*__tmp)(atomic_t *) = fn_name;			\
-> +									\
-> +	(void)__tmp;							\
-> +	typecheck(atomic_t *, v);					\
-> +									\
-> +	__asm__ __volatile__(						\
-> +		LOCK "decl (%%rdi)\n"  					\
-> +		"js 2f\n"						\
-> +		"1:\n"							\
-> +		LOCK_SECTION_START("")					\
-> +		"2: call "#fn_name"\n\t"				\
-> +		"jmp 1b\n"						\
-> +		LOCK_SECTION_END					\
-> +		:							\
-> +		:"D" (v)						\
-> +		:"memory");						\
-> +} while (0)
+mlockall MCL_FUTURE applies to this image only and the 2.6 behaviour is
+correct if less useful in some ways. It would be possible to add an
+inheriting MCL_ flag that was Linux specific but then how do you control
+the depth of inheritance ? If that isn't an issue it looks the easiest.
 
-Hi Ingo,
-	Doesn't this corrupt caller saved registers?
+Another possibility would be pmlockall(pid, flag), but that looks even
+more nasty if it races an exec.
+

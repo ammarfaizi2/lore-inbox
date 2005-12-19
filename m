@@ -1,59 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932703AbVLSJXS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932709AbVLSJ16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932703AbVLSJXS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 04:23:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932704AbVLSJXS
+	id S932709AbVLSJ16 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 04:27:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932710AbVLSJ16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 04:23:18 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:52640 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932703AbVLSJXR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 04:23:17 -0500
-Message-ID: <43A67CEB.3040603@aitel.hist.no>
-Date: Mon, 19 Dec 2005 10:27:07 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Puneet Vyas <puneetvyas@gmail.com>
-CC: Ismail Donmez <ismail@uludag.org.tr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-References: <20051211180536.GM23349@stusta.de> <Pine.LNX.4.61.0512152356190.13568@yvahk01.tjqt.qr> <200512160112.30179.ismail@uludag.org.tr> <43A239B4.8010309@gmail.com>
-In-Reply-To: <43A239B4.8010309@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Dec 2005 04:27:58 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30728 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932709AbVLSJ15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 04:27:57 -0500
+Date: Mon, 19 Dec 2005 09:27:44 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Nicolas Pitre <nico@cam.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, David Howells <dhowells@redhat.com>,
+       Steven Rostedt <rostedt@goodmis.org>, linux-arch@vger.kernel.org,
+       lkml <linux-kernel@vger.kernel.org>, mingo@redhat.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/12]: MUTEX: Implement mutexes
+Message-ID: <20051219092743.GA9609@flint.arm.linux.org.uk>
+Mail-Followup-To: Nicolas Pitre <nico@cam.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	David Howells <dhowells@redhat.com>,
+	Steven Rostedt <rostedt@goodmis.org>, linux-arch@vger.kernel.org,
+	lkml <linux-kernel@vger.kernel.org>, mingo@redhat.com,
+	Andrew Morton <akpm@osdl.org>
+References: <1134791914.13138.167.camel@localhost.localdomain> <14917.1134847311@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0512171201200.3698@g5.osdl.org> <Pine.LNX.4.64.0512172018410.26663@localhost.localdomain> <Pine.LNX.4.64.0512171803580.3698@g5.osdl.org> <Pine.LNX.4.64.0512172150260.26663@localhost.localdomain> <Pine.LNX.4.64.0512172227280.3698@g5.osdl.org> <20051218092616.GA17308@flint.arm.linux.org.uk> <Pine.LNX.4.64.0512181027220.4827@g5.osdl.org> <Pine.LNX.4.64.0512181657050.26663@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512181657050.26663@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Puneet Vyas wrote:
+On Sun, Dec 18, 2005 at 08:48:15PM -0500, Nicolas Pitre wrote:
+> On Sun, 18 Dec 2005, Linus Torvalds wrote:
+> > I agree, if arm interrupt disables are fast. For example, on x86 (where 
+> > this isn't needed, because you can have an "interrupt-safe" decrement by 
+> > just having it as a single instruction, even if it isn't SMP-safe), 
+> > disabling and re-enabling interrupts is just one instruction each, but the 
+> > combination is usually something like 50+ cycles. So if this was an issue 
+> > on x86, we'd definitely care.
+> > 
+> > But if you don't think it's a big issue on ARM, it just doesn't matter.
+> 
+> Let's see.  The core of the uncontended down() on ARM looks like this:
+> 
+> 	mrs     r0, cpsr
+> 	orr     r1, r0, #128
+> 	msr     cpsr_c, r1
+> 	ldr     r1, [%0]
+> 	subs     r1, r1, #1
+> 	str     r1, [%0]
+> 	msr     cpsr_c, r0
+> 	blt	__contention
+> 
+> On a 624MHz ARMv5 processor I can execute this sequence approximately 
+> 266100 times in 10 ms, which means approx 23 cycles.  The uncontended 
+> up() is the same except the sub is replaced by an add.
+> 
+> Removing the interrupt masking/unmasking reduces the above sequence to 4 
+> instructions using 6 cycles.
 
-> If the learned folks here think that "ndiswrapper" is some user space 
-> program that people can live without than at least
-> 3 people in my house are doomed. We like to use linux but do not have 
-> luxury that Ismail enjoys. At least windows
-> does not make such decisions on my behalf. Sigh.
+I think you're comparing applies with oranges here - you measured the
+above function by executing it, and the reduced version by some other
+method (you appear to be absolutely certain that it's 6 cycles, but
+the previous was approximate).
 
-ndiswrapper can be fixed to work in a 4k stack environment,
-even if the windows driver in use needs more than 4k.  This
-requires some work, because ndiswrapper will then have to
-manage its own stack instead of simply using the provided
-kernel stack.  It is up to all people who want ndiswrapper to
-actually do this work.
+> Now if we consider simple mutexes, the core of it becomes this on ARM:
+> 
+> 	mov	r0, #1
+> 	swp	r1, r0, [%0]
+> 	cmp	r1, #0
+> 	bne	__contention
+> 
+> The above takes 8 cycles.  It uses 4 instructions, and it could even be 
+> reduced to 3 when gcc's cse optimization can find a register that 
+> already contains the value 1 (then using only 7 cycles).  It is 
+> interrupt safe.  It is preemption safe.  It is small.
 
-Note that this work ought to be done anyway, as windows
-drivers really assumes they can use 12k of stack, which they
-cannot do even with the current 8k stack.
+That's over-simplified, and is the easy bit.  Now work out how you handle
+the unlock operation.
 
-Another problem you may get with windows drivers, is licencing issues.
-If they want to, they can set the licencing terms so that you
-can't legally run the drivers on linux.  Currently, it is only a
-question of money.  Buy a windows licence, an you can use the
-windows driver on linux.  It may or may not stay that way.  Still, getting
-what you want on linux will always be only a matter of money, as there
-are wifi cards with _linux_ drivers out there.  Just buy the right ones
-the next time you renew your pc.
+You don't know whether the lock is contended or not in the unlock path,
+so you always have to do the "wake up" thing.  (You can't rely on the
+value of the lock since another thread may well be between this swp
+instruction and entering the __contention function.  Hence you can't
+use the value of the lock to determine whether there's anyone sleeping
+on it.)
 
-Helge Hafting
+Therefore, I suspect that while the lock may be faster, the unlock
+won't be.
 
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

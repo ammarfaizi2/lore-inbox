@@ -1,40 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbVLSQ5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbVLSRBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964851AbVLSQ5m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 11:57:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbVLSQ5m
+	id S964859AbVLSRBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 12:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbVLSRBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 11:57:42 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:30670 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964851AbVLSQ5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 11:57:41 -0500
-Subject: Re: [PATCH 0/9] isdn4linux: add drivers for Siemens Gigaset ISDN
-	DECT PABX
-From: Lee Revell <rlrevell@joe-job.com>
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: Stephen Hemminger <shemminger@osdl.org>, Hansjoerg Lipp <hjlipp@web.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <43A6E209.5030406@imap.cc>
-References: <20051212181356.GC15361@hjlipp.my-fqdn.de>
-	 <43A6E209.5030406@imap.cc>
-Content-Type: text/plain
-Date: Mon, 19 Dec 2005 12:01:15 -0500
-Message-Id: <1135011676.20747.3.camel@mindpipe>
+	Mon, 19 Dec 2005 12:01:09 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:22429 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964860AbVLSRBH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 12:01:07 -0500
+Date: Mon, 19 Dec 2005 18:00:26 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Paul Jackson <pj@sgi.com>
+Subject: Re: [patch 07/15] Generic Mutex Subsystem, mutex-debug-more.patch
+Message-ID: <20051219170026.GD8635@elte.hu>
+References: <20051219013807.GC28038@elte.hu> <1135000829.13138.245.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1135000829.13138.245.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.7
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.7 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-19 at 17:38 +0100, Tilman Schmidt wrote:
-> Unfortunately these don't fit our needs, as we are not dealing with a
-> network device, but with an ISDN device.
 
-Um, isn't that what the N in ISDN stands for?
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-I guess what you mean is that although ISDN devices are obviously
-networking devices, the kernel uses a separate subsystem for ISDN?
+> The changes here from smp_processor_id to raw_smp_processor_id seem to 
+> be more clean up and not part of the mutex patch.  Should these be 
+> sent separately?
 
-Lee
+yeah, that's a bugfix for spinlock debugging, which should go in before 
+2.6.15 is released. Andrew/Linus, please apply.
 
+	Ingo

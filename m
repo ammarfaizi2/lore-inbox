@@ -1,83 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964941AbVLSUN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964940AbVLSURW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964941AbVLSUN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 15:13:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbVLSUN4
+	id S964940AbVLSURW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 15:17:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbVLSURW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 15:13:56 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:49294 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964941AbVLSUN4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 15:13:56 -0500
-Date: Mon, 19 Dec 2005 12:12:26 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: [patch 00/15] Generic Mutex Subsystem
-In-Reply-To: <20051219195553.GA14155@elte.hu>
-Message-ID: <Pine.LNX.4.64.0512191203120.4827@g5.osdl.org>
-References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de>
- <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org> <20051219155010.GA7790@elte.hu>
- <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org> <20051219195553.GA14155@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 Dec 2005 15:17:22 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:14725 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S964940AbVLSURV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 15:17:21 -0500
+In-Reply-To: <1135020446.10933.8.camel@localhost>
+References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com> <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com> <p73slsrehzs.fsf@verdi.suse.de> <20051217205238.GR23349@stusta.de> <61D4A300-4967-4DC1-AD2C-765A3D2D9743@comcast.net> <20051218054323.GF23384@wotan.suse.de> <5DB2F520-5666-4C7F-9065-51117A0F54B9@comcast.net> <43A694DF.8040209@aitel.hist.no> <A3567036-A5F9-4CF9-BC48-70CFEAA8F2C4@comcast.net> <1135014201.10933.4.camel@localhost> <B1D5AEA1-A120-4997-AD9A-A2379B6A1779@comcast.net> <1135020446.10933.8.camel@localhost>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <D5AD0C5C-CB2C-43AF-913E-23C1FFB1A50C@comcast.net>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>, Andi Kleen <ak@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
+Content-Transfer-Encoding: 7bit
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Date: Mon, 19 Dec 2005 15:17:14 -0500
+To: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Dec 19, 2005, at 2:27 PM, Dumitru Ciobarcianu wrote:
 
-On Mon, 19 Dec 2005, Ingo Molnar wrote:
-> 
->  average cost per op:       206.59 usecs
->  average cost per op:       512.13 usecs
+> but you din't answered my question
+> regarding _which_ os you mentioned needing more stack space and why.
 
-(mutex vs semaphore).
+The two other commercially successful OSes - Windows and Solaris have  
+12Kb and 8Kb default kernel stack sizes. And both seem to do well  
+(hold on :) with the large stack sizes - meaning there is no  
+commercially observed problem created by the 8K stack size. Solaris  
+even lets you change the kernel stack size at runtime.
 
-That looks suspiciously like exactly double the cost, so I do believe that 
-the double wake_up() might be exactly what is going on.
+Even if we keep aside the impending argument about both OS'es being  
+crap and we shouldn't be imitating them, we could still derive one  
+conclusion from them - it is possible to have larger stack on i386  
+without problems (albeit with some drawbacks) which could be used  
+under certain circumstances.
 
-However:
-
-> hm, removing that wakeup quickly causes hung test-tasks.
-
-So clearly it really is still hiding some bug.
-
-> and even considering that the current semaphore implementation may have 
-> a fairness bug, i cannot imagine that making it more fair would also 
-> speed it up.
-
-That's not the point. The extra wakeup() in th esemaphore code wakes up 
-two processes for every single up(), so the semaphores end up not just 
-being unfair, they also end up doing twice the work (because it will 
-result in the other processes effectively just doing the down() twice).
-
-> I personally find the semaphore implementation clever but too complex, 
-> maybe that's a reason why such bugs might be hiding there.  (possibly 
-> for many years already ...)
-
-Oh, absolutely. It is too complex. 
-
-And don't get me wrong: if it's easier to just ignore the performance bug, 
-and introduce a new "struct mutex" that just doesn't have it, I'm all for 
-it. However, if so, I do NOT want to do the unnecessary renaming. "struct 
-semaphore" should stay as "struct semaphore", and we should not affect old 
-code in the _least_.
-
-Then code can switch to "struct mutex" if people want to. And if one 
-reason for it ends up being that the code avoids a performance bug in the 
-process, all the better ;)
-
-IOW, I really think this should be a series of small patches that don't 
-touch old users of "struct semaphore" at all. None of this "semaphore" to 
-"arch_semaphore" stuff, and the new "struct mutex" would not re-use _any_ 
-of the names that the old "struct semaphore" uses.
-
-		Linus
+Parag

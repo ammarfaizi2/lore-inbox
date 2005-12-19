@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932726AbVLSLlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbVLSLmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932726AbVLSLlh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 06:41:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932727AbVLSLlh
+	id S1030291AbVLSLmg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 06:42:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbVLSLmg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 06:41:37 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:5540 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932726AbVLSLlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 06:41:36 -0500
-Date: Mon, 19 Dec 2005 12:40:31 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Neil Brown <neilb@suse.de>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       arjan@infradead.org, xfs-masters@oss.sgi.com, nathans@sgi.com
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051219114031.GA20216@wohnheim.fh-wedel.de>
-References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051215223000.GU23349@stusta.de> <20051215231538.GF3419@redhat.com> <20051216004740.GV23349@stusta.de> <20051216005056.GG3419@redhat.com> <17314.11514.650036.686071@cse.unsw.edu.au> <20051216121805.GX23349@stusta.de> <17318.676.931250.379882@cse.unsw.edu.au> <20051219013429.GS23349@stusta.de>
+	Mon, 19 Dec 2005 06:42:36 -0500
+Received: from mail.gmx.de ([213.165.64.21]:59075 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030277AbVLSLmf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 06:42:35 -0500
+X-Authenticated: #19855039
+Date: Mon, 19 Dec 2005 12:42:31 +0100
+From: Marc-Jano Knopp <pub_ml_lkml@marc-jano.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Bug] mlockall() not working properly in 2.6.x
+Message-ID: <20051219114231.GA2830@mjk.myfqdn.de>
+References: <20051218212123.GC4029@mjk.myfqdn.de> <20051219022108.307e68b8.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20051219013429.GS23349@stusta.de>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051219022108.307e68b8.akpm@osdl.org>
+User-Agent: Mutt/1.5.1i
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 December 2005 02:34:29 +0100, Adrian Bunk wrote:
-> On Mon, Dec 19, 2005 at 11:45:24AM +1100, Neil Brown wrote:
+On Mon, 19 Dec 2005 at 02:21 (-0800), Andrew Morton wrote:
+> Marc-Jano Knopp <pub_ml_lkml@marc-jano.de> wrote:
+> >
+> > A year ago, I wrote a small mlockall()-wrapper ("noswap") to make
+> > certain programs unswappable. It used to work perfectly, until I
+> > upgraded to kernel 2.6.x (2.6.13.1 in my case, but that shouldn't
+> > matter), which made the mlockall() execute without error, but also
+> > without any effect (the "L" in the STAT column of "ps axf" which
+> > indicates locked pages is missing).
 > > 
-> > It's hard to *know* if it is a problem, but I am conscious that nfsd
-> > adds measurably to stack depth for filesystem paths, and probably
-> > isn't measured nearly as often.
-> > It's true that 50 bytes out of 4K isn't a lot, but wastage that can be
-> > avoided, should be avoided.
 > 
-> "make checkstack" tells that nfsd_vfs_write is below 100 bytes of stack 
-> usage. So even calling 30 such functions would not get you above
-> 3 kB stack usage.
-> 
-> It's also interesting that according to Jörn Engel's static analysis of 
-> call paths in kernel 2.6.11 [1], the string "nfs" does occur in neither 
-> any of the functions involved in call paths with > 2 kB stack usage, nor 
-> in any recursive call paths.
-> 
-> It's OK to use some bytes from the stack, and you haven't yet convinced 
-> me that the code you are responsible for is using too much stack.  ;-)
+> Question is: what kernel version did you upgrade from?
 
-Well, my metrics show the worst non-recursive paths and recursions
-only.  The case at hand is a relatively innocent path on its own, but
-is stacked on top of one of the recursions.
+2.4.31. Just rebooted to 2.4.31 and tried again - mlockall() seems to
+work perfectly:
 
-Therefore, if my tool could make more sense of recursions and f.e. see
-that raid over raid is unlikely, but nfsd over xfs over raid over
-block is likely, nfsd would definitely show up.  Recursions are the
-hard problem to worry about.
+# ps axf|grep [9]99
+ 1037 tty1     SL+    0:00      \_ sleep 999
+# uname -a
+Linux pc8 2.4.31 #3 Thu Sep 8 16:49:45 CEST 2005 i686 unknown
+#
 
-Don't blame Neil for my tool being stupid. :)
 
-Jörn
+> Prior to 2.4.18 the kernel would allow MCL_FUTURE to propagate into child
+> processes.  But that was disabled in 2.4.18 and later.  I seem to recall
+> that we did this because inheriting MCL_FUTURE is standards-incorrect.
 
--- 
-Don't patch bad code, rewrite it.
--- Kernigham and Pike, according to Rusty
+Oh! So how can I make programs unswappable with kernel 2.6.x then?
+
+
+Best regards
+
+  Marc-Jano

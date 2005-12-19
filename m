@@ -1,97 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbVLSLjW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932726AbVLSLlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbVLSLjW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 06:39:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932726AbVLSLjW
+	id S932726AbVLSLlh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 06:41:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932727AbVLSLlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 06:39:22 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:41093 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932106AbVLSLjV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 06:39:21 -0500
-Date: Mon, 19 Dec 2005 17:26:11 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: David Singleton <dsingleton@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       robustmutexes@lists.osdl.org
-Subject: Re: Recursion bug in -rt
-Message-ID: <20051219115611.GA3945@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20051214223912.GA4716@in.ibm.com> <9175126B-6D06-11DA-AA1B-000A959BB91E@mvista.com> <20051215194434.GA4741@in.ibm.com> <43F8915C-6DC7-11DA-A45A-000A959BB91E@mvista.com> <20051216184209.GD4732@in.ibm.com> <43A33114.6060701@mvista.com>
+	Mon, 19 Dec 2005 06:41:37 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:5540 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S932726AbVLSLlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 06:41:36 -0500
+Date: Mon, 19 Dec 2005 12:40:31 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Neil Brown <neilb@suse.de>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       arjan@infradead.org, xfs-masters@oss.sgi.com, nathans@sgi.com
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-ID: <20051219114031.GA20216@wohnheim.fh-wedel.de>
+References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051215223000.GU23349@stusta.de> <20051215231538.GF3419@redhat.com> <20051216004740.GV23349@stusta.de> <20051216005056.GG3419@redhat.com> <17314.11514.650036.686071@cse.unsw.edu.au> <20051216121805.GX23349@stusta.de> <17318.676.931250.379882@cse.unsw.edu.au> <20051219013429.GS23349@stusta.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Q68bSM7Ycu6FN28Q"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <43A33114.6060701@mvista.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20051219013429.GS23349@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Fri, Dec 16, 2005 at 01:26:44PM -0800, David Singleton wrote:
-> Dinakar,
+On Mon, 19 December 2005 02:34:29 +0100, Adrian Bunk wrote:
+> On Mon, Dec 19, 2005 at 11:45:24AM +1100, Neil Brown wrote:
+> > 
+> > It's hard to *know* if it is a problem, but I am conscious that nfsd
+> > adds measurably to stack depth for filesystem paths, and probably
+> > isn't measured nearly as often.
+> > It's true that 50 bytes out of 4K isn't a lot, but wastage that can be
+> > avoided, should be avoided.
 > 
->     I believe this patch will give you the behavior you expect.
+> "make checkstack" tells that nfsd_vfs_write is below 100 bytes of stack 
+> usage. So even calling 30 such functions would not get you above
+> 3 kB stack usage.
 > 
->    http://source.mvista.com/~dsingleton/patch-2.6.15-rc5-rt2-rf3
+> It's also interesting that according to Jörn Engel's static analysis of 
+> call paths in kernel 2.6.11 [1], the string "nfs" does occur in neither 
+> any of the functions involved in call paths with > 2 kB stack usage, nor 
+> in any recursive call paths.
+> 
+> It's OK to use some bytes from the stack, and you haven't yet convinced 
+> me that the code you are responsible for is using too much stack.  ;-)
 
-Not really, the reason, quoting from my previous mail
+Well, my metrics show the worst non-recursive paths and recursions
+only.  The case at hand is a relatively innocent path on its own, but
+is stacked on top of one of the recursions.
 
-   So IMO the above check is not right. However removing this check
-   is not the end of story.  This time it gets to task_blocks_on_lock
-   and tries to grab the task->pi_lock of the owvner which is itself
-   and results in a system hang. (Assuming CONFIG_DEBUG_DEADLOCKS
-   is not set). So it looks like we need to add some check to
-   prevent this below in case lock_owner happens to be current.
+Therefore, if my tool could make more sense of recursions and f.e. see
+that raid over raid is unlikely, but nfsd over xfs over raid over
+block is likely, nfsd would definitely show up.  Recursions are the
+hard problem to worry about.
 
-    _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
+Don't blame Neil for my tool being stupid. :)
 
-The patch that works for me is attached below
+Jörn
 
-	-Dinakar
-
-
-
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="check_current.patch"
-
-Index: linux-2.6.14-rt22-rayrt5/kernel/rt.c
-===================================================================
---- linux-2.6.14-rt22-rayrt5.orig/kernel/rt.c	2005-12-15 02:15:13.000000000 +0530
-+++ linux-2.6.14-rt22-rayrt5/kernel/rt.c	2005-12-19 15:51:26.000000000 +0530
-@@ -1042,7 +1042,8 @@
- 		return;
- 	}
- #endif
--	_raw_spin_lock(&lock_owner(lock)->task->pi_lock);
-+	if (current != lock_owner(lock)->task)
-+		_raw_spin_lock(&lock_owner(lock)->task->pi_lock);
- 	plist_add(&waiter->pi_list, &lock_owner(lock)->task->pi_waiters);
- 	/*
- 	 * Add RT tasks to the head:
-@@ -1055,7 +1056,8 @@
- 	 */
- 	if (task->prio < lock_owner(lock)->task->prio)
- 		pi_setprio(lock, lock_owner(lock)->task, task->prio);
--	_raw_spin_unlock(&lock_owner(lock)->task->pi_lock);
-+	if (current != lock_owner(lock)->task)
-+		_raw_spin_unlock(&lock_owner(lock)->task->pi_lock);
- }
- 
- /*
-@@ -3016,8 +3018,7 @@
- 	 * the first waiter and we'll just block on the down_interruptible.
- 	 */
- 
--	if (owner_task != current)
--		down_try_futex(lock, owner_task->thread_info __EIP__);
-+	down_try_futex(lock, owner_task->thread_info __EIP__);
- 
- 	/*
- 	 * we can now drop the locks because the rt_mutex is held.
-
---Q68bSM7Ycu6FN28Q--
+-- 
+Don't patch bad code, rewrite it.
+-- Kernigham and Pike, according to Rusty

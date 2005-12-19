@@ -1,83 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbVLSPDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVLSPGh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932198AbVLSPDy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 10:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVLSPDy
+	id S932144AbVLSPGh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 10:06:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbVLSPGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 10:03:54 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:16581 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932198AbVLSPDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 10:03:53 -0500
-Date: Mon, 19 Dec 2005 15:03:52 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Paul Jackson <pj@sgi.com>
-Subject: Re: [patch 15/15] Generic Mutex Subsystem, arch-semaphores.patch
-Message-ID: <20051219150352.GC9809@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Steven Rostedt <rostedt@goodmis.org>, Ingo Molnar <mingo@elte.hu>,
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Arjan van de Ven <arjanv@infradead.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
-	David Howells <dhowells@redhat.com>,
-	Alexander Viro <viro@ftp.linux.org.uk>,
-	Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
-References: <20051219014043.GK28038@elte.hu> <1135002846.13138.258.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1135002846.13138.258.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 19 Dec 2005 10:06:37 -0500
+Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:5935 "EHLO
+	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
+	id S932144AbVLSPGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 10:06:36 -0500
+In-Reply-To: <DADA32856852FC458E0F96B664A6F55E011E2311@kom-mailsrv1.kontron-modular.com>
+References: <DADA32856852FC458E0F96B664A6F55E011E2311@kom-mailsrv1.kontron-modular.com>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <74737B51-64DC-445A-93E9-2AE6DFFCE736@kernel.crashing.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kumar Gala <galak@kernel.crashing.org>
+Subject: Re: Submitting patches for Kontron-boards with Freescale processors
+Date: Mon, 19 Dec 2005 09:06:40 -0600
+To: Claus Gindhart <Claus.Gindhart@kontron.com>
+X-Mailer: Apple Mail (2.746.2)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - kernel.crashing.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 19, 2005 at 09:34:06AM -0500, Steven Rostedt wrote:
-> >  acpi_status
-> >  acpi_os_create_semaphore(u32 max_units, u32 initial_units,
-> > acpi_handle * handle)
-> >  {
-> > -       struct semaphore *sem = NULL;
-> > +       struct arch_semaphore *sem = NULL;
-> >  
-> >         ACPI_FUNCTION_TRACE("os_create_semaphore");
-> >  
-> > -       sem = acpi_os_allocate(sizeof(struct semaphore));
-> > +       sem = acpi_os_allocate(sizeof(struct arch_semaphore));
-> 
-> [OT]
-> This is why I prefer sizeof(*sem) over sizeof(struct type_of_sem) but I
-> regress.  And I don't buy that argument of the mistaken sizeof(sem)
-> since, I've never had to deal with that bug!  Oh well, each to their
-> own.
 
-What's more important is that acpi is doing something fundamentally stupid
-here.  Putting a lock into a separate allocation (and the allocator wrapped
-again..) is just freaking stupid, period.
+On Dec 19, 2005, at 2:07 AM, Claus Gindhart wrote:
 
-Someone needs to go through ACPI and rewrite this freaking junk into proper
-linux code.  Maybe it'd even get less buggy if a single person finally had
-a chance to actually understand all of the code after only half of it is
-left ;-) 
+> Kumar,
+>
+> in our department we have Linux 2.6 kernel ports for Kontron  
+> embedded computer boards with freescale processors 8245, 405, 8540,  
+> 8541, 8347, 8270, ...
+>
+> We would like to start now to submit all these board supports to  
+> the vanilla kernel.
+>
+> For the start we would select one of our common boards, e.g. the  
+> one with 8540/8541 processor.
+>
+> My question is now:
+> Should we try to provide a patch with all HW-features of the board  
+> supported, or would it be better to start with a minimalistic  
+> patch, and then add support for additional devices onboard (e.g.  
+> IDE, RTC, SuperIO, ...) time by time ?
+>
+> Or would it be better to provide the full feature set of this board  
+> at one time ?
 
-> 
-> -- Steve
-> 
-> >         if (!sem)
-> >                 return_ACPI_STATUS(AE_NO_MEMORY);
-> > -       memset(sem, 0, sizeof(struct semaphore));
-> > +       memset(sem, 0, sizeof(struct arch_semaphore));
-> >         sema_init(sem, initial_units);
+First, I would recommend posting such queries to the linuxppc lists  
+(linuxppc-dev@ozlabs.org, linuxppc-embedded@ozlabs.org).
 
-and a memset to it, WTF..  seems like the acpi people just need to be shot.
+Second, I'm no longer at Freescale so please email me at this address.
+
+Ok, now to your question.  In general if a given board port touch  
+files in arch/ppc/platforms/* than all of that code should be in one  
+patch.  If you are touching anything in drivers/* you need to  
+separate out those patches and send them to the respective driver  
+maintainers.  If you want to provide a more detailed list of changes  
+for 8540/8541 I can provide better directions on how to submit patches.
+
+What boot loader are you using for your boards?  I ask because for  
+the 85xx and 83xx subarchitectures I'm trying to limit new board  
+ports in arch/ppc as we try to transition to arch/powerpc.  However,  
+this requires that the firmware provide a flatten device tree to the  
+kernel.
+
+Hopefully that gets you a sense and feel free to ask any other  
+questions.
+
+- kumar
+
 

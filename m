@@ -1,48 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964927AbVLSUDr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964933AbVLSUF7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964927AbVLSUDr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 15:03:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964932AbVLSUDq
+	id S964933AbVLSUF7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 15:05:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964937AbVLSUF7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 15:03:46 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:5319 "HELO mail.dev.rtsoft.ru")
-	by vger.kernel.org with SMTP id S964927AbVLSUDq (ORCPT
+	Mon, 19 Dec 2005 15:05:59 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:64588 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964933AbVLSUF7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 15:03:46 -0500
-Message-ID: <43A7121E.1070709@ru.mvista.com>
-Date: Mon, 19 Dec 2005 23:03:42 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: David Brownell <david-b@pacbell.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] SPI core: turn transfers to be linked list
-References: <43A480C0.9080201@ru.mvista.com> <200512181240.46841.david-b@pacbell.net> <43A665F7.7020404@ru.mvista.com> <20051219170005.GA1911@kroah.com>
-In-Reply-To: <20051219170005.GA1911@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Dec 2005 15:05:59 -0500
+Date: Mon, 19 Dec 2005 21:07:35 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ben Collins <ben.collins@ubuntu.com>, Ben Collins <bcollins@ubuntu.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.15-rc6] block: Make CDROMEJECT more robust
+Message-ID: <20051219200734.GQ3734@suse.de>
+References: <20051219153236.GA10905@swissdisk.com> <20051219193508.GL3734@suse.de> <1135021497.2029.3.camel@localhost.localdomain> <Pine.LNX.4.64.0512191156430.4827@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512191156430.4827@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+On Mon, Dec 19 2005, Linus Torvalds wrote:
+> 
+> 
+> On Mon, 19 Dec 2005, Ben Collins wrote:
+> > 
+> > > >  		case CDROMEJECT:
+> > > > -			rq = blk_get_request(q, WRITE, __GFP_WAIT);
+> > > > -			rq->flags |= REQ_BLOCK_PC;
+> > > > -			rq->data = NULL;
+> > > > -			rq->data_len = 0;
+> > > > -			rq->timeout = BLK_DEFAULT_TIMEOUT;
+> > > > -			memset(rq->cmd, 0, sizeof(rq->cmd));
+> > > > -			rq->cmd[0] = GPCMD_START_STOP_UNIT;
+> > > > -			rq->cmd[4] = 0x02 + (close != 0);
+> > > > -			rq->cmd_len = 6;
+> > > > -			err = blk_execute_rq(q, bd_disk, rq, 0);
+> > > > -			blk_put_request(rq);
+> > > > +			err = 0;
+> > > > +
+> > > > +			err |= blk_send_allow_medium_removal(q, bd_disk);
+> > > > +			err |= blk_send_start_stop(q, bd_disk, 0x01);
+> > > > +			err |= blk_send_start_stop(q, bd_disk, 0x02);
+> > > 
+> > > Do this in the eject tool, if it's required for some devices.
+> > 
+> > It already is in eject tool, but as described, that requires root
+> > access. Not something I want to force a user to do in order to eject
+> > their CDROM/iPod/USBStick in gnome. What exactly is wrong with the
+> > commands? If they are harmless for devices that don't need it, and fix a
+> > huge number of problems (did you see the Cc list on the bug report?) for
+> > users with affected devices, then what's the harm?
+> 
+> I do agree that the suggested patch seems to be a real cleanup, regardless 
+> of whether the original code bug has now been fixed or not.
 
->On Mon, Dec 19, 2005 at 10:49:11AM +0300, Vitaly Wool wrote:
->  
->
->>The problem is: we're using real-time enhancements patch developed by 
->>Ingo/Sven/Daniel etc. You cannot call kmalloc from the interrupt 
->>context  if you're using this patch.
->>    
->>
->
->So you can't even call:
->	kmalloc(sizeof(foo), GFP_ATOMIC);
->in an interrupt anymore?
->If so, that's going to break mainline pretty bad...
->  
->
-Don't think it will... Since most of the interrupts will work in threads 
-pretty well... and it's np to alloc memory from threads.
+Apparently two seperate issues.
 
-Vitaly
+> 
+> Are there devices that really want the old sequence? 
+> 
+> Also, do we really need to send fist a start_stop 1 and then a 2?
+
+The 0x01 looks really suspicious to me, it should just cause extra wait
+and activity on most devices.
+
+> Wouldn't the _logical_ thing be to replace the old code with just a 
+> cleaned-up-version of what the old code did, ie just do
+> 
+> 	err = blk_send_start_stop(q, bd_disk, 0x02);
+> 
+> for the eject case? That way we could do the patch as a pure cleanup, and 
+> then a separate patch might change the singe "start_stop 2" with the more 
+> complex sequence.
+
+That would work.
+
+-- 
+Jens Axboe
+

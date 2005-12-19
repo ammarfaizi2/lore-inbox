@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932718AbVLSKVK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932722AbVLSKoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932718AbVLSKVK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 05:21:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932719AbVLSKVJ
+	id S932722AbVLSKoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 05:44:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932723AbVLSKoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 05:21:09 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:39633 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932718AbVLSKVI (ORCPT
+	Mon, 19 Dec 2005 05:44:16 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:55884 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S932722AbVLSKoP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 05:21:08 -0500
-Date: Mon, 19 Dec 2005 02:20:59 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.16-rc5-mm2 - kzalloc() considered harmful for debugging.
-Message-Id: <20051219022059.36443421.akpm@osdl.org>
-In-Reply-To: <200512181258.jBICwMdj003410@turing-police.cc.vt.edu>
-References: <200512181258.jBICwMdj003410@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
+	Mon, 19 Dec 2005 05:44:15 -0500
+Date: Mon, 19 Dec 2005 11:44:12 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Sander <sander@humilis.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux@horizon.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051219104412.GA12953@harddisk-recovery.nl>
+References: <20051215135812.14578.qmail@science.horizon.com> <Pine.LNX.4.64.0512150752240.3292@g5.osdl.org> <20051215165255.GA5510@harddisk-recovery.com> <20051216121754.GC18210@harddisk-recovery.com> <20051217105914.GA12080@favonius>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051217105914.GA12080@favonius>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
->
-> So I've got a (probably self-inflicted) memory leak in slab-64 and slab-32.
-> Rebuild the kernel with CONFIG_DEBUG_SLAB, reboot, and wait for a bit of
-> leak to pile up, and then echo 'slab-32 0 0 0' > /proc/slabinfo
+On Sat, Dec 17, 2005 at 11:59:14AM +0100, Sander wrote:
+> Erik Mouw wrote (ao):
+> > Last night I've been browsing a little more through Dijkstra's papers,
+> > and in a completely unrelated paper[1] about a now obsolete computer I
+> > found that "prolaag" is a neologism coming from "probeer te verlagen",
+> > which means "try and decrease".
 > 
-> And ta-DA! the top offender is... (drum roll): <kzalloc+0xe/0x36>
+> "probeer te verlagen" translates to "try to decrease".
 > 
-> Blargh.  It's tempting to do something like this in include/linux/slab.h:
-> 
-> #ifdef CONFIG_SLAB_DEBUG
-> static inline void* kzalloc(size_t size, gfp_t flags)
-> {
->         void *ret = kmalloc(size, flags);
->         if (ret)
->                 memset(ret, 0, size);
->         return ret;
-> }
-> #else
-> extern void *kzalloc(size_t, gfp_t);
-> #end
+> "try and decrease" would be "probeer en verlaag".
 
-That would work.
+I know, but that's how Dijkstra translates it. I guess he knew what he
+meant.
 
-Or we could special-case kzalloc() and kstrdup() in slab.c - use
-builtin_return_address(1) if builtin_return_address(0) is within those
-functions.  Dunno if that's worth the fuss though.
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.nl -- 0800 220 20 20 --
+| Eigen lab: Delftechpark 26, 2628 XH, Delft, Nederland
+| Files foetsie, bestanden kwijt, alle data weg?!
+| Blijf kalm en neem contact op met Harddisk-recovery.nl!

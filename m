@@ -1,261 +1,336 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964906AbVLSTlv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964910AbVLSTm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964906AbVLSTlv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 14:41:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbVLSTlr
+	id S964910AbVLSTm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 14:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbVLSTlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 14:41:47 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.25]:17892 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S964906AbVLSTlh (ORCPT
+	Mon, 19 Dec 2005 14:41:46 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:61913 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964907AbVLSTlm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 14:41:37 -0500
-Date: Mon, 19 Dec 2005 11:41:29 -0800 (PST)
+	Mon, 19 Dec 2005 14:41:42 -0500
+Date: Mon, 19 Dec 2005 11:41:34 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
-Cc: Hirokazu Takahashi <taka@valinux.co.jp>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
+Cc: Hirokazu Takahashi <taka@valinux.co.jp>, lhms-devel@lists.sourceforge.net,
        Cliff Wickman <cpw@sgi.com>, Christoph Lameter <clameter@sgi.com>,
-       lhms-devel@lists.sourceforge.net
-Message-Id: <20051219194129.20715.11839.sendpatchset@schroedinger.engr.sgi.com>
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Message-Id: <20051219194134.20715.26779.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20051219194108.20715.39379.sendpatchset@schroedinger.engr.sgi.com>
 References: <20051219194108.20715.39379.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 4/5] Direct Migration V8: upgrade MPOL_MF_MOVE and sys_migrate_pages()
+Subject: [PATCH 5/5] Direct Migration V8: Avoid writeback / page_migrate() method
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Modify policy layer to support direct page migration
+Migrate a page with buffers without requiring writeback
 
-- Add migrate_pages_to() allowing the migration of a list of pages to a
-  a specified node or to vma with a specific allocation policy in sets
-  of MIGRATE_CHUNK_SIZE pages
+This introduces a new address space operation migratepage() that
+may be used by a filesystem to implement its own version of page migration.
 
-- Modify do_migrate_pages() to do a staged move of pages from the
-  source nodes to the target nodes.
+A version is provided that migrates buffers attached to pages. Some
+filesystems (ext2, ext3, xfs) are modified to utilize this feature.
 
-V3->V4: Fixed up to be based on the swap migration code in 2.6.15-rc1-mm2.
+The swapper address space operation are modified so that a regular
+migrate_page() will occur for anonymous pages without writeback
+(migrate_pages forces every anonymous page to have a swap entry).
+
+V7->V8:
+- Export more functions in order for loadable filesystems to be able
+  to define their own migration function.
+
+V2->V3:
+- export functions for filesystems that are modules and for modules that
+  perform migration by calling migrate_pages().
+- Fix macro name clash. Fix build on UP and systems without CONFIG_MIGRATION
 
 V1->V2:
-- Migrate processes in chunks of MIGRATE_CHUNK_SIZE
+- Fix CONFIG_MIGRATION handling
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+Signed-off-by: Mike Kravetz <kravetz@us.ibm.com>
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.15-rc5-mm2/mm/mempolicy.c
+Index: linux-2.6.15-rc5-mm3/include/linux/fs.h
 ===================================================================
---- linux-2.6.15-rc5-mm2.orig/mm/mempolicy.c	2005-12-14 17:43:22.000000000 -0800
-+++ linux-2.6.15-rc5-mm2/mm/mempolicy.c	2005-12-14 17:45:58.000000000 -0800
-@@ -95,6 +95,9 @@
- #define MPOL_MF_INVERT (MPOL_MF_INTERNAL << 1)		/* Invert check for nodemask */
- #define MPOL_MF_STATS (MPOL_MF_INTERNAL << 2)		/* Gather statistics */
+--- linux-2.6.15-rc5-mm3.orig/include/linux/fs.h	2005-12-16 11:44:09.000000000 -0800
++++ linux-2.6.15-rc5-mm3/include/linux/fs.h	2005-12-19 10:48:58.000000000 -0800
+@@ -366,6 +366,8 @@ struct address_space_operations {
+ 			loff_t offset, unsigned long nr_segs);
+ 	struct page* (*get_xip_page)(struct address_space *, sector_t,
+ 			int);
++	/* migrate the contents of a page to the specified target */
++	int (*migratepage) (struct page *, struct page *);
+ };
  
-+/* The number of pages to migrate per call to migrate_pages() */
-+#define MIGRATE_CHUNK_SIZE 256
+ struct backing_dev_info;
+@@ -1720,6 +1722,12 @@ extern void simple_release_fs(struct vfs
+ 
+ extern ssize_t simple_read_from_buffer(void __user *, size_t, loff_t *, const void *, size_t);
+ 
++#ifdef CONFIG_MIGRATION
++extern int buffer_migrate_page(struct page *, struct page *);
++#else
++#define buffer_migrate_page NULL
++#endif
 +
- static kmem_cache_t *policy_cache;
- static kmem_cache_t *sn_cache;
+ extern int inode_change_ok(struct inode *, struct iattr *);
+ extern int __must_check inode_setattr(struct inode *, struct iattr *);
  
-@@ -561,24 +564,96 @@ static void migrate_page_add(struct vm_a
- 	}
- }
+Index: linux-2.6.15-rc5-mm3/mm/swap_state.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/mm/swap_state.c	2005-12-16 11:44:09.000000000 -0800
++++ linux-2.6.15-rc5-mm3/mm/swap_state.c	2005-12-19 10:48:58.000000000 -0800
+@@ -27,6 +27,7 @@ static struct address_space_operations s
+ 	.writepage	= swap_writepage,
+ 	.sync_page	= block_sync_page,
+ 	.set_page_dirty	= __set_page_dirty_nobuffers,
++	.migratepage	= migrate_page,
+ };
  
--static int swap_pages(struct list_head *pagelist)
-+/*
-+ * Migrate the list 'pagelist' of pages to a certain destination.
-+ *
-+ * Specify destination with either non-NULL vma or dest_node >= 0
-+ * Return the number of pages not migrated or error code
-+ */
-+static int migrate_pages_to(struct list_head *pagelist,
-+	struct vm_area_struct *vma, int dest)
- {
-+	LIST_HEAD(newlist);
- 	LIST_HEAD(moved);
- 	LIST_HEAD(failed);
--	int n;
-+	int err = 0;
-+	int nr_pages;
-+	struct page *page;
-+	struct list_head *p;
- 
--	n = migrate_pages(pagelist, NULL, &moved, &failed);
--	putback_lru_pages(&failed);
--	putback_lru_pages(&moved);
-+redo:
-+	nr_pages = 0;
-+	list_for_each(p, pagelist) {
-+		if (vma)
-+			page = alloc_page_vma(GFP_HIGHUSER, vma,
-+						vma->vm_start);
-+		else
-+			page = alloc_pages_node(dest, GFP_HIGHUSER, 0);
- 
--	return n;
-+		if (!page) {
-+			err = -ENOMEM;
-+			goto out;
-+		}
-+		list_add(&page->lru, &newlist);
-+		nr_pages++;
-+		if (nr_pages > MIGRATE_CHUNK_SIZE);
-+			break;
-+	}
-+	err = migrate_pages(pagelist, &newlist, &moved, &failed);
-+
-+	putback_lru_pages(&moved);	/* Call release pages instead ?? */
-+
-+	if (err >= 0 && list_empty(&newlist) && !list_empty(pagelist))
-+		goto redo;
-+out:
-+	/* Return leftover allocated pages */
-+	while (!list_empty(&newlist)) {
-+		page = list_entry(newlist.next, struct page, lru);
-+		list_del(&page->lru);
-+		__free_page(page);
-+	}
-+	list_splice(&failed, pagelist);
-+	if (err < 0)
-+		return err;
-+
-+	/* Calculate number of leftover pages */
-+	nr_pages = 0;
-+	list_for_each(p, pagelist)
-+		nr_pages++;
-+	return nr_pages;
+ static struct backing_dev_info swap_backing_dev_info = {
+Index: linux-2.6.15-rc5-mm3/fs/xfs/linux-2.6/xfs_aops.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/fs/xfs/linux-2.6/xfs_aops.c	2005-12-03 21:10:42.000000000 -0800
++++ linux-2.6.15-rc5-mm3/fs/xfs/linux-2.6/xfs_aops.c	2005-12-19 10:48:58.000000000 -0800
+@@ -1347,4 +1347,5 @@ struct address_space_operations linvfs_a
+ 	.commit_write		= generic_commit_write,
+ 	.bmap			= linvfs_bmap,
+ 	.direct_IO		= linvfs_direct_IO,
++	.migratepage		= buffer_migrate_page,
+ };
+Index: linux-2.6.15-rc5-mm3/fs/buffer.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/fs/buffer.c	2005-12-16 11:44:08.000000000 -0800
++++ linux-2.6.15-rc5-mm3/fs/buffer.c	2005-12-19 10:48:58.000000000 -0800
+@@ -3051,6 +3051,71 @@ asmlinkage long sys_bdflush(int func, lo
  }
  
  /*
-- * For now migrate_pages simply swaps out the pages from nodes that are in
-- * the source set but not in the target set. In the future, we would
-- * want a function that moves pages between the two nodesets in such
-- * a way as to preserve the physical layout as much as possible.
-+ * Migrate pages from one node to a target node.
-+ * Returns error or the number of pages not migrated.
++ * Migration function for pages with buffers. This function can only be used
++ * if the underlying filesystem guarantees that no other references to "page"
++ * exist.
 + */
-+int migrate_to_node(struct mm_struct *mm, int source, int dest, int flags)
++#ifdef CONFIG_MIGRATION
++int buffer_migrate_page(struct page *newpage, struct page *page)
 +{
-+	nodemask_t nmask;
-+	LIST_HEAD(pagelist);
-+	int err = 0;
++	struct address_space *mapping = page->mapping;
++	struct buffer_head *bh, *head;
 +
-+	nodes_clear(nmask);
-+	node_set(source, nmask);
++	if (!mapping)
++		return -EAGAIN;
 +
-+	check_range(mm, mm->mmap->vm_start, TASK_SIZE, &nmask,
-+		    flags | MPOL_MF_DISCONTIG_OK,
-+	            &pagelist);
++	if (!page_has_buffers(page))
++		return migrate_page(newpage, page);
 +
-+	if (!list_empty(&pagelist)) {
++	head = page_buffers(page);
 +
-+		err = migrate_pages_to(&pagelist, NULL, dest);
++	if (migrate_page_remove_references(newpage, page, 3))
++		return -EAGAIN;
 +
-+		if (!list_empty(&pagelist))
-+			putback_lru_pages(&pagelist);
++	spin_lock(&mapping->private_lock);
 +
-+	}
-+	return err;
++	bh = head;
++	do {
++		get_bh(bh);
++		lock_buffer(bh);
++		bh = bh->b_this_page;
++
++	} while (bh != head);
++
++	ClearPagePrivate(page);
++	set_page_private(newpage, page_private(page));
++	set_page_private(page, 0);
++	put_page(page);
++	get_page(newpage);
++
++	bh = head;
++	do {
++		set_bh_page(bh, newpage, bh_offset(bh));
++		bh = bh->b_this_page;
++
++	} while (bh != head);
++
++	SetPagePrivate(newpage);
++	spin_unlock(&mapping->private_lock);
++
++	migrate_page_copy(newpage, page);
++
++	spin_lock(&mapping->private_lock);
++	bh = head;
++	do {
++		unlock_buffer(bh);
++ 		put_bh(bh);
++		bh = bh->b_this_page;
++
++	} while (bh != head);
++	spin_unlock(&mapping->private_lock);
++
++	return 0;
 +}
++EXPORT_SYMBOL(buffer_migrate_page);
++#endif
 +
 +/*
-+ * Move pages between the two nodesets so as to preserve the physical
-+ * layout as much as possible.
-  *
-  * Returns the number of page that could not be moved.
+  * Buffer-head allocation
   */
-@@ -586,22 +661,76 @@ int do_migrate_pages(struct mm_struct *m
- 	const nodemask_t *from_nodes, const nodemask_t *to_nodes, int flags)
- {
- 	LIST_HEAD(pagelist);
--	int count = 0;
--	nodemask_t nodes;
-+	int busy = 0;
-+	int err = 0;
-+	nodemask_t tmp;
+ static kmem_cache_t *bh_cachep;
+Index: linux-2.6.15-rc5-mm3/fs/ext3/inode.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/fs/ext3/inode.c	2005-12-16 11:44:08.000000000 -0800
++++ linux-2.6.15-rc5-mm3/fs/ext3/inode.c	2005-12-19 10:48:58.000000000 -0800
+@@ -1559,6 +1559,7 @@ static struct address_space_operations e
+ 	.invalidatepage	= ext3_invalidatepage,
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
++	.migratepage	= buffer_migrate_page,
+ };
  
--	nodes_andnot(nodes, *from_nodes, *to_nodes);
-+  	down_read(&mm->mmap_sem);
+ static struct address_space_operations ext3_writeback_aops = {
+@@ -1572,6 +1573,7 @@ static struct address_space_operations e
+ 	.invalidatepage	= ext3_invalidatepage,
+ 	.releasepage	= ext3_releasepage,
+ 	.direct_IO	= ext3_direct_IO,
++	.migratepage	= buffer_migrate_page,
+ };
  
--	down_read(&mm->mmap_sem);
--	check_range(mm, mm->mmap->vm_start, TASK_SIZE, &nodes,
--			flags | MPOL_MF_DISCONTIG_OK, &pagelist);
-+/* Find a 'source' bit set in 'tmp' whose corresponding 'dest'
-+ * bit in 'to' is not also set in 'tmp'.  Clear the found 'source'
-+ * bit in 'tmp', and return that <source, dest> pair for migration.
-+ * The pair of nodemasks 'to' and 'from' define the map.
-+ *
-+ * If no pair of bits is found that way, fallback to picking some
-+ * pair of 'source' and 'dest' bits that are not the same.  If the
-+ * 'source' and 'dest' bits are the same, this represents a node
-+ * that will be migrating to itself, so no pages need move.
-+ *
-+ * If no bits are left in 'tmp', or if all remaining bits left
-+ * in 'tmp' correspond to the same bit in 'to', return false
-+ * (nothing left to migrate).
-+ *
-+ * This lets us pick a pair of nodes to migrate between, such that
-+ * if possible the dest node is not already occupied by some other
-+ * source node, minimizing the risk of overloading the memory on a
-+ * node that would happen if we migrated incoming memory to a node
-+ * before migrating outgoing memory source that same node.
-+ *
-+ * A single scan of tmp is sufficient.  As we go, we remember the
-+ * most recent <s, d> pair that moved (s != d).  If we find a pair
-+ * that not only moved, but what's better, moved to an empty slot
-+ * (d is not set in tmp), then we break out then, with that pair.
-+ * Otherwise when we finish scannng from_tmp, we at least have the
-+ * most recent <s, d> pair that moved.  If we get all the way through
-+ * the scan of tmp without finding any node that moved, much less
-+ * moved to an empty node, then there is nothing left worth migrating.
-+ */
+ static struct address_space_operations ext3_journalled_aops = {
+Index: linux-2.6.15-rc5-mm3/fs/ext2/inode.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/fs/ext2/inode.c	2005-12-03 21:10:42.000000000 -0800
++++ linux-2.6.15-rc5-mm3/fs/ext2/inode.c	2005-12-19 10:48:58.000000000 -0800
+@@ -706,6 +706,7 @@ struct address_space_operations ext2_aop
+ 	.bmap			= ext2_bmap,
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
++	.migratepage		= buffer_migrate_page,
+ };
  
--	if (!list_empty(&pagelist)) {
--		count = swap_pages(&pagelist);
--		putback_lru_pages(&pagelist);
-+	tmp = *from_nodes;
-+	while (!nodes_empty(tmp)) {
-+		int s,d;
-+		int source = -1;
-+		int dest = 0;
-+
-+		for_each_node_mask(s, tmp) {
-+
-+			d = node_remap(s, *from_nodes, *to_nodes);
-+			if (s == d)
-+				continue;
-+
-+			source = s;	/* Node moved. Memorize */
-+			dest = d;
-+
-+			/* dest not in remaining from nodes? */
-+			if (!node_isset(dest, tmp))
-+				break;
-+		}
-+		if (source == -1)
-+			break;
-+
-+		node_clear(source, tmp);
-+		err = migrate_to_node(mm, source, dest, flags);
-+		if (err > 0)
-+			busy += err;
-+		if (err < 0)
-+			break;
- 	}
+ struct address_space_operations ext2_aops_xip = {
+@@ -723,6 +724,7 @@ struct address_space_operations ext2_nob
+ 	.bmap			= ext2_bmap,
+ 	.direct_IO		= ext2_direct_IO,
+ 	.writepages		= ext2_writepages,
++	.migratepage		= buffer_migrate_page,
+ };
  
- 	up_read(&mm->mmap_sem);
--	return count;
-+	if (err < 0)
-+		return err;
-+	return busy;
+ /*
+Index: linux-2.6.15-rc5-mm3/fs/xfs/linux-2.6/xfs_buf.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/fs/xfs/linux-2.6/xfs_buf.c	2005-12-03 21:10:42.000000000 -0800
++++ linux-2.6.15-rc5-mm3/fs/xfs/linux-2.6/xfs_buf.c	2005-12-19 10:48:58.000000000 -0800
+@@ -1568,6 +1568,7 @@ xfs_mapping_buftarg(
+ 	struct address_space	*mapping;
+ 	static struct address_space_operations mapping_aops = {
+ 		.sync_page = block_sync_page,
++		.migratepage = fail_migrate_page,
+ 	};
+ 
+ 	inode = new_inode(bdev->bd_inode->i_sb);
+Index: linux-2.6.15-rc5-mm3/mm/vmscan.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/mm/vmscan.c	2005-12-19 10:44:23.000000000 -0800
++++ linux-2.6.15-rc5-mm3/mm/vmscan.c	2005-12-19 10:48:58.000000000 -0800
+@@ -608,6 +608,15 @@ int putback_lru_pages(struct list_head *
  }
  
- long do_mbind(unsigned long start, unsigned long len,
-@@ -661,8 +790,9 @@ long do_mbind(unsigned long start, unsig
- 		int nr_failed = 0;
- 
- 		err = mbind_range(vma, start, end, new);
+ /*
++ * Non migratable page
++ */
++int fail_migrate_page(struct page *newpage, struct page *page)
++{
++	return -EIO;
++}
++EXPORT_SYMBOL(fail_migrate_page);
 +
- 		if (!list_empty(&pagelist))
--			nr_failed = swap_pages(&pagelist);
-+			nr_failed = migrate_pages_to(&pagelist, vma, -1);
++/*
+  * swapout a single page
+  * page is locked upon entry, unlocked on exit
+  */
+@@ -652,6 +661,8 @@ unlock_retry:
+ retry:
+ 	return -EAGAIN;
+ }
++EXPORT_SYMBOL(swap_page);
++
+ /*
+  * Page migration was first developed in the context of the memory hotplug
+  * project. The main authors of the migration code are:
+@@ -752,6 +763,7 @@ int migrate_page_remove_references(struc
  
- 		if (!err && nr_failed && (flags & MPOL_MF_STRICT))
- 			err = -EIO;
+ 	return 0;
+ }
++EXPORT_SYMBOL(migrate_page_remove_references);
+ 
+ /*
+  * Copy the page to its new location
+@@ -791,6 +803,7 @@ void migrate_page_copy(struct page *newp
+ 	if (PageWriteback(newpage))
+ 		end_page_writeback(newpage);
+ }
++EXPORT_SYMBOL(migrate_page_copy);
+ 
+ /*
+  * Common logic to directly migrate a single page suitable for
+@@ -818,6 +831,7 @@ int migrate_page(struct page *newpage, s
+ 	remove_from_swap(newpage);
+ 	return 0;
+ }
++EXPORT_SYMBOL(migrate_page);
+ 
+ /*
+  * migrate_pages
+@@ -917,6 +931,11 @@ redo:
+ 		if (!mapping)
+ 			goto unlock_both;
+ 
++		if (mapping->a_ops->migratepage) {
++			rc = mapping->a_ops->migratepage(newpage, page);
++			goto unlock_both;
++                }
++
+ 		/*
+ 		 * Trigger writeout if page is dirty
+ 		 */
+@@ -986,6 +1005,7 @@ next:
+ 
+ 	return nr_failed + retry;
+ }
++EXPORT_SYMBOL(migrate_pages);
+ 
+ static void lru_add_drain_per_cpu(void *dummy)
+ {
+@@ -1028,6 +1048,7 @@ redo:
+ 	}
+ 	return rc;
+ }
++EXPORT_SYMBOL(isolate_lru_page);
+ #endif
+ 
+ /*
+Index: linux-2.6.15-rc5-mm3/include/linux/swap.h
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/include/linux/swap.h	2005-12-19 10:39:14.000000000 -0800
++++ linux-2.6.15-rc5-mm3/include/linux/swap.h	2005-12-19 10:48:58.000000000 -0800
+@@ -183,6 +183,11 @@ extern int migrate_page_remove_reference
+ extern void migrate_page_copy(struct page *, struct page *);
+ extern int migrate_pages(struct list_head *l, struct list_head *t,
+ 		struct list_head *moved, struct list_head *failed);
++extern int fail_migrate_page(struct page *, struct page *);
++#else
++/* Possible settings for the migrate_page() method in address_operations */
++#define migrate_page NULL
++#define fail_migrate_page NULL
+ #endif
+ 
+ #ifdef CONFIG_MMU
+Index: linux-2.6.15-rc5-mm3/mm/rmap.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/mm/rmap.c	2005-12-19 10:42:23.000000000 -0800
++++ linux-2.6.15-rc5-mm3/mm/rmap.c	2005-12-19 10:48:58.000000000 -0800
+@@ -232,6 +232,7 @@ void remove_from_swap(struct page *page)
+ 
+ 	delete_from_swap_cache(page);
+ }
++EXPORT_SYMBOL(remove_from_swap);
+ #endif
+ 
+ /*

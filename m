@@ -1,85 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbVLSWee@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbVLSWgI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965011AbVLSWee (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 17:34:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVLSWee
+	id S964881AbVLSWgI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 17:36:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965015AbVLSWgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 17:34:34 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:59368 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S965011AbVLSWed
+	Mon, 19 Dec 2005 17:36:08 -0500
+Received: from xproxy.gmail.com ([66.249.82.201]:30391 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965014AbVLSWgG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 17:34:33 -0500
-Date: Mon, 19 Dec 2005 14:33:59 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Christoph Hellwig <hch@infradead.org>
-cc: Michal Feix <michal@feix.cz>, linux-kernel@vger.kernel.org
-Subject: Re: [SCSI] SCSI block devices larger then 2TB
-In-Reply-To: <Pine.LNX.4.62.0512121057070.267@qynat.qvtvafvgr.pbz>
-Message-ID: <Pine.LNX.4.62.0512191432310.9971@qynat.qvtvafvgr.pbz>
-References: <4396B795.1000108@feix.cz> <20051207123519.GA17414@infradead.org>
- <Pine.LNX.4.62.0512121057070.267@qynat.qvtvafvgr.pbz>
+	Mon, 19 Dec 2005 17:36:06 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FmYCv3iow60TXSSBnJ7NBOBmcxgB0otckFfpsabiatJJX+T1c+DR0wYtobMiBrj2NqMcjVZhemaRHR6ItB9WTaOmcRsRlySqfJxborjR1pexk1y8PMFXt7qoxHmt+SCGMGOFHbH239Tk1D9SjSAk1UvbdXi1p94B23sXTRpJk8c=
+Message-ID: <4807377b0512191436i5b68da0blf640e8a4922b2000@mail.gmail.com>
+Date: Mon, 19 Dec 2005 14:36:05 -0800
+From: Jesse Brandeburg <jesse.brandeburg@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: [BUG][PATCH] e1000: Fix invalid memory reference
+Cc: kaneshige.kenji@jp.fujitsu.com, NetDEV list <netdev@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <439EA1F4.3000204@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <439EA1F4.3000204@jp.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Dec 2005, David Lang wrote:
+Thanks for the patch!
+Jeff, if you would be so kind as to apply this, thanks...
 
-> On Wed, 7 Dec 2005, Christoph Hellwig wrote:
->
->> On Wed, Dec 07, 2005 at 11:21:09AM +0100, Michal Feix wrote:
->>> Greetings!
->>>
->>> Current aic79xxx driver doesn't see SCSI devices larger, then 2TB. It
->>> fails with READ CAPACITY(16) command. As far as I can understand, we
->>> already have LBD support in kernel for some time now. So it's only
-> the
->>
->>> drivers, that need to be fixed? LSI driver is the only one I found
->>> working with devices over 2TB; I couldn't test any other driver, as I
->>> don't have the hardware. Is it really so bad, that only LSI chipset
->> and
->>> maybe few others are capable of seeng such devices?
->>
->> I definitly works fine with Qlogic parallel scsi and fibrechannel and
->> emulex
->> fibre channel controllers aswell as lsi/engenio megaraid controllers.
->>
->> It looks like aci79xx is just broken in that repsect. Unfortunately
-> the
->> driver doesn't have a proper maintainer, we scsi developers put in
-> fixes
->> and cleanups but we don't have the full documentation to fix such
->> complicated
->> issue.  If you have a support contract with Adaptec complain to them.
->
-> I was at a BOF at LISA last week on this subject, the guy running it
-> said
-> that the common ultra320 chip used for parallel scsi doesn't implment
-> READ
-> CAPACITY(16), but instead implemnets a propriatary READ CAPACITY(12)
-> which
-> allows you to break the 2TB limit.
->
-> I asked him to send the patch that he's been maintaining seperatly (and
-> providing to his customers, he's a storage hardware vendor) to the list
-> to
-> get integrated.
->
-> I'll see if I have any notes with his address on them, or you could
-> check
-> the BOF schedule online to see if it got listed there.
+This patch fixes invalid memory reference in the e1000 driver which
+would cause kernel panic.
 
-here is the BOF listing, hopefully someone will recongnise the names and 
-be able to contact them directly
+Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Acked-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-Large Filesystems: Breaking 2TB Limitation
-Organizer: Sergey Sviridov, AC&NC
-Wednesday, December 7, 9:00 p.m.10:00 p.m., Hampton
+---------- Forwarded message ----------
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Date: Dec 13, 2005 2:27 AM
+Subject: [BUG][PATCH] e1000: Fix invalid memory reference
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
 
-How to address more than 2TB Storage Volume as a single LUN. Windows and 
-Linux experience. Doug Hughes will talk about Solaris and Veritas Volume 
-Manager.
 
-David Lang
+Hi,
+
+I encountered a kernel panic which was caused by the invalid memory
+access by e1000 driver. The following patch fixes this issue.
+
+Thanks,
+Kenji Kaneshige
+
+
+This patch fixes invalid memory reference in the e1000 driver which
+would cause kernel panic.
+
+Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+
+ drivers/net/e1000/e1000_param.c |   10 +++++++---
+ 1 files changed, 7 insertions(+), 3 deletions(-)
+
+Index: linux-2.6.15-rc5/drivers/net/e1000/e1000_param.c
+===================================================================
+--- linux-2.6.15-rc5.orig/drivers/net/e1000/e1000_param.c
++++ linux-2.6.15-rc5/drivers/net/e1000/e1000_param.c
+@@ -545,7 +545,7 @@ e1000_check_fiber_options(struct e1000_a
+ static void __devinit
+ e1000_check_copper_options(struct e1000_adapter *adapter)
+ {
+-       int speed, dplx;
++       int speed, dplx, an;
+        int bd = adapter->bd_number;
+
+        { /* Speed */
+@@ -641,8 +641,12 @@ e1000_check_copper_options(struct e1000_
+                                         .p = an_list }}
+                };
+
+-               int an = AutoNeg[bd];
+-               e1000_validate_option(&an, &opt, adapter);
++               if (num_AutoNeg > bd) {
++                       an = AutoNeg[bd];
++                       e1000_validate_option(&an, &opt, adapter);
++               } else {
++                       an = opt.def;
++               }
+                adapter->hw.autoneg_advertised = an;
+        }
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

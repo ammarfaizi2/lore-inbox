@@ -1,108 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbVLSULc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbVLSUMF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964937AbVLSULc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 15:11:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbVLSULc
+	id S964939AbVLSUMF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 15:12:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964944AbVLSUME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 15:11:32 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:22525 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S964937AbVLSULb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 15:11:31 -0500
-Message-ID: <43A713FE.60206@mvista.com>
-Date: Mon, 19 Dec 2005 12:11:42 -0800
-From: David Singleton <dsingleton@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dino@in.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       robustmutexes@lists.osdl.org
-Subject: Re: Recursion bug in -rt
-References: <20051214223912.GA4716@in.ibm.com> <9175126B-6D06-11DA-AA1B-000A959BB91E@mvista.com> <20051215194434.GA4741@in.ibm.com> <43F8915C-6DC7-11DA-A45A-000A959BB91E@mvista.com> <20051216184209.GD4732@in.ibm.com> <43A33114.6060701@mvista.com> <20051219115611.GA3945@in.ibm.com>
-In-Reply-To: <20051219115611.GA3945@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Dec 2005 15:12:04 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:10927 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964939AbVLSUMD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 15:12:03 -0500
+Date: Mon, 19 Dec 2005 21:11:18 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [patch 00/15] Generic Mutex Subsystem
+Message-ID: <20051219201118.GA22198@elte.hu>
+References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de> <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org> <20051219155010.GA7790@elte.hu> <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org> <20051219192537.GC15277@kvack.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051219192537.GC15277@kvack.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dinakar Guniguntala wrote:
 
-Dinakar,
-    the new patch is available at
+* Benjamin LaHaise <bcrl@kvack.org> wrote:
 
-     http://source.mvista.com/~dsingleton/patch-2.6.15-rc5-rt2-rf4
-
-thanks for the patch and the testing.
-
-David
-
-
->On Fri, Dec 16, 2005 at 01:26:44PM -0800, David Singleton wrote:
->  
->
->>Dinakar,
->>
->>    I believe this patch will give you the behavior you expect.
->>
->>   http://source.mvista.com/~dsingleton/patch-2.6.15-rc5-rt2-rf3
->>    
->>
->
->Not really, the reason, quoting from my previous mail
->
->   So IMO the above check is not right. However removing this check
->   is not the end of story.  This time it gets to task_blocks_on_lock
->   and tries to grab the task->pi_lock of the owvner which is itself
->   and results in a system hang. (Assuming CONFIG_DEBUG_DEADLOCKS
->   is not set). So it looks like we need to add some check to
->   prevent this below in case lock_owner happens to be current.
->
->    _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
->
->The patch that works for me is attached below
->
->	-Dinakar
->
->
->  
->
->------------------------------------------------------------------------
->
->Index: linux-2.6.14-rt22-rayrt5/kernel/rt.c
->===================================================================
->--- linux-2.6.14-rt22-rayrt5.orig/kernel/rt.c	2005-12-15 02:15:13.000000000 +0530
->+++ linux-2.6.14-rt22-rayrt5/kernel/rt.c	2005-12-19 15:51:26.000000000 +0530
->@@ -1042,7 +1042,8 @@
-> 		return;
-> 	}
-> #endif
->-	_raw_spin_lock(&lock_owner(lock)->task->pi_lock);
->+	if (current != lock_owner(lock)->task)
->+		_raw_spin_lock(&lock_owner(lock)->task->pi_lock);
-> 	plist_add(&waiter->pi_list, &lock_owner(lock)->task->pi_waiters);
-> 	/*
-> 	 * Add RT tasks to the head:
->@@ -1055,7 +1056,8 @@
-> 	 */
-> 	if (task->prio < lock_owner(lock)->task->prio)
-> 		pi_setprio(lock, lock_owner(lock)->task, task->prio);
->-	_raw_spin_unlock(&lock_owner(lock)->task->pi_lock);
->+	if (current != lock_owner(lock)->task)
->+		_raw_spin_unlock(&lock_owner(lock)->task->pi_lock);
-> }
+> > [ Oh.  I'm looking at the semaphore code, and I realize that we have a 
+> >   "wake_up(&sem->wait)" in the __down() path because we had some race long 
+> >   ago that we fixed by band-aiding over it. Which means that we wake up 
+> >   sleepers that shouldn't be woken up. THAT may well be part of the 
+> >   performance problem.. The semaphores are really meant to wake up just 
+> >   one at a time, but because of that race hack they'll wake up _two_ at a 
+> >   time - once by up(), once by down().
+> > 
+> >   That also destroys the fairness. Does anybody remember why it's that 
+> >   way? ]
 > 
-> /*
->@@ -3016,8 +3018,7 @@
-> 	 * the first waiter and we'll just block on the down_interruptible.
-> 	 */
-> 
->-	if (owner_task != current)
->-		down_try_futex(lock, owner_task->thread_info __EIP__);
->+	down_try_futex(lock, owner_task->thread_info __EIP__);
-> 
-> 	/*
-> 	 * we can now drop the locks because the rt_mutex is held.
->  
->
+> History?  I think that code is very close to what was done in the 
+> pre-SMP version of semaphores.  It is certainly possible to get rid of 
+> the separate sleepers -- parisc seems to have such an implementation.  
+> It updates sem->count in the wakeup path of __down().
 
+i think we also need to look at the larger picture. If this really is a 
+bug that hid for years, it shows that the semaphore code is too complex 
+to be properly reviewed and improved. Hence even assuming that the mutex 
+code does not bring direct code advantages (which i'm disputing :-), the 
+mutex code is far simpler and thus easier to improve. We humans have a 
+given number of neurons, which form a hard limit :) In fact it's the 
+mutex code that made it apparent that there's something wrong with 
+semaphores.
+
+we saw that with the genirq code, with the spinlock code, with the 
+preempt code. Consolidation did not add anything drastiically new, but 
+code consolidation _did_ make things more hackable, and improved the end 
+result far more than a splintered set of implementations would have 
+looked like.
+
+Just look at the semaphore implementations of various architectures, 
+it's a quite colorful and inconsistent mix. Can you imagine adding 
+deadlock debugging to each of them?
+
+	Ingo

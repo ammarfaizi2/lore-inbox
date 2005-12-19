@@ -1,52 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbVLSR2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbVLSRmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbVLSR2i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 12:28:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932287AbVLSR2i
+	id S932287AbVLSRmO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 12:42:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932289AbVLSRmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 12:28:38 -0500
-Received: from vms040pub.verizon.net ([206.46.252.40]:15257 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932268AbVLSR2h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 12:28:37 -0500
-Date: Mon, 19 Dec 2005 12:29:03 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: reboot from 2.6.15-rc5 wasn't clean
-To: linux-kernel@vger.kernel.org
-Message-id: <200512191229.03813.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Mon, 19 Dec 2005 12:42:14 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:7040 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932287AbVLSRmN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 12:42:13 -0500
+Subject: Re: Kernel interrupts disable at user level - RIGHT/ WRONG - Help
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Mukund JB." <mukundjb@esntechnologies.co.in>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3AEC1E10243A314391FE9C01CD65429B223248@mail.esn.co.in>
+References: <3AEC1E10243A314391FE9C01CD65429B223248@mail.esn.co.in>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 19 Dec 2005 17:42:49 +0000
+Message-Id: <1135014170.6051.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings all;
+On Llu, 2005-12-19 at 17:45 +0530, Mukund JB. wrote:
+> Dear Kernel Developers,
+> 
+> I have a requirement of getting the CMOS details at the user level. I have identified the interfaces as /dev/nvram & /dev/rtc.
+> But, the complete CMOS details are available to the user Applications as the driver does not provide the suitable interface to get the complete CMOS details.
 
-I just rebooted to 2.6.15-rc6, built with the new 'size' option on, but 
-had some problems with the reboot process from -rc5.  Compiler is 
-gcc-3.3.3-7.
+Then you'll need to enhance the nvram or rtc driver to support the extra
+bits you need. What doesn't it provide access to that you require >
 
-When I killed X by logging out, I got a loud cacaphonic sound from 
-artsd, and no keyboard echo could be seen in vt1 when I typed reboot.
-
-And now, rebooted to -rc6, kmail is virtually unusable because the 
-system feels as if something is hogging it 100% of the cpu time.
-Echo's to the composer screen of what I type are 2 or more seconds 
-being shown on screen too.
-
-But according to kpm, everything looks kosher.  Weird.  Scheduler is 
-CK's.
-
-Does anybody have any suggestions?
-
--- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should use this
-address: <gene.heskett@verizononline.net> which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

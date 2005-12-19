@@ -1,50 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbVLSQk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbVLSQj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbVLSQk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 11:40:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964847AbVLSQk2
+	id S964833AbVLSQj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 11:39:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbVLSQj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 11:40:28 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:33003 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964843AbVLSQk0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 11:40:26 -0500
-Date: Mon, 19 Dec 2005 17:39:40 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Paul Jackson <pj@sgi.com>
-Subject: Re: [patch 10/15] Generic Mutex Subsystem, mutex-migration-helper-core.patch
-Message-ID: <20051219163940.GF8160@elte.hu>
-References: <20051219013837.GF28038@elte.hu> <1135001786.13138.249.camel@localhost.localdomain>
+	Mon, 19 Dec 2005 11:39:56 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:50357 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964833AbVLSQjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 11:39:55 -0500
+Date: Mon, 19 Dec 2005 10:39:30 -0600
+From: Greg Edwards <edwardsg@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: paulmck@us.ibm.com, akpm@osdl.org, dada1@cosmosbay.com,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       Simon.Derr@bull.net, ak@suse.de, clameter@sgi.com
+Subject: Re: CONFIG_DEBUG_PREEMPT (was: [PATCH 04/04] Cpuset: skip rcu check ...)
+Message-ID: <20051219163930.GG1320@sgi.com>
+References: <20051214084031.21054.13829.sendpatchset@jackhammer.engr.sgi.com> <20051214084049.21054.34108.sendpatchset@jackhammer.engr.sgi.com> <20051216175201.GA24876@us.ibm.com> <20051216120651.cb57ad2e.pj@sgi.com> <20051217164723.GA28255@us.ibm.com> <20051219064810.0ec403ee.pj@sgi.com> <20051219080401.861acca2.pj@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1135001786.13138.249.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.7
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.7 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20051219080401.861acca2.pj@sgi.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 19, 2005 at 08:04:01AM -0800, Paul Jackson wrote:
+| Greg - CONFIG_DEBUG_PREEMPT adds a couple of pages of assembly code 
+| due to various BUG checks beneath rcu_read_lock() on some hot code
+| paths (which is where rcu is most popular).  See the two calls
+| add_preempt_count() and sub_preempt_count() in kernel/sched.c.
+| 
+| Was this intentional to enable CONFIG_DEBUG_PREEMPT in sn2_defconfig?
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+It wasn't intentional at the time.  I believe it was pulled in
+automatically when we refreshed since we had CONFIG_PREEMPT on.  That
+said, it has proven itself useful in turning up some bugs.
 
-> > +       DEBUG_WARN_ON(val != 0 && val != 1);
-> 
-> DEBUG_WARN_ON in this part of the #if is always a no-op.
-
-ok, zapped it.
-
-	Ingo
+Greg

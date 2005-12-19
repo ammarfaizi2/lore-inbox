@@ -1,74 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbVLSSgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932352AbVLSSvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932343AbVLSSgF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 13:36:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932350AbVLSSgF
+	id S932352AbVLSSvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 13:51:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVLSSvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 13:36:05 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:5906 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932343AbVLSSgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 13:36:03 -0500
-Date: Mon, 19 Dec 2005 19:36:04 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Light-weight dynamically extended stacks
-Message-ID: <20051219183604.GT23349@stusta.de>
-References: <20051219001249.GD11856@waste.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051219001249.GD11856@waste.org>
-User-Agent: Mutt/1.5.11
+	Mon, 19 Dec 2005 13:51:16 -0500
+Received: from dcs.nac.uci.edu ([128.200.34.32]:40392 "EHLO dcs.nac.uci.edu")
+	by vger.kernel.org with ESMTP id S932352AbVLSSvP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 13:51:15 -0500
+Subject: Re: [NFS] Re: lockd: couldn't create RPC handle for (host)
+From: Dan Stromberg <strombrg@dcs.nac.uci.edu>
+To: Ryan Richter <ryan@tau.solarneutrino.net>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, strombrg@dcs.nac.uci.edu
+In-Reply-To: <20051217055907.GC20539@tau.solarneutrino.net>
+References: <20051216205536.GA20497@tau.solarneutrino.net>
+	 <1134776945.7952.4.camel@lade.trondhjem.org>
+	 <20051216235841.GA20539@tau.solarneutrino.net>
+	 <1134797577.20929.2.camel@lade.trondhjem.org>
+	 <20051217055907.GC20539@tau.solarneutrino.net>
+Content-Type: text/plain
+Date: Mon, 19 Dec 2005 10:49:44 -0800
+Message-Id: <1135018184.1122.168.camel@seki.nac.uci.edu>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 18, 2005 at 04:12:49PM -0800, Matt Mackall wrote:
 
-> Perhaps the time for this has come and gone, but it occurred to me
-> that it should be relatively straightforward to make a form of
-> dynamically extended stacks that are appropriate to the kernel.
+
+Sometimes what'll happen is that the daemon (or kernel component) that
+services requests on an RPC port will die or otherwise stop servicing
+requests, but I believe there's nothing in the portmapper or rpcbind
+daemon(s) that will periodically poll to see if those requests are still
+being serviced.
+
+I'd hop over to another machine that is advertising the same service,
+and use this URL:
+
+http://dcs.nac.uci.edu/~strombrg/What-program-is-active-on-that-port.html
+
+...to see what -should- be handling those requests, and then check on
+that same facility on the host having trouble.
+
+On Sat, 2005-12-17 at 00:59 -0500, Ryan Richter wrote:
+> On Sat, Dec 17, 2005 at 12:32:57AM -0500, Trond Myklebust wrote:
+> > On Fri, 2005-12-16 at 18:58 -0500, Ryan Richter wrote:
+> > > On Fri, Dec 16, 2005 at 06:49:05PM -0500, Trond Myklebust wrote:
+> > > > On Fri, 2005-12-16 at 15:55 -0500, Ryan Richter wrote:
+> > > > > Hi, nfs locking stopped working on my file server running 2.6.15-rc5
+> > > > > today.  All clients that try locking operations hang, and I get the
+> > > > > message from the server:
+> > > > > 
+> > > > > lockd: couldn't create RPC handle for w.x.y.z
+> > > > 
+> > > > Points either to a client which is not responding to callbacks, or an
+> > > > OOM situation on the server.
+> > > > 
+> > > > Does 'rpcinfo -u w.x.y.z 100021' work from the server?
+> > > 
+> > > No.
+> > > 
+> > > $ rpcinfo -u jacquere 100021
+> > > rpcinfo: RPC: Timed out
+> > > program 100021 version 0 is not available
+> > > zsh: exit 1     rpcinfo -u jacquere 100021
+> > > 
+> > > So I see now lockd is not present on the client. But...
+> > > 
+> > > $ rpcinfo -p jacquere
+> > >    program vers proto   port
+> > >     100000    2   tcp    111  portmapper
+> > >     100000    2   udp    111  portmapper
+> > >     100021    1   udp  32768  nlockmgr
+> > >     100021    3   udp  32768  nlockmgr
+> > >     100021    4   udp  32768  nlockmgr
+> > >     100024    1   udp    867  status
+> > >     100024    1   tcp    870  status
+> > > 
+> > > So what does that mean?
+> > 
+> > Looks to me as if port 111 is pingable (since you can talk to the
+> > portmapper), but port 32768 is not. Are you using port filtering or
+> > firewalling anywhere (on the client, server, or switches)?
 > 
-> While we have a good handle on most of the worst stack offenders, we
-> can still run into trouble with pathological cases (say, symlink
-> recursion for XFS on a RAID built from loopback mounts over NFS
-> tunneled over IPSEC through GRE). So there's probably no
-> one-size-fits-all when it comes to stack size.
-
-My count of bug reports for problems with in-kernel code with 4k stacks 
-after Neil's patch went into -mm is still at 0. That's amazing 
-considering how many people have claimed in this thread how unstable
-4k stacks were...
-
-> Rather than relying on guard pages and VM faults like userspace, we
-> can use a cooperative scheme where we "label" call paths that might be
-> extra deep (recursion through the block layer, network tunnels,
-> symlinks, etc.) with something like the following:
+> There's no filtering between the two.  I get this on the machine itself:
+> $ rpcinfo -u localhost 100021
+> rpcinfo: RPC: Timed out
+> program 100021 version 0 is not available
+> zsh: exit 1     rpcinfo -u localhost 100021
 > 
-> 	  ret = grow_stack(function, arg, GFP_ATOMIC);
+> There's no lockd process running on this client machine anymore.
 > 
-> This is much like cond_resched() except for stack usage rather than
-> CPU usage. grow_stack() checks if we're in the danger zone for stack
-> usage (say 1k remaining), and if so, allocates a new stack and
-> swizzles the stack pointer over to it.
->...
-
-If more than 3 kB of stack is used on i386 that's a bug.
-And we should fix bugs, not work around them.
-
-CONFIG_DEBUG_STACKOVERFLOW in arch/i386/kernel/irq.c shows the correct 
-approach:
-- a debug option for not harming performance
-- dump_stack() when too much stack is used
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> On the server:
+> 
+> $ rpcinfo -u localhost 100021               
+> program 100021 version 1 ready and waiting
+> rpcinfo: RPC: Program/version mismatch; low version = 1, high version =4
+> program 100021 version 2 is not available
+> program 100021 version 3 ready and waiting
+> program 100021 version 4 ready and waiting
+> zsh: exit 1     rpcinfo -u localhost 100021
+> 
+> Also neither machine is anywhere close to OOM.
+> 
+> -ryan
+> 
+> 
+> -------------------------------------------------------
+> This SF.net email is sponsored by: Splunk Inc. Do you grep through log files
+> for problems?  Stop!  Download the new AJAX search engine that makes
+> searching your log files as easy as surfing the  web.  DOWNLOAD SPLUNK!
+> http://ads.osdn.com/?ad_id=7637&alloc_id=16865&op=click
+> _______________________________________________
+> NFS maillist  -  NFS@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/nfs
+> 
 

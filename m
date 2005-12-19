@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbVLSD4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbVLSECA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751330AbVLSD4x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 22:56:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751333AbVLSD4x
+	id S1030243AbVLSECA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 23:02:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbVLSECA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 22:56:53 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:7094 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751330AbVLSD4w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 22:56:52 -0500
-Subject: Re: [patch 05/15] Generic Mutex Subsystem, mutex-core.patch
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Paul Jackson <pj@sgi.com>
-In-Reply-To: <20051219013718.GA28038@elte.hu>
-References: <20051219013718.GA28038@elte.hu>
-Content-Type: text/plain
-Date: Sun, 18 Dec 2005 22:56:00 -0500
-Message-Id: <1134964560.13138.220.camel@localhost.localdomain>
+	Sun, 18 Dec 2005 23:02:00 -0500
+Received: from mail.kroah.org ([69.55.234.183]:28593 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751333AbVLSEB7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 23:01:59 -0500
+Date: Sun, 18 Dec 2005 20:01:30 -0800
+From: Greg KH <greg@kroah.com>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: kay.sievers@vrfy.org, linux-kernel@vger.kernel.org
+Subject: Re: net: swich device attribute creation to default attrs
+Message-ID: <20051219040130.GA29145@kroah.com>
+References: <20051219004256.GA29285@vrfy.org> <20051218.175938.54428509.davem@davemloft.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051218.175938.54428509.davem@davemloft.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-19 at 02:37 +0100, Ingo Molnar wrote:
+On Sun, Dec 18, 2005 at 05:59:38PM -0800, David S. Miller wrote:
+> From: Kay Sievers <kay.sievers@vrfy.org>
+> Date: Mon, 19 Dec 2005 01:42:56 +0100
+> 
+> > Recent udev versions don't longer cover bad sysfs timing with built-in
+> > logic. Explicit rules are required to do that. For net devices, the
+> > following is needed:
+> >   ACTION=="add", SUBSYSTEM=="net", WAIT_FOR_SYSFS="address"
+> > to handle access to net device properties from an event handler without
+> > races.
+> > 
+> > This patch changes the main net attributes to be created by the driver
+> > core, which is done _before_ the event is sent out and will not require
+> > the stat() loop of the WAIT_FOR_SYSFS key.
+> 
+> Kay/Greg, this looks fine, feel free to merge it in.
 
-> + * These semantics are fully enforced when DEBUG_MUTEXESS is
-> + * enabled. Furthermore, besides enforcing the above rules, the mutex
-> + * debugging code also implements a number of additional features
-> + * that make lock debugging easier and faster:
+Will do, I'll add it to my tree, thanks for looking at it.
 
-Silly question: Is MUTEXESS a proper name, and what does it mean?
-
--- Steve
-
-
+greg k-h

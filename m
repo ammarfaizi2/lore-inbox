@@ -1,93 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932283AbVLSM5e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVLSNy5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932283AbVLSM5e (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 07:57:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932418AbVLSM5e
+	id S1751191AbVLSNy5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 08:54:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVLSNy5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 07:57:34 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:53981 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932283AbVLSM5e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 07:57:34 -0500
-Date: Mon, 19 Dec 2005 07:56:51 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
+	Mon, 19 Dec 2005 08:54:57 -0500
+Received: from palinux.external.hp.com ([192.25.206.14]:34741 "EHLO
+	palinux.hppa") by vger.kernel.org with ESMTP id S1750743AbVLSNy4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 08:54:56 -0500
+Date: Mon, 19 Dec 2005 06:54:53 -0700
+From: Matthew Wilcox <matthew@wil.cx>
+To: Nicolas Pitre <nico@cam.org>, Linus Torvalds <torvalds@osdl.org>,
        David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [patch 00/15] Generic Mutex Subsystem
-In-Reply-To: <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org>
-Message-ID: <Pine.LNX.4.58.0512190744350.9001@gandalf.stny.rr.com>
-References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de>
- <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+       Steven Rostedt <rostedt@goodmis.org>, linux-arch@vger.kernel.org,
+       lkml <linux-kernel@vger.kernel.org>, mingo@redhat.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/12]: MUTEX: Implement mutexes
+Message-ID: <20051219135453.GQ2361@parisc-linux.org>
+References: <14917.1134847311@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0512171201200.3698@g5.osdl.org> <Pine.LNX.4.64.0512172018410.26663@localhost.localdomain> <Pine.LNX.4.64.0512171803580.3698@g5.osdl.org> <Pine.LNX.4.64.0512172150260.26663@localhost.localdomain> <Pine.LNX.4.64.0512172227280.3698@g5.osdl.org> <20051218092616.GA17308@flint.arm.linux.org.uk> <Pine.LNX.4.64.0512181027220.4827@g5.osdl.org> <Pine.LNX.4.64.0512181657050.26663@localhost.localdomain> <20051219092743.GA9609@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051219092743.GA9609@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Dec 19, 2005 at 09:27:44AM +0000, Russell King wrote:
+> > 	mov	r0, #1
+> > 	swp	r1, r0, [%0]
+> > 	cmp	r1, #0
+> > 	bne	__contention
 
-On Sun, 18 Dec 2005, Linus Torvalds wrote:
+> That's over-simplified, and is the easy bit.  Now work out how you handle
+> the unlock operation.
+> 
+> You don't know whether the lock is contended or not in the unlock path,
+> so you always have to do the "wake up" thing.  (You can't rely on the
+> value of the lock since another thread may well be between this swp
+> instruction and entering the __contention function.  Hence you can't
+> use the value of the lock to determine whether there's anyone sleeping
+> on it.)
 
->
->
-> On Mon, 19 Dec 2005, Andi Kleen wrote:
-> >
-> > Do you have an idea where this big difference comes from? It doesn't look
-> > it's from the fast path which is essentially the same.  Do the mutexes have
-> > that much better scheduling behaviour than semaphores? It is a bit hard to
-> > believe.
->
-> Are ingo's mutex'es perhaps not trying to be fair?
->
-> The normal mutexes try to make sure that if a process comes in and gets
-> stuck on a mutex, and then another CPU releases the mutex and immediately
-> tries to grab it again, the other CPU will _not_ get it.
->
-> That's a huge performance disadvantage, but it's done on purpose, because
-> otherwise you end up in a situation where the semaphore release code did
-> wake up the waiter, but before the waiter actually had time to grab it (it
-> has to go through the IPI and scheduling logic), the same CPU just grabbed
-> it again.
->
-> The original semaphores were unfair, and it works really well most of the
-> time. But then it really sucks in some nasty cases.
->
-> The numbers make me suspect that Ingo's mutexes are unfair too, but I've
-> not looked at the code yet.
+Here's a slightly less efficient way to determine if anyone else has
+swp'd behind your back (apologies if I get my ARM assembly wrong, it's
+been a few years):
 
-Yes, Ingo's code does act like this unfairness.  Interesting also is that
-Ingo's original code for his rt_mutexes was fair, and it killed
-performance for high priority processes.  I introduced a "lock stealing"
-algorithm that would check if the process trying to grab the lock again
-was a higher priority then the one about to get it, and if it was, it
-would "steal" the lock from it unfairly as you said.
+	swp	r1, r13, [%0]	# load r1 from addr and store r13 there
+	cmp	r1, #0		# is r1 0?
+	streq	r13, [%0, #4]	# if it is, store a copy of r13 at the
+				# next address
+	blne	__lock_contention
 
-Now, you are forgetting about PREEMPT.  Yes, on multiple CPUs, and that is
-what Ingo is testing, to wait for the other CPU to schedule in and run is
-probably not as bad as with PREEMPTION. (Ingo, did you have preemption on
-in these tests?).  The reason is that if you have a high priority process
-release a lock (giving it to a lower priority process that hasn't woken up
-yet), then try to grab it again, but a lower priority process was waiting
-on it,  the high priorty process would need to schedule out and wait on
-the lower priority process. Here's a case of priority inversion that can
-be solved without priority inheritance.
+I'm assuming that r13 (the stack pointer) will be different for each
+task, and (with this being a mutex), we won't try to double-acquire it.
+Unlock is then:
 
-The way this situation happens is if you have three processes, A B and C
-where A is the highest and C is the lowest.  C grabs the lock and is
-preempted by A, A tries to grab the lock and goes to sleep, then B
-runs and preempts C (remember, we don't have PI here), and then tries to
-grab the lock.  C releases the lock and gives it to A, then A releases the
-lock (gives it to B) and then tries to grab it again.
+	mov	r0, #0		# put 0 in r0
+	swp	r1, r0, [%0]	# release the lock
+	ldr	r0, [%0, #4]	# load the copy
+	cmp	r0, r1		# did it change?
+	blne	__unlock_contention
 
-Now you must wait for two schedules and B to release the lock, before high
-priority process A gets to run again.
+In __unlock_contention, thread1 would try to re-acquire the mutex (at
+[%0]), and if it does, wake up the first waiter.  Obviously it's unfair
+as thread3 could come along and grab the mutex, but that's not a huge
+deal.
 
-So when we have PREEMPT, your fairness is not being very fair.
-
--- Steve
+Note that we're not checking the value of r13 at the unlock site as lock
+and unlock can be done at different stack levels.  We're checking to see
+if the value last written to the lock was the one by the successful
+acquirer.

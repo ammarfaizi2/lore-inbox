@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbVLSH47@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030274AbVLSIGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030275AbVLSH47 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 02:56:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030274AbVLSH47
+	id S1030274AbVLSIGS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 03:06:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030277AbVLSIGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 02:56:59 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:50151 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1030275AbVLSH47
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 02:56:59 -0500
-Message-ID: <43A667F0.7080905@ru.mvista.com>
-Date: Mon, 19 Dec 2005 10:57:36 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 19 Dec 2005 03:06:18 -0500
+Received: from mail.kontron-modular.com ([62.159.155.200]:37903 "EHLO
+	kom-exchfe.kontron-modular.com") by vger.kernel.org with ESMTP
+	id S1030274AbVLSIGS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 03:06:18 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net
-Subject: Re: [PATCH 2.6-git 3/3] SPI core refresh: SPI/PNX bus driver and
- EEPROM driver
-References: <20051215125800.4fa95de6.vwool@ru.mvista.com> <20051215130205.2ebdea18.vwool@ru.mvista.com> <20051215130354.5ca3d99f.vwool@ru.mvista.com> <200512181202.48218.david-b@pacbell.net>
-In-Reply-To: <200512181202.48218.david-b@pacbell.net>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Submitting patches for Kontron-boards with Freescale processors
+Date: Mon, 19 Dec 2005 09:07:14 +0100
+Message-ID: <DADA32856852FC458E0F96B664A6F55E011E2311@kom-mailsrv1.kontron-modular.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Submitting patches for Kontron-boards with Freescale processors
+Thread-Index: AcYEc2NLDfHWbzpfR/GQ4kA3WyC7NQ==
+From: "Claus Gindhart" <Claus.Gindhart@kontron.com>
+To: <kumar.gala@freescale.com>
+Cc: <linux-kernel@vger.kernel.org>,
+       "Claus Gindhart" <Claus.Gindhart@kontron.com>
+X-OriginalArrivalTime: 19 Dec 2005 08:06:16.0046 (UTC) FILETIME=[15D1D0E0:01C60473]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
+Kumar,
 
->>--- /dev/null
->>+++ linux-2.6.orig/drivers/spi/pnx4008-eeprom.c
->>@@ -0,0 +1,121 @@
->>...
->>+#define EEPROM_SIZE		256
->>+#define DRIVER_NAME		"EEPROM"
->>+#define READ_BUFF_SIZE 160
->>    
->>
->
->Wouldn't it be better to have an EEPROM driver that's not hard-wired
->to this particular devel board?  And which could work on at least all
->chips using eight bit addressing?
->
->This seems to match the 25020 series SPI EEPROMS.  (2 Kbits, 256 bytes.)
->But the 25010 and 25040 also use 8 bit address protoocol ... and then
->there are also chips using 16 bit addresses, and 24 bit ones.
->
->Shouldn't board init code be able to just say "25640 at spi1 chipselect 3",
->and have the driver know that means 8 KBytes with pagesize 32?
->
->  
->
-Looks reasonable to me, thanks. Anyway - not today :)
+in our department we have Linux 2.6 kernel ports for Kontron embedded computer boards with freescale processors 8245, 405, 8540, 8541, 8347, 8270, ...
 
-Vitaly
+We would like to start now to submit all these board supports to the vanilla kernel.
+
+For the start we would select one of our common boards, e.g. the one with 8540/8541 processor.
+
+My question is now:
+Should we try to provide a patch with all HW-features of the board supported, or would it be better to start with a minimalistic patch, and then add support for additional devices onboard (e.g. IDE, RTC, SuperIO, ...) time by time ?
+
+Or would it be better to provide the full feature set of this board at one time ?
+
+
+Mit freundlichen Gruessen / Best regards
+
+Claus Gindhart
+SW R&D 
+Kontron Modular Computers
+phone :++49 (0)8341-803-374
+mailto:claus.gindhart@kontron.com 
+http://www.kontron.com 
+

@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbVLSPTG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbVLSPYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbVLSPTG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 10:19:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbVLSPTF
+	id S964774AbVLSPYp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 10:24:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbVLSPYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 10:19:05 -0500
-Received: from scrub.xs4all.nl ([194.109.195.176]:31133 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964773AbVLSPTE (ORCPT
+	Mon, 19 Dec 2005 10:24:45 -0500
+Received: from [212.76.85.191] ([212.76.85.191]:33799 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S964774AbVLSPYp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 10:19:04 -0500
-Date: Mon, 19 Dec 2005 16:18:34 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Linux/m68k <linux-m68k@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH 3/3] m68k: compile fix - updated vmlinux.lds to include
- LOCK_TEXT
-In-Reply-To: <20051215161931.GW27946@ftp.linux.org.uk>
-Message-ID: <Pine.LNX.4.61.0512191557420.1609@scrub.home>
-References: <20051215090037.GV27946@ftp.linux.org.uk>
- <Pine.LNX.4.61.0512151408560.1605@scrub.home> <20051215161931.GW27946@ftp.linux.org.uk>
+	Mon, 19 Dec 2005 10:24:45 -0500
+From: Al Boldi <a1426z@gawab.com>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Subject: Re: Linux in a binary world... a doomsday scenario
+Date: Mon, 19 Dec 2005 18:19:53 +0300
+User-Agent: KMail/1.5
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+References: <200512150013.29549.a1426z@gawab.com> <200512152129.01861.a1426z@gawab.com> <43A6920A.2080409@aitel.hist.no>
+In-Reply-To: <43A6920A.2080409@aitel.hist.no>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512191819.53938.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Helge Hafting wrote:
+> Al Boldi wrote:
+> >Scalability is more, much more.  It's about extendability and reusability
+> >built on a solid foundation that may be stacked.
+>
+> Again: Code reuse is nice, or even necessary, with a limited and
+> expensive workforce.  It is not a concern with an unlimited free
+> workforce though.  If some volunteer makes an improvement by
+> doing a big rewrite - well, the job gets done and nobody have to
+> pay him.  This works.  And you can't
+> get they guy to do something you find more useful "instead".  Maintainers
+> can refuse patches of course - this usually cause people to work less
+> on linux rather than working more efficiently on linux.  So even
+> a "lot of work for only a little gain" type patch is taken, if it is
+> technically sound.  Because the time couldn't be better spent anyway,
+> so it wasn't wasted.
+>
+> >Layers upon layers, the
+> >sky is the limit.  Stability is the key to unlock this scalability.
+>
+> I consider too many stacked layers inefficient.  Keep it simple . . .
 
-On Thu, 15 Dec 2005, Al Viro wrote:
+True.  But they are necessary to reach higher grounds.
 
-> Speaking of hardirq.h - come on; even argument about check being not
-> in the same place where the value is defined...
-> 
-> * we compare NR_IRQS and HARDIRQ_BITS
-> * one of them is defined in irq.h, another - in hardirq.h
-> * due to current header ordering, comparison works in irq.h and not in
-> hardirq.h
+Think about it.
 
-I rechecked what I did in the m68k tree. The basic idea is that 
-<asm/irq.h> is mostly a private header (basically our <linux/irq.h>),
-so if we move something around I would prefer the NR_IRQS definition.
-I tried that, but it broke a few other dependencies, so I changed it that 
-the (public) hardirq.h includes the (private) irq.h.
+Thanks!
 
-Basically what we need is a clear separation between private/public and 
-low/high level irq header. For example <linux/interrupt.h> is high level 
-header (it even pulls in <linux/sched.h>!) but it defines irqreturn_t 
-which is also useful in lower level irq headers.
+--
+Al
 
-Christoph, what exactly is your plan regarding irq.h/hardirq.h?
-
-bye, Roman

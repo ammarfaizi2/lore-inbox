@@ -1,71 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbVLSQ4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbVLSQ5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbVLSQ4h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 11:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964844AbVLSQ4h
+	id S964851AbVLSQ5m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 11:57:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbVLSQ5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 11:56:37 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:14720 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964825AbVLSQ4g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 11:56:36 -0500
-Date: Mon, 19 Dec 2005 17:55:52 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [patch 00/15] Generic Mutex Subsystem
-Message-ID: <20051219165552.GA8635@elte.hu>
-References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de> <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org> <Pine.LNX.4.58.0512190744350.9001@gandalf.stny.rr.com>
+	Mon, 19 Dec 2005 11:57:42 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:30670 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964851AbVLSQ5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 11:57:41 -0500
+Subject: Re: [PATCH 0/9] isdn4linux: add drivers for Siemens Gigaset ISDN
+	DECT PABX
+From: Lee Revell <rlrevell@joe-job.com>
+To: Tilman Schmidt <tilman@imap.cc>
+Cc: Stephen Hemminger <shemminger@osdl.org>, Hansjoerg Lipp <hjlipp@web.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <43A6E209.5030406@imap.cc>
+References: <20051212181356.GC15361@hjlipp.my-fqdn.de>
+	 <43A6E209.5030406@imap.cc>
+Content-Type: text/plain
+Date: Mon, 19 Dec 2005 12:01:15 -0500
+Message-Id: <1135011676.20747.3.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0512190744350.9001@gandalf.stny.rr.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.7
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.7 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-12-19 at 17:38 +0100, Tilman Schmidt wrote:
+> Unfortunately these don't fit our needs, as we are not dealing with a
+> network device, but with an ISDN device.
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+Um, isn't that what the N in ISDN stands for?
 
-> > The numbers make me suspect that Ingo's mutexes are unfair too, but I've
-> > not looked at the code yet.
-> 
-> Yes, Ingo's code does act like this unfairness.  Interesting also is 
-> that Ingo's original code for his rt_mutexes was fair, and it killed 
-> performance for high priority processes.  I introduced a "lock 
-> stealing" algorithm that would check if the process trying to grab the 
-> lock again was a higher priority then the one about to get it, and if 
-> it was, it would "steal" the lock from it unfairly as you said.
+I guess what you mean is that although ISDN devices are obviously
+networking devices, the kernel uses a separate subsystem for ISDN?
 
-yes, it's unfair - but stock semaphores are unfair too, so what i've 
-measured is still a fair comparison of the two implementations.
+Lee
 
-lock stealing i've eliminated from this patch-queue, and i've moved the 
-point of acquire to after the schedule(). (lock-stealing is only 
-relevant for PI, where we always need to associate an owner with the 
-lock, hence we pass ownership at the point of release.)
-
-> Now, you are forgetting about PREEMPT.  Yes, on multiple CPUs, and 
-> that is what Ingo is testing, to wait for the other CPU to schedule in 
-> and run is probably not as bad as with PREEMPTION. (Ingo, did you have 
-> preemption on in these tests?). [...]
-
-no, CONFIG_PREEMPT was disabled in every test result i posted. (but i 
-get similar results even with it enabled.)
-
-	Ingo

@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbVLSQn6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbVLSQnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964857AbVLSQn6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 11:43:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbVLSQn6
+	id S964849AbVLSQnf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 11:43:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964850AbVLSQne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 11:43:58 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:32712 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964857AbVLSQn4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 11:43:56 -0500
-Date: Mon, 19 Dec 2005 17:43:19 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Paul Jackson <pj@sgi.com>
-Subject: Re: [patch 05/15] Generic Mutex Subsystem, mutex-core.patch
-Message-ID: <20051219164319.GH8160@elte.hu>
-References: <20051219013718.GA28038@elte.hu> <1134969166.13138.240.camel@localhost.localdomain>
+	Mon, 19 Dec 2005 11:43:34 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:23032 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S964849AbVLSQne
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 11:43:34 -0500
+Subject: RE: [PATCH rc5-rt2 2/3] plist: add new implementation
+From: Daniel Walker <dwalker@mvista.com>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>
+In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A05050EF4@orsmsx407>
+References: <F989B1573A3A644BAB3920FBECA4D25A05050EF4@orsmsx407>
+Content-Type: text/plain
+Date: Mon, 19 Dec 2005 08:43:28 -0800
+Message-Id: <1135010608.30466.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1134969166.13138.240.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> The unlikely below is only for the non MUTEX_LOCKLESS_FASTPATH case.
-> Maybe have a define for the unlikely?
+On Sun, 2005-12-18 at 14:31 -0800, Perez-Gonzalez, Inaky wrote:
+> >From: Oleg Nesterov
+> >
+> >New implementation. It is smaller, and in my opinion cleaner.
+> >User-space test: http://www.tv-sign.ru/oleg/plist.tgz
+> >
+> >Like hlist, it has different types for head and node: pl_head/pl_node.
+> >
+> >pl_head does not have ->prio field. This saves sizeof(int), and we
+> >don't need to have it in plist_del's parameter list. This is also good
+> >for typechecking.
+> >
+> >Like list_add(), plist_add() does not require initialization on
+> pl_node,
+> >except ->prio.
 > 
-> #ifdef MUTEX_LOCKLESS_FASTPATH
-> #  define UNLIKELY_SLOW(x) x
-> #else
-> #  define UNLIKELY_SLOW(x) unlikely(x)
-> #endif
+> /me suggests adding documentation to the header file succintly
+> explaining how it is implemented and a quick usage guide (along
+> with (C) info).
 
-> > +       if (unlikely(!list_empty(&lock->wait_list)))
-> > +               __mutex_wakeup_waiter(lock __IP__);
+I second that. 
 
-i'll rather eliminate the unlikely().
+Daniel
 
-	Ingo

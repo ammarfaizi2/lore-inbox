@@ -1,159 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbVLSVmL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964935AbVLSVxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbVLSVmL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 16:42:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVLSVmL
+	id S964935AbVLSVxN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 16:53:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVLSVxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 16:42:11 -0500
-Received: from panoramix.softnet.tuc.gr ([147.27.14.5]:35291 "HELO
-	softnet.tuc.gr") by vger.kernel.org with SMTP id S932296AbVLSVmJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 16:42:09 -0500
-Message-ID: <32908.147.27.7.175.1135028524.squirrel@147.27.7.175>
-Date: Mon, 19 Dec 2005 23:42:04 +0200 (EET)
-Subject: selfmade serial driver problem with chipset other than VIA
-From: gxatzipavlis@softnet.tuc.gr
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3-RC1
-X-Mailer: SquirrelMail/1.4.3-RC1
+	Mon, 19 Dec 2005 16:53:13 -0500
+Received: from out4.smtp.messagingengine.com ([66.111.4.28]:18104 "EHLO
+	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S932296AbVLSVxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 16:53:12 -0500
+X-Sasl-enc: /wfywTU5LVlh31o0HmnzIFGlJq02O1PEd2WBnSZ/yy5g 1135029188
+Message-ID: <43A72BEF.2070206@imap.cc>
+Date: Mon, 19 Dec 2005 22:53:51 +0100
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
+X-Accept-Language: de,en,fr
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: Lee Revell <rlrevell@joe-job.com>, Hansjoerg Lipp <hjlipp@web.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/9] isdn4linux: add drivers for Siemens Gigaset ISDN
+ DECT PABX
+References: <20051212181356.GC15361@hjlipp.my-fqdn.de>	<43A6E209.5030406@imap.cc>	<1135011676.20747.3.camel@mindpipe>	<43A70882.80106@imap.cc> <20051219133022.173a8b92@localhost.localdomain>
+In-Reply-To: <20051219133022.173a8b92@localhost.localdomain>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig79891A145189C74F1CFA43B0"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-firstly i would like to apologize cause i send this mail to linux-kernel
-mailling list and not to linux serial but linux-serial@vger.kernel.org
-don't accept the email.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig79891A145189C74F1CFA43B0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2005-12-19 at 18:12 +0200, giorgos xatzipavlis wrote:
-> hello people
->
-> this is my first attempt to the linux serial mailling list so i
-> apologize for my mistakes...
->
-> i am a newbie in kernel development.
->
-> i have made a serial driver cause i want to communicate with a serial
-device ( a microcontroller ). I have programmed the driver in my
-computer and everything is working ok. I have an AMD 1000Hz, MSI
-motherboard with VIA chipset and kernel 2.4.31. I have found
-> informations from Linux Deveice Drivers book. Everything is working ok
-in my computer but  the driver isn't working in computers with INTEL and
-NVIDIA chipsets. The fact that makes me suspicious about that
-> is that although my driver is registered in /proc/interrupts
-> and /proc/ioports (irq 4-ioport 0x03f8) when ever i call outb from my
-writer bottomhalf routine the interrupt isn't generated from the
-hardware(in machines with inter or nvidia chipset).
->
-> the flow chart is somethink like that:
->
-> 1)user space write      (getting the data from user)
->
-> 2)kernel space write    (generating the package that i want to send)
->
-> 3)writer_bottomhalf     (i have the package in writer_buffer indexed by a
-> 		         bytes_send variable. Call
-"outb(writer_buffer[bytes_send],MY_UART+UART_TX)" )
->
-> 4)interrupt handler     (bytes_send++ ,so i can send the next character
-variable,
-> 		         call "tasklet_schedule(&writer_bottomhalf)" to go to step 3)
->
-> in computers with chipsets other than VIA the 4th step (interrupt
-handler) is
-> never executed.
->
-> any ideas?
->
-> thank
+On 19.12.2005 22:30, Stephen Hemminger wrote:
+
+> My definition is simple. Any device driver that exports a netdevice
+> interface needs to be reviewed on netdev to make sure the assumptions
+> about network device semantics are being followed.
+
+I agree with that definition. And based on that, the Gigaset driver is
+not a network device driver.
+
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
 
 
-secondly alan cox respond with:
+--------------enig79891A145189C74F1CFA43B0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-On Mon, 2005-12-19 at 18:03 +0000, Alan Cox wrote:
-> > 2)kernel space write    (generating the package that i want to send)
-> >
-> > 3)writer_bottomhalf     (i have the package in writer_buffer indexed by a
-> > 		         bytes_send variable. Call
-"outb(writer_buffer[bytes_send],MY_UART+UART_TX)" )
-> >
-> > 4)interrupt handler     (bytes_send++ ,so i can send the next
-character variable,
-> > 		         call "tasklet_schedule(&writer_bottomhalf)" to go to step 3)
-> >
-> > in computers with chipsets other than VIA the 4th step (interrupt
-handler) is
-> > never executed.
->
->
-> Have you set up the interrupt enables in the 16x50 chip. If you've not
-done that step then it may depend on the vendor/BIOS what state the chip
-is in when you boot.
->
-> You might want to print out the registers at boot on each system and
-look at the differences
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
+iD8DBQFDpyv4MdB4Whm86/kRAq77AJ9n2WmP5Gv/YuLUutB1zgqTweLayQCeOej/
+UgDaHHh8zAD4N0rI5jT7O+4=
+=EFdR
+-----END PGP SIGNATURE-----
 
-
-in the initialization routine i enable the interrupts
-
-"outb( UART_IER_RLSI | UART_IER_RDI | UART_IER_THRI , eib_io+UART_IER);"
-
-where eib_io = 0x03f8.
-
-in the writer_bottomhalf i do:
-
-//bytes_send    :index to writer buffer which holds the package
-//writer_length :length of the package i want to send
-//foo           :struct timeval for debugging reasons
-
-if(bytes_send==writer_length){   // i have send the whole package
-
-	//starting timer to catch unacknowledged packages
-
-}
-else{
-	outb(writer[bytes_send],eib_io+UART_TX);
-	printk(KERN_ALERT"sending %x %ld %ld\n",
-               writer[bytes_send],foo.tv_sec,foo.tv_usec);
-}
-return;
-
-and in interrupt handler
-
-static void interrupt_handler(int irq, void *dev_id, struct pt_regs *regs){
-
-// code for other interrupts
-
-      if ( inb(  eib_io + UART_LSR ) & ( UART_LSR_THRE) ){
-
-		bytes_send++;
-		tasklet_schedule(&writer_tasklet);
-		return;
-
-      }
-
-}
-
-so whenever the interrupt handler is calling i increase the bytes_send and
-i return to writer_bottomhalf to send the next character of the package.
-My question is that if there are differencies in the
-implementation of the UARTS between VIA and other manufacturers?
-I can't understand why this piece of shit is working only in VIA.
-i use 2.4.31 compiled with the same .config  except the processor's type
-and chipset support in block devices section(linux serial driver
-compiled as a module that i  don't load at all).
-
-i can't understand what registers to print during boot as alan proposed
-the registers from 0x03f8 - 0x03ff (aka /dev/ttyS0)?
-
-thanks and sorry for the length of the message...
-
-P.S: do i have to send every email to linux-kernel@vger.kernel.org or to
-linux-serial@vger.kernel.org
-
-
-
+--------------enig79891A145189C74F1CFA43B0--

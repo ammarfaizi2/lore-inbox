@@ -1,87 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbVLSMT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbVLSMkG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932449AbVLSMT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 07:19:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932454AbVLSMT0
+	id S932431AbVLSMkG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 07:40:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbVLSMkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 07:19:26 -0500
-Received: from [202.125.80.34] ([202.125.80.34]:4147 "EHLO mail.esn.co.in")
-	by vger.kernel.org with ESMTP id S932449AbVLSMT0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 07:19:26 -0500
-Subject: Kernel interrupts disable at user level - RIGHT/ WRONG - Help
+	Mon, 19 Dec 2005 07:40:06 -0500
+Received: from nproxy.gmail.com ([64.233.182.193]:60913 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932431AbVLSMkE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 07:40:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=a6eV/h6Mc2VwTfMqpJYyzLq0F35IORLKzH46hZKa5ZCFr8v33nlhGawVs+QcRQ/pk/7Ra1/AJjHOuSBGRNtuOMZ5kmCTpoRzLRStHo26qb/Q6Lvrnw8Hu9wLLRqtqjCVKgBGGkuQh5lwbDMyrdHHAFWX0isp09JXbVkC8KIuZX0=
+Message-ID: <58cb370e0512190440p3889a489sbc82f0c482fd9db9@mail.gmail.com>
+Date: Mon, 19 Dec 2005 13:40:00 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Clemens Koller <clemens.koller@anagramm.de>
+Subject: Re: IDE: PDC20275 turning on/off DMA dangerous?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43A2DE5F.7060108@anagramm.de>
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C60496.0051A416"
-Date: Mon, 19 Dec 2005 17:45:52 +0530
-Content-class: urn:content-classes:message
-Message-ID: <3AEC1E10243A314391FE9C01CD65429B223248@mail.esn.co.in>
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel interrupts disable at user level - RIGHT/ WRONG - Help
-Thread-Index: AcYElfROgLuVWoqrST6rWHOIBf0rSg==
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43A2DE5F.7060108@anagramm.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On 12/16/05, Clemens Koller <clemens.koller@anagramm.de> wrote:
+> Hello!
 
-------_=_NextPart_001_01C60496.0051A416
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
+> I am working on an embedded ppc (mpc8540) using a pretty common Promise IDE
+> PCI controller w/ a PDC20275 on it (it's called Ultra TX2).
+> I have an otherwise good Maxtor 6B120P0 (160GB) connected to it.
+>
+> But sometimes (expecially with more than zero disk-i/o-load), when I
+> turn on DMA by
+>
+> $hdparm -X69 -d1 /dev/hda
+> I get
+>
+> hda: task_out_intr: status=0x58 { DriveReady SeekComplete DataRequest }
+> ide: failed opcode was: unknown
+> hda: CHECK for good STATUS
+>
+> And when I turn off DMA with
+> $hdparm -d0 /dev/hda
+> I get sometimes a
+>
+> hda: DMA disabled
+>
+> which is fine but sometimes I also get:
+>
+> hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> ide: failed opcode was: unknown
+> hda: drive not ready for command
+> hda: CHECK for good STATUS
+>
+> which is not so nice.
+> Can you tell me if this is dangerous?
 
-Dear Kernel Developers,
+Is there any particular reason why you are using hdparm with '-d' and '-X'?
 
-I have a requirement of getting the CMOS details at the user level. I =
-have identified the interfaces as /dev/nvram & /dev/rtc.
-But, the complete CMOS details are available to the user Applications as =
-the driver does not provide the suitable interface to get the complete =
-CMOS details.
+Your IDE host driver (pdc202xx_new in this case) should configure
+best xfer mode and enable DMA so you shouldn't need to use hdparm.
 
-I found an application that reads directly form the port 70, 71 and gets =
-the complete details about the CMOS. It does not use any Device =
-Interface and at the same disables all the interruptson the HOST system.
+Given that IDE driver code for changing xfer mode and DMA setting
+is racy and actually quite hard to fix, it will probably be removed in
+the future (after auditing IDE host drivers).
 
-I would like to hear from you whether this kind of Applications can be =
-used or NOT? Please see the attached source code I am planning to use to =
-access the CMOS contents.
+BTW please use linux-ide@vger.kernel.org for IDE problems
 
-Please give me ur valuable suggestions.=20
-
-Regards,
-Mukund Jampala
-
- =20
-
- <<dmpCmos.c>>=20
-
-------_=_NextPart_001_01C60496.0051A416
-Content-Type: application/octet-stream;
-	name="dmpCmos.c"
-Content-Transfer-Encoding: base64
-Content-Description: dmpCmos.c
-Content-Disposition: attachment;
-	filename="dmpCmos.c"
-
-DQoNCi8qDQoqIDA0ODYgNTIzMDU5MyA1MjMyNzE3IA0KKiAgICAgICAgICAgICAgICAgICAgIENN
-T1MgRFVNUEVSDQoqICAgICAgICAgIEVuZHJhemluZSBlbmRyYXppbmVAcHVsbHRoZXBsdWcub3Jn
-DQoqDQoqDQoqIGNvbXBpbGluZyA6IGdjYyBjbW9zZC5jIC1vIGNtb3NkLm8NCiogdXNhZ2UgOiAj
-Y21vc2QgPiBjbW9zLmR1bXANCioNCiovDQoNCiNpbmNsdWRlIDxzdGRpby5oPg0KI2luY2x1ZGUg
-PHVuaXN0ZC5oPg0KI2luY2x1ZGUgPGFzbS9pby5oPg0KDQoNCmludCBtYWluICgpDQp7DQogICAg
-ICAgIGludCBpOw0KDQogICAgICAgIGlmIChpb3Blcm0oMHg3MCwgMiwgMSkpICAgLy9Bc2sgUGVy
-bWlzc2lvbiAoc2V0IHRvIDEpIA0KICAgICAgICB7ICAgICAgICAgICAgICAgICAgICAgICAgIC8v
-Zm9yIHBvcnRzIDB4NzAgYW5kIDB4NzENCiAgICAgICAgICAgICAgICBwZXJyb3IoImlvcGVybSIp
-Ow0KICAgICAgICAgICAgICAgIGV4aXQgKDEpOw0KICAgICAgICB9DQoNCiAgICAgICAgZm9yIChp
-PTA7aTwxMjg7aSsrKQ0KICAgICAgICB7DQogICAgICAgICAgb3V0YihpLDB4NzApOy8vIFdyaXRl
-IHRvIHBvcnQgMHg3MA0KICAgICAgICAgIHVzbGVlcCgxMDAwMDApOw0KICAgICAgICAgIHByaW50
-ZigiJWMiLGluYigweDcxKSk7DQoNCiAgICAgICAgfQ0KDQogICAgICAgIGlmIChpb3Blcm0oMHg3
-MSwgMiwgMCkpIC8vIFdlIGRvbid0IG5lZWQgUGVybWlzc2lvbiBhbnltb3JlDQogICAgICAgIHsg
-ICAgICAgICAgICAgICAgICAgICAgICAvLyAoc2V0IHBlcm1pc3Npb25zIHRvIDApLg0KICAgICAg
-ICAgICAgICAgICBwZXJyb3IoImlvcGVybSIpOw0KICAgICAgICAgICAgICAgICBleGl0KDEpOw0K
-ICAgICAgICB9DQoNCiAgICAgICAgZXhpdCAoMCk7Ly8gUXVpdA0KfQ==
-
-------_=_NextPart_001_01C60496.0051A416--
+Thanks,
+Bartlomiej

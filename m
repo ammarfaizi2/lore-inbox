@@ -1,82 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbVLSPGh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932157AbVLSPKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbVLSPGh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 10:06:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbVLSPGh
+	id S932157AbVLSPKh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 10:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbVLSPKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 10:06:37 -0500
-Received: from nommos.sslcatacombnetworking.com ([67.18.224.114]:5935 "EHLO
-	nommos.sslcatacombnetworking.com") by vger.kernel.org with ESMTP
-	id S932144AbVLSPGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 10:06:36 -0500
-In-Reply-To: <DADA32856852FC458E0F96B664A6F55E011E2311@kom-mailsrv1.kontron-modular.com>
-References: <DADA32856852FC458E0F96B664A6F55E011E2311@kom-mailsrv1.kontron-modular.com>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <74737B51-64DC-445A-93E9-2AE6DFFCE736@kernel.crashing.org>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	Mon, 19 Dec 2005 10:10:37 -0500
+Received: from EXCHG2003.microtech-ks.com ([65.16.27.37]:44896 "EHLO
+	EXCHG2003.microtech-ks.com") by vger.kernel.org with ESMTP
+	id S932157AbVLSPKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 10:10:37 -0500
+From: "Roger Heflin" <rheflin@atipa.com>
+To: "'Jan Engelhardt'" <jengelh@linux01.gwdg.de>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: Dianogsing a hard lockup
+Date: Mon, 19 Dec 2005 09:19:06 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-From: Kumar Gala <galak@kernel.crashing.org>
-Subject: Re: Submitting patches for Kontron-boards with Freescale processors
-Date: Mon, 19 Dec 2005 09:06:40 -0600
-To: Claus Gindhart <Claus.Gindhart@kontron.com>
-X-Mailer: Apple Mail (2.746.2)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - nommos.sslcatacombnetworking.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kernel.crashing.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Thread-Index: AcYDOMoUoy7x89o8TkiE6QBb3WXdBABdokog
+In-Reply-To: <1134844883.11227.11.camel@mindpipe>
+Message-ID: <EXCHG2003SAQV6uPDVn00000602@EXCHG2003.microtech-ks.com>
+X-OriginalArrivalTime: 19 Dec 2005 15:04:45.0641 (UTC) FILETIME=[8C4DF390:01C604AD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
 
-On Dec 19, 2005, at 2:07 AM, Claus Gindhart wrote:
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org 
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Lee Revell
+> Sent: Saturday, December 17, 2005 12:41 PM
+> To: Jan Engelhardt
+> Cc: Linux Kernel Mailing List
+> Subject: Re: Dianogsing a hard lockup
+> 
+> On Sat, 2005-12-17 at 17:09 +0100, Jan Engelhardt wrote:
+> > Hi list,
+> > 
+> > 
+> > some time after I load drivers (any, rt2500 or via ndiswrap) for a 
+> > rt2500-based wlan card, the box locks up hard. Sysrq does 
+> not work, so 
+> > I suppose it is during irq-disabled context. How could I find out 
+> > where this happens?
+> 
+> 
+> First, stick to rt2500 as you won't get help with binary only 
+> drivers here.
+> 
+> Try to reproduce the problem from the console, you're more 
+> likely to get a usable Oops.
+> 
+> Check the driver code & make sure it can't get stuck looping 
+> in the interrupt handler due to an unhandled IRQ.  Add printks.
+> 
+> Finally report it to the rt2500 maintainer.
 
-> Kumar,
->
-> in our department we have Linux 2.6 kernel ports for Kontron  
-> embedded computer boards with freescale processors 8245, 405, 8540,  
-> 8541, 8347, 8270, ...
->
-> We would like to start now to submit all these board supports to  
-> the vanilla kernel.
->
-> For the start we would select one of our common boards, e.g. the  
-> one with 8540/8541 processor.
->
-> My question is now:
-> Should we try to provide a patch with all HW-features of the board  
-> supported, or would it be better to start with a minimalistic  
-> patch, and then add support for additional devices onboard (e.g.  
-> IDE, RTC, SuperIO, ...) time by time ?
->
-> Or would it be better to provide the full feature set of this board  
-> at one time ?
+Jan,
 
-First, I would recommend posting such queries to the linuxppc lists  
-(linuxppc-dev@ozlabs.org, linuxppc-embedded@ozlabs.org).
+I got the rt2500usb driver to blow up nicely if I used the
+default ieee* routines from the kernel and not the ones that
+came with the rt2500 drivers, you might want to verify which
+ieee* that you are using.  Using the ones that came with the
+rt2500 seem to work, or at least not crash the kernel out.
 
-Second, I'm no longer at Freescale so please email me at this address.
-
-Ok, now to your question.  In general if a given board port touch  
-files in arch/ppc/platforms/* than all of that code should be in one  
-patch.  If you are touching anything in drivers/* you need to  
-separate out those patches and send them to the respective driver  
-maintainers.  If you want to provide a more detailed list of changes  
-for 8540/8541 I can provide better directions on how to submit patches.
-
-What boot loader are you using for your boards?  I ask because for  
-the 85xx and 83xx subarchitectures I'm trying to limit new board  
-ports in arch/ppc as we try to transition to arch/powerpc.  However,  
-this requires that the firmware provide a flatten device tree to the  
-kernel.
-
-Hopefully that gets you a sense and feel free to ask any other  
-questions.
-
-- kumar
-
+                          Roger
 

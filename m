@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbVLSO5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVLSPAO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932131AbVLSO5p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 09:57:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932149AbVLSO5p
+	id S932149AbVLSPAO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 10:00:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932150AbVLSPAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 09:57:45 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:32742 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S932131AbVLSO5o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 09:57:44 -0500
-Message-ID: <43A6CA3A.5010905@namesys.com>
-Date: Mon, 19 Dec 2005 17:56:58 +0300
-From: "Vladimir V. Saveliev" <vs@namesys.com>
-Organization: Namesys
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: bug in get_name of export operations?
-X-Enigmail-Version: 0.91.0.0
+	Mon, 19 Dec 2005 10:00:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:50320 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932149AbVLSPAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 10:00:12 -0500
+Date: Mon, 19 Dec 2005 15:00:07 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Paul Jackson <pj@sgi.com>
+Subject: Re: [patch 10/15] Generic Mutex Subsystem, mutex-migration-helper-core.patch
+Message-ID: <20051219150007.GA9809@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Arjan van de Ven <arjanv@infradead.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
+	David Howells <dhowells@redhat.com>,
+	Alexander Viro <viro@ftp.linux.org.uk>,
+	Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
+References: <20051219013837.GF28038@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20051219013837.GF28038@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Mon, Dec 19, 2005 at 02:38:37AM +0100, Ingo Molnar wrote:
+> 
+> introduce the mutex_debug type, and switch the semaphore APIs to it in a 
+> type-sensitive way. Plain semaphores will still use the proper 
+> arch-semaphore calls.
 
-Please point my error if I am wrong:
-
-fs/exportfs/expfs.c:get_name() opens a directory with:
-file = dentry_open(dget(dentry), NULL, O_RDONLY);
-which results in file where file->f_vfsmnt == NULL.
-
-Then fs/readdir.c:vfs_readdir() and, therefore,
-include/linux/fs.h:file_accessed(file) are called.
-file_accessed() calls fs/inode.c:touch_atime() which tryies to dereference mnt
-which is NULL.
-
-
-
+I think we shouldn't introduce this one.  It just encourages people to do
+really things.  Everything else in the patchseries looks sensible to me.
 

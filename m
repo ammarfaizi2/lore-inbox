@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbVLSHJR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030280AbVLSHTz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbVLSHJR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 02:09:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030275AbVLSHJR
+	id S1030280AbVLSHTz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 02:19:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030281AbVLSHTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 02:09:17 -0500
-Received: from dsl092-073-214.bos1.dsl.speakeasy.net ([66.92.73.214]:30438
-	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
-	id S1030256AbVLSHJQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 02:09:16 -0500
-Date: Mon, 19 Dec 2005 02:08:50 -0500
-From: Sonny Rao <sonny@burdell.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com, clameter@sgi.com,
-       anton@samba.org, sonnyrao@us.ibm.com
-Subject: Re: cpu hotplug oops on 2.6.15-rc5
-Message-ID: <20051219070850.GA11956@kevlar.burdell.org>
-References: <20051219051659.GA6299@kevlar.burdell.org> <1134974518.10035.5.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 19 Dec 2005 02:19:55 -0500
+Received: from outmx017.isp.belgacom.be ([195.238.2.116]:918 "EHLO
+	outmx017.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S1030280AbVLSHTz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 02:19:55 -0500
+From: Jan De Luyck <lkml@kcore.org>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [2.6.14.3] S3 and USB
+Date: Mon, 19 Dec 2005 08:19:40 +0100
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
+References: <200512161535.13650.lkml@kcore.org> <20051216191648.GA4796@kroah.com>
+In-Reply-To: <20051216191648.GA4796@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1134974518.10035.5.camel@gaston>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200512190819.41051.lkml@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 19, 2005 at 05:41:57PM +1100, Benjamin Herrenschmidt wrote:
-> On Mon, 2005-12-19 at 00:16 -0500, Sonny Rao wrote:
-> > (apologies if this is a dup)
-> > 
-> > Hi, I'm crashing 2.6.15-rc5 when I try and offline the last and only CPU in a node on a ppc64 Power5, SMT was disabled.
-> 
-> First try on -rc6 just in case it's related to the SCSI fix (the bug was
-> corrupting the SLAB) that got merged just after rc5 iirc.
+On Friday 16 December 2005 20:16, Greg KH wrote:
+> On Fri, Dec 16, 2005 at 03:35:13PM +0100, Jan De Luyck wrote:
+>
+> > USB and the like work without problems. The only problem I have is that
+> > if I leave USB 'on' and suspend, any activity to the USB ports causes my
+> > laptop to resume but it never resumes correctly. I get a black screen, no
+> > entries in the system logs, and I need to hold the power button to power
+> > off the machine. Which is very annoying since I tend to plug in my USB
+> > mouse before I open the screen.
+>
+> Can you try 2.6.15-rc5?  USB suspend issues are still being worked out
 
-Ok, tried it: same crash on -rc6
+Thanks for the pointer, I installed 2.6.15-rc6 today and everything seems 
+fine. The laptop resumes nicely no matter what happens on the USB ports.
 
-2:mon> t
-[c000000d9f33b820] c000000000097cd0 .kfree+0x29c/0x2cc
-[c000000d9f33b8d0] c00000000009c3a8 .cpuup_callback+0x4f8/0x5fc
-[c000000d9f33b9c0] c00000000048ff4c .notifier_call_chain+0x68/0x9c
-[c000000d9f33ba50] c000000000078da8 .cpu_down+0x1fc/0x368
-[c000000d9f33bb40] c0000000002ae514 .store_online+0x88/0xe8
-[c000000d9f33bbd0] c0000000002a8dd0 .sysdev_store+0x4c/0x68
-[c000000d9f33bc50] c000000000111e70 .sysfs_write_file+0x100/0x1a0
-[c000000d9f33bcf0] c0000000000c0360 .vfs_write+0x100/0x200
-[c000000d9f33bd90] c0000000000c0570 .sys_write+0x54/0x9c
-[c000000d9f33be30] c000000000008600 syscall_exit+0x0/0x18
---- Exception: c01 (System Call) at 000000000fe5ec10
-SP (ffa204f0) is in userspace
-2:mon> 
+Jan
 
-Sonny
+-- 
+Q:	How many IBM 370's does it take to execute a job?
+A:	Four, three to hold it down, and one to rip its head off.

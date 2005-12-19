@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbVLSVi5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964850AbVLSVkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbVLSVi5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 16:38:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbVLSVi5
+	id S964850AbVLSVkg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 16:40:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVLSVkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 16:38:57 -0500
-Received: from cheetah.cs.fiu.edu ([131.94.130.107]:42113 "EHLO
-	cheetah.cs.fiu.edu") by vger.kernel.org with ESMTP id S932254AbVLSVi4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 16:38:56 -0500
-Message-ID: <43A7286F.3080104@cs.fiu.edu>
-Date: Mon, 19 Dec 2005 16:38:55 -0500
-From: John F Flynn III <flynnj@cs.fiu.edu>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc3 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Very rare crash in prune_dcache
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Dec 2005 16:40:36 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:29876 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932296AbVLSVkf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 16:40:35 -0500
+Date: Mon, 19 Dec 2005 15:40:19 -0600
+From: Robin Holt <holt@sgi.com>
+To: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, rth@redhat.com,
+       bj0rn@blox.se
+Subject: Can somebody with flex/bison experience help with genksyms?
+Message-ID: <20051219214019.GA25888@lnx-holt.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good evening, folks...
+The following code fails to generate a crc when run through genksyms.
 
-We have been experiencing a very rare (on average once every two to 
-three months) crash on some of our servers.
+#include <linux/module.h>
 
-uname -a:
-Linux cheetah 2.6.9-22.0.1.ELsmp #1 SMP Thu Oct 27 13:14:25 CDT 2005 
-i686 i686 i386 GNU/Linux
+struct nodepda_s {
+	int	z1, z2;
+}
 
-(This is a CentOS provided kernel)
+DEFINE_PER_CPU(struct nodepda_s *, __sn_nodepda);
+EXPORT_PER_CPU_SYMBOL(__sn_nodepda);
 
-Here is a photo of the bottom of the panic. Unfortunately the kernel has 
-no chance to log this anywhere else:
+While the following works:
 
-http://www.cs.fiu.edu/~flynnj/cheetah-crash.jpg
+#include <linux/module.h>
+
+struct nodepda_s {
+        int     z1, z2;
+}
+
+typedef struct nodepda_s * nodepda_s_p;
+
+DEFINE_PER_CPU(nodepda_s_p, __sn_nodepda);
+EXPORT_PER_CPU_SYMBOL(__sn_nodepda);
 
 
-The crash appears to be in prune_dcache, and has happened on several 
-distinct machines, so we do not believe it is a hardware problem.
 
-If anyone has pointers on what bug could be causing this crash, or if 
-it's been fixed in newer kernels we could try, it would be greatly 
-appreciated. This only seems to happen on loaded production machines, 
-and it happens so rarely that more detailed debugging is nearly impossible.
+This appears to be due to the way STRUCT_KEYW is handled in parse.y as
+compared to TYPEOF_KEYW.  I know nothing about flex and bison.  I am
+just trolling for anybody willing to help.  I believe the STRUCT_KEYW
+handling would need to consume the *, but am not sure how that is
+conditionally done.
 
-Thanks in advance,
--John Flynn
-
--- 
-John Flynn                              flynnj@cs.fiu.edu
-=========================================================
-Systems and Network Administration             /\_/\
-School of Computer Science                    ( O.O )
-Florida International University               >   <
+Thanks,
+Robin Holt

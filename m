@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030229AbVLSBkG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030227AbVLSBlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030229AbVLSBkG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 20:40:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbVLSBjk
+	id S1030227AbVLSBlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 20:41:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030232AbVLSBlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 20:39:40 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:43751 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030225AbVLSBjI (ORCPT
+	Sun, 18 Dec 2005 20:41:07 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:39846 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030227AbVLSBka (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 20:39:08 -0500
-Date: Mon, 19 Dec 2005 02:38:27 +0100
+	Sun, 18 Dec 2005 20:40:30 -0500
+Date: Mon, 19 Dec 2005 02:39:47 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
        Andrew Morton <akpm@osdl.org>
@@ -19,9 +19,9 @@ Cc: Arjan van de Ven <arjanv@infradead.org>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        David Howells <dhowells@redhat.com>,
        Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Paul Jackson <pj@sgi.com>
-Subject: [patch 09/15] Generic Mutex Subsystem, mutex-migration-helper-x86_64.patch
-Message-ID: <20051219013827.GE28038@elte.hu>
+       Paul Jackson <pj@sgi.com>, Aleksey Makarov <amakarov@ru.mvista.com>
+Subject: [patch 13/15] Generic Mutex Subsystem, ide-gendev-sem-to-completion.patch
+Message-ID: <20051219013947.GI28038@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -37,174 +37,111 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-introduce the arch_semaphore type on x86_64, to ease migration to 
-mutexes.
+convert gendev_rel_sem to completions.
 
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
-----
 
- arch/x86_64/Kconfig            |    4 ++
- include/asm-x86_64/semaphore.h |   61 ++++++++++++++++++++++++++---------------
- 2 files changed, 43 insertions(+), 22 deletions(-)
+Source: MontaVista Software, Inc.
+Signed-off-by: Aleksey Makarov <amakarov@ru.mvista.com>
+Description:
+	The patch changes semaphores that are initialized as 
+	locked to complete().
 
-Index: linux/arch/x86_64/Kconfig
+ drivers/ide/ide-probe.c |    4 ++--
+ drivers/ide/ide.c       |    8 ++++----
+ include/linux/ide.h     |    5 +++--
+ 3 files changed, 9 insertions(+), 8 deletions(-)
+
+Index: linux/drivers/ide/ide-probe.c
 ===================================================================
---- linux.orig/arch/x86_64/Kconfig
-+++ linux/arch/x86_64/Kconfig
-@@ -28,6 +28,10 @@ config SEMAPHORE_SLEEPERS
- 	bool
- 	default y
+--- linux.orig/drivers/ide/ide-probe.c
++++ linux/drivers/ide/ide-probe.c
+@@ -655,7 +655,7 @@ static void hwif_release_dev (struct dev
+ {
+ 	ide_hwif_t *hwif = container_of(dev, ide_hwif_t, gendev);
  
-+config ARCH_SEMAPHORES
-+	bool
-+	default y
-+
- config MMU
- 	bool
- 	default y
-Index: linux/include/asm-x86_64/semaphore.h
+-	up(&hwif->gendev_rel_sem);
++	complete(&hwif->gendev_rel_comp);
+ }
+ 
+ static void hwif_register (ide_hwif_t *hwif)
+@@ -1325,7 +1325,7 @@ static void drive_release_dev (struct de
+ 	drive->queue = NULL;
+ 	spin_unlock_irq(&ide_lock);
+ 
+-	up(&drive->gendev_rel_sem);
++	complete(&drive->gendev_rel_comp);
+ }
+ 
+ /*
+Index: linux/drivers/ide/ide.c
 ===================================================================
---- linux.orig/include/asm-x86_64/semaphore.h
-+++ linux/include/asm-x86_64/semaphore.h
-@@ -1,9 +1,15 @@
- #ifndef _X86_64_SEMAPHORE_H
- #define _X86_64_SEMAPHORE_H
+--- linux.orig/drivers/ide/ide.c
++++ linux/drivers/ide/ide.c
+@@ -222,7 +222,7 @@ static void init_hwif_data(ide_hwif_t *h
+ 	hwif->mwdma_mask = 0x80;	/* disable all mwdma */
+ 	hwif->swdma_mask = 0x80;	/* disable all swdma */
  
-+#include <linux/config.h>
- #include <linux/linkage.h>
+-	sema_init(&hwif->gendev_rel_sem, 0);
++	init_completion(&hwif->gendev_rel_comp);
  
--#ifdef __KERNEL__
-+/*
-+ * On !DEBUG_MUTEX_FULL, all semaphores map to the arch implementation:
-+ */
-+#ifndef CONFIG_DEBUG_MUTEX_FULL
-+# define arch_semaphore semaphore
-+#endif
- 
- /*
-  * SMP- and interrupt-safe semaphores..
-@@ -43,29 +49,34 @@
- #include <linux/rwsem.h>
- #include <linux/stringify.h>
- 
--struct semaphore {
-+struct arch_semaphore {
- 	atomic_t count;
- 	int sleepers;
- 	wait_queue_head_t wait;
- };
- 
--#define __SEMAPHORE_INITIALIZER(name, n)				\
-+#define __ARCH_SEMAPHORE_INITIALIZER(name, n)				\
- {									\
- 	.count		= ATOMIC_INIT(n),				\
- 	.sleepers	= 0,						\
- 	.wait		= __WAIT_QUEUE_HEAD_INITIALIZER((name).wait)	\
+ 	default_hwif_iops(hwif);
+ 	default_hwif_transport(hwif);
+@@ -245,7 +245,7 @@ static void init_hwif_data(ide_hwif_t *h
+ 		drive->is_flash			= 0;
+ 		drive->vdma			= 0;
+ 		INIT_LIST_HEAD(&drive->list);
+-		sema_init(&drive->gendev_rel_sem, 0);
++		init_completion(&drive->gendev_rel_comp);
+ 	}
  }
  
--#define __DECLARE_SEMAPHORE_GENERIC(name,count) \
--	struct semaphore name = __SEMAPHORE_INITIALIZER(name,count)
-+#define __ARCH_MUTEX_INITIALIZER(name) \
-+	__ARCH_SEMAPHORE_INITIALIZER(name,1)
-+
-+#define __ARCH_DECLARE_SEMAPHORE_GENERIC(name,count) \
-+	struct arch_semaphore name = __ARCH_SEMAPHORE_INITIALIZER(name,count)
-+
-+#define ARCH_DECLARE_MUTEX(name) __ARCH_DECLARE_SEMAPHORE_GENERIC(name,1)
-+#define ARCH_DECLARE_MUTEX_LOCKED(name) __ARCH_DECLARE_SEMAPHORE_GENERIC(name,0)
+@@ -602,7 +602,7 @@ void ide_unregister(unsigned int index)
+ 		}
+ 		spin_unlock_irq(&ide_lock);
+ 		device_unregister(&drive->gendev);
+-		down(&drive->gendev_rel_sem);
++		wait_for_completion(&drive->gendev_rel_comp);
+ 		spin_lock_irq(&ide_lock);
+ 	}
+ 	hwif->present = 0;
+@@ -662,7 +662,7 @@ void ide_unregister(unsigned int index)
+ 	/* More messed up locking ... */
+ 	spin_unlock_irq(&ide_lock);
+ 	device_unregister(&hwif->gendev);
+-	down(&hwif->gendev_rel_sem);
++	wait_for_completion(&hwif->gendev_rel_comp);
  
--#define DECLARE_MUTEX(name) __DECLARE_SEMAPHORE_GENERIC(name,1)
--#define DECLARE_MUTEX_LOCKED(name) __DECLARE_SEMAPHORE_GENERIC(name,0)
-+#define arch_sema_count(sem) atomic_read(&(sem)->count)
+ 	/*
+ 	 * Remove us from the kernel's knowledge
+Index: linux/include/linux/ide.h
+===================================================================
+--- linux.orig/include/linux/ide.h
++++ linux/include/linux/ide.h
+@@ -18,6 +18,7 @@
+ #include <linux/bio.h>
+ #include <linux/device.h>
+ #include <linux/pci.h>
++#include <linux/completion.h>
+ #include <asm/byteorder.h>
+ #include <asm/system.h>
+ #include <asm/io.h>
+@@ -759,7 +760,7 @@ typedef struct ide_drive_s {
+ 	int		crc_count;	/* crc counter to reduce drive speed */
+ 	struct list_head list;
+ 	struct device	gendev;
+-	struct semaphore gendev_rel_sem;	/* to deal with device release() */
++	struct completion gendev_rel_comp;	/* to deal with device release() */
+ } ide_drive_t;
  
--static inline void sema_init (struct semaphore *sem, int val)
-+static inline void arch_sema_init (struct arch_semaphore *sem, int val)
- {
- /*
-- *	*sem = (struct semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
-+ *	*sem = (struct arch_semaphore)__SEMAPHORE_INITIALIZER((*sem),val);
-  *
-  * i'd rather use the more flexible initialization above, but sadly
-  * GCC 2.7.2.3 emits a bogus warning. EGCS doesn't. Oh well.
-@@ -75,14 +86,14 @@ static inline void sema_init (struct sem
- 	init_waitqueue_head(&sem->wait);
- }
+ #define to_ide_device(dev)container_of(dev, ide_drive_t, gendev)
+@@ -915,7 +916,7 @@ typedef struct hwif_s {
+ 	unsigned	sg_mapped  : 1;	/* sg_table and sg_nents are ready */
  
--static inline void init_MUTEX (struct semaphore *sem)
-+static inline void arch_init_MUTEX (struct arch_semaphore *sem)
- {
--	sema_init(sem, 1);
-+	arch_sema_init(sem, 1);
- }
+ 	struct device	gendev;
+-	struct semaphore gendev_rel_sem; /* To deal with device release() */
++	struct completion gendev_rel_comp; /* To deal with device release() */
  
--static inline void init_MUTEX_LOCKED (struct semaphore *sem)
-+static inline void arch_init_MUTEX_LOCKED (struct arch_semaphore *sem)
- {
--	sema_init(sem, 0);
-+	arch_sema_init(sem, 0);
- }
+ 	void		*hwif_data;	/* extra hwif data */
  
- asmlinkage void __down_failed(void /* special register calling convention */);
-@@ -90,17 +101,17 @@ asmlinkage int  __down_failed_interrupti
- asmlinkage int  __down_failed_trylock(void  /* params in registers */);
- asmlinkage void __up_wakeup(void /* special register calling convention */);
- 
--asmlinkage void __down(struct semaphore * sem);
--asmlinkage int  __down_interruptible(struct semaphore * sem);
--asmlinkage int  __down_trylock(struct semaphore * sem);
--asmlinkage void __up(struct semaphore * sem);
-+asmlinkage void __down(struct arch_semaphore * sem);
-+asmlinkage int  __down_interruptible(struct arch_semaphore * sem);
-+asmlinkage int  __down_trylock(struct arch_semaphore * sem);
-+asmlinkage void __up(struct arch_semaphore * sem);
- 
- /*
-  * This is ugly, but we want the default case to fall through.
-  * "__down_failed" is a special asm handler that calls the C
-  * routine that actually waits. See arch/x86_64/kernel/semaphore.c
-  */
--static inline void down(struct semaphore * sem)
-+static inline void arch_down(struct arch_semaphore * sem)
- {
- 	might_sleep();
- 
-@@ -122,7 +133,7 @@ static inline void down(struct semaphore
-  * Interruptible try to acquire a semaphore.  If we obtained
-  * it, return zero.  If we were interrupted, returns -EINTR
-  */
--static inline int down_interruptible(struct semaphore * sem)
-+static inline int arch_down_interruptible(struct arch_semaphore * sem)
- {
- 	int result;
- 
-@@ -148,7 +159,7 @@ static inline int down_interruptible(str
-  * Non-blockingly attempt to down() a semaphore.
-  * Returns zero if we acquired it
-  */
--static inline int down_trylock(struct semaphore * sem)
-+static inline int arch_down_trylock(struct arch_semaphore * sem)
- {
- 	int result;
- 
-@@ -174,7 +185,7 @@ static inline int down_trylock(struct se
-  * The default case (no contention) will result in NO
-  * jumps for both down() and up().
-  */
--static inline void up(struct semaphore * sem)
-+static inline void arch_up(struct arch_semaphore * sem)
- {
- 	__asm__ __volatile__(
- 		"# atomic up operation\n\t"
-@@ -189,5 +200,11 @@ static inline void up(struct semaphore *
- 		:"D" (sem)
- 		:"memory");
- }
--#endif /* __KERNEL__ */
-+
-+extern int FASTCALL(arch_sem_is_locked(struct arch_semaphore *sem));
-+
-+#define arch_sema_count(sem) atomic_read(&(sem)->count)
-+
-+#include <linux/semaphore.h>
-+
- #endif

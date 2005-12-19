@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbVLSON0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbVLSORX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbVLSON0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 09:13:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbVLSON0
+	id S1750772AbVLSORX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 09:17:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbVLSORX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 09:13:26 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:12721 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750748AbVLSON0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 09:13:26 -0500
+	Mon, 19 Dec 2005 09:17:23 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:49116 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750810AbVLSORW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 09:17:22 -0500
 Subject: Re: [patch 10/15] Generic Mutex Subsystem,
 	mutex-migration-helper-core.patch
 From: Steven Rostedt <rostedt@goodmis.org>
@@ -23,8 +23,8 @@ Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
 In-Reply-To: <20051219013837.GF28038@elte.hu>
 References: <20051219013837.GF28038@elte.hu>
 Content-Type: text/plain
-Date: Mon, 19 Dec 2005 09:12:45 -0500
-Message-Id: <1135001565.13138.247.camel@localhost.localdomain>
+Date: Mon, 19 Dec 2005 09:16:26 -0500
+Message-Id: <1135001786.13138.249.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
@@ -32,26 +32,33 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Mon, 2005-12-19 at 02:38 +0100, Ingo Molnar wrote:
-> +#ifdef CONFIG_DEBUG_MUTEX_FULL
-> +# define semaphore             mutex_debug
-> +# define DECLARE_MUTEX         DEFINE_MUTEX_DEBUG
+> +#ifdef CONFIG_DEBUG_MUTEXESS
+> +void fastcall
+> +__mutex_debug_sema_init(struct mutex_debug *lock, int val, char
+> *name,
+> +                       char *file, int line)
+> +{
+> +       __mutex_init(&lock->lock, name, file, line);
+> +
+> +       DEBUG_WARN_ON(val != 0 && val != 1);
+> +       if (!val)
+> +               __mutex_lock(&lock->lock __CALLER_IP__);
+> +}
 > +#else
-> +# define DECLARE_MUTEX         ARCH_DECLARE_MUTEX
-> +#endif
+> +void fastcall __mutex_debug_sema_init(struct mutex_debug *lock, int
+> val)
+> +{
+> +       __mutex_init(&lock->lock);
 > +
-> +# define DECLARE_MUTEX_LOCKED  ARCH_DECLARE_MUTEX_LOCKED
-> +
-> +#if 0
+> +       DEBUG_WARN_ON(val != 0 && val != 1);
 
-Probably not good to have #if 0 in release patches.
+DEBUG_WARN_ON in this part of the #if is always a no-op.
 
 -- Steve
 
-> +#ifdef CONFIG_GENERIC_MUTEXES
-> +# include <linux/mutex.h>
-> +#else
-> +
-> +#define DECLARE_MUTEX          ARCH_DECLARE_MUTEX
-> +#define DECLARE_MUTEX_LOCKED   ARCH_DECLARE_MUTEX_LOCKED
+> +       if (!val)
+> +               __mutex_lock(&lock->lock __CALLER_IP__);
+> +}
+> +#endif
 > +
 

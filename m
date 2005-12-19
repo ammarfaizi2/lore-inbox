@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965004AbVLSVae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbVLSVi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965004AbVLSVae (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 16:30:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965006AbVLSVae
+	id S932254AbVLSVi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 16:38:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbVLSVi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 16:30:34 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:64676 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965004AbVLSVad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 16:30:33 -0500
-Date: Mon, 19 Dec 2005 13:30:22 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: Lee Revell <rlrevell@joe-job.com>, Hansjoerg Lipp <hjlipp@web.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/9] isdn4linux: add drivers for Siemens Gigaset ISDN
- DECT PABX
-Message-ID: <20051219133022.173a8b92@localhost.localdomain>
-In-Reply-To: <43A70882.80106@imap.cc>
-References: <20051212181356.GC15361@hjlipp.my-fqdn.de>
-	<43A6E209.5030406@imap.cc>
-	<1135011676.20747.3.camel@mindpipe>
-	<43A70882.80106@imap.cc>
-X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 19 Dec 2005 16:38:57 -0500
+Received: from cheetah.cs.fiu.edu ([131.94.130.107]:42113 "EHLO
+	cheetah.cs.fiu.edu") by vger.kernel.org with ESMTP id S932254AbVLSVi4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 16:38:56 -0500
+Message-ID: <43A7286F.3080104@cs.fiu.edu>
+Date: Mon, 19 Dec 2005 16:38:55 -0500
+From: John F Flynn III <flynnj@cs.fiu.edu>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc3 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Very rare crash in prune_dcache
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Dec 2005 20:22:42 +0100
-Tilman Schmidt <tilman@imap.cc> wrote:
+Good evening, folks...
 
-> On 2005-12-19 18:01, Lee Revell wrote:
-> > On Mon, 2005-12-19 at 17:38 +0100, Tilman Schmidt wrote:
-> > 
-> >>Unfortunately these don't fit our needs, as we are not dealing with a
-> >>network device, but with an ISDN device.
-> > 
-> > Um, isn't that what the N in ISDN stands for?
-> 
-> While the ISDN is indeed called a network, devices connecting a computer
-> to it are nevertheless not commonly referred to as network devices.
-> 
-> > I guess what you mean is that although ISDN devices are obviously
-> > networking devices, the kernel uses a separate subsystem for ISDN?
-> 
-> There's more to it than that. The notion of a "network" is a rather
-> broad one, including such diverse phenomena as Ethernet, ISDN, TV cable
-> or even roads or TV stations. The notion of a "network device", on the
-> other hand, is a quite specific one, at least in the computer world, and
-> it certainly doesn't include ISDN TAs.
-> 
-> In fact, the operation of an ISDN device is much closer to a modem or
-> even an answering machine than to that prototypical network device which
-> is the Ethernet card. This is of course the reason why the Linux kernel
-> puts them in a subsystem of their own. Making them net_device-s just
-> wouldn't work.
-> 
+We have been experiencing a very rare (on average once every two to 
+three months) crash on some of our servers.
+
+uname -a:
+Linux cheetah 2.6.9-22.0.1.ELsmp #1 SMP Thu Oct 27 13:14:25 CDT 2005 
+i686 i686 i386 GNU/Linux
+
+(This is a CentOS provided kernel)
+
+Here is a photo of the bottom of the panic. Unfortunately the kernel has 
+no chance to log this anywhere else:
+
+http://www.cs.fiu.edu/~flynnj/cheetah-crash.jpg
 
 
-My definition is simple. Any device driver that exports a netdevice
-interface needs to be reviewed on netdev to make sure the assumptions
-about network device semantics are being followed.
+The crash appears to be in prune_dcache, and has happened on several 
+distinct machines, so we do not believe it is a hardware problem.
+
+If anyone has pointers on what bug could be causing this crash, or if 
+it's been fixed in newer kernels we could try, it would be greatly 
+appreciated. This only seems to happen on loaded production machines, 
+and it happens so rarely that more detailed debugging is nearly impossible.
+
+Thanks in advance,
+-John Flynn
 
 -- 
-Stephen Hemminger <shemminger@osdl.org>
-OSDL http://developer.osdl.org/~shemminger
+John Flynn                              flynnj@cs.fiu.edu
+=========================================================
+Systems and Network Administration             /\_/\
+School of Computer Science                    ( O.O )
+Florida International University               >   <

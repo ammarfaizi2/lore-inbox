@@ -1,74 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbVLSNy5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbVLSNv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751191AbVLSNy5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 08:54:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVLSNy5
+	id S1750737AbVLSNv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 08:51:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVLSNv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 08:54:57 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:34741 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1750743AbVLSNy4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 08:54:56 -0500
-Date: Mon, 19 Dec 2005 06:54:53 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Nicolas Pitre <nico@cam.org>, Linus Torvalds <torvalds@osdl.org>,
-       David Howells <dhowells@redhat.com>,
-       Steven Rostedt <rostedt@goodmis.org>, linux-arch@vger.kernel.org,
-       lkml <linux-kernel@vger.kernel.org>, mingo@redhat.com,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 1/12]: MUTEX: Implement mutexes
-Message-ID: <20051219135453.GQ2361@parisc-linux.org>
-References: <14917.1134847311@warthog.cambridge.redhat.com> <Pine.LNX.4.64.0512171201200.3698@g5.osdl.org> <Pine.LNX.4.64.0512172018410.26663@localhost.localdomain> <Pine.LNX.4.64.0512171803580.3698@g5.osdl.org> <Pine.LNX.4.64.0512172150260.26663@localhost.localdomain> <Pine.LNX.4.64.0512172227280.3698@g5.osdl.org> <20051218092616.GA17308@flint.arm.linux.org.uk> <Pine.LNX.4.64.0512181027220.4827@g5.osdl.org> <Pine.LNX.4.64.0512181657050.26663@localhost.localdomain> <20051219092743.GA9609@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051219092743.GA9609@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.5.9i
+	Mon, 19 Dec 2005 08:51:56 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:7692 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1750737AbVLSNvz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 08:51:55 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <3AEC1E10243A314391FE9C01CD65429B223248@mail.esn.co.in>
+X-OriginalArrivalTime: 19 Dec 2005 13:51:48.0065 (UTC) FILETIME=[5B10DD10:01C604A3]
+Content-class: urn:content-classes:message
+Subject: Re: Kernel interrupts disable at user level - RIGHT/ WRONG - Help
+Date: Mon, 19 Dec 2005 08:51:31 -0500
+Message-ID: <Pine.LNX.4.61.0512190841120.11055@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Kernel interrupts disable at user level - RIGHT/ WRONG - Help
+Thread-Index: AcYEo1sa6SGjv4rZQSqB6cKKptgOFg==
+References: <3AEC1E10243A314391FE9C01CD65429B223248@mail.esn.co.in>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Mukund JB." <mukundjb@esntechnologies.co.in>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 19, 2005 at 09:27:44AM +0000, Russell King wrote:
-> > 	mov	r0, #1
-> > 	swp	r1, r0, [%0]
-> > 	cmp	r1, #0
-> > 	bne	__contention
 
-> That's over-simplified, and is the easy bit.  Now work out how you handle
-> the unlock operation.
-> 
-> You don't know whether the lock is contended or not in the unlock path,
-> so you always have to do the "wake up" thing.  (You can't rely on the
-> value of the lock since another thread may well be between this swp
-> instruction and entering the __contention function.  Hence you can't
-> use the value of the lock to determine whether there's anyone sleeping
-> on it.)
+On Mon, 19 Dec 2005, Mukund JB. wrote:
 
-Here's a slightly less efficient way to determine if anyone else has
-swp'd behind your back (apologies if I get my ARM assembly wrong, it's
-been a few years):
+>
+> Dear Kernel Developers,
+>
+> I have a requirement of getting the CMOS details at the user level.
+> I have identified the interfaces as /dev/nvram & /dev/rtc.
+> But, the complete CMOS details are available to the user Applications
+> as the driver does not provide the suitable interface to get the
+> complete CMOS details.
+>
+> I found an application that reads directly form the port 70, 71
+> and gets the complete details about the CMOS. It does not use any Device
+> Interface and at the same disables all the interruptson the HOST system.
+>
+> I would like to hear from you whether this kind of Applications can be
+> used or NOT? Please see the attached source code I am planning to use to
+> access the CMOS contents.
+>
+> Please give me ur valuable suggestions.
+>
+> Regards,
+> Mukund Jampala
+>
 
-	swp	r1, r13, [%0]	# load r1 from addr and store r13 there
-	cmp	r1, #0		# is r1 0?
-	streq	r13, [%0, #4]	# if it is, store a copy of r13 at the
-				# next address
-	blne	__lock_contention
+First, only root can disable interrupts in user-mode and read/write
+to ports. One must prepare for this with iopl(3).
 
-I'm assuming that r13 (the stack pointer) will be different for each
-task, and (with this being a mutex), we won't try to double-acquire it.
-Unlock is then:
+Second, the RTC is a shared resource. It must be protected with
+a lock.
 
-	mov	r0, #0		# put 0 in r0
-	swp	r1, r0, [%0]	# release the lock
-	ldr	r0, [%0, #4]	# load the copy
-	cmp	r0, r1		# did it change?
-	blne	__unlock_contention
+If you want to make your own rtc driver, then feel free. However,
+you can't just poke at the ports from user-mode and get away with
+it for any period of time. You will find that the CMOS checksum
+gets screwed up and/or the time gets changed to a previous epoch.
 
-In __unlock_contention, thread1 would try to re-acquire the mutex (at
-[%0]), and if it does, wake up the first waiter.  Obviously it's unfair
-as thread3 could come along and grab the mutex, but that's not a huge
-deal.
+This is because the kernel may change the index register in between
+the time that you set it and when you wrote to the data register.
 
-Note that we're not checking the value of r13 at the unlock site as lock
-and unlock can be done at different stack levels.  We're checking to see
-if the value last written to the lock was the one by the successful
-acquirer.
+You need to use the provided spin-lock, rtc_lock. This needs
+to be accessed from within the kernel, in your driver.
+
+>
+>
+> <<dmpCmos.c>>
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.56 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

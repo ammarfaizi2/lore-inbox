@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964965AbVLSU61@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbVLSU7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964965AbVLSU61 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 15:58:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964967AbVLSU61
+	id S964969AbVLSU7N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 15:59:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbVLSU7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 15:58:27 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:31112 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964965AbVLSU60 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 15:58:26 -0500
-Date: Mon, 19 Dec 2005 21:57:41 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Benjamin LaHaise <bcrl@kvack.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [patch 00/15] Generic Mutex Subsystem
-Message-ID: <20051219205741.GA24004@elte.hu>
-References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de> <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org> <20051219155010.GA7790@elte.hu> <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org> <20051219192537.GC15277@kvack.org> <20051219201118.GA22198@elte.hu> <20051219203206.GC20824@flint.arm.linux.org.uk>
+	Mon, 19 Dec 2005 15:59:12 -0500
+Received: from www.swissdisk.com ([216.144.233.50]:10431 "EHLO
+	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
+	id S964973AbVLSU7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 15:59:11 -0500
+Date: Mon, 19 Dec 2005 11:50:14 -0800
+From: Ben Collins <bcollins@ubuntu.com>
+To: axboe@suse.de, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH rc6] block: Fix CDROMEJECT to work in more cases
+Message-ID: <20051219195014.GA13578@swissdisk.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051219203206.GC20824@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This changes the request to a READ instead of WRITE. Also adds and calls
+blk_send_allow_medium_removal() for CDROMEJECT case.
 
-* Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+Signed-off-by: Ben Collins <bcollins@ubuntu.com>
 
-> However, the argument _against_ making things generic is that they 
-> become less optimised for specific architectures.  I'm still not 
-> convinced that the genirq stuff is as optimal for ARM as the existing 
-> code is, so I've little motivation to move to the genirq stuff. 
-> (Though I will try to make things easier for those who would like to.)
-
-i'm quite convinced that the final phase of the genirq conversion will 
-work out fine: because it mostly meant the conceptual adoption of your 
-ARM IRQ layer (the irqchips approach), with compatibility mechanisms for 
-all the other arches, with some minor SMP improvements ontop of it. So 
-i'd be surprised if you found _that_ one inadequate :-) If there's any 
-detail that ARM doesnt need, i'm sure we can find a non-runtime solution 
-for it. But i think i digress.
-
-	Ingo
+--- a/block/scsi_ioctl.c~	2005-12-19 15:44:06.000000000 -0500
++++ b/block/scsi_ioctl.c	2005-12-19 15:46:43.000000000 -0500
+@@ -449,7 +449,7 @@
+ 	struct request *rq;
+ 	int err;
+ 
+-	rq = blk_get_request(q, WRITE, __GFP_WAIT);
++	rq = blk_get_request(q, READ, __GFP_WAIT);
+ 	rq->flags |= REQ_BLOCK_PC;
+ 	rq->data = NULL;
+ 	rq->data_len = 0;
+@@ -469,6 +469,11 @@
+ 	return __blk_send_generic(q, bd_disk, GPCMD_START_STOP_UNIT, data);
+ }
+ 
++static inline int blk_send_allow_medium_removal(request_queue_t *q, struct gendisk *bd_disk)
++{
++	return __blk_send_generic(q, bd_disk, GPCMD_PREVENT_ALLOW_MEDIUM_REMOVAL, 0);
++}
++
+ int scsi_cmd_ioctl(struct file *file, struct gendisk *bd_disk, unsigned int cmd, void __user *arg)
+ {
+ 	request_queue_t *q;
+@@ -593,7 +598,11 @@
+ 			err = blk_send_start_stop(q, bd_disk, 0x03);
+ 			break;
+ 		case CDROMEJECT:
+-			err = blk_send_start_stop(q, bd_disk, 0x02);
++			err = 0;
++
++			err |= blk_send_allow_medium_removal(q, bd_disk);
++			err |= blk_send_start_stop(q, bd_disk, 0x01);
++			err |= blk_send_start_stop(q, bd_disk, 0x02);
+ 			break;
+ 		default:
+ 			err = -ENOTTY;

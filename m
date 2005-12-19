@@ -1,129 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbVLSTy6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964925AbVLST4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964926AbVLSTy6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 14:54:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbVLSTy6
+	id S964925AbVLST4i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 14:56:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbVLST4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 14:54:58 -0500
-Received: from mail.gmx.de ([213.165.64.21]:60858 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964924AbVLSTy5 (ORCPT
+	Mon, 19 Dec 2005 14:56:37 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:4745 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964925AbVLST4h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 14:54:57 -0500
-X-Authenticated: #5082238
-Date: Mon, 19 Dec 2005 20:54:58 +0100
-From: Carsten Otto <c-otto@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Intel e1000 fails after RAM upgrade
-Message-ID: <20051219195458.GA23650@carsten-otto.halifax.rwth-aachen.de>
-Reply-To: c-otto@gmx.de
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
-Content-Disposition: inline
-X-GnuGP-Key: http://c-otto.de/pubkey.asc
-User-Agent: Mutt/1.5.11
-X-Y-GMX-Trusted: 0
+	Mon, 19 Dec 2005 14:56:37 -0500
+Date: Mon, 19 Dec 2005 11:55:59 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin LaHaise <bcrl@kvack.org>
+cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [patch 00/15] Generic Mutex Subsystem
+In-Reply-To: <20051219192537.GC15277@kvack.org>
+Message-ID: <Pine.LNX.4.64.0512191148460.4827@g5.osdl.org>
+References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de>
+ <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org> <20051219155010.GA7790@elte.hu>
+ <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org> <20051219192537.GC15277@kvack.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi there!
+On Mon, 19 Dec 2005, Benjamin LaHaise wrote:
+> 
+> The only thing I can see as an improvement that a mutex can offer over 
+> the current semaphore implementation is if we can perform the same 
+> optimization that spinlocks perform in the unlock operation: don't use 
+> a locked, serialising instruction in the up() codepath.  That might be 
+> a bit tricky to implement, but it's definately a win on the P4 where the 
+> cost of serialisation can be quite high.
 
-First the basic system specs:
-Athlon64 3500+ S939, Winchester
-Kernel 2.6.14.4, X86_64
-4*1 GB RAM DDR 333, Dual Channel [before: 2*1 GB RAM DDR 400, Dual Channel]
-Intel Gigabit PCI (Intel Corporation 82540EM Gigabit Ethernet Controller (r=
-ev 02))
-Abit AV8
+Good point. However, it really _is_ hard, because we also need to know if 
+the mutex was under contention. A spinlock doesn't care, so we can just 
+overwrite the lock value. A mutex would always care, in order to know 
+whether it needs to do the slow wakeup path. 
 
-After upgrading the memory to 4 GB I noticed my e1000 did not work.
-dmesg shows:
+So I suspect you can't avoid serializing the unlock path for a mutex. The 
+issue of "was there contention while I held it" fundamentally _is_ a 
+serializing question.
 
-e1000: eth0: e1000_watchdog_task: NIC Link is Up 1000 Mbps Full Duplex
-e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
-  TDH                  <2000>
-  TDT                  <2000>
-  next_to_use          <6>
-  next_to_clean        <0>
-buffer_info[next_to_clean]
-  dma                  <13024c002>
-  time_stamp           <ffffd8c7>
-  next_to_watch        <0>
-  jiffies              <ffffe096>
-  next_to_watch.status <0>
-e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
-  TDH                  <2000>
-  TDT                  <2000>
-  next_to_use          <6>
-  next_to_clean        <0>
-buffer_info[next_to_clean]
-  dma                  <13024c002>
-  time_stamp           <ffffd8c7>
-  next_to_watch        <0>
-  jiffies              <ffffe28a>
-  next_to_watch.status <0>
-eth0: no IPv6 routers present
-e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
-  TDH                  <2000>
-  TDT                  <2000>
-  next_to_use          <6>
-  next_to_clean        <0>
-buffer_info[next_to_clean]
-  dma                  <13024c002>
-  time_stamp           <ffffd8c7>
-  next_to_watch        <0>
-  jiffies              <ffffe47e>
-  next_to_watch.status <0>
-e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
-  TDH                  <2000>
-  TDT                  <2000>
-  next_to_use          <6>
-  next_to_clean        <0>
-buffer_info[next_to_clean]
-  dma                  <13024c002>
-  time_stamp           <ffffd8c7>
-  next_to_watch        <0>
-  jiffies              <ffffe672>
-  next_to_watch.status <0>
+> > [ Oh.  I'm looking at the semaphore code, and I realize that we have a 
+> >   "wake_up(&sem->wait)" in the __down() path because we had some race long 
+> >   ago that we fixed by band-aiding over it. Which means that we wake up 
+> >   sleepers that shouldn't be woken up. THAT may well be part of the 
+> >   performance problem.. The semaphores are really meant to wake up just 
+> >   one at a time, but because of that race hack they'll wake up _two_ at a 
+> >   time - once by up(), once by down().
+> > 
+> >   That also destroys the fairness. Does anybody remember why it's that 
+> >   way? ]
+> 
+> History?
 
-ethtool -t eth0 offline:
-The test result is FAIL
-The test extra info:
-Register test  (offline)         40
-Eeprom test    (offline)         0
-Interrupt test (offline)         4
-Loopback test  (offline)         13
-Link test   (on/offline)         1
+Oh, absolutely, I already checked the old BK history too, and that extra 
+wake_up() has been there at least since before we even started using BK. 
+So it's very much historical, I'm just wondering if somebody remembers far 
+enough back that we'd know.
 
-I have two of these cards. Both run fine in my (old, 32bit) server. I
-tested with both cards with both systems. Only in my 64bit machine this
-error occurs - with both cards.
+I don't see why it's needed (since we re-try the "atomic_add_negative()" 
+inside the semaphore wait lock, and any up() that saw contention should 
+have always been guaranteed to do a wakeup that should fill the race in 
+between that atomic_add_negative() and the thing going to sleep). 
 
-Please tell me what to do. I have to live with the VIA onboard in the
-meantime and that is not the best network card...
+It may be that it is _purely_ historical, and simply isn't needed. That 
+would be funny/sad, in the sense that we've had it there for years and 
+years ;)
 
-Thanks a lot,
---=20
-Carsten Otto
-c-otto@gmx.de
-www.c-otto.de
-
---C7zPtVaVf+AK4Oqc
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDpxASjUF4jpCSQBQRAkDDAJ9wHj+k0ij4rI6HSYHUariwQa9IkwCghKLr
-xRzqguC24TxOMV1vs4JBkv0=
-=l6+W
------END PGP SIGNATURE-----
-
---C7zPtVaVf+AK4Oqc--
+		Linus

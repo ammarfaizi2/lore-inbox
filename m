@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbVLTLRn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbVLTLVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbVLTLRn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 06:17:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbVLTLRn
+	id S1750937AbVLTLVO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 06:21:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750897AbVLTLVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 06:17:43 -0500
-Received: from lirs02.phys.au.dk ([130.225.28.43]:4576 "EHLO lirs02.phys.au.dk")
-	by vger.kernel.org with ESMTP id S1750787AbVLTLRm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 06:17:42 -0500
-Date: Tue, 20 Dec 2005 12:17:28 +0100 (MET)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.15-rc5-rt2 and Kconfig
-In-Reply-To: <20051205174321.GA6191@elte.hu>
-Message-Id: <Pine.OSF.4.05.10512201211080.2075-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Dec 2005 06:21:14 -0500
+Received: from host234-100.pool8255.interbusiness.it ([82.55.100.234]:8076
+	"EHLO zion.home.lan") by vger.kernel.org with ESMTP
+	id S1750837AbVLTLVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 06:21:14 -0500
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH] PTRACE_SYSEMU is only for i386 and clashes with other ptrace codes of other archs
+Date: Mon, 19 Dec 2005 22:24:49 +0100
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20051219212448.1814.97742.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For some strange reason I couldn't get 2.6.15-rc5-rt2 to compile. Kconfig
-keeped setting CONFIG_RWSEM_XCHGADD_ALGORITHM=y in my .config even though
-I had CONFIG_PREEMPT_RT=y.
-I don't know much about Kconfig but to me it is odd that  the
-RWSEM_XCHGADD_ALGORITHM option is both in arch/i386/Kconfig and
-arch/i386/Kconfig.cpu with different dependencies. 
-When I removed it from Kconfig.cpu my problem disappeared and I could
-compile. But I have no clue what else this change does to the config
-system....
 
-Esben
+PTRACE_SYSEMU{,_SINGLESTEP} is actually arch specific, for now, and the current
+allocated number clashes with a ptrace code of frv, i.e. PTRACE_GETFDPIC. I
+should have submitted this much earlier, anyway we get no breakage for this.
 
+CC: Daniel Jacobowitz <dan@debian.org>
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
+ include/asm-i386/ptrace.h |    3 +++
+ include/linux/ptrace.h    |    2 --
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- linux-2.6-rt/arch/i386/Kconfig.orig 2005-12-16 22:38:26.000000000 +0100
-+++ linux-2.6-rt/arch/i386/Kconfig      2005-12-20 02:11:41.000000000 +0100
-@@ -245,7 +245,7 @@
+diff --git a/include/asm-i386/ptrace.h b/include/asm-i386/ptrace.h
+index 7e0f294..f324c53 100644
+--- a/include/asm-i386/ptrace.h
++++ b/include/asm-i386/ptrace.h
+@@ -54,6 +54,9 @@ struct pt_regs {
+ #define PTRACE_GET_THREAD_AREA    25
+ #define PTRACE_SET_THREAD_AREA    26
  
- config RWSEM_XCHGADD_ALGORITHM
-        bool
--       depends on !RWSEM_GENERIC_SPINLOCK && !PREEMPT_RT
-+       depends on !RWSEM_GENERIC_SPINLOCK && !PREEMPT_RT && !M386
-        default y
++#define PTRACE_SYSEMU		  31
++#define PTRACE_SYSEMU_SINGLESTEP  32
++
+ #ifdef __KERNEL__
  
- config X86_UP_APIC
---- linux-2.6-rt/arch/i386/Kconfig.cpu.orig 2005-12-1300:02:19.000000000 +0100
-+++ linux-2.6-rt/arch/i386/Kconfig.cpu  2005-12-20 02:11:47.000000000 +0100
-@@ -229,11 +229,6 @@
-        depends on M386
-        default y
+ #include <asm/vm86.h>
+diff --git a/include/linux/ptrace.h b/include/linux/ptrace.h
+index b2b3dba..8b64478 100644
+--- a/include/linux/ptrace.h
++++ b/include/linux/ptrace.h
+@@ -20,8 +20,6 @@
+ #define PTRACE_DETACH		0x11
  
--config RWSEM_XCHGADD_ALGORITHM
--       bool
--       depends on !M386
--       default y
--
- config GENERIC_CALIBRATE_DELAY
-        bool
-        default y
-
+ #define PTRACE_SYSCALL		  24
+-#define PTRACE_SYSEMU		  31
+-#define PTRACE_SYSEMU_SINGLESTEP  32
+ 
+ /* 0x4200-0x4300 are reserved for architecture-independent additions.  */
+ #define PTRACE_SETOPTIONS	0x4200
 

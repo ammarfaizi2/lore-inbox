@@ -1,51 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbVLSOh3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932101AbVLSOoN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbVLSOh3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 09:37:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbVLSOh3
+	id S932101AbVLSOoN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 09:44:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbVLSOoN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 09:37:29 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:13010 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932099AbVLSOh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 09:37:28 -0500
-Subject: Re: [patch 15/15] Generic Mutex Subsystem, arch-semaphores.patch
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Paul Jackson <pj@sgi.com>
-In-Reply-To: <20051219014043.GK28038@elte.hu>
-References: <20051219014043.GK28038@elte.hu>
-Content-Type: text/plain
-Date: Mon, 19 Dec 2005 09:36:52 -0500
-Message-Id: <1135003012.13138.261.camel@localhost.localdomain>
+	Mon, 19 Dec 2005 09:44:13 -0500
+Received: from mail.gmx.de ([213.165.64.21]:48095 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932101AbVLSOoN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 09:44:13 -0500
+X-Authenticated: #4399952
+Date: Mon, 19 Dec 2005 15:44:10 +0100
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc5-rt2 build error
+Message-ID: <20051219154410.4942e826@mango.fruits.de>
+In-Reply-To: <43A5DBF0.6030801@cybsft.com>
+References: <20051218210614.75f424eb@mango.fruits.de>
+	<43A5DBF0.6030801@cybsft.com>
+X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-19 at 02:40 +0100, Ingo Molnar wrote:
-> mark all semaphores that are known to be used in a non-mutex fashion,
-> as 
-> arch_semaphores. This has relevance for the CONFIG_DEBUG_MUTEX_FULL 
-> debugging kernel: these semaphores will never be changed to mutexes,
-> not 
-> even for debugging purposes.
+On Sun, 18 Dec 2005 16:00:16 -0600
+"K.R. Foley" <kr@cybsft.com> wrote:
+
+> Florian Schmidt wrote:
+> > config attached [cat .config|grep -v "#" >config]
+> > 
+> >   CC      lib/rwsem.o
+> > lib/rwsem.c: In function '__rwsem_do_wake':
+> > lib/rwsem.c:57: warning: implicit declaration of function 'rwsem_atomic_update'
+> > lib/rwsem.c:57: error: 'RWSEM_ACTIVE_BIAS' undeclared (first use in this function)
+
+> Flo,
 > 
-> Signed-off-by: Ingo Molnar <mingo@elte.hu>
+> Look back through the mailing list for the past week for a thread
+> entitled "kernel-2.6.15-rc5-rt2 - compilation error" and check out
+> Steven's patches in that thread. If you can't find it let me know.
 
-OK, I've finished going through each patch, and gave my comments as I
-saw them.  When I get more time, I'll actually apply them and try them
-out.
+Thanks, i found this:
 
--- Steve
+http://lkml.org/lkml/mbox/2005/12/14/246
 
-Acked-by: Steven Rostedt <rostedt@goodmis.org>
+I'm not on X86_64 though. Plus i do have PREEMPT_RT enabled.
 
+trying this though:
 
+http://lkml.org/lkml/2005/12/13/184
+
+Seems to build fine now.
+
+Flo
+
+-- 
+Palimm Palimm!
+http://tapas.affenbande.org

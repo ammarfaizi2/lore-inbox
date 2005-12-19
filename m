@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbVLSOBH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbVLSOGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbVLSOBH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 09:01:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbVLSOBH
+	id S1750743AbVLSOGA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 09:06:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbVLSOGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 09:01:07 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:25787 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750702AbVLSOBG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 09:01:06 -0500
-Subject: Re: [patch 07/15] Generic Mutex Subsystem, mutex-debug-more.patch
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Paul Jackson <pj@sgi.com>
-In-Reply-To: <20051219013807.GC28038@elte.hu>
-References: <20051219013807.GC28038@elte.hu>
-Content-Type: text/plain
-Date: Mon, 19 Dec 2005 09:00:29 -0500
-Message-Id: <1135000829.13138.245.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 19 Dec 2005 09:06:00 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:48273 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750743AbVLSOGA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 09:06:00 -0500
+To: Dave Airlie <airlied@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Dave Hansen <haveblue@us.ibm.com>,
+       "SERGE E. HALLYN [imap]" <serue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hubertus Franke <frankeh@watson.ibm.com>, Paul Jackson <pj@sgi.com>
+Subject: Re: [RFC] [PATCH 00/13] Introduce task_pid api
+References: <20051114212341.724084000@sergelap>
+	<m1slt5c6d8.fsf@ebiederm.dsl.xmission.com>
+	<1133977623.24344.31.camel@localhost>
+	<1133978128.2869.51.camel@laptopd505.fenrus.org>
+	<1133978996.24344.42.camel@localhost>
+	<1133982048.2869.60.camel@laptopd505.fenrus.org>
+	<1133993636.30387.41.camel@localhost>
+	<1133994002.2869.73.camel@laptopd505.fenrus.org>
+	<21d7e9970512120255t4852129bx8f50c02efc59836c@mail.gmail.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: Mon, 19 Dec 2005 07:04:21 -0700
+In-Reply-To: <21d7e9970512120255t4852129bx8f50c02efc59836c@mail.gmail.com> (Dave
+ Airlie's message of "Mon, 12 Dec 2005 21:55:05 +1100")
+Message-ID: <m164pl6v4q.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-19 at 02:38 +0100, Ingo Molnar wrote:
-> Index: linux/lib/spinlock_debug.c
-> ===================================================================
-> --- linux.orig/lib/spinlock_debug.c
-> +++ linux/lib/spinlock_debug.c
-> @@ -20,7 +20,8 @@ static void spin_bug(spinlock_t *lock, c
->                 if (lock->owner && lock->owner != SPINLOCK_OWNER_INIT)
->                         owner = lock->owner;
->                 printk("BUG: spinlock %s on CPU#%d, %s/%d\n",
-> -                       msg, smp_processor_id(), current->comm,
-> current->pid);
-> +                       msg, raw_smp_processor_id(),
-> +                       current->comm, current->pid);
->                 printk(" lock: %p, .magic: %08x, .owner: %s/%
-> d, .owner_cpu: %d\n",
->                         lock, lock->magic,
->                         owner ? owner->comm : "<none>",
-> @@ -78,8 +79,8 @@ static void __spin_lock_debug(spinlock_t
->                 if (print_once) {
->                         print_once = 0;
->                         printk("BUG: spinlock lockup on CPU#%d, %s/%d,
-> %p\n",
-> -                               smp_processor_id(), current->comm,
-> current->pid,
-> -                                       lock);
-> +                               raw_smp_processor_id(), current->comm,
-> +                               current->pid, lock);
->                         dump_stack();
->                 }
->         }
+Dave Airlie <airlied@gmail.com> writes:
 
-The changes here from smp_processor_id to raw_smp_processor_id seem to
-be more clean up and not part of the mutex patch.  Should these be sent
-separately?
-
--- Steve
+>>
+>> again the DRM layer needs an audit, I'm not entirely sure if it doesn't
+>> get pids from userspace. THe rest of the kernel mostly ought to cope
+>> just fine.
+>>
+>
+> Yes yet again, if you can think of it, the drm will have found a way
+> to do it :-)
+>
+> the drmGetClient ioctl passes pids across the user/kernel boundary,
+> its the only place I can see in a quick look at the interfaces.... but
+> it isn't used for anything as far as I can see except for the dristat
+> testing utility..
 
 
+There are crazier cases in the kernel.  Netlink is my favorite example
+it's default ports are the process pid and some locations in the kernel
+even assume you are using the default port.
+
+Eric

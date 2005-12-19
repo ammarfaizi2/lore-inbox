@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbVLSU7N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964971AbVLSU7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbVLSU7N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 15:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964971AbVLSU7M
+	id S964971AbVLSU7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 15:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbVLSU7P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 15:59:12 -0500
-Received: from www.swissdisk.com ([216.144.233.50]:10431 "EHLO
-	swissweb.swissdisk.com") by vger.kernel.org with ESMTP
-	id S964973AbVLSU7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 15:59:11 -0500
-Date: Mon, 19 Dec 2005 11:50:14 -0800
-From: Ben Collins <bcollins@ubuntu.com>
-To: axboe@suse.de, torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH rc6] block: Fix CDROMEJECT to work in more cases
-Message-ID: <20051219195014.GA13578@swissdisk.com>
+	Mon, 19 Dec 2005 15:59:15 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:52612 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S964971AbVLSU7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 15:59:14 -0500
+Subject: Re: [patch 04/15] Generic Mutex Subsystem,
+	add-atomic-call-func-x86_64.patch
+From: David Woodhouse <dwmw2@infradead.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com>
+References: <20051219013507.GE27658@elte.hu>
+	 <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com>
+Content-Type: text/plain
+Date: Mon, 19 Dec 2005 20:58:52 +0000
+Message-Id: <1135025932.4760.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This changes the request to a READ instead of WRITE. Also adds and calls
-blk_send_allow_medium_removal() for CDROMEJECT case.
+On Mon, 2005-12-19 at 09:49 -0800, Zwane Mwaikambo wrote:
+> Hi Ingo,
+>         Doesn't this corrupt caller saved registers?
 
-Signed-off-by: Ben Collins <bcollins@ubuntu.com>
+Looks like it. I _really_ don't like calling functions from inline asm.
+It's not nice. Can't we use atomic_dec_return() for this?
 
---- a/block/scsi_ioctl.c~	2005-12-19 15:44:06.000000000 -0500
-+++ b/block/scsi_ioctl.c	2005-12-19 15:46:43.000000000 -0500
-@@ -449,7 +449,7 @@
- 	struct request *rq;
- 	int err;
- 
--	rq = blk_get_request(q, WRITE, __GFP_WAIT);
-+	rq = blk_get_request(q, READ, __GFP_WAIT);
- 	rq->flags |= REQ_BLOCK_PC;
- 	rq->data = NULL;
- 	rq->data_len = 0;
-@@ -469,6 +469,11 @@
- 	return __blk_send_generic(q, bd_disk, GPCMD_START_STOP_UNIT, data);
- }
- 
-+static inline int blk_send_allow_medium_removal(request_queue_t *q, struct gendisk *bd_disk)
-+{
-+	return __blk_send_generic(q, bd_disk, GPCMD_PREVENT_ALLOW_MEDIUM_REMOVAL, 0);
-+}
-+
- int scsi_cmd_ioctl(struct file *file, struct gendisk *bd_disk, unsigned int cmd, void __user *arg)
- {
- 	request_queue_t *q;
-@@ -593,7 +598,11 @@
- 			err = blk_send_start_stop(q, bd_disk, 0x03);
- 			break;
- 		case CDROMEJECT:
--			err = blk_send_start_stop(q, bd_disk, 0x02);
-+			err = 0;
-+
-+			err |= blk_send_allow_medium_removal(q, bd_disk);
-+			err |= blk_send_start_stop(q, bd_disk, 0x01);
-+			err |= blk_send_start_stop(q, bd_disk, 0x02);
- 			break;
- 		default:
- 			err = -ENOTTY;
+-- 
+dwmw2
+

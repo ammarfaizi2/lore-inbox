@@ -1,201 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964903AbVLSTlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbVLSTlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964903AbVLSTlY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 14:41:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964905AbVLSTlY
+	id S964900AbVLSTlv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 14:41:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964906AbVLSTlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 14:41:24 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:56025 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964903AbVLSTlX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 14:41:23 -0500
-Date: Mon, 19 Dec 2005 11:41:08 -0800 (PST)
+	Mon, 19 Dec 2005 14:41:49 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:22410 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964900AbVLSTle (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 14:41:34 -0500
+Date: Mon, 19 Dec 2005 11:41:24 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
-Cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       Hirokazu Takahashi <taka@valinux.co.jp>, Cliff Wickman <cpw@sgi.com>,
-       Christoph Lameter <clameter@sgi.com>, lhms-devel@lists.sourceforge.net
-Message-Id: <20051219194108.20715.39379.sendpatchset@schroedinger.engr.sgi.com>
-Subject: [PATCH 0/5] Direct Migration V8: Overview
+Cc: Hirokazu Takahashi <taka@valinux.co.jp>, lhms-devel@lists.sourceforge.net,
+       Cliff Wickman <cpw@sgi.com>, Christoph Lameter <clameter@sgi.com>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Message-Id: <20051219194124.20715.169.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051219194108.20715.39379.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051219194108.20715.39379.sendpatchset@schroedinger.engr.sgi.com>
+Subject: [PATCH 3/5] Direct Migration V8: remove_from_swap() to remove swap ptes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Page migration allows the moving of the physical location of pages between
-nodes in a numa system while the process is running. This means that the
-virtual addresses that the process sees do not change. However, the
-system rearranges the physical location of those pages.
+Add remove_from_swap
 
-The main intend of page migration patches here is to reduce the latency of
-memory access by moving pages near to the processor where the process
-accessing that memory is running.
+remove_from_swap() allows the restoration of the pte entries that existed
+before page migration occurred for anonymous pages by walking the reverse
+maps. This reduces swap use and establishes regular pte's without the need
+for page faults.
 
-The migration patchsets allow a process to manually relocate the node
-on which its pages are located through the MF_MOVE and MF_MOVE_ALL options
-while setting a new memory policy. The pages of process can also be relocated
-from another process using the sys_migrate_pages() function call. The
-migrate_pages function call takes two sets of nodes and moves pages of a
-process that are located on the from nodes to the destination nodes.
+V7->V8:
+- Move the removing of the page from the swap entries and from the swap
+  cache to migrate page so that it can be done while the page lock
+  on the new page is held.
+- Unlock anon_vma
+- Remove the page from the page cache
 
-Manual migration is very useful if for example the scheduler has relocated
-a process to a processor on a distant node. A batch scheduler or an
-administrator can detect  the situation and move the pages of the process
-nearer to the new processor.
+V5->V6:
+- Somehow V5 did a remove_from_swap for the old page. Changed to new
+  page
 
-Larger installations usually partition the system using cpusets into
-sections of nodes. Paul Jackson has  equipped cpusets with the ability to
-move pages when a task is moved to another cpuset. This allows automatic
-control over locality of a process. If a task is moved to a new cpuset
-then also all its pages are moved with it so that the performance of the
-process does not sink dramatically (as is the case today).
+V3->V4:
+- Add new function remove_vma_swap in swapfile.c to encapsulate
+  the functionality needed instead of exporting unuse_vma.
+- Add #ifdef CONFIG_MIGRATION
 
-The swap migration patchset in 2.6.15-rc5-mm3 works by simply evicting
-the page. The pages must be faulted back in. The pages are then typically
-reallocated by the system near the node where the process is executing.
-For swap migration the destination of the move is controlled by the
-allocation policy. Cpusets set the allocation policy before calling
-sys_migrate_pages() in order to move the pages as intended.
+Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-No allocation policy changes are performed for sys_migrate_pages(). This
-means that the pages may not faulted in to the specified nodes if no
-allocation policy was set by other means. The pages will just end up
-near the node where the fault occurred.  The direct migration patchset
-extends the migration functionality to avoid going through swap.
-The destination node of the relation is controllable during the actual
-moving of pages. The crutch of using the allocation policy to relocate
-is not necessary any and the pages are moved directly to the target.
-
-The direct migration patchset allows the preservation of the relative
-location of pages within a group of nodes for all migration techniques which
-will preserve a particular memory allocation pattern generated even after
-migrating a process. This is necessary in order to preserve the memory
-latencies. Processes will run with similar performance after migration.
-
-This patch makes sys_migrate_pages() finally work as intended but does not
-do any significant modifications to APIs.
-
-Benefits over swap migration:
-
-1. It makes migrates_pages() actually migrate pages instead of just
-   swapping pages from a set of nodes out.
-
-2. Its faster because the page does not need to be written to swap space.
-
-3. It does not use swap space and therefore there is no danger of running
-   out of swap space.
-
-4. The need to write back a dirty page before migration is avoided through
-   a file system specific method.
-
-5. Direct migration allows the preservation of the relative location of a page
-   within a set of nodes.
-
-Many of the ideas for this code were originally developed in the memory
-hotplug project and we hope that this code also will allow the hotplug
-project to build on this patch in order to get to their goals.
-
-The patchset consists of five patches (only the first two are necessary to
-have basic direct migration support):
-
-1. SwapCache patch
-
-   SwapCache pages may have changed their type after lock_page() if the
-   page was migrated. Check for this and retry lookup if the page is no
-   longer a SwapCache page.
-
-2. migrate_pages()
-
-   Basic direct migration with fallback to swap if all other attempts
-   fail.
-
-3. remove_from_swap()
-
-   Page migration installs swap ptes for anonymous pages in order to
-   preserve the information contained in the page tables. This patch
-   removes the swap ptes after migration and replaces them with regular
-   ptes.
-
-4. upgrade of MPOL_MF_MOVE and sys_migrate_pages()
-
-   Add logic to mm/mempolicy.c to allow the policy layer to control
-   direct page migration. Thanks to Paul Jackson for the interative
-   logic to move between sets of nodes.
-
-5. buffer_migrate_pages() patch
-
-   Allow migration without writing back dirty pages. Add filesystem dependent
-   migration support for ext2/ext3 and xfs. Use swapper space to setup a
-   method to migrate anonymous pages without writeback.
-
-Credits (also in mm/vmscan.c):
-
-The idea for this scheme of page migration was first developed in the context
-of the memory hotplug project. The main authors of the migration code from
-the memory hotplug project are:
-
-IWAMOTO Toshihiro <iwamoto@valinux.co.jp>
-Hirokazu Takahashi <taka@valinux.co.jp>
-Dave Hansen <haveblue@us.ibm.com>
-
-Changes V7->V8:
-- Patchset against 2.6.15-rc5-mm3
-- Export more functions so that filesystems are able to implement their own
-  migrate_page() function.
-- Fix remove_from_swap() to remove the page from the swap cache in addition
-  to replacing swap ptes. Call with the page lock on the new page.
-- Fix copying of struct page {} field to avoid using the macros that process
-  field information.
-
-Changes V7->V7:
-- Rediff against 2.6.14-rc5-mm2
-
-Changes V6->V7:
-- Patchset agsinst 2.6.15-rc5-mm1
-- Fix one occurence of page->mapping in migrate_page_remove_references()
-- Update description]
-
-Changes V5->V6:
-- Patchset against 2.6.15-rc3-mm1
-- Remove checks for page count increases while migrating after Andrew assured
-  me that this cannot happen. Revise documentation to reflect that. If this is
-  the case then we will have no need to include the unwind code from the
-  hotplug project in the future.
-- Wrong reference while calling remove_from_swap to page instead of newpage
-  fixed.
-
-Changes V4->V5:
-- Patchset against 2.6.15-rc2-mm1
-- Update policy layer patch to use the generic check_range in 2.6.15-rc2-mm1.
-- Remove try_to_unmap patch since VM_RESERVED vanished under us and therefore
-  there is no point anymore to distinguish between permament and transitional
-  failures.
-
-Changes V3->V4:
-- Patchset against 2.6.15-rc1-mm2 + two swap migration fixes posted today.
-- Remove what is already in 2.6.14-rc1-mm2 which results in a significant
-  cleanup of the code.
-
-Changes V2->V3:
-- Patchset against 2.6.14-mm2
-- Fix single processor build and builds without CONFIG_MIGRATION
-- export symbols for filesystems that are modules and for
-  modules using migrate_pages().
-- Paul Jackson's cpuset migration support is in 2.6.14-mm2 so
-  this patchset can be easily applied to -mm2 to get from swap
-  based to direct page migration.
-
-Changes V1->V2:
-- Call node_remap with the right parameters in do_migrate_pages().
-- Take radix tree lock while examining page count to avoid races with
-  find_get_page() and various *_get_pages based on it.
-- Convert direct ptes to swap ptes before radix tree update to avoid
-  more races.
-- Fix problem if CONFIG_MIGRATION is off for buffer_migrate_page
-- Add documentation about page migration
-- Change migrate_pages() api so that the caller can decide what
-  to do about the migrated pages (badmem handling and hotplug
-  have to remove those pages for good).
-- Drop config patch (already in mm)
-- Add try_to_unmap patch
-- Patchset now against 2.6.14-mm1 without requiring additional patches.
-
-
+Index: linux-2.6.15-rc5-mm3/include/linux/swap.h
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/include/linux/swap.h	2005-12-16 11:44:15.000000000 -0800
++++ linux-2.6.15-rc5-mm3/include/linux/swap.h	2005-12-19 10:39:14.000000000 -0800
+@@ -230,6 +230,9 @@ extern int remove_exclusive_swap_page(st
+ struct backing_dev_info;
+ 
+ extern spinlock_t swap_lock;
++#ifdef CONFIG_MIGRATION
++extern int remove_vma_swap(struct vm_area_struct *vma, struct page *page);
++#endif
+ 
+ /* linux/mm/thrash.c */
+ extern struct mm_struct * swap_token_mm;
+Index: linux-2.6.15-rc5-mm3/mm/swapfile.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/mm/swapfile.c	2005-12-16 11:44:15.000000000 -0800
++++ linux-2.6.15-rc5-mm3/mm/swapfile.c	2005-12-19 10:39:14.000000000 -0800
+@@ -532,6 +532,16 @@ static int unuse_mm(struct mm_struct *mm
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_MIGRATION
++int remove_vma_swap(struct vm_area_struct *vma, struct page *page)
++{
++	swp_entry_t entry = { .val = page_private(page) };
++
++	return unuse_vma(vma, entry, page);
++}
++#endif
++
++
+ /*
+  * Scan swap_map from current position to next entry still in use.
+  * Recycle to start on reaching the end, returning 0 when empty.
+Index: linux-2.6.15-rc5-mm3/mm/rmap.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/mm/rmap.c	2005-12-16 11:44:09.000000000 -0800
++++ linux-2.6.15-rc5-mm3/mm/rmap.c	2005-12-19 10:42:23.000000000 -0800
+@@ -205,6 +205,35 @@ out:
+ 	return anon_vma;
+ }
+ 
++#ifdef CONFIG_MIGRATION
++/*
++ * Remove an anonymous page from swap replacing the swap pte's
++ * through real pte's pointing to valid pages and then releasing
++ * the page from the swap cache.
++ *
++ * Must hold page lock on page.
++ */
++void remove_from_swap(struct page *page)
++{
++	struct anon_vma *anon_vma;
++	struct vm_area_struct *vma;
++
++	if (!PageAnon(page) || !PageSwapCache(page))
++		return;
++
++	anon_vma = page_lock_anon_vma(page);
++	if (!anon_vma)
++		return;
++
++	list_for_each_entry(vma, &anon_vma->head, anon_vma_node)
++		remove_vma_swap(vma, page);
++
++	spin_unlock(&anon_vma->lock);
++
++	delete_from_swap_cache(page);
++}
++#endif
++
+ /*
+  * At what user virtual address is page expected in vma?
+  */
+Index: linux-2.6.15-rc5-mm3/include/linux/rmap.h
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/include/linux/rmap.h	2005-12-16 11:44:09.000000000 -0800
++++ linux-2.6.15-rc5-mm3/include/linux/rmap.h	2005-12-19 10:39:14.000000000 -0800
+@@ -92,6 +92,9 @@ static inline void page_dup_rmap(struct 
+  */
+ int page_referenced(struct page *, int is_locked);
+ int try_to_unmap(struct page *);
++#ifdef CONFIG_MIGRATION
++void remove_from_swap(struct page *page);
++#endif
+ 
+ /*
+  * Called from mm/filemap_xip.c to unmap empty zero page
+Index: linux-2.6.15-rc5-mm3/mm/vmscan.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/mm/vmscan.c	2005-12-16 11:44:15.000000000 -0800
++++ linux-2.6.15-rc5-mm3/mm/vmscan.c	2005-12-19 10:44:23.000000000 -0800
+@@ -807,6 +807,15 @@ int migrate_page(struct page *newpage, s
+ 
+ 	migrate_page_copy(newpage, page);
+ 
++	/*
++	 * Remove auxiliary swap entries and replace
++	 * them with real ptes.
++	 *
++	 * Note that a real pte entry will allow processes that are not
++	 * waiting on the page lock to use the new page via the page tables
++	 * before the new page is unlocked.
++	 */
++	remove_from_swap(newpage);
+ 	return 0;
+ }
+ 

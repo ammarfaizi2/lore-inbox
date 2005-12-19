@@ -1,163 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbVLSCfs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbVLSC5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbVLSCfs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 21:35:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932530AbVLSCfs
+	id S1030203AbVLSC5d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 21:57:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932530AbVLSC5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 21:35:48 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:17127 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932178AbVLSCfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 21:35:48 -0500
-Message-ID: <43A61BE4.7050709@jp.fujitsu.com>
-Date: Mon, 19 Dec 2005 11:33:08 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [BUG][PATCH] e1000: Fix invalid memory reference
-References: <439EA1F4.3000204@jp.fujitsu.com> <9929d2390512161841m516b3728i8c08af3e83a4472f@mail.gmail.com>
-In-Reply-To: <9929d2390512161841m516b3728i8c08af3e83a4472f@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 18 Dec 2005 21:57:33 -0500
+Received: from gate.crashing.org ([63.228.1.57]:16864 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932460AbVLSC5c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Dec 2005 21:57:32 -0500
+Subject: Re: USB rejecting sleep
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <greg@kroah.com>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       David Brownell <david-b@pacbell.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051218222516.GA19183@kroah.com>
+References: <1134937642.6102.85.camel@gaston>
+	 <20051218215051.GA18257@kroah.com> <1134944031.6102.103.camel@gaston>
+	 <20051218222516.GA19183@kroah.com>
+Content-Type: text/plain
+Date: Mon, 19 Dec 2005 13:51:45 +1100
+Message-Id: <1134960706.6162.2.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
-
-> Could you provide the test case you used to get the kernel panic? and
-> system related information.
-
-I encountered the kernel panic when I repeated pci hotplug with
-e1000 card on ia64 box. But please noted that the current e1000
-driver always refers invalid memory regardless of pci hotplug.
-
-In my understanding, e1000 driver set the adapter->bd_number
-incrementally when a new e1000 card is initialized. So first
-card has 0, second card has 1,..., as bd_number. On the other
-hand, num_AutoNeg is 0 on my environment because I don't put
-any module options for e1000 driver. Here, in the following
-code path you mentioned, "int an = AutoNeg[bd];" cause invalid
-memory reference.
-
->    if ((num_AutoNeg > bd) && (speed != 0 || dplx != 0)) {
->         DPRINTK(PROBE, INFO,
->                "AutoNeg specified along with Speed or Duplex, "
->                "parameter ignored\n");
->         adapter->hw.autoneg_advertised = AUTONEG_ADV_DEFAULT;
->     } else { /* Autoneg */
->                           .
->                           .
->                           .
+On Sun, 2005-12-18 at 14:25 -0800, Greg KH wrote:
+> On Mon, Dec 19, 2005 at 09:13:50AM +1100, Benjamin Herrenschmidt wrote:
+> > On Sun, 2005-12-18 at 13:50 -0800, Greg KH wrote:
+> > 
+> > > Yes it is, and I have a patch in my tree now that fixes this up and
+> > > keeps the suspend process working properly for usb drivers that do not
+> > > have a suspend function.
+> > > 
+> > > Hm, I wonder if it should go in for 2.6.15?
+> > 
+> > Do you have an URL I can send to those users to test ?
 > 
->         int an = AutoNeg[bd];
->         e1000_validate_option(&an, &opt, adapter);
->         adapter->hw.autoneg_advertised = an;
->     }
-
-
-
-> num_Autoneg > bd will never be true  at this point in the code because
-> we do the following test before we execute this branch.
+> Here's the patch itself, feel free to spread it around.
 > 
+> It's also at:
+>   kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/patches/usb/usbcore-allow-suspend-resume-even-if-drivers-don-t-support-it.patch
 
-Why????????
-Do you mean (speed != 0 || dplx != 0) will always be true when
-num_Autoneg > bd is true? If yes, why do you need the following
-if statement? Do you mean the current e1000 driver has another
-bug?
+Ok, I did a bit more tests here with a Keyspan adapter on my laptop
+(well known driver for not having the suspend/resume routines).
 
->    if ((num_AutoNeg > bd) && (speed != 0 || dplx != 0)) {
+The good thing is with the patch, the machine goes to sleep. However,
+the device is not disconnected/reconnected. What happens it that the bus
+gets suspended anyway and the driver stays around (possibly getting
+errors on some URBs).
 
+This is fine, but not optimal, since that means most of the time that
+the device will not work on resume unless disconnected/reconnected. (For
+keyspan, it seems that the HW does support the suspend state, thus it's
+just a matter of closing/re-opening the port, I suppose it would be easy
+enough to fix the driver).
 
-Thanks,
-Kenji Kaneshige
+So this patch is good for it doesn't prevent sleep anymore, but it also
+doesn't do what we decided it should do. I think David is right that we
+should be able to disconnect the device without actually removing the
+device & driver from sysfs, just let that happen at resume time.
 
+Ben.
 
-
-Jeff Kirsher wrote:
-> On 12/13/05, Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> wrote:
-> 
->>Hi,
->>
->>I encountered a kernel panic which was caused by the invalid memory
->>access by e1000 driver. The following patch fixes this issue.
->>
->>Thanks,
->>Kenji Kaneshige
->>
->>
->>This patch fixes invalid memory reference in the e1000 driver which
->>would cause kernel panic.
->>
->>Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
->>
->> drivers/net/e1000/e1000_param.c |   10 +++++++---
->> 1 files changed, 7 insertions(+), 3 deletions(-)
->>
->>Index: linux-2.6.15-rc5/drivers/net/e1000/e1000_param.c
->>===================================================================
->>--- linux-2.6.15-rc5.orig/drivers/net/e1000/e1000_param.c
->>+++ linux-2.6.15-rc5/drivers/net/e1000/e1000_param.c
->>@@ -545,7 +545,7 @@ e1000_check_fiber_options(struct e1000_a
->> static void __devinit
->> e1000_check_copper_options(struct e1000_adapter *adapter)
->> {
->>-       int speed, dplx;
->>+       int speed, dplx, an;
->>        int bd = adapter->bd_number;
->>
->>        { /* Speed */
->>@@ -641,8 +641,12 @@ e1000_check_copper_options(struct e1000_
->>                                         .p = an_list }}
->>                };
->>
->>-               int an = AutoNeg[bd];
->>-               e1000_validate_option(&an, &opt, adapter);
->>+               if (num_AutoNeg > bd) {
->>+                       an = AutoNeg[bd];
->>+                       e1000_validate_option(&an, &opt, adapter);
->>+               } else {
->>+                       an = opt.def;
->>+               }
->>                adapter->hw.autoneg_advertised = an;
->>        }
->>
->>-
->>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->>the body of a message to majordomo@vger.kernel.org
->>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>Please read the FAQ at  http://www.tux.org/lkml/
->>
-> 
-> 
-> Could you provide the test case you used to get the kernel panic? and
-> system related information.
-> 
-> num_Autoneg > bd will never be true  at this point in the code because
-> we do the following test before we execute this branch.
-> 
->    if ((num_AutoNeg > bd) && (speed != 0 || dplx != 0)) {
->         DPRINTK(PROBE, INFO,
->                "AutoNeg specified along with Speed or Duplex, "
->                "parameter ignored\n");
->         adapter->hw.autoneg_advertised = AUTONEG_ADV_DEFAULT;
->     } else { /* Autoneg */
->                           .
->                           .
->                           .
-> 
->         int an = AutoNeg[bd];
->         e1000_validate_option(&an, &opt, adapter);
->         adapter->hw.autoneg_advertised = an;
->     }
-> 
-> 
-> --
-> Cheers,
-> Jeff
-> 
 

@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbVLSQDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbVLSQF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbVLSQDE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 11:03:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964788AbVLSQDE
+	id S964789AbVLSQF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 11:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbVLSQF6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 11:03:04 -0500
-Received: from mail.gmx.net ([213.165.64.21]:16349 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964787AbVLSQDB (ORCPT
+	Mon, 19 Dec 2005 11:05:58 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:10439 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S964789AbVLSQF5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 11:03:01 -0500
-X-Authenticated: #4399952
-Date: Mon, 19 Dec 2005 17:03:00 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "K.R. Foley" <kr@cybsft.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc5-rt2 build error
-Message-ID: <20051219170300.165da3c3@mango.fruits.de>
-In-Reply-To: <1135007186.16112.36.camel@mindpipe>
-References: <20051218210614.75f424eb@mango.fruits.de>
-	<43A5DBF0.6030801@cybsft.com>
-	<20051219154410.4942e826@mango.fruits.de>
-	<20051219162624.6a7f63b5@mango.fruits.de>
-	<1135007186.16112.36.camel@mindpipe>
-X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
+	Mon, 19 Dec 2005 11:05:57 -0500
+Date: Mon, 19 Dec 2005 08:04:01 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: paulmck@us.ibm.com, akpm@osdl.org, dada1@cosmosbay.com,
+       linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       Simon.Derr@bull.net, ak@suse.de, Greg Edwards <edwardsg@sgi.com>,
+       clameter@sgi.com
+Subject: CONFIG_DEBUG_PREEMPT (was: [PATCH 04/04] Cpuset: skip rcu check
+ ...)
+Message-Id: <20051219080401.861acca2.pj@sgi.com>
+In-Reply-To: <20051219064810.0ec403ee.pj@sgi.com>
+References: <20051214084031.21054.13829.sendpatchset@jackhammer.engr.sgi.com>
+	<20051214084049.21054.34108.sendpatchset@jackhammer.engr.sgi.com>
+	<20051216175201.GA24876@us.ibm.com>
+	<20051216120651.cb57ad2e.pj@sgi.com>
+	<20051217164723.GA28255@us.ibm.com>
+	<20051219064810.0ec403ee.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Dec 2005 10:46:26 -0500
-Lee Revell <rlrevell@joe-job.com> wrote:
+pj wrote:
+> instead consider removing CONFIG_DEBUG_PREEMPT from at least sn2
 
-> > But it doesn't run so well. Dmesg contains a BUG and an OOPS:
-> > 
-> 
-> How about with high res timers disabled?
+Ah - perhaps not so.  Adding my SGI colleague Greg Edwards to the cc
+list.  My email archives suggest that he enabled CONFIG_DEBUG_PREEMPT
+in ia64 sn2_defconfig a few months ago, and I presume did so intentionally.
 
-Good idea judging from the dmesg output alone. Interesting enough
-though:
+The change enabling CONFIG_DEBUG_PREEMPT was:
+    user:        Greg Edwards <edwardsg@sgi.com>
+    date:        Tue Aug 16 23:38:16 2005 +0011
+    summary:     [IA64] Refresh arch/ia64/configs/sn2_defconfig.
 
-# CONFIG_HIGH_RES_TIMERS is not set
+Greg - CONFIG_DEBUG_PREEMPT adds a couple of pages of assembly code 
+due to various BUG checks beneath rcu_read_lock() on some hot code
+paths (which is where rcu is most popular).  See the two calls
+add_preempt_count() and sub_preempt_count() in kernel/sched.c.
 
-Hrmm. I'll rebuild. This time without -j3 and with make mrproper
-beforehand.
+Was this intentional to enable CONFIG_DEBUG_PREEMPT in sn2_defconfig?
 
-Flo
+Other evidence opposing this DEBUG opttion:
+
+    Most other DEBUG options are turned off in the defconfigs.
+
+Other evidence supporting setting this DEBUG option:
+
+    We're not the only arch enabling CONFIG_DEBUG_PREEMPT.  See also:
+        collie            simpad            s390              se7705
+        lpd7a400          bigsur            dreamcast         sh03
+        lpd7a404          microdev          systemh           mx1ads
 
 -- 
-Palimm Palimm!
-http://tapas.affenbande.org
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbVLSLmg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbVLSMCo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030291AbVLSLmg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 06:42:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030301AbVLSLmg
+	id S932432AbVLSMCo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 07:02:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932415AbVLSMCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 06:42:36 -0500
-Received: from mail.gmx.de ([213.165.64.21]:59075 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030277AbVLSLmf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 06:42:35 -0500
-X-Authenticated: #19855039
-Date: Mon, 19 Dec 2005 12:42:31 +0100
-From: Marc-Jano Knopp <pub_ml_lkml@marc-jano.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug] mlockall() not working properly in 2.6.x
-Message-ID: <20051219114231.GA2830@mjk.myfqdn.de>
-References: <20051218212123.GC4029@mjk.myfqdn.de> <20051219022108.307e68b8.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051219022108.307e68b8.akpm@osdl.org>
-User-Agent: Mutt/1.5.1i
-X-Y-GMX-Trusted: 0
+	Mon, 19 Dec 2005 07:02:44 -0500
+Received: from ausmtp03.au.ibm.com ([202.81.18.151]:49299 "EHLO
+	ausmtp03.au.ibm.com") by vger.kernel.org with ESMTP id S932432AbVLSMCn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 07:02:43 -0500
+To: Roland Dreier <rolandd@cisco.com>
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+MIME-Version: 1.0
+Subject: Re: [openib-general] [PATCH 07/13]  [RFC] ipath core misc files
+X-Mailer: Lotus Notes Release 6.5.1IBM February 19, 2004
+Message-ID: <OF1B7C4042.2950A6E5-ON652570DC.00423BBB-652570DC.004228D5@in.ibm.com>
+From: Krishna Kumar2 <krkumar2@in.ibm.com>
+Date: Mon, 19 Dec 2005 17:35:39 +0530
+X-MIMETrack: Serialize by Router on d23m0069/23/M/IBM(Release 6.53HF294 | January 28, 2005) at
+ 19/12/2005 17:35:41,
+	Serialize complete at 19/12/2005 17:35:41
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Dec 2005 at 02:21 (-0800), Andrew Morton wrote:
-> Marc-Jano Knopp <pub_ml_lkml@marc-jano.de> wrote:
-> >
-> > A year ago, I wrote a small mlockall()-wrapper ("noswap") to make
-> > certain programs unswappable. It used to work perfectly, until I
-> > upgraded to kernel 2.6.x (2.6.13.1 in my case, but that shouldn't
-> > matter), which made the mlockall() execute without error, but also
-> > without any effect (the "L" in the STAT column of "ps axf" which
-> > indicates locked pages is missing).
-> > 
-> 
-> Question is: what kernel version did you upgrade from?
+(Please ignore if you see this twice, I am sending this a second time as I 
+got an error
+on previous send)
 
-2.4.31. Just rebooted to 2.4.31 and tried again - mlockall() seems to
-work perfectly:
+Roland Dreier <rolandd@cisco.com> wrote:
 
-# ps axf|grep [9]99
- 1037 tty1     SL+    0:00      \_ sleep 999
-# uname -a
-Linux pc8 2.4.31 #3 Thu Sep 8 16:49:45 CEST 2005 i686 unknown
-#
+...
+> +int ipath_mlock(unsigned long start_page, size_t num_pages, struct page 
+**p)
+> +{
+> +   int n;
+> +
+> +   _IPATH_VDBG("pin %lx pages from vaddr %lx\n", num_pages, 
+start_page);
+> +   down_read(&current->mm->mmap_sem);
+> +   n = get_user_pages(current, current->mm, start_page, num_pages, 1, 
+1,
+> +            p, NULL);
+> +   up_read(&current->mm->mmap_sem);
+> +   if (n != num_pages) {
+> +      _IPATH_INFO
+> +          ("get_user_pages (0x%lx pages starting at 0x%lx failed with 
+%d\n",
+> +           num_pages, start_page, n);
+> +      if (n < 0)   /* it's an errno */
+> +         return n;
+> +      return -ENOMEM;   /* no way to know actual error */
+> +   }
+> +
+> +   return 0;
+> +}
 
+For this routine (where num_pages can be >1), in the error case you need 
+to 
+page_cache_release() the pages that were successfully 'got' 
+(get_page()'d).
 
-> Prior to 2.4.18 the kernel would allow MCL_FUTURE to propagate into child
-> processes.  But that was disabled in 2.4.18 and later.  I seem to recall
-> that we did this because inheriting MCL_FUTURE is standards-incorrect.
+- KK
 
-Oh! So how can I make programs unswappable with kernel 2.6.x then?
-
-
-Best regards
-
-  Marc-Jano

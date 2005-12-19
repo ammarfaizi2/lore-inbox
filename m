@@ -1,118 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVLSKxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbVLSLFa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbVLSKxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 05:53:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932724AbVLSKxY
+	id S932313AbVLSLFa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 06:05:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932726AbVLSLFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 05:53:24 -0500
-Received: from embla.aitel.hist.no ([158.38.50.22]:21665 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932297AbVLSKxY
+	Mon, 19 Dec 2005 06:05:30 -0500
+Received: from embla.aitel.hist.no ([158.38.50.22]:27297 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S932313AbVLSLFa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 05:53:24 -0500
-Message-ID: <43A6920A.2080409@aitel.hist.no>
-Date: Mon, 19 Dec 2005 11:57:14 +0100
+	Mon, 19 Dec 2005 06:05:30 -0500
+Message-ID: <43A694DF.8040209@aitel.hist.no>
+Date: Mon, 19 Dec 2005 12:09:19 +0100
 From: Helge Hafting <helge.hafting@aitel.hist.no>
 User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Al Boldi <a1426z@gawab.com>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Arjan van de Ven <arjan@infradead.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux in a binary world... a doomsday scenario
-References: <200512150013.29549.a1426z@gawab.com> <200512151131.39216.a1426z@gawab.com> <43A1501F.5070803@aitel.hist.no> <200512152129.01861.a1426z@gawab.com>
-In-Reply-To: <200512152129.01861.a1426z@gawab.com>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+CC: Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@stusta.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com> <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com> <p73slsrehzs.fsf@verdi.suse.de> <20051217205238.GR23349@stusta.de> <61D4A300-4967-4DC1-AD2C-765A3D2D9743@comcast.net> <20051218054323.GF23384@wotan.suse.de> <5DB2F520-5666-4C7F-9065-51117A0F54B9@comcast.net>
+In-Reply-To: <5DB2F520-5666-4C7F-9065-51117A0F54B9@comcast.net>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Boldi wrote:
+Parag Warudkar wrote:
 
->>Disadvantages of a stable API:
->>* It encourages binary-only drivers, while we prefer source drivers.
->>   Changing the API often and without warning is one way of
->>   hampering binary-only driver development without harming
->>   open-source drivers.
->>    
->>
 >
->You are really shooting yourself in the foot here.
->  
+> On Dec 18, 2005, at 12:43 AM, Andi Kleen wrote:
 >
-Only if supporting binary-only drivers is somehow considered 
-important/useful.
-I don't believe so - so I don't shoot my foot here.  :-)
+>> You can catch the obvious ones, but the really hard ones
+>> that only occur under high load in obscure exceptional
+>> circumstances with large configurations and suitable nesting you  won't.
+>> These would be only found at real world users.
+>
+>
+> Yep, as it all depends on code complexity, some of these cases might  
+> not be "errors" at all - instead for that kind of functionality they  
+> might _require_ bigger stacks.
+>
+No complex problem ever requires a big stack.  It may require a large amount
+of memory - which can be allocated explicitly outside the stack.
 
->>Do a stable API save us work?  No, because whoever changes the API
->>also fixes all in-kernel users of said API. 
->>    
->>
+> If you have 64 bit machines common place and memory a lot cheaper I  
+> don't see how it is beneficial to force smaller stack sizes without  
+> giving consideration to the code complexity, architecture and  
+> requirements.
+> (Solaris for example, seems to be going to have 16Kb kernel stacks on  
+> 64 bit machines.)
 >
->That's very inefficient.
->  
->
-Wrong.  It means that whoever want to change an API don't do so too lightly,
-because there certainly is some work involved.  Even if it often only is
-a big "grep" followed up by some trivial editing.  So, API change only
-when there is a win offsetting this work. 
+> So, please let's leave stack size as an option for users to choose  
+> and stop this 4Kb stack war. May be after a little rest I will start  
+> another one demanding 16Kb stacks :)
 
-Such a process may seem inefficient if one were to schedule that work
-among a limited workforce.  They had better not waste their time as that
-block further options for profit. But only _companies_ work that way.
-The kernel is different.  There are lots and lots of people, each working
-on their favourite part. (Which is one reason why development scales so 
-well.)
+I suggest a little experiment for you.  Make a kernel module which do 
+nothing
+except try to allocate 16k of _contigous_ kernel memory, and
+printk whether it succeeded or failed before exiting.  Have cron run that
+every 5 minutes.  After a few weeks of running this low-impact test on
+a busy loaded server, look at statistics about how often the 16k allocation
+worked - and how often it failed. 
 
-If someone does a time-consuming api change, then they aren't free to
-do other work.  But if they don't do that api change - you can't schedule
-other work for them anyway because they aren't employees.  They are
-volunteers, their work don't cost any but it is also only for themselves
-to decide what they work on. 
+Whatever failure rate you get, expect the same failure rate for server
+processes forking to handle new connections while running with 16k stacks.
+Failing one out of a hundred times would probably not be tolerated
+for a webserver, and I suspect the failure rate for this will be higher - if
+the machine has a reasonable memory load and the usual fragmentation.
 
-So the usual rules or common sense about work management
-in a company do not apply.  Each patch is a gift you can't trade
-for something else.
-
->>how is non-OpenSource different? What can we do better? How can we
->>learn from them?
->>    
->>
->
->Pretty much nothing, except for taking advantage of their precooked 
->interconnectivity api's, in which they excel in abstracting them pretty 
->well.
->
->  
->
-[...]
-
->Don't mistake scalability for manageability/mantainability or flexibility.  
->  
->
-Well, if we have manageability, maintainability and flexibility
-then we are very well off, even if it doesn't fit your definition
-of scalability.
-
->Scalability is more, much more.  It's about extendability and reusability 
->built on a solid foundation that may be stacked.  
->
-Again: Code reuse is nice, or even necessary, with a limited and
-expensive workforce.  It is not a concern with an unlimited free
-workforce though.  If some volunteer makes an improvement by
-doing a big rewrite - well, the job gets done and nobody have to
-pay him.  This works.  And you can't
-get they guy to do something you find more useful "instead".  Maintainers
-can refuse patches of course - this usually cause people to work less
-on linux rather than working more efficiently on linux.  So even
-a "lot of work for only a little gain" type patch is taken, if it is
-technically sound.  Because the time couldn't be better spent anyway,
-so it wasn't wasted.
-
->Layers upon layers, the 
->sky is the limit.  Stability is the key to unlock this scalability.
->  
->
-I consider too many stacked layers inefficient.  Keep it simple . . .
+On the other hand, if you can surprise us about how this works very
+well - then you have a strong argument!
 
 Helge Hafting

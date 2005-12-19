@@ -1,121 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965013AbVLSWej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965011AbVLSWee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965013AbVLSWej (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 17:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbVLSWej
+	id S965011AbVLSWee (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 17:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965013AbVLSWee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 17:34:39 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:45255 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965013AbVLSWei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 17:34:38 -0500
-Date: Mon, 19 Dec 2005 16:34:35 -0600
-From: Cliff Wickman <cpw@sgi.com>
-To: John F Flynn III <flynnj@cs.fiu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Very rare crash in prune_dcache
-Message-ID: <20051219223435.GA2576@sgi.com>
-References: <43A7286F.3080104@cs.fiu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43A7286F.3080104@cs.fiu.edu>
-User-Agent: Mutt/1.5.9i
+	Mon, 19 Dec 2005 17:34:34 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:59368 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S965011AbVLSWed
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 17:34:33 -0500
+Date: Mon, 19 Dec 2005 14:33:59 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Christoph Hellwig <hch@infradead.org>
+cc: Michal Feix <michal@feix.cz>, linux-kernel@vger.kernel.org
+Subject: Re: [SCSI] SCSI block devices larger then 2TB
+In-Reply-To: <Pine.LNX.4.62.0512121057070.267@qynat.qvtvafvgr.pbz>
+Message-ID: <Pine.LNX.4.62.0512191432310.9971@qynat.qvtvafvgr.pbz>
+References: <4396B795.1000108@feix.cz> <20051207123519.GA17414@infradead.org>
+ <Pine.LNX.4.62.0512121057070.267@qynat.qvtvafvgr.pbz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've seen the below on at 2.6.5 kernel (SuSE SLES9) at SGI.
-Does it look like your crash?
+On Mon, 12 Dec 2005, David Lang wrote:
 
-The panic is by kswapd0:
+> On Wed, 7 Dec 2005, Christoph Hellwig wrote:
+>
+>> On Wed, Dec 07, 2005 at 11:21:09AM +0100, Michal Feix wrote:
+>>> Greetings!
+>>>
+>>> Current aic79xxx driver doesn't see SCSI devices larger, then 2TB. It
+>>> fails with READ CAPACITY(16) command. As far as I can understand, we
+>>> already have LBD support in kernel for some time now. So it's only
+> the
+>>
+>>> drivers, that need to be fixed? LSI driver is the only one I found
+>>> working with devices over 2TB; I couldn't test any other driver, as I
+>>> don't have the hardware. Is it really so bad, that only LSI chipset
+>> and
+>>> maybe few others are capable of seeng such devices?
+>>
+>> I definitly works fine with Qlogic parallel scsi and fibrechannel and
+>> emulex
+>> fibre channel controllers aswell as lsi/engenio megaraid controllers.
+>>
+>> It looks like aci79xx is just broken in that repsect. Unfortunately
+> the
+>> driver doesn't have a proper maintainer, we scsi developers put in
+> fixes
+>> and cleanups but we don't have the full documentation to fix such
+>> complicated
+>> issue.  If you have a support contract with Adaptec complain to them.
+>
+> I was at a BOF at LISA last week on this subject, the guy running it
+> said
+> that the common ultra320 chip used for parallel scsi doesn't implment
+> READ
+> CAPACITY(16), but instead implemnets a propriatary READ CAPACITY(12)
+> which
+> allows you to break the 2TB limit.
+>
+> I asked him to send the patch that he's been maintaining seperatly (and
+> providing to his customers, he's a storage hardware vendor) to the list
+> to
+> get integrated.
+>
+> I'll see if I have any notes with his address on them, or you could
+> check
+> the BOF schedule online to see if it got listed there.
 
-    <1>Unable to handle kernel NULL pointer dereference (address
-0000000000000078)
-    <4>kswapd0[122]: Oops 8813272891392 [1]
+here is the BOF listing, hopefully someone will recongnise the names and 
+be able to contact them directly
 
-whose stack shows:
-[<a0000001001cecf0>] clear_inode+0x1b0/0x2c0
-[<a0000001001d03d0>] generic_drop_inode+0x3b0/0x400
-[<a0000001001ccf30>] iput+0x130/0x1c0
-[<a00000020b6f0cd0>] nfs_dentry_iput+0x170/0x1c0 [nfs]
-[<a0000001001ca050>] prune_dcache+0x510/0x540
-[<a0000001001ca0c0>] shrink_dcache_memory+0x40/0x80
-[<a00000010014c360>] shrink_slab+0x2e0/0x440
+Large Filesystems: Breaking 2TB Limitation
+Organizer: Sergey Sviridov, AC&NC
+Wednesday, December 7, 9:00 p.m.10:00 p.m., Hampton
 
-Both generic_shutdown_super()'s calls to shrink_dcache_parent() or
-shrink_dcache_anon(), and kswapd0's call to shrink_dcache_memory()
-call prune_dcache().
-I suspect a race condition inside prune_dcache().
+How to address more than 2TB Storage Volume as a single LUN. Windows and 
+Linux experience. Doug Hughes will talk about Solaris and Veritas Volume 
+Manager.
 
-The prune_dcache() function:
-        lock dcache_lock
-        scan the dentry_unused list of dentry's for a given number ("count") of
-        dentry's to free:
-                if a dentry to free, call prune_one_dentry()
-                        dentry_iput()
-                                unlock dcache_lock
-                                iput() any associated inode
-                        d_free() the dentry
-                        lock dcache_lock
-        unlock dcache_lock
-
-Two processors entering prune_dcache() near the same time will both scan
-the dentry_unused list and could try to iput() the same inode twice.  That is
-because the dcache_lock is released while running iput().
-
-I suppose the dcache_lock must be released here because the iput() may take
-a long time.  And the dcache_lock is used many places in the system
-to protect the dentry cache's lists.
-
-It would seem to me that a straighforward fix would be to add another
-lock to protect just the scan of the dentry_unused list only here in
-prune_dcache()
-
--Cliff Wickman
-
-On Mon, Dec 19, 2005 at 04:38:55PM -0500, John F Flynn III wrote:
-> Good evening, folks...
-> 
-> We have been experiencing a very rare (on average once every two to 
-> three months) crash on some of our servers.
-> 
-> uname -a:
-> Linux cheetah 2.6.9-22.0.1.ELsmp #1 SMP Thu Oct 27 13:14:25 CDT 2005 
-> i686 i686 i386 GNU/Linux
-> 
-> (This is a CentOS provided kernel)
-> 
-> Here is a photo of the bottom of the panic. Unfortunately the kernel has 
-> no chance to log this anywhere else:
-> 
-> http://www.cs.fiu.edu/~flynnj/cheetah-crash.jpg
-> 
-> 
-> The crash appears to be in prune_dcache, and has happened on several 
-> distinct machines, so we do not believe it is a hardware problem.
-> 
-> If anyone has pointers on what bug could be causing this crash, or if 
-> it's been fixed in newer kernels we could try, it would be greatly 
-> appreciated. This only seems to happen on loaded production machines, 
-> and it happens so rarely that more detailed debugging is nearly impossible.
-> 
-> Thanks in advance,
-> -John Flynn
-> 
-> -- 
-> John Flynn                              flynnj@cs.fiu.edu
-> =========================================================
-> Systems and Network Administration             /\_/\
-> School of Computer Science                    ( O.O )
-> Florida International University               >   <
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-Cliff Wickman
-Silicon Graphics, Inc.
-cpw@sgi.com
-(651) 683-3824
+David Lang

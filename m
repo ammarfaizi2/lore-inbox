@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbVLSDLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbVLSDaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751211AbVLSDLK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Dec 2005 22:11:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751191AbVLSDLJ
+	id S1030242AbVLSDaN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Dec 2005 22:30:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbVLSDaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Dec 2005 22:11:09 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:58635 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S932530AbVLSDLJ (ORCPT
+	Sun, 18 Dec 2005 22:30:13 -0500
+Received: from gate.crashing.org ([63.228.1.57]:36320 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751279AbVLSDaM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Dec 2005 22:11:09 -0500
-Date: Sun, 18 Dec 2005 22:11:07 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
+	Sun, 18 Dec 2005 22:30:12 -0500
 Subject: Re: USB rejecting sleep
-In-Reply-To: <1134960706.6162.2.camel@gaston>
-Message-ID: <Pine.LNX.4.44L0.0512182206520.2301-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0512182206520.2301-100000@netrider.rowland.org>
+References: <Pine.LNX.4.44L0.0512182206520.2301-100000@netrider.rowland.org>
+Content-Type: text/plain
+Date: Mon, 19 Dec 2005 14:24:37 +1100
+Message-Id: <1134962678.6162.4.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Dec 2005, Benjamin Herrenschmidt wrote:
+On Sun, 2005-12-18 at 22:11 -0500, Alan Stern wrote:
 
-> Ok, I did a bit more tests here with a Keyspan adapter on my laptop
-> (well known driver for not having the suspend/resume routines).
+> I disagree with the idea of disconnecting the device.  The right thing to 
+> do is what David wanted all along: unbind the driver.  This would require 
+> only a small change to the driver core.
 > 
-> The good thing is with the patch, the machine goes to sleep. However,
-> the device is not disconnected/reconnected. What happens it that the bus
-> gets suspended anyway and the driver stays around (possibly getting
-> errors on some URBs).
+> It's too late for me to work on this now, but maybe tomorrow I'll have to 
+> a chance to write something.
 
-Yes, that's what is supposed to happen with that patch.
+Why not also disconnect the device ? That will guarantee that when
+coming back from sleep, the driver will re-discover a fresh new device
+that has properly been reset no ? Instead of a device potentially
+crashed because it didn't handle the suspend/resume transition
+properly...
 
-> This is fine, but not optimal, since that means most of the time that
-> the device will not work on resume unless disconnected/reconnected. (For
-> keyspan, it seems that the HW does support the suspend state, thus it's
-> just a matter of closing/re-opening the port, I suppose it would be easy
-> enough to fix the driver).
-> 
-> So this patch is good for it doesn't prevent sleep anymore, but it also
-> doesn't do what we decided it should do. I think David is right that we
-> should be able to disconnect the device without actually removing the
-> device & driver from sysfs, just let that happen at resume time.
+Ben.
 
-Of course the patch doesn't do what we talked about.  It says so right in 
-the Changelog comment.
-
-I disagree with the idea of disconnecting the device.  The right thing to 
-do is what David wanted all along: unbind the driver.  This would require 
-only a small change to the driver core.
-
-It's too late for me to work on this now, but maybe tomorrow I'll have to 
-a chance to write something.
-
-Alan Stern
 

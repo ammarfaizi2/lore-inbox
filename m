@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965208AbVLSG3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965235AbVLSGmF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965208AbVLSG3N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 01:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965229AbVLSG3N
+	id S965235AbVLSGmF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 01:42:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965253AbVLSGmF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 01:29:13 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:9619 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965208AbVLSG3N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 01:29:13 -0500
-Date: Sun, 18 Dec 2005 22:24:55 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [patch 00/15] Generic Mutex Subsystem
-In-Reply-To: <20051219042248.GG23384@wotan.suse.de>
-Message-ID: <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org>
-References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de>
+	Mon, 19 Dec 2005 01:42:05 -0500
+Received: from wproxy.gmail.com ([64.233.184.195]:18300 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965235AbVLSGmE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 01:42:04 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZfCFPDirDWalXS2jIcwaBTBPFCvtUKgn8kZV+sca8wqmSqdAc4qxTqyivgetneoFS326VhxGhOSZbjANULKbD/L/EPxTKlg7LvFmVaWm8+q4ZctYdUeHCSlg43/3Uc98kigWGEake62N04UGj/srv0uc+1QTSvJ77GlxMuaIszA=
+Message-ID: <f0309ff0512182242u59bd4583o37da5a8552739e5a@mail.gmail.com>
+Date: Sun, 18 Dec 2005 22:42:02 -0800
+From: Nauman Tahir <nauman.tahir@gmail.com>
+To: Hua Feijun <hua.feijun@gmail.com>
+Subject: Re: stop threads failed!
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3fe1d240512181717h59100c1h@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <3fe1d240512170057h2a1e0929o@mail.gmail.com>
+	 <f0309ff0512180036q179b9f12n16609f86743c1b9c@mail.gmail.com>
+	 <3fe1d240512181717h59100c1h@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/18/05, Hua Feijun <hua.feijun@gmail.com> wrote:
+> Sorry, I couldn't describe the problem clearly.I means these threads
+> did not go to sleep'in fact, they didn't stop runing.
+>
+
+Kindly also CC this to linux-kernel as well so that you have more
+chances to get the solution of your problem.
+It seems to me that you may have missed SIG_PENDING at the time when
+you setup your thread. You will have to signal your thread to kill it.
+Just setting up TASK STATE is not enough untill the process gets
+scheduled or it gets the signal to kill itself explicitly
 
 
-On Mon, 19 Dec 2005, Andi Kleen wrote:
-> 
-> Do you have an idea where this big difference comes from? It doesn't look
-> it's from the fast path which is essentially the same.  Do the mutexes have
-> that much better scheduling behaviour than semaphores? It is a bit hard to 
-> believe.
-
-Are ingo's mutex'es perhaps not trying to be fair?
-
-The normal mutexes try to make sure that if a process comes in and gets 
-stuck on a mutex, and then another CPU releases the mutex and immediately 
-tries to grab it again, the other CPU will _not_ get it.
-
-That's a huge performance disadvantage, but it's done on purpose, because 
-otherwise you end up in a situation where the semaphore release code did 
-wake up the waiter, but before the waiter actually had time to grab it (it 
-has to go through the IPI and scheduling logic), the same CPU just grabbed 
-it again.
-
-The original semaphores were unfair, and it works really well most of the 
-time. But then it really sucks in some nasty cases.
-
-The numbers make me suspect that Ingo's mutexes are unfair too, but I've 
-not looked at the code yet.
-
-NOTE! I'm not a huge fan of fairness per se. I think unfair is often ok, 
-and the performance advantages are certainly real. It may well be that the 
-cases that caused problems before are now done differently (eg we switched 
-the VM semaphore over to an rwsem), and that we can have an unfair and 
-fast mutex for those cases where we don't care.
-
-I just suspect the comparison isn't fair.
-
-		Linus
+> 2005/12/18, Nauman Tahir <nauman.tahir@gmail.com>:
+> > On 12/17/05, Hua Feijun <hua.feijun@gmail.com> wrote:
+> > > I want to set threads's status to TASK_STOPPED by the following
+> > > code.The syslog has show this rourine has been executed,buf the thread
+> > > is still running.Who can tell me the reason?Thanks very much!
+> > > write_lock(&tasklist_lock);
+> > > do
+> > > {
+> > > printk("set threads stopped\n");
+> > > p->state = TASK_STOPPED;
+> > > } while ((p = next_thread(p)) != leader);
+> > > write_unlock(&tasklist_lock);
+> > > schedule();
+> > > -
+> >
+> > Have you specified the state TASK_INTERRUPTIBLE when you wake up the
+> > thread? If not then do it to ba able to stop it later.
+> > Anybody else correct me if I am wrong please

@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbVLSOpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932161AbVLSOsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932091AbVLSOpT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 09:45:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932105AbVLSOpS
+	id S932161AbVLSOsl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 09:48:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbVLSOsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 09:45:18 -0500
-Received: from iolanthe.rowland.org ([192.131.102.54]:42163 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932091AbVLSOpR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 09:45:17 -0500
-Date: Mon, 19 Dec 2005 09:45:16 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: USB rejecting sleep
-In-Reply-To: <1134962678.6162.4.camel@gaston>
-Message-ID: <Pine.LNX.4.44L0.0512190942270.4946-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 19 Dec 2005 09:48:41 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.25]:29577 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932161AbVLSOsi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 09:48:38 -0500
+Date: Mon, 19 Dec 2005 06:48:10 -0800
+From: Paul Jackson <pj@sgi.com>
+To: paulmck@us.ibm.com
+Cc: akpm@osdl.org, dada1@cosmosbay.com, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au, Simon.Derr@bull.net, ak@suse.de,
+       clameter@sgi.com
+Subject: Re: [PATCH 04/04] Cpuset: skip rcu check if task is in root cpuset
+Message-Id: <20051219064810.0ec403ee.pj@sgi.com>
+In-Reply-To: <20051217164723.GA28255@us.ibm.com>
+References: <20051214084031.21054.13829.sendpatchset@jackhammer.engr.sgi.com>
+	<20051214084049.21054.34108.sendpatchset@jackhammer.engr.sgi.com>
+	<20051216175201.GA24876@us.ibm.com>
+	<20051216120651.cb57ad2e.pj@sgi.com>
+	<20051217164723.GA28255@us.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.1.7 (GTK+ 2.4.9; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Dec 2005, Benjamin Herrenschmidt wrote:
+Paul wrote:
+> But it seems like you could gain this
+> benefit and more simply by disabling CONFIG_DEBUG_PREEMPT.
 
-> On Sun, 2005-12-18 at 22:11 -0500, Alan Stern wrote:
-> 
-> > I disagree with the idea of disconnecting the device.  The right thing to 
-> > do is what David wanted all along: unbind the driver.  This would require 
-> > only a small change to the driver core.
-> > 
-> > It's too late for me to work on this now, but maybe tomorrow I'll have to 
-> > a chance to write something.
-> 
-> Why not also disconnect the device ? That will guarantee that when
-> coming back from sleep, the driver will re-discover a fresh new device
-> that has properly been reset no ? Instead of a device potentially
-> crashed because it didn't handle the suspend/resume transition
-> properly...
+Yup - that would save oodles more than what we're dickering over here.
 
-I don't want to disconnect the device because there may be other drivers 
-bound to other interfaces that are working just fine.  There's no need to 
-mess them up.  Unbinding the misbehaving driver should be okay; it's no 
-worse than doing rmmod before the suspend.
+> My usual position would be to avoid putting too much effort into optimizing
+> debug code, but please feel free to educate me on this one!
 
-Alan Stern
+My position too ;).
 
+I should quit wasting your time (and mine) with further fine tuning
+of this test to skip rcu check if task->cpuset == &top_cpuset, and
+instead consider removing CONFIG_DEBUG_PREEMPT from at least ia64
+(sn2), if not also from the other defconfigs that have it:
+
+    collie            simpad            s390              se7705
+    lpd7a400          bigsur            dreamcast         sh03
+    lpd7a404          microdev          systemh           mx1ads
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

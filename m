@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbVLSOef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbVLSOh3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbVLSOef (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 09:34:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbVLSOef
+	id S932099AbVLSOh3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 09:37:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbVLSOh3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 09:34:35 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:21136 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750988AbVLSOef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 09:34:35 -0500
+	Mon, 19 Dec 2005 09:37:29 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:13010 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932099AbVLSOh2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 09:37:28 -0500
 Subject: Re: [patch 15/15] Generic Mutex Subsystem, arch-semaphores.patch
 From: Steven Rostedt <rostedt@goodmis.org>
 To: Ingo Molnar <mingo@elte.hu>
@@ -22,8 +22,8 @@ Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
 In-Reply-To: <20051219014043.GK28038@elte.hu>
 References: <20051219014043.GK28038@elte.hu>
 Content-Type: text/plain
-Date: Mon, 19 Dec 2005 09:34:06 -0500
-Message-Id: <1135002846.13138.258.camel@localhost.localdomain>
+Date: Mon, 19 Dec 2005 09:36:52 -0500
+Message-Id: <1135003012.13138.261.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
@@ -31,35 +31,21 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Mon, 2005-12-19 at 02:40 +0100, Ingo Molnar wrote:
-> Index: linux/drivers/acpi/osl.c
-> ===================================================================
-> --- linux.orig/drivers/acpi/osl.c
-> +++ linux/drivers/acpi/osl.c
-> @@ -728,14 +728,14 @@ void acpi_os_delete_lock(acpi_handle han
->  acpi_status
->  acpi_os_create_semaphore(u32 max_units, u32 initial_units,
-> acpi_handle * handle)
->  {
-> -       struct semaphore *sem = NULL;
-> +       struct arch_semaphore *sem = NULL;
->  
->         ACPI_FUNCTION_TRACE("os_create_semaphore");
->  
-> -       sem = acpi_os_allocate(sizeof(struct semaphore));
-> +       sem = acpi_os_allocate(sizeof(struct arch_semaphore));
+> mark all semaphores that are known to be used in a non-mutex fashion,
+> as 
+> arch_semaphores. This has relevance for the CONFIG_DEBUG_MUTEX_FULL 
+> debugging kernel: these semaphores will never be changed to mutexes,
+> not 
+> even for debugging purposes.
+> 
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-[OT]
-This is why I prefer sizeof(*sem) over sizeof(struct type_of_sem) but I
-regress.  And I don't buy that argument of the mistaken sizeof(sem)
-since, I've never had to deal with that bug!  Oh well, each to their
-own.
+OK, I've finished going through each patch, and gave my comments as I
+saw them.  When I get more time, I'll actually apply them and try them
+out.
 
 -- Steve
 
->         if (!sem)
->                 return_ACPI_STATUS(AE_NO_MEMORY);
-> -       memset(sem, 0, sizeof(struct semaphore));
-> +       memset(sem, 0, sizeof(struct arch_semaphore));
->  
->         sema_init(sem, initial_units);
+Acked-by: Steven Rostedt <rostedt@goodmis.org>
+
 

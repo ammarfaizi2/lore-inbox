@@ -1,74 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbVLST25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbVLSTdj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964891AbVLST25 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 14:28:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbVLST25
+	id S964893AbVLSTdj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 14:33:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964894AbVLSTdj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 14:28:57 -0500
-Received: from kanga.kvack.org ([66.96.29.28]:48617 "EHLO kanga.kvack.org")
-	by vger.kernel.org with ESMTP id S964891AbVLST24 (ORCPT
+	Mon, 19 Dec 2005 14:33:39 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:51258 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S964893AbVLSTdi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 14:28:56 -0500
-Date: Mon, 19 Dec 2005 14:25:37 -0500
-From: Benjamin LaHaise <bcrl@kvack.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [patch 00/15] Generic Mutex Subsystem
-Message-ID: <20051219192537.GC15277@kvack.org>
-References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de> <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org> <20051219155010.GA7790@elte.hu> <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org>
+	Mon, 19 Dec 2005 14:33:38 -0500
+Date: Mon, 19 Dec 2005 20:35:09 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Ben Collins <bcollins@ubuntu.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.15-rc6] block: Make CDROMEJECT more robust
+Message-ID: <20051219193508.GL3734@suse.de>
+References: <20051219153236.GA10905@swissdisk.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20051219153236.GA10905@swissdisk.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 19, 2005 at 11:11:03AM -0800, Linus Torvalds wrote:
-> On Mon, 19 Dec 2005, Ingo Molnar wrote:
-> > 
-> > in fact, generic mutexes are _more_ fair than struct semaphore in their 
-> > wait logic. In the stock semaphore implementation, when a waiter is 
-> > woken up, it will retry the lock, and if it fails, it goes back to the 
-> > _tail_ of the queue again - waiting one full cycle again.
+On Mon, Dec 19 2005, Ben Collins wrote:
+> Reference: https://bugzilla.ubuntu.com/5049
 > 
-> Ingo, I don't think that is true.
+> The eject command was failing for a large group of users for removable
+> devices. The "eject -r" command, which uses the CDROMEJECT ioctl would not
+> work, however "eject -s", which uses SG_IO did work, but required root access.
 > 
-> It shouldn't be true, at least. The whole point with the "sleeper" count 
-> was to not have that happen. Of course, bugs happen, so I won't guarantee 
-> that's actually true, but ..
-
-The only thing I can see as an improvement that a mutex can offer over 
-the current semaphore implementation is if we can perform the same 
-optimization that spinlocks perform in the unlock operation: don't use 
-a locked, serialising instruction in the up() codepath.  That might be 
-a bit tricky to implement, but it's definately a win on the P4 where the 
-cost of serialisation can be quite high.
-
-> [ Oh.  I'm looking at the semaphore code, and I realize that we have a 
->   "wake_up(&sem->wait)" in the __down() path because we had some race long 
->   ago that we fixed by band-aiding over it. Which means that we wake up 
->   sleepers that shouldn't be woken up. THAT may well be part of the 
->   performance problem.. The semaphores are really meant to wake up just 
->   one at a time, but because of that race hack they'll wake up _two_ at a 
->   time - once by up(), once by down().
+> Since SG_IO was using the same mechanism as CDROMEJECT, there should be no
+> difference. The main reason for getting the CDROMEJECT ioctl working was
+> because it didn't need root privileges like the SG_IO commands did.
 > 
->   That also destroys the fairness. Does anybody remember why it's that 
->   way? ]
+> One bug was noticed, and that is CDROMEJECT was setting the blk request to a
+> WRITE operation, when in fact it wasn't. The block layer did not like getting
+> WRITE requests when data_len==0 and data==NULL.
 
-History?  I think that code is very close to what was done in the pre-SMP 
-version of semaphores.  It is certainly possible to get rid of the separate 
-sleepers -- parisc seems to have such an implementation.  It updates 
-sem->count in the wakeup path of __down().
+False, it can't be a write request if there's no data attached. Write is
+simply used there because read requests are usually more precious.
 
-		-ben
+> This patch fixes the WRITE vs READ issue, and also sends the extra two
+> commands. Anyone with an iPod connected via USB (not sure about firewire)
+> should be able to reproduce this issue, and verify the patch.
+
+The bug was in the SCSI layer, and James already has the fix integrated
+for that. It really should make 2.6.15, James are you sending it upwards
+for that?
+
+>  		case CDROMEJECT:
+> -			rq = blk_get_request(q, WRITE, __GFP_WAIT);
+> -			rq->flags |= REQ_BLOCK_PC;
+> -			rq->data = NULL;
+> -			rq->data_len = 0;
+> -			rq->timeout = BLK_DEFAULT_TIMEOUT;
+> -			memset(rq->cmd, 0, sizeof(rq->cmd));
+> -			rq->cmd[0] = GPCMD_START_STOP_UNIT;
+> -			rq->cmd[4] = 0x02 + (close != 0);
+> -			rq->cmd_len = 6;
+> -			err = blk_execute_rq(q, bd_disk, rq, 0);
+> -			blk_put_request(rq);
+> +			err = 0;
+> +
+> +			err |= blk_send_allow_medium_removal(q, bd_disk);
+> +			err |= blk_send_start_stop(q, bd_disk, 0x01);
+> +			err |= blk_send_start_stop(q, bd_disk, 0x02);
+
+Do this in the eject tool, if it's required for some devices.
+
 -- 
-"You know, I've seen some crystals do some pretty trippy shit, man."
-Don't Email: <dont@kvack.org>.
+Jens Axboe
+

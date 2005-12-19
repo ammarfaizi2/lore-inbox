@@ -1,581 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbVLSQNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964820AbVLSQXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964808AbVLSQNv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 11:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbVLSQNv
+	id S964820AbVLSQXE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 11:23:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbVLSQXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 11:13:51 -0500
-Received: from mmsmtp.merfinllc.com ([63.73.180.145]:43696 "EHLO
-	mule.merfinllc.com") by vger.kernel.org with ESMTP id S964808AbVLSQNu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 11:13:50 -0500
-Message-ID: <43A6DC3B.7070603@merfinllc.com>
-Date: Mon, 19 Dec 2005 08:13:47 -0800
-From: Aaron Straus <aaron@merfinllc.com>
-User-Agent: Thunderbird 1.5 (X11/20051025)
-MIME-Version: 1.0
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-CC: linux-kernel@vger.kernel.org
-Subject: disk problem
-Content-Type: multipart/mixed;
- boundary="------------090309050306090705050403"
+	Mon, 19 Dec 2005 11:23:03 -0500
+Received: from sccrmhc13.comcast.net ([63.240.77.83]:28657 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S964820AbVLSQXB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 11:23:01 -0500
+In-Reply-To: <43A694DF.8040209@aitel.hist.no>
+References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com> <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com> <p73slsrehzs.fsf@verdi.suse.de> <20051217205238.GR23349@stusta.de> <61D4A300-4967-4DC1-AD2C-765A3D2D9743@comcast.net> <20051218054323.GF23384@wotan.suse.de> <5DB2F520-5666-4C7F-9065-51117A0F54B9@comcast.net> <43A694DF.8040209@aitel.hist.no>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <A3567036-A5F9-4CF9-BC48-70CFEAA8F2C4@comcast.net>
+Cc: Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@stusta.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, arjan@infradead.org
+Content-Transfer-Encoding: 7bit
+From: Parag Warudkar <kernel-stuff@comcast.net>
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Date: Mon, 19 Dec 2005 11:22:48 -0500
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090309050306090705050403
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi,
+On Dec 19, 2005, at 6:09 AM, Helge Hafting wrote:
 
-   FYI, Running 2.6.15-rc5 on a Dell Inspiron 700m during a kernel 
-compile as well as other heavy disk access I saw (syslog & .config 
-attached).  Don't know if it is reproducible:
+> I suggest a little experiment for you.  Make a kernel module which  
+> do nothing
+> except try to allocate 16k of _contigous_ kernel memory, and
+> printk whether it succeeded or failed before exiting.  Have cron  
+> run that
+> every 5 minutes.  After a few weeks of running this low-impact test on
+> a busy loaded server, look at statistics about how often the 16k  
+> allocation
+> worked - and how often it failed.
 
-Dec 19 06:51:17 localhost kernel: hda: dma_timer_expiry: dma status == 0x21
-Dec 19 06:51:29 localhost kernel: hda: DMA timeout error
-Dec 19 06:51:29 localhost kernel: hda: dma timeout error: status=0xd0 { 
-Busy }
-Dec 19 06:51:29 localhost kernel: ide: failed opcode was: unknown
-Dec 19 06:51:29 localhost kernel: hda: DMA disabled
-Dec 19 06:51:29 localhost kernel: ide0: reset: success
-Dec 19 07:08:07 localhost -- MARK --
-Dec 19 07:08:46 localhost kernel: attempt to access beyond end of device
-Dec 19 07:08:46 localhost kernel: hda3: rw=0, want=6727729416, 
-limit=99619065
-Dec 19 07:08:46 localhost kernel: attempt to access beyond end of device
-Dec 19 07:08:46 localhost kernel: hda3: rw=0, want=6468239752, 
-limit=99619065
-Dec 19 07:08:46 localhost kernel: attempt to access beyond end of device
-Dec 19 07:08:46 localhost kernel: hda3: rw=0, want=6727729416, 
-limit=99619065
-Dec 19 07:09:15 localhost kernel: attempt to access beyond end of device
-Dec 19 07:09:15 localhost kernel: hda3: rw=0, want=6727729416, 
-limit=99619065
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): 
-ext3_free_blocks: Freeing blocks not in datazone - block = 808525856, 
-count = 1
-Dec 19 07:09:48 localhost kernel: Aborting journal on device hda3.
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): 
-ext3_free_blocks: Freeing blocks not in datazone - block = 540553529, 
-count = 1
+I am aware of the limitations of Linux MM and the problems associated  
+with anything more than zero order allocations over a period of time.
 
-...
+My argument was it's not that a ton of i386 users are affected by  
+having choice of stack sizes (I read LKML quite frequently and for  
+long I don't remember seeing allocation failure errors - either  
+people moved to 64  bits without LOWMEM and that helped or people  
+just do fine with the current 8K stack on i386) and even if some are,  
+let's leave the stack size as an option - it's not like it cause a  
+lot of code bloat or other problems (I read your argument about VM  
+developers bogged down by having to deal with 8K stacks but quite  
+frankly I don't understand how.)
 
-				=aaron=
+Whoever benefits can use the 4K stacks, others who feel it risky to  
+have 4K stacks for whatever reason, can be happy too. We can even  
+make the 4K default, but having supported option of 8K is important  
+and almost all operating systems are having >4K stacks on i386  
+machines, so there is some reason for having it.
 
+But I rest my argument, I no longer use i386 and I am being told this  
+patch only affects i386! ;)
 
-
---------------090309050306090705050403
-Content-Type: text/plain;
- name="config"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="config"
-
-CONFIG_X86_32=y
-CONFIG_SEMAPHORE_SLEEPERS=y
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_ARCH_MAY_HAVE_PC_FDC=y
-CONFIG_EXPERIMENTAL=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_LOCK_KERNEL=y
-CONFIG_INIT_ENV_ARG_LIMIT=32
-CONFIG_LOCALVERSION="-asb"
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_HOTPLUG=y
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_KALLSYMS=y
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-CONFIG_BASE_SMALL=0
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_LBD=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_DEFAULT_AS=y
-CONFIG_DEFAULT_IOSCHED="anticipatory"
-CONFIG_X86_PC=y
-CONFIG_MPENTIUMM=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_CMPXCHG64=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_TSC=y
-CONFIG_HPET_TIMER=y
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_MCE_P4THERMAL=y
-CONFIG_MICROCODE=m
-CONFIG_X86_MSR=m
-CONFIG_X86_CPUID=m
-CONFIG_NOHIGHMEM=y
-CONFIG_SELECT_MEMORY_MODEL=y
-CONFIG_FLATMEM_MANUAL=y
-CONFIG_FLATMEM=y
-CONFIG_FLAT_NODE_MEM_MAP=y
-CONFIG_SPLIT_PTLOCK_CPUS=4
-CONFIG_MTRR=y
-CONFIG_HZ_250=y
-CONFIG_HZ=250
-CONFIG_PHYSICAL_START=0x100000
-CONFIG_PM=y
-CONFIG_PM_LEGACY=y
-CONFIG_ACPI=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_AC=m
-CONFIG_ACPI_BATTERY=m
-CONFIG_ACPI_BUTTON=m
-CONFIG_ACPI_VIDEO=m
-CONFIG_ACPI_FAN=m
-CONFIG_ACPI_PROCESSOR=m
-CONFIG_ACPI_THERMAL=m
-CONFIG_ACPI_BLACKLIST_YEAR=0
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_X86_PM_TIMER=y
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_TABLE=m
-CONFIG_CPU_FREQ_STAT=m
-CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
-CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
-CONFIG_CPU_FREQ_GOV_POWERSAVE=m
-CONFIG_CPU_FREQ_GOV_USERSPACE=m
-CONFIG_CPU_FREQ_GOV_ONDEMAND=m
-CONFIG_CPU_FREQ_GOV_CONSERVATIVE=m
-CONFIG_X86_ACPI_CPUFREQ=m
-CONFIG_X86_SPEEDSTEP_CENTRINO=m
-CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=y
-CONFIG_X86_SPEEDSTEP_ICH=m
-CONFIG_X86_SPEEDSTEP_SMI=m
-CONFIG_X86_P4_CLOCKMOD=m
-CONFIG_X86_SPEEDSTEP_LIB=m
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_ISA_DMA_API=y
-CONFIG_ISA=y
-CONFIG_PCCARD=m
-CONFIG_PCMCIA=m
-CONFIG_PCMCIA_IOCTL=y
-CONFIG_CARDBUS=y
-CONFIG_YENTA=m
-CONFIG_PD6729=m
-CONFIG_I82092=m
-CONFIG_I82365=m
-CONFIG_TCIC=m
-CONFIG_PCMCIA_PROBE=y
-CONFIG_PCCARD_NONSTATIC=m
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_MISC=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_UNIX=y
-CONFIG_XFRM=y
-CONFIG_XFRM_USER=y
-CONFIG_NET_KEY=m
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_FIB_HASH=y
-CONFIG_INET_AH=m
-CONFIG_INET_ESP=m
-CONFIG_INET_IPCOMP=m
-CONFIG_INET_TUNNEL=m
-CONFIG_INET_DIAG=m
-CONFIG_INET_TCP_DIAG=m
-CONFIG_TCP_CONG_BIC=y
-CONFIG_NETFILTER=y
-CONFIG_NETFILTER_NETLINK=m
-CONFIG_NETFILTER_NETLINK_QUEUE=m
-CONFIG_NETFILTER_NETLINK_LOG=m
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_CONNTRACK_MARK=y
-CONFIG_IP_NF_CONNTRACK_NETLINK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_TFTP=m
-CONFIG_IP_NF_AMANDA=m
-CONFIG_IP_NF_PPTP=m
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_IPRANGE=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_RECENT=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_MATCH_ADDRTYPE=m
-CONFIG_IP_NF_MATCH_REALM=m
-CONFIG_IP_NF_MATCH_SCTP=m
-CONFIG_IP_NF_MATCH_COMMENT=m
-CONFIG_IP_NF_MATCH_CONNMARK=m
-CONFIG_IP_NF_MATCH_HASHLIMIT=m
-CONFIG_IP_NF_MATCH_STRING=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_TARGET_NFQUEUE=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_TARGET_NETMAP=m
-CONFIG_IP_NF_TARGET_SAME=m
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_NAT_TFTP=m
-CONFIG_IP_NF_NAT_AMANDA=m
-CONFIG_IP_NF_NAT_PPTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_CLASSIFY=m
-CONFIG_IP_NF_TARGET_CONNMARK=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IP_NF_ARP_MANGLE=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_IEEE80211=m
-CONFIG_IEEE80211_CRYPT_WEP=m
-CONFIG_IEEE80211_CRYPT_CCMP=m
-CONFIG_IEEE80211_CRYPT_TKIP=m
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_FW_LOADER=m
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PNP=y
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_CRYPTOLOOP=m
-CONFIG_BLK_DEV_NBD=m
-CONFIG_BLK_DEV_UB=m
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_CDROM_PKTCDVD=m
-CONFIG_CDROM_PKTCDVD_BUFFERS=8
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=m
-CONFIG_BLK_DEV_IDESCSI=m
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=m
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_QLA2XXX=m
-CONFIG_IEEE1394=m
-CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=y
-CONFIG_IEEE1394_CONFIG_ROM_IP1394=y
-CONFIG_IEEE1394_OHCI1394=m
-CONFIG_IEEE1394_VIDEO1394=m
-CONFIG_IEEE1394_SBP2=m
-CONFIG_IEEE1394_ETH1394=m
-CONFIG_IEEE1394_DV1394=m
-CONFIG_IEEE1394_RAWIO=m
-CONFIG_IEEE1394_CMP=m
-CONFIG_IEEE1394_AMDTP=m
-CONFIG_NETDEVICES=y
-CONFIG_TUN=m
-CONFIG_PHYLIB=m
-CONFIG_MARVELL_PHY=m
-CONFIG_DAVICOM_PHY=m
-CONFIG_QSEMI_PHY=m
-CONFIG_LXT_PHY=m
-CONFIG_CICADA_PHY=m
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=m
-CONFIG_NET_PCI=y
-CONFIG_B44=m
-CONFIG_NET_RADIO=y
-CONFIG_IPW2200=m
-CONFIG_NET_WIRELESS=y
-CONFIG_PPP=m
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_EVDEV=m
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=m
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_LIBPS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_HW_RANDOM=m
-CONFIG_NVRAM=m
-CONFIG_RTC=m
-CONFIG_GEN_RTC=m
-CONFIG_AGP=m
-CONFIG_AGP_INTEL=m
-CONFIG_DRM=m
-CONFIG_DRM_I810=m
-CONFIG_DRM_I830=m
-CONFIG_DRM_I915=m
-CONFIG_HPET=y
-CONFIG_HPET_MMAP=y
-CONFIG_VIDEO_DEV=m
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_SOUND=m
-CONFIG_SND=m
-CONFIG_SND_AC97_CODEC=m
-CONFIG_SND_AC97_BUS=m
-CONFIG_SND_TIMER=m
-CONFIG_SND_PCM=m
-CONFIG_SND_RAWMIDI=m
-CONFIG_SND_SEQUENCER=m
-CONFIG_SND_SEQ_DUMMY=m
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=m
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=m
-CONFIG_SND_SEQ_RTCTIMER_DEFAULT=y
-CONFIG_SND_GENERIC_DRIVER=y
-CONFIG_SND_MPU401_UART=m
-CONFIG_SND_DUMMY=m
-CONFIG_SND_VIRMIDI=m
-CONFIG_SND_MTPAV=m
-CONFIG_SND_SERIAL_U16550=m
-CONFIG_SND_MPU401=m
-CONFIG_SND_INTEL8X0=m
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_USB=m
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_EHCI_HCD=m
-CONFIG_USB_OHCI_HCD=m
-CONFIG_USB_OHCI_LITTLE_ENDIAN=y
-CONFIG_USB_UHCI_HCD=m
-CONFIG_USB_PRINTER=m
-CONFIG_USB_STORAGE=m
-CONFIG_USB_STORAGE_DPCM=y
-CONFIG_USB_HID=m
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_DABUSB=m
-CONFIG_USB_IBMCAM=m
-CONFIG_USB_KONICAWC=m
-CONFIG_USB_OV511=m
-CONFIG_USB_SE401=m
-CONFIG_USB_STV680=m
-CONFIG_USB_PWC=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_ROMFS_FS=m
-CONFIG_INOTIFY=y
-CONFIG_DNOTIFY=y
-CONFIG_AUTOFS4_FS=m
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_UDF_FS=m
-CONFIG_UDF_NLS=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_NFS_COMMON=y
-CONFIG_SUNRPC=m
-CONFIG_SMB_FS=m
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_ASCII=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_DETECT_SOFTLOCKUP=y
-CONFIG_DEBUG_BUGVERBOSE=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_4KSTACKS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_NULL=m
-CONFIG_CRYPTO_MD4=m
-CONFIG_CRYPTO_MD5=m
-CONFIG_CRYPTO_SHA1=m
-CONFIG_CRYPTO_SHA256=m
-CONFIG_CRYPTO_SHA512=m
-CONFIG_CRYPTO_WP512=m
-CONFIG_CRYPTO_TGR192=m
-CONFIG_CRYPTO_DES=m
-CONFIG_CRYPTO_BLOWFISH=m
-CONFIG_CRYPTO_TWOFISH=m
-CONFIG_CRYPTO_SERPENT=m
-CONFIG_CRYPTO_AES=m
-CONFIG_CRYPTO_AES_586=m
-CONFIG_CRYPTO_CAST5=m
-CONFIG_CRYPTO_CAST6=m
-CONFIG_CRYPTO_TEA=m
-CONFIG_CRYPTO_ARC4=m
-CONFIG_CRYPTO_KHAZAD=m
-CONFIG_CRYPTO_ANUBIS=m
-CONFIG_CRYPTO_DEFLATE=m
-CONFIG_CRYPTO_MICHAEL_MIC=m
-CONFIG_CRYPTO_CRC32C=m
-CONFIG_CRC_CCITT=m
-CONFIG_CRC16=m
-CONFIG_CRC32=m
-CONFIG_LIBCRC32C=m
-CONFIG_ZLIB_INFLATE=m
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_TEXTSEARCH=y
-CONFIG_TEXTSEARCH_KMP=m
-CONFIG_TEXTSEARCH_BM=m
-CONFIG_TEXTSEARCH_FSM=m
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_X86_BIOS_REBOOT=y
-
---------------090309050306090705050403
-Content-Type: text/plain;
- name="syslog"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="syslog"
-
-Dec 19 06:48:07 localhost -- MARK --
-Dec 19 06:51:17 localhost kernel: hda: dma_timer_expiry: dma status == 0x21
-Dec 19 06:51:29 localhost kernel: hda: DMA timeout error
-Dec 19 06:51:29 localhost kernel: hda: dma timeout error: status=0xd0 { Busy }
-Dec 19 06:51:29 localhost kernel: ide: failed opcode was: unknown
-Dec 19 06:51:29 localhost kernel: hda: DMA disabled
-Dec 19 06:51:29 localhost kernel: ide0: reset: success
-Dec 19 07:08:07 localhost -- MARK --
-Dec 19 07:08:46 localhost kernel: attempt to access beyond end of device
-Dec 19 07:08:46 localhost kernel: hda3: rw=0, want=6727729416, limit=99619065
-Dec 19 07:08:46 localhost kernel: attempt to access beyond end of device
-Dec 19 07:08:46 localhost kernel: hda3: rw=0, want=6468239752, limit=99619065
-Dec 19 07:08:46 localhost kernel: attempt to access beyond end of device
-Dec 19 07:08:46 localhost kernel: hda3: rw=0, want=6727729416, limit=99619065
-Dec 19 07:09:15 localhost kernel: attempt to access beyond end of device
-Dec 19 07:09:15 localhost kernel: hda3: rw=0, want=6727729416, limit=99619065
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): ext3_free_blocks: Freeing blocks not in datazone - block = 808525856, count = 1
-Dec 19 07:09:48 localhost kernel: Aborting journal on device hda3.
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): ext3_free_blocks: Freeing blocks not in datazone - block = 540553529, count = 1
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): ext3_free_blocks: Freeing blocks not in datazone - block = 541990977, count = 1
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): ext3_free_blocks: Freeing blocks not in datazone - block = 1158286670, count = 1
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): ext3_free_blocks: Freeing blocks not in datazone - block = 1347048021, count = 1
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): ext3_free_blocks: Freeing blocks not in datazone - block = 538976345, count = 1
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): ext3_free_blocks: Freeing blocks not in datazone - block = 808591392, count = 1
-
-<snip/>
-
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): ext3_free_blocks: Freeing blocks not in datazone - block = 824188960, count = 1
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): ext3_free_blocks: Freeing blocks not in datazone - block = 842021168, count = 1
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): ext3_free_blocks: Freeing blocks not in datazone - block = 1310736928, count = 1
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3) in ext3_reserve_inode_write: Journal has aborted
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3) in ext3_truncate: Journal has aborted
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3) in ext3_reserve_inode_write: Journal has aborted
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3) in ext3_orphan_del: Journal has aborted
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3) in ext3_reserve_inode_write: Journal has aborted
-Dec 19 07:09:48 localhost kernel: __journal_remove_journal_head: freeing b_committed_data
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3) in ext3_delete_inode: Journal has aborted
-Dec 19 07:09:48 localhost kernel: ext3_abort called.
-Dec 19 07:09:48 localhost kernel: EXT3-fs error (device hda3): ext3_journal_start_sb: Detected aborted journal
-Dec 19 07:09:48 localhost kernel: Remounting filesystem read-only
-
---------------090309050306090705050403--
-
+Parag

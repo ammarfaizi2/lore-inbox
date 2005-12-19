@@ -1,112 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964923AbVLSTy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbVLSTy6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964923AbVLSTy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 14:54:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964924AbVLSTy4
+	id S964926AbVLSTy6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 14:54:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964925AbVLSTy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 14:54:56 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:32838 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S964923AbVLSTy4 (ORCPT
+	Mon, 19 Dec 2005 14:54:58 -0500
+Received: from mail.gmx.de ([213.165.64.21]:60858 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964924AbVLSTy5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 14:54:56 -0500
-Date: Mon, 19 Dec 2005 20:56:31 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ben Collins <ben.collins@ubuntu.com>
-Cc: Ben Collins <bcollins@ubuntu.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.15-rc6] block: Make CDROMEJECT more robust
-Message-ID: <20051219195630.GO3734@suse.de>
-References: <20051219153236.GA10905@swissdisk.com> <20051219193508.GL3734@suse.de> <1135021497.2029.3.camel@localhost.localdomain>
+	Mon, 19 Dec 2005 14:54:57 -0500
+X-Authenticated: #5082238
+Date: Mon, 19 Dec 2005 20:54:58 +0100
+From: Carsten Otto <c-otto@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Intel e1000 fails after RAM upgrade
+Message-ID: <20051219195458.GA23650@carsten-otto.halifax.rwth-aachen.de>
+Reply-To: c-otto@gmx.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
 Content-Disposition: inline
-In-Reply-To: <1135021497.2029.3.camel@localhost.localdomain>
+X-GnuGP-Key: http://c-otto.de/pubkey.asc
+User-Agent: Mutt/1.5.11
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 19 2005, Ben Collins wrote:
-> On Mon, 2005-12-19 at 20:35 +0100, Jens Axboe wrote:
-> > On Mon, Dec 19 2005, Ben Collins wrote:
-> > > Reference: https://bugzilla.ubuntu.com/5049
-> > > 
-> > > The eject command was failing for a large group of users for removable
-> > > devices. The "eject -r" command, which uses the CDROMEJECT ioctl would not
-> > > work, however "eject -s", which uses SG_IO did work, but required root access.
-> > > 
-> > > Since SG_IO was using the same mechanism as CDROMEJECT, there should be no
-> > > difference. The main reason for getting the CDROMEJECT ioctl working was
-> > > because it didn't need root privileges like the SG_IO commands did.
-> > > 
-> > > One bug was noticed, and that is CDROMEJECT was setting the blk request to a
-> > > WRITE operation, when in fact it wasn't. The block layer did not like getting
-> > > WRITE requests when data_len==0 and data==NULL.
-> > 
-> > False, it can't be a write request if there's no data attached. Write is
-> > simply used there because read requests are usually more precious.
-> 
-> Did you mean "can be a write request"? If not, then you just repeated
-> what I said.
 
-No, you are misreading me. Definition:
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-- Read request: direction bit not set, non-zero data length
-- Write request: direction bit set, non-zero data length
+Hi there!
 
-How can you read or write anything, when there's nothing to read or
-write?
+First the basic system specs:
+Athlon64 3500+ S939, Winchester
+Kernel 2.6.14.4, X86_64
+4*1 GB RAM DDR 333, Dual Channel [before: 2*1 GB RAM DDR 400, Dual Channel]
+Intel Gigabit PCI (Intel Corporation 82540EM Gigabit Ethernet Controller (r=
+ev 02))
+Abit AV8
 
-> > > This patch fixes the WRITE vs READ issue, and also sends the extra two
-> > > commands. Anyone with an iPod connected via USB (not sure about firewire)
-> > > should be able to reproduce this issue, and verify the patch.
-> > 
-> > The bug was in the SCSI layer, and James already has the fix integrated
-> > for that. It really should make 2.6.15, James are you sending it upwards
-> > for that?
-> 
-> Can you point me to this fix? Also, does the "fix" fix the case for IDE
-> CDROM's too?
+After upgrading the memory to 4 GB I noticed my e1000 did not work.
+dmesg shows:
 
-What is the problem case for for ide-cd?
+e1000: eth0: e1000_watchdog_task: NIC Link is Up 1000 Mbps Full Duplex
+e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
+  TDH                  <2000>
+  TDT                  <2000>
+  next_to_use          <6>
+  next_to_clean        <0>
+buffer_info[next_to_clean]
+  dma                  <13024c002>
+  time_stamp           <ffffd8c7>
+  next_to_watch        <0>
+  jiffies              <ffffe096>
+  next_to_watch.status <0>
+e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
+  TDH                  <2000>
+  TDT                  <2000>
+  next_to_use          <6>
+  next_to_clean        <0>
+buffer_info[next_to_clean]
+  dma                  <13024c002>
+  time_stamp           <ffffd8c7>
+  next_to_watch        <0>
+  jiffies              <ffffe28a>
+  next_to_watch.status <0>
+eth0: no IPv6 routers present
+e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
+  TDH                  <2000>
+  TDT                  <2000>
+  next_to_use          <6>
+  next_to_clean        <0>
+buffer_info[next_to_clean]
+  dma                  <13024c002>
+  time_stamp           <ffffd8c7>
+  next_to_watch        <0>
+  jiffies              <ffffe47e>
+  next_to_watch.status <0>
+e1000: eth0: e1000_clean_tx_irq: Detected Tx Unit Hang
+  TDH                  <2000>
+  TDT                  <2000>
+  next_to_use          <6>
+  next_to_clean        <0>
+buffer_info[next_to_clean]
+  dma                  <13024c002>
+  time_stamp           <ffffd8c7>
+  next_to_watch        <0>
+  jiffies              <ffffe672>
+  next_to_watch.status <0>
 
-The SCSI fix is here:
+ethtool -t eth0 offline:
+The test result is FAIL
+The test extra info:
+Register test  (offline)         40
+Eeprom test    (offline)         0
+Interrupt test (offline)         4
+Loopback test  (offline)         13
+Link test   (on/offline)         1
 
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=a8c730e85e80734412f4f73ab28496a0e8b04a7b
+I have two of these cards. Both run fine in my (old, 32bit) server. I
+tested with both cards with both systems. Only in my 64bit machine this
+error occurs - with both cards.
 
-and followed up by a fix for James to cater to all paths:
+Please tell me what to do. I have to live with the VIA onboard in the
+meantime and that is not the best network card...
 
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=c9526497cf03ee775c3a6f8ba62335735f98de7a
+Thanks a lot,
+--=20
+Carsten Otto
+c-otto@gmx.de
+www.c-otto.de
 
-> > >  		case CDROMEJECT:
-> > > -			rq = blk_get_request(q, WRITE, __GFP_WAIT);
-> > > -			rq->flags |= REQ_BLOCK_PC;
-> > > -			rq->data = NULL;
-> > > -			rq->data_len = 0;
-> > > -			rq->timeout = BLK_DEFAULT_TIMEOUT;
-> > > -			memset(rq->cmd, 0, sizeof(rq->cmd));
-> > > -			rq->cmd[0] = GPCMD_START_STOP_UNIT;
-> > > -			rq->cmd[4] = 0x02 + (close != 0);
-> > > -			rq->cmd_len = 6;
-> > > -			err = blk_execute_rq(q, bd_disk, rq, 0);
-> > > -			blk_put_request(rq);
-> > > +			err = 0;
-> > > +
-> > > +			err |= blk_send_allow_medium_removal(q, bd_disk);
-> > > +			err |= blk_send_start_stop(q, bd_disk, 0x01);
-> > > +			err |= blk_send_start_stop(q, bd_disk, 0x02);
-> > 
-> > Do this in the eject tool, if it's required for some devices.
-> 
-> It already is in eject tool, but as described, that requires root
-> access. Not something I want to force a user to do in order to eject
-> their CDROM/iPod/USBStick in gnome. What exactly is wrong with the
-> commands? If they are harmless for devices that don't need it, and fix a
-> huge number of problems (did you see the Cc list on the bug report?) for
-> users with affected devices, then what's the harm?
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-So the medium removal command does require write permission on the
-deviec, but it doesn't require root. If they need to rw to the device
-fs, surely they need write permissions on the device in the first place?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
--- 
-Jens Axboe
+iD8DBQFDpxASjUF4jpCSQBQRAkDDAJ9wHj+k0ij4rI6HSYHUariwQa9IkwCghKLr
+xRzqguC24TxOMV1vs4JBkv0=
+=l6+W
+-----END PGP SIGNATURE-----
 
+--C7zPtVaVf+AK4Oqc--

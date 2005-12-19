@@ -1,86 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbVLSTWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964891AbVLST25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964890AbVLSTWI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 14:22:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbVLSTWI
+	id S964891AbVLST25 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 14:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbVLST25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 14:22:08 -0500
-Received: from out4.smtp.messagingengine.com ([66.111.4.28]:59326 "EHLO
-	out4.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S964890AbVLSTWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 14:22:07 -0500
-X-Sasl-enc: 16Gk4QAKh34bwfkd+1fgeOWEP48Po9krtGb4Lw4tkhuc 1135020124
-Message-ID: <43A70882.80106@imap.cc>
-Date: Mon, 19 Dec 2005 20:22:42 +0100
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.7.12) Gecko/20050915
-X-Accept-Language: de,en,fr
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Stephen Hemminger <shemminger@osdl.org>, Hansjoerg Lipp <hjlipp@web.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/9] isdn4linux: add drivers for Siemens Gigaset ISDN
- DECT PABX
-References: <20051212181356.GC15361@hjlipp.my-fqdn.de>	 <43A6E209.5030406@imap.cc> <1135011676.20747.3.camel@mindpipe>
-In-Reply-To: <1135011676.20747.3.camel@mindpipe>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig5F55410260D6738AAF7436B1"
+	Mon, 19 Dec 2005 14:28:57 -0500
+Received: from kanga.kvack.org ([66.96.29.28]:48617 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S964891AbVLST24 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 14:28:56 -0500
+Date: Mon, 19 Dec 2005 14:25:37 -0500
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [patch 00/15] Generic Mutex Subsystem
+Message-ID: <20051219192537.GC15277@kvack.org>
+References: <20051219013415.GA27658@elte.hu> <20051219042248.GG23384@wotan.suse.de> <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org> <20051219155010.GA7790@elte.hu> <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig5F55410260D6738AAF7436B1
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+On Mon, Dec 19, 2005 at 11:11:03AM -0800, Linus Torvalds wrote:
+> On Mon, 19 Dec 2005, Ingo Molnar wrote:
+> > 
+> > in fact, generic mutexes are _more_ fair than struct semaphore in their 
+> > wait logic. In the stock semaphore implementation, when a waiter is 
+> > woken up, it will retry the lock, and if it fails, it goes back to the 
+> > _tail_ of the queue again - waiting one full cycle again.
+> 
+> Ingo, I don't think that is true.
+> 
+> It shouldn't be true, at least. The whole point with the "sleeper" count 
+> was to not have that happen. Of course, bugs happen, so I won't guarantee 
+> that's actually true, but ..
 
-On 2005-12-19 18:01, Lee Revell wrote:
-> On Mon, 2005-12-19 at 17:38 +0100, Tilman Schmidt wrote:
->=20
->>Unfortunately these don't fit our needs, as we are not dealing with a
->>network device, but with an ISDN device.
->=20
-> Um, isn't that what the N in ISDN stands for?
+The only thing I can see as an improvement that a mutex can offer over 
+the current semaphore implementation is if we can perform the same 
+optimization that spinlocks perform in the unlock operation: don't use 
+a locked, serialising instruction in the up() codepath.  That might be 
+a bit tricky to implement, but it's definately a win on the P4 where the 
+cost of serialisation can be quite high.
 
-While the ISDN is indeed called a network, devices connecting a computer
-to it are nevertheless not commonly referred to as network devices.
+> [ Oh.  I'm looking at the semaphore code, and I realize that we have a 
+>   "wake_up(&sem->wait)" in the __down() path because we had some race long 
+>   ago that we fixed by band-aiding over it. Which means that we wake up 
+>   sleepers that shouldn't be woken up. THAT may well be part of the 
+>   performance problem.. The semaphores are really meant to wake up just 
+>   one at a time, but because of that race hack they'll wake up _two_ at a 
+>   time - once by up(), once by down().
+> 
+>   That also destroys the fairness. Does anybody remember why it's that 
+>   way? ]
 
-> I guess what you mean is that although ISDN devices are obviously
-> networking devices, the kernel uses a separate subsystem for ISDN?
+History?  I think that code is very close to what was done in the pre-SMP 
+version of semaphores.  It is certainly possible to get rid of the separate 
+sleepers -- parisc seems to have such an implementation.  It updates 
+sem->count in the wakeup path of __down().
 
-There's more to it than that. The notion of a "network" is a rather
-broad one, including such diverse phenomena as Ethernet, ISDN, TV cable
-or even roads or TV stations. The notion of a "network device", on the
-other hand, is a quite specific one, at least in the computer world, and
-it certainly doesn't include ISDN TAs.
-
-In fact, the operation of an ISDN device is much closer to a modem or
-even an answering machine than to that prototypical network device which
-is the Ethernet card. This is of course the reason why the Linux kernel
-puts them in a subsystem of their own. Making them net_device-s just
-wouldn't work.
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
-
-
---------------enig5F55410260D6738AAF7436B1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFDpwiKMdB4Whm86/kRApIuAJkBYxF/4dRpi13GULJnAGV75aIfAACeOrXx
-TQ+2X720NifxilnSiqJnjWA=
-=hQfp
------END PGP SIGNATURE-----
-
---------------enig5F55410260D6738AAF7436B1--
+		-ben
+-- 
+"You know, I've seen some crystals do some pretty trippy shit, man."
+Don't Email: <dont@kvack.org>.

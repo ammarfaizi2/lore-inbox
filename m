@@ -1,192 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932296AbVLSWIg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964858AbVLSWMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932296AbVLSWIg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 17:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVLSWIg
+	id S964858AbVLSWMd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 17:12:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964861AbVLSWMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 17:08:36 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:60173 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932296AbVLSWIf convert rfc822-to-8bit (ORCPT
+	Mon, 19 Dec 2005 17:12:33 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:39329 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S964858AbVLSWMd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 17:08:35 -0500
+	Mon, 19 Dec 2005 17:12:33 -0500
+Message-ID: <43A7304B.2070103@tlinx.org>
+Date: Mon, 19 Dec 2005 14:12:27 -0800
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en, en_US
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <32908.147.27.7.175.1135028524.squirrel@147.27.7.175>
-X-OriginalArrivalTime: 19 Dec 2005 22:08:34.0282 (UTC) FILETIME=[C0F4A4A0:01C604E8]
-Content-class: urn:content-classes:message
-Subject: Re: selfmade serial driver problem with chipset other than VIA
-Date: Mon, 19 Dec 2005 17:08:34 -0500
-Message-ID: <Pine.LNX.4.61.0512191657550.24200@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: selfmade serial driver problem with chipset other than VIA
-Thread-Index: AcYE6MD7RsmJcU5DTfGT8Qc10nuTOA==
-References: <32908.147.27.7.175.1135028524.squirrel@147.27.7.175>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: <gxatzipavlis@softnet.tuc.gr>
-Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>, Linda Walsh <lkml@tlinx.org>
+Subject: Re: Makefile targets: tar & rpm pkgs, while using O=<dir> as non-root
+References: <43A5F058.1060102@tlinx.org> <20051219071959.GJ13985@lug-owl.de>
+In-Reply-To: <20051219071959.GJ13985@lug-owl.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 19 Dec 2005 gxatzipavlis@softnet.tuc.gr wrote:
 
-> firstly i would like to apologize cause i send this mail to linux-kernel
-> mailling list and not to linux serial but linux-serial@vger.kernel.org
-> don't accept the email.
->
-> On Mon, 2005-12-19 at 18:12 +0200, giorgos xatzipavlis wrote:
->> hello people
->>
->> this is my first attempt to the linux serial mailling list so i
->> apologize for my mistakes...
->>
->> i am a newbie in kernel development.
->>
->> i have made a serial driver cause i want to communicate with a serial
-> device ( a microcontroller ). I have programmed the driver in my
-> computer and everything is working ok. I have an AMD 1000Hz, MSI
-> motherboard with VIA chipset and kernel 2.4.31. I have found
->> informations from Linux Deveice Drivers book. Everything is working ok
-> in my computer but  the driver isn't working in computers with INTEL and
-> NVIDIA chipsets. The fact that makes me suspicious about that
->> is that although my driver is registered in /proc/interrupts
->> and /proc/ioports (irq 4-ioport 0x03f8) when ever i call outb from my
-> writer bottomhalf routine the interrupt isn't generated from the
-> hardware(in machines with inter or nvidia chipset).
->>
->> the flow chart is somethink like that:
->>
->> 1)user space write      (getting the data from user)
->>
->> 2)kernel space write    (generating the package that i want to send)
->>
->> 3)writer_bottomhalf     (i have the package in writer_buffer indexed by a
->> 		         bytes_send variable. Call
-> "outb(writer_buffer[bytes_send],MY_UART+UART_TX)" )
->>
->> 4)interrupt handler     (bytes_send++ ,so i can send the next character
-> variable,
->> 		         call "tasklet_schedule(&writer_bottomhalf)" to go to step 3)
->>
->> in computers with chipsets other than VIA the 4th step (interrupt
-> handler) is
->> never executed.
->>
->> any ideas?
->>
->> thank
->
->
-> secondly alan cox respond with:
->
-> On Mon, 2005-12-19 at 18:03 +0000, Alan Cox wrote:
->>> 2)kernel space write    (generating the package that i want to send)
->>>
->>> 3)writer_bottomhalf     (i have the package in writer_buffer indexed by a
->>> 		         bytes_send variable. Call
-> "outb(writer_buffer[bytes_send],MY_UART+UART_TX)" )
->>>
->>> 4)interrupt handler     (bytes_send++ ,so i can send the next
-> character variable,
->>> 		         call "tasklet_schedule(&writer_bottomhalf)" to go to step 3)
->>>
->>> in computers with chipsets other than VIA the 4th step (interrupt
-> handler) is
->>> never executed.
->>
->>
->> Have you set up the interrupt enables in the 16x50 chip. If you've not
-> done that step then it may depend on the vendor/BIOS what state the chip
-> is in when you boot.
->>
->> You might want to print out the registers at boot on each system and
-> look at the differences
->
->
->
-> in the initialization routine i enable the interrupts
->
-> "outb( UART_IER_RLSI | UART_IER_RDI | UART_IER_THRI , eib_io+UART_IER);"
->
-> where eib_io = 0x03f8.
->
-> in the writer_bottomhalf i do:
->
-> //bytes_send    :index to writer buffer which holds the package
-> //writer_length :length of the package i want to send
-> //foo           :struct timeval for debugging reasons
->
-> if(bytes_send==writer_length){   // i have send the whole package
->
-> 	//starting timer to catch unacknowledged packages
->
-> }
-> else{
-> 	outb(writer[bytes_send],eib_io+UART_TX);
-> 	printk(KERN_ALERT"sending %x %ld %ld\n",
->               writer[bytes_send],foo.tv_sec,foo.tv_usec);
-> }
-> return;
->
-> and in interrupt handler
->
-> static void interrupt_handler(int irq, void *dev_id, struct pt_regs *regs){
->
-> // code for other interrupts
->
->      if ( inb(  eib_io + UART_LSR ) & ( UART_LSR_THRE) ){
->
-> 		bytes_send++;
-> 		tasklet_schedule(&writer_tasklet);
-> 		return;
->
->      }
->
-> }
->
-> so whenever the interrupt handler is calling i increase the bytes_send and
-> i return to writer_bottomhalf to send the next character of the package.
-> My question is that if there are differencies in the
-> implementation of the UARTS between VIA and other manufacturers?
-> I can't understand why this piece of shit is working only in VIA.
-> i use 2.4.31 compiled with the same .config  except the processor's type
-> and chipset support in block devices section(linux serial driver
-> compiled as a module that i  don't load at all).
->
-> i can't understand what registers to print during boot as alan proposed
-> the registers from 0x03f8 - 0x03ff (aka /dev/ttyS0)?
->
-> thanks and sorry for the length of the message...
->
-> P.S: do i have to send every email to linux-kernel@vger.kernel.org or to
-> linux-serial@vger.kernel.org
+Jan-Benedict Glaw wrote:
 
-The 8250 and clones generate an interrupt when the TX buffer becomes
-empty as well as when the RX buffer contains data. Becoming empty
-implies that it must have had something in it. Therefore, you need
-to put the first byte from a buffer into the TX buffer without
-using interrupts after which your ISR will be able to take over.
+>
+>I've not really used out-of-tree building for Linux, so the tar*
+>targets are probably not really tested with that regard. Though I'll
+>check that and see if it works (of if a patch is needed.)
+>
+>The RPM targets have to be tested by somebody else :)
+>
+---
+Thanks -- the error I got for the "tar"-based images started as:
 
-A de facto standard way of doing this is to make a tx_send() routine
-that can be called from both from the ISR and from the driver
-write() routine. After user-mode data are written to a buffer,
-the driver write() routine executes tx_send(). This will start
-the ball rolling. The tx_send() code is written to handle the
-buffer pointer(s) and to do nothing if there are no more data
-available.
+ishtar:/usr/src/linux-2.6.14.3> make  V=1 INSTALL_ROOT= 
+../build/ast-root O=../build/ast-26143/ tarbz2-pkg 
+make -C /home/build/ast-26143 \
+KBUILD_SRC=/usr/src/linux-2.6.14.3 \
+KBUILD_EXTMOD="" -f /usr/src/linux-2.6.14.3/Makefile ../build/ast-root
+make[1]: Nothing to be done for `/usr/src/linux-2.6.14.3/../build/ast-root'.
+make -C /home/build/ast-26143 \
+KBUILD_SRC=/usr/src/linux-2.6.14.3 \
+KBUILD_EXTMOD="" -f /usr/src/linux-2.6.14.3/Makefile tarbz2-pkg
+make -f /usr/src/linux-2.6.14.3/scripts/package/Makefile tarbz2-pkg
+make
+make -C /usr/src/linux-2.6.14.3 O=/home/build/ast-26143
+Makefile:484: .config: No such file or directory
+  Using /usr/src/linux-2.6.14.3 as source for kernel
+if [ -f /usr/src/linux-2.6.14.3/.config ]; then \
+        echo "  /usr/src/linux-2.6.14.3 is not clean, please run 'make 
+mrproper'";\
+        echo "  in the '/usr/src/linux-2.6.14.3' directory.";\
+        /bin/false; \
+fi;
+if [ ! -d include2 ]; then mkdir -p include2; fi;
+mkdir: cannot create directory `include2': Permission denied
+make[4]: *** [prepare3] Error 1
+make[3]: *** [all] Error 2
+make[2]: *** [tarbz2-pkg] Error 2
+make[1]: *** [tarbz2-pkg] Error 2
+make: *** [tarbz2-pkg] Error 2
+==========
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.56 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
+Briefly, the make rpm-pagage options call "make install" and
+"make modules_install".  Both attempt to install the kernel
+for the "target" system onto the the "Build" system.  This isn't
+desired as the "target" kernel won't even run on the "build"
+system.
 
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+I could supply error listings, but it seems unneeded as it is
+so easily reproduced.
 
-Thank you.
+I see JanB is on the making "tar" image, but how long ago was
+building of the rpm stuff done?  Is it the case that the designer/writer
+of that hasn't had time to make it work with the "O=" param?  Is
+someone still actively maintaining those targets?
+
+Ideally it would be good to be able to make an installable kernel
+package as a non-root user.  The idea is to not need root-privs
+except to install, right? :-)
+
+Linda
+
+
+ 
+
+
+

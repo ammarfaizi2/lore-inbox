@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbVLST64@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964905AbVLSUCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964931AbVLST64 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 14:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbVLST64
+	id S964905AbVLSUCb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 15:02:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbVLSUCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 14:58:56 -0500
-Received: from a34-mta02.direcpc.com ([66.82.4.91]:27898 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S964931AbVLST6z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 14:58:55 -0500
-Date: Mon, 19 Dec 2005 14:58:39 -0500
-From: Ben Collins <ben.collins@ubuntu.com>
+	Mon, 19 Dec 2005 15:02:30 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:35978 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964905AbVLSUCa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 15:02:30 -0500
+Date: Mon, 19 Dec 2005 12:02:23 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ben Collins <ben.collins@ubuntu.com>
+cc: Jens Axboe <axboe@suse.de>, Ben Collins <bcollins@ubuntu.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 2.6.15-rc6] block: Make CDROMEJECT more robust
-In-reply-to: <20051219193508.GL3734@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Message-id: <1135022319.2029.11.camel@localhost.localdomain>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.3
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <20051219153236.GA10905@swissdisk.com>
- <20051219193508.GL3734@suse.de>
+In-Reply-To: <1135021497.2029.3.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0512191156430.4827@g5.osdl.org>
+References: <20051219153236.GA10905@swissdisk.com> <20051219193508.GL3734@suse.de>
+ <1135021497.2029.3.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-19 at 20:35 +0100, Jens Axboe wrote:
-> On Mon, Dec 19 2005, Ben Collins wrote:
-> > This patch fixes the WRITE vs READ issue, and also sends the extra two
-> > commands. Anyone with an iPod connected via USB (not sure about firewire)
-> > should be able to reproduce this issue, and verify the patch.
+
+
+On Mon, 19 Dec 2005, Ben Collins wrote:
 > 
-> The bug was in the SCSI layer, and James already has the fix integrated
-> for that. It really should make 2.6.15, James are you sending it upwards
-> for that?
+> > >  		case CDROMEJECT:
+> > > -			rq = blk_get_request(q, WRITE, __GFP_WAIT);
+> > > -			rq->flags |= REQ_BLOCK_PC;
+> > > -			rq->data = NULL;
+> > > -			rq->data_len = 0;
+> > > -			rq->timeout = BLK_DEFAULT_TIMEOUT;
+> > > -			memset(rq->cmd, 0, sizeof(rq->cmd));
+> > > -			rq->cmd[0] = GPCMD_START_STOP_UNIT;
+> > > -			rq->cmd[4] = 0x02 + (close != 0);
+> > > -			rq->cmd_len = 6;
+> > > -			err = blk_execute_rq(q, bd_disk, rq, 0);
+> > > -			blk_put_request(rq);
+> > > +			err = 0;
+> > > +
+> > > +			err |= blk_send_allow_medium_removal(q, bd_disk);
+> > > +			err |= blk_send_start_stop(q, bd_disk, 0x01);
+> > > +			err |= blk_send_start_stop(q, bd_disk, 0x02);
+> > 
+> > Do this in the eject tool, if it's required for some devices.
+> 
+> It already is in eject tool, but as described, that requires root
+> access. Not something I want to force a user to do in order to eject
+> their CDROM/iPod/USBStick in gnome. What exactly is wrong with the
+> commands? If they are harmless for devices that don't need it, and fix a
+> huge number of problems (did you see the Cc list on the bug report?) for
+> users with affected devices, then what's the harm?
 
-You mean this patch?
+I do agree that the suggested patch seems to be a real cleanup, regardless 
+of whether the original code bug has now been fixed or not.
 
-James Bottomley:
-      [SCSI] Consolidate REQ_BLOCK_PC handling path (fix ipod panic)
+Are there devices that really want the old sequence? 
 
-This fixes an oops with data direction because sbp2 was not checking
-enough itself.
+Also, do we really need to send fist a start_stop 1 and then a 2?
 
-I seriously doubt this will fix the issue being reported. Changing the
-blk request to a READ did not fix the problem. The problem was only
-fixed by sending the extra two commands. The direction was just a side
-issue.
+Wouldn't the _logical_ thing be to replace the old code with just a 
+cleaned-up-version of what the old code did, ie just do
 
-Is there a problem with sending the commands? If they don't bother
-unaffected devices, but it does fix a large number of other devices,
-what's the problem?
+	err = blk_send_start_stop(q, bd_disk, 0x02);
 
--- 
-   Ben Collins <ben.collins@ubuntu.com>
-   Developer
-   Ubuntu Linux
+for the eject case? That way we could do the patch as a pure cleanup, and 
+then a separate patch might change the singe "start_stop 2" with the more 
+complex sequence.
 
+(IOW, I'd prefer to separate out the cleanup from the "make the eject 
+sequence more complete" part).
+
+		Linus

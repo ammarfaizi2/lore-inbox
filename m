@@ -1,94 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbVLSTpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964919AbVLSTsB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbVLSTpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 14:45:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964912AbVLSTpZ
+	id S964919AbVLSTsB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 14:48:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbVLSTsB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 14:45:25 -0500
-Received: from a34-mta02.direcpc.com ([66.82.4.91]:14061 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S964907AbVLSTpY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 14:45:24 -0500
-Date: Mon, 19 Dec 2005 14:44:56 -0500
-From: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [PATCH 2.6.15-rc6] block: Make CDROMEJECT more robust
-In-reply-to: <20051219193508.GL3734@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Ben Collins <bcollins@ubuntu.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Message-id: <1135021497.2029.3.camel@localhost.localdomain>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.3
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <20051219153236.GA10905@swissdisk.com>
- <20051219193508.GL3734@suse.de>
+	Mon, 19 Dec 2005 14:48:01 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:23938 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964915AbVLSTsA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 14:48:00 -0500
+Subject: Re: [Bug] mlockall() not working properly in 2.6.x
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Zan Lynx <zlynx@acm.org>
+Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       Marc-Jano Knopp <pub_ml_lkml@marc-jano.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1135017515.13318.11.camel@localhost>
+References: <20051218212123.GC4029@mjk.myfqdn.de>
+	 <20051219022108.307e68b8.akpm@osdl.org>
+	 <20051219114231.GA2830@mjk.myfqdn.de>  <20051219172735.GL13985@lug-owl.de>
+	 <1135014451.6051.23.camel@localhost.localdomain>
+	 <1135017515.13318.11.camel@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 19 Dec 2005 19:48:20 +0000
+Message-Id: <1135021701.6051.42.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-19 at 20:35 +0100, Jens Axboe wrote:
-> On Mon, Dec 19 2005, Ben Collins wrote:
-> > Reference: https://bugzilla.ubuntu.com/5049
-> > 
-> > The eject command was failing for a large group of users for removable
-> > devices. The "eject -r" command, which uses the CDROMEJECT ioctl would not
-> > work, however "eject -s", which uses SG_IO did work, but required root access.
-> > 
-> > Since SG_IO was using the same mechanism as CDROMEJECT, there should be no
-> > difference. The main reason for getting the CDROMEJECT ioctl working was
-> > because it didn't need root privileges like the SG_IO commands did.
-> > 
-> > One bug was noticed, and that is CDROMEJECT was setting the blk request to a
-> > WRITE operation, when in fact it wasn't. The block layer did not like getting
-> > WRITE requests when data_len==0 and data==NULL.
+On Llu, 2005-12-19 at 11:38 -0700, Zan Lynx wrote:
+> How about clearing MCL_FUTURE on fork but allow exec to inherit it?
+> That way a parent process could fork, mlockall in the child and exec a
+> memlocked child.  A regular fork,exec by a memlocked parent would not
+> create a memlocked child.
 > 
-> False, it can't be a write request if there's no data attached. Write is
-> simply used there because read requests are usually more precious.
+> Seems less messy than a new flag, while keeping the benefits.
 
-Did you mean "can be a write request"? If not, then you just repeated
-what I said.
-
-> > This patch fixes the WRITE vs READ issue, and also sends the extra two
-> > commands. Anyone with an iPod connected via USB (not sure about firewire)
-> > should be able to reproduce this issue, and verify the patch.
-> 
-> The bug was in the SCSI layer, and James already has the fix integrated
-> for that. It really should make 2.6.15, James are you sending it upwards
-> for that?
-
-Can you point me to this fix? Also, does the "fix" fix the case for IDE
-CDROM's too?
-
-> >  		case CDROMEJECT:
-> > -			rq = blk_get_request(q, WRITE, __GFP_WAIT);
-> > -			rq->flags |= REQ_BLOCK_PC;
-> > -			rq->data = NULL;
-> > -			rq->data_len = 0;
-> > -			rq->timeout = BLK_DEFAULT_TIMEOUT;
-> > -			memset(rq->cmd, 0, sizeof(rq->cmd));
-> > -			rq->cmd[0] = GPCMD_START_STOP_UNIT;
-> > -			rq->cmd[4] = 0x02 + (close != 0);
-> > -			rq->cmd_len = 6;
-> > -			err = blk_execute_rq(q, bd_disk, rq, 0);
-> > -			blk_put_request(rq);
-> > +			err = 0;
-> > +
-> > +			err |= blk_send_allow_medium_removal(q, bd_disk);
-> > +			err |= blk_send_start_stop(q, bd_disk, 0x01);
-> > +			err |= blk_send_start_stop(q, bd_disk, 0x02);
-> 
-> Do this in the eject tool, if it's required for some devices.
-
-It already is in eject tool, but as described, that requires root
-access. Not something I want to force a user to do in order to eject
-their CDROM/iPod/USBStick in gnome. What exactly is wrong with the
-commands? If they are harmless for devices that don't need it, and fix a
-huge number of problems (did you see the Cc list on the bug report?) for
-users with affected devices, then what's the harm?
-
--- 
-   Ben Collins <ben.collins@ubuntu.com>
-   Developer
-   Ubuntu Linux
+The behaviour of MCL_FUTURE is standards defined so we don't get to
+change it. The behaviour of an added flag is up to us.
 

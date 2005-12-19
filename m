@@ -1,66 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965021AbVLSWuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965026AbVLSWya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965021AbVLSWuD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 17:50:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965022AbVLSWuB
+	id S965026AbVLSWya (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 17:54:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965025AbVLSWya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 17:50:01 -0500
-Received: from atlrel7.hp.com ([156.153.255.213]:51881 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S965021AbVLSWuB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 17:50:01 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Intel e1000 fails after RAM upgrade
-Date: Mon, 19 Dec 2005 16:49:58 -0600
-Message-ID: <F265D57E1F28274EA189ED0566D227DE816FE7@PGJEXC01.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Intel e1000 fails after RAM upgrade
-Thread-Index: AcYE7YcUvThPuNgcSAGS4EXU6OIYywAAFH2g
-From: "Bonilla, Alejandro" <alejandro.bonilla@hp.com>
-To: <c-otto@gmx.de>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Dec 2005 22:50:00.0338 (UTC) FILETIME=[8AC2AF20:01C604EE]
+	Mon, 19 Dec 2005 17:54:30 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:44478
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965022AbVLSWy3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 17:54:29 -0500
+Date: Mon, 19 Dec 2005 14:52:54 -0800 (PST)
+Message-Id: <20051219.145254.33863414.davem@davemloft.net>
+To: bunk@stusta.de
+Cc: gmack@innerfire.net, wli@holomorphy.com, ecd@brainaid.de,
+       jj@sunsite.ms.mff.cuni.cz, anton@samba.org,
+       linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: [2.6 patch] on sparc{,64}, RTC must depend on PCI
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051217141049.GP23349@stusta.de>
+References: <20051216222154.GK23349@stusta.de>
+	<Pine.LNX.4.64.0512161908460.20531@innerfire.net>
+	<20051217141049.GP23349@stusta.de>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Adrian Bunk <bunk@stusta.de>
+Date: Sat, 17 Dec 2005 15:10:49 +0100
 
-|-----Original Message-----
-|From: linux-kernel-owner@vger.kernel.org 
-|[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Carsten Otto
-|Sent: Monday, December 19, 2005 4:39 PM
-|To: linux-kernel@vger.kernel.org
-|Subject: Re: Intel e1000 fails after RAM upgrade
-|
-|On Mon, Dec 19, 2005 at 08:54:58PM +0100, Carsten Otto wrote:
-|> After upgrading the memory to 4 GB I noticed my e1000 did not work.
-|
-|The problem also exists when I remove 2 GB. So it has to do something
-|with the kernel update in between. I will downgrade the kernel 
+> On sparc and sparc64, the rtc driver doesn't compile with PCI support 
+> disabled.
 
-I wish I could add something to the thread here. Sorry for not kicking
-in before, I did not see it.
+Applied, thanks Adrian.
 
-I remember a problem with the 100Ve and the 1000MT giving issues when it
-is a LOM or even a PCI adapter. I used to fix a lot of these problems by
-removing all power from the board molex, maybe the "battery" on the
-mother board for some minutes and then plug-in everything back in.
+> BTW: @sparc maintainers:
+>      Is there any reason against introducing a SPARC Kconfig symbol
+>      that is set on both the sparc and sparc64 architectures?
 
-Basically, the NIC wouldn't negotiate or will act funky, like no link or
-no real connectivity.
-
-Dunno if you already tried it, hope it helps.
-
-.Alejandro
-
-|now until
-|this is solved.
-|-- 
-|Carsten Otto
-|c-otto@gmx.de
-|www.c-otto.de
-|
+That's a great idea, I thought we already did this in fact :)

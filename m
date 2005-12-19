@@ -1,50 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932716AbVLSKUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932715AbVLSKPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932716AbVLSKUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 05:20:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932718AbVLSKUJ
+	id S932715AbVLSKPj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 05:15:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932716AbVLSKPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 05:20:09 -0500
-Received: from koto.vergenet.net ([210.128.90.7]:16074 "EHLO koto.vergenet.net")
-	by vger.kernel.org with ESMTP id S932716AbVLSKUH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 05:20:07 -0500
-Date: Mon, 19 Dec 2005 19:16:12 +0900
-From: Horms <horms@verge.net.au>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: [PATCH] SECURITY,VFS,2.4: local denial-of-service with file lease
-Message-ID: <20051219101610.GA427@verge.net.au>
+	Mon, 19 Dec 2005 05:15:38 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:58270 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S932715AbVLSKPi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 05:15:38 -0500
+Message-ID: <43A6886F.6090606@ru.mvista.com>
+Date: Mon, 19 Dec 2005 13:16:15 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Cluestick: seven
-User-Agent: Mutt/1.5.11
+To: David Brownell <david-b@pacbell.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: SPI core function names
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    [PATCH] VFS: local denial-of-service with file leases
-    
-    Remove time_out_leases() printk that's easily triggered by users.
-    
-    Signed-off-by: Chris Wright <chrisw@osdl.org>
-    Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
-    
-    Above is the signoff information for
-    f3a9388e4ebea57583272007311fffa26ebbb305 included in Linus's 2.6 tree.
-    As this is CVE-2005-3857 I am proposing its inclusion in 2.4
-    
-    Signed-off-by: Horms <horms@verge.net.au>
-    
-diff --git a/fs/locks.c b/fs/locks.c
-index 370ed4c..2f21d25 100644
---- a/fs/locks.c
-+++ b/fs/locks.c
-@@ -1087,7 +1087,6 @@ static void time_out_leases(struct inode
- 			before = &fl->fl_next;
- 			continue;
- 		}
--		printk(KERN_INFO "lease broken - owner pid = %d\n", fl->fl_pid);
- 		lease_modify(before, fl->fl_type & ~F_INPROGRESS);
- 		if (fl == *before)	/* lease_modify may have freed fl */
- 			before = &fl->fl_next;
+HI David,
+
+one of the guys working on the SPI stuff with me noticed that he didn't 
+feel conmortable with spi_sync name as it could be confused with the 
+function that synchronizes between something and something else. So what 
+if change spi_sync/spi_async to spi_transfer_sync/spi_transfer_async?
+
+Vitaly

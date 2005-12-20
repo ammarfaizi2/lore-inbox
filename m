@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbVLTSnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbVLTStm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbVLTSnl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 13:43:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbVLTSnl
+	id S1750813AbVLTStm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 13:49:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750826AbVLTStm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 13:43:41 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:32686 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750715AbVLTSnk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 13:43:40 -0500
-Subject: Re: About 4k kernel stack size....
-From: Arjan van de Ven <arjan@infradead.org>
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0512201316350.27879@chaos.analogic.com>
-References: <20051218231401.6ded8de2@werewolf.auna.net>
-	 <43A77205.2040306@rtr.ca> <20051220133729.GC6789@stusta.de>
-	 <170fa0d20512200637l169654c9vbe38c9931c23dfb1@mail.gmail.com>
-	 <46578.10.10.10.28.1135094132.squirrel@linux1>
-	 <Pine.LNX.4.61.0512201202090.27692@chaos.analogic.com>
-	 <Pine.LNX.4.64.0512201157140.7859@turbotaz.ourhouse>
-	 <Pine.LNX.4.61.0512201316350.27879@chaos.analogic.com>
-Content-Type: text/plain
-Date: Tue, 20 Dec 2005 19:43:29 +0100
-Message-Id: <1135104210.2952.26.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 20 Dec 2005 13:49:42 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:39066 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1750813AbVLTStl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 13:49:41 -0500
+Date: Tue, 20 Dec 2005 10:49:35 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Arjan van de Ven <arjan@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+In-Reply-To: <1135102197.2952.23.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.62.0512201047360.11093@qynat.qvtvafvgr.pbz>
+References: <200512201428.jBKESAJ5004673@laptop11.inf.utfsm.cl><Pine.LNX.4.62.0512200951080.11093@qynat.qvtvafvgr.pbz>
+ <1135102197.2952.23.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 20 Dec 2005, Arjan van de Ven wrote:
 
-> A kernel stack is simply an implimentation detail. Somebody made
-> an early decision to use non-paged memory for stacks. From that
-> point one, we have to either live with it or change it. The
-> change doesn't involve size. It involves kind.
+>> how many other corner cases are there that these distros just choose not
+>> to support, but need to be supported and tested for the vanilla kernel?
+>
+> as someone who was at that distro in the time.. none other than XFS and
+> reiserfs4.
 
-it involves a whole lot, like banning dma from the stack, and to make it
-swapable or kmapped you'd even need to fix all the places that put
-things like wait queues on the stack, as well as many other similar data
-structures. Staying at 4Kb is a lot easier than that ;)
+good to hear, outsiders don't know these details. all we know is that some 
+things aren't supported, but (without a lot of effort) don't know what 
+things.
 
+>> also for those who are arguing that it's only dropping from 6k to 4k, you
+>> are forgetting that the patches to move the interrupts to a seperate stack
+>> have already gone into the kernel, so today it is really 8k+4k and the
+>> talk is to move it to 4k+4k.
+>
+> actually irq stacks aren't enabled with 8K stacks right now, so your
+> statement isn't correct.
+
+Ok, I stand corrected, I didn't look at the code, I was going on the 
+memories of the discussions on l-k where the advocates were pushing to 
+enable the interrupt stacks unconditionally, and I was remembering that a 
+patch to do so had gone in.
+
+David Lang
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
 

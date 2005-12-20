@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbVLTNdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVLTNdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbVLTNdB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 08:33:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750853AbVLTNdB
+	id S1750747AbVLTNdG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 08:33:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbVLTNdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 08:33:01 -0500
-Received: from a34-mta02.direcpc.com ([66.82.4.91]:30354 "EHLO
-	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
-	id S1750747AbVLTNdA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 08:33:00 -0500
-Date: Tue, 20 Dec 2005 08:32:37 -0500
-From: Ben Collins <ben.collins@ubuntu.com>
-Subject: Re: [RFC] Let non-root users eject their ipods?
-In-reply-to: <20051220132821.GH3734@suse.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
-Message-id: <1135085557.16754.2.camel@localhost.localdomain>
-Organization: Ubuntu Linux
-MIME-version: 1.0
-X-Mailer: Evolution 2.5.3
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
-References: <1135047119.8407.24.camel@leatherman>
- <20051220074652.GW3734@suse.de>
- <1135082490.16754.0.camel@localhost.localdomain>
- <20051220132821.GH3734@suse.de>
+	Tue, 20 Dec 2005 08:33:05 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:18643 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750747AbVLTNdD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 08:33:03 -0500
+Date: Tue, 20 Dec 2005 14:32:30 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.15-rc5-rt2 slowness
+Message-ID: <20051220133230.GC24408@elte.hu>
+References: <dnu8ku$ie4$1@sea.gmane.org> <1134790400.13138.160.camel@localhost.localdomain> <1134860251.13138.193.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1134860251.13138.193.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-20 at 14:28 +0100, Jens Axboe wrote:
-> On Tue, Dec 20 2005, Ben Collins wrote:
-> > On Tue, 2005-12-20 at 08:46 +0100, Jens Axboe wrote:
-> > > On Mon, Dec 19 2005, john stultz wrote:
-> > > > All,
-> > > > 	I'm getting a little tired of my roommates not knowing how to safely
-> > > > eject their usb-flash disks from my system and I'd personally like it if
-> > > > I could avoid bringing up a root shell to eject my ipod. Sure, one could
-> > > > suid the eject command, but that seems just as bad as changing the
-> > > > permissions in the kernel (eject wouldn't be able to check if the user
-> > > > has read/write permissions on the device, allowing them to eject
-> > > > anything).
-> > > 
-> > > This just came up yesterday, eject isn't opening the device RDWR hence
-> > > you have a permission problem with a command requiring write
-> > > permissions. So just fix eject, there's no need to suid eject or run it
-> > > as root.
-> > 
-> > Yep, and here's the patch to do it:
-> > 
-> > http://bugzilla.ubuntu.com/attachment.cgi?id=5415
-> > 
-> > Still, this whole issue with ALLOW_MEDIUM_REMOVAL. Would be nice if
-> > CDROMEJECT just did the right thing.
+
+* Steven Rostedt <rostedt@goodmis.org> wrote:
+
+> I ported your old changes of 2.6.14-rt22 of mm/slab.c to 
+> 2.6.15-rc5-rt2 and tried it out.  I believe that this confirms that 
+> the SLOB _is_ the problem in the slowness.  Booting with this slab 
+> patch, gives the old speeds that we use to have.
 > 
-> I would tend to agree, but you are bypassing the checks that are in
-> there by doing so which isn't very nice. Then we might as well just mark
-> ALLOW_MEDIUM_REMOVAL as safe-for-read in the first place.
+> Now, is the solution to bring the SLOB up to par with the SLAB, or to 
+> make the SLAB as close to possible to the mainline (why remove NUMA?) 
+> and keep it for PREEMPT_RT?
+> 
+> Below is the port of the slab changes if anyone else would like to see 
+> if this speeds things up for them.
 
-Should be an easy check to add. In fact, I'll resend both patches with
-that in place if you want.
+ok, i've added this back in - but we really need a cleaner port of SLAB 
+...
 
--- 
-   Ben Collins <ben.collins@ubuntu.com>
-   Developer
-   Ubuntu Linux
-
+	Ingo

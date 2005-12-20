@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbVLTPQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVLTPRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751091AbVLTPQk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 10:16:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVLTPQk
+	id S1751096AbVLTPRp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 10:17:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbVLTPRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 10:16:40 -0500
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:62185 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1751091AbVLTPQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 10:16:39 -0500
-Date: Tue, 20 Dec 2005 10:16:23 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: john stultz <johnstul@us.ibm.com>,
-       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc5-rt2 slowness
-In-Reply-To: <20051220150711.GA5505@elte.hu>
-Message-ID: <Pine.LNX.4.58.0512201014130.25734@gandalf.stny.rr.com>
-References: <dnu8ku$ie4$1@sea.gmane.org> <1134790400.13138.160.camel@localhost.localdomain>
- <1134860251.13138.193.camel@localhost.localdomain> <20051220133230.GC24408@elte.hu>
- <Pine.LNX.4.58.0512200836120.21313@gandalf.stny.rr.com> <20051220135725.GA29392@elte.hu>
- <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com>
- <1135089221.13138.269.camel@localhost.localdomain> <20051220150711.GA5505@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Dec 2005 10:17:45 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:7382 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751096AbVLTPRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 10:17:44 -0500
+Date: Tue, 20 Dec 2005 09:17:22 -0600
+From: Dimitri Sivanich <sivanich@sgi.com>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Large thread wakeup (scheduling) delay spikes
+Message-ID: <20051220151722.GA357@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I posted something about this back in October, but received little response.
+Maybe others have run into problems with this since then.
 
-On Tue, 20 Dec 2005, Ingo Molnar wrote:
->
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
->
-> > As you see, the new SLOB code runs almost as fast as the SLAB code.
-> > With some more improvements, I'm sure it can get even faster.
->
-> cool, the numbers are really impressive! I'm wondering where the biggest
-> hit comes from - perhaps the SLOB does linear list walking when
-> allocating?
->
+I've noticed much less deterministic and more widely varying thread wakeup
+(scheduling) delays on recent kernels.  Even with isolated processors, the
+maximum delay to wakeup has gotten much longer (configured with or without
+CONFIG_PREEMPT).
 
-Yeah, I think that is the biggest hit. The SLOB does the old K&R memory
-management. Basically, right from the book.  But it is slow and can
-fragment very easily.
+The maximum delay to wakeup is now more than 10x longer than it was in
+2.6.13.4 and previous kernels, and that's on isolated processors (as much
+as 300 usec on a 1GHz cpu), although nominal values remain largely unchanged.
+The latest version I've tested is 2.6.15-rc5.
 
-I have a little more to do on this patch, (I don't perform the correct
-cleanup on kmem_cache_destroy), but I'll send it to you anyway within
-the next couple of minutes.  Just so you can take a look and try it out.
+Delving into this further I discovered that this is due to the execution
+time of file_free_rcu(), running from rcu_process_callbacks() in ksoftirqd.
+It appears that the modification that caused this was:
+	http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ab2af1f5005069321c5d130f09cce577b03f43ef
 
--- Steve
+By simply making the following change things return to more consistent
+thread wakeup delays on isolated cpus, similiar to what we had on kernels
+previous to the above mentioned mod (I know this change is incorrect,
+it is just for test purposes):
+
+fs/file_table.c
+@@ -62,7 +62,7 @@
+ 
+ static inline void file_free(struct file *f)
+ {
+-       call_rcu(&f->f_rcuhead, file_free_rcu);
++       kmem_cache_free(filp_cachep, f);
+ }
+ 
+
+I am wondering if there is some way we can return to consistently fast
+and predictable scheduling of threads to be woken?  If not on the
+system in general, maybe at least on certain specified processors?
+
+Dimitri

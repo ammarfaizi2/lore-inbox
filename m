@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVLTWJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbVLTWNJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbVLTWJg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 17:09:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVLTWJg
+	id S932183AbVLTWNJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 17:13:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbVLTWNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 17:09:36 -0500
-Received: from ns2.suse.de ([195.135.220.15]:25768 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932165AbVLTWJf (ORCPT
+	Tue, 20 Dec 2005 17:13:08 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:47031 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932183AbVLTWNG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 17:09:35 -0500
-Date: Tue, 20 Dec 2005 23:09:32 +0100
-From: Olaf Hering <olh@suse.de>
-To: Olof Johansson <olof@lixom.net>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: Re: console on POWER4 not working with 2.6.15
-Message-ID: <20051220220932.GA29092@suse.de>
-References: <20051220204530.GA26351@suse.de> <20051220214525.GB7428@pb15.lixom.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20051220214525.GB7428@pb15.lixom.net>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Tue, 20 Dec 2005 17:13:06 -0500
+Date: Tue, 20 Dec 2005 14:09:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: James Courtier-Dutton <James@superbug.co.uk>,
+       Sergey Vlasov <vsu@altlinux.ru>, Ricardo Cerqueira <v4l@cerqueira.org>,
+       mchehab@brturbo.com.br,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
+Subject: Re: [RFC: 2.6 patch] Makefile: sound/ must come before drivers/
+In-Reply-To: <20051220211359.GA5359@stusta.de>
+Message-ID: <Pine.LNX.4.64.0512201405550.4827@g5.osdl.org>
+References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
+ <20051220131810.GB6789@stusta.de> <20051220155216.GA19797@master.mivlgu.local>
+ <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org> <20051220191412.GA4578@stusta.de>
+ <Pine.LNX.4.64.0512201156250.4827@g5.osdl.org> <20051220202325.GA3850@stusta.de>
+ <Pine.LNX.4.64.0512201240480.4827@g5.osdl.org> <43A86DCD.8010400@superbug.co.uk>
+ <20051220211359.GA5359@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Dec 20, Olof Johansson wrote:
 
-> On Tue, Dec 20, 2005 at 09:45:30PM +0100, Olaf Hering wrote:
-> > The connection of ttyS0 to /dev/console doesnt seem to work anymore mit
-> > 2.6.15-rc5+6 on a POWER4 p630 in fullsystempartition mode, no HMC
-> > connected. It works with 2.6.14.4.
-> > I tested 2.6.15-rc6 arch/powerpc/configs/ppc64_defconfig.
+
+On Tue, 20 Dec 2005, Adrian Bunk wrote:
 > 
-> It seems to have been broken a while: According to test.kernel.org (last
-> machine in the matrix is an SMP mode p650), it broke between 2.6.14-git2
-> and 2.6.14-git3. Console output can be found in:
+> Thinking about this, what about the patch below?
 > 
+> I don't know whether this might break anything else, but it fixes my 
+> problem.
 
-I remember someone mentioned that a 43p 150 did not boot if the keyboard
-is connected. Will try that tomorrow. The git2-3 diff is huge, so maybe
-this hint helps.
+I'd be much more worried about this than about your patch that just 
+modifies one driver.
 
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+Basically, this would make _all_ sound drivers initialize before the other 
+drivers, and that just makes me suspect you'll have a lot of new bugs that 
+get uncovered by the fact that the configuration changed radically.
+
+So I'd much rather either fix one single sound driver (that can't mess up 
+anything else), or fix the sound _core_ to just initialize in the right 
+place. Moving _all_ sound drivers earlier sounds risky as hell, for no 
+good reason.
+
+		Linus

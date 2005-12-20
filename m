@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbVLTTjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVLTTjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751034AbVLTTjb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 14:39:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbVLTTjb
+	id S1751032AbVLTTjL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 14:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbVLTTjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 14:39:31 -0500
-Received: from wproxy.gmail.com ([64.233.184.193]:45527 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751034AbVLTTja convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 14:39:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KJZgQFK4VULjuEAFj5r+dOsw6LYldbSYHDWXYkZjmjol20dMcbQdkDjE8NZjM1eld/fEaKKLVM33nqASit4mTSI337Cto8Q9K8QBvYoiVLFI6pAOUixDYJMkwRrYbxmrBh2KMgLVRQnKYpyBZhhJ+yRr6tcjMQaEBNE4bYoZrDU=
-Message-ID: <9268368b0512201139v1836c920iaa6bdc11bd8f4e15@mail.gmail.com>
-Date: Tue, 20 Dec 2005 15:39:28 -0400
-From: Daniel Petrini <d.pensator@gmail.com>
-To: Jan De Luyck <lkml@kcore.org>
-Subject: Re: [PATCH] i386 No Idle HZ aka dynticks 051221
-Cc: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
-In-Reply-To: <200512201827.56387.lkml@kcore.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200512210310.51084.kernel@kolivas.org>
-	 <200512201827.56387.lkml@kcore.org>
+	Tue, 20 Dec 2005 14:39:11 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:37604 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751035AbVLTTjK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 14:39:10 -0500
+Subject: Re: 2.6.15-rc5-rt4 x86 patch
+From: Clark Williams <williams@redhat.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1135106911.13138.343.camel@localhost.localdomain>
+References: <1135100583.3415.16.camel@localhost.localdomain>
+	 <1135106911.13138.343.camel@localhost.localdomain>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NseaoHtSF/lTOSNUCmZC"
+Date: Tue, 20 Dec 2005 13:38:00 -0600
+Message-Id: <1135107480.3415.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jan,
 
-On 12/20/05, Jan De Luyck <lkml@kcore.org> wrote:
-> On Tuesday 20 December 2005 17:10, Con Kolivas wrote:
-> > Here is the latest version of the dynticks code incorporating a huge
-> > rewrite correcting all the known problems with the previous code.
->
-> Works nicely sofar. One slight bug in the pmstats code, the interval setting
-> doesn't work because of a missing else clause.
->
-> One thing I'm curious about (and haven't tested yet): does this also work with
-> S3 suspend to ram? Last dynticks I tried had issues with that...
+--=-NseaoHtSF/lTOSNUCmZC
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I'm testing suspend to ram and it is working normally with dyn-ticks. 
-What kind of problems are you facing?
+On Tue, 2005-12-20 at 14:28 -0500, Steven Rostedt wrote:
+> Hi Clark,
+>=20
+> I've submitted a similar patch since rc5-rt1.
+>=20
+> http://lkml.org/lkml/2005/12/13/184
+>=20
 
+Of course you did, since I stole^Wborrowed it from you :)
 
-Daniel
+I was just subtly prodding Ingo...
+
+Clark
+
+--=20
+Clark Williams <williams@redhat.com>
+
+--=-NseaoHtSF/lTOSNUCmZC
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBDqF2YHyuj/+TTEp0RAmfEAJoDroyiP4XfkmWl9bbr48v4d8/A5QCfYeDp
+wJya93BighE0hp2c0zqGawk=
+=wL+a
+-----END PGP SIGNATURE-----
+
+--=-NseaoHtSF/lTOSNUCmZC--
+

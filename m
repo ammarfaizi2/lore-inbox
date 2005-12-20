@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVLTRp1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbVLTRsP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbVLTRp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 12:45:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750749AbVLTRp1
+	id S1750749AbVLTRsP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 12:48:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbVLTRsP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 12:45:27 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:61448 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1750744AbVLTRp0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 12:45:26 -0500
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>, Linda Walsh <lkml@tlinx.org>
-Subject: Re: Makefile targets: tar & rpm pkgs, while using O=<dir> as
- non-root
-References: <43A5F058.1060102@tlinx.org> <20051219071959.GJ13985@lug-owl.de>
-	<87d5jru67j.fsf@amaterasu.srvr.nix>
-	<20051220155839.GA9185@mars.ravnborg.org>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: because Hell was full.
-Date: Tue, 20 Dec 2005 17:44:10 +0000
-In-Reply-To: <20051220155839.GA9185@mars.ravnborg.org> (Sam Ravnborg's
- message of "Tue, 20 Dec 2005 16:58:39 +0100")
-Message-ID: <87irtjslxx.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+	Tue, 20 Dec 2005 12:48:15 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:60685 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750749AbVLTRsO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 12:48:14 -0500
+Date: Tue, 20 Dec 2005 18:49:48 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ben Collins <bcollins@ubuntu.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH rc6] block: Fix CDROMEJECT to work in more cases
+Message-ID: <20051220174948.GP3734@suse.de>
+References: <20051219195014.GA13578@swissdisk.com> <Pine.LNX.4.64.0512200930490.4827@g5.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512200930490.4827@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Dec 2005, Sam Ravnborg said:
-> Consider following use cases:
-> 1) Src located on NFS mounted filesystem
+On Tue, Dec 20 2005, Linus Torvalds wrote:
+> 
+> 
+> On Mon, 19 Dec 2005, Ben Collins wrote:
+> >
+> > This changes the request to a READ instead of WRITE. Also adds and calls
+> > blk_send_allow_medium_removal() for CDROMEJECT case.
+> 
+> Can you tell why it also does that START_STOP/1 thing? That looks a bit 
+> strange. 
 
-Nothing wrong with that. NFS is fast for me.
+I still think that is weird and not something that should be merged. The
+0x01 bit means load the tray and read TOC.
 
-(Admittedly, on heavily contended networks you're right.)
+> Also, can somebody go through the READ/WRITE difference for me for a 
+> zero-length command? If the _only_ difference is a protection one (WRITE 
+> commands need write permissions), then I'm ok with this (I think it's 
+> very reasonable that somebody who can read a cd-rom can also eject it), 
+> but if there's some SCSI layer logic that says "writes cannot have length 
+> 0", then I think that's a bug. 
 
-> 2) Src on RO media
+It has no logical implications other than from what pool it allocates,
+and we've always used the WRITE pool for these requests. There's no
+protection implications.
 
-*Good* reason (one that unionfs would solve, but still...)
-
-> 4) Builds for several architectures from same source base
-
-cp -al
-
-> 5) Builds for several different configurations
-
-cp -al
-
-> It is convinient in many places. Maybe not for you but for others.
-
-There were a couple of compelling arguments in there. :)
+WRITEs cannot have length 0, and READs cannot as well. Since it's just
+one bit for direction, those are the rules.
 
 -- 
-`I must caution that dipping fingers into molten lead
- presents several serious dangers.' --- Jearl Walker
+Jens Axboe
+

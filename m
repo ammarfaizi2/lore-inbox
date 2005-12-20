@@ -1,75 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbVLTT6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbVLTT72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbVLTT6H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 14:58:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932068AbVLTT6H
+	id S1750953AbVLTT72 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 14:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbVLTT72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 14:58:07 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:24330 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932066AbVLTT6F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 14:58:05 -0500
-Date: Tue, 20 Dec 2005 19:57:47 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Nicolas Pitre <nico@cam.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Ingo Molnar <mingo@elte.hu>, David Woodhouse <dwmw2@infradead.org>,
+	Tue, 20 Dec 2005 14:59:28 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:5058 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1750836AbVLTT71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 14:59:27 -0500
+Date: Tue, 20 Dec 2005 14:59:26 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 04/15] Generic Mutex Subsystem,
+ add-atomic-call-func-x86_64.patch
+In-reply-to: <1135107155.2952.30.camel@laptopd505.fenrus.org>
+X-X-Sender: nico@localhost.localdomain
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       David Woodhouse <dwmw2@infradead.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
        Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        David Howells <dhowells@redhat.com>,
        Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
        Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
-Subject: Re: [patch 04/15] Generic Mutex Subsystem, add-atomic-call-func-x86_64.patch
-Message-ID: <20051220195747.GE24199@flint.arm.linux.org.uk>
-Mail-Followup-To: Steven Rostedt <rostedt@goodmis.org>,
-	Nicolas Pitre <nico@cam.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-	Ingo Molnar <mingo@elte.hu>, David Woodhouse <dwmw2@infradead.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Arjan van de Ven <arjanv@infradead.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-	David Howells <dhowells@redhat.com>,
-	Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-	Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
-References: <20051220043109.GC32039@elte.hu> <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain> <43A7BCE1.7050401@yahoo.com.au> <Pine.LNX.4.64.0512200909180.26663@localhost.localdomain> <43A81132.8040703@yahoo.com.au> <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain> <43A81DD4.30906@yahoo.com.au> <Pine.LNX.4.64.0512201049310.26663@localhost.localdomain> <20051220192018.GB24199@flint.arm.linux.org.uk> <Pine.LNX.4.58.0512201437120.11245@gandalf.stny.rr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0512201437120.11245@gandalf.stny.rr.com>
-User-Agent: Mutt/1.4.1i
+Message-id: <Pine.LNX.4.64.0512201456030.26663@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com>
+ <1135025932.4760.1.camel@localhost.localdomain>
+ <20051220043109.GC32039@elte.hu>
+ <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain>
+ <43A7BCE1.7050401@yahoo.com.au>
+ <Pine.LNX.4.64.0512200909180.26663@localhost.localdomain>
+ <43A81132.8040703@yahoo.com.au>
+ <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain>
+ <43A81DD4.30906@yahoo.com.au>
+ <Pine.LNX.4.64.0512201049310.26663@localhost.localdomain>
+ <20051220192018.GB24199@flint.arm.linux.org.uk>
+ <1135107155.2952.30.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20, 2005 at 02:43:30PM -0500, Steven Rostedt wrote:
-> So what's wrong with having the generic code, and for those with a fast
-> semapore add an arch specific?
-> 
-> #define mutex_lock down
-> #define mutex_unlock up
-> #define mutex_trylock(x) (!down_trylock(x))
-> 
-> Until the mutex code is updated to a fast arch specific implementation.
-> 
-> Let me restate, that the generic code should not be this, but each arch
-> can have this if they already went through great lengths in making a fast
-> semaphore.
+On Tue, 20 Dec 2005, Arjan van de Ven wrote:
 
-I have no problem with this since we can then use Nico's swp-based
-implementation.  Great!  What seems to be happening though is that
-there's a move to make these operations be generic across all
-architectures.
+> on x86 the fastpath is the same for both basically.. is there a
+> fundamental reason it can't be for ARM?
 
-What both Nico and myself have demonstrated is that if architectures
-are placed into the generic strait-jacket, any alleged performance
-benefit of mutexes is completely swamped, which in turn makes the
-whole mutex idea entirely pointless.
+ARM prior ARM architecture level 6 (which means about 99% of all ARM 
+processors in the field currently) cannot do an atomic 
+decrement/increment.  It must be done manually with interrupt disabled.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+The only truly atomic instruction it has is a swap which lays itself 
+pretty well for mutex support.
+
+
+Nicolas

@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbVLTT72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbVLTUCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750953AbVLTT72 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 14:59:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbVLTT72
+	id S1750958AbVLTUCx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 15:02:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbVLTUCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 14:59:28 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:5058 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1750836AbVLTT71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 14:59:27 -0500
-Date: Tue, 20 Dec 2005 14:59:26 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 04/15] Generic Mutex Subsystem,
- add-atomic-call-func-x86_64.patch
-In-reply-to: <1135107155.2952.30.camel@laptopd505.fenrus.org>
-X-X-Sender: nico@localhost.localdomain
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
-Message-id: <Pine.LNX.4.64.0512201456030.26663@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com>
- <1135025932.4760.1.camel@localhost.localdomain>
- <20051220043109.GC32039@elte.hu>
- <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain>
- <43A7BCE1.7050401@yahoo.com.au>
- <Pine.LNX.4.64.0512200909180.26663@localhost.localdomain>
- <43A81132.8040703@yahoo.com.au>
- <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain>
- <43A81DD4.30906@yahoo.com.au>
- <Pine.LNX.4.64.0512201049310.26663@localhost.localdomain>
- <20051220192018.GB24199@flint.arm.linux.org.uk>
- <1135107155.2952.30.camel@laptopd505.fenrus.org>
+	Tue, 20 Dec 2005 15:02:53 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:9877 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750869AbVLTUCw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 15:02:52 -0500
+Date: Tue, 20 Dec 2005 11:59:20 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Sergey Vlasov <vsu@altlinux.ru>, Ricardo Cerqueira <v4l@cerqueira.org>,
+       mchehab@brturbo.com.br,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
+Subject: Re: [Alsa-devel] 2.6.15-rc6: boot failure in saa7134-alsa.c
+In-Reply-To: <20051220191412.GA4578@stusta.de>
+Message-ID: <Pine.LNX.4.64.0512201156250.4827@g5.osdl.org>
+References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
+ <20051220131810.GB6789@stusta.de> <20051220155216.GA19797@master.mivlgu.local>
+ <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org> <20051220191412.GA4578@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Dec 2005, Arjan van de Ven wrote:
-
-> on x86 the fastpath is the same for both basically.. is there a
-> fundamental reason it can't be for ARM?
-
-ARM prior ARM architecture level 6 (which means about 99% of all ARM 
-processors in the field currently) cannot do an atomic 
-decrement/increment.  It must be done manually with interrupt disabled.
-
-The only truly atomic instruction it has is a swap which lays itself 
-pretty well for mutex support.
 
 
-Nicolas
+On Tue, 20 Dec 2005, Adrian Bunk wrote:
+>
+> > Adrian, does it work if you change the "module_init()" in 
+> > sound/sound_core.c into a "fs_initcall()"?
+> 
+> No, this didn't work.
+> 
+> What did work was to leave sound/sound_core.c alone
+
+Can you do try the other way again, with sound/core/sound.c fixed too?
+
+A regular driver really _should_ use the regular "module_init()" sequence 
+(it is indeed just a compatibility define for "driver_init()").
+
+The "late_init()" stuff is meant for stuff that literally runs after 
+everything else is up and running, it might want all drivers functional 
+(now, nobody really cares about a sound driver, so in that sense it would 
+be ok..)
+
+	Thanks,
+
+		Linus

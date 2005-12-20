@@ -1,128 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbVLTWCK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbVLTWCh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbVLTWCK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 17:02:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbVLTWCK
+	id S932169AbVLTWCh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 17:02:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbVLTWCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 17:02:10 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.25]:15042 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932163AbVLTWCJ (ORCPT
+	Tue, 20 Dec 2005 17:02:35 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:25064 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932170AbVLTWCb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 17:02:09 -0500
-Date: Tue, 20 Dec 2005 14:01:56 -0800 (PST)
+	Tue, 20 Dec 2005 17:02:31 -0500
+Date: Tue, 20 Dec 2005 14:02:27 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       Andi Kleen <ak@suse.de>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, Andi Kleen <ak@suse.de>,
        Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051220220156.30326.39.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20051220220227.30326.11894.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20051220220151.30326.98563.sendpatchset@schroedinger.engr.sgi.com>
 References: <20051220220151.30326.98563.sendpatchset@schroedinger.engr.sgi.com>
-Subject: Zoned counters V1 [ 1/14]: Add some consts for inlines in mm.h
+Subject: Zoned counters V1 [ 7/14]: Convert nr_slab
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] const attributes for some inlines in mm.h
-
-Const attributes allow the compiler to generate more efficient code by
-allowing callers to keep elements of struct page in registers [Or if
-the architecture does not have too many registers it will at least avoid
-address recalculation and allow common subexpression elimination to work.]
-
-Some of the zoned vm statistics functions need to be passed a
-"struct page *". The parameter is defined const. That in turn requires
-that the inlines used by that function also take const page * parameters.
+Convert nr_slab
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.15-rc5-mm3/include/linux/mm.h
+Index: linux-2.6.15-rc5-mm3/drivers/base/node.c
 ===================================================================
---- linux-2.6.15-rc5-mm3.orig/include/linux/mm.h	2005-12-16 11:44:09.000000000 -0800
-+++ linux-2.6.15-rc5-mm3/include/linux/mm.h	2005-12-20 11:54:03.000000000 -0800
-@@ -456,7 +456,7 @@ void put_page(struct page *page);
- #define SECTIONS_MASK		((1UL << SECTIONS_WIDTH) - 1)
- #define ZONETABLE_MASK		((1UL << ZONETABLE_SHIFT) - 1)
- 
--static inline unsigned long page_zonenum(struct page *page)
-+static inline unsigned long page_zonenum(const struct page *page)
- {
- 	return (page->flags >> ZONES_PGSHIFT) & ZONES_MASK;
+--- linux-2.6.15-rc5-mm3.orig/drivers/base/node.c	2005-12-20 12:57:57.000000000 -0800
++++ linux-2.6.15-rc5-mm3/drivers/base/node.c	2005-12-20 12:58:02.000000000 -0800
+@@ -88,7 +88,7 @@ static ssize_t node_read_meminfo(struct 
+ 		       nid, K(ps.nr_writeback),
+ 		       nid, K(nr[NR_MAPPED]),
+ 		       nid, K(nr[NR_PAGECACHE]),
+-		       nid, K(ps.nr_slab));
++		       nid, K(nr[NR_SLAB]));
+ 	n += hugetlb_report_node_meminfo(nid, buf + n);
+ 	return n;
  }
-@@ -464,20 +464,20 @@ static inline unsigned long page_zonenum
- struct zone;
- extern struct zone *zone_table[];
- 
--static inline struct zone *page_zone(struct page *page)
-+static inline struct zone *page_zone(const struct page *page)
- {
- 	return zone_table[(page->flags >> ZONETABLE_PGSHIFT) &
- 			ZONETABLE_MASK];
- }
- 
--static inline unsigned long page_to_nid(struct page *page)
-+static inline unsigned long page_to_nid(const struct page *page)
- {
- 	if (FLAGS_HAS_NODE)
- 		return (page->flags >> NODES_PGSHIFT) & NODES_MASK;
- 	else
- 		return page_zone(page)->zone_pgdat->node_id;
- }
--static inline unsigned long page_to_section(struct page *page)
-+static inline unsigned long page_to_section(const struct page *page)
- {
- 	return (page->flags >> SECTIONS_PGSHIFT) & SECTIONS_MASK;
- }
-@@ -511,7 +511,7 @@ static inline void set_page_links(struct
- extern struct page *mem_map;
- #endif
- 
--static inline void *lowmem_page_address(struct page *page)
-+static inline void *lowmem_page_address(const struct page *page)
- {
- 	return __va(page_to_pfn(page) << PAGE_SHIFT);
- }
-@@ -553,7 +553,7 @@ void page_address_init(void);
- #define PAGE_MAPPING_ANON	1
- 
- extern struct address_space swapper_space;
--static inline struct address_space *page_mapping(struct page *page)
-+static inline struct address_space *page_mapping(const struct page *page)
- {
- 	struct address_space *mapping = page->mapping;
- 
-@@ -564,7 +564,7 @@ static inline struct address_space *page
- 	return mapping;
+Index: linux-2.6.15-rc5-mm3/fs/proc/proc_misc.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/fs/proc/proc_misc.c	2005-12-20 12:57:55.000000000 -0800
++++ linux-2.6.15-rc5-mm3/fs/proc/proc_misc.c	2005-12-20 12:58:02.000000000 -0800
+@@ -191,7 +191,7 @@ static int meminfo_read_proc(char *page,
+ 		K(ps.nr_dirty),
+ 		K(ps.nr_writeback),
+ 		K(global_page_state(NR_MAPPED)),
+-		K(ps.nr_slab),
++		K(global_page_state(NR_SLAB)),
+ 		K(allowed),
+ 		K(committed),
+ 		K(ps.nr_page_table_pages),
+Index: linux-2.6.15-rc5-mm3/mm/page_alloc.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/mm/page_alloc.c	2005-12-20 12:57:57.000000000 -0800
++++ linux-2.6.15-rc5-mm3/mm/page_alloc.c	2005-12-20 12:58:17.000000000 -0800
+@@ -597,7 +597,7 @@ static int rmqueue_bulk(struct zone *zon
+ 	return i;
  }
  
--static inline int PageAnon(struct page *page)
-+static inline int PageAnon(const struct page *page)
- {
- 	return ((unsigned long)page->mapping & PAGE_MAPPING_ANON) != 0;
- }
-@@ -573,7 +573,7 @@ static inline int PageAnon(struct page *
-  * Return the pagecache index of the passed page.  Regular pagecache pages
-  * use ->index whereas swapcache pages use ->private
-  */
--static inline pgoff_t page_index(struct page *page)
-+static inline pgoff_t page_index(const struct page *page)
- {
- 	if (unlikely(PageSwapCache(page)))
- 		return page_private(page);
-@@ -590,7 +590,7 @@ static inline void reset_page_mapcount(s
- 	atomic_set(&(page)->_mapcount, -1);
- }
+-char *stat_item_descr[NR_STAT_ITEMS] = { "mapped","pagecache" };
++char *stat_item_descr[NR_STAT_ITEMS] = { "mapped","pagecache", "slab" };
  
--static inline int page_mapcount(struct page *page)
-+static inline int page_mapcount(const struct page *page)
- {
- 	return atomic_read(&(page)->_mapcount) + 1;
- }
-@@ -598,7 +598,7 @@ static inline int page_mapcount(struct p
  /*
-  * Return true if this page is mapped into pagetables.
-  */
--static inline int page_mapped(struct page *page)
-+static inline int page_mapped(const struct page *page)
- {
- 	return atomic_read(&(page)->_mapcount) >= 0;
- }
+  * Manage combined zone based / global counters
+@@ -1784,7 +1784,7 @@ void show_free_areas(void)
+ 		ps.nr_writeback,
+ 		ps.nr_unstable,
+ 		nr_free_pages(),
+-		ps.nr_slab,
++		global_page_state(NR_SLAB),
+ 		global_page_state(NR_MAPPED),
+ 		ps.nr_page_table_pages);
+ 
+@@ -2677,13 +2677,13 @@ static char *vmstat_text[] = {
+ 	/* Zoned VM counters */
+ 	"nr_mapped",
+ 	"nr_pagecache",
++	"nr_slab",
+ 
+ 	/* Page state */
+ 	"nr_dirty",
+ 	"nr_writeback",
+ 	"nr_unstable",
+ 	"nr_page_table_pages",
+-	"nr_slab",
+ 
+ 	"pgpgin",
+ 	"pgpgout",
+Index: linux-2.6.15-rc5-mm3/mm/slab.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/mm/slab.c	2005-12-20 12:57:37.000000000 -0800
++++ linux-2.6.15-rc5-mm3/mm/slab.c	2005-12-20 12:58:02.000000000 -0800
+@@ -1236,7 +1236,7 @@ static void *kmem_getpages(kmem_cache_t 
+ 	i = (1 << cachep->gfporder);
+ 	if (cachep->flags & SLAB_RECLAIM_ACCOUNT)
+ 		atomic_add(i, &slab_reclaim_pages);
+-	add_page_state(nr_slab, i);
++	add_zone_page_state(page_zone(page), NR_SLAB, i);
+ 	while (i--) {
+ 		SetPageSlab(page);
+ 		page++;
+@@ -1258,7 +1258,7 @@ static void kmem_freepages(kmem_cache_t 
+ 			BUG();
+ 		page++;
+ 	}
+-	sub_page_state(nr_slab, nr_freed);
++	sub_zone_page_state(page_zone(page), NR_SLAB, nr_freed);
+ 	if (current->reclaim_state)
+ 		current->reclaim_state->reclaimed_slab += nr_freed;
+ 	free_pages((unsigned long)addr, cachep->gfporder);
+Index: linux-2.6.15-rc5-mm3/include/linux/mmzone.h
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/include/linux/mmzone.h	2005-12-20 12:57:55.000000000 -0800
++++ linux-2.6.15-rc5-mm3/include/linux/mmzone.h	2005-12-20 12:58:02.000000000 -0800
+@@ -48,6 +48,7 @@ enum zone_stat_item {
+ 	NR_MAPPED,	/* mapped into pagetables.
+ 			   only modified from process context */
+ 	NR_PAGECACHE,	/* file backed pages */
++	NR_SLAB,	/* used by slab allocator */
+ 	NR_STAT_ITEMS };
+ 
+ #ifdef CONFIG_SMP
+Index: linux-2.6.15-rc5-mm3/include/linux/page-flags.h
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/include/linux/page-flags.h	2005-12-20 12:57:42.000000000 -0800
++++ linux-2.6.15-rc5-mm3/include/linux/page-flags.h	2005-12-20 12:58:02.000000000 -0800
+@@ -95,8 +95,7 @@ struct page_state {
+ 	unsigned long nr_writeback;	/* Pages under writeback */
+ 	unsigned long nr_unstable;	/* NFS unstable pages */
+ 	unsigned long nr_page_table_pages;/* Pages used for pagetables */
+-	unsigned long nr_slab;		/* In slab */
+-#define GET_PAGE_STATE_LAST nr_slab
++#define GET_PAGE_STATE_LAST nr_page_table_pages
+ 
+ 	/*
+ 	 * The below are zeroed by get_page_state().  Use get_full_page_state()

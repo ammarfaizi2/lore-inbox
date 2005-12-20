@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbVLTVYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbVLTVX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbVLTVYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 16:24:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbVLTVYJ
+	id S932121AbVLTVX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 16:23:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVLTVX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 16:24:09 -0500
-Received: from gate.perex.cz ([85.132.177.35]:60562 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S932122AbVLTVYH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 16:24:07 -0500
-Date: Tue, 20 Dec 2005 22:24:05 +0100 (CET)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@tm8103-a.perex-int.cz
-To: Adrian Bunk <bunk@stusta.de>
-Cc: James Courtier-Dutton <James@superbug.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Sergey Vlasov <vsu@altlinux.ru>,
-       Ricardo Cerqueira <v4l@cerqueira.org>, mchehab@brturbo.com.br,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com, alsa-devel@alsa-project.org
-Subject: Re: [Alsa-devel] [RFC: 2.6 patch] Makefile: sound/ must come before
- drivers/
-In-Reply-To: <20051220211359.GA5359@stusta.de>
-Message-ID: <Pine.LNX.4.61.0512202220040.12853@tm8103-a.perex-int.cz>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
- <20051220131810.GB6789@stusta.de> <20051220155216.GA19797@master.mivlgu.local>
- <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org> <20051220191412.GA4578@stusta.de>
- <Pine.LNX.4.64.0512201156250.4827@g5.osdl.org> <20051220202325.GA3850@stusta.de>
- <Pine.LNX.4.64.0512201240480.4827@g5.osdl.org> <43A86DCD.8010400@superbug.co.uk>
- <20051220211359.GA5359@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Dec 2005 16:23:58 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:14763
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932121AbVLTVX6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 16:23:58 -0500
+Date: Tue, 20 Dec 2005 13:23:58 -0800 (PST)
+Message-Id: <20051220.132358.106631597.davem@davemloft.net>
+To: benh@kernel.crashing.org
+Cc: johannes@sipsolutions.net, linux-kernel@vger.kernel.org, davem@redhat.com,
+       eric.lemoine@gmail.com
+Subject: Re: sungem hangs in atomic if netconsole enabled but no carrier
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1135113521.10035.107.camel@gaston>
+References: <1135080538.3937.3.camel@localhost>
+	<1135113521.10035.107.camel@gaston>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Dec 2005, Adrian Bunk wrote:
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Date: Wed, 21 Dec 2005 08:18:40 +1100
 
-> On Tue, Dec 20, 2005 at 08:47:09PM +0000, James Courtier-Dutton wrote:
-> > Linus Torvalds wrote:
-> > >
-> > >On Tue, 20 Dec 2005, Adrian Bunk wrote:
-> > >
-> > >>But the non-saa7134 access to my soundcard (e.g. rexima or xmms) is no 
-> > >>longer working.
-> > >
-> > >
-> > >Ahh. I assume it's the sequencer init etc that is missing.
-> > >
-> > >Maybe we'll just have to do the late_init thing for at least the 2.6.15 
-> > >timeframe.
-> > >
-> > >		Linus
-> > >
-> > 
-> > But that's not really a useable fix. The problem is with almost all ALSA 
-> > sound cards.
 > 
-> No, inside sound/ it's working due to the link order.
+> > Turns out that if I remove the netconsole=... option to my kernel, all
+> > works fine and the system no longer hangs. Obviously not plugging in a
+> > network cable is pretty useless when netconsole is turned on, but I
+> > think it should not hang the system completely. So far I haven't been
+> > able to figure out where it actually hangs and don't even know how to do
+> > so -- I'm open for suggestions on how to find out why/where it hangs or
+> > even fixes.
 > 
-> Thinking about this, what about the patch below?
->
-> -drivers-y	:= drivers/ sound/
-> +drivers-y	:= sound/ drivers/
+> Hrm... I've heard various reports about problems with netconsole... I've
+> never tried it myself so far though. One thing I remember to beware of
+> is if sungem does a printk while holding its lock...
 
-It might break the "video" subsystem, because we have a lowlevel code 
-for radio tuners in our code.
-
-Basically, everything from /sound/core tree should be initialized at first 
-before any lowlevel driver is loaded, except /sound/core/oss and
-/sound/core/seq/oss subtrees.
-
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+I bet that's it, doing a printk while already in the netconsole
+printk output path.

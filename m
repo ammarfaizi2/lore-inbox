@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751030AbVLTTHB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbVLTTIj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751030AbVLTTHB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 14:07:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbVLTTHA
+	id S1750790AbVLTTIj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 14:08:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVLTTIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 14:07:00 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:336 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751029AbVLTTHA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 14:07:00 -0500
-Date: Tue, 20 Dec 2005 20:08:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ben Collins <bcollins@ubuntu.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH rc6] block: Fix CDROMEJECT to work in more cases
-Message-ID: <20051220190836.GR3734@suse.de>
-References: <20051219195014.GA13578@swissdisk.com> <Pine.LNX.4.64.0512200930490.4827@g5.osdl.org> <20051220174948.GP3734@suse.de> <Pine.LNX.4.64.0512201005370.4827@g5.osdl.org> <20051220183857.GQ3734@suse.de> <Pine.LNX.4.64.0512201049270.4827@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512201049270.4827@g5.osdl.org>
+	Tue, 20 Dec 2005 14:08:38 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:12499 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S1750790AbVLTTIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 14:08:38 -0500
+From: kernel-stuff@comcast.net (Parag Warudkar)
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Andi Kleen <ak@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks 
+Date: Tue, 20 Dec 2005 19:08:24 +0000
+Message-Id: <122020051908.25484.43A856A8000A6E600000638C220075894200009A9B9CD3040A029D0A05@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Aug  4 2005)
+X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20 2005, Linus Torvalds wrote:
-> 
-> 
-> On Tue, 20 Dec 2005, Jens Axboe wrote:
-> > 
-> > There _was_ a bug in the SCSI layer, because it had logic like this:
-> > 
-> >         if (rq_data_dir(req) == WRITE)
-> >                 DMA_TO_DEVICE
-> >         else if (req->data_len)
-> >                 DMA_FROM_DEVICE
-> >         else
-> >                 DMA_NONE
-> > 
-> > which was buggy, because for it to transfer data to the device, both the
-> > direction bit _and_ a data length must be set.
-> 
-> So this is fixed? Is that the iPod panic fix, or something else?
+> Oh, well, one of the larger drawbacks of 4KiB stacks is the inevitable
+> flamewar, each time with /less/ data (this round I've seen none) supporting
+> the need for larger stacks, into which all kinds of idiots* are suckered.
 
-Yes it's fixed, James merged the fix(es) with you last week.
+At the same time, I haven't seen any data showing what we gain by losing the 8K 
+stack option.  Where are the links to posts where people are claiming en masse 
+that 8K stacks are causing screwups, halting VM development etc.?
 
-> If so, I'll drop that patch (although the "allow_removal" part of it 
-> sounds sane to me still.. comments?)
+If 8K stacks are something that works, is not default, what do we gain by losing 
+it in total? If people need ndiswrapper (I hate it as much as any one else , but come on 
+for some people it's the only option) or any other functionality that requires 
+bigger stack, let them choose it if they are ready to take whatever risks that come with it. 
 
-I guess that's fine with me, the only thing I reject to is the 0x01 bit.
+To the ndiswrapper users - Do you guys have any real data showing 4K stacks 
+result in problems for you? (Since it is dedicated 4K against shared 8K, it 
+might as well not cause problems.) If you do then it's clear that 8K shared  
+gives more room than 4k dedicated.
 
--- 
-Jens Axboe
-
+Parag

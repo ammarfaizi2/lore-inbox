@@ -1,61 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVLTRnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbVLTRoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750739AbVLTRnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 12:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVLTRnP
+	id S1750753AbVLTRoO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 12:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbVLTRoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 12:43:15 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44944 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750739AbVLTRnP (ORCPT
+	Tue, 20 Dec 2005 12:44:14 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:6808 "EHLO lirs02.phys.au.dk")
+	by vger.kernel.org with ESMTP id S1750753AbVLTRoO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 12:43:15 -0500
-Subject: 2.6.15-rc5-rt4 x86 patch
-From: Clark Williams <williams@redhat.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CeAYsKjkSYEMwoYBInC9"
-Date: Tue, 20 Dec 2005 11:43:03 -0600
-Message-Id: <1135100583.3415.16.camel@localhost.localdomain>
+	Tue, 20 Dec 2005 12:44:14 -0500
+Date: Tue, 20 Dec 2005 18:43:03 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Dinakar Guniguntala <dino@in.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, robustmutexes@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Recursion bug in -rt
+In-Reply-To: <20051220155004.GA3906@in.ibm.com>
+Message-Id: <Pine.OSF.4.05.10512201834580.1720-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-CeAYsKjkSYEMwoYBInC9
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-I still need the following to compile with PREEMPT_RT on an x86:
+On Tue, 20 Dec 2005, Dinakar Guniguntala wrote:
 
---- ./arch/i386/Kconfig.cpu.orig        2005-12-20 11:26:34.000000000 -0600
-+++ ./arch/i386/Kconfig.cpu     2005-12-20 11:33:23.000000000 -0600
-@@ -229,11 +229,6 @@
-        depends on M386
-        default y
+> On Tue, Dec 20, 2005 at 02:19:56PM +0100, Ingo Molnar wrote:
+> > 
+> > hm, i'm looking at -rf4 - these changes look fishy:
+> > 
+> > -       _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
+> > +       if (current != lock_owner(lock)->task)
+> > +               _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
+> > 
+> > why is this done?
+> >
+>  
+> Ingo, this is to prevent a kernel hang due to application error.
+> 
+> Basically when an application does a pthread_mutex_lock twice on a
+> _nonrecursive_ mutex with robust/PI attributes the whole system hangs.
+> Ofcourse the application clearly should not be doing anything like
+> that, but it should not end up hanging the system either
+>
 
--config RWSEM_XCHGADD_ALGORITHM
--       bool
--       depends on !M386
--       default y
--
- config GENERIC_CALIBRATE_DELAY
-        bool
-        default y
+Hmm, reading the comment on the function, wouldn't it be more natural to
+use 
+    if(task != lock_owner(lock)->task)
+as it assumes that task->pi_lock is locked, not that current->pi_lock is
+locked.
 
---=20
-Clark Williams <williams@redhat.com>
+By the way:
+ task->pi_lock is taken. lock_owner(lock)->task->pi_lock will be taken.
+What if the task lock_owner(lock)->task tries to lock another futex,
+(lock2) with which has lock_owner(lock2)->task==task.
+Can't you promote a user space futex deadlock into a kernel spin deadlock 
+this way?
 
---=-CeAYsKjkSYEMwoYBInC9
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDqEKnHyuj/+TTEp0RAi1JAKCv9pRvdm5XILaI7okPgKT/1SLliwCfWMwg
-4HWvH0+ddN8O9Kp8hAVXHbA=
-=Blzr
------END PGP SIGNATURE-----
-
---=-CeAYsKjkSYEMwoYBInC9--
+Esben
+ 
+> 	-Dinakar
+> 
+> 
 

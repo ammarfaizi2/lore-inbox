@@ -1,62 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbVLTTjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751029AbVLTTkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbVLTTjL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 14:39:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbVLTTjL
+	id S1751029AbVLTTkV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 14:40:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbVLTTkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 14:39:11 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:37604 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751035AbVLTTjK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 14:39:10 -0500
-Subject: Re: 2.6.15-rc5-rt4 x86 patch
-From: Clark Williams <williams@redhat.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1135106911.13138.343.camel@localhost.localdomain>
-References: <1135100583.3415.16.camel@localhost.localdomain>
-	 <1135106911.13138.343.camel@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NseaoHtSF/lTOSNUCmZC"
-Date: Tue, 20 Dec 2005 13:38:00 -0600
-Message-Id: <1135107480.3415.35.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Tue, 20 Dec 2005 14:40:20 -0500
+Received: from relay10.CS.McGill.CA ([132.206.3.88]:4101 "EHLO
+	relay10.cs.mcgill.ca") by vger.kernel.org with ESMTP
+	id S1751029AbVLTTkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 14:40:18 -0500
+Message-ID: <43A85E16.2030908@cs.ubishops.ca>
+Date: Tue, 20 Dec 2005 14:40:06 -0500
+From: Patrick McLean <pmclean@cs.ubishops.ca>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051205)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Light-weight dynamically extended stacks
+References: <20051219001249.GD11856@waste.org> <20051219183604.GT23349@stusta.de> <20051220002759.GE3356@waste.org> <20051220164316.GG6789@stusta.de> <20051220183025.GG3356@waste.org>
+In-Reply-To: <20051220183025.GG3356@waste.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Matt Mackall wrote:
+> 
+> This is not intended to be an automatic scheme. To use it, you must
+> actually insert code into the troublesome codepaths, which will of
+> course serve as a red flag for code review.
+> 
 
---=-NseaoHtSF/lTOSNUCmZC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2005-12-20 at 14:28 -0500, Steven Rostedt wrote:
-> Hi Clark,
->=20
-> I've submitted a similar patch since rc5-rt1.
->=20
-> http://lkml.org/lkml/2005/12/13/184
->=20
-
-Of course you did, since I stole^Wborrowed it from you :)
-
-I was just subtly prodding Ingo...
-
-Clark
-
---=20
-Clark Williams <williams@redhat.com>
-
---=-NseaoHtSF/lTOSNUCmZC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDqF2YHyuj/+TTEp0RAmfEAJoDroyiP4XfkmWl9bbr48v4d8/A5QCfYeDp
-wJya93BighE0hp2c0zqGawk=
-=wL+a
------END PGP SIGNATURE-----
-
---=-NseaoHtSF/lTOSNUCmZC--
-
+It might be an idea to put in a #warn to make it an even bigger red 
+flag, and to really make people fix this rather than just ignore it 
+since it works with the dynamic stacks.

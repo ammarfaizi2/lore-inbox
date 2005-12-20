@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbVLTOfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbVLTOha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751068AbVLTOfx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 09:35:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVLTOfx
+	id S1751075AbVLTOha (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 09:37:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbVLTOha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 09:35:53 -0500
-Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:3853 "EHLO
-	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
-	id S1751068AbVLTOfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 09:35:53 -0500
-In-Reply-To: <B1D5AEA1-A120-4997-AD9A-A2379B6A1779@comcast.net>
-References: <20051215212447.GR23349@stusta.de> <20051215140013.7d4ffd5b.akpm@osdl.org> <20051216141002.2b54e87d.diegocg@gmail.com> <20051216140425.GY23349@stusta.de> <20051216163503.289d491e.diegocg@gmail.com> <632A9CF3-7F07-44D6-BFB4-8EAA272AF3E5@mac.com> <p73slsrehzs.fsf@verdi.suse.de> <20051217205238.GR23349@stusta.de> <61D4A300-4967-4DC1-AD2C-765A3D2D9743@comcast.net> <20051218054323.GF23384@wotan.suse.de> <5DB2F520-5666-4C7F-9065-51117A0F54B9@comcast.net> <43A694DF.8040209@aitel.hist.no> <A3567036-A5F9-4CF9-BC48-70CFEAA8F2C4@comcast.net> <1135014201.10933.4.camel@localhost> <B1D5AEA1-A120-4997-AD9A-A2379B6A1779@comcast.net>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <C97741F0-5EF9-4845-893A-35BD6ACD849B@oxley.org>
-Cc: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Andi Kleen <ak@suse.de>,
-       Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
-Content-Transfer-Encoding: 7bit
-From: Felix Oxley <lkml@oxley.org>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Tue, 20 Dec 2005 14:35:48 +0000
-To: Parag Warudkar <kernel-stuff@comcast.net>
-X-Mailer: Apple Mail (2.746.2)
+	Tue, 20 Dec 2005 09:37:30 -0500
+Received: from wproxy.gmail.com ([64.233.184.206]:47573 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751080AbVLTOh3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 09:37:29 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OrqgC57IWIS9x31hMUAF0X0d3NFVJ2rrL3JYsrAyl2RvwfBlaC+xQaqQ+p697JQ1Niy6LiQBMy9Om/jji1CFDZkGRZExf8p6ExcIGBoAWL6HB8jEetTE0sYul9uL5lkWFCpUCZECOZxTSD9/3mxNUKxodnPgbgTHuVdAIbf4FXA=
+Message-ID: <170fa0d20512200637l169654c9vbe38c9931c23dfb1@mail.gmail.com>
+Date: Tue, 20 Dec 2005 09:37:28 -0500
+From: Mike Snitzer <snitzer@gmail.com>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: About 4k kernel stack size....
+Cc: Mark Lord <lkml@rtr.ca>, "J.A. Magallon" <jamagallon@able.es>,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>, nel@vger.kernel.org,
+       mpm@selenic.com
+In-Reply-To: <20051220133729.GC6789@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051218231401.6ded8de2@werewolf.auna.net>
+	 <43A77205.2040306@rtr.ca> <20051220133729.GC6789@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 19 Dec 2005, at 19:10, Parag Warudkar wrote:
-
+On 12/20/05, Adrian Bunk <bunk@stusta.de> wrote:
+> On Mon, Dec 19, 2005 at 09:52:53PM -0500, Mark Lord wrote:
+> >...
+> > The mainline code paths are undoubtedly fine with 4K stacks.
+> > It's the *error paths* that are most likely to go deeper on the stack,
+> > and those are rarely exercised by anyone.  And those are the paths
+> > that we *really* need to be reliable.
 >
-> No one is answering what are we gaining from removing the 8K stack  
-> "_option_" - few bytes of code size, reason to not fix the VM, for  
-> fun, for screwing over? Why not let people choose 8K if they need it?
+> "most likely" is a strong sentence, especially considering that the
+> automatic analysis of all possible call chains can and has already
+> identified several such problems (which have now been fixed many months
+> ago).
+>
+> We might not getting 100% security against stack overflows, but that's
+> not fundamentally different from the current situation with 6 kB stacks.
 
-The proposed patch is for mm only. What you are gaining is wider  
-testing of 4K stacks.
+Given this last statement, why is it that Matt Mackall's suggestion in
+the "Light-weight dynamically extended stacks" thread didn't get any
+_real_ discussion from the big 4K stack advocates?  For all intents
+and purposes, Matt was dismissed with the same Bunk: "Ever since
+neilb's patch there are 0 bugs.. blah blah".  4K, 8K (aka "6 kB")
+aside; having more stack safety in the Linux kernel is a "good thing"
+no?  Aren't dynamic stacks a viable means to imposing 4K (but doing so
+with real safety)?
 
-I am just a lurker but, having read the entire thread, it seems to me  
-that:
-1) the patch should be applied to mm.
-2) ndiswrapper should be modified to work with 4K stacks.
-
-It seems unlikely to me that this patch will be pushed to Linus just  
-because it has been in mm.
-If that possibility comes up in 6-12 months then the flamewar can  
-begin again.
-
-regards,
-Felix
-  
+Mike

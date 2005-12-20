@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750790AbVLTTIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750763AbVLTTOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750790AbVLTTIj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 14:08:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVLTTIi
+	id S1750763AbVLTTOO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 14:14:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVLTTOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 14:08:38 -0500
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:12499 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S1750790AbVLTTIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 14:08:38 -0500
-From: kernel-stuff@comcast.net (Parag Warudkar)
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Andi Kleen <ak@suse.de>,
-       Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks 
-Date: Tue, 20 Dec 2005 19:08:24 +0000
-Message-Id: <122020051908.25484.43A856A8000A6E600000638C220075894200009A9B9CD3040A029D0A05@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Aug  4 2005)
-X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
+	Tue, 20 Dec 2005 14:14:14 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:25870 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750763AbVLTTON (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 14:14:13 -0500
+Date: Tue, 20 Dec 2005 20:14:12 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Sergey Vlasov <vsu@altlinux.ru>, Ricardo Cerqueira <v4l@cerqueira.org>,
+       mchehab@brturbo.com.br,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
+Subject: Re: [Alsa-devel] 2.6.15-rc6: boot failure in saa7134-alsa.c
+Message-ID: <20051220191412.GA4578@stusta.de>
+References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org> <20051220131810.GB6789@stusta.de> <20051220155216.GA19797@master.mivlgu.local> <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Oh, well, one of the larger drawbacks of 4KiB stacks is the inevitable
-> flamewar, each time with /less/ data (this round I've seen none) supporting
-> the need for larger stacks, into which all kinds of idiots* are suckered.
+On Tue, Dec 20, 2005 at 10:24:55AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Tue, 20 Dec 2005, Sergey Vlasov wrote:
+> > 
+> > saa7134-alsa is trying to initialize before the ALSA core has initialized.
+> > Probably no one has tested CONFIG_VIDEO_SAA7134=y.
+> 
+> Adrian, does it work if you change the "module_init()" in 
+> sound/sound_core.c into a "fs_initcall()"?
 
-At the same time, I haven't seen any data showing what we gain by losing the 8K 
-stack option.  Where are the links to posts where people are claiming en masse 
-that 8K stacks are causing screwups, halting VM development etc.?
+No, this didn't work.
 
-If 8K stacks are something that works, is not default, what do we gain by losing 
-it in total? If people need ndiswrapper (I hate it as much as any one else , but come on 
-for some people it's the only option) or any other functionality that requires 
-bigger stack, let them choose it if they are ready to take whatever risks that come with it. 
+What did work was to leave sound/sound_core.c alone and make the 
+module_init() in drivers/media/video/saa7134/saa7134-alsa.c a 
+late_initcall() (plus disabling building of saa7134-oss.o because
+otherwise saa7134-alsa.o wouldn't do anything).
 
-To the ndiswrapper users - Do you guys have any real data showing 4K stacks 
-result in problems for you? (Since it is dedicated 4K against shared 8K, it 
-might as well not cause problems.) If you do then it's clear that 8K shared  
-gives more room than 4k dedicated.
+> That should make sure that the sound core gets to initialize before normal 
+> drivers do.
+> 
+> 		Linus
 
-Parag
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

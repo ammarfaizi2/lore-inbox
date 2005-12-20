@@ -1,126 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbVLTSUv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbVLTSUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750842AbVLTSUv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 13:20:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbVLTSUv
+	id S1750840AbVLTSUh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 13:20:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750834AbVLTSUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 13:20:51 -0500
-Received: from waste.org ([64.81.244.121]:8915 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1750842AbVLTSUt (ORCPT
+	Tue, 20 Dec 2005 13:20:37 -0500
+Received: from fw5.argo.co.il ([194.90.79.130]:55561 "EHLO argo2k.argo.co.il")
+	by vger.kernel.org with ESMTP id S1750829AbVLTSUg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 13:20:49 -0500
-Date: Tue, 20 Dec 2005 12:19:22 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       john stultz <johnstul@us.ibm.com>,
-       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RT 00/02] SLOB optimizations
-Message-ID: <20051220181921.GF3356@waste.org>
-References: <dnu8ku$ie4$1@sea.gmane.org> <1134790400.13138.160.camel@localhost.localdomain> <1134860251.13138.193.camel@localhost.localdomain> <20051220133230.GC24408@elte.hu> <Pine.LNX.4.58.0512200836120.21313@gandalf.stny.rr.com> <20051220135725.GA29392@elte.hu> <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com> <1135093460.13138.302.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1135093460.13138.302.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+	Tue, 20 Dec 2005 13:20:36 -0500
+Message-ID: <43A84B70.4050304@argo.co.il>
+Date: Tue, 20 Dec 2005 20:20:32 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: Al Viro <viro@ftp.linux.org.uk>, hch@lst.de, akpm@osdl.org,
+       davem@redhat.com, Ulrich Drepper <drepper@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] New iovec support & VFS changes
+References: <1135095487.19193.90.camel@localhost.localdomain>	 <43A846A1.4080007@argo.co.il> <1135102113.19193.118.camel@localhost.localdomain>
+In-Reply-To: <1135102113.19193.118.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Dec 2005 18:20:35.0132 (UTC) FILETIME=[11F5BFC0:01C60592]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20, 2005 at 10:44:20AM -0500, Steven Rostedt wrote:
-> (Andrew, I'm CC'ing you and Matt to see if you would like this in -mm)
-> 
-> OK Ingo, here it is.
-> 
-> The old SLOB did the old K&R memory allocations.
-> 
-> It had a global link list "slobfree".  When it needed memory it would
-> search this list linearly to find the first spot that fit and then
-> return it.  It was broken up into SLOB_UNITS which was the number of
-> bytes to hold slob_t.
-> 
-> Since the sizes of the allocations would greatly fluctuate, the chances
-> for fragmentation was very high.  This would also cause the looking for
-> free locations to increase, since the number of free blocks would also
-> increase due to the fragmentation.
+Badari Pulavarty wrote:
 
-On the target systems for the original SLOB design, we have less than
-16MB of memory, so the linked list walking is pretty well bounded.
- 
-> It also had one global spinlock for ALL allocations.  This would
-> obviously kill SMP performance.
+>On Tue, 2005-12-20 at 20:00 +0200, Avi Kivity wrote:
+>  
+>
+>>You can io_submit() a list of IO_CMD_PREAD[V]s and immediately 
+>>io_getevents() them. In addition to specifying different file offsets 
+>>you can mix reads and writes, mix file descriptors, and reap nonblocking 
+>>events quickly (by specifying a timeout of zero).
+>>
+>>Sure, it's two syscalls instead of one, but it's much more flexibles, 
+>>and databases should be using aio anyway. Oh, and no kernel changes 
+>>needed, apart from merging vectored aio.
+>>    
+>>
+>
+>
+>Yes. We discussed this also earlier. Using AIO is the alternative.
+>But using AIO is not simple as doing preadv()/pwritev() for the
+>applications doesn't care about using AIO. AIO needs extra coding
+>to setup context, iocb, submits and getevents etc..
+>  
+>
+Possibly a library can do that (placing the context in thread local 
+storage), but I see your point.
 
-And again, the locking primarily exists for PREEMPT and small dual-core.
-So I'm still a bit amused that you guys are using it for -RT.
+>And also, inside the kernel - AIO requests go through lots of
+>code/routines -- before coming to ->aio_read() -- which I was
+>planning to avoid by having a direct syscall to do preadv/pwritev.
+>  
+>
+I'd be surprised if this isn't dominated by the cost of serving the 
+request, even from cache.
 
-> When any block was freed via kfree, it would first search all the big
-> blocks to see if it was a large allocation, and if not, then it would
-> search the slobfree list to find where it goes.  Both taking two global
-> spinlocks!
+If we can persuade the aio maintainers to add some flag to io_submit() 
+which makes the request synchronous, it would reduce the overhead 
+somewhat, but it is against the spirit of aio.
 
-I don't think this is correct, or else indicates a bug. We should only
-scan the big block list when the freed block was page-aligned.
+>BTW, we still don't have vectored AIO support in the kernel.
+>Zack is working on it - which would add another set of
+>file operations aio_readv/aio_writev.
+>  
+>
+Hopefully they will supercede aio_read/aio_write?
 
-> First things first, the first patch was to get rid of the bigblock list.
-> I'm simple used the method of SLAB to use the lru list field of the
-> corresponding page to store the pointer to the bigblock descriptor which
-> has the information to free it. This got rid of the bigblock link list
-> and global spinlock.
-
-This I like a lot. I'd like to see a size/performance measurement of
-this by itself. I suspect it's an unambiguous win in both categories.
- 
-> The next patch was the big improvement, with the largest changes.  I
-> took advantage of how the kmem_cache usage that SLAB also takes
-> advantage of.  I created a memory pool like the global one, but for
-> every cache with a size less then PAGE_SIZE >> 1.
-
-Hmm. By every size, I assume you mean powers of two. Which negates
-some of the fine-grained allocation savings that current SLOB provides.
-
-[...]
-> So I have improved the speed of SLOB to almost that of SLAB!
-
-Nice.
-
-For what it's worth, I think we really ought to consider a generalized
-allocator approach like Sun's VMEM, with various removable pieces.
-
-Currently we've got something like this:
-
- get_free_pages     boot_mem         idr    resource_*   vmalloc ...
-        |
-      slab
-        |
-  per_cpu/node
-        |
-  kmem_cache_alloc
-        |
-     kmalloc
-
-We could take it in a direction like this:
-
- generic range allocator          (completely agnostic)
-          |
-  optional size buckets           (reduced fragmentation, O(1))
-          |    
-    optional slab                 (cache-friendly, pre-initialized)
-          |
- optional per cpu/node caches     (cache-hot and lockless)
-          |
- kmalloc / kmem_cache_alloc / boot_mem / idr / resource_* / vmalloc / ...
-
-(You read that right, the top level allocator can replace all the
-different allocators that hand back integers or non-overlapping ranges.)
-
-Each user of, say, kmem_create() could then pass in flags to specify
-which caching layers ought to be bypassed. IDR, for example, would
-probably disable all the layers and specify a first-fit policy.
-
-And then depending on our global size and performance requirements, we
-could globally disable some layers like SLAB, buckets, or per_cpu
-caches. With all the optional layers disabled, we'd end up with
-something much like SLOB (but underneath get_free_page!).
+BTW, don't databases like using many many files for their backing store? 
+The ability to write to many fds in one call should be attractive to them.
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+

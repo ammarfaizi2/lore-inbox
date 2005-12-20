@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbVLTXNR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932200AbVLTXQc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932171AbVLTXNR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 18:13:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbVLTXNR
+	id S932200AbVLTXQc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 18:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbVLTXQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 18:13:17 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:26565 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932171AbVLTXNQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 18:13:16 -0500
-Date: Tue, 20 Dec 2005 18:12:26 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Esben Nielsen <simlo@phys.au.dk>
-cc: david singleton <dsingleton@mvista.com>, robustmutexes@lists.osdl.org,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Recursion bug in -rt
-In-Reply-To: <Pine.OSF.4.05.10512202344470.1720-100000@da410.phys.au.dk>
-Message-ID: <Pine.LNX.4.58.0512201801380.4479@gandalf.stny.rr.com>
-References: <Pine.OSF.4.05.10512202344470.1720-100000@da410.phys.au.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Dec 2005 18:16:32 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:20678 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932200AbVLTXQb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 18:16:31 -0500
+Date: Tue, 20 Dec 2005 15:16:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: greg@kroah.com, mbligh@google.com, linux-kernel@vger.kernel.org,
+       colpatch@us.ibm.com, apw@shadowen.org
+Subject: Re: [PATCH] pci device sysdata may be null check in pcibus_to_node
+Message-Id: <20051220151609.565160d9.akpm@osdl.org>
+In-Reply-To: <20051220210338.GA20681@shadowen.org>
+References: <20051216231752.GA2731@kroah.com>
+	<20051220210338.GA20681@shadowen.org>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 20 Dec 2005, Esben Nielsen wrote:
-
-> >
+Andy Whitcroft <apw@shadowen.org> wrote:
 >
-> The same lock taken twice is just a special case of deadlocking. It would
-> be very hard to check for the general case in the futex code without
-> "fixing" the rt_mutex. Not that the rt_mutex code is broken - it just
-> doesn't handle deadlocks very well as it wasn't supposed to. But as the
-> futex indirectly exposes the rt_mutex to userspace it becomes a problem.
->
-> The only _hack_ I can see is to force all robust futex calls to go through
-> one global lock to prevent the futex deadlocks becomming rt_mutex
-> deadlocks which again can turn into spin-lock deadlocks.
->
-> I instead argue for altering the premisses for the rt_mutex such
-> they can handle deadlocks without turning them into spin-lock deadlocks
-> blocking the whole system. Then a futex deadlock will become a rt_mutex
-> deadlock which can be handled.
->
+> pci device sysdata may be null, check in pcibus_to_node
+> 
+> We have been seeing panic's on NUMA systems in pci_call_probe() in
+> 2.6.15-rc5-mm2 and -mm3.  It seems that some changes have occured
+> to the meaning of the 'sysdata' for a device such that it is no
+> longer just an integer containing the node, it is now a structure
+> containing the node and other data.  However, it seems that we do not
+> always initialise this sysdata before we probe the device.
+> 
+> Below are three examples from a boot with this checked for.  It is
+> not clear to me whether it is reasonable to attempt to probe this
+> device without the bus sysdata being initialised.  The attached
+> patch adds a safety check to pcibus_to_node() to avoid the panic,
+> this restores the 'call anytime' semantic for this function.
+> 
+> ...
+>  
+> -#define pcibus_to_node(bus) ((struct pci_sysdata *)((bus)->sysdata))->node
+> +#define pcibus_to_node(bus) (((bus)->sysdata)? ((struct pci_sysdata *)((bus)->sysdata))->node : -1)
+>  #define pcibus_to_cpumask(bus) node_to_cpumask(pcibus_to_node(bus))
+>  
 
-For the type of deadlock you are talking about is the following:
+It would be neater and faster to simply require that the platform always
+put something sane bus->sysdata, even if that's a pointer to some
+statically allocated struct.  IOW:
 
-P1 -- grabs futex A (no system call)
-P2 -- grabs futex B (no system call)
+static struct pci_sysdata dummy_sysdata = { .node = -1 };
 
-P1 -- tries to grab futex B (system call to block and boost P2)
-      But holds no other kernel rt_mutex!
-P2 -- tries to grab futex A (system call to block and boost P1)
-     spinning deadlock here,
-
-So, before P2 blocks on P1, can there be a circular check t see if this is
-a deadlock.  You don't need to worry about other kernel rt_mutexes, you
-only need to worry about blocked process.
-
-Is this feasible?
-
--- Steve
-
+somewhere_in_initialisation()
+{
+	...
+	if (bus->sysdata == NULL)
+		bus->sysdata = dummy_sysdata;
+}

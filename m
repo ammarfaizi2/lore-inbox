@@ -1,78 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750930AbVLTMJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbVLTMQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750930AbVLTMJW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 07:09:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbVLTMJW
+	id S1750981AbVLTMQL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 07:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbVLTMQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 07:09:22 -0500
-Received: from sipsolutions.net ([66.160.135.76]:57102 "EHLO sipsolutions.net")
-	by vger.kernel.org with ESMTP id S1750922AbVLTMJV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 07:09:21 -0500
-Subject: sungem hangs in atomic if netconsole enabled but no carrier
-From: Johannes Berg <johannes@sipsolutions.net>
-To: linux-kernel@vger.kernel.org
-Cc: "David S. Miller" <davem@redhat.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Eric Lemoine <eric.lemoine@gmail.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-byUykypJTrKMvLv+6Ym4"
-Date: Tue, 20 Dec 2005 13:08:58 +0100
-Message-Id: <1135080538.3937.3.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+	Tue, 20 Dec 2005 07:16:11 -0500
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:6163 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
+	id S1750973AbVLTMQK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 07:16:10 -0500
+Date: Tue, 20 Dec 2005 12:16:04 +0000 (GMT)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, ralf@linux-mips.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mips: namespace pollution: dump_regs() -> elf_dump_regs()
+In-Reply-To: <20051219160714.GI27946@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64N.0512201205130.25567@blysk.ds.pg.gda.pl>
+References: <20051216224047.GE27946@ftp.linux.org.uk>
+ <Pine.LNX.4.64N.0512191159440.23348@blysk.ds.pg.gda.pl>
+ <20051219160714.GI27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 19 Dec 2005, Al Viro wrote:
 
---=-byUykypJTrKMvLv+6Ym4
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> >  I guess drivers should be fixed not to use generic names in the first 
+> > place -> s/dump_regs/frobnicator_dump_regs/, etc.
+> 
+> No.  If nothing else, it's far less work to keep the headers reasonably
+> clean than to slap prefices on every damn static-in-file function
 
-I've been debugging some issues and wondered why I got hangs in random
-places in the code. It turns out that the problem is that I still had
-netconsole enabled even though I have no network at the moment. So what
-I had was:
-  * sungem compiled in
-  * netconsole=3D.... as command line
-  * no network cable plugged in
+ That's the duty of the respective maintainers.  You don't expect one to 
+have a private printk() (or whatever -- pick your favourite) function in a 
+driver and demand the global one to be renamed so that their own one keeps 
+working.
 
-sungem does recognise this situation and says that waiting for carrier
-timed out. However, later, when I printk() in with interrupts disabled,
-the system hangs after printing out a few lines to the console (I think
-it's more than one, not sure though, might be just a single one).
+> out there.  Leads to more readable code in drivers, too...
 
-Turns out that if I remove the netconsole=3D... option to my kernel, all
-works fine and the system no longer hangs. Obviously not plugging in a
-network cable is pretty useless when netconsole is turned on, but I
-think it should not hang the system completely. So far I haven't been
-able to figure out where it actually hangs and don't even know how to do
-so -- I'm open for suggestions on how to find out why/where it hangs or
-even fixes.
+ Well, that's just a reason to keep namespace prefixes short...
 
-johannes
-
-
---=-byUykypJTrKMvLv+6Ym4
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Comment: Johannes Berg (SIP Solutions)
-
-iQIVAwUAQ6f0WaVg1VMiehFYAQJSNA//UUGZJraE1B7uz7iJuen3tQMxiJLd/qaT
-13znBCgtOp8kuY1uSu5czqwa84bWv6mqaVQngZbY8NmesgeN31oqZRvOcv8nko1u
-CtoH4uMz6V6T4aQbjhur4SDsVZWua38OczcJ+j2YhPHY22VhxtIXt8gnIo0SZ+Xl
-4hAwT3G+pnyFIQsGrng3YzZymRSn7/wxia2wi0aT85e87e2W5v9mwKziYpknq/4P
-AyqVJe1xNgZkG3oZjZmXPSxDBHLh8ZW9hzDUnegpCGv1m0fHi0y9OXjgJ9ZKM89J
-uM1ZpuLZGe4Hn+KJu4ZeGgSBiQktUsWmZylqEKvFoeB/FuBbviMQLTMO91ivN0br
-lEJBK4V2waNqoNPr7ZtUDEQYw/S1wdOnnXdTRGJUmEqv/kmfu46ostfDjq01dlWA
-7QgCPS+62ULsekLgn+yBWK8V7+VMLM3T+cn5roVg3Hjq4m5HlfOZdd4DIGlcANC9
-qX3maNkn61u1Ohl925PXkxmFjiQutLJMkgW3tj/KapdVK2B47VGGQ0kY7whbOtD8
-8iNZnzXQtSb+knoo3af1bfSlGZ3UCK/FsNSa0CaGyYZUTQZ8H37daOo9N8syHWeC
-gI6oKefVbDMRHq1j3q2XgUrWjtd6tjKgoQ+1lEDnsUnXumrzoIaQK/tswFBJ1bNF
-gnVRWxrlfzk=
-=adyd
------END PGP SIGNATURE-----
-
---=-byUykypJTrKMvLv+6Ym4--
-
+  Maciej

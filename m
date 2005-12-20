@@ -1,97 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbVLTIz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbVLTJGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbVLTIz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 03:55:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbVLTIzO
+	id S1750892AbVLTJGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 04:06:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbVLTJGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 03:55:14 -0500
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:63931 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750890AbVLTIzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 03:55:11 -0500
-Date: Tue, 20 Dec 2005 17:53:31 +0900
-From: Yasunori Goto <y-goto@jp.fujitsu.com>
-To: linux-mm <linux-mm@kvack.org>,
-       Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>
-Subject: [Patch] New zone ZONE_EASY_RECLAIM take 4. (mod_page_state info)[7/8]
-Cc: Joel Schopp <jschopp@austin.ibm.com>
-X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.057
-Message-Id: <20051220173120.1B16.Y-GOTO@jp.fujitsu.com>
+	Tue, 20 Dec 2005 04:06:25 -0500
+Received: from [202.125.80.34] ([202.125.80.34]:24588 "EHLO mail.esn.co.in")
+	by vger.kernel.org with ESMTP id S1750892AbVLTJGY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 04:06:24 -0500
+Subject: RE: Kernel interrupts disable at user level - RIGHT/ WRONG - Help
+Date: Tue, 20 Dec 2005 14:32:07 +0530
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.21.02 [ja]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <3AEC1E10243A314391FE9C01CD65429B2232A4@mail.esn.co.in>
+X-MS-Has-Attach: 
+Content-class: urn:content-classes:message
+X-MS-TNEF-Correlator: 
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Thread-Topic: Kernel interrupts disable at user level - RIGHT/ WRONG - Help
+Thread-Index: AcYFM+JLj1FoHgF2TzWRU3Jyr96l8wAECSKw
+From: "Mukund JB." <mukundjb@esntechnologies.co.in>
+To: "Dave Jones" <davej@redhat.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is add easy reclaim zone information for mod_page_state().
-
-This is new patch at take 4.
-
-Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
 
---
-Index: zone_reclaim/include/linux/page-flags.h
-===================================================================
---- zone_reclaim.orig/include/linux/page-flags.h	2005-12-15 19:48:30.000000000 +0900
-+++ zone_reclaim/include/linux/page-flags.h	2005-12-15 21:01:09.000000000 +0900
-@@ -109,7 +109,8 @@ struct page_state {
- 	unsigned long pswpin;		/* swap reads */
- 	unsigned long pswpout;		/* swap writes */
- 
--	unsigned long pgalloc_high;	/* page allocations */
-+	unsigned long pgalloc_easy_reclaim; /* page allocations */
-+	unsigned long pgalloc_high;
- 	unsigned long pgalloc_normal;
- 	unsigned long pgalloc_dma32;
- 	unsigned long pgalloc_dma;
-@@ -121,22 +122,26 @@ struct page_state {
- 	unsigned long pgfault;		/* faults (major+minor) */
- 	unsigned long pgmajfault;	/* faults (major only) */
- 
--	unsigned long pgrefill_high;	/* inspected in refill_inactive_zone */
-+	unsigned long pgrefill_easy_reclaim;/* inspected in refill_inactive_zone */
-+	unsigned long pgrefill_high;
- 	unsigned long pgrefill_normal;
- 	unsigned long pgrefill_dma32;
- 	unsigned long pgrefill_dma;
- 
--	unsigned long pgsteal_high;	/* total highmem pages reclaimed */
-+	unsigned long pgsteal_easy_reclaim; /* total pages reclaimed */
-+	unsigned long pgsteal_high;
- 	unsigned long pgsteal_normal;
- 	unsigned long pgsteal_dma32;
- 	unsigned long pgsteal_dma;
- 
--	unsigned long pgscan_kswapd_high;/* total highmem pages scanned */
-+	unsigned long pgscan_kswapd_easy_reclaim; /* total pages scanned */
-+	unsigned long pgscan_kswapd_high;
- 	unsigned long pgscan_kswapd_normal;
- 	unsigned long pgscan_kswapd_dma32;
- 	unsigned long pgscan_kswapd_dma;
- 
--	unsigned long pgscan_direct_high;/* total highmem pages scanned */
-+	unsigned long pgscan_direct_easy_reclaim;/* total pages scanned */
-+	unsigned long pgscan_direct_high;
- 	unsigned long pgscan_direct_normal;
- 	unsigned long pgscan_direct_dma32;
- 	unsigned long pgscan_direct_dma;
-@@ -183,7 +188,9 @@ extern void __mod_page_state_offset(unsi
- #define state_zone_offset(zone, member)					\
- ({									\
- 	unsigned offset;						\
--	if (is_highmem(zone))						\
-+	if (is_easy_reclaim(zone))					\
-+		offset = offsetof(struct page_state, member##_easy_reclaim);\
-+	else if (is_highmem(zone))					\
- 		offset = offsetof(struct page_state, member##_high);	\
- 	else if (is_normal(zone))					\
- 		offset = offsetof(struct page_state, member##_normal);	\
+> -----Original Message-----
+> From: Dave Jones [mailto:davej@redhat.com]
+> Sent: Tuesday, December 20, 2005 12:39 PM
+> To: Mukund JB.
+> Cc: Alan Cox; linux-kernel@vger.kernel.org
+> Subject: Re: Kernel interrupts disable at user level - RIGHT/ WRONG -
+> Help
+> 
+> 
+> On Tue, Dec 20, 2005 at 12:27:13PM +0530, Mukund JB. wrote:
+>  > 
+>  > Dear Alan,
+>  > 
+>  > I want the contents of A, B, C, D registers of CMOS mapped 
+> registers.
+>  > But instead the driver gives the details about the bit 
+> masks of few of register A, B only.
+>  > The others are NOT available. 
+>  > 
+>  > I would also require to retrieve the day of the week info 
+> in RTC information. 
+>  > I tried the /dev/rtc but I don't get it there.
+> 
+> Use /dev/nvram instead.
+> 
+> 		Dave
 
--- 
-Yasunori Goto 
+/dev/nvram does not give the cpomplete CMOS details. A part of RTC & date, tine and other info will be missing.
 
+Regards,
+Mukund Jampala
 

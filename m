@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbVLTWGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbVLTWJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbVLTWGM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 17:06:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVLTWGH
+	id S932165AbVLTWJg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 17:09:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932170AbVLTWJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 17:06:07 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:37557 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932177AbVLTWGA (ORCPT
+	Tue, 20 Dec 2005 17:09:36 -0500
+Received: from ns2.suse.de ([195.135.220.15]:25768 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932165AbVLTWJf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 17:06:00 -0500
-Date: Tue, 20 Dec 2005 14:04:07 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nicolas Pitre <nico@cam.org>
-cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
-Subject: Re: [patch 04/15] Generic Mutex Subsystem, add-atomic-call-func-x86_64.patch
-In-Reply-To: <Pine.LNX.4.64.0512201533120.26663@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0512201354210.4827@g5.osdl.org>
-References: <20051219013507.GE27658@elte.hu> <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com>
- <1135025932.4760.1.camel@localhost.localdomain> <20051220043109.GC32039@elte.hu>
- <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain> <43A7BCE1.7050401@yahoo.com.au>
- <Pine.LNX.4.64.0512200909180.26663@localhost.localdomain> <43A81132.8040703@yahoo.com.au>
- <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain>
- <Pine.LNX.4.64.0512201026230.4827@g5.osdl.org> <20051220193423.GC24199@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0512201202200.4827@g5.osdl.org>
- <Pine.LNX.4.64.0512201533120.26663@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Dec 2005 17:09:35 -0500
+Date: Tue, 20 Dec 2005 23:09:32 +0100
+From: Olaf Hering <olh@suse.de>
+To: Olof Johansson <olof@lixom.net>
+Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
+Subject: Re: console on POWER4 not working with 2.6.15
+Message-ID: <20051220220932.GA29092@suse.de>
+References: <20051220204530.GA26351@suse.de> <20051220214525.GB7428@pb15.lixom.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20051220214525.GB7428@pb15.lixom.net>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ On Tue, Dec 20, Olof Johansson wrote:
 
-
-On Tue, 20 Dec 2005, Nicolas Pitre wrote:
+> On Tue, Dec 20, 2005 at 09:45:30PM +0100, Olaf Hering wrote:
+> > The connection of ttyS0 to /dev/console doesnt seem to work anymore mit
+> > 2.6.15-rc5+6 on a POWER4 p630 in fullsystempartition mode, no HMC
+> > connected. It works with 2.6.14.4.
+> > I tested 2.6.15-rc6 arch/powerpc/configs/ppc64_defconfig.
 > 
-> I mean...... what is it with mutexes that you dislike to the point of 
-> bending backward that far, and even after seeing the numbers, with such 
-> a semaphore implementation that _I_ even wouldn't trust people to use 
-> correctly?
+> It seems to have been broken a while: According to test.kernel.org (last
+> machine in the matrix is an SMP mode p650), it broke between 2.6.14-git2
+> and 2.6.14-git3. Console output can be found in:
+> 
 
-Quite frankly, what has disgusted me about this mutex discussion is the 
-totally specious arguments for the new mutexes that just rubs me entirely 
-the wrong way.
+I remember someone mentioned that a 43p 150 did not boot if the keyboard
+is connected. Will try that tomorrow. The git2-3 diff is huge, so maybe
+this hint helps.
 
-If it had _started_ with a mutex implementation that was faster, simpler, 
-and didn't rename the old and working semaphores, I'd have been perfectly 
-fine with it.
-
-As it is, the discussion has been pretty much everything but that. 
-
-And then people who argue about single cycles, end up dismissing the 
-single cycles when I argue that "ld+st" is faster - like you just did.
-
-Be consistent, dammit. If single cycles matter, they matter. If they 
-don't, then the existing code is better, since it's existing and works. 
-You can't have it both ways.
-
-In other words: if people didn't mix up issues that had nothing to do with 
-this into it, I'd be happier. I've already said that a mutex that does 
-_not_ replace semaphore (and doesn't mess with naming) is acceptable. 
-
-We've done that before. But do it RIGHT, dammit. And don't mix existing 
-semaphores into it (for example, completions didn't change any old users).
-
-			Linus	
+-- 
+short story of a lazy sysadmin:
+ alias appserv=wotan

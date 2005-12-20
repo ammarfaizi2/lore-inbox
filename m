@@ -1,68 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVLTRUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbVLTR0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbVLTRUm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 12:20:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbVLTRUm
+	id S1750720AbVLTR0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 12:26:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbVLTR0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 12:20:42 -0500
-Received: from mail.autoweb.net ([198.172.237.26]:41401 "EHLO
-	mail.internal.autoweb.net") by vger.kernel.org with ESMTP
-	id S1750707AbVLTRUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 12:20:41 -0500
-Date: Tue, 20 Dec 2005 12:20:26 -0500
-From: Ryan Anderson <ryan@michonline.com>
-To: Linda Walsh <lkml@tlinx.org>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: Makefile targets: tar & rpm pkgs, while using O=<dir> as non-root
-Message-ID: <20051220172026.GC2437@mythryan2.michonline.com>
-References: <43A5F058.1060102@tlinx.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43A5F058.1060102@tlinx.org>
-User-Agent: Mutt/1.5.11
+	Tue, 20 Dec 2005 12:26:23 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:52927 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750715AbVLTR0X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 12:26:23 -0500
+Subject: Re: [RFC][PATCH] New iovec support & VFS changes
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Al Viro <viro@ftp.linux.org.uk>, hch@lst.de, akpm@osdl.org,
+       davem@redhat.com, Ulrich Drepper <drepper@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051220165939.GA16465@mail.shareable.org>
+References: <1135095487.19193.90.camel@localhost.localdomain>
+	 <20051220165939.GA16465@mail.shareable.org>
+Content-Type: text/plain
+Date: Tue, 20 Dec 2005 09:26:49 -0800
+Message-Id: <1135099609.19193.101.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 18, 2005 at 03:27:20PM -0800, Linda Walsh wrote:
-> Unpacked 2.6.13.3 and made it read-only.
+On Tue, 2005-12-20 at 16:59 +0000, Jamie Lokier wrote:
+> Badari Pulavarty wrote:
+> > I was trying to add support for preadv()/pwritev() for threaded
+> > databases. Currently the patch is in -mm tree.
+> > 
+> > http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-
+> > rc5/2.6.15-rc5-mm3/broken-out/support-for-preadv-pwritev.patch
+> > 
+> > This needs a new set of system calls. Ulrich Drepper pointed out
+> > that, instead of adding a system call for the limited functionality
+> > it provides, why not we add new iovec interface as follows (offset-per-
+> > segment) which provides greater functionality & flexibility.
+> > 
+> > +struct niovec
+> > +{
+> > +	void __user *iov_base;
+> > +	__kernel_size_t iov_len;
+> > +	__kernel_loff_t iov_off; /* NEW */
+> > +};
 > 
-> Using the "O=" param, built output tree for another machine as
-> a non-root user.
+> For a database, it's also helpful to know when an operation is going
+> to block on I/O (i.e. because the data isn't cached, or write buffers
+> full) and if that's going to happen, move it to another thread, or
+> move other operations to another thread.  This allows a program to
+> continue to work on other things concurrently with I/O more
+> effectively than thread pool guesswork.
 > 
-> I wanted to create an installable kernel & module package to copy
-> to the new machine & install.
+> So if you add these new syscalls, it would be helpful to add a "flags"
+> argument to each of them, and define one flag: "don't block on I/O".
+> When the flag is set, the syscalls should do as much reading or
+> writing as they can without blocking, and then return the count, or
+> EAGAIN.
 > 
-> I noted new targets:
->    binrpm-pkg [& rpm-pkg], and
->    tarbz2-pkg [& targz-pkg, & tar-pkg].
+> (FreeBSD's sendfile() has an SF_NODISKIO flag which means this, and it
+> is used in exactly that way: so a program can move the sendfile() to
+> another thread iff that is necessary to avoid blocking the program.)
 > 
-> Both seem to fail either for reasons that appear to be related to
-> not honoring the "O=" param, or attempting to actually install into
-> the root of my build-machine.
+> There's also a case for making these into async I/O operations.
+> However, if there is any possibility of async I/O blocking a task for
+> a long time (which there is with Linux async I/O apparently), that is
+> not half as useful as a flag to stop I/O when it would block, and let
+> the program decide what to do.
 > 
-> Should these targets work or have they not yet been converted to work
-> within the "O=" framework?  In cases where the Makefile is attempting
-> to install into "<Root>/boot" or "<Root>/lib/modules" ,should I
-> expect the output to appear in "$O/boot" and "$O/lib/modules/"?
+> I mention this precisely because it's relevant to I/O performance of
+> databases and similar programs, and therefore a reason to have a
+> "flags" argument to these new syscalls, even if no flags are defined
+> at first.
 
-Look at the "deb" target for how this was fixed for building Debian
-(-style) packages.
+Wow !! More requirements :(
 
-Specifically, you want to change:
-	$(MAKE)
-to
-	$(MAKE) KBUILD_SRC=
+I was hoping for "well, nice but don't need it - drop it" kind of an
+answer - so I can sleep better :)
 
-At a glance, I don't see a similar problem in the binrpm-pkg target, and
-I don't understand the rpm target at all, so those may have other
-issues.
+Yes. flags can be added. But my main concern was, its going to change
+all the VFS interfaces & helper routines. Is that okay ? This also
+means that, its going to break out-of-tree filesystems (which I don't
+care much).
 
-I am, however, looking at 2.6.15-rc{something}, not 2.6.13, but I think
-it's been a while since Sam sent the deb packages fixes upstream.
+Thanks,
+Badari
 
--- 
-
-Ryan Anderson
-  sometimes Pug Majere

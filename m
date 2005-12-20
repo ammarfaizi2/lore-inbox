@@ -1,55 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbVLTI4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbVLTIz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750895AbVLTI4n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 03:56:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVLTI4m
+	id S1750890AbVLTIz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 03:55:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbVLTIzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 03:56:42 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:13292 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S1750894AbVLTI4l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 03:56:41 -0500
-Date: Tue, 20 Dec 2005 09:56:53 +0100
-From: Sander <sander@humilis.net>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: Willy Tarreau <willy@w.ods.org>, john stultz <johnstul@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>, greg@kroah.com, axboe@suse.de,
-       vandrove@vc.cvut.cz, aia21@cam.ac.uk, akpm@osdl.org
-Subject: Re: [RFC] Let non-root users eject their ipods?
-Message-ID: <20051220085653.GA3137@favonius>
-Reply-To: sander@humilis.net
-References: <1135047119.8407.24.camel@leatherman> <20051220051821.GM15993@alpha.home.local> <2cd57c900512192206g7292cb1m@mail.gmail.com>
+	Tue, 20 Dec 2005 03:55:14 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:63931 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750890AbVLTIzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 03:55:11 -0500
+Date: Tue, 20 Dec 2005 17:53:31 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: linux-mm <linux-mm@kvack.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+Subject: [Patch] New zone ZONE_EASY_RECLAIM take 4. (mod_page_state info)[7/8]
+Cc: Joel Schopp <jschopp@austin.ibm.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.057
+Message-Id: <20051220173120.1B16.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2cd57c900512192206g7292cb1m@mail.gmail.com>
-X-Uptime: 07:43:24 up 32 days, 18:42, 24 users,  load average: 1.06, 1.20, 1.27
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote (ao):
-> 2005/12/20, Willy Tarreau <willy@w.ods.org>:
-> > On Mon, Dec 19, 2005 at 06:51:58PM -0800, john stultz wrote:
-> > >       I'm getting a little tired of my roommates not knowing how to safely
-> > > eject their usb-flash disks from my system and I'd personally like it if
-> > > I could avoid bringing up a root shell to eject my ipod. Sure, one could
-> > > suid the eject command, but that seems just as bad as changing the
-> > > permissions in the kernel (eject wouldn't be able to check if the user
-> > > has read/write permissions on the device, allowing them to eject
-> > > anything).
-> >
-> > You may find my question stupid, but what is wrong with umount ? That's
-> > how I proceed with usb-flash and I've never sent any eject command to
-> > it (I even didn't know that the ioctl would be accepted by an sd device).
-> 
-> IMHO, umount doesn't guarantee sync, isn't it?
+This patch is add easy reclaim zone information for mod_page_state().
 
-I'm pretty sure it does :-)
+This is new patch at take 4.
 
-Anyway, that is how I treat all usb/firewire disks, and I've never lost
-data. Just umount and unplug when the prompt returns.
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+
+
+--
+Index: zone_reclaim/include/linux/page-flags.h
+===================================================================
+--- zone_reclaim.orig/include/linux/page-flags.h	2005-12-15 19:48:30.000000000 +0900
++++ zone_reclaim/include/linux/page-flags.h	2005-12-15 21:01:09.000000000 +0900
+@@ -109,7 +109,8 @@ struct page_state {
+ 	unsigned long pswpin;		/* swap reads */
+ 	unsigned long pswpout;		/* swap writes */
+ 
+-	unsigned long pgalloc_high;	/* page allocations */
++	unsigned long pgalloc_easy_reclaim; /* page allocations */
++	unsigned long pgalloc_high;
+ 	unsigned long pgalloc_normal;
+ 	unsigned long pgalloc_dma32;
+ 	unsigned long pgalloc_dma;
+@@ -121,22 +122,26 @@ struct page_state {
+ 	unsigned long pgfault;		/* faults (major+minor) */
+ 	unsigned long pgmajfault;	/* faults (major only) */
+ 
+-	unsigned long pgrefill_high;	/* inspected in refill_inactive_zone */
++	unsigned long pgrefill_easy_reclaim;/* inspected in refill_inactive_zone */
++	unsigned long pgrefill_high;
+ 	unsigned long pgrefill_normal;
+ 	unsigned long pgrefill_dma32;
+ 	unsigned long pgrefill_dma;
+ 
+-	unsigned long pgsteal_high;	/* total highmem pages reclaimed */
++	unsigned long pgsteal_easy_reclaim; /* total pages reclaimed */
++	unsigned long pgsteal_high;
+ 	unsigned long pgsteal_normal;
+ 	unsigned long pgsteal_dma32;
+ 	unsigned long pgsteal_dma;
+ 
+-	unsigned long pgscan_kswapd_high;/* total highmem pages scanned */
++	unsigned long pgscan_kswapd_easy_reclaim; /* total pages scanned */
++	unsigned long pgscan_kswapd_high;
+ 	unsigned long pgscan_kswapd_normal;
+ 	unsigned long pgscan_kswapd_dma32;
+ 	unsigned long pgscan_kswapd_dma;
+ 
+-	unsigned long pgscan_direct_high;/* total highmem pages scanned */
++	unsigned long pgscan_direct_easy_reclaim;/* total pages scanned */
++	unsigned long pgscan_direct_high;
+ 	unsigned long pgscan_direct_normal;
+ 	unsigned long pgscan_direct_dma32;
+ 	unsigned long pgscan_direct_dma;
+@@ -183,7 +188,9 @@ extern void __mod_page_state_offset(unsi
+ #define state_zone_offset(zone, member)					\
+ ({									\
+ 	unsigned offset;						\
+-	if (is_highmem(zone))						\
++	if (is_easy_reclaim(zone))					\
++		offset = offsetof(struct page_state, member##_easy_reclaim);\
++	else if (is_highmem(zone))					\
+ 		offset = offsetof(struct page_state, member##_high);	\
+ 	else if (is_normal(zone))					\
+ 		offset = offsetof(struct page_state, member##_normal);	\
 
 -- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+Yasunori Goto 
+
+

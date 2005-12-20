@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbVLTS3D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbVLTSbM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbVLTS3D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 13:29:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbVLTS3B
+	id S1750878AbVLTSbM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 13:31:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbVLTSbM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 13:29:01 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:5099 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750867AbVLTS3A (ORCPT
+	Tue, 20 Dec 2005 13:31:12 -0500
+Received: from waste.org ([64.81.244.121]:34013 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1750875AbVLTSbM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 13:29:00 -0500
-Date: Tue, 20 Dec 2005 10:27:12 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Nicolas Pitre <nico@cam.org>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
-Subject: Re: [patch 04/15] Generic Mutex Subsystem, add-atomic-call-func-x86_64.patch
-In-Reply-To: <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0512201026230.4827@g5.osdl.org>
-References: <20051219013507.GE27658@elte.hu> <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com>
- <1135025932.4760.1.camel@localhost.localdomain> <20051220043109.GC32039@elte.hu>
- <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain> <43A7BCE1.7050401@yahoo.com.au>
- <Pine.LNX.4.64.0512200909180.26663@localhost.localdomain> <43A81132.8040703@yahoo.com.au>
- <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Dec 2005 13:31:12 -0500
+Date: Tue, 20 Dec 2005 12:30:26 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Light-weight dynamically extended stacks
+Message-ID: <20051220183025.GG3356@waste.org>
+References: <20051219001249.GD11856@waste.org> <20051219183604.GT23349@stusta.de> <20051220002759.GE3356@waste.org> <20051220164316.GG6789@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051220164316.GG6789@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 20, 2005 at 05:43:17PM +0100, Adrian Bunk wrote:
+> On Mon, Dec 19, 2005 at 06:27:59PM -0600, Matt Mackall wrote:
+> >...
+> > So why am I raising this idea now at all? Because I think Neil's patch
+> > is too clever and too specific to block layer stacking and I'd rather
+> > have a more general solution. Block is by no means the only part of
+> > the system that allows nesting and pathological combinations surely
+> > still exist. And will be introduced in the future.
+> > 
+> > Also note that my approach might make it reasonable to use one-page
+> > stacks everywhere, not just on x86.
+> >...
+> 
+> I'm really looking forward to seeing your patch.
 
+I might get to it after the New Year.
 
-On Tue, 20 Dec 2005, Nicolas Pitre wrote:
->
-> Sure, and we're now more costly than the current implementation with irq 
-> disabling.
+> It will e.g. be interesting to measure whether there'll be any 
+> performance impact.
+> 
+> And since after this patch driver authors might become more sloppy with 
+> stack usage since there's no longer a hard limit, it will be especially 
+> interesting to see how you'll implement ensuring that there are no 
+> additional stack usages > 1 kB between two invocations of you check 
+> function, because otherwise your patch won't work reliable.
 
-Do the timing. It may be more instructions, but I think it was you 
-yourself that timed the current thing at 23 cycles, no?
+I can give you the answer to that now: use the existing stack overflow
+detection.
 
-Special registers are almost always slower than nicely cached accesses 
-(and they all basically will be).
+This is not intended to be an automatic scheme. To use it, you must
+actually insert code into the troublesome codepaths, which will of
+course serve as a red flag for code review.
 
-		Linus
+It's entirely possible that this idea won't be needed on x86 because
+we can manage to squeeze everything into 4k. But 32-bit x86's days as
+the majority platform are numbered. 
+
+-- 
+Mathematics is the supreme nostalgia of our time.

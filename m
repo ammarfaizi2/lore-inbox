@@ -1,74 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbVLTM2H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750983AbVLTMa3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750976AbVLTM2H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 07:28:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbVLTM2H
+	id S1750983AbVLTMa3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 07:30:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbVLTMa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 07:28:07 -0500
-Received: from [85.8.13.51] ([85.8.13.51]:63924 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S1750975AbVLTM2F (ORCPT
+	Tue, 20 Dec 2005 07:30:29 -0500
+Received: from [147.27.14.5] ([147.27.14.5]:9186 "HELO softnet.tuc.gr")
+	by vger.kernel.org with SMTP id S1750974AbVLTMa2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 07:28:05 -0500
-Message-ID: <43A7F8D1.7040807@drzeus.cx>
-Date: Tue, 20 Dec 2005 13:28:01 +0100
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mail/News 1.5 (X11/20051129)
+	Tue, 20 Dec 2005 07:30:28 -0500
+Message-ID: <33642.147.27.7.175.1135081821.squirrel@147.27.7.175>
+Date: Tue, 20 Dec 2005 14:30:21 +0200 (EET)
+Subject: Re: selfmade serial driver problem with chipset other than VIA
+From: gxatzipavlis@softnet.tuc.gr
+To: linux-os@analogic.com
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3-RC1
+X-Mailer: SquirrelMail/1.4.3-RC1
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: IOMMU and scatterlist limits
-References: <437C40AE.2020309@drzeus.cx> <20051117085432.GY7787@suse.de> <437C4728.9060205@drzeus.cx> <20051117091308.GZ7787@suse.de> <437C4D14.1030101@drzeus.cx> <20051117093848.GA7787@suse.de> <43A5E5A6.4050505@drzeus.cx> <43A7E692.90103@gmail.com> <43A7ECCB.2060108@drzeus.cx> <43A7F356.90600@gmail.com>
-In-Reply-To: <43A7F356.90600@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Pierre Ossman wrote:
->>
->> I'm still a bit confused why the block layer needs to know the maximum
->> number of hw segments. Different hardware might be connected to
->> different IOMMU:s, so only the driver will now how much the number can
->> be reduced. So the block layer should only care about not going above
->> max_phys_segments, since that's what the driver has room for.
->>
->> What is the scenario that requires both?
->>
+linux-os@analogic.com wrote:
+> The 8250 and clones generate an interrupt when the TX buffer becomes
+> empty as well as when the RX buffer contains data. Becoming empty
+> implies that it must have had something in it. Therefore, you need
+> to put the first byte from a buffer into the TX buffer without
+> using interrupts after which your ISR will be able to take over.
 >
-> Let's say there is a piece of (crap) controller which can handle 4
-> segments; but the system has a powerful IOMMU which can merge pretty
-> well.  The driver wants to handle large requests for performance but
-> it doesn't want to break up requests itself (pretty pointless, block
-> layer merges, driver breaks down).  A request should be large but not
-> larger than what the hardware can take at once.
->
-> So, it uses max_phys_segments to tell block layer how many sg entries
-> the driver is willing to handle (some arbitrary large number) and
-> reports 4 for max_hw_segments letting block layer know that requests
-> should not be more than 4 segments after DMA-mapping.
->
-> To sum up, block layer performs request sizing in favor of block
-> drivers, so it needs to know the size limits.
->
-> Is this explanation any better than my previous one?  :-P
->
-> Also, theoretically there can be more than one IOMMUs on a system (is
-> there already?).  Block layer isn't yet ready to handle such cases but
-> when it becomes necessary, all that needed is to make currently global
-> IOMMU merging parameters request queue specific and modify drivers
-> such that they tell block layer their IOMMU parameters.
->
+> A de facto standard way of doing this is to make a tx_send() routine
+> that can be called from both from the ISR and from the driver
+> write() routine. After user-mode data are written to a buffer,
+> the driver write() routine executes tx_send(). This will start
+> the ball rolling. The tx_send() code is written to handle the
+> buffer pointer(s) and to do nothing if there are no more data
+> available.
 
-Ahh. I thought the block layer wasn't aware of any IOMMU. Since I saw
-those as bus specific I figured only the DMA APIs, which have access to
-the device object, could know which IOMMU was to be used and how it
-would merge segments.
+i have such a routine called writer_bottomhalf. Is my bh function.
 
-So in my case I'll have to lie to the block layer. Iterating in the
-driver will be much faster than having to do an entire new transfer.
+DECLARE_TASKLET(writer_tasklet,writer_bottomhalf,(unsigned
+long)&status);
 
-Thanks for clearing things up. :)
+in write() function:
 
-Rgds
-Pierre
+static ssize_t eib_write(struct file *file, const char *buf, size_t
+count, loff_t *offset){
+
+	//adding header, checksum and ending character to the user data
+
+	tasklet_schedule(&writer_bottomhalf);
+	return bytes_read_from_user_space;
+}
+
+
+in writer_bottomhalf() function:
+
+static void writer_bottomhalf(unsigned long data){
+
+	if(bytes_send==writer_length){
+
+	    //init timer to check for acks
+
+	}
+	else{
+
+	    outb(writer[bytes_send], eib_io+UART_TX); //eib_io=0x03f8
+	    printk(KERN_INFO"sending %x\n",writer[bytes_send]);
+
+       }
+}
+
+in ISR function:
+
+static void interrupt_handler(int irq, void *dev_id, struct pt_regs
+*regs){
+
+	//do stuff for other interrupts
+
+	if ( inb(  eib_io + UART_LSR ) & ( UART_LSR_THRE) ){
+
+		bytes_send++;
+		tasklet_schedule(&writer_bottomhalf);
+
+	}
+}
+
+so i call my bh function from my write() and from my ISR routines.
+is their any difference if this routine is a bh or a plain routine as
+long as they execute the same code?
+
+paulkf@microgate.com wrote:
+> If the Line Control Register (LCR) Divisor Latch Access Bit (DLAB)
+> is set, then offsets 0 and 1 access the divisor latch instead
+> of the transmit holding register (THR) and interrupt enable register >
+> (IER).
+>
+> You do not state if you initialize that bit to zero.
+> If that bit is set, that could prevent the THR empty
+> interrupt you expect.
+
+in the init_module function i do:
+
+outb( UART_LCR_DLAB | UART_LCR_WLEN8 | UART_LCR_PARITY | UART_LCR_EPAR ,
+eib_io + UART_LCR );      //dlab =1  serial init for 8E1
+
+
+outb(0X06,eib_io+UART_DLL);  //speed set to 19200
+outb(0X00,eib_io+UART_DLM);
+
+outb(inb( eib_io + UART_LCR ) & ~UART_LCR_DLAB,eib_io+UART_LCR);	//unset
+dlab
+
+outb( UART_IER_RLSI | UART_IER_RDI | UART_IER_THRI , eib_io
++UART_IER);     //enabling interrupts
+
+i am an unexperienced programmer and my code is awful and buggy but i
+can't understand why is working only in my computer and not to any other
+x86 machine...? that's why i suspect the chipset manufacturer (maybe the
+have the serial address port in another address and not in 0x03f8 or
+smth like this)
+
+

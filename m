@@ -1,77 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbVLTSAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbVLTSAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbVLTSAO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 13:00:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbVLTSAJ
+	id S1750765AbVLTSAI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 13:00:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVLTSAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 13:00:09 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:6660 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750760AbVLTSAG convert rfc822-to-8bit
+	Tue, 20 Dec 2005 13:00:08 -0500
+Received: from gateway.argo.co.il ([194.90.79.130]:32009 "EHLO
+	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1750750AbVLTSAG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 20 Dec 2005 13:00:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Q6bbdpSPoqka71quDTUmPwai36iIho59MvuMF7Irw+sRsadDr3gvDoptVIWqhShN4eE2NeHJXCLEJIrHqs78qaYjs/Dqh+1pPleSVe1oHaUSRTUTB8OMd5AqguAxu0RNVgwEzGa4vgHC7Qlf+N/mgl8AbyWnHotFBC3ekJEl1rA=
-Message-ID: <9a8748490512201000q18f02d95v44d713522e566aea@mail.gmail.com>
-Date: Tue, 20 Dec 2005 19:00:05 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: "Antonino A. Daplas" <adaplas@gmail.com>
-Subject: Re: Yet more display troubles with 2.6.15-rc5-mm2
-Cc: LKML List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <439F73D4.9060304@gmail.com>
+Message-ID: <43A846A1.4080007@argo.co.il>
+Date: Tue, 20 Dec 2005 20:00:01 +0200
+From: Avi Kivity <avi@argo.co.il>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9a8748490512111306x3b01cb8cw2068a7ad3af93b03@mail.gmail.com>
-	 <439CBE49.2090901@gmail.com>
-	 <9a8748490512121031p11beaa51l7445ce1a5b31c3c6@mail.gmail.com>
-	 <439E9762.4070809@gmail.com>
-	 <9a8748490512131319o408a368eqfed225abebaff4d@mail.gmail.com>
-	 <439F73D4.9060304@gmail.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+CC: Al Viro <viro@ftp.linux.org.uk>, hch@lst.de, akpm@osdl.org,
+       davem@redhat.com, Ulrich Drepper <drepper@redhat.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] New iovec support & VFS changes
+References: <1135095487.19193.90.camel@localhost.localdomain>
+In-Reply-To: <1135095487.19193.90.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Dec 2005 18:00:04.0351 (UTC) FILETIME=[345B78F0:01C6058F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/14/05, Antonino A. Daplas <adaplas@gmail.com> wrote:
-> Jesper Juhl wrote:
-> > On 12/13/05, Antonino A. Daplas <adaplas@gmail.com> wrote:
-> >> Jesper Juhl wrote:
-> >>> On 12/12/05, Antonino A. Daplas <adaplas@gmail.com> wrote:
-> >>>> Jesper Juhl wrote:
-> >>>>
-> >>> I'm already using the vesa driver. It seems to be the only Open Source
-> >>> driver that'll work with this card, so i don't have any other to try.
-> >>>
-> >> I just tried with Xorg vesa and vgacon, and everything seems to work okay.
-> >> Now I'm not sure what changes in linux causes the vgacon state restore
-> >> to fail (VGA state restoration is almost the entire responsibility
-> >> of X, BTW), but maybe you can use vbetool to get and set the vga mode,
-> >> just to test?
-> >>
-> > Ok, I'm not familiar with that tool and my distribution doesn't
-> > include it, but if it will be useful to you for me to test with  it
-> > I'll get and install it. What exactely would you like me to do/try
-> > with it?
+Badari Pulavarty wrote:
+
+>I was trying to add support for preadv()/pwritev() for threaded
+>databases. Currently the patch is in -mm tree.
 >
-> The vbetool is capable of getting/setting or saving/restoring the current
-> state of the hardware.  You can run vbetool vbestate save before going
-> to X and then run vbetool vbestate restore after switching back to console.
+>http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-
+>rc5/2.6.15-rc5-mm3/broken-out/support-for-preadv-pwritev.patch
 >
+>This needs a new set of system calls. Ulrich Drepper pointed out
+>that, instead of adding a system call for the limited functionality
+>it provides, why not we add new iovec interface as follows (offset-per-
+>segment) which provides greater functionality & flexibility.
+>
+>+struct niovec
+>+{
+>+	void __user *iov_base;
+>+	__kernel_size_t iov_len;
+>+	__kernel_loff_t iov_off; /* NEW */
+>+};
+>
+>In order to support this, we need to change all the file_operations
+>(readv/writev) and its helper functions to take this new structure.
+>
+>I took a stab at doing it and I want feedback on whether this is
+>acceptable. All the patch does - is to make kernel use new structure,
+>but the existing syscalls like readv()/writev() still deals with
+>original one to keep the compatibility. (pipes and sockets need 
+>changing too - which I have not addressed yet).
+>
+>Is this the right approach ?
+>
+>  
+>
+You can io_submit() a list of IO_CMD_PREAD[V]s and immediately 
+io_getevents() them. In addition to specifying different file offsets 
+you can mix reads and writes, mix file descriptors, and reap nonblocking 
+events quickly (by specifying a timeout of zero).
 
-Hi Antonio,
+Sure, it's two syscalls instead of one, but it's much more flexibles, 
+and databases should be using aio anyway. Oh, and no kernel changes 
+needed, apart from merging vectored aio.
 
-Sorry about the late reply but I've been busy and unable to return to
-this issue until now.
+-- 
+Do not meddle in the internals of kernels, for they are subtle and quick to panic.
 
-I've tried building vbetool, but unfortunately all versions of it that
-I can obtain refuse to build on my system, so at the moment I can't do
-that testing for you.
-
-I'll test the recently released 2.6.15-rc5-mm3 as well as
-2.6.15-rc6-git1 and let you know if they have this issue or not.
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,58 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbVLTT2o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbVLTTbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750967AbVLTT2o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 14:28:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbVLTT2o
+	id S1750949AbVLTTbF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 14:31:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbVLTTbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 14:28:44 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:50816 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1750967AbVLTT2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 14:28:44 -0500
-Subject: Re: 2.6.15-rc5-rt4 x86 patch
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Clark Williams <williams@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1135100583.3415.16.camel@localhost.localdomain>
-References: <1135100583.3415.16.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 20 Dec 2005 14:28:31 -0500
-Message-Id: <1135106911.13138.343.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Dec 2005 14:31:05 -0500
+Received: from warden-p.diginsite.com ([208.29.163.248]:25083 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1750949AbVLTTbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 14:31:04 -0500
+Date: Tue, 20 Dec 2005 11:25:00 -0800 (PST)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Parag Warudkar <kernel-stuff@comcast.net>
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Andi Kleen <ak@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks 
+In-Reply-To: <122020051908.25484.43A856A8000A6E600000638C220075894200009A9B9CD3040A029D0A05@comcast.net>
+Message-ID: <Pine.LNX.4.62.0512201124050.11093@qynat.qvtvafvgr.pbz>
+References: <122020051908.25484.43A856A8000A6E600000638C220075894200009A9B9CD3040A029D0A05@comcast.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Clark,
+On Tue, 20 Dec 2005, Parag Warudkar wrote:
 
-I've submitted a similar patch since rc5-rt1.
+>> Oh, well, one of the larger drawbacks of 4KiB stacks is the inevitable
+>> flamewar, each time with /less/ data (this round I've seen none) supporting
+>> the need for larger stacks, into which all kinds of idiots* are suckered.
+>
+> At the same time, I haven't seen any data showing what we gain by losing the 8K
+> stack option.  Where are the links to posts where people are claiming en masse
+> that 8K stacks are causing screwups, halting VM development etc.?
 
-http://lkml.org/lkml/2005/12/13/184
+by goig to 4k stacks they are able to be allocated even when memory is 
+badly fragmented, which is not the case while they are 8k.
 
-Ingo,
-
-It's still not in there?
-
--- Steve
+David Lang
 
 
-On Tue, 2005-12-20 at 11:43 -0600, Clark Williams wrote:
-> I still need the following to compile with PREEMPT_RT on an x86:
-> 
-> --- ./arch/i386/Kconfig.cpu.orig        2005-12-20 11:26:34.000000000 -0600
-> +++ ./arch/i386/Kconfig.cpu     2005-12-20 11:33:23.000000000 -0600
-> @@ -229,11 +229,6 @@
->         depends on M386
->         default y
-> 
-> -config RWSEM_XCHGADD_ALGORITHM
-> -       bool
-> -       depends on !M386
-> -       default y
-> -
->  config GENERIC_CALIBRATE_DELAY
->         bool
->         default y
-
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare
 

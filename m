@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbVLTN0p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbVLTN2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751002AbVLTN0p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 08:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbVLTN0p
+	id S1751005AbVLTN2q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 08:28:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbVLTN2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 08:26:45 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:34581 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1750999AbVLTN0p (ORCPT
+	Tue, 20 Dec 2005 08:28:46 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:58305 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751004AbVLTN2q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 08:26:45 -0500
-Date: Tue, 20 Dec 2005 14:28:21 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ben Collins <ben.collins@ubuntu.com>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
-Subject: Re: [RFC] Let non-root users eject their ipods?
-Message-ID: <20051220132821.GH3734@suse.de>
-References: <1135047119.8407.24.camel@leatherman> <20051220074652.GW3734@suse.de> <1135082490.16754.0.camel@localhost.localdomain>
+	Tue, 20 Dec 2005 08:28:46 -0500
+Date: Tue, 20 Dec 2005 14:28:03 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: tglx@linutronix.de, john stultz <johnstul@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -RT] Add softirq waitqueue for CONFIG_PREEMPT_SOFTIRQ (was: Re: [ANNOUNCE] 2.6.15-rc5-hrt2 ...)
+Message-ID: <20051220132803.GB24408@elte.hu>
+References: <1134385343.4205.72.camel@tglx.tec.linutronix.de> <1134507927.18921.26.camel@localhost.localdomain> <20051214084019.GA18708@elte.hu> <20051214084333.GA20284@elte.hu> <1134568080.18921.42.camel@localhost.localdomain> <1134568867.4275.7.camel@tglx.tec.linutronix.de> <1134575022.18921.56.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1135082490.16754.0.camel@localhost.localdomain>
+In-Reply-To: <1134575022.18921.56.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.1
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.1 required=5.9 tests=AWL,UPPERCASE_25_50 autolearn=no SpamAssassin version=3.0.3
+	0.2 UPPERCASE_25_50        message body is 25-50% uppercase
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20 2005, Ben Collins wrote:
-> On Tue, 2005-12-20 at 08:46 +0100, Jens Axboe wrote:
-> > On Mon, Dec 19 2005, john stultz wrote:
-> > > All,
-> > > 	I'm getting a little tired of my roommates not knowing how to safely
-> > > eject their usb-flash disks from my system and I'd personally like it if
-> > > I could avoid bringing up a root shell to eject my ipod. Sure, one could
-> > > suid the eject command, but that seems just as bad as changing the
-> > > permissions in the kernel (eject wouldn't be able to check if the user
-> > > has read/write permissions on the device, allowing them to eject
-> > > anything).
-> > 
-> > This just came up yesterday, eject isn't opening the device RDWR hence
-> > you have a permission problem with a command requiring write
-> > permissions. So just fix eject, there's no need to suid eject or run it
-> > as root.
-> 
-> Yep, and here's the patch to do it:
-> 
-> http://bugzilla.ubuntu.com/attachment.cgi?id=5415
-> 
-> Still, this whole issue with ALLOW_MEDIUM_REMOVAL. Would be nice if
-> CDROMEJECT just did the right thing.
 
-I would tend to agree, but you are bypassing the checks that are in
-there by doing so which isn't very nice. Then we might as well just mark
-ALLOW_MEDIUM_REMOVAL as safe-for-read in the first place.
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
--- 
-Jens Axboe
+> This patch fixes the problem I have.  I've added a waitqueue per all 
+> softirq threads IFF a CONFIG_PREEMPT_SOFTIRQ is set.
 
+thanks, applied.
+
+	Ingo

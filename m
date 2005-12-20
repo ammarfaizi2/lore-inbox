@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbVLTVr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbVLTVrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932142AbVLTVr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 16:47:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVLTVr3
+	id S932141AbVLTVrY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 16:47:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbVLTVrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 16:47:29 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:24285 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932142AbVLTVr2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 16:47:28 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=U2y7dDZ+NIold9pT08NIwkVkjZDRLKPN/aYhIDwV+DE0Iq3jCdlEwFioSz+/YQiCEDuB3iBgE/g+prMsXtqJyQY02ehWAEeKYV8JKVWBTwYIQUg6AvRLNvZsAaPilpRxyEQ0tshnsLJfRyAKuFHF8Eqo6rPiNZ+nGz+RI/rl/y8=
-Message-ID: <43A87BB6.4080401@gmail.com>
-Date: Wed, 21 Dec 2005 05:46:30 +0800
-From: "Antonino A. Daplas" <adaplas@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20051025)
-MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+	Tue, 20 Dec 2005 16:47:24 -0500
+Received: from a34-mta02.direcpc.com ([66.82.4.91]:46730 "EHLO
+	a34-mta02.direcway.com") by vger.kernel.org with ESMTP
+	id S932141AbVLTVrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 16:47:23 -0500
+Date: Tue, 20 Dec 2005 16:46:59 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: Re: [PATCH rc6] block: Fix CDROMEJECT to work in more cases
+In-reply-to: <20051220205306.GS3734@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: vgacon regression
-References: <9a8748490512201203s7fce043byfce95b11307008d5@mail.gmail.com>
-In-Reply-To: <9a8748490512201203s7fce043byfce95b11307008d5@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Message-id: <1135115219.16754.41.camel@localhost.localdomain>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <20051219195014.GA13578@swissdisk.com>
+ <Pine.LNX.4.64.0512200930490.4827@g5.osdl.org> <20051220174948.GP3734@suse.de>
+ <Pine.LNX.4.64.0512201005370.4827@g5.osdl.org>
+ <1135111130.16754.23.camel@localhost.localdomain>
+ <20051220205306.GS3734@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> Hi Antonino,
+On Tue, 2005-12-20 at 21:53 +0100, Jens Axboe wrote:
+> On Tue, Dec 20 2005, Ben Collins wrote:
+> > However, I don't see the issue with using READ. We know this isn't a
+> > write operation, we are sending a single command with no data. I know
+> > you say reads are precious, but 3 requests for something that isn't
+> > going to happen very often doesn't seem that bad.
 > 
- > Any advice as to what patches I can try to revert?
+> It's not a READ either!
 > 
-> While I wait for a reply I'll test the mainline kernels between
-> 2.6.15-rc5-git4 and 2.6.15-rc6-git1 to try and determine the first one
-> that breaks.
+> Yes I'm being stubborn, but my point stands. I'm not changing something
+> that is perfectly valid, "just because". If it finds a bug (you
+> mentioned ide-cd, I still want the details on that when you have the
+> time), then it's all for the better since it would bite us for other
+> paths as well.
+> 
+> In summary - it's not a bug, it doesn't need fixing.
 
-More info.  The vgacon is actually restored by X as vgacon does not
-touch the hardware anymore (unless you resize the console with stty). So
-any patch that affects X is a culprit.  More specifically, the X driver
-used was vesa, which means that the vgacon restoration would be done
-using VBE state save and state restore function calls.  With X, this would
-involve lrmi (the same library used by vbetool).
+Then for the sake of nothing other than consistency, fix sg_io() to use
+WRITE for cases where data_len==0? That means it would use READ only
+when data is actually being read, and WRITE for everything else,
+including all zero data commands (sounds sort of backwards to me,
+though). Currently, it does the opposite. The main point being that
+sending these commands from SG_IO ioctl should be the same as they get
+sent from CDROMEJECT ioctl.
 
-I wasn't able to duplicate this problem, using Xorg vesa and vgacon 80x25.
+I wonder how many bugs will pop up if you do that. Probably less now
+that the scsi code is fixed.
 
-Also, there are no changes to vgacon or to the console that I know of between
-the versions he mentioned.
+-- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
 
-To Jesper,
-
->From your description, I would presume that the VGA fontmap was not
-adequately restored.  Can you try changing your system font using whatever
-utility is available for your system, such as setfont?  Choose any 8x16 font
-in the consolefont directory (It's usually in /usr/share/kbd/consolefont)
-
-Tony
-
-PS: I'll be offline from the 22nd of December to early January 2006.  I
-_might_ be able to occasionally answer by e-mail.

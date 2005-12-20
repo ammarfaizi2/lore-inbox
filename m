@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750729AbVLTBnX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVLTBsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750729AbVLTBnX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 20:43:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbVLTBnX
+	id S1750730AbVLTBsV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 20:48:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbVLTBsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 20:43:23 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:19634 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1750729AbVLTBnW (ORCPT
+	Mon, 19 Dec 2005 20:48:21 -0500
+Received: from ishtar.tlinx.org ([64.81.245.74]:5308 "EHLO ishtar.tlinx.org")
+	by vger.kernel.org with ESMTP id S1750730AbVLTBsU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 20:43:22 -0500
-Subject: Re: [PATCH 01/13]  [RFC] ipath basic headers
-From: Robert Walsh <rjwalsh@pathscale.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
-       openib-general@openib.org
-In-Reply-To: <20051217123827.32f119da.akpm@osdl.org>
-References: <200512161548.jRuyTS0HPMLd7V81@cisco.com>
-	 <200512161548.aLjaDpGm5aqk0k0p@cisco.com>
-	 <20051217123827.32f119da.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Z3V8eu65Bwg921cqxYKa"
-Date: Mon, 19 Dec 2005 17:43:17 -0800
-Message-Id: <1135042997.7306.26.camel@hematite.internal.keyresearch.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Mon, 19 Dec 2005 20:48:20 -0500
+Message-ID: <43A762E0.5020608@tlinx.org>
+Date: Mon, 19 Dec 2005 17:48:16 -0800
+From: Linda Walsh <lkml@tlinx.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en, en_US
+MIME-Version: 1.0
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+CC: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Makefile targets: tar & rpm pkgs, while using O=<dir> as non-root
+References: <43A5F058.1060102@tlinx.org> <20051219071959.GJ13985@lug-owl.de> <43A7304B.2070103@tlinx.org> <20051219223030.GM13985@lug-owl.de>
+In-Reply-To: <20051219223030.GM13985@lug-owl.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan-Benedict Glaw wrote:
 
---=-Z3V8eu65Bwg921cqxYKa
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>That's how it is ment to be. Actually, for in-tree builds, you get the
+>tarball without first becoming root.
+>
+---
+    So I see.  Slight minor possible "nit".
+I have a suffix (CONFIG_LOCALVERSION) set.
+While the tar picks up the /lib/modules files in <ver>-suffix, the
+map and vm files all have suffixes w/o the "localversion" appended.
+This doesn't seem desirable, eh?:
 
-> > +#ifdef IPATH_COSIM
-> > +extern __u32 sim_readl(const volatile void __iomem * addr);
-> > +extern __u64 sim_readq(const volatile void __iomem * addr);
->=20
-> The driver has a strange mixture of int32_t, s32 and __s32.  s32 is
-> preferred.
+ishtar:/usr/src/ast-26144> tar tf linux-2.6.14.4.tar |more   
+./
+./boot/
+./boot/System.map-2.6.14.4
+./boot/config-2.6.14.4
+./boot/vmlinux-2.6.14.4
+./boot/vmlinuz-2.6.14.4
+./lib/
+./lib/modules/
+./lib/modules/2.6.14.4-ast/
+./lib/modules/2.6.14.4-ast/kernel/
+./lib/modules/2.6.14.4-ast/kernel/crypto/
+....
 
-The cosim stuff has been nuked, as it was old code anyway.  With those
-functions gone, we now use int32_t (and related 8-, 16-, 32- and 64-bit
-signed and unsigned versions) consistently throughout the code.  We'd
-prefer to keep it that way, instead of changing over to s32 and friends,
-as some of our header files are used by userland programs.  Unless we
-put in magic typedef for s32 and friends in userland, that won't work,
-hence we use the C standard typedefs.
+> I'll fix that soon, as I find
+>some spare minute to hack it :)
+>
+---
+S'okey...I can at least use the above to xfer files over for now...
 
-Is this a problem?
-
-Regards,
- Robert.
-
---=20
-Robert Walsh                                 Email: rjwalsh@pathscale.com
-PathScale, Inc.                              Phone: +1 650 934 8117
-2071 Stierlin Court, Suite 200                 Fax: +1 650 428 1969
-Mountain View, CA 94043
-
---=-Z3V8eu65Bwg921cqxYKa
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.7 (GNU/Linux)
-
-iQEVAwUAQ6dhtfzvnpzTd9fxAQKEQAf/R3P/z/t4kaV7nL4H7TZh8bdeVedDuSTc
-xzvPfWFNqQucUc96FCMyqx/Wua4hNSM5ZXOGicbeggyEdmP/tiDZn8exDz8hukp2
-qiLzXnay057/vXBlpKADZSJANvgmIqwMFkM3cIc8XcBXgX8ZEB3HAXkS0qy3hga6
-R8QuP5bIvI7jNOLgMJCVcvBeoOk5yaEHbkHU8fg6zpRdi9D7e0aqHQ+X6mKQVF/x
-DZq8BIGGVVTinYx4DrQPSxg2jsx+0u71ocltYO7VHYj+k/r+No+xiSPU4c5Y5qSf
-xp360W9i2C82XwuyMd+/X3HSH6u6mt99OhckGTHGLscVy5CS88ZXUg==
-=+tQo
------END PGP SIGNATURE-----
-
---=-Z3V8eu65Bwg921cqxYKa--
-
+tnx,
+Linda

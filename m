@@ -1,57 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbVLTIs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbVLTIxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750859AbVLTIs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 03:48:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbVLTIs4
+	id S1750865AbVLTIxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 03:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750868AbVLTIxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 03:48:56 -0500
-Received: from smtp101.plus.mail.mud.yahoo.com ([68.142.206.234]:2466 "HELO
-	smtp101.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750858AbVLTIsz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 03:48:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=tfRCiFjThDjClDL4iCSlRUV/XzXkK+dCWtGuZYEU+5qfDjmEquH7pq+UJfP7OFKODdnnGo8sohiangnh8faOhB3EOJC+No7rcGhB1VpT0WV/6E1UoFn+lHSGjzc2f5fb6YBi8aDuDa/19nQtE8OIKBQ1/JndULUfQPhSWbdN68A=  ;
-Message-ID: <43A7C574.5030803@yahoo.com.au>
-Date: Tue, 20 Dec 2005 19:48:52 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Tue, 20 Dec 2005 03:53:09 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:8633 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750865AbVLTIxI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 03:53:08 -0500
+Date: Tue, 20 Dec 2005 17:52:08 +0900
+From: Yasunori Goto <y-goto@jp.fujitsu.com>
+To: linux-mm <linux-mm@kvack.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Linux Hotplug Memory Support 
+	<lhms-devel@lists.sourceforge.net>
+Subject: [Patch] New zone ZONE_EASY_RECLAIM take 4. (define gfp_easy_relcaim)[1/8]
+Cc: Joel Schopp <jschopp@austin.ibm.com>
+X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.057
+Message-Id: <20051220172720.1B08.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Benjamin LaHaise <bcrl@kvack.org>
-Subject: Re: [patch 00/15] Generic Mutex Subsystem
-References: <20051219013415.GA27658@elte.hu>	 <20051219042248.GG23384@wotan.suse.de>	 <Pine.LNX.4.64.0512182214400.4827@g5.osdl.org>	 <20051219155010.GA7790@elte.hu>	 <Pine.LNX.4.64.0512191053400.4827@g5.osdl.org>	 <20051219195553.GA14155@elte.hu>	 <Pine.LNX.4.64.0512191203120.4827@g5.osdl.org>	 <43A7BAB5.7020201@yahoo.com.au>	 <1135066007.2952.4.camel@laptopd505.fenrus.org>	 <43A7BEF6.3010202@yahoo.com.au> <1135067777.2952.6.camel@laptopd505.fenrus.org>
-In-Reply-To: <1135067777.2952.6.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Tue, 2005-12-20 at 19:21 +1100, Nick Piggin wrote:
+This defines __GFP flag for new zone (with GFP_DMA32).
 
->>But I thought Linus phrased it as though mutex should be made
->>available and no large scale conversions.
-> 
-> 
-> it's one at a time. Manual inspection etc etc
-> and I don't expect 99% coverage, but the important 50% after 6 months or
-> so...
-> 
+take3 -> take 4:
+  take 3's modification was not enough. 
+  __GFP_DMA32 is moved from 0x04 to 0x02 when it has own number
+  to make it easier.
+  __GFP_HIGHMEM and __GFP_EASY_RECLAIM become fixed value.
 
-So long as there is a plan and movement, that is fine in my opinion.
+
+Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
+
+Index: zone_reclaim/include/linux/gfp.h
+===================================================================
+--- zone_reclaim.orig/include/linux/gfp.h	2005-12-16 11:28:15.000000000 +0900
++++ zone_reclaim/include/linux/gfp.h	2005-12-19 20:20:51.000000000 +0900
+@@ -11,17 +11,21 @@ struct vm_area_struct;
+ /*
+  * GFP bitmasks..
+  */
+-/* Zone modifiers in GFP_ZONEMASK (see linux/mmzone.h - low three bits) */
++/* Zone modifiers in GFP_ZONEMASK (see linux/mmzone.h - low four bits) */
+ #define __GFP_DMA	((__force gfp_t)0x01u)
+-#define __GFP_HIGHMEM	((__force gfp_t)0x02u)
++
+ #ifdef CONFIG_DMA_IS_DMA32
+ #define __GFP_DMA32	((__force gfp_t)0x01)	/* ZONE_DMA is ZONE_DMA32 */
+ #elif BITS_PER_LONG < 64
+ #define __GFP_DMA32	((__force gfp_t)0x00)	/* ZONE_NORMAL is ZONE_DMA32 */
+ #else
+-#define __GFP_DMA32	((__force gfp_t)0x04)	/* Has own ZONE_DMA32 */
++#define __GFP_DMA32	((__force gfp_t)0x02)	/* Has own ZONE_DMA32 */
+ #endif
+ 
++#define __GFP_HIGHMEM	((__force gfp_t)0x04u)
++#define __GFP_EASY_RECLAIM ((__force gfp_t)0x08u)
++
++
+ /*
+  * Action modifiers - doesn't change the zoning
+  *
+@@ -64,7 +68,7 @@ struct vm_area_struct;
+ #define GFP_KERNEL	(__GFP_WAIT | __GFP_IO | __GFP_FS)
+ #define GFP_USER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HARDWALL)
+ #define GFP_HIGHUSER	(__GFP_WAIT | __GFP_IO | __GFP_FS | __GFP_HARDWALL | \
+-			 __GFP_HIGHMEM)
++			 __GFP_HIGHMEM | __GFP_EASY_RECLAIM)
+ 
+ /* Flag - indicates that the buffer will be suitable for DMA.  Ignored on some
+    platforms, used as appropriate on others */
+Index: zone_reclaim/include/linux/mmzone.h
+===================================================================
+--- zone_reclaim.orig/include/linux/mmzone.h	2005-12-16 11:28:15.000000000 +0900
++++ zone_reclaim/include/linux/mmzone.h	2005-12-19 20:16:29.000000000 +0900
+@@ -93,7 +93,7 @@ struct per_cpu_pageset {
+  *
+  * NOTE! Make sure this matches the zones in <linux/gfp.h>
+  */
+-#define GFP_ZONEMASK	0x07
++#define GFP_ZONEMASK	0x0f
+ #define GFP_ZONETYPES	5
+ 
+ /*
 
 -- 
-SUSE Labs, Novell Inc.
+Yasunori Goto 
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+

@@ -1,161 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbVLTW7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVLTXBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932152AbVLTW7t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 17:59:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbVLTW7t
+	id S932170AbVLTXBL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 18:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932159AbVLTXBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 17:59:49 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:7839 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932152AbVLTW7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 17:59:48 -0500
-Date: Tue, 20 Dec 2005 17:59:30 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Esben Nielsen <simlo@phys.au.dk>
-cc: linux-kernel@vger.kernel.org, robustmutexes@lists.osdl.org,
-       Ingo Molnar <mingo@elte.hu>, Dinakar Guniguntala <dino@in.ibm.com>
-Subject: Re: Recursion bug in -rt
-In-Reply-To: <Pine.OSF.4.05.10512202311480.1720-100000@da410.phys.au.dk>
-Message-ID: <Pine.LNX.4.58.0512201749070.4295@gandalf.stny.rr.com>
-References: <Pine.OSF.4.05.10512202311480.1720-100000@da410.phys.au.dk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Dec 2005 18:01:11 -0500
+Received: from gate.crashing.org ([63.228.1.57]:4751 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932170AbVLTXBK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 18:01:10 -0500
+Subject: Re: sungem hangs in atomic if netconsole enabled but no carrier
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Johannes Berg <johannes@sipsolutions.net>, linux-kernel@vger.kernel.org,
+       "David S. Miller" <davem@redhat.com>,
+       Eric Lemoine <eric.lemoine@gmail.com>
+In-Reply-To: <20051220221906.GB2525@electric-eye.fr.zoreil.com>
+References: <1135080538.3937.3.camel@localhost>
+	 <20051220221906.GB2525@electric-eye.fr.zoreil.com>
+Content-Type: text/plain
+Date: Wed, 21 Dec 2005 09:59:14 +1100
+Message-Id: <1135119554.10035.114.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-12-20 at 23:19 +0100, Francois Romieu wrote:
 
-On Tue, 20 Dec 2005, Esben Nielsen wrote:
-> On Tue, 20 Dec 2005, Steven Rostedt wrote:
-> > On Tue, 2005-12-20 at 21:42 +0100, Esben Nielsen wrote:
+> net/core/netpoll.c::netpoll_send_skb() notices that the queue is stopped
+> and decides to try the usual NAPI poll(). A few function calls later, the
+> driver ends in drivers/net/sungem.c::gem_poll() where it takes so many
+> (irq-)locks that I do not even want to verify that it has a chance
+> to play nice with the pending gem_link_timer().
 
-> > I removed the global pi_lock in two sleepless days, and it was all on
-> > the theory that the locks themselves would not deadlock.  That was the
-> > only sanity I was able to hang on to.  That was complex enough, and very
-> > scary to get right (scary since it _had_ to be done right).
-> Gosh I wish I had such nights available.... :-( And then some equipment to
-> test the result on.
+I'm not fan of the locking in sungem, I think I wrote a big fat comment
+about it and why it is like that for now, better ideas are welcome :)
 
-My wife was nice enough to handle the kids during that time ;)
+Ben.
 
->
-> > And it was
-> > complex enough to keep a highly skilled programmer living in Hungary
-> > from doing it himself (not to say he couldn't do it, just complex enough
-> > for him to put it off for quite some time).
-> My guess is that he focuses on other areas. The global pi_lock worked - it
-> just didn't scale.
-
-True.
-
->
-> > And one must also worry
-> > about the BKL which is a separate beast all together.
->
-> The BKL is the scary point from my point of view. The rest of it is really
-> not very Linux specific and is really just elaborating the textbook
-> implementations of mutexes.
-
-Yeah, but I always found that a lot of text book implementations don't
-apply very well to the real world without some sort of hack.
-
->
-> >
-> > So making it any more complex is IMO out of the question.
->
-> Well the lock grabbing was making it very complex, too :-)
-
-True, and that was part of my point.
-
->
-> >
-> > >
-> > > When resolving the mutex chain (task A locks mutex 1 owned by B blocked
-> > > on 2 owned by C etc) for PI boosting and also when finding deadlocks,
-> > > release _all_ locks before going to the next step in the chain. Use
-> > > get_task_struct on the next task in the chain, release the locks,
-> > > take the pi_locks in a fixed order (sort by address forinstance), do the
-> > > PI boosting, get_task_struct on the next lock, release all the locks, do
-> > > the put_task_struct() on the previous task etc.
-> > > This a lot more expensive approach as it involves double as many spinlock
-> > > operations and get/put_task_struct() calls , but it has the added benifit
-> > > of reducing the overall system latency for long locking chains as there
-> > > are spots where interrupts and preemption will be enabled for each step in
-> > > the chain. Remember also that deep locking chains should be considered an
-> > > exeption so the code doesn't have to be optimal wrt. performance.
-> >
-> > The long lock holding is only by the lock being grabbed and the owner
-> > grabbing it.  All other locks don't need to be held for long periods of
-> > time.
->
-> Preemption is disabled all along because you always hold at least one
-> spinlock.
-
-But you still need to worry about SMP.
-
->
-> > There's lots of issues if you release these two locks. How do you
-> > deal with the mutex being released while going up the chain?
-> >
->
-> You have to recheck your conditions again once you have retaken the
-> necesary locks. I do that in the code below.
-
-Sorry, I didn't quite take the time to thoroughly go through your code.
-I really should before responding, but I'm a tad busy at the moment,
-which I'm sure you understand.
-
->
-> > >
-> > > I added my feeble attempts to implement this below. I have no chance of
-> > > ever getting time finish it :-(
-> >
-> > I doubt they were feeble, but just proof that this approach is far too
-> > complex.  As I said, if you don't want futex to deadlock the kernel, the
-> > API for futex should have deadlocking checks, since the only way this
-> > can deadlock the system, is if two threads are in the kernel at the same
-> > time.
->
-> That that code needs to traverse the locks. The PI code need to traverse
-> the locks. It would be simpler to do it in one go... Ofcourse, all
-> robust futex calls could take one global mutex akin to the old pi_lock you
-> removed, to fix it now, but that is a hack.
->
-> >
-> > Also, the ones who are paying me to help out the -rt kernel, don't care
-> > if we let the user side deadlock the system.  They deliver a complete
-> > package, kernel and user apps, and nothing else is to be running on the
-> > system.  This means that if the user app deadlocks, it doesn't matter if
-> > the kernel deadlocks or not, because the deadlocking of the user app
-> > means the system has failed.  And I have a feeling that a lot of other
-> > users of -rt feel the same way.
->
-> 1) If PREEMPT_RT ever goes into the main line kernel this kind of aproach
-> will _not_ work.
-
-:) I know!
-
-That last paragraph came out when I was in the middle of debugging my
-kernel.   It suddenly dawned on me that the one who pays me must be
-satisfied first. And you got me in one of my working moments.
-
-There's a lot I do just to help out -rt that doesn't directly go along
-with what I'm paid to do, and if at the time I was doing that, I would
-not have responded as I did ;)
-
-> 2) A for me  for using Linux 2.6-rt over some specialized RTOS would be
-> that I could have my RT task running without any risk of being destroyed
-> by even buggy normal tasks.
-> What if you run, say apache, compiled with robust futexes and it
-> deadlocks? Normally I would simply restart apache. Customers could easily
-> accept that I restart apache once in a while - they wouldn't even notice.
-> But they can't accept that the system should reboot.
->
-
-Point taken.  But as far as I'm concerned, the code to deal with this
-really needs to be satisfied by futex.  I'm not saying it's "not my
-problem", I would gladly modify rt.c to help. But I would not sacrifice
-performance, or add much more complexity to do so.
-
--- Steve
 

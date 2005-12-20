@@ -1,40 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932098AbVLTUww@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbVLTUvn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932098AbVLTUww (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 15:52:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVLTUww
+	id S932093AbVLTUvn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 15:51:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932095AbVLTUvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 15:52:52 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:52002 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932098AbVLTUwv (ORCPT
+	Tue, 20 Dec 2005 15:51:07 -0500
+Received: from jack.kinetikon.it ([62.152.125.81]:2284 "EHLO mail.towertech.it")
+	by vger.kernel.org with ESMTP id S932093AbVLTUuk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 15:52:51 -0500
-Date: Tue, 20 Dec 2005 21:54:25 +0100
-From: Jens Axboe <axboe@suse.de>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Ben Collins <ben.collins@ubuntu.com>, lkml <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
-Subject: Re: [PATCH] block: Better CDROMEJECT
-Message-ID: <20051220205425.GT3734@suse.de>
-References: <1135047119.8407.24.camel@leatherman> <20051220074652.GW3734@suse.de> <1135082490.16754.0.camel@localhost.localdomain> <20051220132821.GH3734@suse.de> <1135085557.16754.2.camel@localhost.localdomain> <20051220133939.GI3734@suse.de> <1135087637.16754.12.camel@localhost.localdomain> <1135111300.27117.41.camel@cog.beaverton.ibm.com>
+	Tue, 20 Dec 2005 15:50:40 -0500
+Date: Tue, 20 Dec 2005 21:43:43 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC][PATCH 0/6] RTC subsystem
+Message-ID: <20051220214343.79d5ee91@inspiron>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1135111300.27117.41.camel@cog.beaverton.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20 2005, john stultz wrote:
-> Although from just looking at it, don't you still need to add
-> ALLOW_MEDIUM_REMOVAL in the verify_command() list for this to work?
-> 
-> Alternatively, would just the "safe_for_write(ALLOW_MEDIUM_REMOVAL);" in
-> verify_command along with the eject-opens-RW fix have almost the same
-> effect?
 
-The command is already in the safe-for-write list, so you don't have to
-change anything but fix eject to open the device O_RDWR.
+ Hello,
+
+  this is a proposal for the implementation of a kernel-wide
+ RTC subsystem.
+
+  The current state of RTCs under linux is that each one
+ of the current drivers is actually self-contained and
+ has a lot of redundant functions [1].
+ 
+  The lack of a kernel-wide subsystem is particulary important
+ on embedded devices, where the RTC is usually implemented
+ on an I2C chip.
+
+  Of the current I2C RTC drivers, no-one actually interfaces
+ with the kernel [2]: the driver is actually useless
+ without further patches that are probably provided as part
+ of an external project.
+
+  When new driver are to be implemented [3], I've noticed
+ authors are often confused on how to do it, resulting
+ in drivers that will not work on different architectures
+ and that will probably never be merged in the kernel.
+
+  They also happen to use ioctls over (struct i2c_client *)->command,
+ which has recently been deprecated [4].
+
+  The architecture is quite simple. Each RTC device should
+ register to the RTC class, providing a set of pointers
+ to functions. The class will provide access to the RTC
+ to the whole kernel and userspace.
+
+  For this purpose, the class supports multiple interfaces,
+ like sysfs, proc and dev.
+
+  The user has complete control over which interfaces
+ gets added using the standard Kconfig mechanism.
+
+  proc and dev, due to their nature, will only expose
+ the first RTC that registers to the subsystem.
+
+  The RTC code is derived from the one of the ARM subsystem.
+
+  This patchset has been verify to properly work under Linux/ARM
+ on several NSLU2s (http://www.linux-nslu2.org) and applies
+ successfully on the 2.6.15-rc6 kernel . If this is the right
+ way to go, I will port the x86 rtc driver in order to get
+ broader testing.
+
+  I'd appreciate receiving feedback on this proposal.
+
+  Thanks in advance.
+
+--
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+
+
+[1]
+	http://lkml.org/lkml/2005/11/17/180
+
+[2]
+	drivers/i2c/chips/m41t00.c
+	drivers/i2c/chips/rtc8564.c
+	drivers/i2c/chips/ds1337.c
+	drivers/i2c/chips/ds1374.c
+
+[3]
+	http://lists.lm-sensors.org/pipermail/lm-sensors/2005-November/014428.html
+	http://lists.lm-sensors.org/pipermail/lm-sensors/2005-November/014386.html
+
+[4]
+	http://lists.lm-sensors.org/pipermail/lm-sensors/2005-December/014688.html
+	http://lists.lm-sensors.org/pipermail/lm-sensors/2005-November/014369.html
 
 -- 
-Jens Axboe
-

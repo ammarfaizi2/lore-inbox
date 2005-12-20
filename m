@@ -1,49 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750949AbVLTTbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750992AbVLTTcq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750949AbVLTTbF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 14:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750979AbVLTTbF
+	id S1750992AbVLTTcq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 14:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbVLTTcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 14:31:05 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:25083 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1750949AbVLTTbE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 14:31:04 -0500
-Date: Tue, 20 Dec 2005 11:25:00 -0800 (PST)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Parag Warudkar <kernel-stuff@comcast.net>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Andi Kleen <ak@suse.de>,
-       Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks 
-In-Reply-To: <122020051908.25484.43A856A8000A6E600000638C220075894200009A9B9CD3040A029D0A05@comcast.net>
-Message-ID: <Pine.LNX.4.62.0512201124050.11093@qynat.qvtvafvgr.pbz>
-References: <122020051908.25484.43A856A8000A6E600000638C220075894200009A9B9CD3040A029D0A05@comcast.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 20 Dec 2005 14:32:46 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:5054 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750979AbVLTTcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 14:32:45 -0500
+Subject: Re: [patch 04/15] Generic Mutex Subsystem,
+	add-atomic-call-func-x86_64.patch
+From: Arjan van de Ven <arjan@infradead.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Nicolas Pitre <nico@cam.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Ingo Molnar <mingo@elte.hu>, David Woodhouse <dwmw2@infradead.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
+In-Reply-To: <20051220192018.GB24199@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com>
+	 <1135025932.4760.1.camel@localhost.localdomain>
+	 <20051220043109.GC32039@elte.hu>
+	 <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain>
+	 <43A7BCE1.7050401@yahoo.com.au>
+	 <Pine.LNX.4.64.0512200909180.26663@localhost.localdomain>
+	 <43A81132.8040703@yahoo.com.au>
+	 <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain>
+	 <43A81DD4.30906@yahoo.com.au>
+	 <Pine.LNX.4.64.0512201049310.26663@localhost.localdomain>
+	 <20051220192018.GB24199@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Tue, 20 Dec 2005 20:32:35 +0100
+Message-Id: <1135107155.2952.30.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Dec 2005, Parag Warudkar wrote:
 
->> Oh, well, one of the larger drawbacks of 4KiB stacks is the inevitable
->> flamewar, each time with /less/ data (this round I've seen none) supporting
->> the need for larger stacks, into which all kinds of idiots* are suckered.
->
-> At the same time, I haven't seen any data showing what we gain by losing the 8K
-> stack option.  Where are the links to posts where people are claiming en masse
-> that 8K stacks are causing screwups, halting VM development etc.?
+> So, to sum up, if this path is persued, mutexes will be a bloody
+> disaster on ARM.  We'd be far better off sticking to semaphores
+> and ignoring this mutex stuff.
 
-by goig to 4k stacks they are able to be allocated even when memory is 
-badly fragmented, which is not the case while they are 8k.
-
-David Lang
-
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+on x86 the fastpath is the same for both basically.. is there a
+fundamental reason it can't be for ARM?
 

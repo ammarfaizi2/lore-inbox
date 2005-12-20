@@ -1,91 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbVLTSfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbVLTShW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750886AbVLTSfq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 13:35:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbVLTSfq
+	id S1750921AbVLTShW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 13:37:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbVLTShW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 13:35:46 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:25752 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750886AbVLTSfp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 13:35:45 -0500
-From: Tom Zanussi <zanussi@us.ibm.com>
-MIME-Version: 1.0
+	Tue, 20 Dec 2005 13:37:22 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:47163 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750915AbVLTShW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 13:37:22 -0500
+Date: Tue, 20 Dec 2005 19:38:58 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ben Collins <bcollins@ubuntu.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH rc6] block: Fix CDROMEJECT to work in more cases
+Message-ID: <20051220183857.GQ3734@suse.de>
+References: <20051219195014.GA13578@swissdisk.com> <Pine.LNX.4.64.0512200930490.4827@g5.osdl.org> <20051220174948.GP3734@suse.de> <Pine.LNX.4.64.0512201005370.4827@g5.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17320.22302.312403.942098@tut.ibm.com>
-Date: Tue, 20 Dec 2005 13:10:22 -0600
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, compudj@krystal.dyndns.org
-Subject: [PATCH] relayfs: remove warning printk() in relay_switch_subbuf()
-X-Mailer: VM 7.19 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512201005370.4827@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Dec 20 2005, Linus Torvalds wrote:
+> 
+> 
+> On Tue, 20 Dec 2005, Jens Axboe wrote:
+> > 
+> > WRITEs cannot have length 0, and READs cannot as well. Since it's just
+> > one bit for direction, those are the rules.
+> 
+> Jens, your logic doesn't make sense.
 
-There's currently a diagnostic printk in relay_switch_subbuf() meant
-as a warning if you accidentally try to log an event larger than the
-sub-buffer size.  The problem is if this happens while logging from
-somewhere it's not safe to be doing printks, such as in the scheduler,
-you can end up with a deadlock.  This patch removes the warning from
-relay_switch_subbuf() and instead prints some diagnostic info when the
-channel is closed.
+It does
 
-Thanks to Mathieu Desnoyers for pointing out the problem and
-suggesting a fix.
+> There clearly _are_ commands with a 0 data-length.
 
-Tom
+Of course, that's not what I'm saying. What I am saying is interpreted
+from the driver or further down in the io stack.
 
-Signed-off-by: Tom Zanussi <zanussi@us.ibm.com>
+> And commands _have_ to be either READ or WRITE. We don't have a choice. 
+> ll_rw_block: blk_get_request() even has a BIG_ON() that enforces that.
 
-diff --git a/fs/relayfs/relay.c b/fs/relayfs/relay.c
---- a/fs/relayfs/relay.c
-+++ b/fs/relayfs/relay.c
-@@ -333,8 +333,7 @@ size_t relay_switch_subbuf(struct rchan_
- 	return length;
- 
- toobig:
--	printk(KERN_WARNING "relayfs: event too large (%Zd)\n", length);
--	WARN_ON(1);
-+	buf->chan->last_toobig = length;
- 	return 0;
- }
- 
-@@ -399,6 +398,11 @@ void relay_close(struct rchan *chan)
- 		relay_close_buf(chan->buf[i]);
- 	}
- 
-+	if (chan->last_toobig)
-+		printk(KERN_WARNING "relayfs: one or more items not logged "
-+		       "[item size (%Zd) > sub-buffer size (%Zd)]\n",
-+		       chan->last_toobig, chan->subbuf_size);
-+
- 	kref_put(&chan->kref, relay_destroy_channel);
- }
- 
-diff --git a/include/linux/relayfs_fs.h b/include/linux/relayfs_fs.h
---- a/include/linux/relayfs_fs.h
-+++ b/include/linux/relayfs_fs.h
-@@ -20,9 +20,9 @@
- #include <linux/kref.h>
- 
- /*
-- * Tracks changes to rchan_buf struct
-+ * Tracks changes to rchan/rchan_buf structs
-  */
--#define RELAYFS_CHANNEL_VERSION		5
-+#define RELAYFS_CHANNEL_VERSION		6
- 
- /*
-  * Per-cpu relay channel buffer
-@@ -60,6 +60,7 @@ struct rchan
- 	struct rchan_callbacks *cb;	/* client callbacks */
- 	struct kref kref;		/* channel refcount */
- 	void *private_data;		/* for user-defined data */
-+	size_t last_toobig;		/* tried to log event > subbuf size */
- 	struct rchan_buf *buf[NR_CPUS]; /* per-cpu channel buffers */
- };
- 
+Yes, it has to choose one of the two pools.
 
+> So claiming that reads and writes cannot have zere data-length is INSANE.
+
+There are two sides to this - looking at the request allocations pools,
+yes if you want a request you have to tell from which pool you want it
+from. But a request that originates from that particular pool (in this
+case the write pool), does _not_ have to imply any transfer of data from
+a device!
+
+> So reads and writes HAVE to accept a zero data length. End of story. If 
+
+That's not up for debate, of course that is the case. Otherwise we could
+not issue any request unless it needed to transfer data from a device.
+Just because an empty request happens to have the data direction bit
+set, does not mean it wants to transfer data to the device. By
+definition, that is an impossibility since there's nothing to transfer.
+
+> there is some path in the SCSI layer that refuses it, that part must be 
+> fixed, or you have to add a new "NONE" (and perhaps "BOTH") direction.
+
+There _was_ a bug in the SCSI layer, because it had logic like this:
+
+        if (rq_data_dir(req) == WRITE)
+                DMA_TO_DEVICE
+        else if (req->data_len)
+                DMA_FROM_DEVICE
+        else
+                DMA_NONE
+
+which was buggy, because for it to transfer data to the device, both the
+direction bit _and_ a data length must be set.
+
+-- 
+Jens Axboe
 

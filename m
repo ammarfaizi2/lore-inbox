@@ -1,91 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751040AbVLTOGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbVLTOH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751040AbVLTOGx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 09:06:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751044AbVLTOGx
+	id S1751051AbVLTOH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 09:07:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751048AbVLTOH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 09:06:53 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:18 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751040AbVLTOGx convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 09:06:53 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <7a37e95e0512192044s7cd8cce4y56ff9cfce06b44c3@mail.gmail.com>
-X-OriginalArrivalTime: 20 Dec 2005 14:06:51.0373 (UTC) FILETIME=[9FE479D0:01C6056E]
-Content-class: urn:content-classes:message
-Subject: Re: scatter-gather list.
-Date: Tue, 20 Dec 2005 09:06:49 -0500
-Message-ID: <Pine.LNX.4.61.0512200849390.27253@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: scatter-gather list.
-Thread-Index: AcYFbp/uMOtzaAXzSrOcgMl8xRbqig==
-References: <7a37e95e0512192044s7cd8cce4y56ff9cfce06b44c3@mail.gmail.com>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Deven Balani" <devenbalani@gmail.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Tue, 20 Dec 2005 09:07:29 -0500
+Received: from a34-mta01.direcpc.com ([66.82.4.90]:20779 "EHLO
+	a34-mta01.direcway.com") by vger.kernel.org with ESMTP
+	id S1751038AbVLTOH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 09:07:28 -0500
+Date: Tue, 20 Dec 2005 09:07:17 -0500
+From: Ben Collins <ben.collins@ubuntu.com>
+Subject: [PATCH] block: Better CDROMEJECT
+In-reply-to: <20051220133939.GI3734@suse.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       greg@kroah.com
+Message-id: <1135087637.16754.12.camel@localhost.localdomain>
+Organization: Ubuntu Linux
+MIME-version: 1.0
+X-Mailer: Evolution 2.5.3
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <1135047119.8407.24.camel@leatherman>
+ <20051220074652.GW3734@suse.de>
+ <1135082490.16754.0.camel@localhost.localdomain>
+ <20051220132821.GH3734@suse.de>
+ <1135085557.16754.2.camel@localhost.localdomain>
+ <20051220133939.GI3734@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-12-20 at 14:39 +0100, Jens Axboe wrote:
+> > Should be an easy check to add. In fact, I'll resend both patches with
+> > that in place if you want.
+> 
+> There's still the quirky problem of forcing a locked tray out. In some
+> cases this is what you want, if things get stuck for some reason or
+> another. But usually the tray is locked for a good reason, because there
+> are active users of the device.
+> 
+> Say two processes has the cdrom open, one of them doing io (maybe even
+> writing!), the other could do a CDROMEJECT now and force the ejection of
+> a busy drive.
 
-On Mon, 19 Dec 2005, Deven Balani wrote:
+But that's possible now with "eject -s" as long as you have write access
+to it. Most users are using "eject -s" anyway.
 
-> Hi All,
->
-> I am trying to port a driver from x86 PCI based platform to ARM platform.
->
-> The x86 driver has scatter-gather list as one of the DMA mechanism.
-> Can I bypass this, As I believe sg list is for PCI buses and not for
-> HSX buses.
->
-> Can any one give me the _source_ where I can understand the necessity for
-> a PCI bus to use sg list.
->
-> Regards,
-> deven
-> -
+You can't stop this from happening. However, the fact is that a lot of
+devices (iPod's being the most popular) require this to work.
 
-The S/G list is used with the INTERFACE chip, i.e., whatever the
-device is connected to. If you have a PCI/Bus and the device is
-to do DMA across the PCI/Bus with a chip that requires a S/G list,
-then you need the S/G list (which is trivial BTW). If your interface
-device doesn't require a S/G list then you don't use one.
+Here's the patch. Currently it will not even try the
+ALLOW_MEDIUM_REMOVAL unless they have write access (to avoid returning
+an uneeded error for people using eject -r that isn't patched to open
+the device O_RDRW). However, I still changed the __blk_send_generic()
+function to use verify_command().
 
-For instance, a common PCI/Bus interface chip is the PLX PCI 9656BA.
-This has a S/G list. In principle, it's possible to bypass the S/G
-list, but its downright dumb because you need to get all the information
-necessary to build the S/G list anyway, to make one-buffer-at-a-time
-DMA (which is what you get without the scatter-list). Typically
-scatter lists consists of:
+Signed-off-by: Ben Collins <bcollins@ubuntu.com>
 
- 	uint32_t	padr;	// Bus address to get/put data
- 	uint32_t	ladr;	// Local address inside the device
- 	uint32_t;	size;	// Transfer size in bytes
- 	uint32_t;	dpr; 	// Next descriptor Bus address
+diff --git a/block/scsi_ioctl.c b/block/scsi_ioctl.c
+index 382dea7..df259f7 100644
+--- a/block/scsi_ioctl.c
++++ b/block/scsi_ioctl.c
+@@ -442,11 +442,54 @@ error:
+ 	return err;
+ }
+ 
++
++/* Send basic block requests */
++static int __blk_send_generic(struct file *file, request_queue_t *q, struct gendisk *bd_disk, int cmd, int data)
++{
++	struct request *rq;
++	int err;
++
++	rq = blk_get_request(q, READ, __GFP_WAIT);
++	rq->flags |= REQ_BLOCK_PC;
++	rq->data = NULL;
++	rq->data_len = 0;
++	rq->timeout = BLK_DEFAULT_TIMEOUT;
++	memset(rq->cmd, 0, sizeof(rq->cmd));
++
++	rq->cmd[0] = cmd;
++	rq->cmd[4] = data;
++	rq->cmd_len = 6;
++
++	if (file) {
++		err = verify_command(file, rq->cmd);
++		if (err)
++			goto send_error;
++	}
++	
++	err = blk_execute_rq(q, bd_disk, rq, 0);
++
++send_error:
++	blk_put_request(rq);
++
++	return err;
++}
++
++/* START_STOP just needs read only, so safe */
++static inline int blk_send_start_stop(request_queue_t *q, struct gendisk *bd_disk, int data)
++{
++	return __blk_send_generic(NULL, q, bd_disk, GPCMD_START_STOP_UNIT, data);
++}
++
++/* ALLOW_MEDIUM_REMOVAL needs write access */
++static inline int blk_send_allow_medium_removal(struct file *file, request_queue_t *q, struct gendisk *bd_disk)
++{
++	return __blk_send_generic(file, q, bd_disk, GPCMD_PREVENT_ALLOW_MEDIUM_REMOVAL, 0);
++}
++
+ int scsi_cmd_ioctl(struct file *file, struct gendisk *bd_disk, unsigned int cmd, void __user *arg)
+ {
+ 	request_queue_t *q;
+-	struct request *rq;
+-	int close = 0, err;
++	int err;
+ 
+ 	q = bd_disk->queue;
+ 	if (!q)
+@@ -564,19 +607,20 @@ int scsi_cmd_ioctl(struct file *file, st
+ 			err = sg_scsi_ioctl(file, q, bd_disk, arg);
+ 			break;
+ 		case CDROMCLOSETRAY:
+-			close = 1;
++			err = blk_send_start_stop(q, bd_disk, 0x03);
++			break;
+ 		case CDROMEJECT:
+-			rq = blk_get_request(q, WRITE, __GFP_WAIT);
+-			rq->flags |= REQ_BLOCK_PC;
+-			rq->data = NULL;
+-			rq->data_len = 0;
+-			rq->timeout = BLK_DEFAULT_TIMEOUT;
+-			memset(rq->cmd, 0, sizeof(rq->cmd));
+-			rq->cmd[0] = GPCMD_START_STOP_UNIT;
+-			rq->cmd[4] = 0x02 + (close != 0);
+-			rq->cmd_len = 6;
+-			err = blk_execute_rq(q, bd_disk, rq, 0);
+-			blk_put_request(rq);
++			err = 0;
++
++			/* We don't even want to try the
++			 * ALLOW_MEDIUM_REMOVAL unless the user has write
++			 * access. The START_STOP will fail if the drive
++			 * needs ALLOW_MEDIUM_REMOVAL anyway. */
++			if (!(file->f_mode & FMODE_WRITE)) {
++				err |= blk_send_allow_medium_removal(file, q, bd_disk);
++				err |= blk_send_start_stop(q, bd_disk, 0x01);
++			}
++			err |= blk_send_start_stop(q, bd_disk, 0x02);
+ 			break;
+ 		default:
+ 			err = -ENOTTY;
 
-That last bus address "dpr" has some low bits that tell the
-controller if it is the last in a chain, etc. This stuff needs
-to be in physical memory and its bus address is used.
 
-If you don't use a S/G list, then you can't transfer more than
-a page of virtual memory because the bus addresses may not
-be contiguous. Typically, you build your S/G list using the
-appropriate macros to extract the bus address from the virtual
-address, so you need this information anyway.
+-- 
+   Ben Collins <ben.collins@ubuntu.com>
+   Developer
+   Ubuntu Linux
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.56 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

@@ -1,162 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbVLTWDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932168AbVLTWDQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbVLTWDy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 17:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932173AbVLTWDI
+	id S932168AbVLTWDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 17:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbVLTWDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 17:03:08 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:42984 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932172AbVLTWDD (ORCPT
+	Tue, 20 Dec 2005 17:03:11 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:38888 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932168AbVLTWCw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 17:03:03 -0500
-Date: Tue, 20 Dec 2005 14:02:58 -0800 (PST)
+	Tue, 20 Dec 2005 17:02:52 -0500
+Date: Tue, 20 Dec 2005 14:02:48 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-mm@kvack.org,
-       Andi Kleen <ak@suse.de>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>, Andi Kleen <ak@suse.de>,
        Christoph Lameter <clameter@sgi.com>
-Message-Id: <20051220220258.30326.48536.sendpatchset@schroedinger.engr.sgi.com>
+Message-Id: <20051220220248.30326.19229.sendpatchset@schroedinger.engr.sgi.com>
 In-Reply-To: <20051220220151.30326.98563.sendpatchset@schroedinger.engr.sgi.com>
 References: <20051220220151.30326.98563.sendpatchset@schroedinger.engr.sgi.com>
-Subject: Zoned counters V1 [13/14]: Remove get_page_state functions
+Subject: Zoned counters V1 [11/14]: Convert nr_unstable
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove obsolete page_state related functions
-
-We can remove all the get_page_state related functions after all the basic
-page state variables have been moved to the zone based scheme.
+Per zone unstable pages
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
+Index: linux-2.6.15-rc5-mm3/fs/fs-writeback.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/fs/fs-writeback.c	2005-12-20 12:58:54.000000000 -0800
++++ linux-2.6.15-rc5-mm3/fs/fs-writeback.c	2005-12-20 12:59:17.000000000 -0800
+@@ -471,7 +471,7 @@ void sync_inodes_sb(struct super_block *
+ 		.sync_mode	= wait ? WB_SYNC_ALL : WB_SYNC_HOLD,
+ 	};
+ 	unsigned long nr_dirty = global_page_state(NR_DIRTY);
+-	unsigned long nr_unstable = read_page_state(nr_unstable);
++	unsigned long nr_unstable = global_page_state(NR_UNSTABLE);
+ 
+ 	wbc.nr_to_write = nr_dirty + nr_unstable +
+ 			(inodes_stat.nr_inodes - inodes_stat.nr_unused) +
+Index: linux-2.6.15-rc5-mm3/mm/page_alloc.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/mm/page_alloc.c	2005-12-20 12:59:09.000000000 -0800
++++ linux-2.6.15-rc5-mm3/mm/page_alloc.c	2005-12-20 12:59:40.000000000 -0800
+@@ -598,7 +598,8 @@ static int rmqueue_bulk(struct zone *zon
+ }
+ 
+ char *stat_item_descr[NR_STAT_ITEMS] = {
+-	"mapped","pagecache", "slab", "pagetable", "dirty", "writeback"
++	"mapped","pagecache", "slab", "pagetable", "dirty", "writeback",
++	"unstable"
+ };
+ 
+ /*
+@@ -1784,7 +1785,7 @@ void show_free_areas(void)
+ 		inactive,
+ 		global_page_state(NR_DIRTY),
+ 		global_page_state(NR_WRITEBACK),
+-		ps.nr_unstable,
++		global_page_state(NR_UNSTABLE),
+ 		nr_free_pages(),
+ 		global_page_state(NR_SLAB),
+ 		global_page_state(NR_MAPPED),
+@@ -2683,10 +2684,9 @@ static char *vmstat_text[] = {
+ 	"nr_page_table_pages",
+ 	"nr_dirty",
+ 	"nr_writeback",
+-
+-	/* Page state */
+ 	"nr_unstable",
+ 
++	/* Page state */
+ 	"pgpgin",
+ 	"pgpgout",
+ 	"pswpin",
+Index: linux-2.6.15-rc5-mm3/fs/nfs/write.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/fs/nfs/write.c	2005-12-20 12:58:54.000000000 -0800
++++ linux-2.6.15-rc5-mm3/fs/nfs/write.c	2005-12-20 12:59:17.000000000 -0800
+@@ -489,7 +489,7 @@ nfs_mark_request_commit(struct nfs_page 
+ 	nfs_list_add_request(req, &nfsi->commit);
+ 	nfsi->ncommit++;
+ 	spin_unlock(&nfsi->req_lock);
+-	inc_page_state(nr_unstable);
++	inc_zone_page_state(req->wb_page, NR_UNSTABLE);
+ 	mark_inode_dirty(inode);
+ }
+ #endif
+@@ -1287,7 +1287,6 @@ void nfs_commit_done(struct rpc_task *ta
+ {
+ 	struct nfs_write_data	*data = calldata;
+ 	struct nfs_page		*req;
+-	int res = 0;
+ 
+         dprintk("NFS: %4d nfs_commit_done (status %d)\n",
+                                 task->tk_pid, task->tk_status);
+@@ -1321,9 +1320,8 @@ void nfs_commit_done(struct rpc_task *ta
+ 		nfs_mark_request_dirty(req);
+ 	next:
+ 		nfs_clear_page_writeback(req);
+-		res++;
++		dec_zone_page_state(req->wb_page, NR_UNSTABLE);
+ 	}
+-	sub_page_state(nr_unstable,res);
+ }
+ #endif
+ 
 Index: linux-2.6.15-rc5-mm3/include/linux/page-flags.h
 ===================================================================
---- linux-2.6.15-rc5-mm3.orig/include/linux/page-flags.h	2005-12-20 13:15:44.000000000 -0800
-+++ linux-2.6.15-rc5-mm3/include/linux/page-flags.h	2005-12-20 13:15:45.000000000 -0800
-@@ -91,8 +91,6 @@
+--- linux-2.6.15-rc5-mm3.orig/include/linux/page-flags.h	2005-12-20 12:59:09.000000000 -0800
++++ linux-2.6.15-rc5-mm3/include/linux/page-flags.h	2005-12-20 12:59:17.000000000 -0800
+@@ -91,8 +91,7 @@
   * In this case, the field should be commented here.
   */
  struct page_state {
--#define GET_PAGE_STATE_LAST xxx
--
+-	unsigned long nr_unstable;	/* NFS unstable pages */
+-#define GET_PAGE_STATE_LAST nr_unstable
++#define GET_PAGE_STATE_LAST xxx
+ 
  	/*
  	 * The below are zeroed by get_page_state().  Use get_full_page_state()
- 	 * to add up all these.
-@@ -144,8 +142,6 @@ struct page_state {
- 	unsigned long pgrotated;	/* pages rotated to tail of the LRU */
- };
+Index: linux-2.6.15-rc5-mm3/mm/page-writeback.c
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/mm/page-writeback.c	2005-12-20 12:59:09.000000000 -0800
++++ linux-2.6.15-rc5-mm3/mm/page-writeback.c	2005-12-20 12:59:17.000000000 -0800
+@@ -110,7 +110,7 @@ struct writeback_state
+ static void get_writeback_state(struct writeback_state *wbs)
+ {
+ 	wbs->nr_dirty = global_page_state(NR_DIRTY);
+-	wbs->nr_unstable = read_page_state(nr_unstable);
++	wbs->nr_unstable = global_page_state(NR_UNSTABLE);
+ 	wbs->nr_mapped = global_page_state(NR_MAPPED);
+ 	wbs->nr_writeback = global_page_state(NR_WRITEBACK);
+ }
+Index: linux-2.6.15-rc5-mm3/include/linux/mmzone.h
+===================================================================
+--- linux-2.6.15-rc5-mm3.orig/include/linux/mmzone.h	2005-12-20 12:59:09.000000000 -0800
++++ linux-2.6.15-rc5-mm3/include/linux/mmzone.h	2005-12-20 12:59:17.000000000 -0800
+@@ -52,6 +52,7 @@ enum zone_stat_item {
+ 	NR_PAGETABLE,	/* used for pagetables */
+ 	NR_DIRTY,
+ 	NR_WRITEBACK,
++	NR_UNSTABLE,	/* NFS unstable pages */
+ 	NR_STAT_ITEMS };
  
--extern void get_page_state(struct page_state *ret);
--extern void get_page_state_node(struct page_state *ret, int node);
- extern void get_full_page_state(struct page_state *ret);
- extern unsigned long read_page_state_offset(unsigned long offset);
- extern void mod_page_state_offset(unsigned long offset, unsigned long delta);
+ #ifdef CONFIG_SMP
 Index: linux-2.6.15-rc5-mm3/drivers/base/node.c
 ===================================================================
---- linux-2.6.15-rc5-mm3.orig/drivers/base/node.c	2005-12-20 13:15:44.000000000 -0800
-+++ linux-2.6.15-rc5-mm3/drivers/base/node.c	2005-12-20 13:15:45.000000000 -0800
-@@ -39,7 +39,6 @@ static ssize_t node_read_meminfo(struct 
- 	int n;
- 	int nid = dev->id;
- 	struct sysinfo i;
--	struct page_state ps;
- 	unsigned long inactive;
- 	unsigned long active;
- 	unsigned long free;
-@@ -47,7 +46,6 @@ static ssize_t node_read_meminfo(struct 
- 	unsigned long nr[NR_STAT_ITEMS];
- 
- 	si_meminfo_node(&i, nid);
--	get_page_state_node(&ps, nid);
- 	__get_zone_counts(&active, &inactive, &free, NODE_DATA(nid));
- 	for (j = 0; j < NR_STAT_ITEMS; j++)
- 		nr[j] = node_page_state(nid, j);
-Index: linux-2.6.15-rc5-mm3/arch/i386/mm/pgtable.c
-===================================================================
---- linux-2.6.15-rc5-mm3.orig/arch/i386/mm/pgtable.c	2005-12-20 12:59:09.000000000 -0800
-+++ linux-2.6.15-rc5-mm3/arch/i386/mm/pgtable.c	2005-12-20 13:15:45.000000000 -0800
-@@ -30,7 +30,6 @@ void show_mem(void)
- 	struct page *page;
- 	pg_data_t *pgdat;
- 	unsigned long i;
--	struct page_state ps;
- 	unsigned long flags;
- 
- 	printk(KERN_INFO "Mem-info:\n");
-@@ -58,7 +57,6 @@ void show_mem(void)
- 	printk(KERN_INFO "%d pages shared\n", shared);
- 	printk(KERN_INFO "%d pages swap cached\n", cached);
- 
--	get_page_state(&ps);
- 	printk(KERN_INFO "%lu pages dirty\n", global_page_state(NR_DIRTY));
- 	printk(KERN_INFO "%lu pages writeback\n", global_page_state(NR_WRITEBACK));
- 	printk(KERN_INFO "%lu pages mapped\n", ps.nr_mapped);
-Index: linux-2.6.15-rc5-mm3/mm/page_alloc.c
-===================================================================
---- linux-2.6.15-rc5-mm3.orig/mm/page_alloc.c	2005-12-20 13:15:44.000000000 -0800
-+++ linux-2.6.15-rc5-mm3/mm/page_alloc.c	2005-12-20 13:15:45.000000000 -0800
-@@ -1603,28 +1603,6 @@ static void __get_page_state(struct page
- 	}
- }
- 
--void get_page_state_node(struct page_state *ret, int node)
--{
--	int nr;
--	cpumask_t mask = node_to_cpumask(node);
--
--	nr = offsetof(struct page_state, GET_PAGE_STATE_LAST);
--	nr /= sizeof(unsigned long);
--
--	__get_page_state(ret, nr+1, &mask);
--}
--
--void get_page_state(struct page_state *ret)
--{
--	int nr;
--	cpumask_t mask = CPU_MASK_ALL;
--
--	nr = offsetof(struct page_state, GET_PAGE_STATE_LAST);
--	nr /= sizeof(unsigned long);
--
--	__get_page_state(ret, nr + 1, &mask);
--}
--
- void get_full_page_state(struct page_state *ret)
- {
- 	cpumask_t mask = CPU_MASK_ALL;
-@@ -1740,7 +1718,6 @@ void si_meminfo_node(struct sysinfo *val
-  */
- void show_free_areas(void)
- {
--	struct page_state ps;
- 	int cpu, temperature;
- 	unsigned long active;
- 	unsigned long inactive;
-@@ -1772,7 +1749,6 @@ void show_free_areas(void)
- 		}
- 	}
- 
--	get_page_state(&ps);
- 	get_zone_counts(&active, &inactive, &free);
- 
- 	printk("Free pages: %11ukB (%ukB HighMem)\n",
-Index: linux-2.6.15-rc5-mm3/fs/proc/proc_misc.c
-===================================================================
---- linux-2.6.15-rc5-mm3.orig/fs/proc/proc_misc.c	2005-12-20 12:59:09.000000000 -0800
-+++ linux-2.6.15-rc5-mm3/fs/proc/proc_misc.c	2005-12-20 13:15:45.000000000 -0800
-@@ -120,7 +120,6 @@ static int meminfo_read_proc(char *page,
- {
- 	struct sysinfo i;
- 	int len;
--	struct page_state ps;
- 	unsigned long inactive;
- 	unsigned long active;
- 	unsigned long free;
-@@ -129,7 +128,6 @@ static int meminfo_read_proc(char *page,
- 	struct vmalloc_info vmi;
- 	long cached;
- 
--	get_page_state(&ps);
- 	get_zone_counts(&active, &inactive, &free);
- 
- /*
+--- linux-2.6.15-rc5-mm3.orig/drivers/base/node.c	2005-12-20 12:59:09.000000000 -0800
++++ linux-2.6.15-rc5-mm3/drivers/base/node.c	2005-12-20 12:59:17.000000000 -0800
+@@ -65,6 +65,7 @@ static ssize_t node_read_meminfo(struct 
+ 		       "Node %d LowFree:      %8lu kB\n"
+ 		       "Node %d Dirty:        %8lu kB\n"
+ 		       "Node %d Writeback:    %8lu kB\n"
++		       "Node %d Unstable:     %8lu kB\n"
+ 		       "Node %d Mapped:       %8lu kB\n"
+ 		       "Node %d Pagecache:    %8lu kB\n"
+ 		       "Node %d Slab:         %8lu kB\n",
+@@ -79,6 +80,7 @@ static ssize_t node_read_meminfo(struct 
+ 		       nid, K(i.freeram - i.freehigh),
+ 		       nid, K(nr[NR_DIRTY]),
+ 		       nid, K(nr[NR_WRITEBACK]),
++		       nid, K(nr[NR_UNSTABLE]),
+ 		       nid, K(nr[NR_MAPPED]),
+ 		       nid, K(nr[NR_PAGECACHE]),
+ 		       nid, K(nr[NR_SLAB]));

@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbVLTVVM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVLTVVg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932120AbVLTVVM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 16:21:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVLTVVL
+	id S932117AbVLTVVg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 16:21:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbVLTVVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 16:21:11 -0500
-Received: from gate.crashing.org ([63.228.1.57]:27533 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932121AbVLTVVK (ORCPT
+	Tue, 20 Dec 2005 16:21:36 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58547 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932117AbVLTVVf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 16:21:10 -0500
-Subject: Re: sungem hangs in atomic if netconsole enabled but no carrier
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Johannes Berg <johannes@sipsolutions.net>
-Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
-       Eric Lemoine <eric.lemoine@gmail.com>
-In-Reply-To: <1135080538.3937.3.camel@localhost>
-References: <1135080538.3937.3.camel@localhost>
-Content-Type: text/plain
-Date: Wed, 21 Dec 2005 08:18:40 +1100
-Message-Id: <1135113521.10035.107.camel@gaston>
+	Tue, 20 Dec 2005 16:21:35 -0500
+Date: Tue, 20 Dec 2005 16:21:27 -0500
+From: Dave Jones <davej@redhat.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: remove incorrect dependancy on CONFIG_APM
+Message-ID: <20051220212127.GA6833@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Turns out that if I remove the netconsole=... option to my kernel, all
-> works fine and the system no longer hangs. Obviously not plugging in a
-> network cable is pretty useless when netconsole is turned on, but I
-> think it should not hang the system completely. So far I haven't been
-> able to figure out where it actually hangs and don't even know how to do
-> so -- I'm open for suggestions on how to find out why/where it hangs or
-> even fixes.
+>From the PM_LEGACY Kconfig description..
 
-Hrm... I've heard various reports about problems with netconsole... I've
-never tried it myself so far though. One thing I remember to beware of
-is if sungem does a printk while holding its lock...
+"Support for pm_register() and friends."
 
-Ben.
+Note, no mention of 'make apm stop working'.
 
+Signed-off-by: Dave Jones <davej@redhat.com>
 
+--- linux-2.6.14/arch/i386/Kconfig~	2005-12-20 16:19:17.000000000 -0500
++++ linux-2.6.14/arch/i386/Kconfig	2005-12-20 16:19:21.000000000 -0500
+@@ -710,7 +710,7 @@ depends on PM && !X86_VISWS
+ 
+ config APM
+ 	tristate "APM (Advanced Power Management) BIOS support"
+-	depends on PM && PM_LEGACY
++	depends on PM
+ 	---help---
+ 	  APM is a BIOS specification for saving power using several different
+ 	  techniques. This is mostly useful for battery powered laptops with

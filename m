@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751096AbVLTPRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751090AbVLTPdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751096AbVLTPRp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 10:17:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbVLTPRp
+	id S1751090AbVLTPdv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 10:33:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751095AbVLTPdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 10:17:45 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:7382 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751096AbVLTPRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 10:17:44 -0500
-Date: Tue, 20 Dec 2005 09:17:22 -0600
-From: Dimitri Sivanich <sivanich@sgi.com>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Large thread wakeup (scheduling) delay spikes
-Message-ID: <20051220151722.GA357@sgi.com>
+	Tue, 20 Dec 2005 10:33:51 -0500
+Received: from e36.co.us.ibm.com ([32.97.110.154]:25286 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751090AbVLTPdu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 10:33:50 -0500
+Date: Tue, 20 Dec 2005 21:20:04 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: David Singleton <dsingleton@mvista.com>, linux-kernel@vger.kernel.org,
+       robustmutexes@lists.osdl.org
+Subject: Re: Recursion bug in -rt
+Message-ID: <20051220155004.GA3906@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20051214223912.GA4716@in.ibm.com> <43A1BD61.5070409@mvista.com> <20051220131956.GA24408@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20051220131956.GA24408@elte.hu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I posted something about this back in October, but received little response.
-Maybe others have run into problems with this since then.
-
-I've noticed much less deterministic and more widely varying thread wakeup
-(scheduling) delays on recent kernels.  Even with isolated processors, the
-maximum delay to wakeup has gotten much longer (configured with or without
-CONFIG_PREEMPT).
-
-The maximum delay to wakeup is now more than 10x longer than it was in
-2.6.13.4 and previous kernels, and that's on isolated processors (as much
-as 300 usec on a 1GHz cpu), although nominal values remain largely unchanged.
-The latest version I've tested is 2.6.15-rc5.
-
-Delving into this further I discovered that this is due to the execution
-time of file_free_rcu(), running from rcu_process_callbacks() in ksoftirqd.
-It appears that the modification that caused this was:
-	http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ab2af1f5005069321c5d130f09cce577b03f43ef
-
-By simply making the following change things return to more consistent
-thread wakeup delays on isolated cpus, similiar to what we had on kernels
-previous to the above mentioned mod (I know this change is incorrect,
-it is just for test purposes):
-
-fs/file_table.c
-@@ -62,7 +62,7 @@
+On Tue, Dec 20, 2005 at 02:19:56PM +0100, Ingo Molnar wrote:
+> 
+> hm, i'm looking at -rf4 - these changes look fishy:
+> 
+> -       _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
+> +       if (current != lock_owner(lock)->task)
+> +               _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
+> 
+> why is this done?
+>
  
- static inline void file_free(struct file *f)
- {
--       call_rcu(&f->f_rcuhead, file_free_rcu);
-+       kmem_cache_free(filp_cachep, f);
- }
- 
+Ingo, this is to prevent a kernel hang due to application error.
 
-I am wondering if there is some way we can return to consistently fast
-and predictable scheduling of threads to be woken?  If not on the
-system in general, maybe at least on certain specified processors?
+Basically when an application does a pthread_mutex_lock twice on a
+_nonrecursive_ mutex with robust/PI attributes the whole system hangs.
+Ofcourse the application clearly should not be doing anything like
+that, but it should not end up hanging the system either
 
-Dimitri
+	-Dinakar
+

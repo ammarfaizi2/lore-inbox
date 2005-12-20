@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbVLTVpp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbVLTVr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932140AbVLTVpp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 16:45:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbVLTVpo
+	id S932142AbVLTVr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 16:47:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbVLTVr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 16:45:44 -0500
-Received: from lixom.net ([66.141.50.11]:39582 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S932140AbVLTVpo (ORCPT
+	Tue, 20 Dec 2005 16:47:29 -0500
+Received: from zproxy.gmail.com ([64.233.162.202]:24285 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932142AbVLTVr2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 16:45:44 -0500
-Date: Tue, 20 Dec 2005 15:45:25 -0600
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: Re: console on POWER4 not working with 2.6.15
-Message-ID: <20051220214525.GB7428@pb15.lixom.net>
-References: <20051220204530.GA26351@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051220204530.GA26351@suse.de>
-User-Agent: Mutt/1.5.9i
-From: Olof Johansson <olof@lixom.net>
+	Tue, 20 Dec 2005 16:47:28 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=U2y7dDZ+NIold9pT08NIwkVkjZDRLKPN/aYhIDwV+DE0Iq3jCdlEwFioSz+/YQiCEDuB3iBgE/g+prMsXtqJyQY02ehWAEeKYV8JKVWBTwYIQUg6AvRLNvZsAaPilpRxyEQ0tshnsLJfRyAKuFHF8Eqo6rPiNZ+nGz+RI/rl/y8=
+Message-ID: <43A87BB6.4080401@gmail.com>
+Date: Wed, 21 Dec 2005 05:46:30 +0800
+From: "Antonino A. Daplas" <adaplas@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051025)
+MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: vgacon regression
+References: <9a8748490512201203s7fce043byfce95b11307008d5@mail.gmail.com>
+In-Reply-To: <9a8748490512201203s7fce043byfce95b11307008d5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20, 2005 at 09:45:30PM +0100, Olaf Hering wrote:
-> The connection of ttyS0 to /dev/console doesnt seem to work anymore mit
-> 2.6.15-rc5+6 on a POWER4 p630 in fullsystempartition mode, no HMC
-> connected. It works with 2.6.14.4.
-> I tested 2.6.15-rc6 arch/powerpc/configs/ppc64_defconfig.
+Jesper Juhl wrote:
+> Hi Antonino,
+> 
+ > Any advice as to what patches I can try to revert?
+> 
+> While I wait for a reply I'll test the mainline kernels between
+> 2.6.15-rc5-git4 and 2.6.15-rc6-git1 to try and determine the first one
+> that breaks.
 
-It seems to have been broken a while: According to test.kernel.org (last
-machine in the matrix is an SMP mode p650), it broke between 2.6.14-git2
-and 2.6.14-git3. Console output can be found in:
+More info.  The vgacon is actually restored by X as vgacon does not
+touch the hardware anymore (unless you resize the console with stty). So
+any patch that affects X is a culprit.  More specifically, the X driver
+used was vesa, which means that the vgacon restoration would be done
+using VBE state save and state restore function calls.  With X, this would
+involve lrmi (the same library used by vbetool).
 
-http://test.kernel.org/15622/debug/console.log   for the failed one
-http://test.kernel.org/15530/debug/console.log   for the successful one
+I wasn't able to duplicate this problem, using Xorg vesa and vgacon 80x25.
 
+Also, there are no changes to vgacon or to the console that I know of between
+the versions he mentioned.
 
--Olof
+To Jesper,
+
+>From your description, I would presume that the VGA fontmap was not
+adequately restored.  Can you try changing your system font using whatever
+utility is available for your system, such as setfont?  Choose any 8x16 font
+in the consolefont directory (It's usually in /usr/share/kbd/consolefont)
+
+Tony
+
+PS: I'll be offline from the 22nd of December to early January 2006.  I
+_might_ be able to occasionally answer by e-mail.

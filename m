@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbVLTVaX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbVLTVly@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbVLTVaX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 16:30:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbVLTVaX
+	id S932138AbVLTVly (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 16:41:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbVLTVly
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 16:30:23 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15373 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932130AbVLTVaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 16:30:22 -0500
-Date: Tue, 20 Dec 2005 21:30:13 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Christoph Hellwig <hch@infradead.org>,
-       Alessandro Zummo <alessandro.zummo@towertech.it>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 1/6] RTC subsystem, class
-Message-ID: <20051220213013.GB31364@flint.arm.linux.org.uk>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Alessandro Zummo <alessandro.zummo@towertech.it>,
-	linux-kernel@vger.kernel.org
-References: <20051220214511.12bbb69c@inspiron> <20051220211344.GA14403@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 20 Dec 2005 16:41:54 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:32161 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932138AbVLTVlx convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 16:41:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DbXiRtI8eD8MoHQdLe/cID3GGMK0pCN7zD2ROh7ucvjAG6ReiLJJ6iH71C6mJFd9CbLs9ipwbKq5axKtoK8p65CuqbNQqYA9/1Ik2FS98P/BlOzrDJc6NHy+zvGbnc8oQiYBuysUoUMO55XTvSndJ8trh3jITtari5VWMGbvvxE=
+Message-ID: <cbec11ac0512201341v520bbcads6d16624f1a8ca739@mail.gmail.com>
+Date: Wed, 21 Dec 2005 10:41:52 +1300
+From: Ian McDonald <imcdnzl@gmail.com>
+To: Junio C Hamano <junkio@cox.net>
+Subject: Re: [PATCH] Documentation: Update to SubmittingPatches
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <7vlkygo2q9.fsf@assigned-by-dhcp.cox.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051220211344.GA14403@infradead.org>
-User-Agent: Mutt/1.4.1i
+References: <cbec11ac0512191831j563ea167vc5a63e11a34c7ef9@mail.gmail.com>
+	 <7vlkygo2q9.fsf@assigned-by-dhcp.cox.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20, 2005 at 09:13:45PM +0000, Christoph Hellwig wrote:
-> > +int rtc_read_time(struct class_device *class_dev, struct rtc_time *tm)
-> > +{
-> > +	int err = -EINVAL;
-> > +	struct rtc_class_ops *ops = class_get_devdata(class_dev);
-> > +
-> > +	if (ops->read_time) {
-> > +		memset(tm, 0, sizeof(struct rtc_time));
-> 
-> do we really need the memset?
+> > Use of git-diff
+> >
+> > Signed-off-by: Ian McDonald <imcdnzl@gmail.com>
+> > ---
+> > +You can use git-diff which makes your life easy....
+>
+> Even easier might be to suggest git-format-patch(1).
+>
+>
+Yes git-format-patch looks easier if doing full git development. If
+just working on one bug fix git-diff is probably easier. I'll
+reference both and resubmit.
 
-Absolutely yes, otherwise if 'tm' is on the stack and it ultimately
-gets copied to userspace, it will leak kernel memory.  Why?
-Unfortunately, not all elements of 'tm' are written to by RTC
-drivers.
-
-You can argue that the RTC drivers need fixing, but since this bug
-has gone completely unnoticed in _all_ kernels which have an RTC
-driver up until I discovered it and reported it to vendor-sec
-during the 2.5 cycle, I think a little bit of cheap protection
-against buggy drivers when security leaks are concerned is not
-unreasonable.  Especially when they don't get found in the normal
-run of things.
-
-(you could make a case for eliminating it _if_ there was a RTC
-subsystem maintainer who knew the code and therefore knew what
-to look out for.)
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Ian
+--
+Ian McDonald
+http://wand.net.nz/~iam4
+WAND Network Research Group
+University of Waikato
+New Zealand

@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbVLTURW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVLTURu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbVLTURW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 15:17:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbVLTURW
+	id S932078AbVLTURu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 15:17:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbVLTURu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 15:17:22 -0500
-Received: from dsl081-060-252.sfo1.dsl.speakeasy.net ([64.81.60.252]:42880
-	"EHLO vitelus.com") by vger.kernel.org with ESMTP id S932075AbVLTURV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 15:17:21 -0500
-Date: Tue, 20 Dec 2005 12:17:19 -0800
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Promise SATA oops
-Message-ID: <20051220201719.GC15466@vitelus.com>
-References: <20051202045853.GD3677@vitelus.com> <438FDB9D.2030201@pobox.com> <20051202195109.GE3677@vitelus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051202195109.GE3677@vitelus.com>
-User-Agent: Mutt/1.5.8i
+	Tue, 20 Dec 2005 15:17:50 -0500
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:40129 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S932078AbVLTURt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 15:17:49 -0500
+From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
+Subject: Re: [RFC] Let non-root users eject their ipods?
+To: Bill Davidsen <davidsen@tmr.com>, sander@humilis.net,
+       Willy Tarreau <willy@w.ods.org>, john stultz <johnstul@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>, greg@kroah.com, axboe@suse.de,
+       vandrove@vc.cvut.cz, aia21@cam.ac.uk, akpm@osdl.org
+Reply-To: 7eggert@gmx.de
+Date: Tue, 20 Dec 2005 21:21:33 +0100
+References: <5lFTx-7L1-9@gated-at.bofh.it> <5lIeC-3hP-3@gated-at.bofh.it> <5lIRn-4GE-19@gated-at.bofh.it> <5lLw7-1f5-43@gated-at.bofh.it> <5lM8s-2D4-1@gated-at.bofh.it> <5lM8F-2D4-39@gated-at.bofh.it> <5lSQE-87T-9@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1EonzK-0001Ca-3v@be1.lrz>
+X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
+X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
+X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 02, 2005 at 11:51:09AM -0800, Aaron Lehmann wrote:
-> Still isn't stable. It froze within hours after announcing in all
-> terminals that it was disabling a certain IRQ. Now the RAID is so
-> degraded that root can't even be mounted. Was the Promise controller a
-> bad choice for a reliable setup?
-> 
-> I may not have time to look at this further until late next week, but
-> I'll follow up with whatever I learn.
+Bill Davidsen <davidsen@tmr.com> wrote:
 
-Argh, died again!! It had been stable for over 12 days. Same error
-message, and the root md is degraded and dirty just like last time.
-This is a very severe state with high risk of data loss. When things
-went sour, terminals and most applications still kept working, but
-anything that touched the filesystem froze up. I had a shell open in a
-chroot on a ramdisk, but dmesg just hung for a few minutes and then
-exited with a "Bus error". I had no other way of examining the kernel
-log since the machine runs X.
+> Using umount still leaves the iPod flashing a "do not disconnect"
+> message as I recall, while eject clears it. So while umount may be all
+> the o/s needs, and all some external storage media need, it may be
+> highly desirable to do the eject for the benefit of the attached device,
+> to cue it to finish whatever it's caching internally. Whatever eject
+> does clearly is device visible, and in the case of iPod the device
+> objects if it isn't given.
 
-This was running 2.6.15-rc4. Crashes seem to happen less frequently
-with it than with 2.6.14.x, but when they happen they leave the RAID
-in a severe state. I also don't think 2.6.14.2 said anything about
-disabling the IRQ.
+There is an auto-eject function causing the media to be ejected on the last
+user closing the device. Unfortunately it makes the device open itself
+during mounts, and setting this flag will inevitably eject the media.
+Additionally, it didn't work with my SCSI cdroms.
 
-I'm very desperate now. About every week I experience a crash that
-damages my RAID array to the point where it can't boot, as if the
-instability wasn't bad enough. Do I need to buy a hardware RAID card?
+With slight changes, it could do the trick.
+
+
+OTOH, we could also introduce the 'eject' mount option to let umount() eject
+the media after the (last if possible) mount is gone. This will behave sane
+for audio CDs, too.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

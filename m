@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVLULtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVLUL72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932380AbVLULtY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 06:49:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVLULtY
+	id S932376AbVLUL72 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 06:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbVLUL72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 06:49:24 -0500
-Received: from metis.extern.pengutronix.de ([83.236.181.26]:41186 "EHLO
-	metis.extern.pengutronix.de") by vger.kernel.org with ESMTP
-	id S932380AbVLULtY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 06:49:24 -0500
-Date: Wed, 21 Dec 2005 12:50:09 +0100
-From: Robert Schwebel <r.schwebel@pengutronix.de>
-To: Ivan Korzakow <ivan.korzakow@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GPIO device class driver
-Message-ID: <20051221115009.GZ6703@pengutronix.de>
-References: <a59861030512210307l4c8a0a29o@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <a59861030512210307l4c8a0a29o@mail.gmail.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 21 Dec 2005 06:59:28 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:48824 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932376AbVLUL71 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 06:59:27 -0500
+Message-Id: <200512202137.jBKLbY77004191@laptop11.inf.utfsm.cl>
+To: kernel-stuff@comcast.net (Parag Warudkar)
+cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Andi Kleen <ak@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks 
+In-Reply-To: Message from kernel-stuff@comcast.net (Parag Warudkar) 
+   of "Tue, 20 Dec 2005 19:08:24 -0000." <122020051908.25484.43A856A8000A6E600000638C220075894200009A9B9CD3040A029D0A05@comcast.net> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Tue, 20 Dec 2005 18:37:34 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 21 Dec 2005 08:56:08 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan, 
+Parag Warudkar <kernel-stuff@comcast.net> wrote:
+> > Oh, well, one of the larger drawbacks of 4KiB stacks is the inevitable
+> > flamewar, each time with /less/ data (this round I've seen none) supporting
+> > the need for larger stacks, into which all kinds of idiots* are suckered.
 
-On Wed, Dec 21, 2005 at 12:07:27PM +0100, Ivan Korzakow wrote:
-> I read about a generic device class driver (http://marc.theaimsgroup.com/?l=
-> linux-kernel&m=109419719600753&w=2) for GPIO. I wanted to know if anything
-> generic finally came out of the dicussion ?
-> I'm willing to write a gpio driver and I am considering taking Robert Schwebel
-> patch into it if nothing exist in the main line.
+> At the same time, I haven't seen any data showing what we gain by losing
+> the 8K stack option.
 
-As far as I know there is nothing new available yet; the LED framework
-people have don some things, but it should be "above" GPIO. This morning
-we have discussed serveral things which could be improved in our code;
-if you are interested I'll keep you informed about the progress. 
+Code simplification (don't need both versions). Simpler kernel configuration. 
+Even smaller .config files ;-)
 
-Robert
+A useful byproduct is more reproducible crashes when the stack overruns (as
+8KiB stands, it will crash the same, but only sometimes; probably even
+more, as it really is 6KiB for process + IRQ, and with 4KiB they are 4KiB
+each). Yes, more crashes is a feature, as it gets fixed faster.
 -- 
- Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
- Pengutronix - Linux Solutions for Science and Industry
-   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
-     Hannoversche Str. 2, 31134 Hildesheim, Germany
-   Phone: +49-5121-206917-0 |  Fax: +49-5121-206917-9
-
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

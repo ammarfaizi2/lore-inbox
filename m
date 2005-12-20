@@ -1,82 +1,133 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbVLTVOE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbVLTVSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbVLTVOE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 16:14:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbVLTVOD
+	id S932082AbVLTVSa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 16:18:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVLTVSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 16:14:03 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28431 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932116AbVLTVOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 16:14:00 -0500
-Date: Tue, 20 Dec 2005 22:13:59 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: James Courtier-Dutton <James@superbug.co.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Sergey Vlasov <vsu@altlinux.ru>,
-       Ricardo Cerqueira <v4l@cerqueira.org>, mchehab@brturbo.com.br,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
-Subject: [RFC: 2.6 patch] Makefile: sound/ must come before drivers/
-Message-ID: <20051220211359.GA5359@stusta.de>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org> <20051220131810.GB6789@stusta.de> <20051220155216.GA19797@master.mivlgu.local> <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org> <20051220191412.GA4578@stusta.de> <Pine.LNX.4.64.0512201156250.4827@g5.osdl.org> <20051220202325.GA3850@stusta.de> <Pine.LNX.4.64.0512201240480.4827@g5.osdl.org> <43A86DCD.8010400@superbug.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43A86DCD.8010400@superbug.co.uk>
-User-Agent: Mutt/1.5.11
+	Tue, 20 Dec 2005 16:18:30 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:39533 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S932082AbVLTVS3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 16:18:29 -0500
+Date: Tue, 20 Dec 2005 16:18:27 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 04/15] Generic Mutex Subsystem,
+ add-atomic-call-func-x86_64.patch
+In-reply-to: <Pine.LNX.4.64.0512201202200.4827@g5.osdl.org>
+X-X-Sender: nico@localhost.localdomain
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
+Message-id: <Pine.LNX.4.64.0512201533120.26663@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20051219013507.GE27658@elte.hu>
+ <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com>
+ <1135025932.4760.1.camel@localhost.localdomain>
+ <20051220043109.GC32039@elte.hu>
+ <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain>
+ <43A7BCE1.7050401@yahoo.com.au>
+ <Pine.LNX.4.64.0512200909180.26663@localhost.localdomain>
+ <43A81132.8040703@yahoo.com.au>
+ <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain>
+ <Pine.LNX.4.64.0512201026230.4827@g5.osdl.org>
+ <20051220193423.GC24199@flint.arm.linux.org.uk>
+ <Pine.LNX.4.64.0512201202200.4827@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20, 2005 at 08:47:09PM +0000, James Courtier-Dutton wrote:
-> Linus Torvalds wrote:
-> >
-> >On Tue, 20 Dec 2005, Adrian Bunk wrote:
-> >
-> >>But the non-saa7134 access to my soundcard (e.g. rexima or xmms) is no 
-> >>longer working.
-> >
-> >
-> >Ahh. I assume it's the sequencer init etc that is missing.
-> >
-> >Maybe we'll just have to do the late_init thing for at least the 2.6.15 
-> >timeframe.
-> >
-> >		Linus
-> >
+On Tue, 20 Dec 2005, Linus Torvalds wrote:
+
 > 
-> But that's not really a useable fix. The problem is with almost all ALSA 
-> sound cards.
+> 
+> On Tue, 20 Dec 2005, Russell King wrote:
+> > 
+> > Also, Nico has an alternative idea for mutexes which does not
+> > involve decrementing or incrementing - it's an atomic swap.
+> > That works out at about the same cycle count on non-Intel ARM
+> > CPUs as the present semaphore path.  I'm willing to bet that
+> > it will be faster than the present semaphore path on Intel ARM
+> > CPUs.
+> 
+> Don't be so sure, especially not in the future.
 
-No, inside sound/ it's working due to the link order.
+I think we agree.  But we still live in the present.
 
-Thinking about this, what about the patch below?
+> An atomic "swap" operation is, from a CPU design standpoint, fundamentally 
+> more expensive that a "load + store".
+> 
+> Now, most ARM architectures don't notice this, because they are all 
+> in-order, and not SMP-aware anyway. No suble memory ordering, no nothing. 
+> Which is the only case when "swap" basically becomes a cheap "load+store".
 
-I don't know whether this might break anything else, but it fixes my 
-problem.
+Indeed.
 
-cu
-Adrian
+> What I'm trying to say is that a plain "load + store" is almost always 
+> going to be the best option in the long run.
+> 
+> It's also almost certainly always the best option for UP + non-preempt, 
+> for both present and future CPU's. The reason is simply that a 
+> microarchitecture will _always_ be optimized for that case, since it's 
+> pretty much by definition the common situation.
+
+Which is why each architecture must always have the option of providing 
+its own fast path implementation according to a number of factors that 
+cannot be made into a generic layer.  But this is the same issue whether 
+we talk about semaphores or mutexes.
+
+> Is preemption even the common case on ARM? I'd assume not. Why are people 
+> so interested in the preemption case?
+
+Because embedded people want it.  ARM is also about the only 
+architecture besides x86 that currently sees most of the RT work for the 
+same reason.  And yes preemption does make a difference.
+
+> IOW, why don't you just do
+> 
+> 	ldr  lr,[%0]
+> 	subs lr, lr, %1
+> 	str  lr,[%0]
+> 	blmi failure
+> 
+> as the _base_ timings, since that should be the common case. That's the 
+> drop-dead fastest UP case.
+
+The above is 5 cycles.  About the same as the preemption-safe swp-based 
+mutex implementation on non-Intel ARM.  It is broken wrt interrupts when 
+the swp is not.  It doesn't work with preemption while the swp 
+implementation is potentially smaller with cse and it works in all 
+cases.
+
+I mean...... what is it with mutexes that you dislike to the point of 
+bending backward that far, and even after seeing the numbers, with such 
+a semaphore implementation that _I_ even wouldn't trust people to use 
+correctly?  Yes we should use complete() from interrupt handlers but I 
+can bet you that a lot of people are still using up() there, and with 
+the current up() implementation it just _works_ at least on ARM.
+
+> (Btw, inlining _any_ of these except perhaps the above trivial case, is 
+> probably wrong. None of the ARM chips tend to have caches all that big, I 
+> bet).
+
+On XScale you should add 2 cycles to branch to the out of line code and 
+2 other cycles to branch back.
+
+The ARM mutex implementation can save that and have an extremely small 
+inlined footprint already.
+
+Again what do you dislike so much about mutexes?  It must not have much 
+to do with technical issues at this point.  ;-)
 
 
-<--  snip  -->
-
-
-drivers might require an already initialized sound subsystem.
-
-Fix the link order for a static sound subsystem.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.15-rc6/Makefile.old	2005-12-20 21:53:26.000000000 +0100
-+++ linux-2.6.15-rc6/Makefile	2005-12-20 21:53:42.000000000 +0100
-@@ -470,7 +470,7 @@
- 
- # Objects we will link into vmlinux / subdirs we need to visit
- init-y		:= init/
--drivers-y	:= drivers/ sound/
-+drivers-y	:= sound/ drivers/
- net-y		:= net/
- libs-y		:= lib/
- core-y		:= usr/
-
+Nicolas

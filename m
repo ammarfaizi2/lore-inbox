@@ -1,72 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbVLTSBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVLTSFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbVLTSBy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 13:01:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbVLTSBy
+	id S1750805AbVLTSFP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 13:05:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbVLTSFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 13:01:54 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:3507 "HELO mail.dev.rtsoft.ru")
-	by vger.kernel.org with SMTP id S1750766AbVLTSBx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 13:01:53 -0500
-Message-ID: <43A84730.9020602@ru.mvista.com>
-Date: Tue, 20 Dec 2005 21:02:24 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Tue, 20 Dec 2005 13:05:14 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:40638 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750805AbVLTSFN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 13:05:13 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=A1y23hmvYF0G0XS4wQiYSCq8zi60oDTxzEav7etanp/orcIOfrmjq5qmawXV4wyH7TYya5Ftdmk/vCQvm7P62f18HIK652W2eqWW9vVc40b4a7houriE/2qPEPMpPXQg6Fu0AFXbvJlRewSCDNwG3VfAupJqBJkio5VyIUDI3dY=
+Message-ID: <12c511ca0512201005k4d499b57v724815258f80322@mail.gmail.com>
+Date: Tue, 20 Dec 2005 10:05:11 -0800
+From: Tony Luck <tony.luck@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: quick overview of the perfmon2 interface
+Cc: eranian@hpl.hp.com, linux-kernel@vger.kernel.org,
+       perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
+       perfctr-devel@lists.sourceforge.net
+In-Reply-To: <20051220025156.a86b418f.akpm@osdl.org>
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
-       greg@kroah.com, basicmark@yahoo.com, komal_shah802003@yahoo.com,
-       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
-       Joachim_Jaeger@digi.com
-Subject: Re: [PATCH/RFC] SPI:  async message handing library update
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051213170629.7240d211.vwool@ru.mvista.com> <20051215151948.497d703b.vwool@ru.mvista.com> <200512181059.14301.david-b@pacbell.net>
-In-Reply-To: <200512181059.14301.david-b@pacbell.net>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051219113140.GC2690@frankl.hpl.hp.com>
+	 <20051220025156.a86b418f.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David --
-
-just a cuple of notes here and below...
-
-General one: how is it supposed to set SPI bus clock in this model? I 
-guess that the only option is to set it in txrx_*.
-That is not optimal since it means setting clock for each transfer which 
-is not an optimal solution, better have a function (bitbang->set_clock 
-or whatever) )to set clock per message.
-
->	if (!spi->max_speed_hz)
->		spi->max_speed_hz = 500 * 1000;
+> >       The interface also supports automatic randomization of the reset value
+> >       for a PMD after an overflow.
 >
->	/* nsecs = max(50, (clock period)/2), be optimistic */
->	cs->nsecs = (1000000000/2) / (spi->max_speed_hz);
->	if (cs->nsecs < 50)
->		cs->nsecs = 50;
->  
->
-Suggest not to hardcode values here.
+> Why would one want to randomise the PMD after an overflow?
 
->			/* set up default clock polarity, and activate chip */
->			if (!chipselect) {
->				bitbang->chipselect(spi, 1);
->				ndelay(nsecs);
->  
->
-Suggest special enum/define for chipselect value.
+To get better data.  Using a constant reload value may keep measuring the
+same spot in the application if you are using a sample frequency that
+matches some repeat pattern in the application (and Murphy's law says
+that you'll hit this a lot).
 
->			/* protocol tweaks before next transfer */
->			if (t->delay_usecs)
->				udelay(t->delay_usecs);
->  
->
-Suggest nsecs here as well.
-
-Generic note: haven't tested that with DMA, will have more comments 
-prolly...
-Another one: I just feel comfortabel with using 'bitbang' term for the 
-variety of SPI stuff which this library suits.
-
-Vitaly
+-Tony

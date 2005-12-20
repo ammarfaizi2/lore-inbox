@@ -1,133 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932082AbVLTVSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbVLTVUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932082AbVLTVSa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 16:18:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbVLTVSa
+	id S932115AbVLTVUh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 16:20:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbVLTVUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 16:18:30 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:39533 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S932082AbVLTVS3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 16:18:29 -0500
-Date: Tue, 20 Dec 2005 16:18:27 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 04/15] Generic Mutex Subsystem,
- add-atomic-call-func-x86_64.patch
-In-reply-to: <Pine.LNX.4.64.0512201202200.4827@g5.osdl.org>
-X-X-Sender: nico@localhost.localdomain
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
-Message-id: <Pine.LNX.4.64.0512201533120.26663@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20051219013507.GE27658@elte.hu>
- <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com>
- <1135025932.4760.1.camel@localhost.localdomain>
- <20051220043109.GC32039@elte.hu>
- <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain>
- <43A7BCE1.7050401@yahoo.com.au>
- <Pine.LNX.4.64.0512200909180.26663@localhost.localdomain>
- <43A81132.8040703@yahoo.com.au>
- <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain>
- <Pine.LNX.4.64.0512201026230.4827@g5.osdl.org>
- <20051220193423.GC24199@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0512201202200.4827@g5.osdl.org>
+	Tue, 20 Dec 2005 16:20:37 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:2692 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S932115AbVLTVUg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 16:20:36 -0500
+Subject: Re: Recursion bug in -rt
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: linux-kernel@vger.kernel.org, robustmutexes@lists.osdl.org,
+       Ingo Molnar <mingo@elte.hu>, Dinakar Guniguntala <dino@in.ibm.com>
+In-Reply-To: <Pine.OSF.4.05.10512202042300.1720-100000@da410.phys.au.dk>
+References: <Pine.OSF.4.05.10512202042300.1720-100000@da410.phys.au.dk>
+Content-Type: text/plain
+Date: Tue, 20 Dec 2005 16:20:17 -0500
+Message-Id: <1135113617.13138.383.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Dec 2005, Linus Torvalds wrote:
+On Tue, 2005-12-20 at 21:42 +0100, Esben Nielsen wrote:
 
-> 
-> 
-> On Tue, 20 Dec 2005, Russell King wrote:
 > > 
-> > Also, Nico has an alternative idea for mutexes which does not
-> > involve decrementing or incrementing - it's an atomic swap.
-> > That works out at about the same cycle count on non-Intel ARM
-> > CPUs as the present semaphore path.  I'm willing to bet that
-> > it will be faster than the present semaphore path on Intel ARM
-> > CPUs.
+> This is ok for kernel mutexes, which are supposed not to cause deadlocks.
+> But user space deadlocks must not cause kernel deadlocks. Therefore the
+> robust futex code _must_ be fixed.
+
+And it should be fixed in the futex side. Not in rt.c.
+
 > 
-> Don't be so sure, especially not in the future.
-
-I think we agree.  But we still live in the present.
-
-> An atomic "swap" operation is, from a CPU design standpoint, fundamentally 
-> more expensive that a "load + store".
+> > The benefit of this locking order is that we got rid of the global
+> > pi_lock, and that was worth the problems you face today.
+> >
 > 
-> Now, most ARM architectures don't notice this, because they are all 
-> in-order, and not SMP-aware anyway. No suble memory ordering, no nothing. 
-> Which is the only case when "swap" basically becomes a cheap "load+store".
+> I believe this problem can be solved in the pi_lock code - but it will
+> require quite a bit of recoding. I started on it a little while ago but
+> didn't at all get the time to get into anything to even compile :-(
+> I don't have time to finish any code at all but I guess I can plant an
+> the idea instead:
 
-Indeed.
+I removed the global pi_lock in two sleepless days, and it was all on
+the theory that the locks themselves would not deadlock.  That was the
+only sanity I was able to hang on to.  That was complex enough, and very
+scary to get right (scary since it _had_ to be done right).  And it was
+complex enough to keep a highly skilled programmer living in Hungary
+from doing it himself (not to say he couldn't do it, just complex enough
+for him to put it off for quite some time).  And one must also worry
+about the BKL which is a separate beast all together.
 
-> What I'm trying to say is that a plain "load + store" is almost always 
-> going to be the best option in the long run.
+So making it any more complex is IMO out of the question.
+
 > 
-> It's also almost certainly always the best option for UP + non-preempt, 
-> for both present and future CPU's. The reason is simply that a 
-> microarchitecture will _always_ be optimized for that case, since it's 
-> pretty much by definition the common situation.
+> When resolving the mutex chain (task A locks mutex 1 owned by B blocked
+> on 2 owned by C etc) for PI boosting and also when finding deadlocks,
+> release _all_ locks before going to the next step in the chain. Use
+> get_task_struct on the next task in the chain, release the locks,
+> take the pi_locks in a fixed order (sort by address forinstance), do the
+> PI boosting, get_task_struct on the next lock, release all the locks, do
+> the put_task_struct() on the previous task etc.
+> This a lot more expensive approach as it involves double as many spinlock
+> operations and get/put_task_struct() calls , but it has the added benifit
+> of reducing the overall system latency for long locking chains as there
+> are spots where interrupts and preemption will be enabled for each step in
+> the chain. Remember also that deep locking chains should be considered an
+> exeption so the code doesn't have to be optimal wrt. performance. 
 
-Which is why each architecture must always have the option of providing 
-its own fast path implementation according to a number of factors that 
-cannot be made into a generic layer.  But this is the same issue whether 
-we talk about semaphores or mutexes.
+The long lock holding is only by the lock being grabbed and the owner
+grabbing it.  All other locks don't need to be held for long periods of
+time.  There's lots of issues if you release these two locks. How do you
+deal with the mutex being released while going up the chain?
 
-> Is preemption even the common case on ARM? I'd assume not. Why are people 
-> so interested in the preemption case?
-
-Because embedded people want it.  ARM is also about the only 
-architecture besides x86 that currently sees most of the RT work for the 
-same reason.  And yes preemption does make a difference.
-
-> IOW, why don't you just do
 > 
-> 	ldr  lr,[%0]
-> 	subs lr, lr, %1
-> 	str  lr,[%0]
-> 	blmi failure
-> 
-> as the _base_ timings, since that should be the common case. That's the 
-> drop-dead fastest UP case.
+> I added my feeble attempts to implement this below. I have no chance of
+> ever getting time finish it :-(
 
-The above is 5 cycles.  About the same as the preemption-safe swp-based 
-mutex implementation on non-Intel ARM.  It is broken wrt interrupts when 
-the swp is not.  It doesn't work with preemption while the swp 
-implementation is potentially smaller with cse and it works in all 
-cases.
+I doubt they were feeble, but just proof that this approach is far too
+complex.  As I said, if you don't want futex to deadlock the kernel, the
+API for futex should have deadlocking checks, since the only way this
+can deadlock the system, is if two threads are in the kernel at the same
+time.
 
-I mean...... what is it with mutexes that you dislike to the point of 
-bending backward that far, and even after seeing the numbers, with such 
-a semaphore implementation that _I_ even wouldn't trust people to use 
-correctly?  Yes we should use complete() from interrupt handlers but I 
-can bet you that a lot of people are still using up() there, and with 
-the current up() implementation it just _works_ at least on ARM.
+Also, the ones who are paying me to help out the -rt kernel, don't care
+if we let the user side deadlock the system.  They deliver a complete
+package, kernel and user apps, and nothing else is to be running on the
+system.  This means that if the user app deadlocks, it doesn't matter if
+the kernel deadlocks or not, because the deadlocking of the user app
+means the system has failed.  And I have a feeling that a lot of other
+users of -rt feel the same way.
 
-> (Btw, inlining _any_ of these except perhaps the above trivial case, is 
-> probably wrong. None of the ARM chips tend to have caches all that big, I 
-> bet).
-
-On XScale you should add 2 cycles to branch to the out of line code and 
-2 other cycles to branch back.
-
-The ARM mutex implementation can save that and have an extremely small 
-inlined footprint already.
-
-Again what do you dislike so much about mutexes?  It must not have much 
-to do with technical issues at this point.  ;-)
+-- Steve
 
 
-Nicolas

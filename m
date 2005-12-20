@@ -1,177 +1,233 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbVLTV2K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbVLTV1k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbVLTV2K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 16:28:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVLTV2K
+	id S932133AbVLTV1k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 16:27:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbVLTV1k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 16:28:10 -0500
-Received: from mout2.freenet.de ([194.97.50.155]:51148 "EHLO mout2.freenet.de")
-	by vger.kernel.org with ESMTP id S932127AbVLTV2J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 16:28:09 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: bcm43xx-dev@lists.berlios.de, linux-kernel@vger.kernel.org
-Subject: [ANN] bcm43xx software encryption support
-Date: Tue, 20 Dec 2005 22:27:54 +0100
-User-Agent: KMail/1.8.3
+	Tue, 20 Dec 2005 16:27:40 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:33511 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932126AbVLTV1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 16:27:39 -0500
+Date: Tue, 20 Dec 2005 15:27:29 -0600 (CST)
+From: Pat Gefre <pfg@americas.sgi.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH 2.6] Altix - ioc3 serial support
+In-Reply-To: <20051216234219.GL1222@flint.arm.linux.org.uk>
+Message-ID: <Pine.SGI.3.96.1051220152107.155234A-100000@fsgi900.americas.sgi.com>
 MIME-Version: 1.0
-Message-Id: <200512202227.55027.mbuesch@freenet.de>
-Content-Type: multipart/signed;
-  boundary="nextPart4002859.UW4uScLJBP";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart4002859.UW4uScLJBP
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_adHqDi43rXWhoHU"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
---Boundary-01=_adHqDi43rXWhoHU
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Hi,
-
-I ported the bcm43xx driver (http://bcm43xx.berlios.de) to the
-devicescape ieee802.11 stack.
-This port is a project branch, so softmac is still supported
-and developed.
-
-bcm43xx now supports software-side encryption functionality.
-(The hardware supports encryption, but that's not completely
-implemented, yet)
-I use the driver in my AES-WPA encrypted network and it works
-very well. Many things have been fixed in the past few days.
-
-The devicescape stack is still in development and it currently
-has an ugly user-inferface. The maintainer is working on cleanups,
-so please _do_ _not_ complain about dscape being crap. :)
-(We have enough stupid flamewars on lkml, at the moment)
-It is indeed very good code, but the user interface is a little
-bit ugly at the moment.
-
-Because of the user-interface, it is also a little bit more
-difficult to bring the device up. But I wrote a
-horribly ugly bash script (sta_up.sh) to do most of the work
-for you. Attached is HOWTO, with more details how to get
-it working.
-
-Good luck.
-
-Thanks for everyone supporting us! You are a great community.
-
-=2D-=20
-Greetings Michael.
-
---Boundary-01=_adHqDi43rXWhoHU
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="HOWTO"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="HOWTO"
-
-****                                    ****
-****  HOWTO get bcm43xx-dscape running  ****
-****                                    ****
-
-This is a port of the bcm43xx driver for the devicescape ieee802.11
-stack. The devicescape ieee802.11 stack is an advanced out-of-mainline
-802.11 protocol module.
-I will call the "devicescape ieee802.11 stack" simply "dscape" in the
-following text.
-
-
-*** Setting up the bcm43xx driver with dscape is currently non-trivial,
-*** as several modifications to the kernel and the userland
-*** wpa_supplicant tool are required. We are working on it...
-
-
-1)  You need to patch the kernel with latest ieee80211-devicescape patchset:
-    ftp://ftp.kernel.org/pub/linux/kernel/people/jbenc/ieee80211-devicescape-XXXXXX.tar.bz2
-    These patches are diffed against the netdev-2.6 GIT tree. See
-    the file GIT-ORIGIN for more information.
-    But these patches usually also apply (with some hunk offsets) to
-    latest mainline kernels.
-    Patch the kernel, compile and install it.
-    When configuring, enable "Networking/Generic IEEE 802.11 Networking Stack"
-    Reboot.
-    If you configured dscape as modules, load the dscape modules:
-    modprobe rate_control
-    modprobe 80211
-    It is important to load rate_control before 80211. (Yes, it should be
-    done automatically... Working on it.)
-
-2)  Add dscape support to wpa_supplicant:
-    Download latest stable version of wpa_supplicant from:
-    http://hostap.epitest.fi/
-    (As of this writing, latest stable is 0.4.7)
-    Download the corresponding dscape-support patch from:
-    ftp://ftp.kernel.org/pub/linux/kernel/people/jbenc/ieee80211-utils/wpa_supplicant/wpa_supplicant-0.4.7_dscape-02.patch
-    Patch wpa_supplicant (No, I won't describe the patching
-    process here ;) ), compile and install it.
-
-3)  Set up a wpa_supplicant config file in /etc/wpa_supplicant.conf
-    Here is an example for an AES WPA encrypted network:
-
-	# WPA AES encryption
-	ctrl_interface=/var/run/wpa_supplicant
-	network={
-		ssid="ACCESSPOINT_SSID"
-		key_mgmt=WPA-PSK
-		proto=WPA
-		pairwise=CCMP TKIP
-		group=CCMP TKIP
-		psk="MY PASSPHRASE"
-		priority=3
-	}
-
-4)  Download and compile the bcm43xx-dscape driver.
-    Snapshots can be downloaded from:
-    ftp://ftp.berlios.de/pub/bcm43xx/snapshots/bcm43xx-dscape-XXXXXXXX.tar.bz2
-    UnTar the archive and type make to build the driver.
-
-5)  Take a bottle of your favourite beer, open it and take a swallow.
-
-6)  Now it's time to bring the driver up.
-    Do insmod ./bcm43xx.ko to load the driver.
-    There is an ugly bash script to bring the driver up after insmod.
-    It's found in the bcm43xx-dscape package and is called "sta_up.sh"
-    Call ./sta_up.sh --help to get some usage information.
-    It may suffice to call ./sta_up.sh without any parameters. See
-    the help. Default parameters, which are used when called without parameters,
-    are explained there.
-
-7)  If you want to access the internet, make sure your default route
-    is correctly set up with your gateway's IP:
-    route add default gw 192.168.xxx.xxx
-
-8)  Take another swallow from your bottle of beer and test if it works:
-    ping www.kernel.org
-
-9)  If it works, drink the rest of your beer. Otherwise read this HOWTO again,
-    and again and again. Complain to bcm43xx-dev@lists.berlios.de, if it still
-    does not work.
+Thanks for the review Russell. I've updated my patch - my comments
+follow.
 
 
 
---Boundary-01=_adHqDi43rXWhoHU--
 
---nextPart4002859.UW4uScLJBP
-Content-Type: application/pgp-signature
+On Fri, 16 Dec 2005, Russell King wrote:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
++ On Fri, Dec 16, 2005 at 04:33:26PM -0600, Pat Gefre wrote:
++ > The following patch adds driver support for a 2 port PCI IOC3-based
++ > serial card on Altix boxes:
++ > 
++ > ftp://oss.sgi.com/projects/sn2/sn2-update/044-ioc3-support
++ 
++ Here's some comments on ioc3_serial.c.  Could you look at them and
++ either resolve them or discuss further.  Thanks.
++ 
++ +#include <linux/serialP.h>
++ 
++ I don't think you need this include.
 
-iD8DBQBDqHdblb09HEdWDKgRAsnDAKCSsmt5XUiH6HXweJ2XW+AjYcAZpQCdF2t+
-tvzVgCQcdtwCgQdaJ+AgBro=
-=xn6Z
------END PGP SIGNATURE-----
+Deleted.
 
---nextPart4002859.UW4uScLJBP--
+
++ 
++ +	the_port->timeout = ((the_port->fifosize * HZ * bits) / (baud / 10));
++ +	the_port->timeout += HZ / 50;	/* Add .02 seconds of slop */
++ 
++ Please use uart_update_timeout() instead.
+
+
+OK - done.
+
+
++ 
++ +	info = the_port->info;
++ +	if (info->tty) {
++ +		set_bit(TTY_IO_ERROR, &info->tty->flags);
++ +		clear_bit(TTY_IO_ERROR, &info->tty->flags);
++ +		if ((info->flags & ASYNC_SPD_MASK) == ASYNC_SPD_HI)
++ +			info->tty->alt_speed = 57600;
++ +		if ((info->flags & ASYNC_SPD_MASK) == ASYNC_SPD_VHI)
++ +			info->tty->alt_speed = 115200;
++ +		if ((info->flags & ASYNC_SPD_MASK) == ASYNC_SPD_SHI)
++ +			info->tty->alt_speed = 230400;
++ +		if ((info->flags & ASYNC_SPD_MASK) == ASYNC_SPD_WARP)
++ +			info->tty->alt_speed = 460800;
++ +	}
++ 
++ None of this is required.  info->tty->alt_speed is not used by the
++ serial layer - it knows how to deal with this itself.  Secondly,
++ setting and clearing TTY_IO_ERROR is pointless.  Note that the serial
++ layer takes care of TTY_IO_ERROR handling for you.
+
+
+OK - done.
+
+
++ 
++ +	/* set the speed of the serial port */
++ +	ioc3_change_speed(the_port, info->tty->termios, (struct termios *)0);
++ 
++ serial_core will call this for you at the appropriate time.  Note that
++ you decided above to check whether info->tty was NULL.  If it was this
++ will oops.  Better just get rid of it anyway - it's not necessary.
+
+
+OK - done.
+
+
++ 
++ +					/* Notify upper layer of carrier drop */
++ +					if ((port->ip_notify & N_DDCD)
++ +					    && port->ip_port) {
++ +						the_port->icount.dcd = 0;
++ +						wake_up_interruptible
++ +						    (&the_port->info->
++ +						     delta_msr_wait);
++ +					}
++ 
++ Use uart_handle_dcd_change().  Setting port->icount.dcd to zero in
++ this case is wrong.  It also makes no attempt at informing the upper
++ layers that a hangup occurred.  Note that uart_handle_dcd_change()
++ exists so that you don't have to think about these semantics.  You
++ will need to keep the wake_up_interruptible though.
+
+
+OK - done.
+
+
++ 
++ +			if ((port->ip_notify & N_DDCD)
++ +			    && (shadow & SHADOW_DCD)
++ +			    && (port->ip_port)) {
++ +				the_port = port->ip_port;
++ +				the_port->icount.dcd = 1;
++ +				wake_up_interruptible
++ +				    (&the_port->info->delta_msr_wait);
++ 
++ Ditto.  icount.dcd is not the state of DCD.  It is a counter for the
++ number of times DCD changes state.
+
+
+OK - done.
+
+
++ 
++ +			if ((port->ip_notify & N_DCTS) && (port->ip_port)) {
++ +				the_port = port->ip_port;
++ +				the_port->icount.cts =
++ +				    (shadow & SHADOW_CTS) ? 1 : 0;
++ +				wake_up_interruptible
++ +				    (&the_port->info->delta_msr_wait);
++ +			}
++ 
++ Ditto, except uart_handle_cts_change().
+
+
+OK - done.
+
+
++ 
++ +		the_port->lock = SPIN_LOCK_UNLOCKED;
++ +		spin_lock_init(&the_port->lock);
++ 
++ Not necessary - uart_add_one_port() does this for you for non-console
++ ports, and for console ports, it is assumed that the console code has
++ already initialised the spinlock.
++ 
+
+
+OK - done.
+
+
++ +	if (request_count > TTY_FLIPBUF_SIZE - tty->flip.count)
++ +		request_count = TTY_FLIPBUF_SIZE - tty->flip.count;
++ +
++ +	if (request_count > 0) {
++ +		read_count = do_read(the_port, ch, request_count);
++ +		if (read_count > 0) {
++ +			flip = 1;
++ +			memcpy(tty->flip.char_buf_ptr, ch, read_count);
++ +			memset(tty->flip.flag_buf_ptr, TTY_NORMAL, read_count);
++ +			tty->flip.char_buf_ptr += read_count;
++ +			tty->flip.flag_buf_ptr += read_count;
++ +			tty->flip.count += read_count;
++ +			the_port->icount.rx += read_count;
++ +		}
++ +	}
++ 
++ Please talk to Alan Cox about the best way to handle this.  flip
++ buffers are going away.
+
+Here's Alan's email:
+
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+
+> Something like this. As we now do kmalloc buffering you don't really
+> need to worry about overruns. If you want to detect/report them then
+> tty_insert_flip_string returns the bytes queued.
+> 
+> tty_buffer_request_room is a hint to help the kernel manage buffers
+> better.
+> 
+> 
+>         read_count = do_read(the_port, ch, SOME_CONSTANT_EG_4K);
+>         if(read_count) {
+>                 tty_buffer_request_room(tty, read_count);
+>                 tty_insert_flip_string(tty, ch, read_room);
+>                 tty_flip_buffer_push(tty);
+>         }
+> 
+
+Done.
+
+
+
++ 
++ +/**
++ + * ic3_tx_empty - Is the transmitter empty?  We pretend we're always empty
++ + * @port: Port to operate on (we ignore since we always return 1)
++ + *
++ + */
++ +static unsigned int ic3_tx_empty(struct uart_port *the_port)
++ +{
++ +	return TIOCSER_TEMT;
++ +}
++ 
++ Not really a good idea if you care about the last bytes of data
++ in various buffers.  Eg, cat file > /dev/yourport could well chop
++ off the last few characters for transmission.
+
+Yeah. This is something I should of fixed already. There is a shadow
+register for this.
+
+
++ 
++ Finally, you register the uart driver in ioc3uart_init(), and
++ unregister it in ioc3uart_remove() rather than ioc3uart_exit().
++ What if you have multiple boards?  You remove one of them and
++ the uart driver gets unregistered?  It doesn't look sane.
+
+Right. Thanks for pointing this out.
+
+
+Thanks again for the review.
+
+-- Pat
+

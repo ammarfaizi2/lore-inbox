@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVLTQnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbVLTQrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751126AbVLTQnT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 11:43:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVLTQnT
+	id S1750792AbVLTQrn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 11:47:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750796AbVLTQrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 11:43:19 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:43276 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751126AbVLTQnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 11:43:18 -0500
-Date: Tue, 20 Dec 2005 17:43:17 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Light-weight dynamically extended stacks
-Message-ID: <20051220164316.GG6789@stusta.de>
-References: <20051219001249.GD11856@waste.org> <20051219183604.GT23349@stusta.de> <20051220002759.GE3356@waste.org>
+	Tue, 20 Dec 2005 11:47:43 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:35478 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1750792AbVLTQrm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 11:47:42 -0500
+Message-ID: <43A835D7.4090608@tmr.com>
+Date: Tue, 20 Dec 2005 11:48:23 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051220002759.GE3356@waste.org>
-User-Agent: Mutt/1.5.11
+To: Jens Axboe <axboe@suse.de>
+CC: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       greg@kroah.com
+Subject: Re: [RFC] Let non-root users eject their ipods?
+References: <1135047119.8407.24.camel@leatherman> <20051220074652.GW3734@suse.de> <1135082490.16754.0.camel@localhost.localdomain> <20051220132821.GH3734@suse.de> <1135085557.16754.2.camel@localhost.localdomain> <20051220133939.GI3734@suse.de>
+In-Reply-To: <20051220133939.GI3734@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 19, 2005 at 06:27:59PM -0600, Matt Mackall wrote:
->...
-> So why am I raising this idea now at all? Because I think Neil's patch
-> is too clever and too specific to block layer stacking and I'd rather
-> have a more general solution. Block is by no means the only part of
-> the system that allows nesting and pathological combinations surely
-> still exist. And will be introduced in the future.
+Jens Axboe wrote:
+
+> There's still the quirky problem of forcing a locked tray out. In some
+> cases this is what you want, if things get stuck for some reason or
+> another. But usually the tray is locked for a good reason, because there
+> are active users of the device.
 > 
-> Also note that my approach might make it reasonable to use one-page
-> stacks everywhere, not just on x86.
->...
-
-I'm really looking forward to seeing your patch.
-
-It will e.g. be interesting to measure whether there'll be any 
-performance impact.
-
-And since after this patch driver authors might become more sloppy with 
-stack usage since there's no longer a hard limit, it will be especially 
-interesting to see how you'll implement ensuring that there are no 
-additional stack usages > 1 kB between two invocations of you check 
-function, because otherwise your patch won't work reliable.
-
-cu
-Adrian
+> Say two processes has the cdrom open, one of them doing io (maybe even
+> writing!), the other could do a CDROMEJECT now and force the ejection of
+> a busy drive.
+> 
+I think the whole area of permissions for locking the tray and doing 
+eject need rethinking. I won't rehash what I have said before, that if I 
+have write permission growisofs should be able to lock the tray.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

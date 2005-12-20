@@ -1,208 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750896AbVLTJyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbVLTKFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750896AbVLTJyw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 04:54:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbVLTJyw
+	id S1750908AbVLTKFj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 05:05:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbVLTKFj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 04:54:52 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:54992 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750896AbVLTJyw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 04:54:52 -0500
-Date: Tue, 20 Dec 2005 15:24:32 +0530
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, prasanna@in.ibm.com, anil.s.keshavamurthy@intel.com,
-       davem@davemloft.net
-Subject: [-mm PATCH] kprobes: fix build break in 2.6.15-rc5-mm3
-Message-ID: <20051220095432.GA5139@in.ibm.com>
-Reply-To: ananth@in.ibm.com
-Mime-Version: 1.0
+	Tue, 20 Dec 2005 05:05:39 -0500
+Received: from [195.144.244.147] ([195.144.244.147]:52898 "EHLO
+	amanaus.varma-el.com") by vger.kernel.org with ESMTP
+	id S1750907AbVLTKFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 05:05:38 -0500
+Message-ID: <43A7D76E.5050008@varma-el.com>
+Date: Tue, 20 Dec 2005 13:05:34 +0300
+From: Andrey Volkov <avolkov@varma-el.com>
+Organization: Varma Electronics Oy
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ru-ru, ru
+MIME-Version: 1.0
+To: "Mark A. Greer" <mgreer@mvista.com>
+Cc: Jean Delvare <khali@linux-fr.org>, adi@hexapodia.org,
+       lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] i2c: Combined ST m41txx i2c rtc chip driver
+References: <4378960F.8030800@varma-el.com> <20051115215226.4e6494e0.khali@linux-fr.org> <20051116025714.GK5546@mag.az.mvista.com> <20051219210325.GA21696@mag.az.mvista.com>
+In-Reply-To: <20051219210325.GA21696@mag.az.mvista.com>
+X-Enigmail-Version: 0.93.0.0
+OpenPGP: url=pgp.dtype.org
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ananth N Mavinkayanahalli <ananth@in.ibm.com>
+Hello Mark
 
-The following patch (against 2.6.15-rc5-mm3) fixes a kprobes build
-break due to changes introduced in the kprobe locking in
-2.6.15-rc5-mm3. In addition, the patch reverts back the open-coding
-of kprobe_mutex.
+Big Thanks, I check it on my board today-tomorrow.
+But check some comments below.
 
-Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-Acked-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
----
+Mark A. Greer wrote:
+> On Tue, Nov 15, 2005 at 07:57:14PM -0700, Mark A. Greer wrote:
+> 
+>>I think we can combine the two into an m41txx.c and pass the exact type
+>>in via platform_data--that would be the correct mechanism, right?
+>>The platform_data could also be used to seed the correct SQW freq and
+>>eliminate all the Kconfig noise.
+>>
+>>Comments?
+>>
+>>As for Jean's and Andrew's comments about the driver, they seem valid
+>>to me and should be addressed.  In Andrey's defense, many of them are my
+>>fault.  Once there is a consensus on the merging m41t00 & m41t85
+>>question, I'll try to get a fixed up patch within a couple weeks.
+> 
+> 
+> I've made what I think should be close to an acceptable driver that
+> supports the m41t00, m41t81, and m41t85 i2c rtc chips.  I only have hw
+> to test the m41t00 on a ppc platform, though.
+> 
+> It was suggested to me a while back to add retries when reading &
+> writing the rtc regs.  Personally, I think its overkill but I added the
+> code anyway.  You will see in m41txx_get_rtc_time() that 3 tries are
+> made to get a good read of all the regs then up to 10 tries are made to
+> make sure that the time didn't change while we were doing the reads.
+> Something similar is done in m41txx_set().
+> 
+> Andrey, would you please apply and test this patch on your 5200?
+> 
+> Andy, I apologize but I didn't take the time to look at the mips tree in
+> depth.  I did do a quick scan and I think that you should be able to set
+> 'rtc_get_time' to 'm41txx_get_rtc_time' and 'rtc_set_time' to
+> 'm41txx_set_rtc_time', and it'll work.  You'll have to hook up the proper
+> driver for your host i2c ctlr, though.
+> 
+> Jean, Andrew, I think I addressed your coding style, etc. issues with
+> the driver.  If not, just point out the problems an I'll fix them.
+> 
+> The patch is against the 2.6.15-rc5-mm3 tree.  Comments welcome.
+> 
+> [I will send a second patch that contains the changes I made to the ppc
+> katana platform that has the m41t00 that I tested with.]
+> 
+> Thanks,
+> 
+> Mark
 
- arch/powerpc/kernel/kprobes.c |    6 +++---
- arch/x86_64/kernel/kprobes.c  |    6 +++---
- include/asm-i386/kprobes.h    |    2 +-
- include/asm-ia64/kprobes.h    |    2 +-
- include/asm-powerpc/kprobes.h |    3 ++-
- include/asm-sparc64/kprobes.h |    2 +-
- include/asm-x86_64/kprobes.h  |    3 ++-
- include/linux/kprobes.h       |    1 +
- kernel/kprobes.c              |    4 ++--
- 9 files changed, 16 insertions(+), 13 deletions(-)
+> +	down(&m41txx_mutex);
+> +	do {
+> +		retries = M41TXX_MAX_RETRIES;
+> +
+> +		do {
+> +			if (((sec = i2c_smbus_read_byte_data(save_client,
+> +						m41txx_chip->sec)) >= 0)
+> +				&& ((min = i2c_smbus_read_byte_data(save_client,
+> +						m41txx_chip->min)) >= 0)
+> +				&& ((hour= i2c_smbus_read_byte_data(save_client,
+> +						m41txx_chip->hour)) >= 0)
+> +				&& ((day = i2c_smbus_read_byte_data(save_client,
+> +						m41txx_chip->day)) >= 0)
+> +				&& ((mon = i2c_smbus_read_byte_data(save_client,
+> +						m41txx_chip->mon)) >= 0)
+> +				&& ((year= i2c_smbus_read_byte_data(save_client,
+> +						m41txx_chip->year)) >= 0))
+> +				break;
+> +		} while (--retries > 0);
+> +
+> +		if ((retries == 0) || ((sec == sec1) && (min == min1)
+> +				&& (hour == hour1) && (day == day1)
+> +				&& (mon == mon1) && (year == year1)))
+> +			break;
 
-Index: linux-2.6.15-rc5/arch/powerpc/kernel/kprobes.c
-===================================================================
---- linux-2.6.15-rc5.orig/arch/powerpc/kernel/kprobes.c
-+++ linux-2.6.15-rc5/arch/powerpc/kernel/kprobes.c
-@@ -80,11 +80,11 @@ void __kprobes arch_disarm_kprobe(struct
- 			   (unsigned long) p->addr + sizeof(kprobe_opcode_t));
- }
- 
--void __kprobes arch_remove_kprobe(struct kprobe *p, struct semaphore *s)
-+void __kprobes arch_remove_kprobe(struct kprobe *p)
- {
--	down(s);
-+	down(&kprobe_mutex);
- 	free_insn_slot(p->ainsn.insn);
--	up(s);
-+	up(&kprobe_mutex);
- }
- 
- static inline void prepare_singlestep(struct kprobe *p, struct pt_regs *regs)
-Index: linux-2.6.15-rc5/arch/x86_64/kernel/kprobes.c
-===================================================================
---- linux-2.6.15-rc5.orig/arch/x86_64/kernel/kprobes.c
-+++ linux-2.6.15-rc5/arch/x86_64/kernel/kprobes.c
-@@ -220,11 +220,11 @@ void __kprobes arch_disarm_kprobe(struct
- 			   (unsigned long) p->addr + sizeof(kprobe_opcode_t));
- }
- 
--void __kprobes arch_remove_kprobe(struct kprobe *p, struct semaphore *s)
-+void __kprobes arch_remove_kprobe(struct kprobe *p)
- {
--	down(s);
-+	down(&kprobe_mutex);
- 	free_insn_slot(p->ainsn.insn);
--	up(s);
-+	up(&kprobe_mutex);
- }
- 
- static inline void save_previous_kprobe(struct kprobe_ctlblk *kcb)
-Index: linux-2.6.15-rc5/include/linux/kprobes.h
-===================================================================
---- linux-2.6.15-rc5.orig/include/linux/kprobes.h
-+++ linux-2.6.15-rc5/include/linux/kprobes.h
-@@ -149,6 +149,7 @@ struct kretprobe_instance {
- };
- 
- extern spinlock_t kretprobe_lock;
-+extern struct semaphore kprobe_mutex;
- extern int arch_prepare_kprobe(struct kprobe *p);
- extern void arch_arm_kprobe(struct kprobe *p);
- extern void arch_disarm_kprobe(struct kprobe *p);
-Index: linux-2.6.15-rc5/kernel/kprobes.c
-===================================================================
---- linux-2.6.15-rc5.orig/kernel/kprobes.c
-+++ linux-2.6.15-rc5/kernel/kprobes.c
-@@ -48,7 +48,7 @@
- static struct hlist_head kprobe_table[KPROBE_TABLE_SIZE];
- static struct hlist_head kretprobe_inst_table[KPROBE_TABLE_SIZE];
- 
--static DECLARE_MUTEX(kprobe_mutex);	/* Protects kprobe_table */
-+DECLARE_MUTEX(kprobe_mutex);		/* Protects kprobe_table */
- DEFINE_SPINLOCK(kretprobe_lock);	/* Protects kretprobe_inst_table */
- static DEFINE_PER_CPU(struct kprobe *, kprobe_instance) = NULL;
- 
-@@ -532,7 +532,7 @@ valid_p:
- 			list_del_rcu(&p->list);
- 			kfree(old_p);
- 		}
--		arch_remove_kprobe(p, &kprobe_mutex);
-+		arch_remove_kprobe(p);
- 	}
- }
- 
-Index: linux-2.6.15-rc5/include/asm-powerpc/kprobes.h
-===================================================================
---- linux-2.6.15-rc5.orig/include/asm-powerpc/kprobes.h
-+++ linux-2.6.15-rc5/include/asm-powerpc/kprobes.h
-@@ -32,6 +32,7 @@
- #define  __ARCH_WANT_KPROBES_INSN_SLOT
- 
- struct pt_regs;
-+struct kprobe;
- 
- typedef unsigned int kprobe_opcode_t;
- #define BREAKPOINT_INSTRUCTION	0x7fe00008	/* trap */
-@@ -49,7 +50,7 @@ typedef unsigned int kprobe_opcode_t;
- 
- #define ARCH_SUPPORTS_KRETPROBES
- void kretprobe_trampoline(void);
--extern void arch_remove_kprobe(struct kprobe *p, struct semaphore *s);
-+extern void arch_remove_kprobe(struct kprobe *p);
- 
- /* Architecture specific copy of original instruction */
- struct arch_specific_insn {
-Index: linux-2.6.15-rc5/include/asm-x86_64/kprobes.h
-===================================================================
---- linux-2.6.15-rc5.orig/include/asm-x86_64/kprobes.h
-+++ linux-2.6.15-rc5/include/asm-x86_64/kprobes.h
-@@ -30,6 +30,7 @@
- #define  __ARCH_WANT_KPROBES_INSN_SLOT
- 
- struct pt_regs;
-+struct kprobe;
- 
- typedef u8 kprobe_opcode_t;
- #define BREAKPOINT_INSTRUCTION	0xcc
-@@ -44,6 +45,7 @@ typedef u8 kprobe_opcode_t;
- #define ARCH_SUPPORTS_KRETPROBES
- 
- void kretprobe_trampoline(void);
-+extern void arch_remove_kprobe(struct kprobe *p);
- 
- /* Architecture specific copy of original instruction*/
- struct arch_specific_insn {
-@@ -78,7 +80,6 @@ static inline void restore_interrupts(st
- 		local_irq_enable();
- }
- 
--extern void arch_remove_kprobe(struct kprobe *p, struct semaphore *s);
- extern int post_kprobe_handler(struct pt_regs *regs);
- extern int kprobe_fault_handler(struct pt_regs *regs, int trapnr);
- extern int kprobe_handler(struct pt_regs *regs);
-Index: linux-2.6.15-rc5/include/asm-i386/kprobes.h
-===================================================================
---- linux-2.6.15-rc5.orig/include/asm-i386/kprobes.h
-+++ linux-2.6.15-rc5/include/asm-i386/kprobes.h
-@@ -40,7 +40,7 @@ typedef u8 kprobe_opcode_t;
- 
- #define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)pentry
- #define ARCH_SUPPORTS_KRETPROBES
--#define arch_remove_kprobe(p, s)	do { } while(0)
-+#define arch_remove_kprobe(p)	do {} while (0)
- 
- void kretprobe_trampoline(void);
- 
-Index: linux-2.6.15-rc5/include/asm-ia64/kprobes.h
-===================================================================
---- linux-2.6.15-rc5.orig/include/asm-ia64/kprobes.h
-+++ linux-2.6.15-rc5/include/asm-ia64/kprobes.h
-@@ -89,7 +89,7 @@ struct kprobe_ctlblk {
- #define IP_RELATIVE_PREDICT_OPCODE	(7)
- #define LONG_BRANCH_OPCODE		(0xC)
- #define LONG_CALL_OPCODE		(0xD)
--#define arch_remove_kprobe(p, s)	do { } while(0)
-+#define arch_remove_kprobe(p)		do {} while (0)
- 
- typedef struct kprobe_opcode {
- 	bundle_t bundle;
-Index: linux-2.6.15-rc5/include/asm-sparc64/kprobes.h
-===================================================================
---- linux-2.6.15-rc5.orig/include/asm-sparc64/kprobes.h
-+++ linux-2.6.15-rc5/include/asm-sparc64/kprobes.h
-@@ -12,7 +12,7 @@ typedef u32 kprobe_opcode_t;
- #define MAX_INSN_SIZE 2
- 
- #define JPROBE_ENTRY(pentry)	(kprobe_opcode_t *)pentry
--#define arch_remove_kprobe(p, s)	do { } while(0)
-+#define arch_remove_kprobe(p)	do {} while (0)
- 
- /* Architecture specific copy of original instruction*/
- struct arch_specific_insn {
+I think this code is overburdened (I forgot to point on it last time,
+sorry) and may be wrong for m41t8x, since when you send i2c stop
+condition (in read_byte_data), you release time registers of m41t8x,
+and as a consequence, in the worst case, you must compare/read it an
+undetermined number of times, but not 3 times (however, for m41t00 this
+code is correct).
+
+I think i2c_master_recv here and i2c_master_send above in m41txx_set
+will be more appropriate, since for m41t00 it will have no meaning when
+you send STOP (250ms stall), but for m41t8x you could drop this
+while-loop completely.
+
+Hint: quotation from m41st85w.pdf p13/34
+"The system-to-user transfer of clock data will be
+halted whenever the address being read is a clock
+address (00h to 07h). The update will resume either
+due to a Stop Condition or when the pointer
+increments to a non-clock or RAM address."
+
+Also, please, change _obsoleted_ BCD_TO_BIN to BCD2BIN
+(see include/linux/bcd.h)
+
+
+-- 
+Regards
+Andrey Volkov

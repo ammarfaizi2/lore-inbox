@@ -1,46 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbVLTVVg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbVLTVWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbVLTVVg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 16:21:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbVLTVVg
+	id S932119AbVLTVWp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 16:22:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbVLTVWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 16:21:36 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:58547 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932117AbVLTVVf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 16:21:35 -0500
-Date: Tue, 20 Dec 2005 16:21:27 -0500
-From: Dave Jones <davej@redhat.com>
-To: torvalds@osdl.org
+	Tue, 20 Dec 2005 16:22:45 -0500
+Received: from jack.kinetikon.it ([62.152.125.81]:24301 "EHLO
+	mail.towertech.it") by vger.kernel.org with ESMTP id S932119AbVLTVWo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 16:22:44 -0500
+Date: Tue, 20 Dec 2005 22:23:43 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: Christoph Hellwig <hch@infradead.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: remove incorrect dependancy on CONFIG_APM
-Message-ID: <20051220212127.GA6833@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 1/6] RTC subsystem, class
+Message-ID: <20051220222343.71ee6bab@inspiron>
+In-Reply-To: <20051220211344.GA14403@infradead.org>
+References: <20051220214511.12bbb69c@inspiron>
+	<20051220211344.GA14403@infradead.org>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 20 Dec 2005 21:13:45 +0000
+Christoph Hellwig <hch@infradead.org> wrote:
 
->From the PM_LEGACY Kconfig description..
+> >  drivers/rtc/class.c  |  110 +++++++++++++++++++++++++++++++++++++++++++++++++++
+> >  drivers/rtc/intf.c   |   67 +++++++++++++++++++++++++++++++
+> >  drivers/rtc/utils.c  |   99 +++++++++++++++++++++++++++++++++++++++++++++
+> 
+> 
+> Given that the files are really tiny I'd suggest to put everything into
+> a single file (driver/char/rtc.c) instead of some arbitrary split.
 
-"Support for pm_register() and friends."
+ I can merge. It was easier to develop them this way.
 
-Note, no mention of 'make apm stop working'.
+> > + * rtc-class.c - rtc subsystem, base class
+> 
+> no need to put the file name into a comment.  it gets out of date far
+> too easily (it already is in this case ;-))
 
-Signed-off-by: Dave Jones <davej@redhat.com>
+ oooooops :)
 
---- linux-2.6.14/arch/i386/Kconfig~	2005-12-20 16:19:17.000000000 -0500
-+++ linux-2.6.14/arch/i386/Kconfig	2005-12-20 16:19:21.000000000 -0500
-@@ -710,7 +710,7 @@ depends on PM && !X86_VISWS
+> > +#define RTC_ID_PREFIX "rtc"
+> > +#define RTC_ID_FORMAT RTC_ID_PREFIX "%d"
+> 
+> Having a format specifier hidden in a macro makes reading code very
+> difficult, please just remove this.
+
+ ack.
+
+> > +	if (sscanf(cdev->class_id, RTC_ID_FORMAT, &id) == 1) {
+> > +		class_device_unregister(cdev);
+> > +		idr_remove(&rtc_idr, id);
+> > +	} else
+> > +		dev_dbg(cdev->dev,
+> > +			"rtc_device_unregister() failed: bad class ID!\n");
+> > +}
+> 
+> The scanf looks really fragile.  Can't you just have a rtc_device structure
+> that the cdev and id are embedded into that can be passed to the
+> unregistration function?
+
+ I admit I copied from hwmon here :) I'll check into that.
+
+> > +	if (ops->read_time) {
+> > +		memset(tm, 0, sizeof(struct rtc_time));
+> 
+> do we really need the memset?
+
+ It's a kind of protection in case something
+ goes wrong in the driver. can be probably removed.
+
+> > +obj-y				+= utils.o
+> 
+> why is this always built?
+
+ because it exports utility functions used
+ elsewhere in the kernel, some of them have been removed
+ from the ARM part. Until everything gets cleaned up,
+ it's better to always build those few funcs.
+
+> > +obj-$(CONFIG_RTC_CLASS)		+= rtc-core.o
+> > +rtc-core-y			:= class.o intf.o
+> > +rtc-core-objs			:= $(rtc-core-y)
+> 
+> no need for this last line
+
+ I remember I had compilation problems without it,
+ I'll check again.
+
+> > +struct rtc_class_ops {
+> 
+> What about just rtc_ops?
+
+it's already used under ARM and i didn't wanted
+to break it. 
+
  
- config APM
- 	tristate "APM (Advanced Power Management) BIOS support"
--	depends on PM && PM_LEGACY
-+	depends on PM
- 	---help---
- 	  APM is a BIOS specification for saving power using several different
- 	  techniques. This is mostly useful for battery powered laptops with
+> > +	int (*proc)(struct device *, char *buf);
+> 
+> this should be seq_file based.
+
+ ack.
+
+> > +static const unsigned char rtc_days_in_month[] = {
+> > +	31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+> > +};
+> > +EXPORT_SYMBOL(rtc_days_in_month);
+> 
+> exporting static symbols is pretty wrong.  Exporting tables is pretty
+> bad style aswell.
+
+ Tables like this one are often used in rtc drivers. What
+ can I use instead?
+
+-- 
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+
+h

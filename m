@@ -1,84 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbVLTPGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbVLTPHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbVLTPGE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 10:06:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbVLTPGE
+	id S1751089AbVLTPHz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 10:07:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751091AbVLTPHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 10:06:04 -0500
-Received: from smtp104.plus.mail.mud.yahoo.com ([68.142.206.237]:12991 "HELO
-	smtp104.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751023AbVLTPGB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 10:06:01 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=xHcUyXhYJ8Zp8uO5WM4lzFwHd7t++NDV4Y+/wiLMW2F6b7FoejdzmBhyNOMAKxBdnqp5iNzqqruYlLlrm4prUcL/LXoNl777j7Ji7KjwIqsUTR713xBwMllZCqmeQ/SlvxWTAr0+BXXrzvZ7iek0QgFCYh4Pa8tuQZ+Zn5lorKQ=  ;
-Message-ID: <43A81DD4.30906@yahoo.com.au>
-Date: Wed, 21 Dec 2005 02:05:56 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Nicolas Pitre <nico@cam.org>
-CC: Ingo Molnar <mingo@elte.hu>, David Woodhouse <dwmw2@infradead.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
-Subject: Re: [patch 04/15] Generic Mutex Subsystem, add-atomic-call-func-x86_64.patch
-References: <20051219013507.GE27658@elte.hu> <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com> <1135025932.4760.1.camel@localhost.localdomain> <20051220043109.GC32039@elte.hu> <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain> <43A7BCE1.7050401@yahoo.com.au> <Pine.LNX.4.64.0512200909180.26663@localhost.localdomain> <43A81132.8040703@yahoo.com.au> <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Dec 2005 10:07:55 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:58799 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751089AbVLTPHy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 10:07:54 -0500
+Date: Tue, 20 Dec 2005 16:07:11 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: john stultz <johnstul@us.ibm.com>,
+       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.15-rc5-rt2 slowness
+Message-ID: <20051220150711.GA5505@elte.hu>
+References: <dnu8ku$ie4$1@sea.gmane.org> <1134790400.13138.160.camel@localhost.localdomain> <1134860251.13138.193.camel@localhost.localdomain> <20051220133230.GC24408@elte.hu> <Pine.LNX.4.58.0512200836120.21313@gandalf.stny.rr.com> <20051220135725.GA29392@elte.hu> <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com> <1135089221.13138.269.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1135089221.13138.269.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Pitre wrote:
-> On Wed, 21 Dec 2005, Nick Piggin wrote:
-> 
-> 
->>Nicolas Pitre wrote:
->>
->>>On Tue, 20 Dec 2005, Nick Piggin wrote:
->>
->>>>Considering that on UP, the arm should not need to disable interrupts
->>>>for this function (or has someone refuted Linus?), how about:
->>>
->>>
->>>Kernel preemption.
->>>
->>
->>preempt_disable() ?
-> 
-> 
-> Sure, and we're now more costly than the current implementation with irq 
-> disabling.
-> 
 
-Why? It is just a plain increment of a location that will almost certainly
-be in cache. I can't see how it would be more than half the cost of the
-irq implementation (based on looking at your measurements). How do you
-figure?
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-Also, preempt_disable is a very frequent operation on preempt kernels so
-if you have CONFIG_PREEMPT then you don't care about preempt_disable in
-down() (and if you do then you are calling down too often).
+> As you see, the new SLOB code runs almost as fast as the SLAB code. 
+> With some more improvements, I'm sure it can get even faster.
 
-> If we go with simple mutexes that's because there is a gain, even a huge 
-> one on ARM, especially for the fast uncontended case.  If you guys 
-> insist on making things so generic and rigid then there is no gain 
-> anymore worth the bother.
-> 
+cool, the numbers are really impressive! I'm wondering where the biggest 
+hit comes from - perhaps the SLOB does linear list walking when 
+allocating?
 
-I guess there is no bother for you, but maintaining code for 1 generic
-platform versus two dozen architectures is a huge win for many.
-
--- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+	Ingo

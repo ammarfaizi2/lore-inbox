@@ -1,71 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750831AbVLTSRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbVLTSUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750831AbVLTSRg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 13:17:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750830AbVLTSRf
+	id S1750842AbVLTSUv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 13:20:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750843AbVLTSUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 13:17:35 -0500
-Received: from tayrelbas01.tay.hp.com ([161.114.80.244]:13268 "EHLO
-	tayrelbas01.tay.hp.com") by vger.kernel.org with ESMTP
-	id S1750826AbVLTSRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 13:17:34 -0500
-Date: Tue, 20 Dec 2005 10:16:08 -0800
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Tony Luck <tony.luck@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
-       perfctr-devel@lists.sourceforge.net
-Subject: Re: [Perfctr-devel] Re: quick overview of the perfmon2 interface
-Message-ID: <20051220181608.GD5516@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20051219113140.GC2690@frankl.hpl.hp.com> <20051220025156.a86b418f.akpm@osdl.org> <12c511ca0512201005k4d499b57v724815258f80322@mail.gmail.com>
+	Tue, 20 Dec 2005 13:20:51 -0500
+Received: from waste.org ([64.81.244.121]:8915 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1750842AbVLTSUt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 13:20:49 -0500
+Date: Tue, 20 Dec 2005 12:19:22 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       john stultz <johnstul@us.ibm.com>,
+       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RT 00/02] SLOB optimizations
+Message-ID: <20051220181921.GF3356@waste.org>
+References: <dnu8ku$ie4$1@sea.gmane.org> <1134790400.13138.160.camel@localhost.localdomain> <1134860251.13138.193.camel@localhost.localdomain> <20051220133230.GC24408@elte.hu> <Pine.LNX.4.58.0512200836120.21313@gandalf.stny.rr.com> <20051220135725.GA29392@elte.hu> <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com> <1135093460.13138.302.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <12c511ca0512201005k4d499b57v724815258f80322@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
+In-Reply-To: <1135093460.13138.302.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-
-I will reply to your comments in details.
-
-On Tue, Dec 20, 2005 at 10:05:11AM -0800, Tony Luck wrote:
-> > >       The interface also supports automatic randomization of the reset value
-> > >       for a PMD after an overflow.
-> >
-> > Why would one want to randomise the PMD after an overflow?
+On Tue, Dec 20, 2005 at 10:44:20AM -0500, Steven Rostedt wrote:
+> (Andrew, I'm CC'ing you and Matt to see if you would like this in -mm)
 > 
-> To get better data.  Using a constant reload value may keep measuring the
-> same spot in the application if you are using a sample frequency that
-> matches some repeat pattern in the application (and Murphy's law says
-> that you'll hit this a lot).
+> OK Ingo, here it is.
 > 
-Yes, Tony is right.
+> The old SLOB did the old K&R memory allocations.
+> 
+> It had a global link list "slobfree".  When it needed memory it would
+> search this list linearly to find the first spot that fit and then
+> return it.  It was broken up into SLOB_UNITS which was the number of
+> bytes to hold slob_t.
+> 
+> Since the sizes of the allocations would greatly fluctuate, the chances
+> for fragmentation was very high.  This would also cause the looking for
+> free locations to increase, since the number of free blocks would also
+> increase due to the fragmentation.
 
-For several sampling measurments which are using events that occur very
-frequently such as branches, it becomes very important to avoid getting
-in lockstep with the execution. Using prime numbers is not always enough
-and randomization is the best way to solve this problem.
+On the target systems for the original SLOB design, we have less than
+16MB of memory, so the linked list walking is pretty well bounded.
+ 
+> It also had one global spinlock for ALL allocations.  This would
+> obviously kill SMP performance.
 
-We have ecountered this when David Mosberger was developing
-q-syscollect for Linux/IA64. This tool is sampling return branches
-using the MckInley Branch Trace Buffer. With the collected samples
-it is possible to build a statistical call graph (a la gprof).
-Without randomization, the samples were so biased that the data
-was unusable. With randomization, the data was very close to actual
-call graph as measured by gprof. The same argument applies to
-sampling for cache misses, you want to make sure you are not
-always capturing the same cache misses. 
+And again, the locking primarily exists for PREEMPT and small dual-core.
+So I'm still a bit amused that you guys are using it for -RT.
 
-The random number generator does not have to be super fancy. That's why
-we use the Carta algorithm, it is simple and fast and gives us very
-good samples.
+> When any block was freed via kfree, it would first search all the big
+> blocks to see if it was a large allocation, and if not, then it would
+> search the slobfree list to find where it goes.  Both taking two global
+> spinlocks!
+
+I don't think this is correct, or else indicates a bug. We should only
+scan the big block list when the freed block was page-aligned.
+
+> First things first, the first patch was to get rid of the bigblock list.
+> I'm simple used the method of SLAB to use the lru list field of the
+> corresponding page to store the pointer to the bigblock descriptor which
+> has the information to free it. This got rid of the bigblock link list
+> and global spinlock.
+
+This I like a lot. I'd like to see a size/performance measurement of
+this by itself. I suspect it's an unambiguous win in both categories.
+ 
+> The next patch was the big improvement, with the largest changes.  I
+> took advantage of how the kmem_cache usage that SLAB also takes
+> advantage of.  I created a memory pool like the global one, but for
+> every cache with a size less then PAGE_SIZE >> 1.
+
+Hmm. By every size, I assume you mean powers of two. Which negates
+some of the fine-grained allocation savings that current SLOB provides.
+
+[...]
+> So I have improved the speed of SLOB to almost that of SLAB!
+
+Nice.
+
+For what it's worth, I think we really ought to consider a generalized
+allocator approach like Sun's VMEM, with various removable pieces.
+
+Currently we've got something like this:
+
+ get_free_pages     boot_mem         idr    resource_*   vmalloc ...
+        |
+      slab
+        |
+  per_cpu/node
+        |
+  kmem_cache_alloc
+        |
+     kmalloc
+
+We could take it in a direction like this:
+
+ generic range allocator          (completely agnostic)
+          |
+  optional size buckets           (reduced fragmentation, O(1))
+          |    
+    optional slab                 (cache-friendly, pre-initialized)
+          |
+ optional per cpu/node caches     (cache-hot and lockless)
+          |
+ kmalloc / kmem_cache_alloc / boot_mem / idr / resource_* / vmalloc / ...
+
+(You read that right, the top level allocator can replace all the
+different allocators that hand back integers or non-overlapping ranges.)
+
+Each user of, say, kmem_create() could then pass in flags to specify
+which caching layers ought to be bypassed. IDR, for example, would
+probably disable all the layers and specify a first-fit policy.
+
+And then depending on our global size and performance requirements, we
+could globally disable some layers like SLAB, buckets, or per_cpu
+caches. With all the optional layers disabled, we'd end up with
+something much like SLOB (but underneath get_free_page!).
 
 -- 
-
--Stephane
+Mathematics is the supreme nostalgia of our time.

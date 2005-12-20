@@ -1,94 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVLTRNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVLTRPw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750778AbVLTRNM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 12:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVLTRNL
+	id S1750796AbVLTRPw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 12:15:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbVLTRPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 12:13:11 -0500
-Received: from fmr17.intel.com ([134.134.136.16]:18880 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750778AbVLTRNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 12:13:10 -0500
-Subject: Re: IOAT comments
-From: Chris Leech <christopher.leech@intel.com>
-To: dsaxena@plexity.net
-Cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       "Ronciak, John" <john.ronciak@intel.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051220101128.GA28938@plexity.net>
-References: <20051220101128.GA28938@plexity.net>
-Content-Type: text/plain
+	Tue, 20 Dec 2005 12:15:52 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:21703 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1750796AbVLTRPw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 12:15:52 -0500
+Message-ID: <43A84DFD.D8B2151F@tv-sign.ru>
+Date: Tue, 20 Dec 2005 21:31:25 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+Subject: Re: [PATCH rc5-rt2 0/3] plist: alternative implementation
+References: <43A5A7B5.21A4CAAE@tv-sign.ru>  <20051220143848.GA2053@elte.hu> <1135096463.3834.3.camel@localhost.localdomain>
+Content-Type: text/plain; charset=koi8-r
 Content-Transfer-Encoding: 7bit
-Date: Tue, 20 Dec 2005 09:13:01 -0800
-Message-Id: <1135098781.4177.27.camel@cleech-mobl>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-X-OriginalArrivalTime: 20 Dec 2005 17:13:04.0518 (UTC) FILETIME=[A39B1A60:01C60588]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-20 at 02:11 -0800, Deepak Saxena wrote:
+Daniel Walker wrote:
 > 
-> Andy & Chris,
+> On Tue, 2005-12-20 at 15:38 +0100, Ingo Molnar wrote:
+> > * Oleg Nesterov <oleg@tv-sign.ru> wrote:
+> >
+> I think there is a bug in the new plist_add() , which was in the
+> original code. It doesn't properly handle the new maximum node scenario,
+> or INT_MAX .
 > 
-> Sorry for the very very delayed response on your patch. Some comments
-> below.
-
-Thanks for the feedback. I'm working on fixing up a few things and
-getting an updated set of patches out, so your timing's not bad at all.
-
-> What I would ideally like to see is an API that allows me to allocate
-> a DMA channel between system memory and a device struct:
+> If the list is 1 2 3 4
 > 
-> dma_client_alloc_chan(struct dma_client client*, struct device *dev);
+> and you insert 5 , you'll end up with the list 1 2 3 5 4 . Or something
+> like that .
 
-I had something similar in my initial design, the I/OAT DMA engine can
-operate on any memory mapped region "downstream" from the PCI device.
-That's easy enough to add to the API, and then flush out the device
-matching code in the ioatdma driver later.
+I think you are not right, please look at the code.
 
-> Make the various copy functions static inlines since they are just
-> doing an extra function pointer dereference.
+The code under list_for_each_entry() can break the loop only
+when node->prio <= iter->prio.
 
-OK
+void plist_add(struct pl_node *node, struct pl_head *head)
+{
+	struct pl_node *iter;
 
-> - The API currently supports only 1 client per DMA channel. I think a
->   client should be able to ask for exclusive or non-exclusive usage of
->   a DMA channel and the core can mark channels as unvailable when
->   exclusive use is required. This could be useful in systems with just
->   1 DMA channel but multiple applications wanting to use it.
+	list_for_each_entry(iter, &head->prio_list, plist.prio_list)
+		if (node->prio < iter->prio)
+			goto lt_prio;
+		else if (node->prio == iter->prio)
+			...
 
-We were trying to not share them for simplicity.  But with the way we
-ended up using the DMA engine for TCP, we needed to get the locking
-right for requests from multiple threads anyway.  Shared channel use
-shouldn't be hard to add, I'll look into it.
+	// So, node->prio is a new maximum, or the list was empty.
 
-> - Add an interface that takes scatter gather lists as both source and
->   destination.
+	// &iter.plist == head. We don't touch iter->prio, so it
+	// is ok that this pl_node is fake, it is really pl_head.
 
-OK
+	// We are doing list_add_tail(), this means that new node
+	// will stay _after_ all other nodes.
 
-> - DMA engine buffer alignment requirements? I've seen engines that
->   handle any source/destination alignment and ones that handle
->   only 32-bit or 64-bit aligned buffers. In the case of a transfer
->   that is != alignment requirement of DMA engine, does the DMA device
->   driver handle this or does the DMA core handle this?
+	// In this case the code below is equal to:
+	//
+	//	list_add_tail(&node->plist.prio_list, &head->prio_list);
+	//	list_add_tail(&node->plist.prio_list, &head->node_list);
 
-Any ideas of what this would look like?
+lt_prio:
+	list_add_tail(&node->plist.prio_list, &iter->plist.prio_list);
+eq_prio:
+	list_add_tail(&node->plist.node_list, &iter->plist.node_list);
+}
 
-> - Can we get rid of the "async" in the various function names? I don't
->   know of any HW that implements a synchronous DMA engine! It would
-> sort of defeat the purpose. :)
+Note that this also garantees FIFO ordering, which was documented
+in plist.h, but was not true for plist_for_each().
 
-We tossed the async in after an early comment that the dma namespace
-wasn't unique enough, especially with the DMA mapping APIs already in
-place.  Maybe hwdma?  I'm open to suggestions.
+Daniel, do you agree ?
 
-> - The user_dma code should be generic, not in net/ but in kernel/ or
->   in drivers/dma as other subsystems and applications can probably
->   make use of this funcionality.
-
-You're right.  That file started out with dma_skb_copy_datagram_iovec,
-and dma_memcpy_[pg_]toiovec were created to support that.  Anything not
-specifically tied to sk_buffs should be moved.
-
--Chris
+Oleg.

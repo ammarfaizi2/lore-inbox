@@ -1,55 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbVLSXy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbVLTAFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbVLSXy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 18:54:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbVLSXy0
+	id S1750704AbVLTAFP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 19:05:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbVLTAFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 18:54:26 -0500
-Received: from ozlabs.org ([203.10.76.45]:36773 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750700AbVLSXy0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 18:54:26 -0500
-Date: Tue, 20 Dec 2005 10:40:57 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: Sonny Rao <sonny@burdell.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel@vger.kernel.org, clameter@sgi.com, sonnyrao@us.ibm.com
-Subject: Re: cpu hotplug oops on 2.6.15-rc5
-Message-ID: <20051219234056.GA11792@krispykreme>
-References: <20051219051659.GA6299@kevlar.burdell.org> <1134974518.10035.5.camel@gaston> <20051219070850.GA11956@kevlar.burdell.org> <43A72350.40909@colorfullife.com>
+	Mon, 19 Dec 2005 19:05:15 -0500
+Received: from omta02ps.mx.bigpond.com ([144.140.83.154]:40597 "EHLO
+	omta02ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1750704AbVLTAFL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Dec 2005 19:05:11 -0500
+Message-ID: <43A74AB5.9020401@bigpond.net.au>
+Date: Tue, 20 Dec 2005 11:05:09 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43A72350.40909@colorfullife.com>
-User-Agent: Mutt/1.5.11
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-6.1.6 for  2.6.15-rc5 and 2.6.15-rc5-mm2
+References: <439E6BA0.8020302@bigpond.net.au>
+In-Reply-To: <439E6BA0.8020302@bigpond.net.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Tue, 20 Dec 2005 00:05:09 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Peter Williams wrote:
+> This version features a major gutting of the SPA based schedulers to 
+> reduce overhead.  The inclusion of the mechanisms for gathering and 
+> displaying accrued scheduling statistics have been made a compile time 
+> configurable option (default is exclusion) as they are not an integral 
+> part of the scheduler and were mainly there to help with tuning.  In a 
+> future version they will be removed completely.
+> 
+> Additionally, the mechanism for auto detection and preferential 
+> treatment of media streamers in the spa_ws scheduler has been made a 
+> compile time option (default is exclusion).  The reason for this is that 
+> my testing shows that the performance of media streamers on spa_ws is 
+> adequate without it.  This will also be removed in a future version 
+> unless requested otherwise.
+> 
+> A patch for 2.6.15-rc5 is available at:
+> 
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.6-for-2.6.15-rc5.patch?download> 
 
-Hi Manfred,
+Also applies cleanly to 2.6.15-rc6.
 
-> Very odd call chain.
-> Could you enable slab debugging?
+> 
+> 
+> and a patch for 2.6.15-rc5-mm2 is available at:
+> 
+> <http://prdownloads.sourceforge.net/cpuse/plugsched-6.1.6-for-2.6.15-rc5-mm2.patch?download> 
+> 
+> 
+> Very Brief Documentation:
+> 
+> You can select a default scheduler at kernel build time.  If you wish to
+> boot with a scheduler other than the default it can be selected at boot
+> time by adding:
+> 
+> cpusched=<scheduler>
+> 
+> to the boot command line where <scheduler> is one of: ingosched,
+> nicksched, staircase, spa_no_frills, spa_ws, spa_svr or zaphod.  If you
+> don't change the default when you build the kernel the default scheduler
+> will be ingosched (which is the normal scheduler).
+> 
+> The scheduler in force on a running system can be determined by the
+> contents of:
+> 
+> /proc/scheduler
+> 
+> Control parameters for the scheduler can be read/set via files in:
+> 
+> /sys/cpusched/<scheduler>/
+> 
+> Peter
 
-Sonny and I had a look around, it seems to be in the
-cpuup_callback() / CPU_DEAD case:
 
-      if (!cpus_empty(mask)) {
-              spin_unlock(&l3->list_lock);
-              goto unlock_cache;
-      }
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-      if (l3->shared) {
-              free_block(cachep, l3->shared->entry,
-                              l3->shared->avail, node);
-              kfree(l3->shared);                <-------- HERE
-              l3->shared = NULL;
-      }
-
-So we are removing the last cpu in a node, and tearing down the node
-related structures. We looked at kfree() -> __cache_free() and we couldnt
-convince ourselves that all the CONFIG_NUMA stuff in there wouldnt trip
-over itself (since we would be doing the free on an alien node).
-
-Anton
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

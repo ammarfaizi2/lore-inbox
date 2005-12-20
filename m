@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932187AbVLTWOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbVLTWP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932187AbVLTWOF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 17:14:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbVLTWOE
+	id S932185AbVLTWP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 17:15:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbVLTWP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 17:14:04 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:1486 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932187AbVLTWOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 17:14:02 -0500
-Subject: Re: [Alsa-devel] 2.6.15-rc6: boot failure in saa7134-alsa.c
-From: Lee Revell <rlrevell@joe-job.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: James Courtier-Dutton <James@superbug.co.uk>, Adrian Bunk <bunk@stusta.de>,
-       Sergey Vlasov <vsu@altlinux.ru>, Ricardo Cerqueira <v4l@cerqueira.org>,
-       mchehab@brturbo.com.br,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
-In-Reply-To: <Pine.LNX.4.64.0512201248481.4827@g5.osdl.org>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
-	 <20051220131810.GB6789@stusta.de>
-	 <20051220155216.GA19797@master.mivlgu.local>
-	 <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org>
-	 <20051220191412.GA4578@stusta.de>
-	 <Pine.LNX.4.64.0512201156250.4827@g5.osdl.org>
-	 <43A86B20.1090104@superbug.co.uk>
-	 <Pine.LNX.4.64.0512201248481.4827@g5.osdl.org>
-Content-Type: text/plain
-Date: Tue, 20 Dec 2005 17:17:47 -0500
-Message-Id: <1135117067.27101.5.camel@mindpipe>
+	Tue, 20 Dec 2005 17:15:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:60627 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932185AbVLTWP2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 17:15:28 -0500
+Date: Tue, 20 Dec 2005 14:15:04 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       zaitcev@redhat.com
+Subject: usb: replace __setup("nousb") with __module_param_call
+Message-Id: <20051220141504.31441a41.zaitcev@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.8; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-20 at 13:03 -0800, Linus Torvalds wrote:
-> Forcing (or even just encouraging) people to use loadable modules is
-> just horrible. I personally run a kernel with no modules at all: it
-> makes for a simpler bootup, and in some situations (embedded) it has
-> both security and size advantages. 
+Fedora users complain that passing "nousbstorage" to the installer causes
+the rest of the USB support to disappear. The installer uses kernel command
+line as a way to pass options through Syslinux. The problem stems from the
+use of strncmp() in obsolete_checksetup().
 
-With modules it's possible to test a new ALSA version without
-recompiling the kernel or even rebooting.  Encouraging people to build
-it into the kernel would create a problematic barrier to entry for
-debugging.  With the amount of poorly documented hardware we support,
-it's essential for preventing driver regressions for users to be able to
-easily test the latest ALSA version.  
+I used __module_param_call() instead of module_param because I wanted to
+preserve the old syntax in grub.conf, and it's the only macro which allows
+to remove the prefix.
 
-Lee
+The fix is tested to accept the option "nousb" correctly now.
 
+Signed-off-by: Pete Zaitcev <zaitcev@redhat.com>
+
+---
+
+--- linux-2.6.14/drivers/usb/core/usb.c	2005-10-28 19:12:01.000000000 -0700
++++ linux-2.6.14-lem/drivers/usb/core/usb.c	2005-12-20 10:53:21.000000000 -0800
+@@ -54,7 +54,6 @@
+ const char *usbcore_name = "usbcore";
+ 
+ static int nousb;	/* Disable USB when built into kernel image */
+-			/* Not honored on modular build */
+ 
+ static DECLARE_RWSEM(usb_all_devices_rwsem);
+ 
+@@ -1455,18 +1454,8 @@
+ 	.resume =	usb_generic_resume,
+ };
+ 
+-#ifndef MODULE
+-
+-static int __init usb_setup_disable(char *str)
+-{
+-	nousb = 1;
+-	return 1;
+-}
+-
+ /* format to disable USB on kernel command line is: nousb */
+-__setup("nousb", usb_setup_disable);
+-
+-#endif
++__module_param_call("", nousb, param_set_bool, param_get_bool, &nousb, 0444);
+ 
+ /*
+  * for external read access to <nousb>

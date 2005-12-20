@@ -1,99 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbVLTKyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbVLTKwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750925AbVLTKyr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 05:54:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbVLTKyr
+	id S1750917AbVLTKwj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 05:52:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750918AbVLTKwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 05:54:47 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:61396 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750919AbVLTKyq (ORCPT
+	Tue, 20 Dec 2005 05:52:39 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:1002 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750910AbVLTKwi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 05:54:46 -0500
-Date: Tue, 20 Dec 2005 11:54:17 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [patch] fix spinlock-debugging smp_processor_id() usage
-Message-ID: <20051220105417.GA15120@elte.hu>
+	Tue, 20 Dec 2005 05:52:38 -0500
+Date: Tue, 20 Dec 2005 02:52:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Vladimir V. Saveliev" <vs@namesys.com>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>
+Subject: Re: bug in get_name of export operations?
+Message-Id: <20051220025209.df6d5c81.akpm@osdl.org>
+In-Reply-To: <43A6CA3A.5010905@namesys.com>
+References: <43A6CA3A.5010905@namesys.com>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Vladimir V. Saveliev" <vs@namesys.com> wrote:
+>
+> Hello
+> 
+> Please point my error if I am wrong:
+> 
+> fs/exportfs/expfs.c:get_name() opens a directory with:
+> file = dentry_open(dget(dentry), NULL, O_RDONLY);
+> which results in file where file->f_vfsmnt == NULL.
+> 
+> Then fs/readdir.c:vfs_readdir() and, therefore,
+> include/linux/fs.h:file_accessed(file) are called.
+> file_accessed() calls fs/inode.c:touch_atime() which tryies to dereference mnt
+> which is NULL.
+> 
 
-when a spinlock debugging check hits, we print the CPU number as an 
-informational thing - but there is no guarantee that preemption is off 
-at that point - hence we should use raw_smp_processor_id(). Otherwise 
-DEBUG_PREEMPT will print a warning. With the patch applied, the warning 
-goes away and only the spinlock-debugging info is printed.
+I think you're looking at the -mm tree, in which Christoph changed all that
+stuff.
 
-it's an obvious bugfix, and i think it should get into 2.6.15.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
-Index: linux/lib/spinlock_debug.c
-===================================================================
---- linux.orig/lib/spinlock_debug.c
-+++ linux/lib/spinlock_debug.c
-@@ -20,7 +20,8 @@ static void spin_bug(spinlock_t *lock, c
- 		if (lock->owner && lock->owner != SPINLOCK_OWNER_INIT)
- 			owner = lock->owner;
- 		printk("BUG: spinlock %s on CPU#%d, %s/%d\n",
--			msg, smp_processor_id(), current->comm, current->pid);
-+			msg, raw_smp_processor_id(),
-+			current->comm, current->pid);
- 		printk(" lock: %p, .magic: %08x, .owner: %s/%d, .owner_cpu: %d\n",
- 			lock, lock->magic,
- 			owner ? owner->comm : "<none>",
-@@ -78,8 +79,8 @@ static void __spin_lock_debug(spinlock_t
- 		if (print_once) {
- 			print_once = 0;
- 			printk("BUG: spinlock lockup on CPU#%d, %s/%d, %p\n",
--				smp_processor_id(), current->comm, current->pid,
--					lock);
-+				raw_smp_processor_id(), current->comm,
-+				current->pid, lock);
- 			dump_stack();
- 		}
- 	}
-@@ -120,7 +121,8 @@ static void rwlock_bug(rwlock_t *lock, c
- 
- 	if (xchg(&print_once, 0)) {
- 		printk("BUG: rwlock %s on CPU#%d, %s/%d, %p\n", msg,
--			smp_processor_id(), current->comm, current->pid, lock);
-+			raw_smp_processor_id(), current->comm,
-+			current->pid, lock);
- 		dump_stack();
- #ifdef CONFIG_SMP
- 		/*
-@@ -148,8 +150,8 @@ static void __read_lock_debug(rwlock_t *
- 		if (print_once) {
- 			print_once = 0;
- 			printk("BUG: read-lock lockup on CPU#%d, %s/%d, %p\n",
--				smp_processor_id(), current->comm, current->pid,
--					lock);
-+				raw_smp_processor_id(), current->comm,
-+				current->pid, lock);
- 			dump_stack();
- 		}
- 	}
-@@ -220,8 +222,8 @@ static void __write_lock_debug(rwlock_t 
- 		if (print_once) {
- 			print_once = 0;
- 			printk("BUG: write-lock lockup on CPU#%d, %s/%d, %p\n",
--				smp_processor_id(), current->comm, current->pid,
--					lock);
-+				raw_smp_processor_id(), current->comm,
-+				current->pid, lock);
- 			dump_stack();
- 		}
- 	}

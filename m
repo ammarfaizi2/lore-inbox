@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbVLTNdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbVLTNeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbVLTNdG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 08:33:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbVLTNdF
+	id S1751012AbVLTNeO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 08:34:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbVLTNeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 08:33:05 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:18643 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750747AbVLTNdD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 08:33:03 -0500
-Date: Tue, 20 Dec 2005 14:32:30 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: 2.6.15-rc5-rt2 slowness
-Message-ID: <20051220133230.GC24408@elte.hu>
-References: <dnu8ku$ie4$1@sea.gmane.org> <1134790400.13138.160.camel@localhost.localdomain> <1134860251.13138.193.camel@localhost.localdomain>
+	Tue, 20 Dec 2005 08:34:14 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:55215 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751012AbVLTNeN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 08:34:13 -0500
+Date: Tue, 20 Dec 2005 07:33:41 -0600
+From: Cliff Wickman <cpw@sgi.com>
+To: Bharata B Rao <bharata@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Very rare crash in prune_dcache
+Message-ID: <20051220133341.GA9329@sgi.com>
+References: <43A7286F.3080104@cs.fiu.edu> <20051219223435.GA2576@sgi.com> <20051220064629.GA31099@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1134860251.13138.193.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20051220064629.GA31099@in.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Bharata,
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
-
-> I ported your old changes of 2.6.14-rt22 of mm/slab.c to 
-> 2.6.15-rc5-rt2 and tried it out.  I believe that this confirms that 
-> the SLOB _is_ the problem in the slowness.  Booting with this slab 
-> patch, gives the old speeds that we use to have.
+On Tue, Dec 20, 2005 at 12:16:29PM +0530, Bharata B Rao wrote:
+> Hi Cliff,
 > 
-> Now, is the solution to bring the SLOB up to par with the SLAB, or to 
-> make the SLAB as close to possible to the mainline (why remove NUMA?) 
-> and keep it for PREEMPT_RT?
+> > I suspect a race condition inside prune_dcache().
+> > 
+> > The prune_dcache() function:
+> >         lock dcache_lock
+> >         scan the dentry_unused list of dentry's for a given number ("count") of
+> >         dentry's to free:
+                    --------
+                    get (remove) dentry from dentry_unused list
+                    --------
+> >                 if a dentry to free, call prune_one_dentry()
+> >                         dentry_iput()
+> >                                 unlock dcache_lock
+> >                                 iput() any associated inode
+> >                         d_free() the dentry
+> >                         lock dcache_lock
+> >         unlock dcache_lock
+> > 
+> > Two processors entering prune_dcache() near the same time will both scan
+> > the dentry_unused list and could try to iput() the same inode twice.  That is
+> > because the dcache_lock is released while running iput().
+>
+> Isn't this what dcache_lock doing presently ? As per vanilla 2.6.5 kernel
+> I don't see how the race condition you mention above can happen.
 > 
-> Below is the port of the slab changes if anyone else would like to see 
-> if this speeds things up for them.
+> In prune_dcache(), a dentry is first removed off the dentry_unused list
+> (under dcache_lock) before calling prune_one_dentry(). So how is it 
+> possible that an another thread executing prune_dcache() will hit
+> the same dentry again ?
 
-ok, i've added this back in - but we really need a cleaner port of SLAB 
-...
+Yes, I think you're right.   And it's not theoretically possible for
+two dentry's to point to the same inode.  So the inode that caused our
+crash must have been corrupted elsewhere.
+Thanks.
 
-	Ingo
+-Cliff
+
+-- 
+Cliff Wickman
+Silicon Graphics, Inc.
+cpw@sgi.com
+(651) 683-3824

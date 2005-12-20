@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbVLTWVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbVLTWcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbVLTWVF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 17:21:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932190AbVLTWVE
+	id S932126AbVLTWcx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 17:32:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932135AbVLTWcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 17:21:04 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:62873 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932188AbVLTWVC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 17:21:02 -0500
-Date: Tue, 20 Dec 2005 17:19:15 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Nicolas Pitre <nico@cam.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
-Subject: Re: [patch 04/15] Generic Mutex Subsystem, add-atomic-call-func-x86_64.patch
-In-Reply-To: <Pine.LNX.4.64.0512201354210.4827@g5.osdl.org>
-Message-ID: <Pine.LNX.4.58.0512201716420.25296@gandalf.stny.rr.com>
-References: <20051219013507.GE27658@elte.hu> <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com>
- <1135025932.4760.1.camel@localhost.localdomain> <20051220043109.GC32039@elte.hu>
- <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain> <43A7BCE1.7050401@yahoo.com.au>
- <Pine.LNX.4.64.0512200909180.26663@localhost.localdomain> <43A81132.8040703@yahoo.com.au>
- <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain>
- <Pine.LNX.4.64.0512201026230.4827@g5.osdl.org> <20051220193423.GC24199@flint.arm.linux.org.uk>
- <Pine.LNX.4.64.0512201202200.4827@g5.osdl.org>
- <Pine.LNX.4.64.0512201533120.26663@localhost.localdomain>
- <Pine.LNX.4.64.0512201354210.4827@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Dec 2005 17:32:53 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:25304 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S932126AbVLTWcw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 17:32:52 -0500
+Subject: Re: About 4k kernel stack size....
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>
+In-Reply-To: <1135104210.2952.26.camel@laptopd505.fenrus.org>
+References: <20051218231401.6ded8de2@werewolf.auna.net>
+	 <43A77205.2040306@rtr.ca> <20051220133729.GC6789@stusta.de>
+	 <170fa0d20512200637l169654c9vbe38c9931c23dfb1@mail.gmail.com>
+	 <46578.10.10.10.28.1135094132.squirrel@linux1>
+	 <Pine.LNX.4.61.0512201202090.27692@chaos.analogic.com>
+	 <Pine.LNX.4.64.0512201157140.7859@turbotaz.ourhouse>
+	 <Pine.LNX.4.61.0512201316350.27879@chaos.analogic.com>
+	 <1135104210.2952.26.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 20 Dec 2005 22:33:28 +0000
+Message-Id: <1135118009.25010.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2005-12-20 at 19:43 +0100, Arjan van de Ven wrote:
+> it involves a whole lot, like banning dma from the stack, and to make it
+> swapable or kmapped you'd even need to fix all the places that put
+> things like wait queues on the stack, as well as many other similar data
+> structures. Staying at 4Kb is a lot easier than that ;)
 
-On Tue, 20 Dec 2005, Linus Torvalds wrote:
->
-> In other words: if people didn't mix up issues that had nothing to do with
-> this into it, I'd be happier. I've already said that a mutex that does
-> _not_ replace semaphore (and doesn't mess with naming) is acceptable.
->
+If you look at something like the early unix design books its very deep
+into the design of the most basic behaviour and primitives. It would be
+possible to fix that in Linux but probably not worth it. The 1 page you
+need for stack is now cheap.
 
-At least I'm very happy with Linus' decision.  Can we now end this thread,
-and move forward.  You may bring up your issues in what comes next.
+I did look at fixing it for ELKS where a big part of the 64K DS space is
+kernel stacks but fortunately something useful needed doing instead ;)
 
-Thank you,
-
--- Steve
+Alan
 

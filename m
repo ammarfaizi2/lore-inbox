@@ -1,131 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbVLTQgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbVLTQjm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbVLTQgW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 11:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751125AbVLTQgW
+	id S1751127AbVLTQjm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 11:39:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751126AbVLTQjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 11:36:22 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:4681 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1751124AbVLTQgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 11:36:21 -0500
-Date: Tue, 20 Dec 2005 11:35:22 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 04/15] Generic Mutex Subsystem,
- add-atomic-call-func-x86_64.patch
-In-reply-to: <43A81DD4.30906@yahoo.com.au>
-X-X-Sender: nico@localhost.localdomain
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Ingo Molnar <mingo@elte.hu>, David Woodhouse <dwmw2@infradead.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
-Message-id: <Pine.LNX.4.64.0512201049310.26663@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20051219013507.GE27658@elte.hu>
- <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com>
- <1135025932.4760.1.camel@localhost.localdomain>
- <20051220043109.GC32039@elte.hu>
- <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain>
- <43A7BCE1.7050401@yahoo.com.au>
- <Pine.LNX.4.64.0512200909180.26663@localhost.localdomain>
- <43A81132.8040703@yahoo.com.au>
- <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain>
- <43A81DD4.30906@yahoo.com.au>
+	Tue, 20 Dec 2005 11:39:42 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:9612 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1751125AbVLTQjm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 11:39:42 -0500
+Message-ID: <43A833DC.3080204@tmr.com>
+Date: Tue, 20 Dec 2005 11:39:56 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: sander@humilis.net
+CC: Willy Tarreau <willy@w.ods.org>, john stultz <johnstul@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>, greg@kroah.com, axboe@suse.de,
+       vandrove@vc.cvut.cz, aia21@cam.ac.uk, akpm@osdl.org
+Subject: Re: [RFC] Let non-root users eject their ipods?
+References: <1135047119.8407.24.camel@leatherman> <20051220051821.GM15993@alpha.home.local> <2cd57c900512192206g7292cb1m@mail.gmail.com> <20051220085653.GA3137@favonius> <2cd57c900512200131l4ff29837o@mail.gmail.com> <20051220093802.GA15866@favonius>
+In-Reply-To: <20051220093802.GA15866@favonius>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Dec 2005, Nick Piggin wrote:
-
-> Nicolas Pitre wrote:
-> > On Wed, 21 Dec 2005, Nick Piggin wrote:
-> > 
-> > 
-> > > Nicolas Pitre wrote:
-> > > 
-> > > > On Tue, 20 Dec 2005, Nick Piggin wrote:
-> > > 
-> > > > > Considering that on UP, the arm should not need to disable interrupts
-> > > > > for this function (or has someone refuted Linus?), how about:
-> > > > 
-> > > > 
-> > > > Kernel preemption.
-> > > > 
-> > > 
-> > > preempt_disable() ?
-> > 
-> > 
-> > Sure, and we're now more costly than the current implementation with irq
-> > disabling.
-> > 
+Sander wrote:
+> Coywolf Qi Hunt wrote (ao):
 > 
-> Why? It is just a plain increment of a location that will almost certainly
-> be in cache. I can't see how it would be more than half the cost of the
-> irq implementation (based on looking at your measurements). How do you
-> figure?
+>>2005/12/20, Sander <sander@humilis.net>:
+>>
+>>>Coywolf Qi Hunt wrote (ao):
+>>>
+>>>>2005/12/20, Willy Tarreau <willy@w.ods.org>:
+>>>>
+>>>>>On Mon, Dec 19, 2005 at 06:51:58PM -0800, john stultz wrote:
+>>>>>
+>>>>>>      I'm getting a little tired of my roommates not knowing how to safely
+>>>>>>eject their usb-flash disks from my system and I'd personally like it if
+>>>>>>I could avoid bringing up a root shell to eject my ipod. Sure, one could
+>>>>>>suid the eject command, but that seems just as bad as changing the
+>>>>>>permissions in the kernel (eject wouldn't be able to check if the user
+>>>>>>has read/write permissions on the device, allowing them to eject
+>>>>>>anything).
+>>>>>
+>>>>>You may find my question stupid, but what is wrong with umount ? That's
+>>>>>how I proceed with usb-flash and I've never sent any eject command to
+>>>>>it (I even didn't know that the ioctl would be accepted by an sd device).
+>>>>
+>>>>IMHO, umount doesn't guarantee sync, isn't it?
+>>
+>>Actually I was think umount(2), since this is the kernel list, but off
+>>topic here.
+>>
+>>
+>>>I'm pretty sure it does :-)
+>>
+>>That is because: usually your removable media is not the file system
+>>root, hence umount(8) can return successfully only if no processes are
+>>busy working on it.
+>>
+>>If you boot from or chroot/pivot into a removable media, and you
+>>remount it ro, and unplug it, then you may lose data.
+> 
+>  
+> eject wont help you here, right?
+> 
+> And the OP was talking about usb-flash sticks his roommates use and his
+> ipod. He doesn't need to eject those. umount will do.
+> 
+Using umount still leaves the iPod flashing a "do not disconnect" 
+message as I recall, while eject clears it. So while umount may be all 
+the o/s needs, and all some external storage media need, it may be 
+highly desirable to do the eject for the benefit of the attached device, 
+to cue it to finish whatever it's caching internally. Whatever eject 
+does clearly is device visible, and in the case of iPod the device 
+objects if it isn't given.
 
-ARM is a load/store architecture.  So the preempt_count has to be 
-loaded, incremented, and stored back (3 instructions just there).  Then 
-the preempt_count itself isn't straight there, it is reached with the 
-thread_info pointer which requires 2 additional instructions to 
-generate.  So we're already up to 5 instructions while the disabling of 
-interrupts takes 3.
+I would think that allowing it on any device on which the caller has 
+write permission would cover the security aspects. In this case I would 
+prefer not taking the "my XXX doesn't need it" approach, and do it 
+unless there's a reason not to.
 
-OK now we want to decrement the semaphore count.  One load, one 
-decrement, one store, i.e. 3 more instructions.  We're up to 8.
+Not allowing a CD/DVD burner to "prevent media removal" on a device for 
+which the user has write permission is another case of questionable 
+security. Since that prevents unpatched growisofs from being used by a 
+user it has a real negative effect and no obvious (to me) security 
+benefit. I don't think of a case where I want to pull a media as it's 
+burning...
 
-Oh and we're still supposed to be in a fast path.  And we even aren't 
-ready to decide if we acquired the semaphore just yet.
-
-Now we have to call preempt_enable().  Given that preempt_count() will 
-use 2 instructions again to get to the thread_info pointer, let's say 
-for the demonstration that we instead open coded our own 
-preempt_enable() and preempt_disable() so to be able to cache the 
-thread_info pointer amongst those two.  So let's forget about those 2 
-additional instructions.
-
-Let's also suppose that we preserved the original preempt count so that 
-we don't have to re-load and decrement it which would have used 2 other 
-additional instructions.  Good!  But register pressure is increasing, 
-and btw we're using completely non generic kernel infrastructure at this 
-point.
-
-We nevertheless still have to store the original preempt count back.  
-One instruction i.e. we're up to 9.
-
-And with 9 instructions we're already worse than the implementation with 
-interrupt disabling.  Maybe not in terms of cycles but hey we're not 
-done yet!
-
-Any preempt_enable() equivalent look at the TIF_NEED_RESCHED flag 
-(luckily we still have the thread_info pointer handy since we're not 
-using test_thread_flag() but loading the flag directly i.e. one 
-instruction), testing it (one instruction), conditionally branching to 
-preempt_schedule (one instruction).  Now up to 12 instructions.  Amd to 
-make things even worse: since the flag has to be tested right after it 
-has been loaded you must account for result delays (more cycles) for the 
-load.
-
-OK, did we acquire that damn semaphore or not?  Oh since we clobbered 
-the processor's condition flag while testing the TIF_NEED_RESCHED flag 
-we are now forced to test that semaphore count again to see if it went 
-negative: one instruction.  And finally branch to the contention routine 
-if the semaphore was already locked: one instruction.
-
-So 14 instructions total with preemption disabling, and that's with the 
-best implementation possible by open coding everything instead of 
-relying on generic functions/macros.
-
-Compare that to my 4 (or 3 when gcc can cse a constant) 
-instructions needed for the mutex equivalent.
-
-
-Nicolas
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

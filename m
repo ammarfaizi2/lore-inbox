@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbVLTPaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbVLTPmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbVLTPaN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 10:30:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751090AbVLTPaN
+	id S1751100AbVLTPmX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 10:42:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVLTPmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 10:30:13 -0500
-Received: from mtai03.charter.net ([209.225.8.183]:34244 "EHLO
-	mtai03.charter.net") by vger.kernel.org with ESMTP id S1750764AbVLTPaM
+	Tue, 20 Dec 2005 10:42:23 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:14607 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S1751100AbVLTPmX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 10:30:12 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAQAAA+k=
-Message-ID: <43A822A0.4020101@cybsft.com>
-Date: Tue, 20 Dec 2005 09:26:24 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Thunderbird 1.5 (X11/20051025)
+	Tue, 20 Dec 2005 10:42:23 -0500
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Linda Walsh <lkml@tlinx.org>
+Subject: Re: Makefile targets: tar & rpm pkgs, while using O=<dir> as
+ non-root
+References: <43A5F058.1060102@tlinx.org> <20051219071959.GJ13985@lug-owl.de>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: more than just a Lisp interpreter, a text editor as well!
+Date: Tue, 20 Dec 2005 15:41:04 +0000
+In-Reply-To: <20051219071959.GJ13985@lug-owl.de> (Jan-Benedict Glaw's
+ message of "19 Dec 2005 07:21:23 -0000")
+Message-ID: <87d5jru67j.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Steven Rostedt <rostedt@goodmis.org>, linux-kernel@vger.kernel.org,
-       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: 2.6.15-rc5-rt2 slowness
-References: <dnu8ku$ie4$1@sea.gmane.org> <1134790400.13138.160.camel@localhost.localdomain> <1134860251.13138.193.camel@localhost.localdomain> <20051220133230.GC24408@elte.hu> <Pine.LNX.4.58.0512200836120.21313@gandalf.stny.rr.com> <20051220135725.GA29392@elte.hu>
-In-Reply-To: <20051220135725.GA29392@elte.hu>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Steven Rostedt <rostedt@goodmis.org> wrote:
-> 
->>>> Now, is the solution to bring the SLOB up to par with the SLAB, or to
->>>> make the SLAB as close to possible to the mainline (why remove NUMA?)
->>>> and keep it for PREEMPT_RT?
->>>>
->>>> Below is the port of the slab changes if anyone else would like to see
->>>> if this speeds things up for them.
->>> ok, i've added this back in - but we really need a cleaner port of SLAB
->>> ...
->>>
->> Actually, how much do you want that SLOB code?  For the last couple of 
->> days I've been working on different approaches that can speed it up. 
->> Right now I have one that takes advantage of the different caches.  
->> But unfortunately, I'm dealing with a bad pointer some where that 
->> keeps making it bug. Argh!
-> 
-> well, the SLOB is mainly about being simple and small. So as long as 
-> those speedups are SMP-only, they ought to be fine. The problems are 
-> mainly SMP related, correct?
-> 
-> 	Ingo
+On 19 Dec 2005, Jan-Benedict Glaw stated:
+> I've not really used out-of-tree building for Linux, so the tar*
+> targets are probably not really tested with that regard. Though I'll
+> check that and see if it works (of if a patch is needed.)
 
-No. I experienced horrible performance running the original patch with
-the SLOB on my uniprocessor system vs. the patch with Steven's SLAB
-patch applied on the same system. In fact I am currently running the
-latter on that system now. With the original patch the system is really
-unusable.
+Given the existence of `cp -al', I'm not quite sure what the point of
+out-of-tree building *is*. (I'm equally mystified by srcdir!=objdir
+builds; I can see their utility for software with many generated files
+and multi-stage bootstraps, like GCC, 'cos they simplify the makefiles,
+but for normal software? What's the point?)
+
+I mean, instead of
+
+cd linux-2.6.blah
+make blah O=/some/directory
+
+you can always do
+
+cp -al linux-2.6.blah /some/directory/
+cd /some/directory
+make blah
+
+unless you're so short of space that you can't store the object files
+and the source files on the same disk, and that should be a *very* rare
+complaint with today's disk sizes.
 
 -- 
-   kr
+`I must caution that dipping fingers into molten lead
+ presents several serious dangers.' --- Jearl Walker

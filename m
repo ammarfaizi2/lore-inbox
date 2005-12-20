@@ -1,46 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVLUL72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932383AbVLUL7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbVLUL72 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 06:59:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbVLUL72
+	id S932383AbVLUL7u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 06:59:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932382AbVLUL7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 06:59:28 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:48824 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S932376AbVLUL71 (ORCPT
+	Wed, 21 Dec 2005 06:59:50 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:49592 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S932383AbVLUL7i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 06:59:27 -0500
-Message-Id: <200512202137.jBKLbY77004191@laptop11.inf.utfsm.cl>
-To: kernel-stuff@comcast.net (Parag Warudkar)
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Andi Kleen <ak@suse.de>,
-       Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks 
-In-Reply-To: Message from kernel-stuff@comcast.net (Parag Warudkar) 
-   of "Tue, 20 Dec 2005 19:08:24 -0000." <122020051908.25484.43A856A8000A6E600000638C220075894200009A9B9CD3040A029D0A05@comcast.net> 
+	Wed, 21 Dec 2005 06:59:38 -0500
+Message-Id: <200512202035.jBKKZSHS003621@laptop11.inf.utfsm.cl>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
+Subject: Re: [patch 04/15] Generic Mutex Subsystem, add-atomic-call-func-x86_64.patch 
+In-Reply-To: Message from Steven Rostedt <rostedt@goodmis.org> 
+   of "Tue, 20 Dec 2005 14:43:30 CDT." <Pine.LNX.4.58.0512201437120.11245@gandalf.stny.rr.com> 
 X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
-Date: Tue, 20 Dec 2005 18:37:34 -0300
+Date: Tue, 20 Dec 2005 17:35:28 -0300
 From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 21 Dec 2005 08:56:08 -0300 (CLST)
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 21 Dec 2005 08:56:26 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Parag Warudkar <kernel-stuff@comcast.net> wrote:
-> > Oh, well, one of the larger drawbacks of 4KiB stacks is the inevitable
-> > flamewar, each time with /less/ data (this round I've seen none) supporting
-> > the need for larger stacks, into which all kinds of idiots* are suckered.
+Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> At the same time, I haven't seen any data showing what we gain by losing
-> the 8K stack option.
+[...]
 
-Code simplification (don't need both versions). Simpler kernel configuration. 
-Even smaller .config files ;-)
+> Let me restate, that the generic code should not be this, but each arch
+> can have this if they already went through great lengths in making a fast
+> semaphore.
+> 
+> Heck put the above defines in the generic code, with a define
+> 
+> linux/mutex.h:
+> 
+> #ifdef HAVE_ARCH_MUTEX
+> #include <asm/mutex.h>
+> #else
+> 
+> #ifdef HAVE_FAST_SEMAPHORE
+> 
+> #define <defines here>
+> 
+> #else
+> 
+> generic code here
 
-A useful byproduct is more reproducible crashes when the stack overruns (as
-8KiB stands, it will crash the same, but only sometimes; probably even
-more, as it really is 6KiB for process + IRQ, and with 4KiB they are 4KiB
-each). Yes, more crashes is a feature, as it gets fixed faster.
+Anything to go here could/should very well be in the above arch-specific
+file. Saves you a #define ;-)
+
+> #endif /* HAVE_FAST_SEMAPHORE */
+> #endif /* HAVE_ARCH_MUTEX */
 -- 
 Dr. Horst H. von Brand                   User #22616 counter.li.org
 Departamento de Informatica                     Fono: +56 32 654431

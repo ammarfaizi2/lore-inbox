@@ -1,164 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbVLTIL7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbVLTIMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbVLTIL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 03:11:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbVLTIL7
+	id S1750849AbVLTIMV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 03:12:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750852AbVLTIMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 03:11:59 -0500
-Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:4978 "HELO
-	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750841AbVLTIL6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 03:11:58 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Vitaly Wool <vwool@ru.mvista.com>
-Subject: Re: [PATCH/RFC] SPI core: turn transfers to be linked list
-Date: Tue, 20 Dec 2005 00:11:56 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-References: <43A480C0.9080201@ru.mvista.com> <200512181240.46841.david-b@pacbell.net> <43A665F7.7020404@ru.mvista.com>
-In-Reply-To: <43A665F7.7020404@ru.mvista.com>
+	Tue, 20 Dec 2005 03:12:21 -0500
+Received: from smtp103.plus.mail.mud.yahoo.com ([68.142.206.236]:31653 "HELO
+	smtp103.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750848AbVLTIMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 03:12:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ctcD5086828aHC96Lc9XNTKuBwZFHwgJ++hiOLmBdgabt42Iw1T1jaRrYlb/Z13XtepR8zxxaZLfodoX1UUygvlV67ZnODtnjUIAghf+SpaliXGOsYFpUIyrNjQ+dmXxodI4NH4lSMZDSt7suC4YGu/kA9aIZ2wY+rad2AXNgZQ=  ;
+Message-ID: <43A7BCE1.7050401@yahoo.com.au>
+Date: Tue, 20 Dec 2005 19:12:17 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Nicolas Pitre <nico@cam.org>
+CC: Ingo Molnar <mingo@elte.hu>, David Woodhouse <dwmw2@infradead.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
+Subject: Re: [patch 04/15] Generic Mutex Subsystem, add-atomic-call-func-x86_64.patch
+References: <20051219013507.GE27658@elte.hu> <Pine.LNX.4.64.0512190948410.1678@montezuma.fsmlabs.com> <1135025932.4760.1.camel@localhost.localdomain> <20051220043109.GC32039@elte.hu> <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512200011.57052.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nicolas Pitre wrote:
+> On Tue, 20 Dec 2005, Ingo Molnar wrote:
+> 
+> 
+>>* David Woodhouse <dwmw2@infradead.org> wrote:
+>>
+>>
+>>>On Mon, 2005-12-19 at 09:49 -0800, Zwane Mwaikambo wrote:
+>>>
+>>>>Hi Ingo,
+>>>>        Doesn't this corrupt caller saved registers?
+>>>
+>>>Looks like it. I _really_ don't like calling functions from inline 
+>>>asm. It's not nice. Can't we use atomic_dec_return() for this?
+>>
+>>we can use atomic_dec_return(), but that will add one more instruction 
+>>to the fastpath. OTOH, atomic_dec_return() is available on every 
+>>architecture, so it's a really tempting thing. I'll experiment with it.
+> 
+> 
+> Please consider using (a variant of) xchg() instead.  Although 
+> atomic_dec() is available on all architectures, its implementation is 
+> far from being the most efficient thing to do for them all.  For 
+> example, see my discussion about swp on ARM:
+> 
 
-> >Hmm, color me confused.  Is there something preventing a driver from
-> >having its own freelist (or whatever), in cases where kmalloc doesn't
-> >suffice?  If not, why should the core change?  And what sort of driver
-> >measurements are you doing, to conclude that kmalloc doesn't suffice?
-> >  
-> >
-> Can't get what you're talking about. A freelist of what?
+Considering that on UP, the arm should not need to disable interrupts
+for this function (or has someone refuted Linus?), how about:
 
-Of whatever the driver wants.  You had pointed at some code that
-boiled down to keeping a freelist of some structures in the core.
-Such code doesn't _need_ to be in the core at all ...
+#ifndef CONFIG_SMP
+typedef struct { volatile int counter; } mutex_counter_t;
 
-
-> Basically the idea of the custom lightweight allocation is the 
-> following: allocate a page and divide into regions of the same size, 
-> initialize and use these regions as a stack.
-
-There already a lot of allocators that support that, like kmem_cache_t
-or dma_pool or mempool_t ... no more, please!  They don't all have that
-"stack"/freelist notion though; easy for drivers to do that, IMO.
-
-Drivers that don't want to hit the heap will preallocate everything
-they can, and they'll probably have their own freelists.  That wins
-by eliminating the slab subroutine calls from what are often hot
-code paths, along with their fault handling logic ... and removing
-the need (and testing) for fault handling wins by improving robustness.
-
-
-> Next, why the current model prevents us from doing that. The array may 
-> be of any size thus we can't divide the page into regions of the same 
-> size: we can't predict what the maximum size will be. And this is the 
-> problem of the core.
-
-The driver code calling through the core doesn't have that problem.
-It knows what size it needs, and if it needed enough of them it'd be
-easy to make a kmem_cache_t to suit its needs.
-
-
-> >I'd have said that since this increases the per-transfer costs (to set
-> >up and manage the list memberships) you want to increase the weight of
-> >that part of the API, not decrease it.  ;)
-> >  
-> >
-> Disagree. Let's look deeper. kmalloc itself is more heavyweght than 
-> setting up list memberships.
-
-But kmalloc was previously optional, yes?  And should still be ...
-
-
-> The list setting commands are pretty essential and will not add a lot to 
-> the assembly code.
-
-I'm not totally averse to such changes, but you don't seem to be making
-the best arguments.  Example:  they're clearly not "essential" because
-transfer queues work today with the lists at the spi_message level.
-
- 
-> >Note that your current API maps to mine roughly by equating
-> >
-> >	allocate your spi_msg 
-> >	allocate my { spi_message + one spi_transfer }
-> >
-> >So if you're doing one allocation anyway, you already have the relevant
-> >linked list (in spi_message) and pre-known size.  So this patch wouldn't
-> >improve any direct translation of your driver stack.
-> >  
-> >
-> This is the patch to your API, so I don't see why you're mentioning it here.
-
-Because interface changes need to be discussed in context, and at this time
-you have the only code that seems to suggest a need for this ...
-
-
-> And your understanding is not quite correct. What if I'm going to send a 
-> chain of 5 messages? I'll allocate 5 spi_msg's in my case which all are 
-> gonna be of the same size -- thus the technique described above is 
-> applicable. In case of your core it's not.
-
-I must have been deceived then by this little utility:
-
-static inline struct spi_message *spi_message_alloc(unsigned ntrans, gfp_t flags)
+static inline int mutex_counter_dec_return(mutex_counter *v)
 {
-        struct spi_message *m;
-
-        m = kzalloc(sizeof(struct spi_message)
-                        + ntrans * sizeof(struct spi_transfer),
-                        flags);
-        if (m) {
-                m->transfers = (void *)(m + 1);
-                m->n_transfer = ntrans;
-        }
-        return m;
+     return --v->counter;
 }
 
-Sure looks to me like spi_message_alloc(5, SLAB_ATOMIC) should do the trick.
-One allocation, always the same size.  And kzalloc() could easily optimize
-that to use the "size-192" slab cache (or whatever), like kmalloc() does;
-that'd be a small speedup.
+...
+#else
+#define mutex_counter_t atomic_t
+...
+#endif
 
+Or does that get too bulky or have other problems?
 
-> >Could you elaborate on this problem you perceive?  This isn't the only
-> >driver API in Linux to talk in terms of arrays describing transfers,
-> >even potentially large arrays.  
-> 
-> The problem is: we're using real-time enhancements patch developed by 
-> Ingo/Sven/Daniel etc. You cannot call kmalloc from the interrupt 
-> context  if you're using this patch. Yeah, yeah -- the interrupt 
-> handlers are in threads by default, but we can't go for that since we 
-> want immediate acknowledgement from the interrupt context, and that 
-> implies spi_message/spi_transfer allocation.
+MP ARMs should have an adequate atomic_dec_return.
 
-Could you elaborate a bit here?  You seem to be implying that for some
-reason one of your SPI related drivers must use non-threaded hardirqs,
-AND (news to me, if true) that such hardirqs can't kmalloc(), AND that
-it can't use any of several widely used strategies to avoid hitting
-things like the slab allocator.  (That last seems hardest to believe...)
+-- 
+SUSE Labs, Novell Inc.
 
-I asked earlier what sort of performance measurements you're making
-that are leading you to these conclusions.  I'm still wondering.  :)
-
-
-> >Consider how "struct scatterlist" is used, and how USB manages the
-> >descriptors for isochronous transfers.  They don't use linked lists
-> >there, and haven't seemed to suffer from it.
-> >  
-> >
-> Not sure if I understand why it's relevant to what we're discussing.
-
-Examples of driver interfaces in Linux that work fine using arrays to couple
-a group of transfers.  If you see some problem that makes a compelling
-argument that the SPI must change, it would also affect drivers using
-those interfaces too, at least a little bit ... right?  Does it?
-
-- Dave
-
+Send instant messages to your online friends http://au.messenger.yahoo.com 

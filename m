@@ -1,97 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932118AbVLTVHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbVLTVI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932118AbVLTVHX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 16:07:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932117AbVLTVHX
+	id S932109AbVLTVI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 16:08:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbVLTVI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 16:07:23 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:28584 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932115AbVLTVHW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 16:07:22 -0500
-Date: Tue, 20 Dec 2005 13:03:10 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: James Courtier-Dutton <James@superbug.co.uk>
-cc: Adrian Bunk <bunk@stusta.de>, Sergey Vlasov <vsu@altlinux.ru>,
-       Ricardo Cerqueira <v4l@cerqueira.org>, mchehab@brturbo.com.br,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
-Subject: Re: [Alsa-devel] 2.6.15-rc6: boot failure in saa7134-alsa.c
-In-Reply-To: <43A86B20.1090104@superbug.co.uk>
-Message-ID: <Pine.LNX.4.64.0512201248481.4827@g5.osdl.org>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
- <20051220131810.GB6789@stusta.de> <20051220155216.GA19797@master.mivlgu.local>
- <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org> <20051220191412.GA4578@stusta.de>
- <Pine.LNX.4.64.0512201156250.4827@g5.osdl.org> <43A86B20.1090104@superbug.co.uk>
+	Tue, 20 Dec 2005 16:08:57 -0500
+Received: from wproxy.gmail.com ([64.233.184.201]:24087 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932109AbVLTVI5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 16:08:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=XGT2dHdGaEmE/Z9/5lOB9kRDAvVG0UHAF/DQ+ONRwRHcf0J9ieZoLdH6UjUWkfMowHA+C73dCX9U78lb4AtTn1nLWP0ZiaZrv7oHFrPaslrnhX8W1ngM7GUxXmE+UybzQBfhkUPZb1qfPfchrI3hUejG713zm3sBsHd5Kyo4Hu0=
+Message-ID: <9a8748490512201308u7b6ebc2bo59f3bc4601c58657@mail.gmail.com>
+Date: Tue, 20 Dec 2005 22:08:52 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "borsa77@libero.it" <borsa77@libero.it>
+Subject: Re: [PATCH] Correction to kmod.c control loop
+Cc: kaos@ocs.com.au, linux-kernel@vger.kernel.org
+In-Reply-To: <43A87B16.12387.487781@localhost>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43A87B16.12387.487781@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 20 Dec 2005, James Courtier-Dutton wrote:
+On 12/20/05, borsa77@libero.it <borsa77@libero.it> wrote:
+> I tried this patch on my system Slackware 10.1 with the version kernel
+> 2.4.29 with any problem, below it is in broken form to allow comment
+> to the source.
 >
-> They all load in the correct order if they are modules. The problem comes when
-> one compiles them into the kernel. They then load in the wrong order and bad
-> things happen, resulting in the recommendation that alsa should always be
-> modules.
 
-Which, as a recommendation, is pure and utter crap.
+2.4.29 is a pretty old kernel.
 
-> In this basis, we should not have to change the code in alsa at all, but
-> instead change the kernel to understand the load order, even if compiled into
-> the kernel and not as modules.
+If you want to work on 2.4.x, then work against the latest version -
+2.4.32 currently.
 
-NO.
+Even better is to work on 2.6.x instead (or both 2.6 & 2.4), and if
+you do you should generally send patches against latest Linus kernel -
+currently that's 2.6.15-rc5-git1
 
-The kernel does support this (and has supported for a long time).
+Working against an old kernel like 2.4.29 is often a waste of time
+since whatever you are trying to fix may very well already be fixed in
+a newer kernel (something you should at the very least check), so by
+working against the latest kernel you save both your own and everyone
+elses time.
 
-First off, load order matters, even in the kernel. Within one "class" of 
-initializers, you can just specify the right order in the Makefile, and it 
-will honor them. Of course, that ends up often being hard to do across 
-different directories, which is why there's another facility:
+Anyway, a few comments below.
 
-The kernel has several different classes of ordering. Anybody who thinks 
-that "module_init()" is it, just hasn't looked at <linux/init.h>. There's 
-seven different levels:
 
-	#define core_initcall(fn)               __define_initcall("1",fn)
-	#define postcore_initcall(fn)           __define_initcall("2",fn)
-	#define arch_initcall(fn)               __define_initcall("3",fn)
-	#define subsys_initcall(fn)             __define_initcall("4",fn)
-	#define fs_initcall(fn)                 __define_initcall("5",fn)
-	#define device_initcall(fn)             __define_initcall("6",fn)
-	#define late_initcall(fn)               __define_initcall("7",fn)
+> --- ./kmod.bak  2005-12-19 12:48:56.000000000 +0100
+> +++ ../kernel/kmod.c    2005-12-19 13:29:44.000000000 +0100
 
-where the next-to-last one is the regular "device_initcall()" (and this is 
-what a "module_init()" in a compiled-in driver will use).
+Please make patches that can be applied with  patch -p1
 
-Now, something like the basic sound subsystem initialization should 
-obviously NOT be a "device initcall". It's not a device. It's a subsystem 
-that serves devices, and thus the basic sound initialization should 
-probably use "subsys_initcall()" instead.
 
-Now, if it's built as a module, that "subsys_initcall()" ends up doing 
-exactly the same thing as a plain "module_init()", and you'll never see 
-any difference. But when it's built into the kernel, it means that it gets 
-initialized with the other subsystems.
+> @@ -175,13 +175,11 @@
+>   */
+>  int request_module(const char * module_name)
+>  {
+> -       pid_t pid;
+> -       int waitpid_result;
+> +       pid_t pid, waitpid_result;
 
-Now, one thing to look out for is that if your "core sound initialization" 
-depends on PCI probing having completed (ie it's not a pure subsystem with 
-no dependencies on anything else), the common hack for that is to just use 
-the "fs_initicall()" instead. But a truly independent subsystem (which 
-sound hopefully is) should just use subsys_initcall(), and then, if that 
-subsystem internally has more complex ordering, just use the link order in 
-the Makefiles to indicate that.
+Why are you changing the type of waitpid_result ?
 
-> I have no idea how to get the kernel to do this though. Any pointers?
 
-The above should hopefully make the kernel support for this obvious.
+>         sigset_t tmpsig;
+>         int i;
+>         static atomic_t kmod_concurrent = ATOMIC_INIT(0);
+> -#define MAX_KMOD_CONCURRENT 50 /* Completely arbitrary
+> value - KAO */
+> -       static int kmod_loop_msg;
+> +       static int MAX_KMOD_CONCURRENT, kmod_loop_msg;
+>
+Please don't name variables all upper case, that's how we name
+constants (#define's).
 
-I thought more people knew about all this. Forcing (or even just 
-encouraging) people to use loadable modules is just horrible. I personally 
-run a kernel with no modules at all: it makes for a simpler bootup, and in 
-some situations (embedded) it has both security and size advantages.
+> The man page for waitpid function tells the return type is pid_t.
+>
+>         /* Don't allow request_module() before the root fs is mounted!  */
+>         if ( ! current->fs->root ) {
+> @@ -192,7 +190,7 @@
+>
+>
+>         /* If modprobe needs a service that is in a module, we get a
+> recursive
+>          * loop.  Limit the number of running kmod threads to
+> max_threads/2 or
+> -        * MAX_KMOD_CONCURRENT, whichever is the smaller.  A
+> cleaner method
+> +        * MAX_KMOD_CONCURRENT, whichever is the larger.  A
+> cleaner method
+>          * would be to run the parents of this process, counting how
+> many times
+>          * kmod was invoked.  That would mean accessing the internals
+> of the
+>          * process tables to get the command line, proc_pid_cmdline is
+> static
+> @@ -200,7 +198,7 @@
+>          * KAO.
+>          */
+>         i = max_threads/2;
+> -       if (i > MAX_KMOD_CONCURRENT)
+> +       if (i < MAX_KMOD_CONCURRENT)
 
-			Linus
+You changed MAX_KMOD_CONCURRENT from a constant to a variable above,
+but you never assign a value to it, so here you are comparing i to an
+uninitialized variable, not good.
+
+
+>                 i = MAX_KMOD_CONCURRENT;
+>         atomic_inc(&kmod_concurrent);
+>         if (atomic_read(&kmod_concurrent) > i) {
+> @@ -208,6 +206,7 @@
+>                         printk(KERN_ERR
+>                                "kmod: runaway modprobe loop assumed
+> and stopped\n");
+>                 atomic_dec(&kmod_concurrent);
+> +               MAX_KMOD_CONCURRENT =
+> 2*MAX_KMOD_CONCURRENT+1;
+
+why multiply by two and add 1 here?
+
+
+>                 return -ENOMEM;
+>         }
+>
+> Two advantages: (i) you do not worry about the choice of an arbitrary
+> value, (ii) you can reiterate modprobe command until the module is
+> loaded because MAX_KMOD_CONCURRENT grows with arithmetic
+> progression.
+>
+> @@ -237,6 +236,7 @@
+>         if (waitpid_result != pid) {
+>                 printk(KERN_ERR "request_module[%s]: waitpid(%d,...)
+> failed, errno %d\n",
+>                        module_name, pid, -waitpid_result);
+> +               return waitpid_result;
+
+Ehh, the function returns an int, but you just changed the type of
+waitpid_result to pid_t above...
+
+
+>         }
+>         return 0;
+>  }
+>
+> I think here the exit point was omitted because originally the check was
+> before the unblock of the signals, now it is safe because it is at the end
+> so the errorcode should be handled.
+>
+> If you believe these corrections are valid, please you will send me
+> feedback. Otherwise I am sorry for this lack of time.
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

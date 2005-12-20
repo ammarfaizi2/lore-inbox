@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbVLTIzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbVLTIyn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbVLTIzM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 03:55:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750881AbVLTIzL
+	id S1750882AbVLTIyn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 03:54:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbVLTIym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 03:55:11 -0500
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:17874 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750884AbVLTIzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 03:55:06 -0500
-Date: Tue, 20 Dec 2005 17:53:06 +0900
+	Tue, 20 Dec 2005 03:54:42 -0500
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:26043 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750881AbVLTIyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 03:54:41 -0500
+Date: Tue, 20 Dec 2005 17:53:24 +0900
 From: Yasunori Goto <y-goto@jp.fujitsu.com>
 To: Linux Kernel ML <linux-kernel@vger.kernel.org>,
        linux-mm <linux-mm@kvack.org>,
        Linux Hotplug Memory Support 
 	<lhms-devel@lists.sourceforge.net>
-Subject: [Patch] New zone ZONE_EASY_RECLAIM take 4. (is_easy_reclaim func)[4/8]
+Subject: [Patch] New zone ZONE_EASY_RECLAIM take 4. (/proc/meminfo)[6/8]
 Cc: Joel Schopp <jschopp@austin.ibm.com>
 X-Mailer-Plugin: BkASPil for Becky!2 Ver.2.057
-Message-Id: <20051220172927.1B0E.Y-GOTO@jp.fujitsu.com>
+Message-Id: <20051220173049.1B14.Y-GOTO@jp.fujitsu.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
@@ -26,73 +26,146 @@ X-Mailer: Becky! ver. 2.21.02 [ja]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch is add information of easy reclaim zone to /proc/meminfo.
 
-This is for calculation of the watermark zone->pages_min/low/high.
-
-There is no change at take 4.
+This is new patch at take 4.
 
 Signed-off-by: Yasunori Goto <y-goto@jp.fujitsu.com>
 
-Index: zone_reclaim/include/linux/mmzone.h
+--
+Index: zone_reclaim/fs/proc/proc_misc.c
 ===================================================================
---- zone_reclaim.orig/include/linux/mmzone.h	2005-12-19 20:24:04.000000000 +0900
-+++ zone_reclaim/include/linux/mmzone.h	2005-12-19 20:24:07.000000000 +0900
-@@ -394,6 +394,11 @@ static inline int populated_zone(struct 
- 	return (!!zone->present_pages);
- }
+--- zone_reclaim.orig/fs/proc/proc_misc.c	2005-12-15 19:48:29.000000000 +0900
++++ zone_reclaim/fs/proc/proc_misc.c	2005-12-15 20:43:27.000000000 +0900
+@@ -126,6 +126,7 @@ static int meminfo_read_proc(char *page,
+ 	unsigned long free;
+ 	unsigned long committed;
+ 	unsigned long allowed;
++	unsigned long totalhigh, freehigh;
+ 	struct vmalloc_info vmi;
+ 	long cached;
  
-+static inline int is_easy_reclaim_idx(int idx)
-+{
-+	return (idx == ZONE_EASY_RECLAIM);
-+}
-+
- static inline int is_highmem_idx(int idx)
- {
- 	return (idx == ZONE_HIGHMEM);
-@@ -410,11 +415,21 @@ static inline int is_normal_idx(int idx)
-  *              to ZONE_{DMA/NORMAL/HIGHMEM/etc} in general code to a minimum.
-  * @zone - pointer to struct zone variable
-  */
-+static inline int is_easy_reclaim(struct zone *zone)
-+{
-+	return zone == zone->zone_pgdat->node_zones + ZONE_EASY_RECLAIM;
-+}
-+
- static inline int is_highmem(struct zone *zone)
- {
- 	return zone == zone->zone_pgdat->node_zones + ZONE_HIGHMEM;
- }
+@@ -147,7 +148,13 @@ static int meminfo_read_proc(char *page,
+ 		cached = 0;
  
-+static inline int is_higher_zone(struct zone *zone)
-+{
-+	return (is_highmem(zone) || is_easy_reclaim(zone));
-+}
-+
- static inline int is_normal(struct zone *zone)
- {
- 	return zone == zone->zone_pgdat->node_zones + ZONE_NORMAL;
+ 	get_vmalloc_info(&vmi);
+-
++	if (i.totalhigh) {
++		totalhigh = i.totalhigh - i.total_easyreclaim;
++		freehigh = i.freehigh - i.free_easyreclaim;
++	} else {
++		totalhigh = 0;
++		freehigh = 0;
++	}
+ 	/*
+ 	 * Tagged format, for easy grepping and expansion.
+ 	 */
+@@ -161,6 +168,8 @@ static int meminfo_read_proc(char *page,
+ 		"Inactive:     %8lu kB\n"
+ 		"HighTotal:    %8lu kB\n"
+ 		"HighFree:     %8lu kB\n"
++		"ReclaimTotal: %8lu kB\n"
++		"ReclaimFree:  %8lu kB\n"
+ 		"LowTotal:     %8lu kB\n"
+ 		"LowFree:      %8lu kB\n"
+ 		"SwapTotal:    %8lu kB\n"
+@@ -182,8 +191,10 @@ static int meminfo_read_proc(char *page,
+ 		K(total_swapcache_pages),
+ 		K(active),
+ 		K(inactive),
+-		K(i.totalhigh),
+-		K(i.freehigh),
++		K(totalhigh),
++		K(freehigh),
++		K(i.total_easyreclaim),
++		K(i.free_easyreclaim),
+ 		K(i.totalram-i.totalhigh),
+ 		K(i.freeram-i.freehigh),
+ 		K(i.totalswap),
+Index: zone_reclaim/include/linux/kernel.h
+===================================================================
+--- zone_reclaim.orig/include/linux/kernel.h	2005-12-15 19:48:30.000000000 +0900
++++ zone_reclaim/include/linux/kernel.h	2005-12-15 20:43:27.000000000 +0900
+@@ -303,6 +303,8 @@ struct sysinfo {
+ 	unsigned short pad;		/* explicit padding for m68k */
+ 	unsigned long totalhigh;	/* Total high memory size */
+ 	unsigned long freehigh;		/* Available high memory size */
++	unsigned long total_easyreclaim;/* Total easy reclaim size */
++	unsigned long free_easyreclaim; /* Available easy reclaim size */
+ 	unsigned int mem_unit;		/* Memory unit size in bytes */
+ 	char _f[20-2*sizeof(long)-sizeof(int)];	/* Padding: libc5 uses this.. */
+ };
 Index: zone_reclaim/mm/page_alloc.c
 ===================================================================
---- zone_reclaim.orig/mm/page_alloc.c	2005-12-19 20:24:04.000000000 +0900
-+++ zone_reclaim/mm/page_alloc.c	2005-12-19 20:24:07.000000000 +0900
-@@ -2592,7 +2592,7 @@ void setup_per_zone_pages_min(void)
+--- zone_reclaim.orig/mm/page_alloc.c	2005-12-15 20:11:43.000000000 +0900
++++ zone_reclaim/mm/page_alloc.c	2005-12-16 11:19:50.000000000 +0900
+@@ -1275,17 +1275,45 @@ unsigned int nr_free_pagecache_pages(voi
+ }
  
- 	/* Calculate total number of !ZONE_HIGHMEM pages */
- 	for_each_zone(zone) {
--		if (!is_highmem(zone))
-+		if (!is_higher_zone(zone))
- 			lowmem_pages += zone->present_pages;
- 	}
+ #ifdef CONFIG_HIGHMEM
+-unsigned int nr_free_highpages (void)
++unsigned int nr_total_highpages (void)
+ {
+ 	pg_data_t *pgdat;
+ 	unsigned int pages = 0;
++	for_each_pgdat(pgdat) {
++		pages += pgdat->node_zones[ZONE_HIGHMEM].present_pages;
++	}
++	return pages;
++}
  
-@@ -2600,7 +2600,7 @@ void setup_per_zone_pages_min(void)
- 		unsigned long tmp;
- 		spin_lock_irqsave(&zone->lru_lock, flags);
- 		tmp = (pages_min * zone->present_pages) / lowmem_pages;
--		if (is_highmem(zone)) {
-+		if (is_higher_zone(zone)) {
- 			/*
- 			 * __GFP_HIGH and PF_MEMALLOC allocations usually don't
- 			 * need highmem pages, so cap pages_min to a small
+-	for_each_pgdat(pgdat)
++unsigned int nr_free_highpages (void)
++{
++	pg_data_t *pgdat;
++	unsigned int pages = 0;
++	for_each_pgdat(pgdat) {
+ 		pages += pgdat->node_zones[ZONE_HIGHMEM].free_pages;
+-
++	}
+ 	return pages;
+ }
+ #endif
++unsigned int nr_total_easyreclaim (void)
++{
++	pg_data_t *pgdat;
++	unsigned int pages = 0;
++	for_each_pgdat(pgdat) {
++		pages += pgdat->node_zones[ZONE_EASY_RECLAIM].present_pages;
++	}
++	return pages;
++}
++
++unsigned int nr_free_easyreclaim (void)
++{
++	pg_data_t *pgdat;
++	unsigned int pages = 0;
++	for_each_pgdat(pgdat) {
++		pages += pgdat->node_zones[ZONE_EASY_RECLAIM].free_pages;
++	}
++	return pages;
++}
+ 
+ #ifdef CONFIG_NUMA
+ static void show_node(struct zone *zone)
+@@ -1436,12 +1464,15 @@ void si_meminfo(struct sysinfo *val)
+ 	val->freeram = nr_free_pages();
+ 	val->bufferram = nr_blockdev_pages();
+ #ifdef CONFIG_HIGHMEM
+-	val->totalhigh = totalhigh_pages;
+-	val->freehigh = nr_free_highpages();
++	/* if highmem!=0, totalhigh includes easy reclaim pages. */
++	val->totalhigh = nr_total_highpages() + nr_total_easyreclaim();
++	val->freehigh = nr_free_highpages() + nr_free_easyreclaim();
+ #else
+ 	val->totalhigh = 0;
+ 	val->freehigh = 0;
+ #endif
++	val->total_easyreclaim = nr_total_easyreclaim();
++	val->free_easyreclaim = nr_free_easyreclaim();
+ 	val->mem_unit = PAGE_SIZE;
+ }
+ 
 
 -- 
 Yasunori Goto 

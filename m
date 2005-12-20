@@ -1,51 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbVLTRTF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbVLTRUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbVLTRTF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 12:19:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbVLTRTE
+	id S1750707AbVLTRUm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 12:20:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbVLTRUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 12:19:04 -0500
-Received: from ns2.g-housing.de ([81.169.133.75]:45496 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S1750803AbVLTRTE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 12:19:04 -0500
-Message-ID: <43A83D03.9070705@g-house.de>
-Date: Tue, 20 Dec 2005 18:18:59 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051013)
-X-Accept-Language: de-DE, de, en-us, en
+	Tue, 20 Dec 2005 12:20:42 -0500
+Received: from mail.autoweb.net ([198.172.237.26]:41401 "EHLO
+	mail.internal.autoweb.net") by vger.kernel.org with ESMTP
+	id S1750707AbVLTRUl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 12:20:41 -0500
+Date: Tue, 20 Dec 2005 12:20:26 -0500
+From: Ryan Anderson <ryan@michonline.com>
+To: Linda Walsh <lkml@tlinx.org>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Makefile targets: tar & rpm pkgs, while using O=<dir> as non-root
+Message-ID: <20051220172026.GC2437@mythryan2.michonline.com>
+References: <43A5F058.1060102@tlinx.org>
 MIME-Version: 1.0
-To: Doug Thompson <norsk5@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  EDAC with sysfs interface added
-References: <20051220170542.60920.qmail@web50114.mail.yahoo.com>
-In-Reply-To: <20051220170542.60920.qmail@web50114.mail.yahoo.com>
-X-Enigmail-Version: 0.92.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43A5F058.1060102@tlinx.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+On Sun, Dec 18, 2005 at 03:27:20PM -0800, Linda Walsh wrote:
+> Unpacked 2.6.13.3 and made it read-only.
+> 
+> Using the "O=" param, built output tree for another machine as
+> a non-root user.
+> 
+> I wanted to create an installable kernel & module package to copy
+> to the new machine & install.
+> 
+> I noted new targets:
+>    binrpm-pkg [& rpm-pkg], and
+>    tarbz2-pkg [& targz-pkg, & tar-pkg].
+> 
+> Both seem to fail either for reasons that appear to be related to
+> not honoring the "O=" param, or attempting to actually install into
+> the root of my build-machine.
+> 
+> Should these targets work or have they not yet been converted to work
+> within the "O=" framework?  In cases where the Makefile is attempting
+> to install into "<Root>/boot" or "<Root>/lib/modules" ,should I
+> expect the output to appear in "$O/boot" and "$O/lib/modules/"?
 
-Doug Thompson schrieb:
-> You reminded me that I failed to put in the summary that whitelist/blacklist ARE in this patch as
-> well as the sysfs. Apply the patch, and set your white or black list with the vendor_id:device_id
-> that you desire. This needs to be done after bootup.
+Look at the "deb" target for how this was fixed for building Debian
+(-style) packages.
 
-will do, thanks!
+Specifically, you want to change:
+	$(MAKE)
+to
+	$(MAKE) KBUILD_SRC=
 
-Christian.
-- --
-BOFH excuse #45:
+At a glance, I don't see a similar problem in the binrpm-pkg target, and
+I don't understand the rpm target at all, so those may have other
+issues.
 
-virus attack, luser responsible
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+I am, however, looking at 2.6.15-rc{something}, not 2.6.13, but I think
+it's been a while since Sam sent the deb packages fixes upstream.
 
-iD8DBQFDqD0D+A7rjkF8z0wRA2lRAJ4wmCbVIn6dIkLsvAfbrwEnX1ug6gCfdEwt
-AFoOtOZsfY0gFQrya9dUrvk=
-=7rf7
------END PGP SIGNATURE-----
+-- 
+
+Ryan Anderson
+  sometimes Pug Majere

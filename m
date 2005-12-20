@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbVLTOOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbVLTOV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbVLTOOl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 09:14:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751063AbVLTOOl
+	id S1751074AbVLTOV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 09:21:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbVLTOV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 09:14:41 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:42811 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S1751054AbVLTOOk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 09:14:40 -0500
-Date: Tue, 20 Dec 2005 15:16:14 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ben Collins <ben.collins@ubuntu.com>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
-Subject: Re: [PATCH] block: Better CDROMEJECT
-Message-ID: <20051220141614.GK3734@suse.de>
-References: <1135047119.8407.24.camel@leatherman> <20051220074652.GW3734@suse.de> <1135082490.16754.0.camel@localhost.localdomain> <20051220132821.GH3734@suse.de> <1135085557.16754.2.camel@localhost.localdomain> <20051220133939.GI3734@suse.de> <1135087637.16754.12.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Tue, 20 Dec 2005 09:21:26 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:23051 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751070AbVLTOV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 09:21:26 -0500
+Date: Tue, 20 Dec 2005 15:21:24 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: [2.6 patch] kernel/params.c: fix sysfs access with CONFIG_MODULES=n
+Message-ID: <20051220142124.GE6789@stusta.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1135087637.16754.12.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20 2005, Ben Collins wrote:
-> On Tue, 2005-12-20 at 14:39 +0100, Jens Axboe wrote:
-> > > Should be an easy check to add. In fact, I'll resend both patches with
-> > > that in place if you want.
-> > 
-> > There's still the quirky problem of forcing a locked tray out. In some
-> > cases this is what you want, if things get stuck for some reason or
-> > another. But usually the tray is locked for a good reason, because there
-> > are active users of the device.
-> > 
-> > Say two processes has the cdrom open, one of them doing io (maybe even
-> > writing!), the other could do a CDROMEJECT now and force the ejection of
-> > a busy drive.
-> 
-> But that's possible now with "eject -s" as long as you have write access
-> to it. Most users are using "eject -s" anyway.
-> 
-> You can't stop this from happening. However, the fact is that a lot of
-> devices (iPod's being the most popular) require this to work.
+From: Jason Wessel <jason.wessel@windriver.com>
 
-Well just because it (unfortunately) is already done by some other path,
-doesn't make it a good idea by default and necessarily a reason to
-further such bad principles.
+All the work was done to setup the file and maintain the file handles but
+the access functions were zeroed out due to the #ifdef.  Removing the
+#ifdef allows full access to all the parameters when CONFIG_MODULES=n.
 
-The only way to really fix this would be requiring programs issuing
-direct commands to a device to have it opened O_EXCL (and making sure
-this actually works, right now it doesn't).
+akpm: put it back again, but use CONFIG_SYSFS instead.
 
-In reality, we are probably screwed :/
+Signed-off-by: Jason Wessel <jason.wessel@windriver.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--- 
-Jens Axboe
+--- 
 
+This patch was already sent on:
+- 13 Dec 2005
+
+This patch is 
+fix-sysfs-access-to-module-parameters-with-config_modules\=n.patch
+in -mm.
+
+This patch is simple enough for getting it into 2.6.15 and I'm inclined 
+to even submit it for -stable.
+
+ kernel/params.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN kernel/params.c~fix-sysfs-access-to-module-parameters-with-config_modules=n kernel/params.c
+--- devel/kernel/params.c~fix-sysfs-access-to-module-parameters-with-config_modules=n	2005-11-14 23:20:34.000000000 -0800
++++ devel-akpm/kernel/params.c	2005-11-14 23:20:51.000000000 -0800
+@@ -619,7 +619,7 @@ static void __init param_sysfs_builtin(v
+ 
+ 
+ /* module-related sysfs stuff */
+-#ifdef CONFIG_MODULES
++#ifdef CONFIG_SYSFS
+ 
+ #define to_module_attr(n) container_of(n, struct module_attribute, attr);
+ #define to_module_kobject(n) container_of(n, struct module_kobject, kobj);
+_

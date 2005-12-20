@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750993AbVLTNSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751002AbVLTN0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750993AbVLTNSN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 08:18:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbVLTNSN
+	id S1751002AbVLTN0p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 08:26:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751004AbVLTN0p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 08:18:13 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:6154 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750993AbVLTNSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 08:18:12 -0500
-Date: Tue, 20 Dec 2005 14:18:10 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Ricardo Cerqueira <v4l@cerqueira.org>,
-       mchehab@brturbo.com.br
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
-Subject: 2.6.15-rc6: boot failure in saa7134-alsa.c
-Message-ID: <20051220131810.GB6789@stusta.de>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
-MIME-Version: 1.0
+	Tue, 20 Dec 2005 08:26:45 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:34581 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S1750999AbVLTN0p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 08:26:45 -0500
+Date: Tue, 20 Dec 2005 14:28:21 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Ben Collins <ben.collins@ubuntu.com>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       greg@kroah.com
+Subject: Re: [RFC] Let non-root users eject their ipods?
+Message-ID: <20051220132821.GH3734@suse.de>
+References: <1135047119.8407.24.camel@leatherman> <20051220074652.GW3734@suse.de> <1135082490.16754.0.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <1135082490.16754.0.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.15-rc6 doesn't boot on my computer with an Oops that has 
-drivers/media/video/saa7134/saa7134-alsa.c prominently in it's trace.
+On Tue, Dec 20 2005, Ben Collins wrote:
+> On Tue, 2005-12-20 at 08:46 +0100, Jens Axboe wrote:
+> > On Mon, Dec 19 2005, john stultz wrote:
+> > > All,
+> > > 	I'm getting a little tired of my roommates not knowing how to safely
+> > > eject their usb-flash disks from my system and I'd personally like it if
+> > > I could avoid bringing up a root shell to eject my ipod. Sure, one could
+> > > suid the eject command, but that seems just as bad as changing the
+> > > permissions in the kernel (eject wouldn't be able to check if the user
+> > > has read/write permissions on the device, allowing them to eject
+> > > anything).
+> > 
+> > This just came up yesterday, eject isn't opening the device RDWR hence
+> > you have a permission problem with a command requiring write
+> > permissions. So just fix eject, there's no need to suid eject or run it
+> > as root.
+> 
+> Yep, and here's the patch to do it:
+> 
+> http://bugzilla.ubuntu.com/attachment.cgi?id=5415
+> 
+> Still, this whole issue with ALLOW_MEDIUM_REMOVAL. Would be nice if
+> CDROMEJECT just did the right thing.
 
-A picture of the Oops is at [1] (I won't get a price for the best 
-picture for it, but it's readable...).
-
-Kernels up to 2.6.14.4 boot fine, 2.6.15-rc1 is the one that introduced 
-the problem.
-
-I must give saa7134.card=6 at the lilo prompt for getting my card 
-working.
-
-The saa7134 part of the dmesg in 2.6.14.4:
-
-<--  snip  -->
-
-saa7134[0]: found at 0000:00:0e.0, rev: 1, irq: 18, latency: 32, mmio: 0xed800000
-saa7134[0]: subsystem: 1131:0000, board: Tevion MD 9717 [card=6,insmod option]
-saa7134[0]: board init: gpio is 100a0
-saa7134[0]: Huh, no eeprom present (err=-5)?
-saa7134[0]: registered device video0 [v4l2]
-saa7134[0]: registered device vbi0
-saa7134[0]: registered device radio0
-tuner 4-0060: chip found @ 0xc0 (saa7134[0])
-tuner 4-0060: All bytes are equal. It is not a TEA5767
-tuner 4-0060: type set to 5 (Philips PAL_BG (FI1216 and compatibles))
-
-<--  snip  -->
-
-cu
-Adrian
-
-[1] http://www.fs.tum.de/~bunk/TMP/bootcrash.jpg
+I would tend to agree, but you are bypassing the checks that are in
+there by doing so which isn't very nice. Then we might as well just mark
+ALLOW_MEDIUM_REMOVAL as safe-for-read in the first place.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Jens Axboe
 

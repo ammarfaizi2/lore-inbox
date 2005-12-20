@@ -1,89 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbVLTUln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbVLTUmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbVLTUln (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 15:41:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbVLTUln
+	id S932085AbVLTUmc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 15:42:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbVLTUmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 15:41:43 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:53990 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932071AbVLTUlm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 15:41:42 -0500
-Subject: Re: [PATCH] block: Better CDROMEJECT
-From: john stultz <johnstul@us.ibm.com>
-To: Ben Collins <ben.collins@ubuntu.com>
-Cc: Jens Axboe <axboe@suse.de>, lkml <linux-kernel@vger.kernel.org>,
-       greg@kroah.com
-In-Reply-To: <1135087637.16754.12.camel@localhost.localdomain>
-References: <1135047119.8407.24.camel@leatherman>
-	 <20051220074652.GW3734@suse.de>
-	 <1135082490.16754.0.camel@localhost.localdomain>
-	 <20051220132821.GH3734@suse.de>
-	 <1135085557.16754.2.camel@localhost.localdomain>
-	 <20051220133939.GI3734@suse.de>
-	 <1135087637.16754.12.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 20 Dec 2005 12:41:39 -0800
-Message-Id: <1135111300.27117.41.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Dec 2005 15:42:32 -0500
+Received: from smtp20.libero.it ([193.70.192.147]:30862 "EHLO smtp20.libero.it")
+	by vger.kernel.org with ESMTP id S932085AbVLTUmb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 15:42:31 -0500
+From: borsa77@libero.it
+To: kaos@ocs.com.au
+Date: Tue, 20 Dec 2005 21:43:50 +0100
+Subject: [PATCH] Correction to kmod.c control loop
+CC: linux-kernel@vger.kernel.org
+Message-ID: <43A87B16.12387.487781@localhost>
+X-mailer: Pegasus Mail for Windows (v4.11)
+X-Scanned: with antispam and antivirus automated system at libero.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-20 at 09:07 -0500, Ben Collins wrote:
-> On Tue, 2005-12-20 at 14:39 +0100, Jens Axboe wrote:
-> > > Should be an easy check to add. In fact, I'll resend both patches with
-> > > that in place if you want.
-> > 
-> > There's still the quirky problem of forcing a locked tray out. In some
-> > cases this is what you want, if things get stuck for some reason or
-> > another. But usually the tray is locked for a good reason, because there
-> > are active users of the device.
-> > 
-> > Say two processes has the cdrom open, one of them doing io (maybe even
-> > writing!), the other could do a CDROMEJECT now and force the ejection of
-> > a busy drive.
-> 
-> But that's possible now with "eject -s" as long as you have write access
-> to it. Most users are using "eject -s" anyway.
-> 
-> You can't stop this from happening. However, the fact is that a lot of
-> devices (iPod's being the most popular) require this to work.
+I tried this patch on my system Slackware 10.1 with the version kernel  
+2.4.29 with any problem, below it is in broken form to allow comment  
+to the source. 
 
-I'm a little confused. Eject has a number of different ways it
-interfaces with the kernel (scsi, cdrom, floppy, tape), which I assume
-map to different ioctl commands. In the case I'm familiar with (my usb
-ipod, and my firewire disk), the scsi method (via eject -s) is used
-which sends a ALLOW_MEDIUM_REMOVAL.
+--- ./kmod.bak	2005-12-19 12:48:56.000000000 +0100 
++++ ../kernel/kmod.c	2005-12-19 13:29:44.000000000 +0100 
+@@ -175,13 +175,11 @@ 
+  */ 
+ int request_module(const char * module_name) 
+ { 
+-	pid_t pid; 
+-	int waitpid_result; 
++	pid_t pid, waitpid_result; 
+ 	sigset_t tmpsig; 
+ 	int i; 
+ 	static atomic_t kmod_concurrent = ATOMIC_INIT(0); 
+-#define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary 
+value - KAO */ 
+-	static int kmod_loop_msg; 
++	static int MAX_KMOD_CONCURRENT, kmod_loop_msg; 
 
-Now I know without passing a specific method, eject will try different
-methods until one works, but it seems that the patch below is overriding
-the CDROMEJECT ioctl so that it then sends an ALLOW_MEDIUM_REMOVAL as
-well as the normal GPCMD_START_STOP_UNIT.
+The man page for waitpid function tells the return type is pid_t. 
 
-Again, I don't know about the hardware bits, do you want
-ALLOW_MEDIUM_REMOVAL to be sent to cdroms when the "eject -r" option is
-used, or just for "eject -s"?
+ 	/* Don't allow request_module() before the root fs is mounted!  */ 
+ 	if ( ! current->fs->root ) { 
+@@ -192,7 +190,7 @@ 
+  
 
-Or maybe your patch is addressing more then just my issue w/ USB and
-Firewire devices and that is the disconnect on my side?
+ 	/* If modprobe needs a service that is in a module, we get a 
+recursive 
+ 	 * loop.  Limit the number of running kmod threads to 
+max_threads/2 or 
+-	 * MAX_KMOD_CONCURRENT, whichever is the smaller.  A 
+cleaner method 
++	 * MAX_KMOD_CONCURRENT, whichever is the larger.  A 
+cleaner method 
+ 	 * would be to run the parents of this process, counting how 
+many times 
+ 	 * kmod was invoked.  That would mean accessing the internals 
+of the 
+ 	 * process tables to get the command line, proc_pid_cmdline is 
+static 
+@@ -200,7 +198,7 @@ 
+ 	 * KAO. 
+ 	 */ 
+ 	i = max_threads/2; 
+-	if (i > MAX_KMOD_CONCURRENT) 
++	if (i < MAX_KMOD_CONCURRENT) 
+ 		i = MAX_KMOD_CONCURRENT; 
+ 	atomic_inc(&kmod_concurrent); 
+ 	if (atomic_read(&kmod_concurrent) > i) { 
+@@ -208,6 +206,7 @@ 
+ 			printk(KERN_ERR 
+ 			       "kmod: runaway modprobe loop assumed 
+and stopped\n"); 
+ 		atomic_dec(&kmod_concurrent); 
++		MAX_KMOD_CONCURRENT = 
+2*MAX_KMOD_CONCURRENT+1; 
+ 		return -ENOMEM; 
+ 	} 
 
-> Here's the patch. Currently it will not even try the
-> ALLOW_MEDIUM_REMOVAL unless they have write access (to avoid returning
-> an uneeded error for people using eject -r that isn't patched to open
-> the device O_RDRW). However, I still changed the __blk_send_generic()
-> function to use verify_command().
+Two advantages: (i) you do not worry about the choice of an arbitrary  
+value, (ii) you can reiterate modprobe command until the module is  
+loaded because MAX_KMOD_CONCURRENT grows with arithmetic  
+progression. 
 
-I'll play with your patch tonight and let you know how it goes.
+@@ -237,6 +236,7 @@ 
+ 	if (waitpid_result != pid) { 
+ 		printk(KERN_ERR "request_module[%s]: waitpid(%d,...) 
+failed, errno %d\n", 
+ 		       module_name, pid, -waitpid_result); 
++		return waitpid_result; 
+ 	} 
+ 	return 0; 
+ } 
 
-Although from just looking at it, don't you still need to add
-ALLOW_MEDIUM_REMOVAL in the verify_command() list for this to work?
+I think here the exit point was omitted because originally the check was  
+before the unblock of the signals, now it is safe because it is at the end  
+so the errorcode should be handled. 
 
-Alternatively, would just the "safe_for_write(ALLOW_MEDIUM_REMOVAL);" in
-verify_command along with the eject-opens-RW fix have almost the same
-effect?
-
-thanks
--john
-
+If you believe these corrections are valid, please you will send me 
+feedback. Otherwise I am sorry for this lack of time. 
+Regards, Marco Borsari.

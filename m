@@ -1,65 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVLTRFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750778AbVLTRNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbVLTRFp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 12:05:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbVLTRFp
+	id S1750778AbVLTRNM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 12:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbVLTRNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 12:05:45 -0500
-Received: from web50114.mail.yahoo.com ([206.190.39.162]:48513 "HELO
-	web50114.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S1750732AbVLTRFp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 12:05:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=iHZlwa6yplISHjt0kcjxaBgjk8jg2O32gJLyPsApa0iI3RRUwG8UgqAtraGJkWFwTttfThoDyBbGziDB3rzKNZIzRmwVy1W2NjLF0B5dTY5xw67qHuxHicZY5NSB8RdHwe/HRVELx2G7qfrPC1g8iHj6ddbass19VhV30owInBw=  ;
-Message-ID: <20051220170542.60920.qmail@web50114.mail.yahoo.com>
-Date: Tue, 20 Dec 2005 09:05:41 -0800 (PST)
-From: Doug Thompson <norsk5@yahoo.com>
-Subject: Re: [PATCH]  EDAC with sysfs interface added
-To: Christian Kujau <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43A81031.8040708@g-house.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 20 Dec 2005 12:13:11 -0500
+Received: from fmr17.intel.com ([134.134.136.16]:18880 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750778AbVLTRNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 12:13:10 -0500
+Subject: Re: IOAT comments
+From: Chris Leech <christopher.leech@intel.com>
+To: dsaxena@plexity.net
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       "Ronciak, John" <john.ronciak@intel.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051220101128.GA28938@plexity.net>
+References: <20051220101128.GA28938@plexity.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 20 Dec 2005 09:13:01 -0800
+Message-Id: <1135098781.4177.27.camel@cleech-mobl>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+X-OriginalArrivalTime: 20 Dec 2005 17:13:04.0518 (UTC) FILETIME=[A39B1A60:01C60588]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---- Christian Kujau <evil@g-house.de> wrote:
-
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: RIPEMD160
+On Tue, 2005-12-20 at 02:11 -0800, Deepak Saxena wrote:
 > 
-> Doug Thompson schrieb:
-> > From:   doug thompson  <norsk5@xmission.com>
-> > 
-> > Patch against 2.6.15-rc5-mm3
-> > 
-> > EDAC has been modifed to remove old interface and add new interface.
+> Andy & Chris,
 > 
-> hi Doug, i've seen you answering a problem i still have with 2.6.15-rc5-mm3:
+> Sorry for the very very delayed response on your patch. Some comments
+> below.
+
+Thanks for the feedback. I'm working on fixing up a few things and
+getting an updated set of patches out, so your timing's not bad at all.
+
+> What I would ideally like to see is an API that allows me to allocate
+> a DMA channel between system memory and a device struct:
 > 
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0512.0/0529.html
-> 
-> i just want to post a "me too" here along with lspci, because you inteded
-> to add black/whitelists to this EDAC thingy, maybe it is of some help:
-> 
-> http://www.nerdbynature.de/bits/prinz64/2.6.15-rc5-mm3/
-> 
-> thanks,
-> Christian.
-> - --
+> dma_client_alloc_chan(struct dma_client client*, struct device *dev);
 
-You reminded me that I failed to put in the summary that whitelist/blacklist ARE in this patch as
-well as the sysfs. Apply the patch, and set your white or black list with the vendor_id:device_id
-that you desire. This needs to be done after bootup.
+I had something similar in my initial design, the I/OAT DMA engine can
+operate on any memory mapped region "downstream" from the PCI device.
+That's easy enough to add to the API, and then flush out the device
+matching code in the ioatdma driver later.
 
-We plan on some userspace script for initializing EDAC, etc. But we need it in the kernel first. 
-We will put such at bluesmoke.sourceforge.net
+> Make the various copy functions static inlines since they are just
+> doing an extra function pointer dereference.
 
-doug thompson
+OK
 
+> - The API currently supports only 1 client per DMA channel. I think a
+>   client should be able to ask for exclusive or non-exclusive usage of
+>   a DMA channel and the core can mark channels as unvailable when
+>   exclusive use is required. This could be useful in systems with just
+>   1 DMA channel but multiple applications wanting to use it.
 
+We were trying to not share them for simplicity.  But with the way we
+ended up using the DMA engine for TCP, we needed to get the locking
+right for requests from multiple threads anyway.  Shared channel use
+shouldn't be hard to add, I'll look into it.
+
+> - Add an interface that takes scatter gather lists as both source and
+>   destination.
+
+OK
+
+> - DMA engine buffer alignment requirements? I've seen engines that
+>   handle any source/destination alignment and ones that handle
+>   only 32-bit or 64-bit aligned buffers. In the case of a transfer
+>   that is != alignment requirement of DMA engine, does the DMA device
+>   driver handle this or does the DMA core handle this?
+
+Any ideas of what this would look like?
+
+> - Can we get rid of the "async" in the various function names? I don't
+>   know of any HW that implements a synchronous DMA engine! It would
+> sort of defeat the purpose. :)
+
+We tossed the async in after an early comment that the dma namespace
+wasn't unique enough, especially with the DMA mapping APIs already in
+place.  Maybe hwdma?  I'm open to suggestions.
+
+> - The user_dma code should be generic, not in net/ but in kernel/ or
+>   in drivers/dma as other subsystems and applications can probably
+>   make use of this funcionality.
+
+You're right.  That file started out with dma_skb_copy_datagram_iovec,
+and dma_memcpy_[pg_]toiovec were created to support that.  Anything not
+specifically tied to sk_buffs should be moved.
+
+-Chris

@@ -1,84 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbVLTAFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbVLTA21@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbVLTAFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Dec 2005 19:05:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbVLTAFI
+	id S1750714AbVLTA21 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Dec 2005 19:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbVLTA21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Dec 2005 19:05:08 -0500
-Received: from mx2.suse.de ([195.135.220.15]:10462 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750703AbVLTAFG (ORCPT
+	Mon, 19 Dec 2005 19:28:27 -0500
+Received: from waste.org ([64.81.244.121]:37540 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1750714AbVLTA21 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Dec 2005 19:05:06 -0500
-From: Andreas Schwab <schwab@suse.de>
-To: Robin Holt <holt@sgi.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, rth@redhat.com,
-       bj0rn@blox.se
-Subject: Re: Can somebody with flex/bison experience help with genksyms?
-References: <20051219214019.GA25888@lnx-holt.americas.sgi.com>
-X-Yow: LIFE is a never-ending INFORMERCIAL!
-Date: Tue, 20 Dec 2005 01:05:03 +0100
-In-Reply-To: <20051219214019.GA25888@lnx-holt.americas.sgi.com> (Robin Holt's
-	message of "Mon, 19 Dec 2005 15:40:19 -0600")
-Message-ID: <jelkygljkg.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 19 Dec 2005 19:28:27 -0500
+Date: Mon, 19 Dec 2005 18:27:59 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Light-weight dynamically extended stacks
+Message-ID: <20051220002759.GE3356@waste.org>
+References: <20051219001249.GD11856@waste.org> <20051219183604.GT23349@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051219183604.GT23349@stusta.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin Holt <holt@sgi.com> writes:
+On Mon, Dec 19, 2005 at 07:36:04PM +0100, Adrian Bunk wrote:
+> On Sun, Dec 18, 2005 at 04:12:49PM -0800, Matt Mackall wrote:
+> 
+> > Perhaps the time for this has come and gone, but it occurred to me
+> > that it should be relatively straightforward to make a form of
+> > dynamically extended stacks that are appropriate to the kernel.
+> > 
+> > While we have a good handle on most of the worst stack offenders, we
+> > can still run into trouble with pathological cases (say, symlink
+> > recursion for XFS on a RAID built from loopback mounts over NFS
+> > tunneled over IPSEC through GRE). So there's probably no
+> > one-size-fits-all when it comes to stack size.
+> 
+> My count of bug reports for problems with in-kernel code with 4k stacks 
+> after Neil's patch went into -mm is still at 0. That's amazing 
+> considering how many people have claimed in this thread how unstable
+> 4k stacks were...
 
-> The following code fails to generate a crc when run through genksyms.
->
-> #include <linux/module.h>
->
-> struct nodepda_s {
-> 	int	z1, z2;
-> }
->
-> DEFINE_PER_CPU(struct nodepda_s *, __sn_nodepda);
-> EXPORT_PER_CPU_SYMBOL(__sn_nodepda);
->
-> While the following works:
->
-> #include <linux/module.h>
->
-> struct nodepda_s {
->         int     z1, z2;
-> }
->
-> typedef struct nodepda_s * nodepda_s_p;
->
-> DEFINE_PER_CPU(nodepda_s_p, __sn_nodepda);
-> EXPORT_PER_CPU_SYMBOL(__sn_nodepda);
->
->
->
-> This appears to be due to the way STRUCT_KEYW is handled in parse.y as
-> compared to TYPEOF_KEYW.  I know nothing about flex and bison.  I am
-> just trolling for anybody willing to help.  I believe the STRUCT_KEYW
-> handling would need to consume the *, but am not sure how that is
-> conditionally done.
+I should have said up front that I don't know of any remaining
+problems with 4k stacks and support switching to them. Remember, I
+dusted off the 4k stack code, cleaned it up, and fixed up some of the
+worst offenders in my -tiny tree well before Arjan pushed it to
+mainline.
 
-Does this patch help?
+So why am I raising this idea now at all? Because I think Neil's patch
+is too clever and too specific to block layer stacking and I'd rather
+have a more general solution. Block is by no means the only part of
+the system that allows nesting and pathological combinations surely
+still exist. And will be introduced in the future.
 
---- scripts/genksyms/parse.y.~1~	2005-10-28 02:02:08.000000000 +0200
-+++ scripts/genksyms/parse.y	2005-12-20 01:02:46.420239410 +0100
-@@ -197,7 +197,7 @@ storage_class_specifier:
- type_specifier:
- 	simple_type_specifier
- 	| cvar_qualifier
--	| TYPEOF_KEYW '(' decl_specifier_seq ')'
-+	| TYPEOF_KEYW '(' decl_specifier_seq m_abstract_declarator ')'
- 
- 	/* References to s/u/e's defined elsewhere.  Rearrange things
- 	   so that it is easier to expand the definition fully later.  */
+Also note that my approach might make it reasonable to use one-page
+stacks everywhere, not just on x86.
 
-Andreas.
+> If more than 3 kB of stack is used on i386 that's a bug.
+> And we should fix bugs, not work around them.
+
+One man's fix is another man's work-around.
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Mathematics is the supreme nostalgia of our time.

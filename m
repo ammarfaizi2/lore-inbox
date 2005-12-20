@@ -1,105 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbVLTUmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbVLTUmq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbVLTUmc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 15:42:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbVLTUmc
+	id S932086AbVLTUmq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 15:42:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbVLTUmp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 15:42:32 -0500
-Received: from smtp20.libero.it ([193.70.192.147]:30862 "EHLO smtp20.libero.it")
-	by vger.kernel.org with ESMTP id S932085AbVLTUmb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 15:42:31 -0500
-From: borsa77@libero.it
-To: kaos@ocs.com.au
-Date: Tue, 20 Dec 2005 21:43:50 +0100
-Subject: [PATCH] Correction to kmod.c control loop
-CC: linux-kernel@vger.kernel.org
-Message-ID: <43A87B16.12387.487781@localhost>
-X-mailer: Pegasus Mail for Windows (v4.11)
-X-Scanned: with antispam and antivirus automated system at libero.it
+	Tue, 20 Dec 2005 15:42:45 -0500
+Received: from lirs02.phys.au.dk ([130.225.28.43]:65188 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S932086AbVLTUmo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 15:42:44 -0500
+Date: Tue, 20 Dec 2005 21:42:07 +0100 (MET)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: linux-kernel@vger.kernel.org, robustmutexes@lists.osdl.org,
+       Ingo Molnar <mingo@elte.hu>, Dinakar Guniguntala <dino@in.ibm.com>
+Subject: Re: Recursion bug in -rt
+In-Reply-To: <1135107232.13138.348.camel@localhost.localdomain>
+Message-Id: <Pine.OSF.4.05.10512202042300.1720-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried this patch on my system Slackware 10.1 with the version kernel  
-2.4.29 with any problem, below it is in broken form to allow comment  
-to the source. 
+On Tue, 20 Dec 2005, Steven Rostedt wrote:
 
---- ./kmod.bak	2005-12-19 12:48:56.000000000 +0100 
-+++ ../kernel/kmod.c	2005-12-19 13:29:44.000000000 +0100 
-@@ -175,13 +175,11 @@ 
-  */ 
- int request_module(const char * module_name) 
- { 
--	pid_t pid; 
--	int waitpid_result; 
-+	pid_t pid, waitpid_result; 
- 	sigset_t tmpsig; 
- 	int i; 
- 	static atomic_t kmod_concurrent = ATOMIC_INIT(0); 
--#define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary 
-value - KAO */ 
--	static int kmod_loop_msg; 
-+	static int MAX_KMOD_CONCURRENT, kmod_loop_msg; 
+> On Tue, 2005-12-20 at 18:43 +0100, Esben Nielsen wrote:
+> > 
+> > On Tue, 20 Dec 2005, Dinakar Guniguntala wrote:
+> > 
+> > > On Tue, Dec 20, 2005 at 02:19:56PM +0100, Ingo Molnar wrote:
+> > > > 
+> > > > hm, i'm looking at -rf4 - these changes look fishy:
+> > > > 
+> > > > -       _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
+> > > > +       if (current != lock_owner(lock)->task)
+> > > > +               _raw_spin_lock(&lock_owner(lock)->task->pi_lock);
+> > > > 
+> > > > why is this done?
+> > > >
+> > >  
+> > > Ingo, this is to prevent a kernel hang due to application error.
+> > > 
+> > > Basically when an application does a pthread_mutex_lock twice on a
+> > > _nonrecursive_ mutex with robust/PI attributes the whole system hangs.
+> > > Ofcourse the application clearly should not be doing anything like
+> > > that, but it should not end up hanging the system either
+> > >
+> > 
+> > Hmm, reading the comment on the function, wouldn't it be more natural to
+> > use 
+> >     if(task != lock_owner(lock)->task)
+> > as it assumes that task->pi_lock is locked, not that current->pi_lock is
+> > locked.
+> > 
+> > By the way:
+> >  task->pi_lock is taken. lock_owner(lock)->task->pi_lock will be taken.
+> > What if the task lock_owner(lock)->task tries to lock another futex,
+> > (lock2) with which has lock_owner(lock2)->task==task.
+> > Can't you promote a user space futex deadlock into a kernel spin deadlock 
+> > this way?
+> 
+> Yes!
+> 
+> The locking code of the pi locks in the rt.c code is VERY dependent on
+> the order of locks taken.  It works by assuming the order of locks taken
+> will not themselves cause a deadlock.  I just recently submitted a patch
+> to Ingo because I found that mutex_trylock can cause a deadlock, since
+> it is not bound to the order of locks.
+> 
+> So, to answer your question more formal this time.  If the futex code
+> uses the pi_lock code in rt.c and the futex causes a deadlock, then the
+> kernel can deadlock too.
+> 
+This is ok for kernel mutexes, which are supposed not to cause deadlocks.
+But user space deadlocks must not cause kernel deadlocks. Therefore the
+robust futex code _must_ be fixed.
 
-The man page for waitpid function tells the return type is pid_t. 
+> The benefit of this locking order is that we got rid of the global
+> pi_lock, and that was worth the problems you face today.
+>
 
- 	/* Don't allow request_module() before the root fs is mounted!  */ 
- 	if ( ! current->fs->root ) { 
-@@ -192,7 +190,7 @@ 
-  
+I believe this problem can be solved in the pi_lock code - but it will
+require quite a bit of recoding. I started on it a little while ago but
+didn't at all get the time to get into anything to even compile :-(
+I don't have time to finish any code at all but I guess I can plant an
+the idea instead:
 
- 	/* If modprobe needs a service that is in a module, we get a 
-recursive 
- 	 * loop.  Limit the number of running kmod threads to 
-max_threads/2 or 
--	 * MAX_KMOD_CONCURRENT, whichever is the smaller.  A 
-cleaner method 
-+	 * MAX_KMOD_CONCURRENT, whichever is the larger.  A 
-cleaner method 
- 	 * would be to run the parents of this process, counting how 
-many times 
- 	 * kmod was invoked.  That would mean accessing the internals 
-of the 
- 	 * process tables to get the command line, proc_pid_cmdline is 
-static 
-@@ -200,7 +198,7 @@ 
- 	 * KAO. 
- 	 */ 
- 	i = max_threads/2; 
--	if (i > MAX_KMOD_CONCURRENT) 
-+	if (i < MAX_KMOD_CONCURRENT) 
- 		i = MAX_KMOD_CONCURRENT; 
- 	atomic_inc(&kmod_concurrent); 
- 	if (atomic_read(&kmod_concurrent) > i) { 
-@@ -208,6 +206,7 @@ 
- 			printk(KERN_ERR 
- 			       "kmod: runaway modprobe loop assumed 
-and stopped\n"); 
- 		atomic_dec(&kmod_concurrent); 
-+		MAX_KMOD_CONCURRENT = 
-2*MAX_KMOD_CONCURRENT+1; 
- 		return -ENOMEM; 
- 	} 
+When resolving the mutex chain (task A locks mutex 1 owned by B blocked
+on 2 owned by C etc) for PI boosting and also when finding deadlocks,
+release _all_ locks before going to the next step in the chain. Use
+get_task_struct on the next task in the chain, release the locks,
+take the pi_locks in a fixed order (sort by address forinstance), do the
+PI boosting, get_task_struct on the next lock, release all the locks, do
+the put_task_struct() on the previous task etc.
+This a lot more expensive approach as it involves double as many spinlock
+operations and get/put_task_struct() calls , but it has the added benifit
+of reducing the overall system latency for long locking chains as there
+are spots where interrupts and preemption will be enabled for each step in
+the chain. Remember also that deep locking chains should be considered an
+exeption so the code doesn't have to be optimal wrt. performance. 
 
-Two advantages: (i) you do not worry about the choice of an arbitrary  
-value, (ii) you can reiterate modprobe command until the module is  
-loaded because MAX_KMOD_CONCURRENT grows with arithmetic  
-progression. 
+I added my feeble attempts to implement this below. I have no chance of
+ever getting time finish it :-(
 
-@@ -237,6 +236,7 @@ 
- 	if (waitpid_result != pid) { 
- 		printk(KERN_ERR "request_module[%s]: waitpid(%d,...) 
-failed, errno %d\n", 
- 		       module_name, pid, -waitpid_result); 
-+		return waitpid_result; 
- 	} 
- 	return 0; 
- } 
+> -- Steve
+> 
+> 
 
-I think here the exit point was omitted because originally the check was  
-before the unblock of the signals, now it is safe because it is at the end  
-so the errorcode should be handled. 
+This is a "near" replacement for task_blocks_on_lock(). It leaves with all
+spinlocks unlocked. A lot of other code needs to be changed as well to
+accept the new right order of locking.
 
-If you believe these corrections are valid, please you will send me 
-feedback. Otherwise I am sorry for this lack of time. 
-Regards, Marco Borsari.
+static void
+task_blocks_on_lock2(struct rt_mutex_waiter *waiter, struct thread_info *ti,
+		    struct rt_mutex *lock __EIP_DECL__)
+{
+	task_t *owner, *blocked_task = ti->task;
+
+#ifdef CONFIG_RT_DEADLOCK_DETECT
+	/* mark the current thread as blocked on the lock */
+	waiter->eip = eip;
+#endif
+	
+	blocked_task->blocked_on = waiter;
+	waiter->lock = lock;
+	waiter->ti = blocked_task->thread_info;
+	waiter->on_pi_waiters = 0;
+	plist_init(&waiter->pi_list, blocked_task->prio);
+	plist_init(&waiter->list, blocked_task->prio);
+
+	SMP_TRACE_BUG_ON_LOCKED(!spin_is_locked(&blocked_task->pi_lock));
+	SMP_TRACE_BUG_ON_LOCKED(!spin_is_locked(&lock->wait_lock));
+
+	plist_add(&waiter->list, &lock->wait_list);
+	set_lock_owner_pending(lock);
+
+	owner = lock_owner_task(lock);
+	/* Put code to grab the lock and return on success here */
+	
+	/* Code for waiting: */
+	get_task_struct(owner);
+	get_task_struct(blocked_task);
+	blocked_task->blocked_on = waiter;
+	
+	_raw_spin_unlock(&lock->wait_lock);
+	_raw_spin_unlock(&current->pi_lock);
+	
+	while(owner) {
+		/* No spin-locks held here! */
+		
+		struct rt_mutex *this_lock;
+		task_t *next_owner = NULL;
+		
+		if(owner-blocked_task<0) {
+			_raw_spin_lock(&owner->pi_lock);
+			_raw_spin_lock(&blocked_task->pi_lock);
+		}
+		else {
+			_raw_spin_lock(&blocked_task->pi_lock);
+			_raw_spin_lock(&owner->pi_lock);
+		}
+
+		if(!blocked_task->blocked_on ||
+		   !blocked_task->blocked_on->ti) {
+			/* The lock have been released!! */
+			_raw_spin_unlock(&blocked_task->pi_lock);
+			_raw_spin_unlock(&owner->pi_lock);
+			put_task_struct(owner);
+			break;			
+		}
+ 		waiter = blocked_task->blocked_on;
+		this_lock = waiter->lock;
+		_raw_spin_lock(&this_lock->wait_lock);
+		if(lock_owner_task(this_lock)!=owner) {
+			/* Ups, owner have changed 
+			   redo it with the new owner */
+			next_owner = lock_owner_task(this_lock);
+			if(next_owner)
+				get_task_struct(next_owner);
+			_raw_spin_unlock(&this_lock->wait_lock);
+			_raw_spin_unlock(&blocked_task->pi_lock);
+			_raw_spin_unlock(&owner->pi_lock);
+			put_task_struct(owner);
+			owner = next_owner;
+			continue;
+		}
+
+		/* Prio might have changed - it does so in the
+		   previous loop. So the lists needs to be resorted 
+		*/
+		plist_del(&waiter->list, &lock->wait_list);
+		plist_init(&waiter->list, blocked_task->prio);
+		plist_add(&waiter->list, &lock->wait_list);
+
+		if(waiter->on_pi_waiters) {
+			plist_del(&waiter->pi_list,
+				  &owner->pi_waiters);
+			waiter->on_pi_waiters = 0;
+		}
+
+		/* We only need the highest priority waiter on 
+		   owner->pi_list  */
+		if(plist_first_entry(&lock->wait_list,
+				      struct rt_mutex_waiter, pi_list) 
+		   == waiter) {
+			plist_init(&waiter->pi_list, blocked_task->prio);
+			plist_add(&waiter->pi_list, 
+				  &owner->pi_waiters);
+			waiter->on_pi_waiters = 1;
+		}
+
+		_raw_spin_unlock(&this_lock->wait_lock);
+		_raw_spin_unlock(&blocked_task->pi_lock);
+		if(DEADLOCK_DETECT || owner->prio > blocked_task->prio) {
+			if(owner->prio > blocked_task->prio)
+				mutex_setprio(owner,blocked_task->prio);
+			if(owner->blocked_on) {
+				waiter = owner->blocked_on;
+				_raw_spin_lock(&waiter->lock->wait_lock);
+				next_owner = lock_owner_task(waiter->lock);
+				if(next_owner)
+					get_task_struct(next_owner);
+                                _raw_spin_unlock(&waiter->lock->wait_lock);
+			}
+		}
+		put_task_struct(blocked_task);
+		blocked_task = owner;
+		owner = next_owner;
+        }
+	BUG_ON(!blocked_task);
+	put_task_struct(blocked_task);
+}
+
+

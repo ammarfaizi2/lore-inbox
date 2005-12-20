@@ -1,77 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbVLTSAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbVLTSBy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbVLTSAI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 13:00:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbVLTSAI
+	id S1750801AbVLTSBy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 13:01:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbVLTSBy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 13:00:08 -0500
-Received: from gateway.argo.co.il ([194.90.79.130]:32009 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1750750AbVLTSAG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 13:00:06 -0500
-Message-ID: <43A846A1.4080007@argo.co.il>
-Date: Tue, 20 Dec 2005 20:00:01 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+	Tue, 20 Dec 2005 13:01:54 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:3507 "HELO mail.dev.rtsoft.ru")
+	by vger.kernel.org with SMTP id S1750766AbVLTSBx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 13:01:53 -0500
+Message-ID: <43A84730.9020602@ru.mvista.com>
+Date: Tue, 20 Dec 2005 21:02:24 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Badari Pulavarty <pbadari@us.ibm.com>
-CC: Al Viro <viro@ftp.linux.org.uk>, hch@lst.de, akpm@osdl.org,
-       davem@redhat.com, Ulrich Drepper <drepper@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] New iovec support & VFS changes
-References: <1135095487.19193.90.camel@localhost.localdomain>
-In-Reply-To: <1135095487.19193.90.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+To: David Brownell <david-b@pacbell.net>
+CC: linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
+       greg@kroah.com, basicmark@yahoo.com, komal_shah802003@yahoo.com,
+       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
+       Joachim_Jaeger@digi.com
+Subject: Re: [PATCH/RFC] SPI:  async message handing library update
+References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051213170629.7240d211.vwool@ru.mvista.com> <20051215151948.497d703b.vwool@ru.mvista.com> <200512181059.14301.david-b@pacbell.net>
+In-Reply-To: <200512181059.14301.david-b@pacbell.net>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Dec 2005 18:00:04.0351 (UTC) FILETIME=[345B78F0:01C6058F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Badari Pulavarty wrote:
+Hi David --
 
->I was trying to add support for preadv()/pwritev() for threaded
->databases. Currently the patch is in -mm tree.
+just a cuple of notes here and below...
+
+General one: how is it supposed to set SPI bus clock in this model? I 
+guess that the only option is to set it in txrx_*.
+That is not optimal since it means setting clock for each transfer which 
+is not an optimal solution, better have a function (bitbang->set_clock 
+or whatever) )to set clock per message.
+
+>	if (!spi->max_speed_hz)
+>		spi->max_speed_hz = 500 * 1000;
 >
->http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.15-
->rc5/2.6.15-rc5-mm3/broken-out/support-for-preadv-pwritev.patch
->
->This needs a new set of system calls. Ulrich Drepper pointed out
->that, instead of adding a system call for the limited functionality
->it provides, why not we add new iovec interface as follows (offset-per-
->segment) which provides greater functionality & flexibility.
->
->+struct niovec
->+{
->+	void __user *iov_base;
->+	__kernel_size_t iov_len;
->+	__kernel_loff_t iov_off; /* NEW */
->+};
->
->In order to support this, we need to change all the file_operations
->(readv/writev) and its helper functions to take this new structure.
->
->I took a stab at doing it and I want feedback on whether this is
->acceptable. All the patch does - is to make kernel use new structure,
->but the existing syscalls like readv()/writev() still deals with
->original one to keep the compatibility. (pipes and sockets need 
->changing too - which I have not addressed yet).
->
->Is this the right approach ?
->
+>	/* nsecs = max(50, (clock period)/2), be optimistic */
+>	cs->nsecs = (1000000000/2) / (spi->max_speed_hz);
+>	if (cs->nsecs < 50)
+>		cs->nsecs = 50;
 >  
 >
-You can io_submit() a list of IO_CMD_PREAD[V]s and immediately 
-io_getevents() them. In addition to specifying different file offsets 
-you can mix reads and writes, mix file descriptors, and reap nonblocking 
-events quickly (by specifying a timeout of zero).
+Suggest not to hardcode values here.
 
-Sure, it's two syscalls instead of one, but it's much more flexibles, 
-and databases should be using aio anyway. Oh, and no kernel changes 
-needed, apart from merging vectored aio.
+>			/* set up default clock polarity, and activate chip */
+>			if (!chipselect) {
+>				bitbang->chipselect(spi, 1);
+>				ndelay(nsecs);
+>  
+>
+Suggest special enum/define for chipselect value.
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
+>			/* protocol tweaks before next transfer */
+>			if (t->delay_usecs)
+>				udelay(t->delay_usecs);
+>  
+>
+Suggest nsecs here as well.
 
+Generic note: haven't tested that with DMA, will have more comments 
+prolly...
+Another one: I just feel comfortabel with using 'bitbang' term for the 
+variety of SPI stuff which this library suits.
+
+Vitaly

@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbVLTTXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbVLTT2o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbVLTTXw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 14:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750961AbVLTTXw
+	id S1750967AbVLTT2o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 14:28:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbVLTT2o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 14:23:52 -0500
-Received: from smtp4.brturbo.com.br ([200.199.201.180]:37569 "EHLO
-	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S1750949AbVLTTXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 14:23:51 -0500
-Subject: Re: [Alsa-devel] 2.6.15-rc6: boot failure in saa7134-alsa.c
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Sergey Vlasov <vsu@altlinux.ru>,
-       Ricardo Cerqueira <v4l@cerqueira.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
-In-Reply-To: <20051220191412.GA4578@stusta.de>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
-	 <20051220131810.GB6789@stusta.de>
-	 <20051220155216.GA19797@master.mivlgu.local>
-	 <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org>
-	 <20051220191412.GA4578@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Tue, 20 Dec 2005 17:23:16 -0200
-Message-Id: <1135106596.7822.11.camel@localhost>
+	Tue, 20 Dec 2005 14:28:44 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:50816 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750967AbVLTT2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 14:28:44 -0500
+Subject: Re: 2.6.15-rc5-rt4 x86 patch
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Clark Williams <williams@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1135100583.3415.16.camel@localhost.localdomain>
+References: <1135100583.3415.16.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Tue, 20 Dec 2005 14:28:31 -0500
+Message-Id: <1135106911.13138.343.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-1mdk 
-Content-Transfer-Encoding: 8bit
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Ter, 2005-12-20 às 20:14 +0100, Adrian Bunk escreveu:
-> On Tue, Dec 20, 2005 at 10:24:55AM -0800, Linus Torvalds wrote:
-> > 
+Hi Clark,
 
-> What did work was to leave sound/sound_core.c alone and make the 
-> module_init() in drivers/media/video/saa7134/saa7134-alsa.c a 
-> late_initcall() (plus disabling building of saa7134-oss.o because
-> otherwise saa7134-alsa.o wouldn't do anything).
-	We have already a patch to solve -oss and -alsa conflict against
-v4l-dvb tree. I'll prepare it against -git and submit in a few minutes
-to ML for you to test.
+I've submitted a similar patch since rc5-rt1.
 
-> > That should make sure that the sound core gets to initialize before normal 
-> > drivers do.
-> > 
-> > 		Linus
+http://lkml.org/lkml/2005/12/13/184
+
+Ingo,
+
+It's still not in there?
+
+-- Steve
+
+
+On Tue, 2005-12-20 at 11:43 -0600, Clark Williams wrote:
+> I still need the following to compile with PREEMPT_RT on an x86:
 > 
-> cu
-> Adrian
+> --- ./arch/i386/Kconfig.cpu.orig        2005-12-20 11:26:34.000000000 -0600
+> +++ ./arch/i386/Kconfig.cpu     2005-12-20 11:33:23.000000000 -0600
+> @@ -229,11 +229,6 @@
+>         depends on M386
+>         default y
 > 
-Cheers, 
-Mauro.
+> -config RWSEM_XCHGADD_ALGORITHM
+> -       bool
+> -       depends on !M386
+> -       default y
+> -
+>  config GENERIC_CALIBRATE_DELAY
+>         bool
+>         default y
+
 

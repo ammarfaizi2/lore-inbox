@@ -1,40 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbVLUWDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932217AbVLUWEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932227AbVLUWDB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 17:03:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbVLUWDA
+	id S932217AbVLUWEq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 17:04:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbVLUWEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 17:03:00 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17559 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932217AbVLUWDA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 17:03:00 -0500
-Date: Wed, 21 Dec 2005 16:02:51 -0600
-From: Robin Holt <holt@sgi.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Robin Holt <holt@sgi.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch 1/1] Fix genksyms handling of DEFINE_PER_CPU(struct foo_s *, bar);
-Message-ID: <20051221220251.GA2924@lnx-holt.americas.sgi.com>
-References: <20051221203601.GB20619@lnx-holt.americas.sgi.com> <20051221202356.GA31487@mars.ravnborg.org>
+	Wed, 21 Dec 2005 17:04:46 -0500
+Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:49931 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S932217AbVLUWEq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 17:04:46 -0500
+Date: Wed, 21 Dec 2005 23:07:25 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Gene Heskett <gene.heskett@verizononline.net>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Sensors errors with 15-rc6, 15-rc5 was normal
+Message-Id: <20051221230725.4a4851fa.khali@linux-fr.org>
+In-Reply-To: <200512211551.39092.gene.heskett@verizon.net>
+References: <200512201505.43199.gene.heskett@verizon.net>
+	<20051220151616.c8bdc00c.akpm@osdl.org>
+	<20051221191955.408c5151.khali@linux-fr.org>
+	<200512211551.39092.gene.heskett@verizon.net>
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051221202356.GA31487@mars.ravnborg.org>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 21, 2005 at 09:23:56PM +0100, Sam Ravnborg wrote:
-> On Wed, Dec 21, 2005 at 02:36:01PM -0600, Robin Holt wrote:
-> > This is a one-line change to parse.y.  It results in rebuilding the
-> > scripts/genksyms/*_shipped files.  Those are the next four patches.
-> Does this differ from the first patch-set you sent out?
-> I plan to apply these so they will be part of next round of kbuild
-> updates - which will take place during next merge window.
+Hi Gene,
 
-They are the same.  It took me four to finally get all the
-parts out and on the lkml.
+Please keep this conversation on the LKML, where it started.
+
+> > Are you getting the temperature value from ACPI, or from a hwmon
+> > driver? If the latter, which driver is this, and which hardware
+> > monitoring chip do you have?
+> 
+> Its coming from whatever source gkrellm-2.1.28 uses as the default src 
+> for this, selecting other src's results in -200F or more readings.  
+> Rebooting back to -rc5, the readings are normal but creeping up, about 
+> 152F right now.
+
+That's hardly helpful. If gkrellm doesn't tell you where the data comes
+from, we just can't use it to debug any issue. Please use "sensors"
+instead.
+
+> >From sensors-detect:
+> Probing for `Winbond W83627HF'
+>   Trying address 0x0290... Success!
+>     (confidence 8, driver `w83781d')
+> 
+> What else?
+
+This is only one part of sensors-detect. I guess it then suggests the
+w83627hf driver instead. Which driver are you using, w83627hf or
+w83781d?
+
+Please provide:
+
+1* The complete output of sensors-detect.
+
+2* The output of "sensors" in 2.6.15-rc5.
+
+3* The output of "sensors" in 2.6.15-rc6.
+
+4* The diff of your 2.6.15-rc5 kernel config file and 2.6.15-rc6
+kernel config file.
 
 Thanks,
-Robin
+-- 
+Jean Delvare

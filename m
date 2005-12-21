@@ -1,56 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbVLUS1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbVLUSft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932491AbVLUS1K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 13:27:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbVLUS1K
+	id S964792AbVLUSft (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 13:35:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbVLUSft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 13:27:10 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:33967 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932491AbVLUS1J (ORCPT
+	Wed, 21 Dec 2005 13:35:49 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:23768 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964790AbVLUSfs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 13:27:09 -0500
-Date: Wed, 21 Dec 2005 19:26:22 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Paul Jackson <pj@sgi.com>
-Subject: Re: [patch 05/15] Generic Mutex Subsystem, mutex-core.patch
-Message-ID: <20051221182622.GA8714@elte.hu>
-References: <20051219013718.GA28038@elte.hu> <43A98101.364DB5CF@tv-sign.ru> <20051221155742.GA7375@elte.hu> <43A99618.6D6655C6@tv-sign.ru>
+	Wed, 21 Dec 2005 13:35:48 -0500
+Date: Wed, 21 Dec 2005 10:35:19 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH] handle module ref count on sysctl tables.
+Message-ID: <20051221103520.258ced08@dxpl.pdx.osdl.net>
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; x86_64-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43A99618.6D6655C6@tv-sign.ru>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Right now there is a hole in the module ref counting system because
+there is no proper ref counting for sysctl tables used by modules.
+This means that if an application is holding /proc/sys/foo open and
+module that created it is unloaded, then the application touches the
+file the kernel will oops.
 
-* Oleg Nesterov <oleg@tv-sign.ru> wrote:
+This patch fixes that by maintaining source compatibility via macro.
+I am sure someone already thought of this, it just doesn't appear to
+have made it in yet.
 
-> But why we can't add the waiter to ->wait_list _after_ xchg() ? What 
-> makes the difference? Fastpath atomic op can happen before or after 
-> xchg(), this is ok. Unlock path will look at ->wait_list only after 
-> taking spinlock, at this time we already added this waiter to the 
-> ->wait_list.
-> 
-> In other words: we are holding ->wait_lock, nobody can even look at 
-> ->wait_list. We can add the waiter to ->wait_list before or after 
-> atomic_xchg() - it does not matter.
+Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
 
-hm, you are right - i've added this optimization.
-
-	Ingo
+--- net-2.6.16.orig/include/linux/sysctl.h
++++ net-2.6.16/include/linux/sysctl.h
+@@ -21,6 +21,7 @@
+ #include <linux/kernel.h>
+ #include <linux/types.h>
+ #include <linux/compiler.h>
++#include <linux/module.h>
+ 
+ struct file;
+ struct completion;
+@@ -973,9 +974,13 @@ struct ctl_table_header
+ 	struct completion *unregistering;
+ };
+ 
+-struct ctl_table_header * register_sysctl_table(ctl_table * table, 
+-						int insert_at_head);
+-void unregister_sysctl_table(struct ctl_table_header * table);
++extern struct ctl_table_header *__register_sysctl_table(ctl_table * table,
++							struct module *owner,
++							int insert_at_head);
++#define register_sysctl_table(table, insert_at_head) \
++	__register_sysctl_table(table, THIS_MODULE, insert_at_head)
++
++extern void unregister_sysctl_table(struct ctl_table_header * table);
+ 
+ #else /* __KERNEL__ */
+ 
+--- net-2.6.16.orig/kernel/sysctl.c
++++ net-2.6.16/kernel/sysctl.c
+@@ -169,7 +169,8 @@ struct file_operations proc_sys_file_ope
+ 
+ extern struct proc_dir_entry *proc_sys_root;
+ 
+-static void register_proc_table(ctl_table *, struct proc_dir_entry *, void *);
++static void register_proc_table(ctl_table *, struct proc_dir_entry *, void *,
++				struct module *);
+ static void unregister_proc_table(ctl_table *, struct proc_dir_entry *);
+ #endif
+ 
+@@ -1036,7 +1037,7 @@ static void start_unregistering(struct c
+ void __init sysctl_init(void)
+ {
+ #ifdef CONFIG_PROC_FS
+-	register_proc_table(root_table, proc_sys_root, &root_table_header);
++	register_proc_table(root_table, proc_sys_root, &root_table_header, NULL);
+ 	init_irq_proc();
+ #endif
+ }
+@@ -1279,8 +1280,9 @@ int do_sysctl_strategy (ctl_table *table
+  * This routine returns %NULL on a failure to register, and a pointer
+  * to the table header on success.
+  */
+-struct ctl_table_header *register_sysctl_table(ctl_table * table, 
+-					       int insert_at_head)
++struct ctl_table_header *__register_sysctl_table(ctl_table * table,
++						 struct module *owner,
++						 int insert_at_head)
+ {
+ 	struct ctl_table_header *tmp;
+ 	tmp = kmalloc(sizeof(struct ctl_table_header), GFP_KERNEL);
+@@ -1297,7 +1299,7 @@ struct ctl_table_header *register_sysctl
+ 		list_add_tail(&tmp->ctl_entry, &root_table_header.ctl_entry);
+ 	spin_unlock(&sysctl_lock);
+ #ifdef CONFIG_PROC_FS
+-	register_proc_table(table, proc_sys_root, tmp);
++	register_proc_table(table, proc_sys_root, tmp, owner);
+ #endif
+ 	return tmp;
+ }
+@@ -1328,7 +1330,8 @@ void unregister_sysctl_table(struct ctl_
+ #ifdef CONFIG_PROC_FS
+ 
+ /* Scan the sysctl entries in table and add them all into /proc */
+-static void register_proc_table(ctl_table * table, struct proc_dir_entry *root, void *set)
++static void register_proc_table(ctl_table * table, struct proc_dir_entry *root,
++				void *set, struct module *owner)
+ {
+ 	struct proc_dir_entry *de;
+ 	int len;
+@@ -1366,12 +1369,13 @@ static void register_proc_table(ctl_tabl
+ 				continue;
+ 			de->set = set;
+ 			de->data = (void *) table;
++			de->owner = owner;
+ 			if (table->proc_handler)
+ 				de->proc_fops = &proc_sys_file_operations;
+ 		}
+ 		table->de = de;
+ 		if (de->mode & S_IFDIR)
+-			register_proc_table(table->child, de, set);
++			register_proc_table(table->child, de, set, owner);
+ 	}
+ }
+ 
+@@ -2414,8 +2418,9 @@ int proc_doulongvec_ms_jiffies_minmax(ct
+     return -ENOSYS;
+ }
+ 
+-struct ctl_table_header * register_sysctl_table(ctl_table * table, 
+-						int insert_at_head)
++struct ctl_table_header * __register_sysctl_table(ctl_table * table,
++						  struct module *owner,
++						  int insert_at_head)
+ {
+ 	return NULL;
+ }
+@@ -2438,7 +2443,7 @@ EXPORT_SYMBOL(proc_dointvec_ms_jiffies);
+ EXPORT_SYMBOL(proc_dostring);
+ EXPORT_SYMBOL(proc_doulongvec_minmax);
+ EXPORT_SYMBOL(proc_doulongvec_ms_jiffies_minmax);
+-EXPORT_SYMBOL(register_sysctl_table);
++EXPORT_SYMBOL(__register_sysctl_table);
+ EXPORT_SYMBOL(sysctl_intvec);
+ EXPORT_SYMBOL(sysctl_jiffies);
+ EXPORT_SYMBOL(sysctl_ms_jiffies);

@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbVLUVdX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbVLUVe2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbVLUVdX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 16:33:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbVLUVdX
+	id S964790AbVLUVe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 16:34:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbVLUVe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 16:33:23 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:268 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932202AbVLUVdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 16:33:22 -0500
-Date: Wed, 21 Dec 2005 22:33:21 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, uclinux-v850@lsi.nec.co.j
-Subject: Re: [RFC: 2.6 patch] include/linux/irq.h: #include <linux/smp.h>
-Message-ID: <20051221213321.GC3888@stusta.de>
-References: <20051221012750.GD5359@stusta.de> <20051221024133.93b75576.akpm@osdl.org> <20051221110421.GA26630@flint.arm.linux.org.uk>
-MIME-Version: 1.0
+	Wed, 21 Dec 2005 16:34:28 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4547 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1750745AbVLUVe1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 16:34:27 -0500
+Date: Wed, 21 Dec 2005 13:33:42 -0800
+From: Greg KH <greg@kroah.com>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: vojtech@ucw.cz, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc5 and later: USB mouse IRQ post kills the computer post resume.
+Message-ID: <20051221213342.GA8315@kroah.com>
+References: <1135199640.9616.21.camel@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051221110421.GA26630@flint.arm.linux.org.uk>
+In-Reply-To: <1135199640.9616.21.camel@localhost>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 21, 2005 at 11:04:22AM +0000, Russell King wrote:
-> On Wed, Dec 21, 2005 at 02:41:33AM -0800, Andrew Morton wrote:
-> > Yes, it's basically always wrong to include asm/foo.h when linux/foo.h
-> > exists. 
+On Thu, Dec 22, 2005 at 07:14:01AM +1000, Nigel Cunningham wrote:
+> Hi Vojtech.
 > 
-> There's always an exception to every rule.  linux/irq.h is that
-> exception for the above rule.
+> I have a HT box with USB mouse support built as modules. Beginning with
+> 2.6.15-rc5 (maybe slightly earlier) a suspend/resume cycle makes the USB
+> mouse get in an invalid state, such that I get a gazillion messages in
+> the logs saying "unexpected IRQ trap at vector 99", or in some
+> alternately a hard hang. No work around found yet. Are you the right man
+> to talk to, or is Greg? (Spose I should cc him, so I'll add that now). I
+> can use kdb if it's helpful. Would you like my kconfig?
 
-Why?
+This should be taken to the linux-usb-devel list, that's the best place
+for it.
 
-> Russell King
+thanks,
 
-cu
-Adrian
-
---
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+greg k-h

@@ -1,90 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbVLUS4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751184AbVLUS4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbVLUS4o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 13:56:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751184AbVLUS4o
+	id S1751184AbVLUS4q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 13:56:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbVLUS4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 13:56:44 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:57309 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751183AbVLUS4n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 13:56:43 -0500
-Date: Wed, 21 Dec 2005 10:54:20 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 3/8] mutex subsystem, add atomic_*_call_if_*() to i386
-In-Reply-To: <20051221155442.GD7243@elte.hu>
-Message-ID: <Pine.LNX.4.64.0512211044240.4827@g5.osdl.org>
-References: <20051221155442.GD7243@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 Dec 2005 13:56:46 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:15313 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751184AbVLUS4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 13:56:45 -0500
+Date: Wed, 21 Dec 2005 18:56:37 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Mark Maule <maule@sgi.com>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH 2/4] msi vector targeting abstractions
+Message-ID: <20051221185637.GA13210@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mark Maule <maule@sgi.com>, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
+References: <20051221184337.5003.85653.32527@attica.americas.sgi.com> <20051221184348.5003.7540.53186@attica.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051221184348.5003.7540.53186@attica.americas.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 21, 2005 at 12:42:41PM -0600, Mark Maule wrote:
+> Abstract portions of the MSI core for platforms that do not use standard
+> APIC interrupt controllers.  This is implemented through a set of callouts
+> which default to current behavior, but which can be overridden by calling
+> msi_register_callouts() in the platform msi init code.
 
-On Wed, 21 Dec 2005, Ingo Molnar wrote:
->
-> add two new atomic ops to i386: atomic_dec_call_if_negative() and
-> atomic_inc_call_if_nonpositive(), which are conditional-call-if
-> atomic operations. Needed by the new mutex code.
+we tend to calls these _ops or _operations instead of _callouts.
+Also I'd suggest to not keep the generic ones where they are but
+in a separate file and let the existing plattforms calls msi_register()
+with the ops table for those.  This keeps the interface symmetric instead
+of favouring the first implementation.
 
-Umm. This asm is broken. It doesn't mark %eax as changed, so this is only 
-reliable if the function you call is
+> @@ -89,10 +91,25 @@
+>  }
+>  
+>  #ifdef CONFIG_SMP
+> +static void msi_target_generic(unsigned int vector,
+> +			       unsigned int dest_cpu,
+> +			       uint32_t *address_hi,	/* in/out */
+> +			       uint32_t *address_lo)	/* in/out */
 
- - a "fastcall" one
- - always returns as its return value the pointer to the atomic count
+Please try to use u32 instead of uint32_t everywhere.  Dito for other
+sizes and signed types.
 
-which is not true (you verify that it's a fastcall, but it's of type 
-"void").
+> +{
+> +	struct msg_address address;
+> +
+> +	address.lo_address.value = *address_lo;
+> +	address.lo_address.value &= MSI_ADDRESS_DEST_ID_MASK;
+> +	address.lo_address.value |=
+> +		(cpu_physical_id(dest_cpu) << MSI_TARGET_CPU_SHIFT);
+> +
+> +	*address_lo = address.lo_address.value;
+> +}
 
-Now, it's entirely possible that it's only used in situations where the 
-compiler doesn't rely on the value of %eax after the asm anyway, but 
-that's just praying. Either mark the value as being changed, or just 
-save/restore the registers. Ie either something like
+Why do we need the full struct msg_address here?  What about just:
 
-	__asm__ __volatile__(
-		LOCK "decl (%0)\n\t"
-		"js 2f\n"
-		"1:\n"
-		LOCK_SECTION_START("")
-		"2: call "#fn_name"\n\t"
-		"jmp 1b\n"
-		LOCK_SECTION_END
-		:"=a" (dummy)
-		:"0" (v)
-		:"memory","cx","dx");
+static void msi_target_apic(unsigned int vector, unsigned int dest_cpu,
+			    u32 *address_hi, u32 *address_lo)
+{
+	u32 addr = *address_lo;
 
-or just do
+	addr &= MSI_ADDRESS_DEST_ID_MASK;
+	addr |= (cpu_physical_id(dest_cpu) << MSI_TARGET_CPU_SHIFT);
 
-	__asm__ __volatile__(
-		LOCK "decl (%0)\n\t"
-		"js 2f\n"
-		"1:\n"
-		LOCK_SECTION_START("")
-		"pushl %%ebx\n\t"
-		"pushl %%ecx\n\t"
-		"pushl %%eax\n\t"
-		"call "#fn_name"\n\t"
-		"popl %%eax\n\t"
-		"popl %%ecx\n\t"
-		"popl %%ebx\n\t"
-		"jmp 1b\n"
-		LOCK_SECTION_END
-		:/* no outputs */
-		:"a" (v)
-		:"memory");
+	*address_lo = addr;
+}
 
-or some in-between thing (that saves only part of the registers).
+> +	(*msi_callouts.msi_teardown)(vector);
+> +
 
-The above has not been tested in any way, shape or form. But you get the idea.
+just
+	msi_ops.teardown(vector);
 
-		Linus
+> +union msg_data {
+> +	struct {
+>  #if defined(__LITTLE_ENDIAN_BITFIELD)
+> -	__u32	vector		:  8;
+> -	__u32	delivery_mode	:  3;	/* 000b: FIXED | 001b: lowest prior */
+> -	__u32	reserved_1	:  3;
+> -	__u32	level		:  1;	/* 0: deassert | 1: assert */
+> -	__u32	trigger		:  1;	/* 0: edge | 1: level */
+> -	__u32	reserved_2	: 16;
+> +		__u32	vector		:  8;
+> +		__u32	delivery_mode	:  3;	/* 000b: FIXED */
+> +						/* 001b: lowest prior */
+> +		__u32	reserved_1	:  3;
+> +		__u32	level		:  1;	/* 0: deassert | 1: assert */
+> +		__u32	trigger		:  1;	/* 0: edge | 1: level */
+> +		__u32	reserved_2	: 16;
+>  #elif defined(__BIG_ENDIAN_BITFIELD)
+> -	__u32	reserved_2	: 16;
+> -	__u32	trigger		:  1;	/* 0: edge | 1: level */
+> -	__u32	level		:  1;	/* 0: deassert | 1: assert */
+> -	__u32	reserved_1	:  3;
+> -	__u32	delivery_mode	:  3;	/* 000b: FIXED | 001b: lowest prior */
+> -	__u32	vector		:  8;
+> +		__u32	reserved_2	: 16;
+> +		__u32	trigger		:  1;	/* 0: edge | 1: level */
+> +		__u32	level		:  1;	/* 0: deassert | 1: assert */
+> +		__u32	reserved_1	:  3;
+> +		__u32	delivery_mode	:  3;	/* 000b: FIXED */
+> +						/* 001b: lowest prior */
+> +		__u32	vector		:  8;
+>  #else
+>  #error "Bitfield endianness not defined! Check your byteorder.h"
+>  #endif
+> +	}u;
+> +	__u32 value;
+>  } __attribute__ ((packed));
+
+
+While you're cleaning things up, could you please kill the horrible abuse
+of bitfields for H/W structures and do proper masking instead.
+

@@ -1,66 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbVLUHRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932300AbVLUHSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbVLUHRI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 02:17:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbVLUHRI
+	id S932300AbVLUHSe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 02:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbVLUHSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 02:17:08 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:53464 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932160AbVLUHRG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 02:17:06 -0500
-Date: Wed, 21 Dec 2005 09:16:47 +0200 (EET)
-From: Pekka J Enberg <penberg@cs.Helsinki.FI>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Alok N Kataria <alokk@calsoftinc.com>,
-       Shobhit Dayal <shobhit@calsoftinc.com>,
-       Shai Fultheim <shai@scalex86.org>, Matt Mackall <mpm@selenic.com>,
-       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
-       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RT 00/02] SLOB optimizations
-In-Reply-To: <20051221065619.GC766@elte.hu>
-Message-ID: <Pine.LNX.4.58.0512210909040.23799@sbz-30.cs.Helsinki.FI>
-References: <1134860251.13138.193.camel@localhost.localdomain>
- <20051220133230.GC24408@elte.hu> <Pine.LNX.4.58.0512200836120.21313@gandalf.stny.rr.com>
- <20051220135725.GA29392@elte.hu> <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com>
- <1135093460.13138.302.camel@localhost.localdomain> <20051220181921.GF3356@waste.org>
- <1135106124.13138.339.camel@localhost.localdomain>
- <84144f020512201215j5767aab2nc0a4115c4501e066@mail.gmail.com>
- <1135114971.13138.396.camel@localhost.localdomain> <20051221065619.GC766@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Dec 2005 02:18:34 -0500
+Received: from 8.ctyme.com ([69.50.231.8]:21121 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S932300AbVLUHSd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 02:18:33 -0500
+Message-ID: <43A901C8.4090706@perkel.com>
+Date: Tue, 20 Dec 2005 23:18:32 -0800
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.10) Gecko/20050716
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: SATA SCSI device numbering - I'm confuzed! - Help!
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+OK - this really has me stumped. I have a asus A8N-SLI premium 
+motherboard. It has 4 SATA ports on it. The ports are numbered 1 to 4. 
+So somehow I asumed that port 1 would be /dev/sda ... port 4 would be 
+/dev/sdd - but when I boot up the order is very different and doesn't 
+make a lot of sense. How can a person predict what drives will get what 
+device names. Sure would be handy to be able to know that.
 
-Steven Rostedt <rostedt@goodmis.org> wrote:
-> > [...] Today's slab system is starting to become like the IDE where 
-> > nobody, but a select few sado-masochis, dare to venture in. (I've CC'd 
-> > them ;) [...]
+HELP!
 
-On Wed, 21 Dec 2005, Ingo Molnar wrote:
-> while it could possibly be cleaned up a bit, it's one of the 
-> best-optimized subsystems Linux has. Most of the "unnecessary 
-> complexity" in SLAB is related to a performance or a debugging feature.  
-> Many times i have looked at the SLAB code in a disassembler, right next 
-> to profile output from some hot workload, and have concluded: 'I couldnt 
-> do this any better even with hand-coded assembly'.
-> 
-> SLAB-bashing has become somewhat fashionable, but i really challenge 
-> everyone to improve the SLAB code first (to make it more modular, easier 
-> to read, etc.), before suggesting replacements.
+Thanks in advance. My server is down - struggling with this issue.
 
-I dropped working on the replacement because I wanted to do just that. I 
-sent my patch only because Matt and Steve talked about writing a 
-replacement and thought they would be interested to see it.
 
-I am all for gradual improvements but after taking a stab at it, I 
-starting to think rewriting would be easier, simply because the slab 
-allocator has been clean-up resistant for so long.
-
-			Pekka

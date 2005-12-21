@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbVLUTs3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbVLUTux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932493AbVLUTs3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 14:48:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVLUTs3
+	id S932495AbVLUTux (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 14:50:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbVLUTux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 14:48:29 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:63944 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932493AbVLUTs3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 14:48:29 -0500
-Date: Wed, 21 Dec 2005 20:47:40 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 3/8] mutex subsystem, add atomic_*_call_if_*() to i386
-Message-ID: <20051221194740.GA18177@elte.hu>
-References: <20051221155442.GD7243@elte.hu> <Pine.LNX.4.64.0512211044240.4827@g5.osdl.org>
+	Wed, 21 Dec 2005 14:50:53 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:50066 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932495AbVLUTuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 14:50:52 -0500
+Subject: Re: 2.6.14-rt22 (and mainline) excessive latency
+From: Lee Revell <rlrevell@joe-job.com>
+To: paulmck@us.ibm.com
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051221133641.GA7613@us.ibm.com>
+References: <1135039244.28649.41.camel@mindpipe>
+	 <20051220042442.GA32039@elte.hu> <20051221014747.GB5741@us.ibm.com>
+	 <1135135970.28229.0.camel@mindpipe>  <20051221133641.GA7613@us.ibm.com>
+Content-Type: text/plain
+Date: Wed, 21 Dec 2005 14:54:18 -0500
+Message-Id: <1135194859.31433.6.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512211044240.4827@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Linus Torvalds <torvalds@osdl.org> wrote:
-
+On Wed, 2005-12-21 at 05:36 -0800, Paul E. McKenney wrote:
+> On Tue, Dec 20, 2005 at 10:32:48PM -0500, Lee Revell wrote:
+> > On Tue, 2005-12-20 at 17:47 -0800, Paul E. McKenney wrote:
+> > > On Tue, Dec 20, 2005 at 05:24:42AM +0100, Ingo Molnar wrote:
+> > > > 
+> > > > * Lee Revell <rlrevell@joe-job.com> wrote:
+> > > > 
+> > > > > I captured this 3+ ms latency trace when killing a process with a few 
+> > > > > thousand threads.  Can a cond_resched be added to this code path?
+> > > > 
+> > > > >     bash-17992 0.n.1   29us : eligible_child (do_wait)
+> > > > > 
+> > > > >     [ 3000+ of these deleted ]
+> > > > > 
+> > > > >     bash-17992 0.n.1 3296us : eligible_child (do_wait)
+> > > > 
+> > > > Atomicity of signal delivery is pretty much a must, so i'm not sure this 
+> > > > particular latency can be fixed, short of running PREEMPT_RT. Paul E.  
+> > > > McKenney is doing some excellent stuff by RCU-ifying the task lookup and 
+> > > > signal code, but i'm not sure whether it could cover do_wait().
+> > > 
+> > > Took a quick break from repeatedly shooting myself in the foot with
+> > > RCU read-side priority boosting (still have a few toes left) to take
+> > > a quick look at this.  The TASK_TRACED and TASK_STOPPED cases seem
+> > > non-trivial, and I am concerned about races with exit.
+> > > 
+> > > Any thoughts on whether the latency is due to contention on the
+> > > tasklist lock vs. the "goto repeat" in do_wait()?
+> > 
+> > It's a UP system so I'd be surprised if there were any contention.
 > 
-> On Wed, 21 Dec 2005, Ingo Molnar wrote:
-> >
-> > add two new atomic ops to i386: atomic_dec_call_if_negative() and
-> > atomic_inc_call_if_nonpositive(), which are conditional-call-if
-> > atomic operations. Needed by the new mutex code.
-> 
-> Umm. This asm is broken. It doesn't mark %eax as changed, [...]
+> Couldn't there be contention due to preemption of someone holding
+> the tasklist lock?
 
-hm, i thought gcc treats all explicitly used register in the asm as 
-clobbered - and i'm using %%eax explicitly for that reason. Or is that 
-only the case if that's an input/output register as well?
+But I'm running with PREEMPT_DESKTOP (specifically I configured a system
+to have the exact same preemption model as mainline - PREEMPT_DESKTOP
+with no soft/hardirq preemption) so holding a spinlock will disable
+preemption.
 
-	Ingo
+Lee
+

@@ -1,51 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbVLUISq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVLUIbh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932319AbVLUISq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 03:18:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbVLUISq
+	id S932330AbVLUIbh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 03:31:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbVLUIbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 03:18:46 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:37840 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932319AbVLUISq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 03:18:46 -0500
-Date: Wed, 21 Dec 2005 08:18:43 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Nix <nix@esperi.org.uk>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Linda Walsh <lkml@tlinx.org>
-Subject: Re: Makefile targets: tar & rpm pkgs, while using O=<dir> as non-root
-Message-ID: <20051221081843.GL27946@ftp.linux.org.uk>
-References: <43A5F058.1060102@tlinx.org> <20051219071959.GJ13985@lug-owl.de> <87d5jru67j.fsf@amaterasu.srvr.nix> <20051220155839.GA9185@mars.ravnborg.org> <87irtjslxx.fsf@amaterasu.srvr.nix> <20051220202559.GK27946@ftp.linux.org.uk> <87psnqnb3z.fsf@amaterasu.srvr.nix>
+	Wed, 21 Dec 2005 03:31:37 -0500
+Received: from smtp04.auna.com ([62.81.186.14]:38339 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S932330AbVLUIbg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 03:31:36 -0500
+Date: Wed, 21 Dec 2005 09:34:18 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Marc Perkel <marc@perkel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SATA SCSI device numbering - I'm confuzed! - Help!
+Message-ID: <20051221093418.1e15e5f2@werewolf.auna.net>
+In-Reply-To: <43A901C8.4090706@perkel.com>
+References: <43A901C8.4090706@perkel.com>
+X-Mailer: Sylpheed-Claws 1.9.100cvs95 (GTK+ 2.8.9; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87psnqnb3z.fsf@amaterasu.srvr.nix>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="Sig_9/Z4ocHgi.WNx.ASVGW/eUv";
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
+X-Auth-Info: Auth:LOGIN IP:[83.138.219.198] Login:jamagallon@able.es Fecha:Wed, 21 Dec 2005 09:31:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 21, 2005 at 07:49:20AM +0000, Nix wrote:
-> Well, personally I handle patch-application in cp -al'ed trees by doing
-> cp -al via a script, and repatching all currently hardlinked trees
-> (obviously if they are very divergent some patches will fail and I'll
-> have to fix them up by hand).
+--Sig_9/Z4ocHgi.WNx.ASVGW/eUv
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-... then you edit a file to fix a typo, and have a _nice_ day next Friday
-when you notice that stuff got out of sync.
+On Tue, 20 Dec 2005 23:18:32 -0800, Marc Perkel <marc@perkel.com> wrote:
 
-> It works for me well enough to keep hardlinked branches going for in
-> some cases years without problems.
-> 
-> (On top of that, I've sometimes considered a switch to patch(1) that
-> switches to truncate-and-rewrite rather than unlink-and-replace. Haven't
-> implemented it yet though.)
-> 
-> 
-> (And if you're using this to maintain development branches, then you
-> have resync and conflict-management problems *anyway*, which this makes
-> no worse.)
+> OK - this really has me stumped. I have a asus A8N-SLI premium=20
+> motherboard. It has 4 SATA ports on it. The ports are numbered 1 to 4.=20
+> So somehow I asumed that port 1 would be /dev/sda ... port 4 would be=20
+> /dev/sdd - but when I boot up the order is very different and doesn't=20
+> make a lot of sense. How can a person predict what drives will get what=20
+> device names. Sure would be handy to be able to know that.
+>=20
 
-Yes, but it's easier to deal with when the number of your repositories
-doesn't get multiplied by factor of 20 or so...
+Plz, post this info:
+
+lspci
+dmesg
+
+to see what is in you mobo and how does kernel detect it.
+That four sata ports can be several (2?) separate PCI devices and it all de=
+pends
+on the order the kernel detects them.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandriva Linux release 2006.1 (Cooker) for i586
+Linux 2.6.14-jam5 (gcc 4.0.2 (4.0.2-1mdk for Mandriva Linux release 2006.1))
+
+--Sig_9/Z4ocHgi.WNx.ASVGW/eUv
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDqROKRlIHNEGnKMMRAkURAJ9OuqbvdpUVQ6IRrxXfKa9LAioKZwCghli9
+tWm1DfF9EFeaNOmVTr3E92M=
+=GVSn
+-----END PGP SIGNATURE-----
+
+--Sig_9/Z4ocHgi.WNx.ASVGW/eUv--

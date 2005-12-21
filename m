@@ -1,60 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbVLUTXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbVLUTdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbVLUTXI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 14:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbVLUTXI
+	id S1751189AbVLUTdG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 14:33:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbVLUTdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 14:23:08 -0500
-Received: from mail.gmx.de ([213.165.64.21]:49317 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751188AbVLUTXG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 14:23:06 -0500
-X-Authenticated: #26200865
-Message-ID: <43A9AB8E.7010802@gmx.net>
-Date: Wed, 21 Dec 2005 20:22:54 +0100
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.7.12) Gecko/20050921
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: =?ISO-8859-15?Q?Hanno_B=F6ck?= <mail@hboeck.de>,
-       Andrew Morton <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Karol Kozimor <sziwan@hell.org.pl>,
-       Christian Aichinger <Greek0@gmx.net>
-Subject: Re: [ACPI] Re: asus_acpi still broken on Samsung P30/P35
-References: <200512211611.51977.mail@hboeck.de> <Pine.LNX.4.64.0512211035370.4827@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0512211035370.4827@g5.osdl.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Y-GMX-Trusted: 0
+	Wed, 21 Dec 2005 14:33:05 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:25557 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751189AbVLUTdE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 14:33:04 -0500
+Date: Wed, 21 Dec 2005 13:33:00 -0600
+From: Mark Maule <maule@sgi.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH 2/4] msi vector targeting abstractions
+Message-ID: <20051221193300.GK9920@sgi.com>
+References: <20051221184337.5003.85653.32527@attica.americas.sgi.com> <20051221184348.5003.7540.53186@attica.americas.sgi.com> <20051221190558.GD2361@parisc-linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051221190558.GD2361@parisc-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds schrieb:
+On Wed, Dec 21, 2005 at 12:05:58PM -0700, Matthew Wilcox wrote:
+> On Wed, Dec 21, 2005 at 12:42:41PM -0600, Mark Maule wrote:
 > 
-> On Wed, 21 Dec 2005, Hanno Böck wrote:
+> > @@ -108,28 +125,38 @@
+> >     		if (!(pos = pci_find_capability(entry->dev, PCI_CAP_ID_MSI)))
+> >  			return;
+> >  
+> > +		pci_read_config_dword(entry->dev, msi_upper_address_reg(pos),
+> > +			&address_hi);
+> >  		pci_read_config_dword(entry->dev, msi_lower_address_reg(pos),
+> > -			&address.lo_address.value);
+> > -		address.lo_address.value &= MSI_ADDRESS_DEST_ID_MASK;
+> > -		address.lo_address.value |= (cpu_physical_id(dest_cpu) <<
+> > -									MSI_TARGET_CPU_SHIFT);
+> > -		entry->msi_attrib.current_cpu = cpu_physical_id(dest_cpu);
+> > +			&address_lo);
+> > +
+> > +		msi_callouts.msi_target(vector, dest_cpu,
+> > +					&address_hi, &address_lo);
+> > +
+> > +		pci_write_config_dword(entry->dev, msi_upper_address_reg(pos),
+> > +			address_hi);
+> >  		pci_write_config_dword(entry->dev, msi_lower_address_reg(pos),
+> > -			address.lo_address.value);
+> > +			address_lo);
 > 
->>This is not "some minor issue", this completely breaks the usage of current 
->>vanilla-kernels on certain Hardware. Can please, please, please anyone in the 
->>position to do this take care that this patch get's accepted before 2.6.15?
->>
->>The patch is available inside mm-sources or here:
->>http://www.int21.de/samsung/p30-2.6.14.diff
->>
->>If I should send it to anyone else or if there's anything I can do to help 
->>fixing this, I'm glad to help.
-> 
-> 
-> Last I saw this patch, I wrote this reply (the patch above is still 
-> broken). Nobody ever came back to me on it.
-> [...]
+> But actually, I don't understand why you don't just pass a msg_address
+> pointer to msi_target instead.
 
-I've been busy trying to gather all the different DSDTs to compare
-them and find out if the logic can be simplified. Will try to come
-up with a patch addressing all your and Andrew's concerns until friday.
+Mainly I did it this way 'cause msg_address seems to be geared toward specific
+hw (apic?).  In the case of altix interrupt hw, we don't know about
+dest_mode et. al., but only care about the raw address.
 
-Regards,
-Carl-Daniel
+I think this style makes it clearer that the core code should only be
+using opaque data when interacting with the platform hooks and the MSI
+registers.
+
+> 
+> (last two points apply throughtout this patch)
+> 
+> >  
+> > +	(*msi_callouts.msi_teardown)(vector);
+> > +
+> 
+> Yuck.  There's a reason C allows you to call through function pointers as if
+> they were functions.
+
+My bad ... I used the alternate style elsewhere, just botched this one up.
+
+> 
+> > +int
+> > +msi_register_callouts(struct msi_callouts *co)
+> > +{
+> > +	msi_callouts = *co;	/* structure copy */
+> > +	return 0;
+> 
+> Why do it this way instead of having a pointer to a struct?
+
+Are you suggesting just have:
+
+struct msi_callouts *msi_callouts = (some default value or NULL)
+
+and then having each platform just assign msi_callouts in their msi_arch_init?
+
+Doesn't matter to me either way ... I thought having an interface to set
+the callouts was cleaner.
+
+> 
+> > -struct msg_data {
+> > +union msg_data {
+> > +	struct {
+> 
+> How about leaving struct msg_data alone and adding
+> 
+> union good_name {
+> 	struct msg_data;
+> 	u32 value;
+> }
+> 
+> Or possibly struct msg_data should just be deleted and we should use
+> shift/mask to access the contents of it.  ISTR GCC handled that much
+> better.
+
+Christoph had similiar comments.  Will put some thought into it.
+
+Mark
+

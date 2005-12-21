@@ -1,68 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932325AbVLUJLt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbVLUJRr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932325AbVLUJLt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 04:11:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbVLUJLt
+	id S932327AbVLUJRr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 04:17:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbVLUJRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 04:11:49 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31958 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932322AbVLUJLs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 04:11:48 -0500
-Date: Wed, 21 Dec 2005 10:11:14 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Sridhar Samudrala <sri@us.ibm.com>
-Cc: Stephen Hemminger <shemminger@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>, mpm@selenic.com, ak@suse.de,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-Message-ID: <20051221091114.GA8495@elf.ucw.cz>
-References: <20051215033937.GC11856@waste.org> <20051214.203023.129054759.davem@davemloft.net> <Pine.LNX.4.58.0512142318410.7197@w-sridhar.beaverton.ibm.com> <20051215.002120.133621586.davem@davemloft.net> <1134698963.10101.43.camel@w-sridhar2.beaverton.ibm.com> <20051216094810.70082caa@dxpl.pdx.osdl.net> <1134758299.10691.28.camel@w-sridhar2.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Dec 2005 04:17:47 -0500
+Received: from zproxy.gmail.com ([64.233.162.197]:60991 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932327AbVLUJRq convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 04:17:46 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=e/5vFExnDHoA5h2YuzRtcYuf73tFymFrCnT20uB0pKSc1Ec700DPsLFbiDpLGPhSfDZ+cDExvtnXaVEVO0zQeI3PMSa/kjcNorW2eoUSV5fPTzc+N8Ztcx6lSultq38JYSRLm37XtMZMo1EmB5JBTsAq5l3GrvvJjRwKt8CCdhA=
+Message-ID: <9a8748490512210117h1f779e3cy3cd0973723e38b8d@mail.gmail.com>
+Date: Wed, 21 Dec 2005 10:17:45 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Luke Yang <luke.adi@gmail.com>
+Subject: Re: kernel development process questions
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <489ecd0c0512202117q303ef7f1qae6bc08c9637be39@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1134758299.10691.28.camel@w-sridhar2.beaverton.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+References: <489ecd0c0512202117q303ef7f1qae6bc08c9637be39@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 12/21/05, Luke Yang <luke.adi@gmail.com> wrote:
+> Hi all,
+>
+>    Thanks for Greg's howto and others' documents (Such as the "kernel
+> hacker's guide to git). But I still have some detail questions:
+>
+>    Which is everyone working on: the "latest linus git tree" or the
+> "-mm kernel"?
 
-> > If it is only one place, why not pre-allocate one "I'm sick now"
-> > skb and hold onto it. Any bigger solution seems to snowball into
-> > a huge mess.
-> 
-> But the problem is even sending/receiving a single packet can cause 
-> multiple dynamic allocations in the networking path all the way from
-> the sockets layer->transport->ip->driver.
-> To successfully send a packet, we may have to do arp, send acks and 
-> create cached routes etc. So my patch tried to identify the allocations
-> that are needed to succesfully send/receive packets over a pre-established
-> socket and adds a new flag GFP_CRITICAL to those calls.
-> This doesn't make any difference when we are not in emergency. But when
-> we go into emergency, VM will try to satisfy these allocations from a
-> critical pool if the normal path leads to failure.
-> 
-> We go into emergency when some management app detects that a swap device
-> is about to fail(we are not yet in OOM, but will enter OOM soon). In order
-> to avoid entering OOM, we need to send a message over a critical socket to
-> a remote server that can initiate failover and switch to a different swap
-> device. The switchover will happen within 2 minutes after it is initiated.
-> In a cluster environment, the remote server also sends a message to other
-> nodes which are also running the management app so that they also enter
-> emergency. Once we successfully switch to a different swap device, the remote
-> server sends a message to all the nodes and they come out of emergency.
-> 
-> During the period of emergency, all other communications can block. But
-> guranteeing the successful delivery of the critical messages will help 
-> in making sure that we do not enter OOM situation.
+I can't answer for anyone but myself, but I personally try to test
+both and look for problems in both.
+Most patches I submit are against the latest Linus git tree since
+Andrew usually handles merging that into -mm just fine. If I'm working
+on something that's currently only present in -mm (or radically
+different in -mm), then latest -mm is what I work on.
 
-Why not do it the other way? "If you don't hear from me for 2 minutes,
-do a switchover". Then all you have to do is _not_ to send a packet --
-easier to do.
+So a little of both.
 
-Anything else seems overkill.
-								Pavel
--- 
-Thanks, Sharp!
+
+>As I tried, the -mm kernel is only a patch, which MAY
+> can not be applied to latest kernel. For example, current
+> 2.6.15-rc5-mm3 patch can't be applied to  current kernel without
+> rejections and conflicts.
+>
+The 2.6.15-rc5-mm3 patch applies to 2.6.15-rc5 as its name implies.
+Take a look at http://sosdg.org/~coywolf/lxr/source/Documentation/applying-patches.txt
+
+
+>    As Greg pointed out, most patches should be tested on -mm kernel.
+> So I assum that a developer just get an exact 2.6.15-rc5 kernel from
+> git, apply the 2.6.15-rc5-mm3 patch, do some work and send out the
+> patch, then just stay there for next -mm patch?
+>
+Sure, that's one way to do it as well.
+
+
+>    Thanks in advace!
+>
+> BTW:  git question, Is there any way to get my .git/refs/ folder
+> updated through http? I mean not through rsync?
+>
+> Regards,
+> Luke Yang
+> Analog Device Inc.
+
+
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

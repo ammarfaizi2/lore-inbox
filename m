@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932336AbVLUJhD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVLUJiP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932336AbVLUJhD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 04:37:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932337AbVLUJhD
+	id S932337AbVLUJiP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 04:38:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVLUJiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 04:37:03 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:44267 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932336AbVLUJhA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 04:37:00 -0500
-Date: Wed, 21 Dec 2005 10:36:29 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] cpu scheduler: unsquish dynamic priorities
-Message-ID: <20051221093629.GA19867@elte.hu>
-References: <43A78E33.7040307@bigpond.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43A78E33.7040307@bigpond.net.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Wed, 21 Dec 2005 04:38:14 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:56211 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932337AbVLUJiN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 04:38:13 -0500
+In-Reply-To: <20051221091114.GA8495@elf.ucw.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: ak@suse.de, "David S. Miller" <davem@davemloft.net>,
+       linux-kernel@vger.kernel.org, mpm@selenic.com, netdev@vger.kernel.org,
+       netdev-owner@vger.kernel.org, Stephen Hemminger <shemminger@osdl.org>,
+       sri@us.ibm.com
+MIME-Version: 1.0
+Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF64F635C2.05062E9D-ON882570DE.0034368A-882570DE.0034EEAA@us.ibm.com>
+From: David Stevens <dlstevens@us.ibm.com>
+Date: Wed, 21 Dec 2005 01:39:14 -0800
+X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF654 | July 22, 2005) at
+ 12/21/2005 02:39:16,
+	Serialize complete at 12/21/2005 02:39:16
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Peter Williams <pwil3058@bigpond.net.au> wrote:
-
-> The problem:
+> Why not do it the other way? "If you don't hear from me for 2 minutes,
+> do a switchover". Then all you have to do is _not_ to send a packet --
+> easier to do.
 > 
-> The current scheduler implementation maps 40 nice values and 10 bonus 
-> values into only 40 priority slots on the run queues.  This results in 
-> the dynamic priorities of tasks at either end of the nice scale being 
-> squished up.  E.g. all tasks with nice in the range -20 to -16 and the 
-> maximum of 10 bonus points will end up with a dynamic priority of 
-> MAX_RT_PRIO and all tasks with nice in the range 15 to 19 and no bonus 
-> points will end up with a dynamic priority of MAX_PRIO - 1.
-> 
-> Although the fact that niceness is primarily implemented by time slice 
-> size means that this will have little or no adverse effect on the long 
-> term allocation of CPU resources due to niceness, it could adversely 
-> effect latency as it will interfere with preemption.
+> Anything else seems overkill.
+>                         Pavel
 
-this property of the priority distribution was intentional from me, i 
-wanted to have an easy way to test 'no priority boosting downwards' 
-(nice +19) and 'no priority boosting upwards' (nice -20) conditions. But 
-i like your patch, because it simplifies effective_prio() a bit, and 
-with SCHED_BATCH we'll have the 'no boosting' property anyway. Could you 
-redo the patch against the current scheduler queue in -mm, so that we 
-can try it out in -mm?
+        Because in some of the scenarios, including ours, it isn't a
+simple failover to a known alternate device or configuration --
+it is reconfiguring dynamically with information received on a
+socket from a remote machine (while the swap device is unavailable).
+        Limited socket communication without allocating new memory
+that may not be available is the problem definition. Avoiding the
+problem in the first place (your solution) is effective if you
+can do it, of course. The trick is to solve the problem when you
+can't avoid it. :-)
 
-Btw., another user-visible effect is that task_prio() will return the 
-new range, which will be visible in e.g. 'top'. I dont think it will be 
-confusing though.
+                                                        +-DLS
 
-	Ingo

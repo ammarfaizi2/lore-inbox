@@ -1,93 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbVLULhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbVLULkV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932374AbVLULhX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 06:37:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbVLULhX
+	id S932375AbVLULkV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 06:40:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbVLULkV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 06:37:23 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:47551 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932374AbVLULhW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 06:37:22 -0500
-Date: Wed, 21 Dec 2005 12:37:43 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] conditionally #ifdef-out unused DiB3000M-C/P functions
-Message-ID: <20051221113742.GA5611@stiffy.osknowledge.org>
+	Wed, 21 Dec 2005 06:40:21 -0500
+Received: from tag.witbe.net ([81.88.96.48]:21126 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S932375AbVLULkU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 06:40:20 -0500
+Message-Id: <200512211140.jBLBeGD31936@tag.witbe.net>
+Reply-To: <rol@witbe.net>
+From: "Paul Rolland" <rol@witbe.net>
+To: "'Arjan van de Ven'" <arjan@infradead.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux 2.4.32] SATA ICH5/PIIX and Combined mode
+Date: Wed, 21 Dec 2005 12:40:18 +0100
+Organization: Witbe.net
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eAbsdosE1cNLO4uF"
-Content-Disposition: inline
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.15-rc6-marc-g3e1ec1f4
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+In-Reply-To: <1135164891.3456.11.camel@laptopd505.fenrus.org>
+Thread-Index: AcYGIo9UxPqGxkG5RKacB+8MnSAdrgAAIIkw
+x-ncc-regid: fr.witbe
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
---eAbsdosE1cNLO4uF
-Content-Type: multipart/mixed; boundary="J/dobhs11T7y2rNN"
-Content-Disposition: inline
+> > I have a machine with two SATA HDD, and one PATA CDRom.
+> > Bios is configured for combined mode, and installing a RedHat ES3
+> > (Kernel 2.4.21-ELsmp) is fine, the two HDD are up, the installation
+> > is fine and the CDRom is working.
+> > 
+> > Then, upgrading to a vanilla 2.4.32, the ata_piix.c file contains
+> > a "combined mode not supported" and booting the machine hangs, as
+> > no VFS are up for root device.
+> 
+> you can't reliably run a non-NPTL kernel on RHES3. Really. Are you
+> really sure you want to ? 
 
-
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-The following tiny patch removes the two DiB3000M-C/P functions
-
-int dibusb_dib3000mc_tuner_attach()
-int dibusb_dib3000mc_frontend_attach()
-
-that are not needed in case the module is not compiled. The modules a800 as well
-as nova-t-usb2 select DVB_DIB3000MB in Kconfig thus the functions will be
-enabled due to the module being compiled.
+Well, the other way around is to upgrade e1000 driver in the 2.4.21EL-smp,
+as the machine I'm using is quite new, and RHES3 kernel can't find the
+Ethernet device, so the machine has no network.
+My first idea was to consider this as an opportunity to upgrade to the
+latest 2.4.x kernel, but reading you, this looks like a bad idea...
+2.6.x would be better ?
 
 Regards,
-	Marc
+Paul
 
---J/dobhs11T7y2rNN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="dibusb-remove-dibusb_dib3000-funcs-if-not-CONFIG_DVB_USB_DIBUSB_MC.patch"
-Content-Transfer-Encoding: quoted-printable
-
-*** dibusb-common.c-orig	2005-12-21 11:04:49.000000000 +0100
---- dibusb-common.c	2005-12-21 11:05:32.000000000 +0100
-*************** int dibusb_read_eeprom_byte(struct dvb_u
-*** 168,173 ****
---- 168,174 ----
-  }
-  EXPORT_SYMBOL(dibusb_read_eeprom_byte);
- =20
-+ #ifdef CONFIG_DVB_USB_DIBUSB_MC
-  int dibusb_dib3000mc_frontend_attach(struct dvb_usb_device *d)
-  {
-  	struct dib3000_config demod_cfg;
-*************** int dibusb_dib3000mc_tuner_attach (struc
-*** 193,198 ****
---- 194,200 ----
-  	return 0;
-  }
-  EXPORT_SYMBOL(dibusb_dib3000mc_tuner_attach);
-+ #endif
- =20
-  /*
-   * common remote control stuff
-
---J/dobhs11T7y2rNN--
-
---eAbsdosE1cNLO4uF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDqT6GXs/lvTQwq/URAlJ+AJ9UDw4i9WqWzQs1p1XLv8N97k933ACeKZC4
-vSIPpfgxTGq2KfqrZG22Chc=
-=rkZN
------END PGP SIGNATURE-----
-
---eAbsdosE1cNLO4uF--

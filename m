@@ -1,145 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbVLUPF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbVLUPLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932441AbVLUPF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 10:05:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVLUPF5
+	id S932442AbVLUPLS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 10:11:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVLUPLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 10:05:57 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:40626 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932441AbVLUPF5 (ORCPT
+	Wed, 21 Dec 2005 10:11:18 -0500
+Received: from schokokeks.org ([193.201.54.11]:16062 "EHLO schokokeks.org")
+	by vger.kernel.org with ESMTP id S932442AbVLUPLR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 10:05:57 -0500
-Message-ID: <43A98101.364DB5CF@tv-sign.ru>
-Date: Wed, 21 Dec 2005 19:21:21 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Wed, 21 Dec 2005 10:11:17 -0500
+From: "Hanno =?utf-8?q?B=C3=B6ck?=" <mail@hboeck.de>
+To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       "Brown, Len" <len.brown@intel.com>
+Subject: asus_acpi still broken on Samsung P30/P35
+Date: Wed, 21 Dec 2005 16:11:49 +0100
+User-Agent: KMail/1.9
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Karol Kozimor <sziwan@hell.org.pl>,
+       Christian Aichinger <Greek0@gmx.net>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Paul Jackson <pj@sgi.com>
-Subject: Re: [patch 05/15] Generic Mutex Subsystem, mutex-core.patch
-References: <20051219013718.GA28038@elte.hu>
-Content-Type: text/plain; charset=koi8-r
+Content-Type: multipart/signed;
+  boundary="nextPart3346709.eu9g7kuGCc";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200512211611.51977.mail@hboeck.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
->
-> mutex implementation, core files: just the basic subsystem, no users of it.
+--nextPart3346709.eu9g7kuGCc
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Ingo, could you explain to me ...
+Hi,
 
-> +__mutex_lock_common(struct mutex *lock, struct mutex_waiter *waiter,
-> +		    struct thread_info *ti, struct task_struct *task,
-> +		    unsigned long *flags, unsigned long task_state __IP_DECL__)
-> +{
-> +	unsigned int old_val;
-> +
-> +	debug_lock_irqsave(&debug_lock, *flags, ti);
-> +	DEBUG_WARN_ON(lock->magic != lock);
-> +
-> +	spin_lock(&lock->wait_lock);
-> +	__add_waiter(lock, waiter, ti, task __IP__);
-> +	set_task_state(task, task_state);
+Since several kernel-versions now the asus_acpi module is broken on several=
+=20
+Samsung notebooks, it causes an oops when loading and a kernelpanic when=20
+compiled into the kernel.
 
-I can't understand why __mutex_lock_common() does xchg() after
-adding the waiter to the ->wait_list. We are holding ->wait_lock,
-we can't race with __mutex_unlock_nonatomic() - it calls wake_up()
-and sets ->count under this spinlock.
+This is known for ages. There was a patch by Karol Kozimor shortly after th=
+e=20
+bug became public that was ignored.
+The code was changed so the patch failed. Christian Aichinger again made a=
+=20
+patch. It was ignored as well.
 
-So, I think it can be simplified:
+Now, finally the patch is in the mm-source, I asked Andrew Morton to push i=
+t=20
+to Linus so 2.6.15 will be fixed, Andrew said this is up to Len Brown. No=20
+Reply from him.
 
-int __mutex_lock_common(lock, waiter)
-{
-	lock(&lock->wait_lock);
+Now it seems that 2.6.15 is going to be released soon, the patch still has =
+not=20
+made it into linus tree.
 
-	ret = 1;
-	if (xchg(&lock->count, -1) == 1)
-		goto out;
+This is not "some minor issue", this completely breaks the usage of current=
+=20
+vanilla-kernels on certain Hardware. Can please, please, please anyone in t=
+he=20
+position to do this take care that this patch get's accepted before 2.6.15?
 
-	__add_waiter(lock, waiter);
-	task->state = state;
+The patch is available inside mm-sources or here:
+http://www.int21.de/samsung/p30-2.6.14.diff
 
-	ret = 0;
-out:
-	unlock(&lock->wait_lock);
-	return ret;
-}
+If I should send it to anyone else or if there's anything I can do to help=
+=20
+fixing this, I'm glad to help.
 
-No?
+cu,
 
-> +__mutex_wakeup_waiter(struct mutex *lock __IP_DECL__)
-> +{
-> +	struct mutex_waiter *waiter;
-> ...
-> +	if (!waiter->woken) {
-> +		waiter->woken = 1;
-> +		wake_up_process(waiter->ti->task);
-> +	}
+=2D-=20
+Hanno B=C3=B6ck		Blog:   http://www.hboeck.de/
+GPG: 3DBD3B20		Jabber: jabber@hboeck.de
 
-Is it optimization? If yes - why? From mutex.h:
+--nextPart3346709.eu9g7kuGCc
+Content-Type: application/pgp-signature
 
-	- only one task can hold the mutex at a time
-	- only the owner can unlock the mutex
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-So, how can this help?
+iD8DBQBDqXC3r2QksT29OyARAvqFAKCUFsW05hYc4vUcuyyK+iuOqDlg5QCfRDrI
+71WfKBazxYIv9Mi8fsuB2V8=
+=UW7t
+-----END PGP SIGNATURE-----
 
-> +start_mutex_timer(struct timer_list *timer, unsigned long time,
-> +		  unsigned long *expire)
-> +{
-> +	*expire = time + jiffies;
-> +	init_timer(timer);
-> +	timer->expires = *expire;
-> +	timer->data = (unsigned long)current;
-> +	timer->function = process_timeout;
-> +	add_timer(timer);
-> +}
-
-How about
-	setup_timer(&timer, process_timeout, (unsigned long)current);
-	__mod_timer(&timer, *expire);
-?
-
-> +stop_mutex_timer(struct timer_list *timer, unsigned long time,
-> +		 unsigned long expire)
-> +{
-> +	int ret;
-> +
-> +	ret = (int)(expire - jiffies);
-> +	if (!timer_pending(timer)) {
-> +		del_singleshot_timer_sync(timer);
-> +		ret = -ETIMEDOUT;
-> +	}
-
-Did you mean
-
-	if (!timer_pending(timer))
-		ret = -ETIMEDOUT;
-	del_singleshot_timer_sync(timer);
-?
-
-> +__mutex_lock_interruptible(struct mutex *lock, unsigned long time __IP_DECL__)
-> +{
-> +	struct thread_info *ti = current_thread_info();
-> +	struct task_struct *task = ti->task;
-> +	unsigned long expire = 0, flags;
-> +	struct mutex_waiter waiter;
-> +	struct timer_list timer;
-> +	int ret;
-> +
-> +repeat:
-> +	if (__mutex_lock_common(lock, &waiter, ti, task, &flags,
-> +						TASK_INTERRUPTIBLE __IP__))
-> +		return 0;
-
-I think this is wrong. We may have pending timer here if we were woken
-by signal.
-
-Oleg.
+--nextPart3346709.eu9g7kuGCc--

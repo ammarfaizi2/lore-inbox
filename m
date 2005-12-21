@@ -1,63 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbVLUTnD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbVLUTs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932434AbVLUTnD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 14:43:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVLUTnD
+	id S932493AbVLUTs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 14:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVLUTs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 14:43:03 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:9116 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932434AbVLUTnC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 14:43:02 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=CPruSaPdV44aOw6kjinlBwF+sGTEb8hv2PIWJ7C8EJQSe68AjxmRzxJzR4iCcCD2MmpVKnS0CkOrWLvWS1t/mnSeH6RbDE3LGFaF1KcZKE0pTlhbhtzXe7mcf6x+xrA+Ta6QfjysuopA6xxu1pvaQO51iucsmFeloWM2W7Nho0E=
-Message-ID: <d120d5000512211143ge189479qf1916741479586b4@mail.gmail.com>
-Date: Wed, 21 Dec 2005 14:43:01 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Alessandro Zummo <alessandro.zummo@towertech.it>
-Subject: Re: [RFC][PATCH 1/6] RTC subsystem, class
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051221105001.226178f1@inspiron>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 21 Dec 2005 14:48:29 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:63944 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932493AbVLUTs3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 14:48:29 -0500
+Date: Wed, 21 Dec 2005 20:47:40 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 3/8] mutex subsystem, add atomic_*_call_if_*() to i386
+Message-ID: <20051221194740.GA18177@elte.hu>
+References: <20051221155442.GD7243@elte.hu> <Pine.LNX.4.64.0512211044240.4827@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20051220214511.12bbb69c@inspiron>
-	 <200512202101.39498.dtor_core@ameritech.net>
-	 <20051221105001.226178f1@inspiron>
+In-Reply-To: <Pine.LNX.4.64.0512211044240.4827@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/21/05, Alessandro Zummo <alessandro.zummo@towertech.it> wrote:
-> On Tue, 20 Dec 2005 21:01:39 -0500
-> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
->
->
-> > > +if (ops->read_time) {
-> > > +memset(tm, 0, sizeof(struct rtc_time));
-> > >
+
+* Linus Torvalds <torvalds@osdl.org> wrote:
+
+> 
+> On Wed, 21 Dec 2005, Ingo Molnar wrote:
 > >
-> > What guarantees that ops is not NULL here? Userspace can keep the
-> > attribute (file) open and issue read after class_device was unregistered
-> > and devdata set to NULL.
->
->  Right. For /proc and /dev there's a try_module_get(ops->owner) in place.
->
->  Should I add it to every rtc_sysfs_show_xxx or there's
->  a better way to do it?
->
+> > add two new atomic ops to i386: atomic_dec_call_if_negative() and
+> > atomic_inc_call_if_nonpositive(), which are conditional-call-if
+> > atomic operations. Needed by the new mutex code.
+> 
+> Umm. This asm is broken. It doesn't mark %eax as changed, [...]
 
-Well, I don't know what will it buy you: if ops is NULL
-try_module_get(ops->owner) will OOPS just as happily as original code.
+hm, i thought gcc treats all explicitly used register in the asm as 
+clobbered - and i'm using %%eax explicitly for that reason. Or is that 
+only the case if that's an input/output register as well?
 
-Your class_device has to hold on to all data structures that are
-referenced from sysfs attributes untils its ->release() function is
-called. Alternatively you could stuck a mutex and a flag somewhere in
-driver data and take it when unregistering class device and also in
-all attributes (and chech the flag there).
-
---
-Dmitry
+	Ingo

@@ -1,88 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbVLUPTC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932409AbVLUPYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932450AbVLUPTC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 10:19:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbVLUPTC
+	id S932409AbVLUPYU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 10:24:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVLUPYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 10:19:02 -0500
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:30376 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S932450AbVLUPTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 10:19:00 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
+	Wed, 21 Dec 2005 10:24:20 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9484 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932409AbVLUPYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 10:24:19 -0500
+Date: Wed, 21 Dec 2005 15:24:11 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Meelis Roos <mroos@linux.ee>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
+Message-ID: <20051221152411.GF1736@flint.arm.linux.org.uk>
+Mail-Followup-To: Meelis Roos <mroos@linux.ee>, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+References: <1134573803.25663.35.camel@localhost.localdomain> <20051214160700.7348A14BEA@rhn.tartu-labor> <20051214172445.GF7124@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512142042570.16591@math.ut.ee>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17321.29301.978623.281668@gargle.gargle.HOWL>
-Date: Wed, 21 Dec 2005 18:19:17 +0300
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>
-Subject: Re: About 4k kernel stack size....
-In-Reply-To: <Pine.LNX.4.61.0512210923580.11743@chaos.analogic.com>
-References: <20051218231401.6ded8de2@werewolf.auna.net>
-	<43A77205.2040306@rtr.ca>
-	<20051220133729.GC6789@stusta.de>
-	<170fa0d20512200637l169654c9vbe38c9931c23dfb1@mail.gmail.com>
-	<46578.10.10.10.28.1135094132.squirrel@linux1>
-	<Pine.LNX.4.61.0512201202090.27692@chaos.analogic.com>
-	<17320.35736.89250.390950@gargle.gargle.HOWL>
-	<Pine.LNX.4.61.0512210901340.11568@chaos.analogic.com>
-	<17321.25650.271585.790597@gargle.gargle.HOWL>
-	<Pine.LNX.4.61.0512210923580.11743@chaos.analogic.com>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <Pine.SOC.4.61.0512142042570.16591@math.ut.ee>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) writes:
- > 
- > On Wed, 21 Dec 2005, Nikita Danilov wrote:
- > 
- > > linux-os (Dick Johnson) writes:
- > > >
- > > > On Tue, 20 Dec 2005, Nikita Danilov wrote:
- > > >
- > > > > linux-os \(Dick Johnson\) writes:
- > > > > >
- > > > >
- > > > > [...]
- > > > >
- > > > > > See, isn't rule-making fun? This whole 4k stack-
- > > > > > thing is really dumb. Other operating systems
- > > > > > use paged virtual memory for stacks, except
- > > > > > for the interrupt stack. If Linux used paged
- > > > > > virtual memory for stacks,
- > > > >
- > > > > ... then spin-locks couldn't be held across function calls.
- > > > >
- > > >
- > > > Sure they can! In ix86 machines the local 'cli' within the
- > >
- > > Sure they cannot: one cannot schedule with spin-lock held, and major
- > > page fault will block for IO.
- > >
- > > [...]
- > >
- > 
- > Read the text you deleted and you will learn how.
+On Wed, Dec 14, 2005 at 08:43:27PM +0200, Meelis Roos wrote:
+> >Hmm, possibly, but could you apply this patch and provide the resulting
+> >messages please?  It'll probably cause some character loss when it
+> >decides to dump some debugging.
+> 
+> Not before friday unfortunately, but I will try then.
 
-I am afraid, I'd better not:
+Any news?
 
- - spin-locks do not imply disabled interrupts;
-
- - how can "swapper" guarantee that there is enough pages in the free
- list to satisfy stack page faults atomically? The only way is to keep
- free page for each thread. But then it's so much easier to just use
- this reserved page for the stack from the very beginning. 
-
- Note, that RSX/RT didn't have "kernel threads" at all: it was
- implemented as a non-blocking state machine serving user requests on
- per-cpu stacks (at least pdp-15 versions).
-
- > 
- > Cheers,
- > Dick Johnson
- > Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
- > Warning : 98.36% of all statistics are fiction.
- > .
-
-Nikita.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,90 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932442AbVLUPLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbVLUPN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932442AbVLUPLS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 10:11:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932443AbVLUPLS
+	id S932445AbVLUPN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 10:13:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932447AbVLUPN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 10:11:18 -0500
-Received: from schokokeks.org ([193.201.54.11]:16062 "EHLO schokokeks.org")
-	by vger.kernel.org with ESMTP id S932442AbVLUPLR (ORCPT
+	Wed, 21 Dec 2005 10:13:29 -0500
+Received: from main.gmane.org ([80.91.229.2]:40630 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932445AbVLUPN2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 10:11:17 -0500
-From: "Hanno =?utf-8?q?B=C3=B6ck?=" <mail@hboeck.de>
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       "Brown, Len" <len.brown@intel.com>
-Subject: asus_acpi still broken on Samsung P30/P35
-Date: Wed, 21 Dec 2005 16:11:49 +0100
-User-Agent: KMail/1.9
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Karol Kozimor <sziwan@hell.org.pl>,
-       Christian Aichinger <Greek0@gmx.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3346709.eu9g7kuGCc";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200512211611.51977.mail@hboeck.de>
+	Wed, 21 Dec 2005 10:13:28 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
+Subject: Re: About 4k kernel stack size....
+Date: Wed, 21 Dec 2005 10:07:01 -0500
+Message-ID: <dobr1u$19t$1@sea.gmane.org>
+References: <20051218231401.6ded8de2@werewolf.auna.net> <43A77205.2040306@rtr.ca> <20051220133729.GC6789@stusta.de> <170fa0d20512200637l169654c9vbe38c9931c23dfb1@mail.gmail.com> <BAYC1-PASMTP01F075F44E45AA32F0DF85AE3E0@CEZ.ICE>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ool-18b8606d.dyn.optonline.net
+User-Agent: KNode/0.9.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3346709.eu9g7kuGCc
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Sean wrote:
 
-Hi,
+> I for one hope those silly bastards using ndiswrapper fix up that code to
+                       ^^^^^^^^^^^^^^
+It is despicable that some of the proponents of this 4k-only stack size have
+resorted to such epithets. As I see, although people that rely on
+ndiswrapper (since there is no other way they could use the hardware that
+they have) will not be able to use their wireless cards when this patch
+gets merged without having to patch the kernel, only a few comments have
+been raised about it. There are other people that have raised concern not
+related to ndiswrapper. Branding everyone that is raising a concern about
+this patch into one group and calling them names is pathetic and
+despondent.
 
-Since several kernel-versions now the asus_acpi module is broken on several=
-=20
-Samsung notebooks, it causes an oops when loading and a kernelpanic when=20
-compiled into the kernel.
+While I am at it, let me _repeat_ that ndiswrapper itself is 4k-ready and a
+few Windows drivers work with 4k stacks. And supporting private stacks, as
+some people have suggested, may be possible in theory, but it is _very
+hard_, considering that Windows uses different calling conventions
+(fastcall, stdcall, cdecl) and a driver can use more than one thread. It is
+futile on this thread to suggest to someone to come up with a patch to
+implement private stacks in such an environment. And let me also repeat
+that I have been working on implementing NDIS in user space, although there
+are few issues with that too.
 
-This is known for ages. There was a patch by Karol Kozimor shortly after th=
-e=20
-bug became public that was ignored.
-The code was changed so the patch failed. Christian Aichinger again made a=
-=20
-patch. It was ignored as well.
+Giri
 
-Now, finally the patch is in the mm-source, I asked Andrew Morton to push i=
-t=20
-to Linus so 2.6.15 will be fixed, Andrew said this is up to Len Brown. No=20
-Reply from him.
 
-Now it seems that 2.6.15 is going to be released soon, the patch still has =
-not=20
-made it into linus tree.
 
-This is not "some minor issue", this completely breaks the usage of current=
-=20
-vanilla-kernels on certain Hardware. Can please, please, please anyone in t=
-he=20
-position to do this take care that this patch get's accepted before 2.6.15?
-
-The patch is available inside mm-sources or here:
-http://www.int21.de/samsung/p30-2.6.14.diff
-
-If I should send it to anyone else or if there's anything I can do to help=
-=20
-fixing this, I'm glad to help.
-
-cu,
-
-=2D-=20
-Hanno B=C3=B6ck		Blog:   http://www.hboeck.de/
-GPG: 3DBD3B20		Jabber: jabber@hboeck.de
-
---nextPart3346709.eu9g7kuGCc
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBDqXC3r2QksT29OyARAvqFAKCUFsW05hYc4vUcuyyK+iuOqDlg5QCfRDrI
-71WfKBazxYIv9Mi8fsuB2V8=
-=UW7t
------END PGP SIGNATURE-----
-
---nextPart3346709.eu9g7kuGCc--

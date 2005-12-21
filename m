@@ -1,108 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964899AbVLUWo7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbVLUWqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964899AbVLUWo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 17:44:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbVLUWo7
+	id S964868AbVLUWqe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 17:46:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbVLUWqd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 17:44:59 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:32715 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S964899AbVLUWo5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 17:44:57 -0500
-Date: Wed, 21 Dec 2005 17:44:56 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: [patch 3/3] mutex subsystem: move the core to the new atomic helpers
-In-reply-to: <20051221155411.GA7243@elte.hu>
-X-X-Sender: nico@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Message-id: <Pine.LNX.4.64.0512211735030.26663@localhost.localdomain>
+	Wed, 21 Dec 2005 17:46:33 -0500
+Received: from vms044pub.verizon.net ([206.46.252.44]:39851 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S964868AbVLUWqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 17:46:32 -0500
+Date: Wed, 21 Dec 2005 17:46:30 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: Sensors errors with 15-rc6, 15-rc5 was normal
+In-reply-to: <20051221230725.4a4851fa.khali@linux-fr.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Reply-to: gene.heskett@verizononline.net
+Message-id: <200512211746.30965.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
 MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20051221155411.GA7243@elte.hu>
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200512201505.43199.gene.heskett@verizon.net>
+ <200512211551.39092.gene.heskett@verizon.net>
+ <20051221230725.4a4851fa.khali@linux-fr.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch moves the core mutex code over to the atomic helpers from 
-previous patch.  There is no change for i386 and x86_64, except for the 
-forced unlock state that is now done outside the spinlock (doing so 
-doesn't matter since another CPU could have locked the mutex right away 
-even if it was unlocked inside the spinlock).  This however brings great 
-improvements on ARM for example.
+On Wednesday 21 December 2005 17:07, Jean Delvare wrote:
+>Hi Gene,
+>
+>Please keep this conversation on the LKML, where it started.
+>
+>> > Are you getting the temperature value from ACPI, or from a hwmon
+>> > driver? If the latter, which driver is this, and which hardware
+>> > monitoring chip do you have?
+>>
+>> Its coming from whatever source gkrellm-2.1.28 uses as the default
+>> src for this, selecting other src's results in -200F or more
+>> readings. Rebooting back to -rc5, the readings are normal but
+>> creeping up, about 152F right now.
+>
+>That's hardly helpful. If gkrellm doesn't tell you where the data
+> comes from, we just can't use it to debug any issue. Please use
+> "sensors" instead.
+>
+>> >From sensors-detect:
+>>
+>> Probing for `Winbond W83627HF'
+>>   Trying address 0x0290... Success!
+>>     (confidence 8, driver `w83781d')
+>>
+>> What else?
+>
+>This is only one part of sensors-detect. I guess it then suggests the
+>w83627hf driver instead. Which driver are you using, w83627hf or
+>w83781d?
+>
+>Please provide:
+>
+>1* The complete output of sensors-detect.
+>
+>2* The output of "sensors" in 2.6.15-rc5.
+>
+>3* The output of "sensors" in 2.6.15-rc6.
+>
+>4* The diff of your 2.6.15-rc5 kernel config file and 2.6.15-rc6
+>kernel config file.
+>
+>Thanks,
 
-Signed-off-by: Nicolas Pitre <nico@cam.org>
+I've sent the above info, but there is a nilmreg here someplace.  I'm 
+currently booted to 2.6.15-rc6, and both sensors, and gkrellm are 
+working fine.
 
----
+And, FWIW, so apparently is ntpd......
 
-Index: linux-2.6/kernel/mutex.c
-===================================================================
---- linux-2.6.orig/kernel/mutex.c
-+++ linux-2.6/kernel/mutex.c
-@@ -296,14 +296,6 @@ static inline void __mutex_unlock_nonato
- 
- 	debug_mutex_unlock(lock);
- 
--	/*
--	 * Set it back to 'unlocked'. We'll have a waiter in flight
--	 * (if any), and if some other task comes around, let it
--	 * steal the lock. Waiters take care of themselves and stay
--	 * in flight until necessary.
--	 */
--	atomic_set(&lock->count, 1);
--
- 	if (!list_empty(&lock->wait_list))
- 		mutex_wakeup_waiter(lock __IP__);
- 
-@@ -329,7 +321,7 @@ static __sched void FASTCALL(__mutex_loc
-  */
- static inline void __mutex_lock_atomic(struct mutex *lock)
- {
--	atomic_dec_call_if_negative(&lock->count, __mutex_lock_noinline);
-+	atomic_lock_call_if_contended(&lock->count, __mutex_lock_noinline);
- }
- 
- static fastcall __sched void __mutex_lock_noinline(atomic_t *lock_count)
-@@ -359,13 +351,19 @@ static void __sched FASTCALL(__mutex_unl
-  */
- static inline void __mutex_unlock_atomic(struct mutex *lock)
- {
--	atomic_inc_call_if_nonpositive(&lock->count, __mutex_unlock_noinline);
-+	atomic_unlock_call_if_contended(&lock->count, __mutex_unlock_noinline);
- }
- 
- static fastcall void __sched __mutex_unlock_noinline(atomic_t *lock_count)
- {
- 	struct mutex *lock = container_of(lock_count, struct mutex, count);
- 
-+	/*
-+	 * We were called via atomic_unlock_call_if_contended() therefore
-+	 * we need to call atomic_contended_unlock_fixup() which will set
-+	 * it to unlocked (if it wasn't done already).
-+	 */
-+	atomic_contended_unlock_fixup(lock_count);
- 	__mutex_unlock_nonatomic(lock);
- }
- 
-@@ -383,6 +381,13 @@ static inline void __mutex_lock(struct m
- 
- static inline void __mutex_unlock(struct mutex *lock __IP_DECL__)
- {
-+	/*
-+	 * Set it back to 'unlocked'. We'll have a waiter in flight
-+	 * (if any), and if some other task comes around, let it
-+	 * steal the lock. Waiters take care of themselves and stay
-+	 * in flight until necessary.
-+	 */
-+	atomic_set(&lock->count, 1);
- 	__mutex_unlock_nonatomic(lock __IP__);
- }
- 
+One of those things that make you go 'Hummmm'.
+
+Uptime now about 30 minutes, no messages in the log and the toolbar 
+clock is staying about 4 seconds behind my watch.
+
+Anybody got any nilmerg spray?  Looks like I need a gallon. :(
+
+-- 
+Cheers, Gene
+People having trouble with vz bouncing email to me should add the word
+'online' between the 'verizon', and the dot which bypasses vz's
+stupid bounce rules.  I do use spamassassin too. :-)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

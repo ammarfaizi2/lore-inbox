@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbVLUNhG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbVLUNim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932411AbVLUNhG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 08:37:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVLUNhF
+	id S932414AbVLUNim (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 08:38:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVLUNim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 08:37:05 -0500
-Received: from smtpout.mac.com ([17.250.248.89]:55279 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S932411AbVLUNhE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 08:37:04 -0500
-In-Reply-To: <1135171280.7958.16.camel@lade.trondhjem.org>
-References: <43A8EF87.1080108@bigpond.net.au> <1135145341.7910.17.camel@lade.trondhjem.org> <43A8F714.4020406@bigpond.net.au> <1135171280.7958.16.camel@lade.trondhjem.org>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <962C9716-6F84-477B-8B2A-FA771C21CDE8@mac.com>
-Cc: Peter Williams <pwil3058@bigpond.net.au>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] sched: Fix adverse effects of NFS client	on	interactive response
-Date: Wed, 21 Dec 2005 08:36:45 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-X-Mailer: Apple Mail (2.746.2)
+	Wed, 21 Dec 2005 08:38:42 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.152]:42389 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932414AbVLUNik
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 08:38:40 -0500
+Date: Wed, 21 Dec 2005 05:38:47 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Dimitri Sivanich <sivanich@sgi.com>
+Cc: Dipankar Sarma <dipankar@in.ibm.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Large thread wakeup (scheduling) delay spikes
+Message-ID: <20051221133847.GB7613@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20051220151722.GA357@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051220151722.GA357@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 21, 2005, at 08:21, Trond Myklebust wrote:
-> ...and if you stick in a faster server?...
->
-> There is _NO_ fundamental difference between NFS and a local  
-> filesystem that warrants marking one as "interactive" and the other  
-> as "noninteractive". What you are basically saying is that all I/O  
-> should be marked as TASK_NONINTERACTIVE.
+On Tue, Dec 20, 2005 at 09:17:22AM -0600, Dimitri Sivanich wrote:
+> I posted something about this back in October, but received little response.
+> Maybe others have run into problems with this since then.
+> 
+> I've noticed much less deterministic and more widely varying thread wakeup
+> (scheduling) delays on recent kernels.  Even with isolated processors, the
+> maximum delay to wakeup has gotten much longer (configured with or without
+> CONFIG_PREEMPT).
 
-Uhh, what part of disk/NFS/filesystem access is "interactive"?  Which  
-of those sleeps directly involve responding to user-interface  
-events?  _That_ is the whole point of the interactivity bonus, and  
-precisely why Ingo introduced TASK_NONINTERACTIVE sleeps; so that  
-processes that are not being useful for interactivity could be moved  
-away from TASK_NONINTERRUPTABLE, with the end result that the X- 
-server could be run at priority 0 without harming interactivity, even  
-during heavy *disk*, *NFS*, and *network* activity.  Admittedly, that  
-may not be what some people want, but they're welcome to turn off the  
-interactivity bonuses via some file in /proc (sorry, don't remember  
-which at the moment).
+Interesting -- what workload are you running, and what mechanism are
+you using to check scheduling delays?
 
-Cheers,
-Kyle Moffett
+What happens when you run this workload on a -rt kernel?
 
---
-I have yet to see any problem, however complicated, which, when you  
-looked at it in the right way, did not become still more complicated.
-   -- Poul Anderson
+							Thanx, Paul
 
-
-
+> The maximum delay to wakeup is now more than 10x longer than it was in
+> 2.6.13.4 and previous kernels, and that's on isolated processors (as much
+> as 300 usec on a 1GHz cpu), although nominal values remain largely unchanged.
+> The latest version I've tested is 2.6.15-rc5.
+> 
+> Delving into this further I discovered that this is due to the execution
+> time of file_free_rcu(), running from rcu_process_callbacks() in ksoftirqd.
+> It appears that the modification that caused this was:
+> 	http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ab2af1f5005069321c5d130f09cce577b03f43ef
+> 
+> By simply making the following change things return to more consistent
+> thread wakeup delays on isolated cpus, similiar to what we had on kernels
+> previous to the above mentioned mod (I know this change is incorrect,
+> it is just for test purposes):
+> 
+> fs/file_table.c
+> @@ -62,7 +62,7 @@
+>  
+>  static inline void file_free(struct file *f)
+>  {
+> -       call_rcu(&f->f_rcuhead, file_free_rcu);
+> +       kmem_cache_free(filp_cachep, f);
+>  }
+>  
+> 
+> I am wondering if there is some way we can return to consistently fast
+> and predictable scheduling of threads to be woken?  If not on the
+> system in general, maybe at least on certain specified processors?
+> 
+> Dimitri
+> 

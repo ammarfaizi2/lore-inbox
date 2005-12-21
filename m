@@ -1,206 +1,166 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbVLUSnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbVLUSoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbVLUSnr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 13:43:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbVLUSnr
+	id S1751168AbVLUSoT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 13:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751173AbVLUSoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 13:43:47 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:46534 "EHLO
+	Wed, 21 Dec 2005 13:44:18 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:53958 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751165AbVLUSnp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 13:43:45 -0500
-Date: Wed, 21 Dec 2005 12:42:36 -0600 (CST)
+	id S1751168AbVLUSnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 13:43:55 -0500
+Date: Wed, 21 Dec 2005 12:42:46 -0600 (CST)
 From: Mark Maule <maule@sgi.com>
 To: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Tony Luck <tony.luck@intel.com>, Mark Maule <maule@sgi.com>
-Message-Id: <20051221184342.5003.74247.39285@attica.americas.sgi.com>
+Message-Id: <20051221184353.5003.87888.74327@attica.americas.sgi.com>
 In-Reply-To: <20051221184337.5003.85653.32527@attica.americas.sgi.com>
 References: <20051221184337.5003.85653.32527@attica.americas.sgi.com>
-Subject: [PATCH 1/4] msi archetecture init hook
+Subject: [PATCH 3/4] per-platform IA64_{FIRST,LAST}_DEVICE_VECTOR definitions
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add an architecture-specific MSI setup hook (msi_arch_init()) called from 
-msi_init().  For IA64, implement this as a machvec to call platform specific
-code.
+Abstract IA64_FIRST_DEVICE_VECTOR/IA64_LAST_DEVICE_VECTOR since SN platforms
+use a subset of the IA64 range.  Implement this by making the above macros
+global variables which the platform can override in it setup code.
+
+Also add a reserve_irq_vector() routine used by SN to mark a vector's as
+in-use when that weren't allocated through assign_irq_vector().
 
 Signed-off-by: Mark Maule <maule@sgi.com>
 
-Index: msi/drivers/pci/msi.c
+Index: msi/arch/ia64/kernel/irq_ia64.c
 ===================================================================
---- msi.orig/drivers/pci/msi.c	2005-12-13 12:22:42.784269607 -0600
-+++ msi/drivers/pci/msi.c	2005-12-19 15:34:28.427921393 -0600
-@@ -367,6 +367,13 @@
- 		return status;
- 	}
+--- msi.orig/arch/ia64/kernel/irq_ia64.c	2005-12-19 18:22:03.288789302 -0600
++++ msi/arch/ia64/kernel/irq_ia64.c	2005-12-19 18:24:08.578523710 -0600
+@@ -46,6 +46,10 @@
  
-+	if ((status = msi_arch_init()) < 0) {
-+		pci_msi_enable = 0;
-+		printk(KERN_WARNING
-+		       "PCI: MSI arch init failed.  MSI disabled.\n");
-+		return status;
-+	}
-+
- 	if ((status = msi_cache_init()) < 0) {
- 		pci_msi_enable = 0;
- 		printk(KERN_WARNING "PCI: MSI cache init failed\n");
-Index: msi/include/asm-i386/msi.h
-===================================================================
---- msi.orig/include/asm-i386/msi.h	2005-12-13 12:22:42.785246074 -0600
-+++ msi/include/asm-i386/msi.h	2005-12-13 16:09:49.152553259 -0600
-@@ -12,4 +12,6 @@
- #define LAST_DEVICE_VECTOR		232
- #define MSI_TARGET_CPU_SHIFT	12
+ #define IRQ_DEBUG	0
  
-+static inline int msi_arch_init(void)	{ return 0; }
++/* These can be overridden in platform_irq_init */
++int ia64_first_device_vector = IA64_DEF_FIRST_DEVICE_VECTOR;
++int ia64_last_device_vector = IA64_DEF_LAST_DEVICE_VECTOR;
 +
- #endif /* ASM_MSI_H */
-Index: msi/include/asm-sparc/msi.h
-===================================================================
---- msi.orig/include/asm-sparc/msi.h	2005-12-13 12:22:42.785246074 -0600
-+++ msi/include/asm-sparc/msi.h	2005-12-13 16:09:49.194541334 -0600
-@@ -28,4 +28,6 @@
- 			      "i" (ASI_M_CTL), "r" (MSI_ASYNC_MODE) : "g3");
+ /* default base addr of IPI table */
+ void __iomem *ipi_base_addr = ((void __iomem *)
+ 			       (__IA64_UNCACHED_OFFSET | IA64_IPI_DEFAULT_BASE_ADDR));
+@@ -60,7 +64,7 @@
+ };
+ EXPORT_SYMBOL(isa_irq_to_vector_map);
+ 
+-static unsigned long ia64_vector_mask[BITS_TO_LONGS(IA64_NUM_DEVICE_VECTORS)];
++static unsigned long ia64_vector_mask[BITS_TO_LONGS(IA64_MAX_DEVICE_VECTORS)];
+ 
+ int
+ assign_irq_vector (int irq)
+@@ -89,6 +93,17 @@
+ 		printk(KERN_WARNING "%s: double free!\n", __FUNCTION__);
  }
  
-+static inline int msi_arch_init(void)	{ return 0; }
++int
++reserve_irq_vector (int vector)
++{
++	if (vector < IA64_FIRST_DEVICE_VECTOR ||
++	    vector > IA64_LAST_DEVICE_VECTOR)
++		return -EINVAL;
 +
- #endif /* !(_SPARC_MSI_H) */
-Index: msi/include/asm-x86_64/msi.h
++	return test_and_set_bit(IA64_FIRST_DEVICE_VECTOR + vector,
++				ia64_vector_mask);
++}
++
+ #ifdef CONFIG_SMP
+ #	define IS_RESCHEDULE(vec)	(vec == IA64_IPI_RESCHEDULE)
+ #else
+Index: msi/arch/ia64/sn/kernel/irq.c
 ===================================================================
---- msi.orig/include/asm-x86_64/msi.h	2005-12-13 12:22:42.786222541 -0600
-+++ msi/include/asm-x86_64/msi.h	2005-12-13 16:09:49.227741207 -0600
-@@ -13,4 +13,6 @@
- #define LAST_DEVICE_VECTOR		232
- #define MSI_TARGET_CPU_SHIFT	12
+--- msi.orig/arch/ia64/sn/kernel/irq.c	2005-12-19 18:22:03.289765771 -0600
++++ msi/arch/ia64/sn/kernel/irq.c	2005-12-20 09:40:22.176226204 -0600
+@@ -203,6 +203,9 @@
+ 	int i;
+ 	irq_desc_t *base_desc = irq_desc;
  
-+static inline int msi_arch_init(void)	{ return 0; }
++	ia64_first_device_vector = IA64_SN2_FIRST_DEVICE_VECTOR;
++	ia64_last_device_vector = IA64_SN2_LAST_DEVICE_VECTOR;
 +
- #endif /* ASM_MSI_H */
-Index: msi/include/asm-ia64/machvec.h
-===================================================================
---- msi.orig/include/asm-ia64/machvec.h	2005-12-13 12:22:42.786222541 -0600
-+++ msi/include/asm-ia64/machvec.h	2005-12-13 16:09:49.247270544 -0600
-@@ -74,6 +74,7 @@
- typedef unsigned short ia64_mv_readw_relaxed_t (const volatile void __iomem *);
- typedef unsigned int ia64_mv_readl_relaxed_t (const volatile void __iomem *);
- typedef unsigned long ia64_mv_readq_relaxed_t (const volatile void __iomem *);
-+typedef int ia64_mv_msi_init_t (void);
+ 	for (i = 0; i < NR_IRQS; i++) {
+ 		if (base_desc[i].handler == &no_irq_type) {
+ 			base_desc[i].handler = &irq_type_sn;
+@@ -287,6 +290,7 @@
+ 	/* link it into the sn_irq[irq] list */
+ 	spin_lock(&sn_irq_info_lock);
+ 	list_add_rcu(&sn_irq_info->list, sn_irq_lh[sn_irq_info->irq_irq]);
++	reserve_irq_vector(sn_irq_info->irq_irq);
+ 	spin_unlock(&sn_irq_info_lock);
+ 
+ 	(void)register_intr_pda(sn_irq_info);
+@@ -310,8 +314,11 @@
+ 	spin_lock(&sn_irq_info_lock);
+ 	list_del_rcu(&sn_irq_info->list);
+ 	spin_unlock(&sn_irq_info_lock);
++	if (list_empty(sn_irq_lh[sn_irq_info->irq_irq]))
++		free_irq_vector(sn_irq_info->irq_irq);
+ 	call_rcu(&sn_irq_info->rcu, sn_irq_info_free);
+ 	pci_dev_put(pci_dev);
++
+ }
  
  static inline void
- machvec_noop (void)
-@@ -85,6 +86,12 @@
- {
- }
- 
-+static inline int
-+machvec_noop_retzero (void)
-+{
-+	return 0;
-+}
-+
- extern void machvec_setup (char **);
- extern void machvec_timer_interrupt (int, void *, struct pt_regs *);
- extern void machvec_dma_sync_single (struct device *, dma_addr_t, size_t, int);
-@@ -146,6 +153,7 @@
- #  define platform_readw_relaxed        ia64_mv.readw_relaxed
- #  define platform_readl_relaxed        ia64_mv.readl_relaxed
- #  define platform_readq_relaxed        ia64_mv.readq_relaxed
-+#  define platform_msi_init	ia64_mv.msi_init
- # endif
- 
- /* __attribute__((__aligned__(16))) is required to make size of the
-@@ -194,6 +202,7 @@
- 	ia64_mv_readw_relaxed_t *readw_relaxed;
- 	ia64_mv_readl_relaxed_t *readl_relaxed;
- 	ia64_mv_readq_relaxed_t *readq_relaxed;
-+	ia64_mv_msi_init_t *msi_init;
- } __attribute__((__aligned__(16))); /* align attrib? see above comment */
- 
- #define MACHVEC_INIT(name)			\
-@@ -238,6 +247,7 @@
- 	platform_readw_relaxed,			\
- 	platform_readl_relaxed,			\
- 	platform_readq_relaxed,			\
-+	platform_msi_init,			\
- }
- 
- extern struct ia64_machine_vector ia64_mv;
-@@ -386,5 +396,8 @@
- #ifndef platform_readq_relaxed
- # define platform_readq_relaxed	__ia64_readq_relaxed
- #endif
-+#ifndef platform_msi_init
-+# define platform_msi_init	machvec_noop_retzero
-+#endif
- 
- #endif /* _ASM_IA64_MACHVEC_H */
-Index: msi/include/asm-ia64/machvec_sn2.h
+Index: msi/include/asm-ia64/hw_irq.h
 ===================================================================
---- msi.orig/include/asm-ia64/machvec_sn2.h	2005-12-13 12:22:42.787199008 -0600
-+++ msi/include/asm-ia64/machvec_sn2.h	2005-12-13 16:09:49.257035213 -0600
-@@ -71,6 +71,7 @@
- extern ia64_mv_dma_sync_sg_for_device	sn_dma_sync_sg_for_device;
- extern ia64_mv_dma_mapping_error	sn_dma_mapping_error;
- extern ia64_mv_dma_supported		sn_dma_supported;
-+extern ia64_mv_msi_init_t		sn_msi_init;
- 
+--- msi.orig/include/asm-ia64/hw_irq.h	2005-12-19 18:22:03.289765771 -0600
++++ msi/include/asm-ia64/hw_irq.h	2005-12-19 18:24:08.596100146 -0600
+@@ -47,9 +47,19 @@
+ #define IA64_CMC_VECTOR			0x1f	/* corrected machine-check interrupt vector */
  /*
-  * This stuff has dual use!
-@@ -120,6 +121,7 @@
- #define platform_dma_sync_sg_for_device	sn_dma_sync_sg_for_device
- #define platform_dma_mapping_error		sn_dma_mapping_error
- #define platform_dma_supported		sn_dma_supported
-+#define platform_msi_init		sn_msi_init
- 
- #include <asm/sn/io.h>
- 
-Index: msi/include/asm-ia64/msi.h
-===================================================================
---- msi.orig/include/asm-ia64/msi.h	2005-12-13 12:22:42.787199008 -0600
-+++ msi/include/asm-ia64/msi.h	2005-12-13 16:09:49.268752815 -0600
-@@ -14,4 +14,6 @@
- #define ack_APIC_irq		ia64_eoi
- #define MSI_TARGET_CPU_SHIFT	4
- 
-+static inline int msi_arch_init(void)	{ return platform_msi_init(); }
+  * Vectors 0x20-0x2f are reserved for legacy ISA IRQs.
++ * Use vectors 0x30-0xe7 as the default device vector range for ia64.
++ * Platforms may choose to reduce this range in platform_irq_setup, but the
++ * platform range must fall within
++ *	[IA64_DEF_FIRST_DEVICE_VECTOR..IA64_DEF_LAST_DEVICE_VECTOR]
+  */
+-#define IA64_FIRST_DEVICE_VECTOR	0x30
+-#define IA64_LAST_DEVICE_VECTOR		0xe7
++extern int ia64_first_device_vector;
++extern int ia64_last_device_vector;
 +
- #endif /* ASM_MSI_H */
-Index: msi/arch/ia64/sn/pci/Makefile
-===================================================================
---- msi.orig/arch/ia64/sn/pci/Makefile	2005-12-13 12:22:42.788175474 -0600
-+++ msi/arch/ia64/sn/pci/Makefile	2005-12-13 16:09:49.296093887 -0600
-@@ -3,8 +3,9 @@
- # License.  See the file "COPYING" in the main directory of this archive
- # for more details.
- #
--# Copyright (C) 2000-2004 Silicon Graphics, Inc.  All Rights Reserved.
-+# Copyright (C) 2000-2005 Silicon Graphics, Inc.  All Rights Reserved.
- #
- # Makefile for the sn pci general routines.
++#define IA64_DEF_FIRST_DEVICE_VECTOR	0x30
++#define IA64_DEF_LAST_DEVICE_VECTOR	0xe7
++#define IA64_FIRST_DEVICE_VECTOR	ia64_first_device_vector
++#define IA64_LAST_DEVICE_VECTOR		ia64_last_device_vector
++#define IA64_MAX_DEVICE_VECTORS		(IA64_DEF_LAST_DEVICE_VECTOR - IA64_DEF_FIRST_DEVICE_VECTOR + 1)
+ #define IA64_NUM_DEVICE_VECTORS		(IA64_LAST_DEVICE_VECTOR - IA64_FIRST_DEVICE_VECTOR + 1)
  
- obj-y := pci_dma.o tioca_provider.o tioce_provider.o pcibr/
-+obj-$(CONFIG_PCI_MSI) += msi.o
-Index: msi/arch/ia64/sn/pci/msi.c
+ #define IA64_MCA_RENDEZ_VECTOR		0xe8	/* MCA rendez interrupt */
+@@ -83,6 +93,7 @@
+ 
+ extern int assign_irq_vector (int irq);	/* allocate a free vector */
+ extern void free_irq_vector (int vector);
++extern int reserve_irq_vector (int vector);
+ extern void ia64_send_ipi (int cpu, int vector, int delivery_mode, int redirect);
+ extern void register_percpu_irq (ia64_vector vec, struct irqaction *action);
+ 
+Index: msi/drivers/pci/msi.c
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ msi/arch/ia64/sn/pci/msi.c	2005-12-19 15:34:25.300296820 -0600
-@@ -0,0 +1,18 @@
-+/*
-+ * This file is subject to the terms and conditions of the GNU General Public
-+ * License.  See the file "COPYING" in the main directory of this archive
-+ * for more details.
-+ *
-+ * Copyright (C) 2005 Silicon Graphics, Inc.  All Rights Reserved.
-+ */
+--- msi.orig/drivers/pci/msi.c	2005-12-19 18:22:03.290742240 -0600
++++ msi/drivers/pci/msi.c	2005-12-20 09:59:14.669765449 -0600
+@@ -37,7 +37,7 @@
+ 
+ #ifndef CONFIG_X86_IO_APIC
+ int vector_irq[NR_VECTORS] = { [0 ... NR_VECTORS - 1] = -1};
+-u8 irq_vector[NR_IRQ_VECTORS] = { FIRST_DEVICE_VECTOR , 0 };
++u8 irq_vector[NR_IRQ_VECTORS] = { [0 ... NR_IRQ_VECTORS - 1 ] = 0 };
+ #endif
+ 
+ static struct msi_callouts msi_callouts;
+@@ -421,6 +421,11 @@
+ 		printk(KERN_WARNING "PCI: MSI cache init failed\n");
+ 		return status;
+ 	}
 +
-+#include <asm/errno.h>
++#ifndef CONFIG_X86_IO_APIC
++	irq_vector[0] = FIRST_DEVICE_VECTOR;
++#endif
 +
-+int
-+sn_msi_init(void)
-+{
-+	/*
-+	 * return error until MSI is supported on altix platforms
-+	 */
-+	return -EINVAL;
-+}
+ 	last_alloc_vector = assign_irq_vector(AUTO_ASSIGN);
+ 	if (last_alloc_vector < 0) {
+ 		pci_msi_enable = 0;

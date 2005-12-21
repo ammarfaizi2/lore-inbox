@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932405AbVLUNVt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbVLUNVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932405AbVLUNVt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 08:21:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932406AbVLUNVt
+	id S932402AbVLUNVp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 08:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbVLUNVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 08:21:49 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:7600 "HELO mail.dev.rtsoft.ru")
-	by vger.kernel.org with SMTP id S932405AbVLUNVs (ORCPT
+	Wed, 21 Dec 2005 08:21:45 -0500
+Received: from pat.uio.no ([129.240.130.16]:30410 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S932402AbVLUNVo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 08:21:48 -0500
-Message-ID: <43A95713.6020405@ru.mvista.com>
-Date: Wed, 21 Dec 2005 16:22:27 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH/RFC] SPI core: turn transfers to be linked list
-References: <43A480C0.9080201@ru.mvista.com> <200512181240.46841.david-b@pacbell.net> <43A665F7.7020404@ru.mvista.com> <200512200011.57052.david-b@pacbell.net>
-In-Reply-To: <200512200011.57052.david-b@pacbell.net>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+	Wed, 21 Dec 2005 08:21:44 -0500
+Subject: Re: [PATCH] sched: Fix adverse effects of NFS client
+	on	interactive response
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <43A8F714.4020406@bigpond.net.au>
+References: <43A8EF87.1080108@bigpond.net.au>
+	 <1135145341.7910.17.camel@lade.trondhjem.org>
+	 <43A8F714.4020406@bigpond.net.au>
+Content-Type: text/plain
+Date: Wed, 21 Dec 2005 08:21:20 -0500
+Message-Id: <1135171280.7958.16.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.044, required 12,
+	autolearn=disabled, AWL 1.77, FORGED_RCVD_HELO 0.05,
+	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
+On Wed, 2005-12-21 at 17:32 +1100, Peter Williams wrote:
 
->>The list setting commands are pretty essential and will not add a lot to 
->>the assembly code.
->>    
->>
->
->I'm not totally averse to such changes, but you don't seem to be making
->the best arguments.  Example:  they're clearly not "essential" because
->transfer queues work today with the lists at the spi_message level.
->  
->
-One more reason for that that came out only recently: suppore we're 
-adding transfers to an already configured message (i. e. with some 
-transfers set up already). This 'chaning' may happen for some kinds of 
-devices. And in case transfers is an array, we should either be apriory 
-aware of whether the chaining will take place or allocate an array large 
-enough to hold additional transfers. Neither of these look good to me, 
-and having a linked list of transfers will definitely solve this problem.
+> > Sorry. That theory is just plain wrong. ALL of those case _ARE_
+> > interactive sleeps.
+> 
+> It's not a theory.  It's a result of observing a -j 16 build with the 
+> sources on an NFS mounted file system with top with and without the 
+> patches and comparing that with the same builds with the sources on a 
+> local file system.  Without the patches the tasks in the kernel build 
+> all get the same dynamic priority as the X server and other interactive 
+> programs when the sources are on an NFS mounted file system.  With the 
+> patches they generally have dynamic priorities between 6 to 10 higher 
+> than the X server and other interactive programs.
 
-Vitaly
+...and if you stick in a faster server?...
+
+There is _NO_ fundamental difference between NFS and a local filesystem
+that warrants marking one as "interactive" and the other as
+"noninteractive". What you are basically saying is that all I/O should
+be marked as TASK_NONINTERACTIVE.
+
+Cheers,
+  Trond
 

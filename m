@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbVLUVe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964803AbVLUVff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbVLUVe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 16:34:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbVLUVe2
+	id S964803AbVLUVff (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 16:35:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964810AbVLUVff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 16:34:28 -0500
-Received: from mail.kroah.org ([69.55.234.183]:4547 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750745AbVLUVe1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 16:34:27 -0500
-Date: Wed, 21 Dec 2005 13:33:42 -0800
-From: Greg KH <greg@kroah.com>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: vojtech@ucw.cz, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-rc5 and later: USB mouse IRQ post kills the computer post resume.
-Message-ID: <20051221213342.GA8315@kroah.com>
-References: <1135199640.9616.21.camel@localhost>
+	Wed, 21 Dec 2005 16:35:35 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:21426 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S964803AbVLUVfe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 16:35:34 -0500
+Date: Wed, 21 Dec 2005 13:35:28 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Christoph Lameter <clameter@engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       nippung@calsoftinc.com
+Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single threaded process at getrusage()
+Message-ID: <20051221213528.GC4514@localhost.localdomain>
+References: <20051221182320.GA4514@localhost.localdomain> <Pine.LNX.4.62.0512211209300.2829@schroedinger.engr.sgi.com> <20051221211135.GB4514@localhost.localdomain> <Pine.LNX.4.62.0512211318070.3443@schroedinger.engr.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1135199640.9616.21.camel@localhost>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <Pine.LNX.4.62.0512211318070.3443@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 07:14:01AM +1000, Nigel Cunningham wrote:
-> Hi Vojtech.
+On Wed, Dec 21, 2005 at 01:22:24PM -0800, Christoph Lameter wrote:
+> On Wed, 21 Dec 2005, Ravikiran G Thirumalai wrote:
 > 
-> I have a HT box with USB mouse support built as modules. Beginning with
-> 2.6.15-rc5 (maybe slightly earlier) a suspend/resume cycle makes the USB
-> mouse get in an invalid state, such that I get a gazillion messages in
-> the logs saying "unexpected IRQ trap at vector 99", or in some
-> alternately a hard hang. No work around found yet. Are you the right man
-> to talk to, or is Greg? (Spose I should cc him, so I'll add that now). I
-> can use kdb if it's helpful. Would you like my kconfig?
+> > We did look at that. Cases RUSAGE_CHILDREN and RUSAGE_SELF are always called by the 
+> > current task, so we can avoid tasklist locking there.
+> > getrusage for non-current tasks are always called with RUSAGE_BOTH.
+> > We ensure we  always take the siglock for RUSAGE_BOTH case, so that the
+> > p->signal* fields are protected and take the tasklist_lock only if we have 
+> > to traverse the tasklist hashlist. Isn't this safe?
+> 
+> Sounds okay. But its complex in the way its is coded now and its easy to 
+> assume that one can call getrusage with any parameter from inside the 
+> kernel. Maybe we can have a couple of separate functions 
+> 
+> rusage_children()
+> rusage_self()
+> rusage_both()
+> 
+> ?
+> 
+> Only rusage_both would take a task_struct * parameter. The others would 
+> only operate on current. Change all the locations that call getrusage with 
+> RUSAGE_BOTH to call rusage_both().
 
-This should be taken to the linux-usb-devel list, that's the best place
-for it.
+Yes.  This would indeed be better. I will do that change.
 
-thanks,
-
-greg k-h
+Thanks,
+Kiran

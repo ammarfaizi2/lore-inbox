@@ -1,70 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964829AbVLUWQn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbVLUWVl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964829AbVLUWQn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 17:16:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbVLUWQm
+	id S964834AbVLUWVl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 17:21:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964836AbVLUWVl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 17:16:42 -0500
-Received: from smtprelay04.ispgateway.de ([80.67.18.16]:4580 "EHLO
-	smtprelay04.ispgateway.de") by vger.kernel.org with ESMTP
-	id S964829AbVLUWQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 17:16:42 -0500
-From: Ingo Oeser <ioe-lkml@rameria.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [RFC] TOMOYO Linux released!
-Date: Wed, 21 Dec 2005 23:16:34 +0100
-User-Agent: KMail/1.7.2
-References: <200512212020.FBF94703.XOTMFStFPCJNSFLFOG@I-love.SAKURA.ne.jp> <1135164793.3456.9.camel@laptopd505.fenrus.org>
-In-Reply-To: <1135164793.3456.9.camel@laptopd505.fenrus.org>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1246322.YTt4Z7P11O";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200512212316.39164.ioe-lkml@rameria.de>
+	Wed, 21 Dec 2005 17:21:41 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36882 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S964834AbVLUWVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 17:21:40 -0500
+Date: Wed, 21 Dec 2005 22:21:31 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, uclinux-v850@lsi.nec.co.jp
+Subject: Re: [RFC: 2.6 patch] include/linux/irq.h: #include <linux/smp.h>
+Message-ID: <20051221222131.GL1736@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org, uclinux-v850@lsi.nec.co.jp
+References: <20051221012750.GD5359@stusta.de> <20051221024133.93b75576.akpm@osdl.org> <20051221110421.GA26630@flint.arm.linux.org.uk> <20051221213321.GC3888@stusta.de> <20051221214806.GJ1736@flint.arm.linux.org.uk> <20051221221114.GA3917@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051221221114.GA3917@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1246322.YTt4Z7P11O
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Wed, Dec 21, 2005 at 11:11:14PM +0100, Adrian Bunk wrote:
+> On Wed, Dec 21, 2005 at 09:48:06PM +0000, Russell King wrote:
+> > On Wed, Dec 21, 2005 at 10:33:21PM +0100, Adrian Bunk wrote:
+> > > On Wed, Dec 21, 2005 at 11:04:22AM +0000, Russell King wrote:
+> > > > On Wed, Dec 21, 2005 at 02:41:33AM -0800, Andrew Morton wrote:
+> > > > > Yes, it's basically always wrong to include asm/foo.h when linux/foo.h
+> > > > > exists. 
+> > > > 
+> > > > There's always an exception to every rule.  linux/irq.h is that
+> > > > exception for the above rule.
+> > > 
+> > > Why?
+> > 
+> > /*
+> >  * Please do not include this file in generic code.  There is currently
+> >  * no requirement for any architecture to implement anything held
+> >  * within this file.
+> >  *
+> >  * Thanks. --rmk
+> >  */
+> > 
+> > Using linux/irq.h instead of asm/irq.h _breaks_ architectures
+> > which do not use the generic irq code.
+> > 
+> > Basically, linux/irq.h should have been called asm-generic/irq.h.
+> 
+> I'm not getting your point.
 
-Hi Arjan,
+The point is _exactly_ as the above quotation between Andrew Morton
+and myself.  I'm sure it's not me being thick because it's absolutely
+damned obvious from the above.
 
-On Wednesday 21 December 2005 12:33, you wrote:
->    per user /tmp is a very attractive feature and all needed
->    infrastructure helpers for this will be in the 2.6.15 kernel)
+Andrew said: "Yes, it's basically always wrong to include asm/foo.h
+when linux/foo.h exists."
 
-Yes! I use this (via symlinks) already and love it.
+That statement is a rule.  I assert that this is an incorrect statement
+and I assert that there is a proven case where this statement is incorrect.
 
-If I now could get age based file removal, to free up more
-temporary space for sth. else with limits on minimum age,
-I would be a very happy user.
+Hence, to avoid people reading Andrew's misleading statement, I followed
+up on precisely _that_ point and _that_ point alone.
 
-I know this could be done in user space similiar to
-the dynamic swap space addition.
-
-So just take this as a hint from a customer :-)
-
-
-Regards
-
-Ingo Oeser
-
-
---nextPart1246322.YTt4Z7P11O
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDqdRHU56oYWuOrkARAr7OAKCO1Vgnx5Oo/QQwJ/lE9l2R/t/CugCfbCVP
-aGosQk0qiJ1g77qFeYAQJhk=
-=HNpG
------END PGP SIGNATURE-----
-
---nextPart1246322.YTt4Z7P11O--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

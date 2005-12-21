@@ -1,53 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbVLUWFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbVLUWLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbVLUWFm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 17:05:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932302AbVLUWFm
+	id S964811AbVLUWLS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 17:11:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbVLUWLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 17:05:42 -0500
-Received: from cust8446.nsw01.dataco.com.au ([203.171.93.254]:7113 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S932226AbVLUWFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 17:05:41 -0500
-Subject: Re: 2.6.15-rc5 and later: USB mouse IRQ post kills the computer
-	post resume.
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Greg KH <greg@kroah.com>
-Cc: vojtech@ucw.cz, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051221213342.GA8315@kroah.com>
-References: <1135199640.9616.21.camel@localhost>
-	 <20051221213342.GA8315@kroah.com>
-Content-Type: text/plain
-Organization: Cyclades
-Message-Id: <1135202541.9616.25.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 22 Dec 2005 08:02:21 +1000
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Dec 2005 17:11:17 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17420 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964811AbVLUWLQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 17:11:16 -0500
+Date: Wed, 21 Dec 2005 23:11:14 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, uclinux-v850@lsi.nec.co.jp
+Subject: Re: [RFC: 2.6 patch] include/linux/irq.h: #include <linux/smp.h>
+Message-ID: <20051221221114.GA3917@stusta.de>
+References: <20051221012750.GD5359@stusta.de> <20051221024133.93b75576.akpm@osdl.org> <20051221110421.GA26630@flint.arm.linux.org.uk> <20051221213321.GC3888@stusta.de> <20051221214806.GJ1736@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051221214806.GJ1736@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg.
-
-On Thu, 2005-12-22 at 07:33, Greg KH wrote:
-> On Thu, Dec 22, 2005 at 07:14:01AM +1000, Nigel Cunningham wrote:
-> > Hi Vojtech.
+On Wed, Dec 21, 2005 at 09:48:06PM +0000, Russell King wrote:
+> On Wed, Dec 21, 2005 at 10:33:21PM +0100, Adrian Bunk wrote:
+> > On Wed, Dec 21, 2005 at 11:04:22AM +0000, Russell King wrote:
+> > > On Wed, Dec 21, 2005 at 02:41:33AM -0800, Andrew Morton wrote:
+> > > > Yes, it's basically always wrong to include asm/foo.h when linux/foo.h
+> > > > exists. 
+> > > 
+> > > There's always an exception to every rule.  linux/irq.h is that
+> > > exception for the above rule.
 > > 
-> > I have a HT box with USB mouse support built as modules. Beginning with
-> > 2.6.15-rc5 (maybe slightly earlier) a suspend/resume cycle makes the USB
-> > mouse get in an invalid state, such that I get a gazillion messages in
-> > the logs saying "unexpected IRQ trap at vector 99", or in some
-> > alternately a hard hang. No work around found yet. Are you the right man
-> > to talk to, or is Greg? (Spose I should cc him, so I'll add that now). I
-> > can use kdb if it's helpful. Would you like my kconfig?
+> > Why?
 > 
-> This should be taken to the linux-usb-devel list, that's the best place
-> for it.
+> /*
+>  * Please do not include this file in generic code.  There is currently
+>  * no requirement for any architecture to implement anything held
+>  * within this file.
+>  *
+>  * Thanks. --rmk
+>  */
+> 
+> Using linux/irq.h instead of asm/irq.h _breaks_ architectures
+> which do not use the generic irq code.
+> 
+> Basically, linux/irq.h should have been called asm-generic/irq.h.
 
-Okee doke. I'll resend there.
+I'm not getting your point.
 
-Regards,
+The patch we are discussing is:
 
-Nigel
+--- linux-2.6.15-rc6/include/linux/irq.h.old	2005-12-20 21:45:57.000000000 +0100
++++ linux-2.6.15-rc6/include/linux/irq.h	2005-12-20 21:46:08.000000000 +0100
+@@ -10,7 +10,7 @@
+  */
+ 
+ #include <linux/config.h>
+-#include <asm/smp.h>		/* cpu_online_map */
++#include <linux/smp.h>
+ 
+
+
+> Russell King
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

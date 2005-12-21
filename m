@@ -1,206 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbVLUBv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbVLUCBn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbVLUBv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 20:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbVLUBv0
+	id S932235AbVLUCBn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 21:01:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbVLUCBn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 20:51:26 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:42187 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932249AbVLUBvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 20:51:25 -0500
-Date: Tue, 20 Dec 2005 19:51:22 -0600
-From: Robin Holt <holt@sgi.com>
-To: Linus Torvalds <torvalds@osdl.org>
+	Tue, 20 Dec 2005 21:01:43 -0500
+Received: from smtp114.sbc.mail.re2.yahoo.com ([68.142.229.91]:61048 "HELO
+	smtp114.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932235AbVLUCBm convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 21:01:42 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: Re: [RFC][PATCH 1/6] RTC subsystem, class
+Date: Tue, 20 Dec 2005 21:01:39 -0500
+User-Agent: KMail/1.8.3
 Cc: linux-kernel@vger.kernel.org
-Subject: [Patch 5/5] Rebuild scripts/genksyms/parse.h_shipped following parse.y change.
-Message-ID: <20051221015122.GF2784@lnx-holt.americas.sgi.com>
-References: <20051221014550.GA2784@lnx-holt.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <20051220214511.12bbb69c@inspiron>
+In-Reply-To: <20051220214511.12bbb69c@inspiron>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20051221014550.GA2784@lnx-holt.americas.sgi.com>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200512202101.39498.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-scripts/genksyms/parse.h_shipped regenerated following parse.y change.
+Hi,
 
-Signed-off-by: Robin Holt <holt@sgi.com>
+On Tuesday 20 December 2005 15:45, Alessandro Zummo wrote:
+> +int rtc_read_time(struct class_device *class_dev, struct rtc_time *tm)
+> +{
+> +       int err = -EINVAL;
+> +       struct rtc_class_ops *ops = class_get_devdata(class_dev);
+> +
+> +       if (ops->read_time) {
+> +               memset(tm, 0, sizeof(struct rtc_time));
+> 
 
+What guarantees that ops is not NULL here? Userspace can keep the
+attribute (file) open and issue read after class_device was unregistered
+and devdata set to NULL.
 
-Index: linux-2.6/scripts/genksyms/parse.h_shipped
-===================================================================
---- linux-2.6.orig/scripts/genksyms/parse.h_shipped	2005-12-20 19:12:49.707740909 -0600
-+++ linux-2.6/scripts/genksyms/parse.h_shipped	2005-12-20 19:13:11.938965923 -0600
-@@ -1,46 +1,128 @@
--#ifndef YYSTYPE
--#define YYSTYPE int
-+/* A Bison parser, made by GNU Bison 1.875.  */
-+
-+/* Skeleton parser for Yacc-like parsing with Bison,
-+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002 Free Software Foundation, Inc.
-+
-+   This program is free software; you can redistribute it and/or modify
-+   it under the terms of the GNU General Public License as published by
-+   the Free Software Foundation; either version 2, or (at your option)
-+   any later version.
-+
-+   This program is distributed in the hope that it will be useful,
-+   but WITHOUT ANY WARRANTY; without even the implied warranty of
-+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+   GNU General Public License for more details.
-+
-+   You should have received a copy of the GNU General Public License
-+   along with this program; if not, write to the Free Software
-+   Foundation, Inc., 59 Temple Place - Suite 330,
-+   Boston, MA 02111-1307, USA.  */
-+
-+/* As a special exception, when this file is copied by Bison into a
-+   Bison output file, you may use that output file without restriction.
-+   This special exception was added by the Free Software Foundation
-+   in version 1.24 of Bison.  */
-+
-+/* Tokens.  */
-+#ifndef YYTOKENTYPE
-+# define YYTOKENTYPE
-+   /* Put the tokens into the symbol table, so that GDB and other debuggers
-+      know about them.  */
-+   enum yytokentype {
-+     ASM_KEYW = 258,
-+     ATTRIBUTE_KEYW = 259,
-+     AUTO_KEYW = 260,
-+     BOOL_KEYW = 261,
-+     CHAR_KEYW = 262,
-+     CONST_KEYW = 263,
-+     DOUBLE_KEYW = 264,
-+     ENUM_KEYW = 265,
-+     EXTERN_KEYW = 266,
-+     FLOAT_KEYW = 267,
-+     INLINE_KEYW = 268,
-+     INT_KEYW = 269,
-+     LONG_KEYW = 270,
-+     REGISTER_KEYW = 271,
-+     RESTRICT_KEYW = 272,
-+     SHORT_KEYW = 273,
-+     SIGNED_KEYW = 274,
-+     STATIC_KEYW = 275,
-+     STRUCT_KEYW = 276,
-+     TYPEDEF_KEYW = 277,
-+     UNION_KEYW = 278,
-+     UNSIGNED_KEYW = 279,
-+     VOID_KEYW = 280,
-+     VOLATILE_KEYW = 281,
-+     TYPEOF_KEYW = 282,
-+     EXPORT_SYMBOL_KEYW = 283,
-+     ASM_PHRASE = 284,
-+     ATTRIBUTE_PHRASE = 285,
-+     BRACE_PHRASE = 286,
-+     BRACKET_PHRASE = 287,
-+     EXPRESSION_PHRASE = 288,
-+     CHAR = 289,
-+     DOTS = 290,
-+     IDENT = 291,
-+     INT = 292,
-+     REAL = 293,
-+     STRING = 294,
-+     TYPE = 295,
-+     OTHER = 296,
-+     FILENAME = 297
-+   };
- #endif
--#define	ASM_KEYW	257
--#define	ATTRIBUTE_KEYW	258
--#define	AUTO_KEYW	259
--#define	BOOL_KEYW	260
--#define	CHAR_KEYW	261
--#define	CONST_KEYW	262
--#define	DOUBLE_KEYW	263
--#define	ENUM_KEYW	264
--#define	EXTERN_KEYW	265
--#define	FLOAT_KEYW	266
--#define	INLINE_KEYW	267
--#define	INT_KEYW	268
--#define	LONG_KEYW	269
--#define	REGISTER_KEYW	270
--#define	RESTRICT_KEYW	271
--#define	SHORT_KEYW	272
--#define	SIGNED_KEYW	273
--#define	STATIC_KEYW	274
--#define	STRUCT_KEYW	275
--#define	TYPEDEF_KEYW	276
--#define	UNION_KEYW	277
--#define	UNSIGNED_KEYW	278
--#define	VOID_KEYW	279
--#define	VOLATILE_KEYW	280
--#define	TYPEOF_KEYW	281
--#define	EXPORT_SYMBOL_KEYW	282
--#define	ASM_PHRASE	283
--#define	ATTRIBUTE_PHRASE	284
--#define	BRACE_PHRASE	285
--#define	BRACKET_PHRASE	286
--#define	EXPRESSION_PHRASE	287
--#define	CHAR	288
--#define	DOTS	289
--#define	IDENT	290
--#define	INT	291
--#define	REAL	292
--#define	STRING	293
--#define	TYPE	294
--#define	OTHER	295
--#define	FILENAME	296
-+#define ASM_KEYW 258
-+#define ATTRIBUTE_KEYW 259
-+#define AUTO_KEYW 260
-+#define BOOL_KEYW 261
-+#define CHAR_KEYW 262
-+#define CONST_KEYW 263
-+#define DOUBLE_KEYW 264
-+#define ENUM_KEYW 265
-+#define EXTERN_KEYW 266
-+#define FLOAT_KEYW 267
-+#define INLINE_KEYW 268
-+#define INT_KEYW 269
-+#define LONG_KEYW 270
-+#define REGISTER_KEYW 271
-+#define RESTRICT_KEYW 272
-+#define SHORT_KEYW 273
-+#define SIGNED_KEYW 274
-+#define STATIC_KEYW 275
-+#define STRUCT_KEYW 276
-+#define TYPEDEF_KEYW 277
-+#define UNION_KEYW 278
-+#define UNSIGNED_KEYW 279
-+#define VOID_KEYW 280
-+#define VOLATILE_KEYW 281
-+#define TYPEOF_KEYW 282
-+#define EXPORT_SYMBOL_KEYW 283
-+#define ASM_PHRASE 284
-+#define ATTRIBUTE_PHRASE 285
-+#define BRACE_PHRASE 286
-+#define BRACKET_PHRASE 287
-+#define EXPRESSION_PHRASE 288
-+#define CHAR 289
-+#define DOTS 290
-+#define IDENT 291
-+#define INT 292
-+#define REAL 293
-+#define STRING 294
-+#define TYPE 295
-+#define OTHER 296
-+#define FILENAME 297
-+
- 
- 
-+
-+#if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
-+typedef int YYSTYPE;
-+# define yystype YYSTYPE /* obsolescent; will be withdrawn */
-+# define YYSTYPE_IS_DECLARED 1
-+# define YYSTYPE_IS_TRIVIAL 1
-+#endif
-+
- extern YYSTYPE yylval;
-+
-+
-+
+-- 
+Dmitry

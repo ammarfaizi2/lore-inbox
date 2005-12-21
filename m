@@ -1,67 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751169AbVLUUuo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVLUUyu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751169AbVLUUuo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 15:50:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbVLUUuo
+	id S1751193AbVLUUyu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 15:54:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbVLUUyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 15:50:44 -0500
-Received: from tarjoilu.luukku.com ([194.215.205.232]:26603 "EHLO
-	tarjoilu.luukku.com") by vger.kernel.org with ESMTP
-	id S1751169AbVLUUun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 15:50:43 -0500
-Date: Wed, 21 Dec 2005 22:50:15 +0200
-From: Mika Kukkonen <mikukkon@iki.fi>
-To: vlan@candelatech.com, netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] VLAN: Add two missing checks to vlan_ioctl_handler()
-Message-ID: <20051221205015.GC24213@localhost.localdomain>
-Reply-To: mikukkon@iki.fi
+	Wed, 21 Dec 2005 15:54:50 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:39811 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1751193AbVLUUyt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 15:54:49 -0500
+Date: Wed, 21 Dec 2005 21:23:56 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Robin Holt <holt@sgi.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Patch 1/1] Fix genksyms handling of DEFINE_PER_CPU(struct foo_s *, bar);
+Message-ID: <20051221202356.GA31487@mars.ravnborg.org>
+References: <20051221203601.GB20619@lnx-holt.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051221203601.GB20619@lnx-holt.americas.sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In vlan_ioctl_handler() the code misses couple checks for
-error return values.
+On Wed, Dec 21, 2005 at 02:36:01PM -0600, Robin Holt wrote:
+> This is a one-line change to parse.y.  It results in rebuilding the
+> scripts/genksyms/*_shipped files.  Those are the next four patches.
+Does this differ from the first patch-set you sent out?
+I plan to apply these so they will be part of next round of kbuild
+updates - which will take place during next merge window.
 
-Signed-of-by: Mika Kukkonen <mikukkon@iki.fi>
-
----
-
- net/8021q/vlan.c |    6 +++++-
- 1 files changed, 5 insertions(+), 1 deletions(-)
-
-diff --git a/net/8021q/vlan.c b/net/8021q/vlan.c
-index 91e412b..67465b6 100644
---- a/net/8021q/vlan.c
-+++ b/net/8021q/vlan.c
-@@ -753,6 +753,8 @@ static int vlan_ioctl_handler(void __use
- 		break;
- 	case GET_VLAN_REALDEV_NAME_CMD:
- 		err = vlan_dev_get_realdev_name(args.device1, args.u.device2);
-+		if (err)
-+			goto out;
- 		if (copy_to_user(arg, &args,
- 				 sizeof(struct vlan_ioctl_args))) {
- 			err = -EFAULT;
-@@ -761,6 +763,8 @@ static int vlan_ioctl_handler(void __use
- 
- 	case GET_VLAN_VID_CMD:
- 		err = vlan_dev_get_vid(args.device1, &vid);
-+		if (err)
-+			goto out;
- 		args.u.VID = vid;
- 		if (copy_to_user(arg, &args,
- 				 sizeof(struct vlan_ioctl_args))) {
-@@ -774,7 +778,7 @@ static int vlan_ioctl_handler(void __use
- 			__FUNCTION__, args.cmd);
- 		return -EINVAL;
- 	};
--
-+out:
- 	return err;
- }
- 
-
+	Sam

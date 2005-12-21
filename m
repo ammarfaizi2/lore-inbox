@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932428AbVLUOXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbVLUOZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932428AbVLUOXr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 09:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932430AbVLUOXr
+	id S932430AbVLUOZP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 09:25:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbVLUOZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 09:23:47 -0500
-Received: from mx1.suse.de ([195.135.220.2]:32185 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932428AbVLUOXr (ORCPT
+	Wed, 21 Dec 2005 09:25:14 -0500
+Received: from odyssey.analogic.com ([204.178.40.5]:6671 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932430AbVLUOZN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 09:23:47 -0500
-Date: Wed, 21 Dec 2005 15:23:41 +0100
-From: Olaf Hering <olh@suse.de>
-To: Olof Johansson <olof@lixom.net>
-Cc: linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org
-Subject: Re: console on POWER4 not working with 2.6.15
-Message-ID: <20051221142341.GA23639@suse.de>
-References: <20051220204530.GA26351@suse.de> <20051220214525.GB7428@pb15.lixom.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20051220214525.GB7428@pb15.lixom.net>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+	Wed, 21 Dec 2005 09:25:13 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <17321.25650.271585.790597@gargle.gargle.HOWL>
+X-OriginalArrivalTime: 21 Dec 2005 14:25:12.0080 (UTC) FILETIME=[5A60C900:01C6063A]
+Content-class: urn:content-classes:message
+Subject: Re: About 4k kernel stack size....
+Date: Wed, 21 Dec 2005 09:25:11 -0500
+Message-ID: <Pine.LNX.4.61.0512210923580.11743@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: About 4k kernel stack size....
+Thread-Index: AcYGOlpoEAbcZnChRzuW8m9/GA/d5g==
+References: <20051218231401.6ded8de2@werewolf.auna.net><43A77205.2040306@rtr.ca><20051220133729.GC6789@stusta.de><170fa0d20512200637l169654c9vbe38c9931c23dfb1@mail.gmail.com><46578.10.10.10.28.1135094132.squirrel@linux1><Pine.LNX.4.61.0512201202090.27692@chaos.analogic.com><17320.35736.89250.390950@gargle.gargle.HOWL><Pine.LNX.4.61.0512210901340.11568@chaos.analogic.com> <17321.25650.271585.790597@gargle.gargle.HOWL>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Nikita Danilov" <nikita@clusterfs.com>
+Cc: "Linux-Kernel," <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Tue, Dec 20, Olof Johansson wrote:
 
-> On Tue, Dec 20, 2005 at 09:45:30PM +0100, Olaf Hering wrote:
-> > The connection of ttyS0 to /dev/console doesnt seem to work anymore mit
-> > 2.6.15-rc5+6 on a POWER4 p630 in fullsystempartition mode, no HMC
-> > connected. It works with 2.6.14.4.
-> > I tested 2.6.15-rc6 arch/powerpc/configs/ppc64_defconfig.
-> 
-> It seems to have been broken a while: According to test.kernel.org (last
-> machine in the matrix is an SMP mode p650), it broke between 2.6.14-git2
-> and 2.6.14-git3. Console output can be found in:
+On Wed, 21 Dec 2005, Nikita Danilov wrote:
 
-my bisect result doesnt make much sense. The bad one is
-12a39407f021fd17d5f9d33d78bddb005bd106fb
+> linux-os (Dick Johnson) writes:
+> >
+> > On Tue, 20 Dec 2005, Nikita Danilov wrote:
+> >
+> > > linux-os \(Dick Johnson\) writes:
+> > > >
+> > >
+> > > [...]
+> > >
+> > > > See, isn't rule-making fun? This whole 4k stack-
+> > > > thing is really dumb. Other operating systems
+> > > > use paged virtual memory for stacks, except
+> > > > for the interrupt stack. If Linux used paged
+> > > > virtual memory for stacks,
+> > >
+> > > ... then spin-locks couldn't be held across function calls.
+> > >
+> >
+> > Sure they can! In ix86 machines the local 'cli' within the
+>
+> Sure they cannot: one cannot schedule with spin-lock held, and major
+> page fault will block for IO.
+>
+> [...]
+>
 
-good ones are 
-.git/refs/bisect/good-0b360adbdb54d5b98b78d57ba0916bc4b8871968
-.git/refs/bisect/good-1480d0a31db62b9803f829cc0e5cc71935ffe3cc
-.git/refs/bisect/good-9f75e1eff3edb2bb07349b94c28f4f2a6c66ca43
-.git/refs/bisect/good-ecc81e0f719f566b75b222b8aef64c8b809b2e29
+Read the text you deleted and you will learn how.
 
-If I only knew how to export the tree state at these points...
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
 
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

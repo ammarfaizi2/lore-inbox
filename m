@@ -1,57 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbVLUNwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVLUNwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932427AbVLUNwt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 08:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932428AbVLUNwt
+	id S932417AbVLUNwL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 08:52:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVLUNwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 08:52:49 -0500
-Received: from webbox4.loswebos.de ([213.187.93.205]:45015 "EHLO
-	webbox4.loswebos.de") by vger.kernel.org with ESMTP id S932427AbVLUNws
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 08:52:48 -0500
-Date: Wed, 21 Dec 2005 14:52:44 +0100
-From: Marc Koschewski <marc@osknowledge.org>
-To: Marc Koschewski <marc@osknowledge.org>
+	Wed, 21 Dec 2005 08:52:11 -0500
+Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:44480 "EHLO
+	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S932417AbVLUNwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 08:52:09 -0500
+Date: Wed, 21 Dec 2005 14:51:57 +0100
+From: Voluspa <lista1@telia.com>
+To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] conditionally #ifdef-out unused DiB3000M-C/P defs
-Message-ID: <20051221135244.GB5611@stiffy.osknowledge.org>
-References: <20051221113742.GA5611@stiffy.osknowledge.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="WfZ7S8PLGjBY9Voh"
-Content-Disposition: inline
-In-Reply-To: <20051221113742.GA5611@stiffy.osknowledge.org>
-X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
-X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
-X-Operating-System: Linux stiffy 2.6.15-rc6-marc-g3e1ec1f4
-User-Agent: Mutt/1.5.11
+Subject: Re: Linux 2.6.15-rc6
+Message-Id: <20051221145157.72887fa4.lista1@telia.com>
+In-Reply-To: <Pine.LNX.4.64.0512202131000.4827@g5.osdl.org>
+References: <20051221052101.1acb6cc4.lista1@telia.com>
+	<Pine.LNX.4.64.0512202131000.4827@g5.osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 20 Dec 2005 21:33:28 -0800 (PST) Linus Torvalds wrote:
+[...]
+> But it might make sense to open a bugzilla entry so that it doesn't get 
+> lost.
 
---WfZ7S8PLGjBY9Voh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+http://bugzilla.kernel.org/show_bug.cgi?id=5767
 
-This removes the declarations as well.
+For anyone stumbling into this problem, lacking git experience, here's
+a 1/10-revert patch that gives me back the former functionality. It
+behaves exactly as in 2.6.14 with regards to C1 usage and thermal_zone
+temperatures etc.
 
---WfZ7S8PLGjBY9Voh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="dibusb-remove-dibusb_dib3000-defs-if-not-CONFIG_DVB_USB_DIBUSB_MC.patch"
+diff -Nur linux-2.6.15-rc6-clean/drivers/acpi/processor_idle.c linux-2.6.15-rc6-c1fix/drivers/acpi/processor_idle.c
+--- linux-2.6.15-rc6-clean/drivers/acpi/processor_idle.c	2005-12-21 13:29:12.000000000 +0100
++++ linux-2.6.15-rc6-c1fix/drivers/acpi/processor_idle.c	2005-12-21 13:39:04.000000000 +0100
+@@ -893,7 +893,7 @@
+ 	for (i = 1; i < ACPI_PROCESSOR_MAX_POWER; i++) {
+ 		if (pr->power.states[i].valid) {
+ 			pr->power.count = i;
+-			if (pr->power.states[i].type >= ACPI_STATE_C2)
++			if (pr->power.states[i].type >= ACPI_STATE_C1)
+ 				pr->flags.power = 1;
+ 		}
+ 	}
 
-*** dibusb.h-orig	2005-12-21 14:49:08.000000000 +0100
---- dibusb.h	2005-12-21 14:49:30.000000000 +0100
-*************** struct dibusb_state {
-*** 104,111 ****
---- 104,113 ----
-  
-  extern struct i2c_algorithm dibusb_i2c_algo;
-  
-+ #ifdef CONFIG_DVB_USB_DIBUSB_MC
-  extern int dibusb_dib3000mc_frontend_attach(struct dvb_usb_device *);
-  extern int dibusb_dib3000mc_tuner_attach (struct dvb_usb_device *);
-+ #endif
-  
-  extern int dibusb_streaming_ctrl(struct dvb_usb_device *, int);
-  extern int dibusb_pid_filter(struct dvb_usb_device *, int, u16, int);
-
---WfZ7S8PLGjBY9Voh--
+Mvh
+Mats Johannesson
+--

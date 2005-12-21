@@ -1,113 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932436AbVLUOoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932441AbVLUPF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932436AbVLUOoL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 09:44:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbVLUOoK
+	id S932441AbVLUPF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 10:05:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932442AbVLUPF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 09:44:10 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:15840 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932436AbVLUOoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 09:44:09 -0500
-Date: Wed, 21 Dec 2005 08:43:48 -0600
-From: Dimitri Sivanich <sivanich@sgi.com>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Dipankar Sarma <dipankar@in.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Large thread wakeup (scheduling) delay spikes
-Message-ID: <20051221144348.GB24829@sgi.com>
-References: <20051220151722.GA357@sgi.com> <20051221133847.GB7613@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051221133847.GB7613@us.ibm.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 21 Dec 2005 10:05:57 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:40626 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932441AbVLUPF5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 10:05:57 -0500
+Message-ID: <43A98101.364DB5CF@tv-sign.ru>
+Date: Wed, 21 Dec 2005 19:21:21 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@ftp.linux.org.uk>, Paul Jackson <pj@sgi.com>
+Subject: Re: [patch 05/15] Generic Mutex Subsystem, mutex-core.patch
+References: <20051219013718.GA28038@elte.hu>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul,
+Ingo Molnar wrote:
+>
+> mutex implementation, core files: just the basic subsystem, no users of it.
 
-On Wed, Dec 21, 2005 at 05:38:47AM -0800, Paul E. McKenney wrote:
-> On Tue, Dec 20, 2005 at 09:17:22AM -0600, Dimitri Sivanich wrote:
-> > I posted something about this back in October, but received little response.
-> > Maybe others have run into problems with this since then.
-> > 
-> > I've noticed much less deterministic and more widely varying thread wakeup
-> > (scheduling) delays on recent kernels.  Even with isolated processors, the
-> > maximum delay to wakeup has gotten much longer (configured with or without
-> > CONFIG_PREEMPT).
-> 
-> Interesting -- what workload are you running, and what mechanism are
-> you using to check scheduling delays?
+Ingo, could you explain to me ...
 
-For this issue, it takes just a simple mechanism and little workload.
-Aside from the 2 processors involved in the test, the rest of the system
-is fairly idle.  Basically, it looks like the following:
+> +__mutex_lock_common(struct mutex *lock, struct mutex_waiter *waiter,
+> +		    struct thread_info *ti, struct task_struct *task,
+> +		    unsigned long *flags, unsigned long task_state __IP_DECL__)
+> +{
+> +	unsigned int old_val;
+> +
+> +	debug_lock_irqsave(&debug_lock, *flags, ti);
+> +	DEBUG_WARN_ON(lock->magic != lock);
+> +
+> +	spin_lock(&lock->wait_lock);
+> +	__add_waiter(lock, waiter, ti, task __IP__);
+> +	set_task_state(task, task_state);
 
-Thread pinned to processor A waits in the kernel on a mutex.
+I can't understand why __mutex_lock_common() does xchg() after
+adding the waiter to the ->wait_list. We are holding ->wait_lock,
+we can't race with __mutex_unlock_nonatomic() - it calls wake_up()
+and sets ->count under this spinlock.
 
-Thread pinned to processor B sets up some timer hardware to interrupt
-processor A at a specified instant in time.
+So, I think it can be simplified:
 
-Processor A gets the interrupt and records an RTC time stamp,
-then trips the mutex to wake the sleeping thread on this same cpu.
+int __mutex_lock_common(lock, waiter)
+{
+	lock(&lock->wait_lock);
 
-Thread on A wakes up and records another RTC time stamp.
+	ret = 1;
+	if (xchg(&lock->count, -1) == 1)
+		goto out;
 
-Thread on A opens a results file.  Should the difference between the
-timestamps be > some threshold, data is written out to the file.  The
-file is then closed.
+	__add_waiter(lock, waiter);
+	task->state = state;
 
-Thread on A waits again on the mutex.
+	ret = 0;
+out:
+	unlock(&lock->wait_lock);
+	return ret;
+}
 
-If I look at the stack for processor A at the threshold time, it's always
-somewhere in file_free_rcu.  Nominal values for this test are well below
-threshold (even now).
+No?
 
-And again, setting either CONFIG_PREEMPT or the equivalent of
-CONFIG_PREEMPT_VOLUNTARY (setting might_resched()=cond_resched()) makes
-no difference.
+> +__mutex_wakeup_waiter(struct mutex *lock __IP_DECL__)
+> +{
+> +	struct mutex_waiter *waiter;
+> ...
+> +	if (!waiter->woken) {
+> +		waiter->woken = 1;
+> +		wake_up_process(waiter->ti->task);
+> +	}
 
-> 
-> What happens when you run this workload on a -rt kernel?
+Is it optimization? If yes - why? From mutex.h:
 
-I haven't tried it.
+	- only one task can hold the mutex at a time
+	- only the owner can unlock the mutex
 
-Thanks.
+So, how can this help?
 
-Dimitri
-> 
-> 							Thanx, Paul
-> 
-> > The maximum delay to wakeup is now more than 10x longer than it was in
-> > 2.6.13.4 and previous kernels, and that's on isolated processors (as much
-> > as 300 usec on a 1GHz cpu), although nominal values remain largely unchanged.
-> > The latest version I've tested is 2.6.15-rc5.
-> > 
-> > Delving into this further I discovered that this is due to the execution
-> > time of file_free_rcu(), running from rcu_process_callbacks() in ksoftirqd.
-> > It appears that the modification that caused this was:
-> > 	http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ab2af1f5005069321c5d130f09cce577b03f43ef
-> > 
-> > By simply making the following change things return to more consistent
-> > thread wakeup delays on isolated cpus, similiar to what we had on kernels
-> > previous to the above mentioned mod (I know this change is incorrect,
-> > it is just for test purposes):
-> > 
-> > fs/file_table.c
-> > @@ -62,7 +62,7 @@
-> >  
-> >  static inline void file_free(struct file *f)
-> >  {
-> > -       call_rcu(&f->f_rcuhead, file_free_rcu);
-> > +       kmem_cache_free(filp_cachep, f);
-> >  }
-> >  
-> > 
-> > I am wondering if there is some way we can return to consistently fast
-> > and predictable scheduling of threads to be woken?  If not on the
-> > system in general, maybe at least on certain specified processors?
-> > 
-> > Dimitri
-> > 
+> +start_mutex_timer(struct timer_list *timer, unsigned long time,
+> +		  unsigned long *expire)
+> +{
+> +	*expire = time + jiffies;
+> +	init_timer(timer);
+> +	timer->expires = *expire;
+> +	timer->data = (unsigned long)current;
+> +	timer->function = process_timeout;
+> +	add_timer(timer);
+> +}
+
+How about
+	setup_timer(&timer, process_timeout, (unsigned long)current);
+	__mod_timer(&timer, *expire);
+?
+
+> +stop_mutex_timer(struct timer_list *timer, unsigned long time,
+> +		 unsigned long expire)
+> +{
+> +	int ret;
+> +
+> +	ret = (int)(expire - jiffies);
+> +	if (!timer_pending(timer)) {
+> +		del_singleshot_timer_sync(timer);
+> +		ret = -ETIMEDOUT;
+> +	}
+
+Did you mean
+
+	if (!timer_pending(timer))
+		ret = -ETIMEDOUT;
+	del_singleshot_timer_sync(timer);
+?
+
+> +__mutex_lock_interruptible(struct mutex *lock, unsigned long time __IP_DECL__)
+> +{
+> +	struct thread_info *ti = current_thread_info();
+> +	struct task_struct *task = ti->task;
+> +	unsigned long expire = 0, flags;
+> +	struct mutex_waiter waiter;
+> +	struct timer_list timer;
+> +	int ret;
+> +
+> +repeat:
+> +	if (__mutex_lock_common(lock, &waiter, ti, task, &flags,
+> +						TASK_INTERRUPTIBLE __IP__))
+> +		return 0;
+
+I think this is wrong. We may have pending timer here if we were woken
+by signal.
+
+Oleg.

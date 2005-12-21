@@ -1,67 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbVLUUQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbVLUUOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbVLUUQP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 15:16:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbVLUUQP
+	id S932396AbVLUUOf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 15:14:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbVLUUOf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 15:16:15 -0500
-Received: from mato.luukku.com ([193.209.83.251]:33464 "EHLO mato.luukku.com")
-	by vger.kernel.org with ESMTP id S932497AbVLUUQO (ORCPT
+	Wed, 21 Dec 2005 15:14:35 -0500
+Received: from khc.piap.pl ([195.187.100.11]:3332 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932396AbVLUUOf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 15:16:14 -0500
-Date: Wed, 21 Dec 2005 22:15:13 +0200
-From: Mika Kukkonen <mikukkon@iki.fi>
-To: ralf@linux-mips.org, netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linux-hams@vger.kernel.org
-Subject: [PATCH] NETROM: Fix three if-statements in nr_state1_machine()
-Message-ID: <20051221201513.GB24213@localhost.localdomain>
-Reply-To: mikukkon@iki.fi
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Wed, 21 Dec 2005 15:14:35 -0500
+To: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: About 4k kernel stack size....
+References: <20051218231401.6ded8de2@werewolf.auna.net>
+	<43A77205.2040306@rtr.ca> <20051220133729.GC6789@stusta.de>
+	<170fa0d20512200637l169654c9vbe38c9931c23dfb1@mail.gmail.com>
+	<BAYC1-PASMTP01F075F44E45AA32F0DF85AE3E0@CEZ.ICE>
+	<dobr1u$19t$1@sea.gmane.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Wed, 21 Dec 2005 21:14:20 +0100
+In-Reply-To: <dobr1u$19t$1@sea.gmane.org> (Giridhar Pemmasani's message of
+ "Wed, 21 Dec 2005 10:07:01 -0500")
+Message-ID: <m3d5jq2oo3.fsf@defiant.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found these while compiling with extra gcc warnings;
-considering the indenting surely they are not intentional?
+Giridhar Pemmasani <giri@lmc.cs.sunysb.edu> writes:
 
-Signed-of-by: Mika Kukkonen <mikukkon@iki.fi>
+> As I see, although people that rely on
+> ndiswrapper (since there is no other way they could use the hardware that
+> they have) will not be able to use their wireless cards when this patch
+> gets merged without having to patch the kernel
 
----
-
- net/netrom/nr_in.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/net/netrom/nr_in.c b/net/netrom/nr_in.c
-index 004e859..a7d88b5 100644
---- a/net/netrom/nr_in.c
-+++ b/net/netrom/nr_in.c
-@@ -99,7 +99,7 @@ static int nr_state1_machine(struct sock
- 		break;
- 
- 	case NR_RESET:
--		if (sysctl_netrom_reset_circuit);
-+		if (sysctl_netrom_reset_circuit)
- 			nr_disconnect(sk, ECONNRESET);
- 		break;
- 
-@@ -130,7 +130,7 @@ static int nr_state2_machine(struct sock
- 		break;
- 
- 	case NR_RESET:
--		if (sysctl_netrom_reset_circuit);
-+		if (sysctl_netrom_reset_circuit)
- 			nr_disconnect(sk, ECONNRESET);
- 		break;
- 
-@@ -265,7 +265,7 @@ static int nr_state3_machine(struct sock
- 		break;
- 
- 	case NR_RESET:
--		if (sysctl_netrom_reset_circuit);
-+		if (sysctl_netrom_reset_circuit)
- 			nr_disconnect(sk, ECONNRESET);
- 		break;
- 
-
+Huh? -mm is already a patch so I'm not sure what users are you talking
+about. End-users (non-developers) using -mm kernel (binary?) provided
+by their distribution? Why would they want to use ndiswrapper (= binary
+drivers, which make all bug reports and in fact all development
+pointless) with devel kernel?
+-- 
+Krzysztof Halasa

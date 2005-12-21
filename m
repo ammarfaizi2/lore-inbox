@@ -1,131 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932423AbVLUODz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbVLUOJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932423AbVLUODz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 09:03:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbVLUODz
+	id S932276AbVLUOJF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 09:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932424AbVLUOJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 09:03:55 -0500
-Received: from odyssey.analogic.com ([204.178.40.5]:32265 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932423AbVLUODy convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 09:03:54 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-In-Reply-To: <17320.35736.89250.390950@gargle.gargle.HOWL>
-X-OriginalArrivalTime: 21 Dec 2005 14:03:17.0697 (UTC) FILETIME=[4AF1DB10:01C60637]
-Content-class: urn:content-classes:message
-Subject: Re: About 4k kernel stack size....
-Date: Wed, 21 Dec 2005 09:02:22 -0500
-Message-ID: <Pine.LNX.4.61.0512210901340.11568@chaos.analogic.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: About 4k kernel stack size....
-Thread-Index: AcYGN0r7xe9XjJ8aQOGhkMlomhNCqg==
-References: <20051218231401.6ded8de2@werewolf.auna.net><43A77205.2040306@rtr.ca><20051220133729.GC6789@stusta.de><170fa0d20512200637l169654c9vbe38c9931c23dfb1@mail.gmail.com><46578.10.10.10.28.1135094132.squirrel@linux1><Pine.LNX.4.61.0512201202090.27692@chaos.analogic.com> <17320.35736.89250.390950@gargle.gargle.HOWL>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Nikita Danilov" <nikita@clusterfs.com>
-Cc: "Mike Snitzer" <snitzer@gmail.com>, "Adrian Bunk" <bunk@stusta.de>,
-       "Mark Lord" <lkml@rtr.ca>, "J.A. Magallon" <jamagallon@able.es>,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>, <nel@vger.kernel.org>,
-       <mpm@selenic.com>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 21 Dec 2005 09:09:05 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:40842 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S932276AbVLUOJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 09:09:04 -0500
+Date: Wed, 21 Dec 2005 15:09:02 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull
+	on	x86_64 machines ?
+Message-ID: <20051221140901.GM27831@vanheusden.com>
+References: <7vbqzadgmt.fsf@assigned-by-dhcp.cox.net>
+	<43A91C57.20102@cosmosbay.com> <200512210744.52559.edt@aei.ca>
+	<20051221132046.GJ27831@vanheusden.com>
+	<43A95ABF.1030309@cosmosbay.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Disposition: inline
+In-Reply-To: <43A95ABF.1030309@cosmosbay.com>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Thu Dec 22 11:22:45 CET 2005
+X-Message-Flag: MultiTail - tail on steroids
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Tue, 20 Dec 2005, Nikita Danilov wrote:
+> >size-131072            0      0 131072
+> >size-65536             0      0  65536
+> >size-32768            20     20  32768
+> >size-16384             8      9  16384
+> >size-8192             37     38   8192
+> >size-4096            269    269   4096
+> >size-2048            793    910   2048
+> >size-1024            564    608   1024
+> >size-512             702    856    512
+> >size-256            1485   4005    256
+> >size-128            1209   1350    128
+> >size-64             2858   3363     64
+> >size-32             1538   2714     64
+> >Intel(R) Xeon(TM) MP CPU 3.00GHz
+> >address sizes   : 40 bits physical, 48 bits virtual
+> 
+> Your results are interesting : size-32 seems to use objects of size 64 !
+> > size-32             1538   2714     64 <<HERE>>
+> So I guess that size-32 cache could be avoided at least for EMT (I take you 
+> run a 64 bits kernel ?)
 
-> linux-os \(Dick Johnson\) writes:
-> >
->
-> [...]
->
-> > See, isn't rule-making fun? This whole 4k stack-
-> > thing is really dumb. Other operating systems
-> > use paged virtual memory for stacks, except
-> > for the interrupt stack. If Linux used paged
-> > virtual memory for stacks,
->
-> ... then spin-locks couldn't be held across function calls.
->
+I think I do yes:
+Linux xxxxx 2.4.21-37.EL #1 SMP Wed Sep 7 13:32:18 EDT 2005 x86_64 x86_64 x86_64 GNU/Linux
+It is a redhat 4 x64 system.
+Also from /proc/cpuinfo:
+address sizes   : 40 bits physical, 48 bits virtual
 
-Sure they can! In ix86 machines the local 'cli' within the
-spin-lock code doesn't affect traps and faults, only the
-activity of hardware (INTR). With a page-not-present fault,
-(read stack-not-present fault) everything necessary to
-restart is saved in EFLAGS and EIP pushed onto the existing
-stack so that the faulting instruction can be restarted.
-In other words, the address of the instruction that caused
-the fault (perhaps CALL), is what will be put into EIP
-once the fault-handler returns with an IRET. The fault
-itself occurs on a completely different stack.
 
-If one were to implement paged stacks, then the page-fault handler
-would have to be modified. Currently, the handler reads/writes
-swap which, of course, it can't do with the interrupts disabled.
+Folkert van Heusden
 
-So one would have to use the concept of the 'free list' like
-RSX-11 and VAX/VMS did. The "swapper" needs to keep some free
-pages resident in memory and evict dirty pages whenever it can
-to maintain this free list.
+- -- 
+Try MultiTail! Multiple windows with logfiles, filtered with regular
+expressions, colored output, etc. etc. www.vanheusden.com/multitail/
+- ----------------------------------------------------------------------
+Get your PGP/GPG key signed at www.biglumber.com!
+- ----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-In the case of spin-locks, the 'flags' variable is the only
-thing that can be stored in local (stack) data. The lock object
-needs to be global so others can access it. The flags variable
-will certainly be restored as will all other stack data even
-if it was evicted to the disk.
-
-> >                            the pages would not
-> > have to be contiguous so dynamic stack allocation
-> > would practically never fail. But Linux doesn't
-> > use paged virtual memory for stacks. So, there
-> > needs to be some rule to control the amount
-> > of kernel stack allocated to each task when it
-> > executes a system call.
-> >
-> > This means, in the limit, that there are two
-> > possibilities:
-> >
-> > (1)	Implement paged virtual memory for stack.
->
-> As an exercise: subscribe to NT kernel development mailing list, and see
-> the fun they have when page-in code trips over paged out kernel text
-> page. As a rule, even code cannot pageable without very involving and
-> fragile analysis. Not to say about stack.
->
-
-NT is a poor copy of VAX/VMS. The DIGITAL Project Engineer for
-VAX/VMS was hired as a consultant by Microsoft to develop it.
-If he had copied VAX/VMS, it would have been essentially bug-free
-because VMS had been successful for many years. Unfortunately,
-copying was illegal, immoral, and fattening. So, you get something
-'like' VMS for NT. It has bugs, perhaps more than any other
-OS. This does not mean that the proved concepts used by
-VMS for about 20 years are not valid. Note that it was the
-business model of DIGITAL that killed it, not its technology.
-
-> Nikita.
->
-
-I am not advocating "N"k stacks. I'm just explaining that it
-can be done and has been done, so the response that says it
-can't is wrong. Further, it may be very possible that the
-"dragged-down" feeling that you get on NT and others when
-there is a lot of activity might be caused by this paging.
-OTH Linux seems to work fine with no such dragged-down
-response until, abruptly, it stops working by killing off
-the very tasks that you needed to complete!
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
-Warning : 98.36% of all statistics are fiction.
-.
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+iIMEARECAEMFAkOpYf08Gmh0dHA6Ly93d3cudmFuaGV1c2Rlbi5jb20vZGF0YS1z
+aWduaW5nLXdpdGgtcGdwLXBvbGljeS5odG1sAAoJEDAZDowfKNiugqYAoJWSoI9M
+O1sYrhWfFCoyTWweGN29AKCfPy46A1XHYC598IN4TXRSV2u6QA==
+=xMjS
+-----END PGP SIGNATURE-----

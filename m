@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932239AbVLUBsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbVLUBuB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932239AbVLUBsp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 20:48:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVLUBsp
+	id S932247AbVLUBuB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 20:50:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbVLUBuB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 20:48:45 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:53194 "EHLO
+	Tue, 20 Dec 2005 20:50:01 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:18635 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932239AbVLUBso (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 20:48:44 -0500
-Date: Tue, 20 Dec 2005 19:48:40 -0600
+	id S932247AbVLUBuA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 20:50:00 -0500
+Date: Tue, 20 Dec 2005 19:49:57 -0600
 From: Robin Holt <holt@sgi.com>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: [Patch 2/5] Rebuild scripts/genksyms/keywords.c_shipped following parse.y change.
-Message-ID: <20051221014840.GC2784@lnx-holt.americas.sgi.com>
+Subject: [Patch 3/5] Rebuild scripts/genksyms/lex.c_shipped following parse.y change.
+Message-ID: <20051221014957.GD2784@lnx-holt.americas.sgi.com>
 References: <20051221014550.GA2784@lnx-holt.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -24,269 +24,224 @@ User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-scripts/genksyms/keywords.c_shipped regenerated following parse.y change.
+scripts/genksyms/lex.c_shipped regenerated following parse.y change.
 
 Signed-off-by: Robin Holt <holt@sgi.com>
 
 
-Index: linux-2.6/scripts/genksyms/keywords.c_shipped
+Index: linux-2.6/scripts/genksyms/lex.c_shipped
 ===================================================================
---- linux-2.6.orig/scripts/genksyms/keywords.c_shipped	2005-12-20 19:12:49.654035222 -0600
-+++ linux-2.6/scripts/genksyms/keywords.c_shipped	2005-12-20 19:13:11.998530413 -0600
-@@ -1,7 +1,38 @@
--/* ANSI-C code produced by gperf version 2.7.2 */
-+/* ANSI-C code produced by gperf version 3.0.1 */
- /* Command-line: gperf -L ANSI-C -a -C -E -g -H is_reserved_hash -k '1,3,$' -N is_reserved_word -p -t scripts/genksyms/keywords.gperf  */
-+
-+#if !((' ' == 32) && ('!' == 33) && ('"' == 34) && ('#' == 35) \
-+      && ('%' == 37) && ('&' == 38) && ('\'' == 39) && ('(' == 40) \
-+      && (')' == 41) && ('*' == 42) && ('+' == 43) && (',' == 44) \
-+      && ('-' == 45) && ('.' == 46) && ('/' == 47) && ('0' == 48) \
-+      && ('1' == 49) && ('2' == 50) && ('3' == 51) && ('4' == 52) \
-+      && ('5' == 53) && ('6' == 54) && ('7' == 55) && ('8' == 56) \
-+      && ('9' == 57) && (':' == 58) && (';' == 59) && ('<' == 60) \
-+      && ('=' == 61) && ('>' == 62) && ('?' == 63) && ('A' == 65) \
-+      && ('B' == 66) && ('C' == 67) && ('D' == 68) && ('E' == 69) \
-+      && ('F' == 70) && ('G' == 71) && ('H' == 72) && ('I' == 73) \
-+      && ('J' == 74) && ('K' == 75) && ('L' == 76) && ('M' == 77) \
-+      && ('N' == 78) && ('O' == 79) && ('P' == 80) && ('Q' == 81) \
-+      && ('R' == 82) && ('S' == 83) && ('T' == 84) && ('U' == 85) \
-+      && ('V' == 86) && ('W' == 87) && ('X' == 88) && ('Y' == 89) \
-+      && ('Z' == 90) && ('[' == 91) && ('\\' == 92) && (']' == 93) \
-+      && ('^' == 94) && ('_' == 95) && ('a' == 97) && ('b' == 98) \
-+      && ('c' == 99) && ('d' == 100) && ('e' == 101) && ('f' == 102) \
-+      && ('g' == 103) && ('h' == 104) && ('i' == 105) && ('j' == 106) \
-+      && ('k' == 107) && ('l' == 108) && ('m' == 109) && ('n' == 110) \
-+      && ('o' == 111) && ('p' == 112) && ('q' == 113) && ('r' == 114) \
-+      && ('s' == 115) && ('t' == 116) && ('u' == 117) && ('v' == 118) \
-+      && ('w' == 119) && ('x' == 120) && ('y' == 121) && ('z' == 122) \
-+      && ('{' == 123) && ('|' == 124) && ('}' == 125) && ('~' == 126))
-+/* The character set is not based on ISO-646.  */
-+#error "gperf generated tables don't work with this execution character set. Please report a bug to <bug-gnu-gperf@gnu.org>."
+--- linux-2.6.orig/scripts/genksyms/lex.c_shipped	2005-12-20 19:18:51.405780501 -0600
++++ linux-2.6/scripts/genksyms/lex.c_shipped	2005-12-20 19:19:31.841281012 -0600
+@@ -10,7 +10,6 @@
+ #define YY_FLEX_MINOR_VERSION 5
+ 
+ #include <stdio.h>
+-#include <unistd.h>
+ 
+ 
+ /* cfront 1.2 defines "c_plusplus" instead of "__cplusplus" */
+@@ -24,6 +23,7 @@
+ #ifdef __cplusplus
+ 
+ #include <stdlib.h>
++#include <unistd.h>
+ 
+ /* Use prototypes in function declarations. */
+ #define YY_USE_PROTOS
+@@ -660,7 +660,7 @@ YY_MALLOC_DECL
+ YY_DECL
+ 	{
+ 	register yy_state_type yy_current_state;
+-	register char *yy_cp = NULL, *yy_bp = NULL;
++	register char *yy_cp, *yy_bp;
+ 	register int yy_act;
+ 
+ #line 65 "scripts/genksyms/lex.l"
+@@ -1405,6 +1405,11 @@ YY_BUFFER_STATE b;
+ 	}
+ 
+ 
++#ifndef YY_ALWAYS_INTERACTIVE
++#ifndef YY_NEVER_INTERACTIVE
++extern int isatty YY_PROTO(( int ));
 +#endif
-+
-+#line 1 "scripts/genksyms/keywords.gperf"
-+
-+#line 3 "scripts/genksyms/keywords.gperf"
- struct resword { const char *name; int token; };
--/* maximum key range = 109, duplicates = 0 */
-+/* maximum key range = 68, duplicates = 0 */
++#endif
  
- #ifdef __GNUC__
- __inline
-@@ -15,32 +46,32 @@ is_reserved_hash (register const char *s
- {
-   static const unsigned char asso_values[] =
-     {
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113,   5,
--      113, 113, 113, 113, 113, 113,   0, 113, 113, 113,
--        0, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113,   0, 113,   0, 113,  20,
--       25,   0,  35,  30, 113,  20, 113, 113,  40,  30,
--       30,   0,   0, 113,   0,  51,   0,  15,   5, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113, 113, 113, 113, 113,
--      113, 113, 113, 113, 113, 113
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 15,
-+      71, 71, 71, 71, 71, 71, 15, 71, 71, 71,
-+      10, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71,  0, 71,  0, 71,  5,
-+       5,  0, 10, 20, 71, 25, 71, 71, 20,  0,
-+      20, 30, 25, 71, 10,  5,  0, 20, 15, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71, 71, 71, 71, 71,
-+      71, 71, 71, 71, 71, 71
-     };
-   return len + asso_values[(unsigned char)str[2]] + asso_values[(unsigned char)str[0]] + asso_values[(unsigned char)str[len - 1]];
+ #ifdef YY_USE_PROTOS
+ void yy_init_buffer( YY_BUFFER_STATE b, FILE *file )
+@@ -2036,49 +2041,131 @@ fini:
+ 
+   return token;
  }
-@@ -56,77 +87,112 @@ is_reserved_word (register const char *s
-       TOTAL_KEYWORDS = 41,
-       MIN_WORD_LENGTH = 3,
-       MAX_WORD_LENGTH = 17,
--      MIN_HASH_VALUE = 4,
--      MAX_HASH_VALUE = 112
-+      MIN_HASH_VALUE = 3,
-+      MAX_HASH_VALUE = 70
-     };
+-#ifndef YYSTYPE
+-#define YYSTYPE int
+-#endif
+-#define	ASM_KEYW	257
+-#define	ATTRIBUTE_KEYW	258
+-#define	AUTO_KEYW	259
+-#define	BOOL_KEYW	260
+-#define	CHAR_KEYW	261
+-#define	CONST_KEYW	262
+-#define	DOUBLE_KEYW	263
+-#define	ENUM_KEYW	264
+-#define	EXTERN_KEYW	265
+-#define	FLOAT_KEYW	266
+-#define	INLINE_KEYW	267
+-#define	INT_KEYW	268
+-#define	LONG_KEYW	269
+-#define	REGISTER_KEYW	270
+-#define	RESTRICT_KEYW	271
+-#define	SHORT_KEYW	272
+-#define	SIGNED_KEYW	273
+-#define	STATIC_KEYW	274
+-#define	STRUCT_KEYW	275
+-#define	TYPEDEF_KEYW	276
+-#define	UNION_KEYW	277
+-#define	UNSIGNED_KEYW	278
+-#define	VOID_KEYW	279
+-#define	VOLATILE_KEYW	280
+-#define	TYPEOF_KEYW	281
+-#define	EXPORT_SYMBOL_KEYW	282
+-#define	ASM_PHRASE	283
+-#define	ATTRIBUTE_PHRASE	284
+-#define	BRACE_PHRASE	285
+-#define	BRACKET_PHRASE	286
+-#define	EXPRESSION_PHRASE	287
+-#define	CHAR	288
+-#define	DOTS	289
+-#define	IDENT	290
+-#define	INT	291
+-#define	REAL	292
+-#define	STRING	293
+-#define	TYPE	294
+-#define	OTHER	295
+-#define	FILENAME	296
++/* A Bison parser, made by GNU Bison 1.875.  */
++
++/* Skeleton parser for Yacc-like parsing with Bison,
++   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002 Free Software Foundation, Inc.
  
-   static const struct resword wordlist[] =
-     {
--      {""}, {""}, {""}, {""},
--      {"auto", AUTO_KEYW},
--      {""}, {""},
-+      {""}, {""}, {""},
-+#line 24 "scripts/genksyms/keywords.gperf"
-+      {"asm", ASM_KEYW},
-+      {""},
-+#line 7 "scripts/genksyms/keywords.gperf"
-+      {"__asm", ASM_KEYW},
-+      {""},
-+#line 8 "scripts/genksyms/keywords.gperf"
-       {"__asm__", ASM_KEYW},
-       {""},
-+#line 21 "scripts/genksyms/keywords.gperf"
-       {"_restrict", RESTRICT_KEYW},
-+#line 50 "scripts/genksyms/keywords.gperf"
-       {"__typeof__", TYPEOF_KEYW},
-+#line 9 "scripts/genksyms/keywords.gperf"
-       {"__attribute", ATTRIBUTE_KEYW},
--      {"__restrict__", RESTRICT_KEYW},
-+#line 11 "scripts/genksyms/keywords.gperf"
-+      {"__const", CONST_KEYW},
-+#line 10 "scripts/genksyms/keywords.gperf"
-       {"__attribute__", ATTRIBUTE_KEYW},
-+#line 12 "scripts/genksyms/keywords.gperf"
-+      {"__const__", CONST_KEYW},
-+#line 16 "scripts/genksyms/keywords.gperf"
-+      {"__signed__", SIGNED_KEYW},
-+#line 42 "scripts/genksyms/keywords.gperf"
-+      {"static", STATIC_KEYW},
-       {""},
--      {"__volatile", VOLATILE_KEYW},
-+#line 15 "scripts/genksyms/keywords.gperf"
-+      {"__signed", SIGNED_KEYW},
-+#line 30 "scripts/genksyms/keywords.gperf"
-+      {"char", CHAR_KEYW},
-       {""},
-+#line 43 "scripts/genksyms/keywords.gperf"
-+      {"struct", STRUCT_KEYW},
-+#line 22 "scripts/genksyms/keywords.gperf"
-+      {"__restrict__", RESTRICT_KEYW},
-+#line 23 "scripts/genksyms/keywords.gperf"
-+      {"restrict", RESTRICT_KEYW},
-+#line 33 "scripts/genksyms/keywords.gperf"
-+      {"enum", ENUM_KEYW},
-+#line 17 "scripts/genksyms/keywords.gperf"
-+      {"__volatile", VOLATILE_KEYW},
-+#line 34 "scripts/genksyms/keywords.gperf"
-+      {"extern", EXTERN_KEYW},
-+#line 18 "scripts/genksyms/keywords.gperf"
-       {"__volatile__", VOLATILE_KEYW},
--      {"EXPORT_SYMBOL", EXPORT_SYMBOL_KEYW},
--      {""}, {""}, {""},
--      {"EXPORT_SYMBOL_GPL", EXPORT_SYMBOL_KEYW},
-+#line 37 "scripts/genksyms/keywords.gperf"
-       {"int", INT_KEYW},
--      {"char", CHAR_KEYW},
--      {""}, {""},
--      {"__const", CONST_KEYW},
-+      {""},
-+#line 31 "scripts/genksyms/keywords.gperf"
-+      {"const", CONST_KEYW},
-+#line 32 "scripts/genksyms/keywords.gperf"
-+      {"double", DOUBLE_KEYW},
-+      {""},
-+#line 13 "scripts/genksyms/keywords.gperf"
-       {"__inline", INLINE_KEYW},
--      {"__const__", CONST_KEYW},
-+#line 29 "scripts/genksyms/keywords.gperf"
-+      {"auto", AUTO_KEYW},
-+#line 14 "scripts/genksyms/keywords.gperf"
-       {"__inline__", INLINE_KEYW},
--      {""}, {""}, {""}, {""},
--      {"__asm", ASM_KEYW},
--      {"extern", EXTERN_KEYW},
-+#line 41 "scripts/genksyms/keywords.gperf"
-+      {"signed", SIGNED_KEYW},
-       {""},
--      {"register", REGISTER_KEYW},
-+#line 46 "scripts/genksyms/keywords.gperf"
-+      {"unsigned", UNSIGNED_KEYW},
-       {""},
--      {"float", FLOAT_KEYW},
-+#line 40 "scripts/genksyms/keywords.gperf"
-+      {"short", SHORT_KEYW},
-+#line 49 "scripts/genksyms/keywords.gperf"
-       {"typeof", TYPEOF_KEYW},
-+#line 44 "scripts/genksyms/keywords.gperf"
-       {"typedef", TYPEDEF_KEYW},
--      {""}, {""},
--      {"_Bool", BOOL_KEYW},
--      {"double", DOUBLE_KEYW},
--      {""}, {""},
--      {"enum", ENUM_KEYW},
--      {""}, {""}, {""},
-+#line 48 "scripts/genksyms/keywords.gperf"
-       {"volatile", VOLATILE_KEYW},
-+      {""},
-+#line 35 "scripts/genksyms/keywords.gperf"
-+      {"float", FLOAT_KEYW},
-+      {""}, {""},
-+#line 39 "scripts/genksyms/keywords.gperf"
-+      {"register", REGISTER_KEYW},
-+#line 47 "scripts/genksyms/keywords.gperf"
-       {"void", VOID_KEYW},
--      {"const", CONST_KEYW},
--      {"short", SHORT_KEYW},
--      {"struct", STRUCT_KEYW},
-       {""},
--      {"restrict", RESTRICT_KEYW},
-+#line 36 "scripts/genksyms/keywords.gperf"
-+      {"inline", INLINE_KEYW},
-       {""},
--      {"__signed__", SIGNED_KEYW},
-+#line 5 "scripts/genksyms/keywords.gperf"
-+      {"EXPORT_SYMBOL", EXPORT_SYMBOL_KEYW},
-       {""},
--      {"asm", ASM_KEYW},
--      {""}, {""},
--      {"inline", INLINE_KEYW},
--      {""}, {""}, {""},
--      {"union", UNION_KEYW},
--      {""}, {""}, {""}, {""}, {""}, {""},
--      {"static", STATIC_KEYW},
-+#line 20 "scripts/genksyms/keywords.gperf"
-+      {"_Bool", BOOL_KEYW},
-+      {""},
-+#line 6 "scripts/genksyms/keywords.gperf"
-+      {"EXPORT_SYMBOL_GPL", EXPORT_SYMBOL_KEYW},
-       {""}, {""}, {""}, {""}, {""}, {""},
--      {"__signed", SIGNED_KEYW},
--      {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""},
--      {""}, {""}, {""}, {""}, {""},
--      {"unsigned", UNSIGNED_KEYW},
--      {""}, {""}, {""}, {""},
-+#line 38 "scripts/genksyms/keywords.gperf"
-       {"long", LONG_KEYW},
--      {""}, {""}, {""}, {""}, {""}, {""}, {""},
--      {"signed", SIGNED_KEYW}
-+      {""}, {""}, {""}, {""}, {""},
-+#line 45 "scripts/genksyms/keywords.gperf"
-+      {"union", UNION_KEYW}
-     };
++   This program is free software; you can redistribute it and/or modify
++   it under the terms of the GNU General Public License as published by
++   the Free Software Foundation; either version 2, or (at your option)
++   any later version.
++
++   This program is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with this program; if not, write to the Free Software
++   Foundation, Inc., 59 Temple Place - Suite 330,
++   Boston, MA 02111-1307, USA.  */
++
++/* As a special exception, when this file is copied by Bison into a
++   Bison output file, you may use that output file without restriction.
++   This special exception was added by the Free Software Foundation
++   in version 1.24 of Bison.  */
++
++/* Tokens.  */
++#ifndef YYTOKENTYPE
++# define YYTOKENTYPE
++   /* Put the tokens into the symbol table, so that GDB and other debuggers
++      know about them.  */
++   enum yytokentype {
++     ASM_KEYW = 258,
++     ATTRIBUTE_KEYW = 259,
++     AUTO_KEYW = 260,
++     BOOL_KEYW = 261,
++     CHAR_KEYW = 262,
++     CONST_KEYW = 263,
++     DOUBLE_KEYW = 264,
++     ENUM_KEYW = 265,
++     EXTERN_KEYW = 266,
++     FLOAT_KEYW = 267,
++     INLINE_KEYW = 268,
++     INT_KEYW = 269,
++     LONG_KEYW = 270,
++     REGISTER_KEYW = 271,
++     RESTRICT_KEYW = 272,
++     SHORT_KEYW = 273,
++     SIGNED_KEYW = 274,
++     STATIC_KEYW = 275,
++     STRUCT_KEYW = 276,
++     TYPEDEF_KEYW = 277,
++     UNION_KEYW = 278,
++     UNSIGNED_KEYW = 279,
++     VOID_KEYW = 280,
++     VOLATILE_KEYW = 281,
++     TYPEOF_KEYW = 282,
++     EXPORT_SYMBOL_KEYW = 283,
++     ASM_PHRASE = 284,
++     ATTRIBUTE_PHRASE = 285,
++     BRACE_PHRASE = 286,
++     BRACKET_PHRASE = 287,
++     EXPRESSION_PHRASE = 288,
++     CHAR = 289,
++     DOTS = 290,
++     IDENT = 291,
++     INT = 292,
++     REAL = 293,
++     STRING = 294,
++     TYPE = 295,
++     OTHER = 296,
++     FILENAME = 297
++   };
++#endif
++#define ASM_KEYW 258
++#define ATTRIBUTE_KEYW 259
++#define AUTO_KEYW 260
++#define BOOL_KEYW 261
++#define CHAR_KEYW 262
++#define CONST_KEYW 263
++#define DOUBLE_KEYW 264
++#define ENUM_KEYW 265
++#define EXTERN_KEYW 266
++#define FLOAT_KEYW 267
++#define INLINE_KEYW 268
++#define INT_KEYW 269
++#define LONG_KEYW 270
++#define REGISTER_KEYW 271
++#define RESTRICT_KEYW 272
++#define SHORT_KEYW 273
++#define SIGNED_KEYW 274
++#define STATIC_KEYW 275
++#define STRUCT_KEYW 276
++#define TYPEDEF_KEYW 277
++#define UNION_KEYW 278
++#define UNSIGNED_KEYW 279
++#define VOID_KEYW 280
++#define VOLATILE_KEYW 281
++#define TYPEOF_KEYW 282
++#define EXPORT_SYMBOL_KEYW 283
++#define ASM_PHRASE 284
++#define ATTRIBUTE_PHRASE 285
++#define BRACE_PHRASE 286
++#define BRACKET_PHRASE 287
++#define EXPRESSION_PHRASE 288
++#define CHAR 289
++#define DOTS 290
++#define IDENT 291
++#define INT 292
++#define REAL 293
++#define STRING 294
++#define TYPE 295
++#define OTHER 296
++#define FILENAME 297
++
++
++
++
++#if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
++typedef int YYSTYPE;
++# define yystype YYSTYPE /* obsolescent; will be withdrawn */
++# define YYSTYPE_IS_DECLARED 1
++# define YYSTYPE_IS_TRIVIAL 1
++#endif
  
-   if (len <= MAX_WORD_LENGTH && len >= MIN_WORD_LENGTH)
+ extern YYSTYPE yylval;
++
++
++

@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbVLUTfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbVLUTgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbVLUTfX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 14:35:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbVLUTfX
+	id S1751214AbVLUTgg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 14:36:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbVLUTgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 14:35:23 -0500
-Received: from zproxy.gmail.com ([64.233.162.201]:28451 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751194AbVLUTfX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 14:35:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ArRlvBwymUevRdHaFYwdVFs2Ik7kyz0ZEOYOw+taBBETcjH35HVr+JIh0HmaNkPgZKpyFiBj+0HCMni20eHPgfnmUjvNtuyekj0DQ8E0NT057LXrkdn1+KgFnzoV/aP68cNJ4aOdcBiE2mzy9+DWrcUK5AphuyJd7tNWZ+UT2I8=
-Message-ID: <9a8748490512211135lb2248bdm7c0c7e9a71398bbc@mail.gmail.com>
-Date: Wed, 21 Dec 2005 20:35:22 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: ip_output.c change question
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Adrian Bunk <bunk@stusta.de>, "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.61.0512212021140.12159@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 21 Dec 2005 14:36:36 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:33431 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S1751193AbVLUTgg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 14:36:36 -0500
+Date: Wed, 21 Dec 2005 20:36:34 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: Dave Jones <davej@redhat.com>, Eric Dumazet <dada1@cosmosbay.com>,
+       Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull
+	on	x86_64 machines ?
+Message-ID: <20051221193634.GH31514@vanheusden.com>
+References: <7vbqzadgmt.fsf@assigned-by-dhcp.cox.net>
+	<43A91C57.20102@cosmosbay.com> <200512210744.52559.edt@aei.ca>
+	<20051221132046.GJ27831@vanheusden.com>
+	<43A95ABF.1030309@cosmosbay.com>
+	<20051221140901.GM27831@vanheusden.com>
+	<20051221164024.GB3459@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.61.0512212021140.12159@yvahk01.tjqt.qr>
+In-Reply-To: <20051221164024.GB3459@redhat.com>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Reply-By: Thu Dec 22 16:38:56 CET 2005
+X-Message-Flag: Want to extend your PGP web-of-trust? Coordinate a key-signing
+	at www.biglumber.com
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/21/05, Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> Hello,
->
->
-> what was the reason to remove the EXPORT_SYMBOL(sysctl_ip_default_ttl) in
-> http://www.kernel.org/git/?p=linux/kernel/git/davem/net-2.6.16.git;a=blobdiff;h=c934f5316c3bc1362e85029f3978448501028b96;hp=766564cb420760d0d715d75851a8e49496eeaf6b;hb=0742fd53a3774781255bd1e471e7aa2e4a82d5f7;f=net/ipv4/ip_output.c
-> ? ipt_TARPIT uses this variable and relies on it being available.
->
+>  > > Your results are interesting : size-32 seems to use objects of size 64 !
+>  > > > size-32             1538   2714     64 <<HERE>>
+>  > > So I guess that size-32 cache could be avoided at least for EMT (I take you 
+>  > > run a 64 bits kernel ?)
+>  > I think I do yes:
+>  > Linux xxxxx 2.4.21-37.EL #1 SMP Wed Sep 7 13:32:18 EDT 2005 x86_64 x86_64 x86_64 GNU/Linux
+>  > It is a redhat 4 x64 system.
+> Looks more like RHEL3 judging from the kernel version.
 
-I don't know, but a little digging in the git repository found a little info :
-
-The commit :
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=0742fd53a3774781255bd1e471e7aa2e4a82d5f7
-
-Contained this exlanation :
-
-This patch contains the following possible cleanups:
-- make needlessly global code static
-- #if 0 the following unused global function:
-  - xfrm4_state.c: xfrm4_state_fini
-- remove the following unneeded EXPORT_SYMBOL's:
-  - ip_output.c: ip_finish_output
-  - ip_output.c: sysctl_ip_default_ttl
-  - fib_frontend.c: ip_dev_find
-  - inetpeer.c: inet_peer_idlock
-  - ip_options.c: ip_options_compile
-  - ip_options.c: ip_options_undo
-  - net/core/request_sock.c: sysctl_max_syn_backlog
-
-[Adding Adrian Bunk and David Miller to Cc as they both signed off on
-the patch, maybe they can explain]
+Ehr yes, you're totally right.
 
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Folkert van Heusden
+
+-- 
+Try MultiTail! Multiple windows with logfiles, filtered with regular
+expressions, colored output, etc. etc. www.vanheusden.com/multitail/
+----------------------------------------------------------------------
+Get your PGP/GPG key signed at www.biglumber.com!
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

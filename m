@@ -1,121 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbVLULVq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932368AbVLULXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbVLULVq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 06:21:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbVLULVq
+	id S932368AbVLULXP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 06:23:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbVLULXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 06:21:46 -0500
-Received: from wine.ocn.ne.jp ([220.111.47.146]:33014 "EHLO
-	smtp.wine.ocn.ne.jp") by vger.kernel.org with ESMTP id S932366AbVLULVq
+	Wed, 21 Dec 2005 06:23:15 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:17930 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932368AbVLULXO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 06:21:46 -0500
-To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Subject: [RFC] TOMOYO Linux released!
-From: Tetsuo Handa <from-kernelnewbies@I-love.SAKURA.ne.jp>
-Message-Id: <200512212020.FBF94703.XOTMFStFPCJNSFLFOG@I-love.SAKURA.ne.jp>
-X-Mailer: Winbiff [Version 2.43]
-X-Accept-Language: ja,en
-Date: Wed, 21 Dec 2005 20:21:24 +0900
-Mime-Version: 1.0
+	Wed, 21 Dec 2005 06:23:14 -0500
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Linda Walsh <lkml@tlinx.org>
+Subject: Re: Makefile targets: tar & rpm pkgs, while using O=<dir> as
+ non-root
+References: <43A5F058.1060102@tlinx.org> <20051219071959.GJ13985@lug-owl.de>
+	<87d5jru67j.fsf@amaterasu.srvr.nix>
+	<20051220155839.GA9185@mars.ravnborg.org>
+	<87irtjslxx.fsf@amaterasu.srvr.nix>
+	<20051220202559.GK27946@ftp.linux.org.uk>
+	<87psnqnb3z.fsf@amaterasu.srvr.nix>
+	<20051221081843.GL27946@ftp.linux.org.uk>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: where editing text is like playing Paganini on a glass harmonica.
+Date: Wed, 21 Dec 2005 11:22:03 +0000
+In-Reply-To: <20051221081843.GL27946@ftp.linux.org.uk> (Al Viro's message of
+ "Wed, 21 Dec 2005 08:18:43 +0000")
+Message-ID: <87hd92n19g.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 21 Dec 2005, Al Viro stated:
+> On Wed, Dec 21, 2005 at 07:49:20AM +0000, Nix wrote:
+>> Well, personally I handle patch-application in cp -al'ed trees by doing
+>> cp -al via a script, and repatching all currently hardlinked trees
+>> (obviously if they are very divergent some patches will fail and I'll
+>> have to fix them up by hand).
+> 
+> ... then you edit a file to fix a typo, and have a _nice_ day next Friday
+> when you notice that stuff got out of sync.
 
-A new and easy to master access control for Linux,
-TOMOYO Linux, is now available.
+Your text editor is insufficiently flexible. Mine can snap hardlinks
+automatically when st_nlink > 1. :)
 
-TOMOYO Linux is a small kernel patch that provides
-MAC (Mandatory Access Control) functions to Linux.
+(But let's avoid editor wars. I'm sure there's a magic way vim can be
+coerced into doing things properly.)
 
-TOMOYO Linux was developed by NTT DATA CORPORATION, Japan,
-and released under GPL license.
 
-TOMOYO Linux has the following features.
-Please see documentations and papers for details.
-(There are 5 papers written in Japanese.
- 2 of them are available in English, as shown below.
- Translation of 3 papers is now in progress.)
+What we really need is an FS that does behind-the-scenes block CoW
+and/or block merging anyway; then we could just cp -a the damn tree
+and keep the space savings.
 
-(1) Takes full advantage of "struct task_struct".
+>> (And if you're using this to maintain development branches, then you
+>> have resync and conflict-management problems *anyway*, which this makes
+>> no worse.)
+> 
+> Yes, but it's easier to deal with when the number of your repositories
+> doesn't get multiplied by factor of 20 or so...
 
-(2) Uses realpath(2), the kernel version of realpath(3).
+Er, I don't have a factor of 20 more repositories than anyone else. (I
+don't have the disk space for that!)
 
-(3) Works for 2.4.30/2.6.11 and later.
-
-TOMOYO Linux includes the following components.
-
-(1) Domain-Free Mandatory Access Control
-    (Code name is SAKURA, which is the acronym for
-     "Security Advancement Know-how Upon Readonly Approach".)
-
-(2) Domain-Based Mandatory Access Control
-    (Code name is TOMOYO, which is the acronym for
-     "Task Oriented Management Obviates Your Onus".)
-    http://sourceforge.jp/projects/tomoyo/document/lc2005-en.pdf
-
-(3) Tamper-Proof Device Filesystem
-    (Code name is SYAORAN, which is the acronym for
-     "Simple Yet All-important Object Realizing Abiding Nexus".)
-
-(4) Never breakable Login Authentication
-    (Code name is CERBERUS, which is the acronym for
-     "Chained Enforceable Re-authentication Barrier Ensures Really Unbreakable Security".)
-    http://sourceforge.jp/projects/tomoyo/document/winf2005-en.pdf
-
-(5) Delegation of Administration Tasks
-    (Code name is YUE, which is the acronym for
-     "Your User-role Enforcer".)
-
-TOMOYO Linux has 3 usages.
-
-(1) Provide MAC to improve security dramatically for servers.
-
-    TOMOYO Linux provides realpath(2)-based MAC
-    with automatic policy generation technology.
-    You can generate policies from the scratch
-    by just operating what you want to allow.
-    TOMOYO Linux will generate policy that only allows
-    what you have operated.
-
-(2) Analysis system behavior.
-
-    You can use TOMOYO Linux for examination purpose.
-
-    You can know which application accesses
-    to which files and directories.
-
-    To define policies for MAC, you need to know
-    which application accesses to which files and directories.
-    TOMOYO Linux reports you with realpath(2)-based pathnames
-    to help your policy definition.
-    I think this is helpful for developing SELinux's policy.
-
-(3) Create filesystem images with minimum files.
-
-    You can use TOMOYO Linux to create the custom
-    filesystem image with the minimum files.
-    TOMOYO produces realpath(2)-based policy file,
-    and you can create filesystem image
-    by just copying files listed in the policy file.
-    This is useful for creating custom initrd.img .
-
-Project URL:  http://tomoyo.sourceforge.jp/
-Download URL: http://sourceforge.jp/projects/tomoyo/
-
-The authors of this patch (hereafter, we) don't have much experience
-in kernel programming. But we could accomplish primarily
-due to your unstinting support. Thank you very much.
-
-We are worried that this patch would contain some mistakes
-such as missing hooks, improper location of hooks, potential deadlocks.
-There would be better way of implementation.
-All kinds of comments, pointing the errors and suggestions are welcome.
-
-We do hope this patch reduces the labor of server security management
-and you enjoy the life with Linux.
-
-Happy Holidays!
-
-Thank you.
+-- 
+`I must caution that dipping fingers into molten lead
+ presents several serious dangers.' --- Jearl Walker

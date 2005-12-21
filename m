@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbVLUUOf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbVLUUUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932396AbVLUUOf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 15:14:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932497AbVLUUOf
+	id S964812AbVLUUUz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 15:20:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbVLUUUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 15:14:35 -0500
-Received: from khc.piap.pl ([195.187.100.11]:3332 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932396AbVLUUOf (ORCPT
+	Wed, 21 Dec 2005 15:20:55 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.25]:5073 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S932497AbVLUUUz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 15:14:35 -0500
-To: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: About 4k kernel stack size....
-References: <20051218231401.6ded8de2@werewolf.auna.net>
-	<43A77205.2040306@rtr.ca> <20051220133729.GC6789@stusta.de>
-	<170fa0d20512200637l169654c9vbe38c9931c23dfb1@mail.gmail.com>
-	<BAYC1-PASMTP01F075F44E45AA32F0DF85AE3E0@CEZ.ICE>
-	<dobr1u$19t$1@sea.gmane.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Wed, 21 Dec 2005 21:14:20 +0100
-In-Reply-To: <dobr1u$19t$1@sea.gmane.org> (Giridhar Pemmasani's message of
- "Wed, 21 Dec 2005 10:07:01 -0500")
-Message-ID: <m3d5jq2oo3.fsf@defiant.localdomain>
+	Wed, 21 Dec 2005 15:20:55 -0500
+Date: Wed, 21 Dec 2005 12:20:20 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       nippung@calsoftinc.com
+Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single threaded
+ process at getrusage()
+In-Reply-To: <20051221182320.GA4514@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0512211209300.2829@schroedinger.engr.sgi.com>
+References: <20051221182320.GA4514@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Giridhar Pemmasani <giri@lmc.cs.sunysb.edu> writes:
+On Wed, 21 Dec 2005, Ravikiran G Thirumalai wrote:
 
-> As I see, although people that rely on
-> ndiswrapper (since there is no other way they could use the hardware that
-> they have) will not be able to use their wireless cards when this patch
-> gets merged without having to patch the kernel
+> Following patch avoids taking the global tasklist_lock when possible,
+> if a process is single threaded during getrusage().  Any avoidance of 
+> tasklist_lock is good for NUMA boxes (and possibly for large SMPs).  We found 
+> that this optimization reduces the runtime of a certain scientific application 
+> by half on a 16 cpu NUMA box.
+> 
+> This optimization is similar to the sys_times tasklist_lock optimization.
 
-Huh? -mm is already a patch so I'm not sure what users are you talking
-about. End-users (non-developers) using -mm kernel (binary?) provided
-by their distribution? Why would they want to use ndiswrapper (= binary
-drivers, which make all bug reports and in fact all development
-pointless) with devel kernel?
--- 
-Krzysztof Halasa
+The optimization of sys_times is only possible because the "current" 
+task is running and therefore guarantees that the thread will not be 
+exiting.
+
+getrusage and k_getrusage can be called onother tasks than the currently 
+executing task and in those cases better take the tasklist lock because 
+the task may exit while getrusage runs.
+
+See wait_noreap_copyout() in kernel/exit.c and 
+arch/mips/kernel/{sysirix,irixsig}.c for uses of getrusage where the 
+struct task_struct * != current.
+
+Maybe you can deal with these and insure that getrusage is always called 
+for the current process? In that case the struct task_struct * parameter
+needs to be dropped from getrusage and k_getrusage.
+

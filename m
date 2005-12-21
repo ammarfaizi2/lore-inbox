@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVLUHCc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbVLUG5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbVLUHCc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 02:02:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbVLUHCc
+	id S932298AbVLUG5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 01:57:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbVLUG5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 02:02:32 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:31290 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932294AbVLUHCc (ORCPT
+	Wed, 21 Dec 2005 01:57:16 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:62623 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932298AbVLUG5P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 02:02:32 -0500
-Date: Wed, 21 Dec 2005 08:04:04 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ben Collins <ben.collins@ubuntu.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH rc6] block: Fix CDROMEJECT to work in more cases
-Message-ID: <20051221070404.GV3734@suse.de>
-References: <20051219195014.GA13578@swissdisk.com> <Pine.LNX.4.64.0512200930490.4827@g5.osdl.org> <20051220174948.GP3734@suse.de> <Pine.LNX.4.64.0512201005370.4827@g5.osdl.org> <1135111130.16754.23.camel@localhost.localdomain> <20051220205306.GS3734@suse.de> <1135115219.16754.41.camel@localhost.localdomain>
+	Wed, 21 Dec 2005 01:57:15 -0500
+Date: Wed, 21 Dec 2005 07:56:19 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
+       Christoph Lameter <christoph@lameter.com>,
+       Alok N Kataria <alokk@calsoftinc.com>,
+       Shobhit Dayal <shobhit@calsoftinc.com>,
+       Shai Fultheim <shai@scalex86.org>, Matt Mackall <mpm@selenic.com>,
+       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
+       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RT 00/02] SLOB optimizations
+Message-ID: <20051221065619.GC766@elte.hu>
+References: <1134860251.13138.193.camel@localhost.localdomain> <20051220133230.GC24408@elte.hu> <Pine.LNX.4.58.0512200836120.21313@gandalf.stny.rr.com> <20051220135725.GA29392@elte.hu> <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com> <1135093460.13138.302.camel@localhost.localdomain> <20051220181921.GF3356@waste.org> <1135106124.13138.339.camel@localhost.localdomain> <84144f020512201215j5767aab2nc0a4115c4501e066@mail.gmail.com> <1135114971.13138.396.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1135115219.16754.41.camel@localhost.localdomain>
+In-Reply-To: <1135114971.13138.396.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.7
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.7 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20 2005, Ben Collins wrote:
-> On Tue, 2005-12-20 at 21:53 +0100, Jens Axboe wrote:
-> > On Tue, Dec 20 2005, Ben Collins wrote:
-> > > However, I don't see the issue with using READ. We know this isn't a
-> > > write operation, we are sending a single command with no data. I know
-> > > you say reads are precious, but 3 requests for something that isn't
-> > > going to happen very often doesn't seem that bad.
-> > 
-> > It's not a READ either!
-> > 
-> > Yes I'm being stubborn, but my point stands. I'm not changing something
-> > that is perfectly valid, "just because". If it finds a bug (you
-> > mentioned ide-cd, I still want the details on that when you have the
-> > time), then it's all for the better since it would bite us for other
-> > paths as well.
-> > 
-> > In summary - it's not a bug, it doesn't need fixing.
-> 
-> Then for the sake of nothing other than consistency, fix sg_io() to use
-> WRITE for cases where data_len==0? That means it would use READ only
-> when data is actually being read, and WRITE for everything else,
-> including all zero data commands (sounds sort of backwards to me,
-> though). Currently, it does the opposite. The main point being that
-> sending these commands from SG_IO ioctl should be the same as they get
-> sent from CDROMEJECT ioctl.
-> 
-> I wonder how many bugs will pop up if you do that. Probably less now
-> that the scsi code is fixed.
 
-We can try that for the next -rc1, but I don't think it will find a lot
-of bugs to be honest. I'm really surprised that the SCSI bug was there,
-it's one of those pretty basic things that should have been caught
-sooner. Perhaps with more coverage, we can try changing sg_io() after
-2.6.15 release.
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
--- 
-Jens Axboe
+> [...] Today's slab system is starting to become like the IDE where 
+> nobody, but a select few sado-masochis, dare to venture in. (I've CC'd 
+> them ;) [...]
 
+while it could possibly be cleaned up a bit, it's one of the 
+best-optimized subsystems Linux has. Most of the "unnecessary 
+complexity" in SLAB is related to a performance or a debugging feature.  
+Many times i have looked at the SLAB code in a disassembler, right next 
+to profile output from some hot workload, and have concluded: 'I couldnt 
+do this any better even with hand-coded assembly'.
+
+SLAB-bashing has become somewhat fashionable, but i really challenge 
+everyone to improve the SLAB code first (to make it more modular, easier 
+to read, etc.), before suggesting replacements.
+
+the SLOB is nice because it gives us a simple option at the other end of 
+the complexity spectrum. The SLOB should remain there. (but it certainly 
+makes sense to make it faster, within certain limits, so i'm not 
+opposing your SLOB patches per se.)
+
+	Ingo

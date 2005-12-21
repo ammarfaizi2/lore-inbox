@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbVLUHu5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbVLUHui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbVLUHu5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 02:50:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVLUHu5
+	id S932309AbVLUHui (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 02:50:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932315AbVLUHui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 02:50:57 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:6079 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932313AbVLUHu4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 02:50:56 -0500
-Date: Wed, 21 Dec 2005 08:50:15 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Pekka J Enberg <penberg@cs.Helsinki.FI>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       Alok N Kataria <alokk@calsoftinc.com>,
-       Shobhit Dayal <shobhit@calsoftinc.com>,
-       Shai Fultheim <shai@scalex86.org>, Matt Mackall <mpm@selenic.com>,
-       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
-       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RT 00/02] SLOB optimizations
-Message-ID: <20051221075015.GB2398@elte.hu>
-References: <Pine.LNX.4.58.0512200836120.21313@gandalf.stny.rr.com> <20051220135725.GA29392@elte.hu> <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com> <1135093460.13138.302.camel@localhost.localdomain> <20051220181921.GF3356@waste.org> <1135106124.13138.339.camel@localhost.localdomain> <84144f020512201215j5767aab2nc0a4115c4501e066@mail.gmail.com> <1135114971.13138.396.camel@localhost.localdomain> <20051221065619.GC766@elte.hu> <Pine.LNX.4.58.0512210909040.23799@sbz-30.cs.Helsinki.FI>
-Mime-Version: 1.0
+	Wed, 21 Dec 2005 02:50:38 -0500
+Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:5133 "EHLO
+	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S932309AbVLUHui
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 02:50:38 -0500
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Sam Ravnborg <sam@ravnborg.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>,
+       Linda Walsh <lkml@tlinx.org>
+Subject: Re: Makefile targets: tar & rpm pkgs, while using O=<dir> as
+ non-root
+References: <43A5F058.1060102@tlinx.org> <20051219071959.GJ13985@lug-owl.de>
+	<87d5jru67j.fsf@amaterasu.srvr.nix>
+	<20051220155839.GA9185@mars.ravnborg.org>
+	<87irtjslxx.fsf@amaterasu.srvr.nix>
+	<20051220202559.GK27946@ftp.linux.org.uk>
+From: Nix <nix@esperi.org.uk>
+X-Emacs: where editing text is like playing Paganini on a glass harmonica.
+Date: Wed, 21 Dec 2005 07:49:20 +0000
+In-Reply-To: <20051220202559.GK27946@ftp.linux.org.uk> (Al Viro's message of
+ "20 Dec 2005 20:26:33 -0000")
+Message-ID: <87psnqnb3z.fsf@amaterasu.srvr.nix>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0512210909040.23799@sbz-30.cs.Helsinki.FI>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Pekka J Enberg <penberg@cs.Helsinki.FI> wrote:
-
-> > SLAB-bashing has become somewhat fashionable, but i really challenge 
-> > everyone to improve the SLAB code first (to make it more modular, easier 
-> > to read, etc.), before suggesting replacements.
+On 20 Dec 2005, Al Viro wrote:
+> On Tue, Dec 20, 2005 at 05:44:10PM +0000, Nix wrote:
+>> > 4) Builds for several architectures from same source base
+>> 
+>> cp -al
+>> 
+>> > 5) Builds for several different configurations
+>> 
+>> cp -al
 > 
-> I dropped working on the replacement because I wanted to do just that. 
-> I sent my patch only because Matt and Steve talked about writing a 
-> replacement and thought they would be interested to see it.
-> 
-> I am all for gradual improvements but after taking a stab at it, I 
-> starting to think rewriting would be easier, simply because the slab 
-> allocator has been clean-up resistant for so long.
+> ... apply a patch and watch the resync hell.  That really, really doesn't
+> work well enough for use when doing any kind of development.
 
-i'd suggest to try harder, unless you think the _fundamentals_ of the 
-SLAB allocator are wrong. (which you are entitled to believe, but we 
-also have to admit that the SLAB has been around for many years, and 
-works pretty well)
+Well, personally I handle patch-application in cp -al'ed trees by doing
+cp -al via a script, and repatching all currently hardlinked trees
+(obviously if they are very divergent some patches will fail and I'll
+have to fix them up by hand).
 
-most of the ugliness in slab.c comes from:
+It works for me well enough to keep hardlinked branches going for in
+some cases years without problems.
 
-1) debugging. There's no easy solutions here, but it could be improved. 
+(On top of that, I've sometimes considered a switch to patch(1) that
+switches to truncate-and-rewrite rather than unlink-and-replace. Haven't
+implemented it yet though.)
 
-2) bootstrapping. Bootstrapping an allocator in a generic way is hard.
-   E.g. what if cache_cache gets larger than 1 page?
 
-3) cache-footprint tricks and lockless fastpath. SLAB does things all 
-   the right way, even that ugly memmove is the right thing. Maybe it 
-   could be cleaned up, but the fundamental complexity will likely 
-   remain.
+(And if you're using this to maintain development branches, then you
+have resync and conflict-management problems *anyway*, which this makes
+no worse.)
 
-	Ingo
+-- 
+`I must caution that dipping fingers into molten lead
+ presents several serious dangers.' --- Jearl Walker

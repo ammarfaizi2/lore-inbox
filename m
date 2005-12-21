@@ -1,246 +1,462 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbVLUFSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751133AbVLUFS5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbVLUFSK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 00:18:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbVLUFSJ
+	id S1751133AbVLUFS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 00:18:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbVLUFSN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 00:18:09 -0500
-Received: from fmr19.intel.com ([134.134.136.18]:28631 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751116AbVLUFRs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 00:17:48 -0500
-Subject: [RFC][PATCH 4/5] I/OAT DMA support and TCP acceleration
+	Wed, 21 Dec 2005 00:18:13 -0500
+Received: from fmr20.intel.com ([134.134.136.19]:55273 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751115AbVLUFRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 00:17:44 -0500
+Subject: [RFC][PATCH 3/5] I/OAT DMA support and TCP acceleration
 From: Chris Leech <christopher.leech@intel.com>
 To: lkml <linux-kernel@vger.kernel.org>, netdev <netdev@vger.kernel.org>
 Cc: "Grover, Andrew" <andrew.grover@intel.com>,
        "Ronciak, John" <john.ronciak@intel.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Tue, 20 Dec 2005 21:17:43 -0800
-Message-Id: <1135142263.13781.21.camel@cleech-mobl>
+Date: Tue, 20 Dec 2005 21:17:40 -0800
+Message-Id: <1135142260.13781.20.camel@cleech-mobl>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-X-OriginalArrivalTime: 21 Dec 2005 05:17:47.0288 (UTC) FILETIME=[E15B4180:01C605ED]
+X-OriginalArrivalTime: 21 Dec 2005 05:17:44.0226 (UTC) FILETIME=[DF880820:01C605ED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Structure changes for TCP recv offload to I/OAT
+Utility functions for offloading sk_buff to iovec copies
 
-Adds an async_wait_queue and some additional fields to tcp_sock, a
-copied_early flag to sb_buff and a dma_cookie_t to tcp_skb_cb
+Provides for pinning user space pages in memory, copying to iovecs, and
+copying from sk_buffs including fragmented and chained sk_buffs.
 
-Renames cleanup_rbuf to tcp_cleanup_rbuf and makes it non-static so we
-can call it from tcp_input.c 
+---
+ net/core/user_dma.c   |  410 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ net/core/Makefile     |    3 
+ 2 files changed, 412 insertions(+), 1 deletion(-)
 
---- 
- include/linux/skbuff.h   |    5 +++--
- include/linux/tcp.h      |    9 +++++++++
- include/net/tcp.h        |   10 ++++++++++
- net/core/skbuff.c        |    1 +
- net/ipv4/tcp.c           |   11 ++++++-----
- net/ipv4/tcp_ipv4.c      |    4 ++++
- net/ipv4/tcp_minisocks.c |    1 +
- net/ipv6/tcp_ipv6.c      |    1 +
- 8 files changed, 35 insertions(+), 7 deletions(-)
-diff -urp a/include/linux/skbuff.h b/include/linux/skbuff.h
---- a/include/linux/skbuff.h	2005-12-21 12:05:09.000000000 -0800
-+++ b/include/linux/skbuff.h	2005-12-21 12:10:14.000000000 -0800
-@@ -248,7 +248,7 @@ struct sk_buff {
- 	 * want to keep them across layers you have to do a skb_clone()
- 	 * first. This is owned by whoever has the skb queued ATM.
- 	 */
--	char			cb[40];
-+	char			cb[44];
- 
- 	unsigned int		len,
- 				data_len,
-@@ -261,7 +261,8 @@ struct sk_buff {
- 				nohdr:1,
- 				nfctinfo:3;
- 	__u8			pkt_type:3,
--				fclone:2;
-+				fclone:2,
-+				copied_early:1;
- 	__be16			protocol;
- 
- 	void			(*destructor)(struct sk_buff *skb);
-diff -urp a/include/linux/tcp.h b/include/linux/tcp.h
---- a/include/linux/tcp.h	2005-12-21 12:05:09.000000000 -0800
-+++ b/include/linux/tcp.h	2005-12-21 12:10:14.000000000 -0800
-@@ -18,6 +18,7 @@
- #define _LINUX_TCP_H
- 
- #include <linux/types.h>
-+#include <linux/dmaengine.h>
- #include <asm/byteorder.h>
- 
- struct tcphdr {
-@@ -249,6 +250,13 @@ struct tcp_sock {
- 		struct iovec		*iov;
- 		int			memory;
- 		int			len;
+--- /dev/null
++++ b/net/core/user_dma.c
+@@ -0,0 +1,410 @@
++/*
++  Copyright(c) 2004 - 2005 Intel Corporation
++  Portions based on net/core/datagram.c and copyrighted by their authors.
 +
-+		/* members for async copy */
-+		int			wakeup;
-+		struct dma_chan		*dma_chan;
-+		int			bytes_early_copied;
-+		struct dma_locked_list	*locked_list;
-+		dma_cookie_t		dma_cookie;
- 	} ucopy;
- 
- 	__u32	snd_wl1;	/* Sequence for window update		*/
-@@ -294,6 +302,7 @@ struct tcp_sock {
- 	__u32	snd_cwnd_stamp;
- 
- 	struct sk_buff_head	out_of_order_queue; /* Out of order segments go here */
-+	struct sk_buff_head	async_wait_queue; /* DMA unfinished segments go here */
- 
- 	struct tcp_func		*af_specific;	/* Operations which are AF_INET{4,6} specific	*/
- 
-diff -urp a/include/net/tcp.h b/include/net/tcp.h
---- a/include/net/tcp.h	2005-12-21 12:05:09.000000000 -0800
-+++ b/include/net/tcp.h	2005-12-21 12:10:14.000000000 -0800
-@@ -563,6 +563,9 @@ extern u32	__tcp_select_window(struct so
-  * 40 bytes on 64-bit machines, if this grows please adjust
-  * skbuff.h:skbuff->cb[xxx] size appropriately.
-  */
++  This code allows the net stack to make use of a DMA engine for
++  skb to iovec copies.
++*/
 +
 +#include <linux/dmaengine.h>
++#include <linux/pagemap.h>
++#include <linux/socket.h>
++#include <linux/rtnetlink.h> /* for BUG_TRAP */
++#include <net/tcp.h>
++#include <asm/io.h>
++#include <asm/uaccess.h>
 +
- struct tcp_skb_cb {
- 	union {
- 		struct inet_skb_parm	h4;
-@@ -602,6 +605,7 @@ struct tcp_skb_cb {
- 
- 	__u16		urg_ptr;	/* Valid w/URG flags is set.	*/
- 	__u32		ack_seq;	/* Sequence number ACK'd	*/
-+	dma_cookie_t	dma_cookie;	/* async copy token		*/
- };
- 
- #define TCP_SKB_CB(__skb)	((struct tcp_skb_cb *)&((__skb)->cb[0]))
-@@ -867,8 +871,14 @@ static __inline__ void tcp_prequeue_init
- {
- 	tp->ucopy.task = NULL;
- 	tp->ucopy.len = 0;
-+	tp->ucopy.wakeup = 0;
- 	tp->ucopy.memory = 0;
- 	skb_queue_head_init(&tp->ucopy.prequeue);
++#ifdef CONFIG_NET_DMA
 +
-+	tp->ucopy.dma_chan = NULL;
-+	tp->ucopy.bytes_early_copied = 0;
-+	tp->ucopy.locked_list = NULL;
-+	tp->ucopy.dma_cookie = 0;
- }
- 
- /* Packet is added to VJ-style prequeue for processing in process
-diff -urp a/net/core/skbuff.c b/net/core/skbuff.c
---- a/net/core/skbuff.c	2005-12-21 12:05:09.000000000 -0800
-+++ b/net/core/skbuff.c	2005-12-21 12:10:14.000000000 -0800
-@@ -400,6 +400,7 @@ struct sk_buff *skb_clone(struct sk_buff
- 	C(local_df);
- 	n->cloned = 1;
- 	n->nohdr = 0;
-+	C(copied_early);
- 	C(pkt_type);
- 	C(ip_summed);
- 	C(priority);
-diff -urp a/net/ipv4/tcp.c b/net/ipv4/tcp.c
---- a/net/ipv4/tcp.c	2005-12-21 12:05:09.000000000 -0800
-+++ b/net/ipv4/tcp.c	2005-12-21 12:10:27.000000000 -0800
-@@ -936,7 +936,7 @@ static int tcp_recv_urg(struct sock *sk,
-  * calculation of whether or not we must ACK for the sake of
-  * a window update.
-  */
--static void cleanup_rbuf(struct sock *sk, int copied)
-+void tcp_cleanup_rbuf(struct sock *sk, int copied)
- {
- 	struct tcp_sock *tp = tcp_sk(sk);
- 	int time_to_ack = 0;
-@@ -1085,7 +1085,7 @@ int tcp_read_sock(struct sock *sk, read_
- 
- 	/* Clean up data we have read: This will do ACK frames. */
- 	if (copied)
--		cleanup_rbuf(sk, copied);
-+		tcp_cleanup_rbuf(sk, copied);
- 	return copied;
- }
- 
-@@ -1219,7 +1219,7 @@ int tcp_recvmsg(struct kiocb *iocb, stru
- 			}
- 		}
- 
--		cleanup_rbuf(sk, copied);
-+		tcp_cleanup_rbuf(sk, copied);
- 
- 		if (!sysctl_tcp_low_latency && tp->ucopy.task == user_recv) {
- 			/* Install new reader */
-@@ -1390,7 +1390,7 @@ skip_copy:
- 	 */
- 
- 	/* Clean up data we have read: This will do ACK frames. */
--	cleanup_rbuf(sk, copied);
-+	tcp_cleanup_rbuf(sk, copied);
- 
- 	TCP_CHECK_TIMER(sk);
- 	release_sock(sk);
-@@ -1652,6 +1652,7 @@ int tcp_disconnect(struct sock *sk, int 
- 	__skb_queue_purge(&sk->sk_receive_queue);
- 	sk_stream_writequeue_purge(sk);
- 	__skb_queue_purge(&tp->out_of_order_queue);
-+	__skb_queue_purge(&tp->async_wait_queue);
- 
- 	inet->dport = 0;
- 
-@@ -1855,7 +1856,7 @@ int tcp_setsockopt(struct sock *sk, int 
- 			    (TCPF_ESTABLISHED | TCPF_CLOSE_WAIT) &&
- 			    inet_csk_ack_scheduled(sk)) {
- 				icsk->icsk_ack.pending |= ICSK_ACK_PUSHED;
--				cleanup_rbuf(sk, 1);
-+				tcp_cleanup_rbuf(sk, 1);
- 				if (!(val & 1))
- 					icsk->icsk_ack.pingpong = 1;
- 			}
-diff -urp a/net/ipv4/tcp_ipv4.c b/net/ipv4/tcp_ipv4.c
---- a/net/ipv4/tcp_ipv4.c	2005-12-14 15:50:41.000000000 -0800
-+++ b/net/ipv4/tcp_ipv4.c	2005-12-21 12:10:27.000000000 -0800
-@@ -1414,6 +1414,7 @@ static int tcp_v4_init_sock(struct sock 
- 	struct tcp_sock *tp = tcp_sk(sk);
- 
- 	skb_queue_head_init(&tp->out_of_order_queue);
-+	skb_queue_head_init(&tp->async_wait_queue);
- 	tcp_init_xmit_timers(sk);
- 	tcp_prequeue_init(tp);
- 
-@@ -1466,6 +1467,9 @@ int tcp_v4_destroy_sock(struct sock *sk)
- 	/* Cleans up our, hopefully empty, out_of_order_queue. */
-   	__skb_queue_purge(&tp->out_of_order_queue);
- 
-+	/* Cleans up our async_wait_queue */
-+  	__skb_queue_purge(&tp->async_wait_queue);
++#define NUM_PAGES_SPANNED(start, length) \
++	((PAGE_ALIGN((unsigned long)start + length) - \
++	((unsigned long)start & PAGE_MASK)) >> PAGE_SHIFT)
 +
- 	/* Clean prequeue, it must be empty really */
- 	__skb_queue_purge(&tp->ucopy.prequeue);
++/*
++ * Lock down all the iovec pages needed for len bytes.
++ * Return a struct dma_locked_list to keep track of pages locked down.
++ *
++ * We are allocating a single chunk of memory, and then carving it up into
++ * 3 sections, the latter 2 whose size depends on the number of iovecs and the
++ * total number of pages, respectively.
++ */
++int dma_lock_iovec_pages(struct iovec *iov, size_t len,
++			struct dma_locked_list **locked_list)
++{
++	struct dma_locked_list *local_list;
++	struct page **pages;
++	int i;
++	int ret;
++
++	int nr_iovecs = 0;
++	int iovec_len_used = 0;
++	int iovec_pages_used = 0;
++
++	/* don't lock down non-user-based iovecs */
++	if (segment_eq(get_fs(), KERNEL_DS)) {
++		*locked_list = NULL;
++		return 0;
++	}
++
++	/* determine how many iovecs/pages there are, up front */
++	do {
++		iovec_len_used += iov[nr_iovecs].iov_len;
++		iovec_pages_used += NUM_PAGES_SPANNED(iov[nr_iovecs].iov_base,
++		                                      iov[nr_iovecs].iov_len);
++		nr_iovecs++;
++	} while (iovec_len_used < len);
++
++	/* single kmalloc for locked list, page_list[], and the page arrays */
++	local_list = kmalloc(sizeof(*local_list)
++		+ (nr_iovecs * sizeof (struct dma_page_list))
++		+ (iovec_pages_used * sizeof (struct page*)), GFP_KERNEL);
++	if (!local_list)
++		return -ENOMEM;
++
++	/* list of pages starts right after the page list array */
++	pages = (struct page **) &local_list->page_list[nr_iovecs];
++
++	/* it's a userspace pointer */
++	might_sleep();
++
++	for (i = 0; i < nr_iovecs; i++) {
++		struct dma_page_list *page_list = &local_list->page_list[i];
++
++		len -= iov[i].iov_len;
++
++		if (!access_ok(VERIFY_WRITE, iov[i].iov_base, iov[i].iov_len)) {
++			dma_unlock_iovec_pages(local_list);
++			return -EFAULT;
++		}
++
++		page_list->nr_pages = NUM_PAGES_SPANNED(iov[i].iov_base,
++		                                        iov[i].iov_len);
++		page_list->base_address = iov[i].iov_base;
++
++		page_list->pages = pages;
++		pages += page_list->nr_pages;
++
++		/* lock pages down */
++		down_read(&current->mm->mmap_sem);
++		ret = get_user_pages(
++			current,
++			current->mm,
++			(unsigned long) iov[i].iov_base,
++			page_list->nr_pages,
++			1,
++			0,
++			page_list->pages,
++			NULL);
++		up_read(&current->mm->mmap_sem);
++
++		if (ret != page_list->nr_pages) {
++			goto mem_error;
++		}
++
++		local_list->nr_iovecs = i + 1;
++	}
++
++	*locked_list = local_list;
++	return 0;
++
++mem_error:
++	dma_unlock_iovec_pages(local_list);
++	return -ENOMEM;
++}
++
++void dma_unlock_iovec_pages(struct dma_locked_list *locked_list)
++{
++	int i, j;
++
++	if (!locked_list)
++		return;
++
++	for (i = 0; i < locked_list->nr_iovecs; i++) {
++		struct dma_page_list *page_list = &locked_list->page_list[i];
++		for (j = 0; j < page_list->nr_pages; j++) {
++			SetPageDirty(page_list->pages[j]);
++			page_cache_release(page_list->pages[j]);
++		}
++	}
++
++	kfree(locked_list);
++}
++
++static dma_cookie_t dma_memcpy_tokerneliovec(struct dma_chan *chan,
++			struct iovec *iov, unsigned char *kdata, size_t len)
++{
++	dma_cookie_t dma_cookie = 0;
++
++	while (len > 0) {
++		if (iov->iov_len) {
++			int copy = min_t(unsigned int, iov->iov_len, len);
++			dma_cookie = dma_async_memcpy_buf_to_buf(
++					chan,
++					iov->iov_base,
++					kdata,
++					copy);
++			kdata += copy;
++			len -= copy;
++			iov->iov_len -= copy;
++			iov->iov_base += copy;
++		}
++		iov++;
++	}
++
++	return dma_cookie;
++}
++
++/*
++ * We have already locked down the pages we will be using in the iovecs.
++ * Each entry in iov array has corresponding entry in locked_list->page_list.
++ * Using array indexing to keep iov[] and page_list[] in sync.
++ * Initial elements in iov array's iov->iov_len will be 0 if already copied into
++ *   by another call.
++ * iov array length remaining guaranteed to be bigger than len.
++ */
++static dma_cookie_t dma_memcpy_toiovec(struct dma_chan *chan, struct iovec *iov,
++			struct dma_locked_list *locked_list,
++			unsigned char *kdata, size_t len)
++{
++	int iov_byte_offset;
++	int copy;
++	dma_cookie_t dma_cookie = 0;
++	int iovec_idx;
++	int page_idx;
++
++	if (!chan)
++		return memcpy_toiovec(iov, kdata, len);
++
++	/* -> kernel copies (e.g. smbfs) */
++	if (!locked_list)
++		return dma_memcpy_tokerneliovec(chan, iov, kdata, len);
++
++	iovec_idx = 0;
++	while (iovec_idx < locked_list->nr_iovecs) {
++		struct dma_page_list *page_list;
++
++		/* skip already used-up iovecs */
++		while (!iov[iovec_idx].iov_len)
++			iovec_idx++;
++
++		page_list = &locked_list->page_list[iovec_idx];
++
++		iov_byte_offset = ((unsigned long)iov[iovec_idx].iov_base & ~PAGE_MASK);
++		page_idx = (((unsigned long)iov[iovec_idx].iov_base & PAGE_MASK)
++			 - ((unsigned long)page_list->base_address & PAGE_MASK)) >> PAGE_SHIFT;
++
++		/* break up copies to not cross page boundary */
++		while (iov[iovec_idx].iov_len) {
++			copy = min_t(int, PAGE_SIZE - iov_byte_offset, len);
++			copy = min_t(int, copy, iov[iovec_idx].iov_len);
++
++			dma_cookie = dma_async_memcpy_buf_to_pg(chan,
++					page_list->pages[page_idx],
++					iov_byte_offset,
++					kdata,
++					copy);
++
++			len -= copy;
++			iov[iovec_idx].iov_len -= copy;
++			iov[iovec_idx].iov_base += copy;
++
++			if (!len)
++				return dma_cookie;
++
++			kdata += copy;
++			iov_byte_offset = 0;
++			page_idx++;
++		}
++		iovec_idx++;
++	}
++
++	/* really bad if we ever run out of iovecs */
++	BUG();
++	return -EFAULT;
++}
++
++static dma_cookie_t dma_memcpy_pg_toiovec(struct dma_chan *chan,
++			struct iovec *iov, struct dma_locked_list *locked_list,
++			struct page *page, unsigned int offset, size_t len)
++{
++	int iov_byte_offset;
++	int copy;
++	dma_cookie_t dma_cookie = 0;
++	int iovec_idx;
++	int page_idx;
++	int err;
++
++	/* this needs as-yet-unimplemented buf-to-buff, so punt. */
++	/* TODO: use dma for this */
++	if (!chan || !locked_list) {
++		u8 *vaddr = kmap(page);
++		err = memcpy_toiovec(iov, vaddr + offset, len);
++		kunmap(page);
++		return err;
++	}
++
++	iovec_idx = 0;
++	while (iovec_idx < locked_list->nr_iovecs) {
++		struct dma_page_list *page_list;
++
++		/* skip already used-up iovecs */
++		while (!iov[iovec_idx].iov_len)
++			iovec_idx++;
++
++		page_list = &locked_list->page_list[iovec_idx];
++
++		iov_byte_offset = ((unsigned long)iov[iovec_idx].iov_base & ~PAGE_MASK);
++		page_idx = (((unsigned long)iov[iovec_idx].iov_base & PAGE_MASK)
++			 - ((unsigned long)page_list->base_address & PAGE_MASK)) >> PAGE_SHIFT;
++
++		/* break up copies to not cross page boundary */
++		while (iov[iovec_idx].iov_len) {
++			copy = min_t(int, PAGE_SIZE - iov_byte_offset, len);
++			copy = min_t(int, copy, iov[iovec_idx].iov_len);
++
++			dma_cookie = dma_async_memcpy_pg_to_pg(chan,
++					page_list->pages[page_idx],
++					iov_byte_offset,
++					page,
++					offset,
++					copy);
++
++			len -= copy;
++			iov[iovec_idx].iov_len -= copy;
++			iov[iovec_idx].iov_base += copy;
++
++			if (!len)
++				return dma_cookie;
++
++			offset += copy;
++			iov_byte_offset = 0;
++			page_idx++;
++		}
++		iovec_idx++;
++	}
++
++	/* really bad if we ever run out of iovecs */
++	BUG();
++	return -EFAULT;
++}
++
++void dma_memcpy_toiovec_wait(struct dma_chan *chan, dma_cookie_t cookie)
++{
++	if (cookie <= 0)
++		return;
++
++	dma_async_wait_for_completion(chan, cookie);
++}
++
++/**
++ *	dma_skb_copy_datagram_iovec - Copy a datagram to an iovec.
++ *	@skb - buffer to copy
++ *	@offset - offset in the buffer to start copying from
++ *	@iovec - io vector to copy to
++ *	@len - amount of data to copy from buffer to iovec
++ *	@locked_list - locked iovec buffer data
++ *
++ *	Note: the iovec is modified during the copy.
++ */
++int dma_skb_copy_datagram_iovec(struct dma_chan *chan,
++			const struct sk_buff *skb, int offset, struct iovec *to,
++			size_t len, struct dma_locked_list *locked_list)
++{
++	int start = skb_headlen(skb);
++	int i, copy = start - offset;
++	dma_cookie_t cookie = 0;
++
++	/* Copy header. */
++	if (copy > 0) {
++		if (copy > len)
++			copy = len;
++		if ((cookie = dma_memcpy_toiovec(chan, to, locked_list,
++		     skb->data + offset, copy)) < 0)
++			goto fault;
++		if ((len -= copy) == 0)
++			goto end;
++		offset += copy;
++	}
++
++	/* Copy paged appendix. Hmm... why does this look so complicated? */
++	for (i = 0; i < skb_shinfo(skb)->nr_frags; i++) {
++		int end;
++
++		BUG_TRAP(start <= offset + len);
++
++		end = start + skb_shinfo(skb)->frags[i].size;
++		if ((copy = end - offset) > 0) {
++			skb_frag_t *frag = &skb_shinfo(skb)->frags[i];
++			struct page *page = frag->page;
++
++			if (copy > len)
++				copy = len;
++
++			cookie = dma_memcpy_pg_toiovec(chan, to, locked_list, page,
++					frag->page_offset + offset - start, copy);
++			if (cookie < 0)
++				goto fault;
++			if (!(len -= copy))
++				goto end;
++			offset += copy;
++		}
++		start = end;
++	}
++
++	if (skb_shinfo(skb)->frag_list) {
++		struct sk_buff *list = skb_shinfo(skb)->frag_list;
++
++		for (; list; list = list->next) {
++			int end;
++
++			BUG_TRAP(start <= offset + len);
++
++			end = start + list->len;
++			if ((copy = end - offset) > 0) {
++				if (copy > len)
++					copy = len;
++				if ((cookie = dma_skb_copy_datagram_iovec(chan, list,
++					        offset - start, to, copy, locked_list)) < 0)
++					goto fault;
++				if ((len -= copy) == 0)
++					goto end;
++				offset += copy;
++			}
++			start = end;
++		}
++	}
++
++end:
++	if (!len) {
++		TCP_SKB_CB(skb)->dma_cookie = cookie;
++		return cookie;
++	}
++
++fault:
++ 	return -EFAULT;
++}
++
++#else
++
++int dma_lock_iovec_pages(struct iovec *iov, size_t len,
++			struct dma_locked_list **locked_list)
++{
++	*locked_list = NULL;
++
++	return 0;
++}
++
++void dma_unlock_iovec_pages(struct dma_locked_list* locked_list)
++{ }
++
++int dma_skb_copy_datagram_iovec(struct dma_chan *chan,
++			const struct sk_buff *skb, int offset, struct iovec *to,
++			size_t len, struct dma_locked_list *locked_list)
++{
++	return skb_copy_datagram_iovec(skb, offset, to, len);
++}
++
++void dma_memcpy_toiovec_wait(struct dma_chan *chan, dma_cookie_t cookie)
++{ }
++
++#endif
+--- a/net/core/Makefile
++++ b/net/core/Makefile
+@@ -8,7 +8,8 @@ obj-y := sock.o request_sock.o skbuff.o 
+ obj-$(CONFIG_SYSCTL) += sysctl_net_core.o
  
-diff -urp a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
---- a/net/ipv4/tcp_minisocks.c	2005-12-14 15:50:41.000000000 -0800
-+++ b/net/ipv4/tcp_minisocks.c	2005-12-21 12:10:27.000000000 -0800
-@@ -389,6 +389,7 @@ struct sock *tcp_create_openreq_child(st
- 		tcp_set_ca_state(newsk, TCP_CA_Open);
- 		tcp_init_xmit_timers(newsk);
- 		skb_queue_head_init(&newtp->out_of_order_queue);
-+		skb_queue_head_init(&newtp->async_wait_queue);
- 		newtp->rcv_wup = treq->rcv_isn + 1;
- 		newtp->write_seq = treq->snt_isn + 1;
- 		newtp->pushed_seq = newtp->write_seq;
-diff -urp a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
---- a/net/ipv6/tcp_ipv6.c	2005-12-14 15:50:41.000000000 -0800
-+++ b/net/ipv6/tcp_ipv6.c	2005-12-21 12:10:27.000000000 -0800
-@@ -1863,6 +1863,7 @@ static int tcp_v6_init_sock(struct sock 
- 	struct tcp_sock *tp = tcp_sk(sk);
+ obj-y		     += dev.o ethtool.o dev_mcast.o dst.o \
+-			neighbour.o rtnetlink.o utils.o link_watch.o filter.o
++			neighbour.o rtnetlink.o utils.o link_watch.o filter.o \
++			user_dma.o
  
- 	skb_queue_head_init(&tp->out_of_order_queue);
-+	skb_queue_head_init(&tp->async_wait_queue);
- 	tcp_init_xmit_timers(sk);
- 	tcp_prequeue_init(tp);
- 
+ obj-$(CONFIG_XFRM) += flow.o
+ obj-$(CONFIG_SYSFS) += net-sysfs.o
 

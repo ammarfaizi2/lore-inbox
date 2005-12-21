@@ -1,34 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751193AbVLUUyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbVLUUyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751193AbVLUUyu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 15:54:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbVLUUyu
+	id S1751190AbVLUUyq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 15:54:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbVLUUyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 15:54:50 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:39811 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S1751193AbVLUUyt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 15:54:49 -0500
-Date: Wed, 21 Dec 2005 21:23:56 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Robin Holt <holt@sgi.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 1/1] Fix genksyms handling of DEFINE_PER_CPU(struct foo_s *, bar);
-Message-ID: <20051221202356.GA31487@mars.ravnborg.org>
-References: <20051221203601.GB20619@lnx-holt.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051221203601.GB20619@lnx-holt.americas.sgi.com>
-User-Agent: Mutt/1.5.11
+	Wed, 21 Dec 2005 15:54:46 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:25320 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1751190AbVLUUyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 15:54:45 -0500
+Date: Wed, 21 Dec 2005 15:54:13 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 3/8] mutex subsystem, add atomic_*_call_if_*() to i386
+In-reply-to: <20051221203243.GA19082@nevyn.them.org>
+X-X-Sender: nico@localhost.localdomain
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Message-id: <Pine.LNX.4.64.0512211552080.26663@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20051221155442.GD7243@elte.hu>
+ <Pine.LNX.4.64.0512211044240.4827@g5.osdl.org>
+ <Pine.LNX.4.64.0512211054450.4827@g5.osdl.org>
+ <20051221203243.GA19082@nevyn.them.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 21, 2005 at 02:36:01PM -0600, Robin Holt wrote:
-> This is a one-line change to parse.y.  It results in rebuilding the
-> scripts/genksyms/*_shipped files.  Those are the next four patches.
-Does this differ from the first patch-set you sent out?
-I plan to apply these so they will be part of next round of kbuild
-updates - which will take place during next merge window.
+On Wed, 21 Dec 2005, Daniel Jacobowitz wrote:
 
-	Sam
+> This new macro is only going to be used in x86-specific files, right? 
+> There's no practical way to implement this on lots of other
+> architectures.
+
+The default implementation does the call in C.
+
+> Embedding a call in asm("") can break other things too - for instance,
+> unwind tables could become inaccurate.
+
+I doubt unwind tables are used at all for the kernel, are they?
+
+
+Nicolas

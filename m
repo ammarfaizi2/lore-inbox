@@ -1,69 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbVLUVIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbVLUVIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbVLUVIr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 16:08:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbVLUVIr
+	id S1751216AbVLUVIq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 16:08:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbVLUVIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 16:08:47 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:12420 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751219AbVLUVIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 16:08:46 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:49127 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751216AbVLUVIp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 21 Dec 2005 16:08:45 -0500
-Date: Wed, 21 Dec 2005 13:08:23 -0800 (PST)
+Date: Wed, 21 Dec 2005 13:08:33 -0800 (PST)
 From: Christoph Lameter <clameter@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: steiner@sgi.com, ak@suse.de, Wu Fengguang <wfg@mail.ustc.edu.cn>,
        Christoph Lameter <clameter@sgi.com>, linux-mm@vger.kernel.org,
        Martin Hicks <mort@bork.org>
-Message-Id: <20051221210823.3354.53223.sendpatchset@schroedinger.engr.sgi.com>
-Subject: Zone reclaim V4 [1/3]: resurrect may_swap
+Message-Id: <20051221210833.3354.50872.sendpatchset@schroedinger.engr.sgi.com>
+In-Reply-To: <20051221210823.3354.53223.sendpatchset@schroedinger.engr.sgi.com>
+References: <20051221210823.3354.53223.sendpatchset@schroedinger.engr.sgi.com>
+Subject: Zone reclaim V4 [3/3]: Alternate logic without zoned counters
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resurrect may_swap in struct scan_control
+Reduce frequency of unsuccessful zone reclaim attempts
 
-Patch against 2.6.15-rc5-mm3 to undo the patch to remove may_writepage.
+This is a fallback patch if zoned vm counters are not available. In that
+case no check for reclaimable pages can be made before starting the scan.
 
-Not needed for 2.6.14 / 2.6.15-rc6.
+The scan may have to occur for every off node allocation once the node
+is full. In order to deal with that situation we note the last time a
+scan has failed and only retry once per tick.
 
 Signed-off-by: Christoph Lameter <clameter@sgi.com>
 
-Index: linux-2.6.15-rc5-mm3/mm/vmscan.c
+Index: linux-2.6.15-rc5-mm2/mm/vmscan.c
 ===================================================================
---- linux-2.6.15-rc5-mm3.orig/mm/vmscan.c	2005-12-20 15:46:51.000000000 -0800
-+++ linux-2.6.15-rc5-mm3/mm/vmscan.c	2005-12-21 12:32:43.000000000 -0800
-@@ -71,6 +71,9 @@ struct scan_control {
+--- linux-2.6.15-rc5-mm2.orig/mm/vmscan.c	2005-12-12 16:50:20.000000000 -0800
++++ linux-2.6.15-rc5-mm2/mm/vmscan.c	2005-12-12 16:50:21.000000000 -0800
+@@ -1842,6 +1842,16 @@ int zone_reclaim(struct zone *zone, gfp_
+ 	    atomic_read(&zone->reclaim_in_progress) > 0)
+ 		return 0;
  
- 	int may_writepage;
- 
-+	/* Can pages be swapped as part of reclaim? */
-+	int may_swap;
++	/*
++	 * If an unsuccessful zone reclaim occurred in this tick then we
++	 * already needed to go off before. Our local purity is already
++	 * tainted and its likely that the scan for easily reclaimable pages
++	 * will be a waste of time. Continue off node allocations for the
++	 * duration of this tick.
++	 */
++	if (zone->last_unsuccessful_zone_reclaim == jiffies)
++		return 0;
 +
- 	/* This context's SWAP_CLUSTER_MAX. If freeing memory for
- 	 * suspend, we effectively ignore SWAP_CLUSTER_MAX.
- 	 * In this context, it doesn't matter that we scan the
-@@ -457,6 +460,8 @@ static int shrink_list(struct list_head 
- 		 * Try to allocate it some swap space here.
- 		 */
- 		if (PageAnon(page) && !PageSwapCache(page)) {
-+			if (!sc->may_swap)
-+				goto keep_locked;
- 			if (!add_to_swap(page, GFP_ATOMIC))
- 				goto activate_locked;
- 		}
-@@ -1180,6 +1185,7 @@ int try_to_free_pages(struct zone **zone
- 
  	sc.gfp_mask = gfp_mask;
  	sc.may_writepage = 0;
-+	sc.may_swap = 1;
+ 	sc.nr_mapped = read_page_state(nr_mapped);
+@@ -1859,6 +1869,8 @@ int zone_reclaim(struct zone *zone, gfp_
+ 	shrink_zone(zone, &sc);
+ 	p->reclaim_state = NULL;
+ 	current->flags &= ~PF_MEMALLOC;
++	if (sc.nr_reclaimed == 0)
++		zone->last_unsuccessful_zone_reclaim = jiffies;
+ 	cond_resched();
+ 	return sc.nr_reclaimed >= (1 << order);
+ }
+Index: linux-2.6.15-rc5-mm2/include/linux/mmzone.h
+===================================================================
+--- linux-2.6.15-rc5-mm2.orig/include/linux/mmzone.h	2005-12-12 09:10:34.000000000 -0800
++++ linux-2.6.15-rc5-mm2/include/linux/mmzone.h	2005-12-12 16:50:21.000000000 -0800
+@@ -157,6 +157,8 @@ struct zone {
+ 	/* A count of how many reclaimers are scanning this zone */
+ 	atomic_t		reclaim_in_progress;
  
- 	count_event(ALLOCSTALL);
- 
-@@ -1282,6 +1288,7 @@ loop_again:
- 	total_reclaimed = 0;
- 	sc.gfp_mask = GFP_KERNEL;
- 	sc.may_writepage = 0;
-+	sc.may_swap = 1;
- 	sc.nr_mapped = global_page_state(NR_MAPPED);
- 
- 	count_event(PAGEOUTRUN);
++	unsigned long		last_unsuccessful_zone_reclaim;
++
+ 	/*
+ 	 * prev_priority holds the scanning priority for this zone.  It is
+ 	 * defined as the scanning priority at which we achieved our reclaim

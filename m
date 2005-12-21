@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbVLUNd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbVLUNge@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932408AbVLUNd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 08:33:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbVLUNd5
+	id S932410AbVLUNge (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 08:36:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbVLUNge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 08:33:57 -0500
-Received: from pop-siberian.atl.sa.earthlink.net ([207.69.195.71]:22519 "EHLO
-	pop-siberian.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S932408AbVLUNd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 08:33:57 -0500
-Message-ID: <43A958CF.2080908@earthlink.net>
-Date: Wed, 21 Dec 2005 08:29:51 -0500
-From: Stephen Clark <stephen.clark@earthlink.net>
-Reply-To: sclark46@earthlink.net
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 21 Dec 2005 08:36:34 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.151]:63452 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932410AbVLUNge
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 08:36:34 -0500
+Date: Wed, 21 Dec 2005 05:36:41 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
 To: Lee Revell <rlrevell@joe-job.com>
-CC: Linus Torvalds <torvalds@osdl.org>,
-       James Courtier-Dutton <James@superbug.co.uk>,
-       Adrian Bunk <bunk@stusta.de>, Sergey Vlasov <vsu@altlinux.ru>,
-       Ricardo Cerqueira <v4l@cerqueira.org>, mchehab@brturbo.com.br,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
-Subject: Re: [Alsa-devel] 2.6.15-rc6: boot failure in saa7134-alsa.c
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>	 <20051220131810.GB6789@stusta.de>	 <20051220155216.GA19797@master.mivlgu.local>	 <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org>	 <20051220191412.GA4578@stusta.de>	 <Pine.LNX.4.64.0512201156250.4827@g5.osdl.org>	 <43A86B20.1090104@superbug.co.uk>	 <Pine.LNX.4.64.0512201248481.4827@g5.osdl.org> <1135117067.27101.5.camel@mindpipe>
-In-Reply-To: <1135117067.27101.5.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14-rt22 (and mainline) excessive latency
+Message-ID: <20051221133641.GA7613@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <1135039244.28649.41.camel@mindpipe> <20051220042442.GA32039@elte.hu> <20051221014747.GB5741@us.ibm.com> <1135135970.28229.0.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1135135970.28229.0.camel@mindpipe>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+On Tue, Dec 20, 2005 at 10:32:48PM -0500, Lee Revell wrote:
+> On Tue, 2005-12-20 at 17:47 -0800, Paul E. McKenney wrote:
+> > On Tue, Dec 20, 2005 at 05:24:42AM +0100, Ingo Molnar wrote:
+> > > 
+> > > * Lee Revell <rlrevell@joe-job.com> wrote:
+> > > 
+> > > > I captured this 3+ ms latency trace when killing a process with a few 
+> > > > thousand threads.  Can a cond_resched be added to this code path?
+> > > 
+> > > >     bash-17992 0.n.1   29us : eligible_child (do_wait)
+> > > > 
+> > > >     [ 3000+ of these deleted ]
+> > > > 
+> > > >     bash-17992 0.n.1 3296us : eligible_child (do_wait)
+> > > 
+> > > Atomicity of signal delivery is pretty much a must, so i'm not sure this 
+> > > particular latency can be fixed, short of running PREEMPT_RT. Paul E.  
+> > > McKenney is doing some excellent stuff by RCU-ifying the task lookup and 
+> > > signal code, but i'm not sure whether it could cover do_wait().
+> > 
+> > Took a quick break from repeatedly shooting myself in the foot with
+> > RCU read-side priority boosting (still have a few toes left) to take
+> > a quick look at this.  The TASK_TRACED and TASK_STOPPED cases seem
+> > non-trivial, and I am concerned about races with exit.
+> > 
+> > Any thoughts on whether the latency is due to contention on the
+> > tasklist lock vs. the "goto repeat" in do_wait()?
+> 
+> It's a UP system so I'd be surprised if there were any contention.
 
->On Tue, 2005-12-20 at 13:03 -0800, Linus Torvalds wrote:
->  
->
->>Forcing (or even just encouraging) people to use loadable modules is
->>just horrible. I personally run a kernel with no modules at all: it
->>makes for a simpler bootup, and in some situations (embedded) it has
->>both security and size advantages. 
->>    
->>
->
->With modules it's possible to test a new ALSA version without
->recompiling the kernel or even rebooting.  Encouraging people to build
->it into the kernel would create a problematic barrier to entry for
->debugging.  With the amount of poorly documented hardware we support,
->it's essential for preventing driver regressions for users to be able to
->easily test the latest ALSA version.  
->
->Lee
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-Users don't want to be testers when they report problems and no on 
-responds to the problem
-report!
+Couldn't there be contention due to preemption of someone holding
+the tasklist lock?
 
-My $.02
-Steve
+						Thanx, Paul

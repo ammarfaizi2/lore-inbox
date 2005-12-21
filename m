@@ -1,101 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbVLUBrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbVLUBpy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbVLUBrw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 20:47:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVLUBrw
+	id S932236AbVLUBpy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 20:45:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbVLUBpy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 20:47:52 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:47519 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S932241AbVLUBrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 20:47:51 -0500
-Date: Tue, 20 Dec 2005 17:47:50 -0800
-From: Yanmin Zhang <ymzhang@unix-os.sc.intel.com>
-To: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       linux-ia64@vger.kernel.org
-Cc: yanmin.zhang@intel.com, suresh.b.siddha@intel.com, rajesh.shah@intel.com,
-       venkatesh.pallipadi@intel.com
-Subject: [PATCH v2:2/3]Export cpu topology by sysfs
-Message-ID: <20051220174750.A19129@unix-os.sc.intel.com>
+	Tue, 20 Dec 2005 20:45:54 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:56009 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932236AbVLUBpy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 20:45:54 -0500
+Date: Tue, 20 Dec 2005 19:45:50 -0600
+From: Robin Holt <holt@sgi.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [Patch 1/5] Fix genksyms handling of DEFINE_PER_CPU(struct foo_s *, bar);
+Message-ID: <20051221014550.GA2784@lnx-holt.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Zhang, Yanmin <yanmin.zhang@intel.com>
 
-The second patch against kernel 2.6.15-rc5 is to save thread_id and show it
-in /proc/cpuinfo for x86_64 architecture.
+This is a one-line change to parse.y.  It results in rebuilding the
+scripts/genksyms/*_shipped files.  Those are the next four patches.
 
-Signed-off-by: Zhang, Yanmin <yanmin.zhang@intel.com>
+When a .c file contains:
+DEFINE_PER_CPU(struct foo_s *, bar);
 
-#diffstat collect_thread_id_2.6.15-rc5_x86_64.patch
- arch/x86_64/kernel/setup.c   |   13 ++++++++++++-
- arch/x86_64/kernel/smpboot.c |    2 ++
- include/asm-x86_64/smp.h     |    1 +
- 3 files changed, 15 insertions, 1 deletion
+the .cpp output looks like:
+__attribute__((__section__(".data.percpu"))) __typeof__(struct foo_s *) per_cpu__bar;
 
----
+With the existing parse.y, the value inside the paranthesis of
+__typeof__() does not evaluate as a type_specifier and therefore
+per_cpu__bar does not get assigned a type for genksyms which results in
+the EXPORT_PER_CPU_SYMBOL() not generating a CRC value.
 
-diff -Nraup linux-2.6.15-rc5/arch/x86_64/kernel/setup.c linux-2.6.15-rc5_thread_id/arch/x86_64/kernel/setup.c
---- linux-2.6.15-rc5/arch/x86_64/kernel/setup.c	2005-12-13 23:07:35.000000000 +0800
-+++ linux-2.6.15-rc5_thread_id/arch/x86_64/kernel/setup.c	2005-12-16 11:55:05.000000000 +0800
-@@ -888,7 +888,7 @@ static void __cpuinit detect_ht(struct c
- {
- #ifdef CONFIG_SMP
- 	u32 	eax, ebx, ecx, edx;
--	int 	index_msb, core_bits;
-+	int 	index_msb, core_bits, thread_bits;
- 	int 	cpu = smp_processor_id();
+I have compared the Modules.symvers with and without this
+patch and for ia64's defconfig, the only change is:
+Before 0x00000000    per_cpu____sn_nodepda   vmlinux
+After  0x9d3f3faa    per_cpu____sn_nodepda   vmlinux
+
+per_cpu____sn_nodepda was the original source of my problems.
+
+Signed-off-by: Robin Holt <holt@sgi.com>
+
+
+Index: linux-2.6/scripts/genksyms/parse.y
+===================================================================
+--- linux-2.6.orig/scripts/genksyms/parse.y	2005-12-20 14:24:41.736350197 -0600
++++ linux-2.6/scripts/genksyms/parse.y	2005-12-20 14:24:55.843371218 -0600
+@@ -197,6 +197,7 @@ storage_class_specifier:
+ type_specifier:
+ 	simple_type_specifier
+ 	| cvar_qualifier
++	| TYPEOF_KEYW '(' decl_specifier_seq '*' ')'
+ 	| TYPEOF_KEYW '(' decl_specifier_seq ')'
  
- 	cpuid(1, &eax, &ebx, &ecx, &edx);
-@@ -928,6 +928,13 @@ static void __cpuinit detect_ht(struct c
- 		if (c->x86_max_cores > 1)
- 			printk(KERN_INFO  "CPU: Processor Core ID: %d\n",
- 			       cpu_core_id[cpu]);
-+
-+		thread_bits = index_msb;
-+		cpu_thread_id[cpu] = phys_pkg_id(0) & ((1 << thread_bits) - 1);
-+
-+		if (smp_num_siblings > 1)
-+			printk(KERN_INFO  "CPU: Processor Thread ID: %d\n",
-+			       cpu_thread_id[cpu]);
- 	}
- #endif
- }
-@@ -1272,6 +1279,10 @@ static int show_cpuinfo(struct seq_file 
- 		seq_printf(m, "core id\t\t: %d\n", cpu_core_id[cpu]);
- 		seq_printf(m, "cpu cores\t: %d\n", c->booted_cores);
- 	}
-+	if (smp_num_siblings > 1) {
-+		int cpu = c - cpu_data;
-+		seq_printf(m, "thread id\t: %d\n", cpu_thread_id[cpu]);
-+	}
- #endif	
- 
- 	seq_printf(m,
-diff -Nraup linux-2.6.15-rc5/arch/x86_64/kernel/smpboot.c linux-2.6.15-rc5_thread_id/arch/x86_64/kernel/smpboot.c
---- linux-2.6.15-rc5/arch/x86_64/kernel/smpboot.c	2005-12-13 23:07:35.000000000 +0800
-+++ linux-2.6.15-rc5_thread_id/arch/x86_64/kernel/smpboot.c	2005-12-16 10:29:09.000000000 +0800
-@@ -66,6 +66,8 @@ int smp_num_siblings = 1;
- u8 phys_proc_id[NR_CPUS] __read_mostly = { [0 ... NR_CPUS-1] = BAD_APICID };
- /* core ID of each logical CPU */
- u8 cpu_core_id[NR_CPUS] __read_mostly = { [0 ... NR_CPUS-1] = BAD_APICID };
-+/* thread ID of each logical CPU */
-+u8 cpu_thread_id[NR_CPUS] __read_mostly = { [0 ... NR_CPUS-1] = BAD_APICID };
- 
- /* Bitmask of currently online CPUs */
- cpumask_t cpu_online_map __read_mostly;
-diff -Nraup linux-2.6.15-rc5/include/asm-x86_64/smp.h linux-2.6.15-rc5_thread_id/include/asm-x86_64/smp.h
---- linux-2.6.15-rc5/include/asm-x86_64/smp.h	2005-12-13 23:07:39.000000000 +0800
-+++ linux-2.6.15-rc5_thread_id/include/asm-x86_64/smp.h	2005-12-16 10:30:02.000000000 +0800
-@@ -55,6 +55,7 @@ extern cpumask_t cpu_sibling_map[NR_CPUS
- extern cpumask_t cpu_core_map[NR_CPUS];
- extern u8 phys_proc_id[NR_CPUS];
- extern u8 cpu_core_id[NR_CPUS];
-+extern u8 cpu_thread_id[NR_CPUS];
- 
- #define SMP_TRAMPOLINE_BASE 0x6000
- 
+ 	/* References to s/u/e's defined elsewhere.  Rearrange things

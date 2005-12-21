@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbVLUVsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbVLUVuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbVLUVsN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 16:48:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVLUVsN
+	id S932208AbVLUVuh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 16:50:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbVLUVug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 16:48:13 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52241 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751136AbVLUVsM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 16:48:12 -0500
-Date: Wed, 21 Dec 2005 21:48:06 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, uclinux-v850@lsi.nec.co.j
-Subject: Re: [RFC: 2.6 patch] include/linux/irq.h: #include <linux/smp.h>
-Message-ID: <20051221214806.GJ1736@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-	linux-kernel@vger.kernel.org, uclinux-v850@lsi.nec.co.j
-References: <20051221012750.GD5359@stusta.de> <20051221024133.93b75576.akpm@osdl.org> <20051221110421.GA26630@flint.arm.linux.org.uk> <20051221213321.GC3888@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Dec 2005 16:50:36 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:47984 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751166AbVLUVug convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 16:50:36 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=L/JEn5F3bl5/8EDVG5V/zoz8UOAwLFOuzxADto/cJfM5Pu6Haw17955ZsL3nir4p1R0CKWu44xubd0l3B9rEXxD619N4y2391s6RttuZ4NaZ9FexRe3gBpdi7mBi4BDevk8THtu2QGrk5wRVHpgC45pqwoZfdD6s/YlHiN5m7lY=
+Message-ID: <9a8748490512211350h4225313bx8d97ea21274b62e1@mail.gmail.com>
+Date: Wed, 21 Dec 2005 22:50:35 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: dtor_core@ameritech.net
+Subject: Re: Mouse stalls with 2.6.5-rc5-mm2
+Cc: LKML List <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <d120d5000512211259w135b1161l6960fef6e840b983@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051221213321.GC3888@stusta.de>
-User-Agent: Mutt/1.4.1i
+References: <9a8748490512110548h22889559ld81374f2626c3ed2@mail.gmail.com>
+	 <200512111327.40578.dtor_core@ameritech.net>
+	 <9a8748490512111149l358f18abuc7f0685413f75c06@mail.gmail.com>
+	 <d120d5000512211259w135b1161l6960fef6e840b983@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 21, 2005 at 10:33:21PM +0100, Adrian Bunk wrote:
-> On Wed, Dec 21, 2005 at 11:04:22AM +0000, Russell King wrote:
-> > On Wed, Dec 21, 2005 at 02:41:33AM -0800, Andrew Morton wrote:
-> > > Yes, it's basically always wrong to include asm/foo.h when linux/foo.h
-> > > exists. 
-> > 
-> > There's always an exception to every rule.  linux/irq.h is that
-> > exception for the above rule.
-> 
-> Why?
+On 12/21/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> On 12/11/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> > On 12/11/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> >
+> > > To stop resync attempts do:
+> > >
+> > >         echo -n 0 > /sys/bus/serio/devices/serioX/resync_time
+> > >
+> > > where serioX is serio port asociated with your mouse.
+> > >
+> > This cures the problem nicely with no obvious ill effects with the
+> > mouse plugged into the KVM...
+> >
+>
+> Jesper,
+>
+> Could you please try applying the attached patch to -mm and see if you
+> still have "resync failed" messages when you don't "echo 0" into
+> resync_time attribute?
+>
+I applied the patch to 2.6.15-rc5-mm3, took out the "echo 0 to
+resync_time" workaround that I had in rc.local and I no longer see the
+"resync failed" messages in dmesg.
+With this patch applied everything seems to be working OK with the
+mouse attached to the KVM.
 
-/*
- * Please do not include this file in generic code.  There is currently
- * no requirement for any architecture to implement anything held
- * within this file.
- *
- * Thanks. --rmk
- */
 
-Using linux/irq.h instead of asm/irq.h _breaks_ architectures
-which do not use the generic irq code.
+> Thank you in advance,
+>
+Thank /you/ for fixing it.  :-)
 
-Basically, linux/irq.h should have been called asm-generic/irq.h.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

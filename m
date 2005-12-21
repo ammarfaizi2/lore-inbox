@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbVLULdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbVLULey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbVLULdR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 06:33:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbVLULdR
+	id S932372AbVLULey (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 06:34:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932374AbVLULey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 06:33:17 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:29338 "EHLO
+	Wed, 21 Dec 2005 06:34:54 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:52161 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932371AbVLULdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 06:33:17 -0500
-Subject: Re: [RFC] TOMOYO Linux released!
+	id S932372AbVLULex (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 06:34:53 -0500
+Subject: Re: [Linux 2.4.32] SATA ICH5/PIIX and Combined mode
 From: Arjan van de Ven <arjan@infradead.org>
-To: Tetsuo Handa <from-kernelnewbies@I-love.SAKURA.ne.jp>
-Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-In-Reply-To: <200512212020.FBF94703.XOTMFStFPCJNSFLFOG@I-love.SAKURA.ne.jp>
-References: <200512212020.FBF94703.XOTMFStFPCJNSFLFOG@I-love.SAKURA.ne.jp>
+To: rol@as2917.net
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200512211110.jBLBALD24852@tag.witbe.net>
+References: <200512211110.jBLBALD24852@tag.witbe.net>
 Content-Type: text/plain
-Date: Wed, 21 Dec 2005 12:33:13 +0100
-Message-Id: <1135164793.3456.9.camel@laptopd505.fenrus.org>
+Date: Wed, 21 Dec 2005 12:34:51 +0100
+Message-Id: <1135164891.3456.11.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -32,22 +32,18 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-21 at 20:21 +0900, Tetsuo Handa wrote:
-> Hello!
+On Wed, 2005-12-21 at 12:10 +0100, Paul Rolland wrote:
+> Hello,
 > 
-> A new and easy to master access control for Linux,
-> TOMOYO Linux, is now available.
+> I have a machine with two SATA HDD, and one PATA CDRom.
+> Bios is configured for combined mode, and installing a RedHat ES3
+> (Kernel 2.4.21-ELsmp) is fine, the two HDD are up, the installation
+> is fine and the CDRom is working.
+> 
+> Then, upgrading to a vanilla 2.4.32, the ata_piix.c file contains
+> a "combined mode not supported" and booting the machine hangs, as
+> no VFS are up for root device.
 
-
-very interesting; a few quick questions that I didn't see answered on
-the side
-
-1) where can we download the patches?
-
-2) How does the use of "absolute paths" interact with namespaces?
-   In principle each process can have its own namespace after all!
-   (not many distributions use this today, but that will change soon,
-   per user /tmp is a very attractive feature and all needed
-   infrastructure helpers for this will be in the 2.6.15 kernel)
-
+you can't reliably run a non-NPTL kernel on RHES3. Really. Are you
+really sure you want to ? 
 

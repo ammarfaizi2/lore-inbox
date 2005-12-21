@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbVLUWiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbVLUWiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964867AbVLUWiH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 17:38:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964874AbVLUWiH
+	id S964862AbVLUWiR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 17:38:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbVLUWiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 17:38:07 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:14805 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964867AbVLUWh4 (ORCPT
+	Wed, 21 Dec 2005 17:38:09 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:13525 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964862AbVLUWhx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 17:37:56 -0500
-Date: Wed, 21 Dec 2005 23:37:17 +0100
+	Wed, 21 Dec 2005 17:37:53 -0500
+Date: Wed, 21 Dec 2005 23:37:11 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
@@ -21,8 +21,8 @@ Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
        Steven Rostedt <rostedt@goodmis.org>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
-Subject: [patch 4/8] mutex subsystem, add atomic_*_call_if_*() to x86_64
-Message-ID: <20051221223717.GE4960@elte.hu>
+Subject: [patch 3/8] mutex subsystem, add atomic_*_call_if_*() to i386
+Message-ID: <20051221223711.GD4960@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -38,7 +38,7 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-add two new atomic ops to x86_64: atomic_dec_call_if_negative() and
+add two new atomic ops to i386: atomic_dec_call_if_negative() and
 atomic_inc_call_if_nonpositive(), which are conditional-call-if
 atomic operations. Needed by the new mutex code.
 
@@ -46,14 +46,14 @@ Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
 ----
 
- include/asm-x86_64/atomic.h |   58 ++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 58 insertions(+)
+ include/asm-i386/atomic.h |   57 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 57 insertions(+)
 
-Index: linux/include/asm-x86_64/atomic.h
+Index: linux/include/asm-i386/atomic.h
 ===================================================================
---- linux.orig/include/asm-x86_64/atomic.h
-+++ linux/include/asm-x86_64/atomic.h
-@@ -203,6 +203,64 @@ static __inline__ int atomic_sub_return(
+--- linux.orig/include/asm-i386/atomic.h
++++ linux/include/asm-i386/atomic.h
+@@ -240,6 +240,63 @@ static __inline__ int atomic_sub_return(
  #define atomic_inc_return(v)  (atomic_add_return(1,v))
  #define atomic_dec_return(v)  (atomic_sub_return(1,v))
  
@@ -67,23 +67,22 @@ Index: linux/include/asm-x86_64/atomic.h
 +#define atomic_dec_call_if_negative(v, fn_name)				\
 +do {									\
 +	fastcall void (*__tmp)(atomic_t *) = fn_name;			\
-+	unsigned long dummy;						\
++	unsigned int dummy;						\
 +									\
 +	(void)__tmp;							\
 +	typecheck(atomic_t *, v);					\
 +									\
 +	__asm__ __volatile__(						\
-+		LOCK "decl (%%rdi)\n"  					\
++		LOCK "decl (%%eax)\n"  					\
 +		"js 2f\n"						\
 +		"1:\n"							\
 +		LOCK_SECTION_START("")					\
 +		"2: call "#fn_name"\n\t"				\
 +		"jmp 1b\n"						\
 +		LOCK_SECTION_END					\
-+		:"=D" (dummy)						\
-+		:"D" (v)						\
-+		:"rax", "rsi", "rdx", "rcx",				\
-+		 "r8", "r9", "r10", "r11", "memory");			\
++		:"=a"(dummy)						\
++		:"a" (v)						\
++		:"memory", "ecx", "edx");				\
 +} while (0)
 +
 +/**
@@ -96,25 +95,25 @@ Index: linux/include/asm-x86_64/atomic.h
 +#define atomic_inc_call_if_nonpositive(v, fn_name)			\
 +do {									\
 +	fastcall void (*__tmp)(atomic_t *) = fn_name;			\
-+	unsigned long dummy;						\
++	unsigned int dummy;						\
 +									\
 +	(void)__tmp;							\
 +	typecheck(atomic_t *, v);					\
 +									\
 +	__asm__ __volatile__(						\
-+		LOCK "incl (%%rdi)\n"  					\
++		LOCK "incl (%%eax)\n"  					\
 +		"jle 2f\n"						\
 +		"1:\n"							\
 +		LOCK_SECTION_START("")					\
 +		"2: call "#fn_name"\n\t"				\
 +		"jmp 1b\n"						\
 +		LOCK_SECTION_END					\
-+		:"=D" (dummy)						\
-+		:"D" (v)						\
-+		:"rax", "rsi", "rdx", "rcx",				\
-+		 "r8", "r9", "r10", "r11", "memory");			\
++		:"=a" (dummy)						\
++		:"a" (v)						\
++		:"memory", "ecx", "edx");				\
 +} while (0)
 +
- /* An 64bit atomic type */
- 
- typedef struct { volatile long counter; } atomic64_t;
++
+ /* These are x86-specific, used by some header files */
+ #define atomic_clear_mask(mask, addr) \
+ __asm__ __volatile__(LOCK "andl %0,%1" \

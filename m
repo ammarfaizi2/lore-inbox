@@ -1,34 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbVLUSFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932483AbVLUSGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751147AbVLUSFi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 13:05:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751152AbVLUSFi
+	id S932483AbVLUSGo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 13:06:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbVLUSGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 13:05:38 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:55379 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751147AbVLUSFi convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 13:05:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jsy9it8RF/r77O+ik47AuabiHpcEIkVr7heTsUmO5XD7s76n3El0HnCH3snn2BWepVFv1FPf1oLcOlQ4qEkurMhtsa0lBiVVQ1SeHXX9wxfIxoUSx774XevWI4R0lenRfqDzW313c3ba350ZlxORBOrwrWAHc/annwBCT59biHM=
-Message-ID: <9a8748490512211005u40ca4c7dv41044827544f97fa@mail.gmail.com>
-Date: Wed, 21 Dec 2005 19:05:36 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Jie Zhang <jzhang918@gmail.com>
-Subject: Re: Question on the current behaviour of malloc () on Linux
-Cc: linux-kernel@vger.kernel.org, lars.friedrich@wago.com
-In-Reply-To: <6f48278f0512210936y25169c37t9fb7eb13fef3a97d@mail.gmail.com>
+	Wed, 21 Dec 2005 13:06:44 -0500
+Received: from spirit.analogic.com ([204.178.40.4]:57613 "EHLO
+	spirit.analogic.com") by vger.kernel.org with ESMTP
+	id S1751152AbVLUSGn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 13:06:43 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+In-Reply-To: <6f48278f0512210936y25169c37t9fb7eb13fef3a97d@mail.gmail.com>
+X-OriginalArrivalTime: 21 Dec 2005 18:06:42.0257 (UTC) FILETIME=[4BF0DC10:01C60659]
+Content-class: urn:content-classes:message
+Subject: Re: Question on the current behaviour of malloc () on Linux
+Date: Wed, 21 Dec 2005 13:06:42 -0500
+Message-ID: <Pine.LNX.4.61.0512211259090.12113@chaos.analogic.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Question on the current behaviour of malloc () on Linux
+Thread-Index: AcYGWUwUSKDzzLFWQfCn0Z/Iokx+Qw==
 References: <6f48278f0512210936y25169c37t9fb7eb13fef3a97d@mail.gmail.com>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Jie Zhang" <jzhang918@gmail.com>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>, <lars.friedrich@wago.com>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/21/05, Jie Zhang <jzhang918@gmail.com> wrote:
+
+On Wed, 21 Dec 2005, Jie Zhang wrote:
+
 > Hi,
 >
 > I first asked this question on uClinux mailing list. My first question
@@ -36,61 +42,69 @@ On 12/21/05, Jie Zhang <jzhang918@gmail.com> wrote:
 > Although I found this issue on uClinux, it's also can be demostrated
 > on Linux. This is a small program:
 >
-[snip memory hog]
+
+Another FAQ....
+
+> $> cat test2.c
+> #include <stdio.h>
+> #include <stdlib.h>
+>
+> int
+> main ()
+> {
+>  char *p;
+>  int i, j;
+>  for (i = 0;; i++)
+>    {
+>      p = (char *) malloc (8 * 1024 * 1024);
+>      if (p)
+>        for (j = 0; j < 8 * 1024 * 1024; j++)
+>          p[j] = 0x55;
+>      else
+>        {
+>          printf ("%d fail\n", i);
+>          break;
+>        }
+>    }
+>  return 0;
+> }
 >
 > When I run it on my Linux notebook, it will be killed. I expect to see
 > it prints out   "fail".
+
+Your expectations are not based upon any logic, only wishes.
+
+>
+> Thanks,
+> Jie
 >
 
-You are seeing the effects of Linux overcommitting memory.
 
-When an application asks for memory the allocation will be granted
-even if the system does not have enough free to actually satisfy the
-request. This is done on the assumption that either the app won't
-actually touch all mem that it allocates (it's only really allocated
-once it's written to) or when the app gets to the point of writing to
-the mem then enough will be free at that point. Really obviously
-faulty allocations are still refused.
+To make your wishes come true execute:
+     echo "1" >/proc/sys/vm/overcommit_memory
+... as a super-user.
 
-In most cases this works well.
+That will make malloc() fail when there isn't any more virtual
+memory.
 
-What's happening in your case is a series of small allocations that
-the kernel will grant since they are not "obviously flawed", then you
-proceed to actually write to the mem and you eventually run into a
-situation where the kernel runs out of memory to fulfill the promise
-it has made and has no other way to recover than killing off one or
-more processes to free some RAM. That's when the OOM killer kicks in
-and tries to identify the memory hog and it correctly identifies your
-application as a good candidate to kill, it kills the app and the
-system survives at the expense of your app.
+An even shorter program...
 
-If for some reason you run apps where memory overcommit is not
-acceptable, then you can disable overcommit by doing
+main ()
+{
+     for(;;)
+         *(long *)malloc(0x0010000) = 1;
+}
 
- echo 2 > /proc/sys/vm/overcommit_memory
+This will seg-fault because malloc will eventually return NULL and,
+yawn, nothing except your program gets killed.
 
-There are two basic knobs you can tweak in relation to memory
-overcommit. The first one is /proc/sys/vm/overcommit_memory which
-controlls the general overcommit strategy.
-The default value is 0 and means "Heuristic overcommit" - That is,
-generally overcommit, but try to be smart about it.
-A value of 1 means "Always overcommit" - In this mode even completely
-rediculous allocation requests made by applications will always appear
-to succeed.
-The final value of 2 means "Always overcommit" - In this mode the
-kernel will never overcommit memory, so if an application asks for
-more than is currently available the allocation will fail.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.13.4 on an i686 machine (5589.55 BogoMips).
+Warning : 98.36% of all statistics are fiction.
+.
 
-The second knob you can turn is /proc/sys/vm/overcommit_ratio that
-controls how much (a percentage) the kernel will overcommit when in
-overcommit mode 0. Tweaking this is often better than completely
-disabling overcommit.
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
-For more information read Documentation/vm/overcommit-accounting ,
-Documentation/sysctl/vm.txt & Documentation/filesystems/proc.txt
-
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Thank you.

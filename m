@@ -1,48 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964980AbVLUX0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbVLUX0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964980AbVLUX0n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 18:26:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964981AbVLUX0n
+	id S964981AbVLUX0x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 18:26:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964982AbVLUX0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 18:26:43 -0500
-Received: from styx.suse.cz ([82.119.242.94]:11756 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S964980AbVLUX0m (ORCPT
+	Wed, 21 Dec 2005 18:26:52 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:62602 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964981AbVLUX0v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 18:26:42 -0500
-Date: Thu, 22 Dec 2005 00:26:45 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-rc5 and later: USB mouse IRQ post kills the computer post resume.
-Message-ID: <20051221232645.GB9900@midnight.suse.cz>
-References: <1135199640.9616.21.camel@localhost> <20051221213342.GA8315@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051221213342.GA8315@kroah.com>
-X-Bounce-Cookie: It's a lemon tree, dear Watson!
-User-Agent: Mutt/1.5.10i
+	Wed, 21 Dec 2005 18:26:51 -0500
+Date: Thu, 22 Dec 2005 00:26:48 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 7/10] NTP: remove time_tolerance
+Message-ID: <Pine.LNX.4.61.0512220025550.30921@scrub.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 21, 2005 at 01:33:42PM -0800, Greg KH wrote:
-> On Thu, Dec 22, 2005 at 07:14:01AM +1000, Nigel Cunningham wrote:
-> > Hi Vojtech.
-> > 
-> > I have a HT box with USB mouse support built as modules. Beginning with
-> > 2.6.15-rc5 (maybe slightly earlier) a suspend/resume cycle makes the USB
-> > mouse get in an invalid state, such that I get a gazillion messages in
-> > the logs saying "unexpected IRQ trap at vector 99", or in some
-> > alternately a hard hang. No work around found yet. Are you the right man
-> > to talk to, or is Greg? (Spose I should cc him, so I'll add that now). I
-> > can use kdb if it's helpful. Would you like my kconfig?
-> 
-> This should be taken to the linux-usb-devel list, that's the best place
-> for it.
- 
-Indeed, it's unlikely that it's within the hid mouse driver.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+time_tolerance isn't changed at all in the kernel, so simply remove it
+and use a constant instead, this simplifies the next patch, as it avoids
+a number of conversions.
+
+Signed-off-by: Roman Zippel <zippel@linux-m68k.org>
+
+---
+
+ include/linux/timex.h |    1 -
+ kernel/time.c         |    6 +++---
+ kernel/timer.c        |    3 +--
+ 3 files changed, 4 insertions(+), 6 deletions(-)
+
+Index: linux-2.6-mm/include/linux/timex.h
+===================================================================
+--- linux-2.6-mm.orig/include/linux/timex.h	2005-12-21 12:12:11.000000000 +0100
++++ linux-2.6-mm/include/linux/timex.h	2005-12-21 12:12:15.000000000 +0100
+@@ -208,7 +208,6 @@ extern int time_state;		/* clock status 
+ extern int time_status;		/* clock synchronization status bits */
+ extern long time_offset;	/* time adjustment (ns) */
+ extern long time_constant;	/* pll time constant */
+-extern long time_tolerance;	/* frequency tolerance (ppm) */
+ extern long time_precision;	/* clock precision (us) */
+ extern long time_maxerror;	/* maximum error */
+ extern long time_esterror;	/* estimated error */
+Index: linux-2.6-mm/kernel/time.c
+===================================================================
+--- linux-2.6-mm.orig/kernel/time.c	2005-12-21 12:12:11.000000000 +0100
++++ linux-2.6-mm/kernel/time.c	2005-12-21 12:12:15.000000000 +0100
+@@ -337,8 +337,8 @@ int do_adjtimex(struct timex *txc)
+ 			} else /* calibration interval too long (p. 12) */
+ 				result = TIME_ERROR;
+ 		    }
+-		    time_freq = min(time_freq, time_tolerance);
+-		    time_freq = max(time_freq, -time_tolerance);
++		    time_freq = min(time_freq, MAXFREQ);
++		    time_freq = max(time_freq, -MAXFREQ);
+ 		    time_offset = (time_offset / HZ) << SHIFT_HZ;
+ 		} /* STA_PLL */
+ 	    } /* txc->modes & ADJ_OFFSET */
+@@ -361,7 +361,7 @@ leave:	if ((time_status & (STA_UNSYNC|ST
+ 	txc->status	   = time_status;
+ 	txc->constant	   = time_constant;
+ 	txc->precision	   = time_precision;
+-	txc->tolerance	   = time_tolerance;
++	txc->tolerance	   = MAXFREQ;
+ 	txc->tick	   = tick_usec;
+ 
+ 	/* PPS is not implemented, so these are zero */
+Index: linux-2.6-mm/kernel/timer.c
+===================================================================
+--- linux-2.6-mm.orig/kernel/timer.c	2005-12-21 12:12:11.000000000 +0100
++++ linux-2.6-mm/kernel/timer.c	2005-12-21 12:12:15.000000000 +0100
+@@ -578,7 +578,6 @@ int time_state = TIME_OK;		/* clock sync
+ int time_status = STA_UNSYNC;		/* clock status bits		*/
+ long time_offset;			/* time adjustment (ns)		*/
+ long time_constant = 2;			/* pll time constant		*/
+-long time_tolerance = MAXFREQ;		/* frequency tolerance (ppm)	*/
+ long time_precision = 1;		/* clock precision (us)		*/
+ long time_maxerror = NTP_PHASE_LIMIT;	/* maximum error (us)		*/
+ long time_esterror = NTP_PHASE_LIMIT;	/* estimated error (us)		*/
+@@ -648,7 +647,7 @@ static void second_overflow(void)
+ 	long ltemp;
+ 
+ 	/* Bump the maxerror field */
+-	time_maxerror += time_tolerance >> SHIFT_USEC;
++	time_maxerror += MAXFREQ >> SHIFT_USEC;
+ 	if (time_maxerror > NTP_PHASE_LIMIT) {
+ 		time_maxerror = NTP_PHASE_LIMIT;
+ 		time_status |= STA_UNSYNC;

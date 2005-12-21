@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932414AbVLUNim@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932413AbVLUNi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932414AbVLUNim (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 08:38:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVLUNim
+	id S932413AbVLUNi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 08:38:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932414AbVLUNi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 08:38:42 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.152]:42389 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932414AbVLUNik
+	Wed, 21 Dec 2005 08:38:27 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:55019 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S932413AbVLUNi0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 08:38:40 -0500
-Date: Wed, 21 Dec 2005 05:38:47 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Dimitri Sivanich <sivanich@sgi.com>
-Cc: Dipankar Sarma <dipankar@in.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Large thread wakeup (scheduling) delay spikes
-Message-ID: <20051221133847.GB7613@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20051220151722.GA357@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051220151722.GA357@sgi.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 21 Dec 2005 08:38:26 -0500
+Message-ID: <43A95ABF.1030309@cosmosbay.com>
+Date: Wed, 21 Dec 2005 14:38:07 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Folkert van Heusden <folkert@vanheusden.com>
+CC: Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull
+ on	x86_64 machines ?
+References: <7vbqzadgmt.fsf@assigned-by-dhcp.cox.net>	<43A91C57.20102@cosmosbay.com> <200512210744.52559.edt@aei.ca> <20051221132046.GJ27831@vanheusden.com>
+In-Reply-To: <20051221132046.GJ27831@vanheusden.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Wed, 21 Dec 2005 14:38:07 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20, 2005 at 09:17:22AM -0600, Dimitri Sivanich wrote:
-> I posted something about this back in October, but received little response.
-> Maybe others have run into problems with this since then.
-> 
-> I've noticed much less deterministic and more widely varying thread wakeup
-> (scheduling) delays on recent kernels.  Even with isolated processors, the
-> maximum delay to wakeup has gotten much longer (configured with or without
-> CONFIG_PREEMPT).
+Folkert van Heusden a écrit :
 
-Interesting -- what workload are you running, and what mechanism are
-you using to check scheduling delays?
+> 
+> 
+> size-131072            0      0 131072
+> size-65536             0      0  65536
+> size-32768            20     20  32768
+> size-16384             8      9  16384
+> size-8192             37     38   8192
+> size-4096            269    269   4096
+> size-2048            793    910   2048
+> size-1024            564    608   1024
+> size-512             702    856    512
+> size-256            1485   4005    256
+> size-128            1209   1350    128
+> size-64             2858   3363     64
+> size-32             1538   2714     64
+> Intel(R) Xeon(TM) MP CPU 3.00GHz
+> address sizes   : 40 bits physical, 48 bits virtual
+> 
+> 
+> Folkert van Heusden
 
-What happens when you run this workload on a -rt kernel?
+Hi Folkert
 
-							Thanx, Paul
+Your results are interesting : size-32 seems to use objects of size 64 !
 
-> The maximum delay to wakeup is now more than 10x longer than it was in
-> 2.6.13.4 and previous kernels, and that's on isolated processors (as much
-> as 300 usec on a 1GHz cpu), although nominal values remain largely unchanged.
-> The latest version I've tested is 2.6.15-rc5.
-> 
-> Delving into this further I discovered that this is due to the execution
-> time of file_free_rcu(), running from rcu_process_callbacks() in ksoftirqd.
-> It appears that the modification that caused this was:
-> 	http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=ab2af1f5005069321c5d130f09cce577b03f43ef
-> 
-> By simply making the following change things return to more consistent
-> thread wakeup delays on isolated cpus, similiar to what we had on kernels
-> previous to the above mentioned mod (I know this change is incorrect,
-> it is just for test purposes):
-> 
-> fs/file_table.c
-> @@ -62,7 +62,7 @@
->  
->  static inline void file_free(struct file *f)
->  {
-> -       call_rcu(&f->f_rcuhead, file_free_rcu);
-> +       kmem_cache_free(filp_cachep, f);
->  }
->  
-> 
-> I am wondering if there is some way we can return to consistently fast
-> and predictable scheduling of threads to be woken?  If not on the
-> system in general, maybe at least on certain specified processors?
-> 
-> Dimitri
-> 
+ > size-32             1538   2714     64 <<HERE>>
+
+So I guess that size-32 cache could be avoided at least for EMT (I take you 
+run a 64 bits kernel ?)
+
+Eric

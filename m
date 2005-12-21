@@ -1,57 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932402AbVLUNVp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbVLUNZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932402AbVLUNVp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 08:21:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932405AbVLUNVp
+	id S932407AbVLUNZq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 08:25:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVLUNZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 08:21:45 -0500
-Received: from pat.uio.no ([129.240.130.16]:30410 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932402AbVLUNVo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 08:21:44 -0500
-Subject: Re: [PATCH] sched: Fix adverse effects of NFS client
-	on	interactive response
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Ingo Molnar <mingo@elte.hu>, Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <43A8F714.4020406@bigpond.net.au>
-References: <43A8EF87.1080108@bigpond.net.au>
-	 <1135145341.7910.17.camel@lade.trondhjem.org>
-	 <43A8F714.4020406@bigpond.net.au>
-Content-Type: text/plain
-Date: Wed, 21 Dec 2005 08:21:20 -0500
-Message-Id: <1135171280.7958.16.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.044, required 12,
-	autolearn=disabled, AWL 1.77, FORGED_RCVD_HELO 0.05,
-	RCVD_IN_SORBS_DUL 0.14, UIO_MAIL_IS_INTERNAL -5.00)
+	Wed, 21 Dec 2005 08:25:46 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:58118 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932407AbVLUNZo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 08:25:44 -0500
+Date: Wed, 21 Dec 2005 14:25:43 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Nils Meyer <meyer@work.de>, Andrew Morton <akpm@osdl.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, netdev@vger.kernel.org
+Subject: [2.6 patch] drivers/net/sungem.c: gem_remove_one mustn't be __devexit
+Message-ID: <20051221132543.GG5359@stusta.de>
+References: <200512211323.19242.meyer@work.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200512211323.19242.meyer@work.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-21 at 17:32 +1100, Peter Williams wrote:
+On Wed, Dec 21, 2005 at 01:23:18PM +0100, Nils Meyer wrote:
 
-> > Sorry. That theory is just plain wrong. ALL of those case _ARE_
-> > interactive sleeps.
+> Hi,
+
+Hi Nils,
+
+> When compiling 2.6.15-rc6 or 2.6.14.4 on my sparc I get the following error:
 > 
-> It's not a theory.  It's a result of observing a -j 16 build with the 
-> sources on an NFS mounted file system with top with and without the 
-> patches and comparing that with the same builds with the sources on a 
-> local file system.  Without the patches the tasks in the kernel build 
-> all get the same dynamic priority as the X server and other interactive 
-> programs when the sources are on an NFS mounted file system.  With the 
-> patches they generally have dynamic priorities between 6 to 10 higher 
-> than the X server and other interactive programs.
+> local symbol 0: discarded in section `.exit.text' from drivers/built-in.o [*]
+> 
+> After calling scripts/reference_discarded.pl it gives me the following error:
+> 
+> Error: ./drivers/net/sungem.o .init.text refers to 0000000000000448 
+> R_SPARC_WDISP30   .exit.text
+>...
 
-...and if you stick in a faster server?...
+thanks for this report.
 
-There is _NO_ fundamental difference between NFS and a local filesystem
-that warrants marking one as "interactive" and the other as
-"noninteractive". What you are basically saying is that all I/O should
-be marked as TASK_NONINTERACTIVE.
+The untested patch below should fix this bug (I'm assuming your .config 
+hasn't set CONFIG_HOTPLUG).
 
-Cheers,
-  Trond
+It's a real problem that these bugs have become runtime errors in
+kernel 2.6 on i386 instead of link errors as they were in kernel 2.4 on 
+i386 (and are still in kernel kernel 2.6 on some other architectures 
+like sparc64) resulting in fewer people noticing them.  :-(
+
+> kind regards
+> Nils Meyer
+
+cu
+Adrian
+
+
+<--  snip  -->
+
+
+gem_remove_one() is called from the __devinit gem_init_one().
+
+Therefore, gem_remove_one() mustn't be __devexit.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.15-rc6/drivers/net/sungem.c.old	2005-12-21 14:02:51.000000000 +0100
++++ linux-2.6.15-rc6/drivers/net/sungem.c	2005-12-21 14:03:37.000000000 +0100
+@@ -2907,7 +2907,7 @@
+ 	return 0;
+ }
+ 
+-static void __devexit gem_remove_one(struct pci_dev *pdev)
++static void gem_remove_one(struct pci_dev *pdev)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
+ 
+@@ -3181,7 +3181,7 @@
+ 	.name		= GEM_MODULE_NAME,
+ 	.id_table	= gem_pci_tbl,
+ 	.probe		= gem_init_one,
+-	.remove		= __devexit_p(gem_remove_one),
++	.remove		= gem_remove_one,
+ #ifdef CONFIG_PM
+ 	.suspend	= gem_suspend,
+ 	.resume		= gem_resume,
 

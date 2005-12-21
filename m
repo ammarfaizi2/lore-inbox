@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932295AbVLUHKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932160AbVLUHRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932295AbVLUHKK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 02:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbVLUHKJ
+	id S932160AbVLUHRI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 02:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932300AbVLUHRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 02:10:09 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:41842 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932294AbVLUHKH convert rfc822-to-8bit
+	Wed, 21 Dec 2005 02:17:08 -0500
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:53464 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S932160AbVLUHRG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 02:10:07 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=sqykHYfZsXAru9XW8752jG+mZSBdHsNbyW6JOi54WEV2g2Qhf82Xe6E1P0aRxL4JWAEvBC3aEFGGF190Xr+Dmp25v3h5j9Ifa9Ua8eHvT85DiQ8Y3U+kuTCAZ/iJ4RyZYvksGhGuX/NHHKOjeHq0vm25eZq+F7LXTf6Or6NxlHY=
-Message-ID: <41b516cb0512202310q78d5a25apab3c9d6fbb17089e@mail.gmail.com>
-Date: Tue, 20 Dec 2005 23:10:07 -0800
-From: Chris Leech <chris.leech@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>, netdev <netdev@vger.kernel.org>
-Subject: Fwd: [RFC][PATCH 4/5] I/OAT DMA support and TCP acceleration
-In-Reply-To: <41b516cb0512202305p45439464o6b7ba6c2c88062bc@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1135142263.13781.21.camel@cleech-mobl>
-	 <43A8F43B.6020307@cosmosbay.com>
-	 <41b516cb0512202305p45439464o6b7ba6c2c88062bc@mail.gmail.com>
+	Wed, 21 Dec 2005 02:17:06 -0500
+Date: Wed, 21 Dec 2005 09:16:47 +0200 (EET)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Lameter <christoph@lameter.com>,
+       Alok N Kataria <alokk@calsoftinc.com>,
+       Shobhit Dayal <shobhit@calsoftinc.com>,
+       Shai Fultheim <shai@scalex86.org>, Matt Mackall <mpm@selenic.com>,
+       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
+       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RT 00/02] SLOB optimizations
+In-Reply-To: <20051221065619.GC766@elte.hu>
+Message-ID: <Pine.LNX.4.58.0512210909040.23799@sbz-30.cs.Helsinki.FI>
+References: <1134860251.13138.193.camel@localhost.localdomain>
+ <20051220133230.GC24408@elte.hu> <Pine.LNX.4.58.0512200836120.21313@gandalf.stny.rr.com>
+ <20051220135725.GA29392@elte.hu> <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com>
+ <1135093460.13138.302.camel@localhost.localdomain> <20051220181921.GF3356@waste.org>
+ <1135106124.13138.339.camel@localhost.localdomain>
+ <84144f020512201215j5767aab2nc0a4115c4501e066@mail.gmail.com>
+ <1135114971.13138.396.camel@localhost.localdomain> <20051221065619.GC766@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, bounced from vger the first time due to formatting
+Hi Ingo,
 
----------- Forwarded message ----------
-From: Chris Leech <christopher.leech@intel.com>
-Date: Dec 20, 2005 11:05 PM
-Subject: Re: [RFC][PATCH 4/5] I/OAT DMA support and TCP acceleration
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, netdev
-<netdev@vger.kernel.org>, "Grover, Andrew" <andrew.grover@intel.com>,
-"Ronciak, John" <john.ronciak@intel.com>
+Steven Rostedt <rostedt@goodmis.org> wrote:
+> > [...] Today's slab system is starting to become like the IDE where 
+> > nobody, but a select few sado-masochis, dare to venture in. (I've CC'd 
+> > them ;) [...]
 
-On 12/20/05, Eric Dumazet <dada1@cosmosbay.com> wrote:
->  Please consider not enlarging cb[] if not CONFIG_NET_DMA ?
->
-> I mean, most machines wont have a compatable NIC, so why should they pay the
-> price (memory, cpu) in a critical structure named sk_buff ?
->
-> #ifdef CONFIG_NET_DMA
-> typedef dma_cookie_t net_dma_cookie_t;
-> #else
-> typedef struct {} net_dma_cookie_t;
-> #endif
->
-> ...
->
->         char   cb[40+sizeof(net_dma_cookie_t)];
->
+On Wed, 21 Dec 2005, Ingo Molnar wrote:
+> while it could possibly be cleaned up a bit, it's one of the 
+> best-optimized subsystems Linux has. Most of the "unnecessary 
+> complexity" in SLAB is related to a performance or a debugging feature.  
+> Many times i have looked at the SLAB code in a disassembler, right next 
+> to profile output from some hot workload, and have concluded: 'I couldnt 
+> do this any better even with hand-coded assembly'.
+> 
+> SLAB-bashing has become somewhat fashionable, but i really challenge 
+> everyone to improve the SLAB code first (to make it more modular, easier 
+> to read, etc.), before suggesting replacements.
 
- That could be a good way to deal with it.  Actually, I should double
-check the length of tcp_skb_cb.  I took a quick look and thought that
-there might be some room left there anyway, even though the comment in
-tcp.h says otherwise.
+I dropped working on the replacement because I wanted to do just that. I 
+sent my patch only because Matt and Steve talked about writing a 
+replacement and thought they would be interested to see it.
 
- -Chris
+I am all for gradual improvements but after taking a stab at it, I 
+starting to think rewriting would be easier, simply because the slab 
+allocator has been clean-up resistant for so long.
+
+			Pekka

@@ -1,98 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbVLUV1T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbVLUVdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbVLUV1T (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 16:27:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbVLUV1T
+	id S932196AbVLUVdA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 16:33:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750996AbVLUVdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 16:27:19 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:28399 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S932194AbVLUV1T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 16:27:19 -0500
-Date: Wed, 21 Dec 2005 14:25:44 -0700
-From: "Mark A. Greer" <mgreer@mvista.com>
-To: Andrey Volkov <avolkov@varma-el.com>
-Cc: "Mark A. Greer" <mgreer@mvista.com>, Jean Delvare <khali@linux-fr.org>,
-       adi@hexapodia.org, lm-sensors@lm-sensors.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] i2c: Combined ST m41txx i2c rtc chip driver
-Message-ID: <20051221212544.GA4958@mag.az.mvista.com>
-References: <4378960F.8030800@varma-el.com> <20051115215226.4e6494e0.khali@linux-fr.org> <20051116025714.GK5546@mag.az.mvista.com> <20051219210325.GA21696@mag.az.mvista.com> <43A7D76E.5050008@varma-el.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43A7D76E.5050008@varma-el.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 21 Dec 2005 16:33:00 -0500
+Received: from smtpout.mac.com ([17.250.248.46]:50894 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1750745AbVLUVc7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 16:32:59 -0500
+In-Reply-To: <20051221211915.GI1736@flint.arm.linux.org.uk>
+References: <200512211039.25449.gene.heskett@verizon.net> <20051221155012.GG1736@flint.arm.linux.org.uk> <200512211543.51702.gene.heskett@verizon.net> <20051221211915.GI1736@flint.arm.linux.org.uk>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <B921F09E-A4F3-4AD3-918A-D25B4FE7C186@mac.com>
+Cc: gene.heskett@verizononline.net, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Another casualty of -rc6
+Date: Wed, 21 Dec 2005 16:32:38 -0500
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrey,
+On Dec 21, 2005, at 16:19, Russell King wrote:
+> As I explained in my first reply, I was led to believe that it is  
+> wrong to have the local clock in the configuration.  Since then  
+> I've been running ntp without the local clock line, and it's been  
+> fine since.
+>
+> I'm not saying that this is your problem, but I suspect that this  
+> may not be helping the situation - especially since it appears that  
+> ntpd has ruled out the other peers as possible synchronisation  
+> sources.
 
-On Tue, Dec 20, 2005 at 01:05:34PM +0300, Andrey Volkov wrote:
-> Hello Mark
-> 
-> Big Thanks, I check it on my board today-tomorrow.
-> But check some comments below.
-> 
-> Mark A. Greer wrote:
-> > On Tue, Nov 15, 2005 at 07:57:14PM -0700, Mark A. Greer wrote:
-<snip>
-> > +	down(&m41txx_mutex);
-> > +	do {
-> > +		retries = M41TXX_MAX_RETRIES;
-> > +
-> > +		do {
-> > +			if (((sec = i2c_smbus_read_byte_data(save_client,
-> > +						m41txx_chip->sec)) >= 0)
-> > +				&& ((min = i2c_smbus_read_byte_data(save_client,
-> > +						m41txx_chip->min)) >= 0)
-> > +				&& ((hour= i2c_smbus_read_byte_data(save_client,
-> > +						m41txx_chip->hour)) >= 0)
-> > +				&& ((day = i2c_smbus_read_byte_data(save_client,
-> > +						m41txx_chip->day)) >= 0)
-> > +				&& ((mon = i2c_smbus_read_byte_data(save_client,
-> > +						m41txx_chip->mon)) >= 0)
-> > +				&& ((year= i2c_smbus_read_byte_data(save_client,
-> > +						m41txx_chip->year)) >= 0))
-> > +				break;
-> > +		} while (--retries > 0);
-> > +
-> > +		if ((retries == 0) || ((sec == sec1) && (min == min1)
-> > +				&& (hour == hour1) && (day == day1)
-> > +				&& (mon == mon1) && (year == year1)))
-> > +			break;
-> 
-> I think this code is overburdened (I forgot to point on it last time,
-> sorry) and may be wrong for m41t8x, since when you send i2c stop
-> condition (in read_byte_data), you release time registers of m41t8x,
-> and as a consequence, in the worst case, you must compare/read it an
-> undetermined number of times, but not 3 times (however, for m41t00 this
-> code is correct).
+ntpd _only_ considers peers of larger strata numbers after it has  
+considered all smaller strata peers to be erroneous using various  
+checks (such as too-high slew rate).
 
-The 3 tries isn't to make sure that the registers didn't change, its to
-make sure we actually successfully read all of the registers.  There are
-10 tries to make sure the registers didn't change.  I doubt it will ever
-take more than 2 or 3 so I don't see a problem with a limit of 10.
+>> it out now, and ntpd restarted.  We'll see if it (ntpq -p) even  
+>> bothers to report LOCAL now.  Nope.
+>
+> It won't do.  ntpq -p reports the _peers_ known to the server.  
+> Obviously, if you remove the local peer, it won't be shown in that  
+> output anymore.  Moreover, think whether it is correct to setup a  
+> peering between your local clock and your local clock.
 
-I *think* I understand you point, though.  You would prefer I not use
-the smbus calls, correct?  If so, I disagree.  I think its better to use
-the smbus calls b/c they're the most generic (read: will work with the
-most i2c host ctlr drivers).  Perhaps Jean or someone else can make an
-executive decision on this.
+That's not why that line goes in there.  As documented in the Debian  
+ntpd file, the extra local line is there for when you use ntpd as a  
+server for _other_ systems.  Essentially, if you point all other  
+systems at that server, it will temporarily serve out its local time  
+as a strata 10 clock with that line.  Without, it will refuse to  
+serve out _any_ time.  The result is that people include that line so  
+that even during network failure, all their local clocks remain  
+synchronized to each other, even if not to an atomic clock.
 
-> I think i2c_master_recv here and i2c_master_send above in m41txx_set
-> will be more appropriate, since for m41t00 it will have no meaning when
-> you send STOP (250ms stall), but for m41t8x you could drop this
-> while-loop completely.
+>> 21 Dec 15:22:47 ntpd[9198]: logging to file /var/log/ntp.log
+>> 21 Dec 15:22:47 ntpd[9198]: ntpd 4.2.0a@1.1190-r Fri Aug 26  
+>> 04:27:20 EDT 2005 (1)
+>> 21 Dec 15:22:47 ntpd[9198]: precision = 1.000 usec
+>> 21 Dec 15:22:47 ntpd[9198]: Listening on interface wildcard,  
+>> 0.0.0.0#123
+>> 21 Dec 15:22:47 ntpd[9198]: Listening on interface lo, 127.0.0.1#123
+>> 21 Dec 15:22:47 ntpd[9198]: Listening on interface eth0,  
+>> 192.168.71.3#123
+>> 21 Dec 15:22:47 ntpd[9198]: kernel time sync status 0040
+>> 21 Dec 15:22:47 ntpd[9198]: frequency initialized 3.712 PPM from / 
+>> var/lib/ntp/drift
+>> 21 Dec 15:27:06 ntpd[9198]: synchronized to 128.6.213.15, stratum 3
+>> 21 Dec 15:27:06 ntpd[9198]: kernel time sync disabled 0041
+>> 21 Dec 15:31:21 ntpd[9198]: synchronized to 192.36.143.151, stratum 1
+>> 21 Dec 15:32:29 ntpd[9198]: kernel time sync enabled 0001
+>
+> So the kernel's timekeeping transitioned from unsynchronised to PLL  
+> mode, to PLL + synchronised.  Great, ntpd has adjusted the kernels  
+> timekeeping in an attempt to keep it synchronised.
 
-I understand but its an issue of being more generic.
+If the local clock slews too much, then ntpd basically gives up  
+(because it assumes that the server must be broken :-/).  When it  
+does so, it flags the kernels clock as unsynched.
 
-<snip>
 
-> Also, please, change _obsoleted_ BCD_TO_BIN to BCD2BIN
-> (see include/linux/bcd.h)
+Cheers,
+Kyle Moffett
 
-I figured one of those was deprecated but didn't know which one.  I'll
-change them.
+--
+When you go into court you either want a very, very, very bright line  
+or you want the stomach to outlast the other guy in trench warfare.   
+If both sides are reasonable, you try to stay _out_ of court in the  
+first place.
+   -- Rob Landley
 
-Mark
+
+

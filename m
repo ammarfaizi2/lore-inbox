@@ -1,95 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbVLUWqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964902AbVLUWtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964868AbVLUWqe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 17:46:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964902AbVLUWqd
+	id S964902AbVLUWtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 17:49:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbVLUWtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 17:46:33 -0500
-Received: from vms044pub.verizon.net ([206.46.252.44]:39851 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S964868AbVLUWqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 17:46:32 -0500
-Date: Wed, 21 Dec 2005 17:46:30 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Sensors errors with 15-rc6, 15-rc5 was normal
-In-reply-to: <20051221230725.4a4851fa.khali@linux-fr.org>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Reply-to: gene.heskett@verizononline.net
-Message-id: <200512211746.30965.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200512201505.43199.gene.heskett@verizon.net>
- <200512211551.39092.gene.heskett@verizon.net>
- <20051221230725.4a4851fa.khali@linux-fr.org>
-User-Agent: KMail/1.7
+	Wed, 21 Dec 2005 17:49:25 -0500
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:5577 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S964902AbVLUWtY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 17:49:24 -0500
+Message-ID: <43A9DBF2.5080807@bigpond.net.au>
+Date: Thu, 22 Dec 2005 09:49:22 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: Fix adverse effects of NFS client on	interactive
+ response
+References: <43A8EF87.1080108@bigpond.net.au> <1135145341.7910.17.camel@lade.trondhjem.org> <43A8F714.4020406@bigpond.net.au> <20051221161140.GA7950@elte.hu>
+In-Reply-To: <20051221161140.GA7950@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 21 Dec 2005 22:49:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 December 2005 17:07, Jean Delvare wrote:
->Hi Gene,
->
->Please keep this conversation on the LKML, where it started.
->
->> > Are you getting the temperature value from ACPI, or from a hwmon
->> > driver? If the latter, which driver is this, and which hardware
->> > monitoring chip do you have?
->>
->> Its coming from whatever source gkrellm-2.1.28 uses as the default
->> src for this, selecting other src's results in -200F or more
->> readings. Rebooting back to -rc5, the readings are normal but
->> creeping up, about 152F right now.
->
->That's hardly helpful. If gkrellm doesn't tell you where the data
-> comes from, we just can't use it to debug any issue. Please use
-> "sensors" instead.
->
->> >From sensors-detect:
->>
->> Probing for `Winbond W83627HF'
->>   Trying address 0x0290... Success!
->>     (confidence 8, driver `w83781d')
->>
->> What else?
->
->This is only one part of sensors-detect. I guess it then suggests the
->w83627hf driver instead. Which driver are you using, w83627hf or
->w83781d?
->
->Please provide:
->
->1* The complete output of sensors-detect.
->
->2* The output of "sensors" in 2.6.15-rc5.
->
->3* The output of "sensors" in 2.6.15-rc6.
->
->4* The diff of your 2.6.15-rc5 kernel config file and 2.6.15-rc6
->kernel config file.
->
->Thanks,
+Ingo Molnar wrote:
+> * Peter Williams <pwil3058@bigpond.net.au> wrote:
+> 
+> 
+>>It's not a theory.  It's a result of observing a -j 16 build with the 
+>>sources on an NFS mounted file system with top with and without the 
+>>patches and comparing that with the same builds with the sources on a 
+>>local file system. [...]
+> 
+> 
+> could you try the build with the scheduler queue from -mm, and set the 
+> shell to SCHED_BATCH first? Do you still see interactivity problems 
+> after that?
 
-I've sent the above info, but there is a nilmreg here someplace.  I'm 
-currently booted to 2.6.15-rc6, and both sensors, and gkrellm are 
-working fine.
+There's no real point in doing such a test as running the build as 
+SCHED_BATCH would obviously prevent its tasks from getting any 
+interactive bonus.  So I'll concede that is a solution.
 
-And, FWIW, so apparently is ntpd......
+However, the problem I see with this solution is that it's pushing the 
+onus onto the user and forcing them to decide/remember to run non 
+interactive tasks as SCHED_BATCH (and I see the whole point of the 
+interactive responsiveness embellishments of the scheduler being to free 
+the user of the need to worry about these things).  It's a marginally 
+better solution than its complement i.e. marking interactive tasks as 
+being such via putting them in a (hypothetical) SCHED_IA class because 
+that would clearly have to be a privileged operation unlike setting 
+SCHED_BATCH.
 
-One of those things that make you go 'Hummmm'.
+This is a case where the PAGG patches would have been useful.  With them 
+a mechanism for monitoring exec()s and shifting programs to SCHED_BATCH 
+based on what program they had just exec()ed would be possible making 
+SCHED_BATCH a better solution to this problem.  If PAGG were 
+complimented with a kernel to user space event notification mechanism 
+the bulk of this could be accomplished in user space.  The new code SGI 
+is proposing as an alternative to PAGG may meet these requirements?
 
-Uptime now about 30 minutes, no messages in the log and the toolbar 
-clock is staying about 4 seconds behind my watch.
+> 
+> i'm not sure we want to override the scheduling patterns observed by the 
+> kernel, via TASK_NONINTERACTIVE - apart of a few obvious cases.
 
-Anybody got any nilmerg spray?  Looks like I need a gallon. :(
+I thought that this was one of the obvious cases.  I.e. interruptible 
+sleeps that clearly aren't interactive.
 
+I interpreted your statement "Right now only pipe_wait() will make use 
+of it, because it's a common source of not-so-interactive waits (kernel 
+compilation jobs, etc.)." in the original announcement of 
+TASK_INTERACTIVE to mean that it was a "work in progresss" and would be 
+used more extensively when other places for its application were identified.
+
+BTW I don't think that it should be blindly applied to all file system 
+code as I tried that and it resulted in the X server not getting any 
+interactive bonus with obvious consequences :-(.  I think that use of 
+TASK_NONINTERACTIVE should be done carefully and tested to make sure 
+that it has no unexpected scheduling implications (and I think that this 
+is such a case).  Provided the TASK_XXX flags are always treated as such 
+there should be no changes to the semantics or efficiency (after all, 
+it's just an extra bit in an integer constant set at compile time) of 
+any other code (than the scheduler's) as a result of its use.
+
+Peter
 -- 
-Cheers, Gene
-People having trouble with vz bouncing email to me should add the word
-'online' between the 'verizon', and the dot which bypasses vz's
-stupid bounce rules.  I do use spamassassin too. :-)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

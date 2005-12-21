@@ -1,58 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932262AbVLUDjP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbVLUDwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932262AbVLUDjP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Dec 2005 22:39:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932270AbVLUDjP
+	id S932271AbVLUDwU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Dec 2005 22:52:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbVLUDwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 22:39:15 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:41348 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932262AbVLUDjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 22:39:15 -0500
-Subject: Re: 2.6.14-rt22 (and mainline) excessive latency
-From: Lee Revell <rlrevell@joe-job.com>
-To: paulmck@us.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051221014747.GB5741@us.ibm.com>
-References: <1135039244.28649.41.camel@mindpipe>
-	 <20051220042442.GA32039@elte.hu>  <20051221014747.GB5741@us.ibm.com>
-Content-Type: text/plain
-Date: Tue, 20 Dec 2005 22:32:48 -0500
-Message-Id: <1135135970.28229.0.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 20 Dec 2005 22:52:20 -0500
+Received: from fmr16.intel.com ([192.55.52.70]:34954 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932271AbVLUDwT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Dec 2005 22:52:19 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [ACPI] ACPI owner_id limit too low
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Date: Tue, 20 Dec 2005 22:52:06 -0500
+Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B30057DD0DF@hdsmsx401.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] ACPI owner_id limit too low
+Thread-Index: AcX8NyuVnLVctoEuTBazKS5+HG6nrgJqrHpg
+From: "Brown, Len" <len.brown@intel.com>
+To: "Alex Williamson" <alex.williamson@hp.com>,
+       "Carl-Daniel Hailfinger" <c-d.hailfinger.devel.2005@gmx.net>
+Cc: <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 21 Dec 2005 03:52:08.0771 (UTC) FILETIME=[EA8FC930:01C605E1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-20 at 17:47 -0800, Paul E. McKenney wrote:
-> On Tue, Dec 20, 2005 at 05:24:42AM +0100, Ingo Molnar wrote:
-> > 
-> > * Lee Revell <rlrevell@joe-job.com> wrote:
-> > 
-> > > I captured this 3+ ms latency trace when killing a process with a few 
-> > > thousand threads.  Can a cond_resched be added to this code path?
-> > 
-> > >     bash-17992 0.n.1   29us : eligible_child (do_wait)
-> > > 
-> > >     [ 3000+ of these deleted ]
-> > > 
-> > >     bash-17992 0.n.1 3296us : eligible_child (do_wait)
-> > 
-> > Atomicity of signal delivery is pretty much a must, so i'm not sure this 
-> > particular latency can be fixed, short of running PREEMPT_RT. Paul E.  
-> > McKenney is doing some excellent stuff by RCU-ifying the task lookup and 
-> > signal code, but i'm not sure whether it could cover do_wait().
-> 
-> Took a quick break from repeatedly shooting myself in the foot with
-> RCU read-side priority boosting (still have a few toes left) to take
-> a quick look at this.  The TASK_TRACED and TASK_STOPPED cases seem
-> non-trivial, and I am concerned about races with exit.
-> 
-> Any thoughts on whether the latency is due to contention on the
-> tasklist lock vs. the "goto repeat" in do_wait()?
+applied to acpi-test
 
-It's a UP system so I'd be surprised if there were any contention.
-
-Lee
-
+thanks,
+-Len 

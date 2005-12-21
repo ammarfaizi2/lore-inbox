@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVLULKm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbVLULMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932362AbVLULKm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 06:10:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVLULKm
+	id S932363AbVLULMW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 06:12:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbVLULMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 06:10:42 -0500
-Received: from wproxy.gmail.com ([64.233.184.201]:60186 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932362AbVLULKl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 06:10:41 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=avQ82M50Jm3iXRkYSa+DNwMbKbkHXxQ4tWw39SE6R5Tl9uSjaQdmIRKz/8CXAGw1uOJBglLrNPp2EqwcC3c5A4M4MbwvA9WlDaavP/Z9k8wkx7RRQY/X8P1t9XdL/JR/lJJglZCLdET/F7j2Iyfhg8UcIVJJNxP97/upBhIHaIw=
-Message-ID: <a59861030512210310r55f5cdb2o@mail.gmail.com>
-Date: Wed, 21 Dec 2005 12:10:40 +0100
-From: Ivan Korzakow <ivan.korzakow@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: GPIO device class driver
+	Wed, 21 Dec 2005 06:12:22 -0500
+Received: from ookhoi.xs4all.nl ([213.84.114.66]:10896 "EHLO
+	favonius.humilis.net") by vger.kernel.org with ESMTP
+	id S932363AbVLULMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 06:12:21 -0500
+Date: Wed, 21 Dec 2005 12:12:20 +0100
+From: Sander <sander@humilis.net>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: David Lang <dlang@digitalinsight.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-ID: <20051221111220.GA28577@favonius>
+Reply-To: sander@humilis.net
+References: <200512201428.jBKESAJ5004673@laptop11.inf.utfsm.cl> <Pine.LNX.4.62.0512200951080.11093@qynat.qvtvafvgr.pbz> <1135102197.2952.23.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1135102197.2952.23.camel@laptopd505.fenrus.org>
+X-Uptime: 11:44:44 up 33 days, 22:51, 28 users,  load average: 2.59, 2.07, 1.88
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I read about a generic device class driver
-(http://marc.theaimsgroup.com/?l=linux-kernel&m=109419719600753&w=2)
-for GPIO. I wanted to know if anything generic finally came out of the
-dicussion ?
-I'm willing to write a gpio driver and I am considering taking Robert
-Schwebel patch into it if nothing exist in the main line.
+Arjan van de Ven wrote (ao):
+> > how many other corner cases are there that these distros just choose
+> > not to support, but need to be supported and tested for the vanilla
+> > kernel?
+> 
+> as someone who was at that distro in the time.. none other than XFS
+> and reiserfs4.
 
-Thanks in advance for any info.
+FWIW, I have a few servers and my workstation running Reiser4 and
+CONFIG_4KSTACKS=y for several months now, and haven't encountered
+problems yet. One server also runs Reiser4 on top op lvm2, and another
+Reiser4 on top of sw raid1.
 
-Ivan
+I know -mm + Reiser4 + 4kstacks is bleeding edge in more than one way,
+but I like that for my workstations and the servers are
+test/non-critical.
+
+All systems do have real-life load though. I'd be happy to provide data
+from these systems. Just mail me the commands.
+
+-- 
+Humilis IT Services and Solutions
+http://www.humilis.net

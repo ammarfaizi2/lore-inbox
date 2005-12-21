@@ -1,64 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbVLUQfy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbVLUQgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbVLUQfy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 11:35:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbVLUQfy
+	id S1750877AbVLUQgo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 11:36:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751135AbVLUQgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 11:35:54 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:35264 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S932469AbVLUQfy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 11:35:54 -0500
-Message-ID: <43A99618.6D6655C6@tv-sign.ru>
-Date: Wed, 21 Dec 2005 20:51:20 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	Wed, 21 Dec 2005 11:36:44 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:178 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750877AbVLUQgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 11:36:43 -0500
+Date: Wed, 21 Dec 2005 16:36:39 +0000
+From: Christoph Hellwig <hch@infradead.org>
 To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+Cc: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
        Steven Rostedt <rostedt@goodmis.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       David Howells <dhowells@redhat.com>,
-       Alexander Viro <viro@ftp.linux.org.uk>, Paul Jackson <pj@sgi.com>
-Subject: Re: [patch 05/15] Generic Mutex Subsystem, mutex-core.patch
-References: <20051219013718.GA28038@elte.hu> <43A98101.364DB5CF@tv-sign.ru> <20051221155742.GA7375@elte.hu>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>,
+       linux-xfs@oss.sgi.com
+Subject: Re: [patch 1/8] mutex subsystem, XFS namespace collision fixes
+Message-ID: <20051221163639.GA9735@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+	Arjan van de Ven <arjanv@infradead.org>,
+	Jes Sorensen <jes@trained-monkey.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Oleg Nesterov <oleg@tv-sign.ru>,
+	David Howells <dhowells@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Benjamin LaHaise <bcrl@kvack.org>,
+	Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	Nicolas Pitre <nico@cam.org>, linux-xfs@oss.sgi.com
+References: <20051221155426.GB7243@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051221155426.GB7243@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+On Wed, Dec 21, 2005 at 04:54:26PM +0100, Ingo Molnar wrote:
+> Fixup the XFS code to avoid name clashing with the mutex code by 
+> introducing xfs_mutex_ functions.
 > 
-> * Oleg Nesterov <oleg@tv-sign.ru> wrote:
+> Signed-off-by: Jes Sorensen <jes@trained-monkey.org>
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>
 > 
-> > > +   spin_lock(&lock->wait_lock);
-> > > +   __add_waiter(lock, waiter, ti, task __IP__);
-> > > +   set_task_state(task, task_state);
-> >
-> > I can't understand why __mutex_lock_common() does xchg() after adding
-> > the waiter to the ->wait_list. We are holding ->wait_lock, we can't
-> > race with __mutex_unlock_nonatomic() - it calls wake_up() and sets
-> > ->count under this spinlock.
+> ----
 > 
-> we must make sure that the drop has not been dropped meanwhile, on the
-> way in, between the fastpath-unlock atomic op, and the xchg() here.
+>  fs/xfs/linux-2.6/mutex.h       |   10 +++++-----
+>  fs/xfs/quota/xfs_dquot.c       |   12 ++++++------
+>  fs/xfs/quota/xfs_dquot.h       |    4 ++--
+>  fs/xfs/quota/xfs_qm.c          |   20 ++++++++++----------
+>  fs/xfs/quota/xfs_qm.h          |    4 ++--
+>  fs/xfs/quota/xfs_qm_bhv.c      |    2 +-
+>  fs/xfs/quota/xfs_qm_syscalls.c |   24 ++++++++++++------------
+>  fs/xfs/quota/xfs_quota_priv.h  |    8 ++++----
+>  fs/xfs/support/uuid.c          |   12 ++++++------
+>  fs/xfs/xfs_mount.c             |    4 ++--
+>  fs/xfs/xfs_mount.h             |    4 ++--
+>  11 files changed, 52 insertions(+), 52 deletions(-)
+> 
+> Index: linux/fs/xfs/linux-2.6/mutex.h
+> ===================================================================
+> --- linux.orig/fs/xfs/linux-2.6/mutex.h
+> +++ linux/fs/xfs/linux-2.6/mutex.h
+> @@ -30,10 +30,10 @@
+>  #define MUTEX_DEFAULT		0x0
+>  typedef struct semaphore	mutex_t;
+>  
+> -#define mutex_init(lock, type, name)		sema_init(lock, 1)
+> -#define mutex_destroy(lock)			sema_init(lock, -99)
+> -#define mutex_lock(lock, num)			down(lock)
+> -#define mutex_trylock(lock)			(down_trylock(lock) ? 0 : 1)
+> -#define mutex_unlock(lock)			up(lock)
+> +#define xfs_mutex_init(lock, type, name)	arch_sema_init(lock, 1)
+> +#define xfs_mutex_destroy(lock)			arch_sema_init(lock, -99)
+> +#define xfs_mutex_lock(lock, num)		arch_down(lock)
+> +#define xfs_mutex_trylock(lock)			(arch_down_trylock(lock) ? 0 : 1)
+> +#define xfs_mutex_unlock(lock)			arch_up(lock)
 
-Sorry for noise, probably I should just re-read your explanation
-tomorrow after some sleeping...
+As the name implies these use mutex xsemantics, just remove the
+defines and use mutex_lock/mutex_unlock and mutex_trylock directly
+(the latter only if mutex_trylock has the same return value as
+spin_trylock, not the broken down_trylock version)
+not sure what to do about mutex_init, do you have one in your patches?
+mutex_destroy should be a simple no-op.
 
-But why we can't add the waiter to ->wait_list _after_ xchg() ?
-What makes the difference? Fastpath atomic op can happen before
-or after xchg(), this is ok. Unlock path will look at ->wait_list
-only after taking spinlock, at this time we already added this
-waiter to the ->wait_list.
-
-In other words: we are holding ->wait_lock, nobody can even look
-at ->wait_list. We can add the waiter to ->wait_list before or
-after atomic_xchg() - it does not matter.
-
-Again no?
-
-Oleg.

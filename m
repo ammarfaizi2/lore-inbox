@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbVLUG5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932290AbVLUHIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbVLUG5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 01:57:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932299AbVLUG5Q
+	id S932290AbVLUHIa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 02:08:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbVLUHIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 01:57:16 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:62623 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932298AbVLUG5P (ORCPT
+	Wed, 21 Dec 2005 02:08:30 -0500
+Received: from toplitzer.net ([83.151.30.110]:27554 "EHLO toplitzer.net")
+	by vger.kernel.org with ESMTP id S932290AbVLUHI3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 01:57:15 -0500
-Date: Wed, 21 Dec 2005 07:56:19 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>,
-       Christoph Lameter <christoph@lameter.com>,
-       Alok N Kataria <alokk@calsoftinc.com>,
-       Shobhit Dayal <shobhit@calsoftinc.com>,
-       Shai Fultheim <shai@scalex86.org>, Matt Mackall <mpm@selenic.com>,
-       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
-       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RT 00/02] SLOB optimizations
-Message-ID: <20051221065619.GC766@elte.hu>
-References: <1134860251.13138.193.camel@localhost.localdomain> <20051220133230.GC24408@elte.hu> <Pine.LNX.4.58.0512200836120.21313@gandalf.stny.rr.com> <20051220135725.GA29392@elte.hu> <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com> <1135093460.13138.302.camel@localhost.localdomain> <20051220181921.GF3356@waste.org> <1135106124.13138.339.camel@localhost.localdomain> <84144f020512201215j5767aab2nc0a4115c4501e066@mail.gmail.com> <1135114971.13138.396.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Dec 2005 02:08:29 -0500
+From: Helmut Toplitzer <pvrusb2@toplitzer.net>
+To: david-b@pacbell.net
+Subject: Re: External USB2 HDD affects speed hda
+Date: Wed, 21 Dec 2005 08:08:19 +0100
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1135114971.13138.396.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.7
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.7 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200512210808.20073.pvrusb2@toplitzer.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+I stumbled into a quite simmilar problem as Rene Herman. 
+So he asked me to mail to you. Here a short intro:
 
-> [...] Today's slab system is starting to become like the IDE where 
-> nobody, but a select few sado-masochis, dare to venture in. (I've CC'd 
-> them ;) [...]
+My VIA USB driver using EHCI is disconnecting my video
+encoder device (Hauppauge PVRUSB2) after working for
+about 10 minutes.
 
-while it could possibly be cleaned up a bit, it's one of the 
-best-optimized subsystems Linux has. Most of the "unnecessary 
-complexity" in SLAB is related to a performance or a debugging feature.  
-Many times i have looked at the SLAB code in a disassembler, right next 
-to profile output from some hot workload, and have concluded: 'I couldnt 
-do this any better even with hand-coded assembly'.
+Details (including usb-debug output, lspci, lsusb, lsmdo) can be found at:
+http://marc.theaimsgroup.com/?l=linux-usb-users&m=113508572205777&w=2
 
-SLAB-bashing has become somewhat fashionable, but i really challenge 
-everyone to improve the SLAB code first (to make it more modular, easier 
-to read, etc.), before suggesting replacements.
+Any suggestions what to test/to do?
 
-the SLOB is nice because it gives us a simple option at the other end of 
-the complexity spectrum. The SLOB should remain there. (but it certainly 
-makes sense to make it faster, within certain limits, so i'm not 
-opposing your SLOB patches per se.)
+TIA
+Helmut
 
-	Ingo
+-- 
+My GNUpg fingerprint http://www.gnupg.org
+4563 F4FB 0B7E 8698 53CD  00E9 E319 35BD 6A91 1656

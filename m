@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbVLUJiP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbVLUJkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbVLUJiP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 04:38:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbVLUJiO
+	id S932339AbVLUJkT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 04:40:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932341AbVLUJkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 04:38:14 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.149]:56211 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932337AbVLUJiN
+	Wed, 21 Dec 2005 04:40:19 -0500
+Received: from odin2.bull.net ([192.90.70.84]:5526 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S932339AbVLUJkR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 04:38:13 -0500
-In-Reply-To: <20051221091114.GA8495@elf.ucw.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: ak@suse.de, "David S. Miller" <davem@davemloft.net>,
-       linux-kernel@vger.kernel.org, mpm@selenic.com, netdev@vger.kernel.org,
-       netdev-owner@vger.kernel.org, Stephen Hemminger <shemminger@osdl.org>,
-       sri@us.ibm.com
+	Wed, 21 Dec 2005 04:40:17 -0500
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.15-rc5-rt4 and CONFIG_SLAB=y : structure has no member named `nodeid'
+Date: Wed, 21 Dec 2005 10:45:58 +0100
+User-Agent: KMail/1.7.1
+Cc: Ingo Molnar <mingo@elte.hu>
 MIME-Version: 1.0
-Subject: Re: [RFC][PATCH 0/3] TCP/IP Critical socket communication mechanism
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF64F635C2.05062E9D-ON882570DE.0034368A-882570DE.0034EEAA@us.ibm.com>
-From: David Stevens <dlstevens@us.ibm.com>
-Date: Wed, 21 Dec 2005 01:39:14 -0800
-X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 6.53HF654 | July 22, 2005) at
- 12/21/2005 02:39:16,
-	Serialize complete at 12/21/2005 02:39:16
-Content-Type: text/plain; charset="US-ASCII"
+Message-Id: <200512211045.58763.Serge.Noiraud@bull.net>
+X-MIMETrack: Itemize by SMTP Server on ANN-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
+ 21/12/2005 10:40:55,
+	Serialize by Router on ANN-002/FR/BULL(Release 5.0.11  |July 24, 2002) at
+ 21/12/2005 10:40:57,
+	Serialize complete at 21/12/2005 10:40:57
+Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Why not do it the other way? "If you don't hear from me for 2 minutes,
-> do a switchover". Then all you have to do is _not_ to send a packet --
-> easier to do.
-> 
-> Anything else seems overkill.
->                         Pavel
+Hi,
 
-        Because in some of the scenarios, including ours, it isn't a
-simple failover to a known alternate device or configuration --
-it is reconfiguring dynamically with information received on a
-socket from a remote machine (while the swap device is unavailable).
-        Limited socket communication without allocating new memory
-that may not be available is the problem definition. Avoiding the
-problem in the first place (your solution) is effective if you
-can do it, of course. The trick is to solve the problem when you
-can't avoid it. :-)
+	testing on i386, I get the following error :
+...
+  CC      mm/slab.o
+mm/slab.c: In function `cache_alloc_refill':
+mm/slab.c:2093: error: structure has no member named `nodeid'
+mm/slab.c: In function `free_block':
+mm/slab.c:2239: error: structure has no member named `nodeid'
+mm/slab.c:2239: error: `node' undeclared (first use in this function)
+mm/slab.c:2239: error: (Each undeclared identifier is reported only once
+mm/slab.c:2239: error: for each function it appears in.)
+make[4]: *** [mm/slab.o] Erreur 1
+...
 
-                                                        +-DLS
+You removed nodeid in the slab struct, but many functions use it.
 
+-- 
+Serge Noiraud
+Bull Téléservice
+Bull, Architect of an Open World TM
+Tél : 08 02 08 20 00 
+http://www.bull.com/ 

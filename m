@@ -1,105 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbVLUVlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbVLUVsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751131AbVLUVlm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 16:41:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751136AbVLUVlm
+	id S932207AbVLUVsN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 16:48:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbVLUVsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 16:41:42 -0500
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:58791 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S1751131AbVLUVll (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 16:41:41 -0500
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.6.15-rc5-mm3] Remove duplicated PCI id
-Date: Thu, 22 Dec 2005 08:41:11 +1100
-Organization: http://bugsplatter.mine.nu/
-Reply-To: gcoady@gmail.com
-Message-ID: <ssijq1pm97c49f1l9qn9j2qsd6572fhc8e@4ax.com>
-References: <s5hmziuzdde.wl%tiwai@suse.de>
-In-Reply-To: <s5hmziuzdde.wl%tiwai@suse.de>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Wed, 21 Dec 2005 16:48:13 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52241 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751136AbVLUVsM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 16:48:12 -0500
+Date: Wed, 21 Dec 2005 21:48:06 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, uclinux-v850@lsi.nec.co.j
+Subject: Re: [RFC: 2.6 patch] include/linux/irq.h: #include <linux/smp.h>
+Message-ID: <20051221214806.GJ1736@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
+	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org, uclinux-v850@lsi.nec.co.j
+References: <20051221012750.GD5359@stusta.de> <20051221024133.93b75576.akpm@osdl.org> <20051221110421.GA26630@flint.arm.linux.org.uk> <20051221213321.GC3888@stusta.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20051221213321.GC3888@stusta.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Dec 2005 16:19:41 +0100, Takashi Iwai <tiwai@suse.de> wrote:
-
->The patch removes the duplicated PCI ID entry in pci_ids.h.
->
->Signed-off-by: Takashi Iwai <tiwai@suse.de>
->
->---
-> pci_ids.h |    2 --
-> 1 files changed, 2 deletions(-)
->
->--- linux-2.6.15-rc5/include/linux/pci_ids.h	2005-12-21 15:58:57.000000000 +0100
->+++ linux-2.6.15-rc5/include/linux/pci_ids.h	2005-12-21 15:59:13.000000000 +0100
->@@ -502,8 +502,6 @@
-> #define PCI_DEVICE_ID_AMD_CS5536_UOC    0x2097
-> #define PCI_DEVICE_ID_AMD_CS5536_IDE    0x209A
+On Wed, Dec 21, 2005 at 10:33:21PM +0100, Adrian Bunk wrote:
+> On Wed, Dec 21, 2005 at 11:04:22AM +0000, Russell King wrote:
+> > On Wed, Dec 21, 2005 at 02:41:33AM -0800, Andrew Morton wrote:
+> > > Yes, it's basically always wrong to include asm/foo.h when linux/foo.h
+> > > exists. 
+> > 
+> > There's always an exception to every rule.  linux/irq.h is that
+> > exception for the above rule.
 > 
->-#define PCI_DEVICE_ID_AMD_CS5536_IDE	0x209A
->-
-> #define PCI_VENDOR_ID_TRIDENT		0x1023
-> #define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX	0x2000
-> #define PCI_DEVICE_ID_TRIDENT_4DWAVE_NX	0x2001
+> Why?
 
-I just unpacked fresh 2.67.15-rc5, -rc5-mm3 and -rc6, only -rc5-mm3 seems 
-to have duplicated ID entries, for which a patch was sent on 
-http://lkml.org/lkml/2005/11/23/528 against linux-2.6.15-rc2-mm1 
-and that patch still applies to rc5-mm3 with a one line offset.
+/*
+ * Please do not include this file in generic code.  There is currently
+ * no requirement for any architecture to implement anything held
+ * within this file.
+ *
+ * Thanks. --rmk
+ */
 
-Current pci_ids.h status:
+Using linux/irq.h instead of asm/irq.h _breaks_ architectures
+which do not use the generic irq code.
 
-grant@sempro:~/linux$ do-device-id linux-2.6.15-rc5
-find pci_ids defined
-find symbols in source tree
-find source defined symbols files
-summary, line counts:
-  1796 symbols-pci_ids.h-define
-     0 symbols-pci_ids.h-dups
-  2193 symbols-pci_ids.h-new
-  2193 symbols-pci_ids.h-orig
-  1932 symbols-source-all
-   433 symbols-source-define
-   104 symbols-source-define-files
-  1214 symbols-source-files-include-pci.h
-    29 symbols-source-files-include-pci_ids.h
-grant@sempro:~/linux$ do-device-id linux-2.6.15-rc6
-find pci_ids defined
-find symbols in source tree
-find source defined symbols files
-summary, line counts:
-  1797 symbols-pci_ids.h-define
-     0 symbols-pci_ids.h-dups
-  2194 symbols-pci_ids.h-new
-  2194 symbols-pci_ids.h-orig
-  1933 symbols-source-all
-   433 symbols-source-define
-   104 symbols-source-define-files
-  1214 symbols-source-files-include-pci.h
-    29 symbols-source-files-include-pci_ids.h
-grant@sempro:~/linux$ do-device-id linux-2.6.15-rc5-mm3/
-find pci_ids defined
-find symbols in source tree
-find source defined symbols files
-summary, line counts:
-   1812 symbols-pci_ids.h-define
-      2 symbols-pci_ids.h-dups
-   2217 symbols-pci_ids.h-new
-   2217 symbols-pci_ids.h-orig
-   2106 symbols-source-all
-   2092 symbols-source-define
-    112 symbols-source-define-files
-   1253 symbols-source-files-include-pci.h
-     37 symbols-source-files-include-pci_ids.h
-grant@sempro:~/linux$ cat symbols-pci_ids.h-dups
-PCI_DEVICE_ID_AMD_CS5536_IDE
-PCI_DEVICE_ID_NS_CS5535_IDE
+Basically, linux/irq.h should have been called asm-generic/irq.h.
 
-Grant.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

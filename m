@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbVLUNge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932411AbVLUNhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbVLUNge (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 08:36:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932411AbVLUNge
+	id S932411AbVLUNhG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 08:37:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVLUNhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 08:36:34 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.151]:63452 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932410AbVLUNge
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 08:36:34 -0500
-Date: Wed, 21 Dec 2005 05:36:41 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14-rt22 (and mainline) excessive latency
-Message-ID: <20051221133641.GA7613@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <1135039244.28649.41.camel@mindpipe> <20051220042442.GA32039@elte.hu> <20051221014747.GB5741@us.ibm.com> <1135135970.28229.0.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1135135970.28229.0.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
+	Wed, 21 Dec 2005 08:37:05 -0500
+Received: from smtpout.mac.com ([17.250.248.89]:55279 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S932411AbVLUNhE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 08:37:04 -0500
+In-Reply-To: <1135171280.7958.16.camel@lade.trondhjem.org>
+References: <43A8EF87.1080108@bigpond.net.au> <1135145341.7910.17.camel@lade.trondhjem.org> <43A8F714.4020406@bigpond.net.au> <1135171280.7958.16.camel@lade.trondhjem.org>
+Mime-Version: 1.0 (Apple Message framework v746.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <962C9716-6F84-477B-8B2A-FA771C21CDE8@mac.com>
+Cc: Peter Williams <pwil3058@bigpond.net.au>, Ingo Molnar <mingo@elte.hu>,
+       Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] sched: Fix adverse effects of NFS client	on	interactive response
+Date: Wed, 21 Dec 2005 08:36:45 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-Mailer: Apple Mail (2.746.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20, 2005 at 10:32:48PM -0500, Lee Revell wrote:
-> On Tue, 2005-12-20 at 17:47 -0800, Paul E. McKenney wrote:
-> > On Tue, Dec 20, 2005 at 05:24:42AM +0100, Ingo Molnar wrote:
-> > > 
-> > > * Lee Revell <rlrevell@joe-job.com> wrote:
-> > > 
-> > > > I captured this 3+ ms latency trace when killing a process with a few 
-> > > > thousand threads.  Can a cond_resched be added to this code path?
-> > > 
-> > > >     bash-17992 0.n.1   29us : eligible_child (do_wait)
-> > > > 
-> > > >     [ 3000+ of these deleted ]
-> > > > 
-> > > >     bash-17992 0.n.1 3296us : eligible_child (do_wait)
-> > > 
-> > > Atomicity of signal delivery is pretty much a must, so i'm not sure this 
-> > > particular latency can be fixed, short of running PREEMPT_RT. Paul E.  
-> > > McKenney is doing some excellent stuff by RCU-ifying the task lookup and 
-> > > signal code, but i'm not sure whether it could cover do_wait().
-> > 
-> > Took a quick break from repeatedly shooting myself in the foot with
-> > RCU read-side priority boosting (still have a few toes left) to take
-> > a quick look at this.  The TASK_TRACED and TASK_STOPPED cases seem
-> > non-trivial, and I am concerned about races with exit.
-> > 
-> > Any thoughts on whether the latency is due to contention on the
-> > tasklist lock vs. the "goto repeat" in do_wait()?
-> 
-> It's a UP system so I'd be surprised if there were any contention.
+On Dec 21, 2005, at 08:21, Trond Myklebust wrote:
+> ...and if you stick in a faster server?...
+>
+> There is _NO_ fundamental difference between NFS and a local  
+> filesystem that warrants marking one as "interactive" and the other  
+> as "noninteractive". What you are basically saying is that all I/O  
+> should be marked as TASK_NONINTERACTIVE.
 
-Couldn't there be contention due to preemption of someone holding
-the tasklist lock?
+Uhh, what part of disk/NFS/filesystem access is "interactive"?  Which  
+of those sleeps directly involve responding to user-interface  
+events?  _That_ is the whole point of the interactivity bonus, and  
+precisely why Ingo introduced TASK_NONINTERACTIVE sleeps; so that  
+processes that are not being useful for interactivity could be moved  
+away from TASK_NONINTERRUPTABLE, with the end result that the X- 
+server could be run at priority 0 without harming interactivity, even  
+during heavy *disk*, *NFS*, and *network* activity.  Admittedly, that  
+may not be what some people want, but they're welcome to turn off the  
+interactivity bonuses via some file in /proc (sorry, don't remember  
+which at the moment).
 
-						Thanx, Paul
+Cheers,
+Kyle Moffett
+
+--
+I have yet to see any problem, however complicated, which, when you  
+looked at it in the right way, did not become still more complicated.
+   -- Poul Anderson
+
+
+

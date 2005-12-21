@@ -1,51 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbVLUFRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbVLUFRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751098AbVLUFRi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 00:17:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751107AbVLUFRh
+	id S1751114AbVLUFRf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 00:17:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbVLUFRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 00:17:37 -0500
-Received: from zproxy.gmail.com ([64.233.162.193]:37039 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751111AbVLUFRg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 00:17:36 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=uPAtPCYV+m/ZFsw21AO08IV/NIIvhfHlj8d/0TML1v/a/aZMmBsXOrzEzvKVXQUdQ2WVSo7keeOkwgXqacEmTXHyhPkbIZYs2eQPOOoxflCKGXx/3SD5q6u/tytyP8tiSsNTx8WfUmIpPmJbs0E+AXzZnUbrR/wEKBsGsSR1O4Q=
-Message-ID: <489ecd0c0512202117q303ef7f1qae6bc08c9637be39@mail.gmail.com>
-Date: Wed, 21 Dec 2005 13:17:35 +0800
-From: Luke Yang <luke.adi@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel development process questions
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Wed, 21 Dec 2005 00:17:35 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:35469 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1751093AbVLUFRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 00:17:34 -0500
+Subject: [RFC][PATCH 0/5] I/OAT DMA support and TCP acceleration
+From: Chris Leech <christopher.leech@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>, netdev <netdev@vger.kernel.org>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       "Ronciak, John" <john.ronciak@intel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 20 Dec 2005 21:17:30 -0800
+Message-Id: <1135142250.13781.17.camel@cleech-mobl>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+X-OriginalArrivalTime: 21 Dec 2005 05:17:33.0038 (UTC) FILETIME=[D8DCE0E0:01C605ED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Following up on the I/OAT patches that Andy posted on Nov 23, these
+address some of the style concerns, add descriptive comments (kdoc
+style) to many functions, remove some dead code, and most importantly
+include our TCP recv offload changes.
+This patch set does not include the driver for the I/OAT DMA hardware.
 
-   Thanks for Greg's howto and others' documents (Such as the "kernel
-hacker's guide to git). But I still have some detail questions:
+There are 5 patches
 
-   Which is everyone working on: the "latest linus git tree" or the
-"-mm kernel"? As I tried, the -mm kernel is only a patch, which MAY
-can not be applied to latest kernel. For example, current
-2.6.15-rc5-mm3 patch can't be applied to  current kernel without
-rejections and conflicts.
+1) DMA subsystem
+2) Networking subsystem DMA client
+3) sk_buff to iovec copy helper functions
+4) structure changes for TCP recv copy offload
+5) main TCP recv copy offload changes
 
-   As Greg pointed out, most patches should be tested on -mm kernel.
-So I assum that a developer just get an exact 2.6.15-rc5 kernel from
-git, apply the 2.6.15-rc5-mm3 patch, do some work and send out the
-patch, then just stay there for next -mm patch?
+As always, comments are welcome and encouraged.  I'm continuing to work
+on incorporating suggestions, including the comments Deepak Saxena
+posted to lkml earlier today.
 
-   Thanks in advace!
+The class code hasn't changed since the previous code postings, but I
+think I'm making progress in figuring that out :)
 
-BTW:  git question, Is there any way to get my .git/refs/ folder
-updated through http? I mean not through rsync?
+I'm also looking at simplifying the DMA subsystem by removing DMA
+devices in favor of only working with channels.  The idea of having
+devices which provide multiple channels can be managed within drivers,
+without complicating the client API.  That should reduce the length of
+some of the dereference chains.
 
-Regards,
-Luke Yang
-Analog Device Inc.
+
+Chris Leech <christopher.leech@intel.com>
+I/O Acceleration Technology Software Development
+LAN Access Division / Digital Enterprise Group
+
+---
+ drivers/Kconfig             |    2 
+ drivers/Makefile            |    1 
+ drivers/dma/Kconfig         |   34 +++
+ drivers/dma/Makefile        |    3 
+ drivers/dma/dmaengine.c     |  391 +++++++++++++++++++++++++++++++++++++++++
+ include/linux/dmaengine.h   |  220 +++++++++++++++++++++++
+ include/linux/skbuff.h      |    5 
+ include/linux/tcp.h         |    9 
+ include/net/tcp.h           |   10 +
+ net/core/Makefile           |    3 
+ net/core/dev.c              |   97 ++++++++++
+ net/core/skbuff.c           |    1 
+ net/core/user_dma.c         |  410 ++++++++++++++++++++++++++++++++++++++++++++
+ net/ipv4/tcp.c              |  177 ++++++++++++++----
+ net/ipv4/tcp_input.c        |   63 ++++++
+ net/ipv4/tcp_ipv4.c         |   20 ++
+ net/ipv4/tcp_minisocks.c    |    1 
+ net/ipv6/tcp_ipv6.c         |    1 
+ 18 files changed, 1397 insertions(+), 51 deletions(-)
+

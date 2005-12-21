@@ -1,46 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbVLURjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbVLURkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932480AbVLURjI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 12:39:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVLURjI
+	id S1751144AbVLURkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 12:40:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVLURkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 12:39:08 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:34452 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751144AbVLURjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 12:39:05 -0500
-Subject: Re: Question on the current behaviour of malloc () on Linux
-From: Arjan van de Ven <arjan@infradead.org>
-To: Jie Zhang <jzhang918@gmail.com>
-Cc: linux-kernel@vger.kernel.org, lars.friedrich@wago.com
-In-Reply-To: <6f48278f0512210936y25169c37t9fb7eb13fef3a97d@mail.gmail.com>
-References: <6f48278f0512210936y25169c37t9fb7eb13fef3a97d@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 21 Dec 2005 18:39:00 +0100
-Message-Id: <1135186740.3456.68.camel@laptopd505.fenrus.org>
+	Wed, 21 Dec 2005 12:40:25 -0500
+Received: from jack.kinetikon.it ([62.152.125.81]:26027 "EHLO
+	mail.towertech.it") by vger.kernel.org with ESMTP id S1751144AbVLURkZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 12:40:25 -0500
+Date: Wed, 21 Dec 2005 18:41:22 +0100
+From: Alessandro Zummo <azummo-lists@towertech.it>
+To: Simon Richter <Simon.Richter@hogyros.de>
+Cc: linuxppc-dev@ozlabs.org, linuxppc-embedded@ozlabs.org,
+       lm-sensors@lm-sensors.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] RTC subsystem
+Message-ID: <20051221184122.5253df01@inspiron>
+In-Reply-To: <43A97CAF.50301@hogyros.de>
+References: <20051220220022.4e9ff931@inspiron>
+	<43A94811.4010704@hogyros.de>
+	<20051221160712.2d322f42@inspiron>
+	<43A97CAF.50301@hogyros.de>
+Organization: Tower Technologies
+X-Mailer: Sylpheed-Claws 1.9.100 (GTK+ 2.6.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-22 at 01:36 +0800, Jie Zhang wrote:
-> Hi,
+On Wed, 21 Dec 2005 17:02:55 +0100
+Simon Richter <Simon.Richter@hogyros.de> wrote:
+
+> >   the proposal actually had a fully-working patch attached :)
 > 
-> I first asked this question on uClinux mailing list. My first question
-> is <http://mailman.uclinux.org/pipermail/uclinux-dev/2005-December/036042.html>.
-> Although I found this issue on uClinux, it's also can be demostrated
-> on Linux. This is a small program:
+> Ah, didn't see that, as I just skimmed over the web archive page you 
+> linked to, which has no link to the actual patch (or I'm too stupid to 
+> find it).
 
+ right.. the link was to 0/6 of the patchset, which is
+ actually only the introduction. real patch was in subsequent
+ messages.
 
-see "overcommit". Disable it if you want the behavior you want...
+> >  In my code, the first rtc that register is bound
+> >  to /proc/driver/rtc and /dev/rtc (if those interfaces
+> >  are compiled in, as they are all selectable).
+> 
+> It would be good to have a way to change which clock is the "primary" 
+> one from userspace later (userspace because this is clearly site policy).
 
+ If I'm not wrong, the RTC is usually queried at bootup
+ and written to on shutdown. If NTP mode is active, 
+ it is also written every 11 minutes.
+
+ So my intention was to emulate that interface as a starting
+ point. Then we can update the userspace utilities (hwclock)
+ to let the user choose which clock he want to use.
+
+ I guess /proc/driver/rtc will be deprecated sooner or
+ later. The /dev/rtc interface only supports one clock.
+ It can either be extended to have /dev/rtcX or we
+ can extend the sysfs one to allow clock updating.
+
+ NTP mode could then be adjusted to update one or more
+ of the rtcs. Maybe each RTC could have an attribute
+ (let's say /sys/class/rtc/rtcX/ntp) which tells the
+ kernel whether to update it or not.
+  
+ This way we will not have a primary clock anymore.
+
+> >  You have full control of which functions you will provide
+> >  to the upper layer. Obivously if you try to set the
+> >  time on a read-only rtc, you will get an error.
+> 
+> Sure. I was thinking of the question which error that should be.
+
+ -EPERM ? -EACCESS? :)
+
+-- 
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
 

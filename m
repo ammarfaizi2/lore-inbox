@@ -1,72 +1,33 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbVLUENf (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 20 Dec 2005 23:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbVLUENf
+	id S1751081AbVLUEys (ORCPT <rfc822;ralf@linux-mips.org>);
+	Tue, 20 Dec 2005 23:54:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbVLUEys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Dec 2005 23:13:35 -0500
-Received: from www.it-action-web.com ([218.224.255.116]:25607 "HELO yahoo.com")
-	by vger.kernel.org with SMTP id S932270AbVLUENe (ORCPT
+	Tue, 20 Dec 2005 23:54:48 -0500
+Received: from pool-71-108-5-112.lsanca.dsl-w.verizon.net ([71.108.5.112]:27843
+	"HELO pool-71-108-5-112.lsanca.dsl-w.verizon.net") by vger.kernel.org
+	with SMTP id S1751081AbVLUEys (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Dec 2005 23:13:34 -0500
-Message-ID: <442f01c60645$2c494ff0$abb75e6c@tippsundtricks0sp>
-Reply-To: "Ihre Schufa Auskunft" <tippsundtricks0sp@yahoo.com>
-From: "Ihre Schufa Auskunft" <tippsundtricks0sp@yahoo.com>
+	Tue, 20 Dec 2005 23:54:48 -0500
+Reply-To: "Cynthia Crenshaw" <bertawwjm@mellgren.org>
+From: "Cynthia" <bertawwjm@mellgren.org>
+Message-ID: <2991700840.462669559042@mellgren.org>
+Date: Tue, 20 Dec 2005 22:56:19 -0600
 To: <linux-kernel@vger.kernel.org>
-Subject: Schu-fa
-Date: Wed, 21 Dec 2005 15:42:39 +1200
+Subject: Mature Get Licked By Student On Sofa
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932270AbVLUENf@vger.kernel.org>
-
-BANKEN OHNE SCHUFA IN DEUTSCHLAND - Liste per Faxabruf: 019 08 19 45 11*
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S1751081AbVLUEys@vger.kernel.org>
 
 
-Sehr geehrte Damen und Herren,
-
-Schufa, ein Thema, das mittlerweile jeder kennt. Sie haben einen
-Schufa-Eintrag, Sie kennen jemanden der einen Schufa-Eintrag hat und deshalb
-kein normales
-Girokonto bekommt sondern wenn, dann nur auf Guthabenbasis was bei jeder
-kleinen Verfehlung wieder geschlossen wird?
-
-Es gibt sehr viele Banken und Sparkassen sowie Volks- und Raiffeisenbanken,
-die der Schufa nicht angeschlossen sind.
-
-Diese Liste von Banken ohne Schufa-Anschluss gibt es per Faxabruf unter 019
-08 19 45 11*
-
-Ein super Service - bundesweit Banken ohne Schufa-Anschluss direkt auf Ihr
-Fax. Dort ein Konto zu haben ohne schief angeguckt zu werden, nur weil man
-mal
-Handyvertrag nicht korrekt bedient hat oder ein Kredit beendet wurde mit
-Negativ-Vermerk.
-
-Bei einer Bank ohne Schufa brauchen Sie keine Schufa-Klausel zu
-unterschreiben und bekommen Bank-Karte, Kreditkarte usw.
-
-Noch ein Vorteil: Viele Menschen gehen mittlerweile zu Auslands-Banken die
-auch keiner Schufa angeschlossen sind weil sie nicht wissen, dass es
-ausreichend deutsche Kreditinstitute ohne Schufa-Anschluss, oft gleich um
-die Ecke, gibt.
-
-Diese Liste von Banken ohne Schufa-Anschluss gibt es per Faxabruf unter 019
-08 19 45 11*
-
-Mit freundlichem Gruss
+For many children, joy comes as the result of mining something unique and wondrous about themselves from some inner shaft.
 
 
-Versandt an: linux-kernel@vger.kernel.org
+http://ibpabsifobbuphugr.com/mm/
 
-Hinweis: Am besten gleich abrufen, da unsere Service-Nummern zum Ende des
-Jahres auslaufen.
-* 1,86 Euro / Minute 20 Seiten
+Marriage is a matter of give and take, but so far I haven't been able to find anybody who'll take what I have to give.Women must try to do things as men have tried. When they fail their failure must be but a challenge to others.Believe me! The secret of reaping the greatest fruitfulness and the greatest enjoyment from life is to live dangerously!
 
-
-Abmeldungen zum Info-Newsletter bitte an schufainfoabmeldung@yahoo.co.uk
 

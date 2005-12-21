@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932363AbVLULMW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932364AbVLULTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932363AbVLULMW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 06:12:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbVLULMW
+	id S932364AbVLULTE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 06:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932366AbVLULTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 06:12:22 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:10896 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S932363AbVLULMV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 06:12:21 -0500
-Date: Wed, 21 Dec 2005 12:12:20 +0100
-From: Sander <sander@humilis.net>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: David Lang <dlang@digitalinsight.com>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Message-ID: <20051221111220.GA28577@favonius>
-Reply-To: sander@humilis.net
-References: <200512201428.jBKESAJ5004673@laptop11.inf.utfsm.cl> <Pine.LNX.4.62.0512200951080.11093@qynat.qvtvafvgr.pbz> <1135102197.2952.23.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
+	Wed, 21 Dec 2005 06:19:04 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:22738 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S932364AbVLULTD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 06:19:03 -0500
+Date: Wed, 21 Dec 2005 06:18:52 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Paul Rolland <rol@as2917.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Linux 2.4.32] SATA ICH5/PIIX and Combined mode
+Message-ID: <20051221111852.GA7698@havoc.gtf.org>
+References: <200512211110.jBLBALD24852@tag.witbe.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1135102197.2952.23.camel@laptopd505.fenrus.org>
-X-Uptime: 11:44:44 up 33 days, 22:51, 28 users,  load average: 2.59, 2.07, 1.88
-User-Agent: Mutt/1.5.11
+In-Reply-To: <200512211110.jBLBALD24852@tag.witbe.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote (ao):
-> > how many other corner cases are there that these distros just choose
-> > not to support, but need to be supported and tested for the vanilla
-> > kernel?
+On Wed, Dec 21, 2005 at 12:10:22PM +0100, Paul Rolland wrote:
+> I have a machine with two SATA HDD, and one PATA CDRom.
+> Bios is configured for combined mode, and installing a RedHat ES3
+> (Kernel 2.4.21-ELsmp) is fine, the two HDD are up, the installation
+> is fine and the CDRom is working.
 > 
-> as someone who was at that distro in the time.. none other than XFS
-> and reiserfs4.
+> Then, upgrading to a vanilla 2.4.32, the ata_piix.c file contains
+> a "combined mode not supported" and booting the machine hangs, as
+> no VFS are up for root device.
+> 
+> Of course, I can disable the Combined setup in the BIOS, then I have
+> my two HDD, but no CDRom... 
+> 
+> What is the "trick" to have a 2.4.32 be able to do what a 2.4.21 was
+> doing ?
 
-FWIW, I have a few servers and my workstation running Reiser4 and
-CONFIG_4KSTACKS=y for several months now, and haven't encountered
-problems yet. One server also runs Reiser4 on top op lvm2, and another
-Reiser4 on top of sw raid1.
+Apply all the Red Hat-specific patches that you ditched, when you
+switched to a vanilla kernel...  The patch that supported combined
+mode for you is in there.
 
-I know -mm + Reiser4 + 4kstacks is bleeding edge in more than one way,
-but I like that for my workstations and the servers are
-test/non-critical.
+	Jeff
 
-All systems do have real-life load though. I'd be happy to provide data
-from these systems. Just mail me the commands.
 
--- 
-Humilis IT Services and Solutions
-http://www.humilis.net
+

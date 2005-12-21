@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964812AbVLUUUz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbVLUUcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964812AbVLUUUz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 15:20:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbVLUUUz
+	id S964818AbVLUUcz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 15:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbVLUUcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 15:20:55 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.25]:5073 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S932497AbVLUUUz (ORCPT
+	Wed, 21 Dec 2005 15:32:55 -0500
+Received: from nevyn.them.org ([66.93.172.17]:21438 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S932497AbVLUUcy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 15:20:55 -0500
-Date: Wed, 21 Dec 2005 12:20:20 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Ravikiran G Thirumalai <kiran@scalex86.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       nippung@calsoftinc.com
-Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single threaded
- process at getrusage()
-In-Reply-To: <20051221182320.GA4514@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0512211209300.2829@schroedinger.engr.sgi.com>
-References: <20051221182320.GA4514@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 21 Dec 2005 15:32:54 -0500
+Date: Wed, 21 Dec 2005 15:32:43 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 3/8] mutex subsystem, add atomic_*_call_if_*() to i386
+Message-ID: <20051221203243.GA19082@nevyn.them.org>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Arjan van de Ven <arjanv@infradead.org>,
+	Jes Sorensen <jes@trained-monkey.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Oleg Nesterov <oleg@tv-sign.ru>,
+	David Howells <dhowells@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Benjamin LaHaise <bcrl@kvack.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	Nicolas Pitre <nico@cam.org>
+References: <20051221155442.GD7243@elte.hu> <Pine.LNX.4.64.0512211044240.4827@g5.osdl.org> <Pine.LNX.4.64.0512211054450.4827@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512211054450.4827@g5.osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Dec 2005, Ravikiran G Thirumalai wrote:
-
-> Following patch avoids taking the global tasklist_lock when possible,
-> if a process is single threaded during getrusage().  Any avoidance of 
-> tasklist_lock is good for NUMA boxes (and possibly for large SMPs).  We found 
-> that this optimization reduces the runtime of a certain scientific application 
-> by half on a 16 cpu NUMA box.
+On Wed, Dec 21, 2005 at 10:57:40AM -0800, Linus Torvalds wrote:
+> Actually (and re-reading the email I sent that wasn't obvious at all), my 
+> _preferred_ fix is to literally force the use of the above kind of 
+> function: not save/restore %eax at all, but just say that any function 
+> that is called by the magic "atomic_*_call_if()" needs to always return 
+> the argument it gets as its return value too.
 > 
-> This optimization is similar to the sys_times tasklist_lock optimization.
+> That allows the caller to not even have to care. And the callee obviously 
+> already _has_ that value, so it might as well return it (and in the best 
+> case it's not going to add any cost at all, either to the caller or the 
+> callee).
+> 
+> So you might opt to keep the asm the same, just change the calling 
+> conventions.
 
-The optimization of sys_times is only possible because the "current" 
-task is running and therefore guarantees that the thread will not be 
-exiting.
+This new macro is only going to be used in x86-specific files, right? 
+There's no practical way to implement this on lots of other
+architectures.
 
-getrusage and k_getrusage can be called onother tasks than the currently 
-executing task and in those cases better take the tasklist lock because 
-the task may exit while getrusage runs.
+Embedding a call in asm("") can break other things too - for instance,
+unwind tables could become inaccurate.
 
-See wait_noreap_copyout() in kernel/exit.c and 
-arch/mips/kernel/{sysirix,irixsig}.c for uses of getrusage where the 
-struct task_struct * != current.
-
-Maybe you can deal with these and insure that getrusage is always called 
-for the current process? In that case the struct task_struct * parameter
-needs to be dropped from getrusage and k_getrusage.
-
+-- 
+Daniel Jacobowitz
+CodeSourcery, LLC

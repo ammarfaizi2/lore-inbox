@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbVLUL3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbVLULdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932370AbVLUL3F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 06:29:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbVLUL3F
+	id S932371AbVLULdR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 06:33:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbVLULdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 06:29:05 -0500
-Received: from tag.witbe.net ([81.88.96.48]:40837 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S932370AbVLUL3E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 06:29:04 -0500
-Message-Id: <200512211128.jBLBSoD29257@tag.witbe.net>
-Reply-To: <rol@witbe.net>
-From: "Paul Rolland" <rol@witbe.net>
-To: "'Jeff Garzik'" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux 2.4.32] SATA ICH5/PIIX and Combined mode
-Date: Wed, 21 Dec 2005 12:28:52 +0100
-Organization: Witbe.net
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 21 Dec 2005 06:33:17 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:29338 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932371AbVLULdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 06:33:17 -0500
+Subject: Re: [RFC] TOMOYO Linux released!
+From: Arjan van de Ven <arjan@infradead.org>
+To: Tetsuo Handa <from-kernelnewbies@I-love.SAKURA.ne.jp>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+In-Reply-To: <200512212020.FBF94703.XOTMFStFPCJNSFLFOG@I-love.SAKURA.ne.jp>
+References: <200512212020.FBF94703.XOTMFStFPCJNSFLFOG@I-love.SAKURA.ne.jp>
+Content-Type: text/plain
+Date: Wed, 21 Dec 2005 12:33:13 +0100
+Message-Id: <1135164793.3456.9.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-In-Reply-To: <20051221111852.GA7698@havoc.gtf.org>
-Thread-Index: AcYGIFkWe/O/llenQKCXwzviBWePHgAAP7Ow
-x-ncc-regid: fr.witbe
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
-
-> Apply all the Red Hat-specific patches that you ditched, when you
-> switched to a vanilla kernel...  The patch that supported combined
-> mode for you is in there.
+On Wed, 2005-12-21 at 20:21 +0900, Tetsuo Handa wrote:
+> Hello!
 > 
+> A new and easy to master access control for Linux,
+> TOMOYO Linux, is now available.
 
-Just had a quick look at everything that contains "SATA" or ICH in the
-patch list from RedHat, and there are two :
- - one concerns pci_quirks and pci_irqs,
- - one concerns ata_piix.c and libata.c
 
-If the first one seems quite OK, the second one implies going back to
-libata 0.93 and switching to the "old" ata_piix.c, as the one in the
-2.4.32 kernel contains :
-	if (combined) {
-		...
-		return ENODEV;
-	}
-thus clearly preventing devices from being detected when combined
-more is there.
+very interesting; a few quick questions that I didn't see answered on
+the side
 
-Do you really think such a big step back is required ?
+1) where can we download the patches?
 
-Regards,
-Paul
+2) How does the use of "absolute paths" interact with namespaces?
+   In principle each process can have its own namespace after all!
+   (not many distributions use this today, but that will change soon,
+   per user /tmp is a very attractive feature and all needed
+   infrastructure helpers for this will be in the 2.6.15 kernel)
+
 

@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbVLUTkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932434AbVLUTnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbVLUTkm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 14:40:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbVLUTkm
+	id S932434AbVLUTnD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 14:43:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVLUTnD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 14:40:42 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:39863 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S1751192AbVLUTkm
+	Wed, 21 Dec 2005 14:43:03 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:9116 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932434AbVLUTnC convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 14:40:42 -0500
-Date: Wed, 21 Dec 2005 12:40:41 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Mark Maule <maule@sgi.com>
-Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH 1/4] msi archetecture init hook
-Message-ID: <20051221194041.GG2361@parisc-linux.org>
-References: <20051221184337.5003.85653.32527@attica.americas.sgi.com> <20051221184342.5003.74247.39285@attica.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Dec 2005 14:43:02 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CPruSaPdV44aOw6kjinlBwF+sGTEb8hv2PIWJ7C8EJQSe68AjxmRzxJzR4iCcCD2MmpVKnS0CkOrWLvWS1t/mnSeH6RbDE3LGFaF1KcZKE0pTlhbhtzXe7mcf6x+xrA+Ta6QfjysuopA6xxu1pvaQO51iucsmFeloWM2W7Nho0E=
+Message-ID: <d120d5000512211143ge189479qf1916741479586b4@mail.gmail.com>
+Date: Wed, 21 Dec 2005 14:43:01 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: Re: [RFC][PATCH 1/6] RTC subsystem, class
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051221105001.226178f1@inspiron>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051221184342.5003.74247.39285@attica.americas.sgi.com>
-User-Agent: Mutt/1.5.9i
+References: <20051220214511.12bbb69c@inspiron>
+	 <200512202101.39498.dtor_core@ameritech.net>
+	 <20051221105001.226178f1@inspiron>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 21, 2005 at 12:42:36PM -0600, Mark Maule wrote:
-> Index: msi/include/asm-sparc/msi.h
-> ===================================================================
-> --- msi.orig/include/asm-sparc/msi.h	2005-12-13 12:22:42.785246074 -0600
-> +++ msi/include/asm-sparc/msi.h	2005-12-13 16:09:49.194541334 -0600
-> @@ -28,4 +28,6 @@
->  			      "i" (ASI_M_CTL), "r" (MSI_ASYNC_MODE) : "g3");
->  }
->  
-> +static inline int msi_arch_init(void)	{ return 0; }
-> +
->  #endif /* !(_SPARC_MSI_H) */
+On 12/21/05, Alessandro Zummo <alessandro.zummo@towertech.it> wrote:
+> On Tue, 20 Dec 2005 21:01:39 -0500
+> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+>
+>
+> > > +if (ops->read_time) {
+> > > +memset(tm, 0, sizeof(struct rtc_time));
+> > >
+> >
+> > What guarantees that ops is not NULL here? Userspace can keep the
+> > attribute (file) open and issue read after class_device was unregistered
+> > and devdata set to NULL.
+>
+>  Right. For /proc and /dev there's a try_module_get(ops->owner) in place.
+>
+>  Should I add it to every rtc_sysfs_show_xxx or there's
+>  a better way to do it?
+>
 
-Ah, look at the header for asm-sparc/msi.h:
+Well, I don't know what will it buy you: if ops is NULL
+try_module_get(ops->owner) will OOPS just as happily as original code.
 
- * msi.h:  Defines specific to the MBus - Sbus - Interface.
+Your class_device has to hold on to all data structures that are
+referenced from sysfs attributes untils its ->release() function is
+called. Alternatively you could stuck a mutex and a flag somewhere in
+driver data and take it when unregistering class device and also in
+all attributes (and chech the flag there).
 
-Not Message Signalled Interrupts at all ;-)
+--
+Dmitry

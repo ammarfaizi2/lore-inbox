@@ -1,303 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVLUV4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbVLUWCn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbVLUV4p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 16:56:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbVLUV4p
+	id S932214AbVLUWCn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 17:02:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbVLUWCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 16:56:45 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:59131 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S932212AbVLUV4p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 16:56:45 -0500
-Subject: [PATCH 01/02] RT: add back plist docs
-From: Daniel Walker <dwalker@mvista.com>
-To: mingo@elte.hu
-Cc: tglx@linutronix.de, inaky.perez-gonzalez@intel.com,
-       linux-kernel@vger.kernel.org, oleg@tv-sign.ru
+	Wed, 21 Dec 2005 17:02:43 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.152]:47038 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751164AbVLUWCn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 17:02:43 -0500
+Subject: x86_64 timekeeping buglets
+From: Jim Houston <jim.houston@comcast.net>
+Reply-To: jim.houston@comcast.net
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Wed, 21 Dec 2005 13:56:39 -0800
-Message-Id: <1135202200.22970.12.camel@localhost.localdomain>
+Date: Wed, 21 Dec 2005 17:02:41 -0500
+Message-Id: <1135202561.24884.12.camel@x2.site>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andi,
 
+I recently bought a AMD64 X2 box and I have been playing with
+the timekeeping code.  I ran into the problem of unsynchronized
+TSCs and decided to put some tracing into the timer_interrupt.
+I got a couple interesting results.
 
-	Add back copyrights, documentation, and function descriptions.
+Consider the following block of code.  I assume that Jan Beulich's
+new inline assembler version is still implements this algorithm.
 
-Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+	vxtime.last_tsc = tsc - vxtime.quot * delay / vxtime.tsc_quot;
+	if ((((tsc - vxtime.last_tsc) * vxtime.tsc_quot) >> 32) < offset)
+		vxtime.last_tsc = tsc - (((long) offset << 32) / vxtime.tsc_quot) - 1;
 
-Index: linux-2.6.14/include/linux/plist.h
-===================================================================
---- linux-2.6.14.orig/include/linux/plist.h
-+++ linux-2.6.14/include/linux/plist.h
-@@ -1,3 +1,79 @@
-+/*
-+ * Descending-priority-sorted double-linked list
-+ *
-+ * (C) 2002-2003 Intel Corp
-+ * Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>.
-+ *
-+ * 2001-2005 (c) MontaVista Software, Inc.
-+ * Daniel Walker <dwalker@mvista.com>
-+ *
-+ * (C) 2005 Thomas Gleixner <tglx@linutronix.de>
-+ * Tested and made it functional.
-+ *
-+ * Licensed under the FSF's GNU Public License v2 or later.
-+ *
-+ * Based on simple lists (include/linux/list.h).
-+ *
-+ *
-+ * This is a priority-sorted list of nodes; each node has a >= 0
-+ * priority from 0 (highest) to INT_MAX (lowest). The list itself has
-+ * a priority too (the highest of all the nodes), stored in the head
-+ * of the list (that is a node itself).
-+ *
-+ * Addition is O(K), removal is O(1), change of priority of a node is
-+ * O(K) and K is the number of RT priority levels used in the system.
-+ * (1 <= K <= 99)
-+ *
-+ * This list is really a list of lists:
-+ *
-+ *  - The tier 1 list is the prio_list, different priority nodes.
-+ *
-+ *  - The tier 2 list is the node_list, serialized nodes.
-+ *
-+ * Simple ASCII art explanation:
-+ *
-+ * |HEAD          |
-+ * |              |
-+ * |prio_list.prev|<------------------------------------|
-+ * |prio_list.next|<->|pl|<->|pl|<--------------->|pl|<-|
-+ * |10            |   |10|   |21|   |21|   |21|   |40|   (prio)
-+ * |              |   |  |   |  |   |  |   |  |   |  |
-+ * |              |   |  |   |  |   |  |   |  |   |  |
-+ * |node_list.next|<->|nl|<->|nl|<->|nl|<->|nl|<->|nl|<-|
-+ * |node_list.prev|<------------------------------------|
-+ *
-+ * The nodes on the prio_list list are sorted by priority to simplify
-+ * the insertion of new nodes. There are no nodes with duplicate
-+ * priorites on the list.
-+ *
-+ * The nodes on the node_list is ordered by priority and can contain
-+ * entries which have the same priority. Those entries are ordered
-+ * FIFO
-+ *
-+ * Addition means: look for the prio_list node in the prio_list 
-+ * for the priority of the node and insert it before the node_list 
-+ * entry of the next prio_list node. If it is the first node of 
-+ * that priority, add it to the prio_list in the right position and 
-+ * insert it into the serialized node_list list
-+ *
-+ * Removal means remove it from the node_list and remove it from 
-+ * the prio_list if the node_list list_head is non empty. In case 
-+ * of removal from the prio_list it must be checked whether other 
-+ * entries of the same priority are on the list or not. If there 
-+ * is another entry of the same priority then this entry has to 
-+ * replace the removed entry on the prio_list. If the entry which 
-+ * is removed is the only entry of this priority then a simple 
-+ * remove from both list is sufficient.
-+ *
-+ * INT_MIN is the highest priority, 0 is the medium highest, INT_MAX
-+ * is lowest priority.
-+ *
-+ * No locking is done, up to the caller.
-+ *
-+ * NOTE: This implementation does not offer as many interfaces as
-+ *       linux/list.h does -- it is lazily minimal. You are welcome to
-+ *       add them.
-+ */
- #ifndef _LINUX_PLIST_H_
- #define _LINUX_PLIST_H_
- 
-@@ -13,24 +89,46 @@ struct pl_node {
- 	struct pl_head	plist;
- };
- 
-+/** 
-+ * #PL_HEAD_INIT - static struct pl_head initializer
-+ *
-+ * @head:	struct pl_head variable name
-+ */
- #define PL_HEAD_INIT(head)	\
- {							\
- 	.prio_list = LIST_HEAD_INIT((head).prio_list),	\
- 	.node_list = LIST_HEAD_INIT((head).node_list),	\
- }
- 
-+/** 
-+ * #PL_NODE_INIT - static struct pl_node initializer
-+ *
-+ * @node:	struct pl_node variable name
-+ * @__prio:	initial node priority	
-+ */
- #define PL_NODE_INIT(node, __prio)	\
- {							\
- 	.prio  = (__prio),				\
- 	.plist = PL_HEAD_INIT((node).plist),		\
- }
- 
-+/**
-+ * pl_head_init - dynamic struct pl_head initializer
-+ *
-+ * @head:	&struct pl_head pointer
-+ */ 
- static inline void pl_head_init(struct pl_head *head)
- {
- 	INIT_LIST_HEAD(&head->prio_list);
- 	INIT_LIST_HEAD(&head->node_list);
- }
- 
-+/**
-+ * pl_node_init - Dynamic struct pl_node initializer
-+ *
-+ * @node:	&struct pl_node pointer
-+ * @prio:	initial node priority
-+ */
- static inline void pl_node_init(struct pl_node *node, int prio)
- {
- 	node->prio = prio;
-@@ -40,23 +138,63 @@ static inline void pl_node_init(struct p
- extern void plist_add(struct pl_node *node, struct pl_head *head);
- extern void plist_del(struct pl_node *node);
- 
-+/**
-+ * plist_for_each - iterate over the plist
-+ *
-+ * @pos1:	the type * to use as a loop counter.
-+ * @head:	the head for your list.
-+ */
- #define plist_for_each(pos, head)	\
- 	 list_for_each_entry(pos, &(head)->node_list, plist.node_list)
- 
-+/**
-+ * plist_for_each_entry_safe - iterate over a plist of given type safe 
-+ * against removal of list entry
-+ *
-+ * @pos1:	the type * to use as a loop counter.
-+ * @n1:	another type * to use as temporary storage
-+ * @head:	the head for your list.
-+ */
- #define plist_for_each_safe(pos, n, head)	\
- 	 list_for_each_entry_safe(pos, n, &(head)->node_list, plist.node_list)
- 
-+/**
-+ * plist_for_each_entry	- iterate over list of given type
-+ *
-+ * @pos:	the type * to use as a loop counter.
-+ * @head:	the head for your list.
-+ * @member:	the name of the list_struct within the struct.
-+ */
- #define plist_for_each_entry(pos, head, mem)	\
- 	 list_for_each_entry(pos, &(head)->node_list, mem.plist.node_list)
- 
-+/**
-+ * plist_for_each_entry_safe - iterate over list of given type safe against 
-+ * removal of list entry
-+ *
-+ * @pos:	the type * to use as a loop counter.
-+ * @n:		another type * to use as temporary storage
-+ * @head:	the head for your list.
-+ * @member:	the name of the list_struct within the struct.
-+ */
- #define plist_for_each_entry_safe(pos, n, head, mem)	\
- 	 list_for_each_entry_safe(pos, n, &(head)->node_list, mem.plist.node_list)
- 
-+/** 
-+ * plist_empty - return !0 if plist is empty
-+ *
-+ * @head:	&struct pl_head pointer 
-+ */
- static inline int plist_empty(const struct pl_head *head)
- {
- 	return list_empty(&head->node_list);
- }
- 
-+/** 
-+ * plist_unhashed - return !0 if plist node is not on a list
-+ *
-+ * @node:	&struct pl_node pointer 
-+ */
- static inline int plist_unhashed(const struct pl_node *node)
- {
- 	return list_empty(&node->plist.node_list);
-@@ -64,9 +202,23 @@ static inline int plist_unhashed(const s
- 
- /* All functions below assume the pl_head is not empty. */
- 
-+/**
-+ * plist_first_entry - get the struct for the first entry
-+ *
-+ * @ptr:        the &struct pl_head pointer.
-+ * @type:       the type of the struct this is embedded in.
-+ * @member:     the name of the list_struct within the struct.
-+ */
- #define plist_first_entry(head, type, member)	\
- 	container_of(plist_first(head), type, member)
- 
-+/** 
-+ * plist_first - return the first node (and thus, highest priority)
-+ *
-+ * @head:	the &struct pl_head pointer
-+ *
-+ * Assumes the plist is _not_ empty.
-+ */
- static inline struct pl_node* plist_first(const struct pl_head *head)
- {
- 	return list_entry(head->node_list.next, struct pl_node, plist.node_list);
-Index: linux-2.6.14/lib/plist.c
-===================================================================
---- linux-2.6.14.orig/lib/plist.c
-+++ linux-2.6.14/lib/plist.c
-@@ -1,9 +1,32 @@
-+
- /*
-- * lib/plist.c - Priority List implementation.
-+ * lib/plist.c
-+ *
-+ * Descending-priority-sorted double-linked list
-+ *
-+ * (C) 2002-2003 Intel Corp
-+ * Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>.
-+ *
-+ * 2001-2005 (c) MontaVista Software, Inc.
-+ * Daniel Walker <dwalker@mvista.com>
-+ *
-+ * (C) 2005 Thomas Gleixner <tglx@linutronix.de>
-+ * Tested and made it functional.
-+ *
-+ * Licensed under the FSF's GNU Public License v2 or later.
-+ *
-+ * Based on simple lists (include/linux/list.h).
-  */
- 
- #include <linux/plist.h>
- 
-+/**
-+ * plist_add - add @node to @head returns !0 if the plist prio changed, 0
-+ * otherwise. XXX: Fix return code.
-+ *
-+ * @node:	&struct pl_node pointer
-+ * @head:	&struct pl_head pointer
-+ */
- void plist_add(struct pl_node *node, struct pl_head *head)
- {
- 	struct pl_node *iter;
-@@ -25,6 +48,12 @@ eq_prio:
- 	list_add_tail(&node->plist.node_list, &iter->plist.node_list);
- }
- 
-+/**
-+ * plist_del - Remove a @node from plist. returns !0 if the plist prio
-+ * changed, 0 otherwise. XXX: Fix return code.
-+ *
-+ * @node:	&struct pl_node pointer
-+ */
- void plist_del(struct pl_node *node)
- {
- 	if (!list_empty(&node->plist.prio_list)) {
+The first line is correct.  It sets the last_tsc value to a reasonable
+estimate of when the PIT timer fired.
+
+If we ignore the scaling the next couple lines are roughly:
+
+	if (delay < offset)
+		last_tsc = tsc - offset - 1;
+
+Now assume that the offset value is just slightly larger than the
+delay (again assume these values were converted to a common unit).
+The last_tsc value will be set to a value which will result in 
+a slightly larger offset on the next tick.  This repeats until
+the offset accumulates a value large enough to trigger the
+lost tick check.  In my case even after the offset overflows the
+the remainder was still greater than the delay and the process
+continued.  I'm curious if you know what this code was trying
+to achieve?
+
+I also notice on a 2.6.13 vintage kernel that the PM timer was 
+detected and the vxtime.quot value was set appropriately for the
+PM timer but the kernel decided to use the PIT/TSC timekeeping.
+I have not checked to see if this still happens with more 
+recent kernels.
+
+Jim Houston - Concurrent Computer Corp.
 
 

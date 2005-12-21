@@ -1,92 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932407AbVLUNZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbVLUNd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932407AbVLUNZq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 08:25:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbVLUNZq
+	id S932408AbVLUNd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 08:33:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbVLUNd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 08:25:46 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:58118 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932407AbVLUNZo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 08:25:44 -0500
-Date: Wed, 21 Dec 2005 14:25:43 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Nils Meyer <meyer@work.de>, Andrew Morton <akpm@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, netdev@vger.kernel.org
-Subject: [2.6 patch] drivers/net/sungem.c: gem_remove_one mustn't be __devexit
-Message-ID: <20051221132543.GG5359@stusta.de>
-References: <200512211323.19242.meyer@work.de>
+	Wed, 21 Dec 2005 08:33:57 -0500
+Received: from pop-siberian.atl.sa.earthlink.net ([207.69.195.71]:22519 "EHLO
+	pop-siberian.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
+	id S932408AbVLUNd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 08:33:57 -0500
+Message-ID: <43A958CF.2080908@earthlink.net>
+Date: Wed, 21 Dec 2005 08:29:51 -0500
+From: Stephen Clark <stephen.clark@earthlink.net>
+Reply-To: sclark46@earthlink.net
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.16-22smp i686; en-US; m18) Gecko/20010110 Netscape6/6.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512211323.19242.meyer@work.de>
-User-Agent: Mutt/1.5.11
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Linus Torvalds <torvalds@osdl.org>,
+       James Courtier-Dutton <James@superbug.co.uk>,
+       Adrian Bunk <bunk@stusta.de>, Sergey Vlasov <vsu@altlinux.ru>,
+       Ricardo Cerqueira <v4l@cerqueira.org>, mchehab@brturbo.com.br,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
+Subject: Re: [Alsa-devel] 2.6.15-rc6: boot failure in saa7134-alsa.c
+References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>	 <20051220131810.GB6789@stusta.de>	 <20051220155216.GA19797@master.mivlgu.local>	 <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org>	 <20051220191412.GA4578@stusta.de>	 <Pine.LNX.4.64.0512201156250.4827@g5.osdl.org>	 <43A86B20.1090104@superbug.co.uk>	 <Pine.LNX.4.64.0512201248481.4827@g5.osdl.org> <1135117067.27101.5.camel@mindpipe>
+In-Reply-To: <1135117067.27101.5.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 21, 2005 at 01:23:18PM +0100, Nils Meyer wrote:
+Lee Revell wrote:
 
-> Hi,
+>On Tue, 2005-12-20 at 13:03 -0800, Linus Torvalds wrote:
+>  
+>
+>>Forcing (or even just encouraging) people to use loadable modules is
+>>just horrible. I personally run a kernel with no modules at all: it
+>>makes for a simpler bootup, and in some situations (embedded) it has
+>>both security and size advantages. 
+>>    
+>>
+>
+>With modules it's possible to test a new ALSA version without
+>recompiling the kernel or even rebooting.  Encouraging people to build
+>it into the kernel would create a problematic barrier to entry for
+>debugging.  With the amount of poorly documented hardware we support,
+>it's essential for preventing driver regressions for users to be able to
+>easily test the latest ALSA version.  
+>
+>Lee
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+Users don't want to be testers when they report problems and no on 
+responds to the problem
+report!
 
-Hi Nils,
-
-> When compiling 2.6.15-rc6 or 2.6.14.4 on my sparc I get the following error:
-> 
-> local symbol 0: discarded in section `.exit.text' from drivers/built-in.o [*]
-> 
-> After calling scripts/reference_discarded.pl it gives me the following error:
-> 
-> Error: ./drivers/net/sungem.o .init.text refers to 0000000000000448 
-> R_SPARC_WDISP30   .exit.text
->...
-
-thanks for this report.
-
-The untested patch below should fix this bug (I'm assuming your .config 
-hasn't set CONFIG_HOTPLUG).
-
-It's a real problem that these bugs have become runtime errors in
-kernel 2.6 on i386 instead of link errors as they were in kernel 2.4 on 
-i386 (and are still in kernel kernel 2.6 on some other architectures 
-like sparc64) resulting in fewer people noticing them.  :-(
-
-> kind regards
-> Nils Meyer
-
-cu
-Adrian
-
-
-<--  snip  -->
-
-
-gem_remove_one() is called from the __devinit gem_init_one().
-
-Therefore, gem_remove_one() mustn't be __devexit.
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.15-rc6/drivers/net/sungem.c.old	2005-12-21 14:02:51.000000000 +0100
-+++ linux-2.6.15-rc6/drivers/net/sungem.c	2005-12-21 14:03:37.000000000 +0100
-@@ -2907,7 +2907,7 @@
- 	return 0;
- }
- 
--static void __devexit gem_remove_one(struct pci_dev *pdev)
-+static void gem_remove_one(struct pci_dev *pdev)
- {
- 	struct net_device *dev = pci_get_drvdata(pdev);
- 
-@@ -3181,7 +3181,7 @@
- 	.name		= GEM_MODULE_NAME,
- 	.id_table	= gem_pci_tbl,
- 	.probe		= gem_init_one,
--	.remove		= __devexit_p(gem_remove_one),
-+	.remove		= gem_remove_one,
- #ifdef CONFIG_PM
- 	.suspend	= gem_suspend,
- 	.resume		= gem_resume,
-
+My $.02
+Steve

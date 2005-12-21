@@ -1,159 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVLUGAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932250AbVLUGBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932248AbVLUGAn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 01:00:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932250AbVLUGAm
+	id S932250AbVLUGBh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 01:01:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932280AbVLUGBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 01:00:42 -0500
-Received: from omta03sl.mx.bigpond.com ([144.140.92.155]:35490 "EHLO
-	omta03sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S932248AbVLUGAl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 01:00:41 -0500
-Message-ID: <43A8EF87.1080108@bigpond.net.au>
-Date: Wed, 21 Dec 2005 17:00:39 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>, Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] sched: Fix adverse effects of NFS client on interactive response
-Content-Type: multipart/mixed;
- boundary="------------000309050908090407020705"
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Wed, 21 Dec 2005 06:00:39 +0000
+	Wed, 21 Dec 2005 01:01:37 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:34757 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932250AbVLUGBf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 01:01:35 -0500
+Date: Wed, 21 Dec 2005 07:00:37 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Nicolas Pitre <nico@cam.org>, Russell King <rmk+lkml@arm.linux.org.uk>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Paul Jackson <pj@sgi.com>
+Subject: Re: [patch 04/15] Generic Mutex Subsystem, add-atomic-call-func-x86_64.patch
+Message-ID: <20051221060037.GA32185@elte.hu>
+References: <Pine.LNX.4.64.0512192358160.26663@localhost.localdomain> <43A7BCE1.7050401@yahoo.com.au> <Pine.LNX.4.64.0512200909180.26663@localhost.localdomain> <43A81132.8040703@yahoo.com.au> <Pine.LNX.4.64.0512200927450.26663@localhost.localdomain> <Pine.LNX.4.64.0512201026230.4827@g5.osdl.org> <20051220193423.GC24199@flint.arm.linux.org.uk> <Pine.LNX.4.64.0512201202200.4827@g5.osdl.org> <Pine.LNX.4.64.0512201533120.26663@localhost.localdomain> <Pine.LNX.4.64.0512201354210.4827@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512201354210.4827@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000309050908090407020705
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-This patch addresses the adverse effect that the NFS client can have on 
-interactive response when CPU bound tasks (such as a kernel build) 
-operate on files mounted via NFS.  (NB It is emphasized that this has 
-nothing to do with the effects of interactive tasks accessing NFS 
-mounted files themselves.)
+* Linus Torvalds <torvalds@osdl.org> wrote:
 
-The problem occurs because tasks accessing NFS mounted files for data 
-can undergo quite a lot of TASK_INTERRUPTIBLE sleep depending on the 
-load on the server and the quality of the network connection.  This can 
-result in these tasks getting quite high values for sleep_avg and 
-consequently a large priority bonus.  On the system where I noticed this 
-problem they were getting the full 10 bonus points and being given the 
-same dynamic priority as genuine interactive tasks such as the X server 
-and rythmbox.
+> If it had _started_ with a mutex implementation that was faster, 
+> simpler, and didn't rename the old and working semaphores, I'd have 
+> been perfectly fine with it.
 
-The solution to this problem is to use TASK_NONINTERACTIVE to tell the 
-scheduler that the TASK_INTERRUPTIBLE sleeps in the NFS client and 
-SUNRPC are NOT interactive sleeps.
+oh, i'm totally OK with not doing the renames and leaving semaphores 
+alone!
 
-Signed-off-by: Peter Williams <pwil3058@bigpond.com.au>
+Just in case it wasnt clear: i very much expected that the migration 
+helper patches would be controverial, and that they would probably not 
+go upstream. [Christoph said last week that they were fit for an 
+obfuscated C contest, not the kernel, and i didnt expect this sentiment 
+to change overnight.] Look at my patch order:
 
---
+ xfs-mutex-namespace-collision-fix.patch
 
-  fs/nfs/inode.c       |    3 ++-
-  fs/nfs/nfs4proc.c    |    2 +-
-  fs/nfs/pagelist.c    |    3 ++-
-  fs/nfs/write.c       |    3 ++-
-  net/sunrpc/sched.c   |    2 +-
-  net/sunrpc/svcsock.c |    2 +-
-  6 files changed, 9 insertions(+), 6 deletions(-)
+ add-atomic-xchg-i386.patch
+ add-atomic-xchg-x86_64.patch
+ add-atomic-xchg-ia64.patch
+ add-atomic-call-func-i386.patch
+ add-atomic-call-func-x86_64.patch
+ add-atomic-call-func-ia64.patch
+ add-atomic-call-wrappers-all-other-arches.patch
 
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+ mutex-core.patch
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+ mutex-debug.patch
+ mutex-debug-more.patch
 
---------------000309050908090407020705
-Content-Type: text/plain;
- name="make-nfs-sleeps-noninteractive"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="make-nfs-sleeps-noninteractive"
+ mutex-migration-helper-i386.patch    # not upstream from here
+ mutex-migration-helper-x86_64.patch
+ mutex-migration-helper-ia64.patch
+ mutex-migration-helper-core.patch
 
-Index: GIT-warnings/fs/nfs/inode.c
-===================================================================
---- GIT-warnings.orig/fs/nfs/inode.c	2005-12-21 16:22:09.000000000 +1100
-+++ GIT-warnings/fs/nfs/inode.c	2005-12-21 16:22:11.000000000 +1100
-@@ -937,7 +937,8 @@ static int nfs_wait_on_inode(struct inod
+ sx8-sem2completions.patch
+ cpu5wdt-sem2completions.patch
+ ide-gendev-sem-to-completion.patch
+ loop-to-completions.patch
+
+ arch-semaphores.patch
+
+The first 11 patches are finegrained and contain _zero_ of the migration 
+and rename stuff. I specifically created the patch-series in such a way, 
+so that we could simply chop off the last few patches.
+
+in the future i'll only send patches up to mutex-debug-more.patch, as 
+suggested by Christoph and you as well. So there's really no 
+controversy. Btw., that was true for my first queue already, as noticed 
+by Christoph [*].
  
- 	rpc_clnt_sigmask(clnt, &oldmask);
- 	error = wait_on_bit_lock(&nfsi->flags, NFS_INO_REVALIDATING,
--					nfs_wait_schedule, TASK_INTERRUPTIBLE);
-+					nfs_wait_schedule,
-+					TASK_INTERRUPTIBLE|TASK_NONINTERACTIVE);
- 	rpc_clnt_sigunmask(clnt, &oldmask);
- 
- 	return error;
-Index: GIT-warnings/fs/nfs/nfs4proc.c
-===================================================================
---- GIT-warnings.orig/fs/nfs/nfs4proc.c	2005-12-21 16:22:09.000000000 +1100
-+++ GIT-warnings/fs/nfs/nfs4proc.c	2005-12-21 16:22:11.000000000 +1100
-@@ -2547,7 +2547,7 @@ static int nfs4_wait_clnt_recover(struct
- 	rpc_clnt_sigmask(clnt, &oldset);
- 	interruptible = TASK_UNINTERRUPTIBLE;
- 	if (clnt->cl_intr)
--		interruptible = TASK_INTERRUPTIBLE;
-+		interruptible = TASK_INTERRUPTIBLE|TASK_NONINTERACTIVE;
- 	prepare_to_wait(&clp->cl_waitq, &wait, interruptible);
- 	nfs4_schedule_state_recovery(clp);
- 	if (clnt->cl_intr && signalled())
-Index: GIT-warnings/fs/nfs/pagelist.c
-===================================================================
---- GIT-warnings.orig/fs/nfs/pagelist.c	2005-12-21 16:22:09.000000000 +1100
-+++ GIT-warnings/fs/nfs/pagelist.c	2005-12-21 16:22:11.000000000 +1100
-@@ -210,7 +210,8 @@ nfs_wait_on_request(struct nfs_page *req
- 	 */
- 	rpc_clnt_sigmask(clnt, &oldmask);
- 	ret = out_of_line_wait_on_bit(&req->wb_flags, PG_BUSY,
--			nfs_wait_bit_interruptible, TASK_INTERRUPTIBLE);
-+			nfs_wait_bit_interruptible,
-+			TASK_INTERRUPTIBLE|TASK_NONINTERACTIVE);
- 	rpc_clnt_sigunmask(clnt, &oldmask);
- out:
- 	return ret;
-Index: GIT-warnings/fs/nfs/write.c
-===================================================================
---- GIT-warnings.orig/fs/nfs/write.c	2005-12-21 16:22:09.000000000 +1100
-+++ GIT-warnings/fs/nfs/write.c	2005-12-21 16:22:11.000000000 +1100
-@@ -595,7 +595,8 @@ static int nfs_wait_on_write_congestion(
- 		sigset_t oldset;
- 
- 		rpc_clnt_sigmask(clnt, &oldset);
--		prepare_to_wait(&nfs_write_congestion, &wait, TASK_INTERRUPTIBLE);
-+		prepare_to_wait(&nfs_write_congestion, &wait,
-+				TASK_INTERRUPTIBLE|TASK_NONINTERACTIVE);
- 		if (bdi_write_congested(bdi)) {
- 			if (signalled())
- 				ret = -ERESTARTSYS;
-Index: GIT-warnings/net/sunrpc/sched.c
-===================================================================
---- GIT-warnings.orig/net/sunrpc/sched.c	2005-12-21 16:22:09.000000000 +1100
-+++ GIT-warnings/net/sunrpc/sched.c	2005-12-21 16:22:11.000000000 +1100
-@@ -659,7 +659,7 @@ static int __rpc_execute(struct rpc_task
- 		/* Note: Caller should be using rpc_clnt_sigmask() */
- 		status = out_of_line_wait_on_bit(&task->tk_runstate,
- 				RPC_TASK_QUEUED, rpc_wait_bit_interruptible,
--				TASK_INTERRUPTIBLE);
-+				TASK_INTERRUPTIBLE|TASK_NONINTERACTIVE);
- 		if (status == -ERESTARTSYS) {
- 			/*
- 			 * When a sync task receives a signal, it exits with
-Index: GIT-warnings/net/sunrpc/svcsock.c
-===================================================================
---- GIT-warnings.orig/net/sunrpc/svcsock.c	2005-12-21 16:22:09.000000000 +1100
-+++ GIT-warnings/net/sunrpc/svcsock.c	2005-12-21 16:22:11.000000000 +1100
-@@ -1213,7 +1213,7 @@ svc_recv(struct svc_serv *serv, struct s
- 		 * We have to be able to interrupt this wait
- 		 * to bring down the daemons ...
- 		 */
--		set_current_state(TASK_INTERRUPTIBLE);
-+		set_current_state(TASK_INTERRUPTIBLE|TASK_NONINTERACTIVE);
- 		add_wait_queue(&rqstp->rq_wait, &wait);
- 		spin_unlock_bh(&serv->sv_lock);
- 
+Basically all of the activity in the last 2 days was in the first 11 
+patches. I'll send an updated queue later today.
 
---------------000309050908090407020705--
+	Ingo
+
+[*] the migration helpers were incredibly useful for pulling this off.
+    Without the wide exposure of mutexes to existing semaphore users i'd
+    not have been able to profile the system, to measure the impact the
+    effects of mutexes on performance. I'd also not have been able to
+    say what percentage of semaphores could move over to mutexes. We 
+    could also not have carried the mutex implementation in the -rt tree 
+    for more than a year, in which year millions of lines were changed 
+    in the upstream kernel! It would have been simply impossible to even 
+    attempt this, without the type-sensitive APIs and the minimal 
+    renames to categorize semaphores.

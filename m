@@ -1,43 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbVLUNQ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbVLUNUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbVLUNQ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 08:16:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932404AbVLUNQ1
+	id S932282AbVLUNUv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 08:20:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932402AbVLUNUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 08:16:27 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:53420 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S932403AbVLUNQ0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 08:16:26 -0500
-Message-ID: <43A955CC.4030101@ru.mvista.com>
-Date: Wed, 21 Dec 2005 16:17:00 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org, dpervushin@gmail.com, akpm@osdl.org,
-       greg@kroah.com, basicmark@yahoo.com, komal_shah802003@yahoo.com,
-       stephen@streetfiresound.com, spi-devel-general@lists.sourceforge.net,
-       Joachim_Jaeger@digi.com
-Subject: Re: [PATCH/RFC] SPI:  async message handing library update
-References: <20051212182026.4e393d5a.vwool@ru.mvista.com> <20051213170629.7240d211.vwool@ru.mvista.com> <20051215151948.497d703b.vwool@ru.mvista.com> <200512181059.14301.david-b@pacbell.net>
-In-Reply-To: <200512181059.14301.david-b@pacbell.net>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Dec 2005 08:20:51 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:10983 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S932282AbVLUNUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 08:20:50 -0500
+Date: Wed, 21 Dec 2005 14:20:48 +0100
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: Ed Tomlinson <edt@aei.ca>
+Cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>
+Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull on
+	x86_64 machines ?
+Message-ID: <20051221132046.GJ27831@vanheusden.com>
+References: <7vbqzadgmt.fsf@assigned-by-dhcp.cox.net>
+	<43A91C57.20102@cosmosbay.com> <200512210744.52559.edt@aei.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; x-action=pgp-signed
+Content-Disposition: inline
+In-Reply-To: <200512210744.52559.edt@aei.ca>
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Thu Dec 22 11:22:45 CET 2005
+X-Message-Flag: Want to extend your PGP web-of-trust? Coordinate a key-signing
+	at www.biglumber.com
+User-Agent: Mutt/1.5.10i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->			if (t->len) {
->				/* FIXME if bitbang->use_dma, dma_map_single()
->				 * before the transfer, and dma_unmap_single()
->				 * afterwards, for either or both buffers...
->				 */
->  
->
-please *please* *_please_*!!! don't do it! :)
-Let the controller driver do it *only in case it's not working in PIO!*
+> > (x86_64 : PAGE_SIZE = 4096, L1_CACHE_BYTES = 64)
+> > On my machines, I can say that the 32 and 192 sizes could be avoided in favor 
+> > in spending less cpu cycles in __find_general_cachep()
+> > Could some of you post the result of the following command on your machines :
+> > # grep "size-" /proc/slabinfo |grep -v DMA|cut -c1-40
+> size-131072            0      0 131072
+> size-65536             3      3  65536
+> size-32768             0      0  32768
+> size-16384             3      3  16384
+> size-8192             28     28   8192
+> size-4096            184    184   4096
+> size-2048            272    272   2048
+> size-1024            300    300   1024
+> size-512             275    376    512
+> size-256             717    720    256
+> size-192            1120   1220    192
+> size-64             7720   8568     64
+> size-128           45019  65830    128
+> size-32             1627   3333     32
 
-Vitaly
+size-131072            0      0 131072
+size-65536             0      0  65536
+size-32768            20     20  32768
+size-16384             8      9  16384
+size-8192             37     38   8192
+size-4096            269    269   4096
+size-2048            793    910   2048
+size-1024            564    608   1024
+size-512             702    856    512
+size-256            1485   4005    256
+size-128            1209   1350    128
+size-64             2858   3363     64
+size-32             1538   2714     64
+Intel(R) Xeon(TM) MP CPU 3.00GHz
+address sizes   : 40 bits physical, 48 bits virtual
+
+
+Folkert van Heusden
+
+- -- 
+Try MultiTail! Multiple windows with logfiles, filtered with regular
+expressions, colored output, etc. etc. www.vanheusden.com/multitail/
+- ----------------------------------------------------------------------
+Get your PGP/GPG key signed at www.biglumber.com!
+- ----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iIMEARECAEMFAkOpVq48Gmh0dHA6Ly93d3cudmFuaGV1c2Rlbi5jb20vZGF0YS1z
+aWduaW5nLXdpdGgtcGdwLXBvbGljeS5odG1sAAoJEDAZDowfKNiuUUEAnR9DJq5M
+x+Bj1R+djzCli3bFrJXKAJ9OmCx9FKDaGl6PocRwCZSKURerPA==
+=vQhF
+-----END PGP SIGNATURE-----

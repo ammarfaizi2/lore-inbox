@@ -1,70 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVLUQaq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbVLUQfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbVLUQaq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 11:30:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbVLUQaq
+	id S932469AbVLUQfy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 11:35:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbVLUQfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 11:30:46 -0500
-Received: from main.gmane.org ([80.91.229.2]:30103 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932467AbVLUQap (ORCPT
+	Wed, 21 Dec 2005 11:35:54 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:35264 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S932469AbVLUQfy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 11:30:45 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
-Subject: Re: About 4k kernel stack size....
-Date: Wed, 21 Dec 2005 11:25:42 -0500
-Message-ID: <dobvlf$ife$1@sea.gmane.org>
-References: <20051218231401.6ded8de2@werewolf.auna.net> <43A77205.2040306@rtr.ca> <20051220133729.GC6789@stusta.de> <170fa0d20512200637l169654c9vbe38c9931c23dfb1@mail.gmail.com> <BAYC1-PASMTP01F075F44E45AA32F0DF85AE3E0@CEZ.ICE> <dobr1u$19t$1@sea.gmane.org> <2C2D8A91-7BD7-4181-B054-E82A279AF51D@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ool-18b8606d.dyn.optonline.net
-User-Agent: KNode/0.9.3
+	Wed, 21 Dec 2005 11:35:54 -0500
+Message-ID: <43A99618.6D6655C6@tv-sign.ru>
+Date: Wed, 21 Dec 2005 20:51:20 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       David Howells <dhowells@redhat.com>,
+       Alexander Viro <viro@ftp.linux.org.uk>, Paul Jackson <pj@sgi.com>
+Subject: Re: [patch 05/15] Generic Mutex Subsystem, mutex-core.patch
+References: <20051219013718.GA28038@elte.hu> <43A98101.364DB5CF@tv-sign.ru> <20051221155742.GA7375@elte.hu>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett wrote:
+Ingo Molnar wrote:
+> 
+> * Oleg Nesterov <oleg@tv-sign.ru> wrote:
+> 
+> > > +   spin_lock(&lock->wait_lock);
+> > > +   __add_waiter(lock, waiter, ti, task __IP__);
+> > > +   set_task_state(task, task_state);
+> >
+> > I can't understand why __mutex_lock_common() does xchg() after adding
+> > the waiter to the ->wait_list. We are holding ->wait_lock, we can't
+> > race with __mutex_unlock_nonatomic() - it calls wake_up() and sets
+> > ->count under this spinlock.
+> 
+> we must make sure that the drop has not been dropped meanwhile, on the
+> way in, between the fastpath-unlock atomic op, and the xchg() here.
 
-> Not true.  This is (IIRC) the _third_ flamewar during which a large
-> proportion of the comments were either directly or indirectly one of
-> the following: "You are intentionally breaking ndiswrapper", "What's
-> wrong with having an 8k option?", and "This makes things more-fragile
-> or isn't well tested".
+Sorry for noise, probably I should just re-read your explanation
+tomorrow after some sleeping...
 
-If you have paid any attention to the contents of my article, you would know
-why it has become flame war. I didn't discuss any technical issues
-regarding 4k-stack proposal, nor requested a debatable summary of what has
-been going on this proposal. I didn't have anything new to discuss and nor
-is rest of your article. I objected to some people (including you) that are
-the reason why valid discussion is turning into one by calling people
-names.
- 
-> Windows drivers like that using more than one thread are basically
-> inherently racy under current Linux, and probably would not handle
-> preemption at all.  If some mess like that breaks due to any in-
-> kernel change, you get to keep all 42 pieces.
+But why we can't add the waiter to ->wait_list _after_ xchg() ?
+What makes the difference? Fastpath atomic op can happen before
+or after xchg(), this is ok. Unlock path will look at ->wait_list
+only after taking spinlock, at this time we already added this
+waiter to the ->wait_list.
 
-Take a look at it to understand before commenting on it. ndiswrapper works
-fine with preemption and even SMP with certain drivers. It may not work
-with SMP with certain drivers, because I don't have hardware to test and
-understand the issues. If you have any concerns about ndiswrapper, raise
-them on ndiswrapper's mailing list.
+In other words: we are holding ->wait_lock, nobody can even look
+at ->wait_list. We can add the waiter to ->wait_list before or
+after atomic_xchg() - it does not matter.
 
-> Great, you will probably make a lot of people happy with that.
+Again no?
 
-Again. I am a developer of ndiswrapper and I am doing what I can so people
-have a way of using many wireless cards that don't have open source
-projects. Just because you don't agree on "moral issues" and what not about
-ndiswrapper doesn't mean you have to force users to give up what they may
-consider important. Besides, ndiswrapper is about choice; if someone like
-you doesn't want to use ndiswrapper, no one is forcing you to, but there
-are plenty of users that are aware of issues with using ndiswrapper that
-are comfortable with it. I am not interested in further discussing this,
-lest this is perceived as stoking flame war. I will rather focus on
-constructive issues and help others (as I believe it, anyway).
-
-Giri
-
-
+Oleg.

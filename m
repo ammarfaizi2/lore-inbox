@@ -1,127 +1,249 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbVLUWkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbVLUWiz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964848AbVLUWkE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 17:40:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbVLUWjl
+	id S964866AbVLUWiz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 17:38:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbVLUWit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 17:39:41 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:47596 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S964848AbVLUWja convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 17:39:30 -0500
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [perfmon] Re: quick overview of the perfmon2 interface
-Date: Wed, 21 Dec 2005 14:39:26 -0800
-Message-ID: <3C87FFF91369A242B9C9147F8BD0908A02C69454@cacexc04.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [perfmon] Re: quick overview of the perfmon2 interface
-Thread-Index: AcYGSUBsIy5vlj4gR6qh7Hh0OPgbEQALKmoA
-From: "Truong, Dan" <dan.truong@hp.com>
-To: "Andrew Morton" <akpm@osdl.org>,
-       "Eranian, Stephane" <stephane.eranian@hp.com>
-Cc: <perfmon@napali.hpl.hp.com>, <linux-ia64@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <perfctr-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 21 Dec 2005 22:39:27.0744 (UTC) FILETIME=[66880000:01C6067F]
+	Wed, 21 Dec 2005 17:38:49 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:51371 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964866AbVLUWi3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 17:38:29 -0500
+Date: Wed, 21 Dec 2005 23:37:45 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
+Subject: [patch 8/8] mutex subsystem, more debugging code
+Message-ID: <20051221223745.GI4960@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a couple of cents here to support Stephane's design :)
+more mutex debugging: check for held locks during memory freeing,
+task exit, enable sysrq printouts, etc.
 
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-> Why would one want to change the format of the sampling buffer?
+----
 
-The idea is to allow user custom formats for one, and allow Exotic
-architectures for second.
+ arch/i386/mm/pageattr.c |    4 ++++
+ drivers/char/sysrq.c    |   19 +++++++++++++++++++
+ include/linux/mm.h      |    4 ++++
+ kernel/exit.c           |    5 +++++
+ kernel/sched.c          |    1 +
+ lib/spinlock_debug.c    |   18 ++++++++++--------
+ mm/page_alloc.c         |    3 +++
+ mm/slab.c               |    1 +
+ 8 files changed, 47 insertions(+), 8 deletions(-)
 
-Say you want to reduce the volume of data passed to the application And
-stored in the buffers, you can then do some pre-processing Inside the
-kernel via a custom module.
-
-You can also return more complex data than just PMU registers, think
-Call stacks or other OS related information that can complement the The
-PMU data.
-
-Some data can be returned vis pseudo PMU registers (i.e. extentions),
-Like the interval timer, PID/TID, etc. but for more complex and less
-Synchronous data you may end up needed a more powerfull buffer format
-With headers etc.
-
-Another issue can be if hardware buffer support is provided. The
-hardware Buffer support will not allow collection of pseudo-counters
-which are Supported by software, so again the packaging may not be as
-linear as A repeated sequence of counters...
-
-With Stephane we had discussed this buffer format, and came to the
-Conclusion that flexibility there will avoid hitting the wall.
-
-You don't know what tomorrow is made of (yet)...
-
-
-
-> > 	The PMU register description is implemented by a kernel
-pluggable
-> 
-> Is that option important, or likely to be useful?  Are you sure there 
-> isn't some overdesign here?
-
-It will allow bringup of new PMUs on new architectures more easily, and
-simpler distribution of support. It will also allow CPU designers to
-create custom drivers that support non-public features to debug the
-CPUs.
-
-
-
-> hm.  I'm surprised at such a CPU-centric approach.  I'd have expected 
-> to see a more task-centric model.
-
-Both per-thread and system-wide measurments are useful.
-
-Systemwide is used to evaluate the beavior of the whole system when
-tuning a large load (think TPC-C, SpecWeb, SpecJapp...) Per thread is
-used for specific application/thread tuning and self monitoring. Also
-per-thread monitoring is not always adviseable, for example when there
-Are a large number of threads loading the system, adding that many
-monitors will impact the system performance, so you will want to measure
-per CPU.
-
-> So the kernel buffers these messages for the read()er.  How does it 
-> handle the case of a process which requests the messages but never 
-> gets around to read()ing them?
-
-Stephane, I would assume that the monitoring session attached to
-The buffer returning the message just stalls. If there is multiplexing,
-Will coming back to that stalled buffer stall all the multiplexed
-Sessions? I would assume so.
-
-
-
-> Why would one want to randomise the PMD after an overflow?
-
-Everybody does it :) Helps generate an un-biased picture.
-
-
-
-> I think the usefulness of this needs justification.  CPUs are updated 
-> all the time, and we release new kernels all the time to exploit the 
-> new CPU features.  What's so special about performance counters that 
-> they need such special treatment?
-
-The PMU is not fully architected usually. Nothing prevents a
-Model to be shipped with PMU upgrades.
-Also the PMU can be used by architects for validation of the designs.
-Easier early access to the functionalities helps.
-
-The PMU is a direct evolution of the debug counters that were used
-To debug CPUs but not available for general use. They are still used
-In that fashion too, and a main reason they exist.
-
-
-Cheers,
-
-Dan-
+Index: linux/arch/i386/mm/pageattr.c
+===================================================================
+--- linux.orig/arch/i386/mm/pageattr.c
++++ linux/arch/i386/mm/pageattr.c
+@@ -207,6 +207,10 @@ void kernel_map_pages(struct page *page,
+ {
+ 	if (PageHighMem(page))
+ 		return;
++	if (!enable)
++		mutex_debug_check_no_locks_freed(page_address(page),
++						 page_address(page+numpages));
++
+ 	/* the return value is ignored - the calls cannot fail,
+ 	 * large pages are disabled at boot time.
+ 	 */
+Index: linux/drivers/char/sysrq.c
+===================================================================
+--- linux.orig/drivers/char/sysrq.c
++++ linux/drivers/char/sysrq.c
+@@ -153,6 +153,21 @@ static struct sysrq_key_op sysrq_mountro
+ 
+ /* END SYNC SYSRQ HANDLERS BLOCK */
+ 
++#ifdef CONFIG_DEBUG_MUTEXES
++
++static void
++sysrq_handle_showlocks(int key, struct pt_regs *pt_regs, struct tty_struct *tty)
++{
++	mutex_debug_show_all_locks();
++}
++
++static struct sysrq_key_op sysrq_showlocks_op = {
++	.handler	= sysrq_handle_showlocks,
++	.help_msg	= "show-all-locks(D)",
++	.action_msg	= "Show Locks Held",
++};
++
++#endif
+ 
+ /* SHOW SYSRQ HANDLERS BLOCK */
+ 
+@@ -294,7 +309,11 @@ static struct sysrq_key_op *sysrq_key_ta
+ #else
+ /* c */	NULL,
+ #endif
++#ifdef CONFIG_DEBUG_MUTEXES
++/* d */ &sysrq_showlocks_op,
++#else
+ /* d */ NULL,
++#endif
+ /* e */	&sysrq_term_op,
+ /* f */	&sysrq_moom_op,
+ /* g */	NULL,
+Index: linux/include/linux/mm.h
+===================================================================
+--- linux.orig/include/linux/mm.h
++++ linux/include/linux/mm.h
+@@ -13,6 +13,7 @@
+ #include <linux/rbtree.h>
+ #include <linux/prio_tree.h>
+ #include <linux/fs.h>
++#include <linux/mutex.h>
+ 
+ struct mempolicy;
+ struct anon_vma;
+@@ -977,6 +978,9 @@ static inline void vm_stat_account(struc
+ static inline void
+ kernel_map_pages(struct page *page, int numpages, int enable)
+ {
++	if (!PageHighMem(page) && !enable)
++		mutex_debug_check_no_locks_freed(page_address(page),
++						 page_address(page + numpages));
+ }
+ #endif
+ 
+Index: linux/kernel/exit.c
+===================================================================
+--- linux.orig/kernel/exit.c
++++ linux/kernel/exit.c
+@@ -29,6 +29,7 @@
+ #include <linux/syscalls.h>
+ #include <linux/signal.h>
+ #include <linux/cn_proc.h>
++#include <linux/mutex.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -870,6 +871,10 @@ fastcall NORET_TYPE void do_exit(long co
+ 	mpol_free(tsk->mempolicy);
+ 	tsk->mempolicy = NULL;
+ #endif
++	/*
++	 * If DEBUG_MUTEXES is on, make sure we are holding no locks:
++	 */
++	mutex_debug_check_no_locks_held(tsk);
+ 
+ 	/* PF_DEAD causes final put_task_struct after we schedule. */
+ 	preempt_disable();
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c
++++ linux/kernel/sched.c
+@@ -4379,6 +4379,7 @@ void show_state(void)
+ 	} while_each_thread(g, p);
+ 
+ 	read_unlock(&tasklist_lock);
++	mutex_debug_show_all_locks();
+ }
+ 
+ /**
+Index: linux/lib/spinlock_debug.c
+===================================================================
+--- linux.orig/lib/spinlock_debug.c
++++ linux/lib/spinlock_debug.c
+@@ -20,7 +20,8 @@ static void spin_bug(spinlock_t *lock, c
+ 		if (lock->owner && lock->owner != SPINLOCK_OWNER_INIT)
+ 			owner = lock->owner;
+ 		printk("BUG: spinlock %s on CPU#%d, %s/%d\n",
+-			msg, smp_processor_id(), current->comm, current->pid);
++			msg, raw_smp_processor_id(),
++			current->comm, current->pid);
+ 		printk(" lock: %p, .magic: %08x, .owner: %s/%d, .owner_cpu: %d\n",
+ 			lock, lock->magic,
+ 			owner ? owner->comm : "<none>",
+@@ -78,8 +79,8 @@ static void __spin_lock_debug(spinlock_t
+ 		if (print_once) {
+ 			print_once = 0;
+ 			printk("BUG: spinlock lockup on CPU#%d, %s/%d, %p\n",
+-				smp_processor_id(), current->comm, current->pid,
+-					lock);
++				raw_smp_processor_id(), current->comm,
++				current->pid, lock);
+ 			dump_stack();
+ 		}
+ 	}
+@@ -120,7 +121,8 @@ static void rwlock_bug(rwlock_t *lock, c
+ 
+ 	if (xchg(&print_once, 0)) {
+ 		printk("BUG: rwlock %s on CPU#%d, %s/%d, %p\n", msg,
+-			smp_processor_id(), current->comm, current->pid, lock);
++			raw_smp_processor_id(), current->comm,
++			current->pid, lock);
+ 		dump_stack();
+ #ifdef CONFIG_SMP
+ 		/*
+@@ -148,8 +150,8 @@ static void __read_lock_debug(rwlock_t *
+ 		if (print_once) {
+ 			print_once = 0;
+ 			printk("BUG: read-lock lockup on CPU#%d, %s/%d, %p\n",
+-				smp_processor_id(), current->comm, current->pid,
+-					lock);
++				raw_smp_processor_id(), current->comm,
++				current->pid, lock);
+ 			dump_stack();
+ 		}
+ 	}
+@@ -220,8 +222,8 @@ static void __write_lock_debug(rwlock_t 
+ 		if (print_once) {
+ 			print_once = 0;
+ 			printk("BUG: write-lock lockup on CPU#%d, %s/%d, %p\n",
+-				smp_processor_id(), current->comm, current->pid,
+-					lock);
++				raw_smp_processor_id(), current->comm,
++				current->pid, lock);
+ 			dump_stack();
+ 		}
+ 	}
+Index: linux/mm/page_alloc.c
+===================================================================
+--- linux.orig/mm/page_alloc.c
++++ linux/mm/page_alloc.c
+@@ -400,6 +400,9 @@ void __free_pages_ok(struct page *page, 
+ 	int reserved = 0;
+ 
+ 	arch_free_page(page, order);
++	if (!PageHighMem(page))
++		mutex_debug_check_no_locks_freed(page_address(page),
++			page_address(page+(1<<order)));
+ 
+ #ifndef CONFIG_MMU
+ 	if (order > 0)
+Index: linux/mm/slab.c
+===================================================================
+--- linux.orig/mm/slab.c
++++ linux/mm/slab.c
+@@ -3038,6 +3038,7 @@ void kfree(const void *objp)
+ 	local_irq_save(flags);
+ 	kfree_debugcheck(objp);
+ 	c = page_get_cache(virt_to_page(objp));
++	mutex_debug_check_no_locks_freed(objp, objp+obj_reallen(c));
+ 	__cache_free(c, (void*)objp);
+ 	local_irq_restore(flags);
+ }

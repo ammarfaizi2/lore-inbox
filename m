@@ -1,65 +1,238 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVLURXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbVLURbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750742AbVLURXg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 12:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbVLURXg
+	id S1751142AbVLURbX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 12:31:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbVLURbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 12:23:36 -0500
-Received: from [195.144.244.147] ([195.144.244.147]:19895 "EHLO
-	amanaus.varma-el.com") by vger.kernel.org with ESMTP
-	id S1750742AbVLURXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 12:23:36 -0500
-Message-ID: <43A98F90.9010001@varma-el.com>
-Date: Wed, 21 Dec 2005 20:23:28 +0300
-From: Andrey Volkov <avolkov@varma-el.com>
-Organization: Varma Electronics Oy
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
-X-Accept-Language: ru-ru, ru
+	Wed, 21 Dec 2005 12:31:23 -0500
+Received: from smtp.nextra.cz ([195.70.130.4]:18451 "EHLO smtp.nextra.cz")
+	by vger.kernel.org with ESMTP id S1751142AbVLURbX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 12:31:23 -0500
+Message-ID: <43A9913D.4070004@nextra.cz>
+Date: Wed, 21 Dec 2005 18:30:37 +0100
+From: Zdenek Pavlas <pavlas@nextra.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: jes@trained-monkey.org
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       linuxppc-embedded@ozlabs.org
-Subject: [RFC] genalloc != generic DEVICE memory allocator
-X-Enigmail-Version: 0.93.0.0
-OpenPGP: url=pgp.dtype.org
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 7bit
+To: Rob Landley <rob@landley.net>
+Cc: uclibc@uclibc.org, Matt Mackall <mpm@selenic.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 10/15] misc: Make *[ug]id16 support optional
+References: <11.282480653@selenic.com> <20051116180140.GO31287@waste.org> <43A82764.8050305@nextra.cz> <200512201050.05278.rob@landley.net>
+In-Reply-To: <200512201050.05278.rob@landley.net>
+Content-Type: multipart/mixed;
+ boundary="------------070304050203060504010703"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jes and all
+This is a multi-part message in MIME format.
+--------------070304050203060504010703
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I try to use your allocator (gen_pool_xxx), idea of which
-is a cute nice thing. But current implementation of it is
-inappropriate for a _device_ (aka onchip, like framebuffer) memory
-allocation, by next reasons:
+Rob Landley wrote:
 
- 1) Device memory is expensive resource by access time and/or size cost.
-    So we couldn't use (usually) this memory for the free blocks lists.
- 2) Device memory usually have special requirement of access to it
-    (alignment/special insn). So we couldn't use part of allocated
-    blocks for some control structures (this problem solved in your
-    implementation, it's common remark)
- 3) Obvious (IMHO) workflow of mem. allocator look like:
- 	- at startup time, driver allocate some big
-	  (almost) static mem. chunk(s) for a control/data structures.
-        - during work of the device, driver allocate many small
-	  mem. blocks with almost identical size.
-    such behavior lead to degeneration of buddy method and
-    transform it to the first/best fit method (with long seek
-    by the free node list).
- 4) The simple binary buddy method is far away from perfect for a device
-    due to a big internal fragmentation. Especially for a
-    network/mfd devices, for which, size of allocated data very
-    often is not a power of 2.
+> They've been fixing that.  Working with linux-tiny is definitely something 
+> uClibc is interested in.  When you say "patches like this", do you have a 
+> complete list or is there something we could grep for?
 
-I start to modify your code to satisfy above demands,
-but firstly I wish to know your, or somebody else, opinion.
-
-Especially I will very happy if somebody have and could
-provide to all, some device specific memory usage statistics.
+I've made linux-tiny + uClibc + busybox to work with following patch.
+Very lightly tested, not sure it's correct or complete, but at least
+stuff like 'su', 'chown' etc started to work.
 
 -- 
-Regards
-Andrey Volkov
+Zdenek Pavlas
+Application Developer
+NEXTRA Czech Republic s.r.o.  http://www.nextra.cz
 
+--------------070304050203060504010703
+Content-Type: text/plain;
+ name="uClibc-no-ugid16.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="uClibc-no-ugid16.patch"
+
+--- uClibc-0.9.28/libc/sysdeps/linux/common/chown.c
++++ uclibc/libc/sysdeps/linux/common/chown.c
+@@ -10,16 +10,11 @@
+ #include "syscalls.h"
+ #include <unistd.h>
+ 
+-#define __NR___syscall_chown __NR_chown
++#define __NR___syscall_chown __NR_chown32
+ static inline _syscall3(int, __syscall_chown, const char *, path,
+ 		__kernel_uid_t, owner, __kernel_gid_t, group);
+ 
+ int chown(const char *path, uid_t owner, gid_t group)
+ {
+-	if (((owner + 1) > (uid_t) ((__kernel_uid_t) - 1U))
+-		|| ((group + 1) > (gid_t) ((__kernel_gid_t) - 1U))) {
+-		__set_errno(EINVAL);
+-		return -1;
+-	}
+ 	return (__syscall_chown(path, owner, group));
+ }
+--- uClibc-0.9.28/libc/sysdeps/linux/common/fchown.c
++++ uclibc/libc/sysdeps/linux/common/fchown.c
+@@ -10,16 +10,11 @@
+ #include "syscalls.h"
+ #include <unistd.h>
+ 
+-#define __NR___syscall_fchown __NR_fchown
++#define __NR___syscall_fchown __NR_fchown32
+ static inline _syscall3(int, __syscall_fchown, int, fd,
+ 		__kernel_uid_t, owner, __kernel_gid_t, group);
+ 
+ int fchown(int fd, uid_t owner, gid_t group)
+ {
+-	if (((owner + 1) > (uid_t) ((__kernel_uid_t) - 1U))
+-		|| ((group + 1) > (gid_t) ((__kernel_gid_t) - 1U))) {
+-		__set_errno(EINVAL);
+-		return -1;
+-	}
+ 	return (__syscall_fchown(fd, owner, group));
+ }
+--- uClibc-0.9.28/libc/sysdeps/linux/common/getegid.c
++++ uclibc/libc/sysdeps/linux/common/getegid.c
+@@ -11,7 +11,7 @@
+ #include <unistd.h>
+ 
+ #ifdef	__NR_getegid
+-#define __NR___syscall_getegid __NR_getegid
++#define __NR___syscall_getegid __NR_getegid32
+ static inline _syscall0(int, __syscall_getegid);
+ gid_t getegid(void)
+ {
+--- uClibc-0.9.28/libc/sysdeps/linux/common/geteuid.c
++++ uclibc/libc/sysdeps/linux/common/geteuid.c
+@@ -11,7 +11,7 @@
+ #include <unistd.h>
+ 
+ #ifdef	__NR_geteuid
+-#define __NR___syscall_geteuid __NR_geteuid
++#define __NR___syscall_geteuid __NR_geteuid32
+ static inline _syscall0(int, __syscall_geteuid);
+ uid_t geteuid(void)
+ {
+--- uClibc-0.9.28/libc/sysdeps/linux/common/getgid.c
++++ uclibc/libc/sysdeps/linux/common/getgid.c
+@@ -10,7 +10,7 @@
+ #include "syscalls.h"
+ #include <unistd.h>
+ 
+-#define __NR___syscall_getgid __NR_getgid
++#define __NR___syscall_getgid __NR_getgid32
+ #if defined (__alpha__)
+ #define __NR_getgid     __NR_getxgid
+ #endif
+--- uClibc-0.9.28/libc/sysdeps/linux/common/getuid.c
++++ uclibc/libc/sysdeps/linux/common/getuid.c
+@@ -13,7 +13,7 @@
+ #if defined (__alpha__)
+ #define __NR_getuid     __NR_getxuid
+ #endif
+-#define __NR___syscall_getuid __NR_getuid
++#define __NR___syscall_getuid __NR_getuid32
+ 
+ static inline _syscall0(int, __syscall_getuid);
+ 
+--- uClibc-0.9.28/libc/sysdeps/linux/common/lchown.c
++++ uclibc/libc/sysdeps/linux/common/lchown.c
+@@ -10,16 +10,11 @@
+ #include "syscalls.h"
+ #include <unistd.h>
+ 
+-#define __NR___syscall_lchown __NR_lchown
++#define __NR___syscall_lchown __NR_lchown32
+ static inline _syscall3(int, __syscall_lchown, const char *, path,
+ 		__kernel_uid_t, owner, __kernel_gid_t, group);
+ 
+ int lchown(const char *path, uid_t owner, gid_t group)
+ {
+-	if (((owner + 1) > (uid_t) ((__kernel_uid_t) - 1U))
+-		|| ((group + 1) > (gid_t) ((__kernel_gid_t) - 1U))) {
+-		__set_errno(EINVAL);
+-		return -1;
+-	}
+ 	return __syscall_lchown(path, owner, group);
+ }
+--- uClibc-0.9.28/libc/sysdeps/linux/common/setegid.c
++++ uclibc/libc/sysdeps/linux/common/setegid.c
+@@ -10,12 +10,6 @@
+ {
+     int result;
+ 
+-    if (gid == (gid_t) ~0)
+-    {
+-	__set_errno (EINVAL);
+-	return -1;
+-    }
+-
+ #ifdef __NR_setresgid
+     result = setresgid(-1, gid, -1);
+     if (result == -1 && errno == ENOSYS)
+--- uClibc-0.9.28/libc/sysdeps/linux/common/seteuid.c
++++ uclibc/libc/sysdeps/linux/common/seteuid.c
+@@ -10,12 +10,6 @@
+ {
+     int result;
+ 
+-    if (uid == (uid_t) ~0)
+-    {
+-	__set_errno (EINVAL);
+-	return -1;
+-    }
+-
+ #ifdef __NR_setresuid
+     result = setresuid(-1, uid, -1);
+     if (result == -1 && errno == ENOSYS)
+--- uClibc-0.9.28/libc/sysdeps/linux/common/setgid.c
++++ uclibc/libc/sysdeps/linux/common/setgid.c
+@@ -10,14 +10,10 @@
+ #include "syscalls.h"
+ #include <unistd.h>
+ 
+-#define __NR___syscall_setgid __NR_setgid
++#define __NR___syscall_setgid __NR_setgid32
+ static inline _syscall1(int, __syscall_setgid, __kernel_gid_t, gid);
+ 
+ int setgid(gid_t gid)
+ {
+-	if (gid == (gid_t) ~ 0 || gid != (gid_t) ((__kernel_gid_t) gid)) {
+-		__set_errno(EINVAL);
+-		return -1;
+-	}
+ 	return (__syscall_setgid(gid));
+ }
+--- uClibc-0.9.28/libc/sysdeps/linux/common/setgroups.c
++++ uclibc/libc/sysdeps/linux/common/setgroups.c
+@@ -11,7 +11,7 @@
+ #include <unistd.h>
+ #include <grp.h>
+ 
+-#define __NR___syscall_setgroups __NR_setgroups
++#define __NR___syscall_setgroups __NR_setgroups32
+ static inline _syscall2(int, __syscall_setgroups,
+ 		size_t, size, const __kernel_gid_t *, list);
+ 
+--- uClibc-0.9.28/libc/sysdeps/linux/common/setuid.c
++++ uclibc/libc/sysdeps/linux/common/setuid.c
+@@ -10,14 +10,10 @@
+ #include "syscalls.h"
+ #include <unistd.h>
+ 
+-#define __NR___syscall_setuid __NR_setuid
++#define __NR___syscall_setuid __NR_setuid32
+ static inline _syscall1(int, __syscall_setuid, __kernel_uid_t, uid);
+ 
+ int setuid(uid_t uid)
+ {
+-	if (uid == (uid_t) ~ 0 || uid != (uid_t) ((__kernel_uid_t) uid)) {
+-		__set_errno(EINVAL);
+-		return -1;
+-	}
+ 	return (__syscall_setuid(uid));
+ }
+
+--------------070304050203060504010703--

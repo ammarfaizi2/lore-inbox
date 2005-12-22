@@ -1,82 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965083AbVLVEzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965109AbVLVEzL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965083AbVLVEzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 23:55:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965119AbVLVEzH
+	id S965109AbVLVEzL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 23:55:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbVLVEvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 23:55:07 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:36816 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965083AbVLVEvZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 21 Dec 2005 23:51:25 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:36560 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965092AbVLVEvU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 23:51:20 -0500
 To: linux-m68k@vger.kernel.org
-Subject: [PATCH 28/36] m68k: ataflop __user annotations, NULL noise removal
+Subject: [PATCH 27/36] m68k: amiflop __user annotations
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1EpIQG-0004tH-NL@ZenIV.linux.org.uk>
+Message-Id: <E1EpIQB-0004tA-My@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Thu, 22 Dec 2005 04:51:24 +0000
+Date: Thu, 22 Dec 2005 04:51:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1135011711 -0500
+Date: 1135011656 -0500
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- drivers/block/ataflop.c |    9 +++++----
- 1 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/block/amiflop.c |   11 ++++-------
+ 1 files changed, 4 insertions(+), 7 deletions(-)
 
-cb7e567e9e39339d2963e0efbd5212a5e47ddf92
-diff --git a/drivers/block/ataflop.c b/drivers/block/ataflop.c
-index 22bda05..577698d 100644
---- a/drivers/block/ataflop.c
-+++ b/drivers/block/ataflop.c
-@@ -1361,7 +1361,7 @@ static int floppy_revalidate(struct gend
- 		   formats, for 'permanent user-defined' parameter:
- 		   restore default_params[] here if flagged valid! */
- 		if (default_params[drive].blocks == 0)
--			UDT = 0;
-+			UDT = NULL;
- 		else
- 			UDT = &default_params[drive];
- 	}
-@@ -1495,6 +1495,7 @@ static int fd_ioctl(struct inode *inode,
- 	struct floppy_struct getprm;
- 	int settype;
- 	struct floppy_struct setprm;
+442bc9893a32b018bc451c700c588596d52aeb6d
+diff --git a/drivers/block/amiflop.c b/drivers/block/amiflop.c
+index 8c69533..ac58521 100644
+--- a/drivers/block/amiflop.c
++++ b/drivers/block/amiflop.c
+@@ -1431,6 +1431,7 @@ static int fd_ioctl(struct inode *inode,
+ {
+ 	int drive = iminor(inode) & 3;
+ 	static struct floppy_struct getprm;
 +	void __user *argp = (void __user *)param;
  
- 	switch (cmd) {
- 	case FDGETPRM:
-@@ -1521,7 +1522,7 @@ static int fd_ioctl(struct inode *inode,
- 		getprm.head = 2;
- 		getprm.track = dtp->blocks/dtp->spt/2;
- 		getprm.stretch = dtp->stretch;
--		if (copy_to_user((void *)param, &getprm, sizeof(getprm)))
-+		if (copy_to_user(argp, &getprm, sizeof(getprm)))
+ 	switch(cmd){
+ 	case HDIO_GETGEO:
+@@ -1440,8 +1441,7 @@ static int fd_ioctl(struct inode *inode,
+ 		loc.sectors = unit[drive].dtype->sects * unit[drive].type->sect_mult;
+ 		loc.cylinders = unit[drive].type->tracks;
+ 		loc.start = 0;
+-		if (copy_to_user((void *)param, (void *)&loc,
+-				 sizeof(struct hd_geometry)))
++		if (copy_to_user(argp, &loc, sizeof(struct hd_geometry)))
  			return -EFAULT;
- 		return 0;
+ 		break;
  	}
-@@ -1540,7 +1541,7 @@ static int fd_ioctl(struct inode *inode,
- 		/* get the parameters from user space */
- 		if (floppy->ref != 1 && floppy->ref != -1)
- 			return -EBUSY;
--		if (copy_from_user(&setprm, (void *) param, sizeof(setprm)))
-+		if (copy_from_user(&setprm, argp, sizeof(setprm)))
+@@ -1488,9 +1488,7 @@ static int fd_ioctl(struct inode *inode,
+ 		getprm.head=unit[drive].type->heads;
+ 		getprm.sect=unit[drive].dtype->sects * unit[drive].type->sect_mult;
+ 		getprm.size=unit[drive].blocks;
+-		if (copy_to_user((void *)param,
+-				 (void *)&getprm,
+-				 sizeof(struct floppy_struct)))
++		if (copy_to_user(argp, &getprm, sizeof(struct floppy_struct)))
  			return -EFAULT;
- 		/* 
- 		 * first of all: check for floppy change and revalidate, 
-@@ -1647,7 +1648,7 @@ static int fd_ioctl(struct inode *inode,
- 	case FDFMTTRK:
- 		if (floppy->ref != 1 && floppy->ref != -1)
- 			return -EBUSY;
--		if (copy_from_user(&fmt_desc, (void *) param, sizeof(fmt_desc)))
-+		if (copy_from_user(&fmt_desc, argp, sizeof(fmt_desc)))
+ 		break;
+ 	case FDSETPRM:
+@@ -1502,8 +1500,7 @@ static int fd_ioctl(struct inode *inode,
+ 		break;
+ #ifdef RAW_IOCTL
+ 	case IOCTL_RAW_TRACK:
+-		if (copy_to_user((void *)param, raw_buf,
+-				 unit[drive].type->read_size))
++		if (copy_to_user(argp, raw_buf, unit[drive].type->read_size))
  			return -EFAULT;
- 		return do_format(drive, type, &fmt_desc);
- 	case FDCLRPRM:
+ 		else
+ 			return unit[drive].type->read_size;
 -- 
 0.99.9.GIT
 

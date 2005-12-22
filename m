@@ -1,71 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbVLVNBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965009AbVLVNHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbVLVNBY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 08:01:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbVLVNBY
+	id S965009AbVLVNHv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 08:07:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVLVNHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 08:01:24 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:8614 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965006AbVLVNBX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 08:01:23 -0500
-Date: Thu, 22 Dec 2005 14:00:38 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 9/9] mutex subsystem, XFS namespace collision fixes
-Message-ID: <20051222130038.GA21998@elte.hu>
-References: <20051222114308.GJ18878@elte.hu> <20051222120052.GC30964@infradead.org>
+	Thu, 22 Dec 2005 08:07:51 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40716 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S965009AbVLVNHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 08:07:50 -0500
+Date: Thu, 22 Dec 2005 13:07:44 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Meelis Roos <mroos@linux.ee>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
+Message-ID: <20051222130744.GA31339@flint.arm.linux.org.uk>
+Mail-Followup-To: Meelis Roos <mroos@linux.ee>, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+References: <1134573803.25663.35.camel@localhost.localdomain> <20051214160700.7348A14BEA@rhn.tartu-labor> <20051214172445.GF7124@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512212221310.651@math.ut.ee> <20051221221516.GK1736@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512221231430.6200@math.ut.ee>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051222120052.GC30964@infradead.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <Pine.SOC.4.61.0512221231430.6200@math.ut.ee>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Christoph Hellwig <hch@infradead.org> wrote:
-
-> > -#define mutex_init(lock, type, name)		sema_init(lock, 1)
-> > -#define mutex_destroy(lock)			sema_init(lock, -99)
-> > -#define mutex_lock(lock, num)			down(lock)
-> > -#define mutex_trylock(lock)			(down_trylock(lock) ? 0 : 1)
-> > -#define mutex_unlock(lock)			up(lock)
-> > +#define xfs_mutex_init(lock, type, name)	sema_init(lock, 1)
-> > +#define xfs_mutex_destroy(lock)			sema_init(lock, -99)
-> > +#define xfs_mutex_lock(lock, num)		down(lock)
-> > +#define xfs_mutex_trylock(lock)			(down_trylock(lock) ? 0 : 1)
-> > +#define xfs_mutex_unlock(lock)			up(lock)
+On Thu, Dec 22, 2005 at 12:35:30PM +0200, Meelis Roos wrote:
+> But I might have some more information:
 > 
-> Again, this should really be using the mutex primitives (obviously 
-> ;-)).
+> The first bunch of messages did not happen on serial port detection but 
+> when "discover" ran and opened the serial port.
+> 
+> The second bunch of messages happened when minicom opened the port. I 
+> then modprobed tulip to see separating lines in dmesg. Then I used cisco 
+> remote console and no messages appeared. Then I powered down the cisco 
+> and then quited minicom. This took time and produced another bunch of 
+> messages.
 
-yeah - but i didnt want to impact something so large as XFS. Such a 
-change has to be tested and validated - so i wanted to get the namespace 
-collision out of the way first. But i'd be happy to add an XFS 
-conversion patch ontop of these, provided someone tests it.
+Thanks for spending the time trying to track this down.
 
-> While we're at it, maybe we should a mutex_destroy aswell?  it would 
-> be non-mandatory and allow that a lock is gone for the debugging 
-> variant.
+I'm still grasping at straws - it is plainly clear to me from the
+debug traces that your machine is _not_ doing what the C code is
+asking it to do.
 
-right now the lock is gone from the debugging state once it's unlocked.  
-I'll add mutex_destroy(), it should be rather easy (it can e.g. destroy 
-mutex->magic).
+Basically, the characteristics seem to be:
 
-	Ingo
+ * if the UART indicates no IRQ on invocation of the interrupt
+   handler, we repeatedly loop in the handler and eventually
+   hit this "too much work" problem.
+
+ * if the UART indicates IRQ on invocation of the interrupt, and
+   subsequently no IRQ, we exit the interrupt handler as per the
+   code.
+
+I notice you're using gcc 4.0.3.  Have you tried other compiler
+versions?
+
+Are you building the kernel with any additional compiler flags?
+
+Are there any other patches applied to the 8250.c file apart from my
+debugging patch?  What's the diff between a vanilla Linus kernel and
+the one you built?
+
+If it isn't a compiler bug and there aren't any other patches applied,
+I have no idea what to suggest next, apart from your computer seemingly
+following a different set of rules to the rest of the universe.  Maybe
+you could donate it to some quantum physics lab? 8)
+
+If anyone else has any suggestions, please jump in now.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

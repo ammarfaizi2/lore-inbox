@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030344AbVLVWMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030348AbVLVWVj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030344AbVLVWMu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 17:12:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030345AbVLVWMu
+	id S1030348AbVLVWVj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 17:21:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030350AbVLVWVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 17:12:50 -0500
-Received: from rtsoft3.corbina.net ([85.21.88.6]:9392 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S1030344AbVLVWMt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 17:12:49 -0500
-Message-ID: <43AB24DF.4080908@ru.mvista.com>
-Date: Fri, 23 Dec 2005 01:12:47 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: [PATCH/RFC] SPI core: turn transfers to be linked list
-References: <43A480C0.9080201@ru.mvista.com> <200512200011.57052.david-b@pacbell.net> <43A95713.6020405@ru.mvista.com> <200512220955.46916.david-b@pacbell.net>
-In-Reply-To: <200512220955.46916.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Dec 2005 17:21:39 -0500
+Received: from ns1.siteground.net ([207.218.208.2]:37269 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S1030348AbVLVWVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 17:21:38 -0500
+Date: Thu, 22 Dec 2005 14:21:34 -0800
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@suse.de>, discuss@x86-64.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>
+Subject: [patch] x86_64/ia64 : Fix compilation error for node_to_first_cpu
+Message-ID: <20051222222134.GB3704@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
+Fixes a compiler error in node_to_first_cpu, __ffs expects unsigned long as
+a parameter; instead cpumask_t was being passed.  The macro
+node_to_first_cpu was not yet used in x86_64 and ia64 arches, and so we never 
+hit this.  This patch replaces __ffs with first_cpu macro, similar to other
+arches.
 
->>And in case transfers is an array, we should either be apriory  
->>aware of whether the chaining will take place or allocate an array large 
->>enough to hold additional transfers. Neither of these look good to me, 
->>and having a linked list of transfers will definitely solve this problem.
->>    
->>
->
->Well, that's the guts of the good example I was hoping you would share.
->I'll be posting a refresh of this code soonish; maybe you can provide 
->a complete patch, changing all the code over to use list-not-array?
->  
->
-Let's agree upon that I'll proovide the complete patch as soon as you 
-repost all the patches from the very beginning (with the updates you've 
-made).
-It's a little bit hard to track all that stuff now, I mean patches, 
-patches to patches, etc. :)
+Please apply for 2.6.15
 
-Vitaly
+Signed-off-by: Alok N Kataria <alokk@calsoftinc.com>
+Signed-off-by: Ravikiran G Thirumalai <kiran@scalex86.org>
+Signed-off-by: Shai Fultheim <shai@scalex86.org>
+
+
+Index: linux-2.6.15-rc6/include/asm-ia64/topology.h
+===================================================================
+--- linux-2.6.15-rc6.orig/include/asm-ia64/topology.h	2005-10-27 17:02:08.000000000 -0700
++++ linux-2.6.15-rc6/include/asm-ia64/topology.h	2005-12-22 10:48:14.000000000 -0800
+@@ -38,7 +38,7 @@
+ /*
+  * Returns the number of the first CPU on Node 'node'.
+  */
+-#define node_to_first_cpu(node) (__ffs(node_to_cpumask(node)))
++#define node_to_first_cpu(node) (first_cpu(node_to_cpumask(node)))
+ 
+ /*
+  * Determines the node for a given pci bus
+Index: linux-2.6.15-rc6/include/asm-x86_64/topology.h
+===================================================================
+--- linux-2.6.15-rc6.orig/include/asm-x86_64/topology.h	2005-12-22 10:06:01.000000000 -0800
++++ linux-2.6.15-rc6/include/asm-x86_64/topology.h	2005-12-22 10:41:30.000000000 -0800
+@@ -23,7 +23,7 @@
+ 
+ #define cpu_to_node(cpu)		(cpu_to_node[cpu])
+ #define parent_node(node)		(node)
+-#define node_to_first_cpu(node) 	(__ffs(node_to_cpumask[node]))
++#define node_to_first_cpu(node) 	(first_cpu(node_to_cpumask[node]))
+ #define node_to_cpumask(node)		(node_to_cpumask[node])
+ #define pcibus_to_node(bus)		((long)(bus->sysdata))	
+ #define pcibus_to_cpumask(bus)		node_to_cpumask(pcibus_to_node(bus));

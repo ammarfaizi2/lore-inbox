@@ -1,459 +1,541 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030302AbVLVSbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030288AbVLVSbv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030302AbVLVSbK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 13:31:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030264AbVLVS2j
+	id S1030288AbVLVSbv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 13:31:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030265AbVLVS2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 13:28:39 -0500
-Received: from waste.org ([64.81.244.121]:5072 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1030260AbVLVS1y (ORCPT
+	Thu, 22 Dec 2005 13:28:36 -0500
+Received: from waste.org ([64.81.244.121]:6096 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1030264AbVLVS15 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 13:27:54 -0500
-Date: Thu, 22 Dec 2005 12:26:28 -0600
+	Thu, 22 Dec 2005 13:27:57 -0500
+Date: Thu, 22 Dec 2005 12:26:31 -0600
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>
 X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
        linux-tiny@selenic.com
-In-Reply-To: <3.150843412@selenic.com>
-Message-Id: <4.150843412@selenic.com>
-Subject: [PATCH 3/20] inflate: clean up input logic
+In-Reply-To: <4.150843412@selenic.com>
+Message-Id: <5.150843412@selenic.com>
+Subject: [PATCH 4/20] inflate: start moving globals into iostate
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-inflate: cleanup input logic
-
-Transform ugly macros to inlines
-Kill mask_bits table
-Eliminate magic underrun handling (dealt with by getbyte())
+inflate: move globals into a state structure
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Index: tiny/lib/inflate.c
+Index: 2.6.14/lib/inflate.c
 ===================================================================
---- tiny.orig/lib/inflate.c	2005-09-28 18:21:30.000000000 -0700
-+++ tiny/lib/inflate.c	2005-09-28 18:22:39.000000000 -0700
-@@ -183,24 +183,23 @@ static const u16 cpdext[] = {
- 	12, 12, 13, 13
+--- 2.6.14.orig/lib/inflate.c	2005-10-28 20:41:17.000000000 -0700
++++ 2.6.14/lib/inflate.c	2005-10-28 21:16:13.000000000 -0700
+@@ -125,16 +125,23 @@ struct huft {
+ 	} v;
  };
  
--/* Macros for inflate() bit peeking and grabbing.
-+/* Inlines for inflate() bit peeking and grabbing.
++struct iostate {
++	u8 *window;
++	int opos, osize, bits;
++	u32 buf;
++};
++
+ /* Function prototypes */
+ static int INIT huft_build(unsigned *, unsigned, unsigned,
+ 			  const u16 *, const u16 *, struct huft **, int *);
+ static int INIT huft_free(struct huft *);
+-static int INIT inflate_codes(struct huft *, struct huft *, int, int);
+-static int INIT inflate_stored(void);
+-static int INIT inflate_fixed(void);
+-static int INIT inflate_dynamic(void);
+-static int INIT inflate_block(int *);
+-static int INIT inflate(void);
++static int INIT inflate_codes(struct iostate *, struct huft *, struct huft *,
++			 int, int);
++static int INIT inflate_stored(struct iostate *);
++static int INIT inflate_fixed(struct iostate *);
++static int INIT inflate_dynamic(struct iostate *);
++static int INIT inflate_block(struct iostate *, int *);
++static int INIT inflate(struct iostate *);
+ 
+ /* The inflate algorithm uses a sliding 32 K byte window on the uncompressed
+    stream to find repeated byte strings.  This is implemented here as a
+@@ -145,7 +152,36 @@ static int INIT inflate(void);
+    "u8 *window;" and then malloc'ed in the latter case.  The definition
+    must be in unzip.h, included above. */
+ 
+-#define flush_output(w) (outcnt=(w),flush_window())
++static void flush_output(struct iostate *io)
++{
++	outcnt = io->opos;
++	flush_window();
++	io->opos = 0;
++}
++
++static inline void put_byte(struct iostate *io, u8 byte)
++{
++	io->window[io->opos++] = byte;
++	if (io->opos == io->osize)
++		flush_output(io);
++}
++
++static void copy_bytes(struct iostate *io, int len, int dist)
++{
++	int part, pos = io->opos - dist;
++
++	do {
++		pos &= io->osize - 1;
++		part = min(len, io->osize - max(pos, io->opos));
++		len -= part;
++
++		while (part--)
++			io->window[io->opos++] = io->window[pos++];
++
++		if (io->opos == io->osize)
++			flush_output(io);
++	} while (len);
++}
+ 
+ /* Tables for deflate from PKZIP's appnote.txt. */
+ 
+@@ -186,10 +222,10 @@ static const u16 cpdext[] = {
+ /* Inlines for inflate() bit peeking and grabbing.
     The usage is:
  
--        NEEDBITS(j)
--        x = b & mask_bits[j];
--        DUMPBITS(j)
+-        x = readbits(&b, &k, j);
+-	dumpbits(&b, &k, j);
++        x = readbits(io, j);
++	dumpbits(io, j);
+ 
+-	x = pullbits(&b, &k, j);
++	x = pullbits(io, j);
+ 
+    where readbits makes sure that b has at least j bits in it, and
+    dumpbits removes the bits from b, while k tracks the number of bits
+@@ -212,29 +248,32 @@ static const u16 cpdext[] = {
+    the stream.
+  */
+ 
+-static u32 bb;			/* bit buffer */
+-static unsigned bk;		/* bits in bit buffer */
 -
--   where NEEDBITS makes sure that b has at least j bits in it, and
--   DUMPBITS removes the bits from b. The macros use the variable k for
--   the number of bits in b. Normally, b and k are initialized at the
--   beginning of a routine that uses these macros from a global bit
--   buffer and count.
-+        x = readbits(&b, &k, j);
-+	dumpbits(&b, &k, j);
-+
-+	x = pullbits(&b, &k, j);
-+
-+   where readbits makes sure that b has at least j bits in it, and
-+   dumpbits removes the bits from b, while k tracks the number of bits
-+   in b.
+-static inline u32 readbits(u32 *b, u32 *k, int n)
++static inline u32 readbits(struct iostate *io, int n)
+ {
+-	for( ; *k < n; *k += 8)
+-		*b |= (u32)get_byte() << *k;
+-	return *b & ((1 << n) - 1);
++	for( ; io->bits < n; io->bits += 8)
++		io->buf |= (u32)get_byte() << io->bits;
++	return io->buf & ((1 << n) - 1);
+ }
  
-    If we assume that EOB will be the longest code, then we will never
--   ask for bits with NEEDBITS that are beyond the end of the stream.
--   So, NEEDBITS should not read any more bytes than are needed to
--   meet the request.  Then no bytes need to be "returned" to the buffer
--   at the end of the last block.
-+   ask for bits that are beyond the end of the stream. So, readbits
-+   should not read any more bytes than are needed to meet the request.
-+   Then no bytes need to be "returned" to the buffer at the end of the
-+   last block.
+-static inline void dumpbits(u32 *b, u32 *k, int n)
++static inline void dumpbits(struct iostate *io, int n)
+ {
+-	*b >>= n;
+-	*k -= n;
++	io->buf >>= n;
++	io->bits -= n;
+ }
  
-    However, this assumption is not true for fixed blocks--the EOB code
-    is 7 bits, but the other literal/length codes can be 8 or 9 bits.
-@@ -216,15 +215,25 @@ static const u16 cpdext[] = {
- static u32 bb;			/* bit buffer */
- static unsigned bk;		/* bits in bit buffer */
+-static inline u32 pullbits(u32 *b, u32 *k, int n)
++static inline u32 pullbits(struct iostate *io, int n)
+ {
+-	u32 r = readbits(b, k, n);
+-	dumpbits(b, k, n);
++	u32 r = readbits(io, n);
++	dumpbits(io, n);
+ 	return r;
+ }
  
--static const u16 mask_bits[] = {
--	0x0000,
--	0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,
--	0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff
--};
-+static inline u32 readbits(u32 *b, u32 *k, int n)
++static inline void popbytes(struct iostate *io)
 +{
-+	for( ; *k < n; *k += 8)
-+		*b |= (u32)get_byte() << *k;
-+	return *b & ((1 << n) - 1);
-+}
- 
--#define NEXTBYTE()  ({ int v = get_byte(); if (v < 0) goto underrun; (u8)v; })
--#define NEEDBITS(n) do {while(k<(n)){b|=((u32)NEXTBYTE())<<k;k+=8;}} while(0)
--#define DUMPBITS(n) do {b>>=(n);k-=(n);} while(0)
-+static inline void dumpbits(u32 *b, u32 *k, int n)
-+{
-+	*b >>= n;
-+	*k -= n;
++	inptr -= (io->bits >> 3);
++	io->bits &= 7;
 +}
 +
-+static inline u32 pullbits(u32 *b, u32 *k, int n)
-+{
-+	u32 r = readbits(b, k, n);
-+	dumpbits(b, k, n);
-+	return r;
-+}
- 
  /*
     Huffman code decoding is performed using a multi-level table lookup.
-@@ -541,7 +550,6 @@ static int inflate_codes(struct huft *tl
- 	unsigned n, d;		/* length and index for copy */
- 	unsigned w;		/* current window position */
- 	struct huft *t;		/* pointer to table entry */
--	unsigned ml, md;	/* masks for bl and bd bits */
- 	u32 b;		/* bit buffer */
- 	unsigned k;	/* number of bits in bit buffer */
+    The fastest way to decode is to simply build a lookup table whose
+@@ -536,6 +575,7 @@ STATIC int INIT huft_free(struct huft *t
  
-@@ -551,20 +559,17 @@ static int inflate_codes(struct huft *tl
- 	w = outcnt;			/* initialize window position */
+ /*
+  * inflate_codes - decompress the codes in a deflated block
++ * @io: current i/o state
+  * @tl: literal/length decoder tables
+  * @td: distance decoder tables
+  * @bl: number of bits decoded by tl
+@@ -544,129 +584,75 @@ STATIC int INIT huft_free(struct huft *t
+  * inflate (decompress) the codes in a deflated (compressed) block.
+  * Return an error code or zero if it all goes ok.
+  */
+-static int inflate_codes(struct huft *tl, struct huft *td, int bl, int bd)
++static int INIT inflate_codes(struct iostate *io, struct huft *tl, struct huft *td,
++			 int bl, int bd)
+ {
+ 	unsigned e;	/* table entry flag/number of extra bits */
+-	unsigned n, d;		/* length and index for copy */
+-	unsigned w;		/* current window position */
++	unsigned len, dist;
+ 	struct huft *t;		/* pointer to table entry */
+-	u32 b;		/* bit buffer */
+-	unsigned k;	/* number of bits in bit buffer */
+-
+-	/* make local copies of globals */
+-	b = bb;			/* initialize bit buffer */
+-	k = bk;
+-	w = outcnt;			/* initialize window position */
  
  	/* inflate the coded data */
--	ml = mask_bits[bl];	/* precompute masks for speed */
--	md = mask_bits[bd];
  	for (;;) {		/* do until end of block */
--		NEEDBITS((unsigned)bl);
--		if ((e = (t = tl + ((unsigned)b & ml))->e) > 16)
--			do {
--				if (e == 99)
--					return 1;
--				DUMPBITS(t->b);
--				e -= 16;
--				NEEDBITS(e);
--			} while ((e = (t = t->v.t + ((unsigned)b &
--						     mask_bits[e]))->e) > 16);
--		DUMPBITS(t->b);
-+		t = tl + readbits(&b, &k, bl);
-+		e = t->e;
-+		while (e > 16) {
-+			if (e == 99)
-+				return 1;
-+			dumpbits(&b, &k, t->b);
-+			t = t->v.t + readbits(&b, &k, e - 16);
-+			e = t->e;
-+		}
-+		dumpbits(&b, &k, t->b);
+-		t = tl + readbits(&b, &k, bl);
++		t = tl + readbits(io, bl);
+ 		e = t->e;
+ 		while (e > 16) {
+ 			if (e == 99)
+ 				return 1;
+-			dumpbits(&b, &k, t->b);
+-			t = t->v.t + readbits(&b, &k, e - 16);
++			dumpbits(io, t->b);
++			t = t->v.t + readbits(io, e - 16);
+ 			e = t->e;
+ 		}
+-		dumpbits(&b, &k, t->b);
++		dumpbits(io, t->b);
  		if (e == 16) {	/* then it's a literal */
- 			window[w++] = (u8)t->v.n;
- 			if (w == WSIZE) {
-@@ -577,25 +582,21 @@ static int inflate_codes(struct huft *tl
+-			window[w++] = (u8)t->v.n;
+-			if (w == WSIZE) {
+-				flush_output(w);
+-				w = 0;
+-			}
++			put_byte(io, t->v.n);
+ 		} else {	/* it's an EOB or a length */
+ 			/* exit if end of block */
+ 			if (e == 15)
  				break;
  
  			/* get length of block to copy */
--			NEEDBITS(e);
--			n = t->v.n + ((unsigned)b & mask_bits[e]);
--			DUMPBITS(e);
-+			n = t->v.n + pullbits(&b, &k, e);
+-			n = t->v.n + pullbits(&b, &k, e);
++			len = t->v.n + pullbits(io, e);
  
  			/* decode distance of block to copy */
--			NEEDBITS((unsigned)bd);
--			if ((e = (t = td + ((unsigned)b & md))->e) > 16)
--				do {
--					if (e == 99)
--						return 1;
--					DUMPBITS(t->b);
--					e -= 16;
--					NEEDBITS(e);
--				} while ((e = (t = t->v.t + ((unsigned)b
--					   & mask_bits[e]))->e) > 16);
--			DUMPBITS(t->b);
--			NEEDBITS(e);
--			d = w - t->v.n - ((unsigned)b & mask_bits[e]);
--			DUMPBITS(e)
-+			t = td + readbits(&b, &k, bd);
-+			e = t->e;
-+			while (e > 16) {
-+				if (e == 99)
-+					return 1;
-+				dumpbits(&b, &k, t->b);
-+				t = t->v.t + readbits(&b, &k, e - 16);
-+				e = t->e;
-+			}
-+			dumpbits(&b, &k, t->b);
-+
-+			d = w - t->v.n - pullbits(&b, &k, e);
+-			t = td + readbits(&b, &k, bd);
++			t = td + readbits(io, bd);
+ 			e = t->e;
+ 			while (e > 16) {
+ 				if (e == 99)
+ 					return 1;
+-				dumpbits(&b, &k, t->b);
+-				t = t->v.t + readbits(&b, &k, e - 16);
++				dumpbits(io, t->b);
++				t = t->v.t + readbits(io, e - 16);
+ 				e = t->e;
+ 			}
+-			dumpbits(&b, &k, t->b);
++			dumpbits(io, t->b);
  
- 			/* do the copy */
- 			do {
-@@ -628,9 +629,6 @@ static int inflate_codes(struct huft *tl
- 
- 	/* done */
- 	return 0;
+-			d = w - t->v.n - pullbits(&b, &k, e);
 -
--      underrun:
--	return 4;		/* Input underrun */
- }
- 
- /* inflate_stored - "decompress" an inflated type 0 (stored) block. */
-@@ -649,27 +647,20 @@ static int INIT inflate_stored(void)
- 	w = outcnt;			/* initialize window position */
- 
- 	/* go to byte boundary */
--	n = k & 7;
--	DUMPBITS(n);
-+	dumpbits(&b, &k, k & 7);
- 
- 	/* get the length and its complement */
--	NEEDBITS(16);
--	n = ((unsigned)b & 0xffff);
--	DUMPBITS(16);
--	NEEDBITS(16);
--	if (n != (unsigned)((~b) & 0xffff))
-+	n = pullbits(&b, &k, 16);
-+	if (n != (~pullbits(&b, &k, 16) & 0xffff))
- 		return 1;	/* error in compressed data */
--	DUMPBITS(16);
- 
- 	/* read and output the compressed data */
- 	while (n--) {
--		NEEDBITS(8);
--		window[w++] = (u8)b;
-+		window[w++] = (u8)get_byte();
- 		if (w == WSIZE) {
- 			flush_output(w);
- 			w = 0;
+-			/* do the copy */
+-			do {
+-				n -= (e = (e = WSIZE - ((d &= WSIZE - 1) > w ?
+-							d : w)) > n ? n : e);
+-#if !defined(NOMEMCPY) && !defined(DEBUG)
+-				/* (this test assumes unsigned comparison) */
+-				if (w - d >= e) {
+-					memcpy(window + w, window + d, e);
+-					w += e;
+-					d += e;
+-				} else
+-#endif				/* !NOMEMCPY */
+-					/* avoid memcpy() overlap */
+-					do {
+-						window[w++] = window[d++];
+-					} while (--e);
+-				if (w == WSIZE) {
+-					flush_output(w);
+-					w = 0;
+-				}
+-			} while (n);
++			dist = t->v.n + pullbits(io, e);
++			copy_bytes(io, len, dist);
  		}
--		DUMPBITS(8);
  	}
  
- 	/* restore the globals from the locals */
-@@ -679,9 +670,6 @@ static int INIT inflate_stored(void)
+-	/* restore the globals from the locals */
+-	outcnt = w;			/* restore global window pointer */
+-	bb = b;			/* restore global bit buffer */
+-	bk = k;
+-
+-	/* done */
+ 	return 0;
+ }
+ 
+-/* inflate_stored - "decompress" an inflated type 0 (stored) block. */
+-static int INIT inflate_stored(void)
++/* inflate_stored - "decompress" an inflated type 0 (stored) block.
++ * @io: current i/o state
++ */
++static int INIT inflate_stored(struct iostate *io)
+ {
+ 	unsigned n;		/* number of bytes in block */
+-	unsigned w;		/* current window position */
+-	u32 b;		/* bit buffer */
+-	unsigned k;	/* number of bits in bit buffer */
+ 
+ 	DEBG("<stor");
+ 
+-	/* make local copies of globals */
+-	b = bb;			/* initialize bit buffer */
+-	k = bk;
+-	w = outcnt;			/* initialize window position */
+-
+ 	/* go to byte boundary */
+-	dumpbits(&b, &k, k & 7);
++	dumpbits(io, io->bits & 7);
+ 
+ 	/* get the length and its complement */
+-	n = pullbits(&b, &k, 16);
+-	if (n != (~pullbits(&b, &k, 16) & 0xffff))
++	n = pullbits(io, 16);
++	if (n != (~pullbits(io, 16) & 0xffff))
+ 		return 1;	/* error in compressed data */
+ 
+ 	/* read and output the compressed data */
+-	while (n--) {
+-		window[w++] = (u8)get_byte();
+-		if (w == WSIZE) {
+-			flush_output(w);
+-			w = 0;
+-		}
+-	}
+-
+-	/* restore the globals from the locals */
+-	outcnt = w;			/* restore global window pointer */
+-	bb = b;			/* restore global bit buffer */
+-	bk = k;
++	while (n--)
++		put_byte(io, get_byte());
  
  	DEBG(">");
  	return 0;
--
--      underrun:
--	return 4;		/* Input underrun */
- }
+@@ -674,6 +660,7 @@ static int INIT inflate_stored(void)
  
  
-@@ -748,7 +736,6 @@ static int noinline INIT inflate_dynamic
+ /* inflate_fixed - decompress a block with fixed Huffman codes
++ * @io: current i/o state
+  *
+  * decompress an inflated type 1 (fixed Huffman codes) block. We
+  * should either replace this with a custom decoder, or at least
+@@ -681,7 +668,7 @@ static int INIT inflate_stored(void)
+  *
+  * We use `noinline' here to prevent gcc-3.5 from using too much stack space
+  */
+-static int noinline INIT inflate_fixed(void)
++static int noinline INIT inflate_fixed(struct iostate *io)
+ {
+ 	int i;			/* temporary variable */
+ 	struct huft *tl;	/* literal/length code table */
+@@ -717,7 +704,7 @@ static int noinline INIT inflate_fixed(v
+ 	}
+ 
+ 	/* decompress until an end-of-block code */
+-	if (inflate_codes(tl, td, bl, bd))
++	if (inflate_codes(io, tl, td, bl, bd))
+ 		return 1;
+ 
+ 	/* free the decoding tables, return */
+@@ -731,7 +718,7 @@ static int noinline INIT inflate_fixed(v
+  *
+  * We use `noinline' here to prevent gcc-3.5 from using too much stack space
+  */
+-static int noinline INIT inflate_dynamic(void)
++static int noinline INIT inflate_dynamic(struct iostate *io)
+ {
  	int i;			/* temporary variables */
  	unsigned j;
- 	unsigned l;		/* last length */
--	unsigned m;		/* mask for bit lengths table */
- 	unsigned n;		/* number of lengths to get */
- 	struct huft *tl;	/* literal/length code table */
- 	struct huft *td;	/* distance code table */
-@@ -768,26 +755,17 @@ static int noinline INIT inflate_dynamic
- 	k = bk;
+@@ -745,19 +732,13 @@ static int noinline INIT inflate_dynamic
+ 	unsigned nl;		/* number of literal/length codes */
+ 	unsigned nd;		/* number of distance codes */
+ 	unsigned ll[286 + 30];	/* literal/length and distance code lengths */
+-	u32 b;		/* bit buffer */
+-	unsigned k;	/* number of bits in bit buffer */
  
+ 	DEBG("<dyn");
+ 
+-	/* make local bit buffer */
+-	b = bb;
+-	k = bk;
+-
  	/* read in table lengths */
--	NEEDBITS(5);
--	nl = 257 + ((unsigned)b & 0x1f); /* number of literal/length codes */
--	DUMPBITS(5);
--	NEEDBITS(5);
--	nd = 1 + ((unsigned)b & 0x1f);	/* number of distance codes */
--	DUMPBITS(5);
--	NEEDBITS(4);
--	nb = 4 + ((unsigned)b & 0xf);	/* number of bit length codes */
--	DUMPBITS(4);
-+	nl = 257 + pullbits(&b, &k, 5); /* number of literal/length codes */
-+	nd = 1 + pullbits(&b, &k, 5); /* number of distance codes */
-+	nb = 4 + pullbits(&b, &k, 4); /* number of bit length codes */
+-	nl = 257 + pullbits(&b, &k, 5); /* number of literal/length codes */
+-	nd = 1 + pullbits(&b, &k, 5); /* number of distance codes */
+-	nb = 4 + pullbits(&b, &k, 4); /* number of bit length codes */
++	nl = 257 + pullbits(io, 5); /* number of literal/length codes */
++	nd = 1 + pullbits(io, 5); /* number of distance codes */
++	nb = 4 + pullbits(io, 4); /* number of bit length codes */
  	if (nl > 286 || nd > 30)
  		return 1;	/* bad lengths */
  
- 	DEBG("dyn1 ");
+@@ -765,7 +746,7 @@ static int noinline INIT inflate_dynamic
  
  	/* read in bit-length-code lengths */
--	for (j = 0; j < nb; j++) {
--		NEEDBITS(3);
--		ll[border[j]] = (unsigned)b & 7;
--		DUMPBITS(3);
--	}
-+	for (j = 0; j < nb; j++)
-+		ll[border[j]] = pullbits(&b, &k, 3);
+ 	for (j = 0; j < nb; j++)
+-		ll[border[j]] = pullbits(&b, &k, 3);
++		ll[border[j]] = pullbits(io, 3);
  	for (; j < 19; j++)
  		ll[border[j]] = 0;
  
-@@ -805,36 +783,28 @@ static int noinline INIT inflate_dynamic
- 
- 	/* read in literal and distance code lengths */
+@@ -785,26 +766,26 @@ static int noinline INIT inflate_dynamic
  	n = nl + nd;
--	m = mask_bits[bl];
  	i = l = 0;
  	while ((unsigned)i < n) {
--		NEEDBITS((unsigned)bl);
--		j = (td = tl + ((unsigned)b & m))->b;
--		DUMPBITS(j);
-+		td = tl + readbits(&b, &k, bl);
-+		dumpbits(&b, &k, td->b);
+-		td = tl + readbits(&b, &k, bl);
+-		dumpbits(&b, &k, td->b);
++		td = tl + readbits(io, bl);
++		dumpbits(io, td->b);
  		j = td->v.n;
  		if (j < 16)	/* length of code in bits (0..15) */
  			ll[i++] = l = j;	/* save last length in l */
  		else if (j == 16) {	/* repeat last length 3 to 6 times */
--			NEEDBITS(2);
--			j = 3 + ((unsigned)b & 3);
--			DUMPBITS(2);
--			    if ((unsigned)i + j > n)
-+			j = 3 + pullbits(&b, &k, 2);
-+			if ((unsigned)i + j > n)
+-			j = 3 + pullbits(&b, &k, 2);
++			j = 3 + pullbits(io, 2);
+ 			if ((unsigned)i + j > n)
  				return 1;
  			while (j--)
  				ll[i++] = l;
  		} else if (j == 17) {	/* 3 to 10 zero length codes */
--			NEEDBITS(3);
--			j = 3 + ((unsigned)b & 7);
--			DUMPBITS(3);
-+			j = 3 + pullbits(&b, &k, 3);
+-			j = 3 + pullbits(&b, &k, 3);
++			j = 3 + pullbits(io, 3);
  			if ((unsigned)i + j > n)
  				return 1;
  			while (j--)
  				ll[i++] = 0;
  			l = 0;
  		} else {	/* j == 18: 11 to 138 zero length codes */
--			NEEDBITS(7);
--			j = 11 + ((unsigned)b & 0x7f);
--			DUMPBITS(7);
-+			j = 11 + pullbits(&b, &k, 7);
+-			j = 11 + pullbits(&b, &k, 7);
++			j = 11 + pullbits(io, 7);
  			if ((unsigned)i + j > n)
  				return 1;
  			while (j--)
-@@ -892,9 +862,6 @@ static int noinline INIT inflate_dynamic
+@@ -820,10 +801,6 @@ static int noinline INIT inflate_dynamic
  
- 	DEBG(">");
- 	return 0;
--
--      underrun:
--	return 4;		/* Input underrun */
- }
+ 	DEBG("dyn5 ");
  
- /* inflate_block - decompress a deflated block
-@@ -903,28 +870,11 @@ static int noinline INIT inflate_dynamic
- static int INIT inflate_block(int *e)
- {
- 	unsigned t;		/* block type */
--	u32 b;		/* bit buffer */
--	unsigned k;	/* number of bits in bit buffer */
- 
- 	DEBG("<blk");
- 
--	/* make local bit buffer */
--	b = bb;
--	k = bk;
--
--	/* read in last block bit */
--	NEEDBITS(1);
--	*e = (int)b & 1;
--	DUMPBITS(1);
--
--	/* read in block type */
--	NEEDBITS(2);
--	t = (unsigned)b & 3;
--	DUMPBITS(2);
--
 -	/* restore the global bit buffer */
 -	bb = b;
 -	bk = k;
-+	*e = pullbits(&bb, &bk, 1); /* read in last block bit */
-+	t = pullbits(&bb, &bk, 2); /* read in block type */
+-
+ 	DEBG("dyn5a ");
+ 
+ 	/* build the decoding tables for literal/length and distance codes */
+@@ -851,7 +828,7 @@ static int noinline INIT inflate_dynamic
+ 	DEBG("dyn6 ");
+ 
+ 	/* decompress until an end-of-block code */
+-	if (inflate_codes(tl, td, bl, bd))
++	if (inflate_codes(io, tl, td, bl, bd))
+ 		return 1;
+ 
+ 	DEBG("dyn7 ");
+@@ -865,24 +842,25 @@ static int noinline INIT inflate_dynamic
+ }
+ 
+ /* inflate_block - decompress a deflated block
++ * @io: current i/o state
+  * @e: last block flag
+  */
+-static int INIT inflate_block(int *e)
++static int INIT inflate_block(struct iostate *io, int *e)
+ {
+ 	unsigned t;		/* block type */
+ 
+ 	DEBG("<blk");
+ 
+-	*e = pullbits(&bb, &bk, 1); /* read in last block bit */
+-	t = pullbits(&bb, &bk, 2); /* read in block type */
++	*e = pullbits(io, 1); /* read in last block bit */
++	t = pullbits(io, 2); /* read in block type */
  
  	/* inflate that block type */
  	if (t == 2)
-@@ -938,9 +888,6 @@ static int INIT inflate_block(int *e)
+-		return inflate_dynamic();
++		return inflate_dynamic(io);
+ 	if (t == 0)
+-		return inflate_stored();
++		return inflate_stored(io);
+ 	if (t == 1)
+-		return inflate_fixed();
++		return inflate_fixed(io);
  
- 	/* bad block type */
+ 	DEBG(">");
+ 
+@@ -890,40 +868,27 @@ static int INIT inflate_block(int *e)
  	return 2;
--
--      underrun:
--	return 4;		/* Input underrun */
  }
  
- /* inflate - decompress an inflated entry */
-@@ -1050,9 +997,9 @@ static int INIT gunzip(void)
+-/* inflate - decompress an inflated entry */
+-static int INIT inflate(void)
++/* inflate - decompress an inflated entry
++ * @io: current i/o state
++ */
++static int INIT inflate(struct iostate *io)
+ {
+ 	int e;			/* last block flag */
+ 	int r;			/* result code */
+ 	void *ptr;
+ 
+-	/* initialize window, bit buffer */
+-	outcnt = 0;
+-	bk = 0;
+-	bb = 0;
+-
+ 	/* decompress until the last block */
+ 	do {
+ 		gzip_mark(&ptr);
+-		if ((r = inflate_block(&e))) {
++		if ((r = inflate_block(io, &e))) {
+ 			gzip_release(&ptr);
+ 			return r;
+ 		}
+ 		gzip_release(&ptr);
+ 	} while (!e);
+ 
+-	/* Undo too much lookahead. The next read will be byte aligned so we
+-	 * can discard unused bits in the last meaningful byte.
+-	 */
+-	while (bk >= 8) {
+-		bk -= 8;
+-		inptr--;
+-	}
+-
+-	/* flush out window */
+-	flush_output(outcnt);
+-
+-	/* return success */
++	popbytes(io);
++	flush_output(io);
+ 	return 0;
+ }
+ 
+@@ -996,6 +961,11 @@ static int INIT gunzip(void)
+ 	u32 orig_crc = 0;	/* original crc */
  	u32 orig_len = 0;	/* original uncompressed length */
  	int res;
++	struct iostate io;
++
++	io.window = window;
++	io.osize = WSIZE;
++	io.opos = io.bits = io.buf = 0;
  
--	magic[0] = NEXTBYTE();
--	magic[1] = NEXTBYTE();
--	method = NEXTBYTE();
-+	magic[0] = get_byte();
-+	magic[1] = get_byte();
-+	method = get_byte();
- 
- 	if (magic[0] != 037 || ((magic[1] != 0213) && (magic[1] != 0236))) {
- 		error("bad gzip magic numbers");
-@@ -1078,29 +1025,29 @@ static int INIT gunzip(void)
- 		error("Input has invalid flags");
- 		return -1;
- 	}
--	NEXTBYTE();		/* Get timestamp */
--	NEXTBYTE();
--	NEXTBYTE();
--	NEXTBYTE();
-+	get_byte();		/* Get timestamp */
-+	get_byte();
-+	get_byte();
-+	get_byte();
- 
--	(void)NEXTBYTE();	/* Ignore extra flags for the moment */
--	(void)NEXTBYTE();	/* Ignore OS type for the moment */
-+	get_byte();	/* Ignore extra flags for the moment */
-+	get_byte();	/* Ignore OS type for the moment */
- 
- 	if (flags & EXTRA_FIELD) {
--		unsigned len = (unsigned)NEXTBYTE();
--		len |= ((unsigned)NEXTBYTE()) << 8;
-+		unsigned len = (unsigned)get_byte();
-+		len |= ((unsigned)get_byte()) << 8;
- 		while (len--)
--			(void)NEXTBYTE();
-+			get_byte();
- 	}
- 
- 	/* Discard original file name if it was truncated */
- 	if (flags & ORIG_NAME)
--		while (NEXTBYTE())
-+		while (get_byte())
- 			;
- 
- 	/* Discard file comment if any */
- 	if (flags & COMMENT)
--		while (NEXTBYTE())
-+		while (get_byte())
+ 	magic[0] = get_byte();
+ 	magic[1] = get_byte();
+@@ -1051,7 +1021,7 @@ static int INIT gunzip(void)
  			;
  
  	/* Decompress */
-@@ -1130,15 +1077,15 @@ static int INIT gunzip(void)
- 	/* crc32  (see algorithm.doc)
- 	 * uncompressed input size modulo 2^32
- 	 */
--	orig_crc = (u32)NEXTBYTE();
--	orig_crc |= (u32)NEXTBYTE() << 8;
--	orig_crc |= (u32)NEXTBYTE() << 16;
--	orig_crc |= (u32)NEXTBYTE() << 24;
--
--	orig_len = (u32)NEXTBYTE();
--	orig_len |= (u32)NEXTBYTE() << 8;
--	orig_len |= (u32)NEXTBYTE() << 16;
--	orig_len |= (u32)NEXTBYTE() << 24;
-+	orig_crc = (u32)get_byte();
-+	orig_crc |= (u32)get_byte() << 8;
-+	orig_crc |= (u32)get_byte() << 16;
-+	orig_crc |= (u32)get_byte() << 24;
-+
-+	orig_len = (u32)get_byte();
-+	orig_len |= (u32)get_byte() << 8;
-+	orig_len |= (u32)get_byte() << 16;
-+	orig_len |= (u32)get_byte() << 24;
- 
- 	/* Validate decompression */
- 	if (orig_crc != CRC_VALUE) {
-@@ -1150,8 +1097,4 @@ static int INIT gunzip(void)
- 		return -1;
- 	}
- 	return 0;
--
--      underrun:		/* NEXTBYTE() goto's here if needed */
--	error("out of input data");
--	return -1;
- }
+-	if ((res = inflate())) {
++	if ((res = inflate(&io))) {
+ 		switch (res) {
+ 		case 0:
+ 			break;

@@ -1,54 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965171AbVLVQyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932494AbVLVQ6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965171AbVLVQyM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 11:54:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965173AbVLVQyM
+	id S932494AbVLVQ6w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 11:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbVLVQ6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 11:54:12 -0500
-Received: from web34110.mail.mud.yahoo.com ([66.163.178.108]:50560 "HELO
-	web34110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965171AbVLVQyL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 11:54:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=m8K+Pd9sm8GMkQdhJ0JLBtExHHxJHvP8/sPU7c4ixwxGqiDmA18/FUVGBFlSsGNe34BCSsn/0AIavthGfcO0ALL8kEVMmIrk/SGld9rtRP/tIEv/V0bjWU+Y+0vbPiDqnj4UYkSM8BZpWnmoBQFn47t7rGGuq+5Mx9mrgdEPB08=  ;
-Message-ID: <20051222165410.66134.qmail@web34110.mail.mud.yahoo.com>
-Date: Thu, 22 Dec 2005 08:54:10 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: RE: scsi errors with dpt-i2o driver
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
-       linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01FB3AC6@otce2k03.adaptec.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 22 Dec 2005 11:58:51 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41231 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S932433AbVLVQ6u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 11:58:50 -0500
+Date: Thu, 22 Dec 2005 16:58:28 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Nicolas Pitre <nico@cam.org>, Christoph Hellwig <hch@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+Message-ID: <20051222165828.GA5268@flint.arm.linux.org.uk>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>, Nicolas Pitre <nico@cam.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Arjan van de Ven <arjanv@infradead.org>,
+	Jes Sorensen <jes@trained-monkey.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Oleg Nesterov <oleg@tv-sign.ru>,
+	David Howells <dhowells@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Benjamin LaHaise <bcrl@kvack.org>,
+	Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>
+References: <20051222114147.GA18878@elte.hu> <20051222115329.GA30964@infradead.org> <Pine.LNX.4.64.0512221025070.26663@localhost.localdomain> <20051222154012.GA6284@elte.hu> <Pine.LNX.4.64.0512221113560.26663@localhost.localdomain> <20051222164415.GA10628@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051222164415.GA10628@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- "Salyzyn, Mark" <mark_salyzyn@adaptec.com> wrote:
-
-> These are issues being reported by the firmware in the adapter, looks
-> like you have a bad drive. Since the adapter 'hides' the physical
-> devices behind arrays. The array associated with id 9 is whining, but I
-> do not know which physical is being naughty.
+On Thu, Dec 22, 2005 at 05:44:15PM +0100, Ingo Molnar wrote:
+> * Nicolas Pitre <nico@cam.org> wrote:
+> > > i'm curious, how would this ARMv6 solution look like, and what would be 
+> > > the advantages over the atomic swap based variant?
+> > 
+> > On ARMv6 (which can be SMP) the atomic swap instruction is much more 
+> > costly than on former ARM versions.  It however has ll/sc instructions 
+> > which allows it to implement a true atomic decrement, and the lock 
+> > fast path would look like: [...]
 > 
-> A driver change will make no difference, use the management applications
-> to discover which target is misbehaving, probably would not hurt to
-> contact Adaptec technical support, especially if you have an
-> incompatible drive (often can be fixed by a firmware update to the
-> drive). They also can help you through the cookbook discovery of cable
-> and setting issues.
+> but couldnt you implement atomic_dec_return() with the ll/sc 
+> instructions? Something like:
 > 
-> Sincerely -- Mark Salyzyn
+> repeat:
+>        ldrex   r1, [r0]
+>        sub     r1, r1, #1
+>        strex   r2, r1, [r0]
+>        orrs    r0, r2, r1
+>        jneq    repeat
+> 
+> (shot-in-the-dark guess at ARMv6 assembly)
 
-Thanks for the reply, we will check the disks.  Why would a faulty disk hang the entire system for
-such a long time?
+atomic_dec_return() would be:
 
--Kenny
+1:	ldrex	r1, [r0]
+	sub	r1, r1, #1
+	strex	r2, r1, [r0]
+	teq	r2, #0
+	bne	1b
+	@ result in r1
 
+But that's not really the main point Nico's making.  Yes, on ARMv6
+there is little difference.  However, ARMv6 is _not_ mainstream yet.
+The previous generation which do not have this is currently mainstream.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+When it comes down to it, unlike x86 land where new CPU features are
+taken up very quickly, the take up of new features on ARM CPUs is
+a lot slower - it's a matter of years not a matter of months.
+Therefore, we can expect ARMv5 architecture CPUs to be mainstream
+at least for the next year or two, and these are the ones which
+we should optimise for.
+
+Nico's point still stands though - and I'd like to ask a more direct
+question.  There is an efficient implementation for ARMv5 CPUs which
+it appears we're being denied the ability to use.
+
+Given that this has been argued for using clear technical arguments
+over the last two days, I have yet to see any explaination why you're
+choosing to ignore it.  Could you please explain why?
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

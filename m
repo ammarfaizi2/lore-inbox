@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030323AbVLVVph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030324AbVLVVrl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030323AbVLVVph (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 16:45:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030317AbVLVVph
+	id S1030324AbVLVVrl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 16:47:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030326AbVLVVrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 16:45:37 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:32064 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP
-	id S1030323AbVLVVpg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 16:45:36 -0500
-Message-ID: <43AB1E64.6010504@tmr.com>
-Date: Thu, 22 Dec 2005 16:45:08 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+	Thu, 22 Dec 2005 16:47:41 -0500
+Received: from gw02.applegatebroadband.net ([207.55.227.2]:4850 "EHLO
+	data.mvista.com") by vger.kernel.org with ESMTP id S1030324AbVLVVrk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 16:47:40 -0500
+Message-ID: <43AB1E55.6040703@mvista.com>
+Date: Thu, 22 Dec 2005 13:44:53 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050922 Fedora/1.7.12-1.3.1
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Luck, Tony" <tony.luck@intel.com>, Tony Luck <tony.luck@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jack Steiner <steiner@sgi.com>,
-       Keith Owens <kaos@sgi.com>, Dimitri Sivanich <sivanich@sgi.com>
-Subject: Re: [PATCH] ia64: disable preemption in udelay()
-References: <20051214232526.9039.15753.sendpatchset@tomahawk.engr.sgi.com>	 <20051215225040.GA9086@agluck-lia64.sc.intel.com>	 <Pine.LNX.4.64.0512151750500.1678@montezuma.fsmlabs.com>	 <1134698636.12086.222.camel@mindpipe>	 <00b201c601e6$30c87ff0$d6069aa3@johnhaonw7lw1r> <1134703152.12086.231.camel@mindpipe>
-In-Reply-To: <1134703152.12086.231.camel@mindpipe>
+To: Ingo Molnar <mingo@elte.hu>
+CC: Eric Dumazet <dada1@cosmosbay.com>, Steven Rostedt <rostedt@goodmis.org>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Christoph Lameter <christoph@lameter.com>,
+       Alok N Kataria <alokk@calsoftinc.com>,
+       Shobhit Dayal <shobhit@calsoftinc.com>,
+       Shai Fultheim <shai@scalex86.org>, Matt Mackall <mpm@selenic.com>,
+       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
+       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RT 00/02] SLOB optimizations
+References: <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com> <1135093460.13138.302.camel@localhost.localdomain> <20051220181921.GF3356@waste.org> <1135106124.13138.339.camel@localhost.localdomain> <84144f020512201215j5767aab2nc0a4115c4501e066@mail.gmail.com> <1135114971.13138.396.camel@localhost.localdomain> <20051221065619.GC766@elte.hu> <43A90225.4060007@cosmosbay.com> <20051221074346.GA2398@elte.hu> <43A90C07.4000003@cosmosbay.com> <20051222211132.GA21742@elte.hu>
+In-Reply-To: <20051222211132.GA21742@elte.hu>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Thu, 2005-12-15 at 18:12 -0800, John Hawkes wrote:
-> 
->>From: "Lee Revell" <rlrevell@joe-job.com>
->>
->>>There are 10 drivers that udelay(10000) or more and a TON that
->>>udelay(1000).  Turning those all into 1ms+ non preemptible sections will
->>>be very bad.
->>
->>What about 100usec non-preemptible sections?
-> 
-> 
-> That will disappear into the noise, in normal usage these happen all the
-> time.  500usec non preemptible regions are rare (~1 hour to show up) and
-> 1ms very rare (24 hours).  My tests show that 300 usec or so is a good
-> place to draw the line if you don't want it to show up in latency tests.
 
-I may be misreading the original post, but the problem is described as 
-one where the TSC is not syncronised and a CPU switch takes place. Would 
-the correct solution be to somehow set CPU affinity temporarily in such 
-a way as to avoid disabling preempt at all?
 
-The preempt doesn't seem to be the root problem, so it's unlikely to be 
-the best solution...
-
+> that's just the profiling interrupt hitting them. You should not analyze 
+> irq-safe code with a non-NMI profiling interrupt.
+> 
+> CLI/STI is extremely fast. (In fact in the -rt tree i'm using them 
+> within mutexes instead of preempt_enable()/preempt_disable(), because 
+> they are faster and generate less register side-effect.)
+> 
+Hm... I rather thought that the cli would cause a rather large hit on 
+the pipeline and certainly on OOE.  Is your observation based on any 
+particular instruction stream?  Sti, on the otherhand should be fast...
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

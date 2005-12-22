@@ -1,143 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbVLVDn1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbVLVDvH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbVLVDn1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 22:43:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVLVDn1
+	id S1751198AbVLVDvH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 22:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751204AbVLVDvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 22:43:27 -0500
-Received: from ns1.suse.de ([195.135.220.2]:26544 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751197AbVLVDn1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 22:43:27 -0500
-From: Neil Brown <neilb@suse.de>
-To: maneesh@in.ibm.com
-Date: Thu, 22 Dec 2005 14:43:12 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 21 Dec 2005 22:51:07 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:38272
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751198AbVLVDvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 22:51:06 -0500
+Date: Wed, 21 Dec 2005 19:51:07 -0800 (PST)
+Message-Id: <20051221.195107.113618698.davem@davemloft.net>
+To: shemminger@osdl.org
+Cc: mikukkon@iki.fi, bridge@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] BRIDGE: Fix faulty check in
+ br_stp_recalculate_bridge_id()
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051221132527.1ef12bcf@dxpl.pdx.osdl.net>
+References: <20051221195527.GA24213@localhost.localdomain>
+	<20051221132527.1ef12bcf@dxpl.pdx.osdl.net>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <17322.8400.727405.522183@cse.unsw.edu.au>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH - 2.6.15-rc5-mm3] Allow sysfs attribute files to be pollable.
-In-Reply-To: message from Maneesh Soni on Wednesday December 21
-References: <17320.36949.269788.520946@cse.unsw.edu.au>
-	<20051221134901.GA19746@in.ibm.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday December 21, maneesh@in.ibm.com wrote:
-> > 
-> > It works like this:
-> >   Open the file
-> >   Read all the contents.
-> >   Call poll requesting POLLERR or POLLPRI (so select/exceptfds works)
-> >   When poll returns, close the file, and go to top of loop.
-> > 
+From: Stephen Hemminger <shemminger@osdl.org>
+Date: Wed, 21 Dec 2005 13:25:27 -0800
+
+> On Wed, 21 Dec 2005 21:55:27 +0200
+> mikukkon@iki.fi wrote:
 > 
-> I am no "poll/select" expert, but is reading the contents always a
-> requirement for "poll"? If not then probably it is not a good idea to 
-> put such rules.
-
-You don't have to read the contents unless you want to know what is in
-the file.  You could just open the file and call 'poll' and wait for
-it to tell you something has happened.  However this isn't likely to
-be really useful.
-It isn't the 'something has happened' event that is particularly
-interesting.  It is the 'the state is now X' information that is
-interesting. 
-So you read the file to find out what the state is.  If that isn't the
-state you were looking for (or if you have finished responding to that
-state), you poll/select, and then try again.
-
-
-> 
-> > Events are signaled by an object manager calling
-> >    sysfs_notify(kobj, dir, attr);
+> > I did a compile with extra gcc warnings, and found a bug in
+> > net/bridge/br_stp_if.c function br_stp_recalculate_bridge_id():
+> > compare_ether_addr() returns 0 if match, positive if not, so
+> > checking it for negative is wrong. 
 > > 
-> > If the dir is non-NULL, it is used to find a subdirectory which
-> > contains the attribute (presumably created by sysfs_create_group).
-> > 
-> > This has a cost of one int  per attribute, one wait_queuehead per kobject,
-> > one int per open file.
-> > 
-> So, all the attribute files for a given kobject will use the same
-> wait queue? What happens if there are multiple attribute files 
-> polled for the same kobject.
-
-wait_queues are sharable.  Having one wait queue for a number of
-events can work quite well.
-
-Suppose a kobject has two (or more) attributes, and two processes poll on
-those attributes, one each.
- When either attribute gets changed and sysfs_notify is called, both
- of the processes will be woken up.  They will check if their
- attribute of interest has changed.  If it has, the poll syscall will
- return to userspace.  If it hasn't the process will just go to sleep
- again.
-
-So, if a kobject has many attributes, and there are many concurrent
-processes listening on different attributes, then sharing a wait_queue
-may cause a lot of needly wakeup/return-to-sleep events.  But it is
-fairly unlikely.
-wait_queues are not tiny, and having one per kobject is more
-economical than one per attribute.
-
-I hope that helps.
-
-> > diff ./fs/sysfs/inode.c~current~ ./fs/sysfs/inode.c
-> > --- ./fs/sysfs/inode.c~current~	2005-12-21 09:43:51.000000000 +1100
-> > +++ ./fs/sysfs/inode.c	2005-12-21 09:43:52.000000000 +1100
-> > @@ -247,3 +247,23 @@ void sysfs_hash_and_remove(struct dentry
-> >  }
+> > Signed-of-by: Mika Kukkonen <mikukkon@iki.fi>
+ ...
+> > diff --git a/net/bridge/br_stp_if.c b/net/bridge/br_stp_if.c
+> > index ac09b6a..08c52c2 100644
+> > --- a/net/bridge/br_stp_if.c
+> > +++ b/net/bridge/br_stp_if.c
+> > @@ -158,7 +158,7 @@ void br_stp_recalculate_bridge_id(struct
 > >  
+> >  	list_for_each_entry(p, &br->port_list, list) {
+> >  		if (addr == br_mac_zero ||
+> > -		    compare_ether_addr(p->dev->dev_addr, addr) < 0)
+> > +		    compare_ether_addr(p->dev->dev_addr, addr))
+> >  			addr = p->dev->dev_addr;
 > >  
-> > +struct sysfs_dirent *sysfs_find(struct sysfs_dirent *dir, const char * name)
-> > +{
-> > +	struct sysfs_dirent * sd, * rv = NULL;
-> > +
-> > +	if (dir->s_dentry == NULL ||
-> > +	    dir->s_dentry->d_inode == NULL)
-> > +		return NULL;
-> > +
-> > +	down(&dir->s_dentry->d_inode->i_sem);
-> > +	list_for_each_entry(sd, &dir->s_children, s_sibling) {
-> > +		if (!sd->s_element)
-> > +			continue;
-> > +		if (!strcmp(sysfs_get_name(sd), name)) {
-> > +			rv = sd;
-> > +			break;
-> > +		}
-> > +	}
-> > +	up(&dir->s_dentry->d_inode->i_sem);
-> > +	return rv;
-> > +}
+> >  	}
 > 
-> I think there might be some issues here, if some other thread wants to
-> remove the kobject, while this thread is trying to notify. Testing
-> with some parallel add/delete operations should tell.
+> Actually that compare_ether_addr needs to be replaced by memcmp again.
+> Because for bridge id calc it wants the min() of all the device addresses.
 
-My idea - which I thought I had stuck in a comment, but apparently not
-- is that the owner of the kobject should have it's own locking to
-ensure that it doesn't go away while the sysfs_notify is being
-called (md does in the places where it calls sysfs_notify).
-I guess it makes sense to make sysfs_notify safe against object owners
-doing silly things, but it wasn't clear to me either how, or that it
-was necessary.
-> 
-> In this case IMO, the better option is to do just lookup_one_len(), get
-> the dentry and then get the sysfs_dirent as dentry->d_fsdata. And once
-> done, do dput() which will release the references taken.
+I'll hold on this patch until that is worked out.
 
-You may well be right.  I'll try and see what happens.
-
-> 
-> I think its time to queue a sysfs locking document in my todo list ;-)
-> 
-That would be nice :-)
-
-Thanks for your input.
-
-NeilBrown
+Thanks.

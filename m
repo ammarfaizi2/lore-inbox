@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbVLVBxP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbVLVC0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbVLVBxP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 20:53:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965032AbVLVBxP
+	id S965035AbVLVC0w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 21:26:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965037AbVLVC0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 20:53:15 -0500
-Received: from allen.werkleitz.de ([80.190.251.108]:4017 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S965027AbVLVBxO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 20:53:14 -0500
-Date: Thu, 22 Dec 2005 02:53:49 +0100
-From: Johannes Stezenbach <js@linuxtv.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
-Message-ID: <20051222015349.GA8043@linuxtv.org>
-Mail-Followup-To: Johannes Stezenbach <js@linuxtv.org>,
-	Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-	Arjan van de Ven <arjanv@infradead.org>,
-	Jes Sorensen <jes@trained-monkey.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Oleg Nesterov <oleg@tv-sign.ru>,
-	David Howells <dhowells@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Benjamin LaHaise <bcrl@kvack.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-	Russell King <rmk+lkml@arm.linux.org.uk>,
-	Nicolas Pitre <nico@cam.org>
-References: <20051221223656.GB4960@elte.hu>
+	Wed, 21 Dec 2005 21:26:52 -0500
+Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:17119 "EHLO
+	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S965035AbVLVC0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 21:26:52 -0500
+Message-ID: <43AA0EEA.8070205@bigpond.net.au>
+Date: Thu, 22 Dec 2005 13:26:50 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051221223656.GB4960@elte.hu>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: 84.189.240.121
-Subject: Re: [patch 1/8] mutex subsystem, XFS namespace collision fixes
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Kyle Moffett <mrmacman_g4@mac.com>, Ingo Molnar <mingo@elte.hu>,
+       Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched: Fix adverse effects of NFS	client	on	interactive
+ response
+References: <43A8EF87.1080108@bigpond.net.au>	 <1135145341.7910.17.camel@lade.trondhjem.org>	 <43A8F714.4020406@bigpond.net.au>	 <1135171280.7958.16.camel@lade.trondhjem.org>	 <962C9716-6F84-477B-8B2A-FA771C21CDE8@mac.com> <1135172453.7958.26.camel@lade.trondhjem.org>
+In-Reply-To: <1135172453.7958.26.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 22 Dec 2005 02:26:50 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 21, 2005 at 11:36:56PM +0100, Ingo Molnar wrote:
-> Fixup the XFS code to avoid name clashing with the mutex code by 
-> introducing xfs_mutex_ functions.
-...
-> --- linux.orig/fs/xfs/linux-2.6/mutex.h
-> +++ linux/fs/xfs/linux-2.6/mutex.h
-> @@ -30,10 +30,10 @@
->  #define MUTEX_DEFAULT		0x0
->  typedef struct semaphore	mutex_t;
->  
-> -#define mutex_init(lock, type, name)		sema_init(lock, 1)
-> -#define mutex_destroy(lock)			sema_init(lock, -99)
-> -#define mutex_lock(lock, num)			down(lock)
-> -#define mutex_trylock(lock)			(down_trylock(lock) ? 0 : 1)
-> -#define mutex_unlock(lock)			up(lock)
-> +#define xfs_mutex_init(lock, type, name)	arch_sema_init(lock, 1)
-> +#define xfs_mutex_destroy(lock)			arch_sema_init(lock, -99)
-> +#define xfs_mutex_lock(lock, num)		arch_down(lock)
-> +#define xfs_mutex_trylock(lock)			(arch_down_trylock(lock) ? 0 : 1)
-> +#define xfs_mutex_unlock(lock)			arch_up(lock)
+Trond Myklebust wrote:
+> On Wed, 2005-12-21 at 08:36 -0500, Kyle Moffett wrote:
+> 
+>>On Dec 21, 2005, at 08:21, Trond Myklebust wrote:
+>>
+>>>...and if you stick in a faster server?...
+>>>
+>>>There is _NO_ fundamental difference between NFS and a local  
+>>>filesystem that warrants marking one as "interactive" and the other  
+>>>as "noninteractive". What you are basically saying is that all I/O  
+>>>should be marked as TASK_NONINTERACTIVE.
+>>
+>>Uhh, what part of disk/NFS/filesystem access is "interactive"?  Which  
+>>of those sleeps directly involve responding to user-interface  
+>>events?  _That_ is the whole point of the interactivity bonus, and  
+>>precisely why Ingo introduced TASK_NONINTERACTIVE sleeps; so that  
+>>processes that are not being useful for interactivity could be moved  
+>>away from TASK_NONINTERRUPTABLE, with the end result that the X- 
+>>server could be run at priority 0 without harming interactivity, even  
+>>during heavy *disk*, *NFS*, and *network* activity.  Admittedly, that  
+>>may not be what some people want, but they're welcome to turn off the  
+>>interactivity bonuses via some file in /proc (sorry, don't remember  
+>>which at the moment).
+> 
+> 
+> Then have io_schedule() automatically set that flag, and convert NFS to
+> use io_schedule(), or something along those lines. I don't want a bunch
+> of RT-specific flags littering the NFS/RPC code.
 
-This arch_ prefix seems to be a leftover from the migration helper patches?
+This flag isn't RT-specific.  It's used in the scheduling SCHED_NORMAL 
+tasks and has no other semantic effects.
 
-Johannes
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

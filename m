@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965097AbVLVHRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbVLVHPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965097AbVLVHRh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 02:17:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965099AbVLVHRh
+	id S965103AbVLVHPr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 02:15:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbVLVHPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 02:17:37 -0500
-Received: from mail.kroah.org ([69.55.234.183]:29363 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965097AbVLVHRg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 02:17:36 -0500
-Date: Wed, 21 Dec 2005 23:15:57 -0800
-From: Greg KH <gregkh@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       aabdulla@nvidia.com, jgarzik@pobox.com, netdev@vger.kernel.org,
-       ak@suse.de, discuss@x86-64.org, perex@suse.cz,
-       alsa-devel@alsa-project.org
-Subject: Re: 2.6.15-rc6: known regressions in the kernel Bugzilla
-Message-ID: <20051222071557.GA17346@suse.de>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org> <20051222011320.GL3917@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 Dec 2005 02:15:47 -0500
+Received: from nproxy.gmail.com ([64.233.182.196]:10631 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965103AbVLVHPr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 02:15:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rabF9Hd+FzmMZB2IiH4roHDNzbg9Y0RyoYwH8Ss8X7JwA1faOf4ayC1V3kwYeTGoa8IzQQrbU7fyaB8d1I+q1nU2kB20oOtw0le7lexLbtIVDeKfrPV1938Jdw5QQFFui5OLiBVNZ973ZTeB69hjdmE7c2mHZp6/se73u7ghdy4=
+Message-ID: <6f48278f0512212315n24301308ia81fc8094fc93838@mail.gmail.com>
+Date: Thu, 22 Dec 2005 15:15:43 +0800
+From: Jie Zhang <jzhang918@gmail.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: Question on the current behaviour of malloc () on Linux
+Cc: linux-kernel@vger.kernel.org, lars.friedrich@wago.com
+In-Reply-To: <9a8748490512211005u40ca4c7dv41044827544f97fa@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051222011320.GL3917@stusta.de>
-User-Agent: Mutt/1.5.11
+References: <6f48278f0512210936y25169c37t9fb7eb13fef3a97d@mail.gmail.com>
+	 <9a8748490512211005u40ca4c7dv41044827544f97fa@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 02:13:20AM +0100, Adrian Bunk wrote:
-> The following bug in the kernel Bugzilla contains a regressions in 
-> 2.6.15-rc without a patch:
-> - #5760 No sound with snd_intel8x0 & ALi M5455 chipset
->         (kobject_register failed)
+On 12/22/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> On 12/21/05, Jie Zhang <jzhang918@gmail.com> wrote:
+> > Hi,
+> >
+> > I first asked this question on uClinux mailing list. My first question
+> > is <http://mailman.uclinux.org/pipermail/uclinux-dev/2005-December/036042.html>.
+> > Although I found this issue on uClinux, it's also can be demostrated
+> > on Linux. This is a small program:
+> >
+> [snip memory hog]
+> >
+> > When I run it on my Linux notebook, it will be killed. I expect to see
+> > it prints out   "fail".
+> >
+>
+> You are seeing the effects of Linux overcommitting memory.
+>
+[snip]
+>
+> For more information read Documentation/vm/overcommit-accounting ,
+> Documentation/sysctl/vm.txt & Documentation/filesystems/proc.txt
+>
+Thanks a lot! Your explaination is very detailed and easier to
+understand than the doc for me.
 
-We put code in the kobjet to report when callers fail, due to problems
-in them, and the kobject code is blamed...
-
-Looks like a sound driver issue, nothing has changed in the kobject
-code.
-
-thanks,
-
-greg k-h
+Best Regards,
+Jie

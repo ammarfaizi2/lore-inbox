@@ -1,58 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965008AbVLVBNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965014AbVLVBTd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965008AbVLVBNX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 20:13:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965014AbVLVBNX
+	id S965014AbVLVBTd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 20:19:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVLVBTd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 20:13:23 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35853 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S965007AbVLVBNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 20:13:22 -0500
-Date: Thu, 22 Dec 2005 02:13:20 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       aabdulla@nvidia.com, jgarzik@pobox.com, netdev@vger.kernel.org,
-       ak@suse.de, discuss@x86-64.org, perex@suse.cz,
-       alsa-devel@alsa-project.org, gregkh@suse.de
-Subject: 2.6.15-rc6: known regressions in the kernel Bugzilla
-Message-ID: <20051222011320.GL3917@stusta.de>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
-MIME-Version: 1.0
+	Wed, 21 Dec 2005 20:19:33 -0500
+Received: from waste.org ([64.81.244.121]:34946 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S965014AbVLVBTd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 20:19:33 -0500
+Date: Wed, 21 Dec 2005 19:16:37 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Nicolas Pitre <nico@cam.org>, Linus Torvalds <torvalds@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 3/3] mutex subsystem: move the core to the new atomic helpers
+Message-ID: <20051222011637.GA1639@waste.org>
+References: <20051221155411.GA7243@elte.hu> <Pine.LNX.4.64.0512211735030.26663@localhost.localdomain> <20051221231218.GA6747@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051221231218.GA6747@elte.hu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following bugs in the kernel Bugzilla [1] contain regressions in 
-2.6.15-rc compared to 2.6.14 with patches:
-- #5632 forcedeth driver occasionally hangs
-- #5758 x86_64: PANIC: early exception
+On Thu, Dec 22, 2005 at 12:12:18AM +0100, Ingo Molnar wrote:
+> 
+> * Nicolas Pitre <nico@cam.org> wrote:
+> 
+> > This patch moves the core mutex code over to the atomic helpers from 
+> > previous patch.  There is no change for i386 and x86_64, except for 
+> > the forced unlock state that is now done outside the spinlock (doing 
+> > so doesn't matter since another CPU could have locked the mutex right 
+> > away even if it was unlocked inside the spinlock).  This however 
+> > brings great improvements on ARM for example.
+> 
+> i'm wondering how much difference it makes on ARM - could you show us 
+> the before and after disassembly of the fastpath, to see the 
+> improvement?
+> 
+> your patches look OK to me, only one small detail sticks out: i'd 
+> suggest to rename the atomic_*_contended macros to be arch_mutex_*_..., 
+> i dont think any other code can make use of it. Also, it would be nice 
+> to see the actual ARM patches as well, which make use of the new 
+> infrastructure.
 
-The following bug in the kernel Bugzilla contains a regressions in 
-2.6.15-rc without a patch:
-- #5760 No sound with snd_intel8x0 & ALi M5455 chipset
-        (kobject_register failed)
+I'm personally a little worried about the recent proliferation of
+atomic_*.
 
-If we want people to test -rc kernels, we should also try hard to fix 
-the regressions they report (even more if there are already patches 
-for them)...
+My take on atomic_* functions has always been: a "sensible" arch [1]
+implements the functionality in a single atomic instruction and this
+simply exposes that instruction at the C level which otherwise lacks
+appropriate semantics.
 
-I've Cc'ed all people who might be able comment on one or more of these 
-issues.
+So functions like atomic_dec_call_if_negative seem a) excessively
+special purpose b) not fundamental in the
+ought-to-be-a-single-instruction sense c) a bit out of place in the in
+the atomic_* set. These might even encourage people to roll their own
+special-purpose locking primitives and we have way too many of those
+already.
 
-cu
-Adrian
-
-[1] http://bugzilla.kernel.org/
+[1] In Linus' famous sense of what an ideal architecture should look like
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Mathematics is the supreme nostalgia of our time.

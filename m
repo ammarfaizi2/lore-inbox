@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965166AbVLVQkg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbVLVQo7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965166AbVLVQkg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 11:40:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbVLVQkg
+	id S965168AbVLVQo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 11:44:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbVLVQo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 11:40:36 -0500
-Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:59003 "HELO
-	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965166AbVLVQkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 11:40:36 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Vitaly Wool <vwool@ru.mvista.com>
-Subject: Re: [PATCH 2.6-git] SPI: add set_clock() to bitbang
-Date: Thu, 22 Dec 2005 08:40:33 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, spi-devel-general@sourceforge.net
-References: <20051222180449.4335a8e6.vwool@ru.mvista.com>
-In-Reply-To: <20051222180449.4335a8e6.vwool@ru.mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Dec 2005 11:44:59 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:52664 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965168AbVLVQo6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 11:44:58 -0500
+Date: Thu, 22 Dec 2005 17:44:15 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nicolas Pitre <nico@cam.org>
+Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+Message-ID: <20051222164415.GA10628@elte.hu>
+References: <20051222114147.GA18878@elte.hu> <20051222115329.GA30964@infradead.org> <Pine.LNX.4.64.0512221025070.26663@localhost.localdomain> <20051222154012.GA6284@elte.hu> <Pine.LNX.4.64.0512221113560.26663@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512220840.34152.david-b@pacbell.net>
+In-Reply-To: <Pine.LNX.4.64.0512221113560.26663@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 December 2005 7:04 am, Vitaly Wool wrote:
-> Hi David,
+
+* Nicolas Pitre <nico@cam.org> wrote:
+
+> > i'm curious, how would this ARMv6 solution look like, and what would be 
+> > the advantages over the atomic swap based variant?
 > 
-> inlined is the small patch that adds set_clock function to the spi_bitbang structure.
+> On ARMv6 (which can be SMP) the atomic swap instruction is much more 
+> costly than on former ARM versions.  It however has ll/sc instructions 
+> which allows it to implement a true atomic decrement, and the lock 
+> fast path would look like: [...]
 
-This is actually not needed.  Clocks are set through the setup() method
-in the spi_master, and controller drivers are (courtesy of the library
-approach) free to provide their own.  Drivers for word-at-a-time hardware
-would still need to call spi_bitbang_setup() in their own setup() code,
-to set up the per-device controller_state, and spi_bitbang_cleanup() in
-their own cleanup() code, to deallocate it.
+but couldnt you implement atomic_dec_return() with the ll/sc 
+instructions? Something like:
 
+repeat:
+       ldrex   r1, [r0]
+       sub     r1, r1, #1
+       strex   r2, r1, [r0]
+       orrs    r0, r2, r1
+       jneq    repeat
 
-> Currently SPI bus clock can be configured either in chipselect() (which is _wrong_)
-> or in txrx_buf (also doesn't encourage me much). Making it a separate function adds
-> readability for the code.   Also, it seems to be redundant to set clock on each
-> transfer, so it's proposed to do per-message clock setting. If SPI bus clock
-> setting involves some PLL reconfiguration it's definitely gonna save some time.  
+(shot-in-the-dark guess at ARMv6 assembly)
 
-Exactly why there's already spi_setup() in the common infrastruture,
-and why the spi_bitbang_{setup,cleanup}() routines are exported for
-simple drivers to shift-register level hardware.  The real "bang four
-bits into protocol" style drivers won't need that since the bitbang
-setup() calls calculate the delays used to satisfy those timings.
-But hardware drivers -- for word-at-a-time or buffer-at-a-time style
-usage -- would need that to set the clock dividers.
+hm?
 
-- Dave
-
-
-/**
- * spi_setup -- setup SPI mode and clock rate
- * @spi: the device whose settings are being modified
- *
- * SPI protocol drivers may need to update the transfer mode if the
- * device doesn't work with the mode 0 default.  They may likewise need
- * to update clock rates or word sizes from initial values.  This function
- * changes those settings, and must be called from a context that can sleep.
- */
-static inline int
-spi_setup(struct spi_device *spi)
-{
-        return spi->master->setup(spi);
-}
-
-
+	Ingo

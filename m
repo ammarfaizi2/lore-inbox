@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbVLVNg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVLVNhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750906AbVLVNg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 08:36:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbVLVNg2
+	id S932231AbVLVNhh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 08:37:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVLVNhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 08:36:28 -0500
-Received: from ambr.mtholyoke.edu ([138.110.1.10]:27396 "EHLO
-	ambr.mtholyoke.edu") by vger.kernel.org with ESMTP id S1750906AbVLVNg1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 08:36:27 -0500
-From: Ron Peterson <rpeterso@MtHolyoke.edu>
-Date: Thu, 22 Dec 2005 08:36:23 -0500
-To: linux-kernel@vger.kernel.org
-Subject: nfs insecure_locks / Tru64 behaviour
-Message-ID: <20051222133623.GE7814@mtholyoke.edu>
+	Thu, 22 Dec 2005 08:37:37 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:21943 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932231AbVLVNhh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 08:37:37 -0500
+Date: Thu, 22 Dec 2005 14:35:07 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 1/6] RTC subsystem, class
+Message-ID: <20051222133507.GA10208@elf.ucw.cz>
+References: <20051220214511.12bbb69c@inspiron>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: Mount Holyoke College
-X-Operating-System: Debian GNU/Linux
+In-Reply-To: <20051220214511.12bbb69c@inspiron>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I mount a linux export on Tru64, it seems the execute bit for 'other'
-needs to be set on a directory in order edit files within it using vi.
-'Nobody' and 'nogroup' also appear to be special.
+Hi!
 
-I'm running 2.6.14.3 on Debian Sarge.
+> rtc/class.c - registration facilities for RTC drivers
+> rtc/intf.c - kernel/rtc interface functions 
+> rtc/utils.c - misc rtc-related utility functions
 
-For example.
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-nslu2/drivers/rtc/intf.c	2005-12-15 09:28:14.000000000 +0100
+> @@ -0,0 +1,67 @@
 
-On linux, in directory /db/test:
+interface.c, please.
 
-1185# ll
-total 16
-drwxr-x--x  2 root     kmw     4096 Dec 21 22:39 a/
-drwxr-x---  2 nobody   kmw     4096 Dec 21 22:39 b/
-drwxr-x---  2 rpeterso nogroup 4096 Dec 21 22:46 c/
-drwxr-x---  2 root     system  4096 Dec 22 08:22 d/
 
-where /etc/exports looks like
+> +/*
+> + * rtc-intf.c - rtc subsystem, interface functions
 
-/db/test  \
-              depot.p(rw,sync) \
-              polar.p(rw,sync,insecure_locks)
+Wrong filename.
 
-I mount this on Tru64 like:
+> +int rtc_set_alarm(struct class_device *class_dev, struct rtc_wkalrm*alrm)
 
-mount -o tcp yogi.p:/db/test dbtest
-
-Each directory a,b,c,d has a small text file named 'test':
-
--rw-rw-r--  1 root kmw 5 Dec 21 22:39 test
-
-As a user in group kmw I can edit this file in directory a, b, and c.  I
-can't edit the file in directory d.
-
-I understand that Tru64 doesn't send matching credentials with nfs lock
-requests.  The 'insecure_locks' option seems to help work around
-permission problems on the files themselves, but doesn't seem to work
-around the permissions of the owning directory.
-
-It's probably fair to point fingers at Tru64, but it seems unlikely
-there will be any changes to nfs on that side...
-
-I'm not subscribed the lkml, so cc's are appreciated.
-
-Best.
+Struct rtc_wake_alarm *alarm, those wovels are there for readability.
 
 -- 
-Ron Peterson
-Network & Systems Manager
-Mount Holyoke College
-http://pks.mtholyoke.edu:11371/pks/lookup?search=0xB6D365A1&op=vindex
+Thanks, Sharp!

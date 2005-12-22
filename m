@@ -1,121 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030334AbVLVVz6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbVLVV4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030334AbVLVVz6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 16:55:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030335AbVLVVz6
+	id S1030335AbVLVV4b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 16:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030337AbVLVV4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 16:55:58 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:56963 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1030334AbVLVVz4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 16:55:56 -0500
-Date: Thu, 22 Dec 2005 22:25:08 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jan Beulich <JBeulich@novell.com>
-Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: .config not updated after make clean
-Message-ID: <20051222212508.GA1323@mars.ravnborg.org>
-References: <43AABBA1.76F0.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43AABBA1.76F0.0078.0@novell.com>
-User-Agent: Mutt/1.5.11
+	Thu, 22 Dec 2005 16:56:31 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:43142 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030335AbVLVV43 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 16:56:29 -0500
+Date: Thu, 22 Dec 2005 13:54:57 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linus Torvalds <torvalds@osdl.org>, Nicolas Pitre <nico@cam.org>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 00/10] mutex subsystem, -V5
+In-Reply-To: <20051222213902.GA32433@elte.hu>
+Message-ID: <Pine.LNX.4.62.0512221349290.9324@schroedinger.engr.sgi.com>
+References: <20051222153717.GA6090@elte.hu> <Pine.LNX.4.64.0512221134150.26663@localhost.localdomain>
+ <Pine.LNX.4.64.0512220941320.4827@g5.osdl.org>
+ <Pine.LNX.4.62.0512221003540.7992@schroedinger.engr.sgi.com>
+ <20051222213902.GA32433@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 02:43:45PM +0100, Jan Beulich wrote:
-> Sam,
+On Thu, 22 Dec 2005, Ingo Molnar wrote:
+
+> > I would like some more flexible way of dealing with locks in general. 
+> > The code for the MUTEXes seems to lock us into a specific way of 
+> > realizing locks again.
 > 
-> since 'make clean' doesn't delete include/linux/autoconf.h (but
-> obviously does delete .config.cmd), .config cannot get updated anymore
-> if any of the Kconfig-s in the tree changes.
+> yeah, but we should be careful where to put it: the perfect place for 
+> most of these features and experiments is in the _generic_ code, not in 
+> arch-level code! Look at how we are doing it with spinlocks. It used to 
+> be a nightmare that every arch had to implement preempt support, or 
+> spinlock debugging support, and they ended up not implementing these 
+> features at all, or only doing it partially.
 
-Correct but thats unfortunate though.
+I think we need to have the ability to modify things on both levels. There 
+needs to be a way to introduce f.e. a general HBO type locking algorithm 
+for all architectures. But then also a way for an arch to do special
+things that are strongly depending on a particular arch like relocating
+the actual storage location of a lock to a specially handled memory area.
 
-> Is there a particular
-> reason that include/linux/autoconf.h only gets deleted by 'make
-> mrproper', but not by 'make clean'?
-make clean is used to clean out all intermidiate files not needed for:
-- building applications that users kernel headers directly
-- building external modules
+> i definitely do not say that _everything_ should be generalized. That 
+> would be micromanaging things. But i definitely think there's an 
+> unhealthy amount of _under_ generalization in current Linux 
+> architectures, and i dont want the mutex subsystem to fall into that 
+> trap.
 
-For the latter autoconf.h is needed in order to obtain the
-current kernel configuration.
+The mutex implementation here is one implementation. There needs to be
+a generic way to replace this implementation with another in an arch
+independent way as well as the ability for an arch to modify low level
+elements necessary to optimize locks on a particular hardware.
 
-> If that cannot be adjusted, I can't
-> see how else to force proper re-generation of .config through the
-> silentoldconfig target.
+Then there is the common ground of low level mutexes with spinlocks. So 
+far spinlocks also work for semaphores. Now with the MUTEXes we have two 
+different locking mechanism that largely overlap in in functionality. In 
+the past one could simply replace the spinlock implementation, now one 
+also has to worry about MUTEXes.
 
-The current flow is something in the line of:
-
-all Kconfig files => .config + include/linux/autoconf.h +.config.cmd
-include/linux/autoconf.h => include/config/* + include/config/MARKER
-
-When we execute make clean we delete the .config.cmd file so
-we will not detect when a Kconfig file is changed - not good.
-
-Since for reasons listed above we want to keep the autoconf.h
-around also after make clean a new approach is needed.
-We could keep the .config.cmd file but thats clearly not
-supposed to stay around after a make clean.
-
-So I went for another solution and if .config.cmd - renamed to
-kconfig.dep - does not exists we execute make silentoldconfig
-
-The reason for the rename is the clash with the normal kbuild .cmd
-file which caused it to have multiple targets if it was created.
-
-	Sam
-	
-diff --git a/Makefile b/Makefile
-index f4218b5..43ab980 100644
---- a/Makefile
-+++ b/Makefile
-@@ -481,18 +481,20 @@ ifeq ($(dot-config),1)
- 
- # Read in dependencies to all Kconfig* files, make sure to run
- # oldconfig if changes are detected.
---include .config.cmd
-+-include .kconfig.dep
- 
- include .config
- 
- # If .config needs to be updated, it will be done via the dependency
- # that autoconf has on .config.
- # To avoid any implicit rule to kick in, define an empty command
--.config: ;
-+.config .kconfig.dep: ;
- 
- # If .config is newer than include/linux/autoconf.h, someone tinkered
--# with it and forgot to run make oldconfig
--include/linux/autoconf.h: .config
-+# with it and forgot to run make oldconfig.
-+# If kconfig.dep is missing then we are probarly in a cleaned tree so
-+# we execute the config step to be sure to catch updated Kconfig files
-+include/linux/autoconf.h: .kconfig.dep .config
- 	$(Q)mkdir -p include/linux
- 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
- else
-@@ -981,7 +983,7 @@ endif # CONFIG_MODULES
- 
- # Directories & files removed with 'make clean'
- CLEAN_DIRS  += $(MODVERDIR)
--CLEAN_FILES +=	vmlinux System.map \
-+CLEAN_FILES +=	vmlinux System.map .kconfig.dep\
-                 .tmp_kallsyms* .tmp_version .tmp_vmlinux* .tmp_System.map
- 
- # Directories & files removed with 'make mrproper'
-diff --git a/scripts/kconfig/util.c b/scripts/kconfig/util.c
-index 1fa4c0b..854d247 100644
---- a/scripts/kconfig/util.c
-+++ b/scripts/kconfig/util.c
-@@ -33,7 +33,7 @@ int file_write_dep(const char *name)
- 	FILE *out;
- 
- 	if (!name)
--		name = ".config.cmd";
-+		name = ".kconfig.dep";
- 	out = fopen("..config.tmp", "w");
- 	if (!out)
- 		return 1;
+I wish we had some strategy to make all of this easier and gather common 
+elements together.

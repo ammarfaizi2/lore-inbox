@@ -1,126 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965078AbVLVEvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965094AbVLVEvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965078AbVLVEvI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 23:51:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965087AbVLVEvH
+	id S965094AbVLVEvY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 23:51:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbVLVEvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 23:51:07 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:34768 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965081AbVLVEuz
+	Wed, 21 Dec 2005 23:51:15 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:35792 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965083AbVLVEvF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 23:50:55 -0500
+	Wed, 21 Dec 2005 23:51:05 -0500
 To: linux-m68k@vger.kernel.org
-Subject: [PATCH 22/36] m68k: basic __user annotations
+Subject: [PATCH 24/36] m68k: rtc __user annotations
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1EpIPm-0004sd-LP@ZenIV.linux.org.uk>
+Message-Id: <E1EpIPw-0004sv-Li@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Thu, 22 Dec 2005 04:50:54 +0000
+Date: Thu, 22 Dec 2005 04:51:04 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1133512703 -0500
+Date: 1135011480 -0500
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- include/asm-m68k/uaccess.h |   18 ++++++++++--------
- 1 files changed, 10 insertions(+), 8 deletions(-)
+ arch/m68k/bvme6000/rtc.c |    6 +++---
+ arch/m68k/mvme16x/rtc.c  |    6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
-14c881493778a59f2642397704ab2f662fbcc3a9
-diff --git a/include/asm-m68k/uaccess.h b/include/asm-m68k/uaccess.h
-index f5cedf1..a653bf8 100644
---- a/include/asm-m68k/uaccess.h
-+++ b/include/asm-m68k/uaccess.h
-@@ -42,6 +42,7 @@ struct exception_table_entry
- ({							\
-     int __pu_err;					\
-     typeof(*(ptr)) __pu_val = (x);			\
-+    __chk_user_ptr(ptr);				\
-     switch (sizeof (*(ptr))) {				\
-     case 1:						\
- 	__put_user_asm(__pu_err, __pu_val, ptr, b);	\
-@@ -91,6 +92,7 @@ __asm__ __volatile__					\
- ({								\
-     int __gu_err;						\
-     typeof(*(ptr)) __gu_val;					\
-+    __chk_user_ptr(ptr);					\
-     switch (sizeof(*(ptr))) {					\
-     case 1:							\
- 	__get_user_asm(__gu_err, __gu_val, ptr, b, "=d");	\
-@@ -105,7 +107,7 @@ __asm__ __volatile__					\
-         __gu_err = __constant_copy_from_user(&__gu_val, ptr, 8);  \
-         break;                                                  \
-     default:							\
--	__gu_val = 0;						\
-+	__gu_val = (typeof(*(ptr)))0;				\
- 	__gu_err = __get_user_bad();				\
- 	break;							\
-     }								\
-@@ -134,7 +136,7 @@ __asm__ __volatile__				\
-      : "m"(*(ptr)), "i" (-EFAULT), "0"(0))
+b8476525cbcf02835f83ab0e2ca58e7b00746ff9
+diff --git a/arch/m68k/bvme6000/rtc.c b/arch/m68k/bvme6000/rtc.c
+index eb63ca6..ab222c6 100644
+--- a/arch/m68k/bvme6000/rtc.c
++++ b/arch/m68k/bvme6000/rtc.c
+@@ -46,6 +46,7 @@ static int rtc_ioctl(struct inode *inode
+ 	unsigned char msr;
+ 	unsigned long flags;
+ 	struct rtc_time wtime;
++	void __user *argp = (void __user *)arg;
  
- static inline unsigned long
--__generic_copy_from_user(void *to, const void *from, unsigned long n)
-+__generic_copy_from_user(void *to, const void __user *from, unsigned long n)
- {
-     unsigned long tmp;
-     __asm__ __volatile__
-@@ -189,7 +191,7 @@ __generic_copy_from_user(void *to, const
- }
+ 	switch (cmd) {
+ 	case RTC_RD_TIME:	/* Read the time/date from RTC	*/
+@@ -68,7 +69,7 @@ static int rtc_ioctl(struct inode *inode
+ 		} while (wtime.tm_sec != BCD2BIN(rtc->bcd_sec));
+ 		rtc->msr = msr;
+ 		local_irq_restore(flags);
+-		return copy_to_user((void *)arg, &wtime, sizeof wtime) ?
++		return copy_to_user(argp, &wtime, sizeof wtime) ?
+ 								-EFAULT : 0;
+ 	}
+ 	case RTC_SET_TIME:	/* Set the RTC */
+@@ -80,8 +81,7 @@ static int rtc_ioctl(struct inode *inode
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EACCES;
  
- static inline unsigned long
--__generic_copy_to_user(void *to, const void *from, unsigned long n)
-+__generic_copy_to_user(void __user *to, const void *from, unsigned long n)
- {
-     unsigned long tmp;
-     __asm__ __volatile__
-@@ -264,7 +266,7 @@ __generic_copy_to_user(void *to, const v
- 	 : "d0", "memory")
+-		if (copy_from_user(&rtc_tm, (struct rtc_time*)arg,
+-				   sizeof(struct rtc_time)))
++		if (copy_from_user(&rtc_tm, argp, sizeof(struct rtc_time)))
+ 			return -EFAULT;
  
- static inline unsigned long
--__constant_copy_from_user(void *to, const void *from, unsigned long n)
-+__constant_copy_from_user(void *to, const void __user *from, unsigned long n)
- {
-     switch (n) {
-     case 0:
-@@ -520,7 +522,7 @@ __constant_copy_from_user(void *to, cons
- #define __copy_from_user_inatomic __copy_from_user
+ 		yrs = rtc_tm.tm_year;
+diff --git a/arch/m68k/mvme16x/rtc.c b/arch/m68k/mvme16x/rtc.c
+index 7977eae..ee18309 100644
+--- a/arch/m68k/mvme16x/rtc.c
++++ b/arch/m68k/mvme16x/rtc.c
+@@ -44,6 +44,7 @@ static int rtc_ioctl(struct inode *inode
+ 	volatile MK48T08ptr_t rtc = (MK48T08ptr_t)MVME_RTC_BASE;
+ 	unsigned long flags;
+ 	struct rtc_time wtime;
++	void __user *argp = (void __user *)arg;
  
- static inline unsigned long
--__constant_copy_to_user(void *to, const void *from, unsigned long n)
-+__constant_copy_to_user(void __user *to, const void *from, unsigned long n)
- {
-     switch (n) {
-     case 0:
-@@ -766,7 +768,7 @@ __constant_copy_to_user(void *to, const 
-  */
+ 	switch (cmd) {
+ 	case RTC_RD_TIME:	/* Read the time/date from RTC	*/
+@@ -63,7 +64,7 @@ static int rtc_ioctl(struct inode *inode
+ 		wtime.tm_wday = BCD2BIN(rtc->bcd_dow)-1;
+ 		rtc->ctrl = 0;
+ 		local_irq_restore(flags);
+-		return copy_to_user((void *)arg, &wtime, sizeof wtime) ?
++		return copy_to_user(argp, &wtime, sizeof wtime) ?
+ 								-EFAULT : 0;
+ 	}
+ 	case RTC_SET_TIME:	/* Set the RTC */
+@@ -75,8 +76,7 @@ static int rtc_ioctl(struct inode *inode
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EACCES;
  
- static inline long
--strncpy_from_user(char *dst, const char *src, long count)
-+strncpy_from_user(char *dst, const char __user *src, long count)
- {
-     long res;
-     if (count == 0) return count;
-@@ -799,7 +801,7 @@ strncpy_from_user(char *dst, const char 
-  *
-  * Return 0 on exception, a value greater than N if too long
-  */
--static inline long strnlen_user(const char *src, long n)
-+static inline long strnlen_user(const char __user *src, long n)
- {
- 	long res;
+-		if (copy_from_user(&rtc_tm, (struct rtc_time*)arg,
+-				   sizeof(struct rtc_time)))
++		if (copy_from_user(&rtc_tm, argp, sizeof(struct rtc_time)))
+ 			return -EFAULT;
  
-@@ -842,7 +844,7 @@ static inline long strnlen_user(const ch
-  */
- 
- static inline unsigned long
--clear_user(void *to, unsigned long n)
-+clear_user(void __user *to, unsigned long n)
- {
-     __asm__ __volatile__
- 	("   tstl %1\n"
+ 		yrs = rtc_tm.tm_year;
 -- 
 0.99.9.GIT
 

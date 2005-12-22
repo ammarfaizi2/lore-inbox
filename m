@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbVLVMnt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbVLVMpv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932455AbVLVMnt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 07:43:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbVLVMns
+	id S932429AbVLVMpv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 07:45:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbVLVMpu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 07:43:48 -0500
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:19164
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S932419AbVLVMns (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 07:43:48 -0500
-Date: Thu, 22 Dec 2005 04:40:27 -0800
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Joe Korty <joe.korty@ccur.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Geert Uytterhoeven <geert@linux-m68k.org>,
-       Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>, matthew@wil.cx,
-       arjan@infradead.org, Christoph Hellwig <hch@infradead.org>,
-       mingo@elte.hu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       nikita@clusterfs.com, pj@sgi.com, dhowells@redhat.com
-Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
-Message-ID: <20051222124027.GB14633@gnuppy.monkey.org>
-References: <1134769269.2806.17.camel@tglx.tec.linutronix.de> <Pine.LNX.4.64.0512161339140.3698@g5.osdl.org> <1134770778.2806.31.camel@tglx.tec.linutronix.de> <Pine.LNX.4.64.0512161414370.3698@g5.osdl.org> <1134772964.2806.50.camel@tglx.tec.linutronix.de> <Pine.LNX.4.64.0512161439330.3698@g5.osdl.org> <20051217002929.GA7151@tsunami.ccur.com> <Pine.LNX.4.64.0512161647570.3698@g5.osdl.org> <Pine.LNX.4.58.0512162211320.6498@gandalf.stny.rr.com> <Pine.LNX.4.64.0512162323140.3698@g5.osdl.org>
-MIME-Version: 1.0
+	Thu, 22 Dec 2005 07:45:50 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:42884 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932429AbVLVMpu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 07:45:50 -0500
+Date: Thu, 22 Dec 2005 13:45:06 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+Message-ID: <20051222124506.GB21239@elte.hu>
+References: <20051222114147.GA18878@elte.hu> <20051222115329.GA30964@infradead.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512162323140.3698@g5.osdl.org>
-User-Agent: Mutt/1.5.11
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+In-Reply-To: <20051222115329.GA30964@infradead.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 16, 2005 at 11:34:03PM -0800, Linus Torvalds wrote:
-> For example, to make things really concrete, please just name a semaphore 
-> that is relevant to a real-time task and that isn't fine enough grain that 
-> a careful and controlled environment can't avoid it being a bottle-neck 
-> for a real-time task.
 
-Problem here is ownership tracking with a semaphore is an extremely difficult
-problem to solve without serializing the entire thing with a single spinlock.
-You lose parallelism here and possible create other problems since the
-contention window is larger surround critical sections using it.
+* Christoph Hellwig <hch@infradead.org> wrote:
 
-> The real problems often end up happening in things like memory management, 
-> and waiting for IO, where it's not about the locking at all, it's about 
-> event scheduling. And you just have to avoid those (through pre-allocation 
-> and buffering) in those kinds of real-time situations.
+> > Changes since -V3:
+> > 
+> > - imlemented an atomic_xchg() based mutex implementation. It integrated
+> >   pretty nicely into the generic code, and most of the code is still
+> >   shared.
+> > 
+> > - added __ARCH_WANT_XCHG_BASED_ATOMICS: if an architecture defines 
+> >   this then the generic mutex code will switch to the atomic_xchg() 
+> >   implementation.
+> > 
+> >   This should be conceptually equivalent to the variant Nicolas Pitre 
+> >   posted - Nicolas, could you check out this one? It's much easier to 
+> >   provide this in the generic implementation, and the code ends up 
+> >   looking cleaner.
+> > 
+> > - eliminated ARCH_IMPLEMENTS_MUTEX_FASTPATH: there's no need for 
+> >   architectures to override the generic code anymore, with the 
+> >   introduction of __ARCH_WANT_XCHG_BASED_ATOMICS.
+> > 
+> > - ARM: enable __ARCH_WANT_XCHG_BASED_ATOMICS.
 > 
-> I really can't think of any blocking kernel lock where priority 
-> inheritance would make _any_ sense at all. Please give me an example. 
+> I must admit I really really hat __ARCH_ stuff if we can avoid it. An 
+> <asm/mutex.h> that usually includes two asm-generic variants is 
+> probably a much better choice.
 
-The current kernel mostly using traditional spinlocks doesn't have locking
-complicated enough to warrant it. However, the -rt patch does create a
-circumstance where a fully preemptible may sleep task with mutexes held create
-and needs resolve priority inversions that results from it. That's of
-course assuming that priority is something that needs to be strictly
-obeyed in this variant of the kernel with consideration to priority
-inheritance.
+agreed. In my tree i've changed it to CONFIG_MUTEX_XCHG_ALGORITHM, which 
+is selected by ARM in its Kconfig.
 
-bill
-
+	Ingo

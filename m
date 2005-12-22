@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbVLVLoV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932318AbVLVLno@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932257AbVLVLoV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 06:44:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbVLVLn4
+	id S932318AbVLVLno (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 06:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbVLVLnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 06:43:56 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:36994 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932257AbVLVLnT (ORCPT
+	Thu, 22 Dec 2005 06:43:43 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:45442 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932335AbVLVLnf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 06:43:19 -0500
-Date: Thu, 22 Dec 2005 12:42:40 +0100
+	Thu, 22 Dec 2005 06:43:35 -0500
+Date: Thu, 22 Dec 2005 12:42:59 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -21,8 +21,8 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Steven Rostedt <rostedt@goodmis.org>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 6/9] mutex subsystem, switch ARM to use the xchg based implementation
-Message-ID: <20051222114240.GG18878@elte.hu>
+Subject: [patch 8/9] mutex subsystem, more debugging code
+Message-ID: <20051222114259.GI18878@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -37,44 +37,155 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-as noted by Nicolas Pitre, atomic_[inc/dec]_call_if_[nonpositive/negative]()
-atomic methods are slow on ARM, because they can only be implemented via
-disabling interrupts. So tell the mutex code that we prefer atomic_xchg().
-
-[ we still pull in asm-generic/atomic-call-if.h, so that they remain
-  generally available primitives - even though unused on ARM at the
-  moment. ]
+more mutex debugging: check for held locks during memory freeing,
+task exit, enable sysrq printouts, etc.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
 ----
 
- include/asm-arm/atomic.h |   12 +++++++-----
- 1 files changed, 7 insertions(+), 5 deletions(-)
+ arch/i386/mm/pageattr.c |    4 ++++
+ drivers/char/sysrq.c    |   19 +++++++++++++++++++
+ include/linux/mm.h      |    4 ++++
+ kernel/exit.c           |    5 +++++
+ kernel/sched.c          |    1 +
+ mm/page_alloc.c         |    3 +++
+ mm/slab.c               |    1 +
+ 7 files changed, 37 insertions(+)
 
-Index: linux/include/asm-arm/atomic.h
+Index: linux/arch/i386/mm/pageattr.c
 ===================================================================
---- linux.orig/include/asm-arm/atomic.h
-+++ linux/include/asm-arm/atomic.h
-@@ -180,14 +180,16 @@ static inline void atomic_clear_mask(uns
- /*
-  * Pull in the generic wrappers for atomic_dec_call_if_negative() and
-  * atomic_inc_call_if_nonpositive().
-- *
-- * TODO: implement optimized primitives instead, or leave the generic
-- * implementation in place, or use the __ARCH_WANT_XCHG_BASED_ATOMICS
-- * mechanism to tell the generic mutex code to use the atomic_xchg()
-- * based fastpath implementation.
-  */
- #include <asm-generic/atomic-call-if.h>
- 
-+/*
-+ * The atomic_[inc/dec]_call_if_[nonpositive/negative]() atomic methods
-+ * are slow on ARM, because they can only be implemented via disabling
-+ * interrupts. Tell the mutex code that we prefer atomic_xchg():
-+ */
-+#define __ARCH_WANT_XCHG_BASED_ATOMICS
-+
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
+--- linux.orig/arch/i386/mm/pageattr.c
++++ linux/arch/i386/mm/pageattr.c
+@@ -207,6 +207,10 @@ void kernel_map_pages(struct page *page,
  {
- 	int c, old;
+ 	if (PageHighMem(page))
+ 		return;
++	if (!enable)
++		mutex_debug_check_no_locks_freed(page_address(page),
++						 page_address(page+numpages));
++
+ 	/* the return value is ignored - the calls cannot fail,
+ 	 * large pages are disabled at boot time.
+ 	 */
+Index: linux/drivers/char/sysrq.c
+===================================================================
+--- linux.orig/drivers/char/sysrq.c
++++ linux/drivers/char/sysrq.c
+@@ -153,6 +153,21 @@ static struct sysrq_key_op sysrq_mountro
+ 
+ /* END SYNC SYSRQ HANDLERS BLOCK */
+ 
++#ifdef CONFIG_DEBUG_MUTEXES
++
++static void
++sysrq_handle_showlocks(int key, struct pt_regs *pt_regs, struct tty_struct *tty)
++{
++	mutex_debug_show_all_locks();
++}
++
++static struct sysrq_key_op sysrq_showlocks_op = {
++	.handler	= sysrq_handle_showlocks,
++	.help_msg	= "show-all-locks(D)",
++	.action_msg	= "Show Locks Held",
++};
++
++#endif
+ 
+ /* SHOW SYSRQ HANDLERS BLOCK */
+ 
+@@ -294,7 +309,11 @@ static struct sysrq_key_op *sysrq_key_ta
+ #else
+ /* c */	NULL,
+ #endif
++#ifdef CONFIG_DEBUG_MUTEXES
++/* d */ &sysrq_showlocks_op,
++#else
+ /* d */ NULL,
++#endif
+ /* e */	&sysrq_term_op,
+ /* f */	&sysrq_moom_op,
+ /* g */	NULL,
+Index: linux/include/linux/mm.h
+===================================================================
+--- linux.orig/include/linux/mm.h
++++ linux/include/linux/mm.h
+@@ -13,6 +13,7 @@
+ #include <linux/rbtree.h>
+ #include <linux/prio_tree.h>
+ #include <linux/fs.h>
++#include <linux/mutex.h>
+ 
+ struct mempolicy;
+ struct anon_vma;
+@@ -977,6 +978,9 @@ static inline void vm_stat_account(struc
+ static inline void
+ kernel_map_pages(struct page *page, int numpages, int enable)
+ {
++	if (!PageHighMem(page) && !enable)
++		mutex_debug_check_no_locks_freed(page_address(page),
++						 page_address(page + numpages));
+ }
+ #endif
+ 
+Index: linux/kernel/exit.c
+===================================================================
+--- linux.orig/kernel/exit.c
++++ linux/kernel/exit.c
+@@ -29,6 +29,7 @@
+ #include <linux/syscalls.h>
+ #include <linux/signal.h>
+ #include <linux/cn_proc.h>
++#include <linux/mutex.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -870,6 +871,10 @@ fastcall NORET_TYPE void do_exit(long co
+ 	mpol_free(tsk->mempolicy);
+ 	tsk->mempolicy = NULL;
+ #endif
++	/*
++	 * If DEBUG_MUTEXES is on, make sure we are holding no locks:
++	 */
++	mutex_debug_check_no_locks_held(tsk);
+ 
+ 	/* PF_DEAD causes final put_task_struct after we schedule. */
+ 	preempt_disable();
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c
++++ linux/kernel/sched.c
+@@ -4379,6 +4379,7 @@ void show_state(void)
+ 	} while_each_thread(g, p);
+ 
+ 	read_unlock(&tasklist_lock);
++	mutex_debug_show_all_locks();
+ }
+ 
+ /**
+Index: linux/mm/page_alloc.c
+===================================================================
+--- linux.orig/mm/page_alloc.c
++++ linux/mm/page_alloc.c
+@@ -400,6 +400,9 @@ void __free_pages_ok(struct page *page, 
+ 	int reserved = 0;
+ 
+ 	arch_free_page(page, order);
++	if (!PageHighMem(page))
++		mutex_debug_check_no_locks_freed(page_address(page),
++			page_address(page+(1<<order)));
+ 
+ #ifndef CONFIG_MMU
+ 	if (order > 0)
+Index: linux/mm/slab.c
+===================================================================
+--- linux.orig/mm/slab.c
++++ linux/mm/slab.c
+@@ -3038,6 +3038,7 @@ void kfree(const void *objp)
+ 	local_irq_save(flags);
+ 	kfree_debugcheck(objp);
+ 	c = page_get_cache(virt_to_page(objp));
++	mutex_debug_check_no_locks_freed(objp, objp+obj_reallen(c));
+ 	__cache_free(c, (void*)objp);
+ 	local_irq_restore(flags);
+ }

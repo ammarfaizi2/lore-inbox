@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbVLVRE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbVLVRJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030199AbVLVRE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 12:04:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbVLVRE1
+	id S1030205AbVLVRJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 12:09:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbVLVRJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 12:04:27 -0500
-Received: from web34108.mail.mud.yahoo.com ([66.163.178.106]:29887 "HELO
-	web34108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030199AbVLVRE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 12:04:27 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=RfuRJsiL6ZWc54t4vTBpH48ZzomkdNHvL79kOXYvjI7o9GOBv/tGvgz3+dNmmpQKlYWNLS/oHvB49pjytx600u2nnPLrbYsyrWKKD+uHjx/U/q0Z4D/gzARFpHnQtALv1dNDsj35m0iOCEd5P4WDn6X27RC2Ycqmqt8SVjoK9Y0=  ;
-Message-ID: <20051222170426.39259.qmail@web34108.mail.mud.yahoo.com>
-Date: Thu, 22 Dec 2005 09:04:26 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: RE: scsi errors with dpt-i2o driver
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
-       linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01FB3AC6@otce2k03.adaptec.com>
+	Thu, 22 Dec 2005 12:09:27 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:1414 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1030205AbVLVRJ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 12:09:26 -0500
+Message-ID: <43AAEF6E.47CCEFE0@tv-sign.ru>
+Date: Thu, 22 Dec 2005 21:24:46 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org, inaky.perez-gonzalez@intel.com,
+       tglx@linutronix.de, mingo@elte.hu
+Subject: Re: [PATCH 02/02] RT: plist namespace cleanup
+References: <1135202230.22970.15.camel@localhost.localdomain>
+		 <43AAB3C8.DB304856@tv-sign.ru> <1135270381.3696.2.camel@localhost.localdomain>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- "Salyzyn, Mark" <mark_salyzyn@adaptec.com> wrote:
-> (often can be fixed by a firmware update to the drive)
+Daniel Walker wrote:
+> 
+> On Thu, 2005-12-22 at 17:10 +0300, Oleg Nesterov wrote:
+> > Daniel Walker wrote:
+> > >
+> > >         Make the plist namespace consistent.
+> >
+> > I think plist_head is much better than pl_head.
+> >
+> > However I think plist_empty/plist_unhashed is more accurate
+> > than plist_head_empty/plist_node_empty, but I am rather
+> > agnostic to naming.
+> 
+> unhashed seems very meaningless . We're not hashing anything.
 
-Sir, I believe you have nailed it: http://www.seagate.com/support/disc/u320_firmware.html
+Still we already have hlist_empty/hlist_unhashed
 
-Though, I am still troubled that a single unhappy drive can impact a system so severely -
-especially since we pile them up for RAID thereby increasing the probability of a disk being
-unhappy.
+> > Daniel, it would be great if you can check that kernel/rt.o
+> > was not changed after rename (as it should be).
+> 
+> I didn't check, but I made no code changes so it should be any
+> different.
 
--Kenny
+That is why I asked. It is very easy to make a mistake by accident
+while doing trivial changes, but it is not easy to notice.
 
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Oleg.

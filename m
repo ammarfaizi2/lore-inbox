@@ -1,43 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbVLVMyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbVLVNBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964842AbVLVMyk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 07:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbVLVMyk
+	id S965006AbVLVNBY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 08:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbVLVNBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 07:54:40 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:17104 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S964842AbVLVMyj (ORCPT
+	Thu, 22 Dec 2005 08:01:24 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:8614 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965006AbVLVNBX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 07:54:39 -0500
-Message-ID: <43AAB3C8.DB304856@tv-sign.ru>
-Date: Thu, 22 Dec 2005 17:10:16 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Walker <dwalker@mvista.com>
-Cc: mingo@elte.hu, tglx@linutronix.de, inaky.perez-gonzalez@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 02/02] RT: plist namespace cleanup
-References: <1135202230.22970.15.camel@localhost.localdomain>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Dec 2005 08:01:23 -0500
+Date: Thu, 22 Dec 2005 14:00:38 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 9/9] mutex subsystem, XFS namespace collision fixes
+Message-ID: <20051222130038.GA21998@elte.hu>
+References: <20051222114308.GJ18878@elte.hu> <20051222120052.GC30964@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051222120052.GC30964@infradead.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walker wrote:
+
+* Christoph Hellwig <hch@infradead.org> wrote:
+
+> > -#define mutex_init(lock, type, name)		sema_init(lock, 1)
+> > -#define mutex_destroy(lock)			sema_init(lock, -99)
+> > -#define mutex_lock(lock, num)			down(lock)
+> > -#define mutex_trylock(lock)			(down_trylock(lock) ? 0 : 1)
+> > -#define mutex_unlock(lock)			up(lock)
+> > +#define xfs_mutex_init(lock, type, name)	sema_init(lock, 1)
+> > +#define xfs_mutex_destroy(lock)			sema_init(lock, -99)
+> > +#define xfs_mutex_lock(lock, num)		down(lock)
+> > +#define xfs_mutex_trylock(lock)			(down_trylock(lock) ? 0 : 1)
+> > +#define xfs_mutex_unlock(lock)			up(lock)
 > 
->         Make the plist namespace consistent.
+> Again, this should really be using the mutex primitives (obviously 
+> ;-)).
 
-I think plist_head is much better than pl_head.
+yeah - but i didnt want to impact something so large as XFS. Such a 
+change has to be tested and validated - so i wanted to get the namespace 
+collision out of the way first. But i'd be happy to add an XFS 
+conversion patch ontop of these, provided someone tests it.
 
-However I think plist_empty/plist_unhashed is more accurate
-than plist_head_empty/plist_node_empty, but I am rather
-agnostic to naming.
+> While we're at it, maybe we should a mutex_destroy aswell?  it would 
+> be non-mandatory and allow that a lock is gone for the debugging 
+> variant.
 
-Ingo, do you have any preferences?
+right now the lock is gone from the debugging state once it's unlocked.  
+I'll add mutex_destroy(), it should be rather easy (it can e.g. destroy 
+mutex->magic).
 
-Daniel, it would be great if you can check that kernel/rt.o
-was not changed after rename (as it should be).
-
-Oleg.
+	Ingo

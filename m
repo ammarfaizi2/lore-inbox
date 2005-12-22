@@ -1,82 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965148AbVLVNVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbVLVNX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965148AbVLVNVx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 08:21:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965150AbVLVNVx
+	id S965150AbVLVNX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 08:23:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965154AbVLVNX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 08:21:53 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:26580 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S965148AbVLVNVx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 08:21:53 -0500
-Message-ID: <43AABA29.6948B18B@tv-sign.ru>
-Date: Thu, 22 Dec 2005 17:37:29 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Walker <dwalker@mvista.com>
-Cc: mingo@elte.hu, tglx@linutronix.de, inaky.perez-gonzalez@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 01/02] RT: add back plist docs
-References: <1135202200.22970.12.camel@localhost.localdomain>
-Content-Type: text/plain; charset=koi8-r
+	Thu, 22 Dec 2005 08:23:58 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:44699 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965150AbVLVNX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 08:23:57 -0500
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+From: Arjan van de Ven <arjan@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, arjanv@infradead.org, nico@cam.org,
+       jes@trained-monkey.org, zwane@arm.linux.org.uk, oleg@tv-sign.ru,
+       dhowells@redhat.com, alan@lxorguk.ukuu.org.uk, bcrl@kvack.org,
+       rostedt@goodmis.org, hch@infradead.org, ak@suse.de,
+       rmk+lkml@arm.linux.org.uk
+In-Reply-To: <20051222050701.41b308f9.akpm@osdl.org>
+References: <20051222114147.GA18878@elte.hu>
+	 <20051222035443.19a4b24e.akpm@osdl.org> <20051222122011.GA20789@elte.hu>
+	 <20051222050701.41b308f9.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 22 Dec 2005 14:23:49 +0100
+Message-Id: <1135257829.2940.19.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walker wrote:
->
-> 	Add back copyrights, documentation, and function descriptions.
 
-Thank you for doing that!
+> >    * - only one task can hold the mutex at a time
+> >    * - only the owner can unlock the mutex
+> >    * - multiple unlocks are not permitted
+> >    * - recursive locking is not permitted
+> >    * - a mutex object must be initialized via the API
+> >    * - a mutex object must not be initialized via memset or copying
+> >    * - task may not exit with mutex held
+> >    * - memory areas where held locks reside must not be freed
+> 
+> Pretty much all of that could be added to semaphores-when-used-as-mutexes. 
+> Without introducing a whole new locking mechanism.
 
-> + * This is a priority-sorted list of nodes; each node has a >= 0
-> + * priority from 0 (highest) to INT_MAX (lowest).
+this is basically in direct conflict with what Linus has been asking
+for.. "leave semaphore semantics alone".
 
-Why >= 0 ? ->prio is just integer, it can be < 0.
+I agree with Linus that if it has very different rules, it should have a
+different name. 
 
-                                                     The list itself has
-> + * a priority too (the highest of all the nodes), stored in the head
-> + * of the list (that is a node itself).
+> Ingo, there appear to be quite a few straw-man arguments here.  You're
+> comparing a subsystem (semaphores) which obviously could do with a lot of
+> fixing and enhancing with something new which has had a lot of recent
+> feature work out into it.
+> 
+> I'd prefer to see mutexes compared with semaphores after you've put as much
+> work into improving semaphores as you have into developing mutexes.
 
-No, the head is not a node, and does not have ->prio field. It is easy
-to get plist's priority:
+semaphores have had a lot of work for the last... 10 years. To me that
+is a sign that maybe they're close to their limit already.
 
-	plist_empty(head) ? INT_MAX // or 0?
-		: plist_last(head)->prio
+You keep saying 10 times "so please enhance semaphores to do this".
+Semaphores have far more complex rules for the slowpath (mutex semantics
+are simple because the number of wakers is always at most one, and if
+you hold the lock, you KNOW nobody else can do another release under
+you). Adding dual rules or other complexity to it doesn't sound too
+compelling to me actually; they're highly tricky things already (just
+look at the i386 ones.. that extra wakeup was there to plug a hole (at
+least that is my empirical conclusion based on "we remove it it hangs"
+behavior).
 
-> + * INT_MIN is the highest priority, 0 is the medium highest, INT_MAX
-> + * is lowest priority.
+Having 2 sets of behaviors for the same primitive also sounds not good
+to me to be honest, that's bound to explode stuff left and right all the
+time.
 
-This is right, but contradicts with 'each node has a >= 0 priority' above.
+I realize you're not looking forward to a gradual conversion; yet Linus
+says he doesn't want a wholesale change either but wants it gradual.
 
-Actually I don't understand why should we talk about min/max at all.
-plist is sorted by ->prio which is integer. That's all.
 
-> + * plist_add - add @node to @head returns !0 if the plist prio changed, 0
-> + * otherwise. XXX: Fix return code.
-> + *
-> + * @node:	&struct pl_node pointer
-> + * @head:	&struct pl_head pointer
-> + */
->  void plist_add(struct pl_node *node, struct pl_head *head)
->  {
->  	struct pl_node *iter;
-> @@ -25,6 +48,12 @@ eq_prio:
->  	list_add_tail(&node->plist.node_list, &iter->plist.node_list);
->  }
-
-> +/**
-> + * plist_del - Remove a @node from plist. returns !0 if the plist prio
-> + * changed, 0 otherwise. XXX: Fix return code.
-> + *
-> + * @node:	&struct pl_node pointer
-> + */
->  void plist_del(struct pl_node *node)
->  {
->  	if (!list_empty(&node->plist.prio_list)) {
-
-Both of them have 'void' return type.
-
-Oleg.

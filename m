@@ -1,708 +1,659 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbVLWAUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbVLWAU0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964912AbVLWAUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 19:20:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964892AbVLWATH
+	id S964975AbVLWAU0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 19:20:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbVLWATD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 19:19:07 -0500
-Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:34477 "HELO
+	Thu, 22 Dec 2005 19:19:03 -0500
+Received: from smtp107.sbc.mail.mud.yahoo.com ([68.142.198.206]:33197 "HELO
 	smtp107.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751230AbVLWASy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 19:18:54 -0500
+	id S1751229AbVLWASx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 19:18:53 -0500
 From: David Brownell <david-b@pacbell.net>
 To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch 2.6.14-rc6-git 5/6] SPI bitbang utilities
-Date: Thu, 22 Dec 2005 15:39:43 -0800
+Subject: [patch 2.6.14-rc6-git 4/6] SPI m25p flash protocol driver
+Date: Thu, 22 Dec 2005 15:39:20 -0800
 User-Agent: KMail/1.7.1
 Cc: spi-devel-general@lists.sourceforge.net
 References: <200511102355.11505.david-b@pacbell.net> 
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_/kzqDi7HOGCtSqL"
-Message-Id: <200512221539.43487.david-b@pacbell.net>
+  boundary="Boundary-00=_okzqD1+ptiKjlL2"
+Message-Id: <200512221539.20803.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_/kzqDi7HOGCtSqL
+--Boundary-00=_okzqD1+ptiKjlL2
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-This code supports a range of implementations for SPI controllers,
-from pure GPIO bitbanging up to drivers using non-queued DMA.  The
-price includes a task context and various other restrictions that
-higher performance drivers may need to avoid.
+If SPI flash isn't DataFlash, its protocol is probably very similar
+to the one used by these chips from ST.
 
 
---Boundary-00=_/kzqDi7HOGCtSqL
+--Boundary-00=_okzqD1+ptiKjlL2
 Content-Type: text/x-diff;
   charset="us-ascii";
-  name="bitbang_spi.patch"
+  name="m25p80.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: attachment;
-	filename="bitbang_spi.patch"
+	filename="m25p80.patch"
 
-This adds a bitbanging spi master, hooking up to board/adapter-specific glue
-code which knows how to set and read the signals (gpios etc).
+This was originally a driver for the ST M25P80 SPI flash.   It's been
+updated slightly to handle other M25P series chips.
 
-That glue code gets hooked up using platform_data which includes I/O loops.
-Those loops could be optimized down to a few instructions accessing GPIO
-registers, in some common cases.
+For many of these chips, the specific type could be probed, but for now
+this just requires static setup with flash_platform_data that lists the
+chip type (size, format) and any default partitioning to use.
 
-This understands all the currently defined protocol tweaking options, and
-could eventually serve as as reference implementation for them.
-
-  - different word sizes
-  - differing clock rates
-  - SPI modes differing only by CPOL ... chip setup, I/O loops
-  - SPI modes with I/O loops differing by CPHA
-  - delays (usecs) after transfers
-  - dropping chipselect mid-transfer
-
-Not all those combinations have been tested yet; notably, not CPHA=1.
-
+From: Mike Lavender <mike@steroidmicros.com>
 Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
---- tmp.orig/drivers/spi/Kconfig	2005-12-22 14:53:42.000000000 -0800
-+++ tmp/drivers/spi/Kconfig	2005-12-22 14:54:03.000000000 -0800
-@@ -30,7 +30,7 @@ config SPI
- 	  up to several tens of Mbit/sec.  Chips are addressed with a
- 	  controller and a chipselect.  Most SPI slaves don't support
- 	  dynamic device discovery; some are even write-only or read-only.
--	  
-+
- 	  SPI is widely used by microcontollers to talk with sensors,
- 	  eeprom and flash memory, codecs and various other controller
- 	  chips, analog to digital (and d-to-a) converters, and more.
-@@ -66,6 +66,19 @@ config SPI_MASTER
- comment "SPI Master Controller Drivers"
- 	depends on SPI_MASTER
+--- tmp.orig/drivers/mtd/devices/Makefile	2005-12-22 14:53:59.000000000 -0800
++++ tmp/drivers/mtd/devices/Makefile	2005-12-22 14:54:02.000000000 -0800
+@@ -24,3 +24,4 @@ obj-$(CONFIG_MTD_LART)		+= lart.o
+ obj-$(CONFIG_MTD_BLKMTD)	+= blkmtd.o
+ obj-$(CONFIG_MTD_BLOCK2MTD)	+= block2mtd.o
+ obj-$(CONFIG_MTD_DATAFLASH)	+= mtd_dataflash.o
++obj-$(CONFIG_MTD_M25P80)	+= m25p80.o
+--- tmp.orig/drivers/mtd/devices/Kconfig	2005-12-22 14:53:59.000000000 -0800
++++ tmp/drivers/mtd/devices/Kconfig	2005-12-22 14:54:02.000000000 -0800
+@@ -55,6 +55,14 @@ config MTD_DATAFLASH
+ 	  Sometimes DataFlash chips are packaged inside MMC-format
+ 	  cards; at this writing, the MMC stack won't handle those.
  
-+config SPI_BITBANG
-+	tristate "Bitbanging SPI master"
-+	depends on SPI_MASTER && EXPERIMENTAL
++config MTD_M25P80
++	tristate "Support for M25 SPI Flash"
++	depends on MTD && SPI_MASTER && EXPERIMENTAL
 +	help
-+	  With a few GPIO pins, your system can bitbang the SPI protocol.
-+	  Select this to get SPI support through I/O pins (GPIO, parallel
-+	  port, etc).  Or, some systems' SPI master controller drivers use
-+	  this code to manage the per-word or per-transfer accesses to the
-+	  hardware shift registers.
++	  This enables access to ST M25P80 and similar SPI flash chips,
++	  used for program and data storage.  Set up your spi devices
++	  with the right board-specific platform data.
 +
-+	  This is library code, and is automatically selected by drivers that
-+	  need it.  You only need to select this explicitly to support driver
-+	  modules that aren't part of this kernel tree.
- 
- #
- # Add new SPI master controllers in alphabetical order above this line
---- tmp.orig/drivers/spi/Makefile	2005-12-22 14:53:42.000000000 -0800
-+++ tmp/drivers/spi/Makefile	2005-12-22 14:54:03.000000000 -0800
-@@ -11,6 +11,7 @@ endif
- obj-$(CONFIG_SPI_MASTER)		+= spi.o
- 
- # SPI master controller drivers (bus)
-+obj-$(CONFIG_SPI_BITBANG)		+= spi_bitbang.o
- # 	... add above this line ...
- 
- # SPI protocol drivers (device/link on bus)
+ config MTD_SLRAM
+ 	tristate "Uncached system RAM"
+ 	depends on MTD
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ tmp/include/linux/spi/spi_bitbang.h	2005-12-22 14:54:03.000000000 -0800
-@@ -0,0 +1,135 @@
-+#ifndef	__SPI_BITBANG_H
-+#define	__SPI_BITBANG_H
-+
++++ tmp/drivers/mtd/devices/m25p80.c	2005-12-22 14:54:02.000000000 -0800
+@@ -0,0 +1,576 @@
 +/*
-+ * Mix this utility code with some glue code to get one of several types of
-+ * simple SPI master driver.  Two do polled word-at-a-time I/O:
++ * MTD SPI driver for ST M25Pxx flash chips
 + *
-+ *   -	GPIO/parport bitbangers.  Provide chipselect() and txrx_word[](),
-+ *	expanding the per-word routines from the inline templates below.
++ * Author: Mike Lavender, mike@steroidmicros.com
 + *
-+ *   -	Drivers for controllers resembling bare shift registers.  Provide
-+ *	chipselect() and txrx_word[](), with custom setup()/cleanup() methods
-+ *	that use your controller's clock and chipselect registers.
++ * Copyright (c) 2005, Intec Automation Inc.
 + *
-+ * Some hardware works well with requests at spi_transfer scope:
++ * Some parts are based on lart.c by Abraham Van Der Merwe
 + *
-+ *   -	Drivers leveraging smarter hardware, with fifos or DMA; or for half
-+ *	duplex (MicroWire) controllers.  Provide chipslect() and txrx_bufs(),
-+ *	and custom setup()/cleanup() methods.
-+ */
-+struct spi_bitbang {
-+	struct workqueue_struct	*workqueue;
-+	struct work_struct	work;
-+
-+	spinlock_t		lock;
-+	struct list_head	queue;
-+	u8			busy;
-+	u8			shutdown;
-+	u8			use_dma;
-+
-+	struct spi_master	*master;
-+
-+	void	(*chipselect)(struct spi_device *spi, int is_on);
-+#define	BITBANG_CS_ACTIVE	1	/* normally nCS, active low */
-+#define	BITBANG_CS_INACTIVE	0
-+
-+	/* txrx_bufs() may handle dma mapping for transfers that don't
-+	 * already have one (transfer.{tx,rx}_dma is zero), or use PIO
-+	 */
-+	int	(*txrx_bufs)(struct spi_device *spi, struct spi_transfer *t);
-+
-+	/* txrx_word[SPI_MODE_*]() just looks like a shift register */
-+	u32	(*txrx_word[4])(struct spi_device *spi,
-+			unsigned nsecs,
-+			u32 word, u8 bits);
-+};
-+
-+/* you can call these default bitbang->master methods from your custom
-+ * methods, if you like.
-+ */
-+extern int spi_bitbang_setup(struct spi_device *spi);
-+extern void spi_bitbang_cleanup(const struct spi_device *spi);
-+extern int spi_bitbang_transfer(struct spi_device *spi, struct spi_message *m);
-+
-+/* start or stop queue processing */
-+extern int spi_bitbang_start(struct spi_bitbang *spi);
-+extern int spi_bitbang_stop(struct spi_bitbang *spi);
-+
-+#endif	/* __SPI_BITBANG_H */
-+
-+/*-------------------------------------------------------------------------*/
-+
-+#ifdef	EXPAND_BITBANG_TXRX
-+
-+/*
-+ * The code that knows what GPIO pins do what should have declared four
-+ * functions, ideally as inlines, before #defining EXPAND_BITBANG_TXRX
-+ * and including this header:
++ * Cleaned up and generalized based on mtd_dataflash.c
 + *
-+ *  void setsck(struct spi_device *, int is_on);
-+ *  void setmosi(struct spi_device *, int is_on);
-+ *  int getmiso(struct spi_device *);
-+ *  void spidelay(unsigned);
++ * This code is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
 + *
-+ * A non-inlined routine would call bitbang_txrx_*() routines.  The
-+ * main loop could easily compile down to a handful of instructions,
-+ * especially if the delay is a NOP (to run at peak speed).
-+ *
-+ * Since this is software, the timings may not be exactly what your board's
-+ * chips need ... there may be several reasons you'd need to tweak timings
-+ * in these routines, not just make to make it faster or slower to match a
-+ * particular CPU clock rate.
 + */
 +
-+static inline u32
-+bitbang_txrx_be_cpha0(struct spi_device *spi,
-+		unsigned nsecs, unsigned cpol,
-+		u32 word, u8 bits)
-+{
-+	/* if (cpol == 0) this is SPI_MODE_0; else this is SPI_MODE_2 */
-+
-+	/* clock starts at inactive polarity */
-+	for (word <<= (32 - bits); likely(bits); bits--) {
-+
-+		/* setup MSB (to slave) on trailing edge */
-+		setmosi(spi, word & (1 << 31));
-+		spidelay(nsecs);	/* T(setup) */
-+
-+		setsck(spi, !cpol);
-+		spidelay(nsecs);
-+
-+		/* sample MSB (from slave) on leading edge */
-+		word <<= 1;
-+		word |= getmiso(spi);
-+		setsck(spi, cpol);
-+	}
-+	return word;
-+}
-+
-+static inline u32
-+bitbang_txrx_be_cpha1(struct spi_device *spi,
-+		unsigned nsecs, unsigned cpol,
-+		u32 word, u8 bits)
-+{
-+	/* if (cpol == 0) this is SPI_MODE_1; else this is SPI_MODE_3 */
-+
-+	/* clock starts at inactive polarity */
-+	for (word <<= (32 - bits); likely(bits); bits--) {
-+
-+		/* setup MSB (to slave) on leading edge */
-+		setsck(spi, !cpol);
-+		setmosi(spi, word & (1 << 31));
-+		spidelay(nsecs); /* T(setup) */
-+
-+		setsck(spi, cpol);
-+		spidelay(nsecs);
-+
-+		/* sample MSB (from slave) on trailing edge */
-+		word <<= 1;
-+		word |= getmiso(spi);
-+	}
-+	return word;
-+}
-+
-+#endif	/* EXPAND_BITBANG_TXRX */
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ tmp/drivers/spi/spi_bitbang.c	2005-12-22 14:54:03.000000000 -0800
-@@ -0,0 +1,457 @@
-+/*
-+ * spi_bitbang.c - polling/bitbanging SPI master controller driver utilities
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/config.h>
 +#include <linux/init.h>
-+#include <linux/spinlock.h>
-+#include <linux/workqueue.h>
++#include <linux/module.h>
++#include <linux/device.h>
 +#include <linux/interrupt.h>
-+#include <linux/delay.h>
-+#include <linux/errno.h>
-+#include <linux/platform_device.h>
-+
++#include <linux/interrupt.h>
++#include <linux/mtd/mtd.h>
++#include <linux/mtd/partitions.h>
 +#include <linux/spi/spi.h>
-+#include <linux/spi/spi_bitbang.h>
++#include <linux/spi/flash.h>
++
++#include <asm/semaphore.h>
 +
 +
-+/*----------------------------------------------------------------------*/
-+
-+/*
-+ * FIRST PART (OPTIONAL):  word-at-a-time spi_transfer support.
-+ * Use this for GPIO or shift-register level hardware APIs.
-+ *
-+ * spi_bitbang_cs is in spi_device->controller_state, which is unavailable
-+ * to glue code.  These bitbang setup() and cleanup() routines are always
-+ * used, though maybe they're called from controller-aware code.
-+ *
-+ * chipselect() and friends may use use spi_device->controller_data and
-+ * controller registers as appropriate.
-+ *
-+ *
-+ * NOTE:  SPI controller pins can often be used as GPIO pins instead,
-+ * which means you could use a bitbang driver either to get hardware
-+ * working quickly, or testing for differences that aren't speed related.
++/* NOTE: AT 25F and SST 25LF series are very similar,
++ * but commands for sector erase and chip id differ...
 + */
 +
-+struct spi_bitbang_cs {
-+	unsigned	nsecs;	/* (clock cycle time)/2 */
-+	u32		(*txrx_word)(struct spi_device *spi, unsigned nsecs,
-+					u32 word, u8 bits);
-+	unsigned	(*txrx_bufs)(struct spi_device *,
-+					u32 (*txrx_word)(
-+						struct spi_device *spi,
-+						unsigned nsecs,
-+						u32 word, u8 bits),
-+					unsigned, struct spi_transfer *);
++#define FLASH_PAGESIZE		256
++
++/* Flash opcodes. */
++#define	OPCODE_WREN		6	/* Write enable */
++#define	OPCODE_RDSR		5	/* Read status register */
++#define	OPCODE_READ		3	/* Read data bytes */
++#define	OPCODE_PP		2	/* Page program */
++#define	OPCODE_SE		0xd8	/* Sector erase */
++#define	OPCODE_RES		0xab	/* Read Electronic Signature */
++#define	OPCODE_RDID		0x9f	/* Read JEDEC ID */
++
++/* Status Register bits. */
++#define	SR_WIP			1	/* Write in progress */
++#define	SR_WEL			2	/* Write enable latch */
++#define	SR_BP0			4	/* Block protect 0 */
++#define	SR_BP1			8	/* Block protect 1 */
++#define	SR_BP2			0x10	/* Block protect 2 */
++#define	SR_SRWD			0x80	/* SR write protect */
++
++/* Define max times to check status register before we give up. */
++#define	MAX_READY_WAIT_COUNT	100000
++
++
++#ifdef CONFIG_MTD_PARTITIONS
++#define	mtd_has_partitions()	(1)
++#else
++#define	mtd_has_partitions()	(0)
++#endif
++
++/****************************************************************************/
++
++struct m25p {
++	struct spi_device	*spi;
++	struct semaphore	lock;
++	struct mtd_info		mtd;
++	unsigned		partitioned;
++	u8			command[4];
 +};
 +
-+static unsigned bitbang_txrx_8(
-+	struct spi_device	*spi,
-+	u32			(*txrx_word)(struct spi_device *spi,
-+					unsigned nsecs,
-+					u32 word, u8 bits),
-+	unsigned		ns,
-+	struct spi_transfer	*t
-+) {
-+	unsigned		bits = spi->bits_per_word;
-+	unsigned		count = t->len;
-+	const u8		*tx = t->tx_buf;
-+	u8			*rx = t->rx_buf;
-+
-+	while (likely(count > 0)) {
-+		u8		word = 0;
-+
-+		if (tx)
-+			word = *tx++;
-+		word = txrx_word(spi, ns, word, bits);
-+		if (rx)
-+			*rx++ = word;
-+		count -= 1;
-+	}
-+	return t->len - count;
-+}
-+
-+static unsigned bitbang_txrx_16(
-+	struct spi_device	*spi,
-+	u32			(*txrx_word)(struct spi_device *spi,
-+					unsigned nsecs,
-+					u32 word, u8 bits),
-+	unsigned		ns,
-+	struct spi_transfer	*t
-+) {
-+	unsigned		bits = spi->bits_per_word;
-+	unsigned		count = t->len;
-+	const u16		*tx = t->tx_buf;
-+	u16			*rx = t->rx_buf;
-+
-+	while (likely(count > 1)) {
-+		u16		word = 0;
-+
-+		if (tx)
-+			word = *tx++;
-+		word = txrx_word(spi, ns, word, bits);
-+		if (rx)
-+			*rx++ = word;
-+		count -= 2;
-+	}
-+	return t->len - count;
-+}
-+
-+static unsigned bitbang_txrx_32(
-+	struct spi_device	*spi,
-+	u32			(*txrx_word)(struct spi_device *spi,
-+					unsigned nsecs,
-+					u32 word, u8 bits),
-+	unsigned		ns,
-+	struct spi_transfer	*t
-+) {
-+	unsigned		bits = spi->bits_per_word;
-+	unsigned		count = t->len;
-+	const u32		*tx = t->tx_buf;
-+	u32			*rx = t->rx_buf;
-+
-+	while (likely(count > 3)) {
-+		u32		word = 0;
-+
-+		if (tx)
-+			word = *tx++;
-+		word = txrx_word(spi, ns, word, bits);
-+		if (rx)
-+			*rx++ = word;
-+		count -= 4;
-+	}
-+	return t->len - count;
-+}
-+
-+/**
-+ * spi_bitbang_setup - default setup for per-word I/O loops
-+ */
-+int spi_bitbang_setup(struct spi_device *spi)
++static inline struct m25p *mtd_to_m25p(struct mtd_info *mtd)
 +{
-+	struct spi_bitbang_cs	*cs = spi->controller_state;
-+	struct spi_bitbang	*bitbang;
-+
-+	if (!spi->max_speed_hz)
-+		return -EINVAL;
-+
-+	if (!cs) {
-+		cs = kzalloc(sizeof *cs, SLAB_KERNEL);
-+		if (!cs)
-+			return -ENOMEM;
-+		spi->controller_state = cs;
-+	}
-+	bitbang = spi_master_get_devdata(spi->master);
-+
-+	if (!spi->bits_per_word)
-+		spi->bits_per_word = 8;
-+
-+	/* spi_transfer level calls that work per-word */
-+	if (spi->bits_per_word <= 8)
-+		cs->txrx_bufs = bitbang_txrx_8;
-+	else if (spi->bits_per_word <= 16)
-+		cs->txrx_bufs = bitbang_txrx_16;
-+	else if (spi->bits_per_word <= 32)
-+		cs->txrx_bufs = bitbang_txrx_32;
-+	else
-+		return -EINVAL;
-+
-+	/* per-word shift register access, in hardware or bitbanging */
-+	cs->txrx_word = bitbang->txrx_word[spi->mode & (SPI_CPOL|SPI_CPHA)];
-+	if (!cs->txrx_word)
-+		return -EINVAL;
-+
-+	/* nsecs = (clock period)/2 */
-+	cs->nsecs = (1000000000/2) / (spi->max_speed_hz);
-+	if (cs->nsecs > MAX_UDELAY_MS * 1000)
-+		return -EINVAL;
-+
-+	dev_dbg(&spi->dev, "%s, mode %d, %u bits/w, %u nsec\n",
-+			__FUNCTION__, spi->mode & (SPI_CPOL | SPI_CPHA),
-+			spi->bits_per_word, 2 * cs->nsecs);
-+
-+	/* NOTE we _need_ to call chipselect() early, ideally with adapter
-+	 * setup, unless the hardware defaults cooperate to avoid confusion
-+	 * between normal (active low) and inverted chipselects.
-+	 */
-+
-+	/* deselect chip (low or high) */
-+	spin_lock(&bitbang->lock);
-+	if (!bitbang->busy) {
-+		bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
-+		ndelay(cs->nsecs);
-+	}
-+	spin_unlock(&bitbang->lock);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(spi_bitbang_setup);
-+
-+/**
-+ * spi_bitbang_cleanup - default cleanup for per-word I/O loops
-+ */
-+void spi_bitbang_cleanup(const struct spi_device *spi)
-+{
-+	kfree(spi->controller_state);
-+}
-+EXPORT_SYMBOL_GPL(spi_bitbang_cleanup);
-+
-+static int spi_bitbang_bufs(struct spi_device *spi, struct spi_transfer *t)
-+{
-+	struct spi_bitbang_cs	*cs = spi->controller_state;
-+	unsigned		nsecs = cs->nsecs;
-+
-+	return cs->txrx_bufs(spi, cs->txrx_word, nsecs, t);
++	return container_of(mtd, struct m25p, mtd);
 +}
 +
-+/*----------------------------------------------------------------------*/
++/****************************************************************************/
 +
 +/*
-+ * SECOND PART ... simple transfer queue runner.
-+ *
-+ * This costs a task context per controller, running the queue by
-+ * performing each transfer in sequence.  Smarter hardware can queue
-+ * several DMA transfers at once, and process several controller queues
-+ * in parallel; this driver doesn't match such hardware very well.
-+ *
-+ * Drivers can provide word-at-a-time i/o primitives, or provide
-+ * transfer-at-a-time ones to leverage dma or fifo hardware.
++ * Internal helper functions
 + */
-+static void bitbang_work(void *_bitbang)
-+{
-+	struct spi_bitbang	*bitbang = _bitbang;
-+	unsigned long		flags;
 +
-+	spin_lock_irqsave(&bitbang->lock, flags);
-+	bitbang->busy = 1;
-+	while (!list_empty(&bitbang->queue)) {
-+		struct spi_message	*m;
-+		struct spi_device	*spi;
-+		unsigned		nsecs;
-+		struct spi_transfer	*t;
-+		unsigned		tmp;
-+		unsigned		chipselect;
-+		int			status;
-+
-+		m = container_of(bitbang->queue.next, struct spi_message,
-+				queue);
-+		list_del_init(&m->queue);
-+		spin_unlock_irqrestore(&bitbang->lock, flags);
-+
-+		/* FIXME this is made-up ... the correct value is known to
-+		 * word-at-a-time bitbang code, and presumably chipselect()
-+		 * should enforce these requirements too?
-+		 */
-+		nsecs = 100;
-+
-+		spi = m->spi;
-+		t = m->transfers;
-+		tmp = 0;
-+		chipselect = 0;
-+		status = 0;
-+
-+		for (;;t++) {
-+			if (bitbang->shutdown) {
-+				status = -ESHUTDOWN;
-+				break;
-+			}
-+
-+			/* set up default clock polarity, and activate chip */
-+			if (!chipselect) {
-+				bitbang->chipselect(spi, BITBANG_CS_ACTIVE);
-+				ndelay(nsecs);
-+			}
-+			if (!t->tx_buf && !t->rx_buf && t->len) {
-+				status = -EINVAL;
-+				break;
-+			}
-+
-+			/* transfer data */
-+			if (t->len)
-+				status = bitbang->txrx_bufs(spi, t);
-+			if (status != t->len) {
-+				if (status > 0)
-+					status = -EMSGSIZE;
-+				break;
-+			}
-+			m->actual_length += status;
-+			status = 0;
-+
-+			/* protocol tweaks before next transfer */
-+			if (t->delay_usecs)
-+				udelay(t->delay_usecs);
-+
-+			tmp++;
-+			if (tmp >= m->n_transfer)
-+				break;
-+
-+			chipselect = !t->cs_change;
-+			if (chipselect)
-+				continue;
-+
-+			bitbang->chipselect(spi, BITBANG_CS_INACTIVE);
-+
-+			msleep(1);
-+		}
-+
-+		tmp = m->n_transfer - 1;
-+		tmp = m->transfers[tmp].cs_change;
-+
-+		m->status = status;
-+		m->complete(m->context);
-+
-+		ndelay(2 * nsecs);
-+		bitbang->chipselect(spi, (status == 0 && tmp)
-+				? BITBANG_CS_ACTIVE
-+				: BITBANG_CS_INACTIVE);
-+		ndelay(nsecs);
-+
-+		spin_lock_irqsave(&bitbang->lock, flags);
-+	}
-+	bitbang->busy = 0;
-+	spin_unlock_irqrestore(&bitbang->lock, flags);
-+}
-+
-+/**
-+ * spi_bitbang_transfer - default submit to transfer queue
++/*
++ * Read the status register, returning its value in the location
++ * Return the status register value.
++ * Returns negative if error occurred.
 + */
-+int spi_bitbang_transfer(struct spi_device *spi, struct spi_message *m)
++static int read_sr(struct m25p *flash)
 +{
-+	struct spi_bitbang	*bitbang;
-+	unsigned long		flags;
++	ssize_t retval;
++	u8 code = OPCODE_RDSR;
++	u8 val;
 +
-+	m->actual_length = 0;
-+	m->status = -EINPROGRESS;
++	retval = spi_write_then_read(flash->spi, &code, 1, &val, 1);
 +
-+	bitbang = spi_master_get_devdata(spi->master);
-+	if (bitbang->shutdown)
-+		return -ESHUTDOWN;
-+
-+	spin_lock_irqsave(&bitbang->lock, flags);
-+	list_add_tail(&m->queue, &bitbang->queue);
-+	queue_work(bitbang->workqueue, &bitbang->work);
-+	spin_unlock_irqrestore(&bitbang->lock, flags);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(spi_bitbang_transfer);
-+
-+/*----------------------------------------------------------------------*/
-+
-+/**
-+ * spi_bitbang_start - start up a polled/bitbanging SPI master driver
-+ * @bitbang: driver handle
-+ *
-+ * Caller should have zero-initialized all parts of the structure, and then
-+ * provided callbacks for chip selection and I/O loops.  If the master has
-+ * a transfer method, its final step should call spi_bitbang_transfer; or,
-+ * that's the default if the transfer routine is not initialized.  It should
-+ * also set up the bus number and number of chipselects.
-+ *
-+ * For i/o loops, provide callbacks either per-word (for bitbanging, or for
-+ * hardware that basically exposes a shift register) or per-spi_transfer
-+ * (which takes better advantage of hardware like fifos or DMA engines).
-+ *
-+ * Drivers using per-word I/O loops should use (or call) spi_bitbang_setup and
-+ * spi_bitbang_cleanup to handle those spi master methods.  Those methods are
-+ * the defaults if the bitbang->txrx_bufs routine isn't initialized.
-+ *
-+ * This routine registers the spi_master, which will process requests in a
-+ * dedicated task, keeping IRQs unblocked most of the time.  To stop
-+ * processing those requests, call spi_bitbang_stop().
-+ */
-+int spi_bitbang_start(struct spi_bitbang *bitbang)
-+{
-+	int	status;
-+
-+	if (!bitbang->master || !bitbang->chipselect)
-+		return -EINVAL;
-+
-+	INIT_WORK(&bitbang->work, bitbang_work, bitbang);
-+	spin_lock_init(&bitbang->lock);
-+	INIT_LIST_HEAD(&bitbang->queue);
-+
-+	if (!bitbang->master->transfer)
-+		bitbang->master->transfer = spi_bitbang_transfer;
-+	if (!bitbang->txrx_bufs) {
-+		bitbang->use_dma = 0;
-+		bitbang->txrx_bufs = spi_bitbang_bufs;
-+		if (!bitbang->master->setup) {
-+			bitbang->master->setup = spi_bitbang_setup;
-+			bitbang->master->cleanup = spi_bitbang_cleanup;
-+		}
-+	} else if (!bitbang->master->setup)
-+		return -EINVAL;
-+
-+	/* this task is the only thing to touch the SPI bits */
-+	bitbang->busy = 0;
-+	bitbang->workqueue = create_singlethread_workqueue(
-+			bitbang->master->cdev.dev->bus_id);
-+	if (bitbang->workqueue == NULL) {
-+		status = -EBUSY;
-+		goto err1;
++	if (retval < 0) {
++		dev_err(&flash->spi->dev, "error %d reading SR\n",
++				(int) retval);
++		return retval;
 +	}
 +
-+	/* driver may get busy before register() returns, especially
-+	 * if someone registered boardinfo for devices
++	return val;
++}
++
++
++/*
++ * Set write enable latch with Write Enable command.
++ * Returns negative if error occurred.
++ */
++static inline int write_enable(struct m25p *flash)
++{
++	u8	code = OPCODE_WREN;
++
++	return spi_write_then_read(flash->spi, &code, 1, NULL, 0);
++}
++
++
++/*
++ * Service routine to read status register until ready, or timeout occurs.
++ * Returns non-zero if error.
++ */
++static int wait_till_ready(struct m25p *flash)
++{
++	int count;
++	int sr;
++
++	/* one chip guarantees max 5 msec wait here after page writes,
++	 * but potentially three seconds (!) after page erase.
 +	 */
-+	status = spi_register_master(bitbang->master);
-+	if (status < 0)
-+		goto err2;
++	for (count = 0; count < MAX_READY_WAIT_COUNT; count++) {
++		if ((sr = read_sr(flash)) < 0)
++			break;
++		else if (!(sr & SR_WIP))
++			return 0;
 +
-+	return status;
++		/* REVISIT sometimes sleeping would be best */
++	}
 +
-+err2:
-+	destroy_workqueue(bitbang->workqueue);
-+err1:
-+	return status;
++	return 1;
 +}
-+EXPORT_SYMBOL_GPL(spi_bitbang_start);
 +
-+/**
-+ * spi_bitbang_stop - stops the task providing spi communication
++
++/*
++ * Erase one sector of flash memory at offset ``offset'' which is any
++ * address within the sector which should be erased.
++ *
++ * Returns 0 if successful, non-zero otherwise.
 + */
-+int spi_bitbang_stop(struct spi_bitbang *bitbang)
++static int erase_sector(struct m25p *flash, u32 offset)
 +{
-+	unsigned	limit = 500;
++	DEBUG(MTD_DEBUG_LEVEL3, "%s: %s at 0x%08x\n", spi->dev.bus_id,
++			__FUNCTION__, offset);
 +
-+	spin_lock_irq(&bitbang->lock);
-+	bitbang->shutdown = 0;
-+	while (!list_empty(&bitbang->queue) && limit--) {
-+		spin_unlock_irq(&bitbang->lock);
++	/* Wait until finished previous write command. */
++	if (wait_till_ready(flash))
++		return 1;
 +
-+		dev_dbg(bitbang->master->cdev.dev, "wait for queue\n");
-+		msleep(10);
++	/* Send write enable, then erase commands. */
++	write_enable(flash);
 +
-+		spin_lock_irq(&bitbang->lock);
-+	}
-+	spin_unlock_irq(&bitbang->lock);
-+	if (!list_empty(&bitbang->queue)) {
-+		dev_err(bitbang->master->cdev.dev, "queue didn't empty\n");
-+		return -EBUSY;
-+	}
++	/* Set up command buffer. */
++	flash->command[0] = OPCODE_SE;
++	flash->command[1] = offset >> 16;
++	flash->command[2] = offset >> 8;
++	flash->command[3] = offset;
 +
-+	destroy_workqueue(bitbang->workqueue);
-+
-+	spi_unregister_master(bitbang->master);
++	spi_write(flash->spi, flash->command, sizeof(flash->command));
 +
 +	return 0;
 +}
-+EXPORT_SYMBOL_GPL(spi_bitbang_stop);
++
++/****************************************************************************/
++
++/*
++ * MTD implementation
++ */
++
++/*
++ * Erase an address range on the flash chip.  The address range may extend
++ * one or more erase sectors.  Return an error is there is a problem erasing.
++ */
++static int m25p80_erase(struct mtd_info *mtd, struct erase_info *instr)
++{
++	struct m25p *flash = mtd_to_m25p(mtd);
++	u32 addr,len;
++
++	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %z\n", spi->dev.bus_id,
++			__FUNCTION__, "at", (u32) instr->addr, instr->len);
++
++	/* sanity checks */
++	if (instr->addr + instr->len > flash->mtd.size)
++		return -EINVAL;
++	if ((instr->addr % mtd->erasesize) != 0
++			|| (instr->len % mtd->erasesize) != 0) {
++		return -EINVAL;
++	}
++
++	addr = instr->addr;
++	len = instr->len;
++
++  	down(&flash->lock);
++
++	/* now erase those sectors */
++	while (len) {
++		if (erase_sector(flash, addr)) {
++			instr->state = MTD_ERASE_FAILED;
++			up(&flash->lock);
++			return -EIO;
++		}
++
++		addr += mtd->erasesize;
++		len -= mtd->erasesize;
++	}
++
++  	up(&flash->lock);
++
++	instr->state = MTD_ERASE_DONE;
++	mtd_erase_callback(instr);
++
++	return 0;
++}
++
++/*
++ * Read an address range from the flash chip.  The address range
++ * may be any size provided it is within the physical boundaries.
++ */
++static int m25p80_read(struct mtd_info *mtd, loff_t from, size_t len,
++	size_t *retlen, u_char *buf)
++{
++	struct m25p *flash = mtd_to_m25p(mtd);
++	struct spi_transfer t[2];
++	struct spi_message m;
++
++	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %z\n", spi->dev.bus_id,
++			__FUNCTION__, "from", (u32) from, len);
++
++	/* sanity checks */
++	if (!len)
++		return 0;
++
++	if (from + len > flash->mtd.size)
++		return -EINVAL;
++
++	down(&flash->lock);
++
++	/* Wait till previous write/erase is done. */
++	if (wait_till_ready(flash)) {
++		/* REVISIT status return?? */
++		up(&flash->lock);
++		return 1;
++	}
++
++	memset(t, 0, (sizeof t));
++
++	/* NOTE:  OPCODE_FAST_READ (if available) is faster... */
++
++	/* Set up the write data buffer. */
++	flash->command[0] = OPCODE_READ;
++	flash->command[1] = from >> 16;
++	flash->command[2] = from >> 8;
++	flash->command[3] = from;
++
++	/* Byte count starts at zero. */
++	if (retlen)
++		*retlen = 0;
++
++	t[0].tx_buf = flash->command;
++	t[0].len = sizeof(flash->command);
++
++	t[1].rx_buf = buf;
++	t[1].len = len;
++
++	m.transfers = t;
++	m.n_transfer = 2;
++
++	spi_sync(flash->spi, &m);
++
++	*retlen = m.actual_length - sizeof(flash->command);
++
++  	up(&flash->lock);
++
++	return 0;
++}
++
++/*
++ * Write an address range to the flash chip.  Data must be written in
++ * FLASH_PAGESIZE chunks.  The address range may be any size provided
++ * it is within the physical boundaries.
++ */
++static int m25p80_write(struct mtd_info *mtd, loff_t to, size_t len,
++	size_t *retlen, const u_char *buf)
++{
++	struct m25p *flash = mtd_to_m25p(mtd);
++	u32 page_offset, page_size;
++	struct spi_transfer t[2];
++	struct spi_message m;
++
++	DEBUG(MTD_DEBUG_LEVEL2, "%s: %s %s 0x%08x, len %z\n", spi->dev.bus_id,
++			__FUNCTION__, "to", (u32) to, len);
++
++	if (retlen)
++		*retlen = 0;
++
++	/* sanity checks */
++	if (!len)
++		return(0);
++
++	if (to + len > flash->mtd.size)
++		return -EINVAL;
++
++  	down(&flash->lock);
++
++	/* Wait until finished previous write command. */
++	if (wait_till_ready(flash))
++		return 1;
++
++	write_enable(flash);
++
++	memset(t, 0, (sizeof t));
++
++	/* Set up the opcode in the write buffer. */
++	flash->command[0] = OPCODE_PP;
++	flash->command[1] = to >> 16;
++	flash->command[2] = to >> 8;
++	flash->command[3] = to;
++
++	t[0].tx_buf = flash->command;
++	t[0].len = sizeof(flash->command);
++
++	m.transfers = t;
++	m.n_transfer = 2;
++
++	/* what page do we start with? */
++	page_offset = to % FLASH_PAGESIZE;
++
++	/* do all the bytes fit onto one page? */
++	if (page_offset + len <= FLASH_PAGESIZE) {
++		t[1].tx_buf = buf;
++		t[1].len = len;
++
++		spi_sync(flash->spi, &m);
++
++		*retlen = m.actual_length - sizeof(flash->command);
++	} else {
++		u32 i;
++
++		/* the size of data remaining on the first page */
++		page_size = FLASH_PAGESIZE - page_offset;
++
++		t[1].tx_buf = buf;
++		t[1].len = page_size;
++		spi_sync(flash->spi, &m);
++
++		*retlen = m.actual_length - sizeof(flash->command);
++
++		/* write everything in PAGESIZE chunks */
++		for (i = page_size; i < len; i += page_size) {
++			page_size = len - i;
++			if (page_size > FLASH_PAGESIZE)
++				page_size = FLASH_PAGESIZE;
++
++			/* write the next page to flash */
++			flash->command[1] = (to + i) >> 16;
++			flash->command[2] = (to + i) >> 8;
++			flash->command[3] = (to + i);
++
++			t[1].tx_buf = buf + i;
++			t[1].len = page_size;
++
++			wait_till_ready(flash);
++
++			write_enable(flash);
++
++			spi_sync(flash->spi, &m);
++
++			*retlen += m.actual_length - sizeof(flash->command);
++	        }
++ 	}
++
++	up(&flash->lock);
++
++	return 0;
++}
++
++
++/****************************************************************************/
++
++/*
++ * SPI device driver setup and teardown
++ */
++
++struct flash_info {
++	char		*name;
++	u8		id;
++	u16		jedec_id;
++	unsigned	sector_size;
++	unsigned	n_sectors;
++};
++
++static struct flash_info __devinitdata m25p_data [] = {
++	/* REVISIT: fill in JEDEC ids, for parts that have them */
++	{ "m25p05", 0x05, 0x0000, 32 * 1024, 2 },
++	{ "m25p10", 0x10, 0x0000, 32 * 1024, 4 },
++	{ "m25p20", 0x11, 0x0000, 64 * 1024, 4 },
++	{ "m25p40", 0x12, 0x0000, 64 * 1024, 8 },
++	{ "m25p80", 0x13, 0x0000, 64 * 1024, 16 },
++	{ "m25p16", 0x14, 0x0000, 64 * 1024, 32 },
++	{ "m25p32", 0x15, 0x0000, 64 * 1024, 64 },
++	{ "m25p64", 0x16, 0x2017, 64 * 1024, 128 },
++};
++
++/*
++ * board specific setup should have ensured the SPI clock used here
++ * matches what the READ command supports, at least until this driver
++ * understands FAST_READ (for clocks over 25 MHz).
++ */
++static int __devinit m25p_probe(struct spi_device *spi)
++{
++	struct flash_platform_data	*data;
++	struct m25p			*flash;
++	struct flash_info		*info;
++	unsigned			i;
++
++	/* Platform data helps sort out which chip type we have, as
++	 * well as how this board partitions it.
++	 */
++	data = spi->dev.platform_data;
++	if (!data || !data->type) {
++		/* FIXME some chips can identify themselves with RES
++		 * or JEDEC get-id commands.  Try them ...
++		 */
++		DEBUG(MTD_DEBUG_LEVEL1, "%s: no chip id\n", spi->dev.bus_id);
++		return -ENODEV;
++	}
++
++	for (i = 0, info = m25p_data; i < ARRAY_SIZE(m25p_data); i++, info++) {
++		if (strcmp(data->type, info->name) == 0)
++			break;
++	}
++	if (i == ARRAY_SIZE(m25p_data)) {
++		DEBUG(MTD_DEBUG_LEVEL1, "%s: unrecognized id %s\n",
++				spi->dev.bus_id, data->type);
++		return -ENODEV;
++	}
++
++	flash = kzalloc(sizeof *flash, SLAB_KERNEL);
++	if (!flash)
++		return -ENOMEM;
++
++	flash->spi = spi;
++	init_MUTEX(&flash->lock);
++	dev_set_drvdata(&spi->dev, flash);
++
++	if (data->name)
++		flash->mtd.name = data->name;
++	else
++		flash->mtd.name = spi->dev.bus_id;
++
++	flash->mtd.type = MTD_NORFLASH;
++	flash->mtd.flags = MTD_CAP_NORFLASH;
++	flash->mtd.size = info->sector_size * info->n_sectors;
++	flash->mtd.erasesize = info->sector_size;
++	flash->mtd.erase = m25p80_erase;
++	flash->mtd.read = m25p80_read;
++	flash->mtd.write = m25p80_write;
++
++	dev_info(&spi->dev, "%s (%d Kbytes)\n", info->name,
++			flash->mtd.size / 1024);
++
++	DEBUG(MTD_DEBUG_LEVEL2,
++		"mtd .name = %s, .size = 0x%.8x (%uM) "
++			".erasesize = 0x%.8x (%uK) .numeraseregions = %d\n",
++		flash->mtd.name,
++		flash->mtd.size, flash->mtd.size / (1024*1024),
++		flash->mtd.erasesize, flash->mtd.erasesize / 1024,
++		flash->mtd.numeraseregions);
++
++	if (flash->mtd.numeraseregions)
++		for (i = 0; i < flash->mtd.numeraseregions; i++)
++			DEBUG(MTD_DEBUG_LEVEL2,
++				"mtd.eraseregions[%d] = { .offset = 0x%.8x, "
++				".erasesize = 0x%.8x (%uK), "
++				".numblocks = %d }\n",
++				i, flash->mtd.eraseregions[i].offset,
++				flash->mtd.eraseregions[i].erasesize,
++				flash->mtd.eraseregions[i].erasesize / 1024,
++				flash->mtd.eraseregions[i].numblocks);
++
++
++	/* partitions should match sector boundaries; and it may be good to
++	 * use readonly partitions for writeprotected sectors (BP2..BP0).
++	 */
++	if (mtd_has_partitions()) {
++		struct mtd_partition	*parts = NULL;
++		int			nr_parts = 0;
++
++#ifdef CONFIG_MTD_CMDLINE_PARTS
++		static const char *part_probes[] = { "cmdlinepart", NULL, };
++
++		nr_parts = parse_mtd_partitions(&flash->mtd,
++				part_probes, &parts, 0);
++#endif
++
++		if (nr_parts <= 0 && data && data->parts) {
++			parts = data->parts;
++			nr_parts = data->nr_parts;
++		}
++
++		if (nr_parts > 0) {
++			for (i = 0; i < data->nr_parts; i++) {
++				DEBUG(MTD_DEBUG_LEVEL2, "partitions[%d] = "
++					"{.name = %s, .offset = 0x%.8x, "
++						".size = 0x%.8x (%uK) }\n",
++					i, data->parts[i].name,
++					data->parts[i].offset,
++					data->parts[i].size,
++					data->parts[i].size / 1024);
++			}
++			flash->partitioned = 1;
++			return add_mtd_partitions(&flash->mtd, parts, nr_parts);
++		}
++	} else if (data->nr_parts)
++		dev_warn(&spi->dev, "ignoring %d default partitions on %s\n",
++				data->nr_parts, data->name);
++
++	return add_mtd_device(&flash->mtd) == 1 ? -ENODEV : 0;
++}
++
++
++static int __devexit m25p_remove(struct spi_device *spi)
++{
++	struct m25p	*flash = dev_get_drvdata(&spi->dev);
++	int		status;
++
++	/* Clean up MTD stuff. */
++	if (mtd_has_partitions() && flash->partitioned)
++		status = del_mtd_partitions(&flash->mtd);
++	else
++		status = del_mtd_device(&flash->mtd);
++	if (status == 0)
++		kfree(flash);
++	return 0;
++}
++
++
++static struct spi_driver m25p80_driver = {
++	.driver = {
++		.name	= "m25p80",
++		.bus	= &spi_bus_type,
++		.owner	= THIS_MODULE,
++	},
++	.probe	= m25p_probe,
++	.remove	= __devexit_p(m25p_remove),
++};
++
++
++static int m25p80_init(void)
++{
++	return spi_register_driver(&m25p80_driver);
++}
++
++
++static void m25p80_exit(void)
++{
++	spi_unregister_driver(&m25p80_driver);
++}
++
++
++module_init(m25p80_init);
++module_exit(m25p80_exit);
 +
 +MODULE_LICENSE("GPL");
-+
++MODULE_AUTHOR("Mike Lavender");
++MODULE_DESCRIPTION("MTD SPI driver for ST M25Pxx flash chips");
 
---Boundary-00=_/kzqDi7HOGCtSqL--
+--Boundary-00=_okzqD1+ptiKjlL2--

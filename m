@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbVLVRJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030208AbVLVRPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbVLVRJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 12:09:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030208AbVLVRJ1
+	id S1030208AbVLVRPM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 12:15:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030209AbVLVRPM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 12:09:27 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:1414 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1030205AbVLVRJ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 12:09:26 -0500
-Message-ID: <43AAEF6E.47CCEFE0@tv-sign.ru>
-Date: Thu, 22 Dec 2005 21:24:46 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, inaky.perez-gonzalez@intel.com,
-       tglx@linutronix.de, mingo@elte.hu
-Subject: Re: [PATCH 02/02] RT: plist namespace cleanup
-References: <1135202230.22970.15.camel@localhost.localdomain>
-		 <43AAB3C8.DB304856@tv-sign.ru> <1135270381.3696.2.camel@localhost.localdomain>
-Content-Type: text/plain; charset=koi8-r
+	Thu, 22 Dec 2005 12:15:12 -0500
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:24291 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1030208AbVLVRPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 12:15:10 -0500
+Subject: Re: [patch 00/10] mutex subsystem, -V5
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+In-Reply-To: <20051222153717.GA6090@elte.hu>
+References: <20051222153717.GA6090@elte.hu>
+Content-Type: text/plain
+Date: Thu, 22 Dec 2005 12:14:56 -0500
+Message-Id: <1135271696.12761.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walker wrote:
-> 
-> On Thu, 2005-12-22 at 17:10 +0300, Oleg Nesterov wrote:
-> > Daniel Walker wrote:
-> > >
-> > >         Make the plist namespace consistent.
-> >
-> > I think plist_head is much better than pl_head.
-> >
-> > However I think plist_empty/plist_unhashed is more accurate
-> > than plist_head_empty/plist_node_empty, but I am rather
-> > agnostic to naming.
-> 
-> unhashed seems very meaningless . We're not hashing anything.
+Ingo,
 
-Still we already have hlist_empty/hlist_unhashed
+Are you updating your http://redhat.com/~mingo/generic-mutex-subsystem/
+with every release.  And if so (like you need more work ;) could you
+have some way to know which version its at?
 
-> > Daniel, it would be great if you can check that kernel/rt.o
-> > was not changed after rename (as it should be).
-> 
-> I didn't check, but I made no code changes so it should be any
-> different.
+Thanks,
 
-That is why I asked. It is very easy to make a mistake by accident
-while doing trivial changes, but it is not easy to notice.
+-- Steve
 
-Oleg.
+

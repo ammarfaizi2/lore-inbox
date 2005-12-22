@@ -1,118 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbVLVJKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965144AbVLVJOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965143AbVLVJKY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 04:10:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965145AbVLVJKY
+	id S965144AbVLVJOL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 04:14:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965145AbVLVJOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 04:10:24 -0500
-Received: from headoffice-fe1.getonit.net.au ([202.47.114.19]:48685 "EHLO
-	tsvexchange.getonit.net.au") by vger.kernel.org with ESMTP
-	id S965143AbVLVJKW convert rfc822-to-8bit (ORCPT
+	Thu, 22 Dec 2005 04:14:11 -0500
+Received: from cid.upco.es ([130.206.70.227]:19155 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S965144AbVLVJOJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 04:10:22 -0500
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: FW: Kernel oops v2.4.31 in e1000 network card driver.
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Date: Thu, 22 Dec 2005 19:10:04 +1000
-Message-ID: <C67FBCB411B4024382B11B96D68E49E407968C@server.local.GetOffice>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Kernel oops v2.4.31 in e1000 network card driver.
-Thread-Index: AcXwLCctHQNGj04wRESICHjFnwchmgWqjt0g
-From: "Tim Warnock" <timoid@getonit.net.au>
-To: <linux-kernel@vger.kernel.org>
+	Thu, 22 Dec 2005 04:14:09 -0500
+Date: Thu, 22 Dec 2005 10:14:28 +0100
+From: Romano Giannetti <romanol@upcomillas.es>
+To: Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: About 4k kernel stack size....
+Message-ID: <20051222091428.GB1876@pern.dea.icai.upcomillas.es>
+Mail-Followup-To: Romano Giannetti <romanol@upcomillas.es>,
+	Giridhar Pemmasani <giri@lmc.cs.sunysb.edu>,
+	linux-kernel@vger.kernel.org
+References: <20051218231401.6ded8de2@werewolf.auna.net> <43A77205.2040306@rtr.ca> <20051220133729.GC6789@stusta.de> <170fa0d20512200637l169654c9vbe38c9931c23dfb1@mail.gmail.com> <BAYC1-PASMTP01F075F44E45AA32F0DF85AE3E0@CEZ.ICE> <dobr1u$19t$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <dobr1u$19t$1@sea.gmane.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Further information to this:
+On Wed, Dec 21, 2005 at 10:07:01AM -0500, Giridhar Pemmasani wrote:
+> Sean wrote:
+> 
+> > I for one hope those silly bastards using ndiswrapper fix up that code to
+>                        ^^^^^^^^^^^^^^
+> It is despicable that some of the proponents of this 4k-only stack size have
+> resorted to such epithets. 
 
-Network card causing the problem is the intel quad port gigabit ethernet
-pci card.
-I have tested also on 2.4.27, 2.4.32 and the latest 2.6 series kernel.
+Yes, a bit sad it is. 
 
-Under load (10-15kpps) the network driver crashes. Under increased load
-(20-30kpps) the driver will actually cause a full kernel panic and
-reboot the box.
+Being one of those silly bastard that have to use ndiswrapper to connect to
+my Uni wifi, I want to pubblically thanks Giri for his work. I'd love a
+world where wifi cards will have native linux open source drivers, but _now_
+my only other option is to boot in windows --- which I do not even have on my
+laptop. 
 
-After replacing the card with a single port intel gigabit ethernet pci
-card, the system has been rock stable.
+Nevertheless, I think that if the bulk of kernel developers feel the need to
+go to 4k kernel stack, they probably have *technical* reasons to do it
+(which I, for my limited understanding, cannot discuss). That mean that
+ndiswrapper will need to have a kernel patch; that's not a problem for me
+nor for the majority of people in this list. 
 
-According to intel, the quad port nic is based around the "Intel(r)
-82546EB" controller, the single port nic is based around the "Intel(r)
-82545" controller.
+For the other people, let distribution maintainer decide. I see ndiswrapper
+nicely integrated in a lot of distro now, and I really do not see Mandriva
+or whatever drop almost all the "wifi compatible" hardware list. Maybe they
+will be pushed to develop open source driver (I hope). Maybe they simply
+will ship patched kernel. Let's see. 
 
-Are there any other known problems with Intel(r) 82546EB controller
-support with the current e1000 driver?
+     Romano 
 
-I'm not on the list so can I please be CC'd?
 
-Original email attached below: 
-
-Thanks
-Tim Warnock
-
-ISP Technical Manager
-GetOnIt! Nationwide Internet.
-1300 88 00 97
-timoid (at) getonit.net.au
-------------- original message ------------------
-From: Tim Warnock 
-Sent: Wednesday, 23 November 2005 10:48 PM
-To: 'linux-kernel@vger.kernel.org'
-Subject: Kernel oops v2.4.31 in e1000 network card driver.
-
-Any assistance to what this means?
-
-Nov 23 21:09:40 garnet kernel: NETDEV WATCHDOG: eth2: transmit timed out
-Nov 23 21:09:40 garnet kernel: Unable to handle kernel paging request at
-virtual address 0003066e
-Nov 23 21:09:40 garnet kernel:  printing eip:
-Nov 23 21:09:40 garnet kernel: c025feb2
-Nov 23 21:09:40 garnet kernel: *pde = 00000000
-Nov 23 21:09:40 garnet kernel: Oops: 0000
-Nov 23 21:09:40 garnet kernel: CPU:    0
-Nov 23 21:09:40 garnet kernel: EIP:    0010:[skb_drop_fraglist+34/80]
-Not tainted
-Nov 23 21:09:40 garnet kernel: EFLAGS: 00010206
-Nov 23 21:09:40 garnet kernel: eax: 00030600   ebx: 000305fa   ecx:
-e905a880   edx: 000305fa
-Nov 23 21:09:40 garnet kernel: esi: dd6b4680   edi: dd6b46e0   ebp:
-00000bb8   esp: f7edfefc
-Nov 23 21:09:40 garnet kernel: ds: 0018   es: 0018   ss: 0018
-Nov 23 21:09:40 garnet kernel: Process keventd (pid: 2,
-stackpage=f7edf000)
-Nov 23 21:09:40 garnet kernel: Stack: c1c15900 f8a76bb8 c025ff79
-dd6b4680 f8a76bb8 dd6b4680 c025ffc7 dd6b4680
-Nov 23 21:09:40 garnet kernel:        d8515180 f8a76bb8 f7e4ca88
-c026012e dd6b4680 c01e3cd8 f8a76000 c01e3e22
-Nov 23 21:09:40 garnet kernel:        dd6b4680 00000096 f7e4c980
-f7e4c980 f7e4c800 f7ede000 c01e2eac f7e4c980
-Nov 23 21:09:40 garnet kernel: Call Trace:    [skb_release_data+105/160]
-[kfree_skbmem+23/128] [__kfree_skb+254/352]
-[e1000_clean_tx_ring+472/592] [e1000_clean_rx_ring+82/30
-4]
-Nov 23 21:09:40 garnet kernel:   [e1000_down+204/304]
-[e1000_tx_timeout_task+22/48] [__run_task_queue+106/128]
-[context_thread+478/496] [context_thread+0/496] [_stext+0/96]
-Nov 23 21:09:40 garnet kernel:   [arch_kernel_thread+46/64]
-[context_thread+0/496]
-Nov 23 21:09:40 garnet kernel:
-Nov 23 21:09:40 garnet kernel: Code: 8b 42 74 8b 1b 48 75 15 f0 83 44 24
-00 00 89 14 24 e8 68 01
-
-Kernel vanilla v2.4.31 debian stable.
-Network cards are intel e1000's
-
-Im not on the list so can I please be CC'd
-
-Thanks
-Tim Warnock
-
-ISP Technical Manager
-GetOnIt! Nationwide Internet.
-1300 88 00 97
-timoid (at) getonit.net.au
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+http://www.dea.icai.upcomillas.es/romano/

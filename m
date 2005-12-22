@@ -1,32 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965016AbVLVNOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965020AbVLVNQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965016AbVLVNOl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 08:14:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965023AbVLVNOk
+	id S965020AbVLVNQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 08:16:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965023AbVLVNQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 08:14:40 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:18856 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S965016AbVLVNOk
+	Thu, 22 Dec 2005 08:16:16 -0500
+Received: from xproxy.gmail.com ([66.249.82.193]:41613 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965020AbVLVNQP convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 08:14:40 -0500
-Date: Thu, 22 Dec 2005 06:14:39 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Mark Maule <maule@sgi.com>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH 3/4] per-platform IA64_{FIRST,LAST}_DEVICE_VECTOR definitions
-Message-ID: <20051222131439.GJ2361@parisc-linux.org>
-References: <20051221193220.GF2361@parisc-linux.org> <8995.1135232772@kao2.melbourne.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 22 Dec 2005 08:16:15 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Yq0yPR1svNavIVQnzUGeanyDDuOS+0QpQuB8hXlS/oElPAWd6N+Tpqbb27HYDi+pc1kTr0OzBjgRbYzgPOWeF9FOIDPCdBSHZDHmsalYuetQp/0Db7pgL1gJS2Fk995iDdKRRWiRW48/L2o9DxgBs21PNhcaldOwNtA/S+7xK98=
+Message-ID: <993d182d0512220516m5b8c0448k5cdc564b435c621a@mail.gmail.com>
+Date: Thu, 22 Dec 2005 18:46:14 +0530
+From: Conio sandiago <coniodiago@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: ethtool integration
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <8995.1135232772@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 05:26:12PM +1100, Keith Owens wrote:
-> Semi off topic nit pick.  C99 standard, section 6.7.8, note 10.
-
-Thanks, Keith.  I learned something there.
-
+Hi all
+I need some help regarding handling ethtool.
+i have developed a ethernet driver for my linux kernel.
+ i want to run the ethtool on the kernel.
+Now i want to know which command do i have to implement in my driver ?
+please help
+conio

@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbVLVKeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbVLVKgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbVLVKeP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 05:34:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750731AbVLVKeO
+	id S1750857AbVLVKgM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 05:36:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbVLVKgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 05:34:14 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:64092 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750719AbVLVKeO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 05:34:14 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=c41+PW/zpqeX/HqJl7mbXD5kGoHu/9tXmaRVdCVCynb3Pbx4vELegSo9t5FvmMbEQH2yl6uV2sTcCbuanvgo3pxbFiZvt1lfeWDhcHvkI6dT2qXxSKyRt7EtJb90kzOL1dPm3JRaAblTRDvdQrm8OzPQPM5PGRmtk+WUR6i2w1Y=
-Message-ID: <9a8748490512220234i10e39c73pa7f4de0a505ff28d@mail.gmail.com>
-Date: Thu, 22 Dec 2005 11:34:13 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: kernel coder <lhrkernelcoder@gmail.com>
-Subject: Re: IDE subsytem
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <f69849430512220151n641cef60x686e665bddc2ddf7@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 22 Dec 2005 05:36:12 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:2275 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750850AbVLVKgK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 05:36:10 -0500
+Date: Thu, 22 Dec 2005 10:36:06 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Mark Maule <maule@sgi.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH 2/4] msi vector targeting abstractions
+Message-ID: <20051222103606.GA29608@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mark Maule <maule@sgi.com>, Matthew Wilcox <matthew@wil.cx>,
+	linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Tony Luck <tony.luck@intel.com>
+References: <20051221184337.5003.85653.32527@attica.americas.sgi.com> <20051221184348.5003.7540.53186@attica.americas.sgi.com> <20051221190558.GD2361@parisc-linux.org> <20051221193300.GK9920@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <f69849430512220151n641cef60x686e665bddc2ddf7@mail.gmail.com>
+In-Reply-To: <20051221193300.GK9920@sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/22/05, kernel coder <lhrkernelcoder@gmail.com> wrote:
+> Mainly I did it this way 'cause msg_address seems to be geared toward specific
+> hw (apic?).  In the case of altix interrupt hw, we don't know about
+> dest_mode et. al., but only care about the raw address.
 
-Hmm, why "kernel coder" and not your real name?  It's nice to know who
-you're communicating with, no need to hide behind an alias.
+In that case you should probably kill the struct as I suggested and only
+keep the shift & mask defines in the file for the apic hw implementation.
 
-> hi,
->
->    I was trying to figure out the control flow in IDE subsystem.I
-> googled but could not get information.
-> Please refer me some document about about linux IDE susbsytem
->
-There are docs in the tree. Check Documentation/ide.txt ,
-Documentation/ioctl/hdio.txt and the various documents in
-Documentation/block/ for starters.
-There's also the code itself.
-
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html

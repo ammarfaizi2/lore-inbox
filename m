@@ -1,164 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965063AbVLVFAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965121AbVLVFBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965063AbVLVFAd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 00:00:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965054AbVLVEuI
+	id S965121AbVLVFBB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 00:01:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965059AbVLVFAc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 23:50:08 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:23248 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965059AbVLVEtz
+	Thu, 22 Dec 2005 00:00:32 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:24272 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965066AbVLVEuK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 23:49:55 -0500
+	Wed, 21 Dec 2005 23:50:10 -0500
 To: linux-m68k@vger.kernel.org
-Subject: [PATCH 10/36] m68k: more workarounds for recent binutils idiocy
+Subject: [PATCH 13/36] m68k: static vs. extern in amigaints.h
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1EpIOo-0004qk-HX@ZenIV.linux.org.uk>
+Message-Id: <E1EpIP3-0004rO-IL@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Thu, 22 Dec 2005 04:49:54 +0000
+Date: Thu, 22 Dec 2005 04:50:09 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1134435322 -0500
+Date: 1133435734 -0500
 
-cretinous thing doesn't believe that (%a0)+ is one macro argument and
-splits it in two; worked around by quoting the argument...
+extern declaration of static object removed from header
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/m68k/math-emu/fp_move.S  |    4 ++--
- arch/m68k/math-emu/fp_movem.S |   12 ++++++------
- arch/m68k/math-emu/fp_scan.S  |    6 +++---
- arch/m68k/math-emu/fp_util.S  |    6 +++---
- 4 files changed, 14 insertions(+), 14 deletions(-)
+ include/asm-m68k/amigaints.h |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-b181773757eb019753aca87bf95451adfcc9c75d
-diff --git a/arch/m68k/math-emu/fp_move.S b/arch/m68k/math-emu/fp_move.S
-index 9bd0334..19363b3 100644
---- a/arch/m68k/math-emu/fp_move.S
-+++ b/arch/m68k/math-emu/fp_move.S
-@@ -213,9 +213,9 @@ fp_format_extended:
- 	lsl.w	#1,%d0
- 	lsl.l	#7,%d0
- 	lsl.l	#8,%d0
--	putuser .l,%d0,(%a1)+,fp_err_ua1,%a1
-+	putuser .l,%d0,"(%a1)+",fp_err_ua1,%a1
- 	move.l	(%a0)+,%d0
--	putuser .l,%d0,(%a1)+,fp_err_ua1,%a1
-+	putuser .l,%d0,"(%a1)+",fp_err_ua1,%a1
- 	move.l	(%a0),%d0
- 	putuser .l,%d0,(%a1),fp_err_ua1,%a1
- 	jra	fp_finish_move
-diff --git a/arch/m68k/math-emu/fp_movem.S b/arch/m68k/math-emu/fp_movem.S
-index 9c74134..4173655 100644
---- a/arch/m68k/math-emu/fp_movem.S
-+++ b/arch/m68k/math-emu/fp_movem.S
-@@ -141,12 +141,12 @@ fpr_do_movem:
- 	| move register from memory into fpu
- 	jra	3f
- 1:	printf	PMOVEM,"(%p>%p)",2,%a0,%a1
--	getuser .l,(%a0)+,%d2,fp_err_ua1,%a0
-+	getuser .l,"(%a0)+",%d2,fp_err_ua1,%a0
- 	lsr.l	#8,%d2
- 	lsr.l	#7,%d2
- 	lsr.w	#1,%d2
- 	move.l	%d2,(%a1)+
--	getuser .l,(%a0)+,%d2,fp_err_ua1,%a0
-+	getuser .l,"(%a0)+",%d2,fp_err_ua1,%a0
- 	move.l	%d2,(%a1)+
- 	getuser .l,(%a0),%d2,fp_err_ua1,%a0
- 	move.l	%d2,(%a1)
-@@ -164,9 +164,9 @@ fpr_do_movem:
- 	lsl.w	#1,%d2
- 	lsl.l	#7,%d2
- 	lsl.l	#8,%d2
--	putuser .l,%d2,(%a0)+,fp_err_ua1,%a0
-+	putuser .l,%d2,"(%a0)+",fp_err_ua1,%a0
- 	move.l	(%a1)+,%d2
--	putuser .l,%d2,(%a0)+,fp_err_ua1,%a0
-+	putuser .l,%d2,"(%a0)+",fp_err_ua1,%a0
- 	move.l	(%a1),%d2
- 	putuser .l,%d2,(%a0),fp_err_ua1,%a0
- 	subq.l	#8,%a1
-@@ -325,7 +325,7 @@ fpc_do_movem:
- 	| move register from memory into fpu
- 	jra	3f
- 1:	printf	PMOVEM,"(%p>%p)",2,%a0,%a1
--	getuser .l,(%a0)+,%d0,fp_err_ua1,%a0
-+	getuser .l,"(%a0)+",%d0,fp_err_ua1,%a0
- 	move.l	%d0,(%a1)
- 2:	addq.l	#4,%a1
- 3:	lsl.b	#1,%d1
-@@ -336,7 +336,7 @@ fpc_do_movem:
- 	| move register from fpu into memory
- 1:	printf	PMOVEM,"(%p>%p)",2,%a1,%a0
- 	move.l	(%a1),%d0
--	putuser .l,%d0,(%a0)+,fp_err_ua1,%a0
-+	putuser .l,%d0,"(%a0)+",fp_err_ua1,%a0
- 2:	addq.l	#4,%a1
- 4:	lsl.b	#1,%d1
- 	jcs	1b
-diff --git a/arch/m68k/math-emu/fp_scan.S b/arch/m68k/math-emu/fp_scan.S
-index 5f49b93..6a71ed1 100644
---- a/arch/m68k/math-emu/fp_scan.S
-+++ b/arch/m68k/math-emu/fp_scan.S
-@@ -72,7 +72,7 @@ fp_scan:
- #endif
- 	jne	fp_nonstd
- | first two instruction words are kept in %d2
--	getuser .l,(%a0)+,%d2,fp_err_ua1,%a0
-+	getuser .l,"(%a0)+",%d2,fp_err_ua1,%a0
- 	fp_put_pc %a0
- fp_decode_cond:				| separate conditional instr
- 	fp_decode_cond_instr_type
-@@ -262,12 +262,12 @@ fp_single:
- 	jra	fp_getdest
+b6c724850218171c583673055920e48692f12209
+diff --git a/include/asm-m68k/amigaints.h b/include/asm-m68k/amigaints.h
+index 2aff4cf..aa968d0 100644
+--- a/include/asm-m68k/amigaints.h
++++ b/include/asm-m68k/amigaints.h
+@@ -109,8 +109,6 @@
+ extern void amiga_do_irq(int irq, struct pt_regs *fp);
+ extern void amiga_do_irq_list(int irq, struct pt_regs *fp);
  
- fp_ext:
--	getuser .l,(%a1)+,%d0,fp_err_ua1,%a1
-+	getuser .l,"(%a1)+",%d0,fp_err_ua1,%a1
- 	lsr.l	#8,%d0
- 	lsr.l	#7,%d0
- 	lsr.w	#1,%d0
- 	move.l	%d0,(%a0)+
--	getuser .l,(%a1)+,%d0,fp_err_ua1,%a1
-+	getuser .l,"(%a1)+",%d0,fp_err_ua1,%a1
- 	move.l	%d0,(%a0)+
- 	getuser .l,(%a1),%d0,fp_err_ua1,%a1
- 	move.l	%d0,(%a0)
-diff --git a/arch/m68k/math-emu/fp_util.S b/arch/m68k/math-emu/fp_util.S
-index f9f24d5..170110a 100644
---- a/arch/m68k/math-emu/fp_util.S
-+++ b/arch/m68k/math-emu/fp_util.S
-@@ -164,7 +164,7 @@ fp_conv_double2ext:
- 	getuser .l,%a1@(4),%d1,fp_err_ua2,%a1
- 	printf	PCONV,"d2e: %p%p -> %p(",3,%d0,%d1,%a0
- #endif
--	getuser .l,(%a1)+,%d0,fp_err_ua2,%a1
-+	getuser .l,"(%a1)+",%d0,fp_err_ua2,%a1
- 	move.l	%d0,%d1
- 	lsl.l	#8,%d0			| shift high mantissa
- 	lsl.l	#3,%d0
-@@ -178,7 +178,7 @@ fp_conv_double2ext:
- 	add.w	#0x3fff-0x3ff,%d1	| re-bias the exponent.
- 9:	move.l	%d1,(%a0)+		| fp_ext.sign, fp_ext.exp
- 	move.l	%d0,(%a0)+
--	getuser .l,(%a1)+,%d0,fp_err_ua2,%a1
-+	getuser .l,"(%a1)+",%d0,fp_err_ua2,%a1
- 	move.l	%d0,%d1
- 	lsl.l	#8,%d0
- 	lsl.l	#3,%d0
-@@ -1287,7 +1287,7 @@ fp_conv_ext2double:
- 	lsr.l	#4,%d0
- 	lsr.l	#8,%d0
- 	or.l	%d2,%d0
--	putuser .l,%d0,(%a1)+,fp_err_ua2,%a1
-+	putuser .l,%d0,"(%a1)+",fp_err_ua2,%a1
- 	moveq	#21,%d0
- 	lsl.l	%d0,%d1
- 	move.l	(%a0),%d0
+-extern unsigned short amiga_intena_vals[];
+-
+ /* CIA interrupt control register bits */
+ 
+ #define CIA_ICR_TA	0x01
 -- 
 0.99.9.GIT
 

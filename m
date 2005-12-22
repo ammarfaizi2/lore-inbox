@@ -1,76 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965009AbVLVNHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965015AbVLVNJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965009AbVLVNHv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 08:07:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVLVNHv
+	id S965015AbVLVNJK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 08:09:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965016AbVLVNJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 08:07:51 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40716 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S965009AbVLVNHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 08:07:50 -0500
-Date: Thu, 22 Dec 2005 13:07:44 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Meelis Roos <mroos@linux.ee>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
-Message-ID: <20051222130744.GA31339@flint.arm.linux.org.uk>
-Mail-Followup-To: Meelis Roos <mroos@linux.ee>, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-References: <1134573803.25663.35.camel@localhost.localdomain> <20051214160700.7348A14BEA@rhn.tartu-labor> <20051214172445.GF7124@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512212221310.651@math.ut.ee> <20051221221516.GK1736@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512221231430.6200@math.ut.ee>
+	Thu, 22 Dec 2005 08:09:09 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45293 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965015AbVLVNJH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 08:09:07 -0500
+Date: Thu, 22 Dec 2005 05:07:01 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, arjanv@infradead.org,
+       nico@cam.org, jes@trained-monkey.org, zwane@arm.linux.org.uk,
+       oleg@tv-sign.ru, dhowells@redhat.com, alan@lxorguk.ukuu.org.uk,
+       bcrl@kvack.org, rostedt@goodmis.org, hch@infradead.org, ak@suse.de,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+Message-Id: <20051222050701.41b308f9.akpm@osdl.org>
+In-Reply-To: <20051222122011.GA20789@elte.hu>
+References: <20051222114147.GA18878@elte.hu>
+	<20051222035443.19a4b24e.akpm@osdl.org>
+	<20051222122011.GA20789@elte.hu>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOC.4.61.0512221231430.6200@math.ut.ee>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 12:35:30PM +0200, Meelis Roos wrote:
-> But I might have some more information:
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> ... 
+>
+> here are the top 10 reasons of why i think the generic mutex code should 
+> be considered for upstream integration:
+
+Appropriate for the changelog, please.
+
+>  - 'struct mutex' is smaller: on x86, 'struct semaphore' is 20 bytes, 
+>    'struct mutex' is 16 bytes. A smaller structure size means less RAM 
+>    footprint, and better CPU-cache utilization.
+
+Because of the .sleepers thing.  Perhaps a revamped semaphore wouldn't need
+thsat field?
+
+>  - tighter code. On x86 i get the following .text sizes when 
+>    switching all mutex-alike semaphores in the kernel to the mutex 
+>    subsystem:
 > 
-> The first bunch of messages did not happen on serial port detection but 
-> when "discover" ran and opened the serial port.
+>         text    data     bss     dec     hex filename
+>      3280380  868188  396860 4545428  455b94 vmlinux-semaphore
+>      3255329  865296  396732 4517357  44eded vmlinux-mutex
 > 
-> The second bunch of messages happened when minicom opened the port. I 
-> then modprobed tulip to see separating lines in dmesg. Then I used cisco 
-> remote console and no messages appeared. Then I powered down the cisco 
-> and then quited minicom. This took time and produced another bunch of 
-> messages.
+>    that's 25051 bytes of code saved, or a 0.76% win - off the hottest 
+>    codepaths of the kernel. (The .data savings are 2892 bytes, or 0.33%) 
+>    Smaller code means better icache footprint, which is one of the 
+>    major optimization goals in the Linux kernel currently.
 
-Thanks for spending the time trying to track this down.
+Why is the mutex-using kernel any smaller?  IOW: from where do these
+savings come?
 
-I'm still grasping at straws - it is plainly clear to me from the
-debug traces that your machine is _not_ doing what the C code is
-asking it to do.
+>  - the mutex subsystem is faster and has superior scalability for 
+>    contented workloads. On an 8-way x86 system, running a mutex-based 
+>    kernel and testing creat+unlink+close (of separate, per-task files)
+>    in /tmp with 16 parallel tasks, the average number of ops/sec is:
+> 
+>     Semaphores:                        Mutexes:
+> 
+>     $ ./test-mutex V 16 10             $ ./test-mutex V 16 10
+>     8 CPUs, running 16 tasks.          8 CPUs, running 16 tasks.
+>     checking VFS performance.          checking VFS performance.
+>     avg loops/sec:      34713          avg loops/sec:      84153
+>     CPU utilization:    63%            CPU utilization:    22%
+> 
+>    i.e. in this workload, the mutex based kernel was 2.4 times faster 
+>    than the semaphore based kernel, _and_ it also had 2.8 times less CPU 
+>    utilization. (In terms of 'ops per CPU cycle', the semaphore kernel 
+>    performed 551 ops/sec per 1% of CPU time used, while the mutex kernel 
+>    performed 3825 ops/sec per 1% of CPU time used - it was 6.9 times 
+>    more efficient.)
+> 
+>    the scalability difference is visible even on a 2-way P4 HT box:
+> 
+>     Semaphores:                        Mutexes:
+> 
+>     $ ./test-mutex V 16 10             $ ./test-mutex V 16 10
+>     4 CPUs, running 16 tasks.          8 CPUs, running 16 tasks.
+>     checking VFS performance.          checking VFS performance.
+>     avg loops/sec:      127659         avg loops/sec:      181082
+>     CPU utilization:    100%           CPU utilization:    34%
+> 
+>    (the straight performance advantage of mutexes is 41%, the per-cycle 
+>     efficiency of mutexes is 4.1 times better.)
 
-Basically, the characteristics seem to be:
+Why is the mutex-using kernel more scalable?
 
- * if the UART indicates no IRQ on invocation of the interrupt
-   handler, we repeatedly loop in the handler and eventually
-   hit this "too much work" problem.
+Can semaphores be tuned to offer the same scalability improvements?
 
- * if the UART indicates IRQ on invocation of the interrupt, and
-   subsequently no IRQ, we exit the interrupt handler as per the
-   code.
+> ...
+>
+>  - the per-call-site inlining cost of the slowpath is cheaper and 
+>    smaller than that of semaphores, by one instruction, because the 
+>    mutex trampoline code does not do a "lea %0,%%eax" that the semaphore 
+>    code does before calling __down_failed. The mutex subsystem uses out 
+>    of line code currently so this makes only a small difference in .text
+>    size, but in case we want to inline mutexes, they will be cheaper 
+>    than semaphores.
 
-I notice you're using gcc 4.0.3.  Have you tried other compiler
-versions?
+Cannot the semaphore code be improved in the same manner?
 
-Are you building the kernel with any additional compiler flags?
+>  - No wholesale or dangerous migration path. The migration to mutexes is 
+>    fundamentally opt-in, safe and easy: multiple type-based and .config 
+>    based migration helpers are provided to make the migration to mutexes 
+>    easy. Migration is as finegrained as it gets, so robustness of the 
+>    kernel or out-of-tree code should not be jeopardized at any stage.  
+>    The migration helpers can be eliminated once migration is completed, 
+>    once the kernel has been separated into 'mutex users' and 'semaphore 
+>    users'. Out-of-tree code automatically defaults to semaphore 
+>    semantics, mutexes are not forced upon anyone, at any stage of the 
+>    migration.
 
-Are there any other patches applied to the 8250.c file apart from my
-debugging patch?  What's the diff between a vanilla Linus kernel and
-the one you built?
+IOW: a complete PITA, sorry.
 
-If it isn't a compiler bug and there aren't any other patches applied,
-I have no idea what to suggest next, apart from your computer seemingly
-following a different set of rules to the rest of the universe.  Maybe
-you could donate it to some quantum physics lab? 8)
+>  - 'struct mutex' semantics are well-defined and are enforced if
+>    CONFIG_DEBUG_MUTEXES is turned on. Semaphores on the other hand have 
+>    virtually no debugging code or instrumentation. The mutex subsystem 
+>    checks and enforces the following rules:
+> 
+>    * - only one task can hold the mutex at a time
+>    * - only the owner can unlock the mutex
+>    * - multiple unlocks are not permitted
+>    * - recursive locking is not permitted
+>    * - a mutex object must be initialized via the API
+>    * - a mutex object must not be initialized via memset or copying
+>    * - task may not exit with mutex held
+>    * - memory areas where held locks reside must not be freed
 
-If anyone else has any suggestions, please jump in now.
+Pretty much all of that could be added to semaphores-when-used-as-mutexes. 
+Without introducing a whole new locking mechanism.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+>    furthermore, there are also convenience features in the debugging 
+>    code:
+> 
+>    * - uses symbolic names of mutexes, whenever they are printed in debug output
+>    * - point-of-acquire tracking, symbolic lookup of function names
+>    * - list of all locks held in the system, printout of them
+>    * - owner tracking
+>    * - detects self-recursing locks and prints out all relevant info
+>    * - detects multi-task circular deadlocks and prints out all affected
+>    *   locks and tasks (and only those tasks)
+
+Ditto, I expect.
+
+>  - the generic mutex subsystem is also one more step towards enabling 
+>    the fully preemptable -rt kernel. Ok, this shouldnt bother the 
+>    upstream kernel too much at the moment, but it's a personal driving
+>    force for me nevertheless ;-)
+
+Actually that's the only compelling reason I've yet seen, sorry.
+
+What is it about these mutexes which is useful to RT and why cannot that
+feature be provided by semaphores?
+
+
+Ingo, there appear to be quite a few straw-man arguments here.  You're
+comparing a subsystem (semaphores) which obviously could do with a lot of
+fixing and enhancing with something new which has had a lot of recent
+feature work out into it.
+
+I'd prefer to see mutexes compared with semaphores after you've put as much
+work into improving semaphores as you have into developing mutexes.

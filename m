@@ -1,18 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965050AbVLVGvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965075AbVLVGwA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965050AbVLVGvA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 01:51:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965075AbVLVGvA
+	id S965075AbVLVGwA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 01:52:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbVLVGwA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 01:51:00 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:30417 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S965050AbVLVGu7
+	Thu, 22 Dec 2005 01:52:00 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:30669 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S965075AbVLVGv7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 01:50:59 -0500
-Date: Thu, 22 Dec 2005 01:50:56 -0500 (EST)
+	Thu, 22 Dec 2005 01:51:59 -0500
+Date: Thu, 22 Dec 2005 01:51:57 -0500 (EST)
 From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 3/3] mutex subsystem: move the core to the new atomic
- helpers
+Subject: [patch 2/5] mutex subsystem: add architecture specific mutex primitives
 In-reply-to: <20051221231218.GA6747@elte.hu>
 X-X-Sender: nico@localhost.localdomain
 To: Ingo Molnar <mingo@elte.hu>
@@ -25,7 +24,7 @@ Cc: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
        Steven Rostedt <rostedt@goodmis.org>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Message-id: <Pine.LNX.4.64.0512220023060.26663@localhost.localdomain>
+Message-id: <Pine.LNX.4.64.0512220121440.26663@localhost.localdomain>
 MIME-version: 1.0
 Content-type: TEXT/PLAIN; charset=US-ASCII
 Content-transfer-encoding: 7BIT
@@ -35,95 +34,293 @@ References: <20051221155411.GA7243@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Dec 2005, Ingo Molnar wrote:
+While atomic_dec_call_if_negative() and atomic_inc_call_if_nonpositive()
+are certainly really nice and probably a good starting point for some
+consolidation of the different semaphore implementations, they still
+have stricter semantics than necessary for mutex usage.
 
-> 
-> * Nicolas Pitre <nico@cam.org> wrote:
-> 
-> > This patch moves the core mutex code over to the atomic helpers from 
-> > previous patch.  There is no change for i386 and x86_64, except for 
-> > the forced unlock state that is now done outside the spinlock (doing 
-> > so doesn't matter since another CPU could have locked the mutex right 
-> > away even if it was unlocked inside the spinlock).  This however 
-> > brings great improvements on ARM for example.
-> 
-> i'm wondering how much difference it makes on ARM - could you show us 
-> the before and after disassembly of the fastpath, to see the 
-> improvement?
+This patch adds 2 new helpers that allows for greater flexibility in
+their implementation while preserving the mutex semantics:
 
-The only way to do an atomic decrement on 99% of all ARM processors in 
-the field requires disabling interrupts.  So for instance:
+  arch_mutex_fast_lock()
+  arch_mutex_fast_unlock()
 
-void __mutex_lock(struct mutex *lock)
-{
-	if (atomic_dec_return(&lock->count) < 0)
-		__mutex_lock_failed(lock);
-}
+In particular, they can be implemented in terms of a single atomic swap
+which most architectures can do natively without any locking. With this
+the mutex optimizations only have to be done in those atomic helpers
+while everything else may be generic common code.
 
-Would produce:
+On i386 and x86_64 those new helpers are simply defined in terms of the 
+existing atomic_dec_call_if_negative() and 
+atomic_inc_call_if_nonpositive() since they already provide the best 
+implementation that can be done.
 
-__mutex_lock_atomic:
-	mrs	r1, cpsr		@ local_irq_save
-	orr	r3, r1, #128
-	msr	cpsr_c, r3
-	ldr	r3, [r0, #0]
-	sub	r3, r3, #1
-	str	r3, [r0, #0]
-	msr	cpsr_c, r1		@ local_irq_restore
-	cmp	r3, #0
-	movge	pc, lr
-	b	__mutex_lock_failed
+A new include/asm/mutex.h file is created for all architectures and they 
+all default to including asm-generic/mutex.h for now, except for i386 
+and x86_64 which have their own definitions.
 
-I can measure 23 cycles on an XScale processor for the first 8 
-instructions which corresponds to the "if (atomic_dec_return(v) < 0)".
+Signed-off-by: Nicolas Pitre <nico@cam.org>
 
-It was suggested that a preempt_disable()/preempt_enable() would be 
-sufficient and probably faster than the IRQ disable... which turned not 
-to be true for non-XScale ARM variants.  It would take 14 instructions 
-on all variants, and on XScale it needs 20 cycles.
+---
 
-Now with my patch applied, it looks like this:
-
-void __mutex_lock(struct mutex *lock)
-{
-	if (atomic_xchg(&lock->count, 0) != 1)
-		__mutex_lock_failed(lock);
-}
-
-with the following assembly:
-
-__mutex_lock_atomic:
-	mov	r3, #0
-	swp	r2, r3, [r0]
-	cmp	r2, #1
-	moveq	pc, lr
-	b	__mutex_lock_failed
-
-The equivalent of the first 8 instructions in the first example is now 
-down to 3.  And when gcc can cse the constant 0 (which is not 
-possible with the first example) then it would be only 2 instructions, 
-which is really nice to inline.  And the above takes only 8 cycles on an 
-XScale instead of 20-23 cycles.
-
-> your patches look OK to me, only one small detail sticks out: i'd 
-> suggest to rename the atomic_*_contended macros to be arch_mutex_*_..., 
-> i dont think any other code can make use of it.
-
-OK.
-
-> Also, it would be nice 
-> to see the actual ARM patches as well, which make use of the new 
-> infrastructure.
-
-Well, with the generic functions based on atomic_xchg() the generated 
-code is pretty good actually.  I don't think I could pack it more with a 
-special handler.  Well for ARM version 6 I have a kunning idea though... 
-maybe for tomorrow.
-
-> could you resend them against my latest queue that i just posted? I'll 
-> look at integrating them tomorrow.
-
-Yes, please find them in following emails.
-
-
-Nicolas
+Index: linux-2.6/include/asm-alpha/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-alpha/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-arm/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-arm/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-arm26/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-arm26/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-cris/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-cris/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-frv/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-frv/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-generic/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-generic/mutex.h
+@@ -0,0 +1,62 @@
++/*
++ * asm-generic/mutex.h
++ *
++ * Generic wrappers for architecture specific low-level mutex
++ * fast path locking and unlocking.  Each architecture is welcome
++ * to provide optimized versions for those.
++ */
++
++#ifndef _ASM_GENERIC_MUTEX_H
++#define _ASM_GENERIC_MUTEX_H
++
++#include <asm/atomic.h>
++
++/**
++ * arch_mutex_fast_lock - lock mutex and call function if already locked
++ * @v: pointer of type atomic_t
++ * @contention_fn: function to call if v was already locked
++ *
++ * Atomically locks @v and calls a function if @v was already locked.
++ * When @v == 1 it is unlocked, <= 0 means locked.
++ */
++#define arch_mutex_fast_lock(v, contention_fn)				\
++do {									\
++	if (atomic_xchg(v, 0) != 1)					\
++		contention_fn(v);					\
++} while (0)
++
++/**
++ * arch_mutex_fast_unlock - unlock and call function if contended
++ * @v: pointer of type atomic_t
++ * @contention_fn: function to call if v was contended
++ *
++ * Atomically unlocks @v and calls a function if @v was contended.
++ * When @v == 1 it is unlocked, 0 it is locked, any negative value means
++ * locked with contention.
++ *
++ * If @v was contended, its value becomes undefined until the @contention_fn
++ * calls arch_mutex_unlock_fixup() to apply the necessary fix-up (if any,
++ * depending on the implementation) before the state of @v is defined again.
++ */
++#define arch_mutex_fast_unlock(v, contention_fn)			\
++do {									\
++	if (atomic_xchg(v, 1) != 0)					\
++		contention_fn(v);					\
++} while (0)
++
++/**
++ * arch_mutex_unlock_fixup - apply any needed fixup after contended unlock
++ *
++ * @v: pointer of type atomic_t
++ *
++ * This is meant to be called from any contention function passed to
++ * arch_mutex_fast_unlock(). It provides any required fixup for unlocking
++ * @v if the implementation of arch_mutex_fast_unlock() didn't manage to
++ * unlock it in the contended case.
++ */
++#define arch_mutex_unlock_fixup(v)					\
++do {									\
++	/* the xchg-based unlock doesn't need any fixup */		\
++} while (0)
++
++#endif
+Index: linux-2.6/include/asm-h8300/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-h8300/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-i386/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-i386/mutex.h
+@@ -0,0 +1,23 @@
++/*
++ * asm-i386/mutex.h
++ *
++ * Optimized i386 low-level mutex fast path locking and unlocking.
++ */
++
++#ifndef _ASM_MUTEX_H
++#define _ASM_MUTEX_H
++
++#include <asm/atomic.h>
++
++/* Please look into asm-generic/mutex.h for a description of those */
++
++#define arch_mutex_fast_lock(v, contention_fn)				\
++	atomic_dec_call_if_negative(v, contention_fn)
++
++#define arch_mutex_fast_unlock(v, contention_fn)			\
++	atomic_inc_call_if_nonpositive(v, contention_fn)
++
++#define arch_mutex_unlock_fixup(v)					\
++	atomic_set(v, 1)
++
++#endif
+Index: linux-2.6/include/asm-ia64/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-ia64/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-m32r/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-m32r/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-m68k/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-m68k/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-m68knommu/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-m68knommu/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-mips/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-mips/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-parisc/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-parisc/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-powerpc/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-powerpc/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-ppc/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-ppc/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-ppc64/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-ppc64/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-s390/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-s390/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-sh/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-sh/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-sh64/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-sh64/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-sparc/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-sparc/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-sparc64/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-sparc64/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-um/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-um/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-v850/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-v850/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>
+Index: linux-2.6/include/asm-x86_64/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-x86_64/mutex.h
+@@ -0,0 +1,23 @@
++/*
++ * asm-x86_64/mutex.h
++ *
++ * Optimized x86_64 low-level mutex fast path locking and unlocking.
++ */
++
++#ifndef _ASM_MUTEX_H
++#define _ASM_MUTEX_H
++
++#include <asm/atomic.h>
++
++/* Please look into asm-generic/mutex.h for a description of those */
++
++#define arch_mutex_fast_lock(v, contention_fn)				\
++	atomic_dec_call_if_negative(v, contention_fn)
++
++#define arch_mutex_fast_unlock(v, contention_fn)			\
++	atomic_inc_call_if_nonpositive(v, contention_fn)
++
++#define arch_mutex_unlock_fixup(v)					\
++	atomic_set(v, 1)
++
++#endif
+Index: linux-2.6/include/asm-xtensa/mutex.h
+===================================================================
+--- /dev/null
++++ linux-2.6/include/asm-xtensa/mutex.h
+@@ -0,0 +1 @@
++#include <asm-generic/mutex.h>

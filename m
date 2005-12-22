@@ -1,69 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbVLVV4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030340AbVLVWAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030339AbVLVV4f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 16:56:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030337AbVLVV4f
+	id S1030340AbVLVWAU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 17:00:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030337AbVLVWAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 16:56:35 -0500
-Received: from uproxy.gmail.com ([66.249.92.193]:23849 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030339AbVLVV4d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 16:56:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=nOKZCC3lJ9G+7vIrvxY6m76yn9/nx+USU1okULbHev6d/Voj2TmJc7VAFuw1wwUacXGmNPc8yhomcdomcs9CmqWSM7oK6u5cn+qondR/LtQbUKFiasOX+w71ls6uUX6/C9f4ySbXwKuxNMZJYZv+SZSNKF0K842Yfa11kXghPMQ=
-Date: Fri, 23 Dec 2005 01:12:25 +0300
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] serpent: fix endian warnings
-Message-ID: <20051222221225.GC16883@mipter.zuzino.mipt.ru>
-References: <20051222101523.GP27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051222101523.GP27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.5.11
+	Thu, 22 Dec 2005 17:00:20 -0500
+Received: from mf00.sitadelle.com ([212.94.174.67]:35180 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1030340AbVLVWAT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 17:00:19 -0500
+Message-ID: <43AB21F1.8090600@cosmosbay.com>
+Date: Thu, 22 Dec 2005 23:00:17 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: george@mvista.com
+Cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Christoph Lameter <christoph@lameter.com>,
+       Alok N Kataria <alokk@calsoftinc.com>,
+       Shobhit Dayal <shobhit@calsoftinc.com>,
+       Shai Fultheim <shai@scalex86.org>, Matt Mackall <mpm@selenic.com>,
+       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
+       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RT 00/02] SLOB optimizations
+References: <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com> <1135093460.13138.302.camel@localhost.localdomain> <20051220181921.GF3356@waste.org> <1135106124.13138.339.camel@localhost.localdomain> <84144f020512201215j5767aab2nc0a4115c4501e066@mail.gmail.com> <1135114971.13138.396.camel@localhost.localdomain> <20051221065619.GC766@elte.hu> <43A90225.4060007@cosmosbay.com> <20051221074346.GA2398@elte.hu> <43A90C07.4000003@cosmosbay.com> <20051222211132.GA21742@elte.hu> <43AB1E55.6040703@mvista.com>
+In-Reply-To: <43AB1E55.6040703@mvista.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
----
+George Anzinger a écrit :
+> 
+> 
+>> that's just the profiling interrupt hitting them. You should not 
+>> analyze irq-safe code with a non-NMI profiling interrupt.
+>>
+>> CLI/STI is extremely fast. (In fact in the -rt tree i'm using them 
+>> within mutexes instead of preempt_enable()/preempt_disable(), because 
+>> they are faster and generate less register side-effect.)
+>>
+> Hm... I rather thought that the cli would cause a rather large hit on 
+> the pipeline and certainly on OOE.  Is your observation based on any 
+> particular instruction stream?  Sti, on the otherhand should be fast...
 
- crypto/serpent.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+Just to be exact, the 'cli' is coded as 3 instruction :
 
---- a/crypto/serpent.c
-+++ b/crypto/serpent.c
-@@ -367,10 +367,10 @@ static int serpent_setkey(void *ctx, con
- static void serpent_encrypt(void *ctx, u8 *dst, const u8 *src)
- {
- 	const u32
--		*k = ((struct serpent_ctx *)ctx)->expkey,
--		*s = (const u32 *)src;
--	u32	*d = (u32 *)dst,
--		r0, r1, r2, r3, r4;
-+		*k = ((struct serpent_ctx *)ctx)->expkey;
-+	const __le32 *s = (const __le32 *)src;
-+	__le32	*d = (__le32 *)dst;
-+	u32	r0, r1, r2, r3, r4;
- 
- /*
-  * Note: The conversions between u8* and u32* might cause trouble
-@@ -425,10 +425,10 @@ static void serpent_encrypt(void *ctx, u
- static void serpent_decrypt(void *ctx, u8 *dst, const u8 *src)
- {
- 	const u32
--		*k = ((struct serpent_ctx *)ctx)->expkey,
--		*s = (const u32 *)src;
--	u32	*d = (u32 *)dst,
--		r0, r1, r2, r3, r4;
-+		*k = ((struct serpent_ctx *)ctx)->expkey;
-+	const __le32 *s = (const __le32 *)src;
-+	__le32	*d = (__le32 *)dst;
-+	u32	r0, r1, r2, r3, r4;
- 
- 	r0 = le32_to_cpu(s[0]);
- 	r1 = le32_to_cpu(s[1]);
+pushfq
+popq (%rsp)
+cli
 
+and the 'sti' is coded as 2 instructions :
+pushq (%rsp)
+popfq
+
+And 'popfq' seems to be expensive, at least on Opteron machines and if 
+oprofile is not completely wrong...
+
+Eric

@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030297AbVLVUuZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030313AbVLVU6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030297AbVLVUuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 15:50:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbVLVUuZ
+	id S1030313AbVLVU6g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 15:58:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030317AbVLVU6g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 15:50:25 -0500
-Received: from palinux.external.hp.com ([192.25.206.14]:9602 "EHLO
-	palinux.hppa") by vger.kernel.org with ESMTP id S965184AbVLVUuY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 15:50:24 -0500
-Date: Thu, 22 Dec 2005 13:50:23 -0700
-From: Matthew Wilcox <matthew@wil.cx>
-To: Mark Maule <maule@sgi.com>
-Cc: Greg KH <gregkh@suse.de>, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH 0/3] msi abstractions and support for altix
-Message-ID: <20051222205023.GK2361@parisc-linux.org>
-References: <20051222201651.2019.37913.96422@lnx-maule.americas.sgi.com> <20051222202259.GA4959@suse.de> <20051222202627.GI17552@sgi.com> <20051222203415.GA28240@suse.de> <20051222203824.GJ17552@sgi.com>
+	Thu, 22 Dec 2005 15:58:36 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:50148 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030313AbVLVU6f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 15:58:35 -0500
+Date: Thu, 22 Dec 2005 14:35:28 -0600
+From: Suresh Kodati <kodatisu@in.ibm.com>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] fix smp_processor_id() use in include/asm-generic/percpu.h
+Message-ID: <20051222203528.GA4407@dyn9041041086.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051222203824.GJ17552@sgi.com>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 02:38:24PM -0600, Mark Maule wrote:
-> Because on ia64 IA64_FIRST_DEVICE_VECTOR and IA64_LAST_DEVICE_VECTOR
-> (from which MSI FIRST_DEVICE_VECTOR/LAST_DEVICE_VECTOR are derived) are not
-> constants.  The are now global variables (see change to asm-ia64/hw_irq.h)
-> to allow the platform to override them.  Altix uses a reduced range of
-> vectors for devices, and this change was necessary to make assign_irq_vector()
-> to work on altix.
+This patch suppresses the following BUG() seen during bootup of 2.6.15-rc5-mm3 on i386 machines by replacing smp_processor_id with raw_smp_processor_id().
 
-To be honest, I think this is just adding a third layer of paper over
-the crack in the wall.  The original code assumed x86; the ia64 port
-added enough emulation to make it look like x86 and now altix fixes a
-couple of assumptions.  I say: bleh.
+<snip>
+[   11.258828] Freeing unused kernel memory: 260k freed
+[   11.258864] BUG: using smp_processor_id() in preemptible [00000001] code: swapper/1 
+[   11.258878] caller is mod_page_state_offset+0x12/0x28
+</snip>
 
-What we actually need is an interface provided by the architecture that
-allocates a new irq.  I have a hankering to implement MSI on PA-RISC but
-haven't found the time ... 
+Signed-off-by: Suresh Kodati <kodatisu@in.ibm.com>
+-- 
+
+include/asm-generic/percpu.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- linux-2.6.15-rc5/include/asm-generic/percpu.h.orig	2005-12-21 15:13:27.000000000 -0600
++++ linux-2.6.15-rc5/include/asm-generic/percpu.h	2005-12-21 15:13:43.000000000 -0600
+@@ -13,7 +13,7 @@ extern unsigned long __per_cpu_offset[NR
+ 
+ /* var is in discarded region: offset to particular copy we want */
+ #define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu]))
+-#define __get_cpu_var(var) per_cpu(var, smp_processor_id())
++#define __get_cpu_var(var) per_cpu(var, raw_smp_processor_id())
+ 
+ /* A macro to avoid #include hell... */
+ #define percpu_modcopy(pcpudst, src, size)			\

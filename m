@@ -1,97 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030193AbVLVOrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932390AbVLVOxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030193AbVLVOrT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 09:47:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965171AbVLVOrT
+	id S932390AbVLVOxf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 09:53:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750995AbVLVOxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 09:47:19 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:16286 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965112AbVLVOrS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 09:47:18 -0500
-Date: Thu, 22 Dec 2005 15:46:26 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 5/9] mutex subsystem, core
-Message-ID: <20051222144626.GA31939@elte.hu>
-References: <20051222114233.GF18878@elte.hu> <43AAAC6F.17CC646@tv-sign.ru>
+	Thu, 22 Dec 2005 09:53:35 -0500
+Received: from tirith.ics.muni.cz ([147.251.4.36]:24524 "EHLO
+	tirith.ics.muni.cz") by vger.kernel.org with ESMTP id S1750936AbVLVOxf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 09:53:35 -0500
+Date: Thu, 22 Dec 2005 15:53:32 +0100
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: conservative governor not working?
+Message-ID: <20051222145332.GA12710@fi.muni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43AAAC6F.17CC646@tv-sign.ru>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.4.1i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Envelope-From: kas@fi.muni.cz
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	Hi all,
 
-* Oleg Nesterov <oleg@tv-sign.ru> wrote:
+	I have tried to use the "conservative" cpufreq governor
+on my Athlon64 X2 (dual-core), Tyan K8S board. When I set up the
+"ondemand" governor, it works as expected - under the load the
+CPU frequency is raised to maximum, and when the load stops,
+the frequency slowly returns back. When I switch to the
+"conservative" governor, it just stays on the same frequency all
+the time not depending whether there is a CPU load or not.
 
-> > +	/*
-> > +	 * Lets try to take the lock again - this is needed even if
-> > +	 * we get here for the first time (shortly after failing to
-> > +	 * acquire the lock), to make sure that we get a wakeup once
-> > +	 * it's unlocked. Later on this is the operation that gives
-> > +	 * us the lock. If there are other waiters we need to xchg it
-> > +	 * to -1, so that when we release the lock, we properly wake
-> > +	 * up the other waiters:
-> > +	 */
-> > +	old_val = atomic_xchg(&lock->count, -1);
-> > +
-> > +	if (unlikely(old_val == 1)) {
-> > +		/*
-> > +		 * Got the lock - rejoice! But there's one small
-> > +		 * detail to fix up: above we have set the lock to -1,
-> > +		 * unconditionally. But what if there are no waiters?
-> > +		 * While it would work with -1 too, 0 is a better value
-> > +		 * in that case, because we wont hit the slowpath when
-> > +		 * we release the lock. We can simply use atomic_set()
-> > +		 * for this, because we are the owners of the lock now,
-> > +		 * and are still holding the wait_lock:
-> > +		 */
-> > +		if (likely(list_empty(&lock->wait_list)))
-> > +			atomic_set(&lock->count, 0);
-> 
-> This is a minor issue, but still I think it makes sense to optimize
-> for uncontended case:
-> 
-> 	old_val = atomic_xchg(&lock->count, 0); // no sleepers
-> 
-> 	if (old_val == 1) {
-> 		// sleepers ?
-> 		if (!list_empty(&lock->wait_list))
-> 			// need to wakeup them
-> 			atomic_set(&lock->count, -1);
-> 		...
-> 	}
->       [*]
+	I have 2.6.15-rc6 kernel, Fedora Core 4 (native x86_64),
+and I do not touch the default values in /sys/devices/system/cpu/*/cpufreq
+except that setting a different governor. When the conservative governor
+is on, I have the following settings:
 
-but then we'd have to set it to -1 again, at [*], because we are now 
-about to become a waiter. So i'm not sure it's worth switching this 
-around.
+./conservative/freq_step 5
+./conservative/ignore_nice 0
+./conservative/down_threshold 20
+./conservative/up_threshold 80
+./conservative/sampling_down_factor 5
+./conservative/sampling_rate 124000000
+./conservative/sampling_rate_min 62000000
+./conservative/sampling_rate_max 1870457856
+./scaling_cur_freq 1000000
+./cpuinfo_cur_freq 1000000
+./scaling_available_frequencies 2200000 2000000 1800000 1000000
+./scaling_available_governors conservative ondemand performance
+./scaling_driver powernow-k8
+./scaling_governor conservative
+./affected_cpus 0 1
+./scaling_max_freq 2200000
+./scaling_min_freq 1000000
+./cpuinfo_max_freq 2200000
+./cpuinfo_min_freq 1000000
 
-Also, there are two uses of this codepath: first it's the 'did we race 
-with an unlocker', in which case the lock is almost likely still 
-contended. The second pass comes after we have woken up, in which case 
-it's likely uncontended.
+	Does anybody have working conservative governor? And with K8,
+or dual-core K8?
 
-while we could split up the two cases and optimize each for its own 
-situation, i think it makes more sense to have then unified, and thus to 
-have more compact code. It's the slowpath after all.
+	Thanks,
 
-	Ingo
+-Yenya
+
+-- 
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/    Journal: http://www.fi.muni.cz/~kas/blog/ |
+> Specs are a basis for _talking_about_ things. But they are _not_ a basis <
+> for implementing software.                              --Linus Torvalds <

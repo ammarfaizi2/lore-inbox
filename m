@@ -1,186 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbVLVVGm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030283AbVLVVMl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030320AbVLVVGm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 16:06:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030321AbVLVVGm
+	id S1030283AbVLVVMl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 16:12:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbVLVVMl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 16:06:42 -0500
-Received: from cpc2-lanc3-5-1-cust221.brig.cable.ntl.com ([86.14.33.221]:34265
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1030320AbVLVVGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 16:06:42 -0500
-Date: Thu, 22 Dec 2005 21:06:28 +0000
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andy Whitcroft <apw@shadowen.org>, greg@kroah.com, mbligh@google.com,
-       linux-kernel@vger.kernel.org, colpatch@us.ibm.com
-Subject: [PATCH] pci device ensure sysdata initialised
-Message-ID: <20051222210628.GA16797@shadowen.org>
-References: <20051220151609.565160d9.akpm@osdl.org>
-MIME-Version: 1.0
+	Thu, 22 Dec 2005 16:12:41 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:37510 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965181AbVLVVMj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 16:12:39 -0500
+Date: Thu, 22 Dec 2005 22:11:32 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Christoph Lameter <christoph@lameter.com>,
+       Alok N Kataria <alokk@calsoftinc.com>,
+       Shobhit Dayal <shobhit@calsoftinc.com>,
+       Shai Fultheim <shai@scalex86.org>, Matt Mackall <mpm@selenic.com>,
+       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
+       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RT 00/02] SLOB optimizations
+Message-ID: <20051222211132.GA21742@elte.hu>
+References: <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com> <1135093460.13138.302.camel@localhost.localdomain> <20051220181921.GF3356@waste.org> <1135106124.13138.339.camel@localhost.localdomain> <84144f020512201215j5767aab2nc0a4115c4501e066@mail.gmail.com> <1135114971.13138.396.camel@localhost.localdomain> <20051221065619.GC766@elte.hu> <43A90225.4060007@cosmosbay.com> <20051221074346.GA2398@elte.hu> <43A90C07.4000003@cosmosbay.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-InReply-To: <20051220151609.565160d9.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
-From: Andy Whitcroft <apw@shadowen.org>
+In-Reply-To: <43A90C07.4000003@cosmosbay.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pci device ensure sysdata initialised
 
-[Ok, here is a patch to ensure sysdata is valid for all busses.]
+* Eric Dumazet <dada1@cosmosbay.com> wrote:
 
-We have been seeing panic's on NUMA systems in pci_call_probe() in
-2.6.15-rc5-mm2 and -mm3.  It seems that some changes have occured
-to the meaning of the 'sysdata' for a device such that it is no
-longer just an integer containing the node, it is now a structure
-containing the node and other data.  However, it seems that we do not
-always initialise this sysdata before we probe the device.
+> >in any case, on sane platforms (i386, x86_64) an irq-disable is 
+> >well-optimized in hardware, and is just as fast as a preempt_disable().
+> 
+> I'm afraid its not the case on current hardware.
+> 
+> The irq enable/disable pair count for more than 50% the cpu time spent 
+> in kmem_cache_alloc()/kmem_cache_free()/kfree()
 
-Below are three examples from a boot with this checked for.
-The attached patch ensures that we supply a valid sysdata for system
-busses.  Currently we take no account of the node for this bus for
-no ACPI configured systems.  This is unchanged from the -mm1 code.
+because you are not using NMI based profiling?
 
-	Intel(R) PRO/1000 Network Driver - version 6.1.16-k2
-	Copyright (c) 1999-2005 Intel Corporation.
-	pci_call_probe: starting drv<c03d4be0> dev<dfd16800> id<c03d4734>
-	pci_call_probe: dev->bus<dfce6800>
-	pci_call_probe: dev->bus->sysdata<00000000>
-	pci_call_probe: node<-1>
-	e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
+> oprofile results on a dual Opteron 246 :
+> 
+> You can see the high profile numbers right after cli and popf(sti) 
+> instructions, popf being VERY expensive.
 
-	pci_call_probe: starting drv<c03ef220> dev<dfd17400> id<c03eed00>
-	pci_call_probe: dev->bus<dfce6800>
-	pci_call_probe: dev->bus->sysdata<00000000>
-	pci_call_probe: node<-1>
-	Linux Tulip driver version 1.1.13 (December 15, 2004)
-	input: AT Translated Set 2 keyboard as /class/input/input0
-	tulip0:  EEPROM default media type Autosense.
-	tulip0:  Index #0 - Media 10baseT (#0) described by a
-		21140 non-MII (0) block.
-	tulip0:  Index #1 - Media 100baseTx (#3) described by a
-		21140 non-MII (0) block.
-	tulip0:  Index #2 - Media 10baseT-FDX (#4) described by a
-		21140 non-MII (0) block.
-	tulip0:  Index #3 - Media 100baseTx-FDX (#5) described by a
-		21140 non-MII (0) block.
-	eth1: Digital DS21140 Tulip rev 33 at 0001fc00,
-		00:00:BC:0F:08:96, IRQ 28.
+that's just the profiling interrupt hitting them. You should not analyze 
+irq-safe code with a non-NMI profiling interrupt.
 
-	pci_call_probe: starting drv<c040a360> dev<dfd14400> id<c040a0fc>
-	pci_call_probe: dev->bus<dfce6600>
-	pci_call_probe: dev->bus->sysdata<dfffafa0>
-	pci_call_probe: node<0>
-	qla1280: QLA1040 found on PCI bus 0, dev 11
+CLI/STI is extremely fast. (In fact in the -rt tree i'm using them 
+within mutexes instead of preempt_enable()/preempt_disable(), because 
+they are faster and generate less register side-effect.)
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
----
- arch/i386/pci/common.c |    2 ++
- arch/i386/pci/fixup.c  |    8 +++++---
- arch/i386/pci/legacy.c |    3 ++-
- arch/i386/pci/numa.c   |    8 +++++---
- arch/i386/pci/visws.c  |    4 ++--
- include/asm-i386/pci.h |    1 +
- 6 files changed, 17 insertions(+), 9 deletions(-)
-diff -upN reference/arch/i386/pci/common.c current/arch/i386/pci/common.c
---- reference/arch/i386/pci/common.c
-+++ current/arch/i386/pci/common.c
-@@ -29,6 +29,8 @@ unsigned long pirq_table_addr;
- struct pci_bus *pci_root_bus;
- struct pci_raw_ops *raw_pci_ops;
- 
-+struct pci_sysdata pci_default_sysdata = { .node = -1 };
-+
- static int pci_read(struct pci_bus *bus, unsigned int devfn, int where, int size, u32 *value)
- {
- 	return raw_pci_ops->read(pci_domain_nr(bus), bus->number,
-diff -upN reference/arch/i386/pci/fixup.c current/arch/i386/pci/fixup.c
---- reference/arch/i386/pci/fixup.c
-+++ current/arch/i386/pci/fixup.c
-@@ -25,9 +25,11 @@ static void __devinit pci_fixup_i450nx(s
- 		pci_read_config_byte(d, reg++, &subb);
- 		DBG("i450NX PXB %d: %02x/%02x/%02x\n", pxb, busno, suba, subb);
- 		if (busno)
--			pci_scan_bus(busno, &pci_root_ops, NULL);	/* Bus A */
-+			pci_scan_bus(busno, &pci_root_ops,
-+					&pci_default_sysdata);	/* Bus A */
- 		if (suba < subb)
--			pci_scan_bus(suba+1, &pci_root_ops, NULL);	/* Bus B */
-+			pci_scan_bus(suba+1, &pci_root_ops,
-+					&pci_default_sysdata);	/* Bus B */
- 	}
- 	pcibios_last_bus = -1;
- }
-@@ -42,7 +44,7 @@ static void __devinit pci_fixup_i450gx(s
- 	u8 busno;
- 	pci_read_config_byte(d, 0x4a, &busno);
- 	printk(KERN_INFO "PCI: i440KX/GX host bridge %s: secondary bus %02x\n", pci_name(d), busno);
--	pci_scan_bus(busno, &pci_root_ops, NULL);
-+	pci_scan_bus(busno, &pci_root_ops, &pci_default_sysdata);
- 	pcibios_last_bus = -1;
- }
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82454GX, pci_fixup_i450gx);
-diff -upN reference/arch/i386/pci/legacy.c current/arch/i386/pci/legacy.c
---- reference/arch/i386/pci/legacy.c
-+++ current/arch/i386/pci/legacy.c
-@@ -26,7 +26,8 @@ static void __devinit pcibios_fixup_peer
- 			    l != 0x0000 && l != 0xffff) {
- 				DBG("Found device at %02x:%02x [%04x]\n", n, devfn, l);
- 				printk(KERN_INFO "PCI: Discovered peer bus %02x\n", n);
--				pci_scan_bus(n, &pci_root_ops, NULL);
-+				pci_scan_bus(n, &pci_root_ops, 
-+						&pci_default_sysdata);
- 				break;
- 			}
- 		}
-diff -upN reference/arch/i386/pci/numa.c current/arch/i386/pci/numa.c
---- reference/arch/i386/pci/numa.c
-+++ current/arch/i386/pci/numa.c
-@@ -97,9 +97,11 @@ static void __devinit pci_fixup_i450nx(s
- 		pci_read_config_byte(d, reg++, &subb);
- 		DBG("i450NX PXB %d: %02x/%02x/%02x\n", pxb, busno, suba, subb);
- 		if (busno)
--			pci_scan_bus(QUADLOCAL2BUS(quad,busno), &pci_root_ops, NULL);	/* Bus A */
-+			pci_scan_bus(QUADLOCAL2BUS(quad,busno), &pci_root_ops,
-+					&pci_default_sysdata);	/* Bus A */
- 		if (suba < subb)
--			pci_scan_bus(QUADLOCAL2BUS(quad,suba+1), &pci_root_ops, NULL);	/* Bus B */
-+			pci_scan_bus(QUADLOCAL2BUS(quad,suba+1), &pci_root_ops,
-+					&pci_default_sysdata);	/* Bus B */
- 	}
- 	pcibios_last_bus = -1;
- }
-@@ -124,7 +126,7 @@ static int __init pci_numa_init(void)
- 			printk("Scanning PCI bus %d for quad %d\n", 
- 				QUADLOCAL2BUS(quad,0), quad);
- 			pci_scan_bus(QUADLOCAL2BUS(quad,0), 
--				&pci_root_ops, NULL);
-+				&pci_root_ops, &pci_default_sysdata);
- 		}
- 	return 0;
- }
-diff -upN reference/arch/i386/pci/visws.c current/arch/i386/pci/visws.c
---- reference/arch/i386/pci/visws.c
-+++ current/arch/i386/pci/visws.c
-@@ -102,8 +102,8 @@ static int __init pcibios_init(void)
- 		"bridge B (PIIX4) bus: %u\n", pci_bus1, pci_bus0);
- 
- 	raw_pci_ops = &pci_direct_conf1;
--	pci_scan_bus(pci_bus0, &pci_root_ops, NULL);
--	pci_scan_bus(pci_bus1, &pci_root_ops, NULL);
-+	pci_scan_bus(pci_bus0, &pci_root_ops, &pci_default_sysdata);
-+	pci_scan_bus(pci_bus1, &pci_root_ops, &pci_default_sysdata);
- 	pci_fixup_irqs(visws_swizzle, visws_map_irq);
- 	pcibios_resource_survey();
- 	return 0;
-diff -upN reference/include/asm-i386/pci.h current/include/asm-i386/pci.h
---- reference/include/asm-i386/pci.h
-+++ current/include/asm-i386/pci.h
-@@ -9,6 +9,7 @@ struct pci_sysdata {
- 	int		domain;		/* PCI domain */
- 	int		node;		/* NUMA node */
- };
-+extern struct pci_sysdata pci_default_sysdata;
- 
- #ifdef CONFIG_PCI_DOMAINS
- static inline int pci_domain_nr(struct pci_bus *bus)
+	Ingo

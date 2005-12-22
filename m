@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbVLVQ6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbVLVRE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbVLVQ6f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 11:58:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbVLVQ6f
+	id S1030199AbVLVRE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 12:04:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbVLVRE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 11:58:35 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:10939 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S932206AbVLVQ6e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 11:58:34 -0500
-Date: Thu, 22 Dec 2005 11:58:33 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-In-reply-to: <20051222164415.GA10628@elte.hu>
-X-X-Sender: nico@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Message-id: <Pine.LNX.4.64.0512221156210.26663@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20051222114147.GA18878@elte.hu>
- <20051222115329.GA30964@infradead.org>
- <Pine.LNX.4.64.0512221025070.26663@localhost.localdomain>
- <20051222154012.GA6284@elte.hu>
- <Pine.LNX.4.64.0512221113560.26663@localhost.localdomain>
- <20051222164415.GA10628@elte.hu>
+	Thu, 22 Dec 2005 12:04:27 -0500
+Received: from web34108.mail.mud.yahoo.com ([66.163.178.106]:29887 "HELO
+	web34108.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030199AbVLVRE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 12:04:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=RfuRJsiL6ZWc54t4vTBpH48ZzomkdNHvL79kOXYvjI7o9GOBv/tGvgz3+dNmmpQKlYWNLS/oHvB49pjytx600u2nnPLrbYsyrWKKD+uHjx/U/q0Z4D/gzARFpHnQtALv1dNDsj35m0iOCEd5P4WDn6X27RC2Ycqmqt8SVjoK9Y0=  ;
+Message-ID: <20051222170426.39259.qmail@web34108.mail.mud.yahoo.com>
+Date: Thu, 22 Dec 2005 09:04:26 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: RE: scsi errors with dpt-i2o driver
+To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189F01FB3AC6@otce2k03.adaptec.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Dec 2005, Ingo Molnar wrote:
+--- "Salyzyn, Mark" <mark_salyzyn@adaptec.com> wrote:
+> (often can be fixed by a firmware update to the drive)
 
-> 
-> * Nicolas Pitre <nico@cam.org> wrote:
-> 
-> > > i'm curious, how would this ARMv6 solution look like, and what would be 
-> > > the advantages over the atomic swap based variant?
-> > 
-> > On ARMv6 (which can be SMP) the atomic swap instruction is much more 
-> > costly than on former ARM versions.  It however has ll/sc instructions 
-> > which allows it to implement a true atomic decrement, and the lock 
-> > fast path would look like: [...]
-> 
-> but couldnt you implement atomic_dec_return() with the ll/sc 
-> instructions? Something like:
+Sir, I believe you have nailed it: http://www.seagate.com/support/disc/u320_firmware.html
 
-NO.  My first example was atomic_dec_return based.  The second is 
-lighter and fulfill the semantics of arch_mutex_fast_lock() but is not a 
-common atomic primitive.
+Though, I am still troubled that a single unhappy drive can impact a system so severely -
+especially since we pile them up for RAID thereby increasing the probability of a disk being
+unhappy.
+
+-Kenny
 
 
-Nicolas
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

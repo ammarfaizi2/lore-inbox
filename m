@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965128AbVLVIVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965134AbVLVIYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965128AbVLVIVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 03:21:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbVLVIVZ
+	id S965134AbVLVIYx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 03:24:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965136AbVLVIYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 03:21:25 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:713 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965128AbVLVIVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 03:21:24 -0500
-Subject: Re: [patch 0/8] mutex subsystem, ANNOUNCE
-From: Arjan van de Ven <arjan@infradead.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Ingo Molnar <mingo@elte.hu>, Jes Sorensen <jes@trained-monkey.org>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
-In-Reply-To: <43AA5F7B.7010407@yahoo.com.au>
-References: <20051221155411.GA7243@elte.hu> <yq0irtiuxvv.fsf@jaguar.mkp.net>
-	 <43AA1134.7090704@yahoo.com.au> <20051222071940.GA16804@elte.hu>
-	 <43AA5C15.8060907@yahoo.com.au>
-	 <1135238423.2940.1.camel@laptopd505.fenrus.org>
-	 <43AA5F7B.7010407@yahoo.com.au>
-Content-Type: text/plain
-Date: Thu, 22 Dec 2005 09:21:11 +0100
-Message-Id: <1135239672.2940.7.camel@laptopd505.fenrus.org>
+	Thu, 22 Dec 2005 03:24:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:55002 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965134AbVLVIYw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 03:24:52 -0500
+Date: Thu, 22 Dec 2005 00:24:23 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: usb: replace __setup("nousb") with __module_param_call
+Message-Id: <20051222002423.1791d38b.zaitcev@redhat.com>
+In-Reply-To: <200512220110.52466.dtor_core@ameritech.net>
+References: <20051220141504.31441a41.zaitcev@redhat.com>
+	<200512220110.52466.dtor_core@ameritech.net>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.8; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 22 Dec 2005 01:10:52 -0500, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> On Tuesday 20 December 2005 17:15, Pete Zaitcev wrote:
 
-> I'd probably just call "bastard": it is probably _unlucky_ when _doesn't_
-> get to retake the lock, judging by the factor-of-4 speedup that Jes
-> demonstrated.
+> > Fedora users complain that passing "nousbstorage" to the installer causes
+> > the rest of the USB support to disappear. The installer uses kernel command
+> > line as a way to pass options through Syslinux. The problem stems from the
+> > use of strncmp() in obsolete_checksetup().
 
-I suspect that's more avoiding the double wakeup that semaphores have
-(semaphores aren't quite fair either)
-
+> I wonder if that strncmp() should be changed into something like
+> this (untested):
 > 
-> Which might be the right thing to do, but having the front waiter go to
-> the back of the queue I think is not.
+> --- work.orig/init/main.c
+> +++ work/init/main.c
+> @@ -167,7 +167,7 @@ static int __init obsolete_checksetup(ch
+>  	p = __setup_start;
+>  	do {
+>  		int n = strlen(p->str);
+> -		if (!strncmp(line, p->str, n)) {
+> +		if (!strncmp(line, p->str, n) && !isalnum(line[n])) {
+>  			if (p->early) {
 
-afaik that isn't happening though.
+Are you sure that your fix works well in case of __setup("foo=")?
+It probably breaks all of those.
 
-
+-- Pete

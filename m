@@ -1,47 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965178AbVLVUDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbVLVUGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965178AbVLVUDy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 15:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965181AbVLVUDx
+	id S1030262AbVLVUGg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 15:06:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965181AbVLVUGg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 15:03:53 -0500
-Received: from web34115.mail.mud.yahoo.com ([66.163.178.113]:20393 "HELO
-	web34115.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030262AbVLVUDx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 15:03:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=OvSuj6K7Qf42pOCuznQSw5T77bDbfRuAU6K/Z2wnZCjbEeCxBtTukzhTg3f6DP3Zey7uv+1P1CN4LF0CbkPgaNc8OjDSntP8tYsr7uJtpPqoCUfbADZ6Dlx9ps6e1p5NYY5+T/RL+DA3KuoVH5cRctoMPxIJfg57b6BpDV+xS7k=  ;
-Message-ID: <20051222200349.68299.qmail@web34115.mail.mud.yahoo.com>
-Date: Thu, 22 Dec 2005 12:03:49 -0800 (PST)
-From: Kenny Simpson <theonetruekenny@yahoo.com>
-Subject: Re: scsi errors with dpt-i2o driver
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1135263384.2940.40.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 22 Dec 2005 15:06:36 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:34692 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S965180AbVLVUGf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 15:06:35 -0500
+Date: Thu, 22 Dec 2005 14:06:11 -0600
+From: Mark Maule <maule@sgi.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH 2/3] per-platform IA64_{FIRST,LAST}_DEVICE_VECTOR definitions
+Message-ID: <20051222200611.GF17552@sgi.com>
+References: <20051222171616.8240.37671.12506@lnx-maule.americas.sgi.com> <20051222171626.8240.40685.41154@lnx-maule.americas.sgi.com> <20051222200111.GB14332@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051222200111.GB14332@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Arjan van de Ven <arjan@infradead.org> wrote:
-> > Are there any suggestions about how to diagnose further?  What about trying the native i2o
-> driver?
+On Thu, Dec 22, 2005 at 12:01:11PM -0800, Greg KH wrote:
+> On Thu, Dec 22, 2005 at 11:15:19AM -0600, Mark Maule wrote:
+> > --- msi.orig/drivers/pci/msi.c	2005-12-21 16:10:32.838675711 -0600
+> > +++ msi/drivers/pci/msi.c	2005-12-21 18:55:05.020985381 -0600
+> > @@ -35,7 +35,7 @@
+> >  
+> >  #ifndef CONFIG_X86_IO_APIC
+> >  int vector_irq[NR_VECTORS] = { [0 ... NR_VECTORS - 1] = -1};
+> > -u8 irq_vector[NR_IRQ_VECTORS] = { FIRST_DEVICE_VECTOR , 0 };
+> > +u8 irq_vector[NR_IRQ_VECTORS] = { [0 ... NR_IRQ_VECTORS - 1 ] = 0 };
 > 
-> that one is highly preferred anyway nowadays...
+> As previously mentioned, you don't have to initilize this to 0.
 
-Is there a more recent reference than http://i2o.shadowconnect.com/faq.php, or a mailing list for
-i2o driver issues?  For example, our bonnie runs suggest that dpt_i2o is a quite bit faster at
-sequential writes, and how do we get the firmware rev of the controller from the i2o subsystem?
+Shoot, I thought I fixed that.  Sent out the wrong version .... 
 
--Kenny
+> 
+> >  #endif
+> >  
+> >  static struct msi_ops *msi_ops;
+> > @@ -377,6 +377,11 @@
+> >  		printk(KERN_WARNING "PCI: MSI cache init failed\n");
+> >  		return status;
+> >  	}
+> > +
+> > +#ifndef CONFIG_X86_IO_APIC
+> > +	irq_vector[0] = FIRST_DEVICE_VECTOR;
+> > +#endif
+> 
+> Why do this here, what's wrong with the original code above in the
+> static declaration?  Or am I missing some logic change somewhere?
 
+The problem is that on ia64, FIRST_DEVICE_VECTOR is now a global variable,
+due to the fact that SN has a different notion of FIRST/LAST_DEVICE_VECTOR.
+So it causes compilation problems in the declaration.
 
-
-	
-		
-__________________________________ 
-Yahoo! for Good - Make a difference this year. 
-http://brand.yahoo.com/cybergivingweek2005/
+Mark

@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964993AbVLVA7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965010AbVLVBIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964993AbVLVA7o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 19:59:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbVLVA7o
+	id S965010AbVLVBIc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 20:08:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbVLVBIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 19:59:44 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:31757 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964993AbVLVA7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 19:59:43 -0500
-Date: Thu, 22 Dec 2005 01:59:41 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: Linus Torvalds <torvalds@osdl.org>, Sergey Vlasov <vsu@altlinux.ru>,
-       Ricardo Cerqueira <v4l@cerqueira.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
-Subject: Re: [Alsa-devel] 2.6.15-rc6: boot failure in saa7134-alsa.c
-Message-ID: <20051222005941.GK3917@stusta.de>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org> <20051220131810.GB6789@stusta.de> <20051220155216.GA19797@master.mivlgu.local> <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org> <20051220191412.GA4578@stusta.de> <1135110930.7822.18.camel@localhost>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1135110930.7822.18.camel@localhost>
-User-Agent: Mutt/1.5.11
+	Wed, 21 Dec 2005 20:08:32 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:27577 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964998AbVLVBIb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 20:08:31 -0500
+Subject: Re: ATA Write Error and Time-out Notification in User Space
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Drew Winstel <raw@dslr.net>
+Cc: linux-ide@vger.kernel.org, John Treubig <jtreubig@hotmail.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <200512201831.38592.raw@dslr.net>
+References: <BAY101-F33B48301330A7FFF7849A4DF3E0@phx.gbl>
+	 <1135119036.25010.21.camel@localhost.localdomain>
+	 <200512201831.38592.raw@dslr.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 22 Dec 2005 01:09:16 +0000
+Message-Id: <1135213756.10383.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 20, 2005 at 06:35:30PM -0200, Mauro Carvalho Chehab wrote:
-> Em Ter, 2005-12-20 às 20:14 +0100, Adrian Bunk escreveu:
-> > (plus disabling building of saa7134-oss.o because
-> > otherwise saa7134-alsa.o wouldn't do anything). 
+On Maw, 2005-12-20 at 18:31 -0600, Drew Winstel wrote:
+> With the application that John is using (namely, it delivers reads and writes 
+> directly to the drive via various SG ioctls), the file system is not an 
+> issue, hence wanting the errors to be returned to userspace.  
 > 
-> 	This patch should fix alsa-oss incompatibilities when both are linked
-> as module. It will also require either -oss or -alsa if it is statically
-> linked.
-> 
-> 	It doesn't address the OOPS because of sound late init.
-> 
-> 	Adrian,
-> 
-> 	Please test and give us some feedback.
+> I presume this means that John would have to look at the block level error 
+> handling as opposed to the SCSI level?
 
-It works and looks good.
+If you are using the sg ioctls then the commands are dispatched and the
+results come through the request queues but not the block layer above. 
 
-Can we get this patch into 2.6.15?
+In that case you really shouldn't be seeing a hang.
 
-> Cheers, 
-> Mauro.
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Alan
 

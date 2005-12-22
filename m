@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964823AbVLVMEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbVLVMGE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964823AbVLVMEb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 07:04:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbVLVMEb
+	id S964832AbVLVMGE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 07:06:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964839AbVLVMGE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 07:04:31 -0500
-Received: from ns2.suse.de ([195.135.220.15]:6817 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964823AbVLVMEa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 07:04:30 -0500
-Date: Thu, 22 Dec 2005 13:04:24 +0100
-From: Olaf Hering <olh@suse.de>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Olof Johansson <olof@lixom.net>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: console on POWER4 not working with 2.6.15
-Message-ID: <20051222120424.GA24475@suse.de>
-References: <20051220204530.GA26351@suse.de> <20051220214525.GB7428@pb15.lixom.net> <20051221175628.GA29363@suse.de> <17322.33982.22166.437385@cargo.ozlabs.ibm.com>
+	Thu, 22 Dec 2005 07:06:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:3487 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964832AbVLVMGC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 07:06:02 -0500
+Date: Thu, 22 Dec 2005 12:05:58 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Stephane Eranian <eranian@hpl.hp.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
+       perfctr-devel@lists.sourceforge.net
+Subject: Re: quick overview of the perfmon2 interface
+Message-ID: <20051222120558.GA31303@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Stephane Eranian <eranian@hpl.hp.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
+	perfctr-devel@lists.sourceforge.net
+References: <20051219113140.GC2690@frankl.hpl.hp.com> <20051220025156.a86b418f.akpm@osdl.org> <20051222115632.GA8773@frankl.hpl.hp.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17322.33982.22166.437385@cargo.ozlabs.ibm.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <20051222115632.GA8773@frankl.hpl.hp.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Thu, Dec 22, Paul Mackeras wrote:
+On Thu, Dec 22, 2005 at 03:56:32AM -0800, Stephane Eranian wrote:
+> reason:
+> 	- allow support of existing kernel profiling infratructures such as
+> 	  Oprofile or VTUNE (the VTUNE driver is open-source)
 
-> Olaf Hering writes:
-> 
-> > I finally managed to find the culprit.
-> > 
-> > good: 25635c71e44111a6bd48f342e144e2fc02d0a314
-> > bad:  f9bd170a87948a9e077149b70fb192c563770fdf
-> > 
-> > ...
-> > powerpc: Merge i8259.c into arch/powerpc/sysdev
-> > 
-> > This changes the parameters for i8259_init so that it takes two
-> > parameters: a physical address for generating an interrupt
-> > acknowledge cycle, and an interrupt number offset.  i8259_init
-> > now sets the irq_desc[] for its interrupts; all the callers
-> > were doing this, and that code is gone now.  This also defines
-> > a CONFIG_PPC_I8259 symbol to select i8259.o for inclusion, and
-> > makes the platforms that need it select that symbol.
-> 
-> Try this patch... it fixes things on the p630 at work.
+last time I checked it was available in source, but not under an open-source
+license.  has this changed?  In either case intel should contribute to the
+kernel profiling infrastructure instead of doing their own thing.  Supporting
+people to do their own private variant is always a bad thing.
 
-This fixes it also for me. Thanks.
+> Let's take an example on Itanium. Take a user running a commercial distro
+> based on 2.6. This user is given early access to a Montecito machine.
 
--- 
-short story of a lazy sysadmin:
- alias appserv=wotan
+That scenario is totally uninteresting for kernel development.  we want
+to encourage people to use upstream kernels, and not the bastardized vendor
+crap.
+
+I think you're adding totally pointless complexity everywhere for such
+scenarious because HP apparently cares for such vendor mess.  Maybe you
+should concentrate on what's best for upstream kernel development.  And
+the most important thing is to reduce complexity by at least one magnitude.
+

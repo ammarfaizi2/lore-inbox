@@ -1,25 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965126AbVLVIUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965128AbVLVIVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965126AbVLVIUI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 03:20:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbVLVIUI
+	id S965128AbVLVIVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 03:21:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbVLVIVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 03:20:08 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:64456 "EHLO
+	Thu, 22 Dec 2005 03:21:25 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:713 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965126AbVLVIUG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 03:20:06 -0500
-Subject: Re: ETA for Areca RAID driver (arcmsr) in mainline?
+	id S965128AbVLVIVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 03:21:24 -0500
+Subject: Re: [patch 0/8] mutex subsystem, ANNOUNCE
 From: Arjan van de Ven <arjan@infradead.org>
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Lee Revell <rlrevell@joe-job.com>, Dax Kelson <dax@gurulabs.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <200512220917.41494.oliver@neukum.org>
-References: <1135228831.4122.15.camel@mentorng.gurulabs.com>
-	 <1135229681.439.23.camel@mindpipe>  <200512220917.41494.oliver@neukum.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Jes Sorensen <jes@trained-monkey.org>,
+       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
+In-Reply-To: <43AA5F7B.7010407@yahoo.com.au>
+References: <20051221155411.GA7243@elte.hu> <yq0irtiuxvv.fsf@jaguar.mkp.net>
+	 <43AA1134.7090704@yahoo.com.au> <20051222071940.GA16804@elte.hu>
+	 <43AA5C15.8060907@yahoo.com.au>
+	 <1135238423.2940.1.camel@laptopd505.fenrus.org>
+	 <43AA5F7B.7010407@yahoo.com.au>
 Content-Type: text/plain
-Date: Thu, 22 Dec 2005 09:20:00 +0100
-Message-Id: <1135239601.2940.5.camel@laptopd505.fenrus.org>
+Date: Thu, 22 Dec 2005 09:21:11 +0100
+Message-Id: <1135239672.2940.7.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
@@ -34,25 +44,18 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-22 at 09:17 +0100, Oliver Neukum wrote:
-> Am Donnerstag, 22. Dezember 2005 06:34 schrieb Lee Revell:
-> > On Wed, 2005-12-21 at 22:20 -0700, Dax Kelson wrote:
-> > > I just got a shiny new (for me at least, the card has been out for
-> > > months) Areca RAID card.
-> > > 
-> > > The driver (arcmsr) is in the -mm kernel, but hasn't yet made it to the
-> > > mainline kernel. I'm curious what remains to be done before this can
-> > > happen?
-> > 
-> > Well, often all that's needed are some user reports that the driver
-> > works for them.
-> 
-> Is that a reasonable strategy? Why is a _new_ driver present only in -mm?
-> It hardly can break anything. It is possible that Andrew is quicker merging
-> but still I can't see the advantage if this persists for any length of time.
 
-afaik that's not the strategy here.
-It's more "we're waiting for the structural issues to be resolved" which
-sounds quite reasonable.
+> I'd probably just call "bastard": it is probably _unlucky_ when _doesn't_
+> get to retake the lock, judging by the factor-of-4 speedup that Jes
+> demonstrated.
+
+I suspect that's more avoiding the double wakeup that semaphores have
+(semaphores aren't quite fair either)
+
+> 
+> Which might be the right thing to do, but having the front waiter go to
+> the back of the queue I think is not.
+
+afaik that isn't happening though.
 
 

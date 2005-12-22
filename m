@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030325AbVLVX3C@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030373AbVLVXa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030325AbVLVX3C (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 18:29:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030372AbVLVX3B
+	id S1030373AbVLVXa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 18:30:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbVLVXa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 18:29:01 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:10503 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1030325AbVLVX3A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 18:29:00 -0500
-Date: Fri, 23 Dec 2005 00:28:55 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Conio sandiago <coniodiago@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Un aligned addresses
-Message-ID: <20051222232855.GO15993@alpha.home.local>
-References: <993d182d0512212236u525b6f25wf1dcaae9c389537f@mail.gmail.com>
+	Thu, 22 Dec 2005 18:30:57 -0500
+Received: from pat.uio.no ([129.240.130.16]:20695 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030373AbVLVXa5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 18:30:57 -0500
+Subject: Re: nfs invalidates lose pte dirty bits
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051222175550.GT9576@opteron.random>
+References: <20051222175550.GT9576@opteron.random>
+Content-Type: text/plain
+Date: Thu, 22 Dec 2005 18:30:49 -0500
+Message-Id: <1135294250.3685.16.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <993d182d0512212236u525b6f25wf1dcaae9c389537f@mail.gmail.com>
-User-Agent: Mutt/1.5.10i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-4.117, required 12,
+	autolearn=disabled, AWL 0.83, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 12:06:46PM +0530, Conio sandiago wrote:
-> Hi all
-> i have a embedded monta vista linux running.
-> i have developed a ethernet driver.
-> Its working Ok,
-> But i am facing some problem with the throughput.
+On Thu, 2005-12-22 at 18:55 +0100, Andrea Arcangeli wrote:
+> Hello Andrew,
 > 
-> After a lot of observation ,
-> i observed that i am getting un-aligned addresses of the data payload
-> from the TCP/IP stack.because of this problem i always have to do
-> memcpy to a word aligned buffer,because of which throughput is reduced
-> significantly.
->
-> Does anybody has some solution for this.
+> this is yet another problem exposed by the new invalidate_inode_pages2
+> semantics.
+> 
+> If a mapping has dirty data (pte dirty and page clean), and an
+> invalidate triggers, the filemap_write_and_wait will do nothing, but the
+> invalidate_inode_pages2 will destroy the pte dirty bit and discard the
+> pagecache.
 
-I guess your driver is not working that much OK yet. Many (most)
-ethernet boards today will align the IP header on a 4 or 16 bytes boundary.
-By default, the ethernet header being 14 bytes, it unaligns the IP header.
-But some boards will leave a hole between those. Probably that your driver
-needs to tell the hardware to do this. Or maybe you can program the DMA
-to get on 4x+2 so that IP gets aligned ?
+See the latest git release where we introduce the nfs_sync_mapping()
+helper.
 
-Anyway, I don't know whether I'm loosing my time because last time
-you sent such a report about your driver, I asked for a little more
-precisions, which I never received.
-
-> Regards
-> conio
-
-Willy
+Cheers,
+  Trond
 

@@ -1,61 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbVLVVnO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030316AbVLVVod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030307AbVLVVnO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 16:43:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbVLVVnO
+	id S1030316AbVLVVod (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 16:44:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030317AbVLVVod
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 16:43:14 -0500
-Received: from ozlabs.org ([203.10.76.45]:21141 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030315AbVLVVnN (ORCPT
+	Thu, 22 Dec 2005 16:44:33 -0500
+Received: from uproxy.gmail.com ([66.249.92.195]:31476 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030316AbVLVVoc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 16:43:13 -0500
-MIME-Version: 1.0
+	Thu, 22 Dec 2005 16:44:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=HTZNMZdTiyU/jc6tyOfLoxgn8t84fINRhoyWb3dTb4dx/+0K8pHnUgJFMPuOXaYNX+IB9Pk2OHEFHHLV/le71y3PbCmqssZ6j9SR34ZXTNBPgDgkkvMvXo8WogxAVi1SpPIuXSd+22rnBmvCutxOJdAiR1Stgv5ilh3na4FVHuA=
+Date: Fri, 23 Dec 2005 00:47:34 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] aes: fix endian warnings
+Message-ID: <20051222214734.GB16883@mipter.zuzino.mipt.ru>
+References: <20051222101523.GP27946@ftp.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17323.7659.745878.823890@cargo.ozlabs.ibm.com>
-Date: Fri, 23 Dec 2005 08:43:07 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, arjanv@infradead.org, nico@cam.org,
-       jes@trained-monkey.org, zwane@arm.linux.org.uk, oleg@tv-sign.ru,
-       dhowells@redhat.com, alan@lxorguk.ukuu.org.uk, bcrl@kvack.org,
-       rostedt@goodmis.org, hch@infradead.org, ak@suse.de,
-       rmk+lkml@arm.linux.org.uk
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-In-Reply-To: <20051222050701.41b308f9.akpm@osdl.org>
-References: <20051222114147.GA18878@elte.hu>
-	<20051222035443.19a4b24e.akpm@osdl.org>
-	<20051222122011.GA20789@elte.hu>
-	<20051222050701.41b308f9.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+In-Reply-To: <20051222101523.GP27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-> Ingo Molnar <mingo@elte.hu> wrote:
-> >  - 'struct mutex' is smaller: on x86, 'struct semaphore' is 20 bytes, 
-> >    'struct mutex' is 16 bytes. A smaller structure size means less RAM 
-> >    footprint, and better CPU-cache utilization.
-> 
-> Because of the .sleepers thing.  Perhaps a revamped semaphore wouldn't need
-> thsat field?
+ crypto/aes.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Note that semaphores on 32-bit PPC are only 16 bytes already, since I
-got rid of the sleepers field ages ago.  The fast path is just
-atomic_dec/inc, and the slow path needs an atomic op that does
+--- a/crypto/aes.c
++++ b/crypto/aes.c
+@@ -73,8 +73,8 @@ byte(const u32 x, const unsigned n)
+ 	return x >> (n << 3);
+ }
+ 
+-#define u32_in(x) le32_to_cpu(*(const u32 *)(x))
+-#define u32_out(to, from) (*(u32 *)(to) = cpu_to_le32(from))
++#define u32_in(x) le32_to_cpu(*(const __le32 *)(x))
++#define u32_out(to, from) (*(__le32 *)(to) = cpu_to_le32(from))
+ 
+ struct aes_ctx {
+ 	int key_length;
 
-	x = max(x, 0) + inc
-
-atomically and returns the old value of x.  That's easy to do with
-lwarx/stwcx (just two more instructions than an atomic inc), and can
-also be done quite straightforwardly with cmpxchg.  Alpha, mips, s390
-and sparc64 also use this scheme.
-
-In fact I would go so far as to say that I cannot see how it would be
-possible to do a mutex any smaller or faster than a counting semaphore
-on these architectures.
-
-Regards,
-Paul.

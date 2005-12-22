@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030360AbVLVXLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030362AbVLVXMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030360AbVLVXLM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 18:11:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030362AbVLVXLL
+	id S1030362AbVLVXMR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 18:12:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030368AbVLVXMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 18:11:11 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:10913 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030360AbVLVXLJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 18:11:09 -0500
-Date: Fri, 23 Dec 2005 00:10:34 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Nicolas Pitre <nico@cam.org>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 00/10] mutex subsystem, -V5
-Message-ID: <20051222231034.GA15406@elte.hu>
-References: <20051222153717.GA6090@elte.hu> <Pine.LNX.4.64.0512221134150.26663@localhost.localdomain> <Pine.LNX.4.64.0512220941320.4827@g5.osdl.org> <1135289062.6454.3.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
+	Thu, 22 Dec 2005 18:12:17 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:37127 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030362AbVLVXMP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 18:12:15 -0500
+Date: Fri, 23 Dec 2005 00:12:13 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, axboe@suse.de,
+       herbert@gondor.apana.org.au, michael.madore@gmail.com,
+       david-b@pacbell.net, gregkh@suse.de, paulmck@us.ibm.com, gohai@gmx.net,
+       luca.risolia@studio.unibo.it, p_christ@hol.gr
+Subject: Re: 2.6.15-rc6: known regressions in the kernel Bugzilla
+Message-ID: <20051222231213.GB27525@stusta.de>
+References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org> <20051222011320.GL3917@stusta.de> <20051222005209.0b1b25ca.akpm@osdl.org> <20051222135718.GA27525@stusta.de> <20051222060827.dcd8cec1.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1135289062.6454.3.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20051222060827.dcd8cec1.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Arjan van de Ven <arjan@infradead.org> wrote:
-
-> something like this?
+On Thu, Dec 22, 2005 at 06:08:27AM -0800, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> >
+> > not a post-2.6.14 regression
+> >
 > 
-> (this one is incremental to the patch series; a full one against -rc6 
-> is at http://www.fenrus.org/mutex.patch )
+> Well yeah.  But that doesn't mean thse things have lower priority that
+> post-2.6.14 regressions.
+> 
+> I understand what you're doing here, but we should in general concentrate
+> upon the most severe bugs rather than upon the most recent..
 
-thanks - i've integrated this into the -V6 version (which i released 
-shortly ago).
+Regressions are worse than other bugs since they break working setups 
+after a kernel upgrade, and should therefore be fixed before 2.6.15 
+gets released.
 
-	Ingo
+This should in no way imply that other severe bugs shouldn't be fixed.
+
+One thing why I'm currently pointing to such regressions is that I can't 
+stand people whining noone would test -rc kernels while we aren't even 
+able to handle all the regressions reported by people who actually do 
+test our -rc kernels.
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

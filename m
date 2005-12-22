@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030221AbVLVRUY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030231AbVLVRXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030221AbVLVRUY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 12:20:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030223AbVLVRUY
+	id S1030231AbVLVRXP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 12:23:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbVLVRXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 12:20:24 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:6578 "EHLO
+	Thu, 22 Dec 2005 12:23:15 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:11954 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030221AbVLVRUX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 12:20:23 -0500
-Date: Thu, 22 Dec 2005 17:20:19 +0000
+	id S1030223AbVLVRXO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 12:23:14 -0500
+Date: Thu, 22 Dec 2005 17:23:03 +0000
 From: Christoph Hellwig <hch@infradead.org>
-To: Nicolas Pitre <nico@cam.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-Message-ID: <20051222172019.GB6038@infradead.org>
+To: William Cohen <wcohen@redhat.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Stephane Eranian <eranian@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com,
+       linux-ia64@vger.kernel.org, perfctr-devel@lists.sourceforge.net
+Subject: Re: [Perfctr-devel] Re: quick overview of the perfmon2 interface
+Message-ID: <20051222172303.GC6038@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Nicolas Pitre <nico@cam.org>, Ingo Molnar <mingo@elte.hu>,
-	lkml <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Arjan van de Ven <arjanv@infradead.org>,
-	Jes Sorensen <jes@trained-monkey.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Oleg Nesterov <oleg@tv-sign.ru>,
-	David Howells <dhowells@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Benjamin LaHaise <bcrl@kvack.org>,
-	Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
-	Russell King <rmk+lkml@arm.linux.org.uk>
-References: <20051222114147.GA18878@elte.hu> <20051222115329.GA30964@infradead.org> <Pine.LNX.4.64.0512221025070.26663@localhost.localdomain>
+	William Cohen <wcohen@redhat.com>,
+	Stephane Eranian <eranian@hpl.hp.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
+	perfctr-devel@lists.sourceforge.net
+References: <20051219113140.GC2690@frankl.hpl.hp.com> <20051220025156.a86b418f.akpm@osdl.org> <20051222115632.GA8773@frankl.hpl.hp.com> <20051222120558.GA31303@infradead.org> <43AAC854.6020608@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512221025070.26663@localhost.localdomain>
+In-Reply-To: <43AAC854.6020608@redhat.com>
 User-Agent: Mutt/1.4.2.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 10:34:18AM -0500, Nicolas Pitre wrote:
-> I'm with Christoph here.  Please preserve my 
-> arch_mutex_fast_lock/arch_mutex_fast_unlock helpers.  I did it that way 
-> because the most important thing they bring is flexibility where it is 
-> needed i.e. in architecture specific implementations.  And done that way 
-> the architecture specific part is well abstracted with the minimum 
-> semantics allowing flexibility in the implementation.
+On Thu, Dec 22, 2005 at 10:37:56AM -0500, William Cohen wrote:
+> Both OProfile and PAPI are open source and could use such an performance 
+> monitoring interface.
 > 
-> I insist on that because, even if ARM currently relies on the atomic 
-> swap behavior, on ARMv6 at least this can be improved even further, but 
-> a special implementation which is neither a fully qualified atomic 
-> decrement nor an atomic swap is needed.  That's why I insist that you 
-> should keep my arch_mutex_fast_lock and friends (rename them if you 
-> wish) and remove __ARCH_WANT_XCHG_BASED_ATOMICS entirely.
+> One of the problems right now is there is a patchwork of performance 
+> monitoring support. Each instrumentation system has its own set of 
+> drivers/patches. Few have support integrated into the kernel, e.g. 
+> OProfile. However, the OProfile driver provides only a subset of the 
+> performance monitoring support, system-wide sampling. The OProfile 
+> driver doesn't allow per-thread monitoring or stopwatch style 
+> measurement, which can be very useful for some performance monitoring 
+> applications.
 
-I think one of us should so a new version based on that scheme and without
-all the new atomic helpers, then we can compare it against the current
-version.  I'll try to once I'll get some time.
+What about improving oprofile then?  Unlike the vtune or perfoman people
+the oprofile authors have shown they actually are able to design sensible
+interfaces, and oprofile has broad plattform support over most support
+architectures.
+

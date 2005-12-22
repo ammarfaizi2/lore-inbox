@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbVLVPRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbVLVPTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbVLVPRP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 10:17:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVLVPRO
+	id S1030197AbVLVPTt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 10:19:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbVLVPTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 10:17:14 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62668
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751092AbVLVPRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 10:17:14 -0500
-Date: Thu, 22 Dec 2005 07:16:51 -0800 (PST)
-Message-Id: <20051222.071651.43525556.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: bunk@stusta.de, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       aabdulla@nvidia.com, jgarzik@pobox.com, netdev@vger.kernel.org,
-       ak@suse.de, discuss@x86-64.org, perex@suse.cz,
-       alsa-devel@alsa-project.org, gregkh@suse.de
-Subject: Re: 2.6.15-rc6: known regressions in the kernel Bugzilla
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051222005209.0b1b25ca.akpm@osdl.org>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
-	<20051222011320.GL3917@stusta.de>
-	<20051222005209.0b1b25ca.akpm@osdl.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Dec 2005 10:19:49 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:47833 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1751107AbVLVPTs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 10:19:48 -0500
+Date: Thu, 22 Dec 2005 10:19:46 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+In-reply-to: <20051222050701.41b308f9.akpm@osdl.org>
+X-X-Sender: nico@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, arjanv@infradead.org, jes@trained-monkey.org,
+       zwane@arm.linux.org.uk, oleg@tv-sign.ru, dhowells@redhat.com,
+       alan@lxorguk.ukuu.org.uk, bcrl@kvack.org, rostedt@goodmis.org,
+       hch@infradead.org, ak@suse.de, rmk+lkml@arm.linux.org.uk
+Message-id: <Pine.LNX.4.64.0512221012020.26663@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20051222114147.GA18878@elte.hu>
+ <20051222035443.19a4b24e.akpm@osdl.org> <20051222122011.GA20789@elte.hu>
+ <20051222050701.41b308f9.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Thu, 22 Dec 2005 00:52:09 -0800
+On Thu, 22 Dec 2005, Andrew Morton wrote:
 
-> From: Charles-Edouard Ruault <ce@ruault.com>
-> Subject: [BUG] kernel 2.6.14.2 breaks IPSEC
+> I'd prefer to see mutexes compared with semaphores after you've put as much
+> work into improving semaphores as you have into developing mutexes.
 
-Herbert's reply at the end of the thread explains that what the user
-is doing, applying SNAT to IPSEC, has undefined results currently.
+There is a fundamental difference between semaphores and mutexes.  The 
+semaphore semantics _require_ atomic increments/decrements where mutexes 
+do not.  This makes a huge difference on ARM where 99% of all ARM 
+processors out there can only perform atomic swaps which is sufficient 
+for mutexes but insufficient for semaphores.  Therefore on ARM 
+performing an atomic increment/decrement (the semaphore fast 
+path) requires extra costly locking 
+and .text space (23 cycles over 8 instructions) while the mutex fast 
+path is about 2-3 instructions and 
+needs 7-8 cycles.  I bet many other architectures are in the same camp.
 
-Using netfilter with IPSEC is known to be broken since the beginning
-of our IPSEC implementation, and we plan to cure it in 2.6.16 with
-some excellent work done by Patrick McHardy and Herbert Xu.
 
-So just remove that from your list please, thanks.
+Nicolas

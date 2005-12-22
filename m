@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030341AbVLVWIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030317AbVLVWIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030341AbVLVWIN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 17:08:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbVLVWIN
+	id S1030317AbVLVWIT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 17:08:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030342AbVLVWIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 17:08:13 -0500
-Received: from pat.uio.no ([129.240.130.16]:39415 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030341AbVLVWIM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 17:08:12 -0500
-Subject: Re: [PATCH] sched: Fix adverse effects of
-	NFS	client	on	interactive response
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <43AA0EEA.8070205@bigpond.net.au>
-References: <43A8EF87.1080108@bigpond.net.au>
-	 <1135145341.7910.17.camel@lade.trondhjem.org>
-	 <43A8F714.4020406@bigpond.net.au>
-	 <1135171280.7958.16.camel@lade.trondhjem.org>
-	 <962C9716-6F84-477B-8B2A-FA771C21CDE8@mac.com>
-	 <1135172453.7958.26.camel@lade.trondhjem.org>
-	 <43AA0EEA.8070205@bigpond.net.au>
-Content-Type: text/plain
-Date: Thu, 22 Dec 2005 17:08:02 -0500
-Message-Id: <1135289282.9769.2.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-4.95, required 12,
-	autolearn=disabled, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Thu, 22 Dec 2005 17:08:19 -0500
+Received: from mf01.sitadelle.com ([212.94.174.68]:46494 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S1030317AbVLVWIS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 17:08:18 -0500
+Message-ID: <43AB23C9.8010904@cosmosbay.com>
+Date: Thu, 22 Dec 2005 23:08:09 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       Pekka Enberg <penberg@cs.helsinki.fi>,
+       Christoph Lameter <christoph@lameter.com>,
+       Alok N Kataria <alokk@calsoftinc.com>,
+       Shobhit Dayal <shobhit@calsoftinc.com>,
+       Shai Fultheim <shai@scalex86.org>, Matt Mackall <mpm@selenic.com>,
+       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
+       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RT 00/02] SLOB optimizations
+References: <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com> <1135093460.13138.302.camel@localhost.localdomain> <20051220181921.GF3356@waste.org> <1135106124.13138.339.camel@localhost.localdomain> <84144f020512201215j5767aab2nc0a4115c4501e066@mail.gmail.com> <1135114971.13138.396.camel@localhost.localdomain> <20051221065619.GC766@elte.hu> <43A90225.4060007@cosmosbay.com> <20051221074346.GA2398@elte.hu> <43A90C07.4000003@cosmosbay.com> <20051222211132.GA21742@elte.hu>
+In-Reply-To: <20051222211132.GA21742@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-22 at 13:26 +1100, Peter Williams wrote:
-
-> > Then have io_schedule() automatically set that flag, and convert NFS to
-> > use io_schedule(), or something along those lines. I don't want a bunch
-> > of RT-specific flags littering the NFS/RPC code.
+Ingo Molnar a écrit :
 > 
-> This flag isn't RT-specific.  It's used in the scheduling SCHED_NORMAL 
-> tasks and has no other semantic effects.
+> CLI/STI is extremely fast. (In fact in the -rt tree i'm using them 
+> within mutexes instead of preempt_enable()/preempt_disable(), because 
+> they are faster and generate less register side-effect.)
+> 
 
-It still has sod all business being in the NFS code. We don't touch task
-scheduling in the filesystem code.
+Yes, but most of my machines have a ! CONFIG_PREEMPT kernel, so 
+preempt_enable()/preempt_disable() are empty, thus faster than CLI/STI for sure :)
 
-  Trond
+Then, maybe the patch that moves 'current' in a dedicated x86_64 register may 
+help to lower  the cost of preempt_enable()/preempt_disable() on a 
+CONFIG_PREEMPT kernel ?
 
+Eric

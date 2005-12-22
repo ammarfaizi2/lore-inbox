@@ -1,42 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030185AbVLVN1r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbVLVNbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030185AbVLVN1r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 08:27:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965151AbVLVN1r
+	id S965151AbVLVNbN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 08:31:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbVLVNbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 08:27:47 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:52949 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S965155AbVLVN1q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 08:27:46 -0500
-Message-ID: <43AABB89.2EADAB70@tv-sign.ru>
-Date: Thu, 22 Dec 2005 17:43:21 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Thu, 22 Dec 2005 08:31:13 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:18354 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id S965151AbVLVNbM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 08:31:12 -0500
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: Daniel Walker <dwalker@mvista.com>, mingo@elte.hu, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 01/02] RT: add back plist docs
-References: <F989B1573A3A644BAB3920FBECA4D25A050C2B9B@orsmsx407>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [perfmon] Re: quick overview of the perfmon2 interface
+Date: Thu, 22 Dec 2005 05:31:09 -0800
+Message-ID: <3C87FFF91369A242B9C9147F8BD0908A02C69459@cacexc04.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [perfmon] Re: quick overview of the perfmon2 interface
+Thread-Index: AcYG7wGo9h8zCNacT9CtFCEU3xhKXwABpBiA
+From: "Truong, Dan" <dan.truong@hp.com>
+To: "Eranian, Stephane" <stephane.eranian@hp.com>,
+       "Andrew Morton" <akpm@osdl.org>
+Cc: <perfmon@napali.hpl.hp.com>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <perfctr-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 22 Dec 2005 13:31:10.0265 (UTC) FILETIME=[F884D290:01C606FB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Perez-Gonzalez, Inaky" wrote:
-> 
-> I don't have access to the real source now, but if the prio
+> Thanks to David, Dan and Phil for their comments.
 
-You can look at it here:
-	http://marc.theaimsgroup.com/?l=linux-kernel&m=113509054523774
+Another note on the urgency of standardizing Perfmon:
 
-(the patch is against /dev/null).
+Anarchy is not a good breeding ground for tools that need a
+stable infrastructure to mature. Being "there" is what made
+PAPI and perfctr popular and somewhat standard infrastructure.
 
-Or get it along with user-space test:
-	http://www.tv-sign.ru/oleg/plist.tgz
+Compilers, tools, JVMs... -you name it- are all moving
+fast towards using hardware counters to get feedback,
+tune, monitor or measure application behavior.
 
-The only change is s/plist_next_entry/plist_first_entry/.
+The PMU is becoming a standard commodity. Once Perfmon is
+"the" Linux interface, all the tools can align on it and
+coexist, push their R&D forward, and more importantly become
+fully productized for businesses usage. Hopefully Perfmon's
+interface is powerful enough to support future needs.
 
-Oleg.
+Good luck Stephane :)
+
+Cheers,
+
+Dan-

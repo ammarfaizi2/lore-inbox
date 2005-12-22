@@ -1,34 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbVLVORl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbVLVOVP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965160AbVLVORl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 09:17:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbVLVORl
+	id S965167AbVLVOVP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 09:21:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965168AbVLVOVP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 09:17:41 -0500
-Received: from [222.124.3.220] ([222.124.3.220]:13 "HELO cigma.nl")
-	by vger.kernel.org with SMTP id S965160AbVLVORk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 09:17:40 -0500
-Message-ID: <720401c606f4$963ab577$c26eec81@cigma.nl>
-From: "Garry Lawson" <g_lawson_qu@moglit.demon.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Buqy cials-tabs, 1 day sqale
-Date: Thu, 22 Dec 2005 13:40:56 +0100
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Mime-Version: 1.0
+	Thu, 22 Dec 2005 09:21:15 -0500
+Received: from mailserv.intranet.GR ([146.124.14.106]:49818 "EHLO
+	mailserv.intranet.gr") by vger.kernel.org with ESMTP
+	id S965167AbVLVOVO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 09:21:14 -0500
+Message-ID: <43AAB508.7000007@intracom.gr>
+Date: Thu, 22 Dec 2005 16:15:36 +0200
+From: Pantelis Antoniou <panto@intracom.gr>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051101)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrey Volkov <avolkov@varma-el.com>
+CC: jes@trained-monkey.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: Re: [RFC] genalloc != generic DEVICE memory allocator
+References: <43A98F90.9010001@varma-el.com> <43AA65F4.10409@intracom.gr> <43AAAEA2.8030200@varma-el.com>
+In-Reply-To: <43AAAEA2.8030200@varma-el.com>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; format=flowed; charset=iso-8859-1; reply-type=original
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrey Volkov wrote:
+> Hi Pantelis,
+> 
+> Pantelis Antoniou wrote:
+> 
+>>Andrey Volkov wrote:
+>>
 
-Be ERECT in under 15 mins
+[snip]
 
-C0ST: $ 2 / use
+>>
+>>Hi Andrey,
+>>
+>>FYI, on arch/ppc/lib/rheap.c theres an implementation of a remote heap.
+>>
+>>It is currently used for the management of freescale's CPM1 & CPM2 internal
+>>dual port RAM.
+>>
+>>Take a look, it might be what you have in mind.
+>>
+>>Regards
+>>
+>>Pantelis
+> 
+> 
+> Thanks I missed it (and small wonder! :( ).
+> 
+> Andrew, Is somebody count HOW MANY dev specific implementation
+> of buddy/first-fit allocators now in kernel?
+> 
 
-view our website --> onlineclear.com
+Yes, it is indeed messy.
 
+The rheap implementation is generic enough and I believe can fit most of the
+special memory allocators needs. If you'd like I could move it somewhere
+generic and test it.
+
+Regards
+
+Pantelis
 

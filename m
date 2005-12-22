@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbVLVKz7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVLVLP7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbVLVKz7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 05:55:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932125AbVLVKz7
+	id S932159AbVLVLP7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 06:15:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbVLVLP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 05:55:59 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:19693 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932110AbVLVKz6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 05:55:58 -0500
-Subject: Re: [RFC] Let non-root users eject their ipods?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, greg@kroah.com, axboe@suse.de
-In-Reply-To: <1135047119.8407.24.camel@leatherman>
-References: <1135047119.8407.24.camel@leatherman>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 22 Dec 2005 10:56:39 +0000
-Message-Id: <1135248999.10383.29.camel@localhost.localdomain>
+	Thu, 22 Dec 2005 06:15:59 -0500
+Received: from smtp4.brturbo.com.br ([200.199.201.180]:24363 "EHLO
+	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S932159AbVLVLP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 06:15:59 -0500
+Subject: Re: [Alsa-devel] 2.6.15-rc6: boot failure in saa7134-alsa.c
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Sergey Vlasov <vsu@altlinux.ru>,
+       Ricardo Cerqueira <v4l@cerqueira.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
+In-Reply-To: <20051222005941.GK3917@stusta.de>
+References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
+	 <20051220131810.GB6789@stusta.de>
+	 <20051220155216.GA19797@master.mivlgu.local>
+	 <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org>
+	 <20051220191412.GA4578@stusta.de> <1135110930.7822.18.camel@localhost>
+	 <20051222005941.GK3917@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 22 Dec 2005 09:15:47 -0200
+Message-Id: <1135250147.17758.35.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.2.1-1mdk 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2005-12-19 at 18:51 -0800, john stultz wrote:
-> So below is a patch that allows non-root users to eject their ipods. (It
-> seems it should be safe_for_write() but eject opens the device for
-> RDONLY, so eject may be wrong here as well). 
+Em Qui, 2005-12-22 às 01:59 +0100, Adrian Bunk escreveu:
+ 
+> > 	This patch should fix alsa-oss incompatibilities when both are linked
+> > as module. It will also require either -oss or -alsa if it is statically
+> > linked.
+> > 
+> > 	It doesn't address the OOPS because of sound late init.
+> > 
+> > 	Adrian,
+> > 
+> > 	Please test and give us some feedback.
 > 
-> Comments, flames?
+> It works and looks good.
+> 
+> Can we get this patch into 2.6.15?
+	I've sent today to Linus for him to pull for 2.6.15.
 
-I think its probably uninteresting to the majority of users to solve it
-that way (not that its wrong that I can see). The desktops handle
-automount/umount these days and if anything what would cover most bases
-is to teach umount a new option/fstab flag so that it will handle the
-device eject as it handles the non-root umount management.
+Cheers, 
+Mauro.
 

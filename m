@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbVLVQxG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbVLVQwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030192AbVLVQxG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 11:53:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030195AbVLVQxG
+	id S1030190AbVLVQwz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 11:52:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030192AbVLVQwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 11:53:06 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:31218 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S1030192AbVLVQxE
+	Thu, 22 Dec 2005 11:52:55 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.149]:14022 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030190AbVLVQwy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 11:53:04 -0500
-Subject: Re: [PATCH 02/02] RT: plist namespace cleanup
-From: Daniel Walker <dwalker@mvista.com>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: linux-kernel@vger.kernel.org, inaky.perez-gonzalez@intel.com,
-       tglx@linutronix.de, mingo@elte.hu
-In-Reply-To: <43AAB3C8.DB304856@tv-sign.ru>
-References: <1135202230.22970.15.camel@localhost.localdomain>
-	 <43AAB3C8.DB304856@tv-sign.ru>
+	Thu, 22 Dec 2005 11:52:54 -0500
+Subject: Re: [RFC] Let non-root users eject their ipods?
+From: john stultz <johnstul@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: lkml <linux-kernel@vger.kernel.org>, greg@kroah.com, axboe@suse.de
+In-Reply-To: <1135248999.10383.29.camel@localhost.localdomain>
+References: <1135047119.8407.24.camel@leatherman>
+	 <1135248999.10383.29.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 22 Dec 2005 08:53:01 -0800
-Message-Id: <1135270381.3696.2.camel@localhost.localdomain>
+Date: Thu, 22 Dec 2005 08:57:19 -0800
+Message-Id: <1135270639.17720.6.camel@leatherman>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-22 at 17:10 +0300, Oleg Nesterov wrote:
-> Daniel Walker wrote:
+On Thu, 2005-12-22 at 10:56 +0000, Alan Cox wrote:
+> On Llu, 2005-12-19 at 18:51 -0800, john stultz wrote:
+> > So below is a patch that allows non-root users to eject their ipods. (It
+> > seems it should be safe_for_write() but eject opens the device for
+> > RDONLY, so eject may be wrong here as well). 
 > > 
-> >         Make the plist namespace consistent.
+> > Comments, flames?
 > 
-> I think plist_head is much better than pl_head.
-> 
-> However I think plist_empty/plist_unhashed is more accurate
-> than plist_head_empty/plist_node_empty, but I am rather
-> agnostic to naming.
+> I think its probably uninteresting to the majority of users to solve it
+> that way (not that its wrong that I can see). The desktops handle
+> automount/umount these days and if anything what would cover most bases
+> is to teach umount a new option/fstab flag so that it will handle the
+> device eject as it handles the non-root umount management.
 
-unhashed seems very meaningless . We're not hashing anything. 
+I don't think that's necessary as I believe the desktops handle the
+mount/unmount using eject (at least Gnome does on my Ubuntu system).
 
-> Daniel, it would be great if you can check that kernel/rt.o
-> was not changed after rename (as it should be).
+After using Ben's fix (suggested by Jens I believe) for the eject
+command so it opens the device RDWR everything works without kernel
+modifications (ends up the ALLOW_DEVICE_REMOVAL is already on the
+safe_for_write list, just under a different name).
 
-I didn't check, but I made no code changes so it should be any
-different.
+thanks
+-john
 
-Daniel
 

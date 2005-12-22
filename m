@@ -1,61 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbVLVIko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965137AbVLVIn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965136AbVLVIko (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 03:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965137AbVLVIko
+	id S965137AbVLVIn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 03:43:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbVLVIn4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 03:40:44 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:58297 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S965136AbVLVIko (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 03:40:44 -0500
-Date: Thu, 22 Dec 2005 09:40:30 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-cc: linux-m68k@vger.kernel.org,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 04/36] m68k: switch mac/misc.c to direct use of appropriate
- cuda/pmu/maciisi requests
-In-Reply-To: <E1EpIOK-0004q9-FT@ZenIV.linux.org.uk>
-Message-ID: <Pine.LNX.4.62.0512220939090.17836@pademelon.sonytel.be>
-References: <E1EpIOK-0004q9-FT@ZenIV.linux.org.uk>
+	Thu, 22 Dec 2005 03:43:56 -0500
+Received: from mailserv.intranet.GR ([146.124.14.106]:39888 "EHLO
+	mailserv.intranet.gr") by vger.kernel.org with ESMTP
+	id S965137AbVLVInz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 03:43:55 -0500
+Message-ID: <43AA65F4.10409@intracom.gr>
+Date: Thu, 22 Dec 2005 10:38:12 +0200
+From: Pantelis Antoniou <panto@intracom.gr>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051101)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrey Volkov <avolkov@varma-el.com>
+CC: jes@trained-monkey.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: Re: [RFC] genalloc != generic DEVICE memory allocator
+References: <43A98F90.9010001@varma-el.com>
+In-Reply-To: <43A98F90.9010001@varma-el.com>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Dec 2005, Al Viro wrote:
-> From: Al Viro <viro@zeniv.linux.org.uk>
-> Date: 1134918770 -0500
+Andrey Volkov wrote:
+> Hello Jes and all
 > 
-> kill ADBREQ_RAW use, replace adb_read_time(), etc. with per-type variants,
-> eliminated remapping from pmu ones, fix the ifdefs (PMU->PMU68K)
+> I try to use your allocator (gen_pool_xxx), idea of which
+> is a cute nice thing. But current implementation of it is
+> inappropriate for a _device_ (aka onchip, like framebuffer) memory
+> allocation, by next reasons:
 > 
-> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+>  1) Device memory is expensive resource by access time and/or size cost.
+>     So we couldn't use (usually) this memory for the free blocks lists.
+>  2) Device memory usually have special requirement of access to it
+>     (alignment/special insn). So we couldn't use part of allocated
+>     blocks for some control structures (this problem solved in your
+>     implementation, it's common remark)
+>  3) Obvious (IMHO) workflow of mem. allocator look like:
+>  	- at startup time, driver allocate some big
+> 	  (almost) static mem. chunk(s) for a control/data structures.
+>         - during work of the device, driver allocate many small
+> 	  mem. blocks with almost identical size.
+>     such behavior lead to degeneration of buddy method and
+>     transform it to the first/best fit method (with long seek
+>     by the free node list).
+>  4) The simple binary buddy method is far away from perfect for a device
+>     due to a big internal fragmentation. Especially for a
+>     network/mfd devices, for which, size of allocated data very
+>     often is not a power of 2.
+> 
+> I start to modify your code to satisfy above demands,
+> but firstly I wish to know your, or somebody else, opinion.
+> 
+> Especially I will very happy if somebody have and could
+> provide to all, some device specific memory usage statistics.
+> 
 
-> +	switch(macintosh_config->adb_type) {
-> +	case MAC_ADB_IISI:
-> +		func = maciisi_read_pram; break;
-> +	case MAC_ADB_PB1:
-> +	case MAC_ADB_PB2:
-> +		func = pmu_read_pram; break;
-> +	case MAC_ADB_CUDA:
-> +		func = cuda_read_pram; break;
-> +	default:
->  		func = via_read_pram;
->  	}
+Hi Andrey,
 
-Wouldn't it be better to just have an ops structure with function pointers and
-data fields, so we just have to initialize that once, instead of having `switch
-(macintosh_config->adb_type) { ...}' in multiple places?
+FYI, on arch/ppc/lib/rheap.c theres an implementation of a remote heap.
 
-Gr{oetje,eeting}s,
+It is currently used for the management of freescale's CPM1 & CPM2 internal
+dual port RAM.
 
-						Geert
+Take a look, it might be what you have in mind.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Regards
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Pantelis
+

@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030326AbVLVVuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030327AbVLVVw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030326AbVLVVuc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 16:50:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030327AbVLVVuc
+	id S1030327AbVLVVw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 16:52:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030328AbVLVVw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 16:50:32 -0500
-Received: from mail.kroah.org ([69.55.234.183]:42114 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1030326AbVLVVub (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 16:50:31 -0500
-Date: Thu, 22 Dec 2005 13:44:46 -0800
-From: Greg KH <greg@kroah.com>
-To: Mark Maule <maule@sgi.com>
-Cc: Greg KH <gregkh@suse.de>, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH 0/3] msi abstractions and support for altix
-Message-ID: <20051222214446.GC14978@kroah.com>
-References: <20051222201651.2019.37913.96422@lnx-maule.americas.sgi.com> <20051222202259.GA4959@suse.de> <20051222202627.GI17552@sgi.com> <20051222203415.GA28240@suse.de> <20051222203824.GJ17552@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051222203824.GJ17552@sgi.com>
-User-Agent: Mutt/1.5.11
+	Thu, 22 Dec 2005 16:52:56 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:54867 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1030327AbVLVVwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 16:52:55 -0500
+Date: Thu, 22 Dec 2005 16:52:54 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 00/10] mutex subsystem, -V5
+In-reply-to: <20051222213902.GA32433@elte.hu>
+X-X-Sender: nico@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Message-id: <Pine.LNX.4.64.0512221647490.26663@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20051222153717.GA6090@elte.hu>
+ <Pine.LNX.4.64.0512221134150.26663@localhost.localdomain>
+ <Pine.LNX.4.64.0512220941320.4827@g5.osdl.org>
+ <Pine.LNX.4.62.0512221003540.7992@schroedinger.engr.sgi.com>
+ <20051222213902.GA32433@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 02:38:24PM -0600, Mark Maule wrote:
-> On Thu, Dec 22, 2005 at 12:34:15PM -0800, Greg KH wrote:
-> > On Thu, Dec 22, 2005 at 02:26:27PM -0600, Mark Maule wrote:
-> > > On Thu, Dec 22, 2005 at 12:22:59PM -0800, Greg KH wrote:
-> > > > On Thu, Dec 22, 2005 at 02:15:44PM -0600, Mark Maule wrote:
-> > > > > Resend #2: including linuxppc64-dev and linux-pci as well as PCI maintainer
-> > > > 
-> > > > I'll wait for Resend #3 based on my previous comments before considering
-> > > > adding it to my kernel trees:)
-> > > > 
-> > > 
-> > > Resend #2 includes the correction to the irq_vector[] declaration, and I
-> > > responded to the question about setting irq_vector[0] if that's what you
-> > > mean ...
-> > 
-> > Sorry, but I missed that last response.  Why do you set the [0] value in
-> > a #ifdef now?
-> 
-> Because on ia64 IA64_FIRST_DEVICE_VECTOR and IA64_LAST_DEVICE_VECTOR
-> (from which MSI FIRST_DEVICE_VECTOR/LAST_DEVICE_VECTOR are derived) are not
-> constants.  The are now global variables (see change to asm-ia64/hw_irq.h)
-> to allow the platform to override them.  Altix uses a reduced range of
-> vectors for devices, and this change was necessary to make assign_irq_vector()
-> to work on altix.
+On Thu, 22 Dec 2005, Ingo Molnar wrote:
 
-I'm with Matthew on this one, that's not a real fix for this.  What
-would PPC64 do in this case?
+> i definitely do not say that _everything_ should be generalized. That 
+> would be micromanaging things. But i definitely think there's an 
+> unhealthy amount of _under_ generalization in current Linux 
+> architectures, and i dont want the mutex subsystem to fall into that 
+> trap.
 
-thanks,
+BTW, I strongly believe the semaphore implementation could go with the 
+same model the mutex model I hope is heading for.
 
-greg k-h
+I.e., the only thing each architecture really have to implement is 
+__sem_fast_down and __sem_fast _up, and incidentally they would have the 
+exact same definition as your atomic_*_call_if_* functions (while a bit 
+too restrictive for mutex semantics, they really are the minimum 
+required for semaphores).  Then all the current per architecture 
+semaphore code could be consolidated.
+
+
+Nicolas

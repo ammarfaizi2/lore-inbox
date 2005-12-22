@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030335AbVLVV4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030339AbVLVV4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030335AbVLVV4b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 16:56:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030337AbVLVV4b
+	id S1030339AbVLVV4f (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 16:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030337AbVLVV4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 16:56:31 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:43142 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030335AbVLVV43 (ORCPT
+	Thu, 22 Dec 2005 16:56:35 -0500
+Received: from uproxy.gmail.com ([66.249.92.193]:23849 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030339AbVLVV4d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 16:56:29 -0500
-Date: Thu, 22 Dec 2005 13:54:57 -0800 (PST)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linus Torvalds <torvalds@osdl.org>, Nicolas Pitre <nico@cam.org>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 00/10] mutex subsystem, -V5
-In-Reply-To: <20051222213902.GA32433@elte.hu>
-Message-ID: <Pine.LNX.4.62.0512221349290.9324@schroedinger.engr.sgi.com>
-References: <20051222153717.GA6090@elte.hu> <Pine.LNX.4.64.0512221134150.26663@localhost.localdomain>
- <Pine.LNX.4.64.0512220941320.4827@g5.osdl.org>
- <Pine.LNX.4.62.0512221003540.7992@schroedinger.engr.sgi.com>
- <20051222213902.GA32433@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Dec 2005 16:56:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=nOKZCC3lJ9G+7vIrvxY6m76yn9/nx+USU1okULbHev6d/Voj2TmJc7VAFuw1wwUacXGmNPc8yhomcdomcs9CmqWSM7oK6u5cn+qondR/LtQbUKFiasOX+w71ls6uUX6/C9f4ySbXwKuxNMZJYZv+SZSNKF0K842Yfa11kXghPMQ=
+Date: Fri, 23 Dec 2005 01:12:25 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] serpent: fix endian warnings
+Message-ID: <20051222221225.GC16883@mipter.zuzino.mipt.ru>
+References: <20051222101523.GP27946@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051222101523.GP27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Dec 2005, Ingo Molnar wrote:
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-> > I would like some more flexible way of dealing with locks in general. 
-> > The code for the MUTEXes seems to lock us into a specific way of 
-> > realizing locks again.
-> 
-> yeah, but we should be careful where to put it: the perfect place for 
-> most of these features and experiments is in the _generic_ code, not in 
-> arch-level code! Look at how we are doing it with spinlocks. It used to 
-> be a nightmare that every arch had to implement preempt support, or 
-> spinlock debugging support, and they ended up not implementing these 
-> features at all, or only doing it partially.
+ crypto/serpent.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-I think we need to have the ability to modify things on both levels. There 
-needs to be a way to introduce f.e. a general HBO type locking algorithm 
-for all architectures. But then also a way for an arch to do special
-things that are strongly depending on a particular arch like relocating
-the actual storage location of a lock to a specially handled memory area.
+--- a/crypto/serpent.c
++++ b/crypto/serpent.c
+@@ -367,10 +367,10 @@ static int serpent_setkey(void *ctx, con
+ static void serpent_encrypt(void *ctx, u8 *dst, const u8 *src)
+ {
+ 	const u32
+-		*k = ((struct serpent_ctx *)ctx)->expkey,
+-		*s = (const u32 *)src;
+-	u32	*d = (u32 *)dst,
+-		r0, r1, r2, r3, r4;
++		*k = ((struct serpent_ctx *)ctx)->expkey;
++	const __le32 *s = (const __le32 *)src;
++	__le32	*d = (__le32 *)dst;
++	u32	r0, r1, r2, r3, r4;
+ 
+ /*
+  * Note: The conversions between u8* and u32* might cause trouble
+@@ -425,10 +425,10 @@ static void serpent_encrypt(void *ctx, u
+ static void serpent_decrypt(void *ctx, u8 *dst, const u8 *src)
+ {
+ 	const u32
+-		*k = ((struct serpent_ctx *)ctx)->expkey,
+-		*s = (const u32 *)src;
+-	u32	*d = (u32 *)dst,
+-		r0, r1, r2, r3, r4;
++		*k = ((struct serpent_ctx *)ctx)->expkey;
++	const __le32 *s = (const __le32 *)src;
++	__le32	*d = (__le32 *)dst;
++	u32	r0, r1, r2, r3, r4;
+ 
+ 	r0 = le32_to_cpu(s[0]);
+ 	r1 = le32_to_cpu(s[1]);
 
-> i definitely do not say that _everything_ should be generalized. That 
-> would be micromanaging things. But i definitely think there's an 
-> unhealthy amount of _under_ generalization in current Linux 
-> architectures, and i dont want the mutex subsystem to fall into that 
-> trap.
-
-The mutex implementation here is one implementation. There needs to be
-a generic way to replace this implementation with another in an arch
-independent way as well as the ability for an arch to modify low level
-elements necessary to optimize locks on a particular hardware.
-
-Then there is the common ground of low level mutexes with spinlocks. So 
-far spinlocks also work for semaphores. Now with the MUTEXes we have two 
-different locking mechanism that largely overlap in in functionality. In 
-the past one could simply replace the spinlock implementation, now one 
-also has to worry about MUTEXes.
-
-I wish we had some strategy to make all of this easier and gather common 
-elements together.

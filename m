@@ -1,52 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965040AbVLVC5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbVLVDn1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965040AbVLVC5z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 21:57:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbVLVC5z
+	id S1751197AbVLVDn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 22:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751198AbVLVDn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 21:57:55 -0500
-Received: from smtp103.plus.mail.mud.yahoo.com ([68.142.206.236]:13746 "HELO
-	smtp103.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965040AbVLVC5z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 21:57:55 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=IZ/olnohUlfugwfaTwXpGscmcSJTdj8ChfgH1gUtZSwe8mZS8vWVdCXsHERJwXr18m4EF6MwwUHo0ycKOpzFaUNFQrRZLigRWD6r4o10y1D+CflwJogh9FjhZ8y4frpIZca1f8q71+J6PM2LLbLnh5Sbol20ISUqR8ZfpmVFGRI=  ;
-Message-ID: <43AA162C.3000905@yahoo.com.au>
-Date: Thu, 22 Dec 2005 13:57:48 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Wed, 21 Dec 2005 22:43:27 -0500
+Received: from ns1.suse.de ([195.135.220.2]:26544 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751197AbVLVDn1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Dec 2005 22:43:27 -0500
+From: Neil Brown <neilb@suse.de>
+To: maneesh@in.ibm.com
+Date: Thu, 22 Dec 2005 14:43:12 +1100
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Jes Sorensen <jes@trained-monkey.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 0/8] mutex subsystem, ANNOUNCE
-References: <20051221155411.GA7243@elte.hu> <yq0irtiuxvv.fsf@jaguar.mkp.net> <43AA1134.7090704@yahoo.com.au>
-In-Reply-To: <43AA1134.7090704@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17322.8400.727405.522183@cse.unsw.edu.au>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH - 2.6.15-rc5-mm3] Allow sysfs attribute files to be pollable.
+In-Reply-To: message from Maneesh Soni on Wednesday December 21
+References: <17320.36949.269788.520946@cse.unsw.edu.au>
+	<20051221134901.GA19746@in.ibm.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: v[Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-
-> I wonder if you can record a maximum
-> cost per op? That would be more interesting than either average or
-> standard deviation.
+On Wednesday December 21, maneesh@in.ibm.com wrote:
+> > 
+> > It works like this:
+> >   Open the file
+> >   Read all the contents.
+> >   Call poll requesting POLLERR or POLLPRI (so select/exceptfds works)
+> >   When poll returns, close the file, and go to top of loop.
+> > 
 > 
+> I am no "poll/select" expert, but is reading the contents always a
+> requirement for "poll"? If not then probably it is not a good idea to 
+> put such rules.
 
-More interesting from a fairness point of view, I mean.
+You don't have to read the contents unless you want to know what is in
+the file.  You could just open the file and call 'poll' and wait for
+it to tell you something has happened.  However this isn't likely to
+be really useful.
+It isn't the 'something has happened' event that is particularly
+interesting.  It is the 'the state is now X' information that is
+interesting. 
+So you read the file to find out what the state is.  If that isn't the
+state you were looking for (or if you have finished responding to that
+state), you poll/select, and then try again.
 
--- 
-SUSE Labs, Novell Inc.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+> 
+> > Events are signaled by an object manager calling
+> >    sysfs_notify(kobj, dir, attr);
+> > 
+> > If the dir is non-NULL, it is used to find a subdirectory which
+> > contains the attribute (presumably created by sysfs_create_group).
+> > 
+> > This has a cost of one int  per attribute, one wait_queuehead per kobject,
+> > one int per open file.
+> > 
+> So, all the attribute files for a given kobject will use the same
+> wait queue? What happens if there are multiple attribute files 
+> polled for the same kobject.
+
+wait_queues are sharable.  Having one wait queue for a number of
+events can work quite well.
+
+Suppose a kobject has two (or more) attributes, and two processes poll on
+those attributes, one each.
+ When either attribute gets changed and sysfs_notify is called, both
+ of the processes will be woken up.  They will check if their
+ attribute of interest has changed.  If it has, the poll syscall will
+ return to userspace.  If it hasn't the process will just go to sleep
+ again.
+
+So, if a kobject has many attributes, and there are many concurrent
+processes listening on different attributes, then sharing a wait_queue
+may cause a lot of needly wakeup/return-to-sleep events.  But it is
+fairly unlikely.
+wait_queues are not tiny, and having one per kobject is more
+economical than one per attribute.
+
+I hope that helps.
+
+> > diff ./fs/sysfs/inode.c~current~ ./fs/sysfs/inode.c
+> > --- ./fs/sysfs/inode.c~current~	2005-12-21 09:43:51.000000000 +1100
+> > +++ ./fs/sysfs/inode.c	2005-12-21 09:43:52.000000000 +1100
+> > @@ -247,3 +247,23 @@ void sysfs_hash_and_remove(struct dentry
+> >  }
+> >  
+> >  
+> > +struct sysfs_dirent *sysfs_find(struct sysfs_dirent *dir, const char * name)
+> > +{
+> > +	struct sysfs_dirent * sd, * rv = NULL;
+> > +
+> > +	if (dir->s_dentry == NULL ||
+> > +	    dir->s_dentry->d_inode == NULL)
+> > +		return NULL;
+> > +
+> > +	down(&dir->s_dentry->d_inode->i_sem);
+> > +	list_for_each_entry(sd, &dir->s_children, s_sibling) {
+> > +		if (!sd->s_element)
+> > +			continue;
+> > +		if (!strcmp(sysfs_get_name(sd), name)) {
+> > +			rv = sd;
+> > +			break;
+> > +		}
+> > +	}
+> > +	up(&dir->s_dentry->d_inode->i_sem);
+> > +	return rv;
+> > +}
+> 
+> I think there might be some issues here, if some other thread wants to
+> remove the kobject, while this thread is trying to notify. Testing
+> with some parallel add/delete operations should tell.
+
+My idea - which I thought I had stuck in a comment, but apparently not
+- is that the owner of the kobject should have it's own locking to
+ensure that it doesn't go away while the sysfs_notify is being
+called (md does in the places where it calls sysfs_notify).
+I guess it makes sense to make sysfs_notify safe against object owners
+doing silly things, but it wasn't clear to me either how, or that it
+was necessary.
+> 
+> In this case IMO, the better option is to do just lookup_one_len(), get
+> the dentry and then get the sysfs_dirent as dentry->d_fsdata. And once
+> done, do dput() which will release the references taken.
+
+You may well be right.  I'll try and see what happens.
+
+> 
+> I think its time to queue a sysfs locking document in my todo list ;-)
+> 
+That would be nice :-)
+
+Thanks for your input.
+
+NeilBrown

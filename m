@@ -1,49 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965147AbVLVNTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965148AbVLVNVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965147AbVLVNTk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 08:19:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbVLVNTk
+	id S965148AbVLVNVx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 08:21:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965150AbVLVNVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 08:19:40 -0500
-Received: from math.ut.ee ([193.40.36.2]:55244 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S965147AbVLVNTj (ORCPT
+	Thu, 22 Dec 2005 08:21:53 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:26580 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S965148AbVLVNVx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 08:19:39 -0500
-Date: Thu, 22 Dec 2005 15:19:33 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
-In-Reply-To: <20051222130744.GA31339@flint.arm.linux.org.uk>
-Message-ID: <Pine.SOC.4.61.0512221516580.18164@math.ut.ee>
-References: <1134573803.25663.35.camel@localhost.localdomain>
- <20051214160700.7348A14BEA@rhn.tartu-labor> <20051214172445.GF7124@flint.arm.linux.org.uk>
- <Pine.SOC.4.61.0512212221310.651@math.ut.ee> <20051221221516.GK1736@flint.arm.linux.org.uk>
- <Pine.SOC.4.61.0512221231430.6200@math.ut.ee> <20051222130744.GA31339@flint.arm.linux.org.uk>
+	Thu, 22 Dec 2005 08:21:53 -0500
+Message-ID: <43AABA29.6948B18B@tv-sign.ru>
+Date: Thu, 22 Dec 2005 17:37:29 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Daniel Walker <dwalker@mvista.com>
+Cc: mingo@elte.hu, tglx@linutronix.de, inaky.perez-gonzalez@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 01/02] RT: add back plist docs
+References: <1135202200.22970.12.camel@localhost.localdomain>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I notice you're using gcc 4.0.3.  Have you tried other compiler
-> versions?
+Daniel Walker wrote:
+>
+> 	Add back copyrights, documentation, and function descriptions.
 
-Will try 3.3.
+Thank you for doing that!
 
-> Are you building the kernel with any additional compiler flags?
+> + * This is a priority-sorted list of nodes; each node has a >= 0
+> + * priority from 0 (highest) to INT_MAX (lowest).
 
-No.
+Why >= 0 ? ->prio is just integer, it can be < 0.
 
-> Are there any other patches applied to the 8250.c file apart from my
-> debugging patch?  What's the diff between a vanilla Linus kernel and
-> the one you built?
+                                                     The list itself has
+> + * a priority too (the highest of all the nodes), stored in the head
+> + * of the list (that is a node itself).
 
-Clean uptodate -git tree + your patch + BUG_ON
+No, the head is not a node, and does not have ->prio field. It is easy
+to get plist's priority:
 
-Also have seen this on many earlier kernels that were 100% vanilla.
+	plist_empty(head) ? INT_MAX // or 0?
+		: plist_last(head)->prio
 
-Both machines having the trouble have kernels that are compiled on this 
-specific host and with this specific controller.
+> + * INT_MIN is the highest priority, 0 is the medium highest, INT_MAX
+> + * is lowest priority.
 
--- 
-Meelis Roos (mroos@linux.ee)
+This is right, but contradicts with 'each node has a >= 0 priority' above.
+
+Actually I don't understand why should we talk about min/max at all.
+plist is sorted by ->prio which is integer. That's all.
+
+> + * plist_add - add @node to @head returns !0 if the plist prio changed, 0
+> + * otherwise. XXX: Fix return code.
+> + *
+> + * @node:	&struct pl_node pointer
+> + * @head:	&struct pl_head pointer
+> + */
+>  void plist_add(struct pl_node *node, struct pl_head *head)
+>  {
+>  	struct pl_node *iter;
+> @@ -25,6 +48,12 @@ eq_prio:
+>  	list_add_tail(&node->plist.node_list, &iter->plist.node_list);
+>  }
+
+> +/**
+> + * plist_del - Remove a @node from plist. returns !0 if the plist prio
+> + * changed, 0 otherwise. XXX: Fix return code.
+> + *
+> + * @node:	&struct pl_node pointer
+> + */
+>  void plist_del(struct pl_node *node)
+>  {
+>  	if (!list_empty(&node->plist.prio_list)) {
+
+Both of them have 'void' return type.
+
+Oleg.

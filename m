@@ -1,118 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030319AbVLVVFj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbVLVVGm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030319AbVLVVFj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 16:05:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030320AbVLVVFj
+	id S1030320AbVLVVGm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 16:06:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030321AbVLVVGm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 16:05:39 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:52639 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030319AbVLVVFi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 16:05:38 -0500
-Date: Thu, 22 Dec 2005 22:04:46 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Nicolas Pitre <nico@cam.org>, Christoph Hellwig <hch@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-Message-ID: <20051222210446.GA16092@elte.hu>
-References: <20051222114147.GA18878@elte.hu> <20051222115329.GA30964@infradead.org> <Pine.LNX.4.64.0512221025070.26663@localhost.localdomain> <20051222154012.GA6284@elte.hu> <Pine.LNX.4.64.0512221113560.26663@localhost.localdomain> <20051222164415.GA10628@elte.hu> <20051222165828.GA5268@flint.arm.linux.org.uk>
-Mime-Version: 1.0
+	Thu, 22 Dec 2005 16:06:42 -0500
+Received: from cpc2-lanc3-5-1-cust221.brig.cable.ntl.com ([86.14.33.221]:34265
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1030320AbVLVVGm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 16:06:42 -0500
+Date: Thu, 22 Dec 2005 21:06:28 +0000
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andy Whitcroft <apw@shadowen.org>, greg@kroah.com, mbligh@google.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com
+Subject: [PATCH] pci device ensure sysdata initialised
+Message-ID: <20051222210628.GA16797@shadowen.org>
+References: <20051220151609.565160d9.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051222165828.GA5268@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+InReply-To: <20051220151609.565160d9.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+pci device ensure sysdata initialised
 
-* Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+[Ok, here is a patch to ensure sysdata is valid for all busses.]
 
-> > but couldnt you implement atomic_dec_return() with the ll/sc 
-> > instructions? Something like:
-> > 
-> > repeat:
-> >        ldrex   r1, [r0]
-> >        sub     r1, r1, #1
-> >        strex   r2, r1, [r0]
-> >        orrs    r0, r2, r1
-> >        jneq    repeat
-> > 
-> > (shot-in-the-dark guess at ARMv6 assembly)
-> 
-> atomic_dec_return() would be:
-> 
-> 1:	ldrex	r1, [r0]
-> 	sub	r1, r1, #1
-> 	strex	r2, r1, [r0]
-> 	teq	r2, #0
-> 	bne	1b
-> 	@ result in r1
-> 
-> But that's not really the main point Nico's making.  Yes, on ARMv6 
-> there is little difference.  However, ARMv6 is _not_ mainstream yet.  
-> The previous generation which do not have this is currently 
-> mainstream.
+We have been seeing panic's on NUMA systems in pci_call_probe() in
+2.6.15-rc5-mm2 and -mm3.  It seems that some changes have occured
+to the meaning of the 'sysdata' for a device such that it is no
+longer just an integer containing the node, it is now a structure
+containing the node and other data.  However, it seems that we do not
+always initialise this sysdata before we probe the device.
 
-i think there is some miscommunication here. I am actually on your side, 
-and i spent all my day enabling the best mutex variant on both the v5 
-and v6 version of your CPU. What we were doing was to discuss the 
-details of getting there. So dont shoot the messenger, ok?
+Below are three examples from a boot with this checked for.
+The attached patch ensures that we supply a valid sysdata for system
+busses.  Currently we take no account of the node for this bus for
+no ACPI configured systems.  This is unchanged from the -mm1 code.
 
-This is Nico's point i replied to:
+	Intel(R) PRO/1000 Network Driver - version 6.1.16-k2
+	Copyright (c) 1999-2005 Intel Corporation.
+	pci_call_probe: starting drv<c03d4be0> dev<dfd16800> id<c03d4734>
+	pci_call_probe: dev->bus<dfce6800>
+	pci_call_probe: dev->bus->sysdata<00000000>
+	pci_call_probe: node<-1>
+	e1000: eth0: e1000_probe: Intel(R) PRO/1000 Network Connection
 
-> > [...] on ARMv6 at least this can be improved even further, but a
-> > special implementation which is neither a fully qualified atomic
-> > decrement nor an atomic swap is needed. [...]
+	pci_call_probe: starting drv<c03ef220> dev<dfd17400> id<c03eed00>
+	pci_call_probe: dev->bus<dfce6800>
+	pci_call_probe: dev->bus->sysdata<00000000>
+	pci_call_probe: node<-1>
+	Linux Tulip driver version 1.1.13 (December 15, 2004)
+	input: AT Translated Set 2 keyboard as /class/input/input0
+	tulip0:  EEPROM default media type Autosense.
+	tulip0:  Index #0 - Media 10baseT (#0) described by a
+		21140 non-MII (0) block.
+	tulip0:  Index #1 - Media 100baseTx (#3) described by a
+		21140 non-MII (0) block.
+	tulip0:  Index #2 - Media 10baseT-FDX (#4) described by a
+		21140 non-MII (0) block.
+	tulip0:  Index #3 - Media 100baseTx-FDX (#5) described by a
+		21140 non-MII (0) block.
+	eth1: Digital DS21140 Tulip rev 33 at 0001fc00,
+		00:00:BC:0F:08:96, IRQ 28.
 
-and this was my reply:
+	pci_call_probe: starting drv<c040a360> dev<dfd14400> id<c040a0fc>
+	pci_call_probe: dev->bus<dfce6600>
+	pci_call_probe: dev->bus->sysdata<dfffafa0>
+	pci_call_probe: node<0>
+	qla1280: QLA1040 found on PCI bus 0, dev 11
 
-> i'm curious, how would this ARMv6 solution look like, and what would 
-> be the advantages over the atomic swap based variant?
-
-to which Nico replied with an ll/sc implementation, which very much 
-looked like atomic_dec_return(). That's all i said. Nobody is trying to
-shut out anything from anywhere, and certainly not me. I am _enabling_
-your stuff. I'm just trying to find the most maintainable and still most 
-flexible solution.
-
-> Nico's point still stands though - and I'd like to ask a more direct 
-> question.  There is an efficient implementation for ARMv5 CPUs which 
-> it appears we're being denied the ability to use.
-
-do you realize that i've enabled this efficient implementation via 
-CONFIG_MUTEX_XCHG_ALGORITHM? Do you realize that you _dont_ have to use 
-extremely heavy IRQ-disabling ops on ARM to enable mutexes? Do you 
-realize that what we are down to now are 1-2 instructions of 
-differences?
-
-The discussion was not about ARMv5 at all. The discussion was about the 
-claim that 'ARMv6 is somehow magical that it needs its own stuff'. No it 
-isnt magical, it's a sane CPU that can implement a sane 
-atomic_dec_return(), or even better, a sane atomic_*_call_if_*() 
-primitive. Or whatever primitive we end up having - i dont mind if it's 
-called __mutex_whatever, as long as it has a _well defined_ meaning.
-
-what i _DONT_ want is some over-opaque per-arch thing that will again 
-escallate into the same situation as semaphores: 23 different 
-implementations nobody is able to change at once, nobody is able to add 
-features or debugging to, and by today there's probably is no single 
-person on this planet who knows all 23 of them to begin with.
-
-if you sense me trying to avoid something then that's it: ambiguities in 
-the arch-level implementation, because they end up stiffling the generic 
-code.
-
-	Ingo
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+ arch/i386/pci/common.c |    2 ++
+ arch/i386/pci/fixup.c  |    8 +++++---
+ arch/i386/pci/legacy.c |    3 ++-
+ arch/i386/pci/numa.c   |    8 +++++---
+ arch/i386/pci/visws.c  |    4 ++--
+ include/asm-i386/pci.h |    1 +
+ 6 files changed, 17 insertions(+), 9 deletions(-)
+diff -upN reference/arch/i386/pci/common.c current/arch/i386/pci/common.c
+--- reference/arch/i386/pci/common.c
++++ current/arch/i386/pci/common.c
+@@ -29,6 +29,8 @@ unsigned long pirq_table_addr;
+ struct pci_bus *pci_root_bus;
+ struct pci_raw_ops *raw_pci_ops;
+ 
++struct pci_sysdata pci_default_sysdata = { .node = -1 };
++
+ static int pci_read(struct pci_bus *bus, unsigned int devfn, int where, int size, u32 *value)
+ {
+ 	return raw_pci_ops->read(pci_domain_nr(bus), bus->number,
+diff -upN reference/arch/i386/pci/fixup.c current/arch/i386/pci/fixup.c
+--- reference/arch/i386/pci/fixup.c
++++ current/arch/i386/pci/fixup.c
+@@ -25,9 +25,11 @@ static void __devinit pci_fixup_i450nx(s
+ 		pci_read_config_byte(d, reg++, &subb);
+ 		DBG("i450NX PXB %d: %02x/%02x/%02x\n", pxb, busno, suba, subb);
+ 		if (busno)
+-			pci_scan_bus(busno, &pci_root_ops, NULL);	/* Bus A */
++			pci_scan_bus(busno, &pci_root_ops,
++					&pci_default_sysdata);	/* Bus A */
+ 		if (suba < subb)
+-			pci_scan_bus(suba+1, &pci_root_ops, NULL);	/* Bus B */
++			pci_scan_bus(suba+1, &pci_root_ops,
++					&pci_default_sysdata);	/* Bus B */
+ 	}
+ 	pcibios_last_bus = -1;
+ }
+@@ -42,7 +44,7 @@ static void __devinit pci_fixup_i450gx(s
+ 	u8 busno;
+ 	pci_read_config_byte(d, 0x4a, &busno);
+ 	printk(KERN_INFO "PCI: i440KX/GX host bridge %s: secondary bus %02x\n", pci_name(d), busno);
+-	pci_scan_bus(busno, &pci_root_ops, NULL);
++	pci_scan_bus(busno, &pci_root_ops, &pci_default_sysdata);
+ 	pcibios_last_bus = -1;
+ }
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82454GX, pci_fixup_i450gx);
+diff -upN reference/arch/i386/pci/legacy.c current/arch/i386/pci/legacy.c
+--- reference/arch/i386/pci/legacy.c
++++ current/arch/i386/pci/legacy.c
+@@ -26,7 +26,8 @@ static void __devinit pcibios_fixup_peer
+ 			    l != 0x0000 && l != 0xffff) {
+ 				DBG("Found device at %02x:%02x [%04x]\n", n, devfn, l);
+ 				printk(KERN_INFO "PCI: Discovered peer bus %02x\n", n);
+-				pci_scan_bus(n, &pci_root_ops, NULL);
++				pci_scan_bus(n, &pci_root_ops, 
++						&pci_default_sysdata);
+ 				break;
+ 			}
+ 		}
+diff -upN reference/arch/i386/pci/numa.c current/arch/i386/pci/numa.c
+--- reference/arch/i386/pci/numa.c
++++ current/arch/i386/pci/numa.c
+@@ -97,9 +97,11 @@ static void __devinit pci_fixup_i450nx(s
+ 		pci_read_config_byte(d, reg++, &subb);
+ 		DBG("i450NX PXB %d: %02x/%02x/%02x\n", pxb, busno, suba, subb);
+ 		if (busno)
+-			pci_scan_bus(QUADLOCAL2BUS(quad,busno), &pci_root_ops, NULL);	/* Bus A */
++			pci_scan_bus(QUADLOCAL2BUS(quad,busno), &pci_root_ops,
++					&pci_default_sysdata);	/* Bus A */
+ 		if (suba < subb)
+-			pci_scan_bus(QUADLOCAL2BUS(quad,suba+1), &pci_root_ops, NULL);	/* Bus B */
++			pci_scan_bus(QUADLOCAL2BUS(quad,suba+1), &pci_root_ops,
++					&pci_default_sysdata);	/* Bus B */
+ 	}
+ 	pcibios_last_bus = -1;
+ }
+@@ -124,7 +126,7 @@ static int __init pci_numa_init(void)
+ 			printk("Scanning PCI bus %d for quad %d\n", 
+ 				QUADLOCAL2BUS(quad,0), quad);
+ 			pci_scan_bus(QUADLOCAL2BUS(quad,0), 
+-				&pci_root_ops, NULL);
++				&pci_root_ops, &pci_default_sysdata);
+ 		}
+ 	return 0;
+ }
+diff -upN reference/arch/i386/pci/visws.c current/arch/i386/pci/visws.c
+--- reference/arch/i386/pci/visws.c
++++ current/arch/i386/pci/visws.c
+@@ -102,8 +102,8 @@ static int __init pcibios_init(void)
+ 		"bridge B (PIIX4) bus: %u\n", pci_bus1, pci_bus0);
+ 
+ 	raw_pci_ops = &pci_direct_conf1;
+-	pci_scan_bus(pci_bus0, &pci_root_ops, NULL);
+-	pci_scan_bus(pci_bus1, &pci_root_ops, NULL);
++	pci_scan_bus(pci_bus0, &pci_root_ops, &pci_default_sysdata);
++	pci_scan_bus(pci_bus1, &pci_root_ops, &pci_default_sysdata);
+ 	pci_fixup_irqs(visws_swizzle, visws_map_irq);
+ 	pcibios_resource_survey();
+ 	return 0;
+diff -upN reference/include/asm-i386/pci.h current/include/asm-i386/pci.h
+--- reference/include/asm-i386/pci.h
++++ current/include/asm-i386/pci.h
+@@ -9,6 +9,7 @@ struct pci_sysdata {
+ 	int		domain;		/* PCI domain */
+ 	int		node;		/* NUMA node */
+ };
++extern struct pci_sysdata pci_default_sysdata;
+ 
+ #ifdef CONFIG_PCI_DOMAINS
+ static inline int pci_domain_nr(struct pci_bus *bus)

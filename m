@@ -1,84 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030216AbVLVPmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbVLVPlc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030216AbVLVPmK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 10:42:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030212AbVLVPmG
+	id S1030225AbVLVPlc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 10:41:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030220AbVLVPl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 10:42:06 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:4583 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030216AbVLVPle (ORCPT
+	Thu, 22 Dec 2005 10:41:26 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:49560 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751223AbVLVPip (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 10:41:34 -0500
-Message-ID: <43AAC854.6020608@redhat.com>
-Date: Thu, 22 Dec 2005 10:37:56 -0500
-From: William Cohen <wcohen@redhat.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Stephane Eranian <eranian@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, perfmon@napali.hpl.hp.com,
-       linux-ia64@vger.kernel.org, perfctr-devel@lists.sourceforge.net
-Subject: Re: [Perfctr-devel] Re: quick overview of the perfmon2 interface
-References: <20051219113140.GC2690@frankl.hpl.hp.com> <20051220025156.a86b418f.akpm@osdl.org> <20051222115632.GA8773@frankl.hpl.hp.com> <20051222120558.GA31303@infradead.org>
-In-Reply-To: <20051222120558.GA31303@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Dec 2005 10:38:45 -0500
+Date: Thu, 22 Dec 2005 16:38:03 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [patch 06/10] mutex subsystem, documentation
+Message-ID: <20051222153803.GG6090@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Thu, Dec 22, 2005 at 03:56:32AM -0800, Stephane Eranian wrote:
-> 
->>reason:
->>	- allow support of existing kernel profiling infratructures such as
->>	  Oprofile or VTUNE (the VTUNE driver is open-source)
-> 
-> 
-> last time I checked it was available in source, but not under an open-source
-> license.  has this changed?  In either case intel should contribute to the
-> kernel profiling infrastructure instead of doing their own thing.  Supporting
-> people to do their own private variant is always a bad thing.
+Add mutex-design.txt.
 
-Both OProfile and PAPI are open source and could use such an performance 
-monitoring interface.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-One of the problems right now is there is a patchwork of performance 
-monitoring support. Each instrumentation system has its own set of 
-drivers/patches. Few have support integrated into the kernel, e.g. 
-OProfile. However, the OProfile driver provides only a subset of the 
-performance monitoring support, system-wide sampling. The OProfile 
-driver doesn't allow per-thread monitoring or stopwatch style 
-measurement, which can be very useful for some performance monitoring 
-applications.
+----
+ Documentation/mutex-design.txt |  126 +++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 126 insertions(+)
 
-Having specific drivers for each performance monitoring program is not 
-the way to go. That is one of the reasons that people have problems 
-doing performance monitoring on Linux. Each performance monitoring 
-program has its own driver and/or set of patches to the kernel. Many 
-application programers are not in a position to patch the kernel and to 
-install the custom kernel on the machine so they can use performance 
-monitoring hardware. Not everyone has root access to the machine they 
-use, so they can  install and reboot a kernel of their choosing.
-
->>Let's take an example on Itanium. Take a user running a commercial distro
->>based on 2.6. This user is given early access to a Montecito machine.
-> 
-> 
-> That scenario is totally uninteresting for kernel development.  we want
-> to encourage people to use upstream kernels, and not the bastardized vendor
-> crap.
-
-Vendors don't want to provide "bastardized vendor crap" either. The 
-fewer patches in the vendor distributed kernels the better.
-
-> I think you're adding totally pointless complexity everywhere for such
-> scenarious because HP apparently cares for such vendor mess.  Maybe you
-> should concentrate on what's best for upstream kernel development.  And
-> the most important thing is to reduce complexity by at least one magnitude.
-
-Specifically what are the things that are "best for upstream kernel 
-development?" What are the things that should be eliminated "to reduce 
-complexity by at least one magnitude?"
-
--Will
+Index: linux/Documentation/mutex-design.txt
+===================================================================
+--- /dev/null
++++ linux/Documentation/mutex-design.txt
+@@ -0,0 +1,126 @@
++
++Generic Mutex Subsystem
++
++started by Ingo Molnar <mingo@redhat.com>
++
++  "Why on earth do we need a new mutex subsystem, and what's wrong
++   with semaphores?"
++
++firstly, there's nothing wrong with semaphores. But if the simpler
++mutex semantics are sufficient for your code, then there are a couple
++of advantages of mutexes:
++
++ - 'struct mutex' is smaller: on x86, 'struct semaphore' is 20 bytes,
++   'struct mutex' is 16 bytes. A smaller structure size means less RAM
++   footprint, and better CPU-cache utilization.
++
++ - tighter code. On x86 i get the following .text sizes when
++   switching all mutex-alike semaphores in the kernel to the mutex
++   subsystem:
++
++        text    data     bss     dec     hex filename
++     3280380  868188  396860 4545428  455b94 vmlinux-semaphore
++     3255329  865296  396732 4517357  44eded vmlinux-mutex
++
++   that's 25051 bytes of code saved, or a 0.76% win - off the hottest
++   codepaths of the kernel. (The .data savings are 2892 bytes, or 0.33%)
++   Smaller code means better icache footprint, which is one of the
++   major optimization goals in the Linux kernel currently.
++
++ - the mutex subsystem is slightly faster and has better scalability for
++   contented workloads. On an 8-way x86 system, running a mutex-based
++   kernel and testing creat+unlink+close (of separate, per-task files)
++   in /tmp with 16 parallel tasks, the average number of ops/sec is:
++
++    Semaphores:                        Mutexes:
++
++    $ ./test-mutex V 16 10             $ ./test-mutex V 16 10
++    8 CPUs, running 16 tasks.          8 CPUs, running 16 tasks.
++    checking VFS performance.          checking VFS performance.
++    avg loops/sec:      34713          avg loops/sec:      84153
++    CPU utilization:    63%            CPU utilization:    22%
++
++   i.e. in this workload, the mutex based kernel was 2.4 times faster
++   than the semaphore based kernel, _and_ it also had 2.8 times less CPU
++   utilization. (In terms of 'ops per CPU cycle', the semaphore kernel
++   performed 551 ops/sec per 1% of CPU time used, while the mutex kernel
++   performed 3825 ops/sec per 1% of CPU time used - it was 6.9 times
++   more efficient.)
++
++   the scalability difference is visible even on a 2-way P4 HT box:
++
++    Semaphores:                        Mutexes:
++
++    $ ./test-mutex V 16 10             $ ./test-mutex V 16 10
++    4 CPUs, running 16 tasks.          8 CPUs, running 16 tasks.
++    checking VFS performance.          checking VFS performance.
++    avg loops/sec:      127659         avg loops/sec:      181082
++    CPU utilization:    100%           CPU utilization:    34%
++
++   (the straight performance advantage of mutexes is 41%, the per-cycle
++    efficiency of mutexes is 4.1 times better.)
++
++ - there are no fastpath tradeoffs, the mutex fastpath is just as tight
++   as the semaphore fastpath. On x86, the locking fastpath is 2
++   instructions:
++
++    c0377ccb <mutex_lock>:
++    c0377ccb:       f0 ff 08                lock decl (%eax)
++    c0377cce:       78 0e                   js     c0377cde <.text.lock.mutex>
++    c0377cd0:       c3                      ret
++
++   the unlocking fastpath is equally tight:
++
++    c0377cd1 <mutex_unlock>:
++    c0377cd1:       f0 ff 00                lock incl (%eax)
++    c0377cd4:       7e 0f                   jle    c0377ce5 <.text.lock.mutex+0x7>
++    c0377cd6:       c3                      ret
++
++ - 'struct mutex' semantics are well-defined and are enforced if
++   CONFIG_DEBUG_MUTEXES is turned on. Semaphores on the other hand have
++   virtually no debugging code or instrumentation. The mutex subsystem
++   checks and enforces the following rules:
++
++   * - only one task can hold the mutex at a time
++   * - only the owner can unlock the mutex
++   * - multiple unlocks are not permitted
++   * - recursive locking is not permitted
++   * - a mutex object must be initialized via the API
++   * - a mutex object must not be initialized via memset or copying
++   * - task may not exit with mutex held
++   * - memory areas where held locks reside must not be freed
++   * - held mutexes must not be reinitialized
++   * - mutexes may not be used in irq contexts
++
++   furthermore, there are also convenience features in the debugging
++   code:
++
++   * - uses symbolic names of mutexes, whenever they are printed in debug output
++   * - point-of-acquire tracking, symbolic lookup of function names
++   * - list of all locks held in the system, printout of them
++   * - owner tracking
++   * - detects self-recursing locks and prints out all relevant info
++   * - detects multi-task circular deadlocks and prints out all affected
++   *   locks and tasks (and only those tasks)
++
++Implementation of mutexes
++-------------------------
++
++'struct mutex' is the new mutex type, defined in include/linux/mutex.h
++and implemented in kernel/mutex.c. It is a counter-based mutex with a
++spinlock and a wait-list. The counter has 3 states: 1 for "unlocked",
++0 for "locked" and negative numbers (usually -1) for "locked, potential
++waiters queued".
++
++the APIs of 'struct mutex' have been streamlined:
++
++ DEFINE_MUTEX(name);
++
++ mutex_init(mutex);
++
++ void mutex_lock(struct mutex *lock);
++ int  mutex_lock_interruptible(struct mutex *lock);
++ int  mutex_trylock(struct mutex *lock);
++ void mutex_unlock(struct mutex *lock);
++ int  mutex_is_locked(struct mutex *lock);
++

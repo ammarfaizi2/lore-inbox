@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030278AbVLVV1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030282AbVLVV2d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030278AbVLVV1s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 16:27:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbVLVV1s
+	id S1030282AbVLVV2d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 16:28:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030289AbVLVV2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 16:27:48 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:45792 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1030278AbVLVV1r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 16:27:47 -0500
-Date: Thu, 22 Dec 2005 16:27:46 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-In-reply-to: <20051222210446.GA16092@elte.hu>
-X-X-Sender: nico@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>
-Message-id: <Pine.LNX.4.64.0512221613010.26663@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20051222114147.GA18878@elte.hu>
- <20051222115329.GA30964@infradead.org>
- <Pine.LNX.4.64.0512221025070.26663@localhost.localdomain>
- <20051222154012.GA6284@elte.hu>
- <Pine.LNX.4.64.0512221113560.26663@localhost.localdomain>
- <20051222164415.GA10628@elte.hu>
- <20051222165828.GA5268@flint.arm.linux.org.uk> <20051222210446.GA16092@elte.hu>
+	Thu, 22 Dec 2005 16:28:33 -0500
+Received: from uproxy.gmail.com ([66.249.92.204]:3598 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030282AbVLVV2c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 16:28:32 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=nufvJY45u9QnTTdpe7oMXShGc1Mid9BjUC63Z5j692DSs3RK4UJafcI0/hgjC9ZdiNNbCShDfMK5/0ba6T1YjIs6XhCefpsYAEc3c7BTUFnMyN0T+t8Zp1U8lGV799fSMa2OCYsx7WsSmVP59MtPq1hl8738s8kZ46akYt424l8=
+Date: Fri, 23 Dec 2005 00:42:35 +0300
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, Paul Clements <Paul.Clements@steeleye.com>
+Subject: nbd: add endian annotations
+Message-ID: <20051222214235.GA16883@mipter.zuzino.mipt.ru>
+References: <20051222101523.GP27946@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051222101523.GP27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Dec 2005, Ingo Molnar wrote:
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 
-> The discussion was not about ARMv5 at all. The discussion was about the 
-> claim that 'ARMv6 is somehow magical that it needs its own stuff'. No it 
-> isnt magical, it's a sane CPU that can implement a sane 
-> atomic_dec_return(), or even better, a sane atomic_*_call_if_*() 
-> primitive. Or whatever primitive we end up having - i dont mind if it's 
-> called __mutex_whatever, as long as it has a _well defined_ meaning.
+--- a/include/linux/nbd.h
++++ b/include/linux/nbd.h
+@@ -68,11 +68,11 @@ struct nbd_device {
+  * server. All data are in network byte order.
+  */
+ struct nbd_request {
+-	u32 magic;
+-	u32 type;	/* == READ || == WRITE 	*/
++	__be32 magic;
++	__be32 type;	/* == READ || == WRITE 	*/
+ 	char handle[8];
+-	u64 from;
+-	u32 len;
++	__be64 from;
++	__be32 len;
+ }
+ #ifdef __GNUC__
+ 	__attribute__ ((packed))
+@@ -84,8 +84,8 @@ struct nbd_request {
+  * it has completed an I/O request (or an error occurs).
+  */
+ struct nbd_reply {
+-	u32 magic;
+-	u32 error;		/* 0 = ok, else error	*/
++	__be32 magic;
++	__be32 error;		/* 0 = ok, else error	*/
+ 	char handle[8];		/* handle you got from request	*/
+ };
+ #endif
 
-I'd like to point out that, while atomic_dec_call_if_* is really nice on 
-i386, it is probably only good for i386 since no other architecture 
-will be able to provide a better implementation than what can be done 
-with atomic_dec_return() anyway.  Yet that IMHO overloaded 
-atomic_dec_call_if_* stuff appears in core code.
-
-But like for i386, those other architectures might be able to do some 
-other tricks to achieve the same needed semantics.  My ARMv6 is one of 
-them (and no it doesn't strictly follows the semantics of 
-atomic_dec_call_if_*).  Are you willing to add more #if 
-defined(CONFIG_MUTEX_FOO_ALGO) in the core code as time goes by?  I hope 
-not.
-
-> what i _DONT_ want is some over-opaque per-arch thing that will again 
-> escallate into the same situation as semaphores: 23 different 
-> implementations nobody is able to change at once, nobody is able to add 
-> features or debugging to, and by today there's probably is no single 
-> person on this planet who knows all 23 of them to begin with.
-
-I agree completely with you.  But what I don't want is core code 
-needlessly restricting architecture specific implementation for short 
-and well defined fast paths.  Maybe that's where we must agree upon: a 
-well defined fast path helper for mutexes?
-
-
-Nicolas

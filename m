@@ -1,54 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932419AbVLVMwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964839AbVLVMxj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932419AbVLVMwt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 07:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932460AbVLVMwt
+	id S964839AbVLVMxj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 07:53:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbVLVMxj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 07:52:49 -0500
-Received: from murder.univie.ac.at ([131.130.1.183]:59614 "EHLO
-	imap1u.univie.ac.at") by vger.kernel.org with ESMTP id S932419AbVLVMws
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 07:52:48 -0500
-From: Axel Kittenberger <axel.kernel@kittenberger.net>
-Organization: =?iso-8859-1?q?Universit=E4t?= Wien
-To: linux-kernel@vger.kernel.org
-Subject: Possible Bootloader Optimization in inflate (get rid of unnecessary 32k Window)
-Date: Thu, 22 Dec 2005 13:52:23 +0100
-User-Agent: KMail/1.7.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Dec 2005 07:53:39 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:11729 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964839AbVLVMxi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 07:53:38 -0500
+Date: Thu, 22 Dec 2005 13:52:55 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 5/9] mutex subsystem, core
+Message-ID: <20051222125255.GA21661@elte.hu>
+References: <20051222114233.GF18878@elte.hu> <20051222115753.GB30964@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512221352.23393.axel.kernel@kittenberger.net>
+In-Reply-To: <20051222115753.GB30964@infradead.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Whom do I talk to about acceptance of Patches in the Bootloader?
 
-I have seen, and coded once some time ago for priv. uses, do infalte the 
-gziped linux kernel at boottime in "arch/i386/boot/compressed/misc.c" and " 
-windowlib/inflate.c" the deflation algorthimn uses a 32k backtrack window. 
-Whenever it is full, it copies it .... into the memory. 
+* Christoph Hellwig <hch@infradead.org> wrote:
 
-While this window makes a lot of sense in an userspace application like 
-gunzip, it does not make a lot sense in the bootloader. As userspace 
-application the window is flushed to a file when full. The bootloader 
-"flushes" it to memory (copies it in memory). That 1 time copy of the whole 
-kernel can be optimized away, since we do not keep track of a window since 
-the inflater can read what it has written right in the computer memory, while 
-it unpacks the kernel.
+> > +#include <linux/config.h>
+> 
+> we don't need config.h anymore, it's included implicitly now.
 
-What would the optimization be worth? 
-* A faster uncompressing of the kernel, since a total 1-time memcopy of the 
-whole kernel is been optimized away.
-* I'm not sure about the size, the memory or disk footprint. If the 32k static 
-(!) memory array in compressed/misc.c, I don't know if it safes 32k running 
-memory, or 32k on-disk size. Since I don't know the indepth working of these.
+thanks, fixed.
 
-Before I code this again (I know that this optimization has worked with a 2.4 
-kernel), I want to ask, would such patch be accepted? now or once ever? who 
-should I forward this?
+> > +#include <asm/atomic.h>
+> 
+> Any chance we could include this after the <linux/*.h> headers ?
 
-Greetings,
-Axel
+done.
+
+> > +#include <linux/spinlock_types.h>
+> 
+> What do we need this one for?
+
+for:
+
+        spinlock_t              wait_lock;
+
+> > +struct mutex {
+> > +	// 1: unlocked, 0: locked, negative: locked, possible waiters
+> 
+> please use /* */ comments.
+
+done.
+
+> 
+> > +	atomic_t		count;
+> > +	spinlock_t		wait_lock;
+> > +	struct list_head	wait_list;
+> > +#ifdef CONFIG_DEBUG_MUTEXES
+> > +	struct thread_info	*owner;
+> > +	struct list_head	held_list;
+> > +	unsigned long		acquire_ip;
+> > +	const char 		*name;
+> > +	void			*magic;
+> > +#endif
+> > +};
+> 
+> I know we generally don't like typedefs, but mutex is like spinlocks 
+> one of those cases where the internals should be completely opaqueue, 
+> so a mutex_t sounds like a good idea.
+
+yeah, but we have DEFINE_MUTEX ...
+
+> > +#include <linux/syscalls.h>
+> 
+> What do you we need this header for?
+
+correct, fixed.
+
+> > +static inline void __mutex_lock_atomic(struct mutex *lock)
+> > +{
+> > +#ifdef __ARCH_WANT_XCHG_BASED_ATOMICS
+> > +	if (unlikely(atomic_xchg(&lock->count, 0) != 1))
+> > +		__mutex_lock_noinline(&lock->count);
+> > +#else
+> > +	atomic_dec_call_if_negative(&lock->count, __mutex_lock_noinline);
+> > +#endif
+> > +}
+> 
+> this is the kind of thing I meant in the comment to the announcement.
+
+i've solved that via the CONFIG_MUTEX_XCHG_ALGORITHM switch. It's more 
+maintainable than 23 asm-*/mutex.h's.
+
+> Just having this in arch code would kill all these ifdefs over mutex.c
+
+it's exactly 3 #ifdefs.
+
+	Ingo

@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbVLVMpv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932471AbVLVMs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932429AbVLVMpv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 07:45:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932471AbVLVMpu
+	id S932471AbVLVMs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 07:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbVLVMs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 07:45:50 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:42884 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932429AbVLVMpu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 07:45:50 -0500
-Date: Thu, 22 Dec 2005 13:45:06 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>, lkml <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-Message-ID: <20051222124506.GB21239@elte.hu>
-References: <20051222114147.GA18878@elte.hu> <20051222115329.GA30964@infradead.org>
-Mime-Version: 1.0
+	Thu, 22 Dec 2005 07:48:29 -0500
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:44484
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S932471AbVLVMs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 07:48:28 -0500
+Date: Thu, 22 Dec 2005 04:45:13 -0800
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Joe Korty <joe.korty@ccur.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Andrew Morton <akpm@osdl.org>, linux-arch@vger.kernel.org,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>, matthew@wil.cx,
+       arjan@infradead.org, Christoph Hellwig <hch@infradead.org>,
+       mingo@elte.hu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       nikita@clusterfs.com, pj@sgi.com, dhowells@redhat.com
+Subject: Re: [PATCH 1/19] MUTEX: Introduce simple mutex implementation
+Message-ID: <20051222124513.GC14633@gnuppy.monkey.org>
+References: <Pine.LNX.4.64.0512161339140.3698@g5.osdl.org> <1134770778.2806.31.camel@tglx.tec.linutronix.de> <Pine.LNX.4.64.0512161414370.3698@g5.osdl.org> <1134772964.2806.50.camel@tglx.tec.linutronix.de> <Pine.LNX.4.64.0512161439330.3698@g5.osdl.org> <20051217002929.GA7151@tsunami.ccur.com> <Pine.LNX.4.64.0512161647570.3698@g5.osdl.org> <Pine.LNX.4.58.0512162211320.6498@gandalf.stny.rr.com> <Pine.LNX.4.64.0512162323140.3698@g5.osdl.org> <20051222124027.GB14633@gnuppy.monkey.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051222115329.GA30964@infradead.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20051222124027.GB14633@gnuppy.monkey.org>
+User-Agent: Mutt/1.5.11
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 22, 2005 at 04:40:27AM -0800, Bill Huey wrote:
+> The current kernel mostly using traditional spinlocks doesn't have locking
+> complicated enough to warrant it. However, the -rt patch does create[s] a
+> circumstance where a fully preemptible [kernel] may sleep task with mutexes held create[ing]
+> [-and needs] [a need to] resolve priority inversions that results from it. That's of
 
-* Christoph Hellwig <hch@infradead.org> wrote:
+With corrections...
 
-> > Changes since -V3:
-> > 
-> > - imlemented an atomic_xchg() based mutex implementation. It integrated
-> >   pretty nicely into the generic code, and most of the code is still
-> >   shared.
-> > 
-> > - added __ARCH_WANT_XCHG_BASED_ATOMICS: if an architecture defines 
-> >   this then the generic mutex code will switch to the atomic_xchg() 
-> >   implementation.
-> > 
-> >   This should be conceptually equivalent to the variant Nicolas Pitre 
-> >   posted - Nicolas, could you check out this one? It's much easier to 
-> >   provide this in the generic implementation, and the code ends up 
-> >   looking cleaner.
-> > 
-> > - eliminated ARCH_IMPLEMENTS_MUTEX_FASTPATH: there's no need for 
-> >   architectures to override the generic code anymore, with the 
-> >   introduction of __ARCH_WANT_XCHG_BASED_ATOMICS.
-> > 
-> > - ARM: enable __ARCH_WANT_XCHG_BASED_ATOMICS.
-> 
-> I must admit I really really hat __ARCH_ stuff if we can avoid it. An 
-> <asm/mutex.h> that usually includes two asm-generic variants is 
-> probably a much better choice.
+Sorry, I meant a fully preemptive kernel has priority inversion as an
+inheritant property and needs to resolved using some kind of priority
+inheritance.
 
-agreed. In my tree i've changed it to CONFIG_MUTEX_XCHG_ALGORITHM, which 
-is selected by ARM in its Kconfig.
+> course assuming that priority is something that needs to be strictly
+> obeyed in this variant of the kernel with consideration to priority
+> inheritance.
 
-	Ingo
+bill
+

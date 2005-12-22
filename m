@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030246AbVLVSBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965024AbVLVSM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030246AbVLVSBm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 13:01:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030245AbVLVSBm
+	id S965024AbVLVSM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 13:12:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965172AbVLVSM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 13:01:42 -0500
-Received: from smtpout.mac.com ([17.250.248.88]:7927 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1030180AbVLVSBl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 13:01:41 -0500
-In-Reply-To: <43AACF77.9020206@sbcglobal.net>
-References: <43AACF77.9020206@sbcglobal.net>
-Mime-Version: 1.0 (Apple Message framework v746.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <496FC071-3999-4E23-B1A2-1503DCAB65C0@mac.com>
-Cc: LKML Kernel <linux-kernel@vger.kernel.org>, linux-fsdevel@vger.kernel.org,
-       legal@lists.gnumonks.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
-Date: Thu, 22 Dec 2005 13:01:28 -0500
-To: "Robert W. Fuller" <garbageout@sbcglobal.net>
-X-Mailer: Apple Mail (2.746.2)
+	Thu, 22 Dec 2005 13:12:56 -0500
+Received: from webmail.univie.ac.at ([131.130.1.47]:21734 "EHLO
+	webmail1.univie.ac.at") by vger.kernel.org with ESMTP
+	id S965024AbVLVSMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 13:12:55 -0500
+Message-ID: <1167.81.217.14.229.1135275158.squirrel@webmail.univie.ac.at>
+In-Reply-To: <20051222173704.GB23411@buici.com>
+References: <200512221352.23393.axel.kernel@kittenberger.net>
+    <20051222173704.GB23411@buici.com>
+Date: Thu, 22 Dec 2005 19:12:38 +0100 (CET)
+Subject: Re: Possible Bootloader Optimization in inflate (get rid of 
+     unnecessary 32k Window)
+From: "Axel Kittenberger" <axel.kittenberger@univie.ac.at>
+To: "Marc Singer" <elf@buici.com>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.5
+MIME-Version: 1.0
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec 22, 2005, at 11:08, Robert W. Fuller wrote:
-> Please see the following thread:
->
-> http://www.opensolaris.org/jive/thread.jspa?threadID=2132&tstart=0x
->
-> Sorry I didn't get around to reporting this sooner, but at least  
-> the guilty party has had plenty of time to fail to repent.
->
-> Regards,
->
-> Rob
+> Have you timed this operation?  I would predict that the time to copy
+> the kernel is nominal as compared the the time taken to perform the
+> decompression.
 
-This case looks about as black and white as it gets (although IANAL),  
-so I'm adding gpl-violations.org-legal to the CC list.
+In the current version it is defleated AND copied. The optimization would
+reduce it by 1 copy.
 
-Cheers,
-Kyle Moffett
-
---
-Unix was not designed to stop people from doing stupid things,  
-because that would also stop them from doing clever things.
-   -- Doug Gwyn
-
-
+Greetings, Axel

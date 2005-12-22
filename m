@@ -1,44 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbVLVX4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbVLVX6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751139AbVLVX4S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 18:56:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbVLVX4S
+	id S1751145AbVLVX6O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 18:58:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbVLVX6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 18:56:18 -0500
-Received: from hellhawk.shadowen.org ([80.68.90.175]:40721 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1751139AbVLVX4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 18:56:18 -0500
-Message-ID: <43AB3D15.2030303@shadowen.org>
-Date: Thu, 22 Dec 2005 23:56:05 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Thu, 22 Dec 2005 18:58:14 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:20401 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751145AbVLVX6N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 18:58:13 -0500
+Date: Thu, 22 Dec 2005 15:56:32 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 2/8] mutex subsystem, add asm-generic/mutex-[dec|xchg].h
+ implementations
+In-Reply-To: <20051222230451.GC13302@elte.hu>
+Message-ID: <Pine.LNX.4.64.0512221550290.14098@g5.osdl.org>
+References: <20051222230451.GC13302@elte.hu>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>, mbligh@google.com,
-       linux-kernel@vger.kernel.org, colpatch@us.ibm.com
-Subject: Re: [PATCH] pci device ensure sysdata initialised
-References: <20051220151609.565160d9.akpm@osdl.org> <20051222210628.GA16797@shadowen.org> <20051222231843.GB1943@kroah.com> <43AB3A1C.5070606@shadowen.org> <20051222235101.GA2826@kroah.com>
-In-Reply-To: <20051222235101.GA2826@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
 
-> Well, why not properly locate them?  That's my point :)
-> 
-> It seems you just put a default sysdata on a few places in the tree,
-> which fixed your boot problems.  I'm thinking that isn't fixing the root
-> issue here of not probing the pci devices properly on these boxes.  Does
-> that make more sense?
 
-I was thinking of doing that as a separate patch for the platforms I
-have access to.  But most of the hardcoded places are special cases for
-rather obscure hardware.
+On Fri, 23 Dec 2005, Ingo Molnar wrote:
+>
+> add the two generic mutex fastpath implementations.
 
-More tommorrow.
+Now this looks more like it. This is readable code without any #ifdef's in 
+the middle.
 
--apw
+Now the only #ifdef's seem to be for mutex debugging. Might it be 
+worthwhile to have a generic debugging, that just uses spinlocks and just 
+accept that it's going to be slow, but shared across absolutely all 
+architectures?
+
+Then you could have <linux/mutex.h> just doing a single
+
+	#ifdef CONFIG_MUTEX_DEBUG
+	# include <asm-generic/mutex-dbg.h>
+	#else
+	# include <asm/mutex.h>
+	#endif
+
+and have muted-dbg.h just contain prototypes (no point in inlining them, 
+they're going to be big anyway) and then have a 
+
+	obj$(CONFIG_MUTEX_DEBUG) += mutex-debug.c
+
+in the kernel/ subdirectory? That way you could _really_ have a clean 
+separation, with absolutely zero pollution of any architecture mess or 
+debugging #ifdef's in any implementation code.
+
+At that point I'd like to switch to mutexes just because the code is 
+cleaner!
+
+		Linus

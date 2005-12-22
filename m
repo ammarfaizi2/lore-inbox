@@ -1,108 +1,340 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030201AbVLVPhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbVLVPip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030201AbVLVPhu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 10:37:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbVLVPhu
+	id S1751156AbVLVPip (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 10:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbVLVPip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 10:37:50 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:22413 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1751117AbVLVPht
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 10:37:49 -0500
-To: Andrey Volkov <avolkov@varma-el.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       linuxppc-embedded@ozlabs.org
-Subject: Re: [RFC] genalloc != generic DEVICE memory allocator
-References: <43A98F90.9010001@varma-el.com>
-From: Jes Sorensen <jes@trained-monkey.org>
-Date: 22 Dec 2005 10:37:45 -0500
-In-Reply-To: <43A98F90.9010001@varma-el.com>
-Message-ID: <yq0d5jpuoqe.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
+	Thu, 22 Dec 2005 10:38:45 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:32664 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751156AbVLVPiT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 10:38:19 -0500
+Date: Thu, 22 Dec 2005 16:37:31 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [patch 01/10] mutex subsystem, add atomic_xchg() to all arches
+Message-ID: <20051222153730.GB6090@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andrey" == Andrey Volkov <avolkov@varma-el.com> writes:
+add atomic_xchg() to all the architectures. Needed by the new mutex code.
 
-Andrey> Hello Jes and all I try to use your allocator (gen_pool_xxx),
-Andrey> idea of which is a cute nice thing. But current implementation
-Andrey> of it is inappropriate for a _device_ (aka onchip, like
-Andrey> framebuffer) memory allocation, by next reasons:
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Andrey,
+----
 
-Keep in mind that genalloc was meant to be simple for basic memory
-allocations. It was never meant to be an over complex super high
-performance allocation mechanism.
+ include/asm-alpha/atomic.h     |    1 +
+ include/asm-arm/atomic.h       |    2 ++
+ include/asm-arm26/atomic.h     |    2 ++
+ include/asm-cris/atomic.h      |    2 ++
+ include/asm-frv/atomic.h       |    1 +
+ include/asm-h8300/atomic.h     |    2 ++
+ include/asm-i386/atomic.h      |    1 +
+ include/asm-ia64/atomic.h      |    1 +
+ include/asm-m32r/atomic.h      |    1 +
+ include/asm-m68k/atomic.h      |    1 +
+ include/asm-m68knommu/atomic.h |    1 +
+ include/asm-mips/atomic.h      |    1 +
+ include/asm-parisc/atomic.h    |    1 +
+ include/asm-powerpc/atomic.h   |    1 +
+ include/asm-s390/atomic.h      |    1 +
+ include/asm-sh/atomic.h        |    2 ++
+ include/asm-sh64/atomic.h      |    2 ++
+ include/asm-sparc/atomic.h     |    1 +
+ include/asm-sparc64/atomic.h   |    1 +
+ include/asm-v850/atomic.h      |    2 ++
+ include/asm-x86_64/atomic.h    |    1 +
+ include/asm-xtensa/atomic.h    |    1 +
+ 22 files changed, 29 insertions(+)
 
-Andrey>  1) Device memory is expensive resource by access time and/or
-Andrey> size cost.  So we couldn't use (usually) this memory for the
-Andrey> free blocks lists.
-
-This really is irrelevant, the space is only used within the object
-when it's on the free list. Ie. if all memory is handed out there's
-no space used for this purpose.
-
-Andrey> 3) Obvious (IMHO) workflow of mem. allocator
-Andrey> look like: - at startup time, driver allocate some big
-Andrey> (almost) static mem. chunk(s) for a control/data structures.
-Andrey> - during work of the device, driver allocate many small
-Andrey> mem. blocks with almost identical size.  such behavior lead to
-Andrey> degeneration of buddy method and transform it to the
-Andrey> first/best fit method (with long seek by the free node list).
-
-This is only really valid for network devices, and even then it's not
-quite so. For things like uncached allocations your observation is
-completely off.
-
-For the case of more traditional devices, the control structures will
-be allocated from one end of the block, the rest will be used for
-packet descriptors which will be going in and out of the memory pool
-on a regular basis. In most normal cases these will all be of the same
-size and it doesn't matter where in the memory space they were
-allocated.
-
-Andrey> 4) The simple binary buddy method is far away from perfect for
-Andrey> a device due to a big internal fragmentation. Especially for a
-Andrey> network/mfd devices, for which, size of allocated data very
-Andrey> often is not a power of 2.
-
-For network devices it's perfectly adequate as it will almost always
-satisfy what I described above. Incoming packets will always be
-allocated for a full MTU sized packet hence all allocated blocks will
-be of the same size. For outgoing packets, the allcation is short
-lived and while it may be that a good chunk of packets aren't all full
-MTU sized, it is rarely worth the hassle of trying to make the
-allocator allow to-the-byte sized allocations as the number of
-outstanding outgoing packets will be very limited.
-
-Andrey> I start to modify your code to satisfy above demands, but
-Andrey> firstly I wish to know your, or somebody else, opinion.
-
-I honestly don't think the majority of your demands are valid.
-genalloc was meant to be simple, not an ultra fast at any random
-block size allocator. So far I don't see any reason for changing to
-the allocation algorithm into anything much more complex - doesn't
-mean there couldn't be a reason for doing so, but I don't think you
-have described any so far.
-
-You mentioned frame buffers, but what is the kernel supposed to do
-with those allocation wise? If you have a frame buffer console, the
-memory is allocated once and handed to the frame buffer driver.
-Ie. you don't need a ton of on demand allocations for that and for
-X, the memory management is handled in the X server, not by the
-kernel.
-
-The only thing I think would make sense to implement is to allow it to
-use indirect descriptor blocks for the memory it manages. This is not
-because it's wrong to use the memory for the free list, as it will
-only be used for this when the chunk is not in use, but because access
-to certain types of memory isn't always valid through normal direct
-access. Ie. if one used descriptor blocks residing in normal
-GFP_KERNEL memory, it would be possible to use the allocator to manage
-memory sitting on the other side of a PCI bus.
-
-Regards,
-Jes
+Index: linux/include/asm-alpha/atomic.h
+===================================================================
+--- linux.orig/include/asm-alpha/atomic.h
++++ linux/include/asm-alpha/atomic.h
+@@ -176,6 +176,7 @@ static __inline__ long atomic64_sub_retu
+ }
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-arm/atomic.h
+===================================================================
+--- linux.orig/include/asm-arm/atomic.h
++++ linux/include/asm-arm/atomic.h
+@@ -175,6 +175,8 @@ static inline void atomic_clear_mask(uns
+ 
+ #endif /* __LINUX_ARM_ARCH__ */
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int c, old;
+Index: linux/include/asm-arm26/atomic.h
+===================================================================
+--- linux.orig/include/asm-arm26/atomic.h
++++ linux/include/asm-arm26/atomic.h
+@@ -76,6 +76,8 @@ static inline int atomic_cmpxchg(atomic_
+ 	return ret;
+ }
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int ret;
+Index: linux/include/asm-cris/atomic.h
+===================================================================
+--- linux.orig/include/asm-cris/atomic.h
++++ linux/include/asm-cris/atomic.h
+@@ -136,6 +136,8 @@ static inline int atomic_cmpxchg(atomic_
+ 	return ret;
+ }
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int ret;
+Index: linux/include/asm-frv/atomic.h
+===================================================================
+--- linux.orig/include/asm-frv/atomic.h
++++ linux/include/asm-frv/atomic.h
+@@ -415,6 +415,7 @@ extern uint32_t __cmpxchg_32(uint32_t *v
+ #endif
+ 
+ #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-h8300/atomic.h
+===================================================================
+--- linux.orig/include/asm-h8300/atomic.h
++++ linux/include/asm-h8300/atomic.h
+@@ -95,6 +95,8 @@ static inline int atomic_cmpxchg(atomic_
+ 	return ret;
+ }
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int ret;
+Index: linux/include/asm-i386/atomic.h
+===================================================================
+--- linux.orig/include/asm-i386/atomic.h
++++ linux/include/asm-i386/atomic.h
+@@ -216,6 +216,7 @@ static __inline__ int atomic_sub_return(
+ }
+ 
+ #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value
+Index: linux/include/asm-ia64/atomic.h
+===================================================================
+--- linux.orig/include/asm-ia64/atomic.h
++++ linux/include/asm-ia64/atomic.h
+@@ -89,6 +89,7 @@ ia64_atomic64_sub (__s64 i, atomic64_t *
+ }
+ 
+ #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-m32r/atomic.h
+===================================================================
+--- linux.orig/include/asm-m32r/atomic.h
++++ linux/include/asm-m32r/atomic.h
+@@ -243,6 +243,7 @@ static __inline__ int atomic_dec_return(
+ #define atomic_add_negative(i,v) (atomic_add_return((i), (v)) < 0)
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value
+Index: linux/include/asm-m68k/atomic.h
+===================================================================
+--- linux.orig/include/asm-m68k/atomic.h
++++ linux/include/asm-m68k/atomic.h
+@@ -140,6 +140,7 @@ static inline void atomic_set_mask(unsig
+ }
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-m68knommu/atomic.h
+===================================================================
+--- linux.orig/include/asm-m68knommu/atomic.h
++++ linux/include/asm-m68knommu/atomic.h
+@@ -129,6 +129,7 @@ static inline int atomic_sub_return(int 
+ }
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-mips/atomic.h
+===================================================================
+--- linux.orig/include/asm-mips/atomic.h
++++ linux/include/asm-mips/atomic.h
+@@ -289,6 +289,7 @@ static __inline__ int atomic_sub_if_posi
+ }
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value
+Index: linux/include/asm-parisc/atomic.h
+===================================================================
+--- linux.orig/include/asm-parisc/atomic.h
++++ linux/include/asm-parisc/atomic.h
+@@ -165,6 +165,7 @@ static __inline__ int atomic_read(const 
+ 
+ /* exported interface */
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value
+Index: linux/include/asm-powerpc/atomic.h
+===================================================================
+--- linux.orig/include/asm-powerpc/atomic.h
++++ linux/include/asm-powerpc/atomic.h
+@@ -165,6 +165,7 @@ static __inline__ int atomic_dec_return(
+ }
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value
+Index: linux/include/asm-s390/atomic.h
+===================================================================
+--- linux.orig/include/asm-s390/atomic.h
++++ linux/include/asm-s390/atomic.h
+@@ -199,6 +199,7 @@ atomic_compare_and_swap(int expected_old
+ }
+ 
+ #define atomic_cmpxchg(v, o, n) (atomic_compare_and_swap((o), (n), &((v)->counter)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-sh/atomic.h
+===================================================================
+--- linux.orig/include/asm-sh/atomic.h
++++ linux/include/asm-sh/atomic.h
+@@ -101,6 +101,8 @@ static inline int atomic_cmpxchg(atomic_
+ 	return ret;
+ }
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int ret;
+Index: linux/include/asm-sh64/atomic.h
+===================================================================
+--- linux.orig/include/asm-sh64/atomic.h
++++ linux/include/asm-sh64/atomic.h
+@@ -113,6 +113,8 @@ static inline int atomic_cmpxchg(atomic_
+ 	return ret;
+ }
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int ret;
+Index: linux/include/asm-sparc/atomic.h
+===================================================================
+--- linux.orig/include/asm-sparc/atomic.h
++++ linux/include/asm-sparc/atomic.h
+@@ -20,6 +20,7 @@ typedef struct { volatile int counter; }
+ 
+ extern int __atomic_add_return(int, atomic_t *);
+ extern int atomic_cmpxchg(atomic_t *, int, int);
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ extern int atomic_add_unless(atomic_t *, int, int);
+ extern void atomic_set(atomic_t *, int);
+ 
+Index: linux/include/asm-sparc64/atomic.h
+===================================================================
+--- linux.orig/include/asm-sparc64/atomic.h
++++ linux/include/asm-sparc64/atomic.h
+@@ -72,6 +72,7 @@ extern int atomic64_sub_ret(int, atomic6
+ #define atomic64_add_negative(i, v) (atomic64_add_ret(i, v) < 0)
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-v850/atomic.h
+===================================================================
+--- linux.orig/include/asm-v850/atomic.h
++++ linux/include/asm-v850/atomic.h
+@@ -104,6 +104,8 @@ static inline int atomic_cmpxchg(atomic_
+ 	return ret;
+ }
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int ret;
+Index: linux/include/asm-x86_64/atomic.h
+===================================================================
+--- linux.orig/include/asm-x86_64/atomic.h
++++ linux/include/asm-x86_64/atomic.h
+@@ -389,6 +389,7 @@ static __inline__ long atomic64_sub_retu
+ #define atomic64_dec_return(v)  (atomic64_sub_return(1,v))
+ 
+ #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value
+Index: linux/include/asm-xtensa/atomic.h
+===================================================================
+--- linux.orig/include/asm-xtensa/atomic.h
++++ linux/include/asm-xtensa/atomic.h
+@@ -224,6 +224,7 @@ static inline int atomic_sub_return(int 
+ #define atomic_add_negative(i,v) (atomic_add_return((i),(v)) < 0)
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value

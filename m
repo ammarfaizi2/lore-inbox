@@ -1,77 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbVLVXxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbVLVXzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751083AbVLVXxy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 18:53:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVLVXxy
+	id S1751094AbVLVXzN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 18:55:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVLVXzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 18:53:54 -0500
-Received: from xenotime.net ([66.160.160.81]:6576 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751083AbVLVXxy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 18:53:54 -0500
-Date: Thu, 22 Dec 2005 15:53:52 -0800 (PST)
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-X-X-Sender: rddunlap@shark.he.net
-To: Sean <seanlkml@sympatico.ca>
-cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, arjan@infradead.org, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, arjanv@infradead.org,
-       nico@cam.org, jes@trained-monkey.org, zwane@arm.linux.org.uk,
-       oleg@tv-sign.ru, dhowells@redhat.com, bcrl@kvack.org,
-       rostedt@goodmis.org, ak@suse.de, rmk+lkml@arm.linux.org.uk
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-In-Reply-To: <BAYC1-PASMTP04B55F85E952E6722013B5AE300@CEZ.ICE>
-Message-ID: <Pine.LNX.4.58.0512221551030.3425@shark.he.net>
-References: <20051222114147.GA18878@elte.hu>    <20051222035443.19a4b24e.akpm@osdl.org>
-    <20051222122011.GA20789@elte.hu>    <20051222050701.41b308f9.akpm@osdl.org>
-    <1135257829.2940.19.camel@laptopd505.fenrus.org>   
- <20051222054413.c1789c43.akpm@osdl.org>    <1135260709.10383.42.camel@localhost.localdomain>
-    <20051222153014.22f07e60.akpm@osdl.org>    <20051222233416.GA14182@infradead.org>
- <BAYC1-PASMTP04B55F85E952E6722013B5AE300@CEZ.ICE>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 22 Dec 2005 18:55:13 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:53946 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1751094AbVLVXzM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 18:55:12 -0500
+Date: Thu, 22 Dec 2005 18:55:08 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 0/8] mutex subsystem, -V6
+In-reply-to: <20051222230438.GA13302@elte.hu>
+X-X-Sender: nico@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Message-id: <Pine.LNX.4.64.0512221846470.26663@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20051222230438.GA13302@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Dec 2005, Sean wrote:
+On Fri, 23 Dec 2005, Ingo Molnar wrote:
 
-> On Thu, December 22, 2005 6:34 pm, Christoph Hellwig said:
-> > On Thu, Dec 22, 2005 at 03:30:14PM -0800, Andrew Morton wrote:
-> >> No it does not.
-> >>
-> >> Ingo's work has shown us two things:
-> >>
-> >> a) semaphores use more kernel text than they should and
-> >>
-> >> b) semaphores are less efficient than they could be.
-> >>
-> >> Fine.  Let's update the semaphore implementation to fix those things.
-> >> Nobody has addressed this code in several years.  If we conclusively
-> >> cannot
-> >> fix these things then that's the time to start looking at implementing
-> >> new
-> >> locking mechanisms.
-> >
-> > c) semaphores are total overkill for 99% percent of the users.  Remember
-> > this thing about optimizing for the common case?
-> >
-> > Pretty much everywhere we do want mutex semantic.  So let's have a proper
-> > primitive exactly for that, and we can keep the current semaphore
-> > implementation (with a much simpler implementation) for that handfull of
-> > users in the kernel that really want a counting semaphore.
-> >
-> > I really don't get why you hate mutex primitives so much.
-> >
->
-> Yes it's hard to figure.  It seems to be deeper than just hating mutex
-> primitives, he hates the timer core updates that come from Ingo too; this
-> may be a general dislike for all things -rt.
+> this release picks up Arjan's asm/mutex.h implementation, which adds 
+> asm-generic/mutex-dec.h, asm-generic/mutex-xchg.h for architectures to 
+> pick up. i386 and x86_64 use their own optimized version already, the 
+> other architectures default to mutex-xchg.h.
 
-Andrew can surely answer that, but it could be something as
-simple as wanting to build a more stable kernel (one without
-so much churn), so that things have time to mature and
-improve without breaking so many other things...
+Great, this is in substance what I've been proposing for a while.
 
-This (current) is a hectic development cycle style.
--- 
-~Randy
+> Architectures specify the 
+> following functions:
+> 
+>  -------------------------------------------------------------------
+>  *  __mutex_fastpath_unlock - try to promote the mutex from 0 to 1
+>  *  @count: pointer of type atomic_t
+>  *  @fn: function to call if the original value was not 1
+>  -------------------------------------------------------------------
+The above should read "function to call if the original value was not 0".
+
+> and __mutex_slowpath_needs_to_unlock(), to specify whether the fastpath 
+> has touched the count or not.
+
+Note that, in most cases (but not necessarily all of them) the count is 
+always touched.  It should rather be "has set the count to 1 or not" to 
+be precise..
+
+> Nico, Christoph, does this approach work for you? Nico, you might want 
+> to try an ARM-specific mutex.h implementation.
+
+Yes, I'm happy.  And the ARM version will be sent your way soon.
+
+
+Nicolas

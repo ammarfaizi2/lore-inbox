@@ -1,89 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbVLVPj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030203AbVLVPj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751231AbVLVPj2 (ORCPT <rfc822;willy@w.ods.org>);
+	id S1030203AbVLVPj2 (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 22 Dec 2005 10:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVLVPjX
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVLVPj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 10:39:23 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:48325 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751162AbVLVPi5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 10:38:57 -0500
-Date: Thu, 22 Dec 2005 16:38:10 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 07/10] mutex subsystem, switch ARM to use the xchg based implementation
-Message-ID: <20051222153810.GH6090@elte.hu>
+	Thu, 22 Dec 2005 10:39:27 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:43661
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S1751181AbVLVPis
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 10:38:48 -0500
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjan@infradead.org>, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, arjanv@infradead.org,
+       nico@cam.org, jes@trained-monkey.org, zwane@arm.linux.org.uk,
+       oleg@tv-sign.ru, dhowells@redhat.com, alan@lxorguk.ukuu.org.uk,
+       bcrl@kvack.org, rostedt@goodmis.org, hch@infradead.org, ak@suse.de,
+       rmk+lkml@arm.linux.org.uk
+In-Reply-To: <20051222054413.c1789c43.akpm@osdl.org>
+References: <20051222114147.GA18878@elte.hu>
+	 <20051222035443.19a4b24e.akpm@osdl.org> <20051222122011.GA20789@elte.hu>
+	 <20051222050701.41b308f9.akpm@osdl.org>
+	 <1135257829.2940.19.camel@laptopd505.fenrus.org>
+	 <20051222054413.c1789c43.akpm@osdl.org>
+Content-Type: text/plain
+Organization: linutronix
+Date: Thu, 22 Dec 2005 16:46:09 +0100
+Message-Id: <1135266369.2806.212.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-as noted by Nicolas Pitre, atomic_[inc/dec]_call_if_[nonpositive/negative]()
-atomic methods are slow on ARM, because they can only be implemented via
-disabling interrupts. So tell the mutex code that we prefer atomic_xchg().
+On Thu, 2005-12-22 at 05:44 -0800, Andrew Morton wrote:
 
-[ we still pull in asm-generic/atomic-call-if.h, so that they remain
-  generally available primitives - even though unused on ARM at the
-  moment. ]
+> There's no need for two sets of behaviour.  What I'm saying is that we
+> could add similar debugging features to semaphores (if useful).  Yes, we
+> would have to tell the kernel at the source level to defeat that debugging
+> if a particular lock isn't being used as a mutex.  That's rather less
+> intrusive than adding a whole new type of lock.  But I'd question the value
+> even of doing that, given the general historical non-bugginess of existing
+> semaphore users.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Semaphores need a counter, mutexes only a binary representation of the
+locked/unlocked state, which makes it possible to use instructions like
+xchg, swap, test_and_set_bit depending on what atomic operations are
+available on the architecture. On many architectures this is more
+efficient than the counter based implementation.
 
-----
+Also the wakeup rules allow smaller and faster implementations for
+mutexes.
 
- arch/arm/Kconfig         |    4 ++++
- include/asm-arm/atomic.h |    7 +------
- 2 files changed, 5 insertions(+), 6 deletions(-)
+	tglx
 
-Index: linux/arch/arm/Kconfig
-===================================================================
---- linux.orig/arch/arm/Kconfig
-+++ linux/arch/arm/Kconfig
-@@ -50,6 +50,10 @@ config UID16
- 	bool
- 	default y
- 
-+config MUTEX_XCHG_ALGORITHM
-+	bool
-+	default y
-+
- config RWSEM_GENERIC_SPINLOCK
- 	bool
- 	default y
-Index: linux/include/asm-arm/atomic.h
-===================================================================
---- linux.orig/include/asm-arm/atomic.h
-+++ linux/include/asm-arm/atomic.h
-@@ -179,12 +179,7 @@ static inline void atomic_clear_mask(uns
- 
- /*
-  * Pull in the generic wrappers for atomic_dec_call_if_negative() and
-- * atomic_inc_call_if_nonpositive().
-- *
-- * TODO: implement optimized primitives instead, or leave the generic
-- * implementation in place, or enable CONFIG_MUTEX_XCHG_ALGORITHM
-- * to tell the generic mutex code to use the atomic_xchg() based
-- * fastpath implementation.
-+ * atomic_inc_call_if_nonpositive():
-  */
- #include <asm-generic/atomic-call-if.h>
- 
+

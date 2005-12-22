@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965103AbVLVHPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965099AbVLVHUm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965103AbVLVHPr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 02:15:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965105AbVLVHPr
+	id S965099AbVLVHUm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 02:20:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965102AbVLVHUm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 02:15:47 -0500
-Received: from nproxy.gmail.com ([64.233.182.196]:10631 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965103AbVLVHPr convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 02:15:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rabF9Hd+FzmMZB2IiH4roHDNzbg9Y0RyoYwH8Ss8X7JwA1faOf4ayC1V3kwYeTGoa8IzQQrbU7fyaB8d1I+q1nU2kB20oOtw0le7lexLbtIVDeKfrPV1938Jdw5QQFFui5OLiBVNZ973ZTeB69hjdmE7c2mHZp6/se73u7ghdy4=
-Message-ID: <6f48278f0512212315n24301308ia81fc8094fc93838@mail.gmail.com>
-Date: Thu, 22 Dec 2005 15:15:43 +0800
-From: Jie Zhang <jzhang918@gmail.com>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Subject: Re: Question on the current behaviour of malloc () on Linux
-Cc: linux-kernel@vger.kernel.org, lars.friedrich@wago.com
-In-Reply-To: <9a8748490512211005u40ca4c7dv41044827544f97fa@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Thu, 22 Dec 2005 02:20:42 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:49368 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965099AbVLVHUl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 02:20:41 -0500
+Date: Thu, 22 Dec 2005 08:19:40 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Jes Sorensen <jes@trained-monkey.org>, Linus Torvalds <torvalds@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 0/8] mutex subsystem, ANNOUNCE
+Message-ID: <20051222071940.GA16804@elte.hu>
+References: <20051221155411.GA7243@elte.hu> <yq0irtiuxvv.fsf@jaguar.mkp.net> <43AA1134.7090704@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <6f48278f0512210936y25169c37t9fb7eb13fef3a97d@mail.gmail.com>
-	 <9a8748490512211005u40ca4c7dv41044827544f97fa@mail.gmail.com>
+In-Reply-To: <43AA1134.7090704@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/22/05, Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> On 12/21/05, Jie Zhang <jzhang918@gmail.com> wrote:
-> > Hi,
-> >
-> > I first asked this question on uClinux mailing list. My first question
-> > is <http://mailman.uclinux.org/pipermail/uclinux-dev/2005-December/036042.html>.
-> > Although I found this issue on uClinux, it's also can be demostrated
-> > on Linux. This is a small program:
-> >
-> [snip memory hog]
-> >
-> > When I run it on my Linux notebook, it will be killed. I expect to see
-> > it prints out   "fail".
-> >
->
-> You are seeing the effects of Linux overcommitting memory.
->
-[snip]
->
-> For more information read Documentation/vm/overcommit-accounting ,
-> Documentation/sysctl/vm.txt & Documentation/filesystems/proc.txt
->
-Thanks a lot! Your explaination is very detailed and easier to
-understand than the doc for me.
 
-Best Regards,
-Jie
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+
+> It would be nice to first do a run with a fair implementation of 
+> mutexes.
+
+which fairness implementation do you mean - the one where all tasks will 
+get the lock in fair FIFO order, and a 'lucky bastard' cannot steal the 
+lock from waiters and thus put them at an indefinite disadvantage?
+
+	Ingo

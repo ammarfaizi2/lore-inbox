@@ -1,1019 +1,1116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030268AbVLVSbx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbVLVSbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030268AbVLVSbx (ORCPT <rfc822;willy@w.ods.org>);
+	id S1030265AbVLVSbx (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 22 Dec 2005 13:31:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030284AbVLVS2d
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030268AbVLVS22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 13:28:33 -0500
-Received: from waste.org ([64.81.244.121]:6608 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1030265AbVLVS17 (ORCPT
+	Thu, 22 Dec 2005 13:28:28 -0500
+Received: from waste.org ([64.81.244.121]:7632 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1030267AbVLVS2C (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 13:27:59 -0500
-Date: Thu, 22 Dec 2005 12:26:38 -0600
+	Thu, 22 Dec 2005 13:28:02 -0500
+Date: Thu, 22 Dec 2005 12:26:40 -0600
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>
 X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
        linux-tiny@selenic.com
-In-Reply-To: <8.150843412@selenic.com>
-Message-Id: <9.150843412@selenic.com>
-Subject: [PATCH 8/20] inflate: (arch) kill unneeded declarations
+In-Reply-To: <9.150843412@selenic.com>
+Message-Id: <10.150843412@selenic.com>
+Subject: [PATCH 9/20] inflate: (arch) refactor inflate malloc code
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-inflate: remove a bunch of declarations/definitions from callers
+inflate: refactor inflate malloc code
 
-This removes:
+Inflate requires some dynamic memory allocation very early in the boot
+process and this is provided with a set of four functions:
+malloc/free/gzip_mark/gzip_release.
 
-- memset/memzero/memcpy implementations
-- OF
-- STATIC
-- gzip flag byte defines
-- unused debug defines
+The old inflate code used a mark/release strategy rather than
+implement free. This new version instead keeps a count on the number
+of outstanding allocations and when it hits zero, it resets the malloc
+arena.
 
-and saves an average of 50 lines in each of 12 users.
+This allows removing all the mark and release implementations and
+unifying all the malloc/free implementations.
+
+This also fixes bogus usage of malloc/free rather than kmalloc/kfree
+in initramfs.c.
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Index: 2.6.14/arch/alpha/boot/misc.c
+Index: 2.6.14-inflate/arch/alpha/boot/misc.c
 ===================================================================
---- 2.6.14.orig/arch/alpha/boot/misc.c	2005-10-28 20:39:32.000000000 -0700
-+++ 2.6.14/arch/alpha/boot/misc.c	2005-10-28 21:05:01.000000000 -0700
-@@ -22,7 +22,6 @@
- 
- #include <asm/uaccess.h>
- 
--#define memzero(s,n)	memset ((s),0,(n))
- #define puts		srm_printk
- extern long srm_printk(const char *, ...)
-      __attribute__ ((format (printf, 1, 2)));
-@@ -30,8 +29,6 @@ extern long srm_printk(const char *, ...
- /*
-  * gzip delarations
-  */
--#define OF(args)  args
--#define STATIC static
- 
- typedef unsigned char  uch;
- typedef unsigned short ush;
-@@ -47,34 +44,8 @@ static unsigned insize;		/* valid bytes 
- static unsigned inptr;		/* index of next byte to be processed in inbuf */
- static unsigned outcnt;		/* bytes in output buffer */
- 
--/* gzip flag byte */
--#define ASCII_FLAG   0x01 /* bit 0 set: file probably ascii text */
--#define CONTINUATION 0x02 /* bit 1 set: continuation of multi-part gzip file */
--#define EXTRA_FIELD  0x04 /* bit 2 set: extra field present */
--#define ORIG_NAME    0x08 /* bit 3 set: original file name present */
--#define COMMENT      0x10 /* bit 4 set: file comment present */
--#define ENCRYPTED    0x20 /* bit 5 set: file is encrypted */
--#define RESERVED     0xC0 /* bit 6,7:   reserved */
--
- #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
- 
--/* Diagnostic functions */
--#ifdef DEBUG
--#  define Assert(cond,msg) {if(!(cond)) error(msg);}
--#  define Trace(x) fprintf x
--#  define Tracev(x) {if (verbose) fprintf x ;}
--#  define Tracevv(x) {if (verbose>1) fprintf x ;}
--#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
--#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
--#else
--#  define Assert(cond,msg)
--#  define Trace(x)
--#  define Tracev(x)
--#  define Tracevv(x)
--#  define Tracec(c,x)
--#  define Tracecv(c,x)
--#endif
--
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
-Index: 2.6.14/arch/arm/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/arm/boot/compressed/misc.c	2005-10-28 20:39:32.000000000 -0700
-+++ 2.6.14/arch/arm/boot/compressed/misc.c	2005-10-28 21:05:01.000000000 -0700
-@@ -45,90 +45,8 @@ icedcc_putstr(const char *ptr)
- #define __ptr_t void *
- 
- /*
-- * Optimised C version of memzero for the ARM.
-+ * gzip declarations
-  */
--void __memzero (__ptr_t s, size_t n)
--{
--	union { void *vp; unsigned long *ulp; unsigned char *ucp; } u;
--	int i;
--
--	u.vp = s;
--
--	for (i = n >> 5; i > 0; i--) {
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--	}
--
--	if (n & 1 << 4) {
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--	}
--
--	if (n & 1 << 3) {
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--	}
--
--	if (n & 1 << 2)
--		*u.ulp++ = 0;
--
--	if (n & 1 << 1) {
--		*u.ucp++ = 0;
--		*u.ucp++ = 0;
--	}
--
--	if (n & 1)
--		*u.ucp++ = 0;
--}
--
--static inline __ptr_t memcpy(__ptr_t __dest, __const __ptr_t __src,
--			    size_t __n)
--{
--	int i = 0;
--	unsigned char *d = (unsigned char *)__dest, *s = (unsigned char *)__src;
--
--	for (i = __n >> 3; i > 0; i--) {
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--	}
--
--	if (__n & 1 << 2) {
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--	}
--
--	if (__n & 1 << 1) {
--		*d++ = *s++;
--		*d++ = *s++;
--	}
--
--	if (__n & 1)
--		*d++ = *s++;
--
--	return __dest;
--}
--
--/*
-- * gzip delarations
-- */
--#define OF(args)  args
--#define STATIC static
- 
- typedef unsigned char  uch;
- typedef unsigned short ush;
-@@ -144,34 +62,8 @@ static unsigned insize;		/* valid bytes 
- static unsigned inptr;		/* index of next byte to be processed in inbuf */
- static unsigned outcnt;		/* bytes in output buffer */
- 
--/* gzip flag byte */
--#define ASCII_FLAG   0x01 /* bit 0 set: file probably ascii text */
--#define CONTINUATION 0x02 /* bit 1 set: continuation of multi-part gzip file */
--#define EXTRA_FIELD  0x04 /* bit 2 set: extra field present */
--#define ORIG_NAME    0x08 /* bit 3 set: original file name present */
--#define COMMENT      0x10 /* bit 4 set: file comment present */
--#define ENCRYPTED    0x20 /* bit 5 set: file is encrypted */
--#define RESERVED     0xC0 /* bit 6,7:   reserved */
--
- #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
- 
--/* Diagnostic functions */
--#ifdef DEBUG
--#  define Assert(cond,msg) {if(!(cond)) error(msg);}
--#  define Trace(x) fprintf x
--#  define Tracev(x) {if (verbose) fprintf x ;}
--#  define Tracevv(x) {if (verbose>1) fprintf x ;}
--#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
--#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
--#else
--#  define Assert(cond,msg)
--#  define Trace(x)
--#  define Tracev(x)
--#  define Tracevv(x)
--#  define Tracec(c,x)
--#  define Tracecv(c,x)
--#endif
--
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
-Index: 2.6.14/arch/arm26/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/arm26/boot/compressed/misc.c	2005-10-28 20:39:32.000000000 -0700
-+++ 2.6.14/arch/arm26/boot/compressed/misc.c	2005-10-28 21:05:01.000000000 -0700
-@@ -30,90 +30,8 @@ unsigned int __machine_arch_type;
- #define __ptr_t void *
- 
- /*
-- * Optimised C version of memzero for the ARM.
-- */
--void __memzero (__ptr_t s, size_t n)
--{
--	union { void *vp; unsigned long *ulp; unsigned char *ucp; } u;
--	int i;
--
--	u.vp = s;
--
--	for (i = n >> 5; i > 0; i--) {
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--	}
--
--	if (n & 1 << 4) {
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--	}
--
--	if (n & 1 << 3) {
--		*u.ulp++ = 0;
--		*u.ulp++ = 0;
--	}
--
--	if (n & 1 << 2)
--		*u.ulp++ = 0;
--
--	if (n & 1 << 1) {
--		*u.ucp++ = 0;
--		*u.ucp++ = 0;
--	}
--
--	if (n & 1)
--		*u.ucp++ = 0;
--}
--
--static inline __ptr_t memcpy(__ptr_t __dest, __const __ptr_t __src,
--			    size_t __n)
--{
--	int i = 0;
--	unsigned char *d = (unsigned char *)__dest, *s = (unsigned char *)__src;
--
--	for (i = __n >> 3; i > 0; i--) {
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--	}
--
--	if (__n & 1 << 2) {
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--		*d++ = *s++;
--	}
--
--	if (__n & 1 << 1) {
--		*d++ = *s++;
--		*d++ = *s++;
--	}
--
--	if (__n & 1)
--		*d++ = *s++;
--
--	return __dest;
--}
--
--/*
-  * gzip delarations
-  */
--#define OF(args)  args
--#define STATIC static
- 
- typedef unsigned char  uch;
- typedef unsigned short ush;
-@@ -129,34 +47,8 @@ static unsigned insize;		/* valid bytes 
- static unsigned inptr;		/* index of next byte to be processed in inbuf */
- static unsigned outcnt;		/* bytes in output buffer */
- 
--/* gzip flag byte */
--#define ASCII_FLAG   0x01 /* bit 0 set: file probably ascii text */
--#define CONTINUATION 0x02 /* bit 1 set: continuation of multi-part gzip file */
--#define EXTRA_FIELD  0x04 /* bit 2 set: extra field present */
--#define ORIG_NAME    0x08 /* bit 3 set: original file name present */
--#define COMMENT      0x10 /* bit 4 set: file comment present */
--#define ENCRYPTED    0x20 /* bit 5 set: file is encrypted */
--#define RESERVED     0xC0 /* bit 6,7:   reserved */
--
- #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
- 
--/* Diagnostic functions */
--#ifdef DEBUG
--#  define Assert(cond,msg) {if(!(cond)) error(msg);}
--#  define Trace(x) fprintf x
--#  define Tracev(x) {if (verbose) fprintf x ;}
--#  define Tracevv(x) {if (verbose>1) fprintf x ;}
--#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
--#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
--#else
--#  define Assert(cond,msg)
--#  define Trace(x)
--#  define Tracev(x)
--#  define Tracevv(x)
--#  define Tracec(c,x)
--#  define Tracecv(c,x)
--#endif
--
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
-Index: 2.6.14/arch/cris/arch-v10/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/cris/arch-v10/boot/compressed/misc.c	2005-10-28 20:39:32.000000000 -0700
-+++ 2.6.14/arch/cris/arch-v10/boot/compressed/misc.c	2005-10-28 21:05:01.000000000 -0700
-@@ -29,16 +29,6 @@
-  * gzip declarations
-  */
- 
--#define OF(args)  args
--#define STATIC static
--
--void* memset(void* s, int c, size_t n);
--void* memcpy(void* __dest, __const void* __src,
--	     size_t __n);
--
--#define memzero(s, n)     memset ((s), 0, (n))
--
--
- typedef unsigned char  uch;
- typedef unsigned short ush;
- typedef unsigned long  ulg;
-@@ -56,33 +46,7 @@ unsigned inptr = 0;	/* index of next byt
- 
- static unsigned outcnt = 0;  /* bytes in output buffer */
- 
--/* gzip flag byte */
--#define ASCII_FLAG   0x01 /* bit 0 set: file probably ascii text */
--#define CONTINUATION 0x02 /* bit 1 set: continuation of multi-part gzip file */
--#define EXTRA_FIELD  0x04 /* bit 2 set: extra field present */
--#define ORIG_NAME    0x08 /* bit 3 set: original file name present */
--#define COMMENT      0x10 /* bit 4 set: file comment present */
--#define ENCRYPTED    0x20 /* bit 5 set: file is encrypted */
--#define RESERVED     0xC0 /* bit 6,7:   reserved */
--
--#define get_byte() inbuf[inptr++]	
--	
--/* Diagnostic functions */
--#ifdef DEBUG
--#  define Assert(cond,msg) {if(!(cond)) error(msg);}
--#  define Trace(x) fprintf x
--#  define Tracev(x) {if (verbose) fprintf x ;}
--#  define Tracevv(x) {if (verbose>1) fprintf x ;}
--#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
--#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
--#else
--#  define Assert(cond,msg)
--#  define Trace(x)
--#  define Tracev(x)
--#  define Tracevv(x)
--#  define Tracec(c,x)
--#  define Tracecv(c,x)
--#endif
-+#define get_byte() inbuf[inptr++]
- 
- static int  fill_inbuf(void);
- static void flush_window(void);
-@@ -166,25 +130,6 @@ puts(const char *s)
- #endif
- }
- 
--void*
--memset(void* s, int c, size_t n)
--{
--	int i;
--	char *ss = (char*)s;
--
--	for (i=0;i<n;i++) ss[i] = c;
--}
--
--void*
--memcpy(void* __dest, __const void* __src,
--			    size_t __n)
--{
--	int i;
--	char *d = (char *)__dest, *s = (char *)__src;
--
--	for (i=0;i<__n;i++) d[i] = s[i];
--}
--
- /* ===========================================================================
-  * Write the output window window[0..outcnt-1] and update crc and bytes_out.
-  * (Used for the decompressed data only.)
-Index: 2.6.14/arch/cris/arch-v32/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/cris/arch-v32/boot/compressed/misc.c	2005-10-28 20:39:32.000000000 -0700
-+++ 2.6.14/arch/cris/arch-v32/boot/compressed/misc.c	2005-10-28 21:05:01.000000000 -0700
-@@ -31,16 +31,6 @@
-  * gzip declarations
-  */
- 
--#define OF(args)  args
--#define STATIC static
--
--void* memset(void* s, int c, size_t n);
--void* memcpy(void* __dest, __const void* __src,
--	     size_t __n);
--
--#define memzero(s, n)     memset ((s), 0, (n))
--
--
- typedef unsigned char  uch;
- typedef unsigned short ush;
- typedef unsigned long  ulg;
-@@ -58,34 +48,8 @@ unsigned inptr = 0;	/* index of next byt
- 
- static unsigned outcnt = 0;  /* bytes in output buffer */
- 
--/* gzip flag byte */
--#define ASCII_FLAG   0x01 /* bit 0 set: file probably ascii text */
--#define CONTINUATION 0x02 /* bit 1 set: continuation of multi-part gzip file */
--#define EXTRA_FIELD  0x04 /* bit 2 set: extra field present */
--#define ORIG_NAME    0x08 /* bit 3 set: original file name present */
--#define COMMENT      0x10 /* bit 4 set: file comment present */
--#define ENCRYPTED    0x20 /* bit 5 set: file is encrypted */
--#define RESERVED     0xC0 /* bit 6,7:   reserved */
--
- #define get_byte() inbuf[inptr++]
- 
--/* Diagnostic functions */
--#ifdef DEBUG
--#  define Assert(cond,msg) {if(!(cond)) error(msg);}
--#  define Trace(x) fprintf x
--#  define Tracev(x) {if (verbose) fprintf x ;}
--#  define Tracevv(x) {if (verbose>1) fprintf x ;}
--#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
--#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
--#else
--#  define Assert(cond,msg)
--#  define Trace(x)
--#  define Tracev(x)
--#  define Tracevv(x)
--#  define Tracec(c,x)
--#  define Tracecv(c,x)
--#endif
--
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
-@@ -180,25 +144,6 @@ puts(const char *s)
- #endif
- }
- 
--void*
--memset(void* s, int c, size_t n)
--{
--	int i;
--	char *ss = (char*)s;
--
--	for (i=0;i<n;i++) ss[i] = c;
--}
--
--void*
--memcpy(void* __dest, __const void* __src,
--			    size_t __n)
--{
--	int i;
--	char *d = (char *)__dest, *s = (char *)__src;
--
--	for (i=0;i<__n;i++) d[i] = s[i];
--}
--
- /* ===========================================================================
-  * Write the output window window[0..outcnt-1] and update crc and bytes_out.
-  * (Used for the decompressed data only.)
-Index: 2.6.14/arch/i386/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/i386/boot/compressed/misc.c	2005-10-28 20:39:32.000000000 -0700
-+++ 2.6.14/arch/i386/boot/compressed/misc.c	2005-10-28 21:05:01.000000000 -0700
-@@ -19,21 +19,11 @@
-  * gzip declarations
-  */
- 
--#define OF(args)  args
--#define STATIC static
--
--#undef memset
--#undef memcpy
--
- /*
-  * Why do we do this? Don't ask me..
+--- 2.6.14-inflate.orig/arch/alpha/boot/misc.c	2005-11-29 13:29:39.000000000 -0600
++++ 2.6.14-inflate/arch/alpha/boot/misc.c	2005-12-21 21:17:05.000000000 -0600
+@@ -4,8 +4,6 @@
+  * This is a collection of several routines from gzip-1.0.3 
+  * adapted for Linux.
   *
-  * Incomprehensible are the ways of bootloaders.
-  */
--static void* memset(void *, int, size_t);
--static void* memcpy(void *, __const void *, size_t);
--#define memzero(s, n)     memset ((s), 0, (n))
--
- typedef unsigned char  uch;
- typedef unsigned short ush;
- typedef unsigned long  ulg;
-@@ -48,33 +38,7 @@ static unsigned insize = 0;  /* valid by
- static unsigned inptr = 0;   /* index of next byte to be processed in inbuf */
- static unsigned outcnt = 0;  /* bytes in output buffer */
- 
--/* gzip flag byte */
--#define ASCII_FLAG   0x01 /* bit 0 set: file probably ASCII text */
--#define CONTINUATION 0x02 /* bit 1 set: continuation of multi-part gzip file */
--#define EXTRA_FIELD  0x04 /* bit 2 set: extra field present */
--#define ORIG_NAME    0x08 /* bit 3 set: original file name present */
--#define COMMENT      0x10 /* bit 4 set: file comment present */
--#define ENCRYPTED    0x20 /* bit 5 set: file is encrypted */
--#define RESERVED     0xC0 /* bit 6,7:   reserved */
--
- #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
--		
--/* Diagnostic functions */
--#ifdef DEBUG
--#  define Assert(cond,msg) {if(!(cond)) error(msg);}
--#  define Trace(x) fprintf x
--#  define Tracev(x) {if (verbose) fprintf x ;}
--#  define Tracevv(x) {if (verbose>1) fprintf x ;}
--#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
--#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
--#else
--#  define Assert(cond,msg)
--#  define Trace(x)
--#  define Tracev(x)
--#  define Tracevv(x)
--#  define Tracec(c,x)
--#  define Tracecv(c,x)
--#endif
- 
+- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
+- *
+  * Modified for ARM Linux by Russell King
+  *
+  * Nicolas Pitre <nico@visuaide.com>  1999/04/14 :
+@@ -49,8 +47,6 @@ static unsigned outcnt;		/* bytes in out
  static int  fill_inbuf(void);
  static void flush_window(void);
-@@ -163,7 +127,9 @@ static void scroll(void)
+ static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+ 
+ static char *input_data;
+ static int  input_data_size;
+@@ -59,51 +55,13 @@ static uch *output_data;
+ static ulg output_ptr;
+ static ulg bytes_out;
+ 
+-static void *malloc(int size);
+-static void free(void *where);
+-static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+-
+ extern int end;
+-static ulg free_mem_ptr;
+-static ulg free_mem_ptr_end;
++static char *free_mem_ptr, *free_mem_ptr_end;
+ 
+ #define HEAP_SIZE 0x2000
+ 
+ #include "../../../lib/inflate.c"
+ 
+-static void *malloc(int size)
+-{
+-	void *p;
+-
+-	if (size <0) error("Malloc error");
+-	if (free_mem_ptr <= 0) error("Memory error");
+-
+-	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
+-
+-	p = (void *)free_mem_ptr;
+-	free_mem_ptr += size;
+-
+-	if (free_mem_ptr >= free_mem_ptr_end)
+-		error("Out of memory");
+-	return p;
+-}
+-
+-static void free(void *where)
+-{ /* gzip_mark & gzip_release do the free */
+-}
+-
+-static void gzip_mark(void **ptr)
+-{
+-	*ptr = (void *) free_mem_ptr;
+-}
+-
+-static void gzip_release(void **ptr)
+-{
+-	free_mem_ptr = (long) *ptr;
+-}
+-
+ /* ===========================================================================
+  * Fill the input buffer. This is called only when the buffer is empty
+  * and at least one byte is really needed.
+@@ -163,8 +121,8 @@ decompress_kernel(void *output_start,
+ 	input_data_size		= kzsize; /* use compressed size */
+ 
+ 	/* FIXME FIXME FIXME */
+-	free_mem_ptr		= (ulg)output_start + ksize;
+-	free_mem_ptr_end	= (ulg)output_start + ksize + 0x200000;
++	free_mem_ptr		= (char *)output_start + ksize;
++	free_mem_ptr_end	= (char *)output_start + ksize + 0x200000;
+ 	/* FIXME FIXME FIXME */
+ 
+ 	/* put in temp area to reduce initial footprint */
+Index: 2.6.14-inflate/arch/arm/boot/compressed/misc.c
+===================================================================
+--- 2.6.14-inflate.orig/arch/arm/boot/compressed/misc.c	2005-11-29 13:29:39.000000000 -0600
++++ 2.6.14-inflate/arch/arm/boot/compressed/misc.c	2005-12-21 21:17:05.000000000 -0600
+@@ -4,8 +4,6 @@
+  * This is a collection of several routines from gzip-1.0.3 
+  * adapted for Linux.
+  *
+- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
+- *
+  * Modified for ARM Linux by Russell King
+  *
+  * Nicolas Pitre <nico@visuaide.com>  1999/04/14 :
+@@ -67,8 +65,6 @@ static unsigned outcnt;		/* bytes in out
+ static int  fill_inbuf(void);
+ static void flush_window(void);
+ static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+ 
+ extern char input_data[];
+ extern char input_data_end[];
+@@ -77,63 +73,17 @@ static uch *output_data;
+ static ulg output_ptr;
+ static ulg bytes_out;
+ 
+-static void *malloc(int size);
+-static void free(void *where);
+-static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+-
+ static void putstr(const char *);
+ 
+ extern int end;
+-static ulg free_mem_ptr;
+-static ulg free_mem_ptr_end;
++static char *free_mem_ptr, *free_mem_ptr_end;
+ 
+ #define HEAP_SIZE 0x2000
+ 
+ #include "../../../../lib/inflate.c"
+ 
+-#ifndef STANDALONE_DEBUG
+-static void *malloc(int size)
+-{
+-	void *p;
+-
+-	if (size <0) error("Malloc error");
+-	if (free_mem_ptr <= 0) error("Memory error");
+-
+-	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
+-
+-	p = (void *)free_mem_ptr;
+-	free_mem_ptr += size;
+-
+-	if (free_mem_ptr >= free_mem_ptr_end)
+-		error("Out of memory");
+-	return p;
+-}
+-
+-static void free(void *where)
+-{ /* gzip_mark & gzip_release do the free */
+-}
+-
+-static void gzip_mark(void **ptr)
+-{
+-	arch_decomp_wdog();
+-	*ptr = (void *) free_mem_ptr;
+-}
+-
+-static void gzip_release(void **ptr)
+-{
+-	arch_decomp_wdog();
+-	free_mem_ptr = (long) *ptr;
+-}
+-#else
+-static void gzip_mark(void **ptr)
+-{
+-}
+-
+-static void gzip_release(void **ptr)
+-{
+-}
++#ifdef STANDALONE_DEBUG
++#define NO_INFLATE_MALLOC
+ #endif
+ 
+ /* ===========================================================================
+@@ -197,8 +147,8 @@ decompress_kernel(ulg output_start, ulg 
+ 		  int arch_id)
+ {
+ 	output_data		= (uch *)output_start;	/* Points to kernel start */
+-	free_mem_ptr		= free_mem_ptr_p;
+-	free_mem_ptr_end	= free_mem_ptr_end_p;
++	free_mem_ptr		= (char *)free_mem_ptr_p;
++	free_mem_ptr_end	= (char *)free_mem_ptr_end_p;
+ 	__machine_arch_type	= arch_id;
+ 
+ 	arch_decomp_setup();
+Index: 2.6.14-inflate/arch/arm26/boot/compressed/misc.c
+===================================================================
+--- 2.6.14-inflate.orig/arch/arm26/boot/compressed/misc.c	2005-11-29 13:29:39.000000000 -0600
++++ 2.6.14-inflate/arch/arm26/boot/compressed/misc.c	2005-12-21 21:17:05.000000000 -0600
+@@ -4,8 +4,6 @@
+  * This is a collection of several routines from gzip-1.0.3 
+  * adapted for Linux.
+  *
+- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
+- *
+  * Modified for ARM Linux by Russell King
+  *
+  * Nicolas Pitre <nico@visuaide.com>  1999/04/14 :
+@@ -52,8 +50,6 @@ static unsigned outcnt;		/* bytes in out
+ static int  fill_inbuf(void);
+ static void flush_window(void);
+ static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+ 
+ extern char input_data[];
+ extern char input_data_end[];
+@@ -62,63 +58,17 @@ static uch *output_data;
+ static ulg output_ptr;
+ static ulg bytes_out;
+ 
+-static void *malloc(int size);
+-static void free(void *where);
+-static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+-
+ static void puts(const char *);
+ 
+ extern int end;
+-static ulg free_mem_ptr;
+-static ulg free_mem_ptr_end;
++static char *free_mem_ptr, *free_mem_ptr_end;
+ 
+ #define HEAP_SIZE 0x2000
+ 
+ #include "../../../../lib/inflate.c"
+ 
+-#ifndef STANDALONE_DEBUG
+-static void *malloc(int size)
+-{
+-	void *p;
+-
+-	if (size <0) error("Malloc error");
+-	if (free_mem_ptr <= 0) error("Memory error");
+-
+-	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
+-
+-	p = (void *)free_mem_ptr;
+-	free_mem_ptr += size;
+-
+-	if (free_mem_ptr >= free_mem_ptr_end)
+-		error("Out of memory");
+-	return p;
+-}
+-
+-static void free(void *where)
+-{ /* gzip_mark & gzip_release do the free */
+-}
+-
+-static void gzip_mark(void **ptr)
+-{
+-	arch_decomp_wdog();
+-	*ptr = (void *) free_mem_ptr;
+-}
+-
+-static void gzip_release(void **ptr)
+-{
+-	arch_decomp_wdog();
+-	free_mem_ptr = (long) *ptr;
+-}
+-#else
+-static void gzip_mark(void **ptr)
+-{
+-}
+-
+-static void gzip_release(void **ptr)
+-{
+-}
++#ifdef STANDALONE_DEBUG
++#define NO_INFLATE_MALLOC
+ #endif
+ 
+ /* ===========================================================================
+@@ -178,8 +128,8 @@ decompress_kernel(ulg output_start, ulg 
+ 		  int arch_id)
+ {
+ 	output_data		= (uch *)output_start;	/* Points to kernel start */
+-	free_mem_ptr		= free_mem_ptr_p;
+-	free_mem_ptr_end	= free_mem_ptr_end_p;
++	free_mem_ptr		= (char *)free_mem_ptr_p;
++	free_mem_ptr_end	= (char *)free_mem_ptr_end_p;
+ 	__machine_arch_type	= arch_id;
+ 
+ 	arch_decomp_setup();
+Index: 2.6.14-inflate/arch/cris/arch-v10/boot/compressed/misc.c
+===================================================================
+--- 2.6.14-inflate.orig/arch/cris/arch-v10/boot/compressed/misc.c	2005-11-29 13:29:39.000000000 -0600
++++ 2.6.14-inflate/arch/cris/arch-v10/boot/compressed/misc.c	2005-12-21 21:17:05.000000000 -0600
+@@ -6,7 +6,6 @@
+  * This is a collection of several routines from gzip-1.0.3 
+  * adapted for Linux.
+  *
+- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
+  * puts by Nick Holloway 1993, better puts by Martin Mares 1995
+  * adoptation for Linux/CRIS Axis Communications AB, 1999
+  * 
+@@ -51,57 +50,22 @@ static unsigned outcnt = 0;  /* bytes in
+ static int  fill_inbuf(void);
+ static void flush_window(void);
+ static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+ 
+ extern char *input_data;  /* lives in head.S */
+ 
+ static long bytes_out = 0;
+ static uch *output_data;
+ static unsigned long output_ptr = 0;
+- 
+-static void *malloc(int size);
+-static void free(void *where);
+-static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+- 
++
+ static void puts(const char *);
+ 
+ /* the "heap" is put directly after the BSS ends, at end */
+   
+ extern int end;
+-static long free_mem_ptr = (long)&end;
+- 
+-#include "../../../../../lib/inflate.c"
+-
+-static void *malloc(int size)
+-{
+-	void *p;
+-
+-	if (size <0) error("Malloc error");
+-
+-	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
+-
+-	p = (void *)free_mem_ptr;
+-	free_mem_ptr += size;
+-
+-	return p;
+-}
+-
+-static void free(void *where)
+-{	/* Don't care */
+-}
++static char *free_mem_ptr = (char *)&end;
++static char *free_mem_end_ptr = (char *)0xffffffff;
+ 
+-static void gzip_mark(void **ptr)
+-{
+-	*ptr = (void *) free_mem_ptr;
+-}
+-
+-static void gzip_release(void **ptr)
+-{
+-	free_mem_ptr = (long) *ptr;
+-}
++#include "../../../../../lib/inflate.c"
+ 
+ /* decompressor info and error messages to serial console */
+ 
+Index: 2.6.14-inflate/arch/cris/arch-v32/boot/compressed/misc.c
+===================================================================
+--- 2.6.14-inflate.orig/arch/cris/arch-v32/boot/compressed/misc.c	2005-11-29 13:29:39.000000000 -0600
++++ 2.6.14-inflate/arch/cris/arch-v32/boot/compressed/misc.c	2005-12-21 21:17:05.000000000 -0600
+@@ -6,7 +6,6 @@
+  * This is a collection of several routines from gzip-1.0.3
+  * adapted for Linux.
+  *
+- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
+  * puts by Nick Holloway 1993, better puts by Martin Mares 1995
+  * adoptation for Linux/CRIS Axis Communications AB, 1999
+  *
+@@ -53,8 +52,6 @@ static unsigned outcnt = 0;  /* bytes in
+ static int  fill_inbuf(void);
+ static void flush_window(void);
+ static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+ 
+ extern char *input_data;  /* lives in head.S */
+ 
+@@ -62,49 +59,16 @@ static long bytes_out = 0;
+ static uch *output_data;
+ static unsigned long output_ptr = 0;
+ 
+-static void *malloc(int size);
+-static void free(void *where);
+-static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+-
+ static void puts(const char *);
+ 
+ /* the "heap" is put directly after the BSS ends, at end */
+ 
+ extern int _end;
+-static long free_mem_ptr = (long)&_end;
++static char *free_mem_ptr = (char *)&_end;
++static char *free_mem_end_ptr = (char *)0xffffffff;
+ 
+ #include "../../../../../lib/inflate.c"
+ 
+-static void *malloc(int size)
+-{
+-	void *p;
+-
+-	if (size <0) error("Malloc error");
+-
+-	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
+-
+-	p = (void *)free_mem_ptr;
+-	free_mem_ptr += size;
+-
+-	return p;
+-}
+-
+-static void free(void *where)
+-{	/* Don't care */
+-}
+-
+-static void gzip_mark(void **ptr)
+-{
+-	*ptr = (void *) free_mem_ptr;
+-}
+-
+-static void gzip_release(void **ptr)
+-{
+-	free_mem_ptr = (long) *ptr;
+-}
+-
+ /* decompressor info and error messages to serial console */
+ 
+ static inline void
+Index: 2.6.14-inflate/arch/i386/boot/compressed/misc.c
+===================================================================
+--- 2.6.14-inflate.orig/arch/i386/boot/compressed/misc.c	2005-11-29 13:29:39.000000000 -0600
++++ 2.6.14-inflate/arch/i386/boot/compressed/misc.c	2005-12-21 21:17:05.000000000 -0600
+@@ -4,7 +4,6 @@
+  * This is a collection of several routines from gzip-1.0.3 
+  * adapted for Linux.
+  *
+- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
+  * puts by Nick Holloway 1993, better puts by Martin Mares 1995
+  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
+  */
+@@ -43,9 +42,7 @@ static unsigned outcnt = 0;  /* bytes in
+ static int  fill_inbuf(void);
+ static void flush_window(void);
+ static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+-  
++
+ /*
+  * This is set up by the setup-routine at boot-time
+  */
+@@ -64,14 +61,10 @@ static long bytes_out = 0;
+ static uch *output_data;
+ static unsigned long output_ptr = 0;
+ 
+-static void *malloc(int size);
+-static void free(void *where);
+-
+ static void putstr(const char *);
+ 
+ extern int end;
+-static long free_mem_ptr = (long)&end;
+-static long free_mem_end_ptr;
++static char *free_mem_ptr = (char *)&end, *free_mem_end_ptr;
+ 
+ #define INPLACE_MOVE_ROUTINE  0x1000
+ #define LOW_BUFFER_START      0x2000
+@@ -91,38 +84,6 @@ static void * xquad_portio = NULL;
+ 
+ #include "../../../../lib/inflate.c"
+ 
+-static void *malloc(int size)
+-{
+-	void *p;
+-
+-	if (size <0) error("Malloc error");
+-	if (free_mem_ptr <= 0) error("Memory error");
+-
+-	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
+-
+-	p = (void *)free_mem_ptr;
+-	free_mem_ptr += size;
+-
+-	if (free_mem_ptr >= free_mem_end_ptr)
+-		error("Out of memory");
+-
+-	return p;
+-}
+-
+-static void free(void *where)
+-{	/* Don't care */
+-}
+-
+-static void gzip_mark(void **ptr)
+-{
+-	*ptr = (void *) free_mem_ptr;
+-}
+-
+-static void gzip_release(void **ptr)
+-{
+-	free_mem_ptr = (long) *ptr;
+-}
+- 
+ static void scroll(void)
  {
  	int i;
- 
--	memcpy ( vidmem, vidmem + cols * 2, ( lines - 1 ) * cols * 2 );
-+	for (i = 0; i < (lines - 1) * cols * 2; i++)
-+		vidmem[i] = vidmem[i + cols * 2];
-+
- 	for ( i = ( lines - 1 ) * cols * 2; i < lines * cols * 2; i += 2 )
- 		vidmem[i] = ' ';
- }
-@@ -205,25 +171,6 @@ static void putstr(const char *s)
- 	outb_p(0xff & (pos >> 1), vidport+1);
- }
- 
--static void* memset(void* s, int c, size_t n)
--{
--	int i;
--	char *ss = (char*)s;
--
--	for (i=0;i<n;i++) ss[i] = c;
--	return s;
--}
--
--static void* memcpy(void* __dest, __const void* __src,
--			    size_t __n)
--{
--	int i;
--	char *d = (char *)__dest, *s = (char *)__src;
--
--	for (i=0;i<__n;i++) d[i] = s[i];
--	return __dest;
--}
--
- /* ===========================================================================
-  * Fill the input buffer. This is called only when the buffer is empty
-  * and at least one byte is really needed.
-Index: 2.6.14/arch/m32r/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/m32r/boot/compressed/misc.c	2005-10-28 20:39:32.000000000 -0700
-+++ 2.6.14/arch/m32r/boot/compressed/misc.c	2005-10-28 21:05:01.000000000 -0700
-@@ -19,13 +19,6 @@
-  * gzip declarations
-  */
- 
--#define OF(args)  args
--#define STATIC static
--
--#undef memset
--#undef memcpy
--#define memzero(s, n)     memset ((s), 0, (n))
--
- typedef unsigned char  uch;
- typedef unsigned short ush;
- typedef unsigned long  ulg;
-@@ -40,34 +33,8 @@ static unsigned insize = 0;  /* valid by
- static unsigned inptr = 0;   /* index of next byte to be processed in inbuf */
- static unsigned outcnt = 0;  /* bytes in output buffer */
- 
--/* gzip flag byte */
--#define ASCII_FLAG   0x01 /* bit 0 set: file probably ASCII text */
--#define CONTINUATION 0x02 /* bit 1 set: continuation of multi-part gzip file */
--#define EXTRA_FIELD  0x04 /* bit 2 set: extra field present */
--#define ORIG_NAME    0x08 /* bit 3 set: original file name present */
--#define COMMENT      0x10 /* bit 4 set: file comment present */
--#define ENCRYPTED    0x20 /* bit 5 set: file is encrypted */
--#define RESERVED     0xC0 /* bit 6,7:   reserved */
--
- #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
- 
--/* Diagnostic functions */
--#ifdef DEBUG
--#  define Assert(cond,msg) {if(!(cond)) error(msg);}
--#  define Trace(x) fprintf x
--#  define Tracev(x) {if (verbose) fprintf x ;}
--#  define Tracevv(x) {if (verbose>1) fprintf x ;}
--#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
--#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
--#else
--#  define Assert(cond,msg)
--#  define Trace(x)
--#  define Tracev(x)
--#  define Tracevv(x)
--#  define Tracec(c,x)
--#  define Tracecv(c,x)
--#endif
--
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
-@@ -125,25 +92,6 @@ static void gzip_release(void **ptr)
- 	free_mem_ptr = (long) *ptr;
- }
- 
--void* memset(void* s, int c, size_t n)
--{
--	int i;
--	char *ss = (char*)s;
--
--	for (i=0;i<n;i++) ss[i] = c;
--	return s;
--}
--
--void* memcpy(void* __dest, __const void* __src,
--			    size_t __n)
--{
--	int i;
--	char *d = (char *)__dest, *s = (char *)__src;
--
--	for (i=0;i<__n;i++) d[i] = s[i];
--	return __dest;
--}
--
- /* ===========================================================================
-  * Fill the input buffer. This is called only when the buffer is empty
-  * and at least one byte is really needed.
-Index: 2.6.14/arch/sh/boot/compressed/misc.c
-===================================================================
---- 2.6.14.orig/arch/sh/boot/compressed/misc.c	2005-10-28 20:39:32.000000000 -0700
-+++ 2.6.14/arch/sh/boot/compressed/misc.c	2005-10-28 21:05:01.000000000 -0700
-@@ -21,13 +21,6 @@
-  * gzip declarations
-  */
- 
--#define OF(args)  args
--#define STATIC static
--
--#undef memset
--#undef memcpy
--#define memzero(s, n)     memset ((s), 0, (n))
--
- typedef unsigned char  uch;
- typedef unsigned short ush;
- typedef unsigned long  ulg;
-@@ -42,34 +35,8 @@ static unsigned insize = 0;  /* valid by
- static unsigned inptr = 0;   /* index of next byte to be processed in inbuf */
- static unsigned outcnt = 0;  /* bytes in output buffer */
- 
--/* gzip flag byte */
--#define ASCII_FLAG   0x01 /* bit 0 set: file probably ASCII text */
--#define CONTINUATION 0x02 /* bit 1 set: continuation of multi-part gzip file */
--#define EXTRA_FIELD  0x04 /* bit 2 set: extra field present */
--#define ORIG_NAME    0x08 /* bit 3 set: original file name present */
--#define COMMENT      0x10 /* bit 4 set: file comment present */
--#define ENCRYPTED    0x20 /* bit 5 set: file is encrypted */
--#define RESERVED     0xC0 /* bit 6,7:   reserved */
--
- #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
- 
--/* Diagnostic functions */
--#ifdef DEBUG
--#  define Assert(cond,msg) {if(!(cond)) error(msg);}
--#  define Trace(x) fprintf x
--#  define Tracev(x) {if (verbose) fprintf x ;}
--#  define Tracevv(x) {if (verbose>1) fprintf x ;}
--#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
--#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
--#else
--#  define Assert(cond,msg)
--#  define Trace(x)
--#  define Tracev(x)
--#  define Tracevv(x)
--#  define Tracec(c,x)
--#  define Tracecv(c,x)
--#endif
--
- static int  fill_inbuf(void);
- static void flush_window(void);
- static void error(char *m);
-@@ -156,25 +123,6 @@ int puts(const char *s)
- }
+@@ -257,7 +218,7 @@ static void setup_normal_output_buffer(v
+ 	if ((RM_ALT_MEM_K > RM_EXT_MEM_K ? RM_ALT_MEM_K : RM_EXT_MEM_K) < 1024) error("Less than 2MB of memory");
  #endif
+ 	output_data = (char *)__PHYSICAL_START; /* Normally Points to 1M */
+-	free_mem_end_ptr = (long)real_mode;
++	free_mem_end_ptr = (char *)real_mode;
+ }
  
--void* memset(void* s, int c, size_t n)
--{
--	int i;
--	char *ss = (char*)s;
+ struct moveparams {
+@@ -280,7 +241,7 @@ static void setup_output_buffer_if_we_ru
+ 	  ? LOW_BUFFER_MAX : (unsigned int)real_mode) & ~0xfff;
+ 	low_buffer_size = low_buffer_end - LOW_BUFFER_START;
+ 	high_loaded = 1;
+-	free_mem_end_ptr = (long)high_buffer_start;
++	free_mem_end_ptr = (char *)high_buffer_start;
+ 	if ( (__PHYSICAL_START + low_buffer_size) > ((ulg)high_buffer_start)) {
+ 		high_buffer_start = (uch *)(__PHYSICAL_START + low_buffer_size);
+ 		mv->hcount = 0; /* say: we need not to move high_buffer */
+@@ -316,7 +277,7 @@ asmlinkage int decompress_kernel(struct 
+ 	lines = RM_SCREEN_INFO.orig_video_lines;
+ 	cols = RM_SCREEN_INFO.orig_video_cols;
+ 
+-	if (free_mem_ptr < 0x100000) setup_normal_output_buffer();
++	if ((long)free_mem_ptr < 0x100000) setup_normal_output_buffer();
+ 	else setup_output_buffer_if_we_run_high(mv);
+ 
+ 	makecrc();
+Index: 2.6.14-inflate/arch/m32r/boot/compressed/misc.c
+===================================================================
+--- 2.6.14-inflate.orig/arch/m32r/boot/compressed/misc.c	2005-11-29 13:29:39.000000000 -0600
++++ 2.6.14-inflate/arch/m32r/boot/compressed/misc.c	2005-12-21 21:17:05.000000000 -0600
+@@ -4,8 +4,6 @@
+  * This is a collection of several routines from gzip-1.0.3
+  * adapted for Linux.
+  *
+- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
+- *
+  * Adapted for SH by Stuart Menefy, Aug 1999
+  *
+  * 2003-02-12:	Support M32R by Takeo Takahashi
+@@ -38,8 +36,6 @@ static unsigned outcnt = 0;  /* bytes in
+ static int  fill_inbuf(void);
+ static void flush_window(void);
+ static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+ 
+ static unsigned char *input_data;
+ static int input_len;
+@@ -50,48 +46,13 @@ static unsigned long output_ptr = 0;
+ 
+ #include "m32r_sio.c"
+ 
+-static void *malloc(int size);
+-static void free(void *where);
 -
--	for (i=0;i<n;i++) ss[i] = c;
--	return s;
+-static unsigned long free_mem_ptr;
+-static unsigned long free_mem_end_ptr;
++static char *free_mem_ptr;
++static char *free_mem_end_ptr;
+ 
+ #define HEAP_SIZE             0x10000
+ 
+ #include "../../../../lib/inflate.c"
+ 
+-static void *malloc(int size)
+-{
+-	void *p;
+-
+-	if (size <0) error("Malloc error");
+-	if (free_mem_ptr == 0) error("Memory error");
+-
+-	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
+-
+-	p = (void *)free_mem_ptr;
+-	free_mem_ptr += size;
+-
+-	if (free_mem_ptr >= free_mem_end_ptr)
+-		error("Out of memory");
+-
+-	return p;
 -}
 -
--void* memcpy(void* __dest, __const void* __src,
--			    size_t __n)
--{
--	int i;
--	char *d = (char *)__dest, *s = (char *)__src;
+-static void free(void *where)
+-{	/* Don't care */
+-}
 -
--	for (i=0;i<__n;i++) d[i] = s[i];
--	return __dest;
+-static void gzip_mark(void **ptr)
+-{
+-	*ptr = (void *) free_mem_ptr;
+-}
+-
+-static void gzip_release(void **ptr)
+-{
+-	free_mem_ptr = (long) *ptr;
 -}
 -
  /* ===========================================================================
   * Fill the input buffer. This is called only when the buffer is empty
   * and at least one byte is really needed.
-Index: 2.6.14/arch/sh64/boot/compressed/misc.c
+@@ -146,7 +107,7 @@ decompress_kernel(int mmu_on, unsigned c
+ {
+ 	output_data = (unsigned char *)CONFIG_MEMORY_START + 0x2000
+ 		+ (mmu_on ? 0x80000000 : 0);
+-	free_mem_ptr = heap;
++	free_mem_ptr = (char *)heap;
+ 	free_mem_end_ptr = free_mem_ptr + HEAP_SIZE;
+ 	input_data = zimage_data;
+ 	input_len = zimage_len;
+Index: 2.6.14-inflate/arch/sh/boot/compressed/misc.c
 ===================================================================
---- 2.6.14.orig/arch/sh64/boot/compressed/misc.c	2005-10-28 20:39:32.000000000 -0700
-+++ 2.6.14/arch/sh64/boot/compressed/misc.c	2005-10-28 21:05:01.000000000 -0700
-@@ -21,13 +21,6 @@ int cache_control(unsigned int command);
-  * gzip declarations
+--- 2.6.14-inflate.orig/arch/sh/boot/compressed/misc.c	2005-11-29 13:29:39.000000000 -0600
++++ 2.6.14-inflate/arch/sh/boot/compressed/misc.c	2005-12-21 21:17:05.000000000 -0600
+@@ -4,8 +4,6 @@
+  * This is a collection of several routines from gzip-1.0.3
+  * adapted for Linux.
+  *
+- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
+- *
+  * Adapted for SH by Stuart Menefy, Aug 1999
+  *
+  * Modified to use standard LinuxSH BIOS by Greg Banks 7Jul2000
+@@ -40,8 +38,6 @@ static unsigned outcnt = 0;  /* bytes in
+ static int  fill_inbuf(void);
+ static void flush_window(void);
+ static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+ 
+ extern char input_data[];
+ extern int input_len;
+@@ -50,55 +46,16 @@ static long bytes_out = 0;
+ static uch *output_data;
+ static unsigned long output_ptr = 0;
+ 
+-static void *malloc(int size);
+-static void free(void *where);
+-static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+-
+ int puts(const char *);
+ 
+ extern int _text;		/* Defined in vmlinux.lds.S */
+ extern int _end;
+-static unsigned long free_mem_ptr;
+-static unsigned long free_mem_end_ptr;
++static char *free_mem_ptr, *free_mem_end_ptr;
+ 
+ #define HEAP_SIZE             0x10000
+ 
+ #include "../../../../lib/inflate.c"
+ 
+-static void *malloc(int size)
+-{
+-	void *p;
+-
+-	if (size <0) error("Malloc error");
+-	if (free_mem_ptr == 0) error("Memory error");
+-
+-	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
+-
+-	p = (void *)free_mem_ptr;
+-	free_mem_ptr += size;
+-
+-	if (free_mem_ptr >= free_mem_end_ptr)
+-		error("Out of memory");
+-
+-	return p;
+-}
+-
+-static void free(void *where)
+-{	/* Don't care */
+-}
+-
+-static void gzip_mark(void **ptr)
+-{
+-	*ptr = (void *) free_mem_ptr;
+-}
+-
+-static void gzip_release(void **ptr)
+-{
+-	free_mem_ptr = (long) *ptr;
+-}
+-
+ #ifdef CONFIG_SH_STANDARD_BIOS
+ size_t strlen(const char *s)
+ {
+@@ -178,7 +135,7 @@ void decompress_kernel(void)
+ {
+ 	output_data = 0;
+ 	output_ptr = (unsigned long)&_text+0x20001000;
+-	free_mem_ptr = (unsigned long)&_end;
++	free_mem_ptr = (char *)&_end;
+ 	free_mem_end_ptr = free_mem_ptr + HEAP_SIZE;
+ 
+ 	makecrc();
+Index: 2.6.14-inflate/arch/sh64/boot/compressed/misc.c
+===================================================================
+--- 2.6.14-inflate.orig/arch/sh64/boot/compressed/misc.c	2005-11-29 13:29:39.000000000 -0600
++++ 2.6.14-inflate/arch/sh64/boot/compressed/misc.c	2005-12-21 21:17:05.000000000 -0600
+@@ -4,8 +4,6 @@
+  * This is a collection of several routines from gzip-1.0.3
+  * adapted for Linux.
+  *
+- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
+- *
+  * Adapted for SHmedia from sh by Stuart Menefy, May 2002
   */
  
--#define OF(args)  args
--#define STATIC static
--
--#undef memset
--#undef memcpy
--#define memzero(s, n)     memset ((s), 0, (n))
--
- typedef unsigned char uch;
- typedef unsigned short ush;
- typedef unsigned long ulg;
-@@ -42,34 +35,8 @@ static unsigned insize = 0;	/* valid byt
- static unsigned inptr = 0;	/* index of next byte to be processed in inbuf */
- static unsigned outcnt = 0;	/* bytes in output buffer */
- 
--/* gzip flag byte */
--#define ASCII_FLAG   0x01	/* bit 0 set: file probably ASCII text */
--#define CONTINUATION 0x02	/* bit 1 set: continuation of multi-part gzip file */
--#define EXTRA_FIELD  0x04	/* bit 2 set: extra field present */
--#define ORIG_NAME    0x08	/* bit 3 set: original file name present */
--#define COMMENT      0x10	/* bit 4 set: file comment present */
--#define ENCRYPTED    0x20	/* bit 5 set: file is encrypted */
--#define RESERVED     0xC0	/* bit 6,7:   reserved */
--
- #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
- 
--/* Diagnostic functions */
--#ifdef DEBUG
--#  define Assert(cond,msg) {if(!(cond)) error(msg);}
--#  define Trace(x) fprintf x
--#  define Tracev(x) {if (verbose) fprintf x ;}
--#  define Tracevv(x) {if (verbose>1) fprintf x ;}
--#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
--#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
--#else
--#  define Assert(cond,msg)
--#  define Trace(x)
--#  define Tracev(x)
--#  define Tracevv(x)
--#  define Tracec(c,x)
--#  define Tracecv(c,x)
--#endif
--
+@@ -40,8 +38,6 @@ static unsigned outcnt = 0;	/* bytes in 
  static int fill_inbuf(void);
  static void flush_window(void);
  static void error(char *m);
-@@ -138,26 +105,6 @@ void puts(const char *s)
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+ 
+ extern char input_data[];
+ extern int input_len;
+@@ -50,57 +46,16 @@ static long bytes_out = 0;
+ static uch *output_data;
+ static unsigned long output_ptr = 0;
+ 
+-static void *malloc(int size);
+-static void free(void *where);
+-static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+-
+ static void puts(const char *);
+ 
+ extern int _text;		/* Defined in vmlinux.lds.S */
+ extern int _end;
+-static unsigned long free_mem_ptr;
+-static unsigned long free_mem_end_ptr;
++static char *free_mem_ptr, *free_mem_end_ptr;
+ 
+ #define HEAP_SIZE             0x10000
+ 
+ #include "../../../../lib/inflate.c"
+ 
+-static void *malloc(int size)
+-{
+-	void *p;
+-
+-	if (size < 0)
+-		error("Malloc error\n");
+-	if (free_mem_ptr == 0)
+-		error("Memory error\n");
+-
+-	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
+-
+-	p = (void *) free_mem_ptr;
+-	free_mem_ptr += size;
+-
+-	if (free_mem_ptr >= free_mem_end_ptr)
+-		error("\nOut of memory\n");
+-
+-	return p;
+-}
+-
+-static void free(void *where)
+-{				/* Don't care */
+-}
+-
+-static void gzip_mark(void **ptr)
+-{
+-	*ptr = (void *) free_mem_ptr;
+-}
+-
+-static void gzip_release(void **ptr)
+-{
+-	free_mem_ptr = (long) *ptr;
+-}
+-
+ void puts(const char *s)
  {
  }
+@@ -160,7 +115,7 @@ long *stack_start = &user_stack[STACK_SI
+ void decompress_kernel(void)
+ {
+ 	output_data = (uch *) (CONFIG_MEMORY_START + 0x2000);
+-	free_mem_ptr = (unsigned long) &_end;
++	free_mem_ptr = (char *)&_end;
+ 	free_mem_end_ptr = free_mem_ptr + HEAP_SIZE;
  
--void *memset(void *s, int c, size_t n)
--{
--	int i;
--	char *ss = (char *) s;
--
--	for (i = 0; i < n; i++)
--		ss[i] = c;
--	return s;
--}
--
--void *memcpy(void *__dest, __const void *__src, size_t __n)
--{
--	int i;
--	char *d = (char *) __dest, *s = (char *) __src;
--
--	for (i = 0; i < __n; i++)
--		d[i] = s[i];
--	return __dest;
--}
--
- /* ===========================================================================
-  * Fill the input buffer. This is called only when the buffer is empty
-  * and at least one byte is really needed.
-Index: 2.6.14/arch/x86_64/boot/compressed/misc.c
+ 	makecrc();
+Index: 2.6.14-inflate/arch/x86_64/boot/compressed/misc.c
 ===================================================================
---- 2.6.14.orig/arch/x86_64/boot/compressed/misc.c	2005-10-28 20:39:32.000000000 -0700
-+++ 2.6.14/arch/x86_64/boot/compressed/misc.c	2005-10-28 21:05:01.000000000 -0700
-@@ -17,13 +17,6 @@
-  * gzip declarations
+--- 2.6.14-inflate.orig/arch/x86_64/boot/compressed/misc.c	2005-11-29 13:29:39.000000000 -0600
++++ 2.6.14-inflate/arch/x86_64/boot/compressed/misc.c	2005-12-21 21:17:05.000000000 -0600
+@@ -4,7 +4,6 @@
+  * This is a collection of several routines from gzip-1.0.3 
+  * adapted for Linux.
+  *
+- * malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
+  * puts by Nick Holloway 1993, better puts by Martin Mares 1995
+  * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
   */
- 
--#define OF(args)  args
--#define STATIC static
--
--#undef memset
--#undef memcpy
--#define memzero(s, n)     memset ((s), 0, (n))
--
- typedef unsigned char  uch;
- typedef unsigned short ush;
- typedef unsigned long  ulg;
-@@ -38,33 +31,7 @@ static unsigned insize = 0;  /* valid by
- static unsigned inptr = 0;   /* index of next byte to be processed in inbuf */
- static unsigned outcnt = 0;  /* bytes in output buffer */
- 
--/* gzip flag byte */
--#define ASCII_FLAG   0x01 /* bit 0 set: file probably ASCII text */
--#define CONTINUATION 0x02 /* bit 1 set: continuation of multi-part gzip file */
--#define EXTRA_FIELD  0x04 /* bit 2 set: extra field present */
--#define ORIG_NAME    0x08 /* bit 3 set: original file name present */
--#define COMMENT      0x10 /* bit 4 set: file comment present */
--#define ENCRYPTED    0x20 /* bit 5 set: file is encrypted */
--#define RESERVED     0xC0 /* bit 6,7:   reserved */
--
- #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
--		
--/* Diagnostic functions */
--#ifdef DEBUG
--#  define Assert(cond,msg) {if(!(cond)) error(msg);}
--#  define Trace(x) fprintf x
--#  define Tracev(x) {if (verbose) fprintf x ;}
--#  define Tracevv(x) {if (verbose>1) fprintf x ;}
--#  define Tracec(c,x) {if (verbose && (c)) fprintf x ;}
--#  define Tracecv(c,x) {if (verbose>1 && (c)) fprintf x ;}
--#else
--#  define Assert(cond,msg)
--#  define Trace(x)
--#  define Tracev(x)
--#  define Tracevv(x)
--#  define Tracec(c,x)
--#  define Tracecv(c,x)
--#endif
- 
+@@ -36,9 +35,7 @@ static unsigned outcnt = 0;  /* bytes in
  static int  fill_inbuf(void);
  static void flush_window(void);
-@@ -92,9 +59,6 @@ static unsigned long output_ptr = 0;
+ static void error(char *m);
+-static void gzip_mark(void **);
+-static void gzip_release(void **);
+-  
++
+ /*
+  * This is set up by the setup-routine at boot-time
+  */
+@@ -57,14 +54,10 @@ static long bytes_out = 0;
+ static uch *output_data;
+ static unsigned long output_ptr = 0;
  
- static void *malloc(int size);
- static void free(void *where);
-- 
--void* memset(void* s, int c, unsigned n);
--void* memcpy(void* dest, const void* src, unsigned n);
- 
+-static void *malloc(int size);
+-static void free(void *where);
+-
  static void putstr(const char *);
  
-@@ -152,7 +116,9 @@ static void scroll(void)
+ extern int end;
+-static long free_mem_ptr = (long)&end;
+-static long free_mem_end_ptr;
++static char *free_mem_ptr = (char *)&end, *free_mem_end_ptr;
+ 
+ #define INPLACE_MOVE_ROUTINE  0x1000
+ #define LOW_BUFFER_START      0x2000
+@@ -80,38 +73,6 @@ static int lines, cols;
+ 
+ #include "../../../../lib/inflate.c"
+ 
+-static void *malloc(int size)
+-{
+-	void *p;
+-
+-	if (size <0) error("Malloc error");
+-	if (free_mem_ptr <= 0) error("Memory error");
+-
+-	free_mem_ptr = (free_mem_ptr + 3) & ~3;	/* Align */
+-
+-	p = (void *)free_mem_ptr;
+-	free_mem_ptr += size;
+-
+-	if (free_mem_ptr >= free_mem_end_ptr)
+-		error("Out of memory");
+-
+-	return p;
+-}
+-
+-static void free(void *where)
+-{	/* Don't care */
+-}
+-
+-static void gzip_mark(void **ptr)
+-{
+-	*ptr = (void *) free_mem_ptr;
+-}
+-
+-static void gzip_release(void **ptr)
+-{
+-	free_mem_ptr = (long) *ptr;
+-}
+- 
+ static void scroll(void)
  {
  	int i;
- 
--	memcpy ( vidmem, vidmem + cols * 2, ( lines - 1 ) * cols * 2 );
-+	for (i = 0; i < (lines - 1) * cols * 2; i++)
-+		vidmem[i] = vidmem[i + cols * 2];
-+
- 	for ( i = ( lines - 1 ) * cols * 2; i < lines * cols * 2; i += 2 )
- 		vidmem[i] = ' ';
- }
-@@ -194,24 +160,6 @@ static void putstr(const char *s)
- 	outb_p(0xff & (pos >> 1), vidport+1);
- }
- 
--void* memset(void* s, int c, unsigned n)
--{
--	int i;
--	char *ss = (char*)s;
--
--	for (i=0;i<n;i++) ss[i] = c;
--	return s;
--}
--
--void* memcpy(void* dest, const void* src, unsigned n)
--{
--	int i;
--	char *d = (char *)dest, *s = (char *)src;
--
--	for (i=0;i<n;i++) d[i] = s[i];
--	return dest;
--}
--
- /* ===========================================================================
-  * Fill the input buffer. This is called only when the buffer is empty
-  * and at least one byte is really needed.
-Index: 2.6.14/init/do_mounts_rd.c
+Index: 2.6.14-inflate/init/do_mounts_rd.c
 ===================================================================
---- 2.6.14.orig/init/do_mounts_rd.c	2005-10-28 20:39:32.000000000 -0700
-+++ 2.6.14/init/do_mounts_rd.c	2005-10-28 21:05:01.000000000 -0700
-@@ -273,12 +273,6 @@ int __init rd_load_disk(int n)
-  * gzip declarations
-  */
- 
--#define OF(args)  args
--
--#ifndef memzero
--#define memzero(s, n)     memset ((s), 0, (n))
--#endif
--
- typedef unsigned char  uch;
- typedef unsigned short ush;
- typedef unsigned long  ulg;
-@@ -299,16 +293,7 @@ static long bytes_out;
- static int crd_infd, crd_outfd;
- 
- #define get_byte()  (inptr < insize ? inbuf[inptr++] : fill_inbuf())
--		
--/* Diagnostic functions (stubbed out) */
--#define Assert(cond,msg)
--#define Trace(x)
--#define Tracev(x)
--#define Tracevv(x)
--#define Tracec(c,x)
--#define Tracecv(c,x)
- 
--#define STATIC static
- #define INIT __init
+--- 2.6.14-inflate.orig/init/do_mounts_rd.c	2005-11-29 13:29:39.000000000 -0600
++++ 2.6.14-inflate/init/do_mounts_rd.c	2005-12-21 21:17:05.000000000 -0600
+@@ -298,32 +298,11 @@ static int crd_infd, crd_outfd;
  
  static int  __init fill_inbuf(void);
-Index: 2.6.14/init/initramfs.c
+ static void __init flush_window(void);
+-static void __init *malloc(size_t size);
+-static void __init free(void *where);
+ static void __init error(char *m);
+-static void __init gzip_mark(void **);
+-static void __init gzip_release(void **);
+ 
+-#include "../lib/inflate.c"
+-
+-static void __init *malloc(size_t size)
+-{
+-	return kmalloc(size, GFP_KERNEL);
+-}
+-
+-static void __init free(void *where)
+-{
+-	kfree(where);
+-}
+-
+-static void __init gzip_mark(void **ptr)
+-{
+-}
+-
+-static void __init gzip_release(void **ptr)
+-{
+-}
++#define NO_INFLATE_MALLOC
+ 
++#include "../lib/inflate.c"
+ 
+ /* ===========================================================================
+  * Fill the input buffer. This is called only when the buffer is empty
+Index: 2.6.14-inflate/init/initramfs.c
 ===================================================================
---- 2.6.14.orig/init/initramfs.c	2005-10-28 20:39:32.000000000 -0700
-+++ 2.6.14/init/initramfs.c	2005-10-28 21:05:01.000000000 -0700
-@@ -343,12 +343,6 @@ static void __init flush_buffer(char *bu
-  * gzip declarations
-  */
+--- 2.6.14-inflate.orig/init/initramfs.c	2005-11-29 13:29:39.000000000 -0600
++++ 2.6.14-inflate/init/initramfs.c	2005-12-21 21:17:05.000000000 -0600
+@@ -14,16 +14,6 @@ static void __init error(char *x)
+ 		message = x;
+ }
  
--#define OF(args)  args
+-static void __init *malloc(size_t size)
+-{
+-	return kmalloc(size, GFP_KERNEL);
+-}
 -
--#ifndef memzero
--#define memzero(s, n)     memset ((s), 0, (n))
--#endif
+-static void __init free(void *where)
+-{
+-	kfree(where);
+-}
 -
- typedef unsigned char  uch;
- typedef unsigned short ush;
- typedef unsigned long  ulg;
-@@ -365,16 +359,7 @@ static unsigned outcnt;  /* bytes in out
- static long bytes_out;
+ /* link hash */
  
- #define get_byte()  (inptr < insize ? inbuf[inptr++] : -1)
--		
--/* Diagnostic functions (stubbed out) */
--#define Assert(cond,msg)
--#define Trace(x)
--#define Tracev(x)
--#define Tracevv(x)
--#define Tracec(c,x)
--#define Tracecv(c,x)
- 
--#define STATIC static
- #define INIT __init
+ static __initdata struct hash {
+@@ -51,7 +41,7 @@ static char __init *find_link(int major,
+ 			continue;
+ 		return (*p)->name;
+ 	}
+-	q = (struct hash *)malloc(sizeof(struct hash));
++	q = kmalloc(sizeof(struct hash), GFP_KERNEL);
+ 	if (!q)
+ 		panic("can't allocate link hash entry");
+ 	q->ino = ino;
+@@ -70,7 +60,7 @@ static void __init free_hash(void)
+ 		while (*p) {
+ 			q = *p;
+ 			*p = q->next;
+-			free(q);
++			kfree(q);
+ 		}
+ 	}
+ }
+@@ -364,18 +354,10 @@ static long bytes_out;
  
  static void __init flush_window(void);
+ static void __init error(char *m);
+-static void __init gzip_mark(void **);
+-static void __init gzip_release(void **);
+ 
+-#include "../lib/inflate.c"
++#define NO_INFLATE_MALLOC
+ 
+-static void __init gzip_mark(void **ptr)
+-{
+-}
+-
+-static void __init gzip_release(void **ptr)
+-{
+-}
++#include "../lib/inflate.c"
+ 
+ /* ===========================================================================
+  * Write the output window window[0..outcnt-1] and update crc and bytes_out.
+@@ -402,10 +384,10 @@ static char * __init unpack_to_rootfs(ch
+ {
+ 	int written;
+ 	dry_run = check_only;
+-	header_buf = malloc(110);
+-	symlink_buf = malloc(PATH_MAX + N_ALIGN(PATH_MAX) + 1);
+-	name_buf = malloc(N_ALIGN(PATH_MAX));
+-	window = malloc(WSIZE);
++	header_buf = kmalloc(110, GFP_KERNEL);
++	symlink_buf = kmalloc(PATH_MAX + N_ALIGN(PATH_MAX) + 1, GFP_KERNEL);
++	name_buf = kmalloc(N_ALIGN(PATH_MAX), GFP_KERNEL);
++	window = kmalloc(WSIZE, GFP_KERNEL);
+ 	if (!window || !header_buf || !symlink_buf || !name_buf)
+ 		panic("can't allocate buffers");
+ 	state = Start;
+@@ -441,10 +423,10 @@ static char * __init unpack_to_rootfs(ch
+ 		buf += inptr;
+ 		len -= inptr;
+ 	}
+-	free(window);
+-	free(name_buf);
+-	free(symlink_buf);
+-	free(header_buf);
++	kfree(window);
++	kfree(name_buf);
++	kfree(symlink_buf);
++	kfree(header_buf);
+ 	return message;
+ }
+ 
+Index: 2.6.14-inflate/lib/inflate.c
+===================================================================
+--- 2.6.14-inflate.orig/lib/inflate.c	2005-11-29 13:29:38.000000000 -0600
++++ 2.6.14-inflate/lib/inflate.c	2005-12-21 21:17:21.000000000 -0600
+@@ -109,6 +109,45 @@
+ 
+ #include <asm/types.h>
+ 
++#ifndef NO_INFLATE_MALLOC
++/* A trivial malloc implementation, adapted from
++ *  malloc by Hannu Savolainen 1993 and Matthias Urlichs 1994
++ */
++
++static char *malloc_ptr;
++static int malloc_count;
++
++static void *malloc(int size)
++{
++	char *p;
++
++	if (size <0)
++		error("Malloc error");
++	if (!malloc_ptr)
++		malloc_ptr = free_mem_ptr;
++
++	malloc_ptr = (char *)(((unsigned long)malloc_ptr + 3) & ~3);
++	p = malloc_ptr;
++	malloc_ptr += size;
++
++	if (malloc_ptr >= free_mem_end_ptr)
++		error("Out of memory");
++
++	malloc_count++;
++	return p;
++}
++
++static void free(void *where)
++{
++	malloc_count--;
++	if (!malloc_count)
++		malloc_ptr = free_mem_ptr;
++}
++#else
++#define malloc(a) kmalloc(a, GFP_KERNEL)
++#define free(a) kfree(a)
++#endif
++
+ static u32 crc_32_tab[256];
+ static u32 crc;		/* dummy var until users get cleaned up */
+ #define CRCPOLY_LE 0xedb88320
+@@ -895,16 +934,12 @@ static int INIT inflate(struct iostate *
+ {
+ 	int e;			/* last block flag */
+ 	int r;			/* result code */
+-	void *ptr;
+ 
+ 	/* decompress until the last block */
+ 	do {
+-		gzip_mark(&ptr);
+-		if ((r = inflate_block(io, &e))) {
+-			gzip_release(&ptr);
++		r = inflate_block(io, &e);
++		if (r)
+ 			return r;
+-		}
+-		gzip_release(&ptr);
+ 	} while (!e);
+ 
+ 	popbytes(io);

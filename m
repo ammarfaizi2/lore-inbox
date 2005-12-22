@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750990AbVLVPEP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbVLVPRP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750990AbVLVPEP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 10:04:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751055AbVLVPEP
+	id S1030196AbVLVPRP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 10:17:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVLVPRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 10:04:15 -0500
-Received: from rtsoft2.corbina.net ([85.21.88.2]:41645 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1750936AbVLVPEO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 10:04:14 -0500
-Date: Thu, 22 Dec 2005 18:04:49 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-To: david-b@pacbell.net
-Cc: linux-kernel@vger.kernel.org, spi-devel-general@sourceforge.net
-Subject: [PATCH 2.6-git] SPI: add set_clock() to bitbang
-Message-Id: <20051222180449.4335a8e6.vwool@ru.mvista.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Thu, 22 Dec 2005 10:17:14 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62668
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751092AbVLVPRO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 10:17:14 -0500
+Date: Thu, 22 Dec 2005 07:16:51 -0800 (PST)
+Message-Id: <20051222.071651.43525556.davem@davemloft.net>
+To: akpm@osdl.org
+Cc: bunk@stusta.de, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       aabdulla@nvidia.com, jgarzik@pobox.com, netdev@vger.kernel.org,
+       ak@suse.de, discuss@x86-64.org, perex@suse.cz,
+       alsa-devel@alsa-project.org, gregkh@suse.de
+Subject: Re: 2.6.15-rc6: known regressions in the kernel Bugzilla
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20051222005209.0b1b25ca.akpm@osdl.org>
+References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
+	<20051222011320.GL3917@stusta.de>
+	<20051222005209.0b1b25ca.akpm@osdl.org>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi David,
+From: Andrew Morton <akpm@osdl.org>
+Date: Thu, 22 Dec 2005 00:52:09 -0800
 
-inlined is the small patch that adds set_clock function to the spi_bitbang structure.
-Currently SPI bus clock can be configured either in chipselect() (which is _wrong_) or in txrx_buf (also doesn't encourage me much). Making it a separate function adds readability for the code.
-Also, it seems to be redundant to set clock on each transfer, so it's proposed to do per-message clock setting. If SPI bus clock setting involves some PLL reconfiguration it's definitely gonna save some time.
+> From: Charles-Edouard Ruault <ce@ruault.com>
+> Subject: [BUG] kernel 2.6.14.2 breaks IPSEC
 
-Vitaly
+Herbert's reply at the end of the thread explains that what the user
+is doing, applying SNAT to IPSEC, has undefined results currently.
 
-Signed-off-by: Vitaly Wool <vwool@ru.mvista.com>
+Using netfilter with IPSEC is known to be broken since the beginning
+of our IPSEC implementation, and we plan to cure it in 2.6.16 with
+some excellent work done by Patrick McHardy and Herbert Xu.
 
- drivers/spi/spi_bitbang.c       |    3 +++
- include/linux/spi/spi_bitbang.h |    1 +
- 2 files changed, 4 insertions(+)
-
-Index: linux-2.6.orig/drivers/spi/spi_bitbang.c
-===================================================================
---- linux-2.6.orig.orig/drivers/spi/spi_bitbang.c
-+++ linux-2.6.orig/drivers/spi/spi_bitbang.c
-@@ -263,6 +263,9 @@ nsecs = 100;
- 		chipselect = 0;
- 		status = 0;
- 
-+		if (bitbang->set_clock)
-+			bitbang->set_clock(spi);
-+
- 		for (;;t++) {
- 			if (bitbang->shutdown) {
- 				status = -ESHUTDOWN;
-Index: linux-2.6.orig/include/linux/spi/spi_bitbang.h
-===================================================================
---- linux-2.6.orig.orig/include/linux/spi/spi_bitbang.h
-+++ linux-2.6.orig/include/linux/spi/spi_bitbang.h
-@@ -31,6 +31,7 @@ struct spi_bitbang {
- 	struct spi_master	*master;
- 
- 	void	(*chipselect)(struct spi_device *spi, int is_on);
-+	void	(*set_clock)(struct spi_device *spi);
- 
- 	int	(*txrx_bufs)(struct spi_device *spi, struct spi_transfer *t);
- 	u32	(*txrx_word[4])(struct spi_device *spi,
+So just remove that from your list please, thanks.

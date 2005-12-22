@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbVLVVmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030307AbVLVVnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030298AbVLVVmU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 16:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbVLVVmT
+	id S1030307AbVLVVnO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 16:43:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030323AbVLVVnO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 16:42:19 -0500
-Received: from rtsoft3.corbina.net ([85.21.88.6]:42159 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S1030298AbVLVVmT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 16:42:19 -0500
-Message-ID: <43AB1DB7.3080505@ru.mvista.com>
-Date: Fri, 23 Dec 2005 00:42:15 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
+	Thu, 22 Dec 2005 16:43:14 -0500
+Received: from ozlabs.org ([203.10.76.45]:21141 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1030315AbVLVVnN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 16:43:13 -0500
 MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org, spi-devel-general@sourceforge.net
-Subject: Re: [PATCH 2.6-git] SPI: add set_clock() to bitbang
-References: <20051222180449.4335a8e6.vwool@ru.mvista.com> <200512220840.34152.david-b@pacbell.net> <43AB1958.1070407@ru.mvista.com> <200512221337.39305.david-b@pacbell.net>
-In-Reply-To: <200512221337.39305.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17323.7659.745878.823890@cargo.ozlabs.ibm.com>
+Date: Fri, 23 Dec 2005 08:43:07 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, arjanv@infradead.org, nico@cam.org,
+       jes@trained-monkey.org, zwane@arm.linux.org.uk, oleg@tv-sign.ru,
+       dhowells@redhat.com, alan@lxorguk.ukuu.org.uk, bcrl@kvack.org,
+       rostedt@goodmis.org, hch@infradead.org, ak@suse.de,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+In-Reply-To: <20051222050701.41b308f9.akpm@osdl.org>
+References: <20051222114147.GA18878@elte.hu>
+	<20051222035443.19a4b24e.akpm@osdl.org>
+	<20051222122011.GA20789@elte.hu>
+	<20051222050701.41b308f9.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
+Andrew Morton writes:
 
->>>This is actually not needed.  Clocks are set through the setup() method
->>>      
->>>
->>...
->>
->>Where is it supposed to call setup? I guess it's anyway gonna be 
->>per-transfer, right?
->>Or am I missing something?
->>    
->>
->
->When the device is created, the core calls setup() to get things like
->chipselect polarity sorted out and put into the inactive state.   That
->matches the board-specific defaults associated with that device, which
->would be a function of voltage, routing, and more.
->
->And from then on, it'd be rare to ever call setup() again ... though
->drivers certainly could do that between spi_message interactions with
->a given device.
->  
->
-No, suppose there're two devices behind the same SPI bus that have 
-different clock constraints. As active SPI device change may well happen 
-when each new message is processed, we'll need to set up clocks again 
-for each message. Right?
+> Ingo Molnar <mingo@elte.hu> wrote:
+> >  - 'struct mutex' is smaller: on x86, 'struct semaphore' is 20 bytes, 
+> >    'struct mutex' is 16 bytes. A smaller structure size means less RAM 
+> >    footprint, and better CPU-cache utilization.
+> 
+> Because of the .sleepers thing.  Perhaps a revamped semaphore wouldn't need
+> thsat field?
 
-Vitaly
+Note that semaphores on 32-bit PPC are only 16 bytes already, since I
+got rid of the sleepers field ages ago.  The fast path is just
+atomic_dec/inc, and the slow path needs an atomic op that does
+
+	x = max(x, 0) + inc
+
+atomically and returns the old value of x.  That's easy to do with
+lwarx/stwcx (just two more instructions than an atomic inc), and can
+also be done quite straightforwardly with cmpxchg.  Alpha, mips, s390
+and sparc64 also use this scheme.
+
+In fact I would go so far as to say that I cannot see how it would be
+possible to do a mutex any smaller or faster than a counting semaphore
+on these architectures.
+
+Regards,
+Paul.

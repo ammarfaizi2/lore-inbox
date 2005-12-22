@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965135AbVLVIhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbVLVIko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965135AbVLVIhy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 03:37:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965136AbVLVIhy
+	id S965136AbVLVIko (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 03:40:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965137AbVLVIko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 03:37:54 -0500
-Received: from smtp104.plus.mail.mud.yahoo.com ([68.142.206.237]:53077 "HELO
-	smtp104.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965135AbVLVIhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 03:37:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=WAL4/8lCq55t5V4UOeR+sReQ6eyraiqE0rUDMvSXJCYXvTQ7jVBoj8g8SDu7XgL8blwIm9qGN/bwVGvQsQK+WoHDjFv85I6z1AhwnCZgmdIaxYToVf6KvzOrh7LaRhOUWamQI7mCqpJyl9E/S4z0Q6R8oc6s0gbUN6wk+xglU6Y=  ;
-Message-ID: <43AA65DA.6060003@yahoo.com.au>
-Date: Thu, 22 Dec 2005 19:37:46 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 22 Dec 2005 03:40:44 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:58297 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S965136AbVLVIko (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 03:40:44 -0500
+Date: Thu, 22 Dec 2005 09:40:30 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: linux-m68k@vger.kernel.org,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 04/36] m68k: switch mac/misc.c to direct use of appropriate
+ cuda/pmu/maciisi requests
+In-Reply-To: <E1EpIOK-0004q9-FT@ZenIV.linux.org.uk>
+Message-ID: <Pine.LNX.4.62.0512220939090.17836@pademelon.sonytel.be>
+References: <E1EpIOK-0004q9-FT@ZenIV.linux.org.uk>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Jes Sorensen <jes@trained-monkey.org>, Linus Torvalds <torvalds@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 0/8] mutex subsystem, ANNOUNCE
-References: <20051221155411.GA7243@elte.hu> <yq0irtiuxvv.fsf@jaguar.mkp.net> <43AA1134.7090704@yahoo.com.au> <20051222071940.GA16804@elte.hu> <43AA5C15.8060907@yahoo.com.au> <20051222082406.GA32052@elte.hu>
-In-Reply-To: <20051222082406.GA32052@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Thu, 22 Dec 2005, Al Viro wrote:
+> From: Al Viro <viro@zeniv.linux.org.uk>
+> Date: 1134918770 -0500
 > 
+> kill ADBREQ_RAW use, replace adb_read_time(), etc. with per-type variants,
+> eliminated remapping from pmu ones, fix the ifdefs (PMU->PMU68K)
 > 
->>At the very least, the head waiter should not put itself on the end of 
->>the FIFO when it finds the lock contended and waits again.
-> 
-> 
-> It's on my list. I had this implemented a couple of days ago, but then 
-> profiled it and it turns out that the scenario isnt actually happening 
-> in any significant way, not even on the most extreme 512-task workloads.  
-> So i just removed the extra bloat. But i'll look at this again today, 
-> together with some 'max delay' statistics.
-> 
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
-That would be good.
+> +	switch(macintosh_config->adb_type) {
+> +	case MAC_ADB_IISI:
+> +		func = maciisi_read_pram; break;
+> +	case MAC_ADB_PB1:
+> +	case MAC_ADB_PB2:
+> +		func = pmu_read_pram; break;
+> +	case MAC_ADB_CUDA:
+> +		func = cuda_read_pram; break;
+> +	default:
+>  		func = via_read_pram;
+>  	}
 
-If it isn't happening in a significant quantity, then something else
-must be responsible for the performance increase. Arjan guesses the
-double wakeups which could be the case, but I'd still put my money
-on this issue (or maybe it is a combination of both).
+Wouldn't it be better to just have an ops structure with function pointers and
+data fields, so we just have to initialize that once, instead of having `switch
+(macintosh_config->adb_type) { ...}' in multiple places?
 
-Either way it would be good to work out where the performance is
-coming from, and I do think fixing this is a good idea for fairness
-(even though it may not technically improve deterministic max
-latencies because there are still race windows)
+Gr{oetje,eeting}s,
 
--- 
-SUSE Labs, Novell Inc.
+						Geert
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

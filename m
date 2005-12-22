@@ -1,58 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965115AbVLVHXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965107AbVLVHeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965115AbVLVHXy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 02:23:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965107AbVLVHXy
+	id S965107AbVLVHeW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 02:34:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965116AbVLVHeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 02:23:54 -0500
-Received: from mail.gurulabs.com ([67.137.148.7]:36548 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S965102AbVLVHXx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 02:23:53 -0500
-Subject: Re: ETA for Areca RAID driver (arcmsr) in mainline?
-From: Dax Kelson <dax@gurulabs.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <1135235065.439.25.camel@mindpipe>
-References: <1135228831.4122.15.camel@mentorng.gurulabs.com>
-	 <1135229681.439.23.camel@mindpipe>
-	 <1135232812.4122.20.camel@mentorng.gurulabs.com>
-	 <1135235065.439.25.camel@mindpipe>
-Content-Type: text/plain
-Date: Thu, 22 Dec 2005 00:24:16 -0700
-Message-Id: <1135236256.4122.24.camel@mentorng.gurulabs.com>
+	Thu, 22 Dec 2005 02:34:22 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:14291
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965107AbVLVHeW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 02:34:22 -0500
+Date: Wed, 21 Dec 2005 23:31:17 -0800 (PST)
+Message-Id: <20051221.233117.97061334.davem@davemloft.net>
+To: coniodiago@gmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Un aligned addresses
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <993d182d0512212236u525b6f25wf1dcaae9c389537f@mail.gmail.com>
+References: <993d182d0512212236u525b6f25wf1dcaae9c389537f@mail.gmail.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-22 at 02:04 -0500, Lee Revell wrote:
-> On Wed, 2005-12-21 at 23:26 -0700, Dax Kelson wrote:
-> > On Thu, 2005-12-22 at 00:34 -0500, Lee Revell wrote:
-> > > On Wed, 2005-12-21 at 22:20 -0700, Dax Kelson wrote:
-> > > > I just got a shiny new (for me at least, the card has been out for
-> > > > months) Areca RAID card.
-> > > > 
-> > > > The driver (arcmsr) is in the -mm kernel, but hasn't yet made it to the
-> > > > mainline kernel. I'm curious what remains to be done before this can
-> > > > happen?
-> > > 
-> > > Well, often all that's needed are some user reports that the driver
-> > > works for them.
-> > > 
-> > > Does it?
-> > 
-> > According to google searches, yes.
-> > 
-> > At one time there was an issue raised about stack consumption, but that
-> > appears fixed??
-> 
-> I meant, does it work for *you*?
+From: Conio sandiago <coniodiago@gmail.com>
+Date: Thu, 22 Dec 2005 12:06:46 +0530
 
-Like I said, I just barely got the card. I'm working on getting a custom
-installer built so I get find out the answer. If it was already in
-mainline I'd already have a system installed. :)
+> After a lot of observation ,
+> i observed that i am getting un-aligned addresses of the data payload
+> from the TCP/IP stack.because of this problem i always have to do
+> memcpy to a word aligned buffer,because of which throughput is reduced
+> significantly.
 
-Dax Kelson
-
+Do skb_reserve(skb, 2), before you give the buffer at
+skb->data to the chip, this will align all the headers
+correctly.

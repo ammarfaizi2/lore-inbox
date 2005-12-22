@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932420AbVLVGKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbVLVG0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932420AbVLVGKz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 01:10:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932429AbVLVGKz
+	id S932475AbVLVG0b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 01:26:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbVLVG0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 01:10:55 -0500
-Received: from smtp104.sbc.mail.re2.yahoo.com ([68.142.229.101]:61818 "HELO
-	smtp104.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S932420AbVLVGKy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 01:10:54 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: usb: replace __setup("nousb") with __module_param_call
-Date: Thu, 22 Dec 2005 01:10:52 -0500
-User-Agent: KMail/1.8.3
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-References: <20051220141504.31441a41.zaitcev@redhat.com>
-In-Reply-To: <20051220141504.31441a41.zaitcev@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 22 Dec 2005 01:26:30 -0500
+Received: from mail.gurulabs.com ([67.137.148.7]:7108 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S932475AbVLVG03 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 01:26:29 -0500
+Subject: Re: ETA for Areca RAID driver (arcmsr) in mainline?
+From: Dax Kelson <dax@gurulabs.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <1135229681.439.23.camel@mindpipe>
+References: <1135228831.4122.15.camel@mentorng.gurulabs.com>
+	 <1135229681.439.23.camel@mindpipe>
+Content-Type: text/plain
+Date: Wed, 21 Dec 2005 23:26:52 -0700
+Message-Id: <1135232812.4122.20.camel@mentorng.gurulabs.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512220110.52466.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 20 December 2005 17:15, Pete Zaitcev wrote:
-> Fedora users complain that passing "nousbstorage" to the installer causes
-> the rest of the USB support to disappear. The installer uses kernel command
-> line as a way to pass options through Syslinux. The problem stems from the
-> use of strncmp() in obsolete_checksetup().
->
+On Thu, 2005-12-22 at 00:34 -0500, Lee Revell wrote:
+> On Wed, 2005-12-21 at 22:20 -0700, Dax Kelson wrote:
+> > I just got a shiny new (for me at least, the card has been out for
+> > months) Areca RAID card.
+> > 
+> > The driver (arcmsr) is in the -mm kernel, but hasn't yet made it to the
+> > mainline kernel. I'm curious what remains to be done before this can
+> > happen?
+> 
+> Well, often all that's needed are some user reports that the driver
+> works for them.
+> 
+> Does it?
 
-I wonder if that strncmp() should be changed into something like
-this (untested):
+According to google searches, yes.
 
---- work.orig/init/main.c
-+++ work/init/main.c
-@@ -167,7 +167,7 @@ static int __init obsolete_checksetup(ch
- 	p = __setup_start;
- 	do {
- 		int n = strlen(p->str);
--		if (!strncmp(line, p->str, n)) {
-+		if (!strncmp(line, p->str, n) && !isalnum(line[n])) {
- 			if (p->early) {
- 				/* Already done in parse_early_param?  (Needs
- 				 * exact match on param part) */
+At one time there was an issue raised about stack consumption, but that
+appears fixed??
 
+Dax Kelson
 
--- 
-Dmitry

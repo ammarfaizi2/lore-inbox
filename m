@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965052AbVLVEtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965045AbVLVEto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965052AbVLVEtd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 23:49:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbVLVEtd
+	id S965045AbVLVEto (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 23:49:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965047AbVLVEtk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 23:49:33 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:21968 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965049AbVLVEta
+	Wed, 21 Dec 2005 23:49:40 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:21200 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965045AbVLVEtP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 23:49:30 -0500
+	Wed, 21 Dec 2005 23:49:15 -0500
 To: linux-m68k@vger.kernel.org
-Subject: [PATCH 05/36] m68k: dumb typo in atyfb
+Subject: [PATCH 02/36] m68k: compile fix - updated vmlinux.lds to include LOCK_TEXT
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1EpIOP-0004qH-Fd@ZenIV.linux.org.uk>
+Message-Id: <E1EpIOA-0004pz-Ez@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Thu, 22 Dec 2005 04:49:29 +0000
+Date: Thu, 22 Dec 2005 04:49:14 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1133440411 -0500
+Date: 1133442562 -0500
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- drivers/video/aty/atyfb_base.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ arch/m68k/kernel/vmlinux-std.lds  |    1 +
+ arch/m68k/kernel/vmlinux-sun3.lds |    1 +
+ 2 files changed, 2 insertions(+), 0 deletions(-)
 
-ecaf29aea7286901cd2c2f14c30f84cdd5ad966a
-diff --git a/drivers/video/aty/atyfb_base.c b/drivers/video/aty/atyfb_base.c
-index 08edbfc..a2fdcd2 100644
---- a/drivers/video/aty/atyfb_base.c
-+++ b/drivers/video/aty/atyfb_base.c
-@@ -3472,7 +3472,7 @@ err_release_mem:
- 
- static int __devinit atyfb_atari_probe(void)
- {
--	struct aty_par *par;
-+	struct atyfb_par *par;
- 	struct fb_info *info;
- 	int m64_num;
- 	u32 clock_r;
+5abd81a0eec683133b4362d47863af009d393703
+diff --git a/arch/m68k/kernel/vmlinux-std.lds b/arch/m68k/kernel/vmlinux-std.lds
+index e58654f..69d1d3d 100644
+--- a/arch/m68k/kernel/vmlinux-std.lds
++++ b/arch/m68k/kernel/vmlinux-std.lds
+@@ -13,6 +13,7 @@ SECTIONS
+   .text : {
+ 	*(.text)
+ 	SCHED_TEXT
++	LOCK_TEXT
+ 	*(.fixup)
+ 	*(.gnu.warning)
+ 	} :text = 0x4e75
+diff --git a/arch/m68k/kernel/vmlinux-sun3.lds b/arch/m68k/kernel/vmlinux-sun3.lds
+index cc37e8d..f814e66 100644
+--- a/arch/m68k/kernel/vmlinux-sun3.lds
++++ b/arch/m68k/kernel/vmlinux-sun3.lds
+@@ -14,6 +14,7 @@ SECTIONS
+ 	*(.head)
+ 	*(.text)
+ 	SCHED_TEXT
++	LOCK_TEXT
+ 	*(.fixup)
+ 	*(.gnu.warning)
+ 	} :text = 0x4e75
 -- 
 0.99.9.GIT
 

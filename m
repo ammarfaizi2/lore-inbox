@@ -1,123 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbVLVLnA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbVLVLnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbVLVLnA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 06:43:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbVLVLnA
+	id S932279AbVLVLnB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 06:43:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932263AbVLVLnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 06:43:00 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:27810 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S932216AbVLVLm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 06:42:58 -0500
-Subject: [PATCH] Debug shared irqs.
-From: David Woodhouse <dwmw2@infradead.org>
-To: akpm@osdl.org
-Cc: arjan@infradead.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Thu, 22 Dec 2005 11:42:46 +0000
-Message-Id: <1135251766.3557.13.camel@pmac.infradead.org>
+	Thu, 22 Dec 2005 06:43:01 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:15575 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932257AbVLVLm7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 06:42:59 -0500
+Date: Thu, 22 Dec 2005 12:42:05 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [patch 2/9] mutex subsystem, add atomic_*_call_if_*() to i386
+Message-ID: <20051222114205.GC18878@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Drivers registering IRQ handlers with SA_SHIRQ really ought to be able
-to handle an interrupt happening before request_irq() returns. They also
-ought to be able to handle an interrupt happening during the start of
-their call to free_irq(). Let's test that hypothesis....
+add two new atomic ops to i386: atomic_dec_call_if_negative() and
+atomic_inc_call_if_nonpositive(), which are conditional-call-if
+atomic operations. Needed by the new mutex code.
 
-Signed-off-by: David Woodhouse <dwmw2@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-I'm not wonderfully happy with the faked pt_regs, but I think it ought
-to be OK like that.
+----
 
---- linux-2.6.14/lib//Kconfig.debug~	2005-12-19 00:57:18.000000000 +0000
-+++ linux-2.6.14/lib//Kconfig.debug	2005-12-22 11:37:27.000000000 +0000
-@@ -176,6 +176,15 @@ config DEBUG_VM
+ include/asm-i386/atomic.h |   57 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 57 insertions(+)
+
+Index: linux/include/asm-i386/atomic.h
+===================================================================
+--- linux.orig/include/asm-i386/atomic.h
++++ linux/include/asm-i386/atomic.h
+@@ -240,6 +240,63 @@ static __inline__ int atomic_sub_return(
+ #define atomic_inc_return(v)  (atomic_add_return(1,v))
+ #define atomic_dec_return(v)  (atomic_sub_return(1,v))
  
- 	  If unsure, say N.
- 
-+config SHARE_ME_HARDER
-+       bool "Debug shared IRQ handlers"
-+       depends on GENERIC_HARDIRQS
-+       help
-+         Enable this to generate a spurious interrupt as soon as a shared interrupt
-+	 handler is registered, and just before one is deregistered. Drivers ought
-+	 to be able to handle interrupts coming in at those some; some don't and
-+	 need to be caught.
++/**
++ * atomic_dec_call_if_negative - decrement and call function if negative
++ * @v: pointer of type atomic_t
++ * @fn: function to call if the result is negative
++ *
++ * Atomically decrements @v and calls a function if the result is negative.
++ */
++#define atomic_dec_call_if_negative(v, fn_name)				\
++do {									\
++	fastcall void (*__tmp)(atomic_t *) = fn_name;			\
++	unsigned int dummy;						\
++									\
++	(void)__tmp;							\
++	typecheck(atomic_t *, v);					\
++									\
++	__asm__ __volatile__(						\
++		LOCK "decl (%%eax)\n"  					\
++		"js 2f\n"						\
++		"1:\n"							\
++		LOCK_SECTION_START("")					\
++		"2: call "#fn_name"\n\t"				\
++		"jmp 1b\n"						\
++		LOCK_SECTION_END					\
++		:"=a"(dummy)						\
++		:"a" (v)						\
++		:"memory", "ecx", "edx");				\
++} while (0)
 +
- config FRAME_POINTER
- 	bool "Compile the kernel with frame pointers"
- 	depends on DEBUG_KERNEL && (X86 || CRIS || M68K || M68KNOMMU || FRV || UML)
---- linux-2.6.14/kernel/irq/manage.c~	2005-12-19 00:57:18.000000000 +0000
-+++ linux-2.6.14/kernel/irq/manage.c	2005-12-22 11:24:40.000000000 +0000
-@@ -238,6 +238,10 @@ int setup_irq(unsigned int irq, struct i
- 	return 0;
- }
- 
-+#ifdef CONFIG_SHARE_ME_HARDER
-+static struct pt_regs shirq_fakeregs;
-+#endif
++/**
++ * atomic_inc_call_if_nonpositive - increment and call function if nonpositive
++ * @v: pointer of type atomic_t
++ * @fn: function to call if the result is nonpositive
++ *
++ * Atomically increments @v and calls a function if the result is nonpositive.
++ */
++#define atomic_inc_call_if_nonpositive(v, fn_name)			\
++do {									\
++	fastcall void (*__tmp)(atomic_t *) = fn_name;			\
++	unsigned int dummy;						\
++									\
++	(void)__tmp;							\
++	typecheck(atomic_t *, v);					\
++									\
++	__asm__ __volatile__(						\
++		LOCK "incl (%%eax)\n"  					\
++		"jle 2f\n"						\
++		"1:\n"							\
++		LOCK_SECTION_START("")					\
++		"2: call "#fn_name"\n\t"				\
++		"jmp 1b\n"						\
++		LOCK_SECTION_END					\
++		:"=a" (dummy)						\
++		:"a" (v)						\
++		:"memory", "ecx", "edx");				\
++} while (0)
 +
- /**
-  *	free_irq - free an interrupt
-  *	@irq: Interrupt line to free
-@@ -257,6 +261,7 @@ void free_irq(unsigned int irq, void *de
- 	struct irq_desc *desc;
- 	struct irqaction **p;
- 	unsigned long flags;
-+	irqreturn_t (*handler)(int, void *, struct pt_regs *) = NULL;
- 
- 	if (irq >= NR_IRQS)
- 		return;
-@@ -295,6 +300,8 @@ void free_irq(unsigned int irq, void *de
- 
- 			/* Make sure it's not being used on another CPU */
- 			synchronize_irq(irq);
-+			if (action->flags & SA_SHIRQ)
-+				handler = action->handler;
- 			kfree(action);
- 			return;
- 		}
-@@ -302,6 +309,15 @@ void free_irq(unsigned int irq, void *de
- 		spin_unlock_irqrestore(&desc->lock,flags);
- 		return;
- 	}
-+#ifdef CONFIG_SHARE_ME_HARDER
-+	if (handler) {
-+		/* It's a shared IRQ -- the driver ought to be prepared for it to happen
-+		   even now it's being freed, so let's make sure.... 
-+		   We do this after actually deregistering it, to make sure that a 'real'
-+		   IRQ doesn't run in parallel with our fake. */
-+		handler(irq, dev_id, &shirq_fakeregs);
-+	}
-+#endif
- }
- 
- EXPORT_SYMBOL(free_irq);
-@@ -366,6 +382,16 @@ int request_irq(unsigned int irq,
- 	action->next = NULL;
- 	action->dev_id = dev_id;
- 
-+#ifdef CONFIG_SHARE_ME_HARDER
-+	if (irqflags & SA_SHIRQ) {
-+		/* It's a shared IRQ -- the driver ought to be prepared for it to happen
-+		   immediately, so let's make sure.... 
-+		   We do this before actually registering it, to make sure that a 'real'
-+		   IRQ doesn't run in parallel with our fake. */
-+		handler(irq, dev_id, &shirq_fakeregs);
-+	}
-+#endif
 +
- 	retval = setup_irq(irq, action);
- 	if (retval)
- 		kfree(action);
-
-
--- 
-dwmw2
-
+ /* These are x86-specific, used by some header files */
+ #define atomic_clear_mask(mask, addr) \
+ __asm__ __volatile__(LOCK "andl %0,%1" \

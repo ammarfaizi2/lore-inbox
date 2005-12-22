@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbVLVXGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030361AbVLVXGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030365AbVLVXGP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 18:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030364AbVLVXGP
+	id S1030361AbVLVXGK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 18:06:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbVLVXGK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 18:06:15 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:5595 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030358AbVLVXFt (ORCPT
+	Thu, 22 Dec 2005 18:06:10 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:5851 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030361AbVLVXFu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 18:05:49 -0500
-Date: Fri, 23 Dec 2005 00:04:56 +0100
+	Thu, 22 Dec 2005 18:05:50 -0500
+Date: Fri, 23 Dec 2005 00:05:03 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -21,8 +21,8 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Steven Rostedt <rostedt@goodmis.org>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 3/8] mutex subsystem, add per-arch mutex.h files
-Message-ID: <20051222230456.GD13302@elte.hu>
+Subject: [patch 4/8] mutex subsystem, core
+Message-ID: <20051222230503.GE13302@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -37,522 +37,657 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-add the per-arch mutex.h files. i386 and x86 provide their own
-fastpath implementation already, the others default to
-asm-generic/mutex-xchg.h.
+mutex implementation, core files: just the basic subsystem, no users of it.
 
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 
 ----
 
- include/asm-alpha/mutex.h     |   10 ++++
- include/asm-arm/mutex.h       |    8 +++
- include/asm-arm26/mutex.h     |    8 +++
- include/asm-cris/mutex.h      |   10 ++++
- include/asm-frv/mutex.h       |   10 ++++
- include/asm-h8300/mutex.h     |   10 ++++
- include/asm-i386/mutex.h      |   95 ++++++++++++++++++++++++++++++++++++++++++
- include/asm-ia64/mutex.h      |   10 ++++
- include/asm-m32r/mutex.h      |   10 ++++
- include/asm-m68k/mutex.h      |   10 ++++
- include/asm-m68knommu/mutex.h |   10 ++++
- include/asm-mips/mutex.h      |   10 ++++
- include/asm-parisc/mutex.h    |   10 ++++
- include/asm-powerpc/mutex.h   |   10 ++++
- include/asm-s390/mutex.h      |   10 ++++
- include/asm-sh/mutex.h        |   10 ++++
- include/asm-sh64/mutex.h      |   10 ++++
- include/asm-sparc/mutex.h     |   10 ++++
- include/asm-sparc64/mutex.h   |   10 ++++
- include/asm-um/mutex.h        |   10 ++++
- include/asm-v850/mutex.h      |   10 ++++
- include/asm-x86_64/mutex.h    |   69 ++++++++++++++++++++++++++++++
- include/asm-xtensa/mutex.h    |   10 ++++
- 23 files changed, 370 insertions(+)
+ include/linux/mutex.h |  101 +++++++++
+ kernel/Makefile       |    2 
+ kernel/mutex.c        |  518 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 620 insertions(+), 1 deletion(-)
 
-Index: linux/include/asm-alpha/mutex.h
+Index: linux/include/linux/mutex.h
 ===================================================================
 --- /dev/null
-+++ linux/include/asm-alpha/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
++++ linux/include/linux/mutex.h
+@@ -0,0 +1,101 @@
++#ifndef __LINUX_MUTEX_H
++#define __LINUX_MUTEX_H
 +
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-arm/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-arm/mutex.h
-@@ -0,0 +1,8 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead
-+ */
-+
-+#include <asm-generic/mutex-xchg.h>
-Index: linux/include/asm-arm26/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-arm26/mutex.h
-@@ -0,0 +1,8 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead
-+ */
-+
-+#include <asm-generic/mutex-xchg.h>
-Index: linux/include/asm-cris/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-cris/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-frv/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-frv/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-h8300/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-h8300/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-i386/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-i386/mutex.h
-@@ -0,0 +1,95 @@
 +/*
 + * Mutexes: blocking mutual exclusion locks
 + *
 + * started by Ingo Molnar:
 + *
 + *  Copyright (C) 2004, 2005 Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
-+ */
-+
-+/**
-+ *  __mutex_fastpath_lock - try to take the lock by moving the count
-+ *                          from 1 to a 0 value
-+ *  @count: pointer of type atomic_t
-+ *  @fn: function to call if the original value was not 1
 + *
-+ * Change the count from 1 to a value lower than 1, and call <fn> if it
-+ * wasn't 1 originally. This function MUST leave the value lower than 1
-+ * even when the "1" assertion wasn't true.
++ * This file contains the main data structure and API definitions.
 + */
-+#define __mutex_fastpath_lock(count, fn_name)				\
-+do {									\
-+	void fastcall (*__tmp)(atomic_t *) = fn_name;			\
-+	unsigned int dummy;						\
-+									\
-+	(void)__tmp;							\
-+	typecheck(atomic_t *, count);					\
-+									\
-+	__asm__ __volatile__(						\
-+		LOCK "decl (%%eax)\n"  					\
-+		"js 2f\n"						\
-+		"1:\n"							\
-+		LOCK_SECTION_START("")					\
-+		"2: call "#fn_name"\n\t"				\
-+		"jmp 1b\n"						\
-+		LOCK_SECTION_END					\
-+		:"=a"(dummy)						\
-+		:"a" (count)						\
-+		:"memory", "ecx", "edx");				\
-+} while (0)
++#include <linux/list.h>
++#include <linux/spinlock_types.h>
 +
++#include <asm/atomic.h>
 +
-+/**
-+ *  __mutex_fastpath_lock_retval - try to take the lock by moving the count
-+ *                                 from 1 to a 0 value
-+ *  @count: pointer of type atomic_t
-+ *  @fn: function to call if the original value was not 1
++/*
++ * Simple, straightforward mutexes with strict semantics:
 + *
-+ * Change the count from 1 to a value lower than 1, and call <fn> if it
-+ * wasn't 1 originally. This function returns 0 if the fastpath succeeds,
-+ * or anything the slow path function returns
++ * - only one task can hold the mutex at a time
++ * - only the owner can unlock the mutex
++ * - multiple unlocks are not permitted
++ * - recursive locking is not permitted
++ * - a mutex object must be initialized via the API
++ * - a mutex object must not be initialized via memset or copying
++ * - task may not exit with mutex held
++ * - memory areas where held locks reside must not be freed
++ * - held mutexes must not be reinitialized
++ * - mutexes may not be used in irq contexts
++ *
++ * These semantics are fully enforced when DEBUG_MUTEXES is
++ * enabled. Furthermore, besides enforcing the above rules, the mutex
++ * debugging code also implements a number of additional features
++ * that make lock debugging easier and faster:
++ *
++ * - uses symbolic names of mutexes, whenever they are printed in debug output
++ * - point-of-acquire tracking, symbolic lookup of function names
++ * - list of all locks held in the system, printout of them
++ * - owner tracking
++ * - detects self-recursing locks and prints out all relevant info
++ * - detects multi-task circular deadlocks and prints out all affected
++ *   locks and tasks (and only those tasks)
 + */
-+static inline int
-+__mutex_fastpath_lock_retval(atomic_t *count,
-+			     int fastcall (*fn_name)(atomic_t *))
++struct mutex {
++	/* 1: unlocked, 0: locked, negative: locked, possible waiters */
++	atomic_t		count;
++	spinlock_t		wait_lock;
++	struct list_head	wait_list;
++#ifdef CONFIG_DEBUG_MUTEXES
++	struct thread_info	*owner;
++	struct list_head	held_list;
++	unsigned long		acquire_ip;
++	const char 		*name;
++	void			*magic;
++#endif
++};
++
++/*
++ * This is the control structure for tasks blocked on mutex,
++ * which resides on the blocked task's kernel stack:
++ */
++struct mutex_waiter {
++	struct list_head	list;
++	struct thread_info	*ti;
++#ifdef CONFIG_DEBUG_MUTEXES
++	struct mutex		*lock;
++	void			*magic;
++#endif
++};
++
++#ifdef CONFIG_DEBUG_MUTEXES
++# include <linux/mutex-debug.h>
++#else
++# define __DEBUG_MUTEX_INITIALIZER(lockname)
++# define mutex_init(mutex)			__mutex_init(mutex, NULL)
++# define mutex_destroy(mutex)				do { } while (0)
++# define mutex_debug_show_all_locks()			do { } while (0)
++# define mutex_debug_show_held_locks(p)			do { } while (0)
++# define mutex_debug_check_no_locks_held(task)		do { } while (0)
++# define mutex_debug_check_no_locks_freed(from, to)	do { } while (0)
++#endif
++
++#define __MUTEX_INITIALIZER(lockname) \
++		{ .count = ATOMIC_INIT(1) \
++		, .wait_lock = SPIN_LOCK_UNLOCKED \
++		, .wait_list = LIST_HEAD_INIT(lockname.wait_list) \
++		__DEBUG_MUTEX_INITIALIZER(lockname) }
++
++#define DEFINE_MUTEX(mutexname) \
++	struct mutex mutexname = __MUTEX_INITIALIZER(mutexname)
++
++extern void FASTCALL(__mutex_init(struct mutex *lock, const char *name));
++
++extern void FASTCALL(mutex_lock(struct mutex *lock));
++extern int FASTCALL(mutex_lock_interruptible(struct mutex *lock));
++extern int FASTCALL(mutex_trylock(struct mutex *lock));
++extern void FASTCALL(mutex_unlock(struct mutex *lock));
++extern int FASTCALL(mutex_is_locked(struct mutex *lock));
++
++#endif
+Index: linux/kernel/Makefile
+===================================================================
+--- linux.orig/kernel/Makefile
++++ linux/kernel/Makefile
+@@ -7,7 +7,7 @@ obj-y     = sched.o fork.o exec_domain.o
+ 	    sysctl.o capability.o ptrace.o timer.o user.o \
+ 	    signal.o sys.o kmod.o workqueue.o pid.o \
+ 	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
+-	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o
++	    kthread.o wait.o kfifo.o sys_ni.o posix-cpu-timers.o mutex.o
+ 
+ obj-$(CONFIG_FUTEX) += futex.o
+ obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
+Index: linux/kernel/mutex.c
+===================================================================
+--- /dev/null
++++ linux/kernel/mutex.c
+@@ -0,0 +1,518 @@
++/*
++ * kernel/mutex.c
++ *
++ * Mutexes: blocking mutual exclusion locks
++ *
++ * Started by Ingo Molnar:
++ *
++ *  Copyright (C) 2004, 2005 Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
++ *
++ * Many thanks to Arjan van de Ven, Thomas Gleixner, Steven Rostedt and
++ * David Howells for suggestions and improvements.
++ */
++#include <linux/mutex.h>
++#include <linux/sched.h>
++#include <linux/delay.h>
++#include <linux/module.h>
++#include <linux/spinlock.h>
++#include <linux/kallsyms.h>
++#include <linux/interrupt.h>
++
++#include <asm/mutex.h>
++
++/*
++ * Various debugging wrappers - they are mostly NOPs in the !DEBUG case:
++ */
++#ifndef CONFIG_DEBUG_MUTEXES
++# define spin_lock_mutex(lock)			spin_lock(lock)
++# define spin_unlock_mutex(lock)		spin_unlock(lock)
++# define remove_waiter(lock, waiter, ti) \
++		__list_del((waiter)->list.prev, (waiter)->list.next)
++
++# define DEBUG_WARN_ON(c)			do { } while (0)
++# define debug_set_owner(lock, new_owner)	do { } while (0)
++# define debug_clear_owner(lock)		do { } while (0)
++# define debug_init_waiter(waiter)		do { } while (0)
++# define debug_wake_waiter(lock, waiter)	do { } while (0)
++# define debug_free_waiter(waiter)		do { } while (0)
++# define debug_add_waiter(lock, waiter, ti, ip)	do { } while (0)
++# define debug_mutex_unlock(lock)		do { } while (0)
++# define debug_mutex_init(lock, name)		do { } while (0)
++/*
++ * Return-address parameters/declarations are nonexistent in the !DEBUG case:
++ */
++# define __IP_DECL__
++# define __IP__
++# define __CALLER_IP__
++#else /* !CONFIG_DEBUG_MUTEXES: */
++# include "mutex-debug.c"
++#endif
++
++/***
++ * mutex_is_locked - is the mutex locked
++ * @lock: the mutex to be queried
++ *
++ * Returns 1 if the mutex is locked, 0 if unlocked.
++ */
++int fastcall mutex_is_locked(struct mutex *lock)
 +{
-+	if (unlikely(atomic_dec_return(count) < 0))
-+		return fn_name(count);
-+	else
-+		return 0;
++	return atomic_read(&lock->count) != 1;
 +}
 +
-+/**
-+ *  __mutex_fastpath_unlock - try to promote the mutex from 0 to 1
-+ *  @count: pointer of type atomic_t
-+ *  @fn: function to call if the original value was not 1
-+ *
-+ * try to promote the mutex from 0 to 1. if it wasn't 0, call <function>
-+ * In the failure case, this function is allowed to either set the value to
-+ * 1, or to set it to a value lower than one.
-+ * If the implementation sets it to a value of lower than one, the
-+ * __mutex_slowpath_needs_to_unlock() macro needs to return 1, it needs
-+ * to return 0 otherwise.
-+ */
-+#define __mutex_fastpath_unlock(count, fn_name)				\
-+do {									\
-+	void fastcall (*__tmp)(atomic_t *) = fn_name;			\
-+	unsigned int dummy;						\
-+									\
-+	(void)__tmp;							\
-+	typecheck(atomic_t *, count);					\
-+									\
-+	__asm__ __volatile__(						\
-+		LOCK "incl (%%eax)\n"  					\
-+		"jle 2f\n"						\
-+		"1:\n"							\
-+		LOCK_SECTION_START("")					\
-+		"2: call "#fn_name"\n\t"				\
-+		"jmp 1b\n"						\
-+		LOCK_SECTION_END					\
-+		:"=a" (dummy)						\
-+		:"a" (count)						\
-+		:"memory", "ecx", "edx");				\
-+} while (0)
-+
-+#define __mutex_slowpath_needs_to_unlock()	1
-+
-Index: linux/include/asm-ia64/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-ia64/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-m32r/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-m32r/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-m68k/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-m68k/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-m68knommu/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-m68knommu/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-mips/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-mips/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-parisc/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-parisc/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-powerpc/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-powerpc/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-s390/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-s390/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-sh/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-sh/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-sh64/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-sh64/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-sparc/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-sparc/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-sparc64/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-sparc64/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-um/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-um/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-v850/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-v850/mutex.h
-@@ -0,0 +1,10 @@
-+/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-x86_64/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-x86_64/mutex.h
-@@ -0,0 +1,69 @@
++EXPORT_SYMBOL_GPL(mutex_is_locked);
 +
 +/*
-+ * Mutexes: blocking mutual exclusion locks
-+ *
-+ * started by Ingo Molnar:
-+ *
-+ *  Copyright (C) 2004, 2005 Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
++ * Block on a lock - add ourselves to the list of waiters.
++ * Called with lock->wait_lock held.
 + */
++static inline void
++add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
++	   struct thread_info *ti, int add_to_head __IP_DECL__)
++{
++	debug_add_waiter(lock, waiter, ti, ip);
 +
-+/**
-+ * __mutex_fastpath_lock - decrement and call function if negative
-+ * @v: pointer of type atomic_t
-+ * @fn: function to call if the result is negative
-+ *
-+ * Atomically decrements @v and calls a function if the result is negative.
-+ */
-+#define __mutex_fastpath_lock(v, fn_name)				\
-+do {									\
-+	fastcall void (*__tmp)(atomic_t *) = fn_name;			\
-+	unsigned long dummy;						\
-+									\
-+	(void)__tmp;							\
-+	typecheck(atomic_t *, v);					\
-+									\
-+	__asm__ __volatile__(						\
-+		LOCK "decl (%%rdi)\n"  					\
-+		"js 2f\n"						\
-+		"1:\n"							\
-+		LOCK_SECTION_START("")					\
-+		"2: call "#fn_name"\n\t"				\
-+		"jmp 1b\n"						\
-+		LOCK_SECTION_END					\
-+		:"=D" (dummy)						\
-+		:"D" (v)						\
-+		:"rax", "rsi", "rdx", "rcx",				\
-+		 "r8", "r9", "r10", "r11", "memory");			\
-+} while (0)
++	waiter->ti = ti;
 +
-+/**
-+ * __mutex_fastpath_unlock - increment and call function if nonpositive
-+ * @v: pointer of type atomic_t
-+ * @fn: function to call if the result is nonpositive
-+ *
-+ * Atomically increments @v and calls a function if the result is nonpositive.
-+ */
-+#define __mutex_fastpath_unlock(v, fn_name)			\
-+do {									\
-+	fastcall void (*__tmp)(atomic_t *) = fn_name;			\
-+	unsigned long dummy;						\
-+									\
-+	(void)__tmp;							\
-+	typecheck(atomic_t *, v);					\
-+									\
-+	__asm__ __volatile__(						\
-+		LOCK "incl (%%rdi)\n"  					\
-+		"jle 2f\n"						\
-+		"1:\n"							\
-+		LOCK_SECTION_START("")					\
-+		"2: call "#fn_name"\n\t"				\
-+		"jmp 1b\n"						\
-+		LOCK_SECTION_END					\
-+		:"=D" (dummy)						\
-+		:"D" (v)						\
-+		:"rax", "rsi", "rdx", "rcx",				\
-+		 "r8", "r9", "r10", "r11", "memory");			\
-+} while (0)
++	/*
++	 * Add waiting tasks to the end of the waitqueue (FIFO),
++	 * but add repeat waiters to the head (LIFO):
++	 */
++	if (add_to_head)
++		list_add(&waiter->list, &lock->wait_list);
++	else
++		list_add_tail(&waiter->list, &lock->wait_list);
++}
 +
-+
-+#define __mutex_slowpath_needs_to_unlock() 1
-Index: linux/include/asm-xtensa/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-xtensa/mutex.h
-@@ -0,0 +1,10 @@
 +/*
-+ * Pull in the generic wrappers for __mutex_fastpath_lock() and
-+ * __mutex_fastpath_unlock().
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based
-+ * generic implementation.
++ * Wake up a task and make it the new owner of the mutex:
 + */
++static inline void
++mutex_wakeup_waiter(struct mutex *lock __IP_DECL__)
++{
++	struct mutex_waiter *waiter;
 +
-+#include <asm-generic/mutex-dec.h>
++	/* get the first entry from the wait-list: */
++	waiter = list_entry(lock->wait_list.next, struct mutex_waiter, list);
++
++	debug_wake_waiter(lock, waiter);
++
++	wake_up_process(waiter->ti->task);
++}
++
++/*
++ * Lock a mutex, common slowpath. We just decremented the count,
++ * and it got negative as a result.
++ *
++ * We enter with the lock held, and return with it released.
++ */
++static inline int
++__mutex_lock_common(struct mutex *lock, struct mutex_waiter *waiter,
++		    struct thread_info *ti, unsigned long task_state,
++		    const int add_to_head __IP_DECL__)
++{
++	struct task_struct *task = ti->task;
++	unsigned int old_val;
++
++	/*
++	 * Lets try to take the lock again - this is needed even if
++	 * we get here for the first time (shortly after failing to
++	 * acquire the lock), to make sure that we get a wakeup once
++	 * it's unlocked. Later on this is the operation that gives
++	 * us the lock. So we xchg it to -1, so that when we release
++	 * the lock, we properly wake up the other waiters:
++	 */
++	old_val = atomic_xchg(&lock->count, -1);
++
++	if (unlikely(old_val == 1)) {
++		/*
++		 * Got the lock - rejoice! But there's one small
++		 * detail to fix up: above we have set the lock to -1,
++		 * unconditionally. But what if there are no waiters?
++		 * While it would work with -1 too, 0 is a better value
++		 * in that case, because we wont hit the slowpath when
++		 * we release the lock. We can simply use atomic_set()
++		 * for this, because we are the owners of the lock now,
++		 * and are still holding the wait_lock:
++		 */
++		if (likely(list_empty(&lock->wait_list)))
++			atomic_set(&lock->count, 0);
++		debug_set_owner(lock, ti __IP__);
++
++		spin_unlock_mutex(&lock->wait_lock);
++
++		debug_free_waiter(waiter);
++
++		DEBUG_WARN_ON(list_empty(&lock->held_list));
++		DEBUG_WARN_ON(lock->owner != ti);
++
++		return 1;
++	}
++
++	add_waiter(lock, waiter, ti, add_to_head __IP__);
++	__set_task_state(task, task_state);
++
++	/*
++	 * Ok, didnt get the lock - we'll go to sleep after return:
++	 */
++	spin_unlock_mutex(&lock->wait_lock);
++
++	return 0;
++}
++
++/*
++ * Lock the mutex, slowpath:
++ */
++static inline void __mutex_lock_nonatomic(struct mutex *lock __IP_DECL__)
++{
++	struct thread_info *ti = current_thread_info();
++	struct mutex_waiter waiter;
++	/* first time queue the waiter as FIFO: */
++	int add_to_head = 0;
++
++	debug_init_waiter(&waiter);
++
++	spin_lock_mutex(&lock->wait_lock);
++
++	/* releases the internal lock: */
++	while (!__mutex_lock_common(lock, &waiter, ti,
++			TASK_UNINTERRUPTIBLE, add_to_head __IP__)) {
++
++		/* start queueing the waiter as LIFO: */
++		add_to_head = 1;
++		/* wait to be woken up: */
++		schedule();
++
++		spin_lock_mutex(&lock->wait_lock);
++		remove_waiter(lock, &waiter, ti);
++	}
++}
++
++/*
++ * Lock a mutex interruptible, slowpath:
++ */
++static int __sched
++__mutex_lock_interruptible_nonatomic(struct mutex *lock __IP_DECL__)
++{
++	struct thread_info *ti = current_thread_info();
++	struct mutex_waiter waiter;
++	int add_to_head = 0;
++
++	debug_init_waiter(&waiter);
++
++	spin_lock_mutex(&lock->wait_lock);
++
++	for (;;) {
++		/* releases the internal lock: */
++		if (__mutex_lock_common(lock, &waiter, ti,
++				TASK_INTERRUPTIBLE, add_to_head __IP__))
++			return 0;
++
++		/* break out on a signal: */
++		if (unlikely(signal_pending(ti->task)))
++			break;
++
++		add_to_head = 1;
++		/* wait to be woken up: */
++		schedule();
++
++		spin_lock_mutex(&lock->wait_lock);
++		remove_waiter(lock, &waiter, ti);
++	}
++	/*
++	 * We got a signal. Remove ourselves from the wait list:
++	 */
++	spin_lock_mutex(&lock->wait_lock);
++	remove_waiter(lock, &waiter, ti);
++	/*
++	 * If there are other waiters then wake
++	 * one up:
++	 */
++	if (unlikely(!list_empty(&lock->wait_list)))
++		mutex_wakeup_waiter(lock __IP__);
++
++	spin_unlock_mutex(&lock->wait_lock);
++
++	__set_task_state(ti->task, TASK_RUNNING);
++
++	debug_free_waiter(&waiter);
++
++	return -EINTR;
++}
++
++/*
++ * We have three mutex_trylock() variants. The cmpxchg based one is
++ * the best one (because it has no side-effect on mutex_unlock()),
++ * but cmpxchg is not available on every architecture, so we also
++ * provide an atomic_dec_return based variant too. The debug variant
++ * takes the internal lock.
++ *
++ * [ The atomic_dec_return variant might end up making the counter
++ *   negative in the failure case, which may trigger the slowpath
++ *   for the owner's unlock path - but this is not a big problem
++ *   in practice. ]
++ */
++#ifndef CONFIG_DEBUG_MUTEXES
++/***
++ * mutex_trylock - try acquire the mutex, without waiting
++ * @lock: the mutex to be acquired
++ *
++ * Try to acquire the mutex atomically. Returns 1 if the mutex
++ * has been acquired successfully, and 0 on contention.
++ *
++ * NOTE: this function follows the spin_trylock() convention, so
++ * it is negated to the down_trylock() return values! Be careful
++ * about this when converting semaphore users to mutexes.
++ *
++ * This function must not be used in interrupt context. The
++ * mutex must be released by the same task that acquired it.
++ */
++int fastcall mutex_trylock(struct mutex *lock)
++{
++#ifdef __HAVE_ARCH_CMPXCHG
++	if (atomic_cmpxchg(&lock->count, 1, 0) == 1)
++		return 1;
++#else
++	if (atomic_dec_return(&lock->count) == 0)
++		return 1;
++#endif
++	return 0;
++}
++
++#else /* CONFIG_DEBUG_MUTEXES: */
++
++/*
++ * In the debug case we take the spinlock and check whether we can
++ * get the lock:
++ */
++int fastcall mutex_trylock(struct mutex *lock)
++{
++	struct thread_info *ti = current_thread_info();
++	int ret = 0;
++
++	spin_lock_mutex(&lock->wait_lock);
++
++	if (atomic_read(&lock->count) == 1) {
++		atomic_set(&lock->count, 0);
++		debug_set_owner(lock, ti __CALLER_IP__);
++		ret = 1;
++	}
++
++	spin_unlock_mutex(&lock->wait_lock);
++
++	return ret;
++}
++
++#endif /* CONFIG_DEBUG_MUTEXES */
++
++/*
++ * Release the lock, slowpath:
++ */
++static inline void __mutex_unlock_nonatomic(struct mutex *lock __IP_DECL__)
++{
++	DEBUG_WARN_ON(lock->owner != current_thread_info());
++
++	spin_lock_mutex(&lock->wait_lock);
++
++	/*
++	 * some architectures leave the lock unlocked in the fastpath failure
++	 * case, others need to leave it locked. In the later case we have to
++	 * unlock it here
++	 */
++#ifndef CONFIG_DEBUG_MUTEXES
++	if (__mutex_slowpath_needs_to_unlock())
++#endif
++		atomic_set(&lock->count, 1);
++
++	debug_mutex_unlock(lock);
++
++	if (!list_empty(&lock->wait_list))
++		mutex_wakeup_waiter(lock __IP__);
++
++	debug_clear_owner(lock);
++
++	spin_unlock_mutex(&lock->wait_lock);
++}
++
++#ifndef CONFIG_DEBUG_MUTEXES
++/*
++ * We split it into a fastpath and a separate slowpath function,
++ * to reduce the register pressure on the fastpath:
++ *
++ * We want the atomic op come first, to make sure the
++ * branch is predicted as default-untaken:
++ */
++static __sched void FASTCALL(__mutex_lock_noinline(atomic_t *lock_count));
++
++/*
++ * Some architectures do not have fast dec_and_test atomic primitives,
++ * for them we are providing an atomic_xchg() based mutex implementation,
++ * if they enable CONFIG_MUTEX_XCHG_ALGORITHM.
++ *
++ * The locking fastpath is the 1->0 transition from 'unlocked' into
++ * 'locked' state:
++ */
++static inline void __mutex_lock_atomic(struct mutex *lock)
++{
++	__mutex_fastpath_lock(&lock->count, __mutex_lock_noinline);
++}
++
++/*
++ * We put the slowpath into a separate function. This reduces
++ * register pressure in the fastpath, and also enables the
++ * atomic_[inc/dec]_call_if_[negative|nonpositive]() primitives.
++ */
++static void fastcall __sched __mutex_lock_noinline(atomic_t *lock_count)
++{
++	struct mutex *lock = container_of(lock_count, struct mutex, count);
++
++	__mutex_lock_nonatomic(lock);
++}
++
++static inline void __mutex_lock(struct mutex *lock)
++{
++	__mutex_lock_atomic(lock);
++}
++
++static int fastcall __sched
++__mutex_lock_interruptible_noinline(atomic_t *lock_count);
++
++static inline int __mutex_lock_interruptible(struct mutex *lock)
++{
++	return __mutex_fastpath_lock_retval
++			(&lock->count, __mutex_lock_interruptible_noinline);
++	return 0;
++}
++
++static int fastcall __sched
++__mutex_lock_interruptible_noinline(atomic_t *lock_count)
++{
++	struct mutex *lock = container_of(lock_count, struct mutex, count);
++
++	return __mutex_lock_interruptible_nonatomic(lock);
++}
++
++static void __sched FASTCALL(__mutex_unlock_noinline(atomic_t *lock_count));
++
++/*
++ * The unlocking fastpath is the 0->1 transition from 'locked' into
++ * 'unlocked' state:
++ */
++static inline void __mutex_unlock_atomic(struct mutex *lock)
++{
++	__mutex_fastpath_unlock(&lock->count, __mutex_unlock_noinline);
++}
++
++static void fastcall __sched __mutex_unlock_noinline(atomic_t *lock_count)
++{
++	struct mutex *lock = container_of(lock_count, struct mutex, count);
++
++	__mutex_unlock_nonatomic(lock);
++}
++
++static inline void __mutex_unlock(struct mutex *lock)
++{
++	__mutex_unlock_atomic(lock);
++}
++
++#else /* CONFIG_DEBUG_MUTEXES: */
++
++/*
++ * In the debug case we just use the slowpath unconditionally:
++ */
++static inline void __mutex_lock(struct mutex *lock __IP_DECL__)
++{
++	__mutex_lock_nonatomic(lock __IP__);
++}
++
++static inline void __mutex_unlock(struct mutex *lock __IP_DECL__)
++{
++	__mutex_unlock_nonatomic(lock __IP__);
++}
++
++static inline int __mutex_lock_interruptible(struct mutex *lock __IP_DECL__)
++{
++	return __mutex_lock_interruptible_nonatomic(lock __IP__);
++}
++
++#endif
++
++/***
++ * mutex_lock - acquire the mutex
++ * @lock: the mutex to be acquired
++ *
++ * Lock the mutex exclusively for this task. If the mutex is not
++ * available right now, it will sleep until it can get it.
++ *
++ * The mutex must later on be released by the same task that
++ * acquired it. Recursive locking is not allowed. The task
++ * may not exit without first unlocking the mutex. Also, kernel
++ * memory where the mutex resides mutex must not be freed with
++ * the mutex still locked. The mutex must first be initialized
++ * (or statically defined) before it can be locked. memset()-ing
++ * the mutex to 0 is not allowed.
++ *
++ * ( The CONFIG_DEBUG_MUTEXES .config option turns on debugging
++ *   checks that will enforce the restrictions and will also do
++ *   deadlock debugging. )
++ *
++ * This function is similar to (but not equivalent to) down().
++ */
++void fastcall __sched mutex_lock(struct mutex *lock)
++{
++	__mutex_lock(lock __CALLER_IP__);
++}
++
++/***
++ * mutex_unlock - release the mutex
++ * @lock: the mutex to be released
++ *
++ * Unlock a mutex that has been locked by this task previously.
++ *
++ * This function must not be used in interrupt context. Unlocking
++ * of a not locked mutex is not allowed.
++ *
++ * This function is similar to (but not equivalent to) up().
++ */
++void fastcall __sched mutex_unlock(struct mutex *lock)
++{
++	__mutex_unlock(lock __CALLER_IP__);
++}
++
++/***
++ * mutex_lock_interruptible - acquire the mutex, interruptable
++ * @lock: the mutex to be acquired
++ *
++ * Lock the mutex like mutex_lock(), and return 0 if the mutex has
++ * been acquired or sleep until the mutex becomes available. If a
++ * signal arrives while waiting for the lock then this function
++ * returns -EINTR.
++ *
++ * This function is similar to (but not equivalent to) down_interruptible().
++ */
++int fastcall __sched mutex_lock_interruptible(struct mutex *lock)
++{
++	return __mutex_lock_interruptible(lock __CALLER_IP__);
++}
++
++EXPORT_SYMBOL_GPL(mutex_lock);
++EXPORT_SYMBOL_GPL(mutex_unlock);
++EXPORT_SYMBOL_GPL(mutex_lock_interruptible);
++
++/***
++ * mutex_init - initialize the mutex
++ * @lock: the mutex to be initialized
++ *
++ * Initialize the mutex to unlocked state.
++ *
++ * It is not allowed to initialize an already locked mutex.
++ */
++void fastcall __mutex_init(struct mutex *lock, const char *name)
++{
++	atomic_set(&lock->count, 1);
++	spin_lock_init(&lock->wait_lock);
++	INIT_LIST_HEAD(&lock->wait_list);
++
++	debug_mutex_init(lock, name);
++}
++EXPORT_SYMBOL_GPL(__mutex_init);
++

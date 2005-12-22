@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbVLVXzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbVLVX4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751094AbVLVXzN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 18:55:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVLVXzN
+	id S1751139AbVLVX4S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 18:56:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbVLVX4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 18:55:13 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:53946 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1751094AbVLVXzM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 18:55:12 -0500
-Date: Thu, 22 Dec 2005 18:55:08 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 0/8] mutex subsystem, -V6
-In-reply-to: <20051222230438.GA13302@elte.hu>
-X-X-Sender: nico@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Message-id: <Pine.LNX.4.64.0512221846470.26663@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20051222230438.GA13302@elte.hu>
+	Thu, 22 Dec 2005 18:56:18 -0500
+Received: from hellhawk.shadowen.org ([80.68.90.175]:40721 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1751139AbVLVX4S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 18:56:18 -0500
+Message-ID: <43AB3D15.2030303@shadowen.org>
+Date: Thu, 22 Dec 2005 23:56:05 +0000
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Andrew Morton <akpm@osdl.org>, mbligh@google.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com
+Subject: Re: [PATCH] pci device ensure sysdata initialised
+References: <20051220151609.565160d9.akpm@osdl.org> <20051222210628.GA16797@shadowen.org> <20051222231843.GB1943@kroah.com> <43AB3A1C.5070606@shadowen.org> <20051222235101.GA2826@kroah.com>
+In-Reply-To: <20051222235101.GA2826@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Dec 2005, Ingo Molnar wrote:
+Greg KH wrote:
 
-> this release picks up Arjan's asm/mutex.h implementation, which adds 
-> asm-generic/mutex-dec.h, asm-generic/mutex-xchg.h for architectures to 
-> pick up. i386 and x86_64 use their own optimized version already, the 
-> other architectures default to mutex-xchg.h.
-
-Great, this is in substance what I've been proposing for a while.
-
-> Architectures specify the 
-> following functions:
+> Well, why not properly locate them?  That's my point :)
 > 
->  -------------------------------------------------------------------
->  *  __mutex_fastpath_unlock - try to promote the mutex from 0 to 1
->  *  @count: pointer of type atomic_t
->  *  @fn: function to call if the original value was not 1
->  -------------------------------------------------------------------
-The above should read "function to call if the original value was not 0".
+> It seems you just put a default sysdata on a few places in the tree,
+> which fixed your boot problems.  I'm thinking that isn't fixing the root
+> issue here of not probing the pci devices properly on these boxes.  Does
+> that make more sense?
 
-> and __mutex_slowpath_needs_to_unlock(), to specify whether the fastpath 
-> has touched the count or not.
+I was thinking of doing that as a separate patch for the platforms I
+have access to.  But most of the hardcoded places are special cases for
+rather obscure hardware.
 
-Note that, in most cases (but not necessarily all of them) the count is 
-always touched.  It should rather be "has set the count to 1 or not" to 
-be precise..
+More tommorrow.
 
-> Nico, Christoph, does this approach work for you? Nico, you might want 
-> to try an ARM-specific mutex.h implementation.
-
-Yes, I'm happy.  And the ARM version will be sent your way soon.
-
-
-Nicolas
+-apw

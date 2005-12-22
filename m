@@ -1,44 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964846AbVLVQD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965054AbVLVQHP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964846AbVLVQD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 11:03:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbVLVQD5
+	id S965054AbVLVQHP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 11:07:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbVLVQHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 11:03:57 -0500
-Received: from 210-194-250-142.rev.home.ne.jp ([210.194.250.142]:16824 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S964846AbVLVQD5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 11:03:57 -0500
-Date: Fri, 23 Dec 2005 01:03:50 +0900 (JST)
-Message-Id: <20051223.010350.1300531784.whatisthis@jcom.home.ne.jp>
-To: linux-kernel@vger.kernel.org
-Subject: [x86_64] Couldn't load firmware compiling with gcc-4.0
-From: Kyuma Ohta <whatisthis@jcom.home.ne.jp>
-X-Mailer: Mew version 4.2.53 on Emacs 22.0.50 / Mule 5.0 (SAKAKI)
+	Thu, 22 Dec 2005 11:07:15 -0500
+Received: from smtp4.brturbo.com.br ([200.199.201.180]:34685 "EHLO
+	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S965054AbVLVQHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 11:07:13 -0500
+Subject: Re: [RFC: 2.6 patch] Makefile: sound/ must come before drivers/
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       James Courtier-Dutton <James@superbug.co.uk>,
+       Sergey Vlasov <vsu@altlinux.ru>, Ricardo Cerqueira <v4l@cerqueira.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
+In-Reply-To: <s5hfyolxi3r.wl%tiwai@suse.de>
+References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
+	 <20051220131810.GB6789@stusta.de>
+	 <20051220155216.GA19797@master.mivlgu.local>
+	 <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org>
+	 <20051220191412.GA4578@stusta.de>
+	 <Pine.LNX.4.64.0512201156250.4827@g5.osdl.org>
+	 <20051220202325.GA3850@stusta.de>
+	 <Pine.LNX.4.64.0512201240480.4827@g5.osdl.org>
+	 <43A86DCD.8010400@superbug.co.uk> <20051220211359.GA5359@stusta.de>
+	 <Pine.LNX.4.64.0512201405550.4827@g5.osdl.org>
+	 <s5hslsmzg2y.wl%tiwai@suse.de> <1135198140.7419.9.camel@localhost>
+	 <s5hfyolxi3r.wl%tiwai@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Thu, 22 Dec 2005 14:06:57 -0200
+Message-Id: <1135267618.1609.8.camel@localhost>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.4.2.1-1mdk 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I built kernel 2.6.15-rc6 with gcc-4.0 , and I built ivtv 0.5
- svn r3019 ( http://www.ivtvdriver.org/ ).
-When loading ivtv module with firmware (placed at /lib/firmware ),
-it seems to succeeed,but not was loaded to device 
-(Connexant CX23416 MPEG Encoder).
-So, I tested kernel 2.6.15-rc5 and ivtv built with gcc-4.0, 
-success to load  firmware correct.
+Em Qui, 2005-12-22 às 16:32 +0100, Takashi Iwai escreveu:
+> At Wed, 21 Dec 2005 18:49:00 -0200,
+> Mauro Carvalho Chehab wrote:
+> > 
+> > > Another workaround is to move the relevant module to sound/* directory
+> > > in order to get a sane initialization order.  It's nothing but a
+> > > workaround, though. 
+> > hmmm... this may break saa7134 code, since alsa stuff is dependent of
+> > saa7134.ko.
+> 
+> If I understand correctly, it must be OK.  Suppose that saa7134-alsa
+> is moved to sound (only saa7134-alsa, other saa7134 stuff remains in
+> drivers/media/video), the initialization order will be: 
+> saa7134 -> sound core -> saa7134-alsa.
+> 
+> Or am I missing something else?
+	saa7134-oss.
+> 
+> 
+> Takashi
+> 
+Cheers, 
+Mauro.
 
-And, I built 2.6.15-rc6 and ivtv with gcc-3.4 again,loading
-firmware was successed.
-
-Refered version of gcc was:
-GCC 4.0 :
->gcc version 4.0.3 20051201 (prerelease) (Debian 4.0.2-5)
-
-GCC 3.4 :
->gcc version 3.4.5 (Debian 3.4.5-1)
-
-Pls.help....
-
-Ohta

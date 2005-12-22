@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030271AbVLVVXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965156AbVLVV0t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030271AbVLVVXr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 16:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965186AbVLVVXr
+	id S965156AbVLVV0t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 16:26:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbVLVV0t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 16:23:47 -0500
-Received: from rtsoft3.corbina.net ([85.21.88.6]:32431 "EHLO
-	buildserver.ru.mvista.com") by vger.kernel.org with ESMTP
-	id S965182AbVLVVXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 16:23:47 -0500
-Message-ID: <43AB1958.1070407@ru.mvista.com>
-Date: Fri, 23 Dec 2005 00:23:36 +0300
-From: Vitaly Wool <vwool@ru.mvista.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: linux-kernel@vger.kernel.org, spi-devel-general@sourceforge.net
-Subject: Re: [PATCH 2.6-git] SPI: add set_clock() to bitbang
-References: <20051222180449.4335a8e6.vwool@ru.mvista.com> <200512220840.34152.david-b@pacbell.net>
-In-Reply-To: <200512220840.34152.david-b@pacbell.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Dec 2005 16:26:49 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1800 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S965156AbVLVV0s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 16:26:48 -0500
+Date: Thu, 22 Dec 2005 21:26:35 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Nicolas Pitre <nico@cam.org>, Christoph Hellwig <hch@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+Message-ID: <20051222212635.GC5268@flint.arm.linux.org.uk>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>, Nicolas Pitre <nico@cam.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Arjan van de Ven <arjanv@infradead.org>,
+	Jes Sorensen <jes@trained-monkey.org>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Oleg Nesterov <oleg@tv-sign.ru>,
+	David Howells <dhowells@redhat.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Benjamin LaHaise <bcrl@kvack.org>,
+	Steven Rostedt <rostedt@goodmis.org>, Andi Kleen <ak@suse.de>
+References: <20051222114147.GA18878@elte.hu> <20051222115329.GA30964@infradead.org> <Pine.LNX.4.64.0512221025070.26663@localhost.localdomain> <20051222154012.GA6284@elte.hu> <Pine.LNX.4.64.0512221113560.26663@localhost.localdomain> <20051222164415.GA10628@elte.hu> <20051222165828.GA5268@flint.arm.linux.org.uk> <20051222210446.GA16092@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051222210446.GA16092@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Brownell wrote:
+On Thu, Dec 22, 2005 at 10:04:46PM +0100, Ingo Molnar wrote:
+> i think there is some miscommunication here.
 
->On Thursday 22 December 2005 7:04 am, Vitaly Wool wrote:
->  
->
->>Hi David,
->>
->>inlined is the small patch that adds set_clock function to the spi_bitbang structure.
->>    
->>
->
->This is actually not needed.  Clocks are set through the setup() method
->in the spi_master, and controller drivers are (courtesy of the library
->approach) free to provide their own.  Drivers for word-at-a-time hardware
->would still need to call spi_bitbang_setup() in their own setup() code,
->to set up the per-device controller_state, and spi_bitbang_cleanup() in
->their own cleanup() code, to deallocate it.
->  
->
-Where is it supposed to call setup? I guess it's anyway gonna be 
-per-transfer, right?
-Or am I missing something?
+Quite possibly.  TBH there's soo much waffle generated on the mutex
+stuff over the last few days that I've probably lost track of where
+everyone is on it.  Sorry.
 
-Vitaly
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

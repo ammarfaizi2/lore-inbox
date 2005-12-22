@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965134AbVLVIYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbVLVIYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965134AbVLVIYx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 03:24:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965136AbVLVIYx
+	id S965133AbVLVIYv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 03:24:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbVLVIYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 03:24:53 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:55002 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965134AbVLVIYw (ORCPT
+	Thu, 22 Dec 2005 03:24:51 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:22459 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965133AbVLVIYv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 03:24:52 -0500
-Date: Thu, 22 Dec 2005 00:24:23 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: usb: replace __setup("nousb") with __module_param_call
-Message-Id: <20051222002423.1791d38b.zaitcev@redhat.com>
-In-Reply-To: <200512220110.52466.dtor_core@ameritech.net>
-References: <20051220141504.31441a41.zaitcev@redhat.com>
-	<200512220110.52466.dtor_core@ameritech.net>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.8.8; i386-redhat-linux-gnu)
+	Thu, 22 Dec 2005 03:24:51 -0500
+Date: Thu, 22 Dec 2005 09:24:06 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Jes Sorensen <jes@trained-monkey.org>, Linus Torvalds <torvalds@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 0/8] mutex subsystem, ANNOUNCE
+Message-ID: <20051222082406.GA32052@elte.hu>
+References: <20051221155411.GA7243@elte.hu> <yq0irtiuxvv.fsf@jaguar.mkp.net> <43AA1134.7090704@yahoo.com.au> <20051222071940.GA16804@elte.hu> <43AA5C15.8060907@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43AA5C15.8060907@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Dec 2005 01:10:52 -0500, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> On Tuesday 20 December 2005 17:15, Pete Zaitcev wrote:
 
-> > Fedora users complain that passing "nousbstorage" to the installer causes
-> > the rest of the USB support to disappear. The installer uses kernel command
-> > line as a way to pass options through Syslinux. The problem stems from the
-> > use of strncmp() in obsolete_checksetup().
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-> I wonder if that strncmp() should be changed into something like
-> this (untested):
-> 
-> --- work.orig/init/main.c
-> +++ work/init/main.c
-> @@ -167,7 +167,7 @@ static int __init obsolete_checksetup(ch
->  	p = __setup_start;
->  	do {
->  		int n = strlen(p->str);
-> -		if (!strncmp(line, p->str, n)) {
-> +		if (!strncmp(line, p->str, n) && !isalnum(line[n])) {
->  			if (p->early) {
+> At the very least, the head waiter should not put itself on the end of 
+> the FIFO when it finds the lock contended and waits again.
 
-Are you sure that your fix works well in case of __setup("foo=")?
-It probably breaks all of those.
+It's on my list. I had this implemented a couple of days ago, but then 
+profiled it and it turns out that the scenario isnt actually happening 
+in any significant way, not even on the most extreme 512-task workloads.  
+So i just removed the extra bloat. But i'll look at this again today, 
+together with some 'max delay' statistics.
 
--- Pete
+	Ingo

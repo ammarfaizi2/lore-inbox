@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbVLVNbN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbVLVNg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965151AbVLVNbN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 08:31:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbVLVNbN
+	id S1750906AbVLVNg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 08:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbVLVNg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 08:31:13 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:18354 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S965151AbVLVNbM convert rfc822-to-8bit
+	Thu, 22 Dec 2005 08:36:28 -0500
+Received: from ambr.mtholyoke.edu ([138.110.1.10]:27396 "EHLO
+	ambr.mtholyoke.edu") by vger.kernel.org with ESMTP id S1750906AbVLVNg1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 08:31:12 -0500
-x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [perfmon] Re: quick overview of the perfmon2 interface
-Date: Thu, 22 Dec 2005 05:31:09 -0800
-Message-ID: <3C87FFF91369A242B9C9147F8BD0908A02C69459@cacexc04.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [perfmon] Re: quick overview of the perfmon2 interface
-Thread-Index: AcYG7wGo9h8zCNacT9CtFCEU3xhKXwABpBiA
-From: "Truong, Dan" <dan.truong@hp.com>
-To: "Eranian, Stephane" <stephane.eranian@hp.com>,
-       "Andrew Morton" <akpm@osdl.org>
-Cc: <perfmon@napali.hpl.hp.com>, <linux-ia64@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <perfctr-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 22 Dec 2005 13:31:10.0265 (UTC) FILETIME=[F884D290:01C606FB]
+	Thu, 22 Dec 2005 08:36:27 -0500
+From: Ron Peterson <rpeterso@MtHolyoke.edu>
+Date: Thu, 22 Dec 2005 08:36:23 -0500
+To: linux-kernel@vger.kernel.org
+Subject: nfs insecure_locks / Tru64 behaviour
+Message-ID: <20051222133623.GE7814@mtholyoke.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: Mount Holyoke College
+X-Operating-System: Debian GNU/Linux
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks to David, Dan and Phil for their comments.
+If I mount a linux export on Tru64, it seems the execute bit for 'other'
+needs to be set on a directory in order edit files within it using vi.
+'Nobody' and 'nogroup' also appear to be special.
 
-Another note on the urgency of standardizing Perfmon:
+I'm running 2.6.14.3 on Debian Sarge.
 
-Anarchy is not a good breeding ground for tools that need a
-stable infrastructure to mature. Being "there" is what made
-PAPI and perfctr popular and somewhat standard infrastructure.
+For example.
 
-Compilers, tools, JVMs... -you name it- are all moving
-fast towards using hardware counters to get feedback,
-tune, monitor or measure application behavior.
+On linux, in directory /db/test:
 
-The PMU is becoming a standard commodity. Once Perfmon is
-"the" Linux interface, all the tools can align on it and
-coexist, push their R&D forward, and more importantly become
-fully productized for businesses usage. Hopefully Perfmon's
-interface is powerful enough to support future needs.
+1185# ll
+total 16
+drwxr-x--x  2 root     kmw     4096 Dec 21 22:39 a/
+drwxr-x---  2 nobody   kmw     4096 Dec 21 22:39 b/
+drwxr-x---  2 rpeterso nogroup 4096 Dec 21 22:46 c/
+drwxr-x---  2 root     system  4096 Dec 22 08:22 d/
 
-Good luck Stephane :)
+where /etc/exports looks like
 
-Cheers,
+/db/test  \
+              depot.p(rw,sync) \
+              polar.p(rw,sync,insecure_locks)
 
-Dan-
+I mount this on Tru64 like:
+
+mount -o tcp yogi.p:/db/test dbtest
+
+Each directory a,b,c,d has a small text file named 'test':
+
+-rw-rw-r--  1 root kmw 5 Dec 21 22:39 test
+
+As a user in group kmw I can edit this file in directory a, b, and c.  I
+can't edit the file in directory d.
+
+I understand that Tru64 doesn't send matching credentials with nfs lock
+requests.  The 'insecure_locks' option seems to help work around
+permission problems on the files themselves, but doesn't seem to work
+around the permissions of the owning directory.
+
+It's probably fair to point fingers at Tru64, but it seems unlikely
+there will be any changes to nfs on that side...
+
+I'm not subscribed the lkml, so cc's are appreciated.
+
+Best.
+
+-- 
+Ron Peterson
+Network & Systems Manager
+Mount Holyoke College
+http://pks.mtholyoke.edu:11371/pks/lookup?search=0xB6D365A1&op=vindex

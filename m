@@ -1,280 +1,364 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965080AbVLVEvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965079AbVLVE4p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965080AbVLVEvG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Dec 2005 23:51:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965084AbVLVEvF
+	id S965079AbVLVE4p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Dec 2005 23:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965081AbVLVEvK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Dec 2005 23:51:05 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:35024 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965080AbVLVEvA
+	Wed, 21 Dec 2005 23:51:10 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:26320 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S965072AbVLVEuu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Dec 2005 23:51:00 -0500
+	Wed, 21 Dec 2005 23:50:50 -0500
 To: linux-m68k@vger.kernel.org
-Subject: [PATCH 23/36] m68k: signal __user annotations
+Subject: [PATCH 21/36] m68k: basic iomem annotations
 Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1EpIPr-0004si-Lc@ZenIV.linux.org.uk>
+Message-Id: <E1EpIPh-0004sT-LC@ZenIV.linux.org.uk>
 From: Al Viro <viro@ftp.linux.org.uk>
-Date: Thu, 22 Dec 2005 04:50:59 +0000
+Date: Thu, 22 Dec 2005 04:50:49 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Al Viro <viro@zeniv.linux.org.uk>
-Date: 1133512763 -0500
+Date: 1133512630 -0500
 
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 
 ---
 
- arch/m68k/kernel/signal.c |   62 +++++++++++++++++++++++----------------------
- include/asm-m68k/signal.h |    2 +
- 2 files changed, 32 insertions(+), 32 deletions(-)
+ arch/m68k/mm/kmap.c       |   12 ++++++-----
+ include/asm-m68k/io.h     |   49 +++++++++++++++++++++++----------------------
+ include/asm-m68k/raw_io.h |   40 ++++++++++++++++++-------------------
+ include/asm-m68k/zorro.h  |    8 ++++---
+ 4 files changed, 55 insertions(+), 54 deletions(-)
 
-dafff037d3e7ad98c08c58e7388296ba48f0fd6c
-diff --git a/arch/m68k/kernel/signal.c b/arch/m68k/kernel/signal.c
-index 9c636a4..866917b 100644
---- a/arch/m68k/kernel/signal.c
-+++ b/arch/m68k/kernel/signal.c
-@@ -96,7 +96,7 @@ asmlinkage int do_sigsuspend(struct pt_r
- asmlinkage int
- do_rt_sigsuspend(struct pt_regs *regs)
- {
--	sigset_t *unewset = (sigset_t *)regs->d1;
-+	sigset_t __user *unewset = (sigset_t __user *)regs->d1;
- 	size_t sigsetsize = (size_t)regs->d2;
- 	sigset_t saveset, newset;
+1e91f0f0ade38fc27e22929dc2bd34af1908d098
+diff --git a/arch/m68k/mm/kmap.c b/arch/m68k/mm/kmap.c
+index fe2383e..85ad19a 100644
+--- a/arch/m68k/mm/kmap.c
++++ b/arch/m68k/mm/kmap.c
+@@ -102,7 +102,7 @@ static inline void free_io_area(void *ad
+  */
+ /* Rewritten by Andreas Schwab to remove all races. */
  
-@@ -122,8 +122,8 @@ do_rt_sigsuspend(struct pt_regs *regs)
- }
- 
- asmlinkage int
--sys_sigaction(int sig, const struct old_sigaction *act,
--	      struct old_sigaction *oact)
-+sys_sigaction(int sig, const struct old_sigaction __user *act,
-+	      struct old_sigaction __user *oact)
+-void *__ioremap(unsigned long physaddr, unsigned long size, int cacheflag)
++void __iomem *__ioremap(unsigned long physaddr, unsigned long size, int cacheflag)
  {
- 	struct k_sigaction new_ka, old_ka;
- 	int ret;
-@@ -154,7 +154,7 @@ sys_sigaction(int sig, const struct old_
- }
- 
- asmlinkage int
--sys_sigaltstack(const stack_t *uss, stack_t *uoss)
-+sys_sigaltstack(const stack_t __user *uss, stack_t __user *uoss)
- {
- 	return do_sigaltstack(uss, uoss, rdusp());
- }
-@@ -169,10 +169,10 @@ sys_sigaltstack(const stack_t *uss, stac
- 
- struct sigframe
- {
--	char *pretcode;
-+	char __user *pretcode;
- 	int sig;
- 	int code;
--	struct sigcontext *psc;
-+	struct sigcontext __user *psc;
- 	char retcode[8];
- 	unsigned long extramask[_NSIG_WORDS-1];
- 	struct sigcontext sc;
-@@ -180,10 +180,10 @@ struct sigframe
- 
- struct rt_sigframe
- {
--	char *pretcode;
-+	char __user *pretcode;
- 	int sig;
--	struct siginfo *pinfo;
--	void *puc;
-+	struct siginfo __user *pinfo;
-+	void __user *puc;
- 	char retcode[8];
- 	struct siginfo info;
- 	struct ucontext uc;
-@@ -248,7 +248,7 @@ out:
- #define uc_formatvec	uc_filler[FPCONTEXT_SIZE/4]
- #define uc_extra	uc_filler[FPCONTEXT_SIZE/4+1]
- 
--static inline int rt_restore_fpu_state(struct ucontext *uc)
-+static inline int rt_restore_fpu_state(struct ucontext __user *uc)
- {
- 	unsigned char fpstate[FPCONTEXT_SIZE];
- 	int context_size = CPU_IS_060 ? 8 : 0;
-@@ -267,7 +267,7 @@ static inline int rt_restore_fpu_state(s
- 		return 0;
+ 	struct vm_struct *area;
+ 	unsigned long virtaddr, retaddr;
+@@ -121,7 +121,7 @@ void *__ioremap(unsigned long physaddr, 
+ 	if (MACH_IS_AMIGA) {
+ 		if ((physaddr >= 0x40000000) && (physaddr + size < 0x60000000)
+ 		    && (cacheflag == IOMAP_NOCACHE_SER))
+-			return (void *)physaddr;
++			return (void __iomem *)physaddr;
  	}
+ #endif
  
--	if (__get_user(*(long *)fpstate, (long *)&uc->uc_fpstate))
-+	if (__get_user(*(long *)fpstate, (long __user *)&uc->uc_fpstate))
- 		goto out;
- 	if (CPU_IS_060 ? fpstate[2] : fpstate[0]) {
- 		if (!CPU_IS_060)
-@@ -306,7 +306,7 @@ static inline int rt_restore_fpu_state(s
- 				    "m" (*fpregs.f_fpcntl));
+@@ -218,21 +218,21 @@ void *__ioremap(unsigned long physaddr, 
+ #endif
+ 	flush_tlb_all();
+ 
+-	return (void *)retaddr;
++	return (void __iomem *)retaddr;
+ }
+ 
+ /*
+  * Unmap a ioremap()ed region again
+  */
+-void iounmap(void *addr)
++void iounmap(void __iomem *addr)
+ {
+ #ifdef CONFIG_AMIGA
+ 	if ((!MACH_IS_AMIGA) ||
+ 	    (((unsigned long)addr < 0x40000000) ||
+ 	     ((unsigned long)addr > 0x60000000)))
+-			free_io_area(addr);
++			free_io_area((__force void *)addr);
+ #else
+-	free_io_area(addr);
++	free_io_area((__force void *)addr);
+ #endif
+ }
+ 
+diff --git a/include/asm-m68k/io.h b/include/asm-m68k/io.h
+index 6bb8b0d..dcfaa35 100644
+--- a/include/asm-m68k/io.h
++++ b/include/asm-m68k/io.h
+@@ -24,6 +24,7 @@
+ #ifdef __KERNEL__
+ 
+ #include <linux/config.h>
++#include <linux/compiler.h>
+ #include <asm/raw_io.h>
+ #include <asm/virtconvert.h>
+ 
+@@ -120,68 +121,68 @@ extern int isa_sex;
+  * be compiled in so the case statement will be optimised away
+  */
+ 
+-static inline u8 *isa_itb(unsigned long addr)
++static inline u8 __iomem *isa_itb(unsigned long addr)
+ {
+   switch(ISA_TYPE)
+     {
+ #ifdef CONFIG_Q40
+-    case Q40_ISA: return (u8 *)Q40_ISA_IO_B(addr);
++    case Q40_ISA: return (u8 __iomem *)Q40_ISA_IO_B(addr);
+ #endif
+ #ifdef CONFIG_GG2
+-    case GG2_ISA: return (u8 *)GG2_ISA_IO_B(addr);
++    case GG2_ISA: return (u8 __iomem *)GG2_ISA_IO_B(addr);
+ #endif
+ #ifdef CONFIG_AMIGA_PCMCIA
+-    case AG_ISA: return (u8 *)AG_ISA_IO_B(addr);
++    case AG_ISA: return (u8 __iomem *)AG_ISA_IO_B(addr);
+ #endif
+-    default: return 0; /* avoid warnings, just in case */
++    default: return NULL; /* avoid warnings, just in case */
+     }
+ }
+-static inline u16 *isa_itw(unsigned long addr)
++static inline u16 __iomem *isa_itw(unsigned long addr)
+ {
+   switch(ISA_TYPE)
+     {
+ #ifdef CONFIG_Q40
+-    case Q40_ISA: return (u16 *)Q40_ISA_IO_W(addr);
++    case Q40_ISA: return (u16 __iomem *)Q40_ISA_IO_W(addr);
+ #endif
+ #ifdef CONFIG_GG2
+-    case GG2_ISA: return (u16 *)GG2_ISA_IO_W(addr);
++    case GG2_ISA: return (u16 __iomem *)GG2_ISA_IO_W(addr);
+ #endif
+ #ifdef CONFIG_AMIGA_PCMCIA
+-    case AG_ISA: return (u16 *)AG_ISA_IO_W(addr);
++    case AG_ISA: return (u16 __iomem *)AG_ISA_IO_W(addr);
+ #endif
+-    default: return 0; /* avoid warnings, just in case */
++    default: return NULL; /* avoid warnings, just in case */
+     }
+ }
+-static inline u8 *isa_mtb(unsigned long addr)
++static inline u8 __iomem *isa_mtb(unsigned long addr)
+ {
+   switch(ISA_TYPE)
+     {
+ #ifdef CONFIG_Q40
+-    case Q40_ISA: return (u8 *)Q40_ISA_MEM_B(addr);
++    case Q40_ISA: return (u8 __iomem *)Q40_ISA_MEM_B(addr);
+ #endif
+ #ifdef CONFIG_GG2
+-    case GG2_ISA: return (u8 *)GG2_ISA_MEM_B(addr);
++    case GG2_ISA: return (u8 __iomem *)GG2_ISA_MEM_B(addr);
+ #endif
+ #ifdef CONFIG_AMIGA_PCMCIA
+-    case AG_ISA: return (u8 *)addr;
++    case AG_ISA: return (u8 __iomem *)addr;
+ #endif
+-    default: return 0; /* avoid warnings, just in case */
++    default: return NULL; /* avoid warnings, just in case */
+     }
+ }
+-static inline u16 *isa_mtw(unsigned long addr)
++static inline u16 __iomem *isa_mtw(unsigned long addr)
+ {
+   switch(ISA_TYPE)
+     {
+ #ifdef CONFIG_Q40
+-    case Q40_ISA: return (u16 *)Q40_ISA_MEM_W(addr);
++    case Q40_ISA: return (u16 __iomem *)Q40_ISA_MEM_W(addr);
+ #endif
+ #ifdef CONFIG_GG2
+-    case GG2_ISA: return (u16 *)GG2_ISA_MEM_W(addr);
++    case GG2_ISA: return (u16 __iomem *)GG2_ISA_MEM_W(addr);
+ #endif
+ #ifdef CONFIG_AMIGA_PCMCIA
+-    case AG_ISA: return (u16 *)addr;
++    case AG_ISA: return (u16 __iomem *)addr;
+ #endif
+-    default: return 0; /* avoid warnings, just in case */
++    default: return NULL; /* avoid warnings, just in case */
+     }
+ }
+ 
+@@ -326,20 +327,20 @@ static inline void isa_delay(void)
+ 
+ #define mmiowb()
+ 
+-static inline void *ioremap(unsigned long physaddr, unsigned long size)
++static inline void __iomem *ioremap(unsigned long physaddr, unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
+ }
+-static inline void *ioremap_nocache(unsigned long physaddr, unsigned long size)
++static inline void __iomem *ioremap_nocache(unsigned long physaddr, unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
+ }
+-static inline void *ioremap_writethrough(unsigned long physaddr,
++static inline void __iomem *ioremap_writethrough(unsigned long physaddr,
+ 					 unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_WRITETHROUGH);
+ }
+-static inline void *ioremap_fullcache(unsigned long physaddr,
++static inline void __iomem *ioremap_fullcache(unsigned long physaddr,
+ 				      unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
+diff --git a/include/asm-m68k/raw_io.h b/include/asm-m68k/raw_io.h
+index 041f0a8..5439bca 100644
+--- a/include/asm-m68k/raw_io.h
++++ b/include/asm-m68k/raw_io.h
+@@ -19,9 +19,9 @@
+ #define IOMAP_NOCACHE_NONSER		2
+ #define IOMAP_WRITETHROUGH		3
+ 
+-extern void iounmap(void *addr);
++extern void iounmap(void __iomem *addr);
+ 
+-extern void *__ioremap(unsigned long physaddr, unsigned long size,
++extern void __iomem *__ioremap(unsigned long physaddr, unsigned long size,
+ 		       int cacheflag);
+ extern void __iounmap(void *addr, unsigned long size);
+ 
+@@ -30,21 +30,21 @@ extern void __iounmap(void *addr, unsign
+  * two accesses to memory, which may be undesirable for some devices.
+  */
+ #define in_8(addr) \
+-    ({ u8 __v = (*(volatile u8 *) (addr)); __v; })
++    ({ u8 __v = (*(__force volatile u8 *) (addr)); __v; })
+ #define in_be16(addr) \
+-    ({ u16 __v = (*(volatile u16 *) (addr)); __v; })
++    ({ u16 __v = (*(__force volatile u16 *) (addr)); __v; })
+ #define in_be32(addr) \
+-    ({ u32 __v = (*(volatile u32 *) (addr)); __v; })
++    ({ u32 __v = (*(__force volatile u32 *) (addr)); __v; })
+ #define in_le16(addr) \
+-    ({ u16 __v = le16_to_cpu(*(volatile u16 *) (addr)); __v; })
++    ({ u16 __v = le16_to_cpu(*(__force volatile u16 *) (addr)); __v; })
+ #define in_le32(addr) \
+-    ({ u32 __v = le32_to_cpu(*(volatile u32 *) (addr)); __v; })
++    ({ u32 __v = le32_to_cpu(*(__force volatile u32 *) (addr)); __v; })
+ 
+-#define out_8(addr,b) (void)((*(volatile u8 *) (addr)) = (b))
+-#define out_be16(addr,w) (void)((*(volatile u16 *) (addr)) = (w))
+-#define out_be32(addr,l) (void)((*(volatile u32 *) (addr)) = (l))
+-#define out_le16(addr,w) (void)((*(volatile u16 *) (addr)) = cpu_to_le16(w))
+-#define out_le32(addr,l) (void)((*(volatile u32 *) (addr)) = cpu_to_le32(l))
++#define out_8(addr,b) (void)((*(__force volatile u8 *) (addr)) = (b))
++#define out_be16(addr,w) (void)((*(__force volatile u16 *) (addr)) = (w))
++#define out_be32(addr,l) (void)((*(__force volatile u32 *) (addr)) = (l))
++#define out_le16(addr,w) (void)((*(__force volatile u16 *) (addr)) = cpu_to_le16(w))
++#define out_le32(addr,l) (void)((*(__force volatile u32 *) (addr)) = cpu_to_le32(l))
+ 
+ #define raw_inb in_8
+ #define raw_inw in_be16
+@@ -54,7 +54,7 @@ extern void __iounmap(void *addr, unsign
+ #define raw_outw(val,port) out_be16((port),(val))
+ #define raw_outl(val,port) out_be32((port),(val))
+ 
+-static inline void raw_insb(volatile u8 *port, u8 *buf, unsigned int len)
++static inline void raw_insb(volatile u8 __iomem *port, u8 *buf, unsigned int len)
+ {
+ 	unsigned int i;
+ 
+@@ -62,7 +62,7 @@ static inline void raw_insb(volatile u8 
+ 		*buf++ = in_8(port);
+ }
+ 
+-static inline void raw_outsb(volatile u8 *port, const u8 *buf,
++static inline void raw_outsb(volatile u8 __iomem *port, const u8 *buf,
+ 			     unsigned int len)
+ {
+ 	unsigned int i;
+@@ -71,7 +71,7 @@ static inline void raw_outsb(volatile u8
+ 		out_8(port, *buf++);
+ }
+ 
+-static inline void raw_insw(volatile u16 *port, u16 *buf, unsigned int nr)
++static inline void raw_insw(volatile u16 __iomem *port, u16 *buf, unsigned int nr)
+ {
+ 	unsigned int tmp;
+ 
+@@ -110,7 +110,7 @@ static inline void raw_insw(volatile u16
  	}
- 	if (context_size &&
--	    __copy_from_user(fpstate + 4, (long *)&uc->uc_fpstate + 1,
-+	    __copy_from_user(fpstate + 4, (long __user *)&uc->uc_fpstate + 1,
- 			     context_size))
- 		goto out;
- 	__asm__ volatile (".chip 68k/68881\n\t"
-@@ -319,7 +319,7 @@ out:
  }
  
- static inline int
--restore_sigcontext(struct pt_regs *regs, struct sigcontext *usc, void *fp,
-+restore_sigcontext(struct pt_regs *regs, struct sigcontext __user *usc, void __user *fp,
- 		   int *pd0)
+-static inline void raw_outsw(volatile u16 *port, const u16 *buf,
++static inline void raw_outsw(volatile u16 __iomem *port, const u16 *buf,
+ 			     unsigned int nr)
  {
- 	int fsize, formatvec;
-@@ -404,10 +404,10 @@ badframe:
- 
- static inline int
- rt_restore_ucontext(struct pt_regs *regs, struct switch_stack *sw,
--		    struct ucontext *uc, int *pd0)
-+		    struct ucontext __user *uc, int *pd0)
- {
- 	int fsize, temp;
--	greg_t *gregs = uc->uc_mcontext.gregs;
-+	greg_t __user *gregs = uc->uc_mcontext.gregs;
- 	unsigned long usp;
- 	int err;
- 
-@@ -506,7 +506,7 @@ asmlinkage int do_sigreturn(unsigned lon
- 	struct switch_stack *sw = (struct switch_stack *) &__unused;
- 	struct pt_regs *regs = (struct pt_regs *) (sw + 1);
- 	unsigned long usp = rdusp();
--	struct sigframe *frame = (struct sigframe *)(usp - 4);
-+	struct sigframe __user *frame = (struct sigframe __user *)(usp - 4);
- 	sigset_t set;
- 	int d0;
- 
-@@ -536,7 +536,7 @@ asmlinkage int do_rt_sigreturn(unsigned 
- 	struct switch_stack *sw = (struct switch_stack *) &__unused;
- 	struct pt_regs *regs = (struct pt_regs *) (sw + 1);
- 	unsigned long usp = rdusp();
--	struct rt_sigframe *frame = (struct rt_sigframe *)(usp - 4);
-+	struct rt_sigframe __user *frame = (struct rt_sigframe __user *)(usp - 4);
- 	sigset_t set;
- 	int d0;
- 
-@@ -596,7 +596,7 @@ static inline void save_fpu_state(struct
+ 	unsigned int tmp;
+@@ -150,7 +150,7 @@ static inline void raw_outsw(volatile u1
  	}
  }
  
--static inline int rt_save_fpu_state(struct ucontext *uc, struct pt_regs *regs)
-+static inline int rt_save_fpu_state(struct ucontext __user *uc, struct pt_regs *regs)
+-static inline void raw_insl(volatile u32 *port, u32 *buf, unsigned int nr)
++static inline void raw_insl(volatile u32 __iomem *port, u32 *buf, unsigned int nr)
  {
- 	unsigned char fpstate[FPCONTEXT_SIZE];
- 	int context_size = CPU_IS_060 ? 8 : 0;
-@@ -617,7 +617,7 @@ static inline int rt_save_fpu_state(stru
- 			  ".chip 68k"
- 			  : : "m" (*fpstate) : "memory");
+ 	unsigned int tmp;
  
--	err |= __put_user(*(long *)fpstate, (long *)&uc->uc_fpstate);
-+	err |= __put_user(*(long *)fpstate, (long __user *)&uc->uc_fpstate);
- 	if (CPU_IS_060 ? fpstate[2] : fpstate[0]) {
- 		fpregset_t fpregs;
- 		if (!CPU_IS_060)
-@@ -642,7 +642,7 @@ static inline int rt_save_fpu_state(stru
- 				    sizeof(fpregs));
- 	}
- 	if (context_size)
--		err |= copy_to_user((long *)&uc->uc_fpstate + 1, fpstate + 4,
-+		err |= copy_to_user((long __user *)&uc->uc_fpstate + 1, fpstate + 4,
- 				    context_size);
- 	return err;
- }
-@@ -662,10 +662,10 @@ static void setup_sigcontext(struct sigc
- 	save_fpu_state(sc, regs);
- }
- 
--static inline int rt_setup_ucontext(struct ucontext *uc, struct pt_regs *regs)
-+static inline int rt_setup_ucontext(struct ucontext __user *uc, struct pt_regs *regs)
- {
- 	struct switch_stack *sw = (struct switch_stack *)regs - 1;
--	greg_t *gregs = uc->uc_mcontext.gregs;
-+	greg_t __user *gregs = uc->uc_mcontext.gregs;
- 	int err = 0;
- 
- 	err |= __put_user(MCONTEXT_VERSION, &uc->uc_mcontext.version);
-@@ -753,7 +753,7 @@ static inline void push_cache (unsigned 
+@@ -189,7 +189,7 @@ static inline void raw_insl(volatile u32
  	}
  }
  
--static inline void *
-+static inline void __user *
- get_sigframe(struct k_sigaction *ka, struct pt_regs *regs, size_t frame_size)
+-static inline void raw_outsl(volatile u32 *port, const u32 *buf,
++static inline void raw_outsl(volatile u32 __iomem *port, const u32 *buf,
+ 			     unsigned int nr)
  {
- 	unsigned long usp;
-@@ -766,13 +766,13 @@ get_sigframe(struct k_sigaction *ka, str
- 		if (!on_sig_stack(usp))
- 			usp = current->sas_ss_sp + current->sas_ss_size;
- 	}
--	return (void *)((usp - frame_size) & -8UL);
-+	return (void __user *)((usp - frame_size) & -8UL);
+ 	unsigned int tmp;
+@@ -230,7 +230,7 @@ static inline void raw_outsl(volatile u3
  }
  
- static void setup_frame (int sig, struct k_sigaction *ka,
- 			 sigset_t *set, struct pt_regs *regs)
+ 
+-static inline void raw_insw_swapw(volatile u16 *port, u16 *buf,
++static inline void raw_insw_swapw(volatile u16 __iomem *port, u16 *buf,
+ 				  unsigned int nr)
  {
--	struct sigframe *frame;
-+	struct sigframe __user *frame;
- 	int fsize = frame_extra_sizes[regs->format];
- 	struct sigcontext context;
- 	int err = 0;
-@@ -813,7 +813,7 @@ static void setup_frame (int sig, struct
- 	err |= __put_user(frame->retcode, &frame->pretcode);
- 	/* moveq #,d0; trap #0 */
- 	err |= __put_user(0x70004e40 + (__NR_sigreturn << 16),
--			  (long *)(frame->retcode));
-+			  (long __user *)(frame->retcode));
+     if ((nr) % 8)
+@@ -283,7 +283,7 @@ static inline void raw_insw_swapw(volati
+ 		: "d0", "a0", "a1", "d6");
+ }
  
- 	if (err)
- 		goto give_sigsegv;
-@@ -849,7 +849,7 @@ give_sigsegv:
- static void setup_rt_frame (int sig, struct k_sigaction *ka, siginfo_t *info,
- 			    sigset_t *set, struct pt_regs *regs)
+-static inline void raw_outsw_swapw(volatile u16 *port, const u16 *buf,
++static inline void raw_outsw_swapw(volatile u16 __iomem *port, const u16 *buf,
+ 				   unsigned int nr)
  {
--	struct rt_sigframe *frame;
-+	struct rt_sigframe __user *frame;
- 	int fsize = frame_extra_sizes[regs->format];
- 	int err = 0;
+     if ((nr) % 8)
+diff --git a/include/asm-m68k/zorro.h b/include/asm-m68k/zorro.h
+index cf81658..5ce97c2 100644
+--- a/include/asm-m68k/zorro.h
++++ b/include/asm-m68k/zorro.h
+@@ -15,24 +15,24 @@
+ #define z_memcpy_fromio(a,b,c)	memcpy((a),(void *)(b),(c))
+ #define z_memcpy_toio(a,b,c)	memcpy((void *)(a),(b),(c))
  
-@@ -880,8 +880,8 @@ static void setup_rt_frame (int sig, str
+-static inline void *z_remap_nocache_ser(unsigned long physaddr,
++static inline void __iomem *z_remap_nocache_ser(unsigned long physaddr,
+ 					unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
+ }
  
- 	/* Create the ucontext.  */
- 	err |= __put_user(0, &frame->uc.uc_flags);
--	err |= __put_user(0, &frame->uc.uc_link);
--	err |= __put_user((void *)current->sas_ss_sp,
-+	err |= __put_user(NULL, &frame->uc.uc_link);
-+	err |= __put_user((void __user *)current->sas_ss_sp,
- 			  &frame->uc.uc_stack.ss_sp);
- 	err |= __put_user(sas_ss_flags(rdusp()),
- 			  &frame->uc.uc_stack.ss_flags);
-@@ -893,8 +893,8 @@ static void setup_rt_frame (int sig, str
- 	err |= __put_user(frame->retcode, &frame->pretcode);
- 	/* moveq #,d0; notb d0; trap #0 */
- 	err |= __put_user(0x70004600 + ((__NR_rt_sigreturn ^ 0xff) << 16),
--			  (long *)(frame->retcode + 0));
--	err |= __put_user(0x4e40, (short *)(frame->retcode + 4));
-+			  (long __user *)(frame->retcode + 0));
-+	err |= __put_user(0x4e40, (short __user *)(frame->retcode + 4));
+-static inline void *z_remap_nocache_nonser(unsigned long physaddr,
++static inline void __iomem *z_remap_nocache_nonser(unsigned long physaddr,
+ 					   unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_NOCACHE_NONSER);
+ }
  
- 	if (err)
- 		goto give_sigsegv;
-diff --git a/include/asm-m68k/signal.h b/include/asm-m68k/signal.h
-index a0cdf90..b7b7ea2 100644
---- a/include/asm-m68k/signal.h
-+++ b/include/asm-m68k/signal.h
-@@ -144,7 +144,7 @@ struct sigaction {
- #endif /* __KERNEL__ */
- 
- typedef struct sigaltstack {
--	void *ss_sp;
-+	void __user *ss_sp;
- 	int ss_flags;
- 	size_t ss_size;
- } stack_t;
+-static inline void *z_remap_writethrough(unsigned long physaddr,
++static inline void __iomem *z_remap_writethrough(unsigned long physaddr,
+ 					 unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_WRITETHROUGH);
+ }
+-static inline void *z_remap_fullcache(unsigned long physaddr,
++static inline void __iomem *z_remap_fullcache(unsigned long physaddr,
+ 				      unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
 -- 
 0.99.9.GIT
 

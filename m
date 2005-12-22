@@ -1,523 +1,587 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030273AbVLVS2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbVLVS2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030273AbVLVS2O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 13:28:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbVLVS2N
+	id S1030281AbVLVS2c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 13:28:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbVLVS2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 13:28:13 -0500
-Received: from waste.org ([64.81.244.121]:11984 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1030271AbVLVS2I (ORCPT
+	Thu, 22 Dec 2005 13:28:30 -0500
+Received: from waste.org ([64.81.244.121]:7376 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1030266AbVLVS2B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 13:28:08 -0500
-Date: Thu, 22 Dec 2005 12:26:48 -0600
+	Thu, 22 Dec 2005 13:28:01 -0500
+Date: Thu, 22 Dec 2005 12:26:42 -0600
 From: Matt Mackall <mpm@selenic.com>
 To: Andrew Morton <akpm@osdl.org>
 X-PatchBomber: http://selenic.com/scripts/mailpatches
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
        linux-tiny@selenic.com
-In-Reply-To: <14.150843412@selenic.com>
-Message-Id: <15.150843412@selenic.com>
-Subject: [PATCH 14/20] inflate: (arch) use an error callback rather than a global
+In-Reply-To: <10.150843412@selenic.com>
+Message-Id: <11.150843412@selenic.com>
+Subject: [PATCH 10/20] inflate: (arch) kill external CRC calculation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-inflate: error handling cleanup
+inflate: move CRC calculation
 
-This passes the error function as a callback rather than using a
-global symbol.
+Each inflate user was doing its own open-coded CRC calculation and
+initializing its own CRC table. This is now hidden inside
+lib/inflate.c
 
 Signed-off-by: Matt Mackall <mpm@selenic.com>
 
 Index: 2.6.14-inflate/arch/alpha/boot/misc.c
 ===================================================================
---- 2.6.14-inflate.orig/arch/alpha/boot/misc.c	2005-12-21 21:46:14.000000000 -0600
-+++ 2.6.14-inflate/arch/alpha/boot/misc.c	2005-12-21 21:46:15.000000000 -0600
-@@ -28,8 +28,6 @@ extern long srm_printk(const char *, ...
-  * gzip delarations
+--- 2.6.14-inflate.orig/arch/alpha/boot/misc.c	2005-11-29 13:33:25.000000000 -0600
++++ 2.6.14-inflate/arch/alpha/boot/misc.c	2005-11-29 18:30:03.000000000 -0600
+@@ -79,22 +79,19 @@ int fill_inbuf(void)
+ }
+ 
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
   */
- 
--static void error(char *m);
--
- static char *input_data;
- static int  input_data_size;
- 
-@@ -49,7 +47,7 @@ static void flush_window(const u8 *buf, 
- 		*output_data++ = *buf++;
- }
- 
--static void error(char *x)
-+static void error(const char *x)
+ void flush_window(void)
  {
- 	puts("\n\n");
- 	puts(x);
-@@ -75,7 +73,7 @@ decompress_kernel(void *output_start,
- 	/* FIXME FIXME FIXME */
+-	ulg c = crc;
+ 	unsigned n;
+ 	uch *in, *out, ch;
  
+ 	in = window;
+ 	out = &output_data[output_ptr];
+-	for (n = 0; n < outcnt; n++) {
++	for (n = 0; n < outcnt; n++)
+ 		ch = *out++ = *in++;
+-		c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-	}
+-	crc = c;
++
+ 	bytes_out += (ulg)outcnt;
+ 	output_ptr += (ulg)outcnt;
+ 	outcnt = 0;
+@@ -128,7 +125,6 @@ decompress_kernel(void *output_start,
+ 	/* put in temp area to reduce initial footprint */
+ 	window = malloc(WSIZE);
+ 
+-	makecrc();
  /*	puts("Uncompressing Linux..."); */
--	count = gunzip(input_data, input_data_size, NULL, flush_window);
-+	count = gunzip(input_data, input_data_size, NULL, flush_window, error);
+ 	gunzip();
  /*	puts(" done, booting the kernel.\n"); */
- 	return count;
- }
 Index: 2.6.14-inflate/arch/arm/boot/compressed/misc.c
 ===================================================================
---- 2.6.14-inflate.orig/arch/arm/boot/compressed/misc.c	2005-12-21 21:46:14.000000000 -0600
-+++ 2.6.14-inflate/arch/arm/boot/compressed/misc.c	2005-12-21 21:46:15.000000000 -0600
-@@ -46,8 +46,6 @@ icedcc_putstr(const char *ptr)
-  * gzip declarations
+--- 2.6.14-inflate.orig/arch/arm/boot/compressed/misc.c	2005-11-29 14:00:03.000000000 -0600
++++ 2.6.14-inflate/arch/arm/boot/compressed/misc.c	2005-11-29 18:30:03.000000000 -0600
+@@ -103,22 +103,19 @@ int fill_inbuf(void)
+ }
+ 
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
   */
- 
--static void error(char *m);
--
- extern char input_data[];
- extern char input_data_end[];
- 
-@@ -78,7 +76,7 @@ static void flush_window(const u8 *buf, 
- #define arch_error(x)
- #endif
- 
--static void error(char *x)
-+static void error(const char *x)
+ void flush_window(void)
  {
- 	arch_error(x);
+-	ulg c = crc;
+ 	unsigned n;
+ 	uch *in, *out, ch;
  
-@@ -103,7 +101,8 @@ decompress_kernel(u32 output_start, u32 
+ 	in = window;
+ 	out = &output_data[output_ptr];
+-	for (n = 0; n < outcnt; n++) {
++	for (n = 0; n < outcnt; n++)
+ 		ch = *out++ = *in++;
+-		c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-	}
+-	crc = c;
++
+ 	bytes_out += (ulg)outcnt;
+ 	output_ptr += (ulg)outcnt;
+ 	outcnt = 0;
+@@ -153,7 +150,6 @@ decompress_kernel(ulg output_start, ulg 
+ 
  	arch_decomp_setup();
  
+-	makecrc();
  	putstr("Uncompressing Linux...");
--	gunzip(input_data, input_data_end - input_data, NULL, flush_window);
-+	gunzip(input_data, input_data_end - input_data, NULL, flush_window,
-+	       error);
+ 	gunzip();
  	putstr(" done, booting the kernel.\n");
- 	return output_ptr;
- }
-@@ -116,7 +115,8 @@ int main()
+@@ -167,7 +163,6 @@ int main()
+ {
  	output_data = output_buffer;
  
+-	makecrc();
  	putstr("Uncompressing Linux...");
--	gunzip(input_data, input_data_end - input_data, NULL, flush_window);
-+	gunzip(input_data, input_data_end - input_data, NULL, flush_window,
-+	       error);
+ 	gunzip();
  	putstr("done.\n");
- 	return 0;
- }
 Index: 2.6.14-inflate/arch/arm26/boot/compressed/misc.c
 ===================================================================
---- 2.6.14-inflate.orig/arch/arm26/boot/compressed/misc.c	2005-12-21 21:46:14.000000000 -0600
-+++ 2.6.14-inflate/arch/arm26/boot/compressed/misc.c	2005-12-21 21:46:15.000000000 -0600
-@@ -31,8 +31,6 @@ unsigned int __machine_arch_type;
-  * gzip delarations
-  */
- 
--static void error(char *m);
--
- extern char input_data[];
- extern char input_data_end[];
- static u8 *output_data;
-@@ -58,7 +56,7 @@ static void flush_window(const u8 *buf, 
- 	puts(".");
+--- 2.6.14-inflate.orig/arch/arm26/boot/compressed/misc.c	2005-11-29 13:59:39.000000000 -0600
++++ 2.6.14-inflate/arch/arm26/boot/compressed/misc.c	2005-11-29 18:30:03.000000000 -0600
+@@ -88,22 +88,19 @@ int fill_inbuf(void)
  }
  
--static void error(char *x)
-+static void error(const char *x)
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ void flush_window(void)
  {
- 	int ptr;
+-	ulg c = crc;
+ 	unsigned n;
+ 	uch *in, *out, ch;
  
-@@ -83,7 +81,8 @@ decompress_kernel(u32 output_start, u32 
+ 	in = window;
+ 	out = &output_data[output_ptr];
+-	for (n = 0; n < outcnt; n++) {
++	for (n = 0; n < outcnt; n++)
+ 		ch = *out++ = *in++;
+-		c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-	}
+-	crc = c;
++
+ 	bytes_out += (ulg)outcnt;
+ 	output_ptr += (ulg)outcnt;
+ 	outcnt = 0;
+@@ -134,7 +131,6 @@ decompress_kernel(ulg output_start, ulg 
+ 
  	arch_decomp_setup();
  
+-	makecrc();
  	puts("Uncompressing Linux...");
--	gunzip(input_data, input_data_end - input_data, NULL, flush_window);
-+	gunzip(input_data, input_data_end - input_data, NULL, flush_window,
-+	       error);
+ 	gunzip();
  	puts(" done, booting the kernel.\n");
- 	return output_ptr;
- }
-@@ -96,7 +95,8 @@ int main()
+@@ -148,7 +144,6 @@ int main()
+ {
  	output_data = output_buffer;
  
+-	makecrc();
  	puts("Uncompressing Linux...");
--	gunzip(input_data, input_data_end - input_data, NULL, flush_window);
-+	gunzip(input_data, input_data_end - input_data, NULL, flush_window,
-+	       error);
+ 	gunzip();
  	puts("done.\n");
- 	return 0;
- }
 Index: 2.6.14-inflate/arch/cris/arch-v10/boot/compressed/misc.c
 ===================================================================
---- 2.6.14-inflate.orig/arch/cris/arch-v10/boot/compressed/misc.c	2005-12-21 21:46:14.000000000 -0600
-+++ 2.6.14-inflate/arch/cris/arch-v10/boot/compressed/misc.c	2005-12-21 21:46:15.000000000 -0600
-@@ -30,8 +30,6 @@
- 
- unsigned compsize; /* compressed size, used by head.S */
- 
--static void error(char *m);
--
- extern char *input_data;  /* lives in head.S */
- static u8 *output_data;
- 
-@@ -79,8 +77,7 @@ static void flush_window(const u8 *buf, 
- 		*output_data++ = *buf++;
+--- 2.6.14-inflate.orig/arch/cris/arch-v10/boot/compressed/misc.c	2005-11-29 13:59:04.000000000 -0600
++++ 2.6.14-inflate/arch/cris/arch-v10/boot/compressed/misc.c	2005-11-29 18:30:03.000000000 -0600
+@@ -95,24 +95,21 @@ puts(const char *s)
  }
  
--static void
--error(char *x)
-+static void error(const char *x)
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ 
+ static void
+ flush_window()
  {
- 	puts("\n\n");
- 	puts(x);
-@@ -136,6 +133,6 @@ decompress_kernel()
- 	}
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in, *out, ch;
+-    
++
+     in = window;
+-    out = &output_data[output_ptr]; 
+-    for (n = 0; n < outcnt; n++) {
++    out = &output_data[output_ptr];
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *out++ = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     output_ptr += (ulg)outcnt;
+     outcnt = 0;
+@@ -167,8 +164,6 @@ decompress_kernel()
  
- 	puts("Uncompressing Linux...\n");
--	compsize = gunzip(input_data, 0x7fffffff, NULL, flush_window);
-+	compsize = gunzip(input_data, 0x7fffffff, NULL, flush_window, error);
- 	puts("Done. Now booting the kernel.\n");
- }
+ 	setup_normal_output_buffer();
+ 
+-	makecrc();
+-
+ 	__asm__ volatile ("move vr,%0" : "=rm" (revision));
+ 	if (revision < 10)
+ 	{
 Index: 2.6.14-inflate/arch/cris/arch-v32/boot/compressed/misc.c
 ===================================================================
---- 2.6.14-inflate.orig/arch/cris/arch-v32/boot/compressed/misc.c	2005-12-21 21:46:14.000000000 -0600
-+++ 2.6.14-inflate/arch/cris/arch-v32/boot/compressed/misc.c	2005-12-21 21:46:15.000000000 -0600
-@@ -30,8 +30,6 @@
-  * gzip declarations
+--- 2.6.14-inflate.orig/arch/cris/arch-v32/boot/compressed/misc.c	2005-11-29 13:58:38.000000000 -0600
++++ 2.6.14-inflate/arch/cris/arch-v32/boot/compressed/misc.c	2005-11-29 18:30:03.000000000 -0600
+@@ -109,24 +109,21 @@ puts(const char *s)
+ }
+ 
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
   */
  
--static void error(char *m);
--
- extern char *input_data;  /* lives in head.S */
- static u8 *output_data;
- 
-@@ -91,8 +89,7 @@ static void flush_window(const u8 *buf, 
- 		*output_data++ = *buf++;
- }
- 
--static void
--error(char *x)
-+static void error(const char *x)
+ static void
+ flush_window()
  {
- 	puts("\n\n");
- 	puts(x);
-@@ -179,6 +176,6 @@ decompress_kernel()
- 	}
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in, *out, ch;
  
- 	puts("Uncompressing Linux...\n");
--	gunzip(input_data, 0x7fffffff, NULL, flush_window);
-+	gunzip(input_data, 0x7fffffff, NULL, flush_window, error);
- 	puts("Done. Now booting the kernel.\n");
- }
+     in = window;
+     out = &output_data[output_ptr];
+-    for (n = 0; n < outcnt; n++) {
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *out++ = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     output_ptr += (ulg)outcnt;
+     outcnt = 0;
+@@ -212,8 +209,6 @@ decompress_kernel()
+ 
+ 	setup_normal_output_buffer();
+ 
+-	makecrc();
+-
+ 	__asm__ volatile ("move $vr,%0" : "=rm" (revision));
+ 	if (revision < 32)
+ 	{
 Index: 2.6.14-inflate/arch/i386/boot/compressed/misc.c
 ===================================================================
---- 2.6.14-inflate.orig/arch/i386/boot/compressed/misc.c	2005-12-21 21:46:14.000000000 -0600
-+++ 2.6.14-inflate/arch/i386/boot/compressed/misc.c	2005-12-21 21:46:15.000000000 -0600
-@@ -24,8 +24,6 @@
-  * Incomprehensible are the ways of bootloaders.
-  */
- 
--static void error(char *m);
--
- /*
-  * This is set up by the setup-routine at boot-time
-  */
-@@ -124,7 +122,7 @@ static void flush_window(const u8 *buf, 
- 	}
+--- 2.6.14-inflate.orig/arch/i386/boot/compressed/misc.c	2005-11-29 13:57:55.000000000 -0600
++++ 2.6.14-inflate/arch/i386/boot/compressed/misc.c	2005-11-29 18:30:03.000000000 -0600
+@@ -149,22 +149,19 @@ static int fill_inbuf(void)
  }
  
--static void error(char *x)
-+static void error(const char *x)
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ static void flush_window_low(void)
  {
- 	putstr("\n\n");
- 	putstr(x);
-@@ -213,7 +211,7 @@ asmlinkage int decompress_kernel(struct 
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in, *out, ch;
+-    
++
+     in = window;
+-    out = &output_data[output_ptr]; 
+-    for (n = 0; n < outcnt; n++) {
++    out = &output_data[output_ptr];
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *out++ = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     output_ptr += (ulg)outcnt;
+     outcnt = 0;
+@@ -172,16 +169,14 @@ static void flush_window_low(void)
+ 
+ static void flush_window_high(void)
+ {
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in,  ch;
+     in = window;
+     for (n = 0; n < outcnt; n++) {
+ 	ch = *output_data++ = *in++;
+ 	if ((ulg)output_data == low_buffer_end) output_data=high_buffer_start;
+-	c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+     }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     outcnt = 0;
+ }
+@@ -280,7 +275,6 @@ asmlinkage int decompress_kernel(struct 
+ 	if ((long)free_mem_ptr < 0x100000) setup_normal_output_buffer();
  	else setup_output_buffer_if_we_run_high(mv);
  
+-	makecrc();
  	putstr("Uncompressing Linux... ");
--	gunzip(input_data, input_len, NULL, flush_window);
-+	gunzip(input_data, input_len, NULL, flush_window, error);
+ 	gunzip();
  	putstr("Ok, booting the kernel.\n");
- 	if (high_loaded) close_output_buffer_if_we_run_high(mv);
- 	return high_loaded;
 Index: 2.6.14-inflate/arch/m32r/boot/compressed/misc.c
 ===================================================================
---- 2.6.14-inflate.orig/arch/m32r/boot/compressed/misc.c	2005-12-21 21:46:14.000000000 -0600
-+++ 2.6.14-inflate/arch/m32r/boot/compressed/misc.c	2005-12-21 21:46:15.000000000 -0600
-@@ -17,8 +17,6 @@
-  * gzip declarations
-  */
- 
--static void error(char *m);
--
- static unsigned char *input_data;
- static int input_len;
- static u8 *output_data;
-@@ -39,7 +37,7 @@ static void flush_window(const u8 *buf, 
- 		*output_data++ = *buf++;
+--- 2.6.14-inflate.orig/arch/m32r/boot/compressed/misc.c	2005-11-29 13:56:48.000000000 -0600
++++ 2.6.14-inflate/arch/m32r/boot/compressed/misc.c	2005-11-29 18:30:03.000000000 -0600
+@@ -70,22 +70,19 @@ static int fill_inbuf(void)
  }
  
--static void error(char *x)
-+static void error(const char *x)
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ static void flush_window(void)
  {
- 	puts("\n\n");
- 	puts(x);
-@@ -61,6 +59,6 @@ decompress_kernel(int mmu_on, unsigned c
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in, *out, ch;
+ 
+     in = window;
+     out = &output_data[output_ptr];
+-    for (n = 0; n < outcnt; n++) {
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *out++ = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     output_ptr += (ulg)outcnt;
+     outcnt = 0;
+@@ -112,7 +109,6 @@ decompress_kernel(int mmu_on, unsigned c
+ 	input_data = zimage_data;
  	input_len = zimage_len;
  
+-	makecrc();
  	puts("Uncompressing Linux... ");
--	gunzip(input_data, input_len, NULL, flush_window);
-+	gunzip(input_data, input_len, NULL, flush_window, error);
+ 	gunzip();
  	puts("Ok, booting the kernel.\n");
- }
 Index: 2.6.14-inflate/arch/sh/boot/compressed/misc.c
 ===================================================================
---- 2.6.14-inflate.orig/arch/sh/boot/compressed/misc.c	2005-12-21 21:46:14.000000000 -0600
-+++ 2.6.14-inflate/arch/sh/boot/compressed/misc.c	2005-12-21 21:46:15.000000000 -0600
-@@ -19,8 +19,6 @@
-  * gzip declarations
-  */
- 
--static void error(char *m);
--
- extern char input_data[];
- extern int input_len;
- static u8 *output_data;
-@@ -66,7 +64,7 @@ static void flush_window(const u8 *buf, 
- 		*output_data++ = *buf++;
+--- 2.6.14-inflate.orig/arch/sh/boot/compressed/misc.c	2005-11-29 13:56:07.000000000 -0600
++++ 2.6.14-inflate/arch/sh/boot/compressed/misc.c	2005-11-29 18:30:03.000000000 -0600
+@@ -97,22 +97,19 @@ static int fill_inbuf(void)
  }
  
--static void error(char *x)
-+static void error(const char *x)
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ static void flush_window(void)
  {
- 	puts("\n\n");
- 	puts(x);
-@@ -87,6 +85,6 @@ void decompress_kernel(void)
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in, *out, ch;
+ 
+     in = window;
+     out = &output_data[output_ptr];
+-    for (n = 0; n < outcnt; n++) {
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *out++ = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     output_ptr += (ulg)outcnt;
+     outcnt = 0;
+@@ -138,7 +135,6 @@ void decompress_kernel(void)
+ 	free_mem_ptr = (char *)&_end;
  	free_mem_end_ptr = free_mem_ptr + HEAP_SIZE;
  
+-	makecrc();
  	puts("Uncompressing Linux... ");
--	gunzip(input_data, input_len, NULL, flush_window);
-+	gunzip(input_data, input_len, NULL, flush_window, error);
+ 	gunzip();
  	puts("Ok, booting the kernel.\n");
- }
 Index: 2.6.14-inflate/arch/sh64/boot/compressed/misc.c
 ===================================================================
---- 2.6.14-inflate.orig/arch/sh64/boot/compressed/misc.c	2005-12-21 21:46:14.000000000 -0600
-+++ 2.6.14-inflate/arch/sh64/boot/compressed/misc.c	2005-12-21 21:46:15.000000000 -0600
-@@ -19,8 +19,6 @@ int cache_control(unsigned int command);
-  * gzip declarations
-  */
- 
--static void error(char *m);
--
- extern char input_data[];
- extern int input_len;
- static u8 *output_data;
-@@ -48,7 +46,7 @@ static void flush_window(const u8 *buf, 
- 	puts(".");
+--- 2.6.14-inflate.orig/arch/sh64/boot/compressed/misc.c	2005-11-29 13:55:49.000000000 -0600
++++ 2.6.14-inflate/arch/sh64/boot/compressed/misc.c	2005-11-29 18:30:03.000000000 -0600
+@@ -77,22 +77,19 @@ static int fill_inbuf(void)
  }
  
--static void error(char *x)
-+static void error(const char *x)
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ static void flush_window(void)
  {
- 	puts("\n\n");
- 	puts(x);
-@@ -69,7 +67,7 @@ void decompress_kernel(void)
+-	ulg c = crc;		/* temporary variable */
+ 	unsigned n;
+ 	uch *in, *out, ch;
  
+ 	in = window;
+ 	out = &output_data[output_ptr];
+-	for (n = 0; n < outcnt; n++) {
++	for (n = 0; n < outcnt; n++)
+ 		ch = *out++ = *in++;
+-		c = crc_32_tab[((int) c ^ ch) & 0xff] ^ (c >> 8);
+-	}
+-	crc = c;
++
+ 	bytes_out += (ulg) outcnt;
+ 	output_ptr += (ulg) outcnt;
+ 	outcnt = 0;
+@@ -118,7 +115,6 @@ void decompress_kernel(void)
+ 	free_mem_ptr = (char *)&_end;
+ 	free_mem_end_ptr = free_mem_ptr + HEAP_SIZE;
+ 
+-	makecrc();
  	puts("Uncompressing Linux... ");
  	cache_control(CACHE_ENABLE);
--	gunzip(input_data, input_len, NULL, flush_window);
-+	gunzip(input_data, input_len, NULL, flush_window, error);
- 	puts("\n");
- 
- #if 0
+ 	gunzip();
 Index: 2.6.14-inflate/arch/x86_64/boot/compressed/misc.c
 ===================================================================
---- 2.6.14-inflate.orig/arch/x86_64/boot/compressed/misc.c	2005-12-21 21:46:14.000000000 -0600
-+++ 2.6.14-inflate/arch/x86_64/boot/compressed/misc.c	2005-12-21 21:46:15.000000000 -0600
-@@ -16,8 +16,6 @@
-  * gzip declarations
-  */
- 
--static void error(char *m);
--
- /*
-  * This is set up by the setup-routine at boot-time
-  */
-@@ -113,7 +111,7 @@ static void flush_window(const u8 *buf, 
- 	}
+--- 2.6.14-inflate.orig/arch/x86_64/boot/compressed/misc.c	2005-11-29 13:55:11.000000000 -0600
++++ 2.6.14-inflate/arch/x86_64/boot/compressed/misc.c	2005-11-29 18:30:03.000000000 -0600
+@@ -138,22 +138,19 @@ static int fill_inbuf(void)
  }
  
--static void error(char *x)
-+static void error(const char *x)
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ static void flush_window_low(void)
  {
- 	putstr("\n\n");
- 	putstr(x);
-@@ -191,7 +189,7 @@ int decompress_kernel(struct moveparams 
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in, *out, ch;
+-    
++
+     in = window;
+-    out = &output_data[output_ptr]; 
+-    for (n = 0; n < outcnt; n++) {
++    out = &output_data[output_ptr];
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *out++ = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     output_ptr += (ulg)outcnt;
+     outcnt = 0;
+@@ -161,16 +158,14 @@ static void flush_window_low(void)
+ 
+ static void flush_window_high(void)
+ {
+-    ulg c = crc;         /* temporary variable */
+     unsigned n;
+     uch *in,  ch;
+     in = window;
+     for (n = 0; n < outcnt; n++) {
+ 	ch = *output_data++ = *in++;
+ 	if ((ulg)output_data == low_buffer_end) output_data=high_buffer_start;
+-	c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+     }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     outcnt = 0;
+ }
+@@ -258,7 +253,6 @@ int decompress_kernel(struct moveparams 
+ 	if (free_mem_ptr < 0x100000) setup_normal_output_buffer();
  	else setup_output_buffer_if_we_run_high(mv);
  
+-	makecrc();
  	putstr(".\nDecompressing Linux...");
--	gunzip(input_data, input_len, NULL, flush_window);
-+	gunzip(input_data, input_len, NULL, flush_window, error);
+ 	gunzip();
  	putstr("done.\nBooting the kernel.\n");
- 	if (high_loaded) close_output_buffer_if_we_run_high(mv);
- 	return high_loaded;
 Index: 2.6.14-inflate/init/do_mounts_rd.c
 ===================================================================
---- 2.6.14-inflate.orig/init/do_mounts_rd.c	2005-12-21 21:46:14.000000000 -0600
-+++ 2.6.14-inflate/init/do_mounts_rd.c	2005-12-21 21:46:15.000000000 -0600
-@@ -281,12 +281,17 @@ static int crd_infd, crd_outfd;
- 
- #define INIT __init
- 
--static void __init error(char *m);
--
- #define NO_INFLATE_MALLOC
- 
- #include "../lib/inflate.c"
- 
-+static void __init error(const char *x)
-+{
-+	printk(KERN_ERR "%s\n", x);
-+	exit_code = 1;
-+	unzip_error = 1;
-+}
-+
- /*
-  * Fill the input buffer. This is called only when the buffer is empty
-  * and at least one byte is really needed.
-@@ -310,13 +315,6 @@ static void __init flush_buffer(const u8
- 	}
+--- 2.6.14-inflate.orig/init/do_mounts_rd.c	2005-11-29 13:29:41.000000000 -0600
++++ 2.6.14-inflate/init/do_mounts_rd.c	2005-11-29 18:30:03.000000000 -0600
+@@ -325,15 +325,14 @@ static int __init fill_inbuf(void)
  }
  
--static void __init error(char *x)
--{
--	printk(KERN_ERR "%s\n", x);
--	exit_code = 1;
--	unzip_error = 1;
--}
--
- static int __init crd_load(int in_fd, int out_fd)
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ static void __init flush_window(void)
  {
- 	int result;
-@@ -330,7 +328,7 @@ static int __init crd_load(int in_fd, in
- 		printk(KERN_ERR "RAMDISK: Couldn't allocate gzip buffer\n");
+-    ulg c = crc;         /* temporary variable */
+     unsigned n, written;
+     uch *in, ch;
+-    
++
+     written = sys_write(crd_outfd, window, outcnt);
+     if (written != outcnt && unzip_error == 0) {
+ 	printk(KERN_ERR "RAMDISK: incomplete write (%d != %d) %ld\n",
+@@ -341,11 +340,9 @@ static void __init flush_window(void)
+ 	unzip_error = 1;
+     }
+     in = window;
+-    for (n = 0; n < outcnt; n++) {
++    for (n = 0; n < outcnt; n++)
+ 	    ch = *in++;
+-	    c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-    }
+-    crc = c;
++
+     bytes_out += (ulg)outcnt;
+     outcnt = 0;
+ }
+@@ -366,7 +363,6 @@ static int __init crd_load(int in_fd, in
+ 	outcnt = 0;		/* bytes in output buffer */
+ 	exit_code = 0;
+ 	bytes_out = 0;
+-	crc = (ulg)0xffffffffL; /* shift register contents */
+ 
+ 	crd_infd = in_fd;
+ 	crd_outfd = out_fd;
+@@ -381,7 +377,6 @@ static int __init crd_load(int in_fd, in
+ 		kfree(inbuf);
  		return -1;
  	}
--	result = gunzip(inbuf, INBUFSIZ, fill_inbuf, flush_buffer);
-+	result = gunzip(inbuf, INBUFSIZ, fill_inbuf, flush_buffer, error);
+-	makecrc();
+ 	result = gunzip();
  	if (unzip_error)
  		result = 1;
- 	kfree(inbuf);
 Index: 2.6.14-inflate/init/initramfs.c
 ===================================================================
---- 2.6.14-inflate.orig/init/initramfs.c	2005-12-21 21:46:14.000000000 -0600
-+++ 2.6.14-inflate/init/initramfs.c	2005-12-21 21:46:15.000000000 -0600
-@@ -7,8 +7,8 @@
- #include <linux/string.h>
- #include <linux/syscalls.h>
- 
--static __initdata char *message;
--static void __init error(char *x)
-+static __initdata const char *message;
-+static void __init error(const char *x)
- {
- 	if (!message)
- 		message = x;
-@@ -335,13 +335,12 @@ static void __init flush_buffer(const u8
- 
- #define INIT __init
- 
--static void __init error(char *m);
--
- #define NO_INFLATE_MALLOC
- 
+--- 2.6.14-inflate.orig/init/initramfs.c	2005-11-29 13:29:41.000000000 -0600
++++ 2.6.14-inflate/init/initramfs.c	2005-11-29 18:30:03.000000000 -0600
+@@ -360,22 +360,19 @@ static void __init error(char *m);
  #include "../lib/inflate.c"
  
--static char * __init unpack_to_rootfs(char *buf, unsigned len, int check_only)
-+static const char * __init unpack_to_rootfs(char *buf, unsigned len,
-+					    int check_only)
+ /* ===========================================================================
+- * Write the output window window[0..outcnt-1] and update crc and bytes_out.
++ * Write the output window window[0..outcnt-1] and update bytes_out.
+  * (Used for the decompressed data only.)
+  */
+ static void __init flush_window(void)
  {
- 	int written, cnt;
- 	dry_run = check_only;
-@@ -369,7 +368,7 @@ static char * __init unpack_to_rootfs(ch
- 			continue;
- 		}
- 		this_header = 0;
--		cnt = gunzip(buf, len, NULL, flush_buffer);
-+		cnt = gunzip(buf, len, NULL, flush_buffer, error);
+-	ulg c = crc;         /* temporary variable */
+ 	unsigned n;
+ 	uch *in, ch;
+ 
+ 	flush_buffer(window, outcnt);
+ 	in = window;
+-	for (n = 0; n < outcnt; n++) {
++	for (n = 0; n < outcnt; n++)
+ 		ch = *in++;
+-		c = crc_32_tab[((int)c ^ ch) & 0xff] ^ (c >> 8);
+-	}
+-	crc = c;
++
+ 	bytes_out += (ulg)outcnt;
+ 	outcnt = 0;
+ }
+@@ -414,8 +411,6 @@ static char * __init unpack_to_rootfs(ch
+ 		inptr = 0;
+ 		outcnt = 0;		/* bytes in output buffer */
+ 		bytes_out = 0;
+-		crc = (ulg)0xffffffffL; /* shift register contents */
+-		makecrc();
+ 		gunzip();
  		if (state != Reset)
  			error("junk in gzipped archive");
- 		this_header = saved_offset + cnt;
-@@ -397,8 +396,9 @@ static void __init free_initrd(void)
- 
- void __init populate_rootfs(void)
- {
--	char *err = unpack_to_rootfs(__initramfs_start,
--			 __initramfs_end - __initramfs_start, 0);
-+	const char *err =
-+		unpack_to_rootfs(__initramfs_start,
-+				 __initramfs_end - __initramfs_start, 0);
- 	if (err)
- 		panic(err);
- #ifdef CONFIG_BLK_DEV_INITRD
 Index: 2.6.14-inflate/lib/inflate.c
 ===================================================================
---- 2.6.14-inflate.orig/lib/inflate.c	2005-12-21 21:46:13.000000000 -0600
-+++ 2.6.14-inflate/lib/inflate.c	2005-12-21 21:46:15.000000000 -0600
-@@ -121,8 +121,9 @@ static void *malloc(int size)
- {
- 	char *p;
+--- 2.6.14-inflate.orig/lib/inflate.c	2005-11-29 13:43:55.000000000 -0600
++++ 2.6.14-inflate/lib/inflate.c	2005-11-29 18:30:03.000000000 -0600
+@@ -149,7 +149,6 @@ static void free(void *where)
+ #endif
  
--	if (size <0)
--		error("Malloc error");
-+	if (size < 0)
-+		return NULL;
+ static u32 crc_32_tab[256];
+-static u32 crc;		/* dummy var until users get cleaned up */
+ #define CRCPOLY_LE 0xedb88320
+ 
+ /* Huffman code lookup table entry--this entry is four bytes for machines
+@@ -992,6 +991,8 @@ static int INIT gunzip(void)
+ 	io.opos = io.bits = io.buf = 0;
+ 	io.crc = 0xffffffffUL;
+ 
++	makecrc(); /* initialize the CRC table */
 +
- 	if (!malloc_ptr)
- 		malloc_ptr = free_mem_ptr;
- 
-@@ -131,7 +132,7 @@ static void *malloc(int size)
- 	malloc_ptr += size;
- 
- 	if (malloc_ptr >= free_mem_end_ptr)
--		error("Out of memory");
-+		return NULL;
- 
- 	malloc_count++;
- 	return p;
-@@ -175,6 +176,7 @@ struct iostate {
- 	int ipos, isize, itotal, opos, osize, ototal, bits;
- 	void (*fill)(u8 *ibuf, int len);
- 	void (*flush)(const u8 *obuf, int len);
-+	void (*error)(const char *msg);
- 	u32 buf, crc;
- };
- 
-@@ -878,7 +880,7 @@ static int noinline INIT inflate_dynamic
- 	if ((i = huft_build(ll, nl, 257, cplens, cplext, &tl, &bl))) {
- 		DEBG("dyn5b ");
- 		if (i == 1) {
--			error("incomplete literal tree");
-+			io->error("incomplete literal tree");
- 			huft_free(tl);
- 		}
- 		return i;	/* incomplete code set */
-@@ -888,7 +890,7 @@ static int noinline INIT inflate_dynamic
- 	if ((i = huft_build(ll + nl, nd, 0, cpdist, cpdext, &td, &bd))) {
- 		DEBG("dyn5d ");
- 		if (i == 1) {
--			error("incomplete distance tree");
-+			io->error("incomplete distance tree");
- 			huft_free(td);
- 		}
- 		huft_free(tl);
-@@ -991,9 +993,11 @@ static void INIT makecrc(void)
-  * @isize: size of pool
-  * @fill: function to fill the input pool
-  * @flush: function to flush the output pool
-+ * @error: function to report an error
-  */
- static int INIT gunzip(u8 *ibuf, int isize, void (*fill)(u8 *buf, int size),
--		       void (*flush)(const u8 *buf, int size))
-+		       void (*flush)(const u8 *buf, int size),
-+		       void (*error)(const char *msg))
- {
- 	u8 flags;
- 	unsigned char magic[2];	/* magic header */
+ 	magic[0] = get_byte();
+ 	magic[1] = get_byte();
+ 	method = get_byte();

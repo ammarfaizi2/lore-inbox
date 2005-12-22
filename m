@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbVLVLo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbVLVLpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbVLVLo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 06:44:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbVLVLnr
+	id S964777AbVLVLpI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 06:45:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbVLVLo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 06:43:47 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:44418 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932305AbVLVLnd (ORCPT
+	Thu, 22 Dec 2005 06:44:59 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:37591 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932367AbVLVLnu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 06:43:33 -0500
-Date: Thu, 22 Dec 2005 12:42:47 +0100
+	Thu, 22 Dec 2005 06:43:50 -0500
+Date: Thu, 22 Dec 2005 12:43:08 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -21,624 +21,475 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Steven Rostedt <rostedt@goodmis.org>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 7/9] mutex subsystem, debugging code
-Message-ID: <20051222114247.GH18878@elte.hu>
+Subject: [patch 9/9] mutex subsystem, XFS namespace collision fixes
+Message-ID: <20051222114308.GJ18878@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -1.8
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mutex implementation - add debugging code.
+Fixup the XFS code to avoid name clashing with the mutex code by 
+introducing xfs_mutex_ functions. [this causes no change in the
+resulting code.]
 
+Signed-off-by: Jes Sorensen <jes@trained-monkey.org>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
 ----
 
- include/linux/mutex-debug.h |   19 +
- include/linux/sched.h       |    5 
- kernel/fork.c               |    4 
- kernel/mutex-debug.c        |  513 ++++++++++++++++++++++++++++++++++++++++++++
- lib/Kconfig.debug           |    8 
- 5 files changed, 549 insertions(+)
+ fs/xfs/linux-2.6/mutex.h       |   10 +++++-----
+ fs/xfs/quota/xfs_dquot.c       |   12 ++++++------
+ fs/xfs/quota/xfs_dquot.h       |    4 ++--
+ fs/xfs/quota/xfs_qm.c          |   20 ++++++++++----------
+ fs/xfs/quota/xfs_qm.h          |    4 ++--
+ fs/xfs/quota/xfs_qm_bhv.c      |    2 +-
+ fs/xfs/quota/xfs_qm_syscalls.c |   24 ++++++++++++------------
+ fs/xfs/quota/xfs_quota_priv.h  |    8 ++++----
+ fs/xfs/support/uuid.c          |   12 ++++++------
+ fs/xfs/xfs_mount.c             |    4 ++--
+ fs/xfs/xfs_mount.h             |    4 ++--
+ 11 files changed, 52 insertions(+), 52 deletions(-)
 
-Index: linux/include/linux/mutex-debug.h
+Index: linux/fs/xfs/linux-2.6/mutex.h
 ===================================================================
---- /dev/null
-+++ linux/include/linux/mutex-debug.h
-@@ -0,0 +1,19 @@
-+#ifndef __LINUX_MUTEX_DEBUG_H
-+#define __LINUX_MUTEX_DEBUG_H
-+
-+/*
-+ * Mutexes - debugging helpers:
-+ */
-+
-+#define __DEBUG_MUTEX_INITIALIZER(lockname) \
-+	, .held_list = LIST_HEAD_INIT(lockname.held_list), \
-+	  .name = #lockname , .magic = &lockname
-+
-+#define mutex_init(sem)		__mutex_init(sem, __FUNCTION__)
-+
-+extern void mutex_debug_show_all_locks(void);
-+extern void mutex_debug_show_held_locks(struct task_struct *filter);
-+extern void mutex_debug_check_no_locks_held(struct task_struct *task);
-+extern void mutex_debug_check_no_locks_freed(const void *from, const void *to);
-+
-+#endif
-Index: linux/include/linux/sched.h
-===================================================================
---- linux.orig/include/linux/sched.h
-+++ linux/include/linux/sched.h
-@@ -820,6 +820,11 @@ struct task_struct {
- /* Protection of proc_dentry: nesting proc_lock, dcache_lock, write_lock_irq(&tasklist_lock); */
- 	spinlock_t proc_lock;
+--- linux.orig/fs/xfs/linux-2.6/mutex.h
++++ linux/fs/xfs/linux-2.6/mutex.h
+@@ -30,10 +30,10 @@
+ #define MUTEX_DEFAULT		0x0
+ typedef struct semaphore	mutex_t;
  
-+#ifdef CONFIG_DEBUG_MUTEXES
-+	/* mutex deadlock detection */
-+	struct mutex_waiter *blocked_on;
-+#endif
-+
- /* journalling filesystem info */
- 	void *journal_info;
+-#define mutex_init(lock, type, name)		sema_init(lock, 1)
+-#define mutex_destroy(lock)			sema_init(lock, -99)
+-#define mutex_lock(lock, num)			down(lock)
+-#define mutex_trylock(lock)			(down_trylock(lock) ? 0 : 1)
+-#define mutex_unlock(lock)			up(lock)
++#define xfs_mutex_init(lock, type, name)	sema_init(lock, 1)
++#define xfs_mutex_destroy(lock)			sema_init(lock, -99)
++#define xfs_mutex_lock(lock, num)		down(lock)
++#define xfs_mutex_trylock(lock)			(down_trylock(lock) ? 0 : 1)
++#define xfs_mutex_unlock(lock)			up(lock)
  
-Index: linux/kernel/fork.c
+ #endif /* __XFS_SUPPORT_MUTEX_H__ */
+Index: linux/fs/xfs/quota/xfs_dquot.c
 ===================================================================
---- linux.orig/kernel/fork.c
-+++ linux/kernel/fork.c
-@@ -973,6 +973,10 @@ static task_t *copy_process(unsigned lon
-  	}
- #endif
+--- linux.orig/fs/xfs/quota/xfs_dquot.c
++++ linux/fs/xfs/quota/xfs_dquot.c
+@@ -104,7 +104,7 @@ xfs_qm_dqinit(
+ 	 */
+ 	if (brandnewdquot) {
+ 		dqp->dq_flnext = dqp->dq_flprev = dqp;
+-		mutex_init(&dqp->q_qlock,  MUTEX_DEFAULT, "xdq");
++		xfs_mutex_init(&dqp->q_qlock,  MUTEX_DEFAULT, "xdq");
+ 		initnsema(&dqp->q_flock, 1, "fdq");
+ 		sv_init(&dqp->q_pinwait, SV_DEFAULT, "pdq");
  
-+#ifdef CONFIG_DEBUG_MUTEXES
-+	p->blocked_on = NULL; /* not blocked yet */
-+#endif
-+
- 	p->tgid = p->pid;
- 	if (clone_flags & CLONE_THREAD)
- 		p->tgid = current->tgid;
-Index: linux/kernel/mutex-debug.c
-===================================================================
---- /dev/null
-+++ linux/kernel/mutex-debug.c
-@@ -0,0 +1,513 @@
-+/*
-+ * kernel/mutex-debug.c
-+ *
-+ * Debugging code for mutexes
-+ *
-+ * Started by Ingo Molnar:
-+ *
-+ *  Copyright (C) 2004, 2005 Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
-+ *
-+ * lock debugging, locking tree, deadlock detection started by:
-+ *
-+ *  Copyright (C) 2004, LynuxWorks, Inc., Igor Manyilov, Bill Huey
-+ *  Released under the General Public License (GPL).
-+ */
-+
-+/*
-+ * We need a global lock when we walk through the multi-process
-+ * lock tree. Only used in the deadlock-debugging case.
-+ */
-+static DEFINE_SPINLOCK(debug_lock);
-+
-+static LIST_HEAD(held_locks);
-+
-+/*
-+ * In the debug case we carry the caller's instruction pointer into
-+ * other functions, but we dont want the function argument overhead
-+ * in the nondebug case - hence these macros:
-+ */
-+#define __IP_DECL__		, unsigned long ip
-+#define __IP__			, ip
-+#define __CALLER_IP__		, (unsigned long)__builtin_return_address(0)
-+
-+/*
-+ * deadlock detection flag. We turn it off when we detect
-+ * the first problem because we dont want to recurse back
-+ * into the tracing code when doing error printk or
-+ * executing a BUG():
-+ */
-+static int debug_on = 1;
-+
-+#define debug_spin_lock(lock)				\
-+	do {						\
-+		local_irq_disable();			\
-+		if (debug_on)				\
-+			spin_lock(lock);		\
-+	} while (0)
-+
-+#define debug_spin_unlock(lock)				\
-+	do {						\
-+		if (debug_on)				\
-+			spin_unlock(lock);		\
-+		local_irq_enable();			\
-+		preempt_check_resched();		\
-+	} while (0)
-+
-+#define debug_spin_lock_save(lock, flags)		\
-+	do {						\
-+		local_irq_save(flags);			\
-+		if (debug_on)				\
-+			spin_lock(lock);		\
-+	} while (0)
-+
-+#define debug_spin_lock_restore(lock, flags)		\
-+	do {						\
-+		if (debug_on)				\
-+			spin_unlock(lock);		\
-+		local_irq_restore(flags);		\
-+		preempt_check_resched();		\
-+	} while (0)
-+
-+#define spin_lock_mutex(lock)				\
-+	do {						\
-+		struct mutex *l = container_of(lock, struct mutex, wait_lock); \
-+							\
-+		DEBUG_WARN_ON(in_interrupt());		\
-+		debug_spin_lock(&debug_lock);		\
-+		spin_lock(lock);			\
-+		DEBUG_WARN_ON(l->magic != l);		\
-+	} while (0)
-+
-+#define spin_unlock_mutex(lock)				\
-+	do {						\
-+		spin_unlock(lock);			\
-+		debug_spin_unlock(&debug_lock);		\
-+	} while (0)
-+
-+#define DEBUG_OFF()					\
-+do {							\
-+	if (debug_on) {					\
-+		debug_on = 0;				\
-+		console_verbose();			\
-+		if (spin_is_locked(&debug_lock))	\
-+			spin_unlock(&debug_lock); 	\
-+	}						\
-+} while (0)
-+
-+#define DEBUG_BUG()					\
-+do {							\
-+	if (debug_on) {					\
-+		DEBUG_OFF();				\
-+		BUG();					\
-+	}						\
-+} while (0)
-+
-+#define DEBUG_WARN_ON(c)				\
-+do {							\
-+	if (unlikely(c && debug_on)) {			\
-+		DEBUG_OFF();				\
-+		WARN_ON(1);				\
-+	}						\
-+} while (0)
-+
-+# define DEBUG_BUG_ON(c)				\
-+do {							\
-+	if (unlikely(c))				\
-+		DEBUG_BUG();				\
-+} while (0)
-+
-+#ifdef CONFIG_SMP
-+# define SMP_DEBUG_WARN_ON(c)			DEBUG_WARN_ON(c)
-+# define SMP_DEBUG_BUG_ON(c)			DEBUG_BUG_ON(c)
-+#else
-+# define SMP_DEBUG_WARN_ON(c)			do { } while (0)
-+# define SMP_DEBUG_BUG_ON(c)			do { } while (0)
-+#endif
-+
-+static void printk_task(struct task_struct *p)
-+{
-+	if (p)
-+		printk("%16s:%5d [%p, %3d]", p->comm, p->pid, p, p->prio);
-+	else
-+		printk("<none>");
-+}
-+
-+static void printk_ti(struct thread_info *ti)
-+{
-+	if (ti)
-+		printk_task(ti->task);
-+	else
-+		printk("<none>");
-+}
-+
-+static void printk_task_short(struct task_struct *p)
-+{
-+	if (p)
-+		printk("%s/%d [%p, %3d]", p->comm, p->pid, p, p->prio);
-+	else
-+		printk("<none>");
-+}
-+
-+static void printk_lock(struct mutex *lock, int print_owner)
-+{
-+	printk(" [%p] {%s}\n", lock, lock->name);
-+
-+	if (print_owner && lock->owner) {
-+		printk(".. held by:  ");
-+		printk_ti(lock->owner);
-+		printk("\n");
-+	}
-+	if (lock->owner) {
-+		printk("... acquired at:               ");
-+		print_symbol("%s\n", lock->acquire_ip);
-+	}
-+}
-+
-+static void show_task_locks(struct task_struct *p)
-+{
-+	switch (p->state) {
-+	case TASK_RUNNING:		printk("R"); break;
-+	case TASK_INTERRUPTIBLE:	printk("S"); break;
-+	case TASK_UNINTERRUPTIBLE:	printk("D"); break;
-+	case TASK_STOPPED:		printk("T"); break;
-+	case EXIT_ZOMBIE:		printk("Z"); break;
-+	case EXIT_DEAD:			printk("X"); break;
-+	default:			printk("?"); break;
-+	}
-+	printk_task(p);
-+	if (p->blocked_on) {
-+		struct mutex *lock = p->blocked_on->lock;
-+
-+		printk(" blocked on mutex:");
-+		printk_lock(lock, 1);
-+	} else
-+		printk(" (not blocked on mutex)\n");
-+}
-+
-+void show_held_locks(struct task_struct *filter)
-+{
-+	struct list_head *curr, *cursor = NULL;
-+	struct mutex *lock;
-+	struct thread_info *t;
-+	unsigned long flags;
-+	int count = 0;
-+
-+	if (filter) {
-+		printk("------------------------------\n");
-+		printk("| showing all locks held by: |  (");
-+		printk_task_short(filter);
-+		printk("):\n");
-+		printk("------------------------------\n");
-+	} else {
-+		printk("---------------------------\n");
-+		printk("| showing all locks held: |\n");
-+		printk("---------------------------\n");
-+	}
-+
-+	/*
-+	 * Play safe and acquire the global trace lock. We
-+	 * cannot printk with that lock held so we iterate
-+	 * very carefully:
-+	 */
-+next:
-+	debug_spin_lock_save(&debug_lock, flags);
-+	list_for_each(curr, &held_locks) {
-+		if (cursor && curr != cursor)
-+			continue;
-+		lock = list_entry(curr, struct mutex, held_list);
-+		t = lock->owner;
-+		if (filter && (t != filter->thread_info))
-+			continue;
-+		count++;
-+		cursor = curr->next;
-+		debug_spin_lock_restore(&debug_lock, flags);
-+
-+		printk("\n#%03d:            ", count);
-+		printk_lock(lock, filter ? 0 : 1);
-+		goto next;
-+	}
-+	debug_spin_lock_restore(&debug_lock, flags);
-+	printk("\n");
-+}
-+
-+void mutex_debug_show_all_locks(void)
-+{
-+	struct task_struct *g, *p;
-+	int count = 10;
-+	int unlock = 1;
-+
-+	printk("\nShowing all blocking locks in the system:\n");
-+
-+	/*
-+	 * Here we try to get the tasklist_lock as hard as possible,
-+	 * if not successful after 2 seconds we ignore it (but keep
-+	 * trying). This is to enable a debug printout even if a
-+	 * tasklist_lock-holding task deadlocks or crashes.
-+	 */
-+retry:
-+	if (!read_trylock(&tasklist_lock)) {
-+		if (count == 10)
-+			printk("hm, tasklist_lock locked, retrying... ");
-+		if (count) {
-+			count--;
-+			printk(" #%d", 10-count);
-+			mdelay(200);
-+			goto retry;
-+		}
-+		printk(" ignoring it.\n");
-+		unlock = 0;
-+	}
-+	if (count != 10)
-+		printk(" locked it.\n");
-+
-+	do_each_thread(g, p) {
-+		show_task_locks(p);
-+		if (!unlock)
-+			if (read_trylock(&tasklist_lock))
-+				unlock = 1;
-+	} while_each_thread(g, p);
-+
-+	printk("\n");
-+	show_held_locks(NULL);
-+	printk("=============================================\n\n");
-+
-+	if (unlock)
-+		read_unlock(&tasklist_lock);
-+}
-+
-+static void report_deadlock(struct task_struct *task, struct mutex *lock,
-+			    struct mutex *lockblk, unsigned long ip)
-+{
-+	printk("\n%s/%d is trying to acquire this lock:\n",
-+		current->comm, current->pid);
-+	printk_lock(lock, 1);
-+	printk("... trying at:                 ");
-+	print_symbol("%s\n", ip);
-+	show_held_locks(current);
-+
-+	if (lockblk) {
-+		printk("but %s/%d is deadlocking current task %s/%d!\n\n",
-+			task->comm, task->pid, current->comm, current->pid);
-+		printk("\n%s/%d is blocked on this lock:\n",
-+			task->comm, task->pid);
-+		printk_lock(lockblk, 1);
-+
-+		show_held_locks(task);
-+
-+		printk("\n%s/%d's [blocked] stackdump:\n\n",
-+			task->comm, task->pid);
-+		show_stack(task, NULL);
-+	}
-+
-+	printk("\n%s/%d's [current] stackdump:\n\n",
-+		current->comm, current->pid);
-+	dump_stack();
-+	mutex_debug_show_all_locks();
-+	printk("[ turning off deadlock detection. Please report this. ]\n\n");
-+	local_irq_disable();
-+}
-+
-+static int check_deadlock(struct mutex *lock, int depth,
-+			  struct thread_info *ti, unsigned long ip)
-+{
-+	struct mutex *lockblk;
-+	struct task_struct *task;
-+
-+	if (!debug_on)
-+		return 0;
-+
-+	ti = lock->owner;
-+	if (!ti)
-+		return 0;
-+
-+	task = ti->task;
-+	lockblk = NULL;
-+	if (task->blocked_on)
-+		lockblk = task->blocked_on->lock;
-+
-+	/* Self-deadlock: */
-+	if (current == task) {
-+		DEBUG_OFF();
-+		if (depth)
-+			return 1;
-+		printk("\n==========================================\n");
-+		printk(  "[ BUG: lock recursion deadlock detected! |\n");
-+		printk(  "------------------------------------------\n");
-+		report_deadlock(task, lock, NULL, ip);
-+		return 0;
-+	}
-+
-+	/* Ugh, something corrupted the lock data structure? */
-+	if (depth > 20) {
-+		DEBUG_OFF();
-+		printk("\n===========================================\n");
-+		printk(  "[ BUG: infinite lock dependency detected!? |\n");
-+		printk(  "-------------------------------------------\n");
-+		report_deadlock(task, lock, lockblk, ip);
-+		return 0;
-+	}
-+
-+	/* Recursively check for dependencies: */
-+	if (lockblk && check_deadlock(lockblk, depth+1, ti, ip)) {
-+		printk("\n============================================\n");
-+		printk(  "[ BUG: circular locking deadlock detected! ]\n");
-+		printk(  "--------------------------------------------\n");
-+		report_deadlock(task, lock, lockblk, ip);
-+		return 0;
-+	}
-+	return 0;
-+}
-+
-+void mutex_debug_check_no_locks_held(struct task_struct *task)
-+{
-+	struct list_head *curr, *next;
-+	struct thread_info *t;
-+	unsigned long flags;
-+	struct mutex *lock;
-+
-+	if (!debug_on)
-+		return;
-+
-+	debug_spin_lock_save(&debug_lock, flags);
-+	list_for_each_safe(curr, next, &held_locks) {
-+		lock = list_entry(curr, struct mutex, held_list);
-+		t = lock->owner;
-+		if (t != task->thread_info)
-+			continue;
-+		list_del_init(curr);
-+		DEBUG_OFF();
-+		debug_spin_lock_restore(&debug_lock, flags);
-+
-+		printk("BUG: %s/%d, lock held at task exit time!\n",
-+			task->comm, task->pid);
-+		printk_lock(lock, 1);
-+		if (lock->owner != task->thread_info)
-+			printk("exiting task is not even the owner??\n");
-+		return;
-+	}
-+	debug_spin_lock_restore(&debug_lock, flags);
-+}
-+
-+void mutex_debug_check_no_locks_freed(const void *from, const void *to)
-+{
-+	struct list_head *curr, *next;
-+	struct mutex *lock;
-+	unsigned long flags;
-+	void *lock_addr;
-+
-+	if (!debug_on)
-+		return;
-+
-+	debug_spin_lock_save(&debug_lock, flags);
-+	list_for_each_safe(curr, next, &held_locks) {
-+		lock = list_entry(curr, struct mutex, held_list);
-+		lock_addr = lock;
-+		if (lock_addr < from || lock_addr >= to)
-+			continue;
-+		list_del_init(curr);
-+		DEBUG_OFF();
-+		debug_spin_lock_restore(&debug_lock, flags);
-+
-+		printk("BUG: %s/%d, active lock [%p(%p-%p)] freed!\n",
-+			current->comm, current->pid, lock, from, to);
-+		dump_stack();
-+		printk_lock(lock, 1);
-+		if (lock->owner != current_thread_info())
-+			printk("freeing task is not even the owner??\n");
-+		return;
-+	}
-+	debug_spin_lock_restore(&debug_lock, flags);
-+}
-+
-+/*
-+ * This must be called with lock->wait_lock held.
-+ */
-+static inline void
-+debug_set_owner(struct mutex *lock, struct thread_info *new_owner __IP_DECL__)
-+{
-+	lock->owner = new_owner;
-+	DEBUG_WARN_ON(!list_empty(&lock->held_list));
-+	if (debug_on) {
-+		list_add_tail(&lock->held_list, &held_locks);
-+		lock->acquire_ip = ip;
-+	}
-+}
-+
-+static inline void debug_clear_owner(struct mutex *lock)
-+{
-+	lock->owner = NULL;
-+}
-+
-+/*
-+ * Initialize/destruct the waiter structure, and poison it when debugging:
-+ */
-+static inline void debug_init_waiter(struct mutex_waiter *waiter)
-+{
-+	memset(waiter, 0x11, sizeof(*waiter));
-+	waiter->magic = waiter;
-+	INIT_LIST_HEAD(&waiter->list);
-+}
-+
-+
-+static inline void
-+debug_wake_waiter(struct mutex *lock, struct mutex_waiter *waiter)
-+{
-+	SMP_DEBUG_WARN_ON(!spin_is_locked(&lock->wait_lock));
-+	DEBUG_WARN_ON(list_empty(&lock->wait_list));
-+	DEBUG_WARN_ON(waiter->magic != waiter);
-+	DEBUG_WARN_ON(list_empty(&waiter->list));
-+}
-+
-+static inline void debug_free_waiter(struct mutex_waiter *waiter)
-+{
-+	DEBUG_WARN_ON(!list_empty(&waiter->list));
-+	memset(waiter, 0x22, sizeof(*waiter));
-+}
-+
-+static void
-+debug_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
-+		 struct thread_info *ti __IP_DECL__)
-+{
-+	SMP_DEBUG_WARN_ON(!spin_is_locked(&lock->wait_lock));
-+	check_deadlock(lock, 0, ti, ip);
-+	/* Mark the current thread as blocked on the lock: */
-+	ti->task->blocked_on = waiter;
-+	waiter->lock = lock;
-+}
-+
-+static inline void
-+remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
-+	      struct thread_info *ti)
-+{
-+	DEBUG_WARN_ON(list_empty(&waiter->list));
-+	DEBUG_WARN_ON(waiter->ti != ti);
-+	DEBUG_WARN_ON(ti->task->blocked_on != waiter);
-+	ti->task->blocked_on = NULL;
-+
-+	list_del_init(&waiter->list);
-+	waiter->ti = NULL;
-+}
-+
-+static inline void debug_mutex_unlock(struct mutex *lock)
-+{
-+	DEBUG_WARN_ON(lock->magic != lock);
-+	DEBUG_WARN_ON(!lock->wait_list.prev && !lock->wait_list.next);
-+	DEBUG_WARN_ON(lock->owner != current_thread_info());
-+	if (debug_on) {
-+		DEBUG_WARN_ON(list_empty(&lock->held_list));
-+		list_del_init(&lock->held_list);
-+	}
-+}
-+
-+static inline void debug_mutex_init(struct mutex *lock, const char *name)
-+{
-+	/*
-+	 * Make sure we are not reinitializing a held lock:
-+	 */
-+	mutex_debug_check_no_locks_freed((void *)lock, (void *)(lock + 1));
-+	lock->owner = NULL;
-+	INIT_LIST_HEAD(&lock->held_list);
-+	lock->name = name;
-+	lock->magic = lock;
-+}
-+
-Index: linux/lib/Kconfig.debug
-===================================================================
---- linux.orig/lib/Kconfig.debug
-+++ linux/lib/Kconfig.debug
-@@ -95,6 +95,14 @@ config DEBUG_PREEMPT
- 	  if kernel code uses it in a preemption-unsafe way. Also, the kernel
- 	  will detect preemption count underflows.
+@@ -153,7 +153,7 @@ xfs_qm_dqdestroy(
+ {
+ 	ASSERT(! XFS_DQ_IS_ON_FREELIST(dqp));
  
-+config DEBUG_MUTEXES
-+	bool "Mutex debugging, deadlock detection"
-+	default y
-+	depends on DEBUG_KERNEL
-+	help
-+	 This allows mutex semantics violations and mutex related deadlocks
-+	 (lockups) to be detected and reported automatically.
-+
- config DEBUG_SPINLOCK
- 	bool "Spinlock debugging"
- 	depends on DEBUG_KERNEL
+-	mutex_destroy(&dqp->q_qlock);
++	xfs_mutex_destroy(&dqp->q_qlock);
+ 	freesema(&dqp->q_flock);
+ 	sv_destroy(&dqp->q_pinwait);
+ 
+@@ -1375,21 +1375,21 @@ int
+ xfs_qm_dqlock_nowait(
+ 	xfs_dquot_t *dqp)
+ {
+-	return (mutex_trylock(&((dqp)->q_qlock)));
++	return (xfs_mutex_trylock(&((dqp)->q_qlock)));
+ }
+ 
+ void
+ xfs_dqlock(
+ 	xfs_dquot_t *dqp)
+ {
+-	mutex_lock(&(dqp->q_qlock), PINOD);
++	xfs_mutex_lock(&(dqp->q_qlock), PINOD);
+ }
+ 
+ void
+ xfs_dqunlock(
+ 	xfs_dquot_t *dqp)
+ {
+-	mutex_unlock(&(dqp->q_qlock));
++	xfs_mutex_unlock(&(dqp->q_qlock));
+ 	if (dqp->q_logitem.qli_dquot == dqp) {
+ 		/* Once was dqp->q_mount, but might just have been cleared */
+ 		xfs_trans_unlocked_item(dqp->q_logitem.qli_item.li_mountp,
+@@ -1402,7 +1402,7 @@ void
+ xfs_dqunlock_nonotify(
+ 	xfs_dquot_t *dqp)
+ {
+-	mutex_unlock(&(dqp->q_qlock));
++	xfs_mutex_unlock(&(dqp->q_qlock));
+ }
+ 
+ void
+Index: linux/fs/xfs/quota/xfs_dquot.h
+===================================================================
+--- linux.orig/fs/xfs/quota/xfs_dquot.h
++++ linux/fs/xfs/quota/xfs_dquot.h
+@@ -103,8 +103,8 @@ typedef struct xfs_dquot {
+ static inline int
+ XFS_DQ_IS_LOCKED(xfs_dquot_t *dqp)
+ {
+-	if (mutex_trylock(&dqp->q_qlock)) {
+-		mutex_unlock(&dqp->q_qlock);
++	if (xfs_mutex_trylock(&dqp->q_qlock)) {
++		xfs_mutex_unlock(&dqp->q_qlock);
+ 		return 0;
+ 	}
+ 	return 1;
+Index: linux/fs/xfs/quota/xfs_qm.c
+===================================================================
+--- linux.orig/fs/xfs/quota/xfs_qm.c
++++ linux/fs/xfs/quota/xfs_qm.c
+@@ -1166,7 +1166,7 @@ xfs_qm_init_quotainfo(
+ 	qinf->qi_dqreclaims = 0;
+ 
+ 	/* mutex used to serialize quotaoffs */
+-	mutex_init(&qinf->qi_quotaofflock, MUTEX_DEFAULT, "qoff");
++	xfs_mutex_init(&qinf->qi_quotaofflock, MUTEX_DEFAULT, "qoff");
+ 
+ 	/* Precalc some constants */
+ 	qinf->qi_dqchunklen = XFS_FSB_TO_BB(mp, XFS_DQUOT_CLUSTER_SIZE_FSB);
+@@ -1269,7 +1269,7 @@ xfs_qm_destroy_quotainfo(
+ 		XFS_PURGE_INODE(qi->qi_gquotaip);
+ 		qi->qi_gquotaip = NULL;
+ 	}
+-	mutex_destroy(&qi->qi_quotaofflock);
++	xfs_mutex_destroy(&qi->qi_quotaofflock);
+ 	kmem_free(qi, sizeof(xfs_quotainfo_t));
+ 	mp->m_quotainfo = NULL;
+ }
+@@ -1285,7 +1285,7 @@ xfs_qm_list_init(
+ 	char		*str,
+ 	int		n)
+ {
+-	mutex_init(&list->qh_lock, MUTEX_DEFAULT, str);
++	xfs_mutex_init(&list->qh_lock, MUTEX_DEFAULT, str);
+ 	list->qh_next = NULL;
+ 	list->qh_version = 0;
+ 	list->qh_nelems = 0;
+@@ -1295,7 +1295,7 @@ STATIC void
+ xfs_qm_list_destroy(
+ 	xfs_dqlist_t	*list)
+ {
+-	mutex_destroy(&(list->qh_lock));
++	xfs_mutex_destroy(&(list->qh_lock));
+ }
+ 
+ 
+@@ -2762,7 +2762,7 @@ STATIC void
+ xfs_qm_freelist_init(xfs_frlist_t *ql)
+ {
+ 	ql->qh_next = ql->qh_prev = (xfs_dquot_t *) ql;
+-	mutex_init(&ql->qh_lock, MUTEX_DEFAULT, "dqf");
++	xfs_mutex_init(&ql->qh_lock, MUTEX_DEFAULT, "dqf");
+ 	ql->qh_version = 0;
+ 	ql->qh_nelems = 0;
+ }
+@@ -2772,7 +2772,7 @@ xfs_qm_freelist_destroy(xfs_frlist_t *ql
+ {
+ 	xfs_dquot_t	*dqp, *nextdqp;
+ 
+-	mutex_lock(&ql->qh_lock, PINOD);
++	xfs_mutex_lock(&ql->qh_lock, PINOD);
+ 	for (dqp = ql->qh_next;
+ 	     dqp != (xfs_dquot_t *)ql; ) {
+ 		xfs_dqlock(dqp);
+@@ -2788,7 +2788,7 @@ xfs_qm_freelist_destroy(xfs_frlist_t *ql
+ 	/*
+ 	 * Don't bother about unlocking.
+ 	 */
+-	mutex_destroy(&ql->qh_lock);
++	xfs_mutex_destroy(&ql->qh_lock);
+ 
+ 	ASSERT(ql->qh_nelems == 0);
+ }
+@@ -2829,7 +2829,7 @@ xfs_qm_dqhashlock_nowait(
+ {
+ 	int locked;
+ 
+-	locked = mutex_trylock(&((dqp)->q_hash->qh_lock));
++	locked = xfs_mutex_trylock(&((dqp)->q_hash->qh_lock));
+ 	return (locked);
+ }
+ 
+@@ -2839,7 +2839,7 @@ xfs_qm_freelist_lock_nowait(
+ {
+ 	int locked;
+ 
+-	locked = mutex_trylock(&(xqm->qm_dqfreelist.qh_lock));
++	locked = xfs_mutex_trylock(&(xqm->qm_dqfreelist.qh_lock));
+ 	return (locked);
+ }
+ 
+@@ -2850,6 +2850,6 @@ xfs_qm_mplist_nowait(
+ 	int locked;
+ 
+ 	ASSERT(mp->m_quotainfo);
+-	locked = mutex_trylock(&(XFS_QI_MPLLOCK(mp)));
++	locked = xfs_mutex_trylock(&(XFS_QI_MPLLOCK(mp)));
+ 	return (locked);
+ }
+Index: linux/fs/xfs/quota/xfs_qm.h
+===================================================================
+--- linux.orig/fs/xfs/quota/xfs_qm.h
++++ linux/fs/xfs/quota/xfs_qm.h
+@@ -165,8 +165,8 @@ typedef struct xfs_dquot_acct {
+ #define XFS_QM_IWARNLIMIT	5
+ #define XFS_QM_RTBWARNLIMIT	5
+ 
+-#define XFS_QM_LOCK(xqm)	(mutex_lock(&xqm##_lock, PINOD))
+-#define XFS_QM_UNLOCK(xqm)	(mutex_unlock(&xqm##_lock))
++#define XFS_QM_LOCK(xqm)	(xfs_mutex_lock(&xqm##_lock, PINOD))
++#define XFS_QM_UNLOCK(xqm)	(xfs_mutex_unlock(&xqm##_lock))
+ #define XFS_QM_HOLD(xqm)	((xqm)->qm_nrefs++)
+ #define XFS_QM_RELE(xqm)	((xqm)->qm_nrefs--)
+ 
+Index: linux/fs/xfs/quota/xfs_qm_bhv.c
+===================================================================
+--- linux.orig/fs/xfs/quota/xfs_qm_bhv.c
++++ linux/fs/xfs/quota/xfs_qm_bhv.c
+@@ -363,7 +363,7 @@ xfs_qm_init(void)
+ 		KERN_INFO "SGI XFS Quota Management subsystem\n";
+ 
+ 	printk(message);
+-	mutex_init(&xfs_Gqm_lock, MUTEX_DEFAULT, "xfs_qmlock");
++	xfs_mutex_init(&xfs_Gqm_lock, MUTEX_DEFAULT, "xfs_qmlock");
+ 	vfs_bhv_set_custom(&xfs_qmops, &xfs_qmcore_xfs);
+ 	xfs_qm_init_procfs();
+ }
+Index: linux/fs/xfs/quota/xfs_qm_syscalls.c
+===================================================================
+--- linux.orig/fs/xfs/quota/xfs_qm_syscalls.c
++++ linux/fs/xfs/quota/xfs_qm_syscalls.c
+@@ -233,7 +233,7 @@ xfs_qm_scall_quotaoff(
+ 	 */
+ 	ASSERT(mp->m_quotainfo);
+ 	if (mp->m_quotainfo)
+-		mutex_lock(&(XFS_QI_QOFFLOCK(mp)), PINOD);
++		xfs_mutex_lock(&(XFS_QI_QOFFLOCK(mp)), PINOD);
+ 
+ 	ASSERT(mp->m_quotainfo);
+ 
+@@ -246,7 +246,7 @@ xfs_qm_scall_quotaoff(
+ 		s = XFS_SB_LOCK(mp);
+ 		mp->m_sb.sb_qflags = mp->m_qflags;
+ 		XFS_SB_UNLOCK(mp, s);
+-		mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
++		xfs_mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
+ 
+ 		/* XXX what to do if error ? Revert back to old vals incore ? */
+ 		error = xfs_qm_write_sb_changes(mp, XFS_SB_QFLAGS);
+@@ -280,7 +280,7 @@ xfs_qm_scall_quotaoff(
+ 	 * turning off quota enforcement.
+ 	 */
+ 	if ((mp->m_qflags & flags) == 0) {
+-		mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
++		xfs_mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
+ 		return (0);
+ 	}
+ 
+@@ -351,7 +351,7 @@ xfs_qm_scall_quotaoff(
+ 	 */
+ 	if (((flags & XFS_MOUNT_QUOTA_ALL) == XFS_MOUNT_QUOTA_SET1) ||
+ 	    ((flags & XFS_MOUNT_QUOTA_ALL) == XFS_MOUNT_QUOTA_SET2)) {
+-		mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
++		xfs_mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
+ 		xfs_qm_destroy_quotainfo(mp);
+ 		return (0);
+ 	}
+@@ -368,7 +368,7 @@ xfs_qm_scall_quotaoff(
+ 		XFS_PURGE_INODE(XFS_QI_GQIP(mp));
+ 		XFS_QI_GQIP(mp) = NULL;
+ 	}
+-	mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
++	xfs_mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
+ 
+ 	return (error);
+ }
+@@ -508,9 +508,9 @@ xfs_qm_scall_quotaon(
+ 	/*
+ 	 * Switch on quota enforcement in core.
+ 	 */
+-	mutex_lock(&(XFS_QI_QOFFLOCK(mp)), PINOD);
++	xfs_mutex_lock(&(XFS_QI_QOFFLOCK(mp)), PINOD);
+ 	mp->m_qflags |= (flags & XFS_ALL_QUOTA_ENFD);
+-	mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
++	xfs_mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
+ 
+ 	return (0);
+ }
+@@ -617,7 +617,7 @@ xfs_qm_scall_setqlim(
+ 	 * a quotaoff from happening). (XXXThis doesn't currently happen
+ 	 * because we take the vfslock before calling xfs_qm_sysent).
+ 	 */
+-	mutex_lock(&(XFS_QI_QOFFLOCK(mp)), PINOD);
++	xfs_mutex_lock(&(XFS_QI_QOFFLOCK(mp)), PINOD);
+ 
+ 	/*
+ 	 * Get the dquot (locked), and join it to the transaction.
+@@ -625,7 +625,7 @@ xfs_qm_scall_setqlim(
+ 	 */
+ 	if ((error = xfs_qm_dqget(mp, NULL, id, type, XFS_QMOPT_DQALLOC, &dqp))) {
+ 		xfs_trans_cancel(tp, XFS_TRANS_ABORT);
+-		mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
++		xfs_mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
+ 		ASSERT(error != ENOENT);
+ 		return (error);
+ 	}
+@@ -739,7 +739,7 @@ xfs_qm_scall_setqlim(
+ 	xfs_trans_commit(tp, 0, NULL);
+ 	xfs_qm_dqprint(dqp);
+ 	xfs_qm_dqrele(dqp);
+-	mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
++	xfs_mutex_unlock(&(XFS_QI_QOFFLOCK(mp)));
+ 
+ 	return (0);
+ }
+@@ -1426,7 +1426,7 @@ xfs_qm_internalqcheck(
+ 	xfs_log_force(mp, (xfs_lsn_t)0, XFS_LOG_FORCE | XFS_LOG_SYNC);
+ 	XFS_bflush(mp->m_ddev_targp);
+ 
+-	mutex_lock(&qcheck_lock, PINOD);
++	xfs_mutex_lock(&qcheck_lock, PINOD);
+ 	/* There should be absolutely no quota activity while this
+ 	   is going on. */
+ 	qmtest_udqtab = kmem_zalloc(qmtest_hashmask *
+@@ -1473,7 +1473,7 @@ xfs_qm_internalqcheck(
+ 	}
+ 	kmem_free(qmtest_udqtab, qmtest_hashmask * sizeof(xfs_dqhash_t));
+ 	kmem_free(qmtest_gdqtab, qmtest_hashmask * sizeof(xfs_dqhash_t));
+-	mutex_unlock(&qcheck_lock);
++	xfs_mutex_unlock(&qcheck_lock);
+ 	return (qmtest_nfails);
+ }
+ 
+Index: linux/fs/xfs/quota/xfs_quota_priv.h
+===================================================================
+--- linux.orig/fs/xfs/quota/xfs_quota_priv.h
++++ linux/fs/xfs/quota/xfs_quota_priv.h
+@@ -51,14 +51,14 @@
+ #define XFS_QI_MPLNEXT(mp)	((mp)->m_quotainfo->qi_dqlist.qh_next)
+ #define XFS_QI_MPLNDQUOTS(mp)	((mp)->m_quotainfo->qi_dqlist.qh_nelems)
+ 
+-#define XQMLCK(h)			(mutex_lock(&((h)->qh_lock), PINOD))
+-#define XQMUNLCK(h)			(mutex_unlock(&((h)->qh_lock)))
++#define XQMLCK(h)			(xfs_mutex_lock(&((h)->qh_lock), PINOD))
++#define XQMUNLCK(h)			(xfs_mutex_unlock(&((h)->qh_lock)))
+ #ifdef DEBUG
+ struct xfs_dqhash;
+ static inline int XQMISLCKD(struct xfs_dqhash *h)
+ {
+-	if (mutex_trylock(&h->qh_lock)) {
+-		mutex_unlock(&h->qh_lock);
++	if (xfs_mutex_trylock(&h->qh_lock)) {
++		xfs_mutex_unlock(&h->qh_lock);
+ 		return 0;
+ 	}
+ 	return 1;
+Index: linux/fs/xfs/support/uuid.c
+===================================================================
+--- linux.orig/fs/xfs/support/uuid.c
++++ linux/fs/xfs/support/uuid.c
+@@ -24,7 +24,7 @@ static uuid_t	*uuid_table;
+ void
+ uuid_init(void)
+ {
+-	mutex_init(&uuid_monitor, MUTEX_DEFAULT, "uuid_monitor");
++	xfs_mutex_init(&uuid_monitor, MUTEX_DEFAULT, "uuid_monitor");
+ }
+ 
+ /*
+@@ -94,14 +94,14 @@ uuid_table_insert(uuid_t *uuid)
+ {
+ 	int	i, hole;
+ 
+-	mutex_lock(&uuid_monitor, PVFS);
++	xfs_mutex_lock(&uuid_monitor, PVFS);
+ 	for (i = 0, hole = -1; i < uuid_table_size; i++) {
+ 		if (uuid_is_nil(&uuid_table[i])) {
+ 			hole = i;
+ 			continue;
+ 		}
+ 		if (uuid_equal(uuid, &uuid_table[i])) {
+-			mutex_unlock(&uuid_monitor);
++			xfs_mutex_unlock(&uuid_monitor);
+ 			return 0;
+ 		}
+ 	}
+@@ -113,7 +113,7 @@ uuid_table_insert(uuid_t *uuid)
+ 		hole = uuid_table_size++;
+ 	}
+ 	uuid_table[hole] = *uuid;
+-	mutex_unlock(&uuid_monitor);
++	xfs_mutex_unlock(&uuid_monitor);
+ 	return 1;
+ }
+ 
+@@ -122,7 +122,7 @@ uuid_table_remove(uuid_t *uuid)
+ {
+ 	int	i;
+ 
+-	mutex_lock(&uuid_monitor, PVFS);
++	xfs_mutex_lock(&uuid_monitor, PVFS);
+ 	for (i = 0; i < uuid_table_size; i++) {
+ 		if (uuid_is_nil(&uuid_table[i]))
+ 			continue;
+@@ -132,5 +132,5 @@ uuid_table_remove(uuid_t *uuid)
+ 		break;
+ 	}
+ 	ASSERT(i < uuid_table_size);
+-	mutex_unlock(&uuid_monitor);
++	xfs_mutex_unlock(&uuid_monitor);
+ }
+Index: linux/fs/xfs/xfs_mount.c
+===================================================================
+--- linux.orig/fs/xfs/xfs_mount.c
++++ linux/fs/xfs/xfs_mount.c
+@@ -117,7 +117,7 @@ xfs_mount_init(void)
+ 
+ 	AIL_LOCKINIT(&mp->m_ail_lock, "xfs_ail");
+ 	spinlock_init(&mp->m_sb_lock, "xfs_sb");
+-	mutex_init(&mp->m_ilock, MUTEX_DEFAULT, "xfs_ilock");
++	xfs_mutex_init(&mp->m_ilock, MUTEX_DEFAULT, "xfs_ilock");
+ 	initnsema(&mp->m_growlock, 1, "xfs_grow");
+ 	/*
+ 	 * Initialize the AIL.
+@@ -158,7 +158,7 @@ xfs_mount_free(
+ 
+ 	AIL_LOCK_DESTROY(&mp->m_ail_lock);
+ 	spinlock_destroy(&mp->m_sb_lock);
+-	mutex_destroy(&mp->m_ilock);
++	xfs_mutex_destroy(&mp->m_ilock);
+ 	freesema(&mp->m_growlock);
+ 	if (mp->m_quotainfo)
+ 		XFS_QM_DONE(mp);
+Index: linux/fs/xfs/xfs_mount.h
+===================================================================
+--- linux.orig/fs/xfs/xfs_mount.h
++++ linux/fs/xfs/xfs_mount.h
+@@ -533,8 +533,8 @@ typedef struct xfs_mod_sb {
+ 	int		msb_delta;	/* Change to make to specified field */
+ } xfs_mod_sb_t;
+ 
+-#define	XFS_MOUNT_ILOCK(mp)	mutex_lock(&((mp)->m_ilock), PINOD)
+-#define	XFS_MOUNT_IUNLOCK(mp)	mutex_unlock(&((mp)->m_ilock))
++#define	XFS_MOUNT_ILOCK(mp)	xfs_mutex_lock(&((mp)->m_ilock), PINOD)
++#define	XFS_MOUNT_IUNLOCK(mp)	xfs_mutex_unlock(&((mp)->m_ilock))
+ #define	XFS_SB_LOCK(mp)		mutex_spinlock(&(mp)->m_sb_lock)
+ #define	XFS_SB_UNLOCK(mp,s)	mutex_spinunlock(&(mp)->m_sb_lock,(s))
+ 

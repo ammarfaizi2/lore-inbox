@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbVLVXF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbVLVXFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030356AbVLVXF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 18:05:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030357AbVLVXF0
+	id S1030357AbVLVXFf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 18:05:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030358AbVLVXFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 18:05:26 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:57562 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030356AbVLVXFZ (ORCPT
+	Thu, 22 Dec 2005 18:05:35 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:63706 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030357AbVLVXFe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 18:05:25 -0500
-Date: Fri, 23 Dec 2005 00:04:38 +0100
+	Thu, 22 Dec 2005 18:05:34 -0500
+Date: Fri, 23 Dec 2005 00:04:44 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -21,8 +21,8 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Steven Rostedt <rostedt@goodmis.org>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 0/8] mutex subsystem, -V6
-Message-ID: <20051222230438.GA13302@elte.hu>
+Subject: [patch 1/8] mutex subsystem, add atomic_xchg() to all arches
+Message-ID: <20051222230444.GB13302@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -37,55 +37,305 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this is verion -V6 of the generic mutex subsystem. It consists of the 
-following patches:
+add atomic_xchg() to all the architectures. Needed by the new mutex code.
 
-  add-atomic-xchg.patch
-  mutex-generic-asm-implementations.patch
-  mutex-arch-mutex-h.patch
-  mutex-core.patch
-  mutex-docs.patch
-  mutex-debug.patch
-  mutex-debug-more.patch
-  xfs-mutex-namespace-collision-fix.patch
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 
-the patches are against Linus' latest GIT tree, and they should work 
-fine on every Linux architecture.
+----
 
-the delta since -V5:
+ include/asm-alpha/atomic.h     |    1 +
+ include/asm-arm/atomic.h       |    2 ++
+ include/asm-arm26/atomic.h     |    2 ++
+ include/asm-cris/atomic.h      |    2 ++
+ include/asm-frv/atomic.h       |    1 +
+ include/asm-h8300/atomic.h     |    2 ++
+ include/asm-i386/atomic.h      |    1 +
+ include/asm-ia64/atomic.h      |    1 +
+ include/asm-m32r/atomic.h      |    1 +
+ include/asm-m68k/atomic.h      |    1 +
+ include/asm-m68knommu/atomic.h |    1 +
+ include/asm-mips/atomic.h      |    1 +
+ include/asm-parisc/atomic.h    |    1 +
+ include/asm-powerpc/atomic.h   |    1 +
+ include/asm-s390/atomic.h      |    1 +
+ include/asm-sh/atomic.h        |    2 ++
+ include/asm-sh64/atomic.h      |    2 ++
+ include/asm-sparc/atomic.h     |    1 +
+ include/asm-sparc64/atomic.h   |    1 +
+ include/asm-v850/atomic.h      |    2 ++
+ include/asm-x86_64/atomic.h    |    1 +
+ include/asm-xtensa/atomic.h    |    1 +
+ 22 files changed, 29 insertions(+)
 
-  53 files changed, 718 insertions(+), 454 deletions(-)
-
-this release picks up Arjan's asm/mutex.h implementation, which adds 
-asm-generic/mutex-dec.h, asm-generic/mutex-xchg.h for architectures to 
-pick up. i386 and x86_64 use their own optimized version already, the 
-other architectures default to mutex-xchg.h. Architectures specify the 
-following functions:
-
- -------------------------------------------------------------------
- *  __mutex_fastpath_lock - try to take the lock by moving the count
- *                          from 1 to a 0 value
- *  @count: pointer of type atomic_t
- *  @fn: function to call if the original value was not 1
- -------------------------------------------------------------------
- *  __mutex_fastpath_lock_retval - try to take the lock by moving the count
- *                                 from 1 to a 0 value
- *  @count: pointer of type atomic_t
- *  @fn: function to call if the original value was not 1
- -------------------------------------------------------------------
- *  __mutex_fastpath_unlock - try to promote the mutex from 0 to 1
- *  @count: pointer of type atomic_t
- *  @fn: function to call if the original value was not 1
- -------------------------------------------------------------------
-
-and __mutex_slowpath_needs_to_unlock(), to specify whether the fastpath 
-has touched the count or not.
-
-i have tested this on x86, and i have booted all 4 variants: 
-mutex-xchg.h, mutex-dec.h, asm-i386/mutex.h and the debug version. (in 
-MUTEX_DEBUG_FULL mode, i.e. with the mutexes in real use.)
-
-Nico, Christoph, does this approach work for you? Nico, you might want 
-to try an ARM-specific mutex.h implementation.
-
-	Ingo
+Index: linux/include/asm-alpha/atomic.h
+===================================================================
+--- linux.orig/include/asm-alpha/atomic.h
++++ linux/include/asm-alpha/atomic.h
+@@ -176,6 +176,7 @@ static __inline__ long atomic64_sub_retu
+ }
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-arm/atomic.h
+===================================================================
+--- linux.orig/include/asm-arm/atomic.h
++++ linux/include/asm-arm/atomic.h
+@@ -175,6 +175,8 @@ static inline void atomic_clear_mask(uns
+ 
+ #endif /* __LINUX_ARM_ARCH__ */
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int c, old;
+Index: linux/include/asm-arm26/atomic.h
+===================================================================
+--- linux.orig/include/asm-arm26/atomic.h
++++ linux/include/asm-arm26/atomic.h
+@@ -76,6 +76,8 @@ static inline int atomic_cmpxchg(atomic_
+ 	return ret;
+ }
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int ret;
+Index: linux/include/asm-cris/atomic.h
+===================================================================
+--- linux.orig/include/asm-cris/atomic.h
++++ linux/include/asm-cris/atomic.h
+@@ -136,6 +136,8 @@ static inline int atomic_cmpxchg(atomic_
+ 	return ret;
+ }
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int ret;
+Index: linux/include/asm-frv/atomic.h
+===================================================================
+--- linux.orig/include/asm-frv/atomic.h
++++ linux/include/asm-frv/atomic.h
+@@ -415,6 +415,7 @@ extern uint32_t __cmpxchg_32(uint32_t *v
+ #endif
+ 
+ #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-h8300/atomic.h
+===================================================================
+--- linux.orig/include/asm-h8300/atomic.h
++++ linux/include/asm-h8300/atomic.h
+@@ -95,6 +95,8 @@ static inline int atomic_cmpxchg(atomic_
+ 	return ret;
+ }
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int ret;
+Index: linux/include/asm-i386/atomic.h
+===================================================================
+--- linux.orig/include/asm-i386/atomic.h
++++ linux/include/asm-i386/atomic.h
+@@ -216,6 +216,7 @@ static __inline__ int atomic_sub_return(
+ }
+ 
+ #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value
+Index: linux/include/asm-ia64/atomic.h
+===================================================================
+--- linux.orig/include/asm-ia64/atomic.h
++++ linux/include/asm-ia64/atomic.h
+@@ -89,6 +89,7 @@ ia64_atomic64_sub (__s64 i, atomic64_t *
+ }
+ 
+ #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-m32r/atomic.h
+===================================================================
+--- linux.orig/include/asm-m32r/atomic.h
++++ linux/include/asm-m32r/atomic.h
+@@ -243,6 +243,7 @@ static __inline__ int atomic_dec_return(
+ #define atomic_add_negative(i,v) (atomic_add_return((i), (v)) < 0)
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value
+Index: linux/include/asm-m68k/atomic.h
+===================================================================
+--- linux.orig/include/asm-m68k/atomic.h
++++ linux/include/asm-m68k/atomic.h
+@@ -140,6 +140,7 @@ static inline void atomic_set_mask(unsig
+ }
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-m68knommu/atomic.h
+===================================================================
+--- linux.orig/include/asm-m68knommu/atomic.h
++++ linux/include/asm-m68knommu/atomic.h
+@@ -129,6 +129,7 @@ static inline int atomic_sub_return(int 
+ }
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-mips/atomic.h
+===================================================================
+--- linux.orig/include/asm-mips/atomic.h
++++ linux/include/asm-mips/atomic.h
+@@ -289,6 +289,7 @@ static __inline__ int atomic_sub_if_posi
+ }
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value
+Index: linux/include/asm-parisc/atomic.h
+===================================================================
+--- linux.orig/include/asm-parisc/atomic.h
++++ linux/include/asm-parisc/atomic.h
+@@ -165,6 +165,7 @@ static __inline__ int atomic_read(const 
+ 
+ /* exported interface */
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value
+Index: linux/include/asm-powerpc/atomic.h
+===================================================================
+--- linux.orig/include/asm-powerpc/atomic.h
++++ linux/include/asm-powerpc/atomic.h
+@@ -165,6 +165,7 @@ static __inline__ int atomic_dec_return(
+ }
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value
+Index: linux/include/asm-s390/atomic.h
+===================================================================
+--- linux.orig/include/asm-s390/atomic.h
++++ linux/include/asm-s390/atomic.h
+@@ -199,6 +199,7 @@ atomic_compare_and_swap(int expected_old
+ }
+ 
+ #define atomic_cmpxchg(v, o, n) (atomic_compare_and_swap((o), (n), &((v)->counter)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-sh/atomic.h
+===================================================================
+--- linux.orig/include/asm-sh/atomic.h
++++ linux/include/asm-sh/atomic.h
+@@ -101,6 +101,8 @@ static inline int atomic_cmpxchg(atomic_
+ 	return ret;
+ }
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int ret;
+Index: linux/include/asm-sh64/atomic.h
+===================================================================
+--- linux.orig/include/asm-sh64/atomic.h
++++ linux/include/asm-sh64/atomic.h
+@@ -113,6 +113,8 @@ static inline int atomic_cmpxchg(atomic_
+ 	return ret;
+ }
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int ret;
+Index: linux/include/asm-sparc/atomic.h
+===================================================================
+--- linux.orig/include/asm-sparc/atomic.h
++++ linux/include/asm-sparc/atomic.h
+@@ -20,6 +20,7 @@ typedef struct { volatile int counter; }
+ 
+ extern int __atomic_add_return(int, atomic_t *);
+ extern int atomic_cmpxchg(atomic_t *, int, int);
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ extern int atomic_add_unless(atomic_t *, int, int);
+ extern void atomic_set(atomic_t *, int);
+ 
+Index: linux/include/asm-sparc64/atomic.h
+===================================================================
+--- linux.orig/include/asm-sparc64/atomic.h
++++ linux/include/asm-sparc64/atomic.h
+@@ -72,6 +72,7 @@ extern int atomic64_sub_ret(int, atomic6
+ #define atomic64_add_negative(i, v) (atomic64_add_ret(i, v) < 0)
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ #define atomic_add_unless(v, a, u)				\
+ ({								\
+Index: linux/include/asm-v850/atomic.h
+===================================================================
+--- linux.orig/include/asm-v850/atomic.h
++++ linux/include/asm-v850/atomic.h
+@@ -104,6 +104,8 @@ static inline int atomic_cmpxchg(atomic_
+ 	return ret;
+ }
+ 
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++
+ static inline int atomic_add_unless(atomic_t *v, int a, int u)
+ {
+ 	int ret;
+Index: linux/include/asm-x86_64/atomic.h
+===================================================================
+--- linux.orig/include/asm-x86_64/atomic.h
++++ linux/include/asm-x86_64/atomic.h
+@@ -389,6 +389,7 @@ static __inline__ long atomic64_sub_retu
+ #define atomic64_dec_return(v)  (atomic64_sub_return(1,v))
+ 
+ #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value
+Index: linux/include/asm-xtensa/atomic.h
+===================================================================
+--- linux.orig/include/asm-xtensa/atomic.h
++++ linux/include/asm-xtensa/atomic.h
+@@ -224,6 +224,7 @@ static inline int atomic_sub_return(int 
+ #define atomic_add_negative(i,v) (atomic_add_return((i),(v)) < 0)
+ 
+ #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
++#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+ 
+ /**
+  * atomic_add_unless - add unless the number is a given value

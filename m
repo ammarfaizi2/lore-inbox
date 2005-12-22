@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965137AbVLVIn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965142AbVLVI42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965137AbVLVIn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 03:43:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965140AbVLVIn4
+	id S965142AbVLVI42 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 03:56:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965141AbVLVI42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 03:43:56 -0500
-Received: from mailserv.intranet.GR ([146.124.14.106]:39888 "EHLO
-	mailserv.intranet.gr") by vger.kernel.org with ESMTP
-	id S965137AbVLVInz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 03:43:55 -0500
-Message-ID: <43AA65F4.10409@intracom.gr>
-Date: Thu, 22 Dec 2005 10:38:12 +0200
-From: Pantelis Antoniou <panto@intracom.gr>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051101)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrey Volkov <avolkov@varma-el.com>
-CC: jes@trained-monkey.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
-Subject: Re: [RFC] genalloc != generic DEVICE memory allocator
-References: <43A98F90.9010001@varma-el.com>
-In-Reply-To: <43A98F90.9010001@varma-el.com>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
+	Thu, 22 Dec 2005 03:56:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:48825 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965139AbVLVI41 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 03:56:27 -0500
+Date: Thu, 22 Dec 2005 00:52:09 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, aabdulla@nvidia.com,
+       jgarzik@pobox.com, netdev@vger.kernel.org, ak@suse.de,
+       discuss@x86-64.org, perex@suse.cz, alsa-devel@alsa-project.org,
+       gregkh@suse.de
+Subject: Re: 2.6.15-rc6: known regressions in the kernel Bugzilla
+Message-Id: <20051222005209.0b1b25ca.akpm@osdl.org>
+In-Reply-To: <20051222011320.GL3917@stusta.de>
+References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
+	<20051222011320.GL3917@stusta.de>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Volkov wrote:
-> Hello Jes and all
-> 
-> I try to use your allocator (gen_pool_xxx), idea of which
-> is a cute nice thing. But current implementation of it is
-> inappropriate for a _device_ (aka onchip, like framebuffer) memory
-> allocation, by next reasons:
-> 
->  1) Device memory is expensive resource by access time and/or size cost.
->     So we couldn't use (usually) this memory for the free blocks lists.
->  2) Device memory usually have special requirement of access to it
->     (alignment/special insn). So we couldn't use part of allocated
->     blocks for some control structures (this problem solved in your
->     implementation, it's common remark)
->  3) Obvious (IMHO) workflow of mem. allocator look like:
->  	- at startup time, driver allocate some big
-> 	  (almost) static mem. chunk(s) for a control/data structures.
->         - during work of the device, driver allocate many small
-> 	  mem. blocks with almost identical size.
->     such behavior lead to degeneration of buddy method and
->     transform it to the first/best fit method (with long seek
->     by the free node list).
->  4) The simple binary buddy method is far away from perfect for a device
->     due to a big internal fragmentation. Especially for a
->     network/mfd devices, for which, size of allocated data very
->     often is not a power of 2.
-> 
-> I start to modify your code to satisfy above demands,
-> but firstly I wish to know your, or somebody else, opinion.
-> 
-> Especially I will very happy if somebody have and could
-> provide to all, some device specific memory usage statistics.
-> 
+Adrian Bunk <bunk@stusta.de> wrote:
+>
+> The following bugs in the kernel Bugzilla [1] contain regressions in 
+> 2.6.15-rc compared to 2.6.14 with patches:
 
-Hi Andrey,
+Thanks for tracking this.  Although I fear it won't come to much.
 
-FYI, on arch/ppc/lib/rheap.c theres an implementation of a remote heap.
+non-bugzilla post-2.6.14 bugs which I've squirelled away include:
 
-It is currently used for the management of freescale's CPM1 & CPM2 internal
-dual port RAM.
 
-Take a look, it might be what you have in mind.
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Subject: Linux 2.6.14: Badness in as-iosched
 
-Regards
+From: Charles-Edouard Ruault <ce@ruault.com>
+Subject: [BUG] kernel 2.6.14.2 breaks IPSEC
 
-Pantelis
+From: Michael Madore <michael.madore@gmail.com>
+Subject: USB handoff, irq 193: nobody cared!
+
+From: Wu Fengguang <wfg@mail.ustc.edu.cn>
+Subject: BUG: spinlock recursion on 2.6.14-mm2 when oprofiling
+
+From: Miles Lane <miles.lane@gmail.com>
+Subject: 2.6.15-rc2-git6 + ipw2200 1.0.8 -- Slab corruption
+
+From: "Gottfried Haider" <gohai@gmx.net>
+Subject: [2.6.15-rc2] 8139too probe fails (pci related?)
+
+From: Steve Work <swork@aventail.com>
+Subject: Multi-thread corefiles broken since April
+
+From: Diego Calleja <diegocg@gmail.com>
+Subject: Oops with w9968cf
+
+From: John Reiser <jreiser@BitWagon.com>
+Subject: control placement of vDSO page
+
+From: "P. Christeas" <p_christ@hol.gr>
+Subject: No sound from CX23880 tuner w. 2.6.15-rc5
+
+Subject: x86_64 timekeeping buglets
+From: Jim Houston <jim.houston@comcast.net>
 

@@ -1,61 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbVLVQij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965166AbVLVQkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030189AbVLVQij (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 11:38:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbVLVQij
+	id S965166AbVLVQkg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 11:40:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965169AbVLVQkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 11:38:39 -0500
-Received: from smtp3.brturbo.com.br ([200.199.201.164]:8166 "EHLO
-	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S965166AbVLVQii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 11:38:38 -0500
-Subject: Re: [RFC: 2.6 patch] Makefile: sound/ must come before drivers/
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       James Courtier-Dutton <James@superbug.co.uk>,
-       Sergey Vlasov <vsu@altlinux.ru>, Ricardo Cerqueira <v4l@cerqueira.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
-In-Reply-To: <s5h8xudxg1e.wl%tiwai@suse.de>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
-	 <20051220131810.GB6789@stusta.de>
-	 <20051220155216.GA19797@master.mivlgu.local>
-	 <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org>
-	 <20051220191412.GA4578@stusta.de>
-	 <Pine.LNX.4.64.0512201156250.4827@g5.osdl.org>
-	 <20051220202325.GA3850@stusta.de>
-	 <Pine.LNX.4.64.0512201240480.4827@g5.osdl.org>
-	 <43A86DCD.8010400@superbug.co.uk> <20051220211359.GA5359@stusta.de>
-	 <Pine.LNX.4.64.0512201405550.4827@g5.osdl.org>
-	 <s5hslsmzg2y.wl%tiwai@suse.de> <1135198140.7419.9.camel@localhost>
-	 <s5hfyolxi3r.wl%tiwai@suse.de> <1135267618.1609.8.camel@localhost>
-	 <s5h8xudxg1e.wl%tiwai@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Thu, 22 Dec 2005 14:38:26 -0200
-Message-Id: <1135269506.1609.11.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-1mdk 
-Content-Transfer-Encoding: 8bit
+	Thu, 22 Dec 2005 11:40:36 -0500
+Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:59003 "HELO
+	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965166AbVLVQkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 11:40:36 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Vitaly Wool <vwool@ru.mvista.com>
+Subject: Re: [PATCH 2.6-git] SPI: add set_clock() to bitbang
+Date: Thu, 22 Dec 2005 08:40:33 -0800
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, spi-devel-general@sourceforge.net
+References: <20051222180449.4335a8e6.vwool@ru.mvista.com>
+In-Reply-To: <20051222180449.4335a8e6.vwool@ru.mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512220840.34152.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qui, 2005-12-22 às 17:17 +0100, Takashi Iwai escreveu:
-> > > If I understand correctly, it must be OK.  Suppose that
-> saa7134-alsa
-> > > is moved to sound (only saa7134-alsa, other saa7134 stuff remains
-> in
-> > > drivers/media/video), the initialization order will be: 
-> > > saa7134 -> sound core -> saa7134-alsa.
-> > > 
-> > > Or am I missing something else?
-> >       saa7134-oss.
+On Thursday 22 December 2005 7:04 am, Vitaly Wool wrote:
+> Hi David,
 > 
-> It's obsolete to me ;)
-	He hope it will became obsolete soon, but saa-alsa needs more time to
-became more mature :) 2.6.15 will be the first mainstream with this
-module. People still uses -oss...
-> 
-Cheers, 
-Mauro.
+> inlined is the small patch that adds set_clock function to the spi_bitbang structure.
+
+This is actually not needed.  Clocks are set through the setup() method
+in the spi_master, and controller drivers are (courtesy of the library
+approach) free to provide their own.  Drivers for word-at-a-time hardware
+would still need to call spi_bitbang_setup() in their own setup() code,
+to set up the per-device controller_state, and spi_bitbang_cleanup() in
+their own cleanup() code, to deallocate it.
+
+
+> Currently SPI bus clock can be configured either in chipselect() (which is _wrong_)
+> or in txrx_buf (also doesn't encourage me much). Making it a separate function adds
+> readability for the code.   Also, it seems to be redundant to set clock on each
+> transfer, so it's proposed to do per-message clock setting. If SPI bus clock
+> setting involves some PLL reconfiguration it's definitely gonna save some time.  
+
+Exactly why there's already spi_setup() in the common infrastruture,
+and why the spi_bitbang_{setup,cleanup}() routines are exported for
+simple drivers to shift-register level hardware.  The real "bang four
+bits into protocol" style drivers won't need that since the bitbang
+setup() calls calculate the delays used to satisfy those timings.
+But hardware drivers -- for word-at-a-time or buffer-at-a-time style
+usage -- would need that to set the clock dividers.
+
+- Dave
+
+
+/**
+ * spi_setup -- setup SPI mode and clock rate
+ * @spi: the device whose settings are being modified
+ *
+ * SPI protocol drivers may need to update the transfer mode if the
+ * device doesn't work with the mode 0 default.  They may likewise need
+ * to update clock rates or word sizes from initial values.  This function
+ * changes those settings, and must be called from a context that can sleep.
+ */
+static inline int
+spi_setup(struct spi_device *spi)
+{
+        return spi->master->setup(spi);
+}
+
 

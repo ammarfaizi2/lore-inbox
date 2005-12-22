@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932159AbVLVLP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbVLVL0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932159AbVLVLP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 06:15:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932195AbVLVLP7
+	id S932210AbVLVL0V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 06:26:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbVLVL0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 06:15:59 -0500
-Received: from smtp4.brturbo.com.br ([200.199.201.180]:24363 "EHLO
-	smtp4.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S932159AbVLVLP7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 06:15:59 -0500
-Subject: Re: [Alsa-devel] 2.6.15-rc6: boot failure in saa7134-alsa.c
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Sergey Vlasov <vsu@altlinux.ru>,
-       Ricardo Cerqueira <v4l@cerqueira.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com, perex@suse.cz, alsa-devel@alsa-project.org
-In-Reply-To: <20051222005941.GK3917@stusta.de>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
-	 <20051220131810.GB6789@stusta.de>
-	 <20051220155216.GA19797@master.mivlgu.local>
-	 <Pine.LNX.4.64.0512201018000.4827@g5.osdl.org>
-	 <20051220191412.GA4578@stusta.de> <1135110930.7822.18.camel@localhost>
-	 <20051222005941.GK3917@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Thu, 22 Dec 2005 09:15:47 -0200
-Message-Id: <1135250147.17758.35.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-1mdk 
-Content-Transfer-Encoding: 8bit
+	Thu, 22 Dec 2005 06:26:21 -0500
+Received: from dns.toxicfilms.tv ([150.254.220.184]:4830 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S932210AbVLVL0U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 06:26:20 -0500
+X-Spam-Report: SA TESTS
+ -1.7 ALL_TRUSTED            Passed through trusted hosts only via SMTP
+ -2.3 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                             [score: 0.0000]
+  1.2 AWL                    AWL: From: address is in the auto white-list
+X-QSS-TOXIC-Mail-From: solt2@dns.toxicfilms.tv via dns
+X-QSS-TOXIC: 1.25st (Clear:RC:1(150.254.37.14):SA:0(-2.8/2.5):. Processed in 13.638533 secs Process 3654)
+Date: Thu, 22 Dec 2005 12:25:48 +0100
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Mailer: The Bat! (v3.60.07) UNREG / CD5BF9353B3B7091
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <548150929.20051222122548@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCHSET] 2.6.15-rc6-bird1
+In-Reply-To: <20051222101523.GP27946@ftp.linux.org.uk>
+References: <20051222101523.GP27946@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qui, 2005-12-22 às 01:59 +0100, Adrian Bunk escreveu:
- 
-> > 	This patch should fix alsa-oss incompatibilities when both are linked
-> > as module. It will also require either -oss or -alsa if it is statically
-> > linked.
-> > 
-> > 	It doesn't address the OOPS because of sound late init.
-> > 
-> > 	Adrian,
-> > 
-> > 	Please test and give us some feedback.
-> 
-> It works and looks good.
-> 
-> Can we get this patch into 2.6.15?
-	I've sent today to Linus for him to pull for 2.6.15.
+Hello Al,
 
-Cheers, 
-Mauro.
+You wrote:
+> URL: ftp://ftp.linux.org.uk/pub/people/viro/patch-2.5.16-bird1.bz2
+I think you mean:                                     ^^^^
+
+URL: ftp://ftp.linux.org.uk/pub/people/viro/patch-2.6.15-rc6-bird1.bz2
+
+:-)
+
+Best Regards,
+Maciej
+
 

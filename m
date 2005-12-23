@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030463AbVLWIiL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030464AbVLWImI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030463AbVLWIiL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 03:38:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030464AbVLWIiL
+	id S1030464AbVLWImI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 03:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030465AbVLWImI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 03:38:11 -0500
-Received: from pat.uio.no ([129.240.130.16]:3971 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030463AbVLWIiJ (ORCPT
+	Fri, 23 Dec 2005 03:42:08 -0500
+Received: from pat.uio.no ([129.240.130.16]:16008 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030464AbVLWImH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 03:38:09 -0500
-Subject: Re: nfs insecure_locks / Tru64 behaviour
+	Fri, 23 Dec 2005 03:42:07 -0500
+Subject: Re: nfs invalidates lose pte dirty bits
 From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ron Peterson <rpeterso@MtHolyoke.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051223022126.GC22949@mtholyoke.edu>
-References: <20051222133623.GE7814@mtholyoke.edu>
-	 <1135293713.3685.9.camel@lade.trondhjem.org>
-	 <20051223013933.GB22949@mtholyoke.edu>
-	 <1135302325.3685.69.camel@lade.trondhjem.org>
-	 <20051223022126.GC22949@mtholyoke.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20051223023603.GY9576@opteron.random>
+References: <20051222175550.GT9576@opteron.random>
+	 <1135294250.3685.16.camel@lade.trondhjem.org>
+	 <20051223023603.GY9576@opteron.random>
 Content-Type: text/plain
-Date: Fri, 23 Dec 2005 09:37:55 +0100
-Message-Id: <1135327075.8167.6.camel@lade.trondhjem.org>
+Date: Fri, 23 Dec 2005 09:41:55 +0100
+Message-Id: <1135327315.8167.11.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.672, required 12,
-	autolearn=disabled, AWL 1.28, FORGED_RCVD_HELO 0.05,
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.019, required 12,
+	autolearn=disabled, AWL 1.93, FORGED_RCVD_HELO 0.05,
 	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-22 at 21:21 -0500, Ron Peterson wrote:
+On Fri, 2005-12-23 at 03:36 +0100, Andrea Arcangeli wrote:
+> On Thu, Dec 22, 2005 at 06:30:49PM -0500, Trond Myklebust wrote:
+> > See the latest git release where we introduce the nfs_sync_mapping()
+> > helper.
+> 
+> So you also still break completely with threaded programs, did you
+> consider that while fixing the most obvious problem? Isn't that a
+> problem too? What about my suggestion of invalidate_inode_clean_pages?
 
-> Why it doesn't work .. I dunno.  My current best guess is that the
-> manner in which the insecure_locks option in /etc/exports is applied to
-> directories isn't quite right.
+It is only a problem when doing mmap writes. In the case of ordinary
+writes, NFS has to do its own tracking of dirty pages, and so it can
+ensure that no race exists.
 
-insecure_locks has nothing at all to do with directories. It has to do
-with the NLM protocol, which is used by NFSv2/v3 to implement posix
-locks.
-Directory locking is an entirely separate matter, and is not part of the
-NFS protocol (the server will take care of locking the directory when it
-needs to modify it without any extra help from the client).
-
-IOW: your problem here has nothing to do with insecure_locks, and
-everything to do with your setup. Please double-check that the gid
-mappings for the group 'kwc' in /etc/groups match on the client and
-server, and note that the default root squashing means that your root
-account will get mapped to the user with uid -2 and gid=-2
+However if the user is doing mmap writes while the file is in the
+process of being modified on the server, then they are doing something
+wrong anyway. The small race between nfs_sync_mapping() and
+invalidate_inode_pages2() is the least of their problems.
 
 Cheers,
   Trond

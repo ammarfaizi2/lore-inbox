@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030464AbVLWImI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030465AbVLWIx7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030464AbVLWImI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 03:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030465AbVLWImI
+	id S1030465AbVLWIx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 03:53:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030467AbVLWIx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 03:42:08 -0500
-Received: from pat.uio.no ([129.240.130.16]:16008 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030464AbVLWImH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 03:42:07 -0500
-Subject: Re: nfs invalidates lose pte dirty bits
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051223023603.GY9576@opteron.random>
-References: <20051222175550.GT9576@opteron.random>
-	 <1135294250.3685.16.camel@lade.trondhjem.org>
-	 <20051223023603.GY9576@opteron.random>
+	Fri, 23 Dec 2005 03:53:59 -0500
+Received: from mx5.mailserveren.com ([213.236.237.251]:7829 "EHLO
+	mx5.mailserveren.com") by vger.kernel.org with ESMTP
+	id S1030465AbVLWIx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 03:53:58 -0500
+Subject: Re: Possible Bootloader Optimization in inflate (get rid of 
+	unnecessary 32k Window)
+From: Hans Kristian Rosbach <hk@isphuset.no>
+To: Axel Kittenberger <axel.kittenberger@univie.ac.at>
+Cc: Marc Singer <elf@buici.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1386.81.217.14.229.1135278280.squirrel@webmail.univie.ac.at>
+References: <200512221352.23393.axel.kernel@kittenberger.net>
+	 <20051222173704.GB23411@buici.com>
+	 <1167.81.217.14.229.1135275158.squirrel@webmail.univie.ac.at>
+	 <20051222183012.GA27353@buici.com>
+	 <1386.81.217.14.229.1135278280.squirrel@webmail.univie.ac.at>
 Content-Type: text/plain
-Date: Fri, 23 Dec 2005 09:41:55 +0100
-Message-Id: <1135327315.8167.11.camel@lade.trondhjem.org>
+Organization: ISPHuset Nordic AS
+Date: Fri, 23 Dec 2005 09:53:56 +0100
+Message-Id: <1135328036.23862.86.camel@linux>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.019, required 12,
-	autolearn=disabled, AWL 1.93, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-23 at 03:36 +0100, Andrea Arcangeli wrote:
-> On Thu, Dec 22, 2005 at 06:30:49PM -0500, Trond Myklebust wrote:
-> > See the latest git release where we introduce the nfs_sync_mapping()
-> > helper.
+On Thu, 2005-12-22 at 20:04 +0100, Axel Kittenberger wrote:
+> > Right.  And the time to perform that one copy is exactly...?
+> >
+> > I doubt that it is a significant percentage of the whole operation.
 > 
-> So you also still break completely with threaded programs, did you
-> consider that while fixing the most obvious problem? Isn't that a
-> problem too? What about my suggestion of invalidate_inode_clean_pages?
+> Well Yes I agree, I guess also it isn't. Its roughly the time you need to
+> copy 1 MB memory around. I just noticed that it is in fact after all still
+> unneccary and that in fact could be optimized away. As some
+> window-management could can be optimized away.
+> 
+> I would volunteer to take the time to code it, but only if i have a good
+> feeling that it would be accepted... if not, well than okay for me also, i
+> will do other things :o)
 
-It is only a problem when doing mmap writes. In the case of ordinary
-writes, NFS has to do its own tracking of dirty pages, and so it can
-ensure that no race exists.
+I would think this would be a welcome optimization for embedded
+platforms even if not included in mainline. Embedded platforms
+often dont have very fast memory, but nevertheless are
+required to boot ASAP.
 
-However if the user is doing mmap writes while the file is in the
-process of being modified on the server, then they are doing something
-wrong anyway. The small race between nfs_sync_mapping() and
-invalidate_inode_pages2() is the least of their problems.
-
-Cheers,
-  Trond
+-HK
 

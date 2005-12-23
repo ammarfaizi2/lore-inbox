@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161074AbVLWWZ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161066AbVLWWX1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161074AbVLWWZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 17:25:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161077AbVLWWZ0
+	id S1161066AbVLWWX1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 17:23:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161074AbVLWWX1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 17:25:26 -0500
-Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:2457 "HELO
-	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S1161074AbVLWWZZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 17:25:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.it;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=ysz8yWLS5wddDz5rWV0+HUVkt7Rpd3MkN/zJRfzYIDvf11igZW8emWIkdUR3buiF5/y0LCmF/6athMQaEyE56ndA+8oM2fNmiMMDB4iOeagzQBRTLOmg1dzmyqa1BgJpWBX+97dACGJWzPJeBUnmUsvESIdUibpAXwYgoWf50r8=  ;
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.14.3 - sysfs duplicated dentry bug
-Date: Fri, 23 Dec 2005 23:25:11 +0100
-User-Agent: KMail/1.8.3
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200512091848.42297.blaisorblade@yahoo.it> <20051209175555.GA9761@kroah.com>
-In-Reply-To: <20051209175555.GA9761@kroah.com>
+	Fri, 23 Dec 2005 17:23:27 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:3761 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S1161066AbVLWWX1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 17:23:27 -0500
+Message-ID: <43AC78CF.9090407@colorfullife.com>
+Date: Fri, 23 Dec 2005 23:23:11 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jack Steiner <steiner@sgi.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] - Fix memory ordering problem in wake_futex()
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512232325.12849.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 December 2005 18:55, Greg KH wrote:
-> On Fri, Dec 09, 2005 at 06:48:41PM +0100, Blaisorblade wrote:
-> > Q: Since when is a directory entry allowed to be duplicate?
-> > A: Since Linux 2.6.14!
-> >
-> > $ uname -r
-> > 2.6.14.3-bs2-mroute
-> >
-> > The only sysfs-related change is the use of a custom DSDT, which is new
-> > to this kernel.
+Jack wrote:
 
-> Known bug, fixed in the 2.6.15-rc kernel tree.  It was a timer
-> registering with the same name in two places :(
+>On IA64, locks are released using a "st.rel" instruction. This ensures that
+>preceding "stores" are visible before the lock is released but does NOT prevent
+>a "store" that follows the "st.rel" from becoming visible before the "st.rel".
+>The result is that the task that owns the futex_q continues prematurely. 
+>
+>The failure I saw is the task that owned the futex_q resumed prematurely and
+>was context-switch off of the cpu. The task's switch_stack occupied the same
+>space of the futex_q. The store to q->lock_ptr overwrote the ar.bspstore in the
+>switch_stack.
+>
+Bad race.
+Unfortuantely the scenario that you describe is quite frequent:
+- autoremove_wake_function()
+- ipc/sem.c (search for IN_WAKEUP)
+- ipc/msg.c appears to be correct, there are smp_wmb() calls.
 
-Sorry for answering so late (my latency in checking "spam" false positives is 
-big) but shouldn't this have been backported to -stable? Also is this known 
-to cause hangs at unmount time (I experience them at times and they're not 
-network FSs-related) ?
-
-> And yes, we should have more sysfs checks for stuff like this, any
-> patches in this area would be greatly appreciated.
-No idea about all kfoo stuff at the present moment^H^H^H year, sorry. Can't 
-help.
-
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
-
-	
-
-	
-		
-___________________________________ 
-Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
-http://mail.yahoo.it
+--
+    Manfred

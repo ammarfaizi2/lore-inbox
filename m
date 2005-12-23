@@ -1,117 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030434AbVLWE7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030436AbVLWFEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030434AbVLWE7O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 23:59:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030435AbVLWE7O
+	id S1030436AbVLWFEu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 00:04:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030437AbVLWFEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 23:59:14 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:34601 "EHLO
+	Fri, 23 Dec 2005 00:04:50 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:3127 "EHLO
 	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1030434AbVLWE7N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 23:59:13 -0500
-Date: Thu, 22 Dec 2005 23:59:12 -0500 (EST)
+	id S1030436AbVLWFEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 00:04:49 -0500
+Date: Fri, 23 Dec 2005 00:04:49 -0500 (EST)
 From: Nicolas Pitre <nico@cam.org>
 Subject: Re: [patch 0/8] mutex subsystem, -V6
-In-reply-to: <20051222230438.GA13302@elte.hu>
+In-reply-to: <Pine.LNX.4.64.0512221846470.26663@localhost.localdomain>
 X-X-Sender: nico@localhost.localdomain
 To: Ingo Molnar <mingo@elte.hu>
 Cc: lkml <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjanv@infradead.org>
-Message-id: <Pine.LNX.4.64.0512222355130.26663@localhost.localdomain>
+       Arjan van de Ven <arjanv@infradead.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Message-id: <Pine.LNX.4.64.0512222359360.26663@localhost.localdomain>
 MIME-version: 1.0
 Content-type: TEXT/PLAIN; charset=US-ASCII
 Content-transfer-encoding: 7BIT
 References: <20051222230438.GA13302@elte.hu>
+ <Pine.LNX.4.64.0512221846470.26663@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Dec 2005, Ingo Molnar wrote:
+On Thu, 22 Dec 2005, Nicolas Pitre wrote:
 
-> this is verion -V6 of the generic mutex subsystem.
+> > Nico, Christoph, does this approach work for you? Nico, you might want 
+> > to try an ARM-specific mutex.h implementation.
+> 
+> Yes, I'm happy.  And the ARM version will be sent your way soon.
 
-Here's a patch to fix a few minor things: some comments were wrong, some 
-were irrelevant, another was duplicated.  Also remove a bogus "return 0".
+Here it is:
 
-Index: linux-2.6/include/asm-generic/mutex-dec.h
+Index: linux-2.6/include/asm-arm/mutex.h
 ===================================================================
---- linux-2.6.orig/include/asm-generic/mutex-dec.h
-+++ linux-2.6/include/asm-generic/mutex-dec.h
-@@ -1,7 +1,7 @@
+--- linux-2.6.orig/include/asm-arm/mutex.h
++++ linux-2.6/include/asm-arm/mutex.h
+@@ -1,8 +1,83 @@
  /*
-  * asm-generic/mutex-dec.h
+- * Pull in the generic wrappers for __mutex_fastpath_lock() and
+- * __mutex_fastpath_unlock().
++ * include/asm-arm/mutex.h
   *
-- * Generic wrappers for the mutex fastpath based on an xchg() implementation
-+ * Generic wrappers for the mutex fastpath based on atomic increment/decrement
-  *
+- * TODO: implement optimized primitives instead
++ * ARM optimized mutex locking primitives
++ *
++ * Please look into asm-generic/mutex-xchg.h for a formal definition.
++ */
++
++#if __LINUX_ARM_ARCH__ >= 6
++
++/*
++ * Attempting to lock a mutex on ARMv6+ can be done with a bastardized
++ * atomic decrement (it is not a reliable atomic decrement but it satisfies
++ * the defined semantics for our purpose, while being smaller and faster
++ * than a real atomic decrement or atomic swap.  The idea is to attempt
++ * decrementing the lock value only once.  If once decremented it isn't zero,
++ * or if its store-back fails due to a dispute on the exclusive store, we
++ * simply bail out immediately through the slow path where the lock will be
++ * reattempted until it succeeds.
++ */
++#define __mutex_fastpath_lock(v, fail)					\
++do {									\
++	int __ex_flag, __res;						\
++	__asm__ (							\
++	"ldrex	%0, [%2]\n\t"						\
++	"sub	%0, %0, #1\n\t"						\
++	"strex	%1, %0, [%2]"						\
++	: "=&r" (__res), "=&r" (__ex_flag)				\
++	: "r" (&(v)->counter)						\
++	: "cc","memory" );						\
++	__res |= __ex_flag;						\
++	if (unlikely(__res != 0))					\
++		fail(v);						\
++} while (0)
++
++#define __mutex_fastpath_lock_retval(v, fail)				\
++({									\
++	int __ex_flag, __res;						\
++	__asm__ (							\
++	"ldrex	%0, [%2]\n\t"						\
++	"sub	%0, %0, #1\n\t"						\
++	"strex	%1, %0, [%2]"						\
++	: "=&r" (__res), "=&r" (__ex_flag)				\
++	: "r" (&(v)->counter)						\
++	: "cc","memory" );						\
++	__res |= __ex_flag;						\
++	if (unlikely(__res != 0))					\
++		__res = fail(v);					\
++	__res;								\
++})
++
++/*
++ * Same trick is used for the unlock fast path. However the original value,
++ * rather than the result, is used to test for success in order to have
++ * better generated assembly.
   */
- #ifndef _ASM_GENERIC_MUTEX_DEC_H
-@@ -46,7 +46,7 @@ __mutex_fastpath_lock_retval(atomic_t *c
- /**
-  *  __mutex_fastpath_unlock - try to promote the mutex from 0 to 1
-  *  @count: pointer of type atomic_t
-- *  @fn: function to call if the original value was not 1
-+ *  @fn: function to call if the original value was not 0
-  *
-  * try to promote the mutex from 0 to 1. if it wasn't 0, call <function>
-  * In the failure case, this function is allowed to either set the value to
-Index: linux-2.6/include/asm-generic/mutex-xchg.h
-===================================================================
---- linux-2.6.orig/include/asm-generic/mutex-xchg.h
-+++ linux-2.6/include/asm-generic/mutex-xchg.h
-@@ -51,7 +51,7 @@ __mutex_fastpath_lock_retval(atomic_t *c
- /**
-  *  __mutex_fastpath_unlock - try to promote the mutex from 0 to 1
-  *  @count: pointer of type atomic_t
-- *  @fn: function to call if the original value was not 1
-+ *  @fn: function to call if the original value was not 0
-  *
-  * try to promote the mutex from 0 to 1. if it wasn't 0, call <function>
-  * In the failure case, this function is allowed to either set the value to
-Index: linux-2.6/include/asm-i386/mutex.h
-===================================================================
---- linux-2.6.orig/include/asm-i386/mutex.h
-+++ linux-2.6/include/asm-i386/mutex.h
-@@ -61,7 +61,7 @@ __mutex_fastpath_lock_retval(atomic_t *c
- /**
-  *  __mutex_fastpath_unlock - try to promote the mutex from 0 to 1
-  *  @count: pointer of type atomic_t
-- *  @fn: function to call if the original value was not 1
-+ *  @fn: function to call if the original value was not 0
-  *
-  * try to promote the mutex from 0 to 1. if it wasn't 0, call <function>
-  * In the failure case, this function is allowed to either set the value to
-Index: linux-2.6/kernel/mutex.c
-===================================================================
---- linux-2.6.orig/kernel/mutex.c
-+++ linux-2.6/kernel/mutex.c
-@@ -344,10 +344,6 @@ static inline void __mutex_unlock_nonato
- static __sched void FASTCALL(__mutex_lock_noinline(atomic_t *lock_count));
++#define __mutex_fastpath_unlock(v, fail)				\
++do {									\
++	int __ex_flag, __res, __orig;					\
++	__asm__ (							\
++	"ldrex	%0, [%3]\n\t"						\
++	"add	%1, %0, #1\n\t"						\
++	"strex	%2, %1, [%3]"						\
++	: "=&r" (__orig), "=&r" (__res), "=&r" (__ex_flag)		\
++	: "r" (&(v)->counter)						\
++	: "cc","memory" );						\
++	__orig |= __ex_flag;						\
++	if (unlikely(__orig != 0))					\
++		fail(v);						\
++} while (0)
  
- /*
-- * Some architectures do not have fast dec_and_test atomic primitives,
-- * for them we are providing an atomic_xchg() based mutex implementation,
-- * if they enable CONFIG_MUTEX_XCHG_ALGORITHM.
-- *
-  * The locking fastpath is the 1->0 transition from 'unlocked' into
-  * 'locked' state:
-  */
-@@ -356,11 +352,6 @@ static inline void __mutex_lock_atomic(s
- 	__mutex_fastpath_lock(&lock->count, __mutex_lock_noinline);
- }
- 
--/*
-- * We put the slowpath into a separate function. This reduces
-- * register pressure in the fastpath, and also enables the
-- * atomic_[inc/dec]_call_if_[negative|nonpositive]() primitives.
-- */
- static void fastcall __sched __mutex_lock_noinline(atomic_t *lock_count)
- {
- 	struct mutex *lock = container_of(lock_count, struct mutex, count);
-@@ -380,7 +371,6 @@ static inline int __mutex_lock_interrupt
- {
- 	return __mutex_fastpath_lock_retval
- 			(&lock->count, __mutex_lock_interruptible_noinline);
--	return 0;
- }
- 
- static int fastcall __sched
++/*
++ * If the unlock was done on a contended lock, or if the unlock simply fails
++ * then the mutex remains locked.
++ */
++#define __mutex_slowpath_needs_to_unlock()	(1)
++
++#else
++
++/* On pre-ARMv6 hardware the swp based implementation is the most efficient. */
+ #include <asm-generic/mutex-xchg.h>
++
++#endif

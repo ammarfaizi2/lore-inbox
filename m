@@ -1,56 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161043AbVLWUjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161047AbVLWUs2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161043AbVLWUjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 15:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161044AbVLWUjZ
+	id S1161047AbVLWUs2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 15:48:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161048AbVLWUs1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 15:39:25 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:7882 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1161043AbVLWUjY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 15:39:24 -0500
-Subject: Re: 2.6.15-rc5-rt4: BUG: swapper:0 task might have lost a
-	preemption check!
+	Fri, 23 Dec 2005 15:48:27 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:3719 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1161047AbVLWUs1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 15:48:27 -0500
+Subject: Re: questions on wait_event ...
 From: Steven Rostedt <rostedt@goodmis.org>
-To: John Rigg <lk@sound-man.co.uk>
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>
-In-Reply-To: <20051223174744.GA4518@localhost.localdomain>
-References: <1135306534.4473.1.camel@mindpipe> <43AB6B89.8020409@cybsft.com>
-	 <1135352277.6652.2.camel@localhost.localdomain>
-	 <20051223174744.GA4518@localhost.localdomain>
+To: Alexey Shinkin <alexshinkin@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <BAY16-F260F9C6F509BFC683D3A6AF330@phx.gbl>
+References: <BAY16-F260F9C6F509BFC683D3A6AF330@phx.gbl>
 Content-Type: text/plain
-Date: Fri, 23 Dec 2005 15:38:41 -0500
-Message-Id: <1135370321.5774.1.camel@localhost.localdomain>
+Date: Fri, 23 Dec 2005 15:48:25 -0500
+Message-Id: <1135370905.5774.8.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-23 at 17:47 +0000, John Rigg wrote:
-> On Fri, Dec 23, 2005 at 10:37:57AM -0500, Steven Rostedt wrote:
-> > OK, I just found an SMP bug, and here's the patch.  Maybe this will help
-> > you kr.  I'm currently running x86_64 SMP with 2.6.15-rc5-rt4 with this
-> > and my softirq-no-hrtimers patch I sent earlier.
-> 
-> It still doesn't boot here. Below is the bootmessage from serial console and
-> my .config. The boot message looks pretty much the same as before the smp
-> bug patch was applied (I've checked that it was actually applied). It's
-> failing before it reaches CPU1 initialisation.
-> 
-> John
-> ___________________________________________________________
+Please include CCs of people who respond to you or you might not ever
+get a response.  There's too much traffic on the LKML, your email may
+get lost in the noise.
 
-> CONFIG_NUMA=y
-> CONFIG_RWSEM_GENERIC_SPINLOCK=y
-> CONFIG_K8_NUMA=y
-> CONFIG_X86_64_ACPI_NUMA=y
+On Fri, 2005-12-23 at 07:46 +0600, Alexey Shinkin wrote:
+> Look:
+> 
+> We call wait_event() , condition is FALSE at the moment  :
+> 
+>     do {
+>          if (condition)
+>                  break;
+>     /* and here we have condition changed  to TRUE  */
+>     /*  process is NOT in any wait queue yet  */
+>     /*  then  unroll     __wait_event(wq, condition);        */
+> 
+>      do {							DEFINE_WAIT(__wait);					for (;;) {
+> 	prepare_to_wait(&wq, &__wait, TASK_UNINTERRUPTIBLE);
+> 
+>           /* at this point condition is TRUE , process is in a wait queue 
+> and its state is
+>              TASK_UNINTERRUPTIBLE.   If  rescheduling happens now the 
+> process will asleep,
+>               despite of condition is  TRUE . And will not be woken up until 
+> next wake_up happens
+>               Is that correct ?  */
 
-OK, here's your problem (I didn't notice this at first and went through
-a series of printks to see this).   NUMA isn't supported yet by -rt.
-Turn it off and give it another try.
+OHHH! Your question is about __preemption__!!!
+
+That's a completely different story, because if a process gets
+preempted, it will _not_ be taken off the runqueue even if it's state is
+in TASK_UNINTERRUPTIBLE.  Otherwise, there would be lots of places in
+the kernel that is broken.
+
+from schedule in sched.c:
+
+/* when preempted, the preempt_count gets "PREEMPT_ACTIVE"
+   so the following if will not be entered */
+
+	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
+		switch_count = &prev->nvcsw;
+		if (unlikely((prev->state & TASK_INTERRUPTIBLE) &&
+				unlikely(signal_pending(prev))))
+			prev->state = TASK_RUNNING;
+		else {
+			if (prev->state == TASK_UNINTERRUPTIBLE)
+				rq->nr_uninterruptible++;
+
+/* Here we would have taken off the task from the runqueue
+   but we don't, so the task _will_ wake up again when it is
+   scheduled back in. */
+
+			deactivate_task(prev, rq);
+		}
+	}
 
 -- Steve
 
+> 	if (condition)						     break;
+>                     schedule();
+>         }
+>    finish_wait(&wq, &__wait);
+> } while (0)
+>    /*  end of unroll __wait_event*/
+> 
+> } while (0)
+> 
+> _________________________________________________________________
+> Express yourself instantly with MSN Messenger! Download today it's FREE! 
+> http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030578AbVLWQTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030568AbVLWQTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030578AbVLWQTn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 11:19:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbVLWQTM
+	id S1030568AbVLWQTE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 11:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932510AbVLWQSd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 11:19:12 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:8675 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932508AbVLWQSj (ORCPT
+	Fri, 23 Dec 2005 11:18:33 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:51874 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932505AbVLWQSK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 11:18:39 -0500
-Date: Fri, 23 Dec 2005 17:18:00 +0100
+	Fri, 23 Dec 2005 11:18:10 -0500
+Date: Fri, 23 Dec 2005 17:17:23 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -21,172 +21,109 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Steven Rostedt <rostedt@goodmis.org>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 10/11] mutex subsystem, more debugging code
-Message-ID: <20051223161800.GK26830@elte.hu>
+Subject: [patch 04/11] mutex subsystem, add include/asm-x86_64/mutex.h
+Message-ID: <20051223161723.GE26830@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -1.8
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.0 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-more mutex debugging: check for held locks during memory freeing,
-task exit, enable sysrq printouts, etc.
+add the x86_64 version of mutex.h, optimized in assembly.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 
 ----
 
- arch/i386/mm/pageattr.c |    4 ++++
- drivers/char/sysrq.c    |   19 +++++++++++++++++++
- include/linux/mm.h      |    4 ++++
- kernel/exit.c           |    5 +++++
- kernel/sched.c          |    1 +
- mm/page_alloc.c         |    3 +++
- mm/slab.c               |    1 +
- 7 files changed, 37 insertions(+)
+ include/asm-x86_64/mutex.h |   74 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 74 insertions(+)
 
-Index: linux/arch/i386/mm/pageattr.c
+Index: linux/include/asm-x86_64/mutex.h
 ===================================================================
---- linux.orig/arch/i386/mm/pageattr.c
-+++ linux/arch/i386/mm/pageattr.c
-@@ -207,6 +207,10 @@ void kernel_map_pages(struct page *page,
- {
- 	if (PageHighMem(page))
- 		return;
-+	if (!enable)
-+		mutex_debug_check_no_locks_freed(page_address(page),
-+						 page_address(page+numpages));
+--- /dev/null
++++ linux/include/asm-x86_64/mutex.h
+@@ -0,0 +1,74 @@
++/*
++ * Assembly implementation of the mutex fastpath, based on atomic
++ * decrement/increment.
++ *
++ * started by Ingo Molnar:
++ *
++ *  Copyright (C) 2004, 2005 Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
++ */
++#ifndef _ASM_MUTEX_H
++#define _ASM_MUTEX_H
 +
- 	/* the return value is ignored - the calls cannot fail,
- 	 * large pages are disabled at boot time.
- 	 */
-Index: linux/drivers/char/sysrq.c
-===================================================================
---- linux.orig/drivers/char/sysrq.c
-+++ linux/drivers/char/sysrq.c
-@@ -153,6 +153,21 @@ static struct sysrq_key_op sysrq_mountro
- 
- /* END SYNC SYSRQ HANDLERS BLOCK */
- 
-+#ifdef CONFIG_DEBUG_MUTEXES
++/**
++ * __mutex_fastpath_lock - decrement and call function if negative
++ * @v: pointer of type atomic_t
++ * @fn: function to call if the result is negative
++ *
++ * Atomically decrements @v and calls <fn> if the result is negative.
++ */
++#define __mutex_fastpath_lock(v, fn_name)				\
++do {									\
++	/* type-check the function too: */				\
++	fastcall void (*__tmp)(atomic_t *) = fn_name;			\
++	unsigned long dummy;						\
++									\
++	(void)__tmp;							\
++	typecheck(atomic_t *, v);					\
++									\
++	__asm__ __volatile__(						\
++		LOCK "decl (%%rdi)\n"					\
++		"js 2f\n"						\
++		"1:\n"							\
++		LOCK_SECTION_START("")					\
++		"2: call "#fn_name"\n\t"				\
++		"jmp 1b\n"						\
++		LOCK_SECTION_END					\
++		:"=D" (dummy)						\
++		:"D" (v)						\
++		:"rax", "rsi", "rdx", "rcx",				\
++		 "r8", "r9", "r10", "r11", "memory");			\
++} while (0)
 +
-+static void
-+sysrq_handle_showlocks(int key, struct pt_regs *pt_regs, struct tty_struct *tty)
-+{
-+	mutex_debug_show_all_locks();
-+}
++/**
++ * __mutex_fastpath_unlock - increment and call function if nonpositive
++ * @v: pointer of type atomic_t
++ * @fn: function to call if the result is nonpositive
++ *
++ * Atomically increments @v and calls <fn> if the result is nonpositive.
++ */
++#define __mutex_fastpath_unlock(v, fn_name)				\
++do {									\
++	/* type-check the function too: */				\
++	fastcall void (*__tmp)(atomic_t *) = fn_name;			\
++	unsigned long dummy;						\
++									\
++	(void)__tmp;							\
++	typecheck(atomic_t *, v);					\
++									\
++	__asm__ __volatile__(						\
++		LOCK "incl (%%rdi)\n"					\
++		"jle 2f\n"						\
++		"1:\n"							\
++		LOCK_SECTION_START("")					\
++		"2: call "#fn_name"\n\t"				\
++		"jmp 1b\n"						\
++		LOCK_SECTION_END					\
++		:"=D" (dummy)						\
++		:"D" (v)						\
++		:"rax", "rsi", "rdx", "rcx",				\
++		 "r8", "r9", "r10", "r11", "memory");			\
++} while (0)
 +
-+static struct sysrq_key_op sysrq_showlocks_op = {
-+	.handler	= sysrq_handle_showlocks,
-+	.help_msg	= "show-all-locks(D)",
-+	.action_msg	= "Show Locks Held",
-+};
++#define __mutex_slowpath_needs_to_unlock()	1
 +
 +#endif
- 
- /* SHOW SYSRQ HANDLERS BLOCK */
- 
-@@ -294,7 +309,11 @@ static struct sysrq_key_op *sysrq_key_ta
- #else
- /* c */	NULL,
- #endif
-+#ifdef CONFIG_DEBUG_MUTEXES
-+/* d */ &sysrq_showlocks_op,
-+#else
- /* d */ NULL,
-+#endif
- /* e */	&sysrq_term_op,
- /* f */	&sysrq_moom_op,
- /* g */	NULL,
-Index: linux/include/linux/mm.h
-===================================================================
---- linux.orig/include/linux/mm.h
-+++ linux/include/linux/mm.h
-@@ -13,6 +13,7 @@
- #include <linux/rbtree.h>
- #include <linux/prio_tree.h>
- #include <linux/fs.h>
-+#include <linux/mutex.h>
- 
- struct mempolicy;
- struct anon_vma;
-@@ -977,6 +978,9 @@ static inline void vm_stat_account(struc
- static inline void
- kernel_map_pages(struct page *page, int numpages, int enable)
- {
-+	if (!PageHighMem(page) && !enable)
-+		mutex_debug_check_no_locks_freed(page_address(page),
-+						 page_address(page + numpages));
- }
- #endif
- 
-Index: linux/kernel/exit.c
-===================================================================
---- linux.orig/kernel/exit.c
-+++ linux/kernel/exit.c
-@@ -29,6 +29,7 @@
- #include <linux/syscalls.h>
- #include <linux/signal.h>
- #include <linux/cn_proc.h>
-+#include <linux/mutex.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -870,6 +871,10 @@ fastcall NORET_TYPE void do_exit(long co
- 	mpol_free(tsk->mempolicy);
- 	tsk->mempolicy = NULL;
- #endif
-+	/*
-+	 * If DEBUG_MUTEXES is on, make sure we are holding no locks:
-+	 */
-+	mutex_debug_check_no_locks_held(tsk);
- 
- 	/* PF_DEAD causes final put_task_struct after we schedule. */
- 	preempt_disable();
-Index: linux/kernel/sched.c
-===================================================================
---- linux.orig/kernel/sched.c
-+++ linux/kernel/sched.c
-@@ -4379,6 +4379,7 @@ void show_state(void)
- 	} while_each_thread(g, p);
- 
- 	read_unlock(&tasklist_lock);
-+	mutex_debug_show_all_locks();
- }
- 
- /**
-Index: linux/mm/page_alloc.c
-===================================================================
---- linux.orig/mm/page_alloc.c
-+++ linux/mm/page_alloc.c
-@@ -400,6 +400,9 @@ void __free_pages_ok(struct page *page, 
- 	int reserved = 0;
- 
- 	arch_free_page(page, order);
-+	if (!PageHighMem(page))
-+		mutex_debug_check_no_locks_freed(page_address(page),
-+			page_address(page+(1<<order)));
- 
- #ifndef CONFIG_MMU
- 	if (order > 0)
-Index: linux/mm/slab.c
-===================================================================
---- linux.orig/mm/slab.c
-+++ linux/mm/slab.c
-@@ -3038,6 +3038,7 @@ void kfree(const void *objp)
- 	local_irq_save(flags);
- 	kfree_debugcheck(objp);
- 	c = page_get_cache(virt_to_page(objp));
-+	mutex_debug_check_no_locks_freed(objp, objp+obj_reallen(c));
- 	__cache_free(c, (void*)objp);
- 	local_irq_restore(flags);
- }

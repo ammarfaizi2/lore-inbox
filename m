@@ -1,37 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbVLWXHe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161124AbVLWXI7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161120AbVLWXHe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 18:07:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161127AbVLWXHe
+	id S1161124AbVLWXI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 18:08:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161127AbVLWXI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 18:07:34 -0500
-Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:36380 "EHLO
-	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S1161124AbVLWXHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 18:07:33 -0500
-Date: Fri, 23 Dec 2005 23:11:15 +0000
-From: ed <ed@ednevitible.co.uk>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Book recommendations
-Message-ID: <20051223231115.5f678e5a@workstation>
-Organization: the triads
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-X-Face: =\=1ht]b*gboJ:&+:3x1vGz}fCe40TZJ9s@L2~YGi}]c(fY-_7J]wUR.6MSH\oeq#@H6aAERh(<<1miWJ|x/-1g`r3EmzY3FE?VxmEih9%ETmPd7zChR1"zWC$iuK{|{R+Ss{I3w(KC"_LM%S!
+	Fri, 23 Dec 2005 18:08:59 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51627 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1161124AbVLWXI6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 18:08:58 -0500
+Date: Sat, 24 Dec 2005 00:08:28 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: 7eggert@gmx.de
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Parag Warudkar <kernel-stuff@comcast.net>,
+       Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, Andi Kleen <ak@suse.de>,
+       Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-ID: <20051223230828.GB16043@elf.ucw.cz>
+References: <5lQOU-492-31@gated-at.bofh.it> <5lQOU-492-29@gated-at.bofh.it> <E1Epjug-0001iA-In@be1.lrz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <E1Epjug-0001iA-In@be1.lrz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Pá 23-12-05 11:12:38, Bodo Eggert wrote:
+> Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> 
+> > "With some drawbacks" is the point: It has been determined that the
+> > drawbacks are heavy enough that the 8KiB stack option should go.
+> 
+> Determined by voodoo and wild guessing.
+> 
+> Let's detect the need for 4K stacks: (I hope I found the correct place)
+> 
+> (Maybe the printk should be completely ifdefed, but I'm not sure)
+> 
+> 
+> Signed-off-by: Bodo Eggert <7eggert@gmx.de>
+> 
+> --- 2.6.14/kernel/fork.c.ori    2005-12-21 19:06:24.000000000 +0100
+> +++ 2.6.14/kernel/fork.c        2005-12-21 19:15:23.000000000 +0100
+> @@ -168,4 +168,9 @@ static struct task_struct *dup_task_stru
+>         if (!ti) {
+>                 free_task_struct(tsk);
+> +               printk(KERN_WARNING, "Can't allocate new task structure"
+> +#ifndef CONFIG_4KSTACKS
+> +               ". Maybe you could benefit from 4K stacks.\n"
+> +#endif
+> +               "\n");
+>                 return NULL;
+>         }
 
-I am looking to get involved in kernel development, maybe start first
-with looking at very minor bugs effecting my local system etc.
+Two newlines in case of 4Kstacks...
 
-First I would like some advice on choosing reading material, has anyone
-any good advice? I have previously read Unix Internals - Pate, but this
-is not deep enough and closer to SCO than linux.
+								Pavel
 
 -- 
-Regards, Ed http://www.usenix.org.uk
-:%s/Open Source/Free Software/g
+Thanks, Sharp!

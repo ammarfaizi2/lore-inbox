@@ -1,90 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030458AbVLWILh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030462AbVLWIhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030458AbVLWILh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 03:11:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVLWILg
+	id S1030462AbVLWIhX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 03:37:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030463AbVLWIhX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 03:11:36 -0500
-Received: from fed1rmmtao09.cox.net ([68.230.241.30]:54732 "EHLO
-	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S1030457AbVLWILg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 03:11:36 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] GIT 1.0.3
-Date: Fri, 23 Dec 2005 00:11:34 -0800
-Message-ID: <7voe389qrt.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 23 Dec 2005 03:37:23 -0500
+Received: from rtsoft2.corbina.net ([85.21.88.2]:12212 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S1030462AbVLWIhX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 03:37:23 -0500
+Message-ID: <43ABB76B.8000301@ru.mvista.com>
+Date: Fri, 23 Dec 2005 11:38:03 +0300
+From: Vitaly Wool <vwool@ru.mvista.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: David Brownell <david-b@pacbell.net>
+CC: linux-kernel@vger.kernel.org, spi-devel-general@sourceforge.net
+Subject: Re: [PATCH 2.6-git] SPI: add set_clock() to bitbang
+References: <20051222180449.4335a8e6.vwool@ru.mvista.com> <200512221637.07895.david-b@pacbell.net> <43ABA27C.6020309@ru.mvista.com> <200512230028.03682.david-b@pacbell.net>
+In-Reply-To: <200512230028.03682.david-b@pacbell.net>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Only trivial fixes and cosmetics, there is nothing to see here,
-except the versioning scheme has been updated.
+David Brownell wrote:
 
-Starting in 0.99.7 days and continuing until yesterday,
-maintenance releases were named with letter suffixes, like
-0.99.7a, 0.99.7b,...  Some people seem to have had trouble with
-grasping the concept [*1*] ;-)
+>>>How exactly that's done is system-specific.  Many controllers
+>>>just have a register per chipselect, listing stuff like SPI mode,
+>>>clock divisor, and word size.  So switching to that chipselect
+>>>kicks those in automatically ... devices ignore the clock unless
+>>>they've been selected.
+>>>      
+>>>
+>>Hmm, usually clocks are configured for the bus not device.
+>>    
+>>
+>
+>Not a chance.  The clock is activated to talk to a given device;
+>and there's no requirement that all devices on the bus use the
+>same clock rate.  (If one chipselect gives access to a linked series
+>of devices, clearly they'll all need to be clocked alike.  But
+>that's not a bus, it's just a compound device ... like a big shift
+>register.)
+>
+>I did my homework when putting that API together, and looked at
+>quite a few SPI controllers.  **Not one** of them forces all
+>their chipselets to use the same clock rate.
+>  
+>
+I admit that thw word 'usually' is incorrect here, but still we have two 
+Philips ARM boards where the SPI clock is configured _only_ on the bus, 
+by setting the bus clock divisor on per-message basis. I was also 
+keeping in mind PXA, so it wasn't just bare words...
 
-So the numbering scheme switched to a boring decimal:
-
- - The maintenance releases that follow 1.0.0 are named 1.0.1,
-   1.0.2, 1.0.3,..., and contain only bugfixes [*2*].
-
- - The next release that follows 1.0.0 is 1.1.0, which, unlike
-   1.0.X, is allowed to have enhancements.
-
- - If one builds and installs from a random revision on the
-   "master" branch or "pu" branch after 1.0.0 happens but before
-   1.1.0 happens, "git --version" would say 1.0.GIT.  There will
-   not be such an intermediate state on the "maint" branch.
-
-I'll slow down until early next year and will not make a formal
-roadmap for 1.1.0 and onwards for now, but I've reviewed the
-TODO items and updated them here:
-
-    http://kernel.org/git/?p=git/git.git;a=blob;hb=todo;f=TODO
-
-I have not prioritized them quite yet, other than dropping a
-couple of obviously unneeded or done items.
-
-
-[Footnote]
-
-*1* No, I did not model these release naming after military
-jets, as somebody privately suggested me in an e-mail.  I had an
-impression that letter updates over there are more often
-enhancements and/or repurposing to prolong the service life than
-bugfixes.  I mimicked ancient Linux versions with letter
-suffixes, but come to think of it, they were more enhancements
-than fixes, I suspect.
-
-*2* Inevitably there are borderline cases.  One could argue that
-the [IPV6address] syntax is a fix: "earlier we ought to have
-handled it".  The file:// URL failure case detection could be
-called enhancements: "we never said we support file:// URL".
-
-
-shortlog since 1.0.0b which should have been 1.0.2
---------------------------------------------------
-
-
-Alex Riesen:
-      \n usage in stderr output
-
-Johannes Schindelin:
-      git-format-patch should show the correct version
-      sha1_to_hex: properly terminate the SHA1
-
-Junio C Hamano:
-      send-pack: reword non-fast-forward error message.
-
-Nick Hengeveld:
-      Fix for http-fetch from file:// URLs
-
-Pavel Roskin:
-      sanity check in add_packed_git()
-
-
+Vitaly

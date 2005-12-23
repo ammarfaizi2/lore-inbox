@@ -1,56 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964995AbVLWP1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965005AbVLWP3E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964995AbVLWP1t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 10:27:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965005AbVLWP1t
+	id S965005AbVLWP3E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 10:29:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVLWP3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 10:27:49 -0500
-Received: from prgy-npn2.prodigy.com ([207.115.54.38]:17305 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S964995AbVLWP1s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 10:27:48 -0500
-Message-ID: <43AC1791.1080806@tmr.com>
-Date: Fri, 23 Dec 2005 10:28:17 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: torvalds@osdl.org, linux-kernel@vger.kernel.org, axboe@suse.de,
-       herbert@gondor.apana.org.au, michael.madore@gmail.com,
-       david-b@pacbell.net, gregkh@suse.de, paulmck@us.ibm.com, gohai@gmx.net,
-       luca.risolia@studio.unibo.it, p_christ@hol.gr
-Subject: Re: 2.6.15-rc6: known regressions in the kernel Bugzilla
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>	<20051222011320.GL3917@stusta.de>	<20051222005209.0b1b25ca.akpm@osdl.org>	<20051222135718.GA27525@stusta.de> <20051222060827.dcd8cec1.akpm@osdl.org>
-In-Reply-To: <20051222060827.dcd8cec1.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 23 Dec 2005 10:29:04 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:47320 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965005AbVLWP3B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 10:29:01 -0500
+Date: Fri, 23 Dec 2005 07:27:47 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: rmk+lkml@arm.linux.org.uk, nico@cam.org, hch@infradead.org,
+       alan@lxorguk.ukuu.org.uk, arjan@infradead.org, mingo@elte.hu,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, arjanv@infradead.org,
+       jes@trained-monkey.org, zwane@arm.linux.org.uk, oleg@tv-sign.ru,
+       dhowells@redhat.com, bcrl@kvack.org, rostedt@goodmis.org, ak@suse.de
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+Message-Id: <20051223072747.0b481dac.akpm@osdl.org>
+In-Reply-To: <1135350288.6493.258.camel@capoeira>
+References: <20051222122011.GA20789@elte.hu>
+	<20051222050701.41b308f9.akpm@osdl.org>
+	<1135257829.2940.19.camel@laptopd505.fenrus.org>
+	<20051222054413.c1789c43.akpm@osdl.org>
+	<1135260709.10383.42.camel@localhost.localdomain>
+	<20051222153014.22f07e60.akpm@osdl.org>
+	<20051222233416.GA14182@infradead.org>
+	<20051222221311.2f6056ec.akpm@osdl.org>
+	<Pine.LNX.4.64.0512230912220.26663@localhost.localdomain>
+	<20051223065118.95738acc.akpm@osdl.org>
+	<20051223145746.GA2077@flint.arm.linux.org.uk>
+	<1135350288.6493.258.camel@capoeira>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
+Xavier Bestel <xavier.bestel@free.fr> wrote:
+>
+> On Fri, 2005-12-23 at 15:57, Russell King wrote:
+> > On Fri, Dec 23, 2005 at 06:51:18AM -0800, Andrew Morton wrote:
+> > > Nicolas Pitre <nico@cam.org> wrote:
+> > > > How can't you get the fact that semaphores could _never_ be as simple as 
+> > > > mutexes?  This is a theoritical impossibility, which maybe turns out not 
+> > > > to be so true on x86, but which is damn true on ARM where the fast path 
+> > > > (the common case of a mutex) is significantly more efficient.
+> > > 
+> > > I did notice your comments.  I'll grant that mutexes will save some tens of
+> > > fastpath cycles on one minor architecture.  Sorry, but that doesn't seem
+> > > very important.
+> > 
+> > Wow.
 > 
->>not a post-2.6.14 regression
->>
+> Yes, wow. Andrew doesn't seem aware of embedded linux people, for whom
+> cycles are important and ARM is king.
 > 
-> 
-> Well yeah.  But that doesn't mean thse things have lower priority that
-> post-2.6.14 regressions.
-> 
-> I understand what you're doing here, but we should in general concentrate
-> upon the most severe bugs rather than upon the most recent..
 
-Hypocratic oath: "First, do no harm."
+Please, spare me the rhetoric.
 
-If a new kernel version can't make things *better*, at least it 
-shouldn't make them *worse*. New features are good, performance 
-improvements are good, breaking working systems with an update is not good.
+Adding a new locking primitive is a big deal.  We need good reasons for
+doing it.  And no, I don't think a few cycles on ARM is good enough.  I'd
+be very surprised if it was measurable - the busiest semaphore is probably
+i_sem and when it's taken we're also doing heavy filesystem operations
+which would swamp any benefit.  And if we're going to churn i_sem then we
+perhaps should turn it into an rwsem so we can perform concurrent lookups
+(at least).  We do disk I/O with that thing held.
 
-I'm with Adrian on this, if you want people to test and report with -rc 
-kernels, then there should be some urgency to addressing the reported 
-problems.
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Look, I'm not wildly against mutexes - it's not exactly a large amount of
+code.  I just think they're fairly pointless and I regret that we seem to
+be diving into adding yet another locking primitive without having fully
+investigated improving the existing one.

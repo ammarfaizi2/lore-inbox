@@ -1,50 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbVLWIJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030458AbVLWILh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030456AbVLWIJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 03:09:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030457AbVLWIJ2
+	id S1030458AbVLWILh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 03:11:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030459AbVLWILg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 03:09:28 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:32471 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030456AbVLWIJ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 03:09:28 -0500
-Date: Fri, 23 Dec 2005 09:09:01 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Nicolas Pitre <nico@cam.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 0/8] mutex subsystem, -V6
-Message-ID: <20051223080901.GB9614@elte.hu>
-References: <20051222230438.GA13302@elte.hu> <Pine.LNX.4.64.0512221846470.26663@localhost.localdomain> <Pine.LNX.4.64.0512222359360.26663@localhost.localdomain>
-Mime-Version: 1.0
+	Fri, 23 Dec 2005 03:11:36 -0500
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:54732 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S1030457AbVLWILg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 03:11:36 -0500
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] GIT 1.0.3
+Date: Fri, 23 Dec 2005 00:11:34 -0800
+Message-ID: <7voe389qrt.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512222359360.26663@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Only trivial fixes and cosmetics, there is nothing to see here,
+except the versioning scheme has been updated.
 
-* Nicolas Pitre <nico@cam.org> wrote:
+Starting in 0.99.7 days and continuing until yesterday,
+maintenance releases were named with letter suffixes, like
+0.99.7a, 0.99.7b,...  Some people seem to have had trouble with
+grasping the concept [*1*] ;-)
 
-> On Thu, 22 Dec 2005, Nicolas Pitre wrote:
-> 
-> > > Nico, Christoph, does this approach work for you? Nico, you might want 
-> > > to try an ARM-specific mutex.h implementation.
-> > 
-> > Yes, I'm happy.  And the ARM version will be sent your way soon.
-> 
-> Here it is:
+So the numbering scheme switched to a boring decimal:
 
-cool! I've merged it - and the end-result looks really clean.
+ - The maintenance releases that follow 1.0.0 are named 1.0.1,
+   1.0.2, 1.0.3,..., and contain only bugfixes [*2*].
 
-	Ingo
+ - The next release that follows 1.0.0 is 1.1.0, which, unlike
+   1.0.X, is allowed to have enhancements.
+
+ - If one builds and installs from a random revision on the
+   "master" branch or "pu" branch after 1.0.0 happens but before
+   1.1.0 happens, "git --version" would say 1.0.GIT.  There will
+   not be such an intermediate state on the "maint" branch.
+
+I'll slow down until early next year and will not make a formal
+roadmap for 1.1.0 and onwards for now, but I've reviewed the
+TODO items and updated them here:
+
+    http://kernel.org/git/?p=git/git.git;a=blob;hb=todo;f=TODO
+
+I have not prioritized them quite yet, other than dropping a
+couple of obviously unneeded or done items.
+
+
+[Footnote]
+
+*1* No, I did not model these release naming after military
+jets, as somebody privately suggested me in an e-mail.  I had an
+impression that letter updates over there are more often
+enhancements and/or repurposing to prolong the service life than
+bugfixes.  I mimicked ancient Linux versions with letter
+suffixes, but come to think of it, they were more enhancements
+than fixes, I suspect.
+
+*2* Inevitably there are borderline cases.  One could argue that
+the [IPV6address] syntax is a fix: "earlier we ought to have
+handled it".  The file:// URL failure case detection could be
+called enhancements: "we never said we support file:// URL".
+
+
+shortlog since 1.0.0b which should have been 1.0.2
+--------------------------------------------------
+
+
+Alex Riesen:
+      \n usage in stderr output
+
+Johannes Schindelin:
+      git-format-patch should show the correct version
+      sha1_to_hex: properly terminate the SHA1
+
+Junio C Hamano:
+      send-pack: reword non-fast-forward error message.
+
+Nick Hengeveld:
+      Fix for http-fetch from file:// URLs
+
+Pavel Roskin:
+      sanity check in add_packed_git()
+
+

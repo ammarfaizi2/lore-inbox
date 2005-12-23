@@ -1,90 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030459AbVLWI2J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030463AbVLWIiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030459AbVLWI2J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 03:28:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030462AbVLWI2J
+	id S1030463AbVLWIiL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 03:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030464AbVLWIiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 03:28:09 -0500
-Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:57446 "HELO
-	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030459AbVLWI2I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 03:28:08 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Vitaly Wool <vwool@ru.mvista.com>
-Subject: Re: [PATCH 2.6-git] SPI: add set_clock() to bitbang
-Date: Fri, 23 Dec 2005 00:28:03 -0800
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, spi-devel-general@sourceforge.net
-References: <20051222180449.4335a8e6.vwool@ru.mvista.com> <200512221637.07895.david-b@pacbell.net> <43ABA27C.6020309@ru.mvista.com>
-In-Reply-To: <43ABA27C.6020309@ru.mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 23 Dec 2005 03:38:11 -0500
+Received: from pat.uio.no ([129.240.130.16]:3971 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030463AbVLWIiJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 03:38:09 -0500
+Subject: Re: nfs insecure_locks / Tru64 behaviour
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ron Peterson <rpeterso@MtHolyoke.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051223022126.GC22949@mtholyoke.edu>
+References: <20051222133623.GE7814@mtholyoke.edu>
+	 <1135293713.3685.9.camel@lade.trondhjem.org>
+	 <20051223013933.GB22949@mtholyoke.edu>
+	 <1135302325.3685.69.camel@lade.trondhjem.org>
+	 <20051223022126.GC22949@mtholyoke.edu>
+Content-Type: text/plain
+Date: Fri, 23 Dec 2005 09:37:55 +0100
+Message-Id: <1135327075.8167.6.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512230028.03682.david-b@pacbell.net>
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.672, required 12,
+	autolearn=disabled, AWL 1.28, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-12-22 at 21:21 -0500, Ron Peterson wrote:
 
-> >>No, suppose there're two devices behind the same SPI bus that have 
-> >>different clock constraints. As active SPI device change may well happen 
-> >>when each new message is processed, we'll need to set up clocks again 
-> >>for each message. Right?
-> >
-> >Clock is coupled to chipselect/device.  When the bus controller
-> >switches to the other device, it updates the clock accordingly.
-> 
-> Yeah, but chipselect is called on per-transfer basis what is likely to 
-> be redundant for clock setting.
+> Why it doesn't work .. I dunno.  My current best guess is that the
+> manner in which the insecure_locks option in /etc/exports is applied to
+> directories isn't quite right.
 
-This is basic SPI protocol stuff ... chipselect activates once at
-the start of a series ("message") of transfers, and deactivates
-when the series completes.  It is NOT "per transfer" ... normally
-it's active between transfers, as a basic protocol requirement.
+insecure_locks has nothing at all to do with directories. It has to do
+with the NLM protocol, which is used by NFSv2/v3 to implement posix
+locks.
+Directory locking is an entirely separate matter, and is not part of the
+NFS protocol (the server will take care of locking the directory when it
+needs to modify it without any extra help from the client).
 
-There are exceptions related to cs_change, mostly so chipselect can
-be dropped temporarily ... e.g. to terminate a protocol operation,
-so the next one in that group can start; EEPROMs work that way.
-But most devices keep chipselect active during the whole series
-of transfers that make up a message.
+IOW: your problem here has nothing to do with insecure_locks, and
+everything to do with your setup. Please double-check that the gid
+mappings for the group 'kwc' in /etc/groups match on the client and
+server, and note that the default root squashing means that your root
+account will get mapped to the user with uid -2 and gid=-2
 
-
-> Per-message clock configuration is enough AFAIS.
-
-It doesn't need to be reconfigured even that often; it's basically
-once-per-device, except in rather exceptional case.
-
-The controller does need to update its clock rate whenever it
-starts talking to a different device, though.  Some devices max
-out at 1 MHz, while others are happy at 40 MHz ... so when the
-chipselect to one of those goes active, SCK has to match.
-
-
-> >How exactly that's done is system-specific.  Many controllers
-> >just have a register per chipselect, listing stuff like SPI mode,
-> >clock divisor, and word size.  So switching to that chipselect
-> >kicks those in automatically ... devices ignore the clock unless
-> >they've been selected.
-> 
-> Hmm, usually clocks are configured for the bus not device.
-
-Not a chance.  The clock is activated to talk to a given device;
-and there's no requirement that all devices on the bus use the
-same clock rate.  (If one chipselect gives access to a linked series
-of devices, clearly they'll all need to be clocked alike.  But
-that's not a bus, it's just a compound device ... like a big shift
-register.)
-
-I did my homework when putting that API together, and looked at
-quite a few SPI controllers.  **Not one** of them forces all
-their chipselets to use the same clock rate.
-
-The closest thing to your description is the SSP hardware on PXA,
-which doesn't _have_ the notion of device selection.  Chipselects
-for SPI are layered on top of SSP, using GPIOs ... and, you may
-have noticed in Stephen's PXA driver, updating the clock (and SPI
-mode, etc) whenever the software starts talking to a new device.
-
-- Dave
+Cheers,
+  Trond
 

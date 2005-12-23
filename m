@@ -1,123 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030486AbVLWK7Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030495AbVLWLdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030486AbVLWK7Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 05:59:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030487AbVLWK7Z
+	id S1030495AbVLWLdd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 06:33:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030494AbVLWLdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 05:59:25 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:59043 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1030486AbVLWK7Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 05:59:25 -0500
-To: Andrey Volkov <avolkov@varma-el.com>
-Cc: Pantelis Antoniou <panto@intracom.gr>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, linuxppc-embedded@ozlabs.org
-Subject: Re: [RFC] genalloc != generic DEVICE memory allocator
-References: <43A98F90.9010001@varma-el.com> <yq0d5jpuoqe.fsf@jaguar.mkp.net>
-	<43AAEE12.5030009@varma-el.com>
-From: Jes Sorensen <jes@trained-monkey.org>
-Date: 23 Dec 2005 05:59:23 -0500
-In-Reply-To: <43AAEE12.5030009@varma-el.com>
-Message-ID: <yq08xuculis.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 23 Dec 2005 06:33:33 -0500
+Received: from mail.gmx.de ([213.165.64.21]:58861 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1030493AbVLWLdd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 06:33:33 -0500
+X-Authenticated: #815883
+Date: Fri, 23 Dec 2005 12:33:47 +0100
+From: Christian Aichinger <Greek0@gmx.net>
+To: Karol Kozimor <sziwan@hell.org.pl>
+Cc: Linus Torvalds <torvalds@osdl.org>, Hanno B??ck <mail@hboeck.de>,
+       Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>
+Subject: Re: [PATCH] Work around asus_acpi driver oopses on Samsung P30s and the like due to the ACPI implicit return
+Message-ID: <20051223113347.GA20475@orest.greek0.net>
+References: <F7DC2337C7631D4386A2DF6E8FB22B300580F140@hdsmsx401.amr.corp.intel.com> <20051222174226.GB20051@hell.org.pl>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
+Content-Disposition: inline
+In-Reply-To: <20051222174226.GB20051@hell.org.pl>
+User-Agent: Mutt/1.5.6+20040907i
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andrey" == Andrey Volkov <avolkov@varma-el.com> writes:
 
-Andrey> Hi Jes,
-Andrey> Jes Sorensen wrote:
->>  This really is irrelevant, the space is only used within the
->> object when it's on the free list. Ie. if all memory is handed out
->> there's no space used for this purpose.
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Andrey> I point out 2 reasons: ACCESS TIME was first :), let take very
-Andrey> widespread case: PCI device with some onboard memory and any N
-Andrey> GHz proc. - result may be terrible: each access to device mem
-Andrey> (which usually uncached) will slowed down this super fast proc
-Andrey> to 33 MHZ, i.e same as we made busy-wait with disabled
-Andrey> interrupts after each read/write...
+On Thu, Dec 22, 2005 at 06:42:26PM +0100, Karol Kozimor wrote:
+> Thus wrote Brown, Len:
+> > Karol,
+> > Do you have an update of your asus driver in the pipeline
+> > that addresses this?
+>=20
+> Here it goes. Rediffed, also plugs a leak my previous patch introduced. I
+> believe it addresses Linus' comments. It's still not a proper fix (see
+> below), but I believe it's better than none.
+> Best regards,
 
-Andrey, 
+This will break other hardware as the P30/P35 as well, since there
+are some buggy DSDT's out there that return an ACPI_TYPE_BUFFER.
+That's the whole reason why I was testing exactly for
+ACPI_TYPE_INTEGER in my patch.
 
-As I said in my response, you need the control blocks because you are
-not allowed to directly access things on the other side of the PCI bus
-without using the readl/writel equivalent macros. It's got nothing to
-do with access speed.
+My first version was pretty simmilar to yours, until I was told on
+acpi-devel that this breaks someone elses hardware (causing it to be
+considered as P30/P35, while it isn't). I can dig up the mails if
+you want.
 
->>  For the case of more traditional devices, the control structures
->> will be allocated from one end of the block, the rest will be used
->> for packet descriptors which will be going in and out of the memory
->> pool on a regular basis.
+Cheers,
+Christian
 
-Andrey> This was main reason why I try to modify genalloc: I needed in
-Andrey> generic allocator for both short-live strictly aligned blocks
-Andrey> and long-live blocks with restriction by size.
+--4Ckj6UjgE2iN1+kY
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-genalloc is perfectly adequate for that purpose. The long lived
-allocations will just be taken out first, the rest will be used for
-the short lived.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
->> In most normal cases these will all be of the same size and it
->> doesn't matter where in the memory space they were allocated.
+iD8DBQFDq+CbxsP1RlTwJHsRAl73AJ9xWYcwWJtcZyPRVB4ZIoLR5ms84QCfVExj
+Tiz4lbngeX171YEyVUEtSOE=
+=rhsM
+-----END PGP SIGNATURE-----
 
-Andrey> And thats also why I consider that 'buddy' is not appropriate
-Andrey> to be 'generic' (most cases == generic, isn't is :)?): when
-Andrey> you're allocate mainly same sized blocks, 'buddy' degraded to
-Andrey> the first-fit.
-
-huh?
-
->>  I honestly don't think the majority of your demands are valid.
->> genalloc was meant to be simple, not an ultra fast at any random
->> block size allocator. So far I don't see any reason for changing to
->> the allocation algorithm into anything much more complex - doesn't
->> mean there couldn't be a reason for doing so, but I don't think you
->> have described any so far.
-Andrey> I disagree here, generic couldn't be very simple and slow,
-Andrey> because in this case simply no one will be use it, and hence
-Andrey> we'll get today's picture: reimplemented allocators in many
-Andrey> drivers.
-
-Of course it can. I will continue to claim that you are trying to turn
-it into something it doesn't need to be. The allocator I used was
-based on the allocator from the old sym2 driver, which is a perfect
-example of it being used by a device driver.
-
->>  You mentioned frame buffers, but what is the kernel supposed to do
->> with those allocation wise? If you have a frame buffer console, the
->> memory is allocated once and handed to the frame buffer driver.
->> Ie. you don't need a ton of on demand allocations for that and for
->> X, the memory management is handled in the X server, not by the
->> kernel.
-
-Andrey> For video-only device this is true, but if device is a
-Andrey> multifunctional, which is frequent case in embedded systems,
-Andrey> then kernel must control of device memory
-Andrey> allocation. Currently, however, even video cards for desktops
-Andrey> become more and more multifunctional (VIVO/audio etc.).
-
-For multi functional devices you still often split the memory up at
-init time. Some memory is never going to be given back (like the frame
-buffer itself), other blocks are like the network packet descriptors
-in a network device.
-
->>  The only thing I think would make sense to implement is to allow
->> it to use indirect descriptor blocks for the memory it
->> manages. This is not because it's wrong to use the memory for the
->> free list, as it will only be used for this when the chunk is not
->> in use, but because access to certain types of memory isn't always
->> valid through normal direct access. Ie. if one used descriptor
->> blocks residing in normal GFP_KERNEL memory, it would be possible
->> to use the allocator to manage memory sitting on the other side of
->> a PCI bus.
-Andrey> I describe above, why we couldn't/wouldn't use onboard memory
-Andrey> for allocator specific data.
-
-As I pointed out, your description wasn't valid. You are not allowed
-to directly dereference memory on the other side of a PCI bus.
-
-Regards,
-Jes
+--4Ckj6UjgE2iN1+kY--

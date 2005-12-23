@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161057AbVLWVNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbVLWVXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161057AbVLWVNM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 16:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161058AbVLWVNM
+	id S1161001AbVLWVXl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 16:23:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161052AbVLWVXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 16:13:12 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:40836 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1161057AbVLWVNK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 16:13:10 -0500
+	Fri, 23 Dec 2005 16:23:41 -0500
+Received: from pat.uio.no ([129.240.130.16]:48889 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1161001AbVLWVXk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 16:23:40 -0500
 Subject: Re: [PATCH] sched: Fix
 	adverse	effects	of	NFS	client	on	interactive response
-From: Lee Revell <rlrevell@joe-job.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Lee Revell <rlrevell@joe-job.com>
 Cc: Peter Williams <pwil3058@bigpond.net.au>,
        Kyle Moffett <mrmacman_g4@mac.com>, Ingo Molnar <mingo@elte.hu>,
        Con Kolivas <kernel@kolivas.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1135372090.8555.9.camel@lade.trondhjem.org>
+In-Reply-To: <1135372661.22177.46.camel@mindpipe>
 References: <43A8EF87.1080108@bigpond.net.au>
 	 <1135145341.7910.17.camel@lade.trondhjem.org>
 	 <43A8F714.4020406@bigpond.net.au>
@@ -34,25 +34,35 @@ References: <43A8EF87.1080108@bigpond.net.au>
 	 <1135330757.8167.44.camel@lade.trondhjem.org>
 	 <1135364822.22177.13.camel@mindpipe>
 	 <1135372090.8555.9.camel@lade.trondhjem.org>
+	 <1135372661.22177.46.camel@mindpipe>
 Content-Type: text/plain
-Date: Fri, 23 Dec 2005 16:17:41 -0500
-Message-Id: <1135372661.22177.46.camel@mindpipe>
+Date: Fri, 23 Dec 2005 22:23:19 +0100
+Message-Id: <1135372999.8555.19.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.377, required 12,
+	autolearn=disabled, AWL 1.57, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-23 at 22:08 +0100, Trond Myklebust wrote:
-> On Fri, 2005-12-23 at 14:07 -0500, Lee Revell wrote:
+On Fri, 2005-12-23 at 16:17 -0500, Lee Revell wrote:
+> On Fri, 2005-12-23 at 22:08 +0100, Trond Myklebust wrote:
+> > On Fri, 2005-12-23 at 14:07 -0500, Lee Revell wrote:
+> > 
+> > > By your logic it's also broken to use cond_resched() in filesystem code.
+> > 
+> > ...and your point is?
 > 
-> > By your logic it's also broken to use cond_resched() in filesystem code.
-> 
-> ...and your point is?
+> Reductio ad absurdum.  Subsystems not using cond_resched would render
+> Linux unusable for even trivial soft realtime applications like AV
+> playback and recording.
 
-Reductio ad absurdum.  Subsystems not using cond_resched would render
-Linux unusable for even trivial soft realtime applications like AV
-playback and recording.
+It may surprise you to learn that some people don't use their computers
+for AV playback and recording. However absurd it may seem to you, those
+people are quite happy to use 2.4.x kernels without a cond_resched
+lurking in every nook and cranny.
 
-Lee
+  Trond
 

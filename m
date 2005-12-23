@@ -1,62 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbVLWAOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbVLWARV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751186AbVLWAOg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 19:14:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbVLWAOg
+	id S1751192AbVLWARV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 19:17:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbVLWARV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 19:14:36 -0500
-Received: from mverd138.asia.info.net ([61.14.31.138]:29320 "EHLO
-	kao2.melbourne.sgi.com") by vger.kernel.org with ESMTP
-	id S1751186AbVLWAOf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 19:14:35 -0500
-X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1
-From: Keith Owens <kaos@sgi.com>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Lee Revell <rlrevell@joe-job.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Luck, Tony" <tony.luck@intel.com>, Tony Luck <tony.luck@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jack Steiner <steiner@sgi.com>,
-       Dimitri Sivanich <sivanich@sgi.com>
-Subject: Re: [PATCH] ia64: disable preemption in udelay() 
-In-reply-to: Your message of "Thu, 22 Dec 2005 16:45:08 CDT."
-             <43AB1E64.6010504@tmr.com> 
+	Thu, 22 Dec 2005 19:17:21 -0500
+Received: from mail.kroah.org ([69.55.234.183]:19898 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751192AbVLWARU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 19:17:20 -0500
+Date: Thu, 22 Dec 2005 16:16:43 -0800
+From: Greg KH <greg@kroah.com>
+To: Yanmin Zhang <ymzhang@unix-os.sc.intel.com>
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       linux-ia64@vger.kernel.org, yanmin.zhang@intel.com,
+       suresh.b.siddha@intel.com, rajesh.shah@intel.com,
+       venkatesh.pallipadi@intel.com
+Subject: Re: [PATCH v2:3/3]Export cpu topology by sysfs
+Message-ID: <20051223001643.GA3088@kroah.com>
+References: <20051220180929.B19129@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 23 Dec 2005 11:14:24 +1100
-Message-ID: <8270.1135296864@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <20051220180929.B19129@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Dec 2005 16:45:08 -0500, 
-Bill Davidsen <davidsen@tmr.com> wrote:
->Lee Revell wrote:
->> On Thu, 2005-12-15 at 18:12 -0800, John Hawkes wrote:
->> 
->>>From: "Lee Revell" <rlrevell@joe-job.com>
->>>
->>>>There are 10 drivers that udelay(10000) or more and a TON that
->>>>udelay(1000).  Turning those all into 1ms+ non preemptible sections will
->>>>be very bad.
->>>
->>>What about 100usec non-preemptible sections?
->> 
->> 
->> That will disappear into the noise, in normal usage these happen all the
->> time.  500usec non preemptible regions are rare (~1 hour to show up) and
->> 1ms very rare (24 hours).  My tests show that 300 usec or so is a good
->> place to draw the line if you don't want it to show up in latency tests.
->
->I may be misreading the original post, but the problem is described as 
->one where the TSC is not syncronised and a CPU switch takes place. Would 
->the correct solution be to somehow set CPU affinity temporarily in such 
->a way as to avoid disabling preempt at all?
->
->The preempt doesn't seem to be the root problem, so it's unlikely to be 
->the best solution...
+On Tue, Dec 20, 2005 at 06:09:29PM -0800, Yanmin Zhang wrote:
+> --- linux-2.6.15-rc5/drivers/base/topology.c	1970-01-01 08:00:00.000000000 +0800
+> +++ linux-2.6.15-rc5_topology/drivers/base/topology.c	2005-12-20 00:33:49.000000000 +0800
+> @@ -0,0 +1,201 @@
+> +/*
+> + * driver/base/topology.c - Populate driverfs with cpu topology information
 
-Agreed.  See [RFC] Add thread_info flag for "no cpu migration"[1] on
-lkml.  It got no response.
+driverfs?  Where did you cut/paste this code from?
 
-[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=113471059115107&w=2
+And why does it have to be in driver/base?
 
+> +struct _topology_attr {
+> +	struct attribute attr;
+> +	ssize_t (*show)(int cpu, char *);
+> +	ssize_t (*store)(const char *, size_t count);
+> +};
+
+Don't put a '_' at the beginning of a structure please.
+
+> +static ssize_t topology_show(struct kobject * kobj, struct attribute * attr, char * buf)
+> +{
+> +	unsigned int cpu;
+> +        struct _topology_attr *fattr = to_attr(attr);
+> +        ssize_t ret;
+> +
+> +	cpu = container_of(kobj->parent, struct sys_device, kobj)->id;
+> +        ret = fattr->show ? fattr->show(cpu, buf): 0;
+> +        return ret;
+> +}
+
+Mix of spaces and tabs :(
+
+> +static ssize_t topology_store(struct kobject * kobj, struct attribute * attr,
+> +		     const char * buf, size_t count)
+> +{
+> +	return 0;
+> +}
+
+Why is this function even needed?
+
+> +static struct sysfs_ops topology_sysfs_ops = {
+> +	.show   = topology_show,
+> +	.store  = topology_store,
+> +};
+> +
+> +static struct kobj_type topology_ktype = {
+> +	.sysfs_ops	= &topology_sysfs_ops,
+> +	.default_attrs	= topology_default_attrs,
+> +};
+> +
+> +/* Add/Remove cpu_topology interface for CPU device */
+> +static int __cpuinit topology_add_dev(struct sys_device * sys_dev)
+> +{
+> +	unsigned int cpu = sys_dev->id;
+> +
+> +	memset(&cpu_topology_kobject[cpu], 0, sizeof(struct kobject));
+> +
+> +	cpu_topology_kobject[cpu].parent = &sys_dev->kobj;
+> +	kobject_set_name(&cpu_topology_kobject[cpu], "%s", "topology");
+> +	cpu_topology_kobject[cpu].ktype = &topology_ktype;
+> +
+> +	return  kobject_register(&cpu_topology_kobject[cpu]);
+> +}
+
+Can't you just use an attribute group and attach it to the cpu kobject?
+That would save an array of kobjects I think.
+
+> +static int __cpuinit topology_cpu_callback(struct notifier_block *nfb,
+> +		unsigned long action, void *hcpu)
+> +{
+> +	unsigned int cpu = (unsigned long)hcpu;
+> +	struct sys_device *sys_dev;
+> +
+> +	sys_dev = get_cpu_sysdev(cpu);
+> +	switch (action) {
+> +		case CPU_ONLINE:
+> +			topology_add_dev(sys_dev);
+> +			break;
+> +#ifdef	CONFIG_HOTPLUG_CPU
+> +		case CPU_DEAD:
+> +			topology_remove_dev(sys_dev);
+> +			break;
+> +#endif
+
+Why ifdef?  Isn't it safe to just always have this in?
+
+thanks,
+
+greg k-h

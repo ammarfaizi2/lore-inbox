@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030507AbVLWO6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030525AbVLWPAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030507AbVLWO6E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 09:58:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030525AbVLWO6E
+	id S1030525AbVLWPAi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 10:00:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030540AbVLWPAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 09:58:04 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23052 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1030507AbVLWO6B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 09:58:01 -0500
-Date: Fri, 23 Dec 2005 14:57:46 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nicolas Pitre <nico@cam.org>, hch@infradead.org, alan@lxorguk.ukuu.org.uk,
-       arjan@infradead.org, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, arjanv@infradead.org, jes@trained-monkey.org,
-       zwane@arm.linux.org.uk, oleg@tv-sign.ru, dhowells@redhat.com,
-       bcrl@kvack.org, rostedt@goodmis.org, ak@suse.de
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-Message-ID: <20051223145746.GA2077@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Nicolas Pitre <nico@cam.org>, hch@infradead.org,
-	alan@lxorguk.ukuu.org.uk, arjan@infradead.org, mingo@elte.hu,
-	linux-kernel@vger.kernel.org, torvalds@osdl.org,
-	arjanv@infradead.org, jes@trained-monkey.org,
-	zwane@arm.linux.org.uk, oleg@tv-sign.ru, dhowells@redhat.com,
-	bcrl@kvack.org, rostedt@goodmis.org, ak@suse.de
-References: <20051222122011.GA20789@elte.hu> <20051222050701.41b308f9.akpm@osdl.org> <1135257829.2940.19.camel@laptopd505.fenrus.org> <20051222054413.c1789c43.akpm@osdl.org> <1135260709.10383.42.camel@localhost.localdomain> <20051222153014.22f07e60.akpm@osdl.org> <20051222233416.GA14182@infradead.org> <20051222221311.2f6056ec.akpm@osdl.org> <Pine.LNX.4.64.0512230912220.26663@localhost.localdomain> <20051223065118.95738acc.akpm@osdl.org>
+	Fri, 23 Dec 2005 10:00:38 -0500
+Received: from pat.uio.no ([129.240.130.16]:137 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030525AbVLWPAi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 10:00:38 -0500
+Subject: Re: nfs insecure_locks / Tru64 behaviour
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ron Peterson <rpeterso@MtHolyoke.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051223143950.GA1330@mtholyoke.edu>
+References: <20051222133623.GE7814@mtholyoke.edu>
+	 <1135293713.3685.9.camel@lade.trondhjem.org>
+	 <20051223013933.GB22949@mtholyoke.edu>
+	 <1135302325.3685.69.camel@lade.trondhjem.org>
+	 <20051223022126.GC22949@mtholyoke.edu>
+	 <1135327075.8167.6.camel@lade.trondhjem.org>
+	 <20051223133801.GA9321@mtholyoke.edu>
+	 <1135345813.8167.155.camel@lade.trondhjem.org>
+	 <20051223143950.GA1330@mtholyoke.edu>
+Content-Type: text/plain
+Date: Fri, 23 Dec 2005 16:00:25 +0100
+Message-Id: <1135350025.8167.157.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051223065118.95738acc.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.143, required 12,
+	autolearn=disabled, AWL 1.81, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 23, 2005 at 06:51:18AM -0800, Andrew Morton wrote:
-> Nicolas Pitre <nico@cam.org> wrote:
-> > How can't you get the fact that semaphores could _never_ be as simple as 
-> > mutexes?  This is a theoritical impossibility, which maybe turns out not 
-> > to be so true on x86, but which is damn true on ARM where the fast path 
-> > (the common case of a mutex) is significantly more efficient.
+On Fri, 2005-12-23 at 09:39 -0500, Ron Peterson wrote:
+> On Fri, Dec 23, 2005 at 02:50:12PM +0100, Trond Myklebust wrote:
+> > On Fri, 2005-12-23 at 08:38 -0500, Ron Peterson wrote:
+> > > The gid's of the kmw group match on both sides.  The problem happens
+> > > whether root squashing is on or off.  Unless the execute bit for 'other'
+> > > is turned on for the parent directory, the file appears to be locked
+> > > when being accessed from the nfs client (tru64) side.
+> > > 
+> > > My theory may be wrong, but the problem still exists.
+> > 
+> > Possibly, but that sounds like it might be a tru64 bug. As you can see,
+> > a Linux client has no such problems:
 > 
-> I did notice your comments.  I'll grant that mutexes will save some tens of
-> fastpath cycles on one minor architecture.  Sorry, but that doesn't seem
-> very important.
+> Not unlikely.  I was hoping it was a bug that the insecure_locks options
+> was meant to work around.  Perhaps that's not possible.  :(
 
-Wow.
+As I said, insecure_locks has nothing to do with file access.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Cheers,
+  Trond
+

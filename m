@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030443AbVLWF6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbVLWGMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030443AbVLWF6k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 00:58:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030437AbVLWF6k
+	id S1030435AbVLWGMz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 01:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbVLWGMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 00:58:40 -0500
-Received: from fsmlabs.com ([168.103.115.128]:15545 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1030423AbVLWF6j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 00:58:39 -0500
-X-ASG-Debug-ID: 1135317511-20007-9-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Thu, 22 Dec 2005 22:03:53 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Keith Owens <kaos@sgi.com>
-cc: Bill Davidsen <davidsen@tmr.com>, Lee Revell <rlrevell@joe-job.com>,
-       "Luck, Tony" <tony.luck@intel.com>, Tony Luck <tony.luck@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Jack Steiner <steiner@sgi.com>,
-       Dimitri Sivanich <sivanich@sgi.com>
-X-ASG-Orig-Subj: Re: [PATCH] ia64: disable preemption in udelay() 
-Subject: Re: [PATCH] ia64: disable preemption in udelay() 
-In-Reply-To: <8270.1135296864@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.64.0512222202190.3822@montezuma.fsmlabs.com>
-References: <8270.1135296864@kao2.melbourne.sgi.com>
+	Fri, 23 Dec 2005 01:12:54 -0500
+Received: from nproxy.gmail.com ([64.233.182.203]:50747 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751223AbVLWGMy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 01:12:54 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=m68BtM6s7+nvaXxyOErF/iwUS1fukqEY0wYBvlB9A2VToyGZAukmYFlNG2ERGu5UZU9FC6nlPb+u1NnDy9HXdyR48TzZTntJG8N9wfQivPJEZB2Rkrfdb8W56sHzGn9A6EvFag+sQLcPVEJhcKjKTfu1XE7QrE0yNyhpiUXMpCM=
+Message-ID: <2cd57c900512222212x64995a7h@mail.gmail.com>
+Date: Fri, 23 Dec 2005 14:12:52 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: "liudj@digitalchina.com" <liudj@digitalchina.com>
+Subject: Re: flow chart tool?
+Cc: linux-arch@vger.kernel.org, linux-tiny@selenic.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <OFE169C587.08B184BE-ON482570E0.0011DE51-482570E0.00128F1A@digitalchina.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6567
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <OFE169C587.08B184BE-ON482570E0.0011DE51-482570E0.00128F1A@digitalchina.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Dec 2005, Keith Owens wrote:
+2005/12/23, liudj@digitalchina.com <liudj@digitalchina.com>:
+> sorry for this question:)
+>
+> which flow chart tool do you use to discribe your software ?
+>
+> i use visio ,but it is too slow
 
-> Agreed.  See [RFC] Add thread_info flag for "no cpu migration"[1] on
-> lkml.  It got no response.
-> 
-> [1] http://marc.theaimsgroup.com/?l=linux-kernel&m=113471059115107&w=2
+wtf, plz don't do ad for M$ here.
 
-I read it and it would make fixing cpuhotplug + cpufreq also easier. 
-However you could also argue that the whole locking in cpufreq should be 
-fixed instead.
+>
+>
+>
+> Yesterday is a history.
+> Tomorrow is a mystery.
+> Today is a gift.
+> That's why we call it "the Present".
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

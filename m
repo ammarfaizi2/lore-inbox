@@ -1,83 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030535AbVLWOio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbVLWOws@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030535AbVLWOio (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 09:38:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030537AbVLWOio
+	id S1030424AbVLWOws (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 09:52:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030507AbVLWOws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 09:38:44 -0500
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:55724 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1030535AbVLWOin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 09:38:43 -0500
-Date: Fri, 23 Dec 2005 23:38:39 +0900 (JST)
-Message-Id: <20051223.233839.846934653.masano@tnes.nec.co.jp>
-To: trond.myklebust@fys.uio.no, matthew@wil.cx
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH] fix posix lock on NFS, #2
-From: ASANO Masahiro <masano@tnes.nec.co.jp>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.11 (Native Windows TTY Support)
+	Fri, 23 Dec 2005 09:52:48 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45517 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030424AbVLWOwr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 09:52:47 -0500
+Date: Fri, 23 Dec 2005 06:51:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nicolas Pitre <nico@cam.org>
+Cc: hch@infradead.org, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
+       mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       arjanv@infradead.org, jes@trained-monkey.org, zwane@arm.linux.org.uk,
+       oleg@tv-sign.ru, dhowells@redhat.com, bcrl@kvack.org,
+       rostedt@goodmis.org, ak@suse.de, rmk+lkml@arm.linux.org.uk
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+Message-Id: <20051223065118.95738acc.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0512230912220.26663@localhost.localdomain>
+References: <20051222114147.GA18878@elte.hu>
+	<20051222035443.19a4b24e.akpm@osdl.org>
+	<20051222122011.GA20789@elte.hu>
+	<20051222050701.41b308f9.akpm@osdl.org>
+	<1135257829.2940.19.camel@laptopd505.fenrus.org>
+	<20051222054413.c1789c43.akpm@osdl.org>
+	<1135260709.10383.42.camel@localhost.localdomain>
+	<20051222153014.22f07e60.akpm@osdl.org>
+	<20051222233416.GA14182@infradead.org>
+	<20051222221311.2f6056ec.akpm@osdl.org>
+	<Pine.LNX.4.64.0512230912220.26663@localhost.localdomain>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Nicolas Pitre <nico@cam.org> wrote:
+>
+> How can't you get the fact that semaphores could _never_ be as simple as 
+> mutexes?  This is a theoritical impossibility, which maybe turns out not 
+> to be so true on x86, but which is damn true on ARM where the fast path 
+> (the common case of a mutex) is significantly more efficient.
+>
 
-This is another problem report on posix lock.
-
-The nfsd may handle the lock information incorrectly if new lock is
-contiguous to old one.  I think both 2.6 and 2.4 kernel have this bug.
-
-The following is a sample program to produce the circumstance.
-        fd = open("file_on_nfs_2", O_RDWR | O_CREAT, 0644);
-        memset(&lck, 0, sizeof(lck));
-        lck.l_type = F_WRLCK;
-        switch (child = fork()) {
-        case 0:
-                lck.l_start = 0; lck.l_len = 1; fcntl(fd, F_SETLK, &lck);
-                sleep(1);
-                lck.l_start = 1; lck.l_len = 1; fcntl(fd, F_SETLKW, &lck);
-                _exit(0);
-        default:
-                lck.l_start = 1; lck.l_len = 1; fcntl(fd, F_SETLK, &lck);
-                sleep(2); close(fd);
-                printf("waiting...\n");
-                // sleep(1); kill(chiled, SIGINT);
-                wait(NULL);
-                break;
-        }
-
-All version of linux requires time to grant the lock, but on older
-kernel the lock is leaked if it is signaled while waiting the grant.
-
-I think it is caused by a miss-calling of posix_lock_file() in nfsd.
-posix_lock_file() updates the second argument `request' as you know,
-but it seems that nfsd gives no care about that.
-
-Here is a patch.  It changes nfsd to keep the range of file_lock for
-later use.  Any comments and feedback are welcome.
-
-Signed-off-by: ASANO Masahiro <masano@tnes.nec.co.jp>
-
---- linux-2.6.15-rc6/fs/lockd/svclock.c.orig	2005-12-23 20:16:33.000000000 +0900
-+++ linux-2.6.15-rc6/fs/lockd/svclock.c	2005-12-23 20:24:13.000000000 +0900
-@@ -510,6 +510,7 @@ nlmsvc_grant_blocked(struct nlm_block *b
- 	struct nlm_file		*file = block->b_file;
- 	struct nlm_lock		*lock = &block->b_call.a_args.lock;
- 	struct file_lock	*conflock;
-+	struct file_lock	tmplck;
- 	int			error;
- 
- 	dprintk("lockd: grant blocked lock %p\n", block);
-@@ -542,7 +543,8 @@ nlmsvc_grant_blocked(struct nlm_block *b
- 	 * following yields an error, this is most probably due to low
- 	 * memory. Retry the lock in a few seconds.
- 	 */
--	if ((error = posix_lock_file(file->f_file, &lock->fl)) < 0) {
-+	tmplck = lock->fl;	/* keep the range for later use */
-+	if ((error = posix_lock_file(file->f_file, &tmplck)) < 0) {
- 		printk(KERN_WARNING "lockd: unexpected error %d in %s!\n",
- 				-error, __FUNCTION__);
- 		nlmsvc_insert_block(block, 10 * HZ);
-
+I did notice your comments.  I'll grant that mutexes will save some tens of
+fastpath cycles on one minor architecture.  Sorry, but that doesn't seem
+very important.

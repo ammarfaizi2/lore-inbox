@@ -1,58 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161004AbVLWTGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbVLWTGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161004AbVLWTGH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 14:06:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbVLWTGG
+	id S1161008AbVLWTGf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 14:06:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161006AbVLWTGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 14:06:06 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:62420 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1161004AbVLWTGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 14:06:05 -0500
-Subject: Re: [WTF?] sys_tas() on m32r
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org,
-       Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20051223055526.bc1a4044.akpm@osdl.org>
-References: <20051223061556.GR27946@ftp.linux.org.uk>
-	 <20051223055526.bc1a4044.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 23 Dec 2005 14:10:34 -0500
-Message-Id: <1135365035.22177.17.camel@mindpipe>
+	Fri, 23 Dec 2005 14:06:34 -0500
+Received: from mail.kroah.org ([69.55.234.183]:8068 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161008AbVLWTGd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 14:06:33 -0500
+Date: Fri, 23 Dec 2005 11:05:59 -0800
+From: Greg KH <greg@kroah.com>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: stable@kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [stable] Re: [PATCH 2.6.14.3] SCSI: fix transfer direction in scsi_lib and st
+Message-ID: <20051223190559.GB15319@kroah.com>
+References: <20051209171922.GW19441@conscoop.ottawa.on.ca> <200512101125.jBABP7Z9001085@einhorn.in-berlin.de> <20051210232837.GE11094@kroah.com> <439B7A8F.6000209@s5r6.in-berlin.de> <43A07C05.90800@s5r6.in-berlin.de> <20051214203859.GA568@kroah.com> <tkrat.4cb325c7ad591694@s5r6.in-berlin.de> <tkrat.a92b3c0b86f82868@s5r6.in-berlin.de> <43A0A017.7000007@s5r6.in-berlin.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43A0A017.7000007@s5r6.in-berlin.de>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-23 at 05:55 -0800, Andrew Morton wrote:
-> Al Viro <viro@ftp.linux.org.uk> wrote:
-> >
-> > asmlinkage int sys_tas(int *addr)
-> > {
-> >         int oldval;
-> >         unsigned long flags;
-> > 
-> >         if (!access_ok(VERIFY_WRITE, addr, sizeof (int)))
-> >                 return -EFAULT;
-> >         local_irq_save(flags);
-> >         oldval = *addr;
-> >         if (!oldval)
-> >                 *addr = 1;
-> >         local_irq_restore(flags);
-> >         return oldval;
-> > }
-> > in arch/m32r/kernel/sys_m32r.c.  Trivial oops *AND* ability to trigger
-> > IO with interrupts disabled.
-> 
-> Yeah.  I pointed this out to Takata in October last year and then promptly
-> forgot about it.  It's rather amazing that this code (which appears to be in
-> live use in linuxthreads) hasn't generated oopses.
+On Wed, Dec 14, 2005 at 11:43:35PM +0100, Stefan Richter wrote:
+> PS: This was of course "[PATCH 2.6.14.3 2/2] ...".
 
-No one uses LinuxThreads anymore?
+Both of them have been applied to the queue, thanks.
 
-Even the oldest of the old (Debian stable) have moved to NPTL.
-
-Lee
-
+greg k-h

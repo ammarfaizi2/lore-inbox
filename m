@@ -1,78 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030416AbVLWNhI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030526AbVLWNgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030416AbVLWNhI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 08:37:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030498AbVLWNhI
+	id S1030526AbVLWNgK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 08:36:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030527AbVLWNgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 08:37:08 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:36543 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030416AbVLWNhG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 08:37:06 -0500
-Date: Fri, 23 Dec 2005 05:36:21 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: 2.6.15rc6: ide oops+panic
-Message-Id: <20051223053621.6c437cee.akpm@osdl.org>
-In-Reply-To: <43AB20DA.2020506@domdv.de>
-References: <43AB20DA.2020506@domdv.de>
-X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 23 Dec 2005 08:36:10 -0500
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:40953 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S1030526AbVLWNgJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 08:36:09 -0500
+Message-ID: <43ABFD47.3080000@bigpond.net.au>
+Date: Sat, 24 Dec 2005 00:36:07 +1100
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Kyle Moffett <mrmacman_g4@mac.com>, Ingo Molnar <mingo@elte.hu>,
+       Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sched:	Fix	adverse	effects	of	NFS	client	on	interactive
+ response
+References: <43A8EF87.1080108@bigpond.net.au>	 <1135145341.7910.17.camel@lade.trondhjem.org>	 <43A8F714.4020406@bigpond.net.au>	 <1135171280.7958.16.camel@lade.trondhjem.org>	 <962C9716-6F84-477B-8B2A-FA771C21CDE8@mac.com>	 <1135172453.7958.26.camel@lade.trondhjem.org>	 <43AA0EEA.8070205@bigpond.net.au>	 <1135289282.9769.2.camel@lade.trondhjem.org>	 <43AB29B8.7050204@bigpond.net.au>	 <1135292364.9769.58.camel@lade.trondhjem.org>	 <AAF94E06-ACB9-4ABE-AC15-49C6B3BE21A0@mac.com>	 <1135297525.3685.57.camel@lade.trondhjem.org>	 <43AB69B8.4080707@bigpond.net.au>	 <1135330757.8167.44.camel@lade.trondhjem.org>	 <43ABD639.2060200@bigpond.net.au> <1135342262.8167.143.camel@lade.trondhjem.org>
+In-Reply-To: <1135342262.8167.143.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 23 Dec 2005 13:36:07 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Steinmetz <ast@domdv.de> wrote:
->
-> Attached are boot messages and panic captured via serial console, as
-> well as the system config.
+Trond Myklebust wrote:
+> On Fri, 2005-12-23 at 21:49 +1100, Peter Williams wrote:
 > 
-> ...
->
-> VFS: Mounted root (ext3 filesystem) readonly.
-> Freeing unused kernel memory: 280k freed
-> ----------- [cut here ] --------- [please bite here ] ---------
-> Kernel BUG at drivers/ide/ide-io.c:63
-> invalid operand: 0000 [1] PREEMPT SMP 
-> CPU 0 
-> Modules linked in: snd_usb_audio snd_usb_lib snd_rawmidi snd_hwdep
-> Pid: 0, comm: swapper Not tainted 2.6.15-rc6top #1
-> RIP: 0010:[<ffffffff8038e995>] <ffffffff8038e995>{__ide_end_request+53}
-> RSP: 0018:ffffffff806d67d0  EFLAGS: 00010046
-> RAX: 0000000001000479 RBX: ffff810002f7b490 RCX: 0000000000000008
-> RDX: 0000000000000000 RSI: ffff810002f7b490 RDI: ffffffff80730d98
-> RBP: 0000000000000000 R08: 000000003b9aca00 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000064 R12: ffffffff80730d98
-> R13: 0000000000000008 R14: 0000000000000001 R15: ffffffff80730c80
-> FS:  00002aaaab1aaae0(0000) GS:ffffffff80751800(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> CR2: 00002aaaaafbb7b0 CR3: 000000007e0e0000 CR4: 00000000000006e0
-> Process swapper (pid: 0, threadinfo ffffffff8075a000, task ffffffff805d36c0)
-> Stack: ffff810002f7b490 ffff81013feeacd0 ffff810002f5a550 0000000000000050 
->        0000000000000050 ffffffff80299aae 0000000000000246 ffff81013feeacd0 
->        ffffffff80730d98 ffffffff8038f0f2 
-> Call Trace: <IRQ> <ffffffff80299aae>{blk_pre_flush_end_io+110}
->        <ffffffff8038f0f2>{ide_end_drive_cmd+946} <ffffffff8038f6f0>{drive_cmd_intr+288}
->        <ffffffff8038f5d0>{drive_cmd_intr+0} <ffffffff80390850>{ide_intr+400}
->        <ffffffff8015c7bc>{handle_IRQ_event+44} <ffffffff8015c8a1>{__do_IRQ+177}
->        <ffffffff80110c9f>{do_IRQ+47} <ffffffff8010e2d8>{ret_from_intr+0}
->        <ffffffff80390ad0>{ide_outb+0} <ffffffff80390ad6>{ide_outb+6}
->        <ffffffff803995b1>{ide_do_rw_disk+529} <ffffffff8049a036>{ip_rcv+1302}
->        <ffffffff80120000>{__ioremap+512} <ffffffff80390160>{ide_do_request+1648}
->        <ffffffff8038f0f2>{ide_end_drive_cmd+946} <ffffffff80390895>{ide_intr+469}
->        <ffffffff8015c7bc>{handle_IRQ_event+44} <ffffffff8015c8a1>{__do_IRQ+177}
->        <ffffffff80110c9f>{do_IRQ+47} <ffffffff8010e2d8>{ret_from_intr+0}
->         <EOI> <ffffffff8010ebf1>{kernel_thread+129} <ffffffff80390ad0>{ide_outb+0}
->        <ffffffff8010bd96>{default_idle+54} <ffffffff8010c012>{cpu_idle+98}
->        <ffffffff8075c835>{start_kernel+485} <ffffffff8075c294>{_sinittext+660}
->        
+>>No.  It is asking whether the NORMAL interruption of this interruptible 
+>>sleep will be caused by a human user action such as a keystroke or mouse 
+>>action.  For the NFS client the answer to that question is unequivically 
+>>no.  It's not a matter of policy it's a matter of fact.
 > 
-> Code: 0f 0b 68 61 85 57 80 c2 3f 00 90 a8 02 74 0c 85 ed 7f 08 44 
-> RIP <ffffffff8038e995>{__ide_end_request+53} RSP <ffffffff806d67d0>
+> 
+>         /*
+>          * Tasks that have marked their sleep as noninteractive get
+>          * woken up without updating their sleep average. (i.e. their
+>          * sleep is handled in a priority-neutral manner, no priority
+>          * boost and no penalty.)
+>          */
+> 
+> This appears to be the only documentation for the TASK_NONINTERACTIVE
+> flag,
 
-Thanks.  Are you able to identify the most-recent kernel version which
-didn't do this?
+I guess it makes to many assumptions about the reader's prior knowledge 
+of the scheduler internals.  I'll try to make it clearer.
 
+> and I see no mention of human user actions in that comment. The
+> comment rather appears to states that this particular flag is designed
+> to switch between two different scheduling policies.
+
+Changes of scheduling policy only occur via calls to sched_setscheduler().
+
+> 
+> If the flag really is only about identifying sleeps that will involve
+> human user actions, then surely it would be easy to set up a short set
+> of guidelines in Documentation, say, that spell out exactly what the
+> purpose is, and when it should be used.
+
+Sounds reasonable.  I'll propose some changes to the scheduler 
+documentation.
+
+> That should be done _before_ one starts charging round converting every
+> instance of TASK_INTERRUPTIBLE.
+
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
+
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

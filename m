@@ -1,75 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965005AbVLWP3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965185AbVLWPce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965005AbVLWP3E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 10:29:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965017AbVLWP3E
+	id S965185AbVLWPce (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 10:32:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965179AbVLWPce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 10:29:04 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:47320 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965005AbVLWP3B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 10:29:01 -0500
-Date: Fri, 23 Dec 2005 07:27:47 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: rmk+lkml@arm.linux.org.uk, nico@cam.org, hch@infradead.org,
-       alan@lxorguk.ukuu.org.uk, arjan@infradead.org, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, arjanv@infradead.org,
-       jes@trained-monkey.org, zwane@arm.linux.org.uk, oleg@tv-sign.ru,
-       dhowells@redhat.com, bcrl@kvack.org, rostedt@goodmis.org, ak@suse.de
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-Message-Id: <20051223072747.0b481dac.akpm@osdl.org>
-In-Reply-To: <1135350288.6493.258.camel@capoeira>
-References: <20051222122011.GA20789@elte.hu>
-	<20051222050701.41b308f9.akpm@osdl.org>
-	<1135257829.2940.19.camel@laptopd505.fenrus.org>
-	<20051222054413.c1789c43.akpm@osdl.org>
-	<1135260709.10383.42.camel@localhost.localdomain>
-	<20051222153014.22f07e60.akpm@osdl.org>
-	<20051222233416.GA14182@infradead.org>
-	<20051222221311.2f6056ec.akpm@osdl.org>
-	<Pine.LNX.4.64.0512230912220.26663@localhost.localdomain>
-	<20051223065118.95738acc.akpm@osdl.org>
-	<20051223145746.GA2077@flint.arm.linux.org.uk>
-	<1135350288.6493.258.camel@capoeira>
-X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
+	Fri, 23 Dec 2005 10:32:34 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:13548 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S965113AbVLWPcd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 10:32:33 -0500
+Date: Fri, 23 Dec 2005 09:32:15 -0600
+From: Mark Maule <maule@sgi.com>
+To: Greg KH <greg@kroah.com>
+Cc: Greg KH <gregkh@suse.de>, linuxppc64-dev@ozlabs.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH 0/3] msi abstractions and support for altix
+Message-ID: <20051223153215.GA11935@sgi.com>
+References: <20051222201651.2019.37913.96422@lnx-maule.americas.sgi.com> <20051222202259.GA4959@suse.de> <20051222202627.GI17552@sgi.com> <20051222203415.GA28240@suse.de> <20051222203824.GJ17552@sgi.com> <20051222214446.GC14978@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051222214446.GC14978@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Xavier Bestel <xavier.bestel@free.fr> wrote:
->
-> On Fri, 2005-12-23 at 15:57, Russell King wrote:
-> > On Fri, Dec 23, 2005 at 06:51:18AM -0800, Andrew Morton wrote:
-> > > Nicolas Pitre <nico@cam.org> wrote:
-> > > > How can't you get the fact that semaphores could _never_ be as simple as 
-> > > > mutexes?  This is a theoritical impossibility, which maybe turns out not 
-> > > > to be so true on x86, but which is damn true on ARM where the fast path 
-> > > > (the common case of a mutex) is significantly more efficient.
+On Thu, Dec 22, 2005 at 01:44:46PM -0800, Greg KH wrote:
+> On Thu, Dec 22, 2005 at 02:38:24PM -0600, Mark Maule wrote:
+> > On Thu, Dec 22, 2005 at 12:34:15PM -0800, Greg KH wrote:
+> > > On Thu, Dec 22, 2005 at 02:26:27PM -0600, Mark Maule wrote:
+> > > > On Thu, Dec 22, 2005 at 12:22:59PM -0800, Greg KH wrote:
+> > > > > On Thu, Dec 22, 2005 at 02:15:44PM -0600, Mark Maule wrote:
+> > > > > > Resend #2: including linuxppc64-dev and linux-pci as well as PCI maintainer
+> > > > > 
+> > > > > I'll wait for Resend #3 based on my previous comments before considering
+> > > > > adding it to my kernel trees:)
+> > > > > 
+> > > > 
+> > > > Resend #2 includes the correction to the irq_vector[] declaration, and I
+> > > > responded to the question about setting irq_vector[0] if that's what you
+> > > > mean ...
 > > > 
-> > > I did notice your comments.  I'll grant that mutexes will save some tens of
-> > > fastpath cycles on one minor architecture.  Sorry, but that doesn't seem
-> > > very important.
+> > > Sorry, but I missed that last response.  Why do you set the [0] value in
+> > > a #ifdef now?
 > > 
-> > Wow.
+> > Because on ia64 IA64_FIRST_DEVICE_VECTOR and IA64_LAST_DEVICE_VECTOR
+> > (from which MSI FIRST_DEVICE_VECTOR/LAST_DEVICE_VECTOR are derived) are not
+> > constants.  The are now global variables (see change to asm-ia64/hw_irq.h)
+> > to allow the platform to override them.  Altix uses a reduced range of
+> > vectors for devices, and this change was necessary to make assign_irq_vector()
+> > to work on altix.
 > 
-> Yes, wow. Andrew doesn't seem aware of embedded linux people, for whom
-> cycles are important and ARM is king.
-> 
+> I'm with Matthew on this one, that's not a real fix for this.  What
+> would PPC64 do in this case?
 
-Please, spare me the rhetoric.
+Using the existing framework, wouldn't PPC just define it's own
+assign_irq_vector and {FIRST,LAST}_DEVICE_VECTOR and handle it however it
+wants under the covers?
 
-Adding a new locking primitive is a big deal.  We need good reasons for
-doing it.  And no, I don't think a few cycles on ARM is good enough.  I'd
-be very surprised if it was measurable - the busiest semaphore is probably
-i_sem and when it's taken we're also doing heavy filesystem operations
-which would swamp any benefit.  And if we're going to churn i_sem then we
-perhaps should turn it into an rwsem so we can perform concurrent lookups
-(at least).  We do disk I/O with that thing held.
+I agree that this is not a great solution, but it's what the existing framework
+allowed.  I'm willing to pursue a more general vector allocation scheme, but
+I suspect that'll take some time.
 
-Look, I'm not wildly against mutexes - it's not exactly a large amount of
-code.  I just think they're fairly pointless and I regret that we seem to
-be diving into adding yet another locking primitive without having fully
-investigated improving the existing one.
+Is this issue going to hold up forward progress of this patchset?  IMO, this
+set is a major step in generalizing the MSI code and I think the vector
+generalizing code would best be handled by a separate effort.
+
+Mark
+
+Mark

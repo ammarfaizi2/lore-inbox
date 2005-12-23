@@ -1,158 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030574AbVLWQVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030580AbVLWQWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030574AbVLWQVV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 11:21:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbVLWQSa
+	id S1030580AbVLWQWz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 11:22:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030572AbVLWQWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 11:18:30 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:49570 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932504AbVLWQSG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 11:18:06 -0500
-Date: Fri, 23 Dec 2005 17:17:29 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 05/11] mutex subsystem, add include/asm-arm/mutex.h
-Message-ID: <20051223161729.GF26830@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 23 Dec 2005 11:22:55 -0500
+Received: from [15.170.179.235] ([15.170.179.235]:46443 "EHLO exch02.APPIQ.COM")
+	by vger.kernel.org with ESMTP id S1030569AbVLWQWy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 11:22:54 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: More info for DSM w/r/t sunffb on 2.6.15-rc6
+Date: Fri, 23 Dec 2005 11:23:36 -0500
+Message-ID: <DF925A10E7204748977502BECE3D11230100CD7C@exch02.appiq.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: More info for DSM w/r/t sunffb on 2.6.15-rc6
+Thread-Index: AcYHbebly+a79x7zTN6gM+UqNlBSrgAbubVg
+From: "Michael Bishop" <michael.bishop@APPIQ.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-add the ARM version of mutex.h, which is optimized in assembly for
-ARMv6, and uses the xchg implementation on pre-ARMv6.
+I'd like to provide some more information in regards to the recent
+thread concerning sunffb driver trouble in current kernels.
 
-From: Nicolas Pitre <nico@cam.org>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+There seems to be some confusion regarding the exact failure mode.  Let
+me try and explain in more detail.
 
-----
+I'm running 2.6.15-rc6 on an ultra-60 (dual 450mhz blackbird).  I have a
+ffb (creator3d series 3) and am using x.org 6.8.2-r6. Console
+framebuffer mode works fine.  When running a startx and using fmccor's
+2.6 kernel example xorg.conf the following happens:
 
- include/asm-arm/mutex.h |  102 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 102 insertions(+)
+1.  Screen clears and there is an underscore character in the top left
+corner.
+2.  Slight screen distortion like a handful of white scratches appears
+for a split second.
+3.  Screen is blank except for the underscore, but stable w/no
+distortion.   Hard drive activity is heard.
+4.  CTRL-ALT-BACKSPACE works and kills X, putting me back at my shell
+prompt.
+5.  The following is seen appended to normal dmesg output:
 
-Index: linux/include/asm-arm/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-arm/mutex.h
-@@ -0,0 +1,102 @@
-+/*
-+ * include/asm-arm/mutex.h
-+ *
-+ * ARM optimized mutex locking primitives
-+ *
-+ * Please look into asm-generic/mutex-xchg.h for a formal definition.
-+ */
-+#ifndef _ASM_MUTEX_H
-+#define _ASM_MUTEX_H
-+
-+#if __LINUX_ARM_ARCH__ < 6
-+/* On pre-ARMv6 hardware the swp based implementation is the most efficient. */
-+# include <asm-generic/mutex-xchg.h>
-+#else
-+
-+/*
-+ * Attempting to lock a mutex on ARMv6+ can be done with a bastardized
-+ * atomic decrement (it is not a reliable atomic decrement but it satisfies
-+ * the defined semantics for our purpose, while being smaller and faster
-+ * than a real atomic decrement or atomic swap.  The idea is to attempt
-+ * decrementing the lock value only once.  If once decremented it isn't zero,
-+ * or if its store-back fails due to a dispute on the exclusive store, we
-+ * simply bail out immediately through the slow path where the lock will be
-+ * reattempted until it succeeds.
-+ */
-+#define __mutex_fastpath_lock(count, fail_fn)				\
-+do {									\
-+	/* type-check the function too: */				\
-+	void fastcall (*__tmp)(atomic_t *) = fail_fn;			\
-+	int __ex_flag, __res;						\
-+									\
-+	(void)__tmp;							\
-+	typecheck(atomic_t *, count);					\
-+									\
-+	__asm__ (							\
-+	"ldrex	%0, [%2]\n\t"						\
-+	"sub	%0, %0, #1\n\t"						\
-+	"strex	%1, %0, [%2]"						\
-+	: "=&r" (__res), "=&r" (__ex_flag)				\
-+	: "r" (&(count)->counter)					\
-+	: "cc","memory" );						\
-+	__res |= __ex_flag;						\
-+	if (unlikely(__res != 0))					\
-+		fail_fn(count);						\
-+} while (0)
-+
-+#define __mutex_fastpath_lock_retval(count, fail_fn)			\
-+({									\
-+	/* type-check the function too: */				\
-+	int fastcall (*__tmp)(atomic_t *) = fail_fn;			\
-+	int __ex_flag, __res;						\
-+									\
-+	(void)__tmp;							\
-+	typecheck(atomic_t *, count);					\
-+									\
-+	__asm__ (							\
-+	"ldrex	%0, [%2]\n\t"						\
-+	"sub	%0, %0, #1\n\t"						\
-+	"strex	%1, %0, [%2]"						\
-+	: "=&r" (__res), "=&r" (__ex_flag)				\
-+	: "r" (&(count)->counter)					\
-+	: "cc","memory" );						\
-+	__res |= __ex_flag;						\
-+	if (unlikely(__res != 0))					\
-+		__res = fail_fn(count);					\
-+	__res;								\
-+})
-+
-+/*
-+ * Same trick is used for the unlock fast path. However the original value,
-+ * rather than the result, is used to test for success in order to have
-+ * better generated assembly.
-+ */
-+#define __mutex_fastpath_unlock(count, fail_fn)				\
-+do {									\
-+	/* type-check the function too: */				\
-+	void fastcall (*__tmp)(atomic_t *) = fail_fn;			\
-+	int __ex_flag, __res, __orig;					\
-+									\
-+	(void)__tmp;							\
-+	typecheck(atomic_t *, count);					\
-+									\
-+	__asm__ (							\
-+	"ldrex	%0, [%3]\n\t"						\
-+	"add	%1, %0, #1\n\t"						\
-+	"strex	%2, %1, [%3]"						\
-+	: "=&r" (__orig), "=&r" (__res), "=&r" (__ex_flag)		\
-+	: "r" (&(count)->counter)					\
-+	: "cc","memory" );						\
-+	__orig |= __ex_flag;						\
-+	if (unlikely(__orig != 0))					\
-+		fail_fn(count);						\
-+} while (0)
-+
-+/*
-+ * If the unlock was done on a contended lock, or if the unlock simply fails
-+ * then the mutex remains locked.
-+ */
-+#define __mutex_slowpath_needs_to_unlock()	1
-+
-+#endif
-+#endif
+Bad pte = 1fa00600a88, process = X, vm_flags = 184473, vaddr = 7001e000
+Call Trace:
+ [000000000047e0f4] copy_page_range+0x174/0x1e0
+ [0000000000447fac] copy_mm+0x1ec/0x340
+ [000000000044898c] copy_process+0x34c/0xc40
+ [0000000000449344] do_fork+0x44/0x1e0
+ [00000000004071d4] linux_sparc_syscall32+0x34/0x40
+ [00000000701da950] 0x701da950
+Bad pte = 1fa00600a88, process = ???, vm_flags = 184473, vaddr =
+7001e000
+Call Trace:
+ [000000000047e5f4] unmap_page_range+0x174/0x1a0
+ [000000000047e714] unmap_vmas+0xf4/0x260
+ [0000000000483c48] exit_mmap+0x88/0x160
+ [0000000000447c30] mmput+0x30/0xe0
+ [000000000049c59c] exec_mmap+0x19c/0x220
+ [000000000049c774] flush_old_exec+0xd4/0x7a0
+ [0000000000432d74] load_elf_binary+0x3b4/0xec0
+ [000000000049d138] search_binary_handler+0x98/0x360
+ [00000000004be6e4] compat_do_execve+0x124/0x1e0
+ [0000000000429fc8] sparc32_execve+0x48/0xc0
+ [00000000004071d4] linux_sparc_syscall32+0x34/0x40
+ [00000000701daaac] 0x701daaac
+Bad pte = 800001fa00600e88, process = X, vm_flags = 184473, vaddr =
+7001e000
+Call Trace:
+ [000000000047e5f4] unmap_page_range+0x174/0x1a0
+ [000000000047e714] unmap_vmas+0xf4/0x260
+ [000000000048354c] unmap_region+0x8c/0x140
+ [00000000004838f0] do_munmap+0x110/0x160
+ [000000000048395c] sys_munmap+0x1c/0x40
+ [00000000004071d4] linux_sparc_syscall32+0x34/0x40
+ [0000000070871988] 0x70871988
+
+For the heck of it, I had tried using PROM console output rather than
+the console framebuffer driver, thinking perhaps I couldn't use the
+console framebuffer support AND x.org at the same time.  running startx
+in this instance just gave me a blank white screen until i hit
+ctrl-alt-bksp.
+
+Please CC me directly on any responses to this thread as I am not
+currently subscribed to the linux kernel mailing list.
+
+I'd like to thank David Miller in advance for all his work on the sparc
+support.  Fantastic job.
+
+I should also note that initial tests with 2.6.15-rc5+ show that a bug I
+had where the system would completely lock up solid during heavy IO load
+appears to be fixed.  Ran a script to generate IO on a 10-disk raid-5
+overnight and it was still running this morning.  Previously (2.6.13 and
+back and 2.4 kernels) the system would lock up after only a couple
+minutes.
+
+regards,
+
+mpb

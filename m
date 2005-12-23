@@ -1,126 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030482AbVLWKtd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030486AbVLWK7Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030482AbVLWKtd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 05:49:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030484AbVLWKtd
+	id S1030486AbVLWK7Z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 05:59:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030487AbVLWK7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 05:49:33 -0500
-Received: from omta03ps.mx.bigpond.com ([144.140.82.155]:14272 "EHLO
-	omta03ps.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S1030482AbVLWKtc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 05:49:32 -0500
-Message-ID: <43ABD639.2060200@bigpond.net.au>
-Date: Fri, 23 Dec 2005 21:49:29 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.6-1.1.fc4 (X11/20050720)
-X-Accept-Language: en-us, en
+	Fri, 23 Dec 2005 05:59:25 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:59043 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S1030486AbVLWK7Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 05:59:25 -0500
+To: Andrey Volkov <avolkov@varma-el.com>
+Cc: Pantelis Antoniou <panto@intracom.gr>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, linuxppc-embedded@ozlabs.org
+Subject: Re: [RFC] genalloc != generic DEVICE memory allocator
+References: <43A98F90.9010001@varma-el.com> <yq0d5jpuoqe.fsf@jaguar.mkp.net>
+	<43AAEE12.5030009@varma-el.com>
+From: Jes Sorensen <jes@trained-monkey.org>
+Date: 23 Dec 2005 05:59:23 -0500
+In-Reply-To: <43AAEE12.5030009@varma-el.com>
+Message-ID: <yq08xuculis.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Kyle Moffett <mrmacman_g4@mac.com>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] sched: Fix	adverse	effects	of	NFS	client	on	interactive
- response
-References: <43A8EF87.1080108@bigpond.net.au>	 <1135145341.7910.17.camel@lade.trondhjem.org>	 <43A8F714.4020406@bigpond.net.au>	 <1135171280.7958.16.camel@lade.trondhjem.org>	 <962C9716-6F84-477B-8B2A-FA771C21CDE8@mac.com>	 <1135172453.7958.26.camel@lade.trondhjem.org>	 <43AA0EEA.8070205@bigpond.net.au>	 <1135289282.9769.2.camel@lade.trondhjem.org>	 <43AB29B8.7050204@bigpond.net.au>	 <1135292364.9769.58.camel@lade.trondhjem.org>	 <AAF94E06-ACB9-4ABE-AC15-49C6B3BE21A0@mac.com>	 <1135297525.3685.57.camel@lade.trondhjem.org>	 <43AB69B8.4080707@bigpond.net.au> <1135330757.8167.44.camel@lade.trondhjem.org>
-In-Reply-To: <1135330757.8167.44.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta03ps.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Fri, 23 Dec 2005 10:49:30 +0000
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
-> On Fri, 2005-12-23 at 14:06 +1100, Peter Williams wrote:
-> 
->>>As far as a filesystem is concerned, there should be 2 scheduling
->>>states: running and sleeping. Any scheduling policy beyond that belongs
->>>in kernel/*.
->>
->>Actually there are currently two kinds of sleep: interruptible and 
->>uninterruptible.  This just adds a variation to one of these, 
->>interruptible, that says even though I'm interruptible I'm not 
->>interactive (i.e. I'm not waiting for human intervention via a key 
->>press, mouse action, etc. to initiate the interrupt).  This helps the 
->>scheduler to decide whether the task involved is an interactive one or 
->>not which in turn improves users' interactive experiences by ensuring 
->>snappy responses to keyboard and mouse actions even when the system is 
->>heavily loaded.
-> 
-> 
-> No! This is not the same thing at all.
-> 
-> You are asking the coder to provide a policy judgement as to whether or
-> not the users might care.
+>>>>> "Andrey" == Andrey Volkov <avolkov@varma-el.com> writes:
 
-No.  It is asking whether the NORMAL interruption of this interruptible 
-sleep will be caused by a human user action such as a keystroke or mouse 
-action.  For the NFS client the answer to that question is unequivically 
-no.  It's not a matter of policy it's a matter of fact.
+Andrey> Hi Jes,
+Andrey> Jes Sorensen wrote:
+>>  This really is irrelevant, the space is only used within the
+>> object when it's on the free list. Ie. if all memory is handed out
+>> there's no space used for this purpose.
 
-> 
-> As far as I'm concerned, other users' MP3 player, X processes, and
-> keyboard response times can rot in hell whenever I'm busy writing out
-> data at full blast. I don't give a rats arse about user interactivity,
-> because my priority is to see the batch jobs complete.
-> 
-> However on another machine, the local administrator may have a different
-> opinion. That sort of difference in opinion is precisely why we do not
-> put this sort of policy
+Andrey> I point out 2 reasons: ACCESS TIME was first :), let take very
+Andrey> widespread case: PCI device with some onboard memory and any N
+Andrey> GHz proc. - result may be terrible: each access to device mem
+Andrey> (which usually uncached) will slowed down this super fast proc
+Andrey> to 33 MHZ, i.e same as we made busy-wait with disabled
+Andrey> interrupts after each read/write...
 
-It's not policy.  It's a statement of fact about the nature of the sleep 
-that is being undertaken.
+Andrey, 
 
-> in the filesystem code but leave it all in the
-> scheduler code where all the bits and pieces can (hopefully) be treated
-> consistently as a single policy, and where the user can be given tools
-> in order to tweak the policy.
-> 
-> TASK_NONINTERACTIVE is basically a piss-poor interface because it moves
-> the policy into the lower level code where the user has less control.
+As I said in my response, you need the control blocks because you are
+not allowed to directly access things on the other side of the PCI bus
+without using the readl/writel equivalent macros. It's got nothing to
+do with access speed.
 
-TASK_INTERACTIVE is not about policy.
+>>  For the case of more traditional devices, the control structures
+>> will be allocated from one end of the block, the rest will be used
+>> for packet descriptors which will be going in and out of the memory
+>> pool on a regular basis.
 
-> 
-> 
->>There are probably many interruptible sleeps in the kernel that should 
->>be marked as non interactive but for most of them it doesn't matter 
->>because the duration of the sleep is so short that being mislabelled 
->>doesn't materially effect the decision re whether a task is interactive 
->>or not.  However, for reasons not related to the quality or efficiency 
->>of the code, NFS interruptible sleeps do not fall into that category as 
->>they can be quite long due to server load or network congestion.  (N.B. 
->>the size of delays that can be significant is quite small i.e. much less 
->>than the size of a normal time slice.)
->>
->>An alternative to using TASK_NONINTERACTIVE to mark non interactive 
->>interruptible sleeps that are significant (probably a small number) 
->>would be to go in the other direction and treat all interruptible sleeps 
->>as being non interactive and then labelling all the ones that are 
->>interactive as such.  Although this would result in no changes being 
->>made to the NFS code, I'm pretty sure that this option would involve a 
->>great deal more code changes elsewhere as all the places where genuine 
->>interactive sleeping were identified and labelled.
-> 
-> 
-> That is exactly the same rotten idea, just implemented differently.
+Andrey> This was main reason why I try to modify genalloc: I needed in
+Andrey> generic allocator for both short-live strictly aligned blocks
+Andrey> and long-live blocks with restriction by size.
 
-I thought that I said (or at least implied) that.  The difference is 
-that we wouldn't be having this conversation.
+genalloc is perfectly adequate for that purpose. The long lived
+allocations will just be taken out first, the rest will be used for
+the short lived.
 
-> You
-> are still asking coders to guess as to what the scheduling policy should
-> be instead of letting the user decide.
+>> In most normal cases these will all be of the same size and it
+>> doesn't matter where in the memory space they were allocated.
 
-I wish that I could make you understand that that isn't the case. 
-You're not being asked to make a policy decision you're being asked to 
-make a statement of fact about whether the interruptible sleep is 
-interactive or not.  In the cases involved in this patch this question 
-is always "no, it's not an interactive" sleep and it can be answered at 
-compile time with absolutely no run time overhead incurred.
+Andrey> And thats also why I consider that 'buddy' is not appropriate
+Andrey> to be 'generic' (most cases == generic, isn't is :)?): when
+Andrey> you're allocate mainly same sized blocks, 'buddy' degraded to
+Andrey> the first-fit.
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+huh?
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+>>  I honestly don't think the majority of your demands are valid.
+>> genalloc was meant to be simple, not an ultra fast at any random
+>> block size allocator. So far I don't see any reason for changing to
+>> the allocation algorithm into anything much more complex - doesn't
+>> mean there couldn't be a reason for doing so, but I don't think you
+>> have described any so far.
+Andrey> I disagree here, generic couldn't be very simple and slow,
+Andrey> because in this case simply no one will be use it, and hence
+Andrey> we'll get today's picture: reimplemented allocators in many
+Andrey> drivers.
+
+Of course it can. I will continue to claim that you are trying to turn
+it into something it doesn't need to be. The allocator I used was
+based on the allocator from the old sym2 driver, which is a perfect
+example of it being used by a device driver.
+
+>>  You mentioned frame buffers, but what is the kernel supposed to do
+>> with those allocation wise? If you have a frame buffer console, the
+>> memory is allocated once and handed to the frame buffer driver.
+>> Ie. you don't need a ton of on demand allocations for that and for
+>> X, the memory management is handled in the X server, not by the
+>> kernel.
+
+Andrey> For video-only device this is true, but if device is a
+Andrey> multifunctional, which is frequent case in embedded systems,
+Andrey> then kernel must control of device memory
+Andrey> allocation. Currently, however, even video cards for desktops
+Andrey> become more and more multifunctional (VIVO/audio etc.).
+
+For multi functional devices you still often split the memory up at
+init time. Some memory is never going to be given back (like the frame
+buffer itself), other blocks are like the network packet descriptors
+in a network device.
+
+>>  The only thing I think would make sense to implement is to allow
+>> it to use indirect descriptor blocks for the memory it
+>> manages. This is not because it's wrong to use the memory for the
+>> free list, as it will only be used for this when the chunk is not
+>> in use, but because access to certain types of memory isn't always
+>> valid through normal direct access. Ie. if one used descriptor
+>> blocks residing in normal GFP_KERNEL memory, it would be possible
+>> to use the allocator to manage memory sitting on the other side of
+>> a PCI bus.
+Andrey> I describe above, why we couldn't/wouldn't use onboard memory
+Andrey> for allocator specific data.
+
+As I pointed out, your description wasn't valid. You are not allowed
+to directly dereference memory on the other side of a PCI bus.
+
+Regards,
+Jes

@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161092AbVLWW3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161064AbVLWW3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161092AbVLWW3L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 17:29:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161084AbVLWW3H
+	id S1161064AbVLWW3z (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 17:29:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161088AbVLWW2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 17:29:07 -0500
-Received: from mail.kroah.org ([69.55.234.183]:52936 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161077AbVLWW2r (ORCPT
+	Fri, 23 Dec 2005 17:28:45 -0500
+Received: from mail.kroah.org ([69.55.234.183]:37064 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161079AbVLWW2j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 17:28:47 -0500
-Date: Fri, 23 Dec 2005 14:28:12 -0800
+	Fri, 23 Dec 2005 17:28:39 -0500
+Date: Fri, 23 Dec 2005 14:27:23 -0800
 From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
+To: linux-kernel@vger.kernel.org, stable@kernel.org, linux-xfs@oss.sgi.com,
+       xfs-masters@oss.sgi.com, Dimitri Puzin <tristan-777@ddkom-online.de>,
+       nathans@sgi.com
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, ink@jurassic.park.msu.ru,
-       viro@ftp.linux.org.uk
-Subject: [patch 11/11] fix alpha breakage
-Message-ID: <20051223222812.GL18252@kroah.com>
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, bunk@stusta.de
+Subject: [patch 02/11] fix XFS_QUOTA for modular XFS
+Message-ID: <20051223222723.GC18252@kroah.com>
 References: <20051109182205.294803000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fix-alpha-breakage.patch"
+Content-Disposition: inline; filename="xfs-modular-quota-build-fix.patch"
 In-Reply-To: <20051223222652.GA18252@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+From: Dimitri Puzin <tristan-777@ddkom-online.de>
 
-barrier.h uses barrier() in non-SMP case.  And doesn't include compiler.h.
+This patch by Dimitri Puzin submitted through kernel Bugzilla #5514
+fixes the following issue:
 
-Cc: Al Viro <viro@ftp.linux.org.uk>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Cannot build XFS filesystem support as module with quota support. It
+works only when the XFS filesystem support is compiled into the kernel.
+Menuconfig prevents from setting CONFIG_XFS_FS=m and CONFIG_XFS_QUOTA=y.
+
+How to reproduce: configure the XFS filesystem with quota support as
+module. The resulting kernel won't have quota support compiled into
+xfs.ko.
+
+Fix: Changing the fs/xfs/Kconfig file from tristate to bool lets you
+configure the quota support to be compiled into the XFS module. The
+Makefile-linux-2.6 checks only for CONFIG_XFS_QUOTA=y.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Signed-off-by: Nathan Scott <nathans@sgi.com>
 Signed-off-by: Chris Wright <chrisw@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- include/asm-alpha/barrier.h |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/xfs/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.14.1.orig/include/asm-alpha/barrier.h
-+++ linux-2.6.14.1/include/asm-alpha/barrier.h
-@@ -1,6 +1,8 @@
- #ifndef __BARRIER_H
- #define __BARRIER_H
+--- linux-2.6.14.1.orig/fs/xfs/Kconfig
++++ linux-2.6.14.1/fs/xfs/Kconfig
+@@ -24,7 +24,7 @@ config XFS_EXPORT
+ 	default y
  
-+#include <asm/compiler.h>
-+
- #define mb() \
- __asm__ __volatile__("mb": : :"memory")
- 
+ config XFS_QUOTA
+-	tristate "XFS Quota support"
++	bool "XFS Quota support"
+ 	depends on XFS_FS
+ 	help
+ 	  If you say Y here, you will be able to set limits for disk usage on
 
 --

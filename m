@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbVLWCuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030354AbVLWCyB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030384AbVLWCuH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 21:50:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030385AbVLWCuH
+	id S1030354AbVLWCyB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 21:54:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbVLWCyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 21:50:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:18917 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1030384AbVLWCuF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 21:50:05 -0500
-Date: Thu, 22 Dec 2005 21:49:43 -0500
-From: Dave Jones <davej@redhat.com>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: linux-kernel@vger.kernel.org, Matt Mackall <mpm@selenic.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] [PATCH] Add memcpy32 function
-Message-ID: <20051223024943.GC27537@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Bryan O'Sullivan <bos@pathscale.com>, linux-kernel@vger.kernel.org,
-	Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>
-References: <1135301759.4212.76.camel@serpentine.pathscale.com>
+	Thu, 22 Dec 2005 21:54:00 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:57233 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1030354AbVLWCyA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 21:54:00 -0500
+Subject: 2.6.15-rc5-rt4: BUG: swapper:0 task might have lost a preemption
+	check!
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Thu, 22 Dec 2005 21:55:33 -0500
+Message-Id: <1135306534.4473.1.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1135301759.4212.76.camel@serpentine.pathscale.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 05:35:59PM -0800, Bryan O'Sullivan wrote:
- > In response to the comments that followed Roland Dreier posting our
- > InfiniPath driver for review last week, we've been making some cleanups
- > to our driver code.
- > 
- > As our chip requires 32-bit accesses, we need a copy function that
- > guarantees operating in such terms.  It was suggested that we make this
- > generic, with arch-specific optimised versions.
- > 
- > This patch introduces the generic copy routine, memcpy32.  At Andrew's
- > suggestion, I've put it in a new header file, include/linux/io.h, which
- > I've styled after include/linux/string.h.
+Got this on boot.  Same .config as the last one I sent you.
 
-io.h is a very generic sounding name for something that just houses
-a memcpy variant.  What's wrong with calling a spade a spade,
-and using memcpy32.h ?
+VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
+    ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:pio
+Probing IDE interface ide1...
+BUG: swapper:0 task might have lost a preemption check!
+ [<c010440c>] dump_stack+0x1c/0x20 (20)
+ [<c01166aa>] preempt_enable_no_resched+0x5a/0x60 (20)
+ [<c0100dd9>] cpu_idle+0x79/0xb0 (12)
+ [<c0100280>] _stext+0x40/0x50 (28)
+ [<c03078e6>] start_kernel+0x176/0x1d0 (20)
+ [<c0100199>] 0xc0100199 (1086889999)
+---------------------------
+| preempt count: 00000000 ]
+| 0-level deep critical section nesting:
+----------------------------------------
 
-		Dave
+Lee
 

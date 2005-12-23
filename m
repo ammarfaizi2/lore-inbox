@@ -1,107 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030579AbVLWQcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030590AbVLWQiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030579AbVLWQcs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 11:32:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030581AbVLWQcs
+	id S1030590AbVLWQiL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 11:38:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030608AbVLWQiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 11:32:48 -0500
-Received: from mxsf38.cluster1.charter.net ([209.225.28.165]:11992 "EHLO
-	mxsf38.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1030579AbVLWQcr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 11:32:47 -0500
-X-IronPort-AV: i="3.99,290,1131339600"; 
-   d="scan'208"; a="1774950524:sNHT18076440"
-Message-ID: <43AC2607.1050707@cybsft.com>
-Date: Fri, 23 Dec 2005 10:29:59 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Lee Revell <rlrevell@joe-job.com>, John Rigg <lk@sound-man.co.uk>
-Subject: Re: 2.6.15-rc5-rt4: BUG: swapper:0 task might have lost a	preemption
- check!
-References: <1135306534.4473.1.camel@mindpipe> <43AB6B89.8020409@cybsft.com> <1135352277.6652.2.camel@localhost.localdomain>
-In-Reply-To: <1135352277.6652.2.camel@localhost.localdomain>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Dec 2005 11:38:11 -0500
+Received: from mail.kroah.org ([69.55.234.183]:61376 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030590AbVLWQiK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 11:38:10 -0500
+Date: Fri, 23 Dec 2005 08:32:21 -0800
+From: Greg KH <greg@kroah.com>
+To: Mark Maule <maule@sgi.com>
+Cc: Greg KH <gregkh@suse.de>, linuxppc64-dev@ozlabs.org,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
+Subject: Re: [PATCH 0/3] msi abstractions and support for altix
+Message-ID: <20051223163221.GA13018@kroah.com>
+References: <20051222201651.2019.37913.96422@lnx-maule.americas.sgi.com> <20051222202259.GA4959@suse.de> <20051222202627.GI17552@sgi.com> <20051222203415.GA28240@suse.de> <20051222203824.GJ17552@sgi.com> <20051222214446.GC14978@kroah.com> <20051223153215.GA11935@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051223153215.GA11935@sgi.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Rostedt wrote:
-> On Thu, 2005-12-22 at 21:14 -0600, K.R. Foley wrote:
->> Lee Revell wrote:
->>> Got this on boot.  Same .config as the last one I sent you.
->>>
->>> VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
->>>     ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:pio
->>> Probing IDE interface ide1...
->>> BUG: swapper:0 task might have lost a preemption check!
->>>  [<c010440c>] dump_stack+0x1c/0x20 (20)
->>>  [<c01166aa>] preempt_enable_no_resched+0x5a/0x60 (20)
->>>  [<c0100dd9>] cpu_idle+0x79/0xb0 (12)
->>>  [<c0100280>] _stext+0x40/0x50 (28)
->>>  [<c03078e6>] start_kernel+0x176/0x1d0 (20)
->>>  [<c0100199>] 0xc0100199 (1086889999)
->>> ---------------------------
->>> | preempt count: 00000000 ]
->>> | 0-level deep critical section nesting:
->>> ----------------------------------------
->>>
->>>
+On Fri, Dec 23, 2005 at 09:32:15AM -0600, Mark Maule wrote:
+> On Thu, Dec 22, 2005 at 01:44:46PM -0800, Greg KH wrote:
+> > On Thu, Dec 22, 2005 at 02:38:24PM -0600, Mark Maule wrote:
+> > > On Thu, Dec 22, 2005 at 12:34:15PM -0800, Greg KH wrote:
+> > > > On Thu, Dec 22, 2005 at 02:26:27PM -0600, Mark Maule wrote:
+> > > > > On Thu, Dec 22, 2005 at 12:22:59PM -0800, Greg KH wrote:
+> > > > > > On Thu, Dec 22, 2005 at 02:15:44PM -0600, Mark Maule wrote:
+> > > > > > > Resend #2: including linuxppc64-dev and linux-pci as well as PCI maintainer
+> > > > > > 
+> > > > > > I'll wait for Resend #3 based on my previous comments before considering
+> > > > > > adding it to my kernel trees:)
+> > > > > > 
+> > > > > 
+> > > > > Resend #2 includes the correction to the irq_vector[] declaration, and I
+> > > > > responded to the question about setting irq_vector[0] if that's what you
+> > > > > mean ...
+> > > > 
+> > > > Sorry, but I missed that last response.  Why do you set the [0] value in
+> > > > a #ifdef now?
+> > > 
+> > > Because on ia64 IA64_FIRST_DEVICE_VECTOR and IA64_LAST_DEVICE_VECTOR
+> > > (from which MSI FIRST_DEVICE_VECTOR/LAST_DEVICE_VECTOR are derived) are not
+> > > constants.  The are now global variables (see change to asm-ia64/hw_irq.h)
+> > > to allow the platform to override them.  Altix uses a reduced range of
+> > > vectors for devices, and this change was necessary to make assign_irq_vector()
+> > > to work on altix.
+> > 
+> > I'm with Matthew on this one, that's not a real fix for this.  What
+> > would PPC64 do in this case?
 > 
+> Using the existing framework, wouldn't PPC just define it's own
+> assign_irq_vector and {FIRST,LAST}_DEVICE_VECTOR and handle it however it
+> wants under the covers?
 > 
-> OK, I just found an SMP bug, and here's the patch.  Maybe this will help
-> you kr.  I'm currently running x86_64 SMP with 2.6.15-rc5-rt4 with this
-> and my softirq-no-hrtimers patch I sent earlier.
+> I agree that this is not a great solution, but it's what the existing framework
+> allowed.  I'm willing to pursue a more general vector allocation scheme, but
+> I suspect that'll take some time.
 > 
-> -- Steve
-> 
-> Index: linux-2.6.15-rc5-rt4/kernel/workqueue.c
-> ===================================================================
-> --- linux-2.6.15-rc5-rt4.orig/kernel/workqueue.c	2005-12-23 10:23:25.000000000 -0500
-> +++ linux-2.6.15-rc5-rt4/kernel/workqueue.c	2005-12-23 10:25:21.000000000 -0500
-> @@ -370,10 +370,17 @@
->  void set_workqueue_thread_prio(struct workqueue_struct *wq, int cpu,
->  				int policy, int rt_priority, int nice)
->  {
-> -	struct task_struct *p = wq->cpu_wq[cpu].thread;
-> +	struct cpu_workqueue_struct *cwq;
-> +	struct task_struct *p;
->  	struct sched_param param = { .sched_priority = rt_priority };
-> +	unsigned long flags;
->  	int ret;
->  
-> +	cwq = per_cpu_ptr(wq->cpu_wq, cpu);
-> +	spin_lock_irqsave(&cwq->lock, flags);
-> +	p = cwq->thread;
-> +	spin_unlock_irqrestore(&cwq->lock, flags);
-> +
->  	set_user_nice(p, nice);
->  	ret = sys_sched_setscheduler(p->pid, policy, &param);
->  	if (ret)
-> 
-> 
-> 
+> Is this issue going to hold up forward progress of this patchset?  IMO, this
+> set is a major step in generalizing the MSI code and I think the vector
+> generalizing code would best be handled by a separate effort.
 
-OK. The BUG still exists (output below) but it does boot now with the
-above patch applied (THANKS Steven!), which would seem to imply the two
-weren't related. ARGH! :)
+I don't know, let's see what the ppc64 developers say.  If they are
+happy with this implementation, then it might be ok...
 
-Dec 23 10:16:27 porky kernel: Event source lapic installed with caps set: 06
-Dec 23 10:16:27 porky kernel: BUG: swapper:0 task might have lost a
-preemption check!
-Dec 23 10:16:27 porky kernel: Brought up 2 CPUs
-Dec 23 10:16:27 porky kernel: checking if image is initramfs... it is
-Dec 23 10:16:27 porky kernel:  [<c010424e>] dump_stack+0x1e/0x20 (20)
-Dec 23 10:16:27 porky kernel:  [<c011c9cf>]
-preempt_enable_no_resched+0x5f/0x70 (20)
-Dec 23 10:16:27 porky kernel:  [<c0100ff2>] cpu_idle+0xb2/0x100 (40)
-Dec 23 10:16:27 porky kernel:  [<c0111446>]
-start_secondary+0x296/0x340<6>Freeing initrd memory: 452k freed
+Ben?
 
+thanks,
 
--- 
-   kr
+greg k-h

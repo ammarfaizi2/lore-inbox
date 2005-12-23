@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161032AbVLWUHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbVLWUQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161032AbVLWUHK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 15:07:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161033AbVLWUHK
+	id S1161036AbVLWUQb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 15:16:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbVLWUQb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 15:07:10 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:15108 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S1161032AbVLWUHI (ORCPT
+	Fri, 23 Dec 2005 15:16:31 -0500
+Received: from smtpout.mac.com ([17.250.248.89]:48886 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1161024AbVLWUQa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 15:07:08 -0500
-Message-ID: <43AC58EB.3080409@domdv.de>
-Date: Fri, 23 Dec 2005 21:07:07 +0100
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051004)
+	Fri, 23 Dec 2005 15:16:30 -0500
+Message-ID: <43AC5B14.2090509@mac.com>
+Date: Fri, 23 Dec 2005 13:16:20 -0700
+From: Scott Mansfield <thephantom@mac.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: 2.6.15rc6: ide oops+panic
-References: <43AB20DA.2020506@domdv.de> <20051223053621.6c437cee.akpm@osdl.org>
-In-Reply-To: <20051223053621.6c437cee.akpm@osdl.org>
-X-Enigmail-Version: 0.92.1.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Bryan Henderson <hbryan@us.ibm.com>
+CC: Ben Slusky <sluskyb@paranoiacs.org>,
+       "Robert W. Fuller" <garbageout@sbcglobal.net>,
+       linux-fsdevel@vger.kernel.org,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
+References: <OF3669F3D1.1A1E92D6-ON882570E0.006B0B6E-882570E0.006B8697@us.ibm.com>
+In-Reply-To: <OF3669F3D1.1A1E92D6-ON882570E0.006B0B6E-882570E0.006B8697@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+>>Developer replies that the source code will be provided
+>>only to paying customers:
 > 
-> Thanks.  Are you able to identify the most-recent kernel version which
-> didn't do this?
 > 
+> Not really.  Developer does make the bizarre statement that "paid 
+> customers" are entitled to source code, but doesn't say nobody else is. 
+> And Developer says at the same time he will make source code available to 
+> the person who requested it.  The problem is that he doesn't actually do 
+> it, and is never heard from again.
 
-I'm trying currently Bartlomiej's workaround as I need some image
-analysis results on this machine which will take a few days.
+Call me crazy but if one requests a copy of the source only to never 
+hear from the developer, is that not a direct violation of the GPL?  To 
+me this sounds like the developer is walking a pretty fine line.
 
->From the back of my head:
-
-2.6.13 seemed to run fine
-
-2.6.14.2 which I tried just lately caused freezes which seem similar to
-2.6.15rc6 (unfortunately without serial console, so no logs)
-
-I can do further tests in a few days, if the workaround helps, otherwise
-sooner.
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Cheers,
+Scott

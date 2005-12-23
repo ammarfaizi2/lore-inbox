@@ -1,81 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030534AbVLWOYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030537AbVLWOjy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030534AbVLWOYc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 09:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030533AbVLWOYc
+	id S1030537AbVLWOjy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 09:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030539AbVLWOjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 09:24:32 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:28059 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1030534AbVLWOYb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 09:24:31 -0500
-Date: Fri, 23 Dec 2005 09:24:17 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-In-reply-to: <20051222221311.2f6056ec.akpm@osdl.org>
-X-X-Sender: nico@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, alan@lxorguk.ukuu.org.uk,
-       arjan@infradead.org, mingo@elte.hu, lkml <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, arjanv@infradead.org, jes@trained-monkey.org,
-       zwane@arm.linux.org.uk, oleg@tv-sign.ru, dhowells@redhat.com,
-       bcrl@kvack.org, rostedt@goodmis.org, ak@suse.de,
-       rmk+lkml@arm.linux.org.uk
-Message-id: <Pine.LNX.4.64.0512230912220.26663@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20051222114147.GA18878@elte.hu>
- <20051222035443.19a4b24e.akpm@osdl.org> <20051222122011.GA20789@elte.hu>
- <20051222050701.41b308f9.akpm@osdl.org>
- <1135257829.2940.19.camel@laptopd505.fenrus.org>
- <20051222054413.c1789c43.akpm@osdl.org>
- <1135260709.10383.42.camel@localhost.localdomain>
- <20051222153014.22f07e60.akpm@osdl.org> <20051222233416.GA14182@infradead.org>
- <20051222221311.2f6056ec.akpm@osdl.org>
+	Fri, 23 Dec 2005 09:39:53 -0500
+Received: from ambr.mtholyoke.edu ([138.110.1.10]:1297 "EHLO
+	ambr.mtholyoke.edu") by vger.kernel.org with ESMTP id S1030537AbVLWOjx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 09:39:53 -0500
+From: Ron Peterson <rpeterso@MtHolyoke.edu>
+Date: Fri, 23 Dec 2005 09:39:50 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nfs insecure_locks / Tru64 behaviour
+Message-ID: <20051223143950.GA1330@mtholyoke.edu>
+References: <20051222133623.GE7814@mtholyoke.edu> <1135293713.3685.9.camel@lade.trondhjem.org> <20051223013933.GB22949@mtholyoke.edu> <1135302325.3685.69.camel@lade.trondhjem.org> <20051223022126.GC22949@mtholyoke.edu> <1135327075.8167.6.camel@lade.trondhjem.org> <20051223133801.GA9321@mtholyoke.edu> <1135345813.8167.155.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1135345813.8167.155.camel@lade.trondhjem.org>
+Organization: Mount Holyoke College
+X-Operating-System: Debian GNU/Linux
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Dec 2005, Andrew Morton wrote:
-
-> Christoph Hellwig <hch@infradead.org> wrote:
-> > I really don't get why you hate mutex primitives so much.
+On Fri, Dec 23, 2005 at 02:50:12PM +0100, Trond Myklebust wrote:
+> On Fri, 2005-12-23 at 08:38 -0500, Ron Peterson wrote:
+> > The gid's of the kmw group match on both sides.  The problem happens
+> > whether root squashing is on or off.  Unless the execute bit for 'other'
+> > is turned on for the parent directory, the file appears to be locked
+> > when being accessed from the nfs client (tru64) side.
+> > 
+> > My theory may be wrong, but the problem still exists.
 > 
-> I've just spelled out in considerable detail why this work is premature. 
-> How can you not "get" it?  Why do I have to keep saying the same thing in
-> different ways?  It's really quite simple.
-> 
-> 
-> So here is permutation #4:
-> 
-> If we can optimise semaphores for speed and space, the mutexes are
-> *unneeded*.
+> Possibly, but that sounds like it might be a tru64 bug. As you can see,
+> a Linux client has no such problems:
 
-How can't you get the fact that semaphores could _never_ be as simple as 
-mutexes?  This is a theoritical impossibility, which maybe turns out not 
-to be so true on x86, but which is damn true on ARM where the fast path 
-(the common case of a mutex) is significantly more efficient.
+Not unlikely.  I was hoping it was a bug that the insecure_locks options
+was meant to work around.  Perhaps that's not possible.  :(
 
-Semaphores _require_ an atomic decrement, mutexes do not.  On some 
-architectures that makes a huge difference.
+Skøl.
 
-> And I think we _should_ optimise semaphores for speed and space.  Don't you?
-
-No one disagrees with that.
-
-> If we can do that, there is no point at all in adding a new lock type which
-> has no speed advantage and no space advantage and which has less
-> functionality than semaphores.
-
-The very point is that mutexes will always have a speed advantage by 
-nature.
-
-> And, repeating myself yet again: if we can demonstrate that it is not
-> feasible to optimise semaphores to the same performance and space efficiency
-> of mutexes then (and only then) we have a reason for adding mutexes.
-
-I spent the whole week making that demonstration repeatedly.  Why are 
-you ignoring me?
-
-
-Nicolas
+-- 
+Ron Peterson
+Network & Systems Manager
+Mount Holyoke College
+http://pks.mtholyoke.edu:11371/pks/lookup?search=0xB6D365A1&op=vindex

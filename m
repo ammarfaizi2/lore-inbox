@@ -1,78 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbVLWBHm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVLWBFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbVLWBHm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 20:07:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbVLWBHm
+	id S964786AbVLWBFU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 20:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbVLWBFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 20:07:42 -0500
-Received: from thing.hostingexpert.com ([67.15.235.34]:34498 "EHLO
-	thing.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S1751201AbVLWBHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 20:07:42 -0500
-Message-ID: <43AB4DDC.90505@m1k.net>
-Date: Thu, 22 Dec 2005 20:07:40 -0500
-From: Michael Krufky <mkrufky@m1k.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Thu, 22 Dec 2005 20:05:20 -0500
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:3467 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964786AbVLWBFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 20:05:20 -0500
+From: David Brownell <david-b@pacbell.net>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.15-rc5-mm3
+Date: Thu, 22 Dec 2005 17:05:18 -0800
+User-Agent: KMail/1.7.1
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, gcoady@gmail.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20051214234016.0112a86e.akpm@osdl.org> <200512181231.55981.rjw@sisk.pl> <20051222174850.GK23837@kroah.com>
+In-Reply-To: <20051222174850.GK23837@kroah.com>
 MIME-Version: 1.0
-To: "P. Christeas" <p_christ@hol.gr>
-CC: Mauro Chehab <mchehab@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-rc6: known regressions in the kernel Bugzilla
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org> <1135291436.14685.7.camel@localhost> <43AB2EDF.6030207@linuxtv.org> <200512230121.48882.p_christ@hol.gr>
-In-Reply-To: <200512230121.48882.p_christ@hol.gr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - thing.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_O10qDJq/zOZVmPg"
+Message-Id: <200512221705.18618.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-P. Christeas wrote:
+--Boundary-00=_O10qDJq/zOZVmPg
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
->On Friday 23 December 2005 12:55 am, you wrote:
->  
->
->>>Christeas,
->>>
->>>	Between 2,6,13 and 2.6.14-rc1 we had about 220 v4l patches. It would
->>>help more if you get v4l CVS tree and try to identify the broken patch.
->>>there weren't so many patches for cx2388x. I suspect it might be some
->>>changes at tda9887, cx88-cards or cx88-tvaudio (the latest is the more
->>>likely).
->>>      
->>>
->>Actually, a -git bisection test is even easier, less work involved, and
->>will point you to the exact patch that caused the regression.
->>
->>http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bis
->>ect.txt
->>
->>Cheers,
->>Michael Krufky
->>
->>    
->>
->I just discovered 'bisect', too, and are using it.
->
->Andrew, it would be nice to have a 'limited' bisect when whe know which 
->subsystem we are narrowing to:
->git bisect start drivers/media/video/cx88/
->Theoretically speaking, I shouldn't even rebuild but the module alone..
->  
->
-No, you're incorrect.  In many cases, modules from a given subsystem can 
-break due to a change elsewhere in the kernel.
 
-Did you drop the list cc's on purpose? (re-added)
+> David, care to put a proper header on this and send it to me so I can
+> add it to my tree?
 
-Regards,
+Here you go!
 
-Mike Krufky
+
+--Boundary-00=_O10qDJq/zOZVmPg
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="ehci-pcd.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="ehci-pcd.patch"
+
+On some systems, EHCI seems to be getting IRQs too early during driver
+setup ... before the root hub is allocated, in particular, making trouble
+for any code chasing down root hub pointers!  In this case, it seems to
+be safe to just ignore the root hub setting.  Thanks to Rafael J. Wysocki
+for getting this properly tested.
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+--- g26.orig/drivers/usb/host/ehci-hcd.c	2005-12-22 16:48:57.000000000 -0800
++++ g26/drivers/usb/host/ehci-hcd.c	2005-12-22 16:57:52.000000000 -0800
+@@ -617,7 +617,7 @@ static irqreturn_t ehci_irq (struct usb_
+ 	}
+ 
+ 	/* remote wakeup [4.3.1] */
+-	if ((status & STS_PCD) && device_may_wakeup(&hcd->self.root_hub->dev)) {
++	if (status & STS_PCD) {
+ 		unsigned	i = HCS_N_PORTS (ehci->hcs_params);
+ 
+ 		/* resume root hub? */
+
+--Boundary-00=_O10qDJq/zOZVmPg--

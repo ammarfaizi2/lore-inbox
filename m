@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161099AbVLWWzz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161100AbVLWW5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161099AbVLWWzz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 17:55:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161103AbVLWWyH
+	id S1161100AbVLWW5x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 17:57:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161113AbVLWW5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 17:54:07 -0500
-Received: from mail.kroah.org ([69.55.234.183]:51151 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161101AbVLWWt0 (ORCPT
+	Fri, 23 Dec 2005 17:57:53 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:15025 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S1161100AbVLWW5v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 17:49:26 -0500
-Date: Fri, 23 Dec 2005 14:48:11 -0800
-From: Greg Kroah-Hartman <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       davem@davemloft.net, kaber@trash.net
-Subject: [patch 09/19] [NETFILTER]: Fix NAT init order
-Message-ID: <20051223224811.GI19057@kroah.com>
-References: <20051223221200.342826000@press.kroah.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fix-nat-init-order.patch"
-In-Reply-To: <20051223224712.GA18975@kroah.com>
-User-Agent: Mutt/1.5.11
+	Fri, 23 Dec 2005 17:57:51 -0500
+Message-ID: <43AC80E5.6050906@colorfullife.com>
+Date: Fri, 23 Dec 2005 23:57:41 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, Jack Steiner <steiner@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] add missing memory barriers to ipc/sem.c
+Content-Type: multipart/mixed;
+ boundary="------------070809060408050402040400"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--stable review patch.  If anyone has any objections, please let us know.
+This is a multi-part message in MIME format.
+--------------070809060408050402040400
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-------------------
-From: Patrick McHardy <kaber@trash.net>
+Hi Linus,
 
-As noticed by Phil Oester, the GRE NAT protocol helper is initialized
-before the NAT core, which makes registration fail.
+Two smp_wmb() statements are missing in the sysv sem code: This could 
+cause stack corruptions.
+The attached patch adds them.
 
-Change the linking order to make NAT be initialized first.
+Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
 
-Signed-off-by: Patrick McHardy <kaber@trash.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Chris Wright <chrisw@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- net/ipv4/netfilter/Makefile |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+--------------070809060408050402040400
+Content-Type: text/plain;
+ name="patch-ipc-sem-wmb"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-ipc-sem-wmb"
 
---- linux-2.6.14.4.orig/net/ipv4/netfilter/Makefile
-+++ linux-2.6.14.4/net/ipv4/netfilter/Makefile
-@@ -12,6 +12,7 @@ ip_nat_pptp-objs	:= ip_nat_helper_pptp.o
- 
- # connection tracking
- obj-$(CONFIG_IP_NF_CONNTRACK) += ip_conntrack.o
-+obj-$(CONFIG_IP_NF_NAT) += ip_nat.o
- 
- # conntrack netlink interface
- obj-$(CONFIG_IP_NF_CONNTRACK_NETLINK) += ip_conntrack_netlink.o
-@@ -41,7 +42,7 @@ obj-$(CONFIG_IP_NF_IPTABLES) += ip_table
- # the three instances of ip_tables
- obj-$(CONFIG_IP_NF_FILTER) += iptable_filter.o
- obj-$(CONFIG_IP_NF_MANGLE) += iptable_mangle.o
--obj-$(CONFIG_IP_NF_NAT) += iptable_nat.o ip_nat.o
-+obj-$(CONFIG_IP_NF_NAT) += iptable_nat.o
- obj-$(CONFIG_IP_NF_RAW) += iptable_raw.o
- 
- # matches
+--- 2.6/ipc/sem.c	2005-12-19 01:36:54.000000000 +0100
++++ build-2.6/ipc/sem.c	2005-12-23 23:25:17.000000000 +0100
+@@ -381,6 +381,7 @@
+ 			/* hands-off: q will disappear immediately after
+ 			 * writing q->status.
+ 			 */
++			smb_wmb();
+ 			q->status = error;
+ 			q = n;
+ 		} else {
+@@ -461,6 +462,7 @@
+ 		n = q->next;
+ 		q->status = IN_WAKEUP;
+ 		wake_up_process(q->sleeper); /* doesn't sleep */
++		smp_wmb();
+ 		q->status = -EIDRM;	/* hands-off q */
+ 		q = n;
+ 	}
 
---
+--------------070809060408050402040400--

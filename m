@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030442AbVLWFFh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030412AbVLWFM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030442AbVLWFFh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 00:05:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030441AbVLWFFh
+	id S1030412AbVLWFM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 00:12:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030441AbVLWFM6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 00:05:37 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:17545
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030437AbVLWFFg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 00:05:36 -0500
-Date: Thu, 22 Dec 2005 21:04:23 -0800 (PST)
-Message-Id: <20051222.210423.48382393.davem@davemloft.net>
-To: bunk@stusta.de
-Cc: gmack@innerfire.net, wli@holomorphy.com, ecd@brainaid.de,
-       jj@sunsite.ms.mff.cuni.cz, anton@samba.org,
-       linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
-Subject: Re: [2.6 patch] introduce a SPARC Kconfig symbol
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20051223021526.GG27525@stusta.de>
-References: <20051217141049.GP23349@stusta.de>
-	<20051219.145254.33863414.davem@davemloft.net>
-	<20051223021526.GG27525@stusta.de>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Dec 2005 00:12:58 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:6721 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP
+	id S1030412AbVLWFM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 00:12:57 -0500
+Date: Fri, 23 Dec 2005 00:12:47 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 0/8] mutex subsystem, -V6
+In-reply-to: <20051222230438.GA13302@elte.hu>
+X-X-Sender: nico@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjanv@infradead.org>
+Message-id: <Pine.LNX.4.64.0512230005590.26663@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20051222230438.GA13302@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: Fri, 23 Dec 2005 03:15:26 +0100
+On Fri, 23 Dec 2005, Ingo Molnar wrote:
 
-> Introduce a Kconfig symbol SPARC that is defined on both the sparc and 
-> sparc64 architectures.
+> this is verion -V6 of the generic mutex subsystem.
 > 
-> This symbol makes some dependencies more readable.
-> 
-> Except for all bugs this patch deliberately introduces ;-) it shouldn't 
-> cause any visible change.
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Nico, Christoph, does this approach work for you?
 
-:-)  Applied, thanks Adrian.
+OK.  My final request would be for architectures to have the choice 
+whether to have the fast path inlined or not.  I have a patch that does 
+just that, but it would conflict with Linus' suggestion about the 
+debugging stuff if you intend to implement it.
+
+
+Nicolas

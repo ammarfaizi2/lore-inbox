@@ -1,62 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030554AbVLWPFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030561AbVLWPRO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030554AbVLWPFR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 10:05:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030561AbVLWPFQ
+	id S1030561AbVLWPRO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 10:17:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030560AbVLWPRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 10:05:16 -0500
-Received: from smtp11.wanadoo.fr ([193.252.22.31]:8214 "EHLO smtp11.wanadoo.fr")
-	by vger.kernel.org with ESMTP id S1030554AbVLWPFO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 10:05:14 -0500
-X-ME-UUID: 20051223150512942.E61741C000B1@mwinf1103.wanadoo.fr
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Nicolas Pitre <nico@cam.org>,
-       hch@infradead.org, alan@lxorguk.ukuu.org.uk, arjan@infradead.org,
-       mingo@elte.hu, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       arjanv@infradead.org, jes@trained-monkey.org, zwane@arm.linux.org.uk,
-       oleg@tv-sign.ru, dhowells@redhat.com, bcrl@kvack.org,
-       rostedt@goodmis.org, ak@suse.de
-In-Reply-To: <20051223145746.GA2077@flint.arm.linux.org.uk>
-References: <20051222122011.GA20789@elte.hu>
-	 <20051222050701.41b308f9.akpm@osdl.org>
-	 <1135257829.2940.19.camel@laptopd505.fenrus.org>
-	 <20051222054413.c1789c43.akpm@osdl.org>
-	 <1135260709.10383.42.camel@localhost.localdomain>
-	 <20051222153014.22f07e60.akpm@osdl.org>
-	 <20051222233416.GA14182@infradead.org>
-	 <20051222221311.2f6056ec.akpm@osdl.org>
-	 <Pine.LNX.4.64.0512230912220.26663@localhost.localdomain>
-	 <20051223065118.95738acc.akpm@osdl.org>
-	 <20051223145746.GA2077@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1135350288.6493.258.camel@capoeira>
+	Fri, 23 Dec 2005 10:17:14 -0500
+Received: from 217-133-42-200.b2b.tiscali.it ([217.133.42.200]:41027 "EHLO
+	opteron.random") by vger.kernel.org with ESMTP id S1030370AbVLWPRN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 10:17:13 -0500
+Date: Fri, 23 Dec 2005 16:17:11 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: nfs invalidates lose pte dirty bits
+Message-ID: <20051223151711.GA9576@opteron.random>
+References: <20051222175550.GT9576@opteron.random> <1135294250.3685.16.camel@lade.trondhjem.org> <20051223023603.GY9576@opteron.random> <1135327315.8167.11.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Fri, 23 Dec 2005 16:04:48 +0100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1135327315.8167.11.camel@lade.trondhjem.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-23 at 15:57, Russell King wrote:
-> On Fri, Dec 23, 2005 at 06:51:18AM -0800, Andrew Morton wrote:
-> > Nicolas Pitre <nico@cam.org> wrote:
-> > > How can't you get the fact that semaphores could _never_ be as simple as 
-> > > mutexes?  This is a theoritical impossibility, which maybe turns out not 
-> > > to be so true on x86, but which is damn true on ARM where the fast path 
-> > > (the common case of a mutex) is significantly more efficient.
+On Fri, Dec 23, 2005 at 09:41:55AM +0100, Trond Myklebust wrote:
+> On Fri, 2005-12-23 at 03:36 +0100, Andrea Arcangeli wrote:
+> > On Thu, Dec 22, 2005 at 06:30:49PM -0500, Trond Myklebust wrote:
+> > > See the latest git release where we introduce the nfs_sync_mapping()
+> > > helper.
 > > 
-> > I did notice your comments.  I'll grant that mutexes will save some tens of
-> > fastpath cycles on one minor architecture.  Sorry, but that doesn't seem
-> > very important.
+> > So you also still break completely with threaded programs, did you
+> > consider that while fixing the most obvious problem? Isn't that a
+> > problem too? What about my suggestion of invalidate_inode_clean_pages?
 > 
-> Wow.
+> It is only a problem when doing mmap writes. In the case of ordinary
 
-Yes, wow. Andrew doesn't seem aware of embedded linux people, for whom
-cycles are important and ARM is king.
+Yes, those changes are all about mmap writes.
 
-	Xav
+> However if the user is doing mmap writes while the file is in the
+> process of being modified on the server, then they are doing something
+> wrong anyway. The small race between nfs_sync_mapping() and
+> invalidate_inode_pages2() is the least of their problems.
 
-
+I'm talking about spurious revalidates, I don't think the testcase I'm
+dealing with is really needing an invalidate, it's a spurious one
+(perhaps triggered by flock), but I'm lucky it's single threaded so
+current fix will work for them.

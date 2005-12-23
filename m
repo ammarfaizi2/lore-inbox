@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030391AbVLWDRM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030394AbVLWD2N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030391AbVLWDRM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 22:17:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030387AbVLWDRM
+	id S1030394AbVLWD2N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 22:28:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030393AbVLWD2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 22:17:12 -0500
-Received: from mtai04.charter.net ([209.225.8.184]:16512 "EHLO
-	mtai04.charter.net") by vger.kernel.org with ESMTP id S1030391AbVLWDRL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 22:17:11 -0500
-X-BrightmailFiltered: true
-X-Brightmail-Tracker: AAAAAQAAA+k=
-Message-ID: <43AB6B89.8020409@cybsft.com>
-Date: Thu, 22 Dec 2005 21:14:17 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Thunderbird 1.5 (X11/20051201)
+	Thu, 22 Dec 2005 22:28:13 -0500
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:10174 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP
+	id S1030387AbVLWD2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 22:28:12 -0500
+X-ORBL: [70.231.233.23]
+Date: Thu, 22 Dec 2005 19:28:09 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: jmerkey@wolfmountaingroup.com, rostedt@goodmis.org, mrmacman_g4@mac.com,
+       legal@lists.gnumonks.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, garbageout@sbcglobal.net
+Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
+Message-ID: <20051223032809.GA31909@taniwha.stupidest.org>
+References: <43AACF77.9020206@sbcglobal.net> <496FC071-3999-4E23-B1A2-1503DCAB65C0@mac.com> <1135283241.12761.19.camel@localhost.localdomain> <43AB32C1.1080101@wolfmountaingroup.com> <20051223025638.GA31381@taniwha.stupidest.org> <20051223041522.ac36635d.diegocg@gmail.com>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-rc5-rt4: BUG: swapper:0 task might have lost a preemption
- check!
-References: <1135306534.4473.1.camel@mindpipe>
-In-Reply-To: <1135306534.4473.1.camel@mindpipe>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051223041522.ac36635d.diegocg@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> Got this on boot.  Same .config as the last one I sent you.
-> 
-> VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
->     ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:pio
-> Probing IDE interface ide1...
-> BUG: swapper:0 task might have lost a preemption check!
->  [<c010440c>] dump_stack+0x1c/0x20 (20)
->  [<c01166aa>] preempt_enable_no_resched+0x5a/0x60 (20)
->  [<c0100dd9>] cpu_idle+0x79/0xb0 (12)
->  [<c0100280>] _stext+0x40/0x50 (28)
->  [<c03078e6>] start_kernel+0x176/0x1d0 (20)
->  [<c0100199>] 0xc0100199 (1086889999)
-> ---------------------------
-> | preempt count: 00000000 ]
-> | 0-level deep critical section nesting:
-> ----------------------------------------
-> 
-> Lee
-> 
+On Fri, Dec 23, 2005 at 04:15:22AM +0100, Diego Calleja wrote:
 
-I have been getting this on my SMP system. I have yet to get a
-successful boot. I have been looking with every spare minute I have had
-for a couple of days, but have yet to find the problem. :(
+> So, a GPL application running on top of a BSD-licensed kernel
+> (or library) is illegal? I doubt it...
 
+applications don't link with the kernel, modules do
 
--- 
-   kr
+i don't know if that makes modules legal or not, but it's certainly
+not clear cut

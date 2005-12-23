@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030542AbVLWPA7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030576AbVLWPCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030542AbVLWPA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 10:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030544AbVLWPA7
+	id S1030576AbVLWPCr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 10:02:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030568AbVLWPCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 10:00:59 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:62713 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030543AbVLWPA6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 10:00:58 -0500
-Date: Fri, 23 Dec 2005 10:00:46 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Nicolas Pitre <nico@cam.org>, hch@infradead.org, alan@lxorguk.ukuu.org.uk,
-       arjan@infradead.org, mingo@elte.hu, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, arjanv@infradead.org, jes@trained-monkey.org,
-       zwane@arm.linux.org.uk, oleg@tv-sign.ru, dhowells@redhat.com,
-       bcrl@kvack.org, ak@suse.de, rmk+lkml@arm.linux.org.uk
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-In-Reply-To: <20051223065118.95738acc.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0512230958190.6823@gandalf.stny.rr.com>
-References: <20051222114147.GA18878@elte.hu> <20051222035443.19a4b24e.akpm@osdl.org>
- <20051222122011.GA20789@elte.hu> <20051222050701.41b308f9.akpm@osdl.org>
- <1135257829.2940.19.camel@laptopd505.fenrus.org> <20051222054413.c1789c43.akpm@osdl.org>
- <1135260709.10383.42.camel@localhost.localdomain> <20051222153014.22f07e60.akpm@osdl.org>
- <20051222233416.GA14182@infradead.org> <20051222221311.2f6056ec.akpm@osdl.org>
- <Pine.LNX.4.64.0512230912220.26663@localhost.localdomain>
- <20051223065118.95738acc.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 23 Dec 2005 10:02:47 -0500
+Received: from pat.uio.no ([129.240.130.16]:27275 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1030573AbVLWPCp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 10:02:45 -0500
+Subject: Re: [PATCH] fix posix lock on NFS, #2
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: ASANO Masahiro <masano@tnes.nec.co.jp>
+Cc: matthew@wil.cx, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+In-Reply-To: <20051223.233839.846934653.masano@tnes.nec.co.jp>
+References: <20051223.233839.846934653.masano@tnes.nec.co.jp>
+Content-Type: text/plain
+Date: Fri, 23 Dec 2005 16:02:31 +0100
+Message-Id: <1135350151.8167.160.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.399, required 12,
+	autolearn=disabled, AWL 1.55, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-12-23 at 23:38 +0900, ASANO Masahiro wrote:
+> Here is a patch.  It changes nfsd to keep the range of file_lock for
+> later use.  Any comments and feedback are welcome.
+> 
+> Signed-off-by: ASANO Masahiro <masano@tnes.nec.co.jp>
+> 
+> --- linux-2.6.15-rc6/fs/lockd/svclock.c.orig	2005-12-23 20:16:33.000000000 +0900
+> +++ linux-2.6.15-rc6/fs/lockd/svclock.c	2005-12-23 20:24:13.000000000 +0900
+> @@ -510,6 +510,7 @@ nlmsvc_grant_blocked(struct nlm_block *b
+>  	struct nlm_file		*file = block->b_file;
+>  	struct nlm_lock		*lock = &block->b_call.a_args.lock;
+>  	struct file_lock	*conflock;
+> +	struct file_lock	tmplck;
+>  	int			error;
+>  
+>  	dprintk("lockd: grant blocked lock %p\n", block);
+> @@ -542,7 +543,8 @@ nlmsvc_grant_blocked(struct nlm_block *b
+>  	 * following yields an error, this is most probably due to low
+>  	 * memory. Retry the lock in a few seconds.
+>  	 */
+> -	if ((error = posix_lock_file(file->f_file, &lock->fl)) < 0) {
+> +	tmplck = lock->fl;	/* keep the range for later use */
+> +	if ((error = posix_lock_file(file->f_file, &tmplck)) < 0) {
+>  		printk(KERN_WARNING "lockd: unexpected error %d in %s!\n",
+>  				-error, __FUNCTION__);
+>  		nlmsvc_insert_block(block, 10 * HZ);
 
-On Fri, 23 Dec 2005, Andrew Morton wrote:
+NACK. You cannot copy locks like this. See locks_copy_lock().
 
-> Nicolas Pitre <nico@cam.org> wrote:
-> >
-> > How can't you get the fact that semaphores could _never_ be as simple as
-> > mutexes?  This is a theoritical impossibility, which maybe turns out not
-> > to be so true on x86, but which is damn true on ARM where the fast path
-> > (the common case of a mutex) is significantly more efficient.
-> >
->
-> I did notice your comments.  I'll grant that mutexes will save some tens of
-> fastpath cycles on one minor architecture.  Sorry, but that doesn't seem
-> very important.
->
-
-"minor architecture"?  Granted, I don't know of any ARM desktops or
-servers, but there's a large number of ARM devices out in the real world.
-Or are we giving up on Linux being an embedded OS?
-
--- Steve
+Cheers,
+  Trond
 

@@ -1,84 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbVLWAvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbVLWAwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbVLWAvG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 19:51:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbVLWAvG
+	id S1751233AbVLWAwo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 19:52:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbVLWAwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 19:51:06 -0500
-Received: from bay16-f8.bay16.hotmail.com ([65.54.186.58]:20886 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S1751208AbVLWAvE
+	Thu, 22 Dec 2005 19:52:44 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:51193 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751233AbVLWAwn convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 19:51:04 -0500
-Message-ID: <BAY16-F8E0161EA0C4B79180F698AF330@phx.gbl>
-X-Originating-IP: [203.166.111.194]
-X-Originating-Email: [alexshinkin@hotmail.com]
-In-Reply-To: <43AB41D9.6070600@shaw.ca>
-From: "Alexey Shinkin" <alexshinkin@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: questions on wait_event ...
-Date: Fri, 23 Dec 2005 06:51:04 +0600
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 23 Dec 2005 00:51:04.0262 (UTC) FILETIME=[F3A2C660:01C6075A]
+	Thu, 22 Dec 2005 19:52:43 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=K9g5gLh5HXBWNE1cu5cZUPqT7nj6f/CIZGgW44qedAKhf5Ja4nvUdz5SmvRoXlfkZ2IBfMKQVPSysVR3G+2HSM8v9obGCr+eujvnZZsGWogcaPz5xkQK2bF6I0dA7qAGICZl7Eat7X0Pp/J/5gPEDKTCduTLMiW3uQF/nGoMd4A=
+Message-ID: <9929d2390512221652o759bcce8k711143db5c7d6644@mail.gmail.com>
+Date: Thu, 22 Dec 2005 16:52:41 -0800
+From: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+To: Tim Warnock <timoid@getonit.net.au>
+Subject: Re: FW: Kernel oops v2.4.31 in e1000 network card driver.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <C67FBCB411B4024382B11B96D68E49E407968C@server.local.GetOffice>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <C67FBCB411B4024382B11B96D68E49E407968C@server.local.GetOffice>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
->Alexey Shinkin wrote:
->>Hi , all !
->>Could anyone please clarify one thing in that old well known
->>wait_event_... code (taken from 2.6.5 wait.h ):
->>
->>#define __wait_event_interruptible(wq, condition, ret)          \
->>do {                                                                    \
->>        wait_queue_t __wait;                                     \
->>        init_waitqueue_entry(&__wait, current);           \
->>                                                                        \
->>        add_wait_queue(&wq, &__wait);                   \
->>        for (;;) {                                                      \
->>                set_current_state(TASK_INTERRUPTIBLE);    \
->>                if (condition)                                          \
->>                        break;
->>........................................
->>
->>Is it possible that scheduling happen after set_current_state() but before
->>checking the condition ?
->>If yes - even if we will have condition==TRUE by this moment - the 
->>scheduler
->>will make the process to sleep anyway , right ?
+On 12/22/05, Tim Warnock <timoid@getonit.net.au> wrote:
+> Further information to this:
 >
->Yes, but since the condition would then have changed after we were put into 
->the wait queue, they would have woken up the queue and we should be woken 
->up again.
+> Network card causing the problem is the intel quad port gigabit ethernet
+> pci card.
+> I have tested also on 2.4.27, 2.4.32 and the latest 2.6 series kernel.
 >
->--
->Robert Hancock      Saskatoon, SK, Canada
->To email, remove "nospam" from hancockr@nospamshaw.ca
->Home Page: http://www.roberthancock.com/
->
+> Under load (10-15kpps) the network driver crashes. Under increased load
+> (20-30kpps) the driver will actually cause a full kernel panic and
+> reboot the box.
+
+What driver version are you using?
+Can you provide the output from `lspci -vvv`
 
 
-And what if the condition have changed after we have checked it in 
-wait_event() but
-before calling __wait_event() and before putting the process into the wait 
-queue ?
-The process could not be woken up "in advance" , right ?
 
-
-#define wait_event(wq, condition)        \
-do {                                                   \
-        if (condition)                                \
-                break;                                 \
-   /* and here we have condition changed  ???? */
-        __wait_event(wq, condition);        \
-} while (0)
-
-
-Regards
-Alexey Shinkin
-
-_________________________________________________________________
-Don't just search. Find. Check out the new MSN Search! 
-http://search.msn.com/
-
+--
+Cheers,
+Jeff

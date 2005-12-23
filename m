@@ -1,69 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030598AbVLWTTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbVLWTee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030598AbVLWTTi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 14:19:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030606AbVLWTTi
+	id S1161025AbVLWTee (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 14:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161020AbVLWTee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 14:19:38 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:51931
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030598AbVLWTTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 14:19:37 -0500
-Date: Fri, 23 Dec 2005 11:19:40 -0800 (PST)
-Message-Id: <20051223.111940.17674086.davem@davemloft.net>
-To: michael.bishop@APPIQ.com
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: More info for DSM w/r/t sunffb on 2.6.15-rc6
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <DF925A10E7204748977502BECE3D11230100CD7C@exch02.appiq.com>
-References: <DF925A10E7204748977502BECE3D11230100CD7C@exch02.appiq.com>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Dec 2005 14:34:34 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:29393 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161013AbVLWTed (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 14:34:33 -0500
+In-Reply-To: <20051223153541.GA13111@paranoiacs.org>
+To: Ben Slusky <sluskyb@paranoiacs.org>
+Cc: "Robert W. Fuller" <garbageout@sbcglobal.net>,
+       linux-fsdevel@vger.kernel.org,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Steven Rostedt <rostedt@goodmis.org>
+MIME-Version: 1.0
+Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF3669F3D1.1A1E92D6-ON882570E0.006B0B6E-882570E0.006B8697@us.ibm.com>
+From: Bryan Henderson <hbryan@us.ibm.com>
+Date: Fri, 23 Dec 2005 11:34:29 -0800
+X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0HF90 | November 16, 2005) at
+ 12/23/2005 14:34:29,
+	Serialize complete at 12/23/2005 14:34:29
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Michael Bishop" <michael.bishop@APPIQ.com>
-Date: Fri, 23 Dec 2005 11:23:36 -0500
+>Developer replies that the source code will be provided
+>only to paying customers:
 
-> Bad pte = 1fa00600a88, process = X, vm_flags = 184473, vaddr = 7001e000
-> Call Trace:
+Not really.  Developer does make the bizarre statement that "paid 
+customers" are entitled to source code, but doesn't say nobody else is. 
+And Developer says at the same time he will make source code available to 
+the person who requested it.  The problem is that he doesn't actually do 
+it, and is never heard from again.
 
-Strange, I thought we'd fixed this.
-
-Aww crap....
-
-Linus, X.org is doing a MAP_PRIVATE mmap() of these discontiguous
-I/O mappings of the sparc frame buffer device it seems.  So the
-MAP_SHARED check in is_cow_mapping() doesn't pass.
-
-Michael, does X.org work properly with your FFB card with 2.6.14 by
-chance?
-
-I really haven't used X.org on anything other than an ATI Radeon on
-Sparc boxes, so it's highly possible that SunFFB support in X.org has
-deteriorated into a non-working state due to not being looked after by
-anyone.
-
-Back to the MAP_SHARED issue, the culprit code in X.org can be fixed
-but I know that this thing has been coded this way for years.  It
-goes like this (hw/xfree86/os-support/bus/Sbus.c:xf86MapSbusMem()):
-
-    ret = (pointer) mmap (NULL, len, PROT_READ | PROT_WRITE, MAP_PRIVATE,
-                          psdp->fd, off);
-    if (ret == (pointer) -1) {
-        ret = (pointer) mmap (NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED,
-                              psdp->fd, off);
-    }
-    if (ret == (pointer) -1)
-        return NULL;
-
-and that should be fixed to just be:
-
-    ret = (pointer) mmap (NULL, len, PROT_READ | PROT_WRITE, MAP_SHARED,
-                          psdp->fd, off);
-    if (ret == (pointer) -1)
-        return NULL;
-
-Ie. use MAP_SHARED unconditionally.

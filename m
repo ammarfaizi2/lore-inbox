@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161036AbVLWUQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161035AbVLWUVK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161036AbVLWUQb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 15:16:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161035AbVLWUQb
+	id S1161035AbVLWUVK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 15:21:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161037AbVLWUVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 15:16:31 -0500
-Received: from smtpout.mac.com ([17.250.248.89]:48886 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1161024AbVLWUQa (ORCPT
+	Fri, 23 Dec 2005 15:21:09 -0500
+Received: from nevyn.them.org ([66.93.172.17]:7659 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S1161035AbVLWUVI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 15:16:30 -0500
-Message-ID: <43AC5B14.2090509@mac.com>
-Date: Fri, 23 Dec 2005 13:16:20 -0700
-From: Scott Mansfield <thephantom@mac.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (Macintosh/20050923)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bryan Henderson <hbryan@us.ibm.com>
-CC: Ben Slusky <sluskyb@paranoiacs.org>,
-       "Robert W. Fuller" <garbageout@sbcglobal.net>,
-       linux-fsdevel@vger.kernel.org,
-       LKML Kernel <linux-kernel@vger.kernel.org>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
-References: <OF3669F3D1.1A1E92D6-ON882570E0.006B0B6E-882570E0.006B8697@us.ibm.com>
-In-Reply-To: <OF3669F3D1.1A1E92D6-ON882570E0.006B0B6E-882570E0.006B8697@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Dec 2005 15:21:08 -0500
+Date: Fri, 23 Dec 2005 15:21:05 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Alon Bar-Lev <alon.barlev@gmail.com>, David Wagner <daw@cs.berkeley.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Question] LinuxThreads, setuid - Is there user mode hook?
+Message-ID: <20051223202105.GA32321@nevyn.them.org>
+Mail-Followup-To: Lee Revell <rlrevell@joe-job.com>,
+	Alon Bar-Lev <alon.barlev@gmail.com>,
+	David Wagner <daw@cs.berkeley.edu>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200512222312.jBMNCj96018554@taverner.CS.Berkeley.EDU> <43ABC8B2.7020904@gmail.com> <1135364939.22177.15.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1135364939.22177.15.camel@mindpipe>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Developer replies that the source code will be provided
->>only to paying customers:
-> 
-> 
-> Not really.  Developer does make the bizarre statement that "paid 
-> customers" are entitled to source code, but doesn't say nobody else is. 
-> And Developer says at the same time he will make source code available to 
-> the person who requested it.  The problem is that he doesn't actually do 
-> it, and is never heard from again.
+On Fri, Dec 23, 2005 at 02:08:58PM -0500, Lee Revell wrote:
+> Why on earth would you use LinuxThreads rather than NPTL?  LinuxThreads
+> is obsolete and was never remotely POSIX compliant.
 
-Call me crazy but if one requests a copy of the source only to never 
-hear from the developer, is that not a direct violation of the GPL?  To 
-me this sounds like the developer is walking a pretty fine line.
+You have the strangest ideas of obsolete.  NPTL has only been usable
+for two years.  Software lifecycles can be a lot longer than that.
 
-Cheers,
-Scott
+-- 
+Daniel Jacobowitz
+CodeSourcery, LLC

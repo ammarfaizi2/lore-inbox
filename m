@@ -1,81 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030555AbVLWPiK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030562AbVLWPlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030555AbVLWPiK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 10:38:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030560AbVLWPiK
+	id S1030562AbVLWPlD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 10:41:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030563AbVLWPlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 10:38:10 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:37251 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1030555AbVLWPiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 10:38:08 -0500
-Subject: Re: 2.6.15-rc5-rt4: BUG: swapper:0 task might have lost a
-	preemption check!
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Lee Revell <rlrevell@joe-job.com>, John Rigg <lk@sound-man.co.uk>
-In-Reply-To: <43AB6B89.8020409@cybsft.com>
-References: <1135306534.4473.1.camel@mindpipe> <43AB6B89.8020409@cybsft.com>
-Content-Type: text/plain
-Date: Fri, 23 Dec 2005 10:37:57 -0500
-Message-Id: <1135352277.6652.2.camel@localhost.localdomain>
+	Fri, 23 Dec 2005 10:41:03 -0500
+Received: from lizards-lair.paranoiacs.org ([216.158.28.252]:15063 "EHLO
+	lizards-lair.paranoiacs.org") by vger.kernel.org with ESMTP
+	id S1030562AbVLWPlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 10:41:00 -0500
+Date: Fri, 23 Dec 2005 10:35:41 -0500
+From: Ben Slusky <sluskyb@paranoiacs.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, legal@lists.gnumonks.org,
+       linux-fsdevel@vger.kernel.org,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       "Robert W. Fuller" <garbageout@sbcglobal.net>
+Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
+Message-ID: <20051223153541.GA13111@paranoiacs.org>
+References: <43AACF77.9020206@sbcglobal.net> <496FC071-3999-4E23-B1A2-1503DCAB65C0@mac.com> <1135283241.12761.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1135283241.12761.19.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-22 at 21:14 -0600, K.R. Foley wrote:
-> Lee Revell wrote:
-> > Got this on boot.  Same .config as the last one I sent you.
+On Thu, 22 Dec 2005 15:27:21 -0500, Steven Rostedt wrote:
+> On Thu, 2005-12-22 at 13:01 -0500, Kyle Moffett wrote:
+> > On Dec 22, 2005, at 11:08, Robert W. Fuller wrote:
+> > > Please see the following thread:
+> > >
+> > > http://www.opensolaris.org/jive/thread.jspa?threadID=2132&tstart=0x
+> > >
+> > > Sorry I didn't get around to reporting this sooner, but at least  
+> > > the guilty party has had plenty of time to fail to repent.
+> > >
+> > > Regards,
+> > >
+> > > Rob
 > > 
-> > VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
-> >     ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:pio
-> > Probing IDE interface ide1...
-> > BUG: swapper:0 task might have lost a preemption check!
-> >  [<c010440c>] dump_stack+0x1c/0x20 (20)
-> >  [<c01166aa>] preempt_enable_no_resched+0x5a/0x60 (20)
-> >  [<c0100dd9>] cpu_idle+0x79/0xb0 (12)
-> >  [<c0100280>] _stext+0x40/0x50 (28)
-> >  [<c03078e6>] start_kernel+0x176/0x1d0 (20)
-> >  [<c0100199>] 0xc0100199 (1086889999)
-> > ---------------------------
-> > | preempt count: 00000000 ]
-> > | 0-level deep critical section nesting:
-> > ----------------------------------------
-> > 
-> > 
+> > This case looks about as black and white as it gets (although IANAL),  
+> > so I'm adding gpl-violations.org-legal to the CC list.
+> 
+> I'm not sure this is the case here or not, but it definitely brings up
+> an interesting question.
 
+It isn't the case here. (Tho' your question is interesting.)
 
-OK, I just found an SMP bug, and here's the patch.  Maybe this will help
-you kr.  I'm currently running x86_64 SMP with 2.6.15-rc5-rt4 with this
-and my softirq-no-hrtimers patch I sent earlier.
+The case here appears to be:
 
--- Steve
+* Crossmeta offers "add-on" software as a free download from their web
+  site: <URL:http://www.crossmeta.com/downloads/crossmeta-add-1_0.zip>.
+  The zip file contains a text file gpl-license.txt, which says that the
+  add-ons are offered under the terms of the GPL.
 
-Index: linux-2.6.15-rc5-rt4/kernel/workqueue.c
-===================================================================
---- linux-2.6.15-rc5-rt4.orig/kernel/workqueue.c	2005-12-23 10:23:25.000000000 -0500
-+++ linux-2.6.15-rc5-rt4/kernel/workqueue.c	2005-12-23 10:25:21.000000000 -0500
-@@ -370,10 +370,17 @@
- void set_workqueue_thread_prio(struct workqueue_struct *wq, int cpu,
- 				int policy, int rt_priority, int nice)
- {
--	struct task_struct *p = wq->cpu_wq[cpu].thread;
-+	struct cpu_workqueue_struct *cwq;
-+	struct task_struct *p;
- 	struct sched_param param = { .sched_priority = rt_priority };
-+	unsigned long flags;
- 	int ret;
- 
-+	cwq = per_cpu_ptr(wq->cpu_wq, cpu);
-+	spin_lock_irqsave(&cwq->lock, flags);
-+	p = cwq->thread;
-+	spin_unlock_irqrestore(&cwq->lock, flags);
-+
- 	set_user_nice(p, nice);
- 	ret = sys_sched_setscheduler(p->pid, policy, &param);
- 	if (ret)
+* User downloads this GPLed software and asks the developer to provide
+  source code. Developer replies that the source code will be provided
+  only to paying customers:
+  <URL:http://www.opensolaris.org/jive/message.jspa?messageID=12277#12277>.
 
+That's baad, m'kay?
+
+-- 
+Ben Slusky                      | As if you could kill time
+sluskyb@paranoiacs.org          | without injuring eternity.
+sluskyb@stwing.org              |               -Paula Baker
+PGP keyID ADA44B3B      
 

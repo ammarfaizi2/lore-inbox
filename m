@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030608AbVLWQiT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030600AbVLWQjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030608AbVLWQiT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 11:38:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030612AbVLWQiT
+	id S1030600AbVLWQjY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 11:39:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030634AbVLWQjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 11:38:19 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:50833 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1030608AbVLWQiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 11:38:18 -0500
-Date: Fri, 23 Dec 2005 10:38:16 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-ia64@vger.kernel.org
-Subject: [PATCH] - Fix memory ordering problem in wake_futex()
-Message-ID: <20051223163816.GA30906@sgi.com>
+	Fri, 23 Dec 2005 11:39:23 -0500
+Received: from news.cistron.nl ([62.216.30.38]:7651 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S1030601AbVLWQjX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 11:39:23 -0500
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: scsi errors with dpt-i2o driver
+Date: Fri, 23 Dec 2005 16:39:22 +0000 (UTC)
+Organization: Cistron
+Message-ID: <doh97q$6pl$1@news.cistron.nl>
+References: <20051222144348.85266.qmail@web34104.mail.mud.yahoo.com> <1135263384.2940.40.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1135355962 6965 194.109.0.112 (23 Dec 2005 16:39:22 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: mikevs@n2o.xs4all.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <1135263384.2940.40.camel@laptopd505.fenrus.org>,
+Arjan van de Ven  <arjan@infradead.org> wrote:
+>
+>> Are there any suggestions about how to diagnose further?  What about
+>trying the native i2o driver?
+>
+>that one is highly preferred anyway nowadays...
 
-Here is a fix for a ugly race condition that occurs in wake_futex() on IA64.
+Well in 64-bit mode it's still very very unstable at least with
+the Adaptec dpt 2005/2010/2015 series adapters. Also it doesn't
+support 32-bit legacy ioctls and the raidtools package doesn't
+compile correctly on 64-bits (it compiles but doesn't work).
 
-On IA64, locks are released using a "st.rel" instruction. This ensures that
-preceding "stores" are visible before the lock is released but does NOT prevent
-a "store" that follows the "st.rel" from becoming visible before the "st.rel".
-The result is that the task that owns the futex_q continues prematurely. 
+The 64-bit version of dpt_i2o that you can get from Adaptec on
+request (unfortunately the 64 bit patches aren't in mainline (yet?))
+works fine and is rock-stable.
 
-The failure I saw is the task that owned the futex_q resumed prematurely and
-was context-switch off of the cpu. The task's switch_stack occupied the same
-space of the futex_q. The store to q->lock_ptr overwrote the ar.bspstore in the
-switch_stack. When the task resumed, it ran with a corrupted ar.bspstore.
-Things went downhill from there.
+Mike.
+-- 
+Freedom is no longer a problem.
 
-Without the fix, the application fails roughly every 10 minutes. With
-the fix, it ran 16 hours without a failure.
-
-----
-Fix a memory ordering problem that occurs on IA64. The "store" to q->lock_ptr
-in wake_futex() can become visible before wake_up_all() clears the lock in the
-futex_q. 
-
-
-	Signed-off-by: Jack Steiner <steiner@sgi.com>
-
-
-
-
-
-Index: linux/kernel/futex.c
-===================================================================
---- linux.orig/kernel/futex.c	2005-12-22 15:05:43.821889257 -0600
-+++ linux/kernel/futex.c	2005-12-22 15:30:21.617973325 -0600
-@@ -287,7 +287,13 @@ static void wake_futex(struct futex_q *q
- 	/*
- 	 * The waiting task can free the futex_q as soon as this is written,
- 	 * without taking any locks.  This must come last.
-+	 *
-+	 * A memory barrier is required here to prevent the following store
-+	 * to lock_ptr from getting ahead of the wakeup. Clearing the lock
-+	 * at the end of wake_up_all() does not prevent this store from
-+	 * moving.
- 	 */
-+	wmb();
- 	q->lock_ptr = NULL;
- }
- 

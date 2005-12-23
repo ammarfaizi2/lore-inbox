@@ -1,70 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161127AbVLWXpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161139AbVLWXtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161127AbVLWXpM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 18:45:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161135AbVLWXpM
+	id S1161139AbVLWXtI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 18:49:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161137AbVLWXtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 18:45:12 -0500
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:44935
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1161127AbVLWXpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 18:45:11 -0500
-Date: Fri, 23 Dec 2005 15:45:09 -0800 (PST)
-Message-Id: <20051223.154509.86780332.davem@davemloft.net>
-To: torvalds@osdl.org
-Cc: michael.bishop@APPIQ.com, linux-kernel@vger.kernel.org, hugh@veritas.com,
-       nickpiggin@yahoo.com.au
-Subject: Re: More info for DSM w/r/t sunffb on 2.6.15-rc6
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <Pine.LNX.4.64.0512231223040.14098@g5.osdl.org>
-References: <DF925A10E7204748977502BECE3D11230100CD7C@exch02.appiq.com>
-	<20051223.111940.17674086.davem@davemloft.net>
-	<Pine.LNX.4.64.0512231223040.14098@g5.osdl.org>
-X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 23 Dec 2005 18:49:07 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:24205 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161139AbVLWXtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 18:49:05 -0500
+Date: Fri, 23 Dec 2005 17:48:58 -0600
+From: Robin Holt <holt@sgi.com>
+To: Olof Johansson <olof@lixom.net>
+Cc: Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] - Fix memory ordering problem in wake_futex()
+Message-ID: <20051223234858.GA31945@lnx-holt.americas.sgi.com>
+References: <20051223163816.GA30906@sgi.com> <20051223204822.GC24601@pb15.lixom.net> <20051223213216.GA29541@sgi.com> <20051223215915.GE24601@pb15.lixom.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051223215915.GE24601@pb15.lixom.net>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Linus Torvalds <torvalds@osdl.org>
-Date: Fri, 23 Dec 2005 12:53:16 -0800 (PST)
+On Fri, Dec 23, 2005 at 03:59:16PM -0600, Olof Johansson wrote:
+> On Fri, Dec 23, 2005 at 03:32:16PM -0600, Jack Steiner wrote:
+> 
+> > On IA64, the "sync" instructions are actually part of the ld.acq ot st.rel
+> > instructions that are used to set/clear spinlocks.
+> [...]
+> > IA64 implements fencing of ld.acq or st.rel instructions as one-directional
+> > barriers.
+> 
+> So ia64 spin_unlock doesn't do store-store ordering across it. I'm
+> surprised this is the first time this causes problems. Other architectures
+> seem to order:
+> 
+> * sparc64 does a membar StoreStore|LoadStore
+> * powerpc does lwsync or sync, depending on arch
+> * alpha does an mb();
+> 
+> * x86 is in-order
+> 
+> So, sounds to me like you need to fix your lock primitives, not add
+> barriers to generic code?
 
-> So it may be that the insane sparc remap_pfn_range() users need to set the 
-> dirty/accessed bits in the page protection flags by hand before to avoid 
-> that. David?
+I don't think this is a case which is handled by the typical lock
+primitives.  Here we essentially have two things being unlocked in
+close succession.  The first is the wait queue, the second the futex_q.
 
-I'm pretty sure we set the dirty accessed bits at mapping time, so
-that shouldn't be an issue.
+There is nothing in the typical unlock path which would require unlocks
+to be ordered with respect to each other.  However, in this case, the
+futex_q expects to finish processing the wake_up_all before releasing
+the lock_ptr.  That is a requirement of wake_futex and not the locking
+primitives.  If wake_futex() requires it, then it should be responsible
+for enforcing that requirement.
 
-But I wonder whether any of this is necessary at all.
+I suppose a step in the right direction would be doing a volatile store
+to q->lock_ptr.  I haven't looked, but that should at least prevent the
+clearing of lock_ptr until the wait queue is unlocked.
 
-I did some digging to see how far back the "fall back to MAP_SHARED
-if MAP_PRIVATE fails" logic is in the X11R6 tree.
+Jack, can you repeat your testing with a cast on the q->lock_ptr line to
+a volatile.  After looking at it some more, shouldn't the struct futex_q{}
+definition for the spinlock_t *lock_ptr be volatile?
 
-I went back as far as I could in the XORG and XFree86 CVS for
-that SBUS support code, and the fallback to MAP_SHARED code has
-always been there.
 
-So I think something as simple as returning -EINVAL in the SBUS
-framebuffer mmap() driver if VM_SHARED is not set would be sufficient
-to deal with this.
-
-Something like this patch below.
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/drivers/video/sbuslib.c b/drivers/video/sbuslib.c
-index 646c43f..ac937da 100644
---- a/drivers/video/sbuslib.c
-+++ b/drivers/video/sbuslib.c
-@@ -46,6 +46,9 @@ int sbusfb_mmap_helper(struct sbus_mmap_
- 	unsigned long off;
- 	int i;
-                                         
-+	if (!(vma->vm_flags & VM_SHARED))
-+		return -EINVAL;
-+
- 	size = vma->vm_end - vma->vm_start;
- 	if (vma->vm_pgoff > (~0UL >> PAGE_SHIFT))
- 		return -EINVAL;
+Thanks,
+Robin Holt

@@ -1,61 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030371AbVLWCRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030379AbVLWCSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030371AbVLWCRR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 21:17:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030379AbVLWCRR
+	id S1030379AbVLWCSP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 21:18:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030380AbVLWCSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 21:17:17 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:11709 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030371AbVLWCRQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 21:17:16 -0500
-Message-ID: <43AB5E12.5050208@pobox.com>
-Date: Thu, 22 Dec 2005 21:16:50 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Paul Rolland <rol@witbe.net>, "'Arjan van de Ven'" <arjan@infradead.org>,
+	Thu, 22 Dec 2005 21:18:15 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:53768 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1030379AbVLWCSO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 21:18:14 -0500
+Date: Fri, 23 Dec 2005 03:18:13 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Dave Jones <davej@redhat.com>, torvalds@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [Linux 2.4.32] SATA ICH5/PIIX and Combined mode
-References: <1135164891.3456.11.camel@laptopd505.fenrus.org> <200512211140.jBLBeGD31936@tag.witbe.net> <20051223015752.GD27525@stusta.de>
-In-Reply-To: <20051223015752.GD27525@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Adrian Bunk wrote: > On Wed, Dec 21, 2005 at 12:40:18PM
-	+0100, Paul Rolland wrote: >>My first idea was to consider this as an
-	opportunity to upgrade to the >>latest 2.4.x kernel, but reading you,
-	this looks like a bad idea... >>2.6.x would be better ? > > > RHES3
-	doesn't support kernel 2.6. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+Subject: Re: remove incorrect dependancy on CONFIG_APM
+Message-ID: <20051223021813.GH27525@stusta.de>
+References: <20051220212127.GA6833@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051220212127.GA6833@redhat.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Wed, Dec 21, 2005 at 12:40:18PM +0100, Paul Rolland wrote:
->>My first idea was to consider this as an opportunity to upgrade to the
->>latest 2.4.x kernel, but reading you, this looks like a bad idea...
->>2.6.x would be better ?
+On Tue, Dec 20, 2005 at 04:21:27PM -0500, Dave Jones wrote:
 > 
+> >From the PM_LEGACY Kconfig description..
 > 
-> RHES3 doesn't support kernel 2.6.
+> "Support for pm_register() and friends."
+> 
+> Note, no mention of 'make apm stop working'.
+> 
+> Signed-off-by: Dave Jones <davej@redhat.com>
+> 
+> --- linux-2.6.14/arch/i386/Kconfig~	2005-12-20 16:19:17.000000000 -0500
+> +++ linux-2.6.14/arch/i386/Kconfig	2005-12-20 16:19:21.000000000 -0500
+> @@ -710,7 +710,7 @@ depends on PM && !X86_VISWS
+>  
+>  config APM
+>  	tristate "APM (Advanced Power Management) BIOS support"
+> -	depends on PM && PM_LEGACY
+> +	depends on PM
+>...
 
-Kernel 2.6.x will boot just fine, on RHEL3 userland.
+This doesn't compile:
 
-It is not -supported- in the commercial sense, however.
+<--  snip  -->
 
-	Jeff
+...
+  CC      arch/i386/kernel/apm.o
+arch/i386/kernel/apm.c: In function 'apm_init':
+arch/i386/kernel/apm.c:2304: error: 'pm_active' undeclared (first use in this function)
+arch/i386/kernel/apm.c:2304: error: (Each undeclared identifier is reported only once
+arch/i386/kernel/apm.c:2304: error: for each function it appears in.)
+arch/i386/kernel/apm.c: In function 'apm_exit':
+arch/i386/kernel/apm.c:2410: error: 'pm_active' undeclared (first use in this function)
+make[1]: *** [arch/i386/kernel/apm.o] Error 1
+
+<--  snip  -->
 
 
+If PM_LEGACY causes user confusion for APM users, commit 
+bca73e4bf8563d83f7856164caa44d5f42e44cca should be reverted.
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

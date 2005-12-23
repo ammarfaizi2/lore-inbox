@@ -1,44 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030354AbVLWCyB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030388AbVLWC44@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030354AbVLWCyB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 21:54:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030386AbVLWCyA
+	id S1030388AbVLWC44 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 21:56:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030387AbVLWC44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 21:54:00 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:57233 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030354AbVLWCyA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 21:54:00 -0500
-Subject: 2.6.15-rc5-rt4: BUG: swapper:0 task might have lost a preemption
-	check!
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Thu, 22 Dec 2005 21:55:33 -0500
-Message-Id: <1135306534.4473.1.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 22 Dec 2005 21:56:56 -0500
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:34784 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP
+	id S1030385AbVLWC44 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 21:56:56 -0500
+X-ORBL: [70.231.233.23]
+Date: Thu, 22 Dec 2005 18:56:38 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Kyle Moffett <mrmacman_g4@mac.com>,
+       legal@lists.gnumonks.org, linux-fsdevel@vger.kernel.org,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       "Robert W. Fuller" <garbageout@sbcglobal.net>
+Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
+Message-ID: <20051223025638.GA31381@taniwha.stupidest.org>
+References: <43AACF77.9020206@sbcglobal.net> <496FC071-3999-4E23-B1A2-1503DCAB65C0@mac.com> <1135283241.12761.19.camel@localhost.localdomain> <43AB32C1.1080101@wolfmountaingroup.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43AB32C1.1080101@wolfmountaingroup.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Got this on boot.  Same .config as the last one I sent you.
+On Thu, Dec 22, 2005 at 04:12:01PM -0700, Jeff V. Merkey wrote:
 
-VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
-    ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:pio
-Probing IDE interface ide1...
-BUG: swapper:0 task might have lost a preemption check!
- [<c010440c>] dump_stack+0x1c/0x20 (20)
- [<c01166aa>] preempt_enable_no_resched+0x5a/0x60 (20)
- [<c0100dd9>] cpu_idle+0x79/0xb0 (12)
- [<c0100280>] _stext+0x40/0x50 (28)
- [<c03078e6>] start_kernel+0x176/0x1d0 (20)
- [<c0100199>] 0xc0100199 (1086889999)
----------------------------
-| preempt count: 00000000 ]
-| 0-level deep critical section nesting:
-----------------------------------------
+> >Now the real question: If one were to have an operating system, and
+> >set up a layer that simulated the API of Linux, such that Linux
+> >binary modules could be loaded, is _that_ a violation of the GPL?
 
-Lee
+> No , it is not.  It's called "reverse engineering".
 
+That's entirely debatable and I would recommend the original poster
+seek legal advice on this as there are many people who will claim
+loading GPLd modules is paramount to linking and therefore this is a
+violation.

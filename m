@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030520AbVLWMwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030524AbVLWN1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030520AbVLWMwA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 07:52:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030521AbVLWMwA
+	id S1030524AbVLWN1f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 08:27:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030525AbVLWN1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 07:52:00 -0500
-Received: from pat.uio.no ([129.240.130.16]:58349 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030520AbVLWMv7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 07:51:59 -0500
-Subject: Re: [PATCH] sched:
-	Fix	adverse	effects	of	NFS	client	on	interactive response
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Ingo Molnar <mingo@elte.hu>,
-       Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <43ABD639.2060200@bigpond.net.au>
-References: <43A8EF87.1080108@bigpond.net.au>
-	 <1135145341.7910.17.camel@lade.trondhjem.org>
-	 <43A8F714.4020406@bigpond.net.au>
-	 <1135171280.7958.16.camel@lade.trondhjem.org>
-	 <962C9716-6F84-477B-8B2A-FA771C21CDE8@mac.com>
-	 <1135172453.7958.26.camel@lade.trondhjem.org>
-	 <43AA0EEA.8070205@bigpond.net.au>
-	 <1135289282.9769.2.camel@lade.trondhjem.org>
-	 <43AB29B8.7050204@bigpond.net.au>
-	 <1135292364.9769.58.camel@lade.trondhjem.org>
-	 <AAF94E06-ACB9-4ABE-AC15-49C6B3BE21A0@mac.com>
-	 <1135297525.3685.57.camel@lade.trondhjem.org>
-	 <43AB69B8.4080707@bigpond.net.au>
-	 <1135330757.8167.44.camel@lade.trondhjem.org>
-	 <43ABD639.2060200@bigpond.net.au>
-Content-Type: text/plain
-Date: Fri, 23 Dec 2005 13:51:02 +0100
-Message-Id: <1135342262.8167.143.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.282, required 12,
-	autolearn=disabled, AWL 1.67, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+	Fri, 23 Dec 2005 08:27:35 -0500
+Received: from nproxy.gmail.com ([64.233.182.203]:44209 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030524AbVLWN1e convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 08:27:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QeKuy+r3vI2kK2nUadwI5MhJXBfXU+r1E1K3v5Fp/jO+y/UNQDpmIb/J/96zeFmjpikdYbZGRc3R9wNh73ZYtGk15pg2gnJOtth9hSoUJu+Sn6pXRNDOUFV8MwCfzDznLquAr9jbMtG2YXxVCN/1og3qM/laSE3sB6FZom0KvZA=
+Message-ID: <58cb370e0512230527l55810d0fif13d75f35723c1c3@mail.gmail.com>
+Date: Fri, 23 Dec 2005 14:27:33 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Andreas Steinmetz <ast@domdv.de>
+Subject: Re: 2.6.15rc6: ide oops+panic
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <43AB20DA.2020506@domdv.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43AB20DA.2020506@domdv.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-23 at 21:49 +1100, Peter Williams wrote:
-> No.  It is asking whether the NORMAL interruption of this interruptible 
-> sleep will be caused by a human user action such as a keystroke or mouse 
-> action.  For the NFS client the answer to that question is unequivically 
-> no.  It's not a matter of policy it's a matter of fact.
+Hi,
 
-        /*
-         * Tasks that have marked their sleep as noninteractive get
-         * woken up without updating their sleep average. (i.e. their
-         * sleep is handled in a priority-neutral manner, no priority
-         * boost and no penalty.)
-         */
+On 12/22/05, Andreas Steinmetz <ast@domdv.de> wrote:
+> Attached are boot messages and panic captured via serial console, as
+> well as the system config.
 
-This appears to be the only documentation for the TASK_NONINTERACTIVE
-flag, and I see no mention of human user actions in that comment. The
-comment rather appears to states that this particular flag is designed
-to switch between two different scheduling policies.
+Driver OOPS-es on handling write barrier request (on finishing pre-flush)
+because REQ_STARTED flag is not set in __ide_end_request()
+but I don't see how this can happen, maybe something has changed
+in the block layer...  Does 2.6.14 work for you?
 
-If the flag really is only about identifying sleeps that will involve
-human user actions, then surely it would be easy to set up a short set
-of guidelines in Documentation, say, that spell out exactly what the
-purpose is, and when it should be used.
-That should be done _before_ one starts charging round converting every
-instance of TASK_INTERRUPTIBLE.
+Does mounting ext3 with "barrier=0" option workaround the problem?
 
-  Trond
-
+Thanks,
+Bartlomiej

@@ -1,80 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1160998AbVLWTQt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161010AbVLWTRS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1160998AbVLWTQt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 14:16:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030609AbVLWTQt
+	id S1161010AbVLWTRS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 14:17:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161013AbVLWTRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 14:16:49 -0500
-Received: from fsmlabs.com ([168.103.115.128]:56770 "EHLO spamalot.fsmlabs.com")
-	by vger.kernel.org with ESMTP id S1030606AbVLWTQs (ORCPT
+	Fri, 23 Dec 2005 14:17:18 -0500
+Received: from mail.kroah.org ([69.55.234.183]:1928 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1030622AbVLWTRQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 14:16:48 -0500
-X-ASG-Debug-ID: 1135365404-27256-16-0
-X-Barracuda-URL: http://10.0.1.244:8000/cgi-bin/mark.cgi
-Date: Fri, 23 Dec 2005 11:22:03 -0800 (PST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Eric Dumazet <dada1@cosmosbay.com>
-cc: Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
-       Christoph Lameter <christoph@lameter.com>,
-       Alok N Kataria <alokk@calsoftinc.com>,
-       Shobhit Dayal <shobhit@calsoftinc.com>,
-       Shai Fultheim <shai@scalex86.org>, Matt Mackall <mpm@selenic.com>,
-       Andrew Morton <akpm@osdl.org>, john stultz <johnstul@us.ibm.com>,
-       Gunter Ohrner <G.Ohrner@post.rwth-aachen.de>,
-       linux-kernel@vger.kernel.org
-X-ASG-Orig-Subj: Re: [PATCH RT 00/02] SLOB optimizations
-Subject: Re: [PATCH RT 00/02] SLOB optimizations
-In-Reply-To: <43AB23C9.8010904@cosmosbay.com>
-Message-ID: <Pine.LNX.4.64.0512231121450.1579@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0512200900490.21767@gandalf.stny.rr.com>
- <1135093460.13138.302.camel@localhost.localdomain> <20051220181921.GF3356@waste.org>
- <1135106124.13138.339.camel@localhost.localdomain>
- <84144f020512201215j5767aab2nc0a4115c4501e066@mail.gmail.com>
- <1135114971.13138.396.camel@localhost.localdomain> <20051221065619.GC766@elte.hu>
- <43A90225.4060007@cosmosbay.com> <20051221074346.GA2398@elte.hu>
- <43A90C07.4000003@cosmosbay.com> <20051222211132.GA21742@elte.hu>
- <43AB23C9.8010904@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463810560-135381486-1135365723=:1579"
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=5.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.02, rules version 3.0.6584
-	Rule breakdown below pts rule name              description
-	---- ---------------------- --------------------------------------------------
+	Fri, 23 Dec 2005 14:17:16 -0500
+Date: Fri, 23 Dec 2005 11:16:10 -0800
+From: Greg KH <greg@kroah.com>
+To: "Zhang, Yanmin" <yanmin.zhang@intel.com>
+Cc: Yanmin Zhang <ymzhang@unix-os.sc.intel.com>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, linux-ia64@vger.kernel.org,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       "Shah, Rajesh" <rajesh.shah@intel.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: [PATCH v2:3/3]Export cpu topology by sysfs
+Message-ID: <20051223191610.GA15470@kroah.com>
+References: <8126E4F969BA254AB43EA03C59F44E840447C54F@pdsmsx404>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8126E4F969BA254AB43EA03C59F44E840447C54F@pdsmsx404>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Fri, Dec 23, 2005 at 12:03:27PM +0800, Zhang, Yanmin wrote:
+> >>> +static struct sysfs_ops topology_sysfs_ops = {
+> >>> +	.show   = topology_show,
+> >>> +	.store  = topology_store,
+> >>> +};
+> >>> +
+> >>> +static struct kobj_type topology_ktype = {
+> >>> +	.sysfs_ops	= &topology_sysfs_ops,
+> >>> +	.default_attrs	= topology_default_attrs,
+> >>> +};
+> >>> +
+> >>> +/* Add/Remove cpu_topology interface for CPU device */
+> >>> +static int __cpuinit topology_add_dev(struct sys_device * sys_dev)
+> >>> +{
+> >>> +	unsigned int cpu = sys_dev->id;
+> >>> +
+> >>> +	memset(&cpu_topology_kobject[cpu], 0, sizeof(struct kobject));
+> >>> +
+> >>> +	cpu_topology_kobject[cpu].parent = &sys_dev->kobj;
+> >>> +	kobject_set_name(&cpu_topology_kobject[cpu], "%s", "topology");
+> >>> +	cpu_topology_kobject[cpu].ktype = &topology_ktype;
+> >>> +
+> >>> +	return  kobject_register(&cpu_topology_kobject[cpu]);
+> >>> +}
+> >>
+> >>Can't you just use an attribute group and attach it to the cpu kobject?
+> >>That would save an array of kobjects I think.
+> As you know, current i386/x86_64 arch also export cache info under
+> /sys/device/system/cpu/cpuX/cache. Is it clearer to export topology
+> under a new directory than under cpu directly?
 
----1463810560-135381486-1135365723=:1579
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+No, the place in the sysfs tree you are putting this is just fine.  I'm
+just saying that you do not need to create a new kobject for these
+attributes.  Just use an attribute group, and you will get the same
+naming, without the need for an extra kobject (and the whole array of
+kobjects) at all.
 
-On Thu, 22 Dec 2005, Eric Dumazet wrote:
+Does that make more sense?
 
-> Ingo Molnar a =E9crit :
-> >=20
-> > CLI/STI is extremely fast. (In fact in the -rt tree i'm using them with=
-in
-> > mutexes instead of preempt_enable()/preempt_disable(), because they are
-> > faster and generate less register side-effect.)
-> >=20
->=20
-> Yes, but most of my machines have a ! CONFIG_PREEMPT kernel, so
-> preempt_enable()/preempt_disable() are empty, thus faster than CLI/STI fo=
-r
-> sure :)
->=20
-> Then, maybe the patch that moves 'current' in a dedicated x86_64 register=
- may
-> help to lower  the cost of preempt_enable()/preempt_disable() on a
-> CONFIG_PREEMPT kernel ?
+> >>> +static int __cpuinit topology_cpu_callback(struct notifier_block *nfb,
+> >>> +		unsigned long action, void *hcpu)
+> >>> +{
+> >>> +	unsigned int cpu = (unsigned long)hcpu;
+> >>> +	struct sys_device *sys_dev;
+> >>> +
+> >>> +	sys_dev = get_cpu_sysdev(cpu);
+> >>> +	switch (action) {
+> >>> +		case CPU_ONLINE:
+> >>> +			topology_add_dev(sys_dev);
+> >>> +			break;
+> >>> +#ifdef	CONFIG_HOTPLUG_CPU
+> >>> +		case CPU_DEAD:
+> >>> +			topology_remove_dev(sys_dev);
+> >>> +			break;
+> >>> +#endif
+> >>
+> >>Why ifdef?  Isn't it safe to just always have this in?
+> If no ifdef here, gcc reported a compiling warning when I compiled it
+> on IA64 with CONFIG_HOTPLUG_CPU=n.
 
-I'm not sure if it'll make much of a difference over;
+Then you should probably go change it so that CPU_DEAD is defined on
+non-smp builds, otherwise the code gets quite messy like the above :)
 
-mov    %gs:offset,%reg
+thanks,
 
-So 'current' already is fairly fast on x86_64.
----1463810560-135381486-1135365723=:1579--
+greg k-h

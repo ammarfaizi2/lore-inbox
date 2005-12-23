@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030447AbVLWG2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030445AbVLWG2u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030447AbVLWG2p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 01:28:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030445AbVLWG2p
+	id S1030445AbVLWG2u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 01:28:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030446AbVLWG2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 01:28:45 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:19140 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1030419AbVLWG2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 01:28:44 -0500
-Date: Fri, 23 Dec 2005 07:31:26 +0100
+	Fri, 23 Dec 2005 01:28:50 -0500
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:58352 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030445AbVLWG2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 01:28:49 -0500
+Date: Fri, 23 Dec 2005 07:31:32 +0100
 From: Frank Pavlic <fpavlic@de.ibm.com>
 To: jgarzik@pobox.com
 Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [RESEND patch 1/3] s390: some minor qeth driver fixes
-Message-ID: <20051223073126.5640fd9d@localhost.localdomain>
+Subject: [RESEND patch 2/3] s390: minor qeth network driver fixes
+Message-ID: <20051223073132.5c3f6b36@localhost.localdomain>
 Organization: IBM
 X-Mailer: Sylpheed-Claws 1.0.5 (GTK+ 1.2.10; i486-pc-linux-gnu)
 Mime-Version: 1.0
@@ -23,178 +23,106 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
-I am not sure if my first try did make his way since I had some fights with my exim4 configuration.
-Anyway I resend the patches .
-
-Thanks 
-
-Frank
-
-
-[patch 1/3] s390: some minor qeth driver fixes
+[patch 2/3] s390: minor qeth network driver fixes
 
 From: Frank Pavlic <fpavlic@de.ibm.com>
-	- let's have just one function for both ,input and output queue
-	  to check qdio errors
-	- add /proc/s390dbf/qeth_qerr entries for outbound processing
-	- check removed for layer2 device in qeth_add_multicast_ipv6
-	- NULL pointer dereference with bonding and VLAN device fixed
-	- minimum length check for portname fixed
-	
+	- use netif_carrier_on/off calls to tell network stack 
+	  link carrier state
+	- fix possible kfree on NULL 
+	- PDU_LEN2 is at offset 0x29 otherwise OSN chpid won't initialize 
+
 Signed-off-by: Frank Pavlic <fpavlic@de.ibm.com>
 
 diffstat:
-qeth_main.c |   42 +++++++++++++++++++++---------------------
-qeth_sys.c  |    6 +++---
-2 files changed, 24 insertions(+), 24 deletions(-)
+ qeth_eddp.c |    3 ++-
+ qeth_main.c |   17 +++++++----------
+ qeth_mpc.h  |    2 +-
+ 3 files changed, 10 insertions(+), 12 deletions(-)
 
+diff -Naupr linux-orig/drivers/s390/net/qeth_eddp.c linux-patched/drivers/s390/net/qeth_eddp.c
+--- linux-orig/drivers/s390/net/qeth_eddp.c	2005-12-12 17:33:48.000000000 +0100
++++ linux-patched/drivers/s390/net/qeth_eddp.c	2005-12-12 18:56:23.000000000 +0100
+@@ -62,7 +62,8 @@ qeth_eddp_free_context(struct qeth_eddp_
+ 	for (i = 0; i < ctx->num_pages; ++i)
+ 		free_page((unsigned long)ctx->pages[i]);
+ 	kfree(ctx->pages);
+-	kfree(ctx->elements);
++	if (ctx->elements != NULL)
++		kfree(ctx->elements);
+ 	kfree(ctx);
+ }
+ 
 diff -Naupr linux-orig/drivers/s390/net/qeth_main.c linux-patched/drivers/s390/net/qeth_main.c
---- linux-orig/drivers/s390/net/qeth_main.c	2005-12-12 17:33:48.000000000 +0100
-+++ linux-patched/drivers/s390/net/qeth_main.c	2005-12-12 17:46:31.000000000 +0100
-@@ -1,6 +1,6 @@
- /*
-  *
-- * linux/drivers/s390/net/qeth_main.c ($Revision: 1.242 $)
-+ * linux/drivers/s390/net/qeth_main.c ($Revision: 1.246 $)
-  *
-  * Linux on zSeries OSA Express and HiperSockets support
-  *
-@@ -72,7 +72,7 @@
- #include "qeth_eddp.h"
- #include "qeth_tso.h"
+--- linux-orig/drivers/s390/net/qeth_main.c	2005-12-12 18:15:36.000000000 +0100
++++ linux-patched/drivers/s390/net/qeth_main.c	2005-12-12 18:56:23.000000000 +0100
+@@ -518,7 +518,8 @@ __qeth_set_offline(struct ccwgroup_devic
  
--#define VERSION_QETH_C "$Revision: 1.242 $"
-+#define VERSION_QETH_C "$Revision: 1.246 $"
- static const char *version = "qeth S/390 OSA-Express driver";
- 
- /**
-@@ -2203,24 +2203,21 @@ qeth_ulp_setup(struct qeth_card *card)
- }
- 
- static inline int
--qeth_check_for_inbound_error(struct qeth_qdio_buffer *buf,
--			     unsigned int qdio_error,
--			     unsigned int siga_error)
-+qeth_check_qdio_errors(struct qdio_buffer *buf, unsigned int qdio_error,
-+		       unsigned int siga_error, const char *dbftext)
- {
--	int rc = 0;
+ 	QETH_DBF_TEXT(setup, 3, "setoffl");
+ 	QETH_DBF_HEX(setup, 3, &card, sizeof(void *));
 -
- 	if (qdio_error || siga_error) {
--		QETH_DBF_TEXT(trace, 2, "qdinerr");
--		QETH_DBF_TEXT(qerr, 2, "qdinerr");
-+		QETH_DBF_TEXT(trace, 2, dbftext);
-+		QETH_DBF_TEXT(qerr, 2, dbftext);
- 		QETH_DBF_TEXT_(qerr, 2, " F15=%02X",
--			       buf->buffer->element[15].flags & 0xff);
-+			       buf->element[15].flags & 0xff);
- 		QETH_DBF_TEXT_(qerr, 2, " F14=%02X",
--			       buf->buffer->element[14].flags & 0xff);
-+			       buf->element[14].flags & 0xff);
- 		QETH_DBF_TEXT_(qerr, 2, " qerr=%X", qdio_error);
- 		QETH_DBF_TEXT_(qerr, 2, " serr=%X", siga_error);
--		rc = 1;
-+		return 1;
- 	}
--	return rc;
-+	return 0;
- }
- 
- static inline struct sk_buff *
-@@ -2769,8 +2766,9 @@ qeth_qdio_input_handler(struct ccw_devic
- 	for (i = first_element; i < (first_element + count); ++i) {
- 		index = i % QDIO_MAX_BUFFERS_PER_Q;
- 		buffer = &card->qdio.in_q->bufs[index];
--		if (!((status == QDIO_STATUS_LOOK_FOR_ERROR) &&
--		      qeth_check_for_inbound_error(buffer, qdio_err, siga_err)))
-+		if (!((status & QDIO_STATUS_LOOK_FOR_ERROR) &&
-+		      qeth_check_qdio_errors(buffer->buffer, 
-+					     qdio_err, siga_err,"qinerr")))
- 			qeth_process_inbound_buffer(card, buffer, index);
- 		/* clear buffer and give back to hardware */
- 		qeth_put_buffer_pool_entry(card, buffer->pool_entry);
-@@ -2785,12 +2783,13 @@ qeth_qdio_input_handler(struct ccw_devic
- static inline int
- qeth_handle_send_error(struct qeth_card *card,
- 		       struct qeth_qdio_out_buffer *buffer,
--		       int qdio_err, int siga_err)
-+		       unsigned int qdio_err, unsigned int siga_err)
++	
++	netif_carrier_off(card->dev);
+ 	recover_flag = card->state;
+ 	if (qeth_stop_card(card, recovery_mode) == -ERESTARTSYS){
+ 		PRINT_WARN("Stopping card %s interrupted by user!\n",
+@@ -1020,7 +1021,6 @@ void
+ qeth_schedule_recovery(struct qeth_card *card)
  {
- 	int sbalf15 = buffer->buffer->element[15].flags & 0xff;
- 	int cc = siga_err & 3;
+ 	QETH_DBF_TEXT(trace,2,"startrec");
+-
+ 	if (qeth_set_thread_start_bit(card, QETH_RECOVER_THREAD) == 0)
+ 		schedule_work(&card->kernel_thread_starter);
+ }
+@@ -1710,7 +1710,6 @@ qeth_check_ipa_data(struct qeth_card *ca
+ 					   "IP address reset.\n",
+ 					   QETH_CARD_IFNAME(card),
+ 					   card->info.chpid);
+-				netif_carrier_on(card->dev);
+ 				qeth_schedule_recovery(card);
+ 				return NULL;
+ 			case IPA_CMD_MODCCID:
+@@ -1959,7 +1958,7 @@ qeth_osn_send_ipa_cmd(struct qeth_card *
+ {
+ 	u16 s1, s2;
  
- 	QETH_DBF_TEXT(trace, 6, "hdsnderr");
-+	qeth_check_qdio_errors(buffer->buffer, qdio_err, siga_err, "qouterr");
- 	switch (cc) {
- 	case 0:
- 		if (qdio_err){
-@@ -3047,7 +3046,8 @@ qeth_qdio_output_handler(struct ccw_devi
- 	for(i = first_element; i < (first_element + count); ++i){
- 		buffer = &queue->bufs[i % QDIO_MAX_BUFFERS_PER_Q];
- 		/*we only handle the KICK_IT error by doing a recovery */
--		if (qeth_handle_send_error(card, buffer, qdio_error, siga_error)
-+		if (qeth_handle_send_error(card, buffer,
-+					   qdio_error, siga_error)
- 				== QETH_SEND_ERROR_KICK_IT){
- 			netif_stop_queue(card->dev);
- 			qeth_schedule_recovery(card);
-@@ -3289,7 +3289,6 @@ qeth_init_qdio_info(struct qeth_card *ca
- 	card->qdio.in_buf_pool.buf_count = card->qdio.init_pool.buf_count;
- 	INIT_LIST_HEAD(&card->qdio.in_buf_pool.entry_list);
- 	INIT_LIST_HEAD(&card->qdio.init_pool.entry_list);
--	/* outbound */
+-QETH_DBF_TEXT(trace,4,"osndipa");
++	QETH_DBF_TEXT(trace,4,"osndipa");
+ 
+ 	qeth_prepare_ipa_cmd(card, iob, QETH_PROT_OSN2);
+ 	s1 = (u16)(IPA_PDU_HEADER_SIZE + data_len);
+@@ -3809,10 +3808,8 @@ qeth_open(struct net_device *dev)
+ 	card->data.state = CH_STATE_UP;
+ 	card->state = CARD_STATE_UP;
+ 
+-	if (!card->lan_online){
+-		if (netif_carrier_ok(dev))
+-			netif_carrier_off(dev);
+-	}
++	if (!card->lan_online && netif_carrier_ok(dev))
++		netif_carrier_off(dev);
+ 	return 0;
  }
  
- static int
-@@ -3731,6 +3730,9 @@ qeth_verify_vlan_dev(struct net_device *
- 			break;
- 		}
+@@ -7936,8 +7933,8 @@ __qeth_set_online(struct ccwgroup_device
+ 		QETH_DBF_TEXT_(setup, 2, "6err%d", rc);
+ 		goto out_remove;
  	}
-+	if (rc && !(VLAN_DEV_INFO(dev)->real_dev->priv == (void *)card))
-+		return 0;
+-/*maybe it was set offline without ifconfig down
+- * we can also use this state for recovery purposes*/
++	netif_carrier_on(card->dev);
 +
- #endif
- 	return rc;
- }
-@@ -5870,10 +5872,8 @@ qeth_add_multicast_ipv6(struct qeth_card
- 	struct inet6_dev *in6_dev;
+ 	qeth_set_allowed_threads(card, 0xffffffff, 0);
+ 	if (recover_flag == CARD_STATE_RECOVER)
+ 		qeth_start_again(card, recovery_mode);
+diff -Naupr linux-orig/drivers/s390/net/qeth_mpc.h linux-patched/drivers/s390/net/qeth_mpc.h
+--- linux-orig/drivers/s390/net/qeth_mpc.h	2005-12-12 17:33:48.000000000 +0100
++++ linux-patched/drivers/s390/net/qeth_mpc.h	2005-12-12 18:56:23.000000000 +0100
+@@ -21,7 +21,7 @@ extern const char *VERSION_QETH_MPC_C;
+ #define IPA_PDU_HEADER_SIZE	0x40
+ #define QETH_IPA_PDU_LEN_TOTAL(buffer) (buffer+0x0e)
+ #define QETH_IPA_PDU_LEN_PDU1(buffer) (buffer+0x26)
+-#define QETH_IPA_PDU_LEN_PDU2(buffer) (buffer+0x2a)
++#define QETH_IPA_PDU_LEN_PDU2(buffer) (buffer+0x29)
+ #define QETH_IPA_PDU_LEN_PDU3(buffer) (buffer+0x3a)
  
- 	QETH_DBF_TEXT(trace,4,"chkmcv6");
--	if ((card->options.layer2 == 0) &&
--	    (!qeth_is_supported(card, IPA_IPV6)) )
-+	if (!qeth_is_supported(card, IPA_IPV6)) 
- 		return ;
--
- 	in6_dev = in6_dev_get(card->dev);
- 	if (in6_dev == NULL)
- 		return;
-diff -Naupr linux-orig/drivers/s390/net/qeth_sys.c linux-patched/drivers/s390/net/qeth_sys.c
---- linux-orig/drivers/s390/net/qeth_sys.c	2005-12-12 17:33:48.000000000 +0100
-+++ linux-patched/drivers/s390/net/qeth_sys.c	2005-12-12 17:39:41.000000000 +0100
-@@ -1,6 +1,6 @@
- /*
-  *
-- * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.58 $)
-+ * linux/drivers/s390/net/qeth_sys.c ($Revision: 1.59 $)
-  *
-  * Linux on zSeries OSA Express and HiperSockets support
-  * This file contains code related to sysfs.
-@@ -20,7 +20,7 @@
- #include "qeth_mpc.h"
- #include "qeth_fs.h"
- 
--const char *VERSION_QETH_SYS_C = "$Revision: 1.58 $";
-+const char *VERSION_QETH_SYS_C = "$Revision: 1.59 $";
- 
- /*****************************************************************************/
- /*                                                                           */
-@@ -160,7 +160,7 @@ qeth_dev_portname_store(struct device *d
- 		return -EPERM;
- 
- 	tmp = strsep((char **) &buf, "\n");
--	if ((strlen(tmp) > 8) || (strlen(tmp) < 2))
-+	if ((strlen(tmp) > 8) || (strlen(tmp) == 0))
- 		return -EINVAL;
- 
- 	card->info.portname[0] = strlen(tmp);
+ extern unsigned char IPA_PDU_HEADER[];

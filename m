@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbVLWGMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030444AbVLWGQA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030435AbVLWGMz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 01:12:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbVLWGMy
+	id S1030444AbVLWGQA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 01:16:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751238AbVLWGP7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 01:12:54 -0500
-Received: from nproxy.gmail.com ([64.233.182.203]:50747 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751223AbVLWGMy convert rfc822-to-8bit
+	Fri, 23 Dec 2005 01:15:59 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:43163 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751223AbVLWGP7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 01:12:54 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m68BtM6s7+nvaXxyOErF/iwUS1fukqEY0wYBvlB9A2VToyGZAukmYFlNG2ERGu5UZU9FC6nlPb+u1NnDy9HXdyR48TzZTntJG8N9wfQivPJEZB2Rkrfdb8W56sHzGn9A6EvFag+sQLcPVEJhcKjKTfu1XE7QrE0yNyhpiUXMpCM=
-Message-ID: <2cd57c900512222212x64995a7h@mail.gmail.com>
-Date: Fri, 23 Dec 2005 14:12:52 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-To: "liudj@digitalchina.com" <liudj@digitalchina.com>
-Subject: Re: flow chart tool?
-Cc: linux-arch@vger.kernel.org, linux-tiny@selenic.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <OFE169C587.08B184BE-ON482570E0.0011DE51-482570E0.00128F1A@digitalchina.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 23 Dec 2005 01:15:59 -0500
+Date: Fri, 23 Dec 2005 06:15:56 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: [WTF?] sys_tas() on m32r
+Message-ID: <20051223061556.GR27946@ftp.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <OFE169C587.08B184BE-ON482570E0.0011DE51-482570E0.00128F1A@digitalchina.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2005/12/23, liudj@digitalchina.com <liudj@digitalchina.com>:
-> sorry for this question:)
->
-> which flow chart tool do you use to discribe your software ?
->
-> i use visio ,but it is too slow
+asmlinkage int sys_tas(int *addr)
+{
+        int oldval;
+        unsigned long flags;
 
-wtf, plz don't do ad for M$ here.
-
->
->
->
-> Yesterday is a history.
-> Tomorrow is a mystery.
-> Today is a gift.
-> That's why we call it "the Present".
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+        if (!access_ok(VERIFY_WRITE, addr, sizeof (int)))
+                return -EFAULT;
+        local_irq_save(flags);
+        oldval = *addr;
+        if (!oldval)
+                *addr = 1;
+        local_irq_restore(flags);
+        return oldval;
+}
+in arch/m32r/kernel/sys_m32r.c.  Trivial oops *AND* ability to trigger
+IO with interrupts disabled.

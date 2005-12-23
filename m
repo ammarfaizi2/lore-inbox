@@ -1,81 +1,524 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030584AbVLWRdE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030418AbVLWRig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030584AbVLWRdE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 12:33:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030581AbVLWRdD
+	id S1030418AbVLWRig (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 12:38:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030581AbVLWRig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 12:33:03 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:2028 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030584AbVLWRdA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 12:33:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=UOPBtImPCIQSMRsgVeXG1/fpph6zwMiq945x7Q+5Ems3pin7aNt2FNaRIRhGX7ZrapqG7G0lQ3/Q8GTEUPrvJizM3Q3fdN4E88B/VeTsLovi/4Cfzdhnzu22w7b91YBD7SR9nmBYjoC3U0twu/cuzBjcX7ZiXPK+7Vrho25lmq8=
-Message-ID: <37219a840512230932m5c371f80gbde4cf652bbd1728@mail.gmail.com>
-Date: Fri, 23 Dec 2005 12:32:59 -0500
-From: Michael Krufky <mkrufky@gmail.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Subject: Re: 2.6.15-rc6: known regressions in the kernel Bugzilla
-Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, axboe@suse.de,
-       herbert@gondor.apana.org.au, michael.madore@gmail.com,
-       david-b@pacbell.net, gregkh@suse.de, paulmck@us.ibm.com, gohai@gmx.net,
-       luca.risolia@studio.unibo.it, p_christ@hol.gr
-In-Reply-To: <43AC1791.1080806@tmr.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 23 Dec 2005 12:38:36 -0500
+Received: from mail3.uklinux.net ([80.84.72.33]:46829 "EHLO mail3.uklinux.net")
+	by vger.kernel.org with ESMTP id S1030418AbVLWRig (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 12:38:36 -0500
+Date: Fri, 23 Dec 2005 17:47:44 +0000
+From: John Rigg <lk@sound-man.co.uk>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
+       John Rigg <lk@sound-man.co.uk>
+Subject: Re: 2.6.15-rc5-rt4: BUG: swapper:0 task might have lost a preemption check!
+Message-ID: <20051223174744.GA4518@localhost.localdomain>
+References: <1135306534.4473.1.camel@mindpipe> <43AB6B89.8020409@cybsft.com> <1135352277.6652.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
-	 <20051222011320.GL3917@stusta.de>
-	 <20051222005209.0b1b25ca.akpm@osdl.org>
-	 <20051222135718.GA27525@stusta.de>
-	 <20051222060827.dcd8cec1.akpm@osdl.org> <43AC1791.1080806@tmr.com>
+In-Reply-To: <1135352277.6652.2.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/23/05, Bill Davidsen <davidsen@tmr.com> wrote:
-> Andrew Morton wrote:
-> > Adrian Bunk <bunk@stusta.de> wrote:
-> >
-> >>not a post-2.6.14 regression
-> >>
-> >
-> >
-> > Well yeah.  But that doesn't mean thse things have lower priority that
-> > post-2.6.14 regressions.
-> >
-> > I understand what you're doing here, but we should in general concentrate
-> > upon the most severe bugs rather than upon the most recent..
->
-> Hypocratic oath: "First, do no harm."
->
-> If a new kernel version can't make things *better*, at least it
-> shouldn't make them *worse*. New features are good, performance
-> improvements are good, breaking working systems with an update is not good.
->
-> I'm with Adrian on this, if you want people to test and report with -rc
-> kernels, then there should be some urgency to addressing the reported
-> problems.
+On Fri, Dec 23, 2005 at 10:37:57AM -0500, Steven Rostedt wrote:
+> OK, I just found an SMP bug, and here's the patch.  Maybe this will help
+> you kr.  I'm currently running x86_64 SMP with 2.6.15-rc5-rt4 with this
+> and my softirq-no-hrtimers patch I sent earlier.
 
-I agree.  Quite frankly, I am extremely surprised that this matter is
-even up for discussion.  Is it really so important to release 2.6.15
-before the end of 2005 that we dont even have the time to fix
-regressions that have already been reported in older kernels? 
-ESPECIALLY given that patches are said to be available?
+It still doesn't boot here. Below is the bootmessage from serial console and
+my .config. The boot message looks pretty much the same as before the smp
+bug patch was applied (I've checked that it was actually applied). It's
+failing before it reaches CPU1 initialisation.
 
-IMHO, I agree that new regressions are most important to fix, but I
-feel that old regressions are extremely important to fix as well.  If
-we know of more regressions that CAN be fixed before a kernel release,
-why not do it?
+John
+___________________________________________________________
 
-Why should there be any rush to release the next mainline version?  To
-make it in time for Christmas?  A better Christmas gift to the world
-would be a new release without regressions, be it a month late, who
-cares?  (I know -- not likely, but at least we should try)
+Bootdata ok (command line is root=/dev/hda7 ro console=tty0 console=ttyS0,38400)
+Linux version 2.6.15-rc5-rt4 (jqr@mj0lnir) (gcc version 4.0.3 20051201 (prerelease) (Debian 4.0.2-5)) #1 SMP PREEMPT Fri Dec 23 16:56:44 GMT 2005
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+ BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 000000003fef0000 (usable)
+ BIOS-e820: 000000003fef0000 - 000000003fef3000 (ACPI NVS)
+ BIOS-e820: 000000003fef3000 - 000000003ff00000 (ACPI data)
+ BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
+Scanning NUMA topology in Northbridge 24
+Number of nodes 2
+Node 0 MemBase 0000000000000000 Limit 000000003fef0000
+Skipping disabled node 1
+Using node hash shift of 31
+Bootmem setup node 0 0000000000000000-000000003fef0000
+ACPI: PM-Timer IO Port: 0x4008
+ACPI: LAPIC (acpi_id[0x00] lapic_id[0x00] enabled)
+Processor #0 15:5 APIC version 16
+ACPI: LAPIC (acpi_id[0x01] lapic_id[0x01] enabled)
+Processor #1 15:5 APIC version 16
+ACPI: LAPIC_NMI (acpi_id[0x00] high edge lint[0x1])
+ACPI: LAPIC_NMI (acpi_id[0x01] high edge lint[0x1])
+ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+IOAPIC[0]: apic_id 2, version 3, address 0xfec00000, GSI 0-23
+ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
+Setting APIC routing to flat
+Using ACPI (MADT) for SMP configuration information
+Allocating PCI resources starting at 40000000 (gap: 3ff00000:bed00000)
+Checking aperture...
+CPU 0: aperture @ e0000000 size 128 MB
+CPU 1: aperture @ e0000000 size 128 MB
+Real-Time Preemption Support (C) 2004-2005 Ingo Molnar
+Built 1 zonelists
+Kernel command line: root=/dev/hda7 ro console=tty0 console=ttyS0,38400
+Initializing CPU#0
+WARNING: experimental RCU implementation.
+PID hash table entries: 4096 (order: 12, 131072 bytes)
+time.c: Using 1.193182 MHz PIT timer.
+time.c: Detected 1403.208 MHz processor.
+Console: colour VGA+ 80x25
+Dentry cache hash table entries: 131072 (order: 8, 1048576 bytes)
+Inode-cache hash table entries: 65536 (order: 7, 524288 bytes)
+Memory: 1012164k/1047488k available (1759k kernel code, 34936k reserved, 670k data, 204k init)
+Unable to handle kernel NULL pointer dereference at 0000000000000e00 RIP: 
+<ffffffff80164e6a>{__alloc_pages+74}
+PGD 0 
+Oops: 0000 [1] PREEMPT SMP 
+CPU 0 
+Modules linked in:
+Pid: 0, comm: swapper Not tainted 2.6.15-rc5-rt4 #1
+RIP: 0010:[<ffffffff80164e6a>] <ffffffff80164e6a>{__alloc_pages+74}
+RSP: 0018:ffffffff803b9de0  EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 0000000000000001 RCX: 0000000000000e00
+RDX: 0000000000000e00 RSI: 0000000000000000 RDI: 00000000000000d0
+RBP: ffffffff80303740 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000040 R11: 0000000000001000 R12: 00000000000000d0
+R13: 0000000000000000 R14: 0000000000000e00 R15: ffffffff80316108
+FS:  0000000000000000(0000) GS:ffffffff803a5a00(0000) knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000000000000e00 CR3: 0000000000101000 CR4: 00000000000006a0
+Process swapper (pid: 0, threadinfo ffffffff803b8000, task ffffffff80303740)
+Stack: ffffffff8037a61f 00000000000006df 000200d000000000 ffffffff00000010 
+       0000000000000001 0000000000000246 0000000000000010 0000000000000001 
+       00000000000000d0 ffffffff80316060 
+Call Trace:<ffffffff80180078>{cache_grow+360} <ffffffff801804e8>{cache_alloc_refill+408}
+       <ffffffff8017feb5>{kmem_cache_alloc+149} <ffffffff80181c88>{kmem_cache_create+472}
+       <ffffffff803d093a>{kmem_cache_init+330} <ffffffff803ba814>{start_kernel+356}
+       <ffffffff803ba286>{_sinittext+646} 
 
-...and that's my opinion.
+Code: 49 83 3e 00 4c 89 f3 75 0d 45 31 ff e9 7b 02 00 00 66 66 90 
+RIP <ffffffff80164e6a>{__alloc_pages+74} RSP <ffffffff803b9de0>
+CR2: 0000000000000e00
+ <0>Kernel panic - not syncing: Attempted to kill the idle task!
 
--Michael Krufky
+Call Trace:<ffffffff80134b14>{panic+148} <ffffffff80135d2e>{printk+78}
+       <ffffffff80137ac6>{do_exit+166} <ffffffff8022f0c5>{do_unblank_screen+21}
+       <ffffffff802b5684>{do_page_fault+1972} <ffffffff80135530>{release_console_sem+416}
+       <ffffffff801e3221>{vsnprintf+1457} <ffffffff801f401f>{vgacon_scroll+463}
+       <ffffffff8010ec61>{error_exit+0} <ffffffff80164e6a>{__alloc_pages+74}
+       <ffffffff80180078>{cache_grow+360} <ffffffff801804e8>{cache_alloc_refill+408}
+       <ffffffff8017feb5>{kmem_cache_alloc+149} <ffffffff80181c88>{kmem_cache_create+472}
+       <ffffffff803d093a>{kmem_cache_init+330} <ffffffff803ba814>{start_kernel+356}
+       <ffffffff803ba286>{_sinittext+646} 
+ ______________________________________________________________________
+
+CONFIG_X86_64=y
+CONFIG_64BIT=y
+CONFIG_X86=y
+CONFIG_GENERIC_TIME=y
+CONFIG_GENERIC_TIME_VSYSCALL=y
+CONFIG_SEMAPHORE_SLEEPERS=y
+CONFIG_MMU=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_ARCH_MAY_HAVE_PC_FDC=y
+
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_LOCK_KERNEL=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+
+CONFIG_LOCALVERSION=""
+CONFIG_LOCALVERSION_AUTO=y
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_POSIX_MQUEUE=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_BSD_PROCESS_ACCT_V3=y
+CONFIG_SYSCTL=y
+CONFIG_AUDIT=y
+CONFIG_HOTPLUG=y
+CONFIG_KOBJECT_UEVENT=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_EMBEDDED=y
+CONFIG_KALLSYMS=y
+CONFIG_PRINTK=y
+CONFIG_BUG=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_SLAB=y
+CONFIG_BASE_SMALL=0
+
+CONFIG_MODULES=y
+CONFIG_MODULE_UNLOAD=y
+CONFIG_MODULE_FORCE_UNLOAD=y
+CONFIG_OBSOLETE_MODPARM=y
+CONFIG_MODVERSIONS=y
+CONFIG_MODULE_SRCVERSION_ALL=y
+CONFIG_KMOD=y
+CONFIG_STOP_MACHINE=y
+
+
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_IOSCHED_CFQ=y
+CONFIG_DEFAULT_AS=y
+CONFIG_DEFAULT_IOSCHED="anticipatory"
+
+CONFIG_MK8=y
+CONFIG_X86_L1_CACHE_BYTES=64
+CONFIG_X86_L1_CACHE_SHIFT=6
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_MSR=m
+CONFIG_X86_CPUID=m
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_MTRR=y
+CONFIG_SMP=y
+CONFIG_PREEMPT_RT=y
+CONFIG_PREEMPT=y
+CONFIG_PREEMPT_SOFTIRQS=y
+CONFIG_PREEMPT_HARDIRQS=y
+CONFIG_PREEMPT_BKL=y
+CONFIG_PREEMPT_RCU=y
+CONFIG_NUMA=y
+CONFIG_RWSEM_GENERIC_SPINLOCK=y
+CONFIG_K8_NUMA=y
+CONFIG_X86_64_ACPI_NUMA=y
+CONFIG_ARCH_DISCONTIGMEM_ENABLE=y
+CONFIG_ARCH_DISCONTIGMEM_DEFAULT=y
+CONFIG_ARCH_SPARSEMEM_ENABLE=y
+CONFIG_SELECT_MEMORY_MODEL=y
+CONFIG_DISCONTIGMEM_MANUAL=y
+CONFIG_DISCONTIGMEM=y
+CONFIG_FLAT_NODE_MEM_MAP=y
+CONFIG_NEED_MULTIPLE_NODES=y
+CONFIG_SPLIT_PTLOCK_CPUS=4
+CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID=y
+CONFIG_NR_CPUS=8
+CONFIG_HPET_TIMER=y
+CONFIG_X86_PM_TIMER=y
+CONFIG_GART_IOMMU=y
+CONFIG_SWIOTLB=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_AMD=y
+CONFIG_PHYSICAL_START=0x100000
+CONFIG_SECCOMP=y
+CONFIG_HZ_1000=y
+CONFIG_HZ=1000
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_ISA_DMA_API=y
+CONFIG_GENERIC_PENDING_IRQ=y
+
+CONFIG_PM=y
+
+CONFIG_ACPI=y
+CONFIG_ACPI_BUTTON=m
+CONFIG_ACPI_FAN=m
+CONFIG_ACPI_PROCESSOR=m
+CONFIG_ACPI_THERMAL=m
+CONFIG_ACPI_NUMA=y
+CONFIG_ACPI_BLACKLIST_YEAR=0
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_SYSTEM=y
+
+CONFIG_PCI=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_MMCONFIG=y
+CONFIG_PCI_LEGACY_PROC=y
+
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=m
+CONFIG_IA32_EMULATION=y
+CONFIG_IA32_AOUT=y
+CONFIG_COMPAT=y
+CONFIG_SYSVIPC_COMPAT=y
+CONFIG_UID16=y
+
+CONFIG_NET=y
+
+CONFIG_PACKET=m
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=m
+CONFIG_INET=y
+CONFIG_IP_FIB_HASH=y
+CONFIG_TCP_CONG_BIC=y
+
+CONFIG_STANDALONE=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_FW_LOADER=m
+
+CONFIG_PNP=y
+
+CONFIG_PNPACPI=y
+
+CONFIG_BLK_DEV_FD=m
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_BLK_DEV_RAM_SIZE=65536
+CONFIG_BLK_DEV_INITRD=y
+
+CONFIG_IDE=m
+CONFIG_BLK_DEV_IDE=m
+
+CONFIG_BLK_DEV_IDEDISK=m
+CONFIG_BLK_DEV_IDECD=m
+
+CONFIG_IDE_GENERIC=m
+CONFIG_BLK_DEV_IDEPNP=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_GENERIC=m
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_VIA82CXXX=m
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+
+CONFIG_SCSI=m
+CONFIG_SCSI_PROC_FS=y
+
+CONFIG_BLK_DEV_SD=m
+CONFIG_BLK_DEV_SR=m
+CONFIG_CHR_DEV_SG=m
+
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+
+CONFIG_SCSI_SPI_ATTRS=m
+CONFIG_SCSI_FC_ATTRS=m
+
+CONFIG_SCSI_QLA2XXX=m
+CONFIG_SCSI_DC395x=m
+
+CONFIG_NETDEVICES=y
+CONFIG_DUMMY=m
+
+CONFIG_TIGON3=m
+
+CONFIG_INPUT=y
+
+CONFIG_INPUT_MOUSEDEV=m
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_EVDEV=m
+CONFIG_INPUT_EVBUG=m
+
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=m
+CONFIG_INPUT_MISC=y
+CONFIG_INPUT_PCSPKR=m
+CONFIG_INPUT_UINPUT=m
+
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=m
+CONFIG_SERIO_PCIPS2=m
+CONFIG_SERIO_LIBPS2=y
+CONFIG_SERIO_RAW=m
+
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_8250_EXTENDED=y
+CONFIG_SERIAL_8250_MANY_PORTS=y
+CONFIG_SERIAL_8250_SHARE_IRQ=y
+CONFIG_SERIAL_8250_RSA=y
+
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_LEGACY_PTYS=y
+CONFIG_LEGACY_PTY_COUNT=256
+
+CONFIG_NVRAM=m
+CONFIG_RTC=m
+CONFIG_RTC_HISTOGRAM=m
+CONFIG_BLOCKER=m
+CONFIG_GEN_RTC=m
+CONFIG_GEN_RTC_X=y
+
+CONFIG_AGP=y
+CONFIG_AGP_AMD64=y
+CONFIG_DRM=m
+CONFIG_DRM_RADEON=m
+CONFIG_HPET=y
+CONFIG_HPET_MMAP=y
+CONFIG_HANGCHECK_TIMER=m
+
+CONFIG_I2C=m
+CONFIG_I2C_CHARDEV=m
+
+CONFIG_I2C_ALGOBIT=m
+CONFIG_I2C_ALGOPCF=m
+CONFIG_I2C_ALGOPCA=m
+
+CONFIG_I2C_VIAPRO=m
+
+CONFIG_FB=y
+CONFIG_FB_CFB_FILLRECT=y
+CONFIG_FB_CFB_COPYAREA=y
+CONFIG_FB_CFB_IMAGEBLIT=y
+CONFIG_FB_MODE_HELPERS=y
+CONFIG_FB_TILEBLITTING=y
+CONFIG_FB_VGA16=m
+CONFIG_FB_VESA=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_RADEON_OLD=m
+CONFIG_FB_RADEON=m
+CONFIG_FB_RADEON_I2C=y
+
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=m
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+
+CONFIG_SOUND=m
+
+CONFIG_SND=m
+CONFIG_SND_AC97_CODEC=m
+CONFIG_SND_AC97_BUS=m
+CONFIG_SND_TIMER=m
+CONFIG_SND_PCM=m
+CONFIG_SND_RAWMIDI=m
+CONFIG_SND_SEQUENCER=m
+CONFIG_SND_SEQ_DUMMY=m
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=m
+CONFIG_SND_PCM_OSS=m
+CONFIG_SND_SEQUENCER_OSS=y
+CONFIG_SND_RTCTIMER=m
+CONFIG_SND_SEQ_RTCTIMER_DEFAULT=y
+CONFIG_SND_GENERIC_DRIVER=y
+
+CONFIG_SND_MPU401_UART=m
+CONFIG_SND_DUMMY=m
+CONFIG_SND_VIRMIDI=m
+CONFIG_SND_MTPAV=m
+CONFIG_SND_SERIAL_U16550=m
+CONFIG_SND_MPU401=m
+
+CONFIG_SND_ICE1712=m
+
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_USB=y
+
+CONFIG_USB_DEVICEFS=y
+
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_UHCI_HCD=m
+
+CONFIG_USB_HID=m
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_HIDDEV=y
+
+CONFIG_USB_POWERMATE=m
+
+CONFIG_USB_MON=y
+
+CONFIG_EXT2_FS=m
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT2_FS_POSIX_ACL=y
+CONFIG_EXT2_FS_SECURITY=y
+CONFIG_EXT3_FS=m
+CONFIG_EXT3_FS_XATTR=y
+CONFIG_EXT3_FS_POSIX_ACL=y
+CONFIG_EXT3_FS_SECURITY=y
+CONFIG_JBD=m
+CONFIG_FS_MBCACHE=m
+CONFIG_FS_POSIX_ACL=y
+CONFIG_XFS_FS=m
+CONFIG_XFS_SECURITY=y
+CONFIG_XFS_POSIX_ACL=y
+CONFIG_XFS_RT=y
+CONFIG_MINIX_FS=m
+CONFIG_ROMFS_FS=m
+CONFIG_INOTIFY=y
+CONFIG_DNOTIFY=y
+
+CONFIG_ISO9660_FS=m
+CONFIG_JOLIET=y
+CONFIG_ZISOFS=y
+CONFIG_ZISOFS_FS=m
+CONFIG_UDF_FS=m
+CONFIG_UDF_NLS=y
+
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_NTFS_FS=m
+
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+
+CONFIG_CRAMFS=y
+
+CONFIG_MSDOS_PARTITION=y
+
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="cp437"
+CONFIG_NLS_CODEPAGE_437=m
+CONFIG_NLS_ASCII=m
+CONFIG_NLS_ISO8859_1=m
+
+CONFIG_PROFILING=y
+CONFIG_OPROFILE=m
+
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_LOG_BUF_SHIFT=15
+
+CONFIG_SECURITY=y
+CONFIG_SECURITY_CAPABILITIES=m
+
+CONFIG_CRYPTO=y
+
+CONFIG_CRC_CCITT=m
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=m
+CONFIG_ZLIB_INFLATE=y

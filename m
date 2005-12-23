@@ -1,55 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161113AbVLWXFb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161120AbVLWXHe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161113AbVLWXFb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 18:05:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161120AbVLWXFb
+	id S1161120AbVLWXHe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 18:07:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161127AbVLWXHe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 18:05:31 -0500
-Received: from stat9.steeleye.com ([209.192.50.41]:7619 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1161108AbVLWXFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 18:05:30 -0500
-Subject: Re: [patch 18/19] SCSI: fix transfer direction in scsi_lib and st
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       linux-scsi@vger.kernel.org, stefanr@s5r6.in-berlin.de
-In-Reply-To: <20051223224852.GR19057@kroah.com>
-References: <20051223221200.342826000@press.kroah.org>
-	 <20051223224852.GR19057@kroah.com>
-Content-Type: text/plain
-Date: Fri, 23 Dec 2005 17:05:25 -0600
-Message-Id: <1135379125.3728.57.camel@mulgrave>
+	Fri, 23 Dec 2005 18:07:34 -0500
+Received: from mta07-winn.ispmail.ntl.com ([81.103.221.47]:36380 "EHLO
+	mta07-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
+	id S1161124AbVLWXHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 18:07:33 -0500
+Date: Fri, 23 Dec 2005 23:11:15 +0000
+From: ed <ed@ednevitible.co.uk>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Book recommendations
+Message-ID: <20051223231115.5f678e5a@workstation>
+Organization: the triads
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+X-Face: =\=1ht]b*gboJ:&+:3x1vGz}fCe40TZJ9s@L2~YGi}]c(fY-_7J]wUR.6MSH\oeq#@H6aAERh(<<1miWJ|x/-1g`r3EmzY3FE?VxmEih9%ETmPd7zChR1"zWC$iuK{|{R+Ss{I3w(KC"_LM%S!
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-23 at 14:48 -0800, Greg Kroah-Hartman wrote:
-> plain text document attachment
-> (scsi-fix-transfer-direction-in-scsi_lib-and-st.patch)
-> -stable review patch.  If anyone has any objections, please let us know.
+Hello,
 
-Erm, on this diff, you're missing the function
+I am looking to get involved in kernel development, maybe start first
+with looking at very minor bugs effecting my local system etc.
 
-scsi_setup_blk_pc_cmnd()
+First I would like some advice on choosing reading material, has anyone
+any good advice? I have previously read Unix Internals - Pate, but this
+is not deep enough and closer to SCO than linux.
 
-Unless these patches were split up strangely and it actually went
-through in some other patch that wasn't sent to linux-scsi?
-
-I'd just take the diffs out of the current kernel tree:
-
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=a8c730e85e80734412f4f73ab28496a0e8b04a7b
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=c9526497cf03ee775c3a6f8ba62335735f98de7a
-
-I think they'll apply straight to 2.6.13-stable.
-
-James
-
-
+-- 
+Regards, Ed http://www.usenix.org.uk
+:%s/Open Source/Free Software/g

@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161086AbVLWWcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161087AbVLWWoq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161086AbVLWWcN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 17:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161072AbVLWWcM
+	id S1161087AbVLWWoq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 17:44:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161088AbVLWWop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 17:32:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:43720 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161086AbVLWW2n (ORCPT
+	Fri, 23 Dec 2005 17:44:45 -0500
+Received: from mail.kroah.org ([69.55.234.183]:4046 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161087AbVLWWop (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 17:28:43 -0500
-Date: Fri, 23 Dec 2005 14:27:36 -0800
-From: Greg KH <gregkh@suse.de>
-To: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
-       "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: [patch 05/11] tcp: BIC max increment too large
-Message-ID: <20051223222736.GF18252@kroah.com>
-References: <20051109182205.294803000@press.kroah.org>
+	Fri, 23 Dec 2005 17:44:45 -0500
+Date: Fri, 23 Dec 2005 14:44:03 -0800
+From: Greg KH <greg@kroah.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.14.3 - sysfs duplicated dentry bug
+Message-ID: <20051223224403.GA18793@kroah.com>
+References: <200512091848.42297.blaisorblade@yahoo.it> <20051209175555.GA9761@kroah.com> <200512232325.12849.blaisorblade@yahoo.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="tcp-bic-max-increment-too-large.patch"
-In-Reply-To: <20051223222652.GA18252@kroah.com>
+Content-Disposition: inline
+In-Reply-To: <200512232325.12849.blaisorblade@yahoo.it>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Stephen Hemminger <shemminger@osdl.org>
+On Fri, Dec 23, 2005 at 11:25:11PM +0100, Blaisorblade wrote:
+> On Friday 09 December 2005 18:55, Greg KH wrote:
+> > On Fri, Dec 09, 2005 at 06:48:41PM +0100, Blaisorblade wrote:
+> > > Q: Since when is a directory entry allowed to be duplicate?
+> > > A: Since Linux 2.6.14!
+> > >
+> > > $ uname -r
+> > > 2.6.14.3-bs2-mroute
+> > >
+> > > The only sysfs-related change is the use of a custom DSDT, which is new
+> > > to this kernel.
+> 
+> > Known bug, fixed in the 2.6.15-rc kernel tree.  It was a timer
+> > registering with the same name in two places :(
+> 
+> Sorry for answering so late (my latency in checking "spam" false positives is 
+> big) but shouldn't this have been backported to -stable?
 
-The max growth of BIC TCP is too large. Original code was based on
-BIC 1.0 and the default there was 32. Later code (2.6.13) included
-compensation for delayed acks, and should have reduced the default
-value to 16; since normally TCP gets one ack for every two packets sent.
+It should, if someone sends the patch to do so to the stable@ email
+address :)
 
-The current value of 32 makes BIC too aggressive and unfair to other
-flows.
+> Also is this known to cause hangs at unmount time (I experience them
+> at times and they're not network FSs-related) ?
 
-Submitted-by: Injong Rhee <rhee@eos.ncsu.edu>
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Not that I have heard about, but you never know...
 
----
- net/ipv4/tcp_bic.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+thanks,
 
---- linux-2.6.14.1.orig/net/ipv4/tcp_bic.c
-+++ linux-2.6.14.1/net/ipv4/tcp_bic.c
-@@ -27,7 +27,7 @@
- 					  */
- 
- static int fast_convergence = 1;
--static int max_increment = 32;
-+static int max_increment = 16;
- static int low_window = 14;
- static int beta = 819;		/* = 819/1024 (BICTCP_BETA_SCALE) */
- static int low_utilization_threshold = 153;
-
---
+greg k-h

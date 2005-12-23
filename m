@@ -1,129 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbVLWHdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbVLWHqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbVLWHdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 02:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbVLWHdZ
+	id S1030429AbVLWHqF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 02:46:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030439AbVLWHqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 02:33:25 -0500
-Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:27514
-	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
-	id S1030226AbVLWHdZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 02:33:25 -0500
-Message-Id: <43ABB683.76F0.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0 
-Date: Fri, 23 Dec 2005 08:34:11 +0100
-From: "Jan Beulich" <JBeulich@novell.com>
-To: "Sam Ravnborg" <sam@ravnborg.org>
-Cc: "Roman Zippel" <zippel@linux-m68k.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: .config not updated after make clean
-References: <43AABBA1.76F0.0078.0@novell.com> <20051222212508.GA1323@mars.ravnborg.org>
-In-Reply-To: <20051222212508.GA1323@mars.ravnborg.org>
+	Fri, 23 Dec 2005 02:46:04 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:9902 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1030429AbVLWHqB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 02:46:01 -0500
+Date: Fri, 23 Dec 2005 08:45:06 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
+       Steven Rostedt <rostedt@goodmis.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 2/8] mutex subsystem, add asm-generic/mutex-[dec|xchg].h implementations
+Message-ID: <20051223074506.GA9043@elte.hu>
+References: <20051222230451.GC13302@elte.hu> <Pine.LNX.4.64.0512221550290.14098@g5.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512221550290.14098@g5.osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks better than any of the alternatives I had come to think of.
-Thanks, and assuming you're going to push this upwards... Jan
 
->>> Sam Ravnborg <sam@ravnborg.org> 22.12.05 22:25:08 >>>
-On Thu, Dec 22, 2005 at 02:43:45PM +0100, Jan Beulich wrote:
-> Sam,
+* Linus Torvalds <torvalds@osdl.org> wrote:
+
+> On Fri, 23 Dec 2005, Ingo Molnar wrote:
+> >
+> > add the two generic mutex fastpath implementations.
 > 
-> since 'make clean' doesn't delete include/linux/autoconf.h (but
-> obviously does delete .config.cmd), .config cannot get updated
-anymore
-> if any of the Kconfig-s in the tree changes.
+> Now this looks more like it. This is readable code without any #ifdef's in 
+> the middle.
+> 
+> Now the only #ifdef's seem to be for mutex debugging. Might it be 
+> worthwhile to have a generic debugging, that just uses spinlocks and 
+> just accept that it's going to be slow, but shared across absolutely 
+> all architectures?
 
-Correct but thats unfortunate though.
+yeah, that's how it's working right now - the debugging variant still 
+includes the arch header, but ignores it, and always does the slowpath.  
+That's one of the advantages of the arch defining the fastpath, but not 
+the API! Debugging needs to set up more state so it needs the spinlock 
+all the time.
 
-> Is there a particular
-> reason that include/linux/autoconf.h only gets deleted by 'make
-> mrproper', but not by 'make clean'?
-make clean is used to clean out all intermidiate files not needed for:
-- building applications that users kernel headers directly
-- building external modules
+> 	obj$(CONFIG_MUTEX_DEBUG) += mutex-debug.c
+> 
+> in the kernel/ subdirectory? That way you could _really_ have a clean 
+> separation, with absolutely zero pollution of any architecture mess or 
+> debugging #ifdef's in any implementation code.
 
-For the latter autoconf.h is needed in order to obtain the
-current kernel configuration.
+i think we are quite close to this already. We still want to share the 
+slowpath because we want to debug it. I'll try to put the mutex-debug.c 
+functions into a separate object file, but that introduces more 
+interfaces between the two than i wanted to - even if debugging is slow, 
+mutexes with full debugging are still faster in the VFS test than 
+semaphores ;) I also wanted to introduce a lighter mode of debugging 
+that could have the fastpath enabled, and which distributions could 
+enable by default in their QA phase. (just like SPINLOCK_DEBUG)
 
-> If that cannot be adjusted, I can't
-> see how else to force proper re-generation of .config through the
-> silentoldconfig target.
-
-The current flow is something in the line of:
-
-all Kconfig files => .config + include/linux/autoconf.h +.config.cmd
-include/linux/autoconf.h => include/config/* + include/config/MARKER
-
-When we execute make clean we delete the .config.cmd file so
-we will not detect when a Kconfig file is changed - not good.
-
-Since for reasons listed above we want to keep the autoconf.h
-around also after make clean a new approach is needed.
-We could keep the .config.cmd file but thats clearly not
-supposed to stay around after a make clean.
-
-So I went for another solution and if .config.cmd - renamed to
-kconfig.dep - does not exists we execute make silentoldconfig
-
-The reason for the rename is the clash with the normal kbuild .cmd
-file which caused it to have multiple targets if it was created.
-
-	Sam
-	
-diff --git a/Makefile b/Makefile
-index f4218b5..43ab980 100644
---- a/Makefile
-+++ b/Makefile
-@@ -481,18 +481,20 @@ ifeq ($(dot-config),1)
- 
- # Read in dependencies to all Kconfig* files, make sure to run
- # oldconfig if changes are detected.
---include .config.cmd
-+-include .kconfig.dep
- 
- include .config
- 
- # If .config needs to be updated, it will be done via the dependency
- # that autoconf has on .config.
- # To avoid any implicit rule to kick in, define an empty command
--.config: ;
-+.config .kconfig.dep: ;
- 
- # If .config is newer than include/linux/autoconf.h, someone tinkered
--# with it and forgot to run make oldconfig
--include/linux/autoconf.h: .config
-+# with it and forgot to run make oldconfig.
-+# If kconfig.dep is missing then we are probarly in a cleaned tree so
-+# we execute the config step to be sure to catch updated Kconfig
-files
-+include/linux/autoconf.h: .kconfig.dep .config
- 	$(Q)mkdir -p include/linux
- 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
- else
-@@ -981,7 +983,7 @@ endif # CONFIG_MODULES
- 
- # Directories & files removed with 'make clean'
- CLEAN_DIRS  += $(MODVERDIR)
--CLEAN_FILES +=	vmlinux System.map \
-+CLEAN_FILES +=	vmlinux System.map .kconfig.dep\
-                 .tmp_kallsyms* .tmp_version .tmp_vmlinux*
-.tmp_System.map
- 
- # Directories & files removed with 'make mrproper'
-diff --git a/scripts/kconfig/util.c b/scripts/kconfig/util.c
-index 1fa4c0b..854d247 100644
---- a/scripts/kconfig/util.c
-+++ b/scripts/kconfig/util.c
-@@ -33,7 +33,7 @@ int file_write_dep(const char *name)
- 	FILE *out;
- 
- 	if (!name)
--		name = ".config.cmd";
-+		name = ".kconfig.dep";
- 	out = fopen("..config.tmp", "w");
- 	if (!out)
- 		return 1;
+	Ingo

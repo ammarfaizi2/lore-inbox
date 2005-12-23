@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030380AbVLWCVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030381AbVLWCXm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030380AbVLWCVa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 21:21:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030381AbVLWCVa
+	id S1030381AbVLWCXm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 21:23:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030382AbVLWCXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 21:21:30 -0500
-Received: from ambr.mtholyoke.edu ([138.110.1.10]:13 "EHLO ambr.mtholyoke.edu")
-	by vger.kernel.org with ESMTP id S1030380AbVLWCV3 (ORCPT
+	Thu, 22 Dec 2005 21:23:41 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:9435 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030381AbVLWCXl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 21:21:29 -0500
-From: Ron Peterson <rpeterso@MtHolyoke.edu>
-Date: Thu, 22 Dec 2005 21:21:26 -0500
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: nfs insecure_locks / Tru64 behaviour
-Message-ID: <20051223022126.GC22949@mtholyoke.edu>
-References: <20051222133623.GE7814@mtholyoke.edu> <1135293713.3685.9.camel@lade.trondhjem.org> <20051223013933.GB22949@mtholyoke.edu> <1135302325.3685.69.camel@lade.trondhjem.org>
+	Thu, 22 Dec 2005 21:23:41 -0500
+Date: Thu, 22 Dec 2005 21:22:27 -0500
+From: Dave Jones <davej@redhat.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: remove incorrect dependancy on CONFIG_APM
+Message-ID: <20051223022227.GB27537@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Adrian Bunk <bunk@stusta.de>, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20051220212127.GA6833@redhat.com> <20051223021813.GH27525@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1135302325.3685.69.camel@lade.trondhjem.org>
-Organization: Mount Holyoke College
-X-Operating-System: Debian GNU/Linux
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20051223021813.GH27525@stusta.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 23, 2005 at 02:45:25AM +0100, Trond Myklebust wrote:
-> On Thu, 2005-12-22 at 20:39 -0500, Ron Peterson wrote:
-> > > As for your problem accessing files in the directory
-> > > 
-> > > drwxr-x---  2 root     system  4096 Dec 22 08:22 d/
-> > > 
-> > > as an unprivileged user on group 'kmw', the solution is obvious:
-> > > 
-> > > 'chgrp kmw d'
-> > > 
-> > > or
-> > > 
-> > > chmod a+x d
-> > 
-> > That's exactly the problem.  The first obvious solution doesn't work.
-> > Your second solution does.  The directory must have the execute bit set
-> > for other, or the the file cannot be edited, no matter who owns the
-> > directory (unless the owner/group is nobody/nogroup).
-> 
-> Why wouldn't the chgrp solution work? Isn't /etc/groups on the client
-> and server in sync?
+On Fri, Dec 23, 2005 at 03:18:13AM +0100, Adrian Bunk wrote:
+ > On Tue, Dec 20, 2005 at 04:21:27PM -0500, Dave Jones wrote:
+ > > 
+ > > >From the PM_LEGACY Kconfig description..
+ > > 
+ > > "Support for pm_register() and friends."
+ > > 
+ > > Note, no mention of 'make apm stop working'.
+ > > 
+ > > Signed-off-by: Dave Jones <davej@redhat.com>
+ > > 
+ > > --- linux-2.6.14/arch/i386/Kconfig~	2005-12-20 16:19:17.000000000 -0500
+ > > +++ linux-2.6.14/arch/i386/Kconfig	2005-12-20 16:19:21.000000000 -0500
+ > > @@ -710,7 +710,7 @@ depends on PM && !X86_VISWS
+ > >  
+ > >  config APM
+ > >  	tristate "APM (Advanced Power Management) BIOS support"
+ > > -	depends on PM && PM_LEGACY
+ > > +	depends on PM
+ > >...
+ > 
+ > This doesn't compile:
+ > 
+ > <--  snip  -->
+ > 
+ > ...
+ >   CC      arch/i386/kernel/apm.o
+ > arch/i386/kernel/apm.c: In function 'apm_init':
+ > arch/i386/kernel/apm.c:2304: error: 'pm_active' undeclared (first use in this function)
+ > arch/i386/kernel/apm.c:2304: error: (Each undeclared identifier is reported only once
+ > arch/i386/kernel/apm.c:2304: error: for each function it appears in.)
+ > arch/i386/kernel/apm.c: In function 'apm_exit':
+ > arch/i386/kernel/apm.c:2410: error: 'pm_active' undeclared (first use in this function)
+ > make[1]: *** [arch/i386/kernel/apm.o] Error 1
+ > 
+ > <--  snip  -->
+ > 
+ > If PM_LEGACY causes user confusion for APM users, commit 
+ > bca73e4bf8563d83f7856164caa44d5f42e44cca should be reverted.
 
-Yep.
+Yeah, I realised that earlier too, my change was untested.
 
-Why it doesn't work .. I dunno.  My current best guess is that the
-manner in which the insecure_locks option in /etc/exports is applied to
-directories isn't quite right.
+Hrmph.  For now I've enabled PM_LEGACY, but silently taking options
+away like this is what surprises users.
 
-Best.
+		Dave
 
--- 
-Ron Peterson
-Network & Systems Manager
-Mount Holyoke College
-http://pks.mtholyoke.edu:11371/pks/lookup?search=0xB6D365A1&op=vindex

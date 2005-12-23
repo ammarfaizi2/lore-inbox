@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030477AbVLWKMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030478AbVLWKSG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030477AbVLWKMc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 05:12:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbVLWKMc
+	id S1030478AbVLWKSG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 05:18:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030479AbVLWKSG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 05:12:32 -0500
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:12427 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1030477AbVLWKMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 05:12:31 -0500
-From: Bodo Eggert <harvested.in.lkml@7eggert.dyndns.org>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Parag Warudkar <kernel-stuff@comcast.net>,
-       Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, Andi Kleen <ak@suse.de>,
-       Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, arjan@infradead.org
-Reply-To: 7eggert@gmx.de
-Date: Fri, 23 Dec 2005 11:12:38 +0100
-References: <5lQOU-492-31@gated-at.bofh.it> <5lQOU-492-29@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Fri, 23 Dec 2005 05:18:06 -0500
+Received: from [195.144.244.147] ([195.144.244.147]:16080 "EHLO
+	amanaus.varma-el.com") by vger.kernel.org with ESMTP
+	id S1030478AbVLWKSF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 05:18:05 -0500
+Message-ID: <43ABCED6.2030008@varma-el.com>
+Date: Fri, 23 Dec 2005 13:17:58 +0300
+From: Andrey Volkov <avolkov@varma-el.com>
+Organization: Varma Electronics Oy
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: ru-ru, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1Epjug-0001iA-In@be1.lrz>
-X-be10.7eggert.dyndns.org-MailScanner-Information: See www.mailscanner.info for information
-X-be10.7eggert.dyndns.org-MailScanner: Found to be clean
-X-be10.7eggert.dyndns.org-MailScanner-From: harvested.in.lkml@posting.7eggert.dyndns.org
-Subject: Re: [2.6 patch] i386: always use 4k stacks
+To: Pantelis Antoniou <panto@intracom.gr>
+Cc: pantelis.antoniou@gmail.com, linuxppc-embedded@ozlabs.org,
+       Jes Sorensen <jes@trained-monkey.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] genalloc != generic DEVICE memory allocator
+References: <43A98F90.9010001@varma-el.com> <yq0d5jpuoqe.fsf@jaguar.mkp.net> <43AAEE12.5030009@varma-el.com> <200512222033.40156.pantelis.antoniou@gmail.com> <43ABA972.4080701@varma-el.com> <43ABAB69.4060703@intracom.gr>
+In-Reply-To: <43ABAB69.4060703@intracom.gr>
+X-Enigmail-Version: 0.93.0.0
+OpenPGP: url=pgp.dtype.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
-
-> "With some drawbacks" is the point: It has been determined that the
-> drawbacks are heavy enough that the 8KiB stack option should go.
-
-Determined by voodoo and wild guessing.
-
-Let's detect the need for 4K stacks: (I hope I found the correct place)
-
-(Maybe the printk should be completely ifdefed, but I'm not sure)
 
 
-Signed-off-by: Bodo Eggert <7eggert@gmx.de>
+Pantelis Antoniou wrote:
+>>
+> 
+> [snip]
+> 
+>>
+>> Agree, I couldn't see nothing better for a basement of generic dev.
+>> alloc.
+>>
+>> So, it will be much better if it will be moved to lib/.
+>>
+>> Anyone have some more comments about subj. ?
+>>
+> 
+> Sure, but the call has to be made be a core developer.
+> 
+> Andrew?
 
---- 2.6.14/kernel/fork.c.ori    2005-12-21 19:06:24.000000000 +0100
-+++ 2.6.14/kernel/fork.c        2005-12-21 19:15:23.000000000 +0100
-@@ -168,4 +168,9 @@ static struct task_struct *dup_task_stru
-        if (!ti) {
-                free_task_struct(tsk);
-+               printk(KERN_WARNING, "Can't allocate new task structure"
-+#ifndef CONFIG_4KSTACKS
-+               ". Maybe you could benefit from 4K stacks.\n"
-+#endif
-+               "\n");
-                return NULL;
-        }
+Pantelis, what did you think about renaming rheap.c and rh_xxx, to
+something like dev_xxx, since, for example, rh_alloc overlapped with
+__rh_alloc (__RegionHach__alloc) in the drivers/md/dm-raid1.c.
+
 
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Regards
+Andrey Volkov

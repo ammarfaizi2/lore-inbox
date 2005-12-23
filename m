@@ -1,46 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030390AbVLWDPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030391AbVLWDRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030390AbVLWDPk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 22:15:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030391AbVLWDPk
+	id S1030391AbVLWDRM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 22:17:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030387AbVLWDRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 22:15:40 -0500
-Received: from xproxy.gmail.com ([66.249.82.198]:52627 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030389AbVLWDPj convert rfc822-to-8bit
+	Thu, 22 Dec 2005 22:17:12 -0500
+Received: from mtai04.charter.net ([209.225.8.184]:16512 "EHLO
+	mtai04.charter.net") by vger.kernel.org with ESMTP id S1030391AbVLWDRL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 22:15:39 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=PzDSu7EAUNJs+45qKUyS0yk8RdKwJTHUJxpVVOnEW29VEF7Sgc5+zxibu7NLfOoOOwt7c5ifLA1ZU/C40ucC8Za2cenqL6LkHrKinfXO5YThPvGLOT9cOM3+ByW/CK95bbnPwKi+VsmaV3FRUU2eGcw0B+NloVa1glGdJTc3kAQ=
-Date: Fri, 23 Dec 2005 04:15:22 +0100
-From: Diego Calleja <diegocg@gmail.com>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: jmerkey@wolfmountaingroup.com, rostedt@goodmis.org, mrmacman_g4@mac.com,
-       legal@lists.gnumonks.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, garbageout@sbcglobal.net
-Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
-Message-Id: <20051223041522.ac36635d.diegocg@gmail.com>
-In-Reply-To: <20051223025638.GA31381@taniwha.stupidest.org>
-References: <43AACF77.9020206@sbcglobal.net>
-	<496FC071-3999-4E23-B1A2-1503DCAB65C0@mac.com>
-	<1135283241.12761.19.camel@localhost.localdomain>
-	<43AB32C1.1080101@wolfmountaingroup.com>
-	<20051223025638.GA31381@taniwha.stupidest.org>
-X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.9; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Thu, 22 Dec 2005 22:17:11 -0500
+X-BrightmailFiltered: true
+X-Brightmail-Tracker: AAAAAQAAA+k=
+Message-ID: <43AB6B89.8020409@cybsft.com>
+Date: Thu, 22 Dec 2005 21:14:17 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.15-rc5-rt4: BUG: swapper:0 task might have lost a preemption
+ check!
+References: <1135306534.4473.1.camel@mindpipe>
+In-Reply-To: <1135306534.4473.1.camel@mindpipe>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 22 Dec 2005 18:56:38 -0800,
-Chris Wedgwood <cw@f00f.org> escribió:
+Lee Revell wrote:
+> Got this on boot.  Same .config as the last one I sent you.
+> 
+> VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
+>     ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:pio
+> Probing IDE interface ide1...
+> BUG: swapper:0 task might have lost a preemption check!
+>  [<c010440c>] dump_stack+0x1c/0x20 (20)
+>  [<c01166aa>] preempt_enable_no_resched+0x5a/0x60 (20)
+>  [<c0100dd9>] cpu_idle+0x79/0xb0 (12)
+>  [<c0100280>] _stext+0x40/0x50 (28)
+>  [<c03078e6>] start_kernel+0x176/0x1d0 (20)
+>  [<c0100199>] 0xc0100199 (1086889999)
+> ---------------------------
+> | preempt count: 00000000 ]
+> | 0-level deep critical section nesting:
+> ----------------------------------------
+> 
+> Lee
+> 
 
-> That's entirely debatable and I would recommend the original poster
-> seek legal advice on this as there are many people who will claim
-> loading GPLd modules is paramount to linking and therefore this is a
-> violation.
+I have been getting this on my SMP system. I have yet to get a
+successful boot. I have been looking with every spare minute I have had
+for a couple of days, but have yet to find the problem. :(
 
-So, a GPL application running on top of a BSD-licensed kernel
-(or library) is illegal? I doubt it...
+
+-- 
+   kr

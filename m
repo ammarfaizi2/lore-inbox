@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161070AbVLWWAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161068AbVLWWBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161070AbVLWWAi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 17:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161069AbVLWWAh
+	id S1161068AbVLWWBG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 17:01:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161069AbVLWWBF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 17:00:37 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:54926 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161063AbVLWWAg (ORCPT
+	Fri, 23 Dec 2005 17:01:05 -0500
+Received: from pat.uio.no ([129.240.130.16]:28054 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1161068AbVLWWBC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 17:00:36 -0500
-In-Reply-To: <43AC5B14.2090509@mac.com>
-To: Scott Mansfield <thephantom@mac.com>
-Cc: "Robert W. Fuller" <garbageout@sbcglobal.net>,
-       linux-fsdevel@vger.kernel.org,
-       LKML Kernel <linux-kernel@vger.kernel.org>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Ben Slusky <sluskyb@paranoiacs.org>
-MIME-Version: 1.0
-Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OF76E63748.3DC6AE7D-ON882570E0.00784E16-882570E0.0078E6D6@us.ibm.com>
-From: Bryan Henderson <hbryan@us.ibm.com>
-Date: Fri, 23 Dec 2005 14:00:32 -0800
-X-MIMETrack: Serialize by Router on D01ML604/01/M/IBM(Release 7.0HF90 | November 16, 2005) at
- 12/23/2005 17:00:34,
-	Serialize complete at 12/23/2005 17:00:34
-Content-Type: text/plain; charset="US-ASCII"
+	Fri, 23 Dec 2005 17:01:02 -0500
+Subject: Re: nfs insecure_locks / Tru64 behaviour
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Bernd Eckenfels <be-mail2005@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20051223214138.GA25727@lina.inka.de>
+References: <E1EprNK-0005ZC-00@calista.inka.de>
+	 <1135371520.8555.2.camel@lade.trondhjem.org>
+	 <20051223214138.GA25727@lina.inka.de>
+Content-Type: text/plain
+Date: Fri, 23 Dec 2005 23:00:54 +0100
+Message-Id: <1135375254.8555.49.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.47, required 12,
+	autolearn=disabled, AWL 1.48, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>Developer replies that the source code will be provided
->>>only to paying customers:
->> 
->> 
->> Not really.  Developer does make the bizarre statement that "paid 
->> customers" are entitled to source code, but doesn't say nobody else is. 
+On Fri, 2005-12-23 at 22:41 +0100, Bernd Eckenfels wrote:
+> On Fri, Dec 23, 2005 at 09:58:40PM +0100, Trond Myklebust wrote:
+> > Huh? No it doesn't. The Linux NLM server requires that the client
+> > authenticate using AUTH_SYS (unless you use insecure_locks), but it
+> > certainly doesn't require you to have root privileges. That would
+> > violate POSIX locking rules.
+> 
+> Yes, however True64 does not authenticate (properly), thats why you need the
+> option if you want to do locking.
 
->> And Developer says at the same time he will make source code available 
-to 
->> the person who requested it.  The problem is that he doesn't actually 
-do 
->> it, and is never heard from again.
->
->Call me crazy but if one requests a copy of the source only to never 
->hear from the developer, is that not a direct violation of the GPL?  To 
->me this sounds like the developer is walking a pretty fine line.
+Sure, however his problem doesn't appear to be related to POSIX/fcntl
+locking on the file itself, but rather to access checking on the parent
+directory.
 
-I'll just call you crazy for implying that someone said otherwise.
-
-If you look above, you'll see a statement that the developer said he would 
-supply source code only to paying customers, and then a contradiction that 
-says the developer did not say that.  It then adds an extra fact to 
-explain what the developer _really_ did to create the violation.
+Cheers,
+  Trond
 

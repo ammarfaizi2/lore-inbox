@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030562AbVLWPlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030564AbVLWQMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030562AbVLWPlD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 10:41:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030563AbVLWPlD
+	id S1030564AbVLWQMx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 11:12:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbVLWQMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 10:41:03 -0500
-Received: from lizards-lair.paranoiacs.org ([216.158.28.252]:15063 "EHLO
-	lizards-lair.paranoiacs.org") by vger.kernel.org with ESMTP
-	id S1030562AbVLWPlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 10:41:00 -0500
-Date: Fri, 23 Dec 2005 10:35:41 -0500
-From: Ben Slusky <sluskyb@paranoiacs.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, legal@lists.gnumonks.org,
-       linux-fsdevel@vger.kernel.org,
-       LKML Kernel <linux-kernel@vger.kernel.org>,
-       "Robert W. Fuller" <garbageout@sbcglobal.net>
-Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers
-Message-ID: <20051223153541.GA13111@paranoiacs.org>
-References: <43AACF77.9020206@sbcglobal.net> <496FC071-3999-4E23-B1A2-1503DCAB65C0@mac.com> <1135283241.12761.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 23 Dec 2005 11:12:52 -0500
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:34773 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S932499AbVLWQMw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 11:12:52 -0500
+From: Ingo Oeser <ioe-lkml@rameria.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] GIT 1.0.0b quickfix
+Date: Fri, 23 Dec 2005 17:12:38 +0100
+User-Agent: KMail/1.7.2
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "H. Peter Anvin" <hpa@zytor.com>, Junio C Hamano <junkio@cox.net>,
+       git@vger.kernel.org
+References: <7vpsnq3wrg.fsf@assigned-by-dhcp.cox.net> <1135244363.10035.185.camel@gaston> <Pine.LNX.4.64.0512220945450.4827@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0512220945450.4827@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1135283241.12761.19.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200512231712.40621.ioe-lkml@rameria.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 22 Dec 2005 15:27:21 -0500, Steven Rostedt wrote:
-> On Thu, 2005-12-22 at 13:01 -0500, Kyle Moffett wrote:
-> > On Dec 22, 2005, at 11:08, Robert W. Fuller wrote:
-> > > Please see the following thread:
-> > >
-> > > http://www.opensolaris.org/jive/thread.jspa?threadID=2132&tstart=0x
-> > >
-> > > Sorry I didn't get around to reporting this sooner, but at least  
-> > > the guilty party has had plenty of time to fail to repent.
-> > >
-> > > Regards,
-> > >
-> > > Rob
-> > 
-> > This case looks about as black and white as it gets (although IANAL),  
-> > so I'm adding gpl-violations.org-legal to the CC list.
-> 
-> I'm not sure this is the case here or not, but it definitely brings up
-> an interesting question.
+On Thursday 22 December 2005 18:46, Linus Torvalds wrote:
+> On Thu, 22 Dec 2005, Benjamin Herrenschmidt wrote:
+> > > Wouldn't it make more sense for the maintenance release to be 1.0.1?
+> > Seconded. letters in versions are bad. With my MacOS background, for me,
+> > "b" means "beta" :)
+> FWIW, thirded. The kernel used to use letters too, and it's cute, but just 
+> using multiple levels of release numbers is much more common.
 
-It isn't the case here. (Tho' your question is interesting.)
+Also sucks because letters after numbers a read as "units".
 
-The case here appears to be:
+Just compare 5h, 3kg, 20cm, 9in, 1.3h
 
-* Crossmeta offers "add-on" software as a free download from their web
-  site: <URL:http://www.crossmeta.com/downloads/crossmeta-add-1_0.zip>.
-  The zip file contains a text file gpl-license.txt, which says that the
-  add-ons are offered under the terms of the GPL.
+Also putting letters after version numbers usally gives me
+a feeling that the author is not sure about what he does.
+But this is just me, I guess
 
-* User downloads this GPLed software and asks the developer to provide
-  source code. Developer replies that the source code will be provided
-  only to paying customers:
-  <URL:http://www.opensolaris.org/jive/message.jspa?messageID=12277#12277>.
+I hope util-linux is going to learn all that one day :-)
 
-That's baad, m'kay?
 
--- 
-Ben Slusky                      | As if you could kill time
-sluskyb@paranoiacs.org          | without injuring eternity.
-sluskyb@stwing.org              |               -Paula Baker
-PGP keyID ADA44B3B      
+Regards
+
+Ingo Oeser
 

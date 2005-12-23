@@ -1,69 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbVLWBFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbVLWBKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbVLWBFU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 20:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbVLWBFU
+	id S1751224AbVLWBKr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 20:10:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbVLWBKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 20:05:20 -0500
-Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:3467 "HELO
-	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964786AbVLWBFU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 20:05:20 -0500
-From: David Brownell <david-b@pacbell.net>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.15-rc5-mm3
-Date: Thu, 22 Dec 2005 17:05:18 -0800
-User-Agent: KMail/1.7.1
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, gcoady@gmail.com,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20051214234016.0112a86e.akpm@osdl.org> <200512181231.55981.rjw@sisk.pl> <20051222174850.GK23837@kroah.com>
-In-Reply-To: <20051222174850.GK23837@kroah.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_O10qDJq/zOZVmPg"
-Message-Id: <200512221705.18618.david-b@pacbell.net>
+	Thu, 22 Dec 2005 20:10:46 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:7068 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1751224AbVLWBKq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 20:10:46 -0500
+Subject: Re: questions on wait_event ...
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Alexey Shinkin <alexshinkin@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <BAY16-F8E0161EA0C4B79180F698AF330@phx.gbl>
+References: <BAY16-F8E0161EA0C4B79180F698AF330@phx.gbl>
+Content-Type: text/plain
+Date: Thu, 22 Dec 2005 20:10:40 -0500
+Message-Id: <1135300240.12761.27.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_O10qDJq/zOZVmPg
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Fri, 2005-12-23 at 06:51 +0600, Alexey Shinkin wrote:
+
+> 
+> And what if the condition have changed after we have checked it in 
+> wait_event() but
+> before calling __wait_event() and before putting the process into the wait 
+> queue ?
+> The process could not be woken up "in advance" , right ?
+
+Lets add the other part of this too (the __wait_event)
+
+#define __wait_event(wq, condition) 					\
+do {									\
+	DEFINE_WAIT(__wait);						\
+									\
+	for (;;) {							\
+		prepare_to_wait(&wq, &__wait, TASK_UNINTERRUPTIBLE);	\
+		if (condition)						\
+			break;						\
+		schedule();						\
+	}								\
+	finish_wait(&wq, &__wait);					\
+} while (0)
 
 
-> David, care to put a proper header on this and send it to me so I can
-> add it to my tree?
+> 
+> 
+> #define wait_event(wq, condition)        \
+> do {                                                   \
+>         if (condition)                                \
+>                 break;                                 \
+>    /* and here we have condition changed  ???? */
+>         __wait_event(wq, condition);        \
+> } while (0)
+> 
 
-Here you go!
+So if the condition happens there, it will be checked again up above in
+__wait_event.
+
+-- Steve
 
 
---Boundary-00=_O10qDJq/zOZVmPg
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="ehci-pcd.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="ehci-pcd.patch"
-
-On some systems, EHCI seems to be getting IRQs too early during driver
-setup ... before the root hub is allocated, in particular, making trouble
-for any code chasing down root hub pointers!  In this case, it seems to
-be safe to just ignore the root hub setting.  Thanks to Rafael J. Wysocki
-for getting this properly tested.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-
---- g26.orig/drivers/usb/host/ehci-hcd.c	2005-12-22 16:48:57.000000000 -0800
-+++ g26/drivers/usb/host/ehci-hcd.c	2005-12-22 16:57:52.000000000 -0800
-@@ -617,7 +617,7 @@ static irqreturn_t ehci_irq (struct usb_
- 	}
- 
- 	/* remote wakeup [4.3.1] */
--	if ((status & STS_PCD) && device_may_wakeup(&hcd->self.root_hub->dev)) {
-+	if (status & STS_PCD) {
- 		unsigned	i = HCS_N_PORTS (ehci->hcs_params);
- 
- 		/* resume root hub? */
-
---Boundary-00=_O10qDJq/zOZVmPg--

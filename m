@@ -1,81 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030516AbVLWN4K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030528AbVLWN7b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030516AbVLWN4K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 08:56:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030527AbVLWN4K
+	id S1030528AbVLWN7b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 08:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030529AbVLWN7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 08:56:10 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:6851 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030516AbVLWN4J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 08:56:09 -0500
-Date: Fri, 23 Dec 2005 05:55:26 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, Hirokazu Takata <takata@linux-m32r.org>
-Subject: Re: [WTF?] sys_tas() on m32r
-Message-Id: <20051223055526.bc1a4044.akpm@osdl.org>
-In-Reply-To: <20051223061556.GR27946@ftp.linux.org.uk>
-References: <20051223061556.GR27946@ftp.linux.org.uk>
-X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
+	Fri, 23 Dec 2005 08:59:31 -0500
+Received: from xproxy.gmail.com ([66.249.82.201]:60802 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1030528AbVLWN7a convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 08:59:30 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=rOti+YSLy5O+Uvo+JMwTWnLJyZXIK5/A0JTd1DBd/lkfVHLJ1CT3kVZeb5QAKFo5ta7VJvEnHXa5DG1Nwy4RPjn2HJbGb8YPH6WvpmysYgPvmwjb/E6nMUu3NgFW35OWE+iXgMj8Cjl/eXJr7bd7w5Q1aJJQV6SO1sIvfwggx1U=
+Date: Fri, 23 Dec 2005 14:59:10 +0100
+From: Diego Calleja <diegocg@gmail.com>
+To: 7eggert@gmx.de
+Cc: harvested.in.lkml@7eggert.dyndns.org, vonbrand@inf.utfsm.cl,
+       kernel-stuff@comcast.net, Dumitru.Ciobarcianu@iNES.RO,
+       helge.hafting@aitel.hist.no, ak@suse.de, bunk@stusta.de,
+       mrmacman_g4@mac.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       arjan@infradead.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-Id: <20051223145910.26ddcf17.diegocg@gmail.com>
+In-Reply-To: <E1Epjug-0001iA-In@be1.lrz>
+References: <5lQOU-492-31@gated-at.bofh.it>
+	<5lQOU-492-29@gated-at.bofh.it>
+	<E1Epjug-0001iA-In@be1.lrz>
+X-Mailer: Sylpheed version 2.1.6 (GTK+ 2.8.9; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro <viro@ftp.linux.org.uk> wrote:
->
-> asmlinkage int sys_tas(int *addr)
-> {
->         int oldval;
->         unsigned long flags;
-> 
->         if (!access_ok(VERIFY_WRITE, addr, sizeof (int)))
->                 return -EFAULT;
->         local_irq_save(flags);
->         oldval = *addr;
->         if (!oldval)
->                 *addr = 1;
->         local_irq_restore(flags);
->         return oldval;
-> }
-> in arch/m32r/kernel/sys_m32r.c.  Trivial oops *AND* ability to trigger
-> IO with interrupts disabled.
+El Fri, 23 Dec 2005 11:12:38 +0100,
+Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org> escribió:
 
-Yeah.  I pointed this out to Takata in October last year and then promptly
-forgot about it.  It's rather amazing that this code (which appears to be in
-live use in linuxthreads) hasn't generated oopses.
+> +               printk(KERN_WARNING, "Can't allocate new task structure"
+> +#ifndef CONFIG_4KSTACKS
+> +               ". Maybe you could benefit from 4K stacks.\n"
+> +#endif
+> +               "\
 
-The problem is that touching *addr will generate an oops if that page isn't
-paged in.  If we convert it to use get_user() then that's an improvement,
-but we must not run get_user() under spinlock or local_irq_disable().
-
-The safe-and-slow way to do this is to pin the page with get_user_pages().
-
-A smarter way to do it is to do something similar to filemap_copy_from_user():
-
-	for ( ; ; ) {
-		get_user(c, addr);
-		inc_preempt_count();
-		if (get_user(oldval, addr)) {
-			dec_preempt_count();
-			continue;
-		}
-		if (!oldval && put_user(1, addr)) {
-			dec_preempt_count();
-			continue;
-		}
-		dec_preempt_count();
-		break;
-	}
-
-ie: try to fault the page in with get_user(), then switch into atomic mode
-and try the memory access.  If the page isn't there any more, get_user()
-and put_user() will return -EFAULT without entering the pagefault handler
-(the in_atomic() test in do_page_fault()) so we can just retry the pagein. 
+A sarcastic patch, nice. So, lets try to get something useful
+from this flamewar...sight.
 
 
+The 4k patch is being proposed for -mm. Personally I'm _shocked_ that so
+many people is trying to avoid _testing_ (-mm is for testing, isn't it)
+this feature so hard. Which is surprising, since merging it into -mm
+may prove that they're right (people will report bugs caused by 4k
+stacks, etc). Maybe 8k groupies are not willing to be proved that
+they're right, or they're afraid of being proven that they're
+wrong? </sarcasm>
 
-The above all assumes CONFIG_MMU.  I guess sys_tas() as it stands is OK if
-!CONFIG_MMU.
+Now, seriously:
+I think that most of the 8k groupies don't like 4k not because it
+doesn't works in the common case, but because it could cause hangs
+that are not easy to reproduce (ie: they are paranoid). The combination
+of code paths is too big and complex. I can understand that.
+
+What I don't know is why you think that 8k will be "safe". As far
+as I know, there're have been stacks overflows with 8KB stacks in
+the past (ie, "hangs that are not easy to reproduce") before the 4k
+stack patch was proposed, and the _one_ reason why now it's very
+safe to run with 8k stacks is because the 4k stack patch has forced
+people to do stack diets, not because 8k is the best option.
+
+We have *NO* *WAY* of proving that it's safe to run either 4k or
+8k stacks. Face it. And since such bugs can exist no matter what
+stack size you use, the best option (IMO) is to choose the option that
+will allow us to hit those bugs _faster_, ie: 4k stacks. From a
+engineering point of view, I can't understand why hiding the problem
+is better than choosing the path that will allow to hit and fix those
+bugs faster. It remembers me of "security through obscurity". What 
+we will do when we have too may overflows with 8K? 16K stacks? Oh,
+let me guess: "we'll fix it"?. Well, and why can't we fix 4k stacks???
+
+Now, the code is easy to maintain and some people depends on
+8k stacks, as akpm pointed out in http://lkml.org/lkml/2005/12/15/336
+This patch (http://lkml.org/lkml/2005/12/16/89) stolen from^W^Winspired
+by Adrian Bunk defaults to 4k, makes the 8k people happy and it should
+make akpm happy too.
+
+Can someone tell me a reason why all this stupid flamewar can't be
+solved with that patch?

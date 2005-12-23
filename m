@@ -1,66 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030498AbVLWNvD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030516AbVLWN4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030498AbVLWNvD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 08:51:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030516AbVLWNvD
+	id S1030516AbVLWN4K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 08:56:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030527AbVLWN4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 08:51:03 -0500
-Received: from pat.uio.no ([129.240.130.16]:17074 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1030498AbVLWNvB (ORCPT
+	Fri, 23 Dec 2005 08:56:10 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:6851 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030516AbVLWN4J (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 08:51:01 -0500
-Subject: Re: nfs insecure_locks / Tru64 behaviour
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ron Peterson <rpeterso@MtHolyoke.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051223133801.GA9321@mtholyoke.edu>
-References: <20051222133623.GE7814@mtholyoke.edu>
-	 <1135293713.3685.9.camel@lade.trondhjem.org>
-	 <20051223013933.GB22949@mtholyoke.edu>
-	 <1135302325.3685.69.camel@lade.trondhjem.org>
-	 <20051223022126.GC22949@mtholyoke.edu>
-	 <1135327075.8167.6.camel@lade.trondhjem.org>
-	 <20051223133801.GA9321@mtholyoke.edu>
-Content-Type: text/plain
-Date: Fri, 23 Dec 2005 14:50:12 +0100
-Message-Id: <1135345813.8167.155.camel@lade.trondhjem.org>
+	Fri, 23 Dec 2005 08:56:09 -0500
+Date: Fri, 23 Dec 2005 05:55:26 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, Hirokazu Takata <takata@linux-m32r.org>
+Subject: Re: [WTF?] sys_tas() on m32r
+Message-Id: <20051223055526.bc1a4044.akpm@osdl.org>
+In-Reply-To: <20051223061556.GR27946@ftp.linux.org.uk>
+References: <20051223061556.GR27946@ftp.linux.org.uk>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.285, required 12,
-	autolearn=disabled, AWL 1.67, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-23 at 08:38 -0500, Ron Peterson wrote:
-> The gid's of the kmw group match on both sides.  The problem happens
-> whether root squashing is on or off.  Unless the execute bit for 'other'
-> is turned on for the parent directory, the file appears to be locked
-> when being accessed from the nfs client (tru64) side.
+Al Viro <viro@ftp.linux.org.uk> wrote:
+>
+> asmlinkage int sys_tas(int *addr)
+> {
+>         int oldval;
+>         unsigned long flags;
 > 
-> My theory may be wrong, but the problem still exists.
+>         if (!access_ok(VERIFY_WRITE, addr, sizeof (int)))
+>                 return -EFAULT;
+>         local_irq_save(flags);
+>         oldval = *addr;
+>         if (!oldval)
+>                 *addr = 1;
+>         local_irq_restore(flags);
+>         return oldval;
+> }
+> in arch/m32r/kernel/sys_m32r.c.  Trivial oops *AND* ability to trigger
+> IO with interrupts disabled.
 
-Possibly, but that sounds like it might be a tru64 bug. As you can see,
-a Linux client has no such problems:
+Yeah.  I pointed this out to Takata in October last year and then promptly
+forgot about it.  It's rather amazing that this code (which appears to be in
+live use in linuxthreads) hasn't generated oopses.
 
-[trondmy@longyearbyen trondmy]$ id
-uid=520(trondmy) gid=100(users) groups=10(wheel),100(users)
-[trondmy@longyearbyen trondmy]$ ls -al
-total 0
-drwxr-xr-x  5 trondmy users 36 Dec 23 08:44 .
-drwxr-xr-x  3 root    root  20 Jun 17  2005 ..
-drwxr-x---  2 root    users 18 Dec 23 08:47 d
-drwxr-xr-x  8 root    root  68 Dec  5 01:11 gnurr
-drwxr-xr-x  2 trondmy users 30 Nov 23 10:38 tmp
-[trondmy@longyearbyen trondmy]$ ls -al d
-total 4
-drwxr-x---  2 root    users 18 Dec 23 08:47 .
-drwxr-xr-x  5 trondmy users 36 Dec 23 08:44 ..
--rw-r--r--  1 root    root   6 Dec 23 08:47 hello
-[trondmy@longyearbyen trondmy]$ cat d/hello
-hello
+The problem is that touching *addr will generate an oops if that page isn't
+paged in.  If we convert it to use get_user() then that's an improvement,
+but we must not run get_user() under spinlock or local_irq_disable().
 
-Cheers,
-  Trond
+The safe-and-slow way to do this is to pin the page with get_user_pages().
 
+A smarter way to do it is to do something similar to filemap_copy_from_user():
+
+	for ( ; ; ) {
+		get_user(c, addr);
+		inc_preempt_count();
+		if (get_user(oldval, addr)) {
+			dec_preempt_count();
+			continue;
+		}
+		if (!oldval && put_user(1, addr)) {
+			dec_preempt_count();
+			continue;
+		}
+		dec_preempt_count();
+		break;
+	}
+
+ie: try to fault the page in with get_user(), then switch into atomic mode
+and try the memory access.  If the page isn't there any more, get_user()
+and put_user() will return -EFAULT without entering the pagefault handler
+(the in_atomic() test in do_page_fault()) so we can just retry the pagein. 
+
+
+
+The above all assumes CONFIG_MMU.  I guess sys_tas() as it stands is OK if
+!CONFIG_MMU.

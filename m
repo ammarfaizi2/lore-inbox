@@ -1,102 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbVLWFXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbVLWFmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030415AbVLWFXd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 00:23:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030420AbVLWFXd
+	id S1030183AbVLWFmx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 00:42:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVLWFmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 00:23:33 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:11015 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S1030415AbVLWFXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 00:23:33 -0500
-Date: Fri, 23 Dec 2005 06:23:17 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Tim Warnock <timoid@getonit.net.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: FW: Kernel oops v2.4.31 in e1000 network card driver.
-Message-ID: <20051223052317.GP15993@alpha.home.local>
-References: <C67FBCB411B4024382B11B96D68E49E4079693@server.local.GetOffice>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 23 Dec 2005 00:42:53 -0500
+Received: from rwcrmhc14.comcast.net ([216.148.227.154]:58510 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932305AbVLWFmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 00:42:52 -0500
+From: Len Brown <len.brown@intel.com>
+Organization: Intel Open Source Technology Center
+To: torvalds@osdl.org
+Subject: git pull on Linux/ACPI release tree
+Date: Fri, 23 Dec 2005 00:42:16 -0500
+User-Agent: KMail/1.8.2
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+References: <200512010305.43469.len.brown@intel.com> <200512060317.53925.len.brown@intel.com>
+In-Reply-To: <200512060317.53925.len.brown@intel.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <C67FBCB411B4024382B11B96D68E49E4079693@server.local.GetOffice>
-User-Agent: Mutt/1.5.10i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200512230042.17903.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 23, 2005 at 10:06:19AM +1000, Tim Warnock wrote:
-> > -----Original Message-----
-> > From: Willy Tarreau [mailto:willy@w.ods.org] 
-> > Sent: Friday, 23 December 2005 9:17 AM
-> > To: Tim Warnock
-> > Cc: linux-kernel@vger.kernel.org
-> > Subject: Re: FW: Kernel oops v2.4.31 in e1000 network card driver.
-> > 
-> > Hello,
-> > 
-> > On Thu, Dec 22, 2005 at 07:10:04PM +1000, Tim Warnock wrote:
-> > > Further information to this:
-> > > 
-> > > Network card causing the problem is the intel quad port 
-> > > gigabit ethernet pci card.
-> > > I have tested also on 2.4.27, 2.4.32 and the latest 2.6 
-> > > series kernel.
-> > > 
-> > > Under load (10-15kpps) the network driver crashes. Under 
-> > > increased load (20-30kpps) the driver will actually cause
-> > > a full kernel panic and reboot the box.
-> > 
-> > What type of system is it ? P3/P4/K7/K8 ? UP/SMP ? do you have a PCI-X
-> > bus in it ? have you checked /proc/interrupts for strange behaviours ?
-> 
-> IBM x306 p4 3.0ghz UP/HT (acpi=ht) 1gb ram 
+Hi Linus,
 
-Mine are x305 at 2.66 GHz without HT. Nearly the same.
+please pull from: 
 
-> It's a 64bit pci bus, the quad card is 64 bit also.
-> 
-> Underlying host os is debian sarge.
-> 
-> I never thought to check /proc/interrupts. I get the network card back
-> from remote soon, I will put it in a bench system and see what happens.
-> What should I be looking for in /proc/interrupts?
+git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git release
 
-Suspect things. Eg: if you have one IRQ shared with ACPI or USB. Or
-perhaps during traffic, only 3 or the 4 ports getting interrupts, etc...
+This will update the files shown below.
 
-It would be interesting to determine whether it's incoming traffic,
-outgoing or both which cause the trouble. Use 'nc </dev/zero' for this.
+thanks!
 
-Anyway, I really think that running a memtest or trying without HT will
-give very useful info.
+-Len
 
-> > > After replacing the card with a single port intel gigabit 
-> > ethernet pci card, the system has been rock stable.
-> > > 
-> > > According to intel, the quad port nic is based around the "Intel(r)
-> > > 82546EB" controller, the single port nic is based around 
-> > > the "Intel(r) 82545" controller.
-> > > 
-> > > Are there any other known problems with Intel(r) 82546EB controller
-> > > support with the current e1000 driver?
-> > 
-> > Not to my knowledge. I have several of them running on moderate volume
-> > (50 Mbps) on production up to 50-60 kpps, and they have never 
-> > ever caused any trouble after 2.5 years. I even use others in 
-> > stress-testing machines which throw up to 500 kpps per port without
-> > any problem either. BTW, the ones in the stress-testers are more
-> > recent, they are the ones with the "toundra" PCI bridge.
-> > 
-> > Do you encounter the problem in only one system ? I begin to suspect a
-> > hardware failure somewhere (CPU, RAM) which is triggered by 
-> > higher loads.
-> > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ drivers/acpi/processor_thermal.c |    4 ++--
+ drivers/acpi/utilities/utmisc.c  |   20 ++++++++++----------
+ include/acpi/acglobal.h          |    2 +-
+ 3 files changed, 13 insertions(+), 13 deletions(-)
 
-Regards,
-Willy
+through these commits:
+
+Alex Williamson:
+      [ACPI] increase owner_id limit to 64 from 32
+
+Len Brown:
+      [ACPI] fix build warning from owner_id patch
+
+Thomas Renninger:
+      [ACPI] fix passive cooling regression
+
+with this log:
+
+commit 9d6be4bed65a3bd36ab2de12923bff4f4530bd86
+Author: Len Brown <len.brown@intel.com>
+Date:   Thu Dec 22 22:23:06 2005 -0500
+
+    [ACPI] fix build warning from owner_id patch
+    
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 75b245b3259133360845bc6de3aecb8a6bd6ab59
+Author: Thomas Renninger <trenn@suse.de>
+Date:   Wed Dec 21 01:29:00 2005 -0500
+
+    [ACPI] fix passive cooling regression
+    
+    Return logic was inverted.
+    Going for changing the return value to not return zero as it is makes
+    more sense regarding the naming of the function (cpu_has_cpufreq()).
+    
+    http://bugzilla.kernel.org/show_bug.cgi?id=3410
+    
+    Signed-off-by: Thomas Renninger <trenn@suse.de>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
+commit 05465fd5622202d65634b3a9a8bcc9cbb384a82a
+Author: Alex Williamson <alex.williamson@hp.com>
+Date:   Thu Dec 8 15:37:00 2005 -0500
+
+    [ACPI] increase owner_id limit to 64 from 32
+    
+    This is an interim patch until changes in an updated
+    ACPICA core increase the limit to 255.
+    
+    Signed-off-by: Alex Williamson <alex.williamson@hp.com>
+    Signed-off-by: Len Brown <len.brown@intel.com>
+
 

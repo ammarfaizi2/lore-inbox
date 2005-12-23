@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030587AbVLWRme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030589AbVLWRp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030587AbVLWRme (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 12:42:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030581AbVLWRme
+	id S1030589AbVLWRp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 12:45:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030581AbVLWRp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 12:42:34 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:11196 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030587AbVLWRme (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 12:42:34 -0500
-Date: Fri, 23 Dec 2005 17:42:28 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Dave Jones <davej@redhat.com>, "Bryan O'Sullivan" <bos@pathscale.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] [PATCH] Add memcpy32 function
-Message-ID: <20051223174228.GA29679@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Matt Mackall <mpm@selenic.com>, Dave Jones <davej@redhat.com>,
-	Bryan O'Sullivan <bos@pathscale.com>, linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@osdl.org>
-References: <1135301759.4212.76.camel@serpentine.pathscale.com> <20051223024943.GC27537@redhat.com> <20051223171628.GP3356@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 23 Dec 2005 12:45:29 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:9709 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1030589AbVLWRp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 12:45:29 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: gcoady@gmail.com
+Subject: Re: 4k stacks
+Date: Fri, 23 Dec 2005 17:45:41 +0000
+User-Agent: KMail/1.9
+Cc: "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0512221640490.8179@chaos.analogic.com> <pfjmq1dtcrq5hos687h0gm9nrg79v3ceat@4ax.com>
+In-Reply-To: <pfjmq1dtcrq5hos687h0gm9nrg79v3ceat@4ax.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051223171628.GP3356@waste.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200512231745.41400.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 23, 2005 at 11:16:28AM -0600, Matt Mackall wrote:
-> > io.h is a very generic sounding name for something that just houses
-> > a memcpy variant.  What's wrong with calling a spade a spade,
-> > and using memcpy32.h ?
-> 
-> I think it belongs in string.h alongside memcpy, just for tradition's
-> sake. I don't think it belongs in a file named io.h, as it probably
-> has uses beyond I/O.
+On Friday 23 December 2005 01:11, Grant Coady wrote:
+> On Thu, 22 Dec 2005 16:53:25 -0500, "linux-os \(Dick Johnson\)" 
+<linux-os@analogic.com> wrote:
+> >Yesterday I sent a patch to add stack-poison so the stack usage
+> >could be observed.
+> >
+> >Today I wrote a small program and tested the stack usage. Both
+> >the program and the patch is attached. The result is:
+> >
+> >Offset : 2ec8f000	Available Stack bytes = 3104
+> >Offset : 2ecb1000	Available Stack bytes = 3104
+> >Offset : 2ee5f000	Available Stack bytes = 20
+>
+> Hmm:
+> # ./stack
+> Offset : 003fb000       Available Stack bytes = 3348
+> Offset : 0195d000       Available Stack bytes = 3620
 
-Actually I think memcpy32 is not the thing pathscale wants.  They want
-memcpy_{to,from}_io32, because memcpy32 wouldn't be allowed to operate
-on I/O mapped memory.  I'd say back to the drawingboard.
+Please do these tests once you repair the bug preventing the 4K stacks kernel 
+from booting. The results are meaningless on an 8K stacks kernel.
 
-And to pathscale:  please get your driver __iomem and endianess annotated
-before sending out further core patches, I'm pretty sure getting those
-things fixed will shed some light on the actual requirements.
+-- 
+Cheers,
+Alistair.
 
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

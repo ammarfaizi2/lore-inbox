@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030524AbVLWN1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030423AbVLWNiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030524AbVLWN1f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 08:27:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030525AbVLWN1f
+	id S1030423AbVLWNiY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 08:38:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030498AbVLWNiY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 08:27:35 -0500
-Received: from nproxy.gmail.com ([64.233.182.203]:44209 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1030524AbVLWN1e convert rfc822-to-8bit
+	Fri, 23 Dec 2005 08:38:24 -0500
+Received: from ambr.mtholyoke.edu ([138.110.1.10]:17673 "EHLO
+	ambr.mtholyoke.edu") by vger.kernel.org with ESMTP id S1030423AbVLWNiX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 08:27:34 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QeKuy+r3vI2kK2nUadwI5MhJXBfXU+r1E1K3v5Fp/jO+y/UNQDpmIb/J/96zeFmjpikdYbZGRc3R9wNh73ZYtGk15pg2gnJOtth9hSoUJu+Sn6pXRNDOUFV8MwCfzDznLquAr9jbMtG2YXxVCN/1og3qM/laSE3sB6FZom0KvZA=
-Message-ID: <58cb370e0512230527l55810d0fif13d75f35723c1c3@mail.gmail.com>
-Date: Fri, 23 Dec 2005 14:27:33 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Andreas Steinmetz <ast@domdv.de>
-Subject: Re: 2.6.15rc6: ide oops+panic
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <43AB20DA.2020506@domdv.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 23 Dec 2005 08:38:23 -0500
+From: Ron Peterson <rpeterso@MtHolyoke.edu>
+Date: Fri, 23 Dec 2005 08:38:01 -0500
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nfs insecure_locks / Tru64 behaviour
+Message-ID: <20051223133801.GA9321@mtholyoke.edu>
+References: <20051222133623.GE7814@mtholyoke.edu> <1135293713.3685.9.camel@lade.trondhjem.org> <20051223013933.GB22949@mtholyoke.edu> <1135302325.3685.69.camel@lade.trondhjem.org> <20051223022126.GC22949@mtholyoke.edu> <1135327075.8167.6.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <43AB20DA.2020506@domdv.de>
+In-Reply-To: <1135327075.8167.6.camel@lade.trondhjem.org>
+Organization: Mount Holyoke College
+X-Operating-System: Debian GNU/Linux
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Dec 23, 2005 at 09:37:55AM +0100, Trond Myklebust wrote:
+> On Thu, 2005-12-22 at 21:21 -0500, Ron Peterson wrote:
+> 
+> > Why it doesn't work .. I dunno.  My current best guess is that the
+> > manner in which the insecure_locks option in /etc/exports is applied to
+> > directories isn't quite right.
+> 
+> insecure_locks has nothing at all to do with directories. It has to do
+> with the NLM protocol, which is used by NFSv2/v3 to implement posix
+> locks.
+> Directory locking is an entirely separate matter, and is not part of the
+> NFS protocol (the server will take care of locking the directory when it
+> needs to modify it without any extra help from the client).
+> 
+> IOW: your problem here has nothing to do with insecure_locks, and
+> everything to do with your setup. Please double-check that the gid
+> mappings for the group 'kwc' in /etc/groups match on the client and
+> server, and note that the default root squashing means that your root
+> account will get mapped to the user with uid -2 and gid=-2
 
-On 12/22/05, Andreas Steinmetz <ast@domdv.de> wrote:
-> Attached are boot messages and panic captured via serial console, as
-> well as the system config.
+The gid's of the kmw group match on both sides.  The problem happens
+whether root squashing is on or off.  Unless the execute bit for 'other'
+is turned on for the parent directory, the file appears to be locked
+when being accessed from the nfs client (tru64) side.
 
-Driver OOPS-es on handling write barrier request (on finishing pre-flush)
-because REQ_STARTED flag is not set in __ide_end_request()
-but I don't see how this can happen, maybe something has changed
-in the block layer...  Does 2.6.14 work for you?
+My theory may be wrong, but the problem still exists.
 
-Does mounting ext3 with "barrier=0" option workaround the problem?
+Best.
 
-Thanks,
-Bartlomiej
+-- 
+Ron Peterson
+Network & Systems Manager
+Mount Holyoke College
+http://pks.mtholyoke.edu:11371/pks/lookup?search=0xB6D365A1&op=vindex

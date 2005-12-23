@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161139AbVLWXtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161137AbVLWXui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161139AbVLWXtI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 18:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161137AbVLWXtH
+	id S1161137AbVLWXui (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 18:50:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161138AbVLWXui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 18:49:07 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:24205 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1161139AbVLWXtF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 18:49:05 -0500
-Date: Fri, 23 Dec 2005 17:48:58 -0600
-From: Robin Holt <holt@sgi.com>
-To: Olof Johansson <olof@lixom.net>
-Cc: Jack Steiner <steiner@sgi.com>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] - Fix memory ordering problem in wake_futex()
-Message-ID: <20051223234858.GA31945@lnx-holt.americas.sgi.com>
-References: <20051223163816.GA30906@sgi.com> <20051223204822.GC24601@pb15.lixom.net> <20051223213216.GA29541@sgi.com> <20051223215915.GE24601@pb15.lixom.net>
+	Fri, 23 Dec 2005 18:50:38 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:47750 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1161137AbVLWXui (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 18:50:38 -0500
+Subject: Re: [RFC] [PATCH] Add memcpy32 function
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Matt Mackall <mpm@selenic.com>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20051223174228.GA29679@infradead.org>
+References: <1135301759.4212.76.camel@serpentine.pathscale.com>
+	 <20051223024943.GC27537@redhat.com> <20051223171628.GP3356@waste.org>
+	 <20051223174228.GA29679@infradead.org>
+Content-Type: text/plain
+Date: Fri, 23 Dec 2005 15:50:21 -0800
+Message-Id: <1135381822.26606.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051223215915.GE24601@pb15.lixom.net>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 23, 2005 at 03:59:16PM -0600, Olof Johansson wrote:
-> On Fri, Dec 23, 2005 at 03:32:16PM -0600, Jack Steiner wrote:
-> 
-> > On IA64, the "sync" instructions are actually part of the ld.acq ot st.rel
-> > instructions that are used to set/clear spinlocks.
-> [...]
-> > IA64 implements fencing of ld.acq or st.rel instructions as one-directional
-> > barriers.
-> 
-> So ia64 spin_unlock doesn't do store-store ordering across it. I'm
-> surprised this is the first time this causes problems. Other architectures
-> seem to order:
-> 
-> * sparc64 does a membar StoreStore|LoadStore
-> * powerpc does lwsync or sync, depending on arch
-> * alpha does an mb();
-> 
-> * x86 is in-order
-> 
-> So, sounds to me like you need to fix your lock primitives, not add
-> barriers to generic code?
+On Fri, 2005-12-23 at 17:42 +0000, Christoph Hellwig wrote:
 
-I don't think this is a case which is handled by the typical lock
-primitives.  Here we essentially have two things being unlocked in
-close succession.  The first is the wait queue, the second the futex_q.
+> Actually I think memcpy32 is not the thing pathscale wants.  They want
+> memcpy_{to,from}_io32, because memcpy32 wouldn't be allowed to operate
+> on I/O mapped memory.  I'd say back to the drawingboard.
 
-There is nothing in the typical unlock path which would require unlocks
-to be ordered with respect to each other.  However, in this case, the
-futex_q expects to finish processing the wake_up_all before releasing
-the lock_ptr.  That is a requirement of wake_futex and not the locking
-primitives.  If wake_futex() requires it, then it should be responsible
-for enforcing that requirement.
+Fair enough.  I'll follow Matt's suggestion of iowrite32_copy and
+ioread32_copy, in that case, and put them in asm-generic/iomap.h.
 
-I suppose a step in the right direction would be doing a volatile store
-to q->lock_ptr.  I haven't looked, but that should at least prevent the
-clearing of lock_ptr until the wait queue is unlocked.
+> And to pathscale:  please get your driver __iomem and endianess annotated
+> before sending out further core patches, I'm pretty sure getting those
+> things fixed will shed some light on the actual requirements.
 
-Jack, can you repeat your testing with a cast on the q->lock_ptr line to
-a volatile.  After looking at it some more, shouldn't the struct futex_q{}
-definition for the spinlock_t *lock_ptr be volatile?
+OK, will do.
 
+	<b
 
-Thanks,
-Robin Holt
+-- 
+Bryan O'Sullivan <bos@pathscale.com>
+

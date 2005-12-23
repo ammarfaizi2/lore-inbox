@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161111AbVLWWyF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161094AbVLWWyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161111AbVLWWyF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 17:54:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161127AbVLWWyE
+	id S1161094AbVLWWyU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 17:54:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161097AbVLWWyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 17:54:04 -0500
-Received: from mail.kroah.org ([69.55.234.183]:53455 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1161103AbVLWWt1 (ORCPT
+	Fri, 23 Dec 2005 17:54:18 -0500
+Received: from mail.kroah.org ([69.55.234.183]:46031 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1161094AbVLWWtX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 17:49:27 -0500
-Date: Fri, 23 Dec 2005 14:48:30 -0800
+	Fri, 23 Dec 2005 17:49:23 -0500
+Date: Fri, 23 Dec 2005 14:48:02 -0800
 From: Greg Kroah-Hartman <gregkh@suse.de>
 To: linux-kernel@vger.kernel.org, stable@kernel.org
 Cc: Justin Forbes <jmforbes@linuxtx.org>,
@@ -17,13 +17,13 @@ Cc: Justin Forbes <jmforbes@linuxtx.org>,
        "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
        Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
        torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       davem@davemloft.net, bdschuym@pandora.be
-Subject: [patch 12/19] [BRIDGE-NF]: Fix bridge-nf ipv6 length check
-Message-ID: <20051223224830.GL19057@kroah.com>
+       davem@davemloft.net, herbert@gondor.apana.org.au
+Subject: [patch 07/19] [GRE]: Fix hardware checksum modification
+Message-ID: <20051223224802.GG19057@kroah.com>
 References: <20051223221200.342826000@press.kroah.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="fix-bridge-nf-ipv6-length-check.patch"
+Content-Disposition: inline; filename="gre-fix-hardware-checksum-modification.patch"
 In-Reply-To: <20051223224712.GA18975@kroah.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
@@ -32,57 +32,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -stable review patch.  If anyone has any objections, please let us know.
 
 ------------------
-From: Bart De Schuymer <bdschuym@pandora.be>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 
-A typo caused some bridged IPv6 packets to get dropped randomly,
-as reported by Sebastien Chaumontet. The patch below fixes this
-(using skb->nh.raw instead of raw) and also makes the jumbo packet
-length checking up-to-date with the code in
-net/ipv6/exthdrs.c::ipv6_hop_jumbo.
+The skb_postpull_rcsum introduced a bug to the checksum modification.
+Although the length pulled is offset bytes, the origin of the pulling
+is the GRE header, not the IP header.
 
-Signed-off-by: Bart De Schuymer <bdschuym@pandora.be>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Chris Wright <chrisw@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- net/bridge/br_netfilter.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ net/ipv4/ip_gre.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.14.4.orig/net/bridge/br_netfilter.c
-+++ linux-2.6.14.4/net/bridge/br_netfilter.c
-@@ -295,7 +295,7 @@ static int check_hbh_len(struct sk_buff 
- 	len -= 2;
+--- linux-2.6.14.4.orig/net/ipv4/ip_gre.c
++++ linux-2.6.14.4/net/ipv4/ip_gre.c
+@@ -617,7 +617,7 @@ static int ipgre_rcv(struct sk_buff *skb
  
- 	while (len > 0) {
--		int optlen = raw[off+1]+2;
-+		int optlen = skb->nh.raw[off+1]+2;
- 
- 		switch (skb->nh.raw[off]) {
- 		case IPV6_TLV_PAD0:
-@@ -308,18 +308,15 @@ static int check_hbh_len(struct sk_buff 
- 		case IPV6_TLV_JUMBO:
- 			if (skb->nh.raw[off+1] != 4 || (off&3) != 2)
- 				goto bad;
--
- 			pkt_len = ntohl(*(u32*)(skb->nh.raw+off+2));
--
-+			if (pkt_len <= IPV6_MAXPLEN ||
-+			    skb->nh.ipv6h->payload_len)
-+				goto bad;
- 			if (pkt_len > skb->len - sizeof(struct ipv6hdr))
- 				goto bad;
--			if (pkt_len + sizeof(struct ipv6hdr) < skb->len) {
--				if (__pskb_trim(skb,
--				    pkt_len + sizeof(struct ipv6hdr)))
--					goto bad;
--				if (skb->ip_summed == CHECKSUM_HW)
--					skb->ip_summed = CHECKSUM_NONE;
--			}
-+			if (pskb_trim_rcsum(skb,
-+			    pkt_len+sizeof(struct ipv6hdr)))
-+				goto bad;
- 			break;
- 		default:
- 			if (optlen > len)
+ 		skb->mac.raw = skb->nh.raw;
+ 		skb->nh.raw = __pskb_pull(skb, offset);
+-		skb_postpull_rcsum(skb, skb->mac.raw, offset);
++		skb_postpull_rcsum(skb, skb->h.raw, offset);
+ 		memset(&(IPCB(skb)->opt), 0, sizeof(struct ip_options));
+ 		skb->pkt_type = PACKET_HOST;
+ #ifdef CONFIG_NET_IPGRE_BROADCAST
 
 --

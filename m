@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030605AbVLWTFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161004AbVLWTGH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030605AbVLWTFd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 14:05:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030609AbVLWTFc
+	id S1161004AbVLWTGH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 14:06:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161015AbVLWTGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 14:05:32 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:57812 "HELO
+	Fri, 23 Dec 2005 14:06:06 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:62420 "HELO
 	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030605AbVLWTFc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 14:05:32 -0500
-Subject: Re: [Question] LinuxThreads, setuid - Is there user mode hook?
+	id S1161004AbVLWTGF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 14:06:05 -0500
+Subject: Re: [WTF?] sys_tas() on m32r
 From: Lee Revell <rlrevell@joe-job.com>
-To: Alon Bar-Lev <alon.barlev@gmail.com>
-Cc: David Wagner <daw@cs.berkeley.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <43ABC8B2.7020904@gmail.com>
-References: <200512222312.jBMNCj96018554@taverner.CS.Berkeley.EDU>
-	 <43ABC8B2.7020904@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org,
+       Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20051223055526.bc1a4044.akpm@osdl.org>
+References: <20051223061556.GR27946@ftp.linux.org.uk>
+	 <20051223055526.bc1a4044.akpm@osdl.org>
 Content-Type: text/plain
-Date: Fri, 23 Dec 2005 14:08:58 -0500
-Message-Id: <1135364939.22177.15.camel@mindpipe>
+Date: Fri, 23 Dec 2005 14:10:34 -0500
+Message-Id: <1135365035.22177.17.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-23 at 11:51 +0200, Alon Bar-Lev wrote:
-> David Wagner wrote:
-> > In article <43AACA82.5050305@gmail.com> you write:
+On Fri, 2005-12-23 at 05:55 -0800, Andrew Morton wrote:
+> Al Viro <viro@ftp.linux.org.uk> wrote:
+> >
+> > asmlinkage int sys_tas(int *addr)
+> > {
+> >         int oldval;
+> >         unsigned long flags;
 > > 
-> >>I am writing a provider that uses pthreads. The main program 
-> >>does not aware that the provider is using threads and it is 
-> >>not multithreaded.
-> >>
-> >>After initialization the program setuid to nobody, the 
-> >>problem is that my threads remains in root id.
-> > 
-> > 
-> > Mixing threads and setuid programs seems like a really bad idea.
-> > This is especially true if you have to ask about it -- which means
-> > that you don't know enough to write such a program safely (please
-> > don't take offense).
-> > 
+> >         if (!access_ok(VERIFY_WRITE, addr, sizeof (int)))
+> >                 return -EFAULT;
+> >         local_irq_save(flags);
+> >         oldval = *addr;
+> >         if (!oldval)
+> >                 *addr = 1;
+> >         local_irq_restore(flags);
+> >         return oldval;
+> > }
+> > in arch/m32r/kernel/sys_m32r.c.  Trivial oops *AND* ability to trigger
+> > IO with interrupts disabled.
 > 
-> I know that!
-> And I am aware of the (Linux implementation) implications...
-> 
-> I don't think you read my question in deep...
-> I offer a provider (Shared library), and I must deal with 
-> this edge condition where the main program setuid.
-> 
-> In Linux every thread is a process so only the main thread 
-> is setuided.
-> 
-> I need to catch this even in my shared library and setuid my 
-> threads as well, since Linux pthreads implementation does 
-> not take care of this.
-> 
-> Since I am not writing the main program and since I cannot 
-> force the main programmer to behave any differently, I must 
-> handle this internally.
-> 
-> Do you know a way to be notified when the process setuid?
+> Yeah.  I pointed this out to Takata in October last year and then promptly
+> forgot about it.  It's rather amazing that this code (which appears to be in
+> live use in linuxthreads) hasn't generated oopses.
 
-Why on earth would you use LinuxThreads rather than NPTL?  LinuxThreads
-is obsolete and was never remotely POSIX compliant.
+No one uses LinuxThreads anymore?
+
+Even the oldest of the old (Debian stable) have moved to NPTL.
 
 Lee
 

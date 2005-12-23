@@ -1,72 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965185AbVLWPce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030545AbVLWPfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965185AbVLWPce (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 10:32:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965179AbVLWPce
+	id S1030545AbVLWPfI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 10:35:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030555AbVLWPfH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 10:32:34 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:13548 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965113AbVLWPcd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 10:32:33 -0500
-Date: Fri, 23 Dec 2005 09:32:15 -0600
-From: Mark Maule <maule@sgi.com>
-To: Greg KH <greg@kroah.com>
-Cc: Greg KH <gregkh@suse.de>, linuxppc64-dev@ozlabs.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Tony Luck <tony.luck@intel.com>
-Subject: Re: [PATCH 0/3] msi abstractions and support for altix
-Message-ID: <20051223153215.GA11935@sgi.com>
-References: <20051222201651.2019.37913.96422@lnx-maule.americas.sgi.com> <20051222202259.GA4959@suse.de> <20051222202627.GI17552@sgi.com> <20051222203415.GA28240@suse.de> <20051222203824.GJ17552@sgi.com> <20051222214446.GC14978@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051222214446.GC14978@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 23 Dec 2005 10:35:07 -0500
+Received: from prgy-npn2.prodigy.com ([207.115.54.38]:51878 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP
+	id S1030545AbVLWPfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 10:35:06 -0500
+Message-ID: <43AC1942.2010707@tmr.com>
+Date: Fri, 23 Dec 2005 10:35:30 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20050920
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tetsuo Handa <from-kernelnewbies@I-love.sakura.ne.jp>
+CC: arjan@infradead.org, linux-kernel@vger.kernel.org,
+       kernelnewbies@nl.linux.org
+Subject: Re: [RFC] TOMOYO Linux released!
+References: <200512212020.FBF94703.XOTMFStFPCJNSFLFOG@I-love.SAKURA.ne.jp>	<1135164793.3456.9.camel@laptopd505.fenrus.org>	<200512212112.HBH59669.FCNLMTFJFFSSPGtOOX@i-love.sakura.ne.jp>	<Pine.LNX.4.61L.0512221808160.6194@imladris.surriel.com> <200512231338.FBF16755.TJLXFMSNOGtFSFFCOP@I-love.sakura.ne.jp>
+In-Reply-To: <200512231338.FBF16755.TJLXFMSNOGtFSFFCOP@I-love.sakura.ne.jp>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 01:44:46PM -0800, Greg KH wrote:
-> On Thu, Dec 22, 2005 at 02:38:24PM -0600, Mark Maule wrote:
-> > On Thu, Dec 22, 2005 at 12:34:15PM -0800, Greg KH wrote:
-> > > On Thu, Dec 22, 2005 at 02:26:27PM -0600, Mark Maule wrote:
-> > > > On Thu, Dec 22, 2005 at 12:22:59PM -0800, Greg KH wrote:
-> > > > > On Thu, Dec 22, 2005 at 02:15:44PM -0600, Mark Maule wrote:
-> > > > > > Resend #2: including linuxppc64-dev and linux-pci as well as PCI maintainer
-> > > > > 
-> > > > > I'll wait for Resend #3 based on my previous comments before considering
-> > > > > adding it to my kernel trees:)
-> > > > > 
-> > > > 
-> > > > Resend #2 includes the correction to the irq_vector[] declaration, and I
-> > > > responded to the question about setting irq_vector[0] if that's what you
-> > > > mean ...
-> > > 
-> > > Sorry, but I missed that last response.  Why do you set the [0] value in
-> > > a #ifdef now?
-> > 
-> > Because on ia64 IA64_FIRST_DEVICE_VECTOR and IA64_LAST_DEVICE_VECTOR
-> > (from which MSI FIRST_DEVICE_VECTOR/LAST_DEVICE_VECTOR are derived) are not
-> > constants.  The are now global variables (see change to asm-ia64/hw_irq.h)
-> > to allow the platform to override them.  Altix uses a reduced range of
-> > vectors for devices, and this change was necessary to make assign_irq_vector()
-> > to work on altix.
+Tetsuo Handa wrote:
+> Hello,
 > 
-> I'm with Matthew on this one, that's not a real fix for this.  What
-> would PPC64 do in this case?
+> Rik van Riel wrote:
+> 
+>>Why does the Tomoyo patch have its own hooks in various
+>>places sitting right next to the LSM hooks?
+> 
+> There are two reasons.
+> 
+> One is to support both 2.4 kernels and 2.6 kernels.
+> 
+> The other is some parameters are missing for TOMOYO Linux.
+> TOMOYO needs "struct vfsmnt" parameter to calculate realpath(2),
+> but this parameter is unavailable after entring into
+> the vfs functions (for example, vfs_mknod()) and
+> unable to use (for example, security_inode_mknod()).
+> 
+> Also not all hooks needed for TOMOYO Linux are provided by LSM.
+> For example, a hook for SAKURA_MayAutobind() is not provided by LSM.
+> 
+> 
+> 
+> By the way, the kickstart guide is now available at
+> http://tomoyo.sourceforge.jp/en/kickstart/ .
+> 
+> If you have private questions, you can send mails to
+> tomoyo-support _at_ lists.sourceforge.jp .
 
-Using the existing framework, wouldn't PPC just define it's own
-assign_irq_vector and {FIRST,LAST}_DEVICE_VECTOR and handle it however it
-wants under the covers?
-
-I agree that this is not a great solution, but it's what the existing framework
-allowed.  I'm willing to pursue a more general vector allocation scheme, but
-I suspect that'll take some time.
-
-Is this issue going to hold up forward progress of this patchset?  IMO, this
-set is a major step in generalizing the MSI code and I think the vector
-generalizing code would best be handled by a separate effort.
-
-Mark
-
-Mark
+Hopefully most questionss will stay here until people have a chance to 
+get general questions answered. This is interesting stuff, although I 
+suspect that the main goal was safe operation of authorized users on the 
+machine, rather than protection of servers. It appears to have benefits 
+for servers as well, of course.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964968AbVLWBpc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbVLWBqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964968AbVLWBpc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Dec 2005 20:45:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964985AbVLWBpc
+	id S964985AbVLWBqS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Dec 2005 20:46:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964987AbVLWBqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Dec 2005 20:45:32 -0500
-Received: from pat.uio.no ([129.240.130.16]:46038 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S964968AbVLWBpc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Dec 2005 20:45:32 -0500
-Subject: Re: nfs insecure_locks / Tru64 behaviour
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ron Peterson <rpeterso@MtHolyoke.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20051223013933.GB22949@mtholyoke.edu>
-References: <20051222133623.GE7814@mtholyoke.edu>
-	 <1135293713.3685.9.camel@lade.trondhjem.org>
-	 <20051223013933.GB22949@mtholyoke.edu>
-Content-Type: text/plain
-Date: Fri, 23 Dec 2005 02:45:25 +0100
-Message-Id: <1135302325.3685.69.camel@lade.trondhjem.org>
+	Thu, 22 Dec 2005 20:46:18 -0500
+Received: from bay16-f2.bay16.hotmail.com ([65.54.186.52]:59885 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S964985AbVLWBqR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Dec 2005 20:46:17 -0500
+Message-ID: <BAY16-F260F9C6F509BFC683D3A6AF330@phx.gbl>
+X-Originating-IP: [203.166.111.194]
+X-Originating-Email: [alexshinkin@hotmail.com]
+In-Reply-To: <1135300240.12761.27.camel@localhost.localdomain>
+From: "Alexey Shinkin" <alexshinkin@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: questions on wait_event ...
+Date: Fri, 23 Dec 2005 07:46:17 +0600
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.031, required 12,
-	autolearn=disabled, AWL 1.92, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 23 Dec 2005 01:46:17.0925 (UTC) FILETIME=[AABB9F50:01C60762]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-22 at 20:39 -0500, Ron Peterson wrote:
-> > As for your problem accessing files in the directory
-> > 
-> > drwxr-x---  2 root     system  4096 Dec 22 08:22 d/
-> > 
-> > as an unprivileged user on group 'kmw', the solution is obvious:
-> > 
-> > 'chgrp kmw d'
-> > 
-> > or
-> > 
-> > chmod a+x d
-> 
-> That's exactly the problem.  The first obvious solution doesn't work.
-> Your second solution does.  The directory must have the execute bit set
-> for other, or the the file cannot be edited, no matter who owns the
-> directory (unless the owner/group is nobody/nogroup).
 
-Why wouldn't the chgrp solution work? Isn't /etc/groups on the client
-and server in sync?
+Look:
 
-Cheers,
-  Trond
+We call wait_event() , condition is FALSE at the moment  :
+
+    do {
+         if (condition)
+                 break;
+    /* and here we have condition changed  to TRUE  */
+    /*  process is NOT in any wait queue yet  */
+    /*  then  unroll     __wait_event(wq, condition);        */
+
+     do {							DEFINE_WAIT(__wait);					for (;;) {
+	prepare_to_wait(&wq, &__wait, TASK_UNINTERRUPTIBLE);
+
+          /* at this point condition is TRUE , process is in a wait queue 
+and its state is
+             TASK_UNINTERRUPTIBLE.   If  rescheduling happens now the 
+process will asleep,
+              despite of condition is  TRUE . And will not be woken up until 
+next wake_up happens
+              Is that correct ?  */
+
+	if (condition)						     break;
+                    schedule();
+        }
+   finish_wait(&wq, &__wait);
+} while (0)
+   /*  end of unroll __wait_event*/
+
+} while (0)
+
+_________________________________________________________________
+Express yourself instantly with MSN Messenger! Download today it's FREE! 
+http://messenger.msn.click-url.com/go/onm00200471ave/direct/01/
 

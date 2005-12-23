@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161100AbVLWW5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161113AbVLWXFb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161100AbVLWW5x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 17:57:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161113AbVLWW5x
+	id S1161113AbVLWXFb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 18:05:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161120AbVLWXFb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 17:57:53 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:15025 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S1161100AbVLWW5v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 17:57:51 -0500
-Message-ID: <43AC80E5.6050906@colorfullife.com>
-Date: Fri, 23 Dec 2005 23:57:41 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Jack Steiner <steiner@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] add missing memory barriers to ipc/sem.c
-Content-Type: multipart/mixed;
- boundary="------------070809060408050402040400"
+	Fri, 23 Dec 2005 18:05:31 -0500
+Received: from stat9.steeleye.com ([209.192.50.41]:7619 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1161108AbVLWXFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 18:05:30 -0500
+Subject: Re: [patch 18/19] SCSI: fix transfer direction in scsi_lib and st
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Greg Kroah-Hartman <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       linux-scsi@vger.kernel.org, stefanr@s5r6.in-berlin.de
+In-Reply-To: <20051223224852.GR19057@kroah.com>
+References: <20051223221200.342826000@press.kroah.org>
+	 <20051223224852.GR19057@kroah.com>
+Content-Type: text/plain
+Date: Fri, 23 Dec 2005 17:05:25 -0600
+Message-Id: <1135379125.3728.57.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070809060408050402040400
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 2005-12-23 at 14:48 -0800, Greg Kroah-Hartman wrote:
+> plain text document attachment
+> (scsi-fix-transfer-direction-in-scsi_lib-and-st.patch)
+> -stable review patch.  If anyone has any objections, please let us know.
 
-Hi Linus,
+Erm, on this diff, you're missing the function
 
-Two smp_wmb() statements are missing in the sysv sem code: This could 
-cause stack corruptions.
-The attached patch adds them.
+scsi_setup_blk_pc_cmnd()
 
-Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
+Unless these patches were split up strangely and it actually went
+through in some other patch that wasn't sent to linux-scsi?
 
---------------070809060408050402040400
-Content-Type: text/plain;
- name="patch-ipc-sem-wmb"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-ipc-sem-wmb"
+I'd just take the diffs out of the current kernel tree:
 
---- 2.6/ipc/sem.c	2005-12-19 01:36:54.000000000 +0100
-+++ build-2.6/ipc/sem.c	2005-12-23 23:25:17.000000000 +0100
-@@ -381,6 +381,7 @@
- 			/* hands-off: q will disappear immediately after
- 			 * writing q->status.
- 			 */
-+			smb_wmb();
- 			q->status = error;
- 			q = n;
- 		} else {
-@@ -461,6 +462,7 @@
- 		n = q->next;
- 		q->status = IN_WAKEUP;
- 		wake_up_process(q->sleeper); /* doesn't sleep */
-+		smp_wmb();
- 		q->status = -EIDRM;	/* hands-off q */
- 		q = n;
- 	}
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=a8c730e85e80734412f4f73ab28496a0e8b04a7b
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=c9526497cf03ee775c3a6f8ba62335735f98de7a
 
---------------070809060408050402040400--
+I think they'll apply straight to 2.6.13-stable.
+
+James
+
+

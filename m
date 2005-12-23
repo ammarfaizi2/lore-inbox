@@ -1,96 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030183AbVLWFmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030420AbVLWFyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030183AbVLWFmx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 00:42:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932397AbVLWFmx
+	id S1030420AbVLWFyl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 00:54:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030422AbVLWFyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 00:42:53 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.154]:58510 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S932305AbVLWFmw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 00:42:52 -0500
-From: Len Brown <len.brown@intel.com>
-Organization: Intel Open Source Technology Center
-To: torvalds@osdl.org
-Subject: git pull on Linux/ACPI release tree
-Date: Fri, 23 Dec 2005 00:42:16 -0500
-User-Agent: KMail/1.8.2
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-References: <200512010305.43469.len.brown@intel.com> <200512060317.53925.len.brown@intel.com>
-In-Reply-To: <200512060317.53925.len.brown@intel.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 23 Dec 2005 00:54:41 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:23462 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1030420AbVLWFyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 00:54:41 -0500
+Subject: Re: i386 -> x86_64 cross compile failure (binutils bug?)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20051211000039.GR11190@wotan.suse.de>
+References: <1134154208.14363.8.camel@mindpipe> <439A0746.80208@mnsu.edu>
+	 <1134173138.18432.41.camel@mindpipe> <439A201D.7030103@mnsu.edu>
+	 <1134179410.18432.66.camel@mindpipe> <p73oe3ppbxj.fsf@verdi.suse.de>
+	 <1134191524.18432.82.camel@mindpipe> <20051210071935.GQ11190@wotan.suse.de>
+	 <1134243273.18432.104.camel@mindpipe>
+	 <20051211000039.GR11190@wotan.suse.de>
+Content-Type: text/plain
+Date: Fri, 23 Dec 2005 00:59:04 -0500
+Message-Id: <1135317544.4473.17.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200512230042.17903.len.brown@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Sun, 2005-12-11 at 01:00 +0100, Andi Kleen wrote:
+> > Here are the relevant lines of arch/x86_64/kernel/vmlinux.lds:
+> > 
+> >     382 OUTPUT_FORMAT("elf64-x86-64", "elf64-x86-64", "elf64-x86-64")
+> >     383 OUTPUT_ARCH(1:x86-64)
+> >     384 ENTRY(phys_startup_64)
+> > 
+> > Any ideas?  Another toolchain quirk?
+> 
+> The original is 
+> 
+> OUTPUT_ARCH(i386:x86-64)
+> 
+> It replaced the i386 with 1, which obviously doesn't work.
+> 
+> Try (full patch again) 
+> 
 
-please pull from: 
+I still get:
 
-git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux-acpi-2.6.git release
+  SYSCALL arch/x86_64/ia32/vsyscall-sysenter.so
+/usr/bin/ld: warning: i386:x86-64 architecture of input file
+`arch/x86_64/ia32/vsyscall-sysenter.o' is incompatible with i386 output
+  AS      arch/x86_64/ia32/vsyscall-syscall.o
+  SYSCALL arch/x86_64/ia32/vsyscall-syscall.so
+/usr/bin/ld: warning: i386:x86-64 architecture of input file
+`arch/x86_64/ia32/vsyscall-syscall.o' is incompatible with i386 output
+  AS      arch/x86_64/ia32/syscall32_syscall.o
 
-This will update the files shown below.
-
-thanks!
-
--Len
-
- drivers/acpi/processor_thermal.c |    4 ++--
- drivers/acpi/utilities/utmisc.c  |   20 ++++++++++----------
- include/acpi/acglobal.h          |    2 +-
- 3 files changed, 13 insertions(+), 13 deletions(-)
-
-through these commits:
-
-Alex Williamson:
-      [ACPI] increase owner_id limit to 64 from 32
-
-Len Brown:
-      [ACPI] fix build warning from owner_id patch
-
-Thomas Renninger:
-      [ACPI] fix passive cooling regression
-
-with this log:
-
-commit 9d6be4bed65a3bd36ab2de12923bff4f4530bd86
-Author: Len Brown <len.brown@intel.com>
-Date:   Thu Dec 22 22:23:06 2005 -0500
-
-    [ACPI] fix build warning from owner_id patch
-    
-    Signed-off-by: Len Brown <len.brown@intel.com>
-
-commit 75b245b3259133360845bc6de3aecb8a6bd6ab59
-Author: Thomas Renninger <trenn@suse.de>
-Date:   Wed Dec 21 01:29:00 2005 -0500
-
-    [ACPI] fix passive cooling regression
-    
-    Return logic was inverted.
-    Going for changing the return value to not return zero as it is makes
-    more sense regarding the naming of the function (cpu_has_cpufreq()).
-    
-    http://bugzilla.kernel.org/show_bug.cgi?id=3410
-    
-    Signed-off-by: Thomas Renninger <trenn@suse.de>
-    Signed-off-by: Len Brown <len.brown@intel.com>
-
-commit 05465fd5622202d65634b3a9a8bcc9cbb384a82a
-Author: Alex Williamson <alex.williamson@hp.com>
-Date:   Thu Dec 8 15:37:00 2005 -0500
-
-    [ACPI] increase owner_id limit to 64 from 32
-    
-    This is an interim patch until changes in an updated
-    ACPICA core increase the limit to 255.
-    
-    Signed-off-by: Alex Williamson <alex.williamson@hp.com>
-    Signed-off-by: Len Brown <len.brown@intel.com>
+Lee
 
 

@@ -1,50 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750748AbVLXOqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbVLXPKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750748AbVLXOqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 09:46:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbVLXOqJ
+	id S1750786AbVLXPKo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 10:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbVLXPKo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 09:46:09 -0500
-Received: from mail.linicks.net ([217.204.244.146]:58600 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S1750748AbVLXOqI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 09:46:08 -0500
-From: Nick Warne <nick@linicks.net>
+	Sat, 24 Dec 2005 10:10:44 -0500
+Received: from lucidpixels.com ([66.45.37.187]:51596 "EHLO lucidpixels.com")
+	by vger.kernel.org with ESMTP id S1750786AbVLXPKo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 10:10:44 -0500
+Date: Sat, 24 Dec 2005 10:10:27 -0500 (EST)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p34
 To: linux-kernel@vger.kernel.org
-Subject: [Question] BIOS settings
-Date: Sat, 24 Dec 2005 14:45:58 +0000
-User-Agent: KMail/1.9
+Subject: Tape Drive Question (2.6.14.4)
+Message-ID: <Pine.LNX.4.64.0512241009230.2904@p34>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512241445.59092.nick@linicks.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody, and seasons greetings,
+$ ls -l /dev/st0*
+crw-rw-rw-  1 root tape 9,  0 2004-09-18 07:51 /dev/st0
+crw-rw-rw-  1 root tape 9, 96 2004-09-18 07:51 /dev/st0a
+crw-rw-rw-  1 root tape 9, 32 2004-09-18 07:51 /dev/st0l
+crw-rw-rw-  1 root tape 9, 64 2004-09-18 07:51 /dev/st0m
 
-I was reading up on the web, and saw that BIOS `video shadowing' isn't 
-required with modern kernels, as the kernel talks direct to the hardware 
-bypassing BIOS.  I was aware of this re boot time, and know that kernel 
-queries hardware direct - but didn't know this bit.
+What differentiates st0 from a,l,m?
+What does writing or reading to a tape using a,l,m signify?
 
-I have an KT7 mobo with award BIOS (version year 2000) and GeForce4 MME with 
-nVidia 'secret squirrel' module [kernel 2.6.14.4], so turned off video 
-shadowing.
+I cannot seem to find any documentation clearly stating this.
 
-Now, glxgears (I know it not a measurement tool, but...) runs at an amazing 
-400fps faster (it was 750ish, now runs at 1100ish in same environment).
-
-So, my question is - are there any documentation that covers what is needed 
-and isn't needed in setting up optimum BIOS settings for Linux kernels?
-
-Regards,
-
-Nick
--- 
-"Person who say it cannot be done should not interrupt person doing it."
--Chinese Proverb
-My quake2 project:
-http://sourceforge.net/projects/quake2plus/
+Justin.

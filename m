@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbVLXVy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbVLXV4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbVLXVy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 16:54:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVLXVy3
+	id S1750739AbVLXV4f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 16:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVLXV4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 16:54:29 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:1974 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP
-	id S1750733AbVLXVy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 16:54:28 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: [PATCH] Have menuconfig use ncursesw
-Date: Sat, 24 Dec 2005 21:54:42 +0000
-User-Agent: KMail/1.9
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0512242240000.29877@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0512242240000.29877@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Dec 2005 16:56:35 -0500
+Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:35851
+	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
+	id S1750739AbVLXV4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 16:56:35 -0500
+Date: Sat, 24 Dec 2005 13:56:33 -0800
+From: Brad Boyer <flar@allandria.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 33/36] m68k: drivers/scsi/mac53c94.c __iomem annotations
+Message-ID: <20051224215633.GA17645@pants.nu>
+References: <E1EpIQf-0004tx-Oh@ZenIV.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512242154.42189.s0348365@sms.ed.ac.uk>
+In-Reply-To: <E1EpIQf-0004tx-Oh@ZenIV.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 24 December 2005 21:42, Jan Engelhardt wrote:
-> Hi,
->
->
-> on vgacon (standard tty1 stuff) with UTF8 enabled, running make menuconfig
-> gives ascii-art lines `a la + - and |. I use the following patch to get
-> back the line graphics from the upper part of the font. AFAICS this should
-> have no impact on non-utf consoles. Include it in mainline?
->
 
-Not everybody has libncursesw, therefore such a patch should runtime detect 
-whether such a library is available before unconditionally linking against 
-it.
+This is a ppc only driver at the moment. The m68k mac version is mac_esp.
+I've been thinking about retrofitting this driver to use on the models
+that can do DMA, but that will require me to finish some of the work I
+have pending on the macio layer to get it working for nubus models.
 
--- 
-Cheers,
-Alistair.
+	Brad Boyer
+	flar@allandria.com
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+On Thu, Dec 22, 2005 at 04:51:49AM +0000, Al Viro wrote:
+> From: Al Viro <viro@zeniv.linux.org.uk>
+> Date: 1133866874 -0500
+> 
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> 
+> ---
+> 
+>  drivers/scsi/mac53c94.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> c142eb4b3a51224952b8760cff73051398dac312
+> diff --git a/drivers/scsi/mac53c94.c b/drivers/scsi/mac53c94.c
+> index 932dcf0..a853fb4 100644
+> --- a/drivers/scsi/mac53c94.c
+> +++ b/drivers/scsi/mac53c94.c
+> @@ -531,9 +531,9 @@ static int mac53c94_remove(struct macio_
+>  	free_irq(fp->intr, fp);
+>  
+>  	if (fp->regs)
+> -		iounmap((void *) fp->regs);
+> +		iounmap(fp->regs);
+>  	if (fp->dma)
+> -		iounmap((void *) fp->dma);
+> +		iounmap(fp->dma);
+>  	kfree(fp->dma_cmd_space);
+>  
+>  	scsi_host_put(host);
+> -- 
+> 0.99.9.GIT
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-m68k" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

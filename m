@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422649AbVLXJow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbVLXJvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422649AbVLXJow (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 04:44:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbVLXJov
+	id S1422642AbVLXJvP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 04:51:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbVLXJvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 04:44:51 -0500
-Received: from fed1rmmtao05.cox.net ([68.230.241.34]:23747 "EHLO
-	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S1422644AbVLXJou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 04:44:50 -0500
-From: Junio C Hamano <junkio@cox.net>
-To: Ingo Oeser <ioe-lkml@rameria.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org
-Subject: Re: [ANNOUNCE] GIT 1.0.0b quickfix
-References: <7vpsnq3wrg.fsf@assigned-by-dhcp.cox.net>
-	<1135244363.10035.185.camel@gaston>
-	<Pine.LNX.4.64.0512220945450.4827@g5.osdl.org>
-	<200512231712.40621.ioe-lkml@rameria.de>
-Date: Sat, 24 Dec 2005 01:44:48 -0800
-Message-ID: <7vu0cyu8vj.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 24 Dec 2005 04:51:15 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:63707 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1422642AbVLXJvP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 04:51:15 -0500
+Date: Sat, 24 Dec 2005 09:51:14 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCHSET] 2.6.15-rc6-bird3
+Message-ID: <20051224095114.GU27946@ftp.linux.org.uk>
+References: <20051222101523.GP27946@ftp.linux.org.uk> <20051223093146.GT27946@ftp.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051223093146.GT27946@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Oeser <ioe-lkml@rameria.de> writes:
+	Updated version:
+ftp://ftp.linux.org.uk/pub/people/viro/patch-2.6.15-rc6-bird3.bz2
 
-> Also sucks because letters after numbers a read as "units".
->
-> Just compare 5h, 3kg, 20cm, 9in, 1.3h
+URL of splitup: same place, bird-mbox.
 
-If your first reaction after seeing 0.99.7a 0.99.7b 0.99.7c was
-that they were numbers in unrelated units a b c and cannot be
-compared with each other, you need to get your head examined ;-).
+New target added to tracked set: sun3 (which completes m68k coverage).
+Patches in befs series are only beginning - there's more to do to get
+it endian-clean.  Tomorrow...  As an aside, fs/befs is a nice demonstration
+of the typedef uses that can go wrong...
 
-I concede that it is a cute point you tried to make [*1*], but I
-do not think your presentation was convincing enough.
+BTW, sun3 had exposed an ld(1) bug - mixing PHDRS, large holes in segments
+and nobits sections in the end of segments after such holes can make ld(1)
+forget to map such sections into any segment.  If you've seen strip(1)
+complaining about .bss - that's what it is.  After fixing init_task reference
+in vmlinux-sun3.lds it doesn't trigger that bug anymore, but binutils
+still needs fixing; if nobody beats me to it I'll see what can be done
+about that crap...
+ 
+Changes since yesterday snapshot:
 
-[Footnote]
+Al Viro:
+      m68k: fix reference to init_task in vmlinux-sun3.lds
+      m68k: fix macfb init
+      affs_fill_super() %s abuses
+      befs: remove bogus typedef
+      befs: prepare to sanitizing headers
+      befs: introduce on-disk endian types
+      befs: missing fs32_to_cpu() in debug.c
 
-*1* Which one is the heaviest, 5h, 3kg, or 20cm?
-
+Alexey Dobriyan:
+      eisa_eeprom.c: __user annotations
+      parisc: add __iomem to __raw_check_addr()
+      include/asm-parisc/processor.h: C99 initializers

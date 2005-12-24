@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422635AbVLXIcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422638AbVLXJHX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422635AbVLXIcd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 03:32:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422638AbVLXIcd
+	id S1422638AbVLXJHX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 04:07:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030611AbVLXJHX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 03:32:33 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:41878 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422635AbVLXIcc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 03:32:32 -0500
-Date: Sat, 24 Dec 2005 00:32:26 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
+	Sat, 24 Dec 2005 04:07:23 -0500
+Received: from silver.veritas.com ([143.127.12.111]:34993 "EHLO
+	silver.veritas.com") by vger.kernel.org with ESMTP id S1030544AbVLXJHV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 04:07:21 -0500
+Date: Sat, 24 Dec 2005 09:07:29 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
 To: "David S. Miller" <davem@davemloft.net>
-cc: michael.bishop@APPIQ.com, linux-kernel@vger.kernel.org, hugh@veritas.com,
+cc: torvalds@osdl.org, michael.bishop@APPIQ.com, linux-kernel@vger.kernel.org,
        nickpiggin@yahoo.com.au
 Subject: Re: More info for DSM w/r/t sunffb on 2.6.15-rc6
-In-Reply-To: <20051223.154509.86780332.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.64.0512240029581.14098@g5.osdl.org>
-References: <DF925A10E7204748977502BECE3D11230100CD7C@exch02.appiq.com>
- <20051223.111940.17674086.davem@davemloft.net> <Pine.LNX.4.64.0512231223040.14098@g5.osdl.org>
+In-Reply-To: <20051223.234622.14020212.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.61.0512240828230.18398@goblin.wat.veritas.com>
+References: <Pine.LNX.4.64.0512231223040.14098@g5.osdl.org>
  <20051223.154509.86780332.davem@davemloft.net>
+ <Pine.LNX.4.61.0512240104440.17764@goblin.wat.veritas.com>
+ <20051223.234622.14020212.davem@davemloft.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 24 Dec 2005 09:07:17.0262 (UTC) FILETIME=[7023CAE0:01C60869]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
 On Fri, 23 Dec 2005, David S. Miller wrote:
->
-> Something like this patch below.
+> From: Hugh Dickins <hugh@veritas.com>
+> Date: Sat, 24 Dec 2005 01:21:07 +0000 (GMT)
 > 
-> Signed-off-by: David S. Miller <davem@davemloft.net>
+> > Those "prot = __pgprot(pg_iobits);" lines - any idea why they ever
+> > got inserted?  I guess to add _PAGE_E in the sparc64 case, and
+> > whatever the equivalent was in the earlier sparc cases?
+> > Can they safely be corrected early in 2.6.16?
 > 
-> diff --git a/drivers/video/sbuslib.c b/drivers/video/sbuslib.c
-> index 646c43f..ac937da 100644
-> --- a/drivers/video/sbuslib.c
-> +++ b/drivers/video/sbuslib.c
-> @@ -46,6 +46,9 @@ int sbusfb_mmap_helper(struct sbus_mmap_
->  	unsigned long off;
->  	int i;
->                                          
-> +	if (!(vma->vm_flags & VM_SHARED))
-> +		return -EINVAL;
-> +
+> Corrected?  By that you mean removed?
 
-Side note - as I explained to Nick the other week, VM_SHARED really means 
-"shared _writable_" mapping, so you're now disallowing a shared read-only 
-open too.
+Removed would make the source look prettier, but I assume it's
+there for a reason, and should be corrected rather than removed.
 
-Which may be fine, of course. Especially if sbusfb always ends up giving a 
-writable pfn-mapping. But I wanted to check that that was what you meant 
-to do.
+I assume the reason is to add some necessary flagbits into prot;
+and not to violate the permissions model by giving shared write
+access to areas mapped privately.
 
-To test for MAP_SHARED, either do the is_cow_mapping() thing, or check 
-the VM_MAYSHARE bit.
+I was wondering your estimation of the likelihood of problems if we
+change sparc and sparc64 io_remap_pfn_range to respect the distinction
+between shared and private, readonly and writable, early in 2.6.16,
+or early in 2.6.17.
 
-		Linus
+But this incident of X trying for MAP_PRIVATE (wanting that to mean
+shared) before MAP_SHARED shows we cannot assume sanity around here.
+Looks like we'd need to scatter VM_SHARED tests (like yours) around
+various driver mmaps at the same time, to get X back to working on them.
+
+I knew there were several drivers ignoring vm_page_prot in their calls
+to (io_)remap_pfn_range; I hadn't realized that whole architectures
+were doing so in low-level functions used by many.
+
+Or is there a good argument that the shared-write/private-readonly
+distinction makes no sense on anything you might apply
+io_remap_pfn_range to?  That read access to the device amounts
+to write access, because of side-effects?  (I know nothing of this,
+I'm just trying to guess how I might be fussing unnecessarily over it.)
+
+> We have so many hacks
+> in the tree dealing with this kind of stuff.  For example,
+> pgprot_noncached() as used by things like snd_pccm_lib_mmap_iomem().
+
+pgprot_noncached looks okay to me: not pretty, but doing just what
+I'd expect, adding in some necessary flagbits while respecting the
+permissions.  A hack yes (a subsequent mprotect would lose the
+added flagbits I think), but good enough for most.
+
+Hugh

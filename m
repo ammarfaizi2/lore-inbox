@@ -1,146 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422643AbVLXJmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422649AbVLXJow@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422643AbVLXJmO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 04:42:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422642AbVLXJmO
+	id S1422649AbVLXJow (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 04:44:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbVLXJov
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 04:42:14 -0500
-Received: from fed1rmmtao04.cox.net ([68.230.241.35]:39894 "EHLO
-	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S1422640AbVLXJmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 04:42:13 -0500
+	Sat, 24 Dec 2005 04:44:51 -0500
+Received: from fed1rmmtao05.cox.net ([68.230.241.34]:23747 "EHLO
+	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
+	id S1422644AbVLXJou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 04:44:50 -0500
 From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: GIT 1.0.4 and what is in master and proposed updates.
-Date: Sat, 24 Dec 2005 01:42:11 -0800
-Message-ID: <7vd5jmvnkc.fsf@assigned-by-dhcp.cox.net>
+To: Ingo Oeser <ioe-lkml@rameria.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org
+Subject: Re: [ANNOUNCE] GIT 1.0.0b quickfix
+References: <7vpsnq3wrg.fsf@assigned-by-dhcp.cox.net>
+	<1135244363.10035.185.camel@gaston>
+	<Pine.LNX.4.64.0512220945450.4827@g5.osdl.org>
+	<200512231712.40621.ioe-lkml@rameria.de>
+Date: Sat, 24 Dec 2005 01:44:48 -0800
+Message-ID: <7vu0cyu8vj.fsf@assigned-by-dhcp.cox.net>
 User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GIT 1.0.4 contains the following updates since GIT 1.0.3:
+Ingo Oeser <ioe-lkml@rameria.de> writes:
 
- * check_packed_git_idx(): check integrity of the idx file itself.
+> Also sucks because letters after numbers a read as "units".
+>
+> Just compare 5h, 3kg, 20cm, 9in, 1.3h
 
-   Earlier we did not use SHA1 checksum at the end of the index
-   file that records the checksum of the index file itself.
+If your first reaction after seeing 0.99.7a 0.99.7b 0.99.7c was
+that they were numbers in unrelated units a b c and cannot be
+compared with each other, you need to get your head examined ;-).
 
- * show-branch: usability updates.
+I concede that it is a cute point you tried to make [*1*], but I
+do not think your presentation was convincing enough.
 
-   Fixes the bug that made 'git show-branch --heads' show the
-   same heads twice, among other things.
+[Footnote]
 
- * merge --no-commit: tweak message.
-
-   Instead of saying "failed/prevented", say which one.
-
- * ls-files --full-name: usage string and documentation.
-
-   The option was not documented.
-
- * mailinfo: iconv does not like "latin-1" -- should spell it "latin1"
-
-   Noted by Marco; when a message does not identify its own
-   charset, we tried to assume latin1 but misspelled it as
-   latin-1, and iconv barfed.
-
-
-The master branch has all of the above, and in addition contains
-the following:
-
- * git-clone: do not special case dumb http.
-
-   This is to remove the remnant from the days http-fetch did
-   not handle packed repositories natively.
-
- * rev-parse: --show-cdup
-
-   This is a low-impact shorthand for:
-
-        git rev-parse --show-prefix | sed -e 's|[^/][^/]*|..|g'
-
-   and will be used by "git checkout works from a subdirectory"
-   patch.
-
-
-The proposed updates branch has the following updates.
-
- * git-daemon --base-path
-
-   Lack of the command line verification bugs me somewhat with
-   this patch.  Also we might want to apply the base-path to the
-   whitelist as well, which the patch currently does not do.
-   Almost there, but not quite ready.
-
- * help with group permission in a shared repository.
-
-   This series consists of these commits:
-
-      Introduce core.sharedrepository
-      git-init-db: initialize shared repositories with --shared
-      Tutorial: mention shared repository management.
-
-   I think this one is ready.  I just am taking things slowly.
-
- * make git-checkout work from a subdirectory.
-
-   This series consists of these commits:
-
-      checkout: sometimes work from a subdirectory.
-      ls-tree: chomp leading directories when run from a subdirectory
-      Adjust to ls-tree --full-name when run from a subdirectory.
-
-   This seems to work pretty well.  I just am taking things
-   slowly.
-
- * require packfiles to follow the naming convention more strictly.
-
-   This rejects a packfile whose name does not begin with
-   "pack-" followed by 40-byte hexadecimal digits.  The core
-   never had such limitation (the only thing it required was
-   that the pack and the idx are named with the same basename
-   with .pack and .idx extention), but the way http-fetch
-   handles packs requires this.
-
-   An alternative strategy to handle the current mess would be
-   to fix http-fetch so that it does not assume that pack names
-   are always in the format "pack-[0-9a-f]{40}.pack", getting
-   rid of sha1[] column from struct packed_git.  This is
-   probably more work, but would be cleaner.  On the other hand,
-   the cleanliness probably would not buy us much.  We do not
-   need to insist on "pack-" prefix, but there is no strong
-   reason to hate it, and we need to ensure packnames do not
-   collide with each other anyway, so having SHA1 hash in the
-   name makes sense.  However, we currently allow arbitrary 40
-   hexadecimal digits there and the user is free to say 0{40}.
-   Continuing to allow this defeats the initial purpose of why
-   40 hexadecimal digits are there: collision avoidance.
-
-   This series starts warning if the 40-byte hex that follows
-   "pack-" is not the correct hash for contained object names
-   that was given by pack-objects when the pack was created, and
-   has a provision to later start rejecting such packs.
-
-   This is probably controversial because it would eventually
-   require users to rename their packs created using pre v0.99.9
-   tools.  There is a small utility program that helps the
-   conversion process, so it may not be that painful.
-
- * Disable USE_SYMLINK_HEAD by default.
-
-   This uses symref for .git/HEAD everywhere.  Some Porcelain
-   may not be ready to deal with it, so it is kept in the
-   proposed updates branch for now.
-
-   If your Porcelain "cat .git/HEAD", or "readlink .git/HEAD",
-   it is already broken in repositories that use symref for
-   HEAD, but it will be broken everywhere by this.  Use
-   git-symbolic-ref if you want to find out the name of the
-   branch HEAD points at, or git-rev-parse if you want to find
-   out the commit object name HEAD points at.
-
-   Most notably, git_read_hash(".../HEAD") in gitweb is probably
-   affected (meaning, it is already broken).
+*1* Which one is the heaviest, 5h, 3kg, or 20cm?
 

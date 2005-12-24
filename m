@@ -1,951 +1,879 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVLXW4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbVLXXBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbVLXW4g (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 17:56:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbVLXW4g
+	id S1750749AbVLXXBg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 18:01:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750750AbVLXXBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 17:56:36 -0500
-Received: from main.gmane.org ([80.91.229.2]:51108 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750745AbVLXW4f (ORCPT
+	Sat, 24 Dec 2005 18:01:36 -0500
+Received: from mail4.opus-i.net ([209.10.181.136]:3041 "EHLO
+	FPNYEXCBE01.opus-i.corp") by vger.kernel.org with ESMTP
+	id S1750749AbVLXXBf convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 17:56:35 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: 2.6.14.4 irqpoll / yenta problem? acpi?
-Date: Sat, 24 Dec 2005 23:56:22 +0100
-Message-ID: <dokjml$er$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: port-212-202-193-31.dynamic.qsc.de
-User-Agent: KNode/0.10
+	Sat, 24 Dec 2005 18:01:35 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: PROBLEM: "can't make software raid0 volumes greater than 4TB"
+Date: Sat, 24 Dec 2005 17:59:33 -0500
+Message-ID: <14BC3454F4B4614FBC4F3FB19A84C37246E7A1@FPNYEXCBE01.opus-i.corp>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PROBLEM: "can't make software raid0 volumes greater than 4TB"
+Thread-Index: AcYI2e+mX3sv40hMQU64kuyjfV+CSgAAzbEgAAAdwSA=
+From: "Patrick Freeman" <patrickf@datallegro.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-even with this commandline: root=/dev/hda1 ro noapictimer irqpoll
-I get this during bootup:
 
-irq 11: nobody cared (try booting with the "irqpoll" option)
+[1.] One line summary of the problem:    
 
-Call Trace: <IRQ> <ffffffff80153935>{__report_bad_irq+53}
-<ffffffff80153b47>{note_interrupt+439}
-       <ffffffff801534b8>{__do_IRQ+152} <ffffffff80110e6f>{do_IRQ+47}
-       <ffffffff8010eef0>{ret_from_intr+0}  <EOI>
-<ffffffff80217d76>{acpi_hw_low_level_read+126}
-       <ffffffff80218009>{acpi_hw_low_level_write+120}
-<ffffffff80217e43>{acpi_hw_register_read+196}
-       <ffffffff802fa0f0>{pci_mmcfg_read+0}
-<ffffffff8022beee>{acpi_processor_idle+324}
-       <ffffffff8010d3a1>{cpu_idle+49} <ffffffff804d079f>{start_kernel+399}
-       <ffffffff804d01f4>{_sinittext+500} 
-handlers:
-[<ffffffff8028fdb0>] (yenta_interrupt+0x0/0xc0)
-Disabling IRQ #11
+OS hangs on format with volume greater than 4TB in raid0 only.
 
-and later something similiar with acpi mixed into it.
-the machine is a MSI S270 laptop with turion64 and ati chipset .
-any idea what to do and how to get the pccard bus working?
+[2.] Full description of the problem/report:
 
-here is the config, the full dmesg and the lspci...
+Creating software raid0 volumes larger than 4TB returns properly, but first attempt to touch the volume (in this case with mkfs, and I've tried xfs, reiserfs and ext3) either hangs the OS or mkfs does not return.  The case where mkfs does not return appears to be at the 4TB boundary, but significantly above 4TB, mkfs does not return.  Later, I noticed that there was an Oops on reboot, but they were not reported on the terminal while formatting or while starting raid.
 
-Thanks for your help.
+I am able to format volumes more than 7TB with raid5 or raid6, so the problem did not appear to be with volume size for mkfs or the filesystem.
 
-Andreas
+When using 10 WD4000YR (400GB drives) to make a software raid0 array, mkfs.xfs returns fine and there are no problems.  Using 11 of the 400GB drives causes mkfs.xfs not to return.  Using 12 of the 400GB drives, causes the OS to hang when using mkfs.xfs (immediate).
 
-CONFIG_X86_64=y
-CONFIG_64BIT=y
-CONFIG_X86=y
-CONFIG_SEMAPHORE_SLEEPERS=y
-CONFIG_MMU=y
-CONFIG_RWSEM_GENERIC_SPINLOCK=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_EARLY_PRINTK=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-CONFIG_ARCH_MAY_HAVE_PC_FDC=y
-CONFIG_CLEAN_COMPILE=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_INIT_ENV_ARG_LIMIT=32
-CONFIG_LOCALVERSION=""
-CONFIG_LOCALVERSION_AUTO=y
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_SYSCTL=y
-CONFIG_HOTPLUG=y
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-CONFIG_INITRAMFS_SOURCE=""
-CONFIG_KALLSYMS=y
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-CONFIG_BASE_SMALL=0
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-CONFIG_KMOD=y
-CONFIG_MK8=y
-CONFIG_X86_L1_CACHE_BYTES=64
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_MTRR=y
-CONFIG_PREEMPT_VOLUNTARY=y
-CONFIG_ARCH_FLATMEM_ENABLE=y
-CONFIG_FLATMEM=y
-CONFIG_FLAT_NODE_MEM_MAP=y
-CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID=y
-CONFIG_HPET_TIMER=y
-CONFIG_X86_PM_TIMER=y
-CONFIG_HPET_EMULATE_RTC=y
-CONFIG_GART_IOMMU=y
-CONFIG_SWIOTLB=y
-CONFIG_X86_MCE=y
-CONFIG_PHYSICAL_START=0x100000
-CONFIG_SECCOMP=y
-CONFIG_HZ_250=y
-CONFIG_HZ=250
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_ISA_DMA_API=y
-CONFIG_PM=y
-CONFIG_SOFTWARE_SUSPEND=y
-CONFIG_PM_STD_PARTITION=""
-CONFIG_ACPI=y
-CONFIG_ACPI_SLEEP=y
-CONFIG_ACPI_SLEEP_PROC_FS=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_VIDEO=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-CONFIG_ACPI_BLACKLIST_YEAR=0
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_TABLE=y
-CONFIG_CPU_FREQ_STAT=y
-CONFIG_CPU_FREQ_DEFAULT_GOV_PERFORMANCE=y
-CONFIG_CPU_FREQ_GOV_PERFORMANCE=y
-CONFIG_CPU_FREQ_GOV_POWERSAVE=y
-CONFIG_CPU_FREQ_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_GOV_ONDEMAND=y
-CONFIG_CPU_FREQ_GOV_CONSERVATIVE=y
-CONFIG_X86_POWERNOW_K8=y
-CONFIG_X86_POWERNOW_K8_ACPI=y
-CONFIG_X86_ACPI_CPUFREQ=y
-CONFIG_PCI=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-CONFIG_PCIEPORTBUS=y
-CONFIG_PCI_MSI=y
-CONFIG_PCCARD=y
-CONFIG_PCMCIA=y
-CONFIG_CARDBUS=y
-CONFIG_YENTA=y
-CONFIG_PCCARD_NONSTATIC=y
-CONFIG_BINFMT_ELF=y
-CONFIG_IA32_EMULATION=y
-CONFIG_COMPAT=y
-CONFIG_SYSVIPC_COMPAT=y
-CONFIG_UID16=y
-CONFIG_NET=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-CONFIG_XFRM=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_IP_FIB_HASH=y
-CONFIG_INET_AH=y
-CONFIG_INET_ESP=y
-CONFIG_INET_IPCOMP=y
-CONFIG_INET_TUNNEL=y
-CONFIG_INET_DIAG=y
-CONFIG_INET_TCP_DIAG=y
-CONFIG_TCP_CONG_BIC=y
-CONFIG_IPV6=y
-CONFIG_IPV6_PRIVACY=y
-CONFIG_INET6_AH=y
-CONFIG_INET6_ESP=y
-CONFIG_INET6_IPCOMP=y
-CONFIG_INET6_TUNNEL=y
-CONFIG_IPV6_TUNNEL=y
-CONFIG_BT=m
-CONFIG_BT_L2CAP=m
-CONFIG_BT_SCO=m
-CONFIG_BT_RFCOMM=m
-CONFIG_BT_RFCOMM_TTY=y
-CONFIG_BT_BNEP=m
-CONFIG_BT_HIDP=m
-CONFIG_BT_HCIUSB=m
-CONFIG_BT_HCIUSB_SCO=y
-CONFIG_BT_HCIUART=m
-CONFIG_BT_HCIUART_H4=y
-CONFIG_BT_HCIUART_BCSP=y
-CONFIG_BT_HCIUART_BCSP_TXCRC=y
-CONFIG_BT_HCIBCM203X=m
-CONFIG_BT_HCIBPA10X=m
-CONFIG_BT_HCIBFUSB=m
-CONFIG_BT_HCIDTL1=m
-CONFIG_BT_HCIBT3C=m
-CONFIG_BT_HCIBLUECARD=m
-CONFIG_BT_HCIBTUART=m
-CONFIG_BT_HCIVHCI=m
-CONFIG_STANDALONE=y
-CONFIG_PREVENT_FIRMWARE_BUILD=y
-CONFIG_FW_LOADER=y
-CONFIG_CONNECTOR=y
-CONFIG_PNP=y
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_LBD=y
-CONFIG_CDROM_PKTCDVD=y
-CONFIG_CDROM_PKTCDVD_BUFFERS=8
-CONFIG_CDROM_PKTCDVD_WCACHE=y
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECS=m
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_IDE_TASK_IOCTL=y
-CONFIG_IDE_GENERIC=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_GENERIC=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_ATIIXP=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_SCSI=m
-CONFIG_SCSI_PROC_FS=y
-CONFIG_BLK_DEV_SD=m
-CONFIG_CHR_DEV_ST=m
-CONFIG_BLK_DEV_SR=m
-CONFIG_CHR_DEV_SG=m
-CONFIG_CHR_DEV_SCH=m
-CONFIG_SCSI_QLA2XXX=m
-CONFIG_IEEE1394=m
-CONFIG_IEEE1394_OUI_DB=y
-CONFIG_IEEE1394_OHCI1394=m
-CONFIG_IEEE1394_VIDEO1394=m
-CONFIG_IEEE1394_DV1394=m
-CONFIG_IEEE1394_RAWIO=m
-CONFIG_IEEE1394_CMP=m
-CONFIG_IEEE1394_AMDTP=m
-CONFIG_NETDEVICES=y
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-CONFIG_NET_PCI=y
-CONFIG_8139TOO=y
-CONFIG_NET_RADIO=y
-CONFIG_NET_WIRELESS=y
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1280
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=800
-CONFIG_INPUT_EVDEV=y
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=y
-CONFIG_SERIO_LIBPS2=y
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-CONFIG_SERIAL_8250=m
-CONFIG_SERIAL_8250_CS=m
-CONFIG_SERIAL_8250_NR_UARTS=4
-CONFIG_SERIAL_CORE=m
-CONFIG_UNIX98_PTYS=y
-CONFIG_HW_RANDOM=y
-CONFIG_NVRAM=y
-CONFIG_RTC=y
-CONFIG_AGP=y
-CONFIG_AGP_AMD64=y
-CONFIG_DRM=m
-CONFIG_DRM_RADEON=m
-CONFIG_HPET=y
-CONFIG_HPET_MMAP=y
-CONFIG_I2C=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_ALGOPCF=m
-CONFIG_I2C_ALGOPCA=m
-CONFIG_I2C_ISA=m
-CONFIG_HWMON=m
-CONFIG_HWMON_VID=m
-CONFIG_SENSORS_ADM1021=m
-CONFIG_SENSORS_GL518SM=m
-CONFIG_SENSORS_IT87=m
-CONFIG_SENSORS_LM75=m
-CONFIG_SENSORS_LM83=m
-CONFIG_SENSORS_LM90=m
-CONFIG_SENSORS_VIA686A=m
-CONFIG_SENSORS_W83781D=m
-CONFIG_SENSORS_HDAPS=m
-CONFIG_FB=m
-CONFIG_FB_CFB_FILLRECT=m
-CONFIG_FB_CFB_COPYAREA=m
-CONFIG_FB_CFB_IMAGEBLIT=m
-CONFIG_FB_SOFT_CURSOR=m
-CONFIG_FB_MODE_HELPERS=y
-CONFIG_FB_RADEON=m
-CONFIG_FB_RADEON_I2C=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-CONFIG_BACKLIGHT_LCD_SUPPORT=y
-CONFIG_BACKLIGHT_CLASS_DEVICE=m
-CONFIG_BACKLIGHT_DEVICE=y
-CONFIG_LCD_CLASS_DEVICE=m
-CONFIG_LCD_DEVICE=y
-CONFIG_SOUND=y
-CONFIG_SND=y
-CONFIG_SND_TIMER=y
-CONFIG_SND_PCM=y
-CONFIG_SND_HWDEP=m
-CONFIG_SND_RAWMIDI=m
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_SEQ_RTCTIMER_DEFAULT=y
-CONFIG_SND_AC97_CODEC=y
-CONFIG_SND_AC97_BUS=y
-CONFIG_SND_ATIIXP=y
-CONFIG_SND_ATIIXP_MODEM=m
-CONFIG_SND_USB_AUDIO=m
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_USB=y
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_OHCI_HCD=y
-CONFIG_USB_OHCI_LITTLE_ENDIAN=y
-CONFIG_USB_STORAGE=m
-CONFIG_USB_STORAGE_FREECOM=y
-CONFIG_USB_STORAGE_ISD200=y
-CONFIG_USB_STORAGE_DPCM=y
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-CONFIG_USB_HIDDEV=y
-CONFIG_USB_MON=y
-CONFIG_USB_SERIAL=m
-CONFIG_USB_SERIAL_GENERIC=y
-CONFIG_USB_SERIAL_AIRPRIME=m
-CONFIG_USB_SERIAL_BELKIN=m
-CONFIG_USB_SERIAL_WHITEHEAT=m
-CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
-CONFIG_USB_SERIAL_EMPEG=m
-CONFIG_USB_SERIAL_VISOR=m
-CONFIG_USB_SERIAL_IPAQ=m
-CONFIG_USB_SERIAL_EDGEPORT=m
-CONFIG_USB_SERIAL_EDGEPORT_TI=m
-CONFIG_USB_SERIAL_GARMIN=m
-CONFIG_USB_SERIAL_KEYSPAN_PDA=m
-CONFIG_USB_SERIAL_KEYSPAN=m
-CONFIG_USB_SERIAL_KEYSPAN_MPR=y
-CONFIG_USB_SERIAL_KEYSPAN_USA28=y
-CONFIG_USB_SERIAL_KEYSPAN_USA28X=y
-CONFIG_USB_SERIAL_KEYSPAN_USA28XA=y
-CONFIG_USB_SERIAL_KEYSPAN_USA28XB=y
-CONFIG_USB_SERIAL_KEYSPAN_USA19=y
-CONFIG_USB_SERIAL_KEYSPAN_USA18X=y
-CONFIG_USB_SERIAL_KEYSPAN_USA19W=y
-CONFIG_USB_SERIAL_KEYSPAN_USA19QW=y
-CONFIG_USB_SERIAL_KEYSPAN_USA19QI=y
-CONFIG_USB_SERIAL_KEYSPAN_USA49W=y
-CONFIG_USB_SERIAL_KEYSPAN_USA49WLC=y
-CONFIG_USB_SERIAL_KOBIL_SCT=m
-CONFIG_USB_SERIAL_MCT_U232=m
-CONFIG_USB_SERIAL_PL2303=m
-CONFIG_USB_SERIAL_HP4X=m
-CONFIG_USB_SERIAL_TI=m
-CONFIG_USB_SERIAL_XIRCOM=m
-CONFIG_USB_SERIAL_OPTION=m
-CONFIG_USB_EZUSB=y
-CONFIG_MMC=m
-CONFIG_MMC_BLOCK=m
-CONFIG_MMC_WBSD=m
-CONFIG_EXT2_FS=y
-CONFIG_EXT2_FS_XATTR=y
-CONFIG_EXT2_FS_POSIX_ACL=y
-CONFIG_EXT2_FS_SECURITY=y
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_EXT3_FS_SECURITY=y
-CONFIG_JBD=y
-CONFIG_FS_MBCACHE=y
-CONFIG_FS_POSIX_ACL=y
-CONFIG_INOTIFY=y
-CONFIG_DNOTIFY=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=y
-CONFIG_UDF_FS=y
-CONFIG_UDF_NLS=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_NTFS_FS=m
-CONFIG_NTFS_RW=y
-CONFIG_PROC_FS=y
-CONFIG_SYSFS=y
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_CODEPAGE_1250=m
-CONFIG_NLS_ASCII=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_UTF8=m
-CONFIG_LOG_BUF_SHIFT=14
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_MD5=y
-CONFIG_CRYPTO_SHA1=y
-CONFIG_CRYPTO_SHA256=y
-CONFIG_CRYPTO_SHA512=y
-CONFIG_CRYPTO_WP512=y
-CONFIG_CRYPTO_DES=y
-CONFIG_CRYPTO_AES_X86_64=y
-CONFIG_CRYPTO_TEA=y
-CONFIG_CRYPTO_ARC4=m
-CONFIG_CRYPTO_DEFLATE=y
-CONFIG_CRYPTO_MICHAEL_MIC=m
-CONFIG_CRYPTO_CRC32C=y
-CONFIG_CRC32=y
-CONFIG_LIBCRC32C=y
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
+The same thing occurs when using 17 WD2500SD (250GB drives, which format to 3.9TB) - no problem.  When using 18 of the 250GB drives, mkfs.xfs does not return.  Using 24 (I did not check 19) drives, the OS hangs immediately when running mkfs.xfs.
 
-00077f40200
-ACPI: MADT (v001 MSI    OEMAPIC  0x11172005 MSFT 0x00000097) @
-0x0000000077f40300
-ACPI: WDRT (v001 MSI    MSI_OEM  0x11172005 MSFT 0x00000097) @
-0x0000000077f40360
-ACPI: MCFG (v001 MSI    OEMMCFG  0x11172005 MSFT 0x00000097) @
-0x0000000077f403b0
-ACPI: SSDT (v001 OEM_ID OEMTBLID 0x00000001 INTL 0x02002026) @
-0x0000000077f43700
-ACPI: OEMB (v001 MSI    MSI_OEM  0x11172005 MSFT 0x00000097) @
-0x0000000077f50040
-ACPI: DSDT (v001    MSI     1013 0x11172005 INTL 0x02002026) @
-0x0000000000000000
-No mptable found.
-On node 0 totalpages: 491231
-  DMA zone: 3999 pages, LIFO batch:1
-  Normal zone: 487232 pages, LIFO batch:31
-  HighMem zone: 0 pages, LIFO batch:1
-ACPI: PM-Timer IO Port: 0x4008
-ACPI: Local APIC address 0xfee00000
-ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-Processor #0 15:4 APIC version 16
-ACPI: Skipping IOAPIC probe due to 'noapic' option.
-Allocating PCI resources starting at 88000000 (gap: 80000000:7ff80000)
-Checking aperture...
-CPU 0: aperture @ 7cf6000000 size 32 MB
-Aperture from northbridge cpu 0 too small (32 MB)
-No AGP bridge found
-Built 1 zonelists
-Kernel command line: root=/dev/hda1 ro noapictimer irqpoll
-Misrouted IRQ fixup and polling support enabled
-This may significantly impact system performance
-Initializing CPU#0
-PID hash table entries: 4096 (order: 12, 131072 bytes)
-time.c: Using 3.579545 MHz PM timer.
-time.c: Detected 2188.846 MHz processor.
-time.c: Using PIT/TSC based timekeeping.
-Console: colour VGA+ 80x25
-Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
-Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes)
-Memory: 1930604k/1965312k available (2622k kernel code, 34212k reserved,
-934k data, 156k init)
-Calibrating delay using timer specific routine.. 4388.01 BogoMIPS
-(lpj=8776034)
-Mount-cache hash table entries: 256
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-mtrr: v2.0 (20020519)
-CPU: AMD Turion(tm) 64 Mobile Technology MT-40 stepping 02
-ACPI: setting ELCR to 0200 (from 0ce0)
-Disabling APIC timer
-testing NMI watchdog ... OK.
-NET: Registered protocol family 16
-ACPI: bus type pci registered
-PCI: Using configuration type 1
-PCI: Using MMCONFIG at e0000000
-ACPI: Subsystem revision 20050902
-ACPI: Interpreter enabled
-ACPI: Using PIC for interrupt routing
-ACPI: PCI Root Bridge [PCI0] (0000:00)
-PCI: Probing PCI hardware (bus 00)
-PCI: Ignoring BAR0-3 of IDE controller 0000:00:14.1
-Boot video device is 0000:01:05.0
-PCI: Transparent bridge - 0000:00:14.4
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.P0P1._PRT]
-ACPI: Embedded Controller [EC] (gpe 6)
-spurious 8259A interrupt: IRQ7.
-ACPI: PCI Interrupt Routing Table [\_SB_.PCI0.POP2._PRT]
-ACPI: PCI Interrupt Link [LNKA] (IRQs 5 6 7 10 11 12 14 15) *0, disabled.
-ACPI: PCI Interrupt Link [LNKB] (IRQs 5 6 7 *10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKC] (IRQs *5 6 7 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKD] (IRQs 5 6 7 10 *11 12 14 15)
-ACPI: PCI Interrupt Link [LNKE] (IRQs 5 *6 7 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKF] (IRQs 5 6 *7 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKG] (IRQs *5 6 7 10 11 12 14 15)
-ACPI: PCI Interrupt Link [LNKH] (IRQs 5 6 7 10 11 12 14 15) *0, disabled.
-Linux Plug and Play Support v0.97 (c) Adam Belay
-usbcore: registered new driver usbfs
-usbcore: registered new driver hub
-PCI: Using ACPI for IRQ routing
-PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a
-report
-PCI-DMA: Disabling IOMMU.
-PCI: Bridge: 0000:00:01.0
-  IO window: d000-dfff
-  MEM window: fbe00000-fbefffff
-  PREFETCH window: d0000000-dfffffff
-PCI: Bus 3, cardbus bridge: 0000:02:04.0
-  IO window: 0000e000-0000e0ff
-  IO window: 0000ec00-0000ecff
-  PREFETCH window: 88000000-89ffffff
-  MEM window: 8e000000-8fffffff
-PCI: Bus 7, cardbus bridge: 0000:02:04.1
-  IO window: 00001000-000010ff
-  IO window: 00001400-000014ff
-  PREFETCH window: 8a000000-8bffffff
-  MEM window: 90000000-91ffffff
-PCI: Bridge: 0000:00:14.4
-  IO window: e000-efff
-  MEM window: fbf00000-fbffffff
-  PREFETCH window: 88000000-8cffffff
-ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 11
-PCI: setting IRQ 11 as level-triggered
-ACPI: PCI Interrupt 0000:02:04.0[A] -> Link [LNKD] -> GSI 11 (level, low) ->
-IRQ 11
-ACPI: PCI Interrupt Link [LNKE] enabled at IRQ 6
-PCI: setting IRQ 6 as level-triggered
-ACPI: PCI Interrupt 0000:02:04.1[B] -> Link [LNKE] -> GSI 6 (level, low) ->
-IRQ 6
-IA-32 Microcode Update Driver: v1.14 <tigran@veritas.com>
-IA32 emulation $Id: sys_ia32.c,v 1.32 2002/03/24 13:02:28 ak Exp $
-Initializing Cryptographic API
-ACPI: AC Adapter [ADP1] (on-line)
-ACPI: Battery Slot [BAT1] (battery present)
-ACPI: Power Button (FF) [PWRF]
-ACPI: Lid Switch [LID0]
-ACPI: Sleep Button (CM) [SLPB]
-ACPI: Power Button (CM) [PWRB]
-ACPI: CPU0 (power states: C1[C1] C2[C2] C3[C3])
-ACPI: Thermal Zone [THRM] (58 C)
-Real Time Clock Driver v1.12
-Non-volatile memory driver v1.2
-Linux agpgart interface v0.101 (c) Dave Jones
-PNP: No PS/2 controller found. Probing ports directly.
-i8042.c: Detected active multiplexing controller, rev 1.1.
-serio: i8042 AUX0 port at 0x60,0x64 irq 12
-serio: i8042 AUX1 port at 0x60,0x64 irq 12
-serio: i8042 AUX2 port at 0x60,0x64 irq 12
-serio: i8042 AUX3 port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
-io scheduler noop registered
-io scheduler anticipatory registered
-io scheduler deadline registered
-io scheduler cfq registered
-pktcdvd: v0.2.0a 2004-07-14 Jens Axboe (axboe@suse.de) and petero2@telia.com
-8139too Fast Ethernet driver 0.9.27
-ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 5
-PCI: setting IRQ 5 as level-triggered
-ACPI: PCI Interrupt 0000:02:03.0[A] -> Link [LNKC] -> GSI 5 (level, low) ->
-IRQ 5
-eth0: RealTek RTL8139 at 0xffffc20000006c00, 00:11:09:f9:0b:57, IRQ 5
-eth0:  Identified 8139 chip type 'RTL-8101'
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ATIIXP: IDE controller at PCI slot 0000:00:14.1
-ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 10
-PCI: setting IRQ 10 as level-triggered
-ACPI: PCI Interrupt 0000:00:14.1[A] -> Link [LNKA] -> GSI 10 (level, low) ->
-IRQ 10
-ATIIXP: chipset revision 0
-ATIIXP: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xff00-0xff07, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xff08-0xff0f, BIOS settings: hdc:DMA, hdd:pio
-Probing IDE interface ide0...
-hda: FUJITSU MHV2100AH, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-Probing IDE interface ide1...
-hdc: HL-DT-ST DVD-RW GCA-4080N, ATAPI CD/DVD-ROM drive
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: max request size: 128KiB
-hda: 195371568 sectors (100030 MB) w/8192KiB Cache, CHS=65535/16/63,
-UDMA(100)
-hda: cache flushes supported
- hda: hda1
-hdc: ATAPI 24X DVD-ROM DVD-R CD-R/RW drive, 2048kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
-ACPI: PCI Interrupt 0000:02:04.0[A] -> Link [LNKD] -> GSI 11 (level, low) ->
-IRQ 11
-Yenta: CardBus bridge found at 0000:02:04.0 [1462:0131]
-Yenta: ISA IRQ mask 0x0098, PCI irq 11
-Socket status: 30000810
-pcmcia: parent PCI bridge I/O window: 0xe000 - 0xefff
-pcmcia: parent PCI bridge Memory window: 0xfbf00000 - 0xfbffffff
-pcmcia: parent PCI bridge Memory window: 0x88000000 - 0x8cffffff
-ACPI: PCI Interrupt 0000:02:04.1[B] -> Link [LNKE] -> GSI 6 (level, low) ->
-IRQ 6
-Yenta: CardBus bridge found at 0000:02:04.1 [1462:0131]
-Yenta: ISA IRQ mask 0x0098, PCI irq 6
-Socket status: 30000006
-pcmcia: parent PCI bridge I/O window: 0xe000 - 0xefff
-pcmcia: parent PCI bridge Memory window: 0xfbf00000 - 0xfbffffff
-pcmcia: parent PCI bridge Memory window: 0x88000000 - 0x8cffffff
-usbmon: debugfs is not available
-ACPI: PCI Interrupt 0000:00:13.2[A] -> Link [LNKD] -> GSI 11 (level, low) ->
-IRQ 11
-ehci_hcd 0000:00:13.2: EHCI Host Controller
-cs: memory probe 0x88000000-0x8cffffff: excluding 0x88000000-0x8cffffff
-cs: memory probe 0xfbf00000-0xfbffffff: excluding 0xfbf00000-0xfbf0ffff
-0xfbff0000-0xfbffffff
-irq 11: nobody cared (try booting with the "irqpoll" option)
+I initially noticed the hang when trying to use software raid0 to join two large hardware arrays (totaling over 7TB).
 
-Call Trace: <IRQ> <ffffffff80153935>{__report_bad_irq+53}
-<ffffffff80153b47>{note_interrupt+439}
-       <ffffffff801534b8>{__do_IRQ+152} <ffffffff80110e6f>{do_IRQ+47}
-       <ffffffff8010eef0>{ret_from_intr+0}  <EOI>
-<ffffffff80217d76>{acpi_hw_low_level_read+126}
-       <ffffffff80218009>{acpi_hw_low_level_write+120}
-<ffffffff80217e43>{acpi_hw_register_read+196}
-       <ffffffff802fa0f0>{pci_mmcfg_read+0}
-<ffffffff8022beee>{acpi_processor_idle+324}
-       <ffffffff8010d3a1>{cpu_idle+49} <ffffffff804d079f>{start_kernel+399}
-       <ffffffff804d01f4>{_sinittext+500} 
-handlers:
-[<ffffffff8028fdb0>] (yenta_interrupt+0x0/0xc0)
-Disabling IRQ #11
-ehci_hcd 0000:00:13.2: BIOS handoff failed (160, 01010001)
-ehci_hcd 0000:00:13.2: continuing after BIOS bug...
-ehci_hcd 0000:00:13.2: new USB bus registered, assigned bus number 1
-ehci_hcd 0000:00:13.2: irq 11, io mem 0xfbdff000
-ehci_hcd 0000:00:13.2: USB 2.0 initialized, EHCI 1.00, driver 10 Dec 2004
-hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 8 ports detected
-ohci_hcd: 2005 April 22 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
-ACPI: PCI Interrupt 0000:00:13.0[A] -> Link [LNKD] -> GSI 11 (level, low) ->
-IRQ 11
-ohci_hcd 0000:00:13.0: OHCI Host Controller
-ohci_hcd 0000:00:13.0: new USB bus registered, assigned bus number 2
-ohci_hcd 0000:00:13.0: irq 11, io mem 0xfbdfd000
-hub 2-0:1.0: USB hub found
-hub 2-0:1.0: 4 ports detected
-ACPI: PCI Interrupt 0000:00:13.1[A] -> Link [LNKD] -> GSI 11 (level, low) ->
-IRQ 11
-ohci_hcd 0000:00:13.1: OHCI Host Controller
-ohci_hcd 0000:00:13.1: new USB bus registered, assigned bus number 3
-ohci_hcd 0000:00:13.1: irq 11, io mem 0xfbdfe000
-hub 3-0:1.0: USB hub found
-hub 3-0:1.0: 4 ports detected
-usbcore: registered new driver hiddev
-usb 3-2: new full speed USB device using ohci_hcd and address 2
-usbcore: registered new driver usbhid
-drivers/usb/input/hid-core.c: v2.6:USB HID core driver
-mice: PS/2 mouse device common for all mice
-Advanced Linux Sound Architecture Driver Version 1.0.10rc1 (Mon Sep 12
-08:13:09 2005 UTC).
-ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 10
-ACPI: PCI Interrupt 0000:00:14.5[B] -> Link [LNKB] -> GSI 10 (level, low) ->
-IRQ 10
-ALSA device list:
-  #0: ATI IXP rev 1 with ALC655 at 0xfbdfc800, irq 10
-NET: Registered protocol family 2
-IP route cache hash table entries: 65536 (order: 7, 524288 bytes)
-TCP established hash table entries: 262144 (order: 9, 2097152 bytes)
-TCP bind hash table entries: 65536 (order: 7, 524288 bytes)
-TCP: Hash tables configured (established 262144 bind 65536)
-TCP reno registered
-TCP bic registered
-NET: Registered protocol family 1
-NET: Registered protocol family 10
-Disabled Privacy Extensions on device ffffffff80428be0(lo)
-IPv6 over IPv4 tunneling driver
-NET: Registered protocol family 17
-NET: Registered protocol family 15
-powernow-k8: Found 1 AMD Athlon 64 / Opteron processors (version 1.50.4)
-powernow-k8:    0 : fid 0x0 (800 MHz), vid 0x16 (1000 mV)
-powernow-k8:    1 : fid 0x8 (1600 MHz), vid 0x10 (1150 mV)
-powernow-k8:    2 : fid 0xa (1800 MHz), vid 0xe (1200 mV)
-powernow-k8:    3 : fid 0xc (2000 MHz), vid 0xc (1250 mV)
-powernow-k8:    4 : fid 0xe (2200 MHz), vid 0xa (1300 mV)
-cpu_init done, current fid 0xe, vid 0x8
-powernow-k8: ph2 null fid transition 0xe
-ACPI wakeup devices: 
-POP2  RTL USB1 USB2 EUSB AC97 MC97 
-ACPI: (supports S0 S1 S3 S4 S5)
-input: AT Translated Set 2 keyboard on isa0060/serio0
-kjournald starting.  Commit interval 5 seconds
-EXT3-fs: mounted filesystem with ordered data mode.
-VFS: Mounted root (ext3 filesystem) readonly.
-Freeing unused kernel memory: 156k freed
-logips2pp: Detected unknown logitech mouse model 99
-input: ImPS/2 Logitech Wheel Mouse on isa0060/serio2
-logips2pp: Detected unknown logitech mouse model 99
-input: ImPS/2 Logitech Wheel Mouse on isa0060/serio2
-EXT3 FS on hda1, internal journal
-SCSI subsystem initialized
-cdrom: open failed.
-ACPI: PCI Interrupt 0000:00:14.6[B] -> Link [LNKB] -> GSI 10 (level, low) ->
-IRQ 10
-Serial: 8250/16550 driver $Revision: 1.90 $ 4 ports, IRQ sharing disabled
-ohci1394: $Rev: 1313 $ Ben Collins <bcollins@debian.org>
-ACPI: PCI Interrupt Link [LNKF] enabled at IRQ 7
-PCI: setting IRQ 7 as level-triggered
-ACPI: PCI Interrupt 0000:02:04.2[C] -> Link [LNKF] -> GSI 7 (level, low) ->
-IRQ 7
-ohci1394: fw-host0: OHCI-1394 1.0 (PCI): IRQ=[7]  MMIO=[fbfff000-fbfff7ff] 
-Max Packet=[2048]
-Bluetooth: Core ver 2.7
-NET: Registered protocol family 31
-Bluetooth: HCI device and connection manager initialized
-Bluetooth: HCI socket layer initialized
-Bluetooth: HCI USB driver ver 2.9
-usbcore: registered new driver hci_usb
-ieee1394: Host added: ID:BUS[0-00:1023]  GUID[0010dc00007da2c6]
-irq 7: nobody cared (try booting with the "irqpoll" option)
+[3.] Keywords (i.e., modules, networking, kernel):
 
-Call Trace: <IRQ> <ffffffff80153935>{__report_bad_irq+53}
-<ffffffff80153b47>{note_interrupt+439}
-       <ffffffff801534b8>{__do_IRQ+152} <ffffffff80110e6f>{do_IRQ+47}
-       <ffffffff8010eef0>{ret_from_intr+0}
-<ffffffff80261240>{as_queue_empty+0}
-       <ffffffff801533da>{handle_IRQ_event+26}
-<ffffffff8015349e>{__do_IRQ+126}
-       <ffffffff80110e6f>{do_IRQ+47} <ffffffff8010eef0>{ret_from_intr+0}
-       <ffffffff8020be2d>{acpi_os_read_port+44}
-<ffffffff80217d76>{acpi_hw_low_level_read+126}
-       <ffffffff80217df3>{acpi_hw_register_read+116}
-<ffffffff8027dcf0>{cdrom_pc_intr+0}
-       <ffffffff8020ff6d>{acpi_ev_fixed_event_detect+47}
-<ffffffff80296ed0>{rh_timer_func+0}
-       <ffffffff80210728>{acpi_ev_sci_xrupt_handler+12}
-<ffffffff8020bcb9>{acpi_irq+15}
-       <ffffffff801533ec>{handle_IRQ_event+44}
-<ffffffff8015349e>{__do_IRQ+126}
-       <ffffffff80110e6f>{do_IRQ+47} <ffffffff8010eef0>{ret_from_intr+0}
-        <EOI> <ffffffff80217d76>{acpi_hw_low_level_read+126}
-       <ffffffff80226996>{acpi_ec_read+202}
-<ffffffff80226e10>{acpi_ec_space_handler+156}
-       <ffffffff80226d74>{acpi_ec_space_handler+0}
-<ffffffff802101d1>{acpi_ev_address_space_dispatch+224}
-       <ffffffff80226d74>{acpi_ec_space_handler+0}
-<ffffffff80216e7c>{acpi_ex_enter_interpreter+8}
-       <ffffffff8021426b>{acpi_ex_access_region+263}
-<ffffffff8021458f>{acpi_ex_field_datum_io+250}
-       <ffffffff8021469f>{acpi_ex_extract_from_field+113}
-<ffffffff80212f6f>{acpi_ex_read_data_from_field+283}
-       <ffffffff802176ab>{acpi_ex_resolve_node_to_value+223}
-       <ffffffff8020e7c7>{acpi_ds_init_object_from_op+36}
-<ffffffff80213905>{acpi_ex_resolve_to_value+497}
-       <ffffffff8020ef7e>{acpi_ds_create_operand+431}
-<ffffffff802155d4>{acpi_ex_resolve_operands+485}
-       <ffffffff8020de2d>{acpi_ds_exec_end_op+160}
-<ffffffff8021c172>{acpi_ps_parse_loop+1370}
-       <ffffffff8021ba70>{acpi_ps_parse_aml+81}
-<ffffffff8021c935>{acpi_ps_execute_pass+127}
-       <ffffffff8021c998>{acpi_ps_execute_method+77}
-<ffffffff80219b88>{acpi_ns_evaluate_by_handle+216}
-       <ffffffff80222ee7>{acpi_ut_release_mutex+8}
-<ffffffff80219d3f>{acpi_ns_evaluate_relative+208}
-       <ffffffff802193b3>{acpi_evaluate_object+251}
-<ffffffff80224bb5>{acpi_battery_get_info+125}
-       <ffffffff80224dee>{acpi_battery_read_info+71}
-<ffffffff801931b5>{seq_read+309}
-       <ffffffff80173c4b>{vfs_read+187} <ffffffff80174833>{sys_read+83}
-       <ffffffff8010e94e>{system_call+126} 
-handlers:
-[<ffffffff8808f000>] (ohci_irq_handler+0x0/0x7a0 [ohci1394])
-Disabling IRQ #7
-eth0: link up, 100Mbps, full-duplex, lpa 0x45E1
-Bluetooth: L2CAP ver 2.7
-Bluetooth: L2CAP socket layer initialized
-Bluetooth: RFCOMM ver 1.5
-Bluetooth: RFCOMM socket layer initialized
-Bluetooth: RFCOMM TTY layer initialized
+RAID0 mkfs hang
 
-0000:00:00.0 Host bridge: ATI Technologies Inc: Unknown device 5950
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 0131
-        Flags: bus master, 66MHz, medium devsel, latency 0
+[4.] Kernel version (from /proc/version):
 
-0000:00:01.0 PCI bridge: ATI Technologies Inc: Unknown device 5a3f (prog-if
-00 [Normal decode])
-        Flags: bus master, 66MHz, medium devsel, latency 64
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-        I/O behind bridge: 0000d000-0000dfff
-        Memory behind bridge: fbe00000-fbefffff
-        Prefetchable memory behind bridge: 00000000d0000000-00000000dff00000
-        Capabilities: [44] #08 [a803]
-        Capabilities: [b0] #0d [0000]
+Linux version 2.6.11.4-21.9-smp (geeko@buildhost) (gcc version 3.3.5 20050117 (prerelease) (SUSE Linux)) #1 SMP Fri Aug 19 11:58:59 UTC 2005
 
-0000:00:13.0 USB Controller: ATI Technologies Inc: Unknown device 4374
-(prog-if 10 [OHCI])
-        Subsystem: ATI Technologies Inc: Unknown device 4374
-        Flags: bus master, 66MHz, medium devsel, latency 64, IRQ 11
-        Memory at fbdfd000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: [d0] Message Signalled Interrupts: 64bit- Queue=0/0 Enable-
+[5.] Output of Oops.. message (if applicable) with symbolic information 
+     resolved (see Documentation/oops-tracing.txt)
 
-0000:00:13.1 USB Controller: ATI Technologies Inc: Unknown device 4375
-(prog-if 10 [OHCI])
-        Subsystem: ATI Technologies Inc: Unknown device 4375
-        Flags: bus master, 66MHz, medium devsel, latency 64, IRQ 11
-        Memory at fbdfe000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: [d0] Message Signalled Interrupts: 64bit- Queue=0/0 Enable-
+The following oops occurred when trying to join two large hardware arrays into a single raid0 of over 7TB (I included a little more than the Oops).
 
-0000:00:13.2 USB Controller: ATI Technologies Inc: Unknown device 4373
-(prog-if 20 [EHCI])
-        Subsystem: ATI Technologies Inc: Unknown device 4373
-        Flags: bus master, 66MHz, medium devsel, latency 64, IRQ 11
-        Memory at fbdff000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: [dc] Power Management version 2
-        Capabilities: [d0] Message Signalled Interrupts: 64bit- Queue=0/0 Enable-
+Nov 29 18:11:31 dev kernel: md: bind<sda>
+Nov 29 18:11:31 dev kernel: md: bind<sdb>
+Nov 29 18:11:31 dev kernel: raid0: module not supported by Novell, setting U taint flag.
+Nov 29 18:11:31 dev kernel: md: raid0 personality registered as nr 2
+Nov 29 18:11:31 dev kernel: md2: setting max_sectors to 512, segment boundary to 131071
+Nov 29 18:11:31 dev kernel: raid0: looking at sdb
+Nov 29 18:11:31 dev kernel: raid0:   comparing sdb(4296872192) with sdb(4296872192)
+Nov 29 18:11:31 dev kernel: raid0:   END
+Nov 29 18:11:31 dev kernel: raid0:   ==> UNIQUE
+Nov 29 18:11:31 dev kernel: raid0: 1 zones
+Nov 29 18:11:31 dev kernel: raid0: looking at sda
+Nov 29 18:11:31 dev kernel: raid0:   comparing sda(4296872192) with sdb(4296872192)
+Nov 29 18:11:31 dev kernel: raid0:   EQUAL
+Nov 29 18:11:31 dev kernel: raid0: FINAL 1 zones
+Nov 29 18:11:31 dev kernel: raid0: done.
+Nov 29 18:11:32 dev kernel: raid0 : md_size is 8593744384 blocks.
+Nov 29 18:11:32 dev kernel: raid0 : conf->hash_spacing is 8593744384 blocks.
+Nov 29 18:11:32 dev hald[5857]: Timed out waiting for hotplug event 940. Rebasing to 941
+Nov 29 18:11:33 dev kernel: raid0 : nb_zone is 2256.
+Nov 29 18:11:34 dev kernel: raid0 : Allocating 18048 bytes for hash.
+Nov 29 18:11:35 dev kernel: Unable to handle kernel paging request at 000000000001d508 RIP:
+Nov 29 18:11:37 dev kernel: <ffffffff88433c0b>{:raid0:raid0_make_request+459}
+Nov 29 18:11:39 dev kernel: PGD 212e0b067 PUD 212e0a067 PMD 0
+Nov 29 18:11:39 dev kernel: Oops: 0000 [1] SMP
+Nov 29 18:11:40 dev kernel: CPU 0
+Nov 29 18:11:42 dev kernel: Modules linked in: raid0 ib_ipoib ib_sa_client ib_client_query ib_poll ib_useraccess ib_tavor ib_mad ib_core ib_services mod_rhh mst_pciconf mst_pci mod_vip ipv6 evdev joydev mlxsys st sr_mod edd sg sk98lin e1000 hw_random ehci_hcd uhci_hcd i2c_i801 i2c_core usbcore parport_pc lp parport video1394 ohci1394 raw1394 ieee1394 capability dm_mod reiserfs xfs exportfs ide_cd cdrom ide_disk piix ide_core raid1 arcmsr sd_mod scsi_mod
+Nov 29 18:11:43 dev kernel: Pid: 7687, comm: udev_volume_id Tainted: GF    U 2.6.11.4-21.9-smp
+Nov 29 18:11:47 dev kernel: RIP: 0010:[<ffffffff88433c0b>] <ffffffff88433c0b>{:raid0:raid0_make_request+459}
+Nov 29 18:11:49 dev kernel: RSP: 0018:ffff810212e1d948  EFLAGS: 00010286
+Nov 29 18:11:50 dev kernel: RAX: 0000000000000000 RBX: ffff81021cdc5780 RCX: 0000000000000008
+Nov 29 18:11:52 dev kernel: RDX: 0000000000003aa1 RSI: 0000000000000008 RDI: ffff81021e5d6e10
+Nov 29 18:11:53 dev kernel: RBP: 0000000000000100 R08: 0000000002003a21 R09: ffff8102131b7000
+Nov 29 18:11:55 dev kernel: R10: 00000000000001ff R11: 000000000003ffff R12: ffff8102132532c0
+Nov 29 18:11:55 dev kernel: R13: ffff81021f6d8040 R14: 0000000000001000 R15: 0000000000000001
+Nov 29 18:11:55 dev kernel: FS:  0000000000000000(0000) GS:ffffffff804e3980(0000) knlGS:0000000000000000
+Nov 29 18:11:57 dev kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+Nov 29 18:11:57 dev kernel: CR2: 000000000001d508 CR3: 00000002133ad000 CR4: 00000000000006e0
+Nov 29 18:11:57 dev kernel: Process udev_volume_id (pid: 7687, threadinfo ffff810212e1c000, task ffff81021cceb070)
+Nov 29 18:11:58 dev kernel: Stack: 0000000000000000 ffff81021cdc5780 ffff81021f6d8040 ffff810212e1d9a8
+Nov 29 18:11:58 dev kernel:        ffff81021cdc5780 ffffffff80295281 0000000000000000 ffff81021cceb070
+Nov 29 18:11:59 dev kernel:        ffffffff8014d720 ffff810212e1d9c0
+Nov 29 18:11:59 dev kernel: Call Trace:<ffffffff80295281>{generic_make_request+545} <ffffffff8014d720>{autoremove_wake_function+0}
+Nov 29 18:11:59 dev kernel:        <ffffffff8015d384>{mempool_alloc+164} <ffffffff8014d720>{autoremove_wake_function+0}
+Nov 29 18:11:59 dev kernel:        <ffffffff8015fa31>{buffered_rmqueue+529} <ffffffff8014d720>{autoremove_wake_function+0}
+Nov 29 18:12:00 dev kernel:        <ffffffff8029537d>{submit_bio+221} <ffffffff80183c27>{bio_alloc+359}
+Nov 29 18:12:01 dev kernel:        <ffffffff8017fe6b>{submit_bh+283} <ffffffff80182cba>{block_read_full_page+602}
+Nov 29 18:12:02 dev kernel:        <ffffffff80185700>{blkdev_get_block+0} <ffffffff80161650>{__do_page_cache_readahead+480}
+Nov 29 18:12:03 dev kernel:        <ffffffff802234ae>{prio_tree_insert+494} <ffffffff801617b6>{blockable_page_cache_readahead+22}
+Nov 29 18:12:06 dev kernel:        <ffffffff801619da>{page_cache_readahead+490} <ffffffff8015b3c2>{do_generic_mapping_read+354}
+Nov 29 18:12:10 dev kernel:        <ffffffff8015a320>{file_read_actor+0} <ffffffff8015bfe7>{__generic_file_aio_read+423}
+Nov 29 18:12:12 dev kernel:        <ffffffff8015c1ab>{generic_file_read+187} <ffffffff80120a22>{do_page_fault+1234}
+Nov 29 18:12:16 dev kernel:        <ffffffff8014d720>{autoremove_wake_function+0} <ffffffff80224711>{__up_write+49}
+Nov 29 18:12:17 dev kernel:        <ffffffff8017ebd4>{vfs_read+244} <ffffffff8017ed43>{sys_read+83}
+Nov 29 18:12:18 dev kernel:        <ffffffff8010e9de>{system_call+126}
+Nov 29 18:12:20 dev kernel:
+Nov 29 18:12:20 dev kernel: Code: 48 8b 14 d0 8b 03 44 21 d0 4a 8d 0c 48 48 8b 42 28 48 89 43
+Nov 29 18:12:21 dev kernel: RIP <ffffffff88433c0b>{:raid0:raid0_make_request+459} RSP <ffff810212e1d948>
+Nov 29 18:12:21 dev kernel: CR2: 000000000001d508
 
-0000:00:14.0 SMBus: ATI Technologies Inc: Unknown device 4372 (rev 10)
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 0131
-        Flags: 66MHz, medium devsel
-        I/O ports at c800 [size=16]
-        Memory at fbdfc400 (32-bit, non-prefetchable) [size=1K]
-        Capabilities: [b0] #08 [a802]
+>>RIP; ffffffff88433c0b <_end+7f0ec0b/7f0db000>   <=====
 
-0000:00:14.1 IDE interface: ATI Technologies Inc: Unknown device 4376
-(prog-if 8a [Master SecP PriP])
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 0131
-        Flags: bus master, 66MHz, medium devsel, latency 0, IRQ 10
-        I/O ports at <ignored>
-        I/O ports at <ignored>
-        I/O ports at <ignored>
-        I/O ports at <ignored>
-        I/O ports at ff00 [size=16]
-        Capabilities: [70] Message Signalled Interrupts: 64bit- Queue=0/0 Enable-
+Trace; ffffffff80295281 <generic_make_request+221/240>
+Trace; ffffffff8015d384 <mempool_alloc+a4/190>
+Trace; ffffffff8015fa31 <buffered_rmqueue+211/310>
+Trace; ffffffff8029537d <submit_bio+dd/100>
+Trace; ffffffff8017fe6b <submit_bh+11b/150>
+Trace; ffffffff80185700 <blkdev_get_block+0/70>
+Trace; ffffffff802234ae <prio_tree_insert+1ee/2a0>
+Trace; ffffffff801619da <page_cache_readahead+1ea/2f0>
+Trace; ffffffff8015a320 <file_read_actor+0/150>
+Trace; ffffffff8015c1ab <generic_file_read+bb/e0>
+Trace; ffffffff8014d720 <autoremove_wake_function+0/30>
+Trace; ffffffff8017ebd4 <vfs_read+f4/170>
+Trace; ffffffff8010e9de <system_call+7e/83>
 
-0000:00:14.3 ISA bridge: ATI Technologies Inc: Unknown device 4377
-        Flags: bus master, 66MHz, medium devsel, latency 0
-
-0000:00:14.4 PCI bridge: ATI Technologies Inc: Unknown device 4371 (prog-if
-01 [Subtractive decode])
-        Flags: bus master, 66MHz, medium devsel, latency 64
-        Bus: primary=00, secondary=02, subordinate=04, sec-latency=64
-        I/O behind bridge: 0000e000-0000efff
-        Memory behind bridge: fbf00000-fbffffff
-        Prefetchable memory behind bridge: 88000000-8cffffff
-
-0000:00:14.5 Multimedia audio controller: ATI Technologies Inc: Unknown
-device 4370 (rev 01)
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 0131
-        Flags: bus master, 66MHz, slow devsel, latency 64, IRQ 10
-        Memory at fbdfc800 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [40] Message Signalled Interrupts: 64bit- Queue=0/0 Enable-
-
-0000:00:14.6 Modem: ATI Technologies Inc: Unknown device 4378 (rev 01)
-(prog-if 00 [Generic])
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 0131
-        Flags: bus master, 66MHz, slow devsel, latency 64, IRQ 10
-        Memory at fbdfcc00 (32-bit, non-prefetchable) [size=256]
-        Capabilities: [40] Message Signalled Interrupts: 64bit- Queue=0/0 Enable-
-
-0000:01:05.0 VGA compatible controller: ATI Technologies Inc: Unknown device
-5955 (prog-if 00 [VGA])
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 0131
-        Flags: bus master, 66MHz, medium devsel, latency 64, IRQ 10
-        Memory at d0000000 (32-bit, prefetchable) [size=256M]
-        I/O ports at d800 [size=256]
-        Memory at fbef0000 (32-bit, non-prefetchable) [size=64K]
-        Expansion ROM at fbec0000 [disabled] [size=128K]
-        Capabilities: [50] Power Management version 2
-
-0000:02:03.0 Ethernet controller: Realtek Semiconductor Co., Ltd.
-RTL-8139/8139C/8139C+ (rev 10)
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 0131
-        Flags: bus master, medium devsel, latency 64, IRQ 5
-        I/O ports at e800 [size=256]
-        Memory at fbfffc00 (32-bit, non-prefetchable) [size=256]
-        Expansion ROM at 8c000000 [disabled] [size=64K]
-        Capabilities: [50] Power Management version 2
-
-0000:02:04.0 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev ac)
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 0131
-        Flags: bus master, medium devsel, latency 168, IRQ 11
-        Memory at fbf00000 (32-bit, non-prefetchable) [size=4K]
-        Bus: primary=02, secondary=03, subordinate=06, sec-latency=176
-        Memory window 0: 88000000-89fff000 (prefetchable)
-        Memory window 1: 8e000000-8ffff000
-        I/O window 0: 0000e000-0000e0ff
-        I/O window 1: 0000ec00-0000ecff
-        16-bit legacy interface ports at 0001
-
-0000:02:04.1 CardBus bridge: Ricoh Co Ltd RL5c476 II (rev ac)
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 0131
-        Flags: bus master, medium devsel, latency 168, IRQ 6
-        Memory at fbf01000 (32-bit, non-prefetchable) [size=4K]
-        Bus: primary=02, secondary=07, subordinate=0a, sec-latency=176
-        Memory window 0: 8a000000-8bfff000 (prefetchable)
-        Memory window 1: 90000000-91fff000
-        I/O window 0: 00001000-000010ff
-        I/O window 1: 00001400-000014ff
-        16-bit legacy interface ports at 0001
-
-0000:02:04.2 FireWire (IEEE 1394): Ricoh Co Ltd R5C552 IEEE 1394 Controller
-(rev 04) (prog-if 10 [OHCI])
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 0131
-        Flags: bus master, medium devsel, latency 64, IRQ 7
-        Memory at fbfff000 (32-bit, non-prefetchable) [size=2K]
-        Capabilities: [dc] Power Management version 2
-
-0000:02:09.0 Ethernet controller: Linksys, A Division of Cisco Systems
-[AirConn] INPROCOMM IPN 2220 Wireless LAN Adapter (rev 01)
-        Subsystem: Micro-Star International Co., Ltd.: Unknown device 6855
-        Flags: bus master, medium devsel, latency 64, IRQ 5
-        I/O ports at e400 [size=32]
-        Memory at fbfff800 (32-bit, non-prefetchable) [size=32]
-        Memory at fbffe800 (32-bit, non-prefetchable) [size=2K]
-        Capabilities: [40] Power Management version 2
+Code;  ffffffff88433c0b <_end+7f0ec0b/7f0db000>
+0000000000000000 <_RIP>:
+Code;  ffffffff88433c0b <_end+7f0ec0b/7f0db000>   <=====
+   0:   48 8b 14 d0               mov    (%rax,%rdx,8),%rdx   <=====
+Code;  ffffffff88433c0f <_end+7f0ec0f/7f0db000>
+   4:   8b 03                     mov    (%rbx),%eax
+Code;  ffffffff88433c11 <_end+7f0ec11/7f0db000>
+   6:   44 21 d0                  and    %r10d,%eax
+Code;  ffffffff88433c14 <_end+7f0ec14/7f0db000>
+   9:   4a 8d 0c 48               lea    (%rax,%r9,2),%rcx
+Code;  ffffffff88433c18 <_end+7f0ec18/7f0db000>
+   d:   48 8b 42 28               mov    0x28(%rdx),%rax
+Code;  ffffffff88433c1c <_end+7f0ec1c/7f0db000>
+  11:   48 89 43 00               mov    %rax,0x0(%rbx)
 
 
+
+[6.] A small shell script or example program which triggers the
+     problem (if possible)
+
+No shell script required, just create a raid0 software array which is greater than 4TB and try to format it.
+
+[7.] Environment
+
+Do you want the whole output of env?
+NNTPSERVER=news
+INFODIR=/usr/local/info:/usr/share/info:/usr/info
+MANPATH=/usr/share/man:/usr/local/man:/usr/X11R6/man:/opt/gnome/share/man
+HOSTNAME=dev
+GNOME2_PATH=/usr/local:/opt/gnome:/usr
+XKEYSYMDB=/usr/X11R6/lib/X11/XKeysymDB
+HOST=dev
+TERM=xterm
+SHELL=/bin/bash
+PROFILEREAD=true
+HISTSIZE=1000
+SSH_CLIENT=::ffff:10.3.157.125 36178 22
+QTDIR=/usr/lib/qt3
+SSH_TTY=/dev/pts/0
+GROFF_NO_SGR=yes
+JRE_HOME=/usr/java/jre1.5.0_05
+USER=root
+LS_COLORS=no=00:fi=00:di=01;34:ln=00;36:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31:ex=00;32:*.cmd=00;32:*.exe=01;32:*.com=01;32:*.bat=01;32:*.btm=01;32:*.dll=01;32:*.tar=00;31:*.tbz=00;31:*.tgz=00;31:*.rpm=00;31:*.deb=00;31:*.arj=00;31:*.taz=00;31:*.lzh=00;31:*.zip=00;31:*.zoo=00;31:*.z=00;31:*.Z=00;31:*.gz=00;31:*.bz2=00;31:*.tb2=00;31:*.tz2=00;31:*.tbz2=00;31:*.avi=01;35:*.bmp=01;35:*.fli=01;35:*.gif=01;35:*.jpg=01;35:*.jpeg=01;35:*.mng=01;35:*.mov=01;35:*.mpg=01;35:*.pcx=01;35:*.pbm=01;35:*.pgm=01;35:*.png=01;35:*.ppm=01;35:*.tga=01;35:*.tif=01;35:*.xbm=01;35:*.xpm=01;35:*.dl=01;35:*.gl=01;35:*.aiff=00;32:*.au=00;32:*.mid=00;32:*.mp3=00;32:*.ogg=00;32:*.voc=00;32:*.wav=00;32:
+XNLSPATH=/usr/X11R6/lib/X11/nls
+HOSTTYPE=x86_64
+PAGER=less
+XDG_CONFIG_DIRS=/usr/local/etc/xdg/:/etc/xdg/:/etc/opt/gnome/xdg/
+MINICOM=-c on
+MAIL=/var/mail/root
+PATH=/sbin:/usr/sbin:/usr/local/sbin:/root/bin:/usr/local/bin:/usr/bin:/usr/X11R6/bin:/bin:/usr/games:/opt/gnome/bin:/usr/java/jre1.5.0_05/bin
+CPU=x86_64
+JAVA_BINDIR=/usr/java/jre1.5.0_05/bin
+INPUTRC=/etc/inputrc
+PWD=/usr/src/linux
+JAVA_HOME=/usr/java/jre1.5.0_05
+PYTHONSTARTUP=/etc/pythonstart
+INGRES_HOME=~ingres/ingres
+TEXINPUTS=:/root/.TeX:/usr/share/doc/.TeX:/usr/doc/.TeX
+SHLVL=1
+HOME=/root
+LESS_ADVANCED_PREPROCESSOR=no
+OSTYPE=linux
+LS_OPTIONS=-a -N --color=tty -T 0
+WINDOWMANAGER=/usr/X11R6/bin/kde
+GTK_PATH=/usr/local/lib/gtk-2.0:/opt/gnome/lib/gtk-2.0:/usr/lib/gtk-2.0
+LESS=-M -I
+MACHTYPE=x86_64-suse-linux
+LOGNAME=root
+GTK_PATH64=/usr/local/lib64/gtk-2.0:/opt/gnome/lib64/gtk-2.0:/usr/lib64/gtk-2.0
+XDG_DATA_DIRS=/usr/local/share/:/usr/share/:/etc/opt/kde3/share/:/opt/kde3/share/:/opt/gnome/share/
+ACLOCAL_FLAGS=-I /opt/gnome/share/aclocal
+LC_CTYPE=en_US.UTF-8
+SSH_CONNECTION=::ffff:10.3.157.125 36178 ::ffff:10.3.157.157 22
+PKG_CONFIG_PATH=/opt/gnome/lib64/pkgconfig
+LESSOPEN=lessopen.sh %s
+INFOPATH=/usr/local/info:/usr/share/info:/usr/info:/opt/gnome/share/info
+LESSCLOSE=lessclose.sh %s %s
+G_BROKEN_FILENAMES=1
+JAVA_ROOT=/usr/java/jre1.5.0_05
+COLORTERM=1
+_=/usr/bin/env
+OLDPWD=/root
+
+[7.1.] Software (add the output of the ver_linux script here)
+
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+
+Linux dev 2.6.11.4-21.9-smp #1 SMP Fri Aug 19 11:58:59 UTC 2005 x86_64 x86_64
+ x86_64 GNU/Linux
+
+Gnu C                  3.3.5
+Gnu make               3.80
+binutils               2.15.94.0.2.2
+util-linux             2.12q
+mount                  2.12q
+module-init-tools      3.2-pre1
+e2fsprogs              1.36
+jfsutils               1.1.7
+reiserfsprogs          3.6.18
+reiser4progs           line
+xfsprogs               2.6.25
+Linux C Library        x  1 root root 1446783 Jun 10  2005 /lib64/tls/libc.so.6
+Dynamic linker (ldd)   2.3.4
+Linux C++ Library      5.0.7
+Procps                 3.2.5
+Net-tools              1.60
+Kbd                    1.12
+Sh-utils               5.3.0
+udev                   053
+Modules Loaded         ib_ipoib ib_sa_client ib_client_query ib_poll ib_useracce
+ss ib_tavor ib_mad ib_core ib_services mod_rhh mod_vip mlxsys mst_pciconf mst_pc
+i joydev evdev st sr_mod ipv6 edd sg sk98lin e1000 uhci_hcd ehci_hcd usbcore i2c
+_i801 hw_random i2c_core parport_pc lp parport video1394 ohci1394 raw1394 ieee13
+94 capability dm_mod reiserfs xfs exportfs ide_cd cdrom ide_disk piix ide_core r
+aid1 arcmsr sd_mod scsi_mod
+
+[7.2.] Processor information (from /proc/cpuinfo):
+
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 4
+model name      :                   Intel(R) Xeon(TM) CPU 2.80GHz
+stepping        : 1
+cpu MHz         : 2793.091
+cache size      : 1024 KB
+physical id     : 0
+siblings        : 2
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 5
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm syscall nx lm pni monitor ds_cpl cid cx16 xtpr
+bogomips        : 5521.40
+clflush size    : 64
+cache_alignment : 128
+address sizes   : 36 bits physical, 48 bits virtual
+power management:
+
+
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 4
+model name      :                   Intel(R) Xeon(TM) CPU 2.80GHz
+stepping        : 1
+cpu MHz         : 2793.091
+cache size      : 1024 KB
+physical id     : 3
+siblings        : 2
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 5
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm syscall nx lm pni monitor ds_cpl cid cx16 xtpr
+bogomips        : 5570.56
+clflush size    : 64
+cache_alignment : 128
+address sizes   : 36 bits physical, 48 bits virtual
+power management:
+
+processor       : 2
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 4
+model name      :                   Intel(R) Xeon(TM) CPU 2.80GHz
+stepping        : 1
+cpu MHz         : 2793.091
+cache size      : 1024 KB
+physical id     : 0
+siblings        : 2
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 5
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm syscall nx lm pni monitor ds_cpl cid cx16 xtpr
+bogomips        : 5570.56
+clflush size    : 64
+cache_alignment : 128
+address sizes   : 36 bits physical, 48 bits virtual
+power management:
+
+
+processor       : 3
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 4
+model name      :                   Intel(R) Xeon(TM) CPU 2.80GHz
+stepping        : 1
+cpu MHz         : 2793.091
+cache size      : 1024 KB
+physical id     : 3
+siblings        : 2
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 5
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm syscall nx lm pni monitor ds_cpl cid cx16 xtpr
+bogomips        : 5570.56
+clflush size    : 64
+cache_alignment : 128
+address sizes   : 36 bits physical, 48 bits virtual
+power management:
+
+
+[7.3.] Module information (from /proc/modules):
+
+ib_ipoib 68504 0 - Live 0xffffffff88429000
+ib_sa_client 37008 1 ib_ipoib, Live 0xffffffff8841e000
+ib_client_query 23520 2 ib_ipoib,ib_sa_client, Live 0xffffffff88417000
+ib_poll 27344 1 ib_client_query, Live 0xffffffff8840f000
+ib_useraccess 13604 0 - Live 0xffffffff8830d000
+ib_tavor 43320 6 - Live 0xffffffff88243000
+ib_mad 26392 3 ib_client_query,ib_useraccess,ib_tavor, Live 0xffffffff8823b000
+ib_core 279192 5 ib_ipoib,ib_sa_client,ib_useraccess,ib_tavor,ib_mad, Live 0xffffffff882c7000
+ib_services 19012 8 ib_ipoib,ib_sa_client,ib_client_query,ib_poll,ib_useraccess,ib_tavor,ib_mad,ib_core, Live 0xffffffff88235000
+mod_rhh 372924 0 - Live 0xffffffff883b2000
+mod_vip 440392 2 ib_tavor,mod_rhh, Live 0xffffffff88345000
+mlxsys 107020 2 mod_rhh,mod_vip, Live 0xffffffff882ab000
+mst_pciconf 88320 0 - Live 0xffffffff8832e000
+mst_pci 85632 0 - Live 0xffffffff88318000
+joydev 11392 0 - Live 0xffffffff882a7000
+evdev 11776 0 - Live 0xffffffff882a3000
+st 39460 0 - Live 0xffffffff88298000
+sr_mod 17828 0 - Live 0xffffffff88292000
+ipv6 260864 16 - Live 0xffffffff88251000
+edd 11168 0 - Live 0xffffffff88231000
+sg 39480 0 - Live 0xffffffff88226000
+sk98lin 191852 1 - Live 0xffffffff881f6000
+e1000 86068 0 - Live 0xffffffff881df000
+uhci_hcd 31776 0 - Live 0xffffffff881d6000
+ehci_hcd 32776 0 - Live 0xffffffff881ca000
+usbcore 118768 3 uhci_hcd,ehci_hcd, Live 0xffffffff881ac000
+i2c_i801 9620 0 - Live 0xffffffff881a8000
+hw_random 6176 0 - Live 0xffffffff881a5000
+i2c_core 24576 1 i2c_i801, Live 0xffffffff8819e000
+parport_pc 40936 0 - Live 0xffffffff88193000
+lp 12488 0 - Live 0xffffffff8818c000
+parport 40588 2 parport_pc,lp, Live 0xffffffff88181000
+video1394 19832 0 - Live 0xffffffff8817b000
+ohci1394 32900 1 video1394, Live 0xffffffff88171000
+raw1394 27800 0 - Live 0xffffffff88169000
+ieee1394 106872 3 video1394,ohci1394,raw1394, Live 0xffffffff8814d000
+capability 4840 0 - Live 0xffffffff8814a000
+dm_mod 56384 0 - Live 0xffffffff8813b000
+reiserfs 237936 1 - Live 0xffffffff880ff000
+xfs 522416 3 - Live 0xffffffff8807e000
+exportfs 6784 1 xfs, Live 0xffffffff8807b000
+ide_cd 41376 0 - Live 0xffffffff8806f000
+cdrom 38952 2 sr_mod,ide_cd, Live 0xffffffff88064000
+ide_disk 18048 6 - Live 0xffffffff8805e000
+piix 12804 0 [permanent], Live 0xffffffff88059000
+ide_core 141604 3 ide_cd,ide_disk,piix, Live 0xffffffff88035000
+raid1 15744 2 - Live 0xffffffff88030000
+arcmsr 18888 3 - Live 0xffffffff8802a000
+sd_mod 18688 3 - Live 0xffffffff88024000
+scsi_mod 140752 5 st,sr_mod,sg,arcmsr,sd_mod, Live 0xffffffff88000000
+
+[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
+
+# cat /proc/ioports
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+01f0-01f7 : ide0
+02f8-02ff : serial
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0400-047f : 0000:00:1f.0
+  0400-0403 : PM1a_EVT_BLK
+  0404-0405 : PM1a_CNT_BLK
+  0408-040b : PM_TMR
+  0428-042f : GPE0_BLK
+0500-053f : 0000:00:1f.0
+0540-055f : 0000:00:1f.3
+  0540-054f : i801-smbus
+0cf8-0cff : PCI conf1
+c880-c89f : 0000:00:1d.0
+  c880-c89f : uhci_hcd
+cc00-cc1f : 0000:00:1d.1
+  cc00-cc1f : uhci_hcd
+cc80-cc9f : 0000:00:1d.2
+  cc80-cc9f : uhci_hcd
+d000-dfff : PCI Bus #08
+  dc00-dcff : 0000:08:00.0
+    dc00-dcff : sk98lin
+e800-e8ff : 0000:0a:0c.0
+ec80-ecbf : 0000:0a:04.0
+  ec80-ecbf : e1000
+fc00-fc0f : 0000:00:1f.1
+  fc00-fc07 : ide0
+
+# cat /proc/iomem
+00000000-0009f7ff : System RAM
+0009f800-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000ca7ff : Video ROM
+000f0000-000fffff : System ROM
+00100000-dffdffff : System RAM
+  00100000-0033a701 : Kernel code
+  0033a702-004617a7 : Kernel data
+dffe0000-dffeefff : ACPI Tables
+dffef000-dfffdbff : ACPI Non-volatile Storage
+dfffdc00-dfffffff : reserved
+fb800000-fbffffff : PCI Bus #09
+  fb800000-fbffffff : 0000:09:00.0
+    fb800000-fbffffff : Arbel HCA Driver
+fc9fec00-fc9fefff : 0000:00:1d.7
+  fc9fec00-fc9fefff : ehci_hcd
+fc9ff000-fc9fffff : 0000:00:01.0
+fca00000-fcdfffff : PCI Bus #01
+  fcafe000-fcafefff : 0000:01:00.1
+  fcaff000-fcafffff : 0000:01:00.3
+  fcb00000-fccfffff : PCI Bus #02
+    fcb00000-fcbfffff : PCI Bus #03
+      fcbff000-fcbfffff : 0000:03:0e.0
+        fcbff000-fcbfffff : arcmsr
+    fcc00000-fccfffff : PCI Bus #04
+      fccff000-fccfffff : 0000:04:0e.0
+        fccff000-fccfffff : arcmsr
+  fcd00000-fcdfffff : PCI Bus #05
+    fcd00000-fcdfffff : PCI Bus #06
+      fcdff000-fcdfffff : 0000:06:0e.0
+        fcdff000-fcdfffff : arcmsr
+fce00000-fcefffff : PCI Bus #08
+  fcefc000-fcefffff : 0000:08:00.0
+    fcefc000-fcefffff : sk98lin
+fcf00000-fcffffff : PCI Bus #09
+  fcf00000-fcffffff : 0000:09:00.0
+    fcf82000-fcf821ff : MSI-X vector table
+fd000000-fdffffff : 0000:0a:0c.0
+febdf000-febdffff : 0000:0a:0c.0
+febe0000-febfffff : 0000:0a:04.0
+  febe0000-febfffff : e1000
+fec00000-fec85fff : reserved
+fee00000-fee00fff : reserved
+ffc00000-ffffffff : reserved
+220000000-2200003ff : 0000:00:1f.1
+
+[7.5.] PCI information ('lspci -vvv' as root)
+
+0000:00:00.0 Host bridge: Intel Corporation E7520 Memory Controller Hub (rev 0c)
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Capabilities: [40] #09 [4105]
+
+0000:00:00.1 Class ff00: Intel Corporation E7525/E7520 Error Reporting Registers (rev 0c)
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+0000:00:01.0 System peripheral: Intel Corporation E7520 DMA Controller (rev 0c)
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at fc9ff000 (32-bit, non-prefetchable) [size=4K]
+        Capabilities: [b0] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
+                Address: fee00000  Data: 0000
+
+0000:00:02.0 PCI bridge: Intel Corporation E7525/E7520/E7320 PCI Express Port A (rev 0c) (prog-if 00 [Normal decode])
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0, cache line size 10
+        Bus: primary=00, secondary=01, subordinate=06, sec-latency=0
+        I/O behind bridge: 0000f000-00000fff
+        Memory behind bridge: fca00000-fcdfffff
+        Prefetchable memory behind bridge: 0000000ffff00000-0000000000000000
+        BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
+                Address: fee00000  Data: 0000
+        Capabilities: [64] #10 [0041]
+
+0000:00:04.0 PCI bridge: Intel Corporation E7525/E7520 PCI Express Port B (rev 0c) (prog-if 00 [Normal decode])
+        Control: I/O- Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0, cache line size 10
+        Bus: primary=00, secondary=07, subordinate=07, sec-latency=0
+        I/O behind bridge: 0000f000-00000fff
+        Memory behind bridge: fff00000-000fffff
+        Prefetchable memory behind bridge: 0000000ffff00000-0000000000000000
+        BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
+                Address: fee00000  Data: 0000
+        Capabilities: [64] #10 [0041]
+
+0000:00:05.0 PCI bridge: Intel Corporation E7520 PCI Express Port B1 (rev 0c) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR+ <PERR-
+        Latency: 0, cache line size 10
+        Bus: primary=00, secondary=08, subordinate=08, sec-latency=0
+        I/O behind bridge: 0000d000-0000dfff
+        Memory behind bridge: fce00000-fcefffff
+        Prefetchable memory behind bridge: 0000000ffff00000-0000000000000000
+        Secondary status: SERR
+        BridgeCtl: Parity+ SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
+                Address: fee00000  Data: 0000
+        Capabilities: [64] #10 [0041]
+
+0000:00:06.0 PCI bridge: Intel Corporation E7520 PCI Express Port C (rev 0c) (prog-if 00 [Normal decode])
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0, cache line size 10
+        Bus: primary=00, secondary=09, subordinate=09, sec-latency=0
+        I/O behind bridge: 0000f000-00000fff
+        Memory behind bridge: fcf00000-fcffffff
+        Prefetchable memory behind bridge: 00000000fb800000-00000000fbf00000
+        BridgeCtl: Parity- SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/1 Enable-
+                Address: fee00000  Data: 0000
+        Capabilities: [64] #10 [0041]
+
+0000:00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #1 (rev 02) (prog-if 00 [UHCI])
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin A routed to IRQ 10
+        Region 4: I/O ports at c880 [size=32]
+
+0000:00:1d.1 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #2 (rev 02) (prog-if 00 [UHCI])
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin B routed to IRQ 7
+        Region 4: I/O ports at cc00 [size=32]
+
+0000:00:1d.2 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI #3 (rev 02) (prog-if 00 [UHCI])
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin C routed to IRQ 15
+        Region 4: I/O ports at cc80 [size=32]
+
+0000:00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02) (prog-if 20 [EHCI])
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin D routed to IRQ 5
+        Region 0: Memory at fc9fec00 (32-bit, non-prefetchable) [size=1K]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=375mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [58] #0a [20a0]
+
+0000:00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=0a, subordinate=0a, sec-latency=32
+        I/O behind bridge: 0000e000-0000efff
+        Memory behind bridge: fd000000-febfffff
+        Prefetchable memory behind bridge: fff00000-000fffff
+        BridgeCtl: Parity+ SERR+ NoISA- VGA+ MAbort- >Reset- FastB2B-
+
+0000:00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC Interface Bridge (rev 02)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+
+0000:00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE Controller (rev 02) (prog-if 8a [Master SecP PriP])
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Interrupt: pin A routed to IRQ 15
+        Region 0: I/O ports at <unassigned>
+        Region 1: I/O ports at <unassigned>
+        Region 2: I/O ports at <unassigned>
+        Region 3: I/O ports at <unassigned>
+        Region 4: I/O ports at fc00 [size=16]
+        Region 5: Memory at 220000000 (32-bit, non-prefetchable) [size=1K]
+
+0000:00:1f.3 SMBus: Intel Corporation 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 02)
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin B routed to IRQ 11
+        Region 4: I/O ports at 0540 [size=32]
+
+0000:01:00.0 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge A (rev 09) (prog-if 00 [Normal decode])
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0, cache line size 10
+        Bus: primary=01, secondary=02, subordinate=04, sec-latency=64
+        I/O behind bridge: 0000f000-00000fff
+        Memory behind bridge: fcb00000-fccfffff
+        Prefetchable memory behind bridge: 00000000fff00000-0000000000000000
+        BridgeCtl: Parity+ SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+        Capabilities: [44] #10 [0071]
+        Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
+                Address: 0000000000000000  Data: 0000
+        Capabilities: [6c] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [d8]
+0000:01:00.1 PIC: Intel Corporation 6700/6702PXH I/OxAPIC Interrupt Controller A (rev 09) (prog-if 20 [IO(X)-APIC])
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Region 0: Memory at fcafe000 (32-bit, non-prefetchable) [size=4K]
+        Capabilities: [44] #10 [0001]
+        Capabilities: [6c] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+0000:01:00.2 PCI bridge: Intel Corporation 6700PXH PCI Express-to-PCI Bridge B (rev 09) (prog-if 00 [Normal decode])
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0, cache line size 10
+        Bus: primary=01, secondary=05, subordinate=06, sec-latency=64
+        I/O behind bridge: 0000f000-00000fff
+        Memory behind bridge: fcd00000-fcdfffff
+        Prefetchable memory behind bridge: 00000000fff00000-0000000000000000
+        BridgeCtl: Parity+ SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+        Capabilities: [44] #10 [0071]
+        Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
+                Address: 0000000000000000  Data: 0000
+        Capabilities: [6c] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [d8]
+0000:01:00.3 PIC: Intel Corporation 6700PXH I/OxAPIC Interrupt Controller B (rev 09) (prog-if 20 [IO(X)-APIC])
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Region 0: Memory at fcaff000 (32-bit, non-prefetchable) [size=4K]
+        Capabilities: [44] #10 [0001]
+        Capabilities: [6c] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+0000:02:02.0 PCI bridge: Intel Corporation 80331 [Lindsay] I/O processor (rev 0a) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 10
+        Bus: primary=02, secondary=03, subordinate=03, sec-latency=64
+        I/O behind bridge: 0000f000-00000fff
+        Memory behind bridge: fcb00000-fcbfffff
+        Prefetchable memory behind bridge: 00000000fff00000-0000000000000000
+        BridgeCtl: Parity+ SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [f0] PCI-X bridge device.
+                Secondary Status: 64bit+, 133MHz+, SCD-, USC-, SCO-, SRD- Freq=3
+                Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, SCO-, SRD-
+                : Upstream: Capacity=0, Commitment Limit=0
+                : Downstream: Capacity=0, Commitment Limit=0
+
+0000:02:03.0 PCI bridge: Intel Corporation 80331 [Lindsay] I/O processor (rev 0a) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 10
+        Bus: primary=02, secondary=04, subordinate=04, sec-latency=64
+        I/O behind bridge: 0000f000-00000fff
+        Memory behind bridge: fcc00000-fccfffff
+        Prefetchable memory behind bridge: 00000000fff00000-0000000000000000
+        BridgeCtl: Parity+ SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [f0] PCI-X bridge device.
+                Secondary Status: 64bit+, 133MHz+, SCD-, USC-, SCO-, SRD- Freq=3
+                Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, SCO-, SRD-
+                : Upstream: Capacity=0, Commitment Limit=0
+                : Downstream: Capacity=0, Commitment Limit=0
+
+0000:03:0e.0 RAID bus controller: Areca Technology Corp.: Unknown device 1120
+        Subsystem: Areca Technology Corp.: Unknown device 1120
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (32000ns min), cache line size 10
+        Interrupt: pin A routed to IRQ 15
+        Region 0: Memory at fcbff000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at fcbe0000 [disabled] [size=64K]
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [d0] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable-
+                Address: 0000000000000000  Data: 0000
+        Capabilities: [e0] PCI-X non-bridge device.
+                Command: DPERE+ ERO- RBC=1 OST=4
+                Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-
+0000:04:0e.0 RAID bus controller: Areca Technology Corp.: Unknown device 1130
+        Subsystem: Areca Technology Corp.: Unknown device 1130
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 32 (32000ns min), cache line size 10
+        Interrupt: pin A routed to IRQ 15
+        Region 0: Memory at fccff000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at fcce0000 [disabled] [size=64K]
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [d0] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable-
+                Address: 0000000000000000  Data: 0000
+        Capabilities: [e0] PCI-X non-bridge device.
+                Command: DPERE+ ERO- RBC=1 OST=4
+                Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-
+0000:05:01.0 PCI bridge: Intel Corporation 80331 [Lindsay] I/O processor (rev 0a) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 10
+        Bus: primary=05, secondary=06, subordinate=06, sec-latency=64
+        I/O behind bridge: 0000f000-00000fff
+        Memory behind bridge: fcd00000-fcdfffff
+        Prefetchable memory behind bridge: 00000000fff00000-0000000000000000
+        BridgeCtl: Parity+ SERR+ NoISA+ VGA- MAbort- >Reset- FastB2B-
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [f0] PCI-X bridge device.
+                Secondary Status: 64bit+, 133MHz+, SCD-, USC-, SCO-, SRD- Freq=3
+                Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, SCO-, SRD-
+                : Upstream: Capacity=0, Commitment Limit=0
+                : Downstream: Capacity=0, Commitment Limit=0
+
+0000:06:0e.0 RAID bus controller: Areca Technology Corp.: Unknown device 1120
+        Subsystem: Areca Technology Corp.: Unknown device 1120
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (32000ns min), cache line size 10
+        Interrupt: pin A routed to IRQ 15
+        Region 0: Memory at fcdff000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at fcde0000 [disabled] [size=64K]
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [d0] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable-
+                Address: 0000000000000000  Data: 0000
+        Capabilities: [e0] PCI-X non-bridge device.
+                Command: DPERE+ ERO- RBC=1 OST=4
+                Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-
+0000:08:00.0 Ethernet controller: Marvell Technology Group Ltd. Gigabit Ethernet Controller (rev 17)
+        Subsystem: Intel Corporation: Unknown device 5021
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR+ <PERR-
+        Latency: 0, cache line size 10
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at fcefc000 (64-bit, non-prefetchable) [size=16K]
+        Region 2: I/O ports at dc00 [size=256]
+        Expansion ROM at fcec0000 [disabled] [size=128K]
+        Capabilities: [48] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+        Capabilities: [50] Vital Product Data
+        Capabilities: [5c] Message Signalled Interrupts: 64bit+ Queue=0/1 Enable-
+                Address: 0000000000000000  Data: 0000
+        Capabilities: [e0] #10 [0011]
+
+0000:09:00.0 InfiniBand: Mellanox Technologies MT25208 InfiniHost III Ex HCA (rev a0)
+        Subsystem: Mellanox Technologies MT25208 InfiniHost III Ex HCA
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0, cache line size 10
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at fcf00000 (64-bit, non-prefetchable) [size=1M]
+        Region 2: Memory at fb800000 (64-bit, prefetchable) [size=8M]
+        Capabilities: [40] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [48] Vital Product Data
+        Capabilities: [90] Message Signalled Interrupts: 64bit+ Queue=0/5 Enable-
+                Address: 0000000000000000  Data: 0000
+        Capabilities: [84] #11 [801f]
+        Capabilities: [60] #10 [0001]
+
+0000:0a:04.0 Ethernet controller: Intel Corporation 82541GI/PI Gigabit Ethernet Controller (rev 05)
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (63750ns min), cache line size 10
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at febe0000 (32-bit, non-prefetchable) [size=128K]
+        Region 2: I/O ports at ec80 [size=64]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=1 PME-
+        Capabilities: [e4] PCI-X non-bridge device.
+                Command: DPERE- ERO+ RBC=0 OST=0
+                Status: Bus=0 Dev=0 Func=0 64bit- 133MHz- SCD- USC-, DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-
+0000:0a:0c.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27) (prog-if 00 [VGA])
+        Subsystem: Intel Corporation: Unknown device 3439
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (2000ns min), cache line size 10
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at fd000000 (32-bit, non-prefetchable) [size=16M]
+        Region 1: I/O ports at e800 [size=256]
+        Region 2: Memory at febdf000 (32-bit, non-prefetchable) [size=4K]
+        Expansion ROM at feba0000 [disabled] [size=128K]
+        Capabilities: [5c] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+[7.6.] SCSI information (from /proc/scsi/scsi)
+
+The following information is not representative - I have used these cards as well as others in JBOD mode in order to create software raid arrays from individual disks.  I have seen the problem trying to aggregate two of these cards' volumes into a volume greater than 4TB with software raid0.
+# cat /proc/scsi/scsi
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: Areca    Model: ARC-1120-VOL#00  Rev: R001
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi1 Channel: 00 Id: 00 Lun: 00
+  Vendor: Areca    Model: ARC-1130-VOL#00  Rev: R001
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+Host: scsi2 Channel: 00 Id: 00 Lun: 00
+  Vendor: Areca    Model: ARC-1130-VOL#00  Rev: R001
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+
+
+Thanks,
+
+Patrick W. Freeman

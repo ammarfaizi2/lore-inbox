@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbVLXBU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161150AbVLXCT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161148AbVLXBU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 20:20:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbVLXBU6
+	id S1161150AbVLXCT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 21:19:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030611AbVLXCT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 20:20:58 -0500
-Received: from gold.veritas.com ([143.127.12.110]:31920 "EHLO gold.veritas.com")
-	by vger.kernel.org with ESMTP id S1161148AbVLXBU6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 20:20:58 -0500
-Date: Sat, 24 Dec 2005 01:21:07 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "David S. Miller" <davem@davemloft.net>
-cc: torvalds@osdl.org, michael.bishop@APPIQ.com, linux-kernel@vger.kernel.org,
-       nickpiggin@yahoo.com.au
-Subject: Re: More info for DSM w/r/t sunffb on 2.6.15-rc6
-In-Reply-To: <20051223.154509.86780332.davem@davemloft.net>
-Message-ID: <Pine.LNX.4.61.0512240104440.17764@goblin.wat.veritas.com>
-References: <DF925A10E7204748977502BECE3D11230100CD7C@exch02.appiq.com>
- <20051223.111940.17674086.davem@davemloft.net> <Pine.LNX.4.64.0512231223040.14098@g5.osdl.org>
- <20051223.154509.86780332.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 24 Dec 2005 01:20:53.0938 (UTC) FILETIME=[48C76920:01C60828]
+	Fri, 23 Dec 2005 21:19:26 -0500
+Received: from quelen.inf.utfsm.cl ([200.1.19.194]:43994 "EHLO
+	quelen.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id S1030603AbVLXCTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 21:19:25 -0500
+Message-Id: <200512240148.jBO1mlqx022718@quelen.inf.utfsm.cl>
+To: Scott Mansfield <thephantom@mac.com>
+cc: Bryan Henderson <hbryan@us.ibm.com>, Ben Slusky <sluskyb@paranoiacs.org>,
+       "Robert W. Fuller" <garbageout@sbcglobal.net>,
+       linux-fsdevel@vger.kernel.org,
+       LKML Kernel <linux-kernel@vger.kernel.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: blatant GPL violation of ext2 and reiserfs filesystem drivers 
+In-Reply-To: Message from Scott Mansfield <thephantom@mac.com> 
+   of "Fri, 23 Dec 2005 13:16:20 PDT." <43AC5B14.2090509@mac.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Fri, 23 Dec 2005 22:48:47 -0300
+From: Horst von Brand <vonbrand@quelen.inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Dec 2005, David S. Miller wrote:
-> 
-> So I think something as simple as returning -EINVAL in the SBUS
-> framebuffer mmap() driver if VM_SHARED is not set would be sufficient
-> to deal with this.
+Scott Mansfield <thephantom@mac.com> wrote:
+> >>Developer replies that the source code will be provided
+> >>only to paying customers:
 
-That certainly gets my vote: it should work around the bug correctly
-and effectively without adding any complexity.
+> > Not really.  Developer does make the bizarre statement that "paid
+> > customers" are entitled to source code,
 
-Though really the check ought to be in the sparc and sparc64
-io_remap_pfn_range, which are the guilty parties giving shared write
-access even when none has been asked for.  But I guess it's too risky
-to add failures or change behaviour down there at this stage.
+Read the GPL: You get the binary, you are entitled to the source. You have
+no binary, wellll...
 
-Those "prot = __pgprot(pg_iobits);" lines - any idea why they ever
-got inserted?  I guess to add _PAGE_E in the sparc64 case, and
-whatever the equivalent was in the earlier sparc cases?
-Can they safely be corrected early in 2.6.16?
-
-Hugh
+Sure, you can get the binary (legally!) from somebody else, and then you
+are entitled to source.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

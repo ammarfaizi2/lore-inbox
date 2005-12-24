@@ -1,48 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161135AbVLXAME@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161145AbVLXAOV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161135AbVLXAME (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 19:12:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161145AbVLXAME
+	id S1161145AbVLXAOV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 19:14:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161148AbVLXAOV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 19:12:04 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:25534 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S1161135AbVLXAMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 19:12:02 -0500
-Subject: Re: Book recommendations
-From: Steven Rostedt <rostedt@goodmis.org>
-To: ed <ed@ednevitible.co.uk>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>,
-       linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20051223231115.5f678e5a@workstation>
-References: <20051223231115.5f678e5a@workstation>
-Content-Type: text/plain
-Date: Fri, 23 Dec 2005 19:11:50 -0500
-Message-Id: <1135383110.5774.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 
-Content-Transfer-Encoding: 7bit
+	Fri, 23 Dec 2005 19:14:21 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:44178 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161145AbVLXAOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 19:14:20 -0500
+Date: Fri, 23 Dec 2005 16:13:47 -0800 (PST)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Ravikiran G Thirumalai <kiran@scalex86.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       nippung@calsoftinc.com
+Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single threaded
+ process at getrusage()
+In-Reply-To: <20051223231549.GA3848@localhost.localdomain>
+Message-ID: <Pine.LNX.4.62.0512231605390.14255@schroedinger.engr.sgi.com>
+References: <20051221182320.GA4514@localhost.localdomain>
+ <Pine.LNX.4.62.0512211209300.2829@schroedinger.engr.sgi.com>
+ <20051221211135.GB4514@localhost.localdomain>
+ <Pine.LNX.4.62.0512211318070.3443@schroedinger.engr.sgi.com>
+ <20051223231549.GA3848@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-12-23 at 23:11 +0000, ed wrote:
-> Hello,
-> 
-> I am looking to get involved in kernel development, maybe start first
-> with looking at very minor bugs effecting my local system etc.
-> 
-> First I would like some advice on choosing reading material, has anyone
-> any good advice? I have previously read Unix Internals - Pate, but this
-> is not deep enough and closer to SCO than linux.
+Please put the copy_to_user() invocation into sys_getrusage. That is the 
+only function that needs to deal with user space issues includding 
+the transfer of the contents of struct rusage. Define 
+a local rusage in sys_getrusage. Pass that address to the other functions
+and only copy on success to user space.
 
-Previously, I recommended three books:
+copy_to_user occurs repeatedly:
 
-http://www.kerneltraffic.org/kernel-traffic/kt20050605_312.html#8
-
-and Greg KH wrote up a nice howto:
-
-http://www.kernel.org/git/?p=linux/kernel/git/gregkh/patches.git;a=blob;f=HOWTO
-
--- Steve
+On Fri, 23 Dec 2005, Ravikiran G Thirumalai wrote:
 
 
+>  	if (unlikely(!p->signal))
+> -		return;
+> +		 return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
+>  
+> +	cputime_to_timeval(utime, &r.ru_utime);
+> +	cputime_to_timeval(stime, &r.ru_stime);
+> +
+> +	return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
+> +}
+> +
+> +
+> +	return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
+>  }
+>  
+> +	if (unlikely(!p->signal))
+> +		 return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
+> +
+
+But its  only needed here:
+
+>  asmlinkage long sys_getrusage(int who, struct rusage __user *ru)
+>  {
+> -	if (who != RUSAGE_SELF && who != RUSAGE_CHILDREN)
+> -		return -EINVAL;
+> -	return getrusage(current, who, ru);
+> +	switch (who) {
+> +		case RUSAGE_SELF:
+> +			return getrusage_self(ru);
+> +		case RUSAGE_CHILDREN:
+> +			return getrusage_children(ru);
+> +		default:
+> +			break;
+> +	}
+> +	return -EINVAL;
+>  }

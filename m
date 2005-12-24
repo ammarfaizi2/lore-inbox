@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbVLXXch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbVLXXhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750752AbVLXXch (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 18:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbVLXXch
+	id S1750753AbVLXXhV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 18:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbVLXXhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 18:32:37 -0500
-Received: from lucidpixels.com ([66.45.37.187]:56459 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1750752AbVLXXch (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 18:32:37 -0500
-Date: Sat, 24 Dec 2005 18:32:35 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.15-rc6 - Success with ICH5/SATA + S.M.A.R.T.
-Message-ID: <Pine.LNX.4.64.0512241830010.2700@p34>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Sat, 24 Dec 2005 18:37:21 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:44930 "EHLO
+	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1750753AbVLXXhU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 18:37:20 -0500
+Date: Sat, 24 Dec 2005 17:37:07 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: pci-dma disables iommu on nforce4 motherboards?
+In-reply-to: <5njvv-JD-11@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: safemode@comcast.net
+Message-id: <43ADDBA3.9010701@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <5njvv-JD-11@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A very nice addition / release to the kernel, S.M.A.R.T. working through 
-the ATA passthru.
+Ed Sweetman wrote:
+> I have an asus A8N-E motherboard and recieve the following message on boot.
+> PCI-DMA: Disabling IOMMU.
+> 
+> I have no issues with anything not functioning.  I guess i'm just 
+> curious as to why this is done and if i'm missing out on any sort of 
+> performance gain by not using the iommu.   I have less than 4GB of ram, 
+> would that be why it's disabled (which is why i think it is)?  -
 
-smartmontools is going to have to be updated, but I can finally see the 
-temperature of my SATA drives!!  Nice work Jeff!
+The IOMMU is not needed if your RAM all lies below 4GB (note that due to 
+memory space used for PCI and PCI-E resources, even with only 4GB of 
+memory, some may end up above 4GB). The purpose of the IOMMU is to allow 
+32-bit devices which cannot access memory above 4GB to read from such 
+memory. If the system does not have an IOMMU (i.e. the Intel CPUs with 
+EM64T) then bounce buffers must be used when these devices want to 
+perform DMA to memory above 4GB, which reduces performance.
 
-Dec 24 18:29:20 p34 smartd[2707]: Opened configuration file 
-/etc/smartd.conf
-Dec 24 18:29:20 p34 smartd[2707]: Configuration file /etc/smartd.conf 
-parsed.
-Dec 24 18:29:20 p34 smartd[2707]: Device: /dev/sda, opened
-Dec 24 18:29:20 p34 smartd[2707]: Device /dev/sda: SATA disks accessed via 
-libata are not currently supported by smartmontools. By the time you read 
-this, support may have been added in recent kernels. Try a '-d ata' device 
-typeargument.
-Dec 24 18:29:20 p34 smartd[2707]: Unable to register SCSI device /dev/sda 
-at line 101 of file /etc/smartd.conf
-Dec 24 18:29:20 p34 smartd[2707]: Unable to register device /dev/sda (no 
-Directive -d removable). Exiting.
+On some platforms the IOMMU can be used to remap memory such that a 
+discontigous memory region appears contiguous to the device, so that it 
+can perform DMA transfers in larger chunks. I suspect the performance 
+benefit of this is somewhat negated by the time to set up the IOMMU 
+mapping, however.
 
-p34:/var/log# hddtemp /dev/sda 
-/dev/sda: WDC WD740GD-00FLC0: 38C
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-p34:/var/log# hddtemp /dev/sdb
-/dev/sdb: Maxtor 6B250S0: 40C
-
-Justin.

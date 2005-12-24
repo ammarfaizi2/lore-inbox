@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161159AbVLXC4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161154AbVLXDMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161159AbVLXC4N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 21:56:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161154AbVLXC4M
+	id S1161154AbVLXDMr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 22:12:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030614AbVLXDMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 21:56:12 -0500
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:62087 "EHLO
-	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S1030614AbVLXC4L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 21:56:11 -0500
-Date: Sat, 24 Dec 2005 11:56:07 +0900 (JST)
-Message-Id: <20051224.115607.730554607.masano@tnes.nec.co.jp>
-To: trond.myklebust@fys.uio.no
-Cc: matthew@wil.cx, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] fix posix lock on NFS, #2
-From: ASANO Masahiro <masano@tnes.nec.co.jp>
-In-Reply-To: <1135350151.8167.160.camel@lade.trondhjem.org>
-References: <20051223.233839.846934653.masano@tnes.nec.co.jp>
-	<1135350151.8167.160.camel@lade.trondhjem.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.11 (Native Windows TTY Support)
+	Fri, 23 Dec 2005 22:12:47 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:25796 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1030611AbVLXDMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Dec 2005 22:12:46 -0500
+Subject: kernel/auditsc.c bug
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: "Rickard E. (Rik) Faith" <faith@redhat.com>
+Content-Type: text/plain
+Date: Fri, 23 Dec 2005 22:17:19 -0500
+Message-Id: <1135394240.22177.94.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH] fix posix lock on NFS, #2
-Date: Fri, 23 Dec 2005 16:02:31 +0100
+gcc 4.0.2 complains that state is (not "may be", is) used initialized on
+line 607:
 
-> On Fri, 2005-12-23 at 23:38 +0900, ASANO Masahiro wrote:
-> > Here is a patch.  It changes nfsd to keep the range of file_lock for
-> > later use.  Any comments and feedback are welcome.
+605         list_for_each_entry_rcu(e, &audit_filter_list[AUDIT_FILTER_USER], list) {
+606                 if (audit_filter_user_rules(cb, &e->rule, &state)) {
+607                         if (state == AUDIT_DISABLED)
+608                                 ret = 0;
+609                         break;
+610                 }
 
-> NACK. You cannot copy locks like this. See locks_copy_lock().
+AFAICT state will always have been initialized if
+audit_filter_user_rules() returns nonzero:
 
-Thank you for pointing it out.  I forgot all that point.  I'm trying
-to update my patch, but things are complicated.
-Do you think it is safe to copy the file_lock table simply with
-locks_copy_lock() at that point, or it may break nlm_blocked list in
-nfsd?
-	
---
-masano
+590         switch (rule->action) {
+591         case AUDIT_NEVER:    *state = AUDIT_DISABLED;       break;
+592         case AUDIT_POSSIBLE: *state = AUDIT_BUILD_CONTEXT;  break;
+593         case AUDIT_ALWAYS:   *state = AUDIT_RECORD_CONTEXT; break;
+594         }
+595         return 1;
+
+Is GCC correct that this is a bug (no default case in the switch
+statement)?
+
+Lee
+

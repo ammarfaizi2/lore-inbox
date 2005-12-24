@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751242AbVLXPjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbVLXPxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751242AbVLXPjV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 10:39:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbVLXPjV
+	id S932091AbVLXPxV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 10:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbVLXPxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 10:39:21 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51091 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751242AbVLXPjU (ORCPT
+	Sat, 24 Dec 2005 10:53:21 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:32966 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751244AbVLXPxU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 10:39:20 -0500
-Date: Sat, 24 Dec 2005 16:38:52 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       dsd@gentoo.org, venkatesh.pallipadi@intel.com
-Subject: Re: [patch 01/19] ACPI: Add support for FADT P_LVL2_UP flag
-Message-ID: <20051224153852.GA26740@elf.ucw.cz>
-References: <20051223221200.342826000@press.kroah.org> <20051223224737.GA19057@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051223224737.GA19057@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 24 Dec 2005 10:53:20 -0500
+Message-ID: <43AD6EE9.8080707@pobox.com>
+Date: Sat, 24 Dec 2005 10:53:13 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ed Sweetman <safemode@comcast.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: pci-dma disables iommu on nforce4 motherboards?
+References: <43AD674F.1040008@comcast.net>
+In-Reply-To: <43AD674F.1040008@comcast.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Ed Sweetman wrote: > I have an asus A8N-E motherboard
+	and recieve the following message on boot. > PCI-DMA: Disabling IOMMU.
+	> > I have no issues with anything not functioning. I guess i'm just >
+	curious as to why this is done and if i'm missing out on any sort of >
+	performance gain by not using the iommu. I have less than 4GB of ram, >
+	would that be why it's disabled (which is why i think it is)? - [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Ed Sweetman wrote:
+> I have an asus A8N-E motherboard and recieve the following message on boot.
+> PCI-DMA: Disabling IOMMU.
+> 
+> I have no issues with anything not functioning.  I guess i'm just 
+> curious as to why this is done and if i'm missing out on any sort of 
+> performance gain by not using the iommu.   I have less than 4GB of ram, 
+> would that be why it's disabled (which is why i think it is)?  -
 
-> -stable review patch.  If anyone has any objections, please let us know.
-> 
-> ------------------
-> From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-> 
-> [ACPI] Add support for FADT P_LVL2_UP flag
-> which tells us if C2 is valid for UP-only, or SMP.
-> 
-> As there is no separate bit for C3,  use P_LVL2_UP
-> bit to cover both C2 and C3.
-> 
-> http://bugzilla.kernel.org/show_bug.cgi?id=5165
-> 
-> (cherry picked from 28b86b368af3944eb383078fc5797caf2dc8ce44 commit)
-> 
-> Signed-off-by: Venkatesh Pallipadi<venkatesh.pallipadi@intel.com>
-> Signed-off-by: Len Brown <len.brown@intel.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+What happens if you boot with iommu=force ?
 
-Why is it covered by #ifdef HOTPLUG_CPU? This can bite on normal
-CONFIG_SMP system, too, no?
+	Jeff
 
--- 
-Thanks, Sharp!
+
+

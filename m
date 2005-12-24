@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161147AbVLXBIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161148AbVLXBU7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161147AbVLXBIc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 20:08:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161148AbVLXBIc
+	id S1161148AbVLXBU7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Dec 2005 20:20:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161149AbVLXBU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 20:08:32 -0500
-Received: from thorn.pobox.com ([208.210.124.75]:31627 "EHLO thorn.pobox.com")
-	by vger.kernel.org with ESMTP id S1161147AbVLXBIb (ORCPT
+	Fri, 23 Dec 2005 20:20:58 -0500
+Received: from gold.veritas.com ([143.127.12.110]:31920 "EHLO gold.veritas.com")
+	by vger.kernel.org with ESMTP id S1161148AbVLXBU6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 20:08:31 -0500
-Date: Fri, 23 Dec 2005 19:08:38 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Suresh Kodati <kodatisu@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] fix smp_processor_id() use in include/asm-generic/percpu.h
-Message-ID: <20051224010838.GA9734@localhost.localdomain>
-References: <20051222203528.GA4407@dyn9041041086.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051222203528.GA4407@dyn9041041086.austin.ibm.com>
-User-Agent: Mutt/1.4.2.1i
+	Fri, 23 Dec 2005 20:20:58 -0500
+Date: Sat, 24 Dec 2005 01:21:07 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: "David S. Miller" <davem@davemloft.net>
+cc: torvalds@osdl.org, michael.bishop@APPIQ.com, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au
+Subject: Re: More info for DSM w/r/t sunffb on 2.6.15-rc6
+In-Reply-To: <20051223.154509.86780332.davem@davemloft.net>
+Message-ID: <Pine.LNX.4.61.0512240104440.17764@goblin.wat.veritas.com>
+References: <DF925A10E7204748977502BECE3D11230100CD7C@exch02.appiq.com>
+ <20051223.111940.17674086.davem@davemloft.net> <Pine.LNX.4.64.0512231223040.14098@g5.osdl.org>
+ <20051223.154509.86780332.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 24 Dec 2005 01:20:53.0938 (UTC) FILETIME=[48C76920:01C60828]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suresh Kodati wrote:
-> This patch suppresses the following BUG() seen during bootup of 2.6.15-rc5-mm3 on i386 machines by replacing smp_processor_id with raw_smp_processor_id().
+On Fri, 23 Dec 2005, David S. Miller wrote:
 > 
-> <snip>
-> [   11.258828] Freeing unused kernel memory: 260k freed
-> [   11.258864] BUG: using smp_processor_id() in preemptible [00000001] code: swapper/1 
-> [   11.258878] caller is mod_page_state_offset+0x12/0x28
-> </snip>
-> 
-> Signed-off-by: Suresh Kodati <kodatisu@in.ibm.com>
-> -- 
-> 
-> include/asm-generic/percpu.h |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- linux-2.6.15-rc5/include/asm-generic/percpu.h.orig	2005-12-21 15:13:27.000000000 -0600
-> +++ linux-2.6.15-rc5/include/asm-generic/percpu.h	2005-12-21 15:13:43.000000000 -0600
-> @@ -13,7 +13,7 @@ extern unsigned long __per_cpu_offset[NR
->  
->  /* var is in discarded region: offset to particular copy we want */
->  #define per_cpu(var, cpu) (*RELOC_HIDE(&per_cpu__##var, __per_cpu_offset[cpu]))
-> -#define __get_cpu_var(var) per_cpu(var, smp_processor_id())
-> +#define __get_cpu_var(var) per_cpu(var, raw_smp_processor_id())
+> So I think something as simple as returning -EINVAL in the SBUS
+> framebuffer mmap() driver if VM_SHARED is not set would be sufficient
+> to deal with this.
 
-Surely this isn't the right way to address the warning you are seeing?
+That certainly gets my vote: it should work around the bug correctly
+and effectively without adding any complexity.
 
-This change would keep us from catching preempt-unsafe uses of per-cpu
-data.
+Though really the check ought to be in the sparc and sparc64
+io_remap_pfn_range, which are the guilty parties giving shared write
+access even when none has been asked for.  But I guess it's too risky
+to add failures or change behaviour down there at this stage.
 
+Those "prot = __pgprot(pg_iobits);" lines - any idea why they ever
+got inserted?  I guess to add _PAGE_E in the sparc64 case, and
+whatever the equivalent was in the earlier sparc cases?
+Can they safely be corrected early in 2.6.16?
 
-Nathan
+Hugh

@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932432AbVLXMEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbVLXMVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932432AbVLXMEU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 07:04:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932517AbVLXMEU
+	id S932523AbVLXMVp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 07:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932522AbVLXMVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 07:04:20 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:62867 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S932432AbVLXMET
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 07:04:19 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-Subject: Re: 4k stacks
-Date: Sat, 24 Dec 2005 14:03:38 +0200
-User-Agent: KMail/1.8.2
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.61.0512221640490.8179@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0512221640490.8179@chaos.analogic.com>
+	Sat, 24 Dec 2005 07:21:44 -0500
+Received: from khc.piap.pl ([195.187.100.11]:6148 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932449AbVLXMVn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 07:21:43 -0500
+To: Andreas Ericsson <ae@op5.se>
+Cc: Junio C Hamano <junkio@cox.net>, Ingo Oeser <ioe-lkml@rameria.de>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org
+Subject: Re: [ANNOUNCE] GIT 1.0.0b quickfix
+References: <7vpsnq3wrg.fsf@assigned-by-dhcp.cox.net>
+	<1135244363.10035.185.camel@gaston>
+	<Pine.LNX.4.64.0512220945450.4827@g5.osdl.org>
+	<200512231712.40621.ioe-lkml@rameria.de>
+	<7vu0cyu8vj.fsf@assigned-by-dhcp.cox.net> <43AD2003.3060609@op5.se>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sat, 24 Dec 2005 13:21:38 +0100
+In-Reply-To: <43AD2003.3060609@op5.se> (Andreas Ericsson's message of "Sat,
+ 24 Dec 2005 11:16:35 +0100")
+Message-ID: <m3lkyaptwt.fsf@defiant.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512241403.38482.vda@ilport.com.ua>
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 22 December 2005 23:53, linux-os (Dick Johnson) wrote:
-> 
-> Yesterday I sent a patch to add stack-poison so the stack usage
-> could be observed.
-> 
-> Today I wrote a small program and tested the stack usage. Both
-> the program and the patch is attached. The result is:
-> 
-> Offset : 2ec8f000	Available Stack bytes = 3104
-> Offset : 2ecb1000	Available Stack bytes = 3104
-> Offset : 2ee5f000	Available Stack bytes = 20
-> Offset : 2f36d000	Available Stack bytes = 3104
-> Offset : 2fd09000	Available Stack bytes = 3012
-> Offset : 2fd0b000	Available Stack bytes = 3312
-> Offset : 2fd0f000	Available Stack bytes = 2132
-> Offset : 2fd2f000	Available Stack bytes = 2744
-> Offset : 2fd57000	Available Stack bytes = 2900
-> Offset : 2fdd5000	Available Stack bytes = 1400
-> Offset : 2fe35000	Available Stack bytes = 2832
-> Offset : 2ff3f000	Available Stack bytes = 776
-> Offset : 2ff45000	Available Stack bytes = 3188
-> 
-> This, after compiling the kernel. I did not have 4k stacks
-> enabled for this test so any crashing of the stack beyond
-> one page will not hurt the system. This was on linux-2.6.13.4.
-> 
-> Anyway, I tried to enable 4k stacks and the machine would
-> not boot past trying to install the first module. It just
-> stopped with the interrupts disabled. So, I am now rebuilding
-> the kernel back as I write this. That's why I am using 2.6.13
-> at the moment.
-> 
-> Anyway, getting down to 20 bytes of stack-space available
-> seems to be pretty scary.
+Andreas Ericsson <ae@op5.se> writes:
 
-+       movl    %esp, %edi
-+       movl    %edi, %ecx
-+       andl    $~0x1000, %edi
-+       subl    %edi, %ecx
+>> *1* Which one is the heaviest, 5h, 3kg, or 20cm?
+>>
+>
+> 5h, without a doubt. Because time can be broken down into infinitely
+> small pieces
 
-ecx will be equal to ?
-
-+       movb    $'Q', %al
-+       rep     stosb
---
-vda
+This is uncertain. If the time is quantified 5 hrs might as well contain
+much less quanta than 3 kg, let alone 20 cm :-)
+-- 
+Krzysztof Halasa

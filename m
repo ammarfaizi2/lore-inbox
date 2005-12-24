@@ -1,93 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422660AbVLXK6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbVLXLie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422660AbVLXK6A (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 05:58:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422661AbVLXK6A
+	id S1030299AbVLXLie (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 06:38:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030544AbVLXLie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 05:58:00 -0500
-Received: from www.tuxrocks.com ([64.62.190.123]:31251 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S1422660AbVLXK6A (ORCPT
+	Sat, 24 Dec 2005 06:38:34 -0500
+Received: from main.gmane.org ([80.91.229.2]:37054 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030299AbVLXLid (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 05:58:00 -0500
-Message-ID: <43AD29A6.10407@tuxrocks.com>
-Date: Sat, 24 Dec 2005 03:57:42 -0700
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc Koschewski <marc@osknowledge.org>
-CC: Joe Feise <jfeise@feise.com>, linux-kernel@vger.kernel.org,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: mouse issues in 2.6.15-rc5-mm series
-References: <43ACEE14.7060507@feise.com> <20051224104224.GA5789@stiffy.osknowledge.org>
-In-Reply-To: <20051224104224.GA5789@stiffy.osknowledge.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Sat, 24 Dec 2005 06:38:33 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Thomas Backlund <tmb@mandriva.org>
+Subject: Re: [PATCH] add missing memory barriers to ipc/sem.c
+Date: Sat, 24 Dec 2005 13:38:35 +0200
+Message-ID: <dojbve$5bq$1@sea.gmane.org>
+References: <43AC80E5.6050906@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ndn243.bob.fi
+User-Agent: Thunderbird 1.5 (Windows/20051201)
+In-Reply-To: <43AC80E5.6050906@colorfullife.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Marc Koschewski wrote:
-> * Joe Feise <jfeise@feise.com> [2005-12-23 22:43:32 -0800]:
+Manfred Spraul wrote:
+> Hi Linus,
+> 
+> Two smp_wmb() statements are missing in the sysv sem code: This could 
+> cause stack corruptions.
+> The attached patch adds them.
+> 
+> Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
 > 
 > 
->>[Note: please cc me on answers since I'm not subscribed to the kernel list]
->>
->>I am experiencing problems with mouse resyncing in the -mm series.
->>This is a Logitech wheel mouse connected through a KVM.
->>Symptom: whenever the mouse isn't moved for some seconds, it doesn't
->>react to movement for a second, and then resyncs. Sometimes, the
->>resyncing results in the mouse pointer jumping, which as far as I
->>know is a protocol mismatch.
->>While searching for reports of similar problems, I came across
->>Frank Sorenson's post from Nov. 23 (http://lkml.org/lkml/2005/11/23/533).
->>Like in his case, reverting
->>input-attempt-to-re-synchronize-mouse-every-5-seconds.patch
->>resulted in a kernel without this problem.
->>
->>-Joe
-
-Joe,
-
-I continue to see the same issues with the resync patch in -mm.  For me,
-tapping stops working, and I'm now seeing both the mouse pointer jumping
- as well (a lesser issue for me, so it was probably present earlier as
-well).
-
-I switched to using the synaptics X driver as recommended by Dmitry
-Torokhov (http://lkml.org/lkml/2005/11/25/130), and that has worked
-splendidly for me.  However, that's really just a band-aid, and I'd be
-happier with a working resync patch.
-
-> Hi Joe,
+> ------------------------------------------------------------------------
 > 
-> read these ones:
-> 
-> http://lkml.org/lkml/2005/11/18/152
-> http://www.uwsg.iu.edu/hypermail/linux/kernel/0511.3/0019.html
-> 
-> Maybe they help you out.
-> 
-> I didn't get it working in the rc5 -mm tree so far. But non -mm work as good as
-> they always did.
+> --- 2.6/ipc/sem.c	2005-12-19 01:36:54.000000000 +0100
+> +++ build-2.6/ipc/sem.c	2005-12-23 23:25:17.000000000 +0100
+> @@ -381,6 +381,7 @@
+>  			/* hands-off: q will disappear immediately after
+>  			 * writing q->status.
+>  			 */
+> +			smb_wmb();
 
-Same issue for me as well.
+Typo? Shouldn't it be smp_wmb();
 
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+>  			q->status = error;
+>  			q = n;
+>  		} else {
+> @@ -461,6 +462,7 @@
+>  		n = q->next;
+>  		q->status = IN_WAKEUP;
+>  		wake_up_process(q->sleeper); /* doesn't sleep */
+> +		smp_wmb();
+>  		q->status = -EIDRM;	/* hands-off q */
+>  		q = n;
+>  	}
 
-iD8DBQFDrSmmaI0dwg4A47wRAidbAJ9rR7ZtgavKNw1aEamcdZ8Br/27GwCdEQcc
-JHP9CL6TTlbhYm8kyzeXH+w=
-=w3cG
------END PGP SIGNATURE-----

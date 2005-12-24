@@ -1,111 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbVLXTqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVLXTwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbVLXTqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 14:46:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932340AbVLXTqZ
+	id S1750701AbVLXTwz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 14:52:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbVLXTwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 14:46:25 -0500
-Received: from web50113.mail.yahoo.com ([206.190.39.150]:29043 "HELO
-	web50113.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932136AbVLXTqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 14:46:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=VPwpcdXAZh/R7Y7ghkXi4qn95sSeBGhknvsWWTOjVN+eP8qwfvjkg5uEp74Nl6ybtHKebjLgLWhyEe7eP/sIor8QJzrhETyUJfhqKJz8pB/rV4GCTSeA9mrfJIv9f0UlFOyE/zpS6Gio+iwOVr2N1hQs2Zeucrxw4Q8rEiIMPgY=  ;
-Message-ID: <20051224194621.73206.qmail@web50113.mail.yahoo.com>
-Date: Sat, 24 Dec 2005 11:46:21 -0800 (PST)
-From: Doug Thompson <norsk5@yahoo.com>
-Subject: Re: Machine check 2.6.13.3 dual opteron
-To: Andy Stewart <andystewart@comcast.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <43AD8631.1090605@comcast.net>
+	Sat, 24 Dec 2005 14:52:54 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:4331 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750701AbVLXTww (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 14:52:52 -0500
+Date: Sat, 24 Dec 2005 11:52:25 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, Ayaz Abdulla <AAbdulla@nvidia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: [PATCH] forcedeth: fix random memory scribbling bug
+In-Reply-To: <43AD4ADC.8050004@colorfullife.com>
+Message-ID: <Pine.LNX.4.64.0512241145520.14098@g5.osdl.org>
+References: <43AD4ADC.8050004@colorfullife.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With the Opteron Bank 4 value you gave, this decodes to:
 
 
-Decoding MCE value as MCi_STATUS: 'b200000000070f0f'
-Bit  63:    Valid error
-Bit  61:    UNCORRECTED error
-Bit  60:    MCA Error Reporting Enabled
-Bit  57:    Process Context Corrupt
-            HyperTransport Link Number= 0
-            Extended Error Code = 0x7 - WatchDog error
+On Sat, 24 Dec 2005, Manfred Spraul wrote:
+>
+> Two critical bugs were found in forcedeth 0.47:
+> - TSO doesn't work.
+> - pci_map_single() for the rx buffers is called with size==0. This bug is
+> critical, it causes random memory corruptions on systems with an iommu.
 
-BUS Error:
-        Processor(generic)
-        TimeOut(timed out)
-        Memory Transaction Type(generic)
-        Mem or IO(generic)
-        Cache Level(generic)
+Good catch. Btw, should we perhaps disallow (or at least WARN_ON()) 
+pci_map_single() with a length of zero? I think it's always likely a bug..
 
-You had an Uncorrectable Error. 
-Since you did not post an address error, I assume that it did NOT report such. Therefore, because
-of the WatchDog error, there might be an error between the CPU and memory.  There is a hardware
-problem definitely.
+However, that
 
-CPU-Mem Controller
-Even bad memory DIMM
+	"skb->end - skb->data"
 
-doug thompson
+calculation is a bit strange. It correctly maps the whole skb, but 
+wouldn't it make more sense to use the length we actually tell the card to 
+use? 
 
+In other words, wouldn't it be a whole lot more sensible and logical to 
+use
 
---- Andy Stewart <andystewart@comcast.net> wrote:
+	np->rx_buf_sz
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> 
-> Hi everybody,
-> 
-> My machine locked up on me and I found this message on my serial
-> console.  I have no idea how to decode its meaning - can you help?
-> 
-> CPU 0: Machine Check Exception:                4
-> Bank 4: b200000000070f0f
-> TSC 39619ee1e2187
-> Kernel panic - not syncing: Machine check
-> 
-> My machine is a dual Opteron running the 2.6.13.3 kernel.  I'm not
-> positive, but I think I can reproduce it.  Assuming that I can, what
-> information would be helpful to debug the problem?
-> 
-> Please cc: me on the response as I am not subscribed to this mailing list.
-> 
-> Thanks!
-> 
-> Andy
-> - --
-> Andy Stewart, Founder
-> Worcester Linux Users' Group
-> Worcester, MA, USA
-> http://www.wlug.org
-> 
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.2.5 (GNU/Linux)
-> Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-> 
-> iD8DBQFDrYYxHl0iXDssISsRAjONAJ9zoU0vSmikAkMqmQI2po0Jp9E83QCghO/M
-> Zxq/FKaldR1hzyrJqiJ+sMg=
-> =gdcL
-> -----END PGP SIGNATURE-----
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+instead? That's the value we use for allocation and that's the size we 
+tell the card we have.
 
+Of course, on the alloc path, it seems to add an additional 
+"NV_RX_ALLOC_PAD" thing, so maybe the "end-data" thing makes sense.
 
-
-"If you think Education is expensive, just try Ignorance"
-
-"Don't tell people HOW to do things, tell them WHAT you
-want and they will surprise you with their ingenuity."
-                   Gen George Patton
-
+		Linus

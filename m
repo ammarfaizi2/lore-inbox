@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbVLXQTv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVLXQhZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbVLXQTv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 11:19:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbVLXQTv
+	id S1751248AbVLXQhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 11:37:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbVLXQhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 11:19:51 -0500
-Received: from uproxy.gmail.com ([66.249.92.194]:33329 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751244AbVLXQTu (ORCPT
+	Sat, 24 Dec 2005 11:37:25 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:60896 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S1751246AbVLXQhZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 11:19:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:disposition-notification-to:date:from:user-agent:x-accept-language:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=qsntqsRG4y48q/UTz6tBdUaKT2RP0xhyUxbxepiBgoRmysaLCVAdGbKNJLa1zdQUXqQhqHRhQKEc0ejGFIncDM7KFDA0aCHzDgy8Vh3HD2RY0FnLhCRs5Or/2d3U21JIW/I4M2XewvaWctCN+1+FLSy1uVnM8e83izQ4aTKhLUM=
-Message-ID: <43AD74B8.3040006@gmail.com>
-Date: Sat, 24 Dec 2005 18:18:00 +0200
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051015)
-X-Accept-Language: en-us, en
+	Sat, 24 Dec 2005 11:37:25 -0500
+Message-ID: <43AD8AF6.387B357A@tv-sign.ru>
+Date: Sat, 24 Dec 2005 20:52:54 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: David Wagner <daw@cs.berkeley.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Question] LinuxThreads, setuid - Is there user mode hook?
-References: <200512231927.jBNJR2uG019083@taverner.CS.Berkeley.EDU>
-In-Reply-To: <200512231927.jBNJR2uG019083@taverner.CS.Berkeley.EDU>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Ravikiran Thirumalai <kiran@scalex86.org>,
+       Shai Fultheim <shai@scalex86.org>, Nippun Goel <nippung@calsoftinc.com>
+Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single threaded 
+ process at getrusage()
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Wagner wrote:
-> Sorry, I don't know how to tell.  Perhaps you can document your
-> library as 'not to be used with setuid/setgid programs'?  It seems
-> surprising that a library would create multiple threads without warning
-> the programmer that such a thing could happen (behind their back).
+Ravikiran G Thirumalai wrote:
+>
+> +int getrusage_both(struct task_struct *p, struct rusage __user *ru)
+>  {
+> +	unsigned long flags;
+> +	int lockflag = 0;
+> +	cputime_t utime, stime;
+>  	struct rusage r;
+> -	read_lock(&tasklist_lock);
+> -	k_getrusage(p, who, &r);
+> -	read_unlock(&tasklist_lock);
+> +	struct task_struct *t;
+> +	memset((char *) &r, 0, sizeof (r));
+> +
+> +	if (unlikely(!p->signal))
+> +		 return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
+> +
+> +	if (!thread_group_empty(p)) {
+> +		read_lock(&tasklist_lock);
+> +		lockflag = 1;
+> +	}
 
-Hello,
+I can't understand this. 'p' can do clone(CLONE_THREAD) immediately
+after 'if (!thread_group_empty(p))' check.
 
-Not every standard plug-in interface provides this ability. 
-So I must use threads behind their back... And I need to 
-deal with this last edge condition of the setuid.
+> +	spin_lock_irqsave(&p->sighand->siglock, flags);
 
-Best Regards,
-Alon Bar-Lev.
+It is unsafe to do (unless p == current or tasklist held) even if
+'p' is the only one process in the thread group.
+
+p->sighand can be changed (and even freed) if 'p' does exec, see
+de_thread().
+
+p->sighand may be NULL , nothing prevents 'p' from release_task(p).
+This patch checks p->signal, but this is meaningless unless it was
+done under tasklist_lock.
+
+Oleg.

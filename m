@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbVLXWbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbVLXWcc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbVLXWbM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 17:31:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbVLXWbM
+	id S1750742AbVLXWcc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 17:32:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVLXWcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 17:31:12 -0500
-Received: from gate.crashing.org ([63.228.1.57]:28610 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750738AbVLXWbM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 17:31:12 -0500
-Subject: Re: PowerBook5,8 - TrackPad update
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Michael Hanselmann <linux-kernel@hansmi.ch>,
-       Stelian Pop <stelian@popies.net>,
-       Parag Warudkar <kernel-stuff@comcast.net>,
-       debian-powerpc@lists.debian.org,
-       linux-kernel <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org,
-       johannes@sipsolutions.net
-In-Reply-To: <20051224201753.GA26801@elf.ucw.cz>
-References: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net>
-	 <70210ED5-37CA-40BC-8293-FF1DAA3E8BD5@comcast.net>
-	 <20051129000615.GA20843@hansmi.ch> <20051130223917.GA15102@hansmi.ch>
-	 <20051130234653.GB15102@hansmi.ch>
-	 <1133533712.23129.25.camel@localhost.localdomain>
-	 <20051204224221.GA28218@hansmi.ch> <1135382385.4542.8.camel@gaston>
-	 <20051224201753.GA26801@elf.ucw.cz>
-Content-Type: text/plain
-Date: Sun, 25 Dec 2005 09:27:51 +1100
-Message-Id: <1135463271.5611.3.camel@localhost.localdomain>
+	Sat, 24 Dec 2005 17:32:32 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:59081 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750742AbVLXWcb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 17:32:31 -0500
+Date: Sat, 24 Dec 2005 22:32:30 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Brad Boyer <flar@allandria.com>
+Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 33/36] m68k: drivers/scsi/mac53c94.c __iomem annotations
+Message-ID: <20051224223230.GV27946@ftp.linux.org.uk>
+References: <E1EpIQf-0004tx-Oh@ZenIV.linux.org.uk> <20051224215633.GA17645@pants.nu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051224215633.GA17645@pants.nu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-12-24 at 21:17 +0100, Pavel Machek wrote:
-> Hi!
+On Sat, Dec 24, 2005 at 01:56:33PM -0800, Brad Boyer wrote:
 > 
-> > Ok, I finally received my new laptop (PowerBook5,8 15"). I tried the
-> > latest patch you posted, and while the kernel driver seem to work ok
-> > (though you can feel the lack of a proper acceleration curve), the
-> > synaptics driver in X doesn't work in any useable way. I updated the one
-> > that comes with breezy to whatever was the latest on the author web site
-> > (.44 I think) and while it detected the tracpkad, the result was soooooo
-> > slooooow that it was totally unseable. I've tried the config tool that
-> > comes with KDE for it but couldn't "boost" it to anything useful. Is
-> > that expected or is there still issues to be resolved in the driver ?
-> > I'm tempted to add some minimum support for a proper acceleration curve
-> > in the kernel driver in fact...
-> 
-> I do not think you should add it inside *kernel*. Proper acceleration
-> support really belongs to X...
+> This is a ppc only driver at the moment. The m68k mac version is mac_esp.
+> I've been thinking about retrofitting this driver to use on the models
+> that can do DMA, but that will require me to finish some of the work I
+> have pending on the macio layer to get it working for nubus models.
 
-X, fbdev apps, gpm ... acceleration curves are typically done in HW,
-thus it makes sense in this case to have it in the kernel driver
-(besides, it should be fairly simple anyway) when it's in normal mode.
-When it's in raw mode for use by the synaptics X driver, if course, it's
-expected that those things are to be done by that driver.
+Ah, OK...  Will move to ppc queue next time I rediff that stuff...
 
-Ben.
+Speaking of mac_esp, there's a pending patch for NCR53C9x.c fixing PIO
+breakage in esp_do_data().
+		/* read fifo */
+		for(j=0;j<fifocnt;j++)
+			SCptr->SCp.ptr[i++] = esp_read(eregs->esp_fdata);
 
+is not a good thing to do when we set .ptr to (char *)virt_to_phys_(....).
 
+It works mostly by accident on e.g. 840AV, until you get a minimally
+non-trivial memory mapping.  The same thing happens on the write side.
+Fix is obvious (find phys_to_virt(SCptr->SCp.ptr) in the PIO branch
+and use it).  I've put that in -bird, will show up in tonight's snapshot...
+
+BTW, what's the situation with DMA on 840AV?  If you have any patches
+to test, I've got such box and being what it is, it's not tied by any
+work...

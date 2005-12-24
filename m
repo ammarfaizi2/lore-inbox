@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbVLXQPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbVLXQSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbVLXQPn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 11:15:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbVLXQPn
+	id S932123AbVLXQSM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 11:18:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbVLXQSM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 11:15:43 -0500
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:42430 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S932105AbVLXQPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 11:15:43 -0500
-Message-ID: <43AD73CF.1050502@gentoo.org>
-Date: Sat, 24 Dec 2005 16:14:07 +0000
-From: Daniel Drake <dsd@gentoo.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051223)
+	Sat, 24 Dec 2005 11:18:12 -0500
+Received: from uproxy.gmail.com ([66.249.92.207]:32362 "EHLO uproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932123AbVLXQSL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 11:18:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:disposition-notification-to:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=WfXo0fVZx7rEwIa091C3LROj5hqNqMSBBA+5UDDHSuHZlQN2oMF4Knu420BnUSsJi4XNWiaMWB8/dtQpzENY3jCnV+6/cCqzOrzt06pBaiHDiKr1Fray23ymME7L/obyJ++VcPRJ4Riiwt9ux0VnfOnh8toTcq7jtjdHK4uVYN8=
+Message-ID: <43AD744D.8010404@gmail.com>
+Date: Sat, 24 Dec 2005 18:16:13 +0200
+From: Alon Bar-Lev <alon.barlev@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051015)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Greg Kroah-Hartman <gregkh@suse.de>
-CC: linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       venkatesh.pallipadi@intel.com
-Subject: Re: [patch 01/19] ACPI: Add support for FADT P_LVL2_UP flag
-References: <20051223221200.342826000@press.kroah.org> <20051223224737.GA19057@kroah.com>
-In-Reply-To: <20051223224737.GA19057@kroah.com>
+To: Daniel Jacobowitz <dan@debian.org>
+CC: Lee Revell <rlrevell@joe-job.com>, David Wagner <daw@cs.berkeley.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Question] LinuxThreads, setuid - Is there user mode hook?
+References: <200512222312.jBMNCj96018554@taverner.CS.Berkeley.EDU> <43ABC8B2.7020904@gmail.com> <1135364939.22177.15.camel@mindpipe> <20051223202105.GA32321@nevyn.them.org> <1135370197.22177.40.camel@mindpipe> <20051223203347.GA32589@nevyn.them.org>
+In-Reply-To: <20051223203347.GA32589@nevyn.them.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Kroah-Hartman wrote:
-> -stable review patch.  If anyone has any objections, please let us know.
+Daniel Jacobowitz wrote:
+> On Fri, Dec 23, 2005 at 03:36:37PM -0500, Lee Revell wrote:
 > 
-> ------------------
-> From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+>>On Fri, 2005-12-23 at 15:21 -0500, Daniel Jacobowitz wrote:
+>>
+>>>On Fri, Dec 23, 2005 at 02:08:58PM -0500, Lee Revell wrote:
+>>>
+>>>>Why on earth would you use LinuxThreads rather than NPTL?  LinuxThreads
+>>>>is obsolete and was never remotely POSIX compliant.
+>>>
+>>>You have the strangest ideas of obsolete.  NPTL has only been usable
+>>>for two years.  Software lifecycles can be a lot longer than that.
+>>>
+>>
+>>I'm not telling you to stop supporting legacy apps, I'm just saying it's
+>>insane to start a project now and target LinuxThreads rather than NPTL
+>>which is what it sounded like the OP was doing.
 > 
-> [ACPI] Add support for FADT P_LVL2_UP flag
-> which tells us if C2 is valid for UP-only, or SMP.
 > 
-> As there is no separate bit for C3,  use P_LVL2_UP
-> bit to cover both C2 and C3.
-> 
-> http://bugzilla.kernel.org/show_bug.cgi?id=5165
+> Applications have to run on existing platforms and work with existing
+> software, as I'm sure you know.  If someone anywhere in the food chain
+> isn't ready for NPTL, a project can easily be stuck with LT for another
+> few years.
 > 
 
-Sorry, we should probably drop this one (and #2) again. The required 3rd 
-patch was only recently added to Linus' tree and I didn't get a chance 
-to send it to you.
+Thank you for your comments!
 
-I also have a report that even with the 3rd patch the problem is still 
-there:
+Unfortunately I cannot force the users to move into NPTL... 
+So I thought I will create some kind of a workaround...
 
-http://bugs.gentoo.org/show_bug.cgi?id=115781
+So back to my original question... Can I be notified if the 
+main setuid?
 
-I'm now wondering if that is related to the option that Pavel just 
-pointed out. I'll be sending that bug upstream once we have more details.
+My other solution is to poll the pid of the main program for 
+this event.
 
-Daniel
+Best Regards,
+Alon Bar-Lev.

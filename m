@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVLXTwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbVLXT4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbVLXTwz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 14:52:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbVLXTwy
+	id S1750703AbVLXT4e (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 14:56:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbVLXT4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 14:52:54 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:4331 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750701AbVLXTww (ORCPT
+	Sat, 24 Dec 2005 14:56:34 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:5302 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S1750703AbVLXT4e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 14:52:52 -0500
-Date: Sat, 24 Dec 2005 11:52:25 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, Ayaz Abdulla <AAbdulla@nvidia.com>,
+	Sat, 24 Dec 2005 14:56:34 -0500
+Message-ID: <43ADA7D0.9010908@colorfullife.com>
+Date: Sat, 24 Dec 2005 20:56:00 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Jeff Garzik <jgarzik@pobox.com>, Ayaz Abdulla <AAbdulla@nvidia.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Netdev <netdev@oss.sgi.com>
 Subject: Re: [PATCH] forcedeth: fix random memory scribbling bug
-In-Reply-To: <43AD4ADC.8050004@colorfullife.com>
-Message-ID: <Pine.LNX.4.64.0512241145520.14098@g5.osdl.org>
-References: <43AD4ADC.8050004@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <43AD4ADC.8050004@colorfullife.com> <Pine.LNX.4.64.0512241145520.14098@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0512241145520.14098@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
 
-
-On Sat, 24 Dec 2005, Manfred Spraul wrote:
+>Of course, on the alloc path, it seems to add an additional 
+>"NV_RX_ALLOC_PAD" thing, so maybe the "end-data" thing makes sense.
 >
-> Two critical bugs were found in forcedeth 0.47:
-> - TSO doesn't work.
-> - pci_map_single() for the rx buffers is called with size==0. This bug is
-> critical, it causes random memory corruptions on systems with an iommu.
+>  
+>
+The problem is the pci_unmap_single() call that happens during 
+nv_close() or the rx interrupt handler. I think it makes more sense to 
+rely on fields in the individual skb instead of reading from 
+np->rx_buf_sz. If np->rx_buf_sz changes inbetween, then we have a memory 
+leak.
 
-Good catch. Btw, should we perhaps disallow (or at least WARN_ON()) 
-pci_map_single() with a length of zero? I think it's always likely a bug..
-
-However, that
-
-	"skb->end - skb->data"
-
-calculation is a bit strange. It correctly maps the whole skb, but 
-wouldn't it make more sense to use the length we actually tell the card to 
-use? 
-
-In other words, wouldn't it be a whole lot more sensible and logical to 
-use
-
-	np->rx_buf_sz
-
-instead? That's the value we use for allocation and that's the size we 
-tell the card we have.
-
-Of course, on the alloc path, it seems to add an additional 
-"NV_RX_ALLOC_PAD" thing, so maybe the "end-data" thing makes sense.
-
-		Linus
+--
+    Manfred

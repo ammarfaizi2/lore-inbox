@@ -1,34 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbVLXPKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbVLXPJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbVLXPKo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 10:10:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbVLXPKo
+	id S1750767AbVLXPJp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 10:09:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbVLXPJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 10:10:44 -0500
-Received: from lucidpixels.com ([66.45.37.187]:51596 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S1750786AbVLXPKo (ORCPT
+	Sat, 24 Dec 2005 10:09:45 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:26310 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750767AbVLXPJo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 10:10:44 -0500
-Date: Sat, 24 Dec 2005 10:10:27 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p34
-To: linux-kernel@vger.kernel.org
-Subject: Tape Drive Question (2.6.14.4)
-Message-ID: <Pine.LNX.4.64.0512241009230.2904@p34>
+	Sat, 24 Dec 2005 10:09:44 -0500
+Message-ID: <43AD64AB.2070306@pobox.com>
+Date: Sat, 24 Dec 2005 10:09:31 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Manfred Spraul <manfred@colorfullife.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Ayaz Abdulla <AAbdulla@nvidia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: [PATCH] forcedeth: fix random memory scribbling bug
+References: <43AD4ADC.8050004@colorfullife.com>
+In-Reply-To: <43AD4ADC.8050004@colorfullife.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Manfred Spraul wrote: > Two critical bugs were found in
+	forcedeth 0.47: > - TSO doesn't work. > - pci_map_single() for the rx
+	buffers is called with size==0. This bug > is critical, it causes
+	random memory corruptions on systems with an iommu. > > Below is a
+	minimal fix for both bugs, for inclusion into 2.6.15. > TSO will be
+	fixed properly in the next version. > Tested on x86-64. > >
+	Signed-Off-By: Manfred Spraul <manfred@colorfullife.com> [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-$ ls -l /dev/st0*
-crw-rw-rw-  1 root tape 9,  0 2004-09-18 07:51 /dev/st0
-crw-rw-rw-  1 root tape 9, 96 2004-09-18 07:51 /dev/st0a
-crw-rw-rw-  1 root tape 9, 32 2004-09-18 07:51 /dev/st0l
-crw-rw-rw-  1 root tape 9, 64 2004-09-18 07:51 /dev/st0m
+Manfred Spraul wrote:
+> Two critical bugs were found in forcedeth 0.47:
+> - TSO doesn't work.
+> - pci_map_single() for the rx buffers is called with size==0. This bug 
+> is critical, it causes random memory corruptions on systems with an iommu.
+> 
+> Below is a minimal fix for both bugs, for inclusion into 2.6.15.
+> TSO will be fixed properly in the next version.
+> Tested on x86-64.
+> 
+> Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
 
-What differentiates st0 from a,l,m?
-What does writing or reading to a tape using a,l,m signify?
+1) Why does forcedeth require a non-standard calculation for each 
+pci_map_single() call?
 
-I cannot seem to find any documentation clearly stating this.
+2) I have requested multiple times that you avoid MIME...
 
-Justin.
+3) Why disable TSO completely?  It sounds like it should default to off, 
+then permit enabling via ethtool.
+
+	Jeff
+
+
+

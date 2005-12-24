@@ -1,43 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbVLXSNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932228AbVLXStO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbVLXSNp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 13:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbVLXSNp
+	id S932228AbVLXStO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 13:49:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932268AbVLXStO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 13:13:45 -0500
-Received: from lixom.net ([66.141.50.11]:58803 "EHLO mail.lixom.net")
-	by vger.kernel.org with ESMTP id S932199AbVLXSNo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 13:13:44 -0500
-Date: Sat, 24 Dec 2005 12:13:26 -0600
-To: Jack Steiner <steiner@sgi.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] - Fix memory ordering problem in wake_futex()
-Message-ID: <20051224181325.GH24601@pb15.lixom.net>
-References: <20051223163816.GA30906@sgi.com> <20051224134523.GA7187@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051224134523.GA7187@sgi.com>
-User-Agent: Mutt/1.5.9i
-From: Olof Johansson <olof@lixom.net>
+	Sat, 24 Dec 2005 13:49:14 -0500
+Received: from pv105234.reshsg.uci.edu ([128.195.105.234]:45742 "HELO
+	pv105234.reshsg.uci.edu") by vger.kernel.org with SMTP
+	id S932228AbVLXStO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 13:49:14 -0500
+Message-ID: <43AD981F.80202@feise.com>
+Date: Sat, 24 Dec 2005 10:49:03 -0800
+From: Joe Feise <jfeise@feise.com>
+Reply-To: jfeise@feise.com
+Organization: feise.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20051025 Thunderbird/1.5 Mnenhy/0.7.3.0
+MIME-Version: 1.0
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: mouse issues in 2.6.15-rc5-mm series
+References: <43ACEE14.7060507@feise.com> <200512241256.52189.dtor_core@ameritech.net>
+In-Reply-To: <200512241256.52189.dtor_core@ameritech.net>
+X-Enigmail-Version: 0.93.2.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig730924FC6852BF9222ED0390"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig730924FC6852BF9222ED0390
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Dec 24, 2005 at 07:45:23AM -0600, Jack Steiner wrote:
-> This patch is identical to the first patch except I used smp_wmb() instead
-> of wmb(). Ordering doen't matter on non-SMP kernels.
+Dmitry Torokhov wrote on 12/24/05 09:56:
 
-Ok, I guess I was wrong -- there's no guarantee that protects stuff from
-bleeding into a critical region from after it. Comments in line 54-58 of
-kernel/wait.c seems to imply this. Nevermind the fact that most other
-architectures seem to protect it anyway. :-)
+> On Saturday 24 December 2005 01:43, Joe Feise wrote:
+>> [Note: please cc me on answers since I'm not subscribed to the kernel =
+list]
+>>
+>> I am experiencing problems with mouse resyncing in the -mm series.
+>> This is a Logitech wheel mouse connected through a KVM.
+>> Symptom: whenever the mouse isn't moved for some seconds, it doesn't
+>> react to movement for a second, and then resyncs. Sometimes, the
+>> resyncing results in the mouse pointer jumping, which as far as I
+>> know is a protocol mismatch.
+>> While searching for reports of similar problems, I came across
+>> Frank Sorenson's post from Nov. 23 (http://lkml.org/lkml/2005/11/23/53=
+3).
+>> Like in his case, reverting
+>> input-attempt-to-re-synchronize-mouse-every-5-seconds.patch
+>> resulted in a kernel without this problem.
+>>
+>=20
+> Joe,
+>=20
+> Instead of reverting input-attempt-to-re-synchronize-mouse-every-5-seco=
+nds
+> patch could youplease drop the patch below on top of -mm.
+>=20
+> Jet me know if your mouse stays synchronized. Thanks!
+>=20
 
-However, please do fix the comment earlier in the function that implies
-that the unlock does indeed do enough barriers while you're at it,
-since it seems to be incorrect and misleading.
+
+Dmitry,
+
+thanks, that patch works. The mouse stays synchronized.
+
+-Joe
 
 
--Olof
+
+--------------enig730924FC6852BF9222ED0390
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFDrZgiKc8oZ1MoTeoRAmLZAKCyRIQEzpgatFcEifJ3w4XOgEpf9wCeIQuS
+xfJln1lA4G5aXLWDnC9HeH4=
+=4DRk
+-----END PGP SIGNATURE-----
+
+--------------enig730924FC6852BF9222ED0390--

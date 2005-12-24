@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161166AbVLXGnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161016AbVLXHqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161166AbVLXGnj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 01:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbVLXGnj
+	id S1161016AbVLXHqT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 02:46:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161170AbVLXHqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 01:43:39 -0500
-Received: from pv105234.reshsg.uci.edu ([128.195.105.234]:47561 "HELO
-	pv105234.reshsg.uci.edu") by vger.kernel.org with SMTP
-	id S932510AbVLXGnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 01:43:39 -0500
-Message-ID: <43ACEE14.7060507@feise.com>
-Date: Fri, 23 Dec 2005 22:43:32 -0800
-From: Joe Feise <jfeise@feise.com>
-Reply-To: jfeise@feise.com
-Organization: feise.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20051025 Thunderbird/1.5 Mnenhy/0.7.3.0
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: mouse issues in 2.6.15-rc5-mm series
-X-Enigmail-Version: 0.93.2.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE91DBA78C7D59CBE9AA968A9"
+	Sat, 24 Dec 2005 02:46:19 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:42961
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1161016AbVLXHqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 02:46:19 -0500
+Date: Fri, 23 Dec 2005 23:46:22 -0800 (PST)
+Message-Id: <20051223.234622.14020212.davem@davemloft.net>
+To: hugh@veritas.com
+Cc: torvalds@osdl.org, michael.bishop@APPIQ.com, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au
+Subject: Re: More info for DSM w/r/t sunffb on 2.6.15-rc6
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <Pine.LNX.4.61.0512240104440.17764@goblin.wat.veritas.com>
+References: <Pine.LNX.4.64.0512231223040.14098@g5.osdl.org>
+	<20051223.154509.86780332.davem@davemloft.net>
+	<Pine.LNX.4.61.0512240104440.17764@goblin.wat.veritas.com>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE91DBA78C7D59CBE9AA968A9
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+From: Hugh Dickins <hugh@veritas.com>
+Date: Sat, 24 Dec 2005 01:21:07 +0000 (GMT)
 
-[Note: please cc me on answers since I'm not subscribed to the kernel lis=
-t]
+> That certainly gets my vote: it should work around the bug correctly
+> and effectively without adding any complexity.
 
-I am experiencing problems with mouse resyncing in the -mm series.
-This is a Logitech wheel mouse connected through a KVM.
-Symptom: whenever the mouse isn't moved for some seconds, it doesn't
-react to movement for a second, and then resyncs. Sometimes, the
-resyncing results in the mouse pointer jumping, which as far as I
-know is a protocol mismatch.
-While searching for reports of similar problems, I came across
-Frank Sorenson's post from Nov. 23 (http://lkml.org/lkml/2005/11/23/533).=
+And it's even tested successfully :-)
 
-Like in his case, reverting
-input-attempt-to-re-synchronize-mouse-every-5-seconds.patch
-resulted in a kernel without this problem.
+There is an obscure program I wrote a long time ago, which
+Michael Bishop spotted, which is in very limited use and doesn't
+fall back to MAP_SHARED properly.  But that obscure tool can
+be fixed.
 
--Joe
+> Though really the check ought to be in the sparc and sparc64
+> io_remap_pfn_range, which are the guilty parties giving shared write
+> access even when none has been asked for.  But I guess it's too risky
+> to add failures or change behaviour down there at this stage.
 
+That's a bit too far reaching right now.
 
+> Those "prot = __pgprot(pg_iobits);" lines - any idea why they ever
+> got inserted?  I guess to add _PAGE_E in the sparc64 case, and
+> whatever the equivalent was in the earlier sparc cases?
+> Can they safely be corrected early in 2.6.16?
 
-
-
---------------enigE91DBA78C7D59CBE9AA968A9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFDrO4UKc8oZ1MoTeoRAriIAKC1kITqea9ei+PIqfcedJz/ECdFCwCgna9+
-XX74ooa+/O0UWK40gxOXzCA=
-=7Lu1
------END PGP SIGNATURE-----
-
---------------enigE91DBA78C7D59CBE9AA968A9--
+Corrected?  By that you mean removed?  We have so many hacks
+in the tree dealing with this kind of stuff.  For example,
+pgprot_noncached() as used by things like snd_pccm_lib_mmap_iomem().
+And the uses of that conditionalize with an ifdef, which is how
+we get half-implemented interfaces like this which you can't
+use consistently, oh and wo' be to the person who defines that
+using an inline function and wonders why it never gets ued :-/

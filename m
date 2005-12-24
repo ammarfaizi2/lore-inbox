@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751248AbVLXQhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVLXRcf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751248AbVLXQhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 11:37:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751247AbVLXQhZ
+	id S1751247AbVLXRcf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 12:32:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVLXRcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 11:37:25 -0500
-Received: from mail.tv-sign.ru ([213.234.233.51]:60896 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S1751246AbVLXQhZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 11:37:25 -0500
-Message-ID: <43AD8AF6.387B357A@tv-sign.ru>
-Date: Sat, 24 Dec 2005 20:52:54 +0300
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sat, 24 Dec 2005 12:32:35 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:20154 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S1751247AbVLXRce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 12:32:34 -0500
+Message-ID: <43AD8631.1090605@comcast.net>
+Date: Sat, 24 Dec 2005 12:32:33 -0500
+From: Andy Stewart <andystewart@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ravikiran Thirumalai <kiran@scalex86.org>,
-       Shai Fultheim <shai@scalex86.org>, Nippun Goel <nippung@calsoftinc.com>
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [rfc][patch] Avoid taking global tasklist_lock for single threaded 
- process at getrusage()
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Machine check 2.6.13.3 dual opteron
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ravikiran G Thirumalai wrote:
->
-> +int getrusage_both(struct task_struct *p, struct rusage __user *ru)
->  {
-> +	unsigned long flags;
-> +	int lockflag = 0;
-> +	cputime_t utime, stime;
->  	struct rusage r;
-> -	read_lock(&tasklist_lock);
-> -	k_getrusage(p, who, &r);
-> -	read_unlock(&tasklist_lock);
-> +	struct task_struct *t;
-> +	memset((char *) &r, 0, sizeof (r));
-> +
-> +	if (unlikely(!p->signal))
-> +		 return copy_to_user(ru, &r, sizeof(r)) ? -EFAULT : 0;
-> +
-> +	if (!thread_group_empty(p)) {
-> +		read_lock(&tasklist_lock);
-> +		lockflag = 1;
-> +	}
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I can't understand this. 'p' can do clone(CLONE_THREAD) immediately
-after 'if (!thread_group_empty(p))' check.
 
-> +	spin_lock_irqsave(&p->sighand->siglock, flags);
+Hi everybody,
 
-It is unsafe to do (unless p == current or tasklist held) even if
-'p' is the only one process in the thread group.
+My machine locked up on me and I found this message on my serial
+console.  I have no idea how to decode its meaning - can you help?
 
-p->sighand can be changed (and even freed) if 'p' does exec, see
-de_thread().
+CPU 0: Machine Check Exception:                4
+Bank 4: b200000000070f0f
+TSC 39619ee1e2187
+Kernel panic - not syncing: Machine check
 
-p->sighand may be NULL , nothing prevents 'p' from release_task(p).
-This patch checks p->signal, but this is meaningless unless it was
-done under tasklist_lock.
+My machine is a dual Opteron running the 2.6.13.3 kernel.  I'm not
+positive, but I think I can reproduce it.  Assuming that I can, what
+information would be helpful to debug the problem?
 
-Oleg.
+Please cc: me on the response as I am not subscribed to this mailing list.
+
+Thanks!
+
+Andy
+- --
+Andy Stewart, Founder
+Worcester Linux Users' Group
+Worcester, MA, USA
+http://www.wlug.org
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFDrYYxHl0iXDssISsRAjONAJ9zoU0vSmikAkMqmQI2po0Jp9E83QCghO/M
+Zxq/FKaldR1hzyrJqiJ+sMg=
+=gdcL
+-----END PGP SIGNATURE-----

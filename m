@@ -1,62 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751247AbVLXRcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932149AbVLXR5A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751247AbVLXRcf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 12:32:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbVLXRcf
+	id S932149AbVLXR5A (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 12:57:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbVLXR5A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 12:32:35 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:20154 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1751247AbVLXRce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 12:32:34 -0500
-Message-ID: <43AD8631.1090605@comcast.net>
-Date: Sat, 24 Dec 2005 12:32:33 -0500
-From: Andy Stewart <andystewart@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
-X-Accept-Language: en-us, en
+	Sat, 24 Dec 2005 12:57:00 -0500
+Received: from smtp105.sbc.mail.re2.yahoo.com ([68.142.229.100]:58517 "HELO
+	smtp105.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S932150AbVLXR47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 12:56:59 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: jfeise@feise.com
+Subject: Re: mouse issues in 2.6.15-rc5-mm series
+Date: Sat, 24 Dec 2005 12:56:51 -0500
+User-Agent: KMail/1.8.3
+Cc: linux-kernel@vger.kernel.org
+References: <43ACEE14.7060507@feise.com>
+In-Reply-To: <43ACEE14.7060507@feise.com>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Machine check 2.6.13.3 dual opteron
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512241256.52189.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Saturday 24 December 2005 01:43, Joe Feise wrote:
+> [Note: please cc me on answers since I'm not subscribed to the kernel list]
+> 
+> I am experiencing problems with mouse resyncing in the -mm series.
+> This is a Logitech wheel mouse connected through a KVM.
+> Symptom: whenever the mouse isn't moved for some seconds, it doesn't
+> react to movement for a second, and then resyncs. Sometimes, the
+> resyncing results in the mouse pointer jumping, which as far as I
+> know is a protocol mismatch.
+> While searching for reports of similar problems, I came across
+> Frank Sorenson's post from Nov. 23 (http://lkml.org/lkml/2005/11/23/533).
+> Like in his case, reverting
+> input-attempt-to-re-synchronize-mouse-every-5-seconds.patch
+> resulted in a kernel without this problem.
+>
 
+Joe,
 
-Hi everybody,
+Instead of reverting input-attempt-to-re-synchronize-mouse-every-5-seconds
+patch could youplease drop the patch below on top of -mm.
 
-My machine locked up on me and I found this message on my serial
-console.  I have no idea how to decode its meaning - can you help?
+Jet me know if your mouse stays synchronized. Thanks!
 
-CPU 0: Machine Check Exception:                4
-Bank 4: b200000000070f0f
-TSC 39619ee1e2187
-Kernel panic - not syncing: Machine check
+-- 
+Dmitry
 
-My machine is a dual Opteron running the 2.6.13.3 kernel.  I'm not
-positive, but I think I can reproduce it.  Assuming that I can, what
-information would be helpful to debug the problem?
+ drivers/input/mouse/psmouse-base.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-Please cc: me on the response as I am not subscribed to this mailing list.
-
-Thanks!
-
-Andy
-- --
-Andy Stewart, Founder
-Worcester Linux Users' Group
-Worcester, MA, USA
-http://www.wlug.org
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFDrYYxHl0iXDssISsRAjONAJ9zoU0vSmikAkMqmQI2po0Jp9E83QCghO/M
-Zxq/FKaldR1hzyrJqiJ+sMg=
-=gdcL
------END PGP SIGNATURE-----
+Index: linux/drivers/input/mouse/psmouse-base.c
+===================================================================
+--- linux.orig/drivers/input/mouse/psmouse-base.c
++++ linux/drivers/input/mouse/psmouse-base.c
+@@ -1029,6 +1029,23 @@ static int psmouse_switch_protocol(struc
+ 	else
+ 		psmouse->type = psmouse_extensions(psmouse, psmouse_max_proto, 1);
+ 
++	/*
++	 * If mouse's packet size is 3 there is no point in polling the
++	 * device in hopes to detect protocol reset - we won't get less
++	 * than 3 bytes response anyhow.
++	 */
++	if (psmouse->pktsize == 3)
++		psmouse->resync_time = 0;
++
++	/*
++	 * Some smart KVMs fake response to POLL command returning just
++	 * 3 bytes and messing up our resync logic, so if initial poll
++	 * fails we won't try polling the device anymore. Hopefully
++	 * such KVM will maintain initially selected protocol.
++	 */
++	if (psmouse->resync_time && psmouse->poll(psmouse))
++		psmouse->resync_time = 0;
++
+ 	sprintf(psmouse->devname, "%s %s %s",
+ 		psmouse_protocol_by_type(psmouse->type)->name, psmouse->vendor, psmouse->name);
+ 

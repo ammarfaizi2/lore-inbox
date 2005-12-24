@@ -1,71 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbVLXPJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbVLXPOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750767AbVLXPJp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 10:09:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750786AbVLXPJp
+	id S1750968AbVLXPOD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 10:14:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751003AbVLXPOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 10:09:45 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:26310 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750767AbVLXPJo (ORCPT
+	Sat, 24 Dec 2005 10:14:03 -0500
+Received: from havoc.gtf.org ([69.61.125.42]:64937 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1750968AbVLXPOB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 10:09:44 -0500
-Message-ID: <43AD64AB.2070306@pobox.com>
-Date: Sat, 24 Dec 2005 10:09:31 -0500
+	Sat, 24 Dec 2005 10:14:01 -0500
+Date: Sat, 24 Dec 2005 10:13:57 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Manfred Spraul <manfred@colorfullife.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Ayaz Abdulla <AAbdulla@nvidia.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@oss.sgi.com>
-Subject: Re: [PATCH] forcedeth: fix random memory scribbling bug
-References: <43AD4ADC.8050004@colorfullife.com>
-In-Reply-To: <43AD4ADC.8050004@colorfullife.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Manfred Spraul wrote: > Two critical bugs were found in
-	forcedeth 0.47: > - TSO doesn't work. > - pci_map_single() for the rx
-	buffers is called with size==0. This bug > is critical, it causes
-	random memory corruptions on systems with an iommu. > > Below is a
-	minimal fix for both bugs, for inclusion into 2.6.15. > TSO will be
-	fixed properly in the next version. > Tested on x86-64. > >
-	Signed-Off-By: Manfred Spraul <manfred@colorfullife.com> [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [git patch] libata fix
+Message-ID: <20051224151357.GA16841@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> Two critical bugs were found in forcedeth 0.47:
-> - TSO doesn't work.
-> - pci_map_single() for the rx buffers is called with size==0. This bug 
-> is critical, it causes random memory corruptions on systems with an iommu.
-> 
-> Below is a minimal fix for both bugs, for inclusion into 2.6.15.
-> TSO will be fixed properly in the next version.
-> Tested on x86-64.
-> 
-> Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
 
-1) Why does forcedeth require a non-standard calculation for each 
-pci_map_single() call?
+Please pull from 'upstream-fixes' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
-2) I have requested multiple times that you avoid MIME...
+to receive the following updates:
 
-3) Why disable TSO completely?  It sounds like it should default to off, 
-then permit enabling via ethtool.
+ drivers/scsi/libata-scsi.c |    5 +----
+ 1 files changed, 1 insertion(+), 4 deletions(-)
 
-	Jeff
+Tony Battersby:
+      fix libata inquiry VPD for ATAPI devices
 
-
-
+diff --git a/drivers/scsi/libata-scsi.c b/drivers/scsi/libata-scsi.c
+index 72ddba9..2282c04 100644
+--- a/drivers/scsi/libata-scsi.c
++++ b/drivers/scsi/libata-scsi.c
+@@ -2044,7 +2044,7 @@ static int atapi_qc_complete(struct ata_
+ 	else {
+ 		u8 *scsicmd = cmd->cmnd;
+ 
+-		if (scsicmd[0] == INQUIRY) {
++		if ((scsicmd[0] == INQUIRY) && ((scsicmd[1] & 0x03) == 0)) {
+ 			u8 *buf = NULL;
+ 			unsigned int buflen;
+ 
+@@ -2058,9 +2058,6 @@ static int atapi_qc_complete(struct ata_
+ 	 * device.  2) Ensure response data format / ATAPI information
+ 	 * are always correct.
+ 	 */
+-	/* FIXME: do we ever override EVPD pages and the like, with
+-	 * this code?
+-	 */
+ 			if (buf[2] == 0) {
+ 				buf[2] = 0x5;
+ 				buf[3] = 0x32;

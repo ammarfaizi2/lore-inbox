@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422642AbVLXJvP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422655AbVLXKQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422642AbVLXJvP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 04:51:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422647AbVLXJvP
+	id S1422655AbVLXKQs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 05:16:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422654AbVLXKQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 04:51:15 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:63707 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1422642AbVLXJvP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 04:51:15 -0500
-Date: Sat, 24 Dec 2005 09:51:14 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCHSET] 2.6.15-rc6-bird3
-Message-ID: <20051224095114.GU27946@ftp.linux.org.uk>
-References: <20051222101523.GP27946@ftp.linux.org.uk> <20051223093146.GT27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051223093146.GT27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Sat, 24 Dec 2005 05:16:48 -0500
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:14758 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S1422652AbVLXKQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 05:16:47 -0500
+Message-ID: <43AD2003.3060609@op5.se>
+Date: Sat, 24 Dec 2005 11:16:35 +0100
+From: Andreas Ericsson <ae@op5.se>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Junio C Hamano <junkio@cox.net>
+CC: Ingo Oeser <ioe-lkml@rameria.de>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "H. Peter Anvin" <hpa@zytor.com>, git@vger.kernel.org
+Subject: Re: [ANNOUNCE] GIT 1.0.0b quickfix
+References: <7vpsnq3wrg.fsf@assigned-by-dhcp.cox.net>	<1135244363.10035.185.camel@gaston>	<Pine.LNX.4.64.0512220945450.4827@g5.osdl.org>	<200512231712.40621.ioe-lkml@rameria.de> <7vu0cyu8vj.fsf@assigned-by-dhcp.cox.net>
+In-Reply-To: <7vu0cyu8vj.fsf@assigned-by-dhcp.cox.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Updated version:
-ftp://ftp.linux.org.uk/pub/people/viro/patch-2.6.15-rc6-bird3.bz2
+Junio C Hamano wrote:
+> 
+> *1* Which one is the heaviest, 5h, 3kg, or 20cm?
+> 
 
-URL of splitup: same place, bird-mbox.
+5h, without a doubt. Because time can be broken down into infinitely 
+small pieces and encompasses all the matter in the universe it will 
+always be heavier and larger than any measurement relating to 3 
+dimensions or less.
 
-New target added to tracked set: sun3 (which completes m68k coverage).
-Patches in befs series are only beginning - there's more to do to get
-it endian-clean.  Tomorrow...  As an aside, fs/befs is a nice demonstration
-of the typedef uses that can go wrong...
+Beware of rhetorical questions around people with hangovers in a 
+philosohopical mood. ;)
 
-BTW, sun3 had exposed an ld(1) bug - mixing PHDRS, large holes in segments
-and nobits sections in the end of segments after such holes can make ld(1)
-forget to map such sections into any segment.  If you've seen strip(1)
-complaining about .bss - that's what it is.  After fixing init_task reference
-in vmlinux-sun3.lds it doesn't trigger that bug anymore, but binutils
-still needs fixing; if nobody beats me to it I'll see what can be done
-about that crap...
- 
-Changes since yesterday snapshot:
-
-Al Viro:
-      m68k: fix reference to init_task in vmlinux-sun3.lds
-      m68k: fix macfb init
-      affs_fill_super() %s abuses
-      befs: remove bogus typedef
-      befs: prepare to sanitizing headers
-      befs: introduce on-disk endian types
-      befs: missing fs32_to_cpu() in debug.c
-
-Alexey Dobriyan:
-      eisa_eeprom.c: __user annotations
-      parisc: add __iomem to __raw_check_addr()
-      include/asm-parisc/processor.h: C99 initializers
+-- 
+Andreas Ericsson                   andreas.ericsson@op5.se
+OP5 AB                             www.op5.se
+Tel: +46 8-230225                  Fax: +46 8-230231

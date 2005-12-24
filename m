@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030299AbVLXLie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbVLXLwE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030299AbVLXLie (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 06:38:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030544AbVLXLie
+	id S932106AbVLXLwE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 06:52:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932514AbVLXLwE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 06:38:34 -0500
-Received: from main.gmane.org ([80.91.229.2]:37054 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030299AbVLXLid (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 06:38:33 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Thomas Backlund <tmb@mandriva.org>
-Subject: Re: [PATCH] add missing memory barriers to ipc/sem.c
-Date: Sat, 24 Dec 2005 13:38:35 +0200
-Message-ID: <dojbve$5bq$1@sea.gmane.org>
-References: <43AC80E5.6050906@colorfullife.com>
+	Sat, 24 Dec 2005 06:52:04 -0500
+Received: from killerfox.home.forkbomb.ch ([213.144.146.167]:63974 "EHLO
+	killerfox.home.forkbomb.ch") by vger.kernel.org with ESMTP
+	id S932106AbVLXLwC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 06:52:02 -0500
+Date: Sat, 24 Dec 2005 12:52:20 +0100
+From: =?utf-8?B?UmVuw6k=?= Nussbaumer 
+	<linux-kernel@killerfox.forkbomb.ch>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Michael Hanselmann <linux-kernel@hansmi.ch>,
+       Stelian Pop <stelian@popies.net>,
+       Parag Warudkar <kernel-stuff@comcast.net>,
+       debian-powerpc@lists.debian.org,
+       linux-kernel <linux-kernel@vger.kernel.org>, linuxppc-dev@ozlabs.org,
+       johannes@sipsolutions.net
+Subject: Re: PowerBook5,8 - TrackPad update
+Message-ID: <20051224115219.GA5993@killerfox.forkbomb.ch>
+References: <111520052143.16540.437A5680000BE8A60000409C220076369200009A9B9CD3040A029D0A05@comcast.net> <70210ED5-37CA-40BC-8293-FF1DAA3E8BD5@comcast.net> <20051129000615.GA20843@hansmi.ch> <20051130223917.GA15102@hansmi.ch> <20051130234653.GB15102@hansmi.ch> <1133533712.23129.25.camel@localhost.localdomain> <20051204224221.GA28218@hansmi.ch> <1135382385.4542.8.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ndn243.bob.fi
-User-Agent: Thunderbird 1.5 (Windows/20051201)
-In-Reply-To: <43AC80E5.6050906@colorfullife.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TB36FDmn/VVEgNH/"
+Content-Disposition: inline
+In-Reply-To: <1135382385.4542.8.camel@gaston>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
-> Hi Linus,
-> 
-> Two smp_wmb() statements are missing in the sysv sem code: This could 
-> cause stack corruptions.
-> The attached patch adds them.
-> 
-> Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> --- 2.6/ipc/sem.c	2005-12-19 01:36:54.000000000 +0100
-> +++ build-2.6/ipc/sem.c	2005-12-23 23:25:17.000000000 +0100
-> @@ -381,6 +381,7 @@
->  			/* hands-off: q will disappear immediately after
->  			 * writing q->status.
->  			 */
-> +			smb_wmb();
 
-Typo? Shouldn't it be smp_wmb();
+--TB36FDmn/VVEgNH/
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->  			q->status = error;
->  			q = n;
->  		} else {
-> @@ -461,6 +462,7 @@
->  		n = q->next;
->  		q->status = IN_WAKEUP;
->  		wake_up_process(q->sleeper); /* doesn't sleep */
-> +		smp_wmb();
->  		q->status = -EIDRM;	/* hands-off q */
->  		q = n;
->  	}
+Hello
 
+On Sat, Dec 24, 2005 at 10:59:44AM +1100, Benjamin Herrenschmidt wrote:
+[...]
+> comes with KDE for it but couldn't "boost" it to anything useful. Is
+> that expected or is there still issues to be resolved in the driver ?
+> I'm tempted to add some minimum support for a proper acceleration curve
+> in the kernel driver in fact...
+
+I'd the same problem. A quick look into Xorg.0.log tells me, that the
+event device was missing. I created it manually and the acceleration and
+other feautres are working now. Maybe you've still the same problem?
+
+Ren=C3=A9
+--=20
+Written on a Gentoo Linux-system by Ren=C3=A9
+http://www.forkbomb.ch
+=C2=ABDas Leben ist hart. Forkbomb ist h=C3=A4rter.=C2=BB, (c) 2004 by Fran=
+k.
+
+--TB36FDmn/VVEgNH/
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDrTZzB1CkVTVL/Z8RAq9wAKCgLDX83nhvxg1zbo+jvsB0t+RmaQCgwKOa
+aHx60ukovJfD5Sa8vLkjUmU=
+=x1IE
+-----END PGP SIGNATURE-----
+
+--TB36FDmn/VVEgNH/--

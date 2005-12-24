@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbVLXVVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbVLXVYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbVLXVVm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 16:21:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbVLXVVm
+	id S1750732AbVLXVYs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 16:24:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbVLXVYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 16:21:42 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:17613 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750727AbVLXVVm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 16:21:42 -0500
-Date: Sat, 24 Dec 2005 22:21:38 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Clark Williams <williams@redhat.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.15-rc5-rt4 x86 patch
-In-Reply-To: <1135100583.3415.16.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0512242221130.29877@yvahk01.tjqt.qr>
-References: <1135100583.3415.16.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 24 Dec 2005 16:24:48 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:24471 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S1750728AbVLXVYr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 16:24:47 -0500
+Date: Sat, 24 Dec 2005 22:20:57 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Ayaz Abdulla <AAbdulla@nvidia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@vger.kernel.org
+Subject: Re: [PATCH] forcedeth: fix random memory scribbling bug
+Message-ID: <20051224212057.GA22117@electric-eye.fr.zoreil.com>
+References: <43AD4ADC.8050004@colorfullife.com> <Pine.LNX.4.64.0512241145520.14098@g5.osdl.org> <43ADA7D0.9010908@colorfullife.com> <Pine.LNX.4.64.0512241241230.14098@g5.osdl.org> <43ADB83A.4090005@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43ADB83A.4090005@pobox.com>
+User-Agent: Mutt/1.4.2.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik <jgarzik@pobox.com> :
+[...]
+> Paranoia -- the situation above never occurs.  It is coded as are other 
+> drivers:  np->rx_buf_sz only changes in ->change_mtu(), which (a) is 
+> serialized against close and (b) always stops the engine and drains RX 
+> skbs before changing the size.
 
->I still need the following to compile with PREEMPT_RT on an x86:
+Yep.
 
+Btw, regarding the "more sense" thing, now:
+- pci_{map/unmap}_single() uses skb->foo
+- nv_alloc_rx() and friends use np->rx_buf_sz
 
-Ah. Does that explain the big compile failure in lib/rwsem.c I just 
-stumbled over too?
+(thread moved to netdev@vger.kernel.org)
 
-
->
->--- ./arch/i386/Kconfig.cpu.orig        2005-12-20 11:26:34.000000000 -0600
->+++ ./arch/i386/Kconfig.cpu     2005-12-20 11:33:23.000000000 -0600
->@@ -229,11 +229,6 @@
->        depends on M386
->        default y
->
->-config RWSEM_XCHGADD_ALGORITHM
->-       bool
->-       depends on !M386
->-       default y
->-
-> config GENERIC_CALIBRATE_DELAY
->        bool
->        default y
-
-
-Jan Engelhardt
--- 
+--
+Ueimor

@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbVLXVio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbVLXVy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbVLXVio (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 16:38:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbVLXVio
+	id S1750733AbVLXVy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 16:54:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbVLXVy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 16:38:44 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:59092 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750728AbVLXVin (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 16:38:43 -0500
-Date: Sat, 24 Dec 2005 22:38:12 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Hans Kristian Rosbach <hk@isphuset.no>
-cc: Axel Kittenberger <axel.kittenberger@univie.ac.at>,
-       Marc Singer <elf@buici.com>, linux-kernel@vger.kernel.org
-Subject: Re: Possible Bootloader Optimization in inflate (get rid of 
- unnecessary 32k Window)
-In-Reply-To: <1135328036.23862.86.camel@linux>
-Message-ID: <Pine.LNX.4.61.0512242235140.29877@yvahk01.tjqt.qr>
-References: <200512221352.23393.axel.kernel@kittenberger.net> 
- <20051222173704.GB23411@buici.com>  <1167.81.217.14.229.1135275158.squirrel@webmail.univie.ac.at>
-  <20051222183012.GA27353@buici.com>  <1386.81.217.14.229.1135278280.squirrel@webmail.univie.ac.at>
- <1135328036.23862.86.camel@linux>
+	Sat, 24 Dec 2005 16:54:29 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:1974 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1750733AbVLXVy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 16:54:28 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: [PATCH] Have menuconfig use ncursesw
+Date: Sat, 24 Dec 2005 21:54:42 +0000
+User-Agent: KMail/1.9
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0512242240000.29877@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0512242240000.29877@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512242154.42189.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->> > Right.  And the time to perform that one copy is exactly...?
->> >
->> > I doubt that it is a significant percentage of the whole operation.
->> 
->> Well Yes I agree, I guess also it isn't. Its roughly the time you need to
->> copy 1 MB memory around.
+On Saturday 24 December 2005 21:42, Jan Engelhardt wrote:
+> Hi,
 >
->I would think this would be a welcome optimization for embedded
->platforms even if not included in mainline. Embedded platforms
->often dont have very fast memory, but nevertheless are
->required to boot ASAP.
+>
+> on vgacon (standard tty1 stuff) with UTF8 enabled, running make menuconfig
+> gives ascii-art lines `a la + - and |. I use the following patch to get
+> back the line graphics from the upper part of the font. AFAICS this should
+> have no impact on non-utf consoles. Include it in mainline?
+>
 
-Do old i386s count? I've got one that ran 2.6.11 perfectly (even w/o 
--tiny), but kernel decompression is what took most time. (At 3.00 bogomips, 
-the world looks quite different!)
+Not everybody has libncursesw, therefore such a patch should runtime detect 
+whether such a library is available before unconditionally linking against 
+it.
 
-
-Jan Engelhardt
 -- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

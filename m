@@ -1,114 +1,254 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161168AbVLXDzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932359AbVLXFPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161168AbVLXDzx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Dec 2005 22:55:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161169AbVLXDzx
+	id S932359AbVLXFPt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 00:15:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbVLXFPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Dec 2005 22:55:53 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:17385 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161168AbVLXDzx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Dec 2005 22:55:53 -0500
-Date: Fri, 23 Dec 2005 19:54:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Krufky <mkrufky@gmail.com>
-Cc: davidsen@tmr.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
-       axboe@suse.de, herbert@gondor.apana.org.au, michael.madore@gmail.com,
-       david-b@pacbell.net, gregkh@suse.de, paulmck@us.ibm.com, gohai@gmx.net,
-       luca.risolia@studio.unibo.it, p_christ@hol.gr
-Subject: Re: 2.6.15-rc6: known regressions in the kernel Bugzilla
-Message-Id: <20051223195455.3cc4b1a2.akpm@osdl.org>
-In-Reply-To: <37219a840512230932m5c371f80gbde4cf652bbd1728@mail.gmail.com>
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>
-	<20051222011320.GL3917@stusta.de>
-	<20051222005209.0b1b25ca.akpm@osdl.org>
-	<20051222135718.GA27525@stusta.de>
-	<20051222060827.dcd8cec1.akpm@osdl.org>
-	<43AC1791.1080806@tmr.com>
-	<37219a840512230932m5c371f80gbde4cf652bbd1728@mail.gmail.com>
-X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 24 Dec 2005 00:15:49 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:8039 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S932359AbVLXFPs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 00:15:48 -0500
+Date: Sat, 24 Dec 2005 00:15:44 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 00/11] mutex subsystem, -V7
+In-reply-to: <20051223161649.GA26830@elte.hu>
+X-X-Sender: nico@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Message-id: <Pine.LNX.4.64.0512240009270.26663@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20051223161649.GA26830@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Krufky <mkrufky@gmail.com> wrote:
->
-> On 12/23/05, Bill Davidsen <davidsen@tmr.com> wrote:
-> > Andrew Morton wrote:
-> > > Adrian Bunk <bunk@stusta.de> wrote:
-> > >
-> > >>not a post-2.6.14 regression
-> > >>
-> > >
-> > >
-> > > Well yeah.  But that doesn't mean thse things have lower priority that
-> > > post-2.6.14 regressions.
-> > >
-> > > I understand what you're doing here, but we should in general concentrate
-> > > upon the most severe bugs rather than upon the most recent..
-> >
-> > Hypocratic oath: "First, do no harm."
-> >
-> > If a new kernel version can't make things *better*, at least it
-> > shouldn't make them *worse*. New features are good, performance
-> > improvements are good, breaking working systems with an update is not good.
-> >
-> > I'm with Adrian on this, if you want people to test and report with -rc
-> > kernels, then there should be some urgency to addressing the reported
-> > problems.
-> 
-> I agree.  Quite frankly, I am extremely surprised that this matter is
-> even up for discussion.  Is it really so important to release 2.6.15
-> before the end of 2005 that we dont even have the time to fix
-> regressions that have already been reported in older kernels? 
+On Fri, 23 Dec 2005, Ingo Molnar wrote:
 
-No, the release dates aren't critical at all.
+> this is version -V7 of the generic mutex subsystem. It consists of the 
+> following 11 patches:
 
-The problem is that if we allow the release to be stalled by bugs it allows
-one sluggish maintainer to block the entire kernel.  At some point in time
-we do need to just give up and hope that the bug will get fixed in 2.6.x.y
-or that it'll just magically fix itself later on (this happens, for various
-reasons).
+Here's another one, allowing architecture specific trylock 
+implementations.  New generic xchg-based and ARMv6 implementations are 
+provided, while everything else remains the same.
 
-We get in the situation where lots of people are sitting there with arms
-folded, complaining about lack of a new kernel release while nobody is
-actually working on the bugs.  Nobody knows why this happens.
+Signed-off-by: Nicolas Pitre <nico@cam.org>
 
-> ESPECIALLY given that patches are said to be available?
-
-Things get lost.  If there's a patch which needs applying and we've missed
-it, please please please rediff it, add your Signed-off-by and loudly mail
-the thing out daily.
-
-> IMHO, I agree that new regressions are most important to fix, but I
-> feel that old regressions are extremely important to fix as well.  If
-> we know of more regressions that CAN be fixed before a kernel release,
-> why not do it?
-
-Fixing many of these things is not trivial, as I'm sure you know from
-personal experience.  The great majority are in drivers and, almost
-axiomatically, the guy who added the regression cannot reproduce it on his
-hardware (otherwise he wouldn't have shipped the diff).  So the debugging
-process involves drawn out to-and-fro with the reporter.  And it requires
-quite a bit of work by and help from the original reporter.  Depressingly,
-developers often just don't bother entering into this process in the first
-place and we shed another batch of mainline testers/users.
-
-> Why should there be any rush to release the next mainline version?  To
-> make it in time for Christmas?  A better Christmas gift to the world
-> would be a new release without regressions, be it a month late, who
-> cares?  (I know -- not likely, but at least we should try)
-
-We'll regularly hold up a release due to an identified set of bugs.  But if
-we do this we need to be very clear on what those bugs are and we need to
-be assured that there's a developer actively working on each bug and that
-the reporter is responding.  Without all of that in place, the whole
-release process would get stalled for arbitrary amounts of time.
-
-We need someone who does nothing but track and report upon bugs.  It would
-be a full-time job.  We don't have asuch a person.  We hope that individual
-maintainers and subsystem maintainers will track the bugs in their area of
-responsibility so that such a person is not necessary.  But the maintainers
-don't do this.  You see the result.
+Index: linux-2.6/include/asm-generic/mutex-xchg.h
+===================================================================
+--- linux-2.6.orig/include/asm-generic/mutex-xchg.h
++++ linux-2.6/include/asm-generic/mutex-xchg.h
+@@ -69,4 +69,38 @@ do {									\
+ 
+ #define __mutex_slowpath_needs_to_unlock()		0
+ 
++/**
++ * __mutex_trylock - try to acquire the mutex, without waiting
++ *
++ *  @count: pointer of type atomic_t
++ *
++ * Change the count from 1 to a value lower than 1, and return 0 (failure)
++ * if it wasn't 1 originally, or return 1 (success) otherwise. This function
++ * MUST leave the value lower than 1 even when the "1" assertion wasn't true.
++ * Additionally, if the value was < 0 originally, this function must not leave
++ * it to 0 on failure.
++ */
++static inline int
++__mutex_trylock(atomic_t *count)
++{
++	int prev = atomic_xchg(count, 0);
++
++	if (unlikely(prev < 0)) {
++		/*
++		 * The lock was marked contended so we must restore that
++		 * state. If while doing so we get back a prev value of 1
++		 * then we just own it.
++		 *
++		 * IN all cases this has the potential to trigger the
++		 * slowpath for the owner's unlock path - but this is not
++		 * a big problem in practice.
++		 */
++		prev = atomic_xchg(count, -1);
++		if (prev < 0)
++			prev = 0;
++	}
++
++	return prev;
++}
++
+ #endif
+Index: linux-2.6/include/asm-i386/mutex.h
+===================================================================
+--- linux-2.6.orig/include/asm-i386/mutex.h
++++ linux-2.6/include/asm-i386/mutex.h
+@@ -99,4 +99,38 @@ do {									\
+ 
+ #define __mutex_slowpath_needs_to_unlock()	1
+ 
++/**
++ * __mutex_trylock - try to acquire the mutex, without waiting
++ *
++ *  @count: pointer of type atomic_t
++ *
++ * Change the count from 1 to a value lower than 1, and return 0 (failure)
++ * if it wasn't 1 originally, or return 1 (success) otherwise. This function
++ * MUST leave the value lower than 1 even when the "1" assertion wasn't true.
++ * Additionally, if the value was < 0 originally, this function must not leave
++ * it to 0 on failure.
++ */
++static inline int
++__mutex_trylock(atomic_t *count)
++{
++	/*
++	 * We have two variants here. The cmpxchg based one is the best one
++	 * because it never induce a false contention state.
++	 * If not available we fall back to the atomic_dec_return variant.
++	 *
++	 * The atomic_dec_return variant might end up making the counter
++	 * negative in the failure case, which may trigger the slowpath
++	 * for the owner's unlock path - but this is not a big problem
++	 * in practice.
++	 */
++#ifdef __HAVE_ARCH_CMPXCHG
++	if (likely(atomic_cmpxchg(count, 1, 0)) == 1)
++		return 1;
++#else
++	if (likely(atomic_dec_return(count) == 0))
++		return 1;
++#endif
++	return 0;
++}
++
+ #endif
+Index: linux-2.6/include/asm-x86_64/mutex.h
+===================================================================
+--- linux-2.6.orig/include/asm-x86_64/mutex.h
++++ linux-2.6/include/asm-x86_64/mutex.h
+@@ -71,4 +71,21 @@ do {									\
+ 
+ #define __mutex_slowpath_needs_to_unlock()	1
+ 
++/**
++ * __mutex_trylock - try to acquire the mutex, without waiting
++ *
++ *  @count: pointer of type atomic_t
++ *
++ * Change the count from 1 to 0 and return 1 (success), or return 0 (failure)
++ * if it wasn't 1 originally.
++ */
++static inline int
++__mutex_trylock(atomic_t *count)
++{
++	if (likely(atomic_cmpxchg(count, 1, 0)) == 1)
++		return 1;
++	else
++		return 0;
++}
++
+ #endif
+Index: linux-2.6/kernel/mutex.c
+===================================================================
+--- linux-2.6.orig/kernel/mutex.c
++++ linux-2.6/kernel/mutex.c
+@@ -219,19 +219,6 @@ __mutex_lock_interruptible_nonatomic(str
+ 	return -EINTR;
+ }
+ 
+-/*
+- * We have three mutex_trylock() variants. The cmpxchg based one is
+- * the best one (because it has no side-effect on mutex_unlock()),
+- * but cmpxchg is not available on every architecture, so we also
+- * provide an atomic_dec_return based variant too. The debug variant
+- * takes the internal lock.
+- *
+- * [ The atomic_dec_return variant might end up making the counter
+- *   negative in the failure case, which may trigger the slowpath
+- *   for the owner's unlock path - but this is not a big problem
+- *   in practice. ]
+- */
+-#ifndef CONFIG_DEBUG_MUTEXES
+ /***
+  * mutex_trylock - try acquire the mutex, without waiting
+  * @lock: the mutex to be acquired
+@@ -248,24 +235,13 @@ __mutex_lock_interruptible_nonatomic(str
+  */
+ int fastcall mutex_trylock(struct mutex *lock)
+ {
+-#ifdef __HAVE_ARCH_CMPXCHG
+-	if (atomic_cmpxchg(&lock->count, 1, 0) == 1)
+-		return 1;
++#ifndef CONFIG_DEBUG_MUTEXES
++	return __mutex_trylock(&lock->count);
+ #else
+-	if (atomic_dec_return(&lock->count) == 0)
+-		return 1;
+-#endif
+-	return 0;
+-}
+-
+-#else /* CONFIG_DEBUG_MUTEXES: */
+-
+-/*
+- * In the debug case we take the spinlock and check whether we can
+- * get the lock:
+- */
+-int fastcall mutex_trylock(struct mutex *lock)
+-{
++	/*
++	 * In the debug case we take the spinlock and check whether we can
++	 * get the lock:
++	 */
+ 	struct thread_info *ti = current_thread_info();
+ 	int ret = 0;
+ 
+@@ -280,10 +256,9 @@ int fastcall mutex_trylock(struct mutex 
+ 	spin_unlock_mutex(&lock->wait_lock);
+ 
+ 	return ret;
++#endif
+ }
+ 
+-#endif /* CONFIG_DEBUG_MUTEXES */
+-
+ /*
+  * Release the lock, slowpath:
+  */
+Index: linux-2.6/include/asm-arm/mutex.h
+===================================================================
+--- linux-2.6.orig/include/asm-arm/mutex.h
++++ linux-2.6/include/asm-arm/mutex.h
+@@ -98,5 +98,31 @@ do {									\
+  */
+ #define __mutex_slowpath_needs_to_unlock()	1
+ 
++/*
++ * For __mutex_trylock we use another construct which could be described
++ * as an "incomplete atomic decrement" or a "single value cmpxchg" since
++ * it has two modes of failure:
++ *
++ * 1) if the exclusive store fails we fail, and
++ *
++ * 2) if the decremented value is not zero we don't even attempt the store.
++ *
++ * This provides the needed trylock semantics like cmpxchg would, but it is
++ * lighter and less generic than a true cmpxchg implementation.
++ */
++static inline int __mutex_trylock(atomic_t *count)
++{
++	int __ex_flag, __res;
++	__asm__ (
++	"ldrex	%0, [%2]\n\t"
++	"subs	%0, %0, #1\n\t"
++	"strexeq %1, %0, [%2]"
++	: "=&r" (__res), "=&r" (__ex_flag)
++	: "r" (&count->counter)
++	: "cc","memory" );
++	__res |= __ex_flag;
++	return __res == 0;
++}
++
+ #endif
+ #endif

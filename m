@@ -1,55 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVLYC06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750793AbVLYCn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbVLYC06 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 21:26:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVLYC06
+	id S1750793AbVLYCn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 21:43:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750795AbVLYCn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 21:26:58 -0500
-Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:54540
-	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
-	id S1750792AbVLYC06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 21:26:58 -0500
-Date: Sat, 24 Dec 2005 18:26:56 -0800
-From: Brad Boyer <flar@allandria.com>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: Re: [PATCH 2/3] m68k: compile fix - ADBREQ_RAW missing declaration
-Message-ID: <20051225022656.GA18947@pants.nu>
-References: <20051215085516.GU27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151258200.1605@scrub.home> <20051215171645.GY27946@ftp.linux.org.uk> <Pine.LNX.4.61.0512151832270.1609@scrub.home> <20051215175536.GA27946@ftp.linux.org.uk> <Pine.LNX.4.62.0512151858100.6884@pademelon.sonytel.be> <20051215181405.GB27946@ftp.linux.org.uk> <20051215185829.GC27946@ftp.linux.org.uk> <20051215200521.GA18346@pants.nu> <20051222050655.GO27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 24 Dec 2005 21:43:26 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:8622 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750793AbVLYCnZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 21:43:25 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=fMkFtDGxMgisIaSFlmxcS5xWeo+mUIpSnX739swlQV2FsACallpEaOLerkZuvHEIDrUqi+bZ+ahxApCRN1n20u2GX+aR/tci4sSO4cla6jLyWaoepOrTDfBpTgtpR6IR9ooW4gtJ+BpJ9lEhH68FUL6J7L/W4ipdNLfZvLjMHlE=
+Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+To: Denis Vlasenko <vda@ilport.com.ua>
+Subject: Re: 4k stacks
+Date: Sat, 24 Dec 2005 21:43:09 -0500
+User-Agent: KMail/1.8.3
+Cc: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0512221640490.8179@chaos.analogic.com> <200512241403.38482.vda@ilport.com.ua>
+In-Reply-To: <200512241403.38482.vda@ilport.com.ua>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051222050655.GO27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200512242143.10291.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 05:06:55AM +0000, Al Viro wrote:
-> On Thu, Dec 15, 2005 at 12:05:21PM -0800, Brad Boyer wrote:
-> > I would like to stop using adb_request in mac/misc.c as well, but it's not
-> > as simple as just changing it to use cuda_request and pmu_request. That
-> > should do it for the cuda and pmu based models, but the egret (Mac IIsi
-> > and friends) based models get left out by that fix. If noone else looks
-> > at it before me, I'll check this out after I fix some other stuff related
-> > to m68k mac support.
+On Saturday 24 December 2005 07:03, Denis Vlasenko wrote:
+> +       movl    %esp, %edi
+> +       movl    %edi, %ecx
+> +       andl    $~0x1000, %edi
+> +       subl    %edi, %ecx
 > 
-> OK...  AFAICS, patch I've just posted to l-k and linux-m68k (subject:
-> [PATCH 04/36] m68k: switch mac/misc.c to direct use of appropriate
-> cuda/pmu/maciisi requests) should so it.  Do you have any problems with
-> that variant?
+> ecx will be equal to ?
 
-I don't have any big issues with it. However, I am not at home right now
-and can't actually try it out on real hardware. It looks like it should
-work as well as the version it is replacing. I'm pretty sure the IIsi
-case was broken before. I think we should go ahead and commit this to
-get rid of the issues it fixes, and then come back to it later and take
-another pass at it to fix the fact that it has never worked in 2.6 on
-some models. It's better than nothing.
+0x1000 with 8k stacks, so long as %esp in in the top page of the 2 page
+stack. 0x0 otherwise. Which explains why the poisoning crashes the kernel
+with 4k stacks. 
 
-	Brad Boyer
-	flar@allandria.com
+But there's another problem with Dick Johnson's approach, and that is that
+he doesn't clear the poison when a kernel stack is freed. (I don't believe
+the kernel does this automatically, though I could be mistaken). And that
+means that the results can't be trusted: if you have a string of 20 Qs,
+_something's_ overwritten the rest, but that something wasn't necessarily
+using the memory as a stack at the time. More than that, with the Qs
+spread over two pages it's quite possible for one page to be overwritten
+and the other still free with it's 20 or so Qs.
 
+HTH,
+Andrew Wade

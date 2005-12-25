@@ -1,65 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbVLYPRY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750837AbVLYPQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750842AbVLYPRY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 10:17:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbVLYPRY
+	id S1750837AbVLYPQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 10:16:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbVLYPQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 10:17:24 -0500
-Received: from tag.witbe.net ([81.88.96.48]:8326 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S1750838AbVLYPRX (ORCPT
+	Sun, 25 Dec 2005 10:16:16 -0500
+Received: from rain.plan9.de ([193.108.181.162]:17837 "HELO rain.plan9.de")
+	by vger.kernel.org with SMTP id S1750837AbVLYPQP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 10:17:23 -0500
-Message-Id: <200512251516.jBPFGJD17139@tag.witbe.net>
-Reply-To: <rol@witbe.net>
-From: "Paul Rolland" <rol@witbe.net>
-To: "'Adrian Bunk'" <bunk@stusta.de>
-Cc: "'Arjan van de Ven'" <arjan@infradead.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux 2.4.32] SATA ICH5/PIIX and Combined mode
-Date: Sun, 25 Dec 2005 16:16:22 +0100
-Organization: Witbe.net
+	Sun, 25 Dec 2005 10:16:15 -0500
+Date: Sun, 25 Dec 2005 16:16:11 +0100
+From: Marc Lehmann <schmorp@schmorp.de>
+To: linux-kernel@vger.kernel.org
+Subject: read returns EAGAIN on a _blocking_ socket, but should not?
+Message-ID: <20051225151611.GA20443@schmorp.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Thread-Index: AcYHZEtqtPNw3GaxRcea6vaspeCwnACAaWwA
-In-Reply-To: <20051223015752.GD27525@stusta.de>
-x-ncc-regid: fr.witbe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-PGP: "1024D/DA743396 1999-01-26 Marc Alexander Lehmann <schmorp@schmorp.de>
+       Key fingerprint = 475A FE9B D1D4 039E 01AC  C217 A1E8 0270 DA74 3396"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi!
 
-> AFAIR, RedHat still adds support for new hardware to RHES3.
-> 
-> You should contact the RedHat support you are paying for for getting 
-> help with RHES3 running on your hardware.
+The SuS documents EAGAIN for read(2) as:
 
-Sure, but I really don't like all the changes RH brings into the
-kernel (as many vendors do), and I've always been running vanilla
-kernels on top of the distribs, once the installation in completed.
+   [EAGAIN]
+       The O_NONBLOCK flag is set for the file descriptor and the thread would
+       be delayed.
 
-Paul
- 
-> > My first idea was to consider this as an opportunity to 
-> upgrade to the
-> > latest 2.4.x kernel, but reading you, this looks like a bad idea...
-> > 2.6.x would be better ?
-> 
-> RHES3 doesn't support kernel 2.6.
-> 
-> > Regards,
-> > Paul
-> 
-> cu
-> Adrian
-> 
-> -- 
-> 
->        "Is there not promise of rain?" Ling Tan asked suddenly out
->         of the darkness. There had been need of rain for many days.
->        "Only a promise," Lao Er said.
->                                        Pearl S. Buck - Dragon Seed
-> 
+And the linux manpage for read(2) says something similar. Yet, I do get
+EAGAIN when reading from a blocking socket. Here is a short strace:
 
+   socket(PF_FILE, SOCK_STREAM, 0)         = 3
+   connect(3, {sa_family=AF_FILE, path="/serv"}, 110) = 0
+   write(3, "\0\3", 2)                     = 2
+   write(3, "NEW", 3)                      = 3
+... many writes and reads omitted
+   sendmsg(3, {msg_name(0)=NULL, msg_iov(1)=[{"\0", 1}], msg_controllen=20, {cmsg_len=20, cmsg_level=SOL_SOCKET, cmsg_type=SCM_RIGHTS, {3}}, msg_flags=MSG_OOB|MSG_DONTROUTE}, 0)                            = 1
+   read(3, "\0\3", 2)            = 2
+   read(3, 0x51d030, 3)           = -1 EAGAIN (Resource temporarily unavailable)
+   write(2, "protocol error: unexpected eof f"..., 44)                 = 44
+
+(the sendmsg call in the source, incidentally, specifies "0" as flags
+argument, not MSG_OOB|MSG_DONTROUTE, but this is likely irrelevant).
+
+Here is the server side for the last exchange above:
+
+   recvmsg(9, {msg_name(0)=NULL, msg_iov(1)=[{"\0", 1}], msg_controllen=24, {cmsg_len=20, cmsg_level=SOL_SOCKET, cmsg_type=SCM_RIGHTS, {10}}, msg_flags=0}, 0) = 1
+... ioctls on other fds omitted
+   write(9, "\0\3", 2) = 2
+   write(9, "END", 3) = 3
+
+Now, the first backtrace creates a unix domain socket, connects to an
+existing one, passes a file descriptor and then read() returns with
+EAGAIN. Nowhere does it set the socket to blocking.
+
+The full backtraces can be found as http://data.plan9.de/x.20407 (client
+getting EAGAIN) and at http://data.plan9.de/x.20406 (server writing).
+
+I am looking for the obvious logical error I made, but I can only
+come up with the conclusion that read returning EAGAIN on a blocking
+socket must be a kernel bug. It is also interesting that this code and
+the server/client exchanges worked reliably _until_ I started to pass
+filehandles from client to server.
+
+I am using linux 2.6.14 on x86_64.
+
+Thanks for your time and any insights you can give!
+
+-- 
+                The choice of a
+      -----==-     _GNU_
+      ----==-- _       generation     Marc Lehmann
+      ---==---(_)__  __ ____  __      pcg@goof.com
+      --==---/ / _ \/ // /\ \/ /      http://schmorp.de/
+      -=====/_/_//_/\_,_/ /_/\_\      XX11-RIPE

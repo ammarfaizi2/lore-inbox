@@ -1,34 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbVLXXnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVLYAJW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbVLXXnj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 18:43:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbVLXXnj
+	id S1750759AbVLYAJW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 19:09:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750760AbVLYAJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 18:43:39 -0500
-Received: from rtr.ca ([64.26.128.89]:60107 "EHLO mail.rtr.ca")
-	by vger.kernel.org with ESMTP id S1750757AbVLXXnj (ORCPT
+	Sat, 24 Dec 2005 19:09:22 -0500
+Received: from c-67-175-148-174.hsd1.il.comcast.net ([67.175.148.174]:25587
+	"HELO c-67-175-148-174.hsd1.il.comcast.net") by vger.kernel.org
+	with SMTP id S1750759AbVLYAJW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 18:43:39 -0500
-Message-ID: <43ADDD34.9020101@rtr.ca>
-Date: Sat, 24 Dec 2005 18:43:48 -0500
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051013 Debian/1.7.12-1ubuntu1
-X-Accept-Language: en, en-us
+	Sat, 24 Dec 2005 19:09:22 -0500
+Date: Sat, 24 Dec 2005 19:18:33 -0500
+From: Lorena Latham <mikentfmv@nmro.com>
+Reply-To: Lorena Latham <mikentfmv@nmro.com>
+Message-ID: <524789567567.719847368878@nmro.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Humble Lane is displaying is proving arctangent
 MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.15-rc6 - Success with ICH5/SATA + S.M.A.R.T.
-References: <Pine.LNX.4.64.0512241830010.2700@p34>
-In-Reply-To: <Pine.LNX.4.64.0512241830010.2700@p34>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >smartmontools is going to have to be updated
 
-What for?
 
-Use "smartctl -d ata /dev/sda"
+Fiction reveals truth that reality obscures.
 
--ml
+http://necilakie.org/mm/
+
+If we are to judge of love by its consequences, it more nearly resembles hatred than friendship.Crises refine life. In them you discover what you are.Nobody can be as agreeable as an uninvited guest.
+Though the people support the government the government should not support the people.If we do what is necessary, all the odds are in our favor.
+
+

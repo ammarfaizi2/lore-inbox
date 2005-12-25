@@ -1,45 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750932AbVLYVNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbVLYVOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750932AbVLYVNM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 16:13:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbVLYVNM
+	id S1750934AbVLYVOj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 16:14:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750935AbVLYVOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 16:13:12 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:2002 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750931AbVLYVNK (ORCPT
+	Sun, 25 Dec 2005 16:14:38 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:56719 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750933AbVLYVOi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 16:13:10 -0500
-Date: Sun, 25 Dec 2005 22:13:08 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix console utf8 composing
-In-Reply-To: <43AE2B06.4010906@ums.usu.ru>
-Message-ID: <Pine.LNX.4.61.0512252209380.15152@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0512242300360.29877@yvahk01.tjqt.qr>
- <43AE2B06.4010906@ums.usu.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 25 Dec 2005 16:14:38 -0500
+Date: Sun, 25 Dec 2005 22:14:14 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jaco Kroon <jaco@kroon.co.za>
+Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ati-agp suspend/resume support
+Message-ID: <20051225211414.GA1943@elf.ucw.cz>
+References: <43AF0122.9030904@kroon.co.za>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <43AF0122.9030904@kroon.co.za>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> Differences between our versions are described below.
+> Based on the patch at
+> http://unixhead.org/docs/thinkpad/ati-agp/ati-agp.diff, add support for
+> suspend/resume in the ati-agp module.
+> 
+> Signed-of-by: Jaco Kroon <jaco@kroon.co.za>
+> 
+> --- linux-2.6.15-rc6/drivers/char/agp/ati-agp.c.orig	2005-12-25
+> 22:21:32.000000000 +0200
+> +++ linux-2.6.15-rc6/drivers/char/agp/ati-agp.c	2005-12-25
+> 22:23:33.000000000 +0200
+> @@ -243,6 +243,15 @@
+>  	return 0;
+>  }
+> 
+> +static int ati_resume(struct pci_dev *dev)
+> +{
+> +	return ati_configure();
+> +}
+> +
+> +static int ati_suspend(struct pci_dev *dev, pm_message_t state)
+> +{
+> +	return 0;
+> +}
 
-What do you think we should do? I have not given this fix any thought, 
-because it applied fine for long time (+/- fuzz), so I cannot comment on 
-anything in your version being better or not.
+I think you can just leave out empty function; that should work,
+too. Otherwise it looks good, thanks... ...
 
-> My version of to_utf8() takes uint as a second argument and handles values
-> beyonf 0xffff.
+>  /*
+>   *Since we don't need contigious memory we just try
+> @@ -525,6 +534,8 @@
+>  	.id_table	= agp_ati_pci_table,
+>  	.probe		= agp_ati_probe,
+>  	.remove		= agp_ati_remove,
+> +	.resume		= ati_resume,
+> +	.suspend	= ati_suspend,
+>  };
 
-I doubt that there is reason to support characters beyond 0xffff.
-CJK is within 0xffff, besides that console fonts just do not have the 
-capacity to support CJK in a meaningful way.
-
-
-
-Jan Engelhardt
+...aha, plus you may want to keep naming convention. It should
+probably be agp_ati_resume.
+							Pavel
 -- 
-| Alphagate Systems, http://alphagate.hopto.org/
-| jengelh's site, http://jengelh.hopto.org/
+Thanks, Sharp!

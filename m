@@ -1,164 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbVLYUXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750914AbVLYUaO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750906AbVLYUXG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 15:23:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750909AbVLYUXG
+	id S1750914AbVLYUaO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 15:30:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbVLYUaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 15:23:06 -0500
-Received: from mail.tmr.com ([64.65.253.246]:15780 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S1750906AbVLYUXE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 15:23:04 -0500
-Message-ID: <43AF0032.6010605@tmr.com>
-Date: Sun, 25 Dec 2005 15:25:22 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.11) Gecko/20050729
-X-Accept-Language: en-us, en
+	Sun, 25 Dec 2005 15:30:14 -0500
+Received: from mailspool.ops.uunet.co.za ([196.7.0.140]:12295 "EHLO
+	mailspool.ops.uunet.co.za") by vger.kernel.org with ESMTP
+	id S1750914AbVLYUaM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Dec 2005 15:30:12 -0500
+Message-ID: <43AF0122.9030904@kroon.co.za>
+Date: Sun, 25 Dec 2005 22:29:22 +0200
+From: Jaco Kroon <jaco@kroon.co.za>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051007
+X-Accept-Language: en, af, en-gb, en-us
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Michael Krufky <mkrufky@gmail.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, axboe@suse.de,
-       herbert@gondor.apana.org.au, michael.madore@gmail.com,
-       david-b@pacbell.net, gregkh@suse.de, paulmck@us.ibm.com, gohai@gmx.net,
-       luca.risolia@studio.unibo.it, p_christ@hol.gr
-Subject: Re: 2.6.15-rc6: known regressions in the kernel Bugzilla
-References: <Pine.LNX.4.64.0512181641580.4827@g5.osdl.org>	<20051222011320.GL3917@stusta.de>	<20051222005209.0b1b25ca.akpm@osdl.org>	<20051222135718.GA27525@stusta.de>	<20051222060827.dcd8cec1.akpm@osdl.org>	<43AC1791.1080806@tmr.com>	<37219a840512230932m5c371f80gbde4cf652bbd1728@mail.gmail.com> <20051223195455.3cc4b1a2.akpm@osdl.org>
-In-Reply-To: <20051223195455.3cc4b1a2.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: davej@codemonkey.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] ati-agp suspend/resume support
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms030005060508070700020206"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+This is a cryptographically signed message in MIME format.
 
->Michael Krufky <mkrufky@gmail.com> wrote:
->  
->
->>On 12/23/05, Bill Davidsen <davidsen@tmr.com> wrote:
->>    
->>
->>>Andrew Morton wrote:
->>>      
->>>
->>>>Adrian Bunk <bunk@stusta.de> wrote:
->>>>
->>>>        
->>>>
->>>>>not a post-2.6.14 regression
->>>>>
->>>>>          
->>>>>
->>>>Well yeah.  But that doesn't mean thse things have lower priority that
->>>>post-2.6.14 regressions.
->>>>
->>>>I understand what you're doing here, but we should in general concentrate
->>>>upon the most severe bugs rather than upon the most recent..
->>>>        
->>>>
->>>Hypocratic oath: "First, do no harm."
->>>
->>>If a new kernel version can't make things *better*, at least it
->>>shouldn't make them *worse*. New features are good, performance
->>>improvements are good, breaking working systems with an update is not good.
->>>
->>>I'm with Adrian on this, if you want people to test and report with -rc
->>>kernels, then there should be some urgency to addressing the reported
->>>problems.
->>>      
->>>
->>I agree.  Quite frankly, I am extremely surprised that this matter is
->>even up for discussion.  Is it really so important to release 2.6.15
->>before the end of 2005 that we dont even have the time to fix
->>regressions that have already been reported in older kernels? 
->>    
->>
->
->No, the release dates aren't critical at all.
->
->The problem is that if we allow the release to be stalled by bugs it allows
->one sluggish maintainer to block the entire kernel.  At some point in time
->we do need to just give up and hope that the bug will get fixed in 2.6.x.y
->or that it'll just magically fix itself later on (this happens, for various
->reasons).
->
->We get in the situation where lots of people are sitting there with arms
->folded, complaining about lack of a new kernel release while nobody is
->actually working on the bugs.  Nobody knows why this happens.
->
->  
->
->>ESPECIALLY given that patches are said to be available?
->>    
->>
->
->Things get lost.  If there's a patch which needs applying and we've missed
->it, please please please rediff it, add your Signed-off-by and loudly mail
->the thing out daily.
->
->  
->
->>IMHO, I agree that new regressions are most important to fix, but I
->>feel that old regressions are extremely important to fix as well.  If
->>we know of more regressions that CAN be fixed before a kernel release,
->>why not do it?
->>    
->>
->
->Fixing many of these things is not trivial, as I'm sure you know from
->personal experience.  The great majority are in drivers and, almost
->axiomatically, the guy who added the regression cannot reproduce it on his
->hardware (otherwise he wouldn't have shipped the diff).  So the debugging
->process involves drawn out to-and-fro with the reporter.  And it requires
->quite a bit of work by and help from the original reporter.  Depressingly,
->developers often just don't bother entering into this process in the first
->place and we shed another batch of mainline testers/users.
->
->  
->
->>Why should there be any rush to release the next mainline version?  To
->>make it in time for Christmas?  A better Christmas gift to the world
->>would be a new release without regressions, be it a month late, who
->>cares?  (I know -- not likely, but at least we should try)
->>    
->>
->
->We'll regularly hold up a release due to an identified set of bugs.  But if
->we do this we need to be very clear on what those bugs are and we need to
->be assured that there's a developer actively working on each bug and that
->the reporter is responding.  Without all of that in place, the whole
->release process would get stalled for arbitrary amounts of time.
->  
->
-Or after some period of time the code causing the regression gets rolled 
-back and the patch gets delayed until the regression is fixed or at 
-least understood. Other than a fix for an exploitable security issue 
-there are few things added in any mailline release which couldn't wail 
-until the next mainline or -stable comes out.
+--------------ms030005060508070700020206
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Historically patches have been rejected because they were "not the right 
-way to fix the problem," even though they did work (some of mine during 
-early SMP days, for example). I would hope that introducing a regression 
-also qualifies as "not the right way to fix the problem," and 
-particularly not the right way to introduce some new feature or 
-performance enhancement.
+Based on the patch at
+http://unixhead.org/docs/thinkpad/ati-agp/ati-agp.diff, add support for
+suspend/resume in the ati-agp module.
 
-I suspect that the developer of a patch would be more likely to work on 
-the regression if it were preventing the fix from going in.
+Signed-of-by: Jaco Kroon <jaco@kroon.co.za>
 
->We need someone who does nothing but track and report upon bugs.  It would
->be a full-time job.  We don't have asuch a person.  We hope that individual
->maintainers and subsystem maintainers will track the bugs in their area of
->responsibility so that such a person is not necessary.  But the maintainers
->don't do this.  You see the result.
->
->  
->
-Good luck. Someone qualified to do that job would also be qualified to 
-do more interesting things...
+--- linux-2.6.15-rc6/drivers/char/agp/ati-agp.c.orig	2005-12-25
+22:21:32.000000000 +0200
++++ linux-2.6.15-rc6/drivers/char/agp/ati-agp.c	2005-12-25
+22:23:33.000000000 +0200
+@@ -243,6 +243,15 @@
+ 	return 0;
+ }
+
++static int ati_resume(struct pci_dev *dev)
++{
++	return ati_configure();
++}
++
++static int ati_suspend(struct pci_dev *dev, pm_message_t state)
++{
++	return 0;
++}
+
+ /*
+  *Since we don't need contigious memory we just try
+@@ -525,6 +534,8 @@
+ 	.id_table	= agp_ati_pci_table,
+ 	.probe		= agp_ati_probe,
+ 	.remove		= agp_ati_remove,
++	.resume		= ati_resume,
++	.suspend	= ati_suspend,
+ };
+
+ static int __init agp_ati_init(void)
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
+There are only 10 kinds of people in this world,
+  those that understand binary and those that don't.
+http://www.kroon.co.za/
 
+--------------ms030005060508070700020206
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII5TCC
+As0wggI2oAMCAQICAw3p1jANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UE
+ChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDUwMTI4MjExMjIzWhcNMDYwMTI4MjExMjIz
+WjBCMR8wHQYDVQQDExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMR8wHQYJKoZIhvcNAQkBFhBq
+YWNvQGtyb29uLmNvLnphMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4CsLuOWD
+wimwAv4QLdlT99frJCwzUBVQNL7c7x4ufEquAH6RamWfQyQHzykEJM8NeMIrfb+k3fZEi+ZU
+g5sq2uIqzOuCJsIj0x3LnoydXTikbv1AFWQDEuqITlroA8bGJE/mMlbPrKyDACPo5cQAzUQz
+LAg7LQQQVkKNWH4eeXUwZ5lOZEWWno0P5DXHdSLQxCshgWVPRrbtKe25WGObqJMa//1T5qX8
+0mKIdAbHlz90BwgX/MjLp0BpXTii2653ScOujCLTC3cPdDUDK68qG7RqatVw5+HE/npJIWa1
+0TxJUp5Ii8nPbGPzpEWQmZ8TjkjMs26w80PPPKh2Vh2siQIDAQABoy0wKzAbBgNVHREEFDAS
+gRBqYWNvQGtyb29uLmNvLnphMAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEEBQADgYEAqXNX
+QEMTVQoj3JoEwK9vlfqSVz5ZEUklpgEhwFJsD+PKa/LgUGVHk3Gw8wws4+wZxmpOsJ7vdiWL
+y8zlX7HfPWMcbibTi6C7nT6WahqdeAo3kVjhnMqJ3Sf6sX0JGl9bWfIhgmIVy/ZdM2ztrXwd
+rbWiT7un5lM05D4YPCNH9fcwggLNMIICNqADAgECAgMN6dYwDQYJKoZIhvcNAQEEBQAwYjEL
+MAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAq
+BgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA1MDEyODIx
+MTIyM1oXDTA2MDEyODIxMTIyM1owQjEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJl
+cjEfMB0GCSqGSIb3DQEJARYQamFjb0Brcm9vbi5jby56YTCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAOArC7jlg8IpsAL+EC3ZU/fX6yQsM1AVUDS+3O8eLnxKrgB+kWpln0Mk
+B88pBCTPDXjCK32/pN32RIvmVIObKtriKszrgibCI9Mdy56MnV04pG79QBVkAxLqiE5a6APG
+xiRP5jJWz6ysgwAj6OXEAM1EMywIOy0EEFZCjVh+Hnl1MGeZTmRFlp6ND+Q1x3Ui0MQrIYFl
+T0a27SntuVhjm6iTGv/9U+al/NJiiHQGx5c/dAcIF/zIy6dAaV04otuud0nDrowi0wt3D3Q1
+AyuvKhu0amrVcOfhxP56SSFmtdE8SVKeSIvJz2xj86RFkJmfE45IzLNusPNDzzyodlYdrIkC
+AwEAAaMtMCswGwYDVR0RBBQwEoEQamFjb0Brcm9vbi5jby56YTAMBgNVHRMBAf8EAjAAMA0G
+CSqGSIb3DQEBBAUAA4GBAKlzV0BDE1UKI9yaBMCvb5X6klc+WRFJJaYBIcBSbA/jymvy4FBl
+R5NxsPMMLOPsGcZqTrCe73Yli8vM5V+x3z1jHG4m04ugu50+lmoanXgKN5FY4ZzKid0n+rF9
+CRpfW1nyIYJiFcv2XTNs7a18Ha21ok+7p+ZTNOQ+GDwjR/X3MIIDPzCCAqigAwIBAgIBDTAN
+BgkqhkiG9w0BAQUFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTES
+MBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UE
+CxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBl
+cnNvbmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0
+aGF3dGUuY29tMB4XDTAzMDcxNzAwMDAwMFoXDTEzMDcxNjIzNTk1OVowYjELMAkGA1UEBhMC
+WkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1Ro
+YXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMIGfMA0GCSqGSIb3DQEBAQUAA4GN
+ADCBiQKBgQDEpjxVc1X7TrnKmVoeaMB1BHCd3+n/ox7svc31W/Iadr1/DDph8r9RzgHU5VAK
+MNcCY1osiRVwjt3J8CuFWqo/cVbLrzwLB+fxH5E2JCoTzyvV84J3PQO+K/67GD4Hv0CAAmTX
+p6a7n2XRxSpUhQ9IBH+nttE8YQRAHmQZcmC3+wIDAQABo4GUMIGRMBIGA1UdEwEB/wQIMAYB
+Af8CAQAwQwYDVR0fBDwwOjA4oDagNIYyaHR0cDovL2NybC50aGF3dGUuY29tL1RoYXd0ZVBl
+cnNvbmFsRnJlZW1haWxDQS5jcmwwCwYDVR0PBAQDAgEGMCkGA1UdEQQiMCCkHjAcMRowGAYD
+VQQDExFQcml2YXRlTGFiZWwyLTEzODANBgkqhkiG9w0BAQUFAAOBgQBIjNFQg+oLLswNo2as
+Zw9/r6y+whehQ5aUnX9MIbj4Nh+qLZ82L8D0HFAgk3A8/a3hYWLD2ToZfoSxmRsAxRoLgnSe
+JVCUYsfbJ3FXJY3dqZw5jowgT2Vfldr394fWxghOrvbqNOUQGls1TXfjViF4gtwhGTXeJLHT
+HUb/XV9lTzGCAzswggM3AgEBMGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBD
+b25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFp
+bCBJc3N1aW5nIENBAgMN6dYwCQYFKw4DAhoFAKCCAacwGAYJKoZIhvcNAQkDMQsGCSqGSIb3
+DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUxMjI1MjAyOTIyWjAjBgkqhkiG9w0BCQQxFgQU+EM7
+/54T08JShhIN93iBD5cn/YwwUgYJKoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG
+9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgweAYJKwYB
+BAGCNxAEMWswaTBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcg
+KFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3Vpbmcg
+Q0ECAw3p1jB6BgsqhkiG9w0BCRACCzFroGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRo
+YXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBG
+cmVlbWFpbCBJc3N1aW5nIENBAgMN6dYwDQYJKoZIhvcNAQEBBQAEggEAmu13UJVde7tjy67R
+hP5fE2MulUFgHkjcbW6EIVRTOENzOD9sMXxpnsmOQlcxtY4t5vQss4nCzjbzxGYSGjCTOtxI
+UnzvfgoGnUdTbPLDStai+CWnXwhU8Gj9j2auq+xQ6hgR/t5qYEtyLndR/8ebM+025h3D8dFj
+F2Ub/6mwkqpPpD3gNqx6C+j6suNAMaZvpOaRkKOZ7ttrkONXyPRCIXUG49Ij53J3xw3Xrj0D
+U2kpPt1uJj+3C549unEAwgESnCXXnYMW9cAZDc26YwleTYRMQyX+DJJ4NaIgwLgsViWi9mx1
+dSZnJ5fVrDKcz5aTdpy+fKrGONj+6osw/B8NygAAAAAAAA==
+--------------ms030005060508070700020206--

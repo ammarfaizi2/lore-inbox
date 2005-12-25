@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbVLYEG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbVLYENa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbVLYEG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Dec 2005 23:06:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbVLYEG7
+	id S1750766AbVLYENa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Dec 2005 23:13:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbVLYENa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Dec 2005 23:06:59 -0500
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:17062 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S1750773AbVLYEG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Dec 2005 23:06:58 -0500
-Message-ID: <43AE1AD6.1030300@comcast.net>
-Date: Sat, 24 Dec 2005 23:06:46 -0500
+	Sat, 24 Dec 2005 23:13:30 -0500
+Received: from rwcrmhc11.comcast.net ([216.148.227.151]:17117 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S1750766AbVLYEN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Dec 2005 23:13:29 -0500
+Message-ID: <43AE1C5B.5010002@comcast.net>
+Date: Sat, 24 Dec 2005 23:13:15 -0500
 From: Andy Stewart <andystewart@comcast.net>
 User-Agent: Mozilla Thunderbird 1.0.7 (X11/20050923)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Doug Thompson <norsk5@yahoo.com>
+To: Avuton Olrich <avuton@gmail.com>
 CC: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Machine check 2.6.13.3 dual opteron
-References: <20051224194621.73206.qmail@web50113.mail.yahoo.com>
-In-Reply-To: <20051224194621.73206.qmail@web50113.mail.yahoo.com>
+References: <43AD8631.1090605@comcast.net> <3aa654a40512241258l2d3e0c57qf2345b143304bbef@mail.gmail.com>
+In-Reply-To: <3aa654a40512241258l2d3e0c57qf2345b143304bbef@mail.gmail.com>
 X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -29,57 +29,68 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Doug Thompson wrote:
-> With the Opteron Bank 4 value you gave, this decodes to:
+Avuton Olrich wrote:
+> On 12/24/05, Andy Stewart <andystewart@comcast.net> wrote:
+> 
+>>My machine locked up on me and I found this message on my serial
+>>console.  I have no idea how to decode its meaning - can you help?
+>>
+>>CPU 0: Machine Check Exception:                4
+>>Bank 4: b200000000070f0f
+>>TSC 39619ee1e2187
+>>Kernel panic - not syncing: Machine check
+>>
+>>My machine is a dual Opteron running the 2.6.13.3 kernel.  I'm not
+>>positive, but I think I can reproduce it.  Assuming that I can, what
+>>information would be helpful to debug the problem?
+>>
+>>Please cc: me on the response as I am not subscribed to this mailing list.
 > 
 > 
-> Decoding MCE value as MCi_STATUS: 'b200000000070f0f'
-> Bit  63:    Valid error
-> Bit  61:    UNCORRECTED error
-> Bit  60:    MCA Error Reporting Enabled
-> Bit  57:    Process Context Corrupt
->             HyperTransport Link Number= 0
->             Extended Error Code = 0x7 - WatchDog error
+> Welcome to my life. Finding out what exactly's causing the problem is
+> paramount to me, also. I'm getting a random crash sometimes after an
+> hour, sometimes it'll go 24 hours. But the results are consistant.
+> After talking to AMD Tech support, they basically said they could do
+> nothing for me. Are your opterons dual core? I've gotten an email from
+> someone who was having the same problem with a similar setup but was
+> running a dual core chip.
 > 
-> BUS Error:
->         Processor(generic)
->         TimeOut(timed out)
->         Memory Transaction Type(generic)
->         Mem or IO(generic)
->         Cache Level(generic)
+> I have had one person personally email me about this subject and he
+> stated that taking one of his hard drives off 'slave' helped. (I'm
+> only running one hard drive at the moment, which isn't on slave and
+> doesn't help).
 > 
-> You had an Uncorrectable Error. 
-> Since you did not post an address error, I assume that it did NOT report such. Therefore, because
-> of the WatchDog error, there might be an error between the CPU and memory.  There is a hardware
-> problem definitely.
+> The recommended:
+> I run memtest86 (did for 24 hours, everything seems is fine there).
 > 
-> CPU-Mem Controller
-> Even bad memory DIMM
+> And they said they could help me no further.
 > 
-> doug thompson
+> Here's my thread on the subject.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=113239372109342&w=2
+> --
+> avuton
+> --
+>  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-HI Doug,
+Hello Avuton,
 
-Thank you for your quick reply.  There was no "address error" - the only
- thing on the serial console is what I posted.
+Thank you for your reply to my inquiry.  My Opterons are 244s and they
+are not dual core.  Like you, my setup has passed 24 hours of memtest on
+at least 2 or 3 separate occasions.
 
-In the past, this board, the CPUs, and these memory DIMMs have passed 24
-continuous hours of memtest, but perhaps something has deteriorated in
-the mean time.  I'll run memtest again to see if I can find a problem.
+I'm strongly suspicious of the MB since a BIOS upgrade improved my
+situation but there is still instability.  Nothing else I've done has
+had as marked an effect on stability as that BIOS upgrade.
 
-FYI:  This MB (MSI K8T Master2 FAR) has been problematic since day one.
- A BIOS upgrade improved stability, but I've never gotten more then 21
-straight days of uptime on this machine (compared to 200-300 days on
-several other machines in my house).  I've had *many* random hangs but
-seldom does something get printed on the serial console.  When it does
-hang, the serial console is unresponsive.
+I've even turned off every spiggot on the MB and replaced them with
+their own circuit boards, all to no avail.  This thing still hangs
+randomly - sometimes after a couple of days, sometimes after 3 weeks,
+sometimes multiple times in an evening.
 
-I'll be swapping out this MB in favor of a Tyan.  I've put up with it
-long enough.  Assuming that the Tyan MB solves the problem, I won't be
-purchasing any more MSI MBs (and neither will my friends if I have
-anything to say about it).
+I'll take a look at the thread which you referenced.  I also plan to
+replace the MB due to my aforementioned suspicions.
 
-Thanks again for the help!
+Thanks!
 
 Andy
 
@@ -93,7 +104,7 @@ http://www.wlug.org
 Version: GnuPG v1.2.5 (GNU/Linux)
 Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFDrhrVHl0iXDssISsRAhzLAJoCb5yTL2meARSIVhnQjP54AVVPOwCeJ2aS
-NWkOTzLQ57U6tuU8h+YM9bM=
-=NH89
+iD8DBQFDrhxbHl0iXDssISsRAraeAJ99WLYZNBPvAiltl21oBS1RtwIt+gCcDUIK
+GJw+0tj7AOJooKb6E0gnka4=
+=N+p9
 -----END PGP SIGNATURE-----

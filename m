@@ -1,74 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbVLYLmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbVLYMT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750709AbVLYLmw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 06:42:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750820AbVLYLmw
+	id S1750768AbVLYMT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 07:19:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbVLYMT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 06:42:52 -0500
-Received: from zproxy.gmail.com ([64.233.162.202]:28350 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750709AbVLYLmw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 06:42:52 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Fxk3lnJN1g2ad5jlKIuOKCP4lw28SS08n/93xQUjjaKlSaGnYbtVg+u3zrGl9JIJtFkFuU2dgQEyGL575uE9Lnt1M/UGmTI1Vwkco5tvPGP1sxt2nPcLMD5UdompXazGMglTKTEVcfVFWnMbLxKjK1Z/vNrQOKw+4pzBaJzyMgI=
-Message-ID: <5a3ed5650512250342s60f507ffrbff1688bab82c1b0@mail.gmail.com>
-Date: Sun, 25 Dec 2005 14:42:50 +0300
-From: regatta <regatta@gmail.com>
-To: Arjan van de Ven <arjan@infradead.org>,
-       Wichert Akkerman <wichert@wiggy.net>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: FS possible security exposure ?
+	Sun, 25 Dec 2005 07:19:27 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:52957 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750768AbVLYMT0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Dec 2005 07:19:26 -0500
+Date: Sun, 25 Dec 2005 04:19:00 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1135505852.2946.12.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
+Subject: Re: [EXPERIMENT] Add new "flush" option
+Message-Id: <20051225041900.38fdcba7.akpm@osdl.org>
+In-Reply-To: <877j9ufeio.fsf@devron.myhome.or.jp>
+References: <877j9ufeio.fsf@devron.myhome.or.jp>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <5a3ed5650512250129t434d2b42kc1ebac1c5b308986@mail.gmail.com>
-	 <1135503601.2946.6.camel@laptopd505.fenrus.org>
-	 <5a3ed5650512250210w3528a8ccsb4df2c3a23863c40@mail.gmail.com>
-	 <1135505852.2946.12.camel@laptopd505.fenrus.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you all, it was great information that you shared with me
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+>
+> This adds new "flush" option for hotplug devices.
+> 
+> Current implementation of "flush" option does,
+> 
+> 	- synchronizing data pages at ->release() (last close(2))
+> 	- if user's work seems to be done (fs is not active), all
+> 	  metadata syncs by pdflush()
+> 
+> This option would provide kind of sane progress, and dirty buffers is
+> flushed more frequently (if fs is not active).  This option doesn't
+> provide any robustness (robustness is provided by other options), but
+> probably the option is proper for hotplug devices.
+> 
+> (Please don't assume that dirty buffers is synchronized at any point.
+> This implementation will be changed easily.)
+>
+> ...
+>
+> +
+> +#define FLUSH_INITAL_DELAY	HZ
+> +#define FLUSH_DELAY		(HZ / 2)
+> +
+> +int fs_flush_sync_fdata(struct inode *inode, struct file *filp)
+> +{
+> +	int err = 0;
+> +
+> +	if (IS_FLUSH(inode) && filp->f_mode & FMODE_WRITE) {
+> +		current->flags |= PF_SYNCWRITE;
+> +		err = filemap_write_and_wait(inode->i_mapping);
+> +		current->flags &= ~PF_SYNCWRITE;
+> +	}
+> +	return err;
+> +}
+
+You can use filp->f_mapping here, remove the inode* argument.
+
+> +EXPORT_SYMBOL(fs_flush_sync_fdata);
+> +
+> +static void fs_flush_pdflush_handler(unsigned long arg)
+> +{
+> +	struct super_block *sb = (struct super_block *)arg;
+> +	fsync_super(sb);
+> +	up_read(&sb->s_umount);
+> +}
+> +
+> +static void fs_flush_timer(unsigned long data)
+> +{
+> +	struct super_block *sb = (struct super_block *)data;
+> +	struct backing_dev_info *bdi = blk_get_backing_dev_info(sb->s_bdev);
+> +	unsigned long last_flush_jiff;
+> +	int err;
+> +
+> +	if (bdi_write_congested(bdi)) {
+> +		mod_timer(&sb->flush_timer, jiffies + (HZ / 10));
+> +		return;
+> +	}
+
+The bdi_write_congested() test probably isn't doing anything useful: it
+only returns true if there's really heavy writeout in progress.  Possibly
+you could look at the disk queue accounting stats, work out how much I/O
+has been happening lately.
+
+> +	last_flush_jiff = sb->last_flush_jiff;
+> +
+> +	if (!time_after_eq(jiffies, last_flush_jiff + FLUSH_DELAY)) {
+> +		mod_timer(&sb->flush_timer, last_flush_jiff + FLUSH_DELAY);
+> +		return;
+> +	}
+> +
+> +	if (down_read_trylock(&sb->s_umount)) {
+> +		if (sb->s_root) {
+> +			err = pdflush_operation(fs_flush_pdflush_handler, data);
+> +			if (!err)
+> +				return;
+> +			mod_timer(&sb->flush_timer, jiffies + FLUSH_DELAY);
+> +		}
+> +		up_read(&sb->s_umount);
+> +	}
+> +}
+>
+> +void __fs_mark_flush(struct super_block *sb)
+> +{
+> +	sb->last_flush_jiff = jiffies;
+> +	/*
+> +	 * make sure by smb_wmb() that dirty buffers before here is
+> +	 * processed at the timer routine.
+> +	 */
+> +	smp_wmb();
+> +
+> +	if (!timer_pending(&sb->flush_timer))
+> +		mod_timer(&sb->flush_timer, jiffies + FLUSH_INITAL_DELAY);
+> +}
+> +EXPORT_SYMBOL(__fs_mark_flush);
+> +
+> +/*
+> + * caller must take down_write(sb->s_umount), otherwise pdflush
+> + * handler may be run after this del_timer_sync.
+> + */
+> +void fs_flush_stop(struct super_block *sb)
+> +{
+> +	sb->s_flags &= ~MS_FLUSH;
+> +	del_timer_sync(&sb->flush_timer);
+> +}
+> +
+> +void fs_flush_init(struct super_block *sb)
+> +{
+> +	init_timer(&sb->flush_timer);
+> +	sb->flush_timer.data = (unsigned long)sb;
+> +	sb->flush_timer.function = fs_flush_timer;
+> +	sb->last_flush_jiff = 0;
+> +}
+
+The superblock lifetime handling all looks OK to me.
 
 
+However I wonder if all this code would become simpler if we were to just
+tweak writeback_inodes() a bit: if the superblock was mounted with MS_FLUSH
+then temporarily set wbc->sync_mode to WB_SYNC_ALL.
 
-On 12/25/05, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Sun, 2005-12-25 at 13:10 +0300, regatta wrote:
-> > I'm using Vi in Solaris and Vim in Linux, do you think this is the
-> > problem ?
->
-> that very well can be the difference
->
-> > but if you think about it, how could the system allow the user to
-> > modify a file that he don't own it and he don't have write privilege
-> > on the file just because he has write in the parent directory ?
-> >
-> > Maybe I'm wrong, but is this normal ? please let me know
->
-> this is normal and a result of the linux permission model.
-> (and fwiw you don't get to edit the file, only to create a new file. You
-> may think that's exactly the same.. but it's not in the light of
-> hardlinks)
->
-> Btw there is a "sticky bit" you can set on the directory which changes this behavior,
-> for example /tmp has this set for obvious reasons
->
-> > BTW: is there any document, article or any page about this so I can
-> > show it to my boss :)
->
-> I suspect the SUS standard fully specifies the 4 rules I mentioned and
-> the sticky-exception (and the rest is an obvious result)
->
->
->
+If we do that, the regular wb_kupdate() will sync all the IS_FLUSH
+filesystems for us at dirty_writeback_centisecs intervals.  That's a bit
+less flexible, but probably less code.
 
+(Alternatively, add a new writeback_control.ms_flush_only boolean.  Set
+that, then reuse some of the code in mm/page-writeback.c in some manner).
 
---
-Best Regards,
---------------------
--*- If Linux doesn't have the solution, you have the wrong problem -*-
+You abandoned the flush-file-in-release() idea?  That seemed faily neat. 
+What was the thinking here?
+

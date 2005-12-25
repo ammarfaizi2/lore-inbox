@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbVLYUOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbVLYUID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750905AbVLYUOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 15:14:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750906AbVLYUOZ
+	id S1750899AbVLYUID (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 15:08:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750903AbVLYUID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 15:14:25 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:31687 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750903AbVLYUOY
+	Sun, 25 Dec 2005 15:08:03 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:1319 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750899AbVLYUIB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 15:14:24 -0500
-Date: Sun, 25 Dec 2005 20:14:23 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCHSET] 2.6.15-rc7-bird1
-Message-ID: <20051225201423.GC27946@ftp.linux.org.uk>
-References: <20051222101523.GP27946@ftp.linux.org.uk> <20051223093146.GT27946@ftp.linux.org.uk> <20051224095114.GU27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 25 Dec 2005 15:08:01 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Ma6WEQ0IXO3PbZOkvet3fmNw4URqHAWpCAsynF0feSlKOzHE/nLmRc32bITlvRielF2PfMcJcECnv8XB0X4xUdIzjZWv5BKOurJucCvuMYZlkPdGoWzs9+7PRYwCvQxZevf5yGwRsffvsICdv4LRr41YBF0ahdJBHLCp/3OzSwk=
+Message-ID: <aa4c40ff0512251208j46e5de99o51e8d18f5542e9a2@mail.gmail.com>
+Date: Sun, 25 Dec 2005 12:08:00 -0800
+From: James Lamanna <jlamanna@gmail.com>
+To: kees@outflux.net
+Subject: Re: [PATCH] lib: zlib_inflate "r.base" uninitialized compile warnings
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051224095114.GU27946@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Updated version:
+Kees Cook wrote:
 
-ftp://ftp.linux.org.uk/pub/people/viro/patch-2.6.15-rc7-bird1.bz2
+> Eliminates compile-time warnings from "r" being uninitialized.
+>
 
-URL of splitup: same place, bird-mbox.
+What version of gcc are you using?
 
-Mostly endianness stuff - finished off befs, killed the minor stuff that
-had cropped up since the last (partial) endianness sweep in fs/*, handled
-most of nfs and nfsd (that had uncovered several bugs in the latter).
-Merged a patch from Alexey that should've been in -rc6-bird3, but had been
-missed.
+I get no warnings on 3.4.4:
+  CC [M]  lib/zlib_inflate/infblock.o
+  CC [M]  lib/zlib_inflate/infcodes.o
+  CC [M]  lib/zlib_inflate/inffast.o
+  CC [M]  lib/zlib_inflate/inflate.o
+  CC [M]  lib/zlib_inflate/inflate_sync.o
+  CC [M]  lib/zlib_inflate/inftrees.o
+  CC [M]  lib/zlib_inflate/infutil.o
+  CC [M]  lib/zlib_inflate/inflate_syms.o
+  LD [M]  lib/zlib_inflate/zlib_inflate.o
+  Building modules, stage 2.
+  MODPOST
+  CC      lib/zlib_inflate/zlib_inflate.mod.o
+  LD [M]  lib/zlib_inflate/zlib_inflate.ko
 
-Changes since yesterday snapshot:
- 
-Al Viro:
-[endianness annotations]
-      befs: endianness annotations
-      ext3 endianness annotations
-      fs/fat endianness annotations
-      hpfs endainness annotations
-      smbfs endianness annotations
-      isofs endianness annotations
-      fs/partitions endianness annotations
-      ufs endianness annotations
-      sunrpc: xdr_stream->end also points to network-order data
-      nfs: verifier is network-endian
-      nfs4 endianness annotations
-      nfs_common endianness annotations
-      nfsd/vfs.c: endianness fixes
-      nfsd4_truncate() bogus return value
-      NFSERR_SERVERFAULT returned host-endian
-      nfsd4_lock() returns bogus values to clients
-      nfsd: nfserrno() endianness annotations
-      nfsfh simple endianness annotations
-      nfsd: misc endianness annotations
-      nfsd: vfs.c endianness annotations
-      nfsd: NFSv3 endianness annotations
-      nfsd: NFSv2 endianness annotations
-      nfsd: NFS4 endiannness annotations
-      nfsd: nfs_replay_me
-[m68k]
-      m68k: fix PIO case in esp
-[misc]
-      isdn: amd7930 is blatantly broken (half-merged?), marked broken in Kconfig
+agard linux-2.6.15-rc7 # gcc --version
+gcc (GCC) 3.4.4 (Gentoo 3.4.4-r1, ssp-3.4.4-1.0, pie-8.7.8)
 
-Alexey Dobriyan:
-      drivers/pcmcia/cistpl.c: fix endian warnings
+Looks like a gcc bug that was fixed?

@@ -1,56 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbVLYIHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbVLYJkJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750801AbVLYIHN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 03:07:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVLYIHN
+	id S1750806AbVLYJkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 04:40:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbVLYJkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 03:07:13 -0500
-Received: from xproxy.gmail.com ([66.249.82.203]:29503 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750801AbVLYIHL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 03:07:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:disposition-notification-to:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=IWGe/j9GPns4qNc3srogLm/V/H7f2qRq+DqJTh6pynOcAQnIZ38R6HBwmXwOuNOPBfPt0bZAa7ZF91hfmF0L0SdEnxIEAqNvXovwih5owX0EAzqIzBpLodSHL7+N5Fd6tzCi0CjaKFlAjMP/gpp2LnV4fKz2uKP6CvrFNq3nQT0=
-Message-ID: <43AE52B6.1090604@gmail.com>
-Date: Sun, 25 Dec 2005 10:05:10 +0200
-From: Alon Bar-Lev <alon.barlev@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051015)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Luke-Jr <luke@dashjr.org>
-CC: Lee Revell <rlrevell@joe-job.com>, David Wagner <daw@cs.berkeley.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Question] LinuxThreads, setuid - Is there user mode hook?
-References: <200512222312.jBMNCj96018554@taverner.CS.Berkeley.EDU> <1135370197.22177.40.camel@mindpipe> <20051223203347.GA32589@nevyn.them.org> <200512250131.19218.luke@dashjr.org>
-In-Reply-To: <200512250131.19218.luke@dashjr.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 25 Dec 2005 04:40:09 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:27534 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750806AbVLYJkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Dec 2005 04:40:08 -0500
+Subject: Re: FS possible security exposure ?
+From: Arjan van de Ven <arjan@infradead.org>
+To: regatta <regatta@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5a3ed5650512250129t434d2b42kc1ebac1c5b308986@mail.gmail.com>
+References: <5a3ed5650512250129t434d2b42kc1ebac1c5b308986@mail.gmail.com>
+Content-Type: text/plain
+Date: Sun, 25 Dec 2005 10:40:00 +0100
+Message-Id: <1135503601.2946.6.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luke-Jr wrote:
-> On Friday 23 December 2005 20:33, Daniel Jacobowitz wrote:
-> 
->>Applications have to run on existing platforms and work with existing
->>software, as I'm sure you know.  If someone anywhere in the food chain
->>isn't ready for NPTL, a project can easily be stuck with LT for another
->>few years.
-> 
-> 
-> Not sure about NPTL support in non-Linux-based operating systems (Solaris, 
-> BSD, etc), but I'd be surprised if they supported LinuxThreads. Thus, 
-> shouldn't NPTL really result in a *more* portable application?
-> 
 
-Yes... This is my first recommendation...
-But what if the user does not want to upgrade?
+> (when you have hundred of users and hundred of NFS and thousand of 
+> net groups you don't want a user to edit other file just because he
+> has write permission in the patent dir).
 
-Well... I understand that I am left with the following options:
-1. upgrade to NPTL
-2. My implementation of querying the main in a separate thread.
-3. don't use setuid
+if you have write permission in the directory you're allowed to
+1) create new files
+2) rename existing files
+3) delete files
+4) rename files over existing files (combo of 2 and 3 sort of)
 
-Thank you for your help,
-Alon Bar-Lev.
+so an "edit" as you describe is
+* create a new file with the new (eg modified) content
+* rename the new file over the existing file
+
+that's how reliable editors operate (the rename-over-file is an atomic
+operation) to avoid any possibility of dataloss due to crashes etc.
+
+Since the 1-4 rules are pretty much there for all unixes...
+Maybe your solaris editor doesn't do editing in this way?
+
+
+

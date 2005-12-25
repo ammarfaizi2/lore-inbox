@@ -1,56 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750805AbVLYJ3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbVLYJnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750805AbVLYJ3H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 04:29:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbVLYJ3H
+	id S1750808AbVLYJnX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 04:43:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbVLYJnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 04:29:07 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:55671 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750805AbVLYJ3G convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 04:29:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=gNpbysvB+RvVuQYyBqKPBgq46l5DRsz9uwS8BDMNAVp6e6cCdQIWL9Gj6D/ndCdypPpWWN72LzUdspTH31BV3cEYeOkiIDIxw2kDLXDzwAPKFS77e6UY/4PyNBlCSXyGgFelTYGxYKvzVIXwd5qRKNaazCjXlboqAOS2i6CrYd4=
-Message-ID: <5a3ed5650512250129t434d2b42kc1ebac1c5b308986@mail.gmail.com>
-Date: Sun, 25 Dec 2005 12:29:05 +0300
-From: regatta <regatta@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: FS possible security exposure ?
+	Sun, 25 Dec 2005 04:43:23 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:37292 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750808AbVLYJnW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Dec 2005 04:43:22 -0500
+Date: Sun, 25 Dec 2005 10:43:19 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.6.15-rc5-rt4 fails to compile
+In-Reply-To: <20051222231153.GA4316@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0512251041070.27576@yvahk01.tjqt.qr>
+References: <20051222231153.GA4316@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
-
-I have a question regarding how Linux handle the files permission ,
-here is what I found
-
-When logged on to a Linux workstation a user can edit a file (even if
-the file on an NFS-mounted NAS directory) if he has write access at
-the directory level, even if the file is owned by root (or any other
-user) and is read-only.
-
-I tried this in local file system (ext3) and in remote home directory
-(autofs) in (NetApp nfs NAS storage)
-
-this is not the case with Solaris , the user will get permission
-denied if he try to write any thing to the file.
+Hi Ingo,
 
 
-My question is, what is happening ? and is it correct ? is it possible
-to change it to behave to be like Solaris ?
+CONFIG_RWSEM_GENERIC_SPINLOCK is always y when PREEMPT_RT=y, but (see 
+linux/rwsem.h) in this case, <linux/rwsem-semaphore.h> is included, which 
+lacks macros like RWSEM_ACTIVE_BIAS used in lib/rwsem.c.
 
-(when you have hundred of users and hundred of NFS and thousand of 
-net groups you don't want a user to edit other file just because he
-has write permission in the patent dir).
 
-Thanks
-
-Best Regards,
---------------------
--*- If Linux doesn't have the solution, you have the wrong problem -*-
+Jan Engelhardt
+-- 

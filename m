@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbVLYUnQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbVLYU5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbVLYUnQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 15:43:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbVLYUnQ
+	id S1750923AbVLYU5y (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 15:57:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbVLYU5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 15:43:16 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:65248 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750900AbVLYUnQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 15:43:16 -0500
-Date: Sun, 25 Dec 2005 20:43:13 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Kees Cook <kees@outflux.net>
-Cc: James Lamanna <jlamanna@gmail.com>, linux-kernel@vger.kernel.org,
-       trivial@kernel.org
-Subject: Re: [PATCH] lib: zlib_inflate "r.base" uninitialized compile warnings
-Message-ID: <20051225204313.GD27946@ftp.linux.org.uk>
-References: <aa4c40ff0512251208j46e5de99o51e8d18f5542e9a2@mail.gmail.com> <20051225203531.GN18040@outflux.net>
+	Sun, 25 Dec 2005 15:57:54 -0500
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:42381
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750918AbVLYU5x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Dec 2005 15:57:53 -0500
+Date: Sun, 25 Dec 2005 12:57:42 -0800 (PST)
+Message-Id: <20051225.125742.65007619.davem@davemloft.net>
+To: manfred@dbl.q-ag.de
+Cc: jgarzik@pobox.com, aabdulla@nvidia.com, afu@fugmann.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [PATCH] forcedeth: TSO fix for large buffers
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <200512251451.jBPEpgNe018712@dbl.q-ag.de>
+References: <200512251451.jBPEpgNe018712@dbl.q-ag.de>
+X-Mailer: Mew version 4.2.53 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051225203531.GN18040@outflux.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 25, 2005 at 12:35:32PM -0800, Kees Cook wrote:
-> On Sun, Dec 25, 2005 at 12:08:00PM -0800, James Lamanna wrote:
-> > What version of gcc are you using?
-> 
-> gcc (GCC) 4.0.3 20051201 (prerelease) (Debian 4.0.2-5)
-> 
-> > Looks like a gcc bug that was fixed?
-> 
-> I guess it's been introduced.  ;)
+From: Manfred Spraul <manfred@dbl.q-ag.de>
+Date: Sun, 25 Dec 2005 15:51:42 +0100
 
-4.0.x is very bad in that area - it's crying "wolf" a _lot_ and genuine
-cases of uninitialized variables being used are drowning in the noise;
-compared to 3.x it's a serious regression.
+> This patch contains a bug fix for large buffers. Originally, if a tx 
+> buffer to be sent was larger then the maximum size of the tx descriptor,
+> 
+> it would overwrite other control bits. In this patch, the buffer is 
+> split over multiple descriptors. Also, the fragments are now setup in 
+> forward order.
+> 
+> Signed-off-by: Ayaz Abdulla <aabdulla@nvidia.com>
+> 
+> Rediffed against forcedeth 0.48
+> Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
+
+Are you sure it's ok to setup the tx descriptors in that order?
+
+Usually, you need to set them up last to first so that the chip
+doesn't see a half-filled-in set of TX descriptors.  Ie. the
+core question is if the chip can scan the TX descriptors looking
+for valid ones all on it's own after processing existing TX
+descriptors, or do you have to explicitly allow the chip look
+at the newly added TX descriptor with a register write or similar?

@@ -1,30 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbVLZC2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750982AbVLZCt1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750991AbVLZC2t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 21:28:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750989AbVLZC2s
+	id S1750982AbVLZCt1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 21:49:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750986AbVLZCt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 21:28:48 -0500
-Received: from zeus2.kernel.org ([204.152.191.36]:20875 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1750982AbVLZC2s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 21:28:48 -0500
-Message-Id: <200512260228.jBQ2Sgjg012164@zeus2.kernel.org>
-From: "Marvin" <creaset3z1@hotmail.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: take a wet journey WATCHES
-Date: Sun, 25 Dec 2005 20:28:44 +0600
+	Sun, 25 Dec 2005 21:49:27 -0500
+Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:12584 "EHLO
+	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
+	id S1750982AbVLZCt0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Dec 2005 21:49:26 -0500
+X-IronPort-AV: i="3.99,292,1131350400"; 
+   d="scan'208"; a="383135343:sNHT29685300"
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Roland Dreier <rolandd@cisco.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+Subject: Re: [PATCH 13/13]  [RFC] ipath Kconfig and Makefile
+X-Message-Flag: Warning: May contain useful information
+References: <200512161548.MdcxE8ZQTy1yj4v1@cisco.com>
+	<200512161548.lokgvLraSGi0enUH@cisco.com>
+	<20051218192356.GB9145@mars.ravnborg.org>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Sun, 25 Dec 2005 18:49:19 -0800
+In-Reply-To: <20051218192356.GB9145@mars.ravnborg.org> (Sam Ravnborg's
+ message of "Sun, 18 Dec 2005 20:23:56 +0100")
+Message-ID: <adaoe34fu8g.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Thread-Index: H0MzlOh1gkj2pwNic4DyXXk2fV27ilsTlaNH
-Content-Type: text/plain;
-        charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 26 Dec 2005 02:49:20.0969 (UTC) FILETIME=[F8D79390:01C609C6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Largest and most recognized brands are working to make you 100% happy with this stuff.. WATCHES - NEW YEAR PRESENTS. Prompt delivery. Answer your demands using this lovely thing. Satisfy your sexual appetite. http://ca.geocities.com/camron1gfj/  Zeal without knowledge, is fire without light. Caught between a rock and a hard place. If you would enjoy the fruit, pluck not the flower . Strike while the.. bug is close. There's no place like home.. Seven-fifths of all people do not understand fractions A fool gives; a wise man takes. A huge part of real love is constant forgiveness.. The bigger they are, the harder they fall . Never trouble trouble till trouble troubles you
- A friend to all is a friend to none.  He who plays with fire will get burnt 
-You never know what you can do until you try  Never be afraid to sit awhile and think .
+> > +EXTRA_CFLAGS += -Idrivers/infiniband/include
 
+> If this is needed then some header files should be moved to include/rdma
+
+Sorry, this is really my fault -- it's a remnant to make building our
+subversion tree easier.  It's not needed when the driver is part of
+the kernel proper, and I'll make sure to remove it when finally
+merging.
+
+Thanks,
+  Roland

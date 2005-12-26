@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbVLZJPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbVLZJbB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751073AbVLZJPz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 04:15:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751074AbVLZJPz
+	id S1751074AbVLZJbB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 04:31:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbVLZJbB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 04:15:55 -0500
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53515 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751071AbVLZJPz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 04:15:55 -0500
-Date: Thu, 22 Dec 2005 16:02:44 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       David Brownell <david-b@pacbell.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: USB rejecting sleep
-Message-ID: <20051222160244.GA2747@ucw.cz>
-References: <1134937642.6102.85.camel@gaston> <20051218215051.GA18257@kroah.com>
+	Mon, 26 Dec 2005 04:31:01 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:17848 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751069AbVLZJbA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 04:31:00 -0500
+Subject: Re: Testing a ethernet driver
+From: Arjan van de Ven <arjan@infradead.org>
+To: Conio sandiago <coniodiago@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <993d182d0512252033l1ab88fe1jdc8eb5e658911fe@mail.gmail.com>
+References: <993d182d0512252033l1ab88fe1jdc8eb5e658911fe@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 26 Dec 2005 10:30:54 +0100
+Message-Id: <1135589454.2935.0.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051218215051.GA18257@kroah.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 2005-12-26 at 10:03 +0530, Conio sandiago wrote:
+> hello all,
+> i have developed a thernet driver for my embedded linux.
+> i want to know is there any standard way of testing the same.
+> i want to break the system, can anyone suggest good testing scenarios.
+> regards
 
-> > What exactly changed in the recent USB stacks that is causing it to
-> > abort system suspend much more often ? I'm getting lots of user reports
-> > with 2.6.15-rc5 saying that they can't put their internal laptops to
-> > sleep, apparently because a driver doesn't have a suspend method
-> > (internal bluetooth in this case).
-> > 
-> > It's never been mandatory so far for all drivers of all connected
-> > devices to have a suspend method... didn't we decide back then that
-> > disconneting those was the right way to go ?
-> 
-> Yes it is, and I have a patch in my tree now that fixes this up and
-> keeps the suspend process working properly for usb drivers that do not
-> have a suspend function.
-> 
-> Hm, I wonder if it should go in for 2.6.15?
+1) post it to linux-kernel, net-dev or mentors-list for review
+   (this is a really good test way :)
+2) use some programs that use zero copy 
 
-It would be nice to have some fixes in 2.6.15, so we are
-not swamped with bugreports. Its a regression after all.
 
--- 
-Thanks, Sharp!

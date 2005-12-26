@@ -1,40 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbVLZSr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbVLZSrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbVLZSr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 13:47:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbVLZSr0
+	id S932090AbVLZSrM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 13:47:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbVLZSrM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 13:47:26 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:15527 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932089AbVLZSrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 13:47:25 -0500
-Date: Mon, 26 Dec 2005 18:47:08 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Jaco Kroon <jaco@kroon.co.za>, jason@stdbev.com, rostedt@goodmis.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz, s0348365@sms.ed.ac.uk
-Subject: Re: recommended mail clients
-Message-ID: <20051226184708.GA30043@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Lee Revell <rlrevell@joe-job.com>, Jaco Kroon <jaco@kroon.co.za>,
-	jason@stdbev.com, rostedt@goodmis.org, linux-kernel@vger.kernel.org,
-	pavel@ucw.cz, s0348365@sms.ed.ac.uk
-References: <43AF7724.8090302@kroon.co.za> <43AFB005.50608@kroon.co.za> <1135607906.5774.23.camel@localhost.localdomain> <200512261535.09307.s0348365@sms.ed.ac.uk> <1135619641.8293.50.camel@mindpipe> <0f197de4ee389204cc946086d1a04b54@stdbev.com> <1135621183.8293.64.camel@mindpipe> <43B03658.9040108@kroon.co.za> <1135622935.8293.76.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1135622935.8293.76.camel@mindpipe>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 26 Dec 2005 13:47:12 -0500
+Received: from chiark.greenend.org.uk ([193.201.200.170]:491 "EHLO
+	chiark.greenend.org.uk") by vger.kernel.org with ESMTP
+	id S932090AbVLZSrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 13:47:11 -0500
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i386 No Idle HZ aka dynticks 051221
+In-Reply-To: <20051226025525.GA6697@thunk.org>
+References: <200512210310.51084.kernel@kolivas.org> <20051225171617.GA6929@thunk.org> <20051225171617.GA6929@thunk.org> <20051226025525.GA6697@thunk.org>
+Date: Mon, 26 Dec 2005 18:47:10 +0000
+Message-Id: <E1EqxNG-0003Ze-00@chiark.greenend.org.uk>
+From: Matthew Garrett <mgarrett@chiark.greenend.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 26, 2005 at 01:48:54PM -0500, Lee Revell wrote:
-> I am amused at how many people are not scared of kernel hacking but will
-> go to great lengths to avoid looking at the Mozilla code :-)
+Theodore Ts'o <tytso@mit.edu> wrote:
 
-That probly because those who looked at it once don't want to do that again
-ever.
+> With dyntick enabled, the laptop never enters the C4 state, but
+> instead bounces back and forth between C2 and C3 (and I notice that we
+> never enter C1 state, even when the CPU is completely pegged, but
+> that's true with or without dyntick).  
 
+C1 is a power-saving mode - if your CPU is pegged, you won't be in any
+C state (the acpi code seems to make this confusing by showing you the
+last mode you were in - however, the usage count won't change). If the
+C2 latency isn't significantly larger than the C1 latency, I don't think
+there's ever any reason to want to use C1.
+
+To further confuse things, the ipw2100 driver will silently disable
+anything higher than C2 if it ever receives a corrupt packet. I'm not
+convinced this is a good thing.
+-- 
+Matthew Garrett | mjg59-chiark.mail.linux-rutgers.kernel@srcf.ucam.org

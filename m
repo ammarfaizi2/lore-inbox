@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbVLZSAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbVLZSJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbVLZSAo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 13:00:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbVLZSAo
+	id S932078AbVLZSJo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 13:09:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbVLZSJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 13:00:44 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:60032 "HELO
+	Mon, 26 Dec 2005 13:09:44 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:50561 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932073AbVLZSAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 13:00:44 -0500
-Subject: [PATCH] SubmittingPatches: improve documentation re: buggy mailers
+	id S932078AbVLZSJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 13:09:43 -0500
+Subject: Re: Ho ho ho.. Linux 2.6.15-rc7
 From: Lee Revell <rlrevell@joe-job.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
+To: Mark Knecht <markknecht@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <5bdc1c8b0512261002n6167a78ewfc45a6d3a5078ac0@mail.gmail.com>
+References: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org>
+	 <5bdc1c8b0512261002n6167a78ewfc45a6d3a5078ac0@mail.gmail.com>
 Content-Type: text/plain
-Date: Mon, 26 Dec 2005 13:05:24 -0500
-Message-Id: <1135620324.8293.57.camel@mindpipe>
+Date: Mon, 26 Dec 2005 13:14:52 -0500
+Message-Id: <1135620892.8293.60.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are plenty of perfectly good mailers available that don't mangle
-patches.  Warn users about buggy mailers in general and Thunderbird in
-particular.
+On Mon, 2005-12-26 at 10:02 -0800, Mark Knecht wrote:
+> Hi Linus,
+>    I've visiting at my parents house and gave 2.6.15-rc7 a try on my
+> dad's machine. This machine is his normal desktop box which I
+> administer remotely, as well as a MythTV server. The new kernel built
+> and booted fine. I then built the NVidia stuff. However when I tried
+> to build the ivtv driver from portage it failed:
 
-Signed-Off-By: Lee Revell <rlrevell@joe-job.com>
+There's nothing the kernel developers can do about regressions in out of
+tree modules - there is no stable kernel module API so the authors of
+that module will have to fix it.
 
---- linux-2.6.15-rc5-rt2/Documentation/SubmittingPatches-orig	2005-12-26 13:01:51.000000000 -0500
-+++ linux-2.6.15-rc5-rt2/Documentation/SubmittingPatches	2005-12-26 13:03:27.000000000 -0500
-@@ -186,6 +186,10 @@
- For this reason, all patches should be submitting e-mail "inline".
- WARNING:  Be wary of your editor's word-wrap corrupting your patch,
- if you choose to cut-n-paste your patch.
-+WARNING:  Avoid Mozilla's Thunderbird email client, unlike other 
-+popular mailers it seems to be incapable of sending
-+non-whitespace-damaged patches.
-+
- 
- Do not attach the patch as a MIME attachment, compressed or not.
- Many popular e-mail applications will not always transmit a MIME
-@@ -193,8 +197,8 @@
- code.  A MIME attachment also takes Linus a bit more time to process,
- decreasing the likelihood of your MIME-attached change being accepted.
- 
--Exception:  If your mailer is mangling patches then someone may ask
--you to re-send them using MIME.
-+No exceptions.  If your mailer is mangling patches then you will be 
-+told to get a better mailer.
- 
- 
- 
+Any idea why the IVTV module has not been submitted for mainline?
 
+Lee
 

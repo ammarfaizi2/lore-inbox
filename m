@@ -1,90 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbVLZEx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751008AbVLZExd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbVLZEx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 23:53:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbVLZEx2
+	id S1751008AbVLZExd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 23:53:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbVLZExd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 23:53:28 -0500
-Received: from mailspool.ops.uunet.co.za ([196.7.0.140]:26888 "EHLO
+	Sun, 25 Dec 2005 23:53:33 -0500
+Received: from mailspool.ops.uunet.co.za ([196.7.0.140]:28166 "EHLO
 	mailspool.ops.uunet.co.za") by vger.kernel.org with ESMTP
-	id S1751008AbVLZEx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 23:53:28 -0500
-Message-ID: <43AF7714.8070201@kroon.co.za>
-Date: Mon, 26 Dec 2005 06:52:36 +0200
+	id S1751008AbVLZExc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Dec 2005 23:53:32 -0500
+Message-ID: <43AF7724.8090302@kroon.co.za>
+Date: Mon, 26 Dec 2005 06:52:52 +0200
 From: Jaco Kroon <jaco@kroon.co.za>
 User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051007
 X-Accept-Language: en, af, en-gb, en-us
 MIME-Version: 1.0
 To: Pavel Machek <pavel@ucw.cz>
-Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ati-agp suspend/resume support
-References: <43AF0122.9030904@kroon.co.za> <20051225211414.GA1943@elf.ucw.cz>
-In-Reply-To: <20051225211414.GA1943@elf.ucw.cz>
+Cc: linux-kernel@vger.kernel.org, davej@codemonkey.org.uk
+Subject: [PATCH] ati-agp suspend/resume support (try 2)
 X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms070807090009000503010701"
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms070107030304000701020804"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a cryptographically signed message in MIME format.
 
---------------ms070807090009000503010701
+--------------ms070107030304000701020804
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
-Pavel Machek wrote:
-> Hi!
-> 
-> 
->>Based on the patch at
->>http://unixhead.org/docs/thinkpad/ati-agp/ati-agp.diff, add support for
->>suspend/resume in the ati-agp module.
->>
->>Signed-of-by: Jaco Kroon <jaco@kroon.co.za>
->>
->>--- linux-2.6.15-rc6/drivers/char/agp/ati-agp.c.orig	2005-12-25
->>22:21:32.000000000 +0200
->>+++ linux-2.6.15-rc6/drivers/char/agp/ati-agp.c	2005-12-25
->>22:23:33.000000000 +0200
->>@@ -243,6 +243,15 @@
->> 	return 0;
->> }
->>
->>+static int ati_resume(struct pci_dev *dev)
->>+{
->>+	return ati_configure();
->>+}
->>+
->>+static int ati_suspend(struct pci_dev *dev, pm_message_t state)
->>+{
->>+	return 0;
->>+}
-> 
-> 
-> I think you can just leave out empty function; that should work,
-> too. Otherwise it looks good, thanks... ...
+Based on the patch at
+http://unixhead.org/docs/thinkpad/ati-agp/ati-agp.diff, add support for
+suspend/resume in the ati-agp module.
 
-That is indeed the case.
+Signed-of-by: Jaco Kroon <jaco@kroon.co.za>
 
->> /*
->>  *Since we don't need contigious memory we just try
->>@@ -525,6 +534,8 @@
->> 	.id_table	= agp_ati_pci_table,
->> 	.probe		= agp_ati_probe,
->> 	.remove		= agp_ati_remove,
->>+	.resume		= ati_resume,
->>+	.suspend	= ati_suspend,
->> };
-> 
-> ...aha, plus you may want to keep naming convention. It should
-> probably be agp_ati_resume.
+--- linux-2.6.15-rc6/drivers/char/agp/ati-agp.c.orig	2005-12-25
+22:21:32.000000000 +0200
++++ linux-2.6.15-rc6/drivers/char/agp/ati-agp.c	2005-12-26
+06:47:26.000000000 +0200
+@@ -243,6 +243,10 @@
+ 	return 0;
+ }
 
-Done.  Resubmitting in a second.
++static int agp_ati_resume(struct pci_dev *dev)
++{
++	return ati_configure();
++}
+
+ /*
+  *Since we don't need contigious memory we just try
+@@ -525,6 +529,7 @@
+ 	.id_table	= agp_ati_pci_table,
+ 	.probe		= agp_ati_probe,
+ 	.remove		= agp_ati_remove,
++	.resume		= agp_ati_resume,
+ };
+
+ static int __init agp_ati_init(void)
 -- 
 There are only 10 kinds of people in this world,
   those that understand binary and those that don't.
 http://www.kroon.co.za/
 
---------------ms070807090009000503010701
+--------------ms070107030304000701020804
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -136,17 +115,17 @@ JVCUYsfbJ3FXJY3dqZw5jowgT2Vfldr394fWxghOrvbqNOUQGls1TXfjViF4gtwhGTXeJLHT
 HUb/XV9lTzGCAzswggM3AgEBMGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBD
 b25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFp
 bCBJc3N1aW5nIENBAgMN6dYwCQYFKw4DAhoFAKCCAacwGAYJKoZIhvcNAQkDMQsGCSqGSIb3
-DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUxMjI2MDQ1MjM2WjAjBgkqhkiG9w0BCQQxFgQUQH0S
-zL+9zdE/n3H0ZkFrEP8oAMAwUgYJKoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG
+DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUxMjI2MDQ1MjUyWjAjBgkqhkiG9w0BCQQxFgQUbl7K
+f0rIle6rA1zSJ9dd+Kn37S8wUgYJKoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG
 9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgweAYJKwYB
 BAGCNxAEMWswaTBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcg
 KFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3Vpbmcg
 Q0ECAw3p1jB6BgsqhkiG9w0BCRACCzFroGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRo
 YXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBG
-cmVlbWFpbCBJc3N1aW5nIENBAgMN6dYwDQYJKoZIhvcNAQEBBQAEggEAeWNyxe5+PvUkbf7c
-OrMjkxrgH40B6ffE8G3Gu/WrF88R7cRkpdfLw/rnLGQS774heTdn35rxNmqfQW9y9+JUDpXh
-/r+CmeJPp7GKbYMiLcwvxePVh5QTEqgo2OjU1fX5ELGlQdMryGwaMJAfTc1rN8piU0vRyEwI
-1UAJpmjVpsSVsNg07EshhTeCxDP3brlfreYncaRM/PZVjBK7llrwTI0Jg1uz4FV/u5i5AnwZ
-tb1nWwE/MquuPnb7iBUfDtTFszi67gq0jJRyiF3fC/51ydTB/61KG761ZehbyIIxT6TnfzZZ
-4bJaklS1WIbdg7yi+9111DyhM7e+iSIQ9xX0HgAAAAAAAA==
---------------ms070807090009000503010701--
+cmVlbWFpbCBJc3N1aW5nIENBAgMN6dYwDQYJKoZIhvcNAQEBBQAEggEADIsJDWrbsdHcPsjQ
+AVcnKdrN+fY1TgY0vehQDTURRB/RTOOrWAt/kbJooLQZtqyBI1mVcqoLJ5LVveoE2qK3+/oR
+U3yeYqmzaJXaiIFZN58yNYvlB/zlVJOyykYmF5GDtFnw+3z6fyv6Em/WVy5K7nSqLprTbJTZ
+PEjnp6h2P5eP83kqW7l7bUUB3wGntFC3Lwb7Q7sTrvzXSpz8Y3dc8fv32scwm4utUFxppOG3
+qtH/oU37oz+GhWaSRCUvJucgDMf7lwWZn3oW2ZYCY46uLmKbWgxWdXoxt91xmqM1dsUxalzr
+qpU7uIFf9rd4ggr4+Qmc5h7yGY5dYZlheKew+AAAAAAAAA==
+--------------ms070107030304000701020804--

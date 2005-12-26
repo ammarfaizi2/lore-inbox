@@ -1,70 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbVLZEk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbVLZEx2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751005AbVLZEk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 23:40:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbVLZEk1
+	id S1751009AbVLZEx2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 23:53:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbVLZEx2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 23:40:27 -0500
-Received: from www.tuxrocks.com ([64.62.190.123]:45326 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S1751004AbVLZEk1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 23:40:27 -0500
-Message-ID: <43AF742E.5040604@tuxrocks.com>
-Date: Sun, 25 Dec 2005 21:40:14 -0700
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
+	Sun, 25 Dec 2005 23:53:28 -0500
+Received: from mailspool.ops.uunet.co.za ([196.7.0.140]:26888 "EHLO
+	mailspool.ops.uunet.co.za") by vger.kernel.org with ESMTP
+	id S1751008AbVLZEx2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Dec 2005 23:53:28 -0500
+Message-ID: <43AF7714.8070201@kroon.co.za>
+Date: Mon, 26 Dec 2005 06:52:36 +0200
+From: Jaco Kroon <jaco@kroon.co.za>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051007
+X-Accept-Language: en, af, en-gb, en-us
 MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: Marc Koschewski <marc@osknowledge.org>, Joe Feise <jfeise@feise.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: mouse issues in 2.6.15-rc5-mm series
-References: <43ACEE14.7060507@feise.com> <20051224104224.GA5789@stiffy.osknowledge.org> <43AD29A6.10407@tuxrocks.com> <200512252309.07162.dtor_core@ameritech.net>
-In-Reply-To: <200512252309.07162.dtor_core@ameritech.net>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: Pavel Machek <pavel@ucw.cz>
+Cc: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ati-agp suspend/resume support
+References: <43AF0122.9030904@kroon.co.za> <20051225211414.GA1943@elf.ucw.cz>
+In-Reply-To: <20051225211414.GA1943@elf.ucw.cz>
+X-Enigmail-Version: 0.92.0.0
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms070807090009000503010701"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a cryptographically signed message in MIME format.
 
-Dmitry Torokhov wrote:
-> On Saturday 24 December 2005 05:57, Frank Sorenson wrote:
+--------------ms070807090009000503010701
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Pavel Machek wrote:
+> Hi!
 > 
->>I continue to see the same issues with the resync patch in -mm.  For me,
->>tapping stops working, and I'm now seeing both the mouse pointer jumping
->> as well (a lesser issue for me, so it was probably present earlier as
->>well).
+> 
+>>Based on the patch at
+>>http://unixhead.org/docs/thinkpad/ati-agp/ati-agp.diff, add support for
+>>suspend/resume in the ati-agp module.
 >>
+>>Signed-of-by: Jaco Kroon <jaco@kroon.co.za>
+>>
+>>--- linux-2.6.15-rc6/drivers/char/agp/ati-agp.c.orig	2005-12-25
+>>22:21:32.000000000 +0200
+>>+++ linux-2.6.15-rc6/drivers/char/agp/ati-agp.c	2005-12-25
+>>22:23:33.000000000 +0200
+>>@@ -243,6 +243,15 @@
+>> 	return 0;
+>> }
+>>
+>>+static int ati_resume(struct pci_dev *dev)
+>>+{
+>>+	return ati_configure();
+>>+}
+>>+
+>>+static int ati_suspend(struct pci_dev *dev, pm_message_t state)
+>>+{
+>>+	return 0;
+>>+}
 > 
-> Frank,
 > 
-> Does the tapping not work period or it only does not work first time you
-> try to tap after not touching the pad for more than 5 seconds?
+> I think you can just leave out empty function; that should work,
+> too. Otherwise it looks good, thanks... ...
 
-The tapping works initially, then stops.  I hadn't put 2+2 together with
-the 5-second idle bit, but that seems the likely issue.
+That is indeed the case.
 
-I applied that patch you sent out yesterday, and now tapping works and
-I'm not seeing the mouse stall/jump problem.  I'm at 21+ hours uptime
-now, with no mouse problems, so I think setting the resync_time to 0
-looks like the right fix.
+>> /*
+>>  *Since we don't need contigious memory we just try
+>>@@ -525,6 +534,8 @@
+>> 	.id_table	= agp_ati_pci_table,
+>> 	.probe		= agp_ati_probe,
+>> 	.remove		= agp_ati_remove,
+>>+	.resume		= ati_resume,
+>>+	.suspend	= ati_suspend,
+>> };
+> 
+> ...aha, plus you may want to keep naming convention. It should
+> probably be agp_ati_resume.
 
-Thanks,
+Done.  Resubmitting in a second.
+-- 
+There are only 10 kinds of people in this world,
+  those that understand binary and those that don't.
+http://www.kroon.co.za/
 
-Frank
-- --
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+--------------ms070807090009000503010701
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-iD8DBQFDr3QuaI0dwg4A47wRApTrAKCznvvBq5lX66VPggjP6KTtbFQdDgCgmrhs
-x+90pceDtoWznfjy6kBGaAs=
-=e2Xa
------END PGP SIGNATURE-----
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII5TCC
+As0wggI2oAMCAQICAw3p1jANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UE
+ChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDUwMTI4MjExMjIzWhcNMDYwMTI4MjExMjIz
+WjBCMR8wHQYDVQQDExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMR8wHQYJKoZIhvcNAQkBFhBq
+YWNvQGtyb29uLmNvLnphMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4CsLuOWD
+wimwAv4QLdlT99frJCwzUBVQNL7c7x4ufEquAH6RamWfQyQHzykEJM8NeMIrfb+k3fZEi+ZU
+g5sq2uIqzOuCJsIj0x3LnoydXTikbv1AFWQDEuqITlroA8bGJE/mMlbPrKyDACPo5cQAzUQz
+LAg7LQQQVkKNWH4eeXUwZ5lOZEWWno0P5DXHdSLQxCshgWVPRrbtKe25WGObqJMa//1T5qX8
+0mKIdAbHlz90BwgX/MjLp0BpXTii2653ScOujCLTC3cPdDUDK68qG7RqatVw5+HE/npJIWa1
+0TxJUp5Ii8nPbGPzpEWQmZ8TjkjMs26w80PPPKh2Vh2siQIDAQABoy0wKzAbBgNVHREEFDAS
+gRBqYWNvQGtyb29uLmNvLnphMAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEEBQADgYEAqXNX
+QEMTVQoj3JoEwK9vlfqSVz5ZEUklpgEhwFJsD+PKa/LgUGVHk3Gw8wws4+wZxmpOsJ7vdiWL
+y8zlX7HfPWMcbibTi6C7nT6WahqdeAo3kVjhnMqJ3Sf6sX0JGl9bWfIhgmIVy/ZdM2ztrXwd
+rbWiT7un5lM05D4YPCNH9fcwggLNMIICNqADAgECAgMN6dYwDQYJKoZIhvcNAQEEBQAwYjEL
+MAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAq
+BgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMB4XDTA1MDEyODIx
+MTIyM1oXDTA2MDEyODIxMTIyM1owQjEfMB0GA1UEAxMWVGhhd3RlIEZyZWVtYWlsIE1lbWJl
+cjEfMB0GCSqGSIb3DQEJARYQamFjb0Brcm9vbi5jby56YTCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAOArC7jlg8IpsAL+EC3ZU/fX6yQsM1AVUDS+3O8eLnxKrgB+kWpln0Mk
+B88pBCTPDXjCK32/pN32RIvmVIObKtriKszrgibCI9Mdy56MnV04pG79QBVkAxLqiE5a6APG
+xiRP5jJWz6ysgwAj6OXEAM1EMywIOy0EEFZCjVh+Hnl1MGeZTmRFlp6ND+Q1x3Ui0MQrIYFl
+T0a27SntuVhjm6iTGv/9U+al/NJiiHQGx5c/dAcIF/zIy6dAaV04otuud0nDrowi0wt3D3Q1
+AyuvKhu0amrVcOfhxP56SSFmtdE8SVKeSIvJz2xj86RFkJmfE45IzLNusPNDzzyodlYdrIkC
+AwEAAaMtMCswGwYDVR0RBBQwEoEQamFjb0Brcm9vbi5jby56YTAMBgNVHRMBAf8EAjAAMA0G
+CSqGSIb3DQEBBAUAA4GBAKlzV0BDE1UKI9yaBMCvb5X6klc+WRFJJaYBIcBSbA/jymvy4FBl
+R5NxsPMMLOPsGcZqTrCe73Yli8vM5V+x3z1jHG4m04ugu50+lmoanXgKN5FY4ZzKid0n+rF9
+CRpfW1nyIYJiFcv2XTNs7a18Ha21ok+7p+ZTNOQ+GDwjR/X3MIIDPzCCAqigAwIBAgIBDTAN
+BgkqhkiG9w0BAQUFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTES
+MBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UE
+CxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBl
+cnNvbmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0
+aGF3dGUuY29tMB4XDTAzMDcxNzAwMDAwMFoXDTEzMDcxNjIzNTk1OVowYjELMAkGA1UEBhMC
+WkExJTAjBgNVBAoTHFRoYXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1Ro
+YXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBJc3N1aW5nIENBMIGfMA0GCSqGSIb3DQEBAQUAA4GN
+ADCBiQKBgQDEpjxVc1X7TrnKmVoeaMB1BHCd3+n/ox7svc31W/Iadr1/DDph8r9RzgHU5VAK
+MNcCY1osiRVwjt3J8CuFWqo/cVbLrzwLB+fxH5E2JCoTzyvV84J3PQO+K/67GD4Hv0CAAmTX
+p6a7n2XRxSpUhQ9IBH+nttE8YQRAHmQZcmC3+wIDAQABo4GUMIGRMBIGA1UdEwEB/wQIMAYB
+Af8CAQAwQwYDVR0fBDwwOjA4oDagNIYyaHR0cDovL2NybC50aGF3dGUuY29tL1RoYXd0ZVBl
+cnNvbmFsRnJlZW1haWxDQS5jcmwwCwYDVR0PBAQDAgEGMCkGA1UdEQQiMCCkHjAcMRowGAYD
+VQQDExFQcml2YXRlTGFiZWwyLTEzODANBgkqhkiG9w0BAQUFAAOBgQBIjNFQg+oLLswNo2as
+Zw9/r6y+whehQ5aUnX9MIbj4Nh+qLZ82L8D0HFAgk3A8/a3hYWLD2ToZfoSxmRsAxRoLgnSe
+JVCUYsfbJ3FXJY3dqZw5jowgT2Vfldr394fWxghOrvbqNOUQGls1TXfjViF4gtwhGTXeJLHT
+HUb/XV9lTzGCAzswggM3AgEBMGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBD
+b25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFp
+bCBJc3N1aW5nIENBAgMN6dYwCQYFKw4DAhoFAKCCAacwGAYJKoZIhvcNAQkDMQsGCSqGSIb3
+DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUxMjI2MDQ1MjM2WjAjBgkqhkiG9w0BCQQxFgQUQH0S
+zL+9zdE/n3H0ZkFrEP8oAMAwUgYJKoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG
+9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgweAYJKwYB
+BAGCNxAEMWswaTBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcg
+KFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3Vpbmcg
+Q0ECAw3p1jB6BgsqhkiG9w0BCRACCzFroGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRo
+YXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBG
+cmVlbWFpbCBJc3N1aW5nIENBAgMN6dYwDQYJKoZIhvcNAQEBBQAEggEAeWNyxe5+PvUkbf7c
+OrMjkxrgH40B6ffE8G3Gu/WrF88R7cRkpdfLw/rnLGQS774heTdn35rxNmqfQW9y9+JUDpXh
+/r+CmeJPp7GKbYMiLcwvxePVh5QTEqgo2OjU1fX5ELGlQdMryGwaMJAfTc1rN8piU0vRyEwI
+1UAJpmjVpsSVsNg07EshhTeCxDP3brlfreYncaRM/PZVjBK7llrwTI0Jg1uz4FV/u5i5AnwZ
+tb1nWwE/MquuPnb7iBUfDtTFszi67gq0jJRyiF3fC/51ydTB/61KG761ZehbyIIxT6TnfzZZ
+4bJaklS1WIbdg7yi+9111DyhM7e+iSIQ9xX0HgAAAAAAAA==
+--------------ms070807090009000503010701--

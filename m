@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbVLZTFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbVLZTMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbVLZTFP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 14:05:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932104AbVLZTFP
+	id S932107AbVLZTMs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 14:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbVLZTMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 14:05:15 -0500
-Received: from mailspool.ops.uunet.co.za ([196.7.0.140]:27652 "EHLO
+	Mon, 26 Dec 2005 14:12:48 -0500
+Received: from mailspool.ops.uunet.co.za ([196.7.0.140]:56074 "EHLO
 	mailspool.ops.uunet.co.za") by vger.kernel.org with ESMTP
-	id S932103AbVLZTFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 14:05:13 -0500
-Message-ID: <43B03ECB.5020301@kroon.co.za>
-Date: Mon, 26 Dec 2005 21:04:43 +0200
+	id S932107AbVLZTMr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 14:12:47 -0500
+Message-ID: <43B04099.7030706@kroon.co.za>
+Date: Mon, 26 Dec 2005 21:12:25 +0200
 From: Jaco Kroon <jaco@kroon.co.za>
 User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20051007
 X-Accept-Language: en, af, en-gb, en-us
@@ -22,55 +22,25 @@ Subject: Re: recommended mail clients
 References: <43AF7724.8090302@kroon.co.za>	<43AFB005.50608@kroon.co.za>	<1135607906.5774.23.camel@localhost.localdomain>	<200512261535.09307.s0348365@sms.ed.ac.uk>	<1135619641.8293.50.camel@mindpipe>	<0f197de4ee389204cc946086d1a04b54@stdbev.com>	<1135621183.8293.64.camel@mindpipe>	<43B03658.9040108@kroon.co.za> <20051226105822.538a31d9.rdunlap@xenotime.net>
 In-Reply-To: <20051226105822.538a31d9.rdunlap@xenotime.net>
 X-Enigmail-Version: 0.92.0.0
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms020503040006030903090605"
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms030600020006020804020007"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a cryptographically signed message in MIME format.
 
---------------ms020503040006030903090605
+--------------ms030600020006020804020007
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 
 Randy.Dunlap wrote:
 > On Mon, 26 Dec 2005 20:28:40 +0200 Jaco Kroon wrote:
-> 
-> 
->>Lee Revell wrote:
->>
->>>On Mon, 2005-12-26 at 12:09 -0600, Jason Munro wrote:
->>>
->>>
->>>>On 11:54:00 am 26 Dec 2005 Lee Revell <rlrevell@joe-job.com> wrote:
->>>>
->>>><snip>
->>>>
->>>>>>Dare I say it, KMail has also been doing the Right Thing for a
->>>>>>long time. It will only line wrap things that you insert by
->>>>>>typing; pastes are left untouched.
-> 
-> 
-> sylpheed also DTRT.  (http://sylpheed.good-day.net)
-> It's a simple, clean email client.
-> 
-> 
->>I've looked at a few clients and it seems I'm stuck with mozilla for at
->>least a while.  Whilst probably the buggiest client there is it does
->>look like it's the best suited for what I want.  I might switch to
->>FireFox (which iirc does have an "insert file" feature - which might
->>also solve this problem).
-> 
-> 
-> Firefox has an email interface??
-
-Thunderbird ... (my brain is rotting ok ... ?)
-
 >>For the moment though I'm quickly hacking together a bash script that
 >>wraps the sendmail binary that can be used specifically for submitting
 >>patches (the intent is to perform certain checks for Signed-of-by lines,
 >>correct [PATCH] subject and so forth).  If anybody else is interrested
 >>I'd be more than happy to share (albeit I suspect the usefullness will
 >>be seriously limited).
+> 
 > 
 > Greg KH and Paul Jackson have both written scripts for this.
 > And there may be one in the quilt package.
@@ -79,15 +49,21 @@ Thunderbird ... (my brain is rotting ok ... ?)
 >   http://www.speakeasy.org/~pj99/sgi/sendpatchset
 > I don't recall where Greg's is (perl).
 
-/me grabs a copy.
+Don't know about Greg's but Paul's doesn't quite do what I had in mind:
 
+http://www.kroon.co.za/downloads/sendpatch
 
+It's written in bash (obviously).  Any suggestions welcome, flames will
+be redirected to /dev/null :P.  And obviously the lack of comments in
+the code is "bad".  Tough.
+
+Jaco
 -- 
 There are only 10 kinds of people in this world,
   those that understand binary and those that don't.
 http://www.kroon.co.za/
 
---------------ms020503040006030903090605
+--------------ms030600020006020804020007
 Content-Type: application/x-pkcs7-signature; name="smime.p7s"
 Content-Transfer-Encoding: base64
 Content-Disposition: attachment; filename="smime.p7s"
@@ -139,17 +115,17 @@ JVCUYsfbJ3FXJY3dqZw5jowgT2Vfldr394fWxghOrvbqNOUQGls1TXfjViF4gtwhGTXeJLHT
 HUb/XV9lTzGCAzswggM3AgEBMGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRoYXd0ZSBD
 b25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFp
 bCBJc3N1aW5nIENBAgMN6dYwCQYFKw4DAhoFAKCCAacwGAYJKoZIhvcNAQkDMQsGCSqGSIb3
-DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUxMjI2MTkwNDQzWjAjBgkqhkiG9w0BCQQxFgQUWC+I
-i/+9v6Uv3W9D3aIWA6OHE3EwUgYJKoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG
+DQEHATAcBgkqhkiG9w0BCQUxDxcNMDUxMjI2MTkxMjI1WjAjBgkqhkiG9w0BCQQxFgQURSbh
+nr7ft8dsvDaWKXE1Xwd/5/gwUgYJKoZIhvcNAQkPMUUwQzAKBggqhkiG9w0DBzAOBggqhkiG
 9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcwDQYIKoZIhvcNAwICASgweAYJKwYB
 BAGCNxAEMWswaTBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcg
 KFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3Vpbmcg
 Q0ECAw3p1jB6BgsqhkiG9w0BCRACCzFroGkwYjELMAkGA1UEBhMCWkExJTAjBgNVBAoTHFRo
 YXd0ZSBDb25zdWx0aW5nIChQdHkpIEx0ZC4xLDAqBgNVBAMTI1RoYXd0ZSBQZXJzb25hbCBG
-cmVlbWFpbCBJc3N1aW5nIENBAgMN6dYwDQYJKoZIhvcNAQEBBQAEggEAlxxooLIFq35h9rCJ
-LcoifDNinxYioPziaHf3ACVTtmxOnYDI6oi9fE+U2h4d03TCYsnZUOHRkP1xl9I146HQ3HWF
-1pw0cfauvL2b9ElJcZ5DvLE7iG05R3xMUB75M9Avq0avyHf5psUhoqXP55EPi7v8HQbsEvnp
-x+3FV9+a+hAVTe6zdieOupSZlTPzgqPm9VxB4x8cIBniP6QZBSmMlAVcjB82iirzlIwGIu7X
-ssNQey7PJyydYGOcHpFEhbLw5w8TcTjb4/7LOp1KEOacKPAr8I7q4J0/stOw5hE8Wkdq4KPK
-FfxoI3+17l4uNXu8iDZMR6uEfYRTCUOy/+eQ3QAAAAAAAA==
---------------ms020503040006030903090605--
+cmVlbWFpbCBJc3N1aW5nIENBAgMN6dYwDQYJKoZIhvcNAQEBBQAEggEAk40Qb1/Ya9A+XWSX
+Ma0PWewyItpw44jhI/uoo6Kj82ycsv3aSMcjzpHLHoZWY7I3FtzSdjkd2gArkzChYlLRHMZd
+iKkKs1GLfT/xO3qh3/zVRQC8tLuGR64oSXR9bMuf0hX7z5TT8kSJ1K+vos/s2j1mxFbjjVxS
+2ThlldIeP5S/SyxLkEBZskKUbmxwACQeeTYyGWl1mBeAqouSJWs5mt3ZYw4TELtO626gQZlI
+XExorwzLZe00nEYC4XZ2VkYEkCSBRnW7BA7f5J2ChxoEhd/RC2FdmeANYuR5dfjOClpCY5FB
+ZDzDWdLXycDu4SkxkSHnDx5M4/Vs4lxsx3UsfwAAAAAAAA==
+--------------ms030600020006020804020007--

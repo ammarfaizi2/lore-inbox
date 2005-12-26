@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbVLZRjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932072AbVLZRsw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbVLZRjr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 12:39:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbVLZRjr
+	id S932072AbVLZRsw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 12:48:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbVLZRsw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 12:39:47 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:51692 "HELO
+	Mon, 26 Dec 2005 12:48:52 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:30445 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932070AbVLZRjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 12:39:46 -0500
-Subject: Re: [patch 0/9] mutex subsystem, -V4
+	id S932072AbVLZRsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 12:48:52 -0500
+Subject: Re: recommended mail clients [was] [PATCH] ati-agp suspend/resume
+	support (try 2)
 From: Lee Revell <rlrevell@joe-job.com>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       mingo@elte.hu, zippel@linux-m68k.org, hch@infradead.org,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, arjanv@infradead.org, nico@cam.org,
-       jes@trained-monkey.org, zwane@arm.linux.org.uk, oleg@tv-sign.ru,
-       dhowells@redhat.com, bcrl@kvack.org, rostedt@goodmis.org, ak@suse.de,
-       rmk+lkml@arm.linux.org.uk
-In-Reply-To: <5.2.1.1.2.20051226175652.00be31b8@pop.gmx.net>
-References: <1135593776.2935.5.camel@laptopd505.fenrus.org>
-	 <20051222114147.GA18878@elte.hu> <20051222153014.22f07e60.akpm@osdl.org>
-	 <20051222233416.GA14182@infradead.org>
-	 <200512251708.16483.zippel@linux-m68k.org>
-	 <20051225150445.0eae9dd7.akpm@osdl.org> <20051225232222.GA11828@elte.hu>
-	 <20051226023549.f46add77.akpm@osdl.org>
-	 <1135593776.2935.5.camel@laptopd505.fenrus.org>
-	 <5.2.1.1.2.20051226175652.00be31b8@pop.gmx.net>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Jaco Kroon <jaco@kroon.co.za>,
+       linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <200512261535.09307.s0348365@sms.ed.ac.uk>
+References: <43AF7724.8090302@kroon.co.za> <43AFB005.50608@kroon.co.za>
+	 <1135607906.5774.23.camel@localhost.localdomain>
+	 <200512261535.09307.s0348365@sms.ed.ac.uk>
 Content-Type: text/plain
-Date: Mon, 26 Dec 2005 12:44:52 -0500
-Message-Id: <1135619093.8293.43.camel@mindpipe>
+Date: Mon, 26 Dec 2005 12:54:00 -0500
+Message-Id: <1135619641.8293.50.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-26 at 18:15 +0100, Mike Galbraith wrote:
-> At 03:11 AM 12/26/2005 -0800, Andrew Morton wrote:
-> >Arjan van de Ven <arjan@infradead.org> wrote:
+On Mon, 2005-12-26 at 15:35 +0000, Alistair John Strachan wrote:
+> On Monday 26 December 2005 14:38, Steven Rostedt wrote:
+> > On Mon, 2005-12-26 at 10:55 +0200, Jaco Kroon wrote:
+> > > Pavel Machek wrote:
+> > > > Your email client did some nasty word wrapping here. I guess the way
+> > > > to proceed is try #3, this time add my ACK and Cc: akpm...
 > > >
+> > > Right, which clients is recommended for this type of work - mozilla is
+> > > just not doing it for me any more.  I've heard some decent things about
+> > > mutt, any other recomendations?
 > > >
-> > > > hm.  16 CPUs hitting the same semaphore at great arrival rates.  The cost
-> > > > of a short spin is much less than the cost of a sleep/wakeup.  The 
-> > machine
-> > > > was doing 100,000 - 200,000 context switches per second.
-> > >
-> > > interesting.. this might be a good indication that a "spin a bit first"
-> > > mutex slowpath for some locks might be worth implementing...
+> > > I've mailed off the patch now using mailx but that isn't going to be an
+> > > option in the long run.
 > >
-> >If we see a workload which is triggering such high context switch rates,
-> >maybe.  But I don't think we've seen any such for a long time.
+> > I use pine and evolution.  Pine is text based and great when I ssh into
+> > my machine to work.  Evolution is slow, but plays well with pine and it
+> > handles things needed for LKML very well. (the drop down menu "Normal"
+> > may be changed to "Preformat", which allows of inserting text files
+> > "as-is").
 > 
-> Hmm.  Is there a real workload where such a high context switch rate is 
-> necessary?  Every time I've seen a high (100,000 - 200,000 is beyond absurd 
-> on my little box, but...) context switch rate, it's been because something 
-> sucked.
+> Dare I say it, KMail has also been doing the Right Thing for a long time. It 
+> will only line wrap things that you insert by typing; pastes are left 
+> untouched.
 
-I can trivially produce 20K per second on my little sub Ghz box so 100K
-on a busy server is certainly plausible.  Especially if for the purposes
-of this discussion we are also worried about -rt + IRQ threading where
-each IRQ costs two context switches (more if it raises a softirq).
+It seems that of all the popular mail clients only Thunderbird has this
+problem.  AFAICT it's impossible to make it DTRT with inline patches and
+even if it is the fact that most users get it wrong points to a serious
+usability/UI issue.
+
+Would a patch to add "Don't use Thunderbird/Mozilla Mail" to
+SubmittingPatches be accepted?  Then we can point the Mozilla developers
+at it (they have shown zero interest in fixing the problem so far) and
+hopefully this will light a fire under someone.
 
 Lee
 

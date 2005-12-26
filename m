@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbVLZW0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbVLZW1D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750774AbVLZW0W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 17:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbVLZW0W
+	id S1750746AbVLZW1D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 17:27:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751087AbVLZW1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 17:26:22 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:38525 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1750774AbVLZW0W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 17:26:22 -0500
-Date: Mon, 26 Dec 2005 22:55:42 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Robin Holt <holt@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch 1/1] Fix genksyms handling of DEFINE_PER_CPU(struct foo_s *, bar);
-Message-ID: <20051226215542.GA31261@mars.ravnborg.org>
-References: <20051221203601.GB20619@lnx-holt.americas.sgi.com> <20051221202356.GA31487@mars.ravnborg.org> <20051221220251.GA2924@lnx-holt.americas.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051221220251.GA2924@lnx-holt.americas.sgi.com>
-User-Agent: Mutt/1.5.11
+	Mon, 26 Dec 2005 17:27:01 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:35201 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S1750746AbVLZW1A (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 17:27:00 -0500
+Date: Mon, 26 Dec 2005 23:26:17 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+cc: Steven Rostedt <rostedt@goodmis.org>, Jaco Kroon <jaco@kroon.co.za>,
+       linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+Subject: Re: recommended mail clients [was] [PATCH] ati-agp suspend/resume
+ support (try 2)
+In-Reply-To: <200512261535.09307.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.61.0512262323110.12671@yvahk01.tjqt.qr>
+References: <43AF7724.8090302@kroon.co.za> <43AFB005.50608@kroon.co.za>
+ <1135607906.5774.23.camel@localhost.localdomain> <200512261535.09307.s0348365@sms.ed.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 21, 2005 at 04:02:51PM -0600, Robin Holt wrote:
-> On Wed, Dec 21, 2005 at 09:23:56PM +0100, Sam Ravnborg wrote:
-> > On Wed, Dec 21, 2005 at 02:36:01PM -0600, Robin Holt wrote:
-> > > This is a one-line change to parse.y.  It results in rebuilding the
-> > > scripts/genksyms/*_shipped files.  Those are the next four patches.
-> > Does this differ from the first patch-set you sent out?
-> > I plan to apply these so they will be part of next round of kbuild
-> > updates - which will take place during next merge window.
-> 
-> They are the same.  It took me four to finally get all the
-> parts out and on the lkml.
+>>
+>> I use pine and evolution.  Pine is text based and great when I ssh into
+>> my machine to work.  Evolution is slow, but plays well with pine and it
+>> handles things needed for LKML very well. (the drop down menu "Normal"
+>> may be changed to "Preformat", which allows of inserting text files
+>> "as-is").
+>
+>Dare I say it, KMail has also been doing the Right Thing for a long time. It 
+>will only line wrap things that you insert by typing; pastes are left 
+>untouched.
+>
+>This satisfies Linus's demand that all patches be part of the email body and 
+>not an attachment.
 
-Applied now. I created new _shipped files with the tools I have
-installed.
 
-bison (GNU Bison) 2.0
-flex version 2.5.4
-GNU gperf 3.0.1
+Do not always blame the MUA, because actually, the MTAs may do anything 
+with the mail text. That's (among other reasons) why things like MIME 
+attachments were invented, because they (their respective uuencoded or 
+base64encoded "text") can be wrapped but does not change the 
+decoded form.  - Something like that is in the pine doc.
 
-This is (almost) a match of the same tools used for kconfig.
 
-	Sam
+
+Jan Engelhardt
+-- 

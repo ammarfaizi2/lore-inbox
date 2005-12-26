@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbVLZRZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbVLZRPa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932067AbVLZRZs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 12:25:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbVLZRZs
+	id S932069AbVLZRPa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 12:15:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932070AbVLZRPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 12:25:48 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:1756 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S932067AbVLZRZs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 12:25:48 -0500
-Date: Mon, 26 Dec 2005 12:25:29 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@gandalf.stny.rr.com
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] SLAB - have index_of bug at compile time.
-In-Reply-To: <43B01BD7.3040209@colorfullife.com>
-Message-ID: <Pine.LNX.4.58.0512261209060.9622@gandalf.stny.rr.com>
-References: <43B01BD7.3040209@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 26 Dec 2005 12:15:30 -0500
+Received: from mail.gmx.net ([213.165.64.21]:58785 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932069AbVLZRP3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 12:15:29 -0500
+X-Authenticated: #14349625
+Message-Id: <5.2.1.1.2.20051226175652.00be31b8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Mon, 26 Dec 2005 18:15:17 +0100
+To: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+Cc: mingo@elte.hu, zippel@linux-m68k.org, hch@infradead.org,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org, arjanv@infradead.org, nico@cam.org,
+       jes@trained-monkey.org, zwane@arm.linux.org.uk, oleg@tv-sign.ru,
+       dhowells@redhat.com, bcrl@kvack.org, rostedt@goodmis.org, ak@suse.de,
+       rmk+lkml@arm.linux.org.uk
+In-Reply-To: <20051226031128.13bbace9.akpm@osdl.org>
+References: <1135593776.2935.5.camel@laptopd505.fenrus.org>
+ <20051222114147.GA18878@elte.hu>
+ <20051222153014.22f07e60.akpm@osdl.org>
+ <20051222233416.GA14182@infradead.org>
+ <200512251708.16483.zippel@linux-m68k.org>
+ <20051225150445.0eae9dd7.akpm@osdl.org>
+ <20051225232222.GA11828@elte.hu>
+ <20051226023549.f46add77.akpm@osdl.org>
+ <1135593776.2935.5.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Antivirus: avast! (VPS 0550-0, 12/10/2005), Outbound message
+X-Antivirus-Status: Clean
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 26 Dec 2005, Manfred Spraul wrote:
-
-> Steven wrote:
->
-> >So I'm going through ever line of code and examining it
-> >thoroughly, when I find something that could be improved
+At 03:11 AM 12/26/2005 -0800, Andrew Morton wrote:
+>Arjan van de Ven <arjan@infradead.org> wrote:
 > >
-> Try to find a kfree implementation that doesn't need virt_to_page().
-> This is a big restriction of the current implementation: It's in the hot
-> path, but the operation is only fast on simple systems, not on numa
-> systems without a big memory map.
-> And it makes it impossible to use vmalloc memory as the basis for slabs,
-> or to use slab for io memory.
+> >
+> > > hm.  16 CPUs hitting the same semaphore at great arrival rates.  The cost
+> > > of a short spin is much less than the cost of a sleep/wakeup.  The 
+> machine
+> > > was doing 100,000 - 200,000 context switches per second.
+> >
+> > interesting.. this might be a good indication that a "spin a bit first"
+> > mutex slowpath for some locks might be worth implementing...
 >
+>If we see a workload which is triggering such high context switch rates,
+>maybe.  But I don't think we've seen any such for a long time.
 
-Unfortunately, that virt_to_page helps make kmalloc and kfree more
-efficient.  Since it allows the use of the mem_map pages that map to the
-used memory to be used for storing information about the slab.
+Hmm.  Is there a real workload where such a high context switch rate is 
+necessary?  Every time I've seen a high (100,000 - 200,000 is beyond absurd 
+on my little box, but...) context switch rate, it's been because something 
+sucked.
 
-So removing virt_to_page means you need to store the information relative
-to the memory that is mapped.  Thus you need to allocate more than is
-needed.
-
-Your question refers to only kfree, which would not really be that
-difficult to remove the virt_to_page, since that would just need the extra
-memory _for each allocation_.  But then you mention vmalloc and numa,
-where it is the generic use of virt_to_page through out slab.c that is the
-issue.  I counted 14 direct uses of virt_to_page in slab.c (2.6.15-rc5).
-Now you need to find a way to store the information of the off slab
-descriptors and for slabs that are more than one page.
-
-Changing the use of virt_to_page would probably hurt those that can use
-it, and the changes would not be accepted because of that.  Unless you can
-keep the same speed and memory efficiency of those "simple systems".
-
-Now, maybe NUMA and vmalloc might be a good reason to start a new
-allocation system along side of slab?
-
--- Steve
+         -Mike   
 

@@ -1,93 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbVLZTSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbVLZTSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbVLZTSr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 14:18:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVLZTSr
+	id S932102AbVLZTSX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 14:18:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932108AbVLZTSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 14:18:47 -0500
-Received: from mail.dvmed.net ([216.237.124.58]:21453 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932111AbVLZTSq (ORCPT
+	Mon, 26 Dec 2005 14:18:23 -0500
+Received: from smtp6.libero.it ([193.70.192.59]:2531 "EHLO smtp6.libero.it")
+	by vger.kernel.org with ESMTP id S932102AbVLZTSX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 14:18:46 -0500
-Message-ID: <43B041FA.8000404@pobox.com>
-Date: Mon, 26 Dec 2005 14:18:18 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jaco Kroon <jaco@kroon.co.za>
-CC: Lee Revell <rlrevell@joe-job.com>, jason@stdbev.com, rostedt@goodmis.org,
-       linux-kernel@vger.kernel.org, pavel@ucw.cz, s0348365@sms.ed.ac.uk
-Subject: Re: recommended mail clients
-References: <43AF7724.8090302@kroon.co.za> <43AFB005.50608@kroon.co.za>	 <1135607906.5774.23.camel@localhost.localdomain>	 <200512261535.09307.s0348365@sms.ed.ac.uk>	 <1135619641.8293.50.camel@mindpipe>	 <0f197de4ee389204cc946086d1a04b54@stdbev.com> <1135621183.8293.64.camel@mindpipe> <43B03658.9040108@kroon.co.za>
-In-Reply-To: <43B03658.9040108@kroon.co.za>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 26 Dec 2005 14:18:23 -0500
+Date: Mon, 26 Dec 2005 20:19:01 +0100
+From: Alessandro Zummo <alessandro.zummo@towertech.it>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC][PATCH 0/7] RTC subsystem
+Message-ID: <20051226201901.54288289@inspiron>
+Organization: Tower Technologies
+X-Mailer: Sylpheed
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  Jaco Kroon wrote: > Lee Revell wrote: > >>On Mon,
-	2005-12-26 at 12:09 -0600, Jason Munro wrote: >> >> >>>On 11:54:00 am
-	26 Dec 2005 Lee Revell <rlrevell@joe-job.com> wrote: >>> >>><snip> >>>
-	>>>>>Dare I say it, KMail has also been doing the Right Thing for a
-	>>>>>long time. It will only line wrap things that you insert by
-	>>>>>typing; pastes are left untouched. >>>> >>>>It seems that of all
-	the popular mail clients only Thunderbird has >>>>this problem. AFAICT
-	it's impossible to make it DTRT with inline >>>>patches and even if it
-	is the fact that most users get it wrong >>>>points to a serious
-	usability/UI issue. >>>> >>>>Would a patch to add "Don't use
-	Thunderbird/Mozilla Mail" to >>>>SubmittingPatches be accepted? Then we
-	can point the Mozilla >>>>developers at it (they have shown zero
-	interest in fixing the problem >>>>so far) and hopefully this will
-	light a fire under someone. > > > I would second that patch. [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
-	[69.134.188.146 listed in dnsbl.sorbs.net]
+X-Scanned: with antispam and antivirus automated system at libero.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaco Kroon wrote:
-> Lee Revell wrote:
-> 
->>On Mon, 2005-12-26 at 12:09 -0600, Jason Munro wrote:
->>
->>
->>>On 11:54:00 am 26 Dec 2005 Lee Revell <rlrevell@joe-job.com> wrote:
->>>
->>><snip>
->>>
->>>>>Dare I say it, KMail has also been doing the Right Thing for a
->>>>>long time. It will only line wrap things that you insert by
->>>>>typing; pastes are left untouched.
->>>>
->>>>It seems that of all the popular mail clients only Thunderbird has
->>>>this problem.  AFAICT it's impossible to make it DTRT with inline
->>>>patches and even if it is the fact that most users get it wrong
->>>>points to a serious usability/UI issue.
->>>>
->>>>Would a patch to add "Don't use Thunderbird/Mozilla Mail" to
->>>>SubmittingPatches be accepted?  Then we can point the Mozilla
->>>>developers at it (they have shown zero interest in fixing the problem
->>>>so far) and hopefully this will light a fire under someone.
-> 
-> 
-> I would second that patch.
-
-I would NAK such a patch.
-
-Andrew Morton described a way to do it, some method using x cut buffers, 
-IIRC.
-
-The best thing to do is use a custom script, though.  Other mailers can 
-be annoying as well, with regards to the References header, for example. 
-  And pine is awful, encoding plain text as base64.
-
-	Jeff
 
 
+ Hello,
 
+  thanks to all the suggestions I've got, I've
+ updated my proposal [1] for an RTC subsystem.
+
+  I tried to implement locking wherever necessary.
+ I'm on vacations right now and I don't have all the feedback
+ emails at handy, so I'm sure I've forgot something.
+
+  I've left some XXX in the points where I have
+ doubts.
+
+  The dev interface now supports multiple RTCs and
+ hotplug events are generated whenever an RTC is
+ added/removed.
+
+ Those udev lines can be used to create the device nodes
+
+ACTION=="add", SUBSYSTEM=="rtc", ENV{MAJOR}=="[0-9]*",  NAME="rtc%m"
+ACTION=="add", SUBSYSTEM=="rtc", ENV{MINOR}=="0",       SYMLINK+="rtc"
+
+  I also added a test device/driver which can be used 
+ to excercize the APIs. This device can also generate
+ interrupts using the sysfs interface (more details
+ in the path).
+
+  hwclock seems to work fine, both in polling
+ and IRQ modes.
+
+-- 
+
+ Best regards,
+
+ Alessandro Zummo,
+  Tower Technologies - Turin, Italy
+
+  http://www.towertech.it
+
+[1]
+	http://lkml.org/lkml/2005/12/20/220

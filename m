@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbVLZSRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbVLZSeu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbVLZSRF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 13:17:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932082AbVLZSRF
+	id S932083AbVLZSeu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 13:34:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932085AbVLZSeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 13:17:05 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:36748 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932081AbVLZSRE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 13:17:04 -0500
-Date: Mon, 26 Dec 2005 10:15:51 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       zippel@linux-m68k.org, hch@infradead.org, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, arjanv@infradead.org, nico@cam.org,
-       jes@trained-monkey.org, zwane@arm.linux.org.uk, oleg@tv-sign.ru,
-       dhowells@redhat.com, bcrl@kvack.org, rostedt@goodmis.org, ak@suse.de,
-       rmk+lkml@arm.linux.org.uk
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-In-Reply-To: <1135593776.2935.5.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.64.0512261015350.14098@g5.osdl.org>
-References: <20051222114147.GA18878@elte.hu>  <20051222153014.22f07e60.akpm@osdl.org>
-  <20051222233416.GA14182@infradead.org>  <200512251708.16483.zippel@linux-m68k.org>
-  <20051225150445.0eae9dd7.akpm@osdl.org> <20051225232222.GA11828@elte.hu> 
- <20051226023549.f46add77.akpm@osdl.org> <1135593776.2935.5.camel@laptopd505.fenrus.org>
+	Mon, 26 Dec 2005 13:34:50 -0500
+Received: from nproxy.gmail.com ([64.233.182.203]:1121 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932083AbVLZSeu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 13:34:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TZiUZILsxNiu5BEDDdbZGX4UQ6MXdVO+V8XJeh0284m142VBtp9dEdHpE8e/vI8W2hVQPzVtehO35siIpv5kd/DB4lmtSYwsW6fo1WjNrbZCImlnp8n7JbqskCuliLM1xVmxwCDOt1r0Hn4qhSdifiu4dzrSaTC08GsJ1UVsDdg=
+Message-ID: <84144f020512261034q356b4484sa6e6528e339e67f5@mail.gmail.com>
+Date: Mon, 26 Dec 2005 20:34:46 +0200
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH] SLAB - have index_of bug at compile time.
+Cc: Manfred Spraul <manfred@colorfullife.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0512261209060.9622@gandalf.stny.rr.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <43B01BD7.3040209@colorfullife.com>
+	 <Pine.LNX.4.58.0512261209060.9622@gandalf.stny.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Steven,
 
+On 12/26/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+> Now, maybe NUMA and vmalloc might be a good reason to start a new
+> allocation system along side of slab?
 
-On Mon, 26 Dec 2005, Arjan van de Ven wrote:
-> 
-> > hm.  16 CPUs hitting the same semaphore at great arrival rates.  The cost
-> > of a short spin is much less than the cost of a sleep/wakeup.  The machine
-> > was doing 100,000 - 200,000 context switches per second.
-> 
-> interesting.. this might be a good indication that a "spin a bit first"
-> mutex slowpath for some locks might be worth implementing...
+A better approach would probably be to introduce a vmem layer similar
+to what Solaris has to solve I/O memory and vmalloc issue. What NUMA
+issue are you referring to btw? I don't see any problem with the
+current design (in fact, I stole it for my magazine allocator too).
+It's just that the current implementation is bit hard to understand.
 
-No, please don't. 
-
-Almost always it's a huge sign that the locking is totally broken.
-
-And yes, the fix was to _fix_ the ext3 locking. Not to make semaphores 
-spin. The ext3 locking was using a semaphore for totally the wrong 
-reasons, it made zero sense at all.
-
-I think it's fixed now.
-
-		Linus
+                         Pekka

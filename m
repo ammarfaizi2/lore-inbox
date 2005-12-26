@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932147AbVLZUv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbVLZUzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932147AbVLZUv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 15:51:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbVLZUv0
+	id S932148AbVLZUzV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 15:55:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbVLZUzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 15:51:26 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:44168 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932147AbVLZUvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 15:51:25 -0500
-Subject: Re: Is there any Buffer overflow attack mechanism that can break a
-	vulnerable server without breaking the ongoing connection?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Xin Zhao <uszhaoxin@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4ae3c140512261247p612146f5w6ad8bf474f4ebfd5@mail.gmail.com>
-References: <4ae3c140512261247p612146f5w6ad8bf474f4ebfd5@mail.gmail.com>
+	Mon, 26 Dec 2005 15:55:21 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:5784 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932148AbVLZUzU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 15:55:20 -0500
+Subject: Re: recommended mail clients [was] [PATCH] ati-agp suspend/resume
+	support (try 2)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Jaco Kroon <jaco@kroon.co.za>,
+       linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <200512262003.38552.s0348365@sms.ed.ac.uk>
+References: <43AF7724.8090302@kroon.co.za>
+	 <200512261535.09307.s0348365@sms.ed.ac.uk>
+	 <1135619641.8293.50.camel@mindpipe>
+	 <200512262003.38552.s0348365@sms.ed.ac.uk>
 Content-Type: text/plain
-Date: Mon, 26 Dec 2005 21:51:21 +0100
-Message-Id: <1135630282.3910.8.camel@laptopd505.fenrus.org>
+Date: Mon, 26 Dec 2005 16:00:31 -0500
+Message-Id: <1135630831.8293.89.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-12-26 at 15:47 -0500, Xin Zhao wrote:
-> We are working on a mechanism that monitors the connections of a
-> server and detects potential intrusions via broken connection
-> (incoming request received, but no reply).  We want to thoroughly
-> understand the possibility of mounting a buffer overflow attack
-> against a server process without cutting off the connection.
+On Mon, 2005-12-26 at 20:03 +0000, Alistair John Strachan wrote:
+> On Monday 26 December 2005 17:54, Lee Revell wrote:
+> > On Mon, 2005-12-26 at 15:35 +0000, Alistair John Strachan wrote:
+> > > On Monday 26 December 2005 14:38, Steven Rostedt wrote:
+> [snip]
+> > > >
+> > > > I use pine and evolution.  Pine is text based and great when I ssh into
+> > > > my machine to work.  Evolution is slow, but plays well with pine and it
+> > > > handles things needed for LKML very well. (the drop down menu "Normal"
+> > > > may be changed to "Preformat", which allows of inserting text files
+> > > > "as-is").
+> > >
+> > > Dare I say it, KMail has also been doing the Right Thing for a long time.
+> > > It will only line wrap things that you insert by typing; pastes are left
+> > > untouched.
+> >
+> > It seems that of all the popular mail clients only Thunderbird has this
+> > problem.  AFAICT it's impossible to make it DTRT with inline patches and
+> > even if it is the fact that most users get it wrong points to a serious
+> > usability/UI issue.
+> >
+> > Would a patch to add "Don't use Thunderbird/Mozilla Mail" to
+> > SubmittingPatches be accepted?  Then we can point the Mozilla developers
+> > at it (they have shown zero interest in fixing the problem so far) and
+> > hopefully this will light a fire under someone.
+> 
+> Fundamentally the issue with Thunderbird is that it line-wraps AFTER you 
+> compose an email, not during composition. I've never understood how, or why 
+> this is useful to the end user, except for composing HTML emails (which 
+> should be banned anyway).
+> 
+> Thunderbird is Yet Another mailer that could have been a good piece of 
+> software if it hadn't attempted to be a clone of Outlook Express (defaulting 
+> to Top Posting, HTML composition, line wrapping pastes).
+> 
+> It's the mindset; fixing Thunderbird is probably easy, but convincing the 
+> Mozilla developers to include such "fixes" is probably much harder.
+> 
 
-buffer overflows do not break connections, and as such I think you are
-out of luck.
-Having said that.. on modern linux distros it's pretty hard to do a
-buffer overflow exploit nowadays (NX[1] to make stacks non-executable,
-randomisations, compiler based detection (via FORTIFY_SOURCE and/or
--fstackprotector)... add all those together and it's certainly not easy
-to do this....
+Should be trivial to fix, when the user puts the editor into "Preformat"
+mode or inserts a text file you surround it with <pre> tags.
 
-
-
-[1] or emulations of NX such as segment limits techniques
+Lee
 

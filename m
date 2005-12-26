@@ -1,87 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbVLZOPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750740AbVLZOip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbVLZOPI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 09:15:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750740AbVLZOPH
+	id S1750740AbVLZOip (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 09:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbVLZOip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 09:15:07 -0500
-Received: from smtp.etmail.cz ([160.218.43.220]:23447 "EHLO smtp.etmail.cz")
-	by vger.kernel.org with ESMTP id S1750737AbVLZOPG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 09:15:06 -0500
-Message-ID: <43AFFAEA.1000401@stud.feec.vutbr.cz>
-Date: Mon, 26 Dec 2005 15:15:06 +0100
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051019)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] amd64-agp suspend support
-Content-Type: multipart/mixed;
- boundary="------------040601050603070303010109"
+	Mon, 26 Dec 2005 09:38:45 -0500
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:37629 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750740AbVLZOio (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 09:38:44 -0500
+Subject: Re: recommended mail clients [was] [PATCH] ati-agp suspend/resume
+	support (try 2)
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Jaco Kroon <jaco@kroon.co.za>
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+In-Reply-To: <43AFB005.50608@kroon.co.za>
+References: <43AF7724.8090302@kroon.co.za>
+	 <20051226082934.GD1844@elf.ucw.cz>  <43AFB005.50608@kroon.co.za>
+Content-Type: text/plain
+Date: Mon, 26 Dec 2005 09:38:26 -0500
+Message-Id: <1135607906.5774.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040601050603070303010109
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 2005-12-26 at 10:55 +0200, Jaco Kroon wrote:
+> Pavel Machek wrote:
 
-Hi,
+> > 
+> > Your email client did some nasty word wrapping here. I guess the way
+> > to proceed is try #3, this time add my ACK and Cc: akpm...
+> 
+> Right, which clients is recommended for this type of work - mozilla is
+> just not doing it for me any more.  I've heard some decent things about
+> mutt, any other recomendations?
+> 
+> I've mailed off the patch now using mailx but that isn't going to be an
+> option in the long run.
 
-This adds support for suspend/resume to the amd64-agp driver. Without 
-it, X displays garbage after resume from swsusp.
+I use pine and evolution.  Pine is text based and great when I ssh into
+my machine to work.  Evolution is slow, but plays well with pine and it
+handles things needed for LKML very well. (the drop down menu "Normal"
+may be changed to "Preformat", which allows of inserting text files
+"as-is").
 
-Signed-off-by: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+-- Steve
 
---------------040601050603070303010109
-Content-Type: text/plain;
- name="amd64-agp-suspend-support.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="amd64-agp-suspend-support.diff"
 
-diff -Nurp -X linux-mich/Documentation/dontdiff linux/drivers/char/agp/amd64-agp.c linux-mich/drivers/char/agp/amd64-agp.c
---- linux/drivers/char/agp/amd64-agp.c	2005-12-25 19:33:28.000000000 +0100
-+++ linux-mich/drivers/char/agp/amd64-agp.c	2005-12-26 14:38:30.000000000 +0100
-@@ -600,6 +600,26 @@ static void __devexit agp_amd64_remove(s
- 	agp_put_bridge(bridge);
- }
- 
-+#ifdef CONFIG_PM
-+
-+static int agp_amd64_suspend(struct pci_dev *pdev, pm_message_t state)
-+{
-+	pci_save_state(pdev);
-+	pci_set_power_state(pdev, pci_choose_state(pdev, state));
-+
-+	return 0;
-+}
-+
-+static int agp_amd64_resume(struct pci_dev *pdev)
-+{
-+	pci_set_power_state(pdev, PCI_D0);
-+	pci_restore_state(pdev);
-+
-+	return amd_8151_configure();	
-+}
-+
-+#endif /* CONFIG_PM */
-+
- static struct pci_device_id agp_amd64_pci_table[] = {
- 	{
- 	.class		= (PCI_CLASS_BRIDGE_HOST << 8),
-@@ -718,6 +738,10 @@ static struct pci_driver agp_amd64_pci_d
- 	.id_table	= agp_amd64_pci_table,
- 	.probe		= agp_amd64_probe,
- 	.remove		= agp_amd64_remove,
-+#ifdef CONFIG_PM
-+	.suspend	= agp_amd64_suspend,
-+	.resume		= agp_amd64_resume,
-+#endif
- };
- 
- 
-
---------------040601050603070303010109--

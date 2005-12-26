@@ -1,99 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbVLZXG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751094AbVLZXWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751095AbVLZXG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 18:06:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVLZXG0
+	id S1751094AbVLZXWE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 18:22:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVLZXWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 18:06:26 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:15500 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1751095AbVLZXG0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 18:06:26 -0500
-Date: Mon, 26 Dec 2005 23:35:48 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jan Beulich <JBeulich@novell.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: .config not updated after make clean
-Message-ID: <20051226223548.GA2438@mars.ravnborg.org>
-References: <43AABBA1.76F0.0078.0@novell.com> <20051222212508.GA1323@mars.ravnborg.org> <43ABB683.76F0.0078.0@novell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43ABB683.76F0.0078.0@novell.com>
-User-Agent: Mutt/1.5.11
+	Mon, 26 Dec 2005 18:22:04 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:3778 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S1751094AbVLZXWD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 18:22:03 -0500
+Message-ID: <43B07AFB.5050309@colorfullife.com>
+Date: Tue, 27 Dec 2005 00:21:31 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.12) Gecko/20050923 Fedora/1.7.12-1.5.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+CC: Steven Rostedt <rostedt@goodmis.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] SLAB - have index_of bug at compile time.
+References: <43B01BD7.3040209@colorfullife.com>	 <Pine.LNX.4.58.0512261209060.9622@gandalf.stny.rr.com> <84144f020512261034q356b4484sa6e6528e339e67f5@mail.gmail.com>
+In-Reply-To: <84144f020512261034q356b4484sa6e6528e339e67f5@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks, and assuming you're going to push this upwards... Jan
+Pekka Enberg wrote:
 
-Hi Jan - just pushed atteched patch.
-Slightly simplified compared to first version.
+>Hi Steven,
+>
+>On 12/26/05, Steven Rostedt <rostedt@goodmis.org> wrote:
+>  
+>
+>>Now, maybe NUMA and vmalloc might be a good reason to start a new
+>>allocation system along side of slab?
+>>    
+>>
+>
+>A better approach would probably be to introduce a vmem layer similar
+>to what Solaris has to solve I/O memory and vmalloc issue. What NUMA
+>issue are you referring to btw? I don't see any problem with the
+>current design (in fact, I stole it for my magazine allocator too).
+>It's just that the current implementation is bit hard to understand.
+>
+>  
+>
+This is virt_to_page() on i386: the object address is in %esi
+     lea    0x40000000(%esi),%eax
+     mov    0x0,%edx [0x0 is actually mem_map]
+     shr    $0xc,%eax
+     shl    $0x5,%eax
+Just read the mem_map pointer and a few calculations.
+And now retrieve the cachep pointer:
+    mov    0x18(%eax,%edx,1),%edx
 
-	Sam
-	
-kbuild: always run 'make silentoldconfig' when tree is cleaned
+With NUMA on i386 (GENERIC_ARCH)
+    lea    0x40000000(%edi),%eax
+    mov    %eax,%ebx
+    shr    $0x1c,%eax
+    movsbl 0x0(%eax),%eax [ 0x0 is physnode_map]
+    shr    $0xc,%ebx
+    mov    0x0(,%eax,4),%ecx [0x0 is node_data]
+    mov    %ebx,%eax
+    mov    0xaa0(%ecx),%edx
+    sub    %edx,%eax
+    mov    0xa98(%ecx),%edx
+    shl    $0x5,%eax
+4 memory accesses.
+    mov    0x18(%eax,%edx,1),%ebp
 
-If the file .kconfig.d is missing then make sure to run
-'make silentoldconfig', since we have no way to detect if
-a Kconfig file has been updated.
-
--kconfig.d is created by kconfig and is removed as part
-of 'make clean' so the situation is likely to occur in reality.
-
-Jan Beulich <JBeulich@novell.com> reported this bug.
-
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-
----
-commit 752625cff3eba81cbc886988d5b420064c033948
-tree 10281d9345281b3d118aa8b29b3fb21e1ea10655
-parent 54e08a2392e99ba9e48ce1060e0b52a39118419c
-author Sam Ravnborg <sam@mars.ravnborg.org> Mon, 26 Dec 2005 23:34:03 +0100
-committer Sam Ravnborg <sam@mars.ravnborg.org> Mon, 26 Dec 2005 23:34:03 +0100
-
- Makefile               |   10 ++++++----
- scripts/kconfig/util.c |    2 +-
- 2 files changed, 7 insertions(+), 5 deletions(-)
-
-diff --git a/Makefile b/Makefile
-index 922c763..d3598ef 100644
---- a/Makefile
-+++ b/Makefile
-@@ -477,18 +477,20 @@ ifeq ($(dot-config),1)
- 
- # Read in dependencies to all Kconfig* files, make sure to run
- # oldconfig if changes are detected.
---include .config.cmd
-+-include .kconfig.d
- 
- include .config
- 
- # If .config needs to be updated, it will be done via the dependency
- # that autoconf has on .config.
- # To avoid any implicit rule to kick in, define an empty command
--.config: ;
-+.config .kconfig.d: ;
- 
- # If .config is newer than include/linux/autoconf.h, someone tinkered
--# with it and forgot to run make oldconfig
--include/linux/autoconf.h: .config
-+# with it and forgot to run make oldconfig.
-+# If kconfig.d is missing then we are probarly in a cleaned tree so
-+# we execute the config step to be sure to catch updated Kconfig files
-+include/linux/autoconf.h: .kconfig.d .config
- 	$(Q)mkdir -p include/linux
- 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
- else
-diff --git a/scripts/kconfig/util.c b/scripts/kconfig/util.c
-index 1fa4c0b..a711007 100644
---- a/scripts/kconfig/util.c
-+++ b/scripts/kconfig/util.c
-@@ -33,7 +33,7 @@ int file_write_dep(const char *name)
- 	FILE *out;
- 
- 	if (!name)
--		name = ".config.cmd";
-+		name = ".kconfig.d";
- 	out = fopen("..config.tmp", "w");
- 	if (!out)
- 		return 1;
+--
+    Manfred

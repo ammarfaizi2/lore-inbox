@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbVLZEEh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbVLZD6q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbVLZEEh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 23:04:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750988AbVLZEEh
+	id S1750985AbVLZD6q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 22:58:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbVLZD6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 23:04:37 -0500
-Received: from smtp111.sbc.mail.re2.yahoo.com ([68.142.229.94]:43122 "HELO
-	smtp111.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1750986AbVLZEEh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 23:04:37 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-Subject: Re: [PATCH/RFC?] usb/input: Add support for fn key on Apple PowerBooks
-Date: Sun, 25 Dec 2005 23:04:30 -0500
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz,
-       linuxppc-dev@ozlabs.org, benh@kernel.crashing.org,
-       linux-kernel@killerfox.forkbomb.ch, Vojtech Pavlik <vojtech@suse.cz>
-References: <20051225212041.GA6094@hansmi.ch>
-In-Reply-To: <20051225212041.GA6094@hansmi.ch>
+	Sun, 25 Dec 2005 22:58:46 -0500
+Received: from mx1.rowland.org ([192.131.102.7]:55813 "HELO mx1.rowland.org")
+	by vger.kernel.org with SMTP id S1750985AbVLZD6p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Dec 2005 22:58:45 -0500
+Date: Sun, 25 Dec 2005 22:58:41 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: Lee Revell <rlrevell@joe-job.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] CONFIG_USB_BANDWIDTH broken
+In-Reply-To: <1135561680.8293.6.camel@mindpipe>
+Message-ID: <Pine.LNX.4.44L0.0512252253350.15623-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512252304.32830.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 25 December 2005 16:20, Michael Hanselmann wrote:
-> This patch adds a basic input hook support to usbhid because the quirks
-> method is outrunning the available bits. A hook for the Fn and Numlock
-> keys on Apple PowerBooks is included.
+On Sun, 25 Dec 2005, Lee Revell wrote:
 
-Well, we have used 11 out of 32 available bits so there still some
-reserves. My concern is that your implementation allows only one
-hook to be installed while with quirks you can have several of them
-active per device.
+> CONFIG_USB_BANDWIDTH breaks USB audio.  This has been a problem for at
+> least 6 months.
+> 
+> Typical bug report:
+> 
+> https://bugtrack.alsa-project.org/alsa-bug/view.php?id=1642
+> 
+> (search bug tracker for CONFIG_USB_BANDWIDTH to see many more)
+> 
+> Is anyone working on fixing this?
 
-As far as the hook itself - i have that feeling that it should not be
-done in kernel but via a keymap.
- 
--- 
-Dmitry
+The bug reports don't mention which USB host controller driver was being 
+used.
+
+	With ohci-hcd, bandwidth enforcement works okay.
+
+	With ehci-hcd, there are problems involved with scheduling
+	periodic transfers to a full-speed device connected through
+	a high-speed hub.  These problems are slowly being fixed.
+
+	With uhci-hcd, bandwidth enforcement has never worked.  New
+	changes to the driver (accepted just a few days ago) will
+	permit this to be fixed eventually.  It might take a few months
+	(plus the time required for the changes to be added to the
+	official distribution kernel).
+
+Alan Stern
+

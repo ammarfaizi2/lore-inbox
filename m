@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbVLZQAz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbVLZQNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750854AbVLZQAz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 11:00:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbVLZQAz
+	id S1751034AbVLZQNi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 11:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbVLZQNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 11:00:55 -0500
-Received: from terminus.zytor.com ([192.83.249.54]:45523 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750853AbVLZQAz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 11:00:55 -0500
-Message-ID: <43B01390.6010206@zytor.com>
-Date: Mon, 26 Dec 2005 08:00:16 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-CC: Axel Kittenberger <axel.kernel@kittenberger.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Possible Bootloader Optimization in inflate (get rid of unnecessary
- 32k Window)
-References: <200512221352.23393.axel.kernel@kittenberger.net> <2cd57c900512251815r16422013p@mail.gmail.com>
-In-Reply-To: <2cd57c900512251815r16422013p@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 26 Dec 2005 11:13:37 -0500
+Received: from main.gmane.org ([80.91.229.2]:33506 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751034AbVLZQNh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 11:13:37 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Kalin KOZHUHAROV <kalin@thinrope.net>
+Subject: What is this GPF about?
+Date: Tue, 27 Dec 2005 01:13:29 +0900
+Message-ID: <dop4ra$lpm$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-2022-JP
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: s175249.ppp.asahi-net.or.jp
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051023)
+X-Accept-Language: en-us, en
+X-Enigmail-Version: 0.93.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
->>
->>What would the optimization be worth?
->>* A faster uncompressing of the kernel, since a total 1-time memcopy of the
->>whole kernel is been optimized away.
->>* I'm not sure about the size, the memory or disk footprint. If the 32k static
->>(!) memory array in compressed/misc.c, I don't know if it safes 32k running
->>memory, or 32k on-disk size. Since I don't know the indepth working of these 
-> 
-> Neither for saving running memory (discarded), nor on-disk size
-> (window[WSIZE] resides in BSS).
-> 
+Hi there!
 
-I've actually implemented this for another application (where BSS was at 
-a premium.)  It even has some nice benefits for code size if you do it 
-right.
+I was experimenting eith IPSec on this machine, but does not seem to be related.
 
-It indeed would avoid a cache-to-memory copy, but that's not really a 
-huge deal, which is why noone has worried too much about it.
+2005-12-26T07:26:57+0900 (alert) [kernel] general protection fault: 6c60 [#1]
 
-	-hpa
+The MSG below is from dmesg:
+
+general protection fault: 6c60 [#1]
+Modules linked in: xfrm_user deflate zlib_deflate zlib_inflate aes_i586 des sha256 sha1 crypto_null
+af_key esp6 esp4 ah6 ah4 nfsd exportfs lockd nfs_acl sunrpc w83l785ts asb100 hwmon_vid hwmon
+i2c_nforce2 i2c_core ppp_synctty ppp_async crc_ccitt ppp_generic slhc ipt_TCPMSS iptable_nat
+ipt_REJECT ipt_state iptable_filter iptable_mangle ip_tables ext3 jbd mbcache ip_nat_ftp ip_nat
+ip_conntrack_ftp ip_conntrack nfnetlink forcedeth via_rhine ehci_hcd ohci_hcd usbcore md5 ipv6
+CPU:    0
+EIP:    0060:[<c018156d>]    Not tainted VLI
+EFLAGS: 00010202   (2.6.14.4-K01_AthlonXP_server)
+EIP is at load_elf_binary+0x65d/0xd40
+eax: 00000000   ebx: ce395200   ecx: 00002afc   edx: 0804aafc
+esi: f3992b00   edi: 00000002   ebp: f41a0260   esp: dae89eb8
+ds: 007b   es: 007b   ss: 0068
+Process qmail-queue (pid: 13956, threadinfo=dae88000 task=d1277090)
+Stack: f51e6c60 08048000 f3992b00 00000005 00001812 c14b78c0 08048000 00002afc
+       08048000 00000000 08048000 00001812 00000005 f3992ac0 00000001 00000000
+       00000000 08048000 00000000 08048000 e5bc6fec 00000000 00000009 00000000
+Call Trace:
+ [<c0160334>] copy_strings+0x174/0x200
+ [<c01613c7>] search_binary_handler+0x67/0x1e0
+ [<c01616d9>] do_execve+0x199/0x240
+ [<c0101d8c>] sys_execve+0x3c/0x80
+ [<c0103149>] syscall_call+0x7/0xb
+Code: 39 d0 72 54 8b 54 24 18 03 54 24 1c 3b 54 24 60 8b 44 24 60 0f 47 c2 89 44 24 60 31 c0 39 54
+24 48 0f 92 c0 85 46 18 8b 44 24 48 <0f> 45 c2 39 54 24 40 0f 43 54 24 40 89 44 24 48 89 54 24 40 8b
+
+The qmail-send log didn't notice anything unusual.
+
+Kalin.
+
+-- 
+|[ ~~~~~~~~~~~~~~~~~~~~~~ ]|
++-> http://ThinRope.net/ <-+
+|[ ______________________ ]|
+

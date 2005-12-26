@@ -1,93 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbVLZHi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbVLZHnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbVLZHi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 02:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbVLZHi0
+	id S1751039AbVLZHnL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 02:43:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbVLZHnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 02:38:26 -0500
-Received: from fmr18.intel.com ([134.134.136.17]:58588 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1751036AbVLZHiZ convert rfc822-to-8bit (ORCPT
+	Mon, 26 Dec 2005 02:43:11 -0500
+Received: from zproxy.gmail.com ([64.233.162.203]:8881 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751038AbVLZHnK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 02:38:25 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 26 Dec 2005 02:43:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=IPVAbh34Mzk/onXNAHo4102Q2IFxa/Z2vhTTuNrAo0TazsFApKuvQCEVjkQb46uQk+ML69/BOYeQqG6MDtOcYXkbtKqkC0OKzLXmx1BpQCmOXsyJ9sw1QuOuOT1QHYb+expWQ6Ex8zz053YukJ3+cQLSf1uAR9q67PJCJWW2ZKI=
+Reply-To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+To: Denis Vlasenko <vda@ilport.com.ua>
+Subject: Re: 4k stacks
+Date: Mon, 26 Dec 2005 02:42:51 -0500
+User-Agent: KMail/1.8.3
+Cc: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0512221640490.8179@chaos.analogic.com> <200512241403.38482.vda@ilport.com.ua> <200512242143.10291.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+In-Reply-To: <200512242143.10291.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="GB2312"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH v2:3/3]Export cpu topology by sysfs
-Date: Mon, 26 Dec 2005 15:38:16 +0800
-Message-ID: <8126E4F969BA254AB43EA03C59F44E84044DE5EA@pdsmsx404>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH v2:3/3]Export cpu topology by sysfs
-Thread-Index: AcYH9awnpJC2ZoENSOWiFkMtUgBacgB9RjbA
-From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: "Yanmin Zhang" <ymzhang@unix-os.sc.intel.com>,
-       <linux-kernel@vger.kernel.org>, <discuss@x86-64.org>,
-       <linux-ia64@vger.kernel.org>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Shah, Rajesh" <rajesh.shah@intel.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-X-OriginalArrivalTime: 26 Dec 2005 07:38:19.0093 (UTC) FILETIME=[572B5850:01C609EF]
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512260242.52379.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>-----Original Message-----
->>From: Greg KH [mailto:greg@kroah.com]
->>Sent: 2005Äê12ÔÂ24ÈÕ 3:16
->>To: Zhang, Yanmin
->>Cc: Yanmin Zhang; linux-kernel@vger.kernel.org; discuss@x86-64.org; linux-ia64@vger.kernel.org; Siddha, Suresh B; Shah, Rajesh;
->>Pallipadi, Venkatesh
->>Subject: Re: [PATCH v2:3/3]Export cpu topology by sysfs
->>
->>On Fri, Dec 23, 2005 at 12:03:27PM +0800, Zhang, Yanmin wrote:
->>> >>Can't you just use an attribute group and attach it to the cpu kobject?
->>> >>That would save an array of kobjects I think.
->>> As you know, current i386/x86_64 arch also export cache info under
->>> /sys/device/system/cpu/cpuX/cache. Is it clearer to export topology
->>> under a new directory than under cpu directly?
->>
->>No, the place in the sysfs tree you are putting this is just fine.  I'm
->>just saying that you do not need to create a new kobject for these
->>attributes.  Just use an attribute group, and you will get the same
->>naming, without the need for an extra kobject (and the whole array of
->>kobjects) at all.
->>
->>Does that make more sense?
-Yes, indeed. Now, I used your idea and the patch became simpler. Thanks.
+Ok, I've come up with a patch to "poison"/mark the kernel stacks with Qs
+when they're allocated. (I don't think it'll mark the IRQ stacks though).
+I clear the marking before the stacks are freed. The patch should work
+with any-sized stacks.
 
+There is one wrinkle though: linux has struct thread_info at the bottom of
+the kernel stacks, overwriting some of the Qs. stack.c needs to be modified
+to skip the first sizeof(struct thread_info) bytes of a page.
 
->>
->>> >>> +static int __cpuinit topology_cpu_callback(struct notifier_block *nfb,
->>> >>> +		unsigned long action, void *hcpu)
->>> >>> +{
->>> >>> +	unsigned int cpu = (unsigned long)hcpu;
->>> >>> +	struct sys_device *sys_dev;
->>> >>> +
->>> >>> +	sys_dev = get_cpu_sysdev(cpu);
->>> >>> +	switch (action) {
->>> >>> +		case CPU_ONLINE:
->>> >>> +			topology_add_dev(sys_dev);
->>> >>> +			break;
->>> >>> +#ifdef	CONFIG_HOTPLUG_CPU
->>> >>> +		case CPU_DEAD:
->>> >>> +			topology_remove_dev(sys_dev);
->>> >>> +			break;
->>> >>> +#endif
->>> >>
->>> >>Why ifdef?  Isn't it safe to just always have this in?
->>> If no ifdef here, gcc reported a compiling warning when I compiled it
->>> on IA64 with CONFIG_HOTPLUG_CPU=n.
->>
->>Then you should probably go change it so that CPU_DEAD is defined on
->>non-smp builds, otherwise the code gets quite messy like the above :)
+DISCLAIMER: I am a novice kernel hacker: this patch may not perform as 
+advertised.
 
-Sorry. My previous explanation is confusing. It's a link warning on ia64. On ia64, the kernel vmlinux doesn't include section .exit.text, so ld will report a link warning when a function is in section .exit.text and another function (not in .exit.text) calls the first one. When CONFIG_HOTPLUG_CPU=n, function topology_remove_dev is in section .exit.text, but its caller topology_remove_dev is not in .exit.text.
+signed-off-by: <andrew.j.wade@gmail.com>
 
-i386 and x86_64 kernel vmlinux does include .exit.text and discard it only when running, so there is no such warning on i386/x86_64.
-
-There is no other better approach to get rid of the warning unless we change arch/ia64/kernel/vmlinux.lds.S to keep all .exit.text in kernel image.
-
+diff -uprN 2.6.15-rc5-mm3/kernel/fork.c ajw/kernel/fork.c
+--- 2.6.15-rc5-mm3/kernel/fork.c	2005-12-26 01:07:57.087518486 -0500
++++ ajw/kernel/fork.c	2005-12-26 01:12:24.281198483 -0500
+@@ -43,6 +43,7 @@
+ #include <linux/rmap.h>
+ #include <linux/acct.h>
+ #include <linux/cn_proc.h>
++#include <linux/string.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -102,6 +103,7 @@ static kmem_cache_t *mm_cachep;
+ 
+ void free_task(struct task_struct *tsk)
+ {
++	memset(tsk->thread_info, 0, THREAD_SIZE);
+ 	free_thread_info(tsk->thread_info);
+ 	free_task_struct(tsk);
+ }
+@@ -171,6 +173,8 @@ static struct task_struct *dup_task_stru
+ 		return NULL;
+ 	}
+ 
++	memset(ti, 'Q', THREAD_SIZE);
++
+ 	*tsk = *orig;
+ 	tsk->thread_info = ti;
+ 	setup_thread_stack(tsk, orig);

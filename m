@@ -1,88 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbVLZCJW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750977AbVLZCPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbVLZCJW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 21:09:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbVLZCJW
+	id S1750977AbVLZCPm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 21:15:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbVLZCPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 21:09:22 -0500
-Received: from uproxy.gmail.com ([66.249.92.206]:64653 "EHLO uproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750974AbVLZCJV convert rfc822-to-8bit
+	Sun, 25 Dec 2005 21:15:42 -0500
+Received: from nproxy.gmail.com ([64.233.182.202]:40606 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750976AbVLZCPl convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 21:09:21 -0500
+	Sun, 25 Dec 2005 21:15:41 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=bnJpvxfTe9x54iNzBVeiFGeMEze7BV5ljdAo/BTRUex1scVIdex2VuYnJMOYpbCjHqBBP5hLNBdPYIuH1P0q8sW5a4yK8qfvg00eaF7CJ+7eYx3e/XirMEmsFyub5s6RrHw+6m1GgWRkblp39QQetvBkyTa4CLpcPr/x1OhFbWI=
-Message-ID: <e18c2fef0512251809s2ce834c9maf8d52b983246337@mail.gmail.com>
-Date: Sun, 25 Dec 2005 18:09:19 -0800
-From: Andrew Chuah <hachuah@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Need help on sending 5 consecutive USB keyboard LED on's.
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JU9SWVkkwn/0DVpZYOoooWZQrS0qF5DIqRcApQshHLhgzSd+wgVdfiD/mScr3+G0h+uo7f/hLix+7FU3dPQPXpPmDgT4IHM9HrUUDs3bq94k0IUm+OzqMp2th+7jy42jzUb2aFQWIZiqKG5vVy9mxbmLwNSOUD6Ez64AKXyq4BM=
+Message-ID: <2cd57c900512251815r16422013p@mail.gmail.com>
+Date: Mon, 26 Dec 2005 10:15:39 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+To: Axel Kittenberger <axel.kernel@kittenberger.net>
+Subject: Re: Possible Bootloader Optimization in inflate (get rid of unnecessary 32k Window)
+Cc: linux-kernel@vger.kernel.org, hpa@zytor.com
+In-Reply-To: <200512221352.23393.axel.kernel@kittenberger.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <200512221352.23393.axel.kernel@kittenberger.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+2005/12/22, Axel Kittenberger <axel.kernel@kittenberger.net>:
+> Hello, Whom do I talk to about acceptance of Patches in the Bootloader?
+>
+> I have seen, and coded once some time ago for priv. uses, do infalte the
+> gziped linux kernel at boottime in "arch/i386/boot/compressed/misc.c" and "
+> windowlib/inflate.c" the deflation algorthimn uses a 32k backtrack window.
+> Whenever it is full, it copies it .... into the memory.
+>
+> While this window makes a lot of sense in an userspace application like
+> gunzip, it does not make a lot sense in the bootloader. As userspace
+> application the window is flushed to a file when full. The bootloader
+> "flushes" it to memory (copies it in memory). That 1 time copy of the whole
+> kernel can be optimized away, since we do not keep track of a window since
+> the inflater can read what it has written right in the computer memory, while
+> it unpacks the kernel.
+>
+> What would the optimization be worth?
+> * A faster uncompressing of the kernel, since a total 1-time memcopy of the
+> whole kernel is been optimized away.
+> * I'm not sure about the size, the memory or disk footprint. If the 32k static
+> (!) memory array in compressed/misc.c, I don't know if it safes 32k running
+> memory, or 32k on-disk size. Since I don't know the indepth working of these.
 
-I just bought an IPAC-VE from www.ultimarc.com. It is basically a USB
-keyboard emulator and I can hook it up to my arcade joystick to play MAME.
-Now, the problem is that there is no programming utility for it in Linux, so
-I am taking a look at trying to make one. There was one written in 2002 at
-http://www.zumbrovalley.net/ipacutil/ but it no longer works for kernel 2.6.
+Neither for saving running memory (discarded), nor on-disk size
+(window[WSIZE] resides in BSS).
 
-The problem is that the way the PC talks to the emulator is by sending
-keyboard LED signals. The first handshake is done by PC sending 5 "all LED
-on" codes, and the emulator replies by sending a "z". So, I downloaded the
-source for ipacutil and ran it, but it didn't work. I looked through the
-kernel source (I'm running 2.6.9), and it looked like Linux doesn't send 2
-"on" events consecutively.
+>
+> Before I code this again (I know that this optimization has worked with a 2.4
 
-So, I made the following changes in drivers/input/input.c:
-        case EV_LED:
+I think 2.6 didn't change much in this field.
 
-//            if (code > LED_MAX || !test_bit(code, dev->ledbit) ||
-!!test_bit(code, dev->led) == value) {
-            if (code > LED_MAX || !test_bit(code, dev->ledbit)) {
-                printk(KERN_WARNING "Failed to turn on LED in input.c");
-                return;
-            }
-            if (value == 1) {
-                printk(KERN_WARNING "Setting LED now in input.c");
-                set_bit(code, dev->led);
-            } else if (value == 0) {
-                printk(KERN_WARNING "Clearing LED now in input.c");
-                clear_bit(code, dev->led);
-            }
-            // change_bit(code, dev->led);
-            if (dev->event) dev->event(dev, type, code, value);
+> kernel), I want to ask, would such patch be accepted? now or once ever? who
+> should I forward this?
 
-            break;
-
-Instead of change_bit, I used set_bit and clear_bit. I also changed
-drivers/char/keyboard.c
-
-void setledstate(struct kbd_struct *kbd, unsigned int led)
-{
-    if (!(led & ~7)) {
-        ledioctl = led;
-        ledstate = 0xff; -- added this line
-        printk(KERN_WARNING "In setledstate: flushing ledstate");
-        kbd->ledmode = LED_SHOW_IOCTL;
-    } else {
-        printk(KERN_WARNING "In setledstate: in else");
-        kbd->ledmode = LED_SHOW_FLAGS;
-    }
-    set_leds();
-}
+"H. Peter Anvin" <hpa@zytor.com>, and akpm, and even Linus. I'd like
+to see your patch. It would be instructive.
 
 
-After all this, I modprobe evbug, and I see that ipacutil is "sending"
-5 all LED ons, according to the log messages. However, I still don't
-get a response. Is there something else I'm missing??? Can someone who
-is more knowledgable point me to how to send all LED ons 5 times?
-
-thx,
-andrew
+-- Coywolf

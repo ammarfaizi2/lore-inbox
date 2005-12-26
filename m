@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbVLZFAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbVLZFXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751014AbVLZFAL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 00:00:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbVLZFAL
+	id S1751019AbVLZFXw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 00:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751022AbVLZFXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 00:00:11 -0500
-Received: from host7-111.pool8255.interbusiness.it ([82.55.111.7]:30954 "EHLO
-	alpt.dyndns.org") by vger.kernel.org with ESMTP id S1751014AbVLZFAK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 00:00:10 -0500
-Date: Mon, 26 Dec 2005 06:04:01 +0100
-From: Alpt <alpt@freaknet.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.14 assembler compilation error
-Message-ID: <20051226050400.GA20686@nihil>
-References: <20051224134753.GA19710@nihil>
-Mime-Version: 1.0
+	Mon, 26 Dec 2005 00:23:52 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:8102 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751018AbVLZFXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 00:23:51 -0500
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Ho ho ho.. Linux 2.6.15-rc7
+Date: Mon, 26 Dec 2005 16:23:43 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <fkouq1tvbh046b2pfn24maarj4ne8g3bcb@4ax.com>
+References: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051224134753.GA19710@nihil>
-User-Agent: hahaSRY
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 24, 2005 at 02:47:53PM +0100, <Alpt>:
-~>   AS      arch/i386/kernel/head.o
-~> include/asm-generic/pgtable.h: Assembler messages:
-~> include/asm-generic/pgtable.h:114: Error: no such instruction: `static inline void ptep_mkdirty(pte_t *ptep)'
-~> include/asm-generic/pgtable.h:115: Error: junk at end of line, first unrecognized character is `{'
-~> include/asm-generic/pgtable.h:116: Error: invalid character '_' in mnemonic
-~> include/asm-generic/pgtable.h:117: Error: invalid character '_' in mnemonic
-~> include/asm-generic/pgtable.h:118: Error: junk at end of line, first unrecognized character is `}'
-~> make[1]: *** [arch/i386/kernel/head.o] Error 1
-~> make: *** [arch/i386/kernel] Error 2
+On Sat, 24 Dec 2005 19:39:23 -0800 (PST), Linus Torvalds <torvalds@osdl.org> wrote:
 
-It is compiling \o/
+>
+>Please do give it a try, and if you have any issues/regressions, send out 
+>a note (even if you sent one earlier) so that we don't forget about it.
 
-The function ptep_mkdirty doesn't exist at all!
-A quick grep -r verifies that.
+For first time I tried running firewall box on 2.6 series with 15-rc7, 
+worked first time: http://bugsplatter.mine.nu/test/boxen/deltree/, an 
+old pentium/mmx with f00f bug.
 
-I re-downloaded the kernel tarball and now it is working.
-For some reasons the tarball I was using (dwloaded from kernel.org) got
-corrupted, but since I was getting an error on ptep_mkdirty(), I didn't notice
-it. I thought of ptep_mkdirty as ptep_make_dirty. Damn, the tarball was dirty! 
+Only copied /etc/modules.conf to /etc/modprobe.conf, iptables and 
+all else (NFS, ADSL, Samba) working without change to .conf files.
 
-This is one more reason to begin to learn all the kernel source code.
-
-Well, time to reboot.
--- 
-:wq!
-"I don't know nothing" The One Who reached the Thinking Matter   '.'
-
-[ Alpt --- Freaknet Medialab ]
-[ GPG Key ID 441CF0EE ]
-[ Key fingerprint = 8B02 26E8 831A 7BB9 81A9  5277 BFF8 037E 441C F0EE ]
+Thanks,
+Grant.

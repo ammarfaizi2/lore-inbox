@@ -1,75 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbVLZUD0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbVLZUDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbVLZUD0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 15:03:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbVLZUD0
+	id S932127AbVLZUDY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 15:03:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbVLZUDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 15:03:26 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:8367 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S932129AbVLZUDZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 15:03:25 -0500
-Date: Mon, 26 Dec 2005 21:03:19 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: "Theodore Ts'o" <tytso@mit.edu>, Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Daniel Petrini <d.pensator@gmail.com>, Tony Lindgren <tony@atomide.com>,
-       vatsa@in.ibm.com, ck list <ck@vds.kolivas.org>,
-       Pavel Machek <pavel@ucw.cz>, Adam Belay <abelay@novell.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] i386 No Idle HZ aka dynticks 051221
-Message-ID: <20051226200319.GA3476@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Theodore Ts'o <tytso@mit.edu>, Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Daniel Petrini <d.pensator@gmail.com>,
-	Tony Lindgren <tony@atomide.com>, vatsa@in.ibm.com,
-	ck list <ck@vds.kolivas.org>, Pavel Machek <pavel@ucw.cz>,
-	Adam Belay <abelay@novell.com>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>
-References: <200512210310.51084.kernel@kolivas.org> <20051225171617.GA6929@thunk.org> <20051226025525.GA6697@thunk.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
+	Mon, 26 Dec 2005 15:03:24 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:46542 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932127AbVLZUDX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 15:03:23 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: recommended mail clients [was] [PATCH] ati-agp suspend/resume support (try 2)
+Date: Mon, 26 Dec 2005 20:03:38 +0000
+User-Agent: KMail/1.9
+Cc: Steven Rostedt <rostedt@goodmis.org>, Jaco Kroon <jaco@kroon.co.za>,
+       linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+References: <43AF7724.8090302@kroon.co.za> <200512261535.09307.s0348365@sms.ed.ac.uk> <1135619641.8293.50.camel@mindpipe>
+In-Reply-To: <1135619641.8293.50.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20051226025525.GA6697@thunk.org>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200512262003.38552.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 26 December 2005 17:54, Lee Revell wrote:
+> On Mon, 2005-12-26 at 15:35 +0000, Alistair John Strachan wrote:
+> > On Monday 26 December 2005 14:38, Steven Rostedt wrote:
+[snip]
+> > >
+> > > I use pine and evolution.  Pine is text based and great when I ssh into
+> > > my machine to work.  Evolution is slow, but plays well with pine and it
+> > > handles things needed for LKML very well. (the drop down menu "Normal"
+> > > may be changed to "Preformat", which allows of inserting text files
+> > > "as-is").
+> >
+> > Dare I say it, KMail has also been doing the Right Thing for a long time.
+> > It will only line wrap things that you insert by typing; pastes are left
+> > untouched.
+>
+> It seems that of all the popular mail clients only Thunderbird has this
+> problem.  AFAICT it's impossible to make it DTRT with inline patches and
+> even if it is the fact that most users get it wrong points to a serious
+> usability/UI issue.
+>
+> Would a patch to add "Don't use Thunderbird/Mozilla Mail" to
+> SubmittingPatches be accepted?  Then we can point the Mozilla developers
+> at it (they have shown zero interest in fixing the problem so far) and
+> hopefully this will light a fire under someone.
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Fundamentally the issue with Thunderbird is that it line-wraps AFTER you 
+compose an email, not during composition. I've never understood how, or why 
+this is useful to the end user, except for composing HTML emails (which 
+should be banned anyway).
 
-Hi,
+Thunderbird is Yet Another mailer that could have been a good piece of 
+software if it hadn't attempted to be a clone of Outlook Express (defaulting 
+to Top Posting, HTML composition, line wrapping pastes).
 
-On Sun, Dec 25, 2005 at 09:55:26PM -0500, Theodore Ts'o wrote:
-> Looking at acpi/processor_idle.c, there is all sorts of magic special
-> cases code for the C2 and C3 states (both for promotion/demotion
-> polcies, as well as what to do when idling in those particular
-> states), and which doesn't exist for other states, such as C4.
+It's the mindset; fixing Thunderbird is probably easy, but convincing the 
+Mozilla developers to include such "fixes" is probably much harder.
 
-The magic is for C2- and C3-_type_ sleep, and C4 is of type C3... I know,
-this numbering is very confusing, but that's the way it is... However, the
-sepcially added "magic" for dyntick still needs some tweaking; I'll try to
-improve (and hopefully streamline) it a bit. As a first test, could you
-remove the "Fast-path demotion" case and re-test?
+-- 
+Cheers,
+Alistair.
 
-Thanks,
-	Dominik
-
---y0ulUmNC+osPPQO6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFDsEyHPB5F+WW+qdIRAv5tAKDdsjF1kBnXIdQ0PCrMfup+07CKnwCg93g+
-JtD81jat7F8dnJtVkvaCxI0=
-=x8P8
------END PGP SIGNATURE-----
-
---y0ulUmNC+osPPQO6--
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

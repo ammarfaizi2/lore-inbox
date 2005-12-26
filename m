@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbVLZSuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbVLZSuw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbVLZSuV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 13:50:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbVLZSuV
+	id S932095AbVLZSuw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 13:50:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbVLZSuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 13:50:21 -0500
-Received: from xenotime.net ([66.160.160.81]:57027 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932089AbVLZSuU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 13:50:20 -0500
-Date: Mon, 26 Dec 2005 10:50:56 -0800
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: jaco@kroon.co.za, pavel@ucw.cz, linux-kernel@vger.kernel.org
-Subject: Re: recommended mail clients [was] [PATCH] ati-agp suspend/resume
- support (try 2)
-Message-Id: <20051226105056.0fc2ebaa.rdunlap@xenotime.net>
-In-Reply-To: <1135609521.8293.33.camel@mindpipe>
-References: <43AF7724.8090302@kroon.co.za>
-	<20051226082934.GD1844@elf.ucw.cz>
-	<43AFB005.50608@kroon.co.za>
-	<1135609521.8293.33.camel@mindpipe>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 26 Dec 2005 13:50:52 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:11221 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S932095AbVLZSuv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 13:50:51 -0500
+From: Markus =?iso-8859-1?q?Ko=DFmann?= <markus.kossmann@inka.de>
+To: Mark Knecht <markknecht@gmail.com>
+Subject: Re: Ho ho ho.. Linux 2.6.15-rc7
+Date: Mon, 26 Dec 2005 19:50:46 +0100
+User-Agent: KMail/1.9.1
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org> <5bdc1c8b0512261002n6167a78ewfc45a6d3a5078ac0@mail.gmail.com>
+In-Reply-To: <5bdc1c8b0512261002n6167a78ewfc45a6d3a5078ac0@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512261950.46783.markus.kossmann@inka.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c61bb2ac26f0036f61bd70b4ba33295f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Dec 2005 10:05:21 -0500 Lee Revell wrote:
+Am Montag, 26. Dezember 2005 19:02 schrieb Mark Knecht:
 
-> On Mon, 2005-12-26 at 10:55 +0200, Jaco Kroon wrote:
-> > Pavel Machek wrote:
-> > > Hi!
-> > 
-> > >>--- linux-2.6.15-rc6/drivers/char/agp/ati-agp.c.orig	2005-12-25
-> > >>22:21:32.000000000 +0200
-> > >>+++ linux-2.6.15-rc6/drivers/char/agp/ati-agp.c	2005-12-26
-> > >>06:47:26.000000000 +0200
-> > > 
-> > > 
-> > > Your email client did some nasty word wrapping here. I guess the way
-> > > to proceed is try #3, this time add my ACK and Cc: akpm...
-> > 
-> > Right, which clients is recommended for this type of work - mozilla is
-> > just not doing it for me any more.  I've heard some decent things about
-> > mutt, any other recomendations?
-> > 
-> > I've mailed off the patch now using mailx but that isn't going to be an
-> > option in the long run.
-> 
-> Um, mozilla is open source - why doesn't someone just fix it, or at
-> least report the bug?
-
-It's been done afaik (at least in thunderbird bugzilla).
-The answer was something like "just use a plug-in (external) editor."
-I tried that, but it (tbird) still truncates trailing whitespace iirc.
-They seem to think that it's not a problem.  :(
-
----
-~Randy
+[ivtv-0.4.0 not compiling on 2.6.15rc]
+>
+>    Most probably this is stuff the Gentoo devs will clean up when the
+> real kernel comes out but I *think* you were asking for this sort of
+> info so I'm posting it back.
+Hi Mark,
+the ChangeLog of ivtv-0.4.1 says:
+[...]
+- support 2.6.15 kernel changes.
+[...]

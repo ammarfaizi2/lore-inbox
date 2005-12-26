@@ -1,60 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbVLZTNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbVLZTSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbVLZTNP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 14:13:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbVLZTNP
+	id S932111AbVLZTSr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 14:18:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbVLZTSr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 14:13:15 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3600 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S932109AbVLZTNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 14:13:13 -0500
-Date: Mon, 26 Dec 2005 19:13:07 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][MMC] Buggy cards need to leave programming state
-Message-ID: <20051226191307.GA17191@flint.arm.linux.org.uk>
-Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <43AFEDF8.2060404@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43AFEDF8.2060404@drzeus.cx>
-User-Agent: Mutt/1.4.1i
+	Mon, 26 Dec 2005 14:18:47 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:21453 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932111AbVLZTSq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 14:18:46 -0500
+Message-ID: <43B041FA.8000404@pobox.com>
+Date: Mon, 26 Dec 2005 14:18:18 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jaco Kroon <jaco@kroon.co.za>
+CC: Lee Revell <rlrevell@joe-job.com>, jason@stdbev.com, rostedt@goodmis.org,
+       linux-kernel@vger.kernel.org, pavel@ucw.cz, s0348365@sms.ed.ac.uk
+Subject: Re: recommended mail clients
+References: <43AF7724.8090302@kroon.co.za> <43AFB005.50608@kroon.co.za>	 <1135607906.5774.23.camel@localhost.localdomain>	 <200512261535.09307.s0348365@sms.ed.ac.uk>	 <1135619641.8293.50.camel@mindpipe>	 <0f197de4ee389204cc946086d1a04b54@stdbev.com> <1135621183.8293.64.camel@mindpipe> <43B03658.9040108@kroon.co.za>
+In-Reply-To: <43B03658.9040108@kroon.co.za>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Jaco Kroon wrote: > Lee Revell wrote: > >>On Mon,
+	2005-12-26 at 12:09 -0600, Jason Munro wrote: >> >> >>>On 11:54:00 am
+	26 Dec 2005 Lee Revell <rlrevell@joe-job.com> wrote: >>> >>><snip> >>>
+	>>>>>Dare I say it, KMail has also been doing the Right Thing for a
+	>>>>>long time. It will only line wrap things that you insert by
+	>>>>>typing; pastes are left untouched. >>>> >>>>It seems that of all
+	the popular mail clients only Thunderbird has >>>>this problem. AFAICT
+	it's impossible to make it DTRT with inline >>>>patches and even if it
+	is the fact that most users get it wrong >>>>points to a serious
+	usability/UI issue. >>>> >>>>Would a patch to add "Don't use
+	Thunderbird/Mozilla Mail" to >>>>SubmittingPatches be accepted? Then we
+	can point the Mozilla >>>>developers at it (they have shown zero
+	interest in fixing the problem >>>>so far) and hopefully this will
+	light a fire under someone. > > > I would second that patch. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 26, 2005 at 02:19:52PM +0100, Pierre Ossman wrote:
-> I've gotten two reports for cards that just crap out during write
-> transfers. The solution I've given them is to make the mmc block layer
-> wait for the card to leave programming state.
+Jaco Kroon wrote:
+> Lee Revell wrote:
+> 
+>>On Mon, 2005-12-26 at 12:09 -0600, Jason Munro wrote:
+>>
+>>
+>>>On 11:54:00 am 26 Dec 2005 Lee Revell <rlrevell@joe-job.com> wrote:
+>>>
+>>><snip>
+>>>
+>>>>>Dare I say it, KMail has also been doing the Right Thing for a
+>>>>>long time. It will only line wrap things that you insert by
+>>>>>typing; pastes are left untouched.
+>>>>
+>>>>It seems that of all the popular mail clients only Thunderbird has
+>>>>this problem.  AFAICT it's impossible to make it DTRT with inline
+>>>>patches and even if it is the fact that most users get it wrong
+>>>>points to a serious usability/UI issue.
+>>>>
+>>>>Would a patch to add "Don't use Thunderbird/Mozilla Mail" to
+>>>>SubmittingPatches be accepted?  Then we can point the Mozilla
+>>>>developers at it (they have shown zero interest in fixing the problem
+>>>>so far) and hopefully this will light a fire under someone.
+> 
+> 
+> I would second that patch.
 
-This is interesting.  In the specs I have, they indicate that the
-correct behaviour of a MMC card for CMD24 (write block) is that
-when its write buffer is full, it will hold the DAT signal low to
-indicate "busy" to the host controller.
+I would NAK such a patch.
 
-Now, the ARM MMCI holds the data path in the "BUSY" state while
-the MMC card asserts this indication, so we don't complete the
-data transfer until the card says it's not busy.
+Andrew Morton described a way to do it, some method using x cut buffers, 
+IIRC.
 
-For PXAMCI, it looks like we aren't waiting for the indication
-from the host which tells us that the "BUSY" has cleared.
+The best thing to do is use a custom script, though.  Other mailers can 
+be annoying as well, with regards to the References header, for example. 
+  And pine is awful, encoding plain text as base64.
 
-Does wbsd wait for the DAT busy signal to de-assert?
+	Jeff
 
-However, I do note that from the October dump, the card is
-reporting that it is ready for more data (bit 8):
 
-MMC: req done (0d): 0: 00000f00 4b000000 00000000 00000000
 
-whereas it's impossible to tell with the November dump because
-the useful information has been edited out.  Hence the November
-dump is rather useless.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

@@ -1,100 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751093AbVLZWxD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbVLZXG0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751093AbVLZWxD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 17:53:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751094AbVLZWxD
+	id S1751095AbVLZXG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 18:06:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbVLZXG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 17:53:03 -0500
-Received: from thunk.org ([69.25.196.29]:38534 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1751093AbVLZWxA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 17:53:00 -0500
-Date: Mon, 26 Dec 2005 17:52:48 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Dominik Brodowski <linux@dominikbrodowski.net>,
-       Daniel Petrini <d.pensator@gmail.com>, Tony Lindgren <tony@atomide.com>,
-       vatsa@in.ibm.com, ck list <ck@vds.kolivas.org>,
-       Adam Belay <abelay@novell.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] i386 No Idle HZ aka dynticks 051221
-Message-ID: <20051226225246.GA9915@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Pavel Machek <pavel@ucw.cz>, Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Dominik Brodowski <linux@dominikbrodowski.net>,
-	Daniel Petrini <d.pensator@gmail.com>,
-	Tony Lindgren <tony@atomide.com>, vatsa@in.ibm.com,
-	ck list <ck@vds.kolivas.org>, Adam Belay <abelay@novell.com>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>
-References: <200512210310.51084.kernel@kolivas.org> <20051225171617.GA6929@thunk.org> <20051226025525.GA6697@thunk.org> <20051226203806.GC1974@elf.ucw.cz>
-MIME-Version: 1.0
+	Mon, 26 Dec 2005 18:06:26 -0500
+Received: from pfepc.post.tele.dk ([195.41.46.237]:15500 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S1751095AbVLZXG0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 18:06:26 -0500
+Date: Mon, 26 Dec 2005 23:35:48 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jan Beulich <JBeulich@novell.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+Subject: Re: .config not updated after make clean
+Message-ID: <20051226223548.GA2438@mars.ravnborg.org>
+References: <43AABBA1.76F0.0078.0@novell.com> <20051222212508.GA1323@mars.ravnborg.org> <43ABB683.76F0.0078.0@novell.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051226203806.GC1974@elf.ucw.cz>
+In-Reply-To: <43ABB683.76F0.0078.0@novell.com>
 User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 26, 2005 at 09:38:06PM +0100, Pavel Machek wrote:
-> Stupid IBM. I've seen it appearing/disappearing, but did not work out
-> when.
-> 
-> No-C4-on-AC is bad -- if you just disconnect AC and walk away, you are
-> running without benefits of C4. Bad. Changing benchmarks depending on
-> you booting on AC or battery also look nasty.
+> Thanks, and assuming you're going to push this upwards... Jan
 
-The moment you disconnect AC, it C4 automagically appears.  When you
-reconnect to the AC mains, the C4 state disappears again, at least
-from the listing displayed by /proc/acpi/processor/CPU0/power.  So the
-first issue you brought up isn't a problem.
+Hi Jan - just pushed atteched patch.
+Slightly simplified compared to first version.
 
-The fact that it could change the benchmarks results depending on
-whether or you're running on battery or not is unfortunate, but in the
-real world does it matter?   
+	Sam
+	
+kbuild: always run 'make silentoldconfig' when tree is cleaned
 
-More of an issue is that there are times when the laptop might think
-that it's running of the AC mains, but in fact the owner may have
-connected an external battery, and might _want_ the system to be as
-frugal as possible with the power.
+If the file .kconfig.d is missing then make sure to run
+'make silentoldconfig', since we have no way to detect if
+a Kconfig file has been updated.
 
-> > If dyntick is enabled, the laptop enters C4 state, which presumably is
-> > a deeper, more power saving state, and it appears power saving effects
-> > of dyntick is getting balanced off against the fact that C4 is never
-> > getting entered when it is enabled.
-> 
-> Can you boot on AC power, then go to battery power to verify this theory?
+-kconfig.d is created by kconfig and is removed as part
+of 'make clean' so the situation is likely to occur in reality.
 
-Yep.  As I said, at least on my laptop, this is what
-/proc/acpi/processor/CPU/power looks like when I am running on the AC
-mains:
+Jan Beulich <JBeulich@novell.com> reported this bug.
 
-active state:            C2
-max_cstate:              C8
-bus master activity:     e7d24db4
-states:
-    C1:                  type[C1] promotion[C2] demotion[--] latency[001] usage[00000010] time[00000000000000000000]
-   *C2:                  type[C2] promotion[C3] demotion[C1] latency[001] usage[00084296] time[00000000000306642441]
-    C3:                  type[C3] promotion[--] demotion[C2] latency[085] usage[00000000] time[00000000000000000000]
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
 
-... and this is what it looks like when I am on battery:
+---
+commit 752625cff3eba81cbc886988d5b420064c033948
+tree 10281d9345281b3d118aa8b29b3fb21e1ea10655
+parent 54e08a2392e99ba9e48ce1060e0b52a39118419c
+author Sam Ravnborg <sam@mars.ravnborg.org> Mon, 26 Dec 2005 23:34:03 +0100
+committer Sam Ravnborg <sam@mars.ravnborg.org> Mon, 26 Dec 2005 23:34:03 +0100
 
-active state:            C2
-max_cstate:              C8
-bus master activity:     6ef5bbbd
-states:
-    C1:                  type[C1] promotion[C2] demotion[--] latency[001] usage[00000010] time[00000000000000000000]
-   *C2:                  type[C2] promotion[C3] demotion[C1] latency[001] usage[00001162] time[00000000000004425803]
-    C3:                  type[C3] promotion[C4] demotion[C2] latency[085] usage[00000000] time[00000000000000000000]
-    C4:                  type[C3] promotion[--] demotion[C3] latency[185] usage[00000000] time[00000000000000000000]
+ Makefile               |   10 ++++++----
+ scripts/kconfig/util.c |    2 +-
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
-Whether I boot from AC power battery seems to be immaterial; what
-seems to matter is whether or not the laptop is running on battery at
-the moment that /proc/acpi/processor/CPU0/power is sampled.
-
-						- Ted
+diff --git a/Makefile b/Makefile
+index 922c763..d3598ef 100644
+--- a/Makefile
++++ b/Makefile
+@@ -477,18 +477,20 @@ ifeq ($(dot-config),1)
+ 
+ # Read in dependencies to all Kconfig* files, make sure to run
+ # oldconfig if changes are detected.
+--include .config.cmd
++-include .kconfig.d
+ 
+ include .config
+ 
+ # If .config needs to be updated, it will be done via the dependency
+ # that autoconf has on .config.
+ # To avoid any implicit rule to kick in, define an empty command
+-.config: ;
++.config .kconfig.d: ;
+ 
+ # If .config is newer than include/linux/autoconf.h, someone tinkered
+-# with it and forgot to run make oldconfig
+-include/linux/autoconf.h: .config
++# with it and forgot to run make oldconfig.
++# If kconfig.d is missing then we are probarly in a cleaned tree so
++# we execute the config step to be sure to catch updated Kconfig files
++include/linux/autoconf.h: .kconfig.d .config
+ 	$(Q)mkdir -p include/linux
+ 	$(Q)$(MAKE) -f $(srctree)/Makefile silentoldconfig
+ else
+diff --git a/scripts/kconfig/util.c b/scripts/kconfig/util.c
+index 1fa4c0b..a711007 100644
+--- a/scripts/kconfig/util.c
++++ b/scripts/kconfig/util.c
+@@ -33,7 +33,7 @@ int file_write_dep(const char *name)
+ 	FILE *out;
+ 
+ 	if (!name)
+-		name = ".config.cmd";
++		name = ".kconfig.d";
+ 	out = fopen("..config.tmp", "w");
+ 	if (!out)
+ 		return 1;

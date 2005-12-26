@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbVLZD6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbVLZEJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750985AbVLZD6q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Dec 2005 22:58:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbVLZD6q
+	id S1750988AbVLZEJK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Dec 2005 23:09:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbVLZEJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Dec 2005 22:58:46 -0500
-Received: from mx1.rowland.org ([192.131.102.7]:55813 "HELO mx1.rowland.org")
-	by vger.kernel.org with SMTP id S1750985AbVLZD6p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Dec 2005 22:58:45 -0500
-Date: Sun, 25 Dec 2005 22:58:41 -0500 (EST)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: Lee Revell <rlrevell@joe-job.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] CONFIG_USB_BANDWIDTH broken
-In-Reply-To: <1135561680.8293.6.camel@mindpipe>
-Message-ID: <Pine.LNX.4.44L0.0512252253350.15623-100000@netrider.rowland.org>
+	Sun, 25 Dec 2005 23:09:10 -0500
+Received: from smtp110.sbc.mail.re2.yahoo.com ([68.142.229.95]:33142 "HELO
+	smtp110.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
+	id S1750988AbVLZEJJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 Dec 2005 23:09:09 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Frank Sorenson <frank@tuxrocks.com>
+Subject: Re: mouse issues in 2.6.15-rc5-mm series
+Date: Sun, 25 Dec 2005 23:09:06 -0500
+User-Agent: KMail/1.9.1
+Cc: Marc Koschewski <marc@osknowledge.org>, Joe Feise <jfeise@feise.com>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <43ACEE14.7060507@feise.com> <20051224104224.GA5789@stiffy.osknowledge.org> <43AD29A6.10407@tuxrocks.com>
+In-Reply-To: <43AD29A6.10407@tuxrocks.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512252309.07162.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Dec 2005, Lee Revell wrote:
-
-> CONFIG_USB_BANDWIDTH breaks USB audio.  This has been a problem for at
-> least 6 months.
+On Saturday 24 December 2005 05:57, Frank Sorenson wrote:
 > 
-> Typical bug report:
+> I continue to see the same issues with the resync patch in -mm.  For me,
+> tapping stops working, and I'm now seeing both the mouse pointer jumping
+>  as well (a lesser issue for me, so it was probably present earlier as
+> well).
 > 
-> https://bugtrack.alsa-project.org/alsa-bug/view.php?id=1642
-> 
-> (search bug tracker for CONFIG_USB_BANDWIDTH to see many more)
-> 
-> Is anyone working on fixing this?
 
-The bug reports don't mention which USB host controller driver was being 
-used.
+Frank,
 
-	With ohci-hcd, bandwidth enforcement works okay.
+Does the tapping not work period or it only does not work first time you
+try to tap after not touching the pad for more than 5 seconds?
 
-	With ehci-hcd, there are problems involved with scheduling
-	periodic transfers to a full-speed device connected through
-	a high-speed hub.  These problems are slowly being fixed.
-
-	With uhci-hcd, bandwidth enforcement has never worked.  New
-	changes to the driver (accepted just a few days ago) will
-	permit this to be fixed eventually.  It might take a few months
-	(plus the time required for the changes to be added to the
-	official distribution kernel).
-
-Alan Stern
-
+-- 
+Dmitry

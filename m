@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932354AbVL0RrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbVL0Rxg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932354AbVL0RrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 12:47:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbVL0RrZ
+	id S932355AbVL0Rxg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 12:53:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVL0Rxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 12:47:25 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:53943 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751127AbVL0RrZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 12:47:25 -0500
-Subject: Re: Machine Check Exception !
-From: Lee Revell <rlrevell@joe-job.com>
-To: Nauman Tahir <nauman.tahir@gmail.com>
-Cc: "Legend W." <mrwangxc@gmail.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <f0309ff0512262246q38f9f29l7e58a40c337ede75@mail.gmail.com>
-References: <71a51c440512261852u593a2795y@mail.gmail.com>
-	 <f0309ff0512262246q38f9f29l7e58a40c337ede75@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 27 Dec 2005 12:51:03 -0500
-Message-Id: <1135705865.21981.1.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Dec 2005 12:53:36 -0500
+Received: from wproxy.gmail.com ([64.233.184.202]:31546 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932355AbVL0Rxf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 12:53:35 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pyUxGFLinXfMMCdsDIkxhEE9+wYw+od3LwxyqFByWQU7eIQSeAucpkuTNerbkXoI1nJAMlNsyCyhYxxIUdl7uQPKpdrX2lJxf6a5SjRTrnjks5pAIAHhS+aPgYeEjIBL7xpaB4Kcfd8UEzkSaj6hbsPSOrQPOyXnDCzVnYN38oc=
+Message-ID: <37219a840512270953w6c35d1f1o15553ab81b0b58f4@mail.gmail.com>
+Date: Tue, 27 Dec 2005 12:53:34 -0500
+From: Michael Krufky <mkrufky@gmail.com>
+To: James Courtier-Dutton <James@superbug.co.uk>
+Subject: Re: Ho ho ho.. Linux 2.6.15-rc7
+Cc: Lee Revell <rlrevell@joe-job.com>, Mark Knecht <markknecht@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <43B1405D.2050202@superbug.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org>
+	 <5bdc1c8b0512261002n6167a78ewfc45a6d3a5078ac0@mail.gmail.com>
+	 <1135620892.8293.60.camel@mindpipe> <43B1405D.2050202@superbug.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-27 at 11:46 +0500, Nauman Tahir wrote:
-> On 12/27/05, Legend W. <mrwangxc@gmail.com> wrote:
-> > Hello,
+On 12/27/05, James Courtier-Dutton <James@superbug.co.uk> wrote:
+> Lee Revell wrote:
+> > On Mon, 2005-12-26 at 10:02 -0800, Mark Knecht wrote:
 > >
-> > I get the following message under 2.4.21 from RedHat:
+> >>Hi Linus,
+> >>   I've visiting at my parents house and gave 2.6.15-rc7 a try on my
+> >>dad's machine. This machine is his normal desktop box which I
+> >>administer remotely, as well as a MythTV server. The new kernel built
+> >>and booted fine. I then built the NVidia stuff. However when I tried
+> >>to build the ivtv driver from portage it failed:
 > >
-> > CPU 3: Machine Check Exception: 0000000000000004
-> > <Bank 0: b20000001040080f
 > >
-> > and the box is dead.
+> > There's nothing the kernel developers can do about regressions in out of
+> > tree modules - there is no stable kernel module API so the authors of
+> > that module will have to fix it.
 > >
-> > When i use parsemce, it said:
-> > Status: (4) Machine Check in progress.
-> > Restart IP invalid.
-> > parsebank(0): b20000001040080f @ 3
-> >         External tag parity error
-> >         CPU state corrupt. Restart not possible
-> >         Error enabled in control register
-> >         Error not corrected.
-> >         Bus and interconnect error
-> >         Participation: Local processor originated request
-> >         Timeout: Request did not timeout
-> >         Request: Generic error
-> >         Transaction type : Invalid
-> >         Memory/IO : Other
+> > Any idea why the IVTV module has not been submitted for mainline?
 > >
-> > Can anybody please enlighten me what this means or what a possible
-> > problem behind might be?
+> > Lee
 > >
-> > Thank you in advance
-> >
-> > PS: my box has dual Xeon 2.8G CPU
-> 
-> if you want to make your machine run any way use "nomce" at boot
-> prompt against your respective grub entry.
+>
+> No idea. I even asked the IVTV developers mailing list some time ago
+> trying to get them to include it in mainline, but they did not want to
+> for some odd reason I could not work out.
+>
+> Maybe someone else can kick them a little harder. :-)
 
-This is a terrible idea.  MCEs indicate some kind of hardware problem,
-it would be idiotic to just ignore that.
+Hehe... Please see the earlier messages in this thread... It is a
+plan-in-motion.  Maybe for 2.6.17 or 2.6.18.  ...depending on some
+other factors...
 
-Figure out the hardware problem and fix it (bad RAM, overheating, poorly
-seated card, etc).
-
-Lee
-
+-Mike

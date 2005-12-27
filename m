@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbVL0G71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbVL0HBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbVL0G71 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 01:59:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbVL0G71
+	id S932252AbVL0HBN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 02:01:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbVL0HBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 01:59:27 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:42250 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S932251AbVL0G71 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 01:59:27 -0500
-Date: Tue, 27 Dec 2005 07:58:44 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Yasuyuki KOZAKAI <yasuyuki.kozakai@toshiba.co.jp>
-Cc: kernel@linuxace.com, willy@w.ods.org, gregkh@suse.de, gcoady@gmail.com,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, stable@kernel.org
-Subject: Re: Linux 2.6.14.5
-Message-ID: <20051227065844.GA14828@alpha.home.local>
-References: <3ok1r15khvs8gka6qhhvt3u302mafkkr2r@4ax.com> <20051227054519.GA14609@alpha.home.local> <20051227060714.GA1053@linuxace.com> <200512270641.jBR6f6vt024777@toshiba.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200512270641.jBR6f6vt024777@toshiba.co.jp>
-User-Agent: Mutt/1.5.10i
+	Tue, 27 Dec 2005 02:01:13 -0500
+Received: from vms048pub.verizon.net ([206.46.252.48]:18219 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932252AbVL0HBM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 02:01:12 -0500
+Date: Tue, 27 Dec 2005 02:19:56 -0500
+From: Mitchell Laks <mlaks@verizon.net>
+Subject: HPT372N   Re: hpt366 driver oops or panic with HighPoint RocketRAID
+ 1520SATA
+To: linux-kernel@vger.kernel.org
+Message-id: <200512270219.56956.mlaks@verizon.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+User-Agent: KMail/1.8.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 27, 2005 at 03:41:05PM +0900, Yasuyuki KOZAKAI wrote:
-> 
-> Hi,
-> 
-> From: Phil Oester <kernel@linuxace.com>
-> Date: Mon, 26 Dec 2005 22:07:14 -0800
-> 
-> > On Tue, Dec 27, 2005 at 06:45:19AM +0100, Willy Tarreau wrote:
-> > > On Tue, Dec 27, 2005 at 04:42:00PM +1100, Grant Coady wrote:
-> > > > + iptables -A INPUT -p all --match state --state ESTABLISHED,RELATED -j ACCEPT
-> > > > iptables: No chain/target/match by that name
-> > > 
-> > > So it's not only the NEW state, it's every "--match state".
-> > 
-> > Odd...works fine here
-> 
-> Willy, which version of iptables is ?
-> And kernel config around netfilter would be helpful.
-
-Hey, it's Grant who has the problem, not me. Anyway, he fixed it,
-it seems it was related to an invalid .config.
-
-> Regards,
-> 
-> -- Yasuyuki Kozakai
-
-Regards,
-willy
-
+Hello,
+ 
+ I recently bought 
+Highpoint RocketRaid 1520 pci - dual channel -  sata cards - chip is HPT372N -   
+to use as simple block devices for linux software raid purposes.   I thought 
+they were supported on Linux, because of highpoint web site and my previous 
+experience with highpoint pata controllers was ok.
+ 
+ However I get the same kernel OOPS reported by Johan Palmqvist on Mon Nov 07 
+2005 with the latest stable kernel 2.6.14.4 .
+ 
+ I also see a posting from Mar 17 2003 by Henning Schroeder reporting success 
+with the highpoint driver hpt3xx-opensource-v131.tgz. 
+ 
+ I tried to compile the hpt3xx-opensource-v2.0.tgz against latest stable 
+kernel 2.6.14.4. After minor corrections   I have failure to compile their 
+driver due to  scsi_cmnd structure "has no member abort_reason".  Has their 
+been a change in scsi subsystem? 
+ 
+ Which kernel can I use? Any advice? Sorry to interrupt your amazing work with 
+my question. I am off list. I will read list but cc is appreciated. 
+ 
+ Thanks Gurus!
+ 
+ Mitchell Laks
+  
+ 

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932330AbVL0OQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932327AbVL0ORe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932330AbVL0OQv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 09:16:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVL0OQt
+	id S932327AbVL0ORe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 09:17:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932324AbVL0ORb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 09:16:49 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:10903 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932327AbVL0OQY (ORCPT
+	Tue, 27 Dec 2005 09:17:31 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:22423 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932327AbVL0OQz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 09:16:24 -0500
-Date: Tue, 27 Dec 2005 15:15:54 +0100
+	Tue, 27 Dec 2005 09:16:55 -0500
+Date: Tue, 27 Dec 2005 15:16:26 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -21,8 +21,8 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Steven Rostedt <rostedt@goodmis.org>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 05/11] mutex subsystem, add include/asm-arm/mutex.h
-Message-ID: <20051227141554.GF6660@elte.hu>
+Subject: [patch 10/11] mutex subsystem, more debugging code
+Message-ID: <20051227141626.GK6660@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -38,163 +38,156 @@ X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-add the ARM version of mutex.h, which is optimized in assembly for
-ARMv6, and uses the xchg implementation on pre-ARMv6.
+more mutex debugging: check for held locks during memory freeing,
+task exit, enable sysrq printouts, etc.
 
-From: Nicolas Pitre <nico@cam.org>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 
 ----
 
- include/asm-arm/mutex.h |  144 ++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 144 insertions(+)
+ arch/i386/mm/pageattr.c |    4 ++++
+ drivers/char/sysrq.c    |   19 +++++++++++++++++++
+ include/linux/mm.h      |    4 ++++
+ kernel/exit.c           |    5 +++++
+ kernel/sched.c          |    1 +
+ mm/page_alloc.c         |    3 +++
+ mm/slab.c               |    1 +
+ 7 files changed, 37 insertions(+)
 
-Index: linux/include/asm-arm/mutex.h
+Index: linux/arch/i386/mm/pageattr.c
 ===================================================================
---- /dev/null
-+++ linux/include/asm-arm/mutex.h
-@@ -0,0 +1,144 @@
-+/*
-+ * include/asm-arm/mutex.h
-+ *
-+ * ARM optimized mutex locking primitives
-+ *
-+ * Please look into asm-generic/mutex-xchg.h for a formal definition.
-+ */
-+#ifndef _ASM_MUTEX_H
-+#define _ASM_MUTEX_H
+--- linux.orig/arch/i386/mm/pageattr.c
++++ linux/arch/i386/mm/pageattr.c
+@@ -207,6 +207,10 @@ void kernel_map_pages(struct page *page,
+ {
+ 	if (PageHighMem(page))
+ 		return;
++	if (!enable)
++		mutex_debug_check_no_locks_freed(page_address(page),
++						 page_address(page+numpages));
 +
-+#if __LINUX_ARM_ARCH__ < 6
-+/* On pre-ARMv6 hardware the swp based implementation is the most efficient. */
-+# include <asm-generic/mutex-xchg.h>
-+#else
+ 	/* the return value is ignored - the calls cannot fail,
+ 	 * large pages are disabled at boot time.
+ 	 */
+Index: linux/drivers/char/sysrq.c
+===================================================================
+--- linux.orig/drivers/char/sysrq.c
++++ linux/drivers/char/sysrq.c
+@@ -153,6 +153,21 @@ static struct sysrq_key_op sysrq_mountro
+ 
+ /* END SYNC SYSRQ HANDLERS BLOCK */
+ 
++#ifdef CONFIG_DEBUG_MUTEXES
 +
-+/*
-+ * Attempting to lock a mutex on ARMv6+ can be done with a bastardized
-+ * atomic decrement (it is not a reliable atomic decrement but it satisfies
-+ * the defined semantics for our purpose, while being smaller and faster
-+ * than a real atomic decrement or atomic swap.  The idea is to attempt
-+ * decrementing the lock value only once.  If once decremented it isn't zero,
-+ * or if its store-back fails due to a dispute on the exclusive store, we
-+ * simply bail out immediately through the slow path where the lock will be
-+ * reattempted until it succeeds.
-+ */
-+#define __mutex_fastpath_lock(count, fail_fn)				\
-+do {									\
-+	/* type-check the function too: */				\
-+	void fastcall (*__tmp)(atomic_t *) = fail_fn;			\
-+	int __ex_flag, __res;						\
-+									\
-+	(void)__tmp;							\
-+	typecheck(atomic_t *, count);					\
-+									\
-+	__asm__ (							\
-+		"ldrex	%0, [%2]	\n"				\
-+		"sub	%0, %0, #1	\n"				\
-+		"strex	%1, %0, [%2]	\n"				\
-+									\
-+		: "=&r" (__res), "=&r" (__ex_flag)			\
-+		: "r" (&(count)->counter)				\
-+		: "cc","memory" );					\
-+									\
-+	if (unlikely(__res || __ex_flag))				\
-+		fail_fn(count);						\
-+} while (0)
-+
-+#define __mutex_fastpath_lock_retval(count, fail_fn)			\
-+({									\
-+	/* type-check the function too: */				\
-+	int fastcall (*__tmp)(atomic_t *) = fail_fn;			\
-+	int __ex_flag, __res;						\
-+									\
-+	(void)__tmp;							\
-+	typecheck(atomic_t *, count);					\
-+									\
-+	__asm__ (							\
-+		"ldrex	%0, [%2]	\n"				\
-+		"sub	%0, %0, #1	\n"				\
-+		"strex	%1, %0, [%2]	\n"				\
-+									\
-+		: "=&r" (__res), "=&r" (__ex_flag)			\
-+		: "r" (&(count)->counter)				\
-+		: "cc","memory" );					\
-+									\
-+	__res |= __ex_flag;						\
-+	if (unlikely(__res != 0))					\
-+		__res = fail_fn(count);					\
-+	__res;								\
-+})
-+
-+/*
-+ * Same trick is used for the unlock fast path. However the original value,
-+ * rather than the result, is used to test for success in order to have
-+ * better generated assembly.
-+ */
-+#define __mutex_fastpath_unlock(count, fail_fn)				\
-+do {									\
-+	/* type-check the function too: */				\
-+	void fastcall (*__tmp)(atomic_t *) = fail_fn;			\
-+	int __ex_flag, __res, __orig;					\
-+									\
-+	(void)__tmp;							\
-+	typecheck(atomic_t *, count);					\
-+									\
-+	__asm__ (							\
-+		"ldrex	%0, [%3]	\n"				\
-+		"add	%1, %0, #1	\n"				\
-+		"strex	%2, %1, [%3]	\n"				\
-+									\
-+		: "=&r" (__orig), "=&r" (__res), "=&r" (__ex_flag)	\
-+		: "r" (&(count)->counter)				\
-+		: "cc","memory" );					\
-+									\
-+	if (unlikely(__orig || __ex_flag))				\
-+		fail_fn(count);						\
-+} while (0)
-+
-+/*
-+ * If the unlock was done on a contended lock, or if the unlock simply fails
-+ * then the mutex remains locked.
-+ */
-+#define __mutex_slowpath_needs_to_unlock()	1
-+
-+/*
-+ * For __mutex_fastpath_trylock we use another construct which could be
-+ * described as an "incomplete atomic decrement" or a "single value cmpxchg"
-+ * since it has two modes of failure:
-+ *
-+ * 1) if the exclusive store fails we fail, and
-+ *
-+ * 2) if the decremented value is not zero we don't even attempt the store.
-+ *
-+ * This provides the needed trylock semantics like cmpxchg would, but it is
-+ * lighter and less generic than a true cmpxchg implementation.
-+ */
-+static inline int
-+__mutex_fastpath_trylock(atomic_t *count, int (*fn_name)(atomic_t *))
++static void
++sysrq_handle_showlocks(int key, struct pt_regs *pt_regs, struct tty_struct *tty)
 +{
-+	int __ex_flag, __res;
-+
-+	__asm__ (
-+
-+		"ldrex		%0, [%2]	\n"
-+		"subs		%0, %0, #1	\n"
-+		"strexeq	%1, %0, [%2]	\n"
-+
-+		: "=&r" (__res), "=&r" (__ex_flag)
-+		: "r" (&count->counter)
-+		: "cc", "memory" );
-+
-+	/*
-+	 * We must not return a synthetic 'failure' if the conditional
-+	 * did not succeed - drop back into the generic slowpath if
-+	 * this happens (should be rare):
-+	 */
-+	if (unlikely(__ex_flag))
-+		return fn_name(count);
-+
-+	return __res == 0;
++	mutex_debug_show_all_locks();
 +}
 +
++static struct sysrq_key_op sysrq_showlocks_op = {
++	.handler	= sysrq_handle_showlocks,
++	.help_msg	= "show-all-locks(D)",
++	.action_msg	= "Show Locks Held",
++};
++
 +#endif
+ 
+ /* SHOW SYSRQ HANDLERS BLOCK */
+ 
+@@ -294,7 +309,11 @@ static struct sysrq_key_op *sysrq_key_ta
+ #else
+ /* c */	NULL,
+ #endif
++#ifdef CONFIG_DEBUG_MUTEXES
++/* d */ &sysrq_showlocks_op,
++#else
+ /* d */ NULL,
 +#endif
+ /* e */	&sysrq_term_op,
+ /* f */	&sysrq_moom_op,
+ /* g */	NULL,
+Index: linux/include/linux/mm.h
+===================================================================
+--- linux.orig/include/linux/mm.h
++++ linux/include/linux/mm.h
+@@ -13,6 +13,7 @@
+ #include <linux/rbtree.h>
+ #include <linux/prio_tree.h>
+ #include <linux/fs.h>
++#include <linux/mutex.h>
+ 
+ struct mempolicy;
+ struct anon_vma;
+@@ -977,6 +978,9 @@ static inline void vm_stat_account(struc
+ static inline void
+ kernel_map_pages(struct page *page, int numpages, int enable)
+ {
++	if (!PageHighMem(page) && !enable)
++		mutex_debug_check_no_locks_freed(page_address(page),
++						 page_address(page + numpages));
+ }
+ #endif
+ 
+Index: linux/kernel/exit.c
+===================================================================
+--- linux.orig/kernel/exit.c
++++ linux/kernel/exit.c
+@@ -29,6 +29,7 @@
+ #include <linux/syscalls.h>
+ #include <linux/signal.h>
+ #include <linux/cn_proc.h>
++#include <linux/mutex.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -870,6 +871,10 @@ fastcall NORET_TYPE void do_exit(long co
+ 	mpol_free(tsk->mempolicy);
+ 	tsk->mempolicy = NULL;
+ #endif
++	/*
++	 * If DEBUG_MUTEXES is on, make sure we are holding no locks:
++	 */
++	mutex_debug_check_no_locks_held(tsk);
+ 
+ 	/* PF_DEAD causes final put_task_struct after we schedule. */
+ 	preempt_disable();
+Index: linux/kernel/sched.c
+===================================================================
+--- linux.orig/kernel/sched.c
++++ linux/kernel/sched.c
+@@ -4379,6 +4379,7 @@ void show_state(void)
+ 	} while_each_thread(g, p);
+ 
+ 	read_unlock(&tasklist_lock);
++	mutex_debug_show_all_locks();
+ }
+ 
+ /**
+Index: linux/mm/page_alloc.c
+===================================================================
+--- linux.orig/mm/page_alloc.c
++++ linux/mm/page_alloc.c
+@@ -400,6 +400,9 @@ void __free_pages_ok(struct page *page, 
+ 	int reserved = 0;
+ 
+ 	arch_free_page(page, order);
++	if (!PageHighMem(page))
++		mutex_debug_check_no_locks_freed(page_address(page),
++			page_address(page+(1<<order)));
+ 
+ #ifndef CONFIG_MMU
+ 	if (order > 0)
+Index: linux/mm/slab.c
+===================================================================
+--- linux.orig/mm/slab.c
++++ linux/mm/slab.c
+@@ -3038,6 +3038,7 @@ void kfree(const void *objp)
+ 	local_irq_save(flags);
+ 	kfree_debugcheck(objp);
+ 	c = page_get_cache(virt_to_page(objp));
++	mutex_debug_check_no_locks_freed(objp, objp+obj_reallen(c));
+ 	__cache_free(c, (void*)objp);
+ 	local_irq_restore(flags);
+ }

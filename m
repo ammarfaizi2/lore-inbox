@@ -1,151 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932386AbVL0X1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbVL0X1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932386AbVL0X1S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 18:27:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932387AbVL0X1S
+	id S932387AbVL0X1p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 18:27:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVL0X1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 18:27:18 -0500
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:456 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S932386AbVL0X1R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 18:27:17 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Paolo Ornati <ornati@fastwebnet.it>
-Subject: Re: [SCHED] Totally WRONG prority calculation with specific test-case (since 2.6.10-bk12)
-Date: Wed, 28 Dec 2005 10:26:58 +1100
-User-Agent: KMail/1.9
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-References: <20051227190918.65c2abac@localhost> <20051227224846.6edcff88@localhost>
-In-Reply-To: <20051227224846.6edcff88@localhost>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1236337.oQmFIiGLjW";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Tue, 27 Dec 2005 18:27:45 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:52369 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932387AbVL0X1o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 18:27:44 -0500
+Subject: 2.6.15-rc5: latency regression vs 2.6.14 in
+	exit_mmap->free_pgtables
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Hugh Dickins <hugh@veritas.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Content-Type: text/plain
+Date: Tue, 27 Dec 2005 18:31:40 -0500
+Message-Id: <1135726300.22744.25.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200512281027.00252.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1236337.oQmFIiGLjW
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I am seeing excessive latencies (2ms+) in free_pgtables, called from
+exit_mmap with 2.6.15-rc5.  This is a significant regression from 2.6.14
+where the maximum observed latency was less than 1ms with some tuning.
+Here is the trace.
 
-On Wednesday 28 December 2005 08:48, Paolo Ornati wrote:
-> On Tue, 27 Dec 2005 19:09:18 +0100
->
-> Paolo Ornati <ornati@fastwebnet.it> wrote:
-> > Hello,
-> >
-> > I've found an easy-to-reproduce-for-me test case that shows a totally
-> > wrong priority calculation: basically a CPU-intensitive process gets
-> > better priority than a disk-intensitive one (dd if=3Dbigfile
-> > of=3D/dev/null ...).
-> >
-> > Seems impossible, isn't it?
-> >
-> > ---- THE NUMBERS with 2.6.15-rc7 -----
-> >
-> > The test-case is the Xvid encoding of dvd-ripped track with transcode
-> > (using "dvd::rip" interface). The copied-and-pasted command line is
-> > this:
-> >
-> > mkdir -m 0775 -p '/home/paolo/tmp/test/tmp' &&
-> > cd /home/paolo/tmp/test/tmp && dr_exec transcode -H 10 -a 2 -x vob,null
-> > -i /home/paolo/tmp/test/vob/003 -w 1198,50 -b 128,0,0 -s 1.972
-> > --a52_drc_off -f 25 -Y 52,8,52,8 -B 27,10,8 -R 1 -y xvid4,null
-> > -o /dev/null --print_status 20 && echo DVDRIP_SUCCESS mkdir -m 0775 -p
-> > '/home/paolo/tmp/test/tmp' && cd /home/paolo/tmp/test/tmp && dr_exec
-> > transcode -H 10 -a 2 -x vob -i /home/paolo/tmp/test/vob/003 -w 1198,50
-> > -b 128,0,0 -s 1.972 --a52_drc_off -f 25 -Y 52,8,52,8 -B 27,10,8 -R 2 -y
-> > xvid4 -o /home/paolo/tmp/test/avi/003/test-003.avi --print_status 20 &&
-> > echo DVDRIP_SUCCESS
-> >
-> >
-> > Here there is a TOP snapshot while running it:
-> >
-> >   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
-> >  5721 paolo     16   0  115m  18m 2428 R 84.4  3.7   0:15.11 transcode
-> >  5736 paolo     25   0 50352 4516 1912 R  8.4  0.9   0:01.53 tcdecode
-> >  5725 paolo     15   0  115m  18m 2428 S  4.6  3.7   0:00.84 transcode
-> >  5738 paolo     18   0  115m  18m 2428 S  0.8  3.7   0:00.15 transcode
-> >  5734 paolo     25   0 20356 1140  920 S  0.6  0.2   0:00.12 tcdemux
-> >  5731 paolo     25   0 47312 2540 1996 R  0.4  0.5   0:00.08 tcdecode
-> >  5319 root      15   0  166m  16m 2584 S  0.2  3.2   0:25.06 X
-> >  5444 paolo     16   0 87116  22m  15m R  0.2  4.6   0:04.05 konsole
-> >  5716 paolo     16   0 10424 1160  876 R  0.2  0.2   0:00.06 top
-> >  5735 paolo     25   0 22364 1436  932 S  0.2  0.3   0:00.01 tcextract
-> >
-> >
-> > DD running alone:
-> >
-> > paolo@tux /mnt $ mount space/; time dd if=3Dspace/bigfile of=3D/dev/null
-> > bs=3D1M count=3D128; umount space/ 128+0 records in
-> > 128+0 records out
-> >
-> > real    0m4.052s
-> > user    0m0.000s
-> > sys     0m0.209s
-> >
-> > DD while transcoding:
-> >
-> > paolo@tux /mnt $ mount space/; time dd if=3Dspace/bigfile of=3D/dev/null
-> > bs=3D1M count=3D128; umount space/ 128+0 records in
-> > 128+0 records out
-> >
-> > real    0m26.121s
-> > user    0m0.001s
-> > sys     0m0.255s
+(Although the trace was captured with the -rt kernel I am only using it
+for the instrumentation features - all preemption settings are the same
+as mainline with PREEMPT)
 
-Looking at your top output I see that transcode command generates 7 process=
-es=20
-all likely to be using cpu, and your DD slowdown is almost 7 times... I=20
-assume it all goes away if you nice the transcode up by 3 or more.
+preemption latency trace v1.1.5 on 2.6.15-rc5-rt4
+--------------------------------------------------------------------
+ latency: 2267 us, #2632/2632, CPU#0 | (M:preempt VP:0, KP:0, SP:0 HP:0)
+    -----------------
+    | task: softirq-timer/0-3 (uid:0 nice:0 policy:1 rt_prio:1)
+    -----------------
 
-> Hello Con and Ingo... I've found that the above problem goes away
-> by reverting this:
->
-> http://linux.bkbits.net:8080/linux-2.6/cset@41e054c6pwNQXzErMxvfh4IpLPXA5=
-A?
->nav=3Dindex.html|src/|src/include|src/include/linux|related/include/linux/=
-sche
->d.h
->
-> --------------------------------------------------
->
-> [PATCH] sched: remove_interactive_credit
+                 _------=> CPU#            
+                / _-----=> irqs-off        
+               | / _----=> need-resched    
+               || / _---=> hardirq/softirq 
+               ||| / _--=> preempt-depth   
+               |||| /                      
+               |||||     delay             
+   cmd     pid ||||| time  |   caller      
+      \   /    |||||   \   |   /           
+evolutio-4728  0D.h2    0us : __trace_start_sched_wakeup (try_to_wake_up)
+evolutio-4728  0D.h2    1us : __trace_start_sched_wakeup <<...>-3> (62 0)
+evolutio-4728  0D.h.    2us : wake_up_process (wakeup_softirqd)
+evolutio-4728  0D.h.    3us : scheduler_tick (update_process_times)
+evolutio-4728  0D.h.    3us : sched_clock (scheduler_tick)
+evolutio-4728  0D.h1    5us : task_timeslice (scheduler_tick)
+evolutio-4728  0D.h.    6us : run_posix_cpu_timers (update_process_times)
+evolutio-4728  0D.h1    7us : note_interrupt (__do_IRQ)
+evolutio-4728  0D.h1    7us : end_8259A_irq (__do_IRQ)
+evolutio-4728  0D.h1    8us : enable_8259A_irq (end_8259A_irq)
+evolutio-4728  0Dnh1   10us : irq_exit (do_IRQ)
+evolutio-4728  0Dn.1   11us < (608)
+evolutio-4728  0.n.1   11us : unlink_file_vma (free_pgtables)
+evolutio-4728  0.n.2   12us : __remove_shared_vm_struct (unlink_file_vma)
+evolutio-4728  0.n.2   13us : vma_prio_tree_remove (__remove_shared_vm_struct)
+evolutio-4728  0.n.2   13us : prio_tree_remove (vma_prio_tree_remove)
+evolutio-4728  0.n.1   14us : preempt_schedule (unlink_file_vma)
+evolutio-4728  0.n.1   15us : anon_vma_unlink (free_pgtables)
+evolutio-4728  0.n.1   16us : unlink_file_vma (free_pgtables)
+evolutio-4728  0.n.2   17us : __remove_shared_vm_struct (unlink_file_vma)
+evolutio-4728  0.n.2   17us : vma_prio_tree_remove (__remove_shared_vm_struct)
+evolutio-4728  0.n.2   18us : prio_tree_remove (vma_prio_tree_remove)
+evolutio-4728  0.n.2   19us : prio_tree_replace (prio_tree_remove)
+evolutio-4728  0.n.1   20us : preempt_schedule (unlink_file_vma)
+evolutio-4728  0.n.1   21us : anon_vma_unlink (free_pgtables)
+evolutio-4728  0.n.1   22us : preempt_schedule (anon_vma_unlink)
+evolutio-4728  0.n.1   23us : kmem_cache_free (anon_vma_unlink)
+evolutio-4728  0.n.1   24us : unlink_file_vma (free_pgtables)
 
-The issue is that the scheduler interactivity estimator is a state machine =
-and=20
-can be fooled to some degree, and a cpu intensive task that just happens to=
-=20
-sleep a little bit gets significantly better priority than one that is full=
-y=20
-cpu bound all the time. Reverting that change is not a solution because it=
-=20
-can still be fooled by the same process sleeping lots for a few seconds or =
-so=20
-at startup and then changing to the cpu mostly-sleeping slightly behaviour.=
-=20
-This "fluctuating" behaviour is in my opinion worse which is why I removed=
-=20
-it.
+[...]
 
-Cheers,
-Con
+evolutio-4728  0.n.1 2239us : unlink_file_vma (free_pgtables)
+evolutio-4728  0.n.1 2240us : anon_vma_unlink (free_pgtables)
+evolutio-4728  0.n.1 2241us : preempt_schedule (anon_vma_unlink)
+evolutio-4728  0.n.1 2241us : kmem_cache_free (anon_vma_unlink)
+evolutio-4728  0.n.1 2242us : unlink_file_vma (free_pgtables)
+evolutio-4728  0.n.1 2243us : free_pgd_range (free_pgtables)
+evolutio-4728  0.n.1 2243us : free_pte_range (free_pgd_range)
+evolutio-4728  0.n.1 2244us : free_page_and_swap_cache (free_pte_range)
+evolutio-4728  0.n.1 2245us : put_page (free_page_and_swap_cache)
+evolutio-4728  0.n.1 2245us : __page_cache_release (put_page)
+evolutio-4728  0.n.1 2246us : preempt_schedule (__page_cache_release)
+evolutio-4728  0.n.1 2247us : free_hot_page (__page_cache_release)
+evolutio-4728  0.n.1 2248us : free_hot_cold_page (free_hot_page)
+evolutio-4728  0.n.1 2248us : __mod_page_state (free_hot_cold_page)
+evolutio-4728  0.n.1 2250us : preempt_schedule (free_hot_cold_page)
+evolutio-4728  0.n.1 2250us : __mod_page_state (free_pte_range)
+evolutio-4728  0.n.. 2252us : preempt_schedule (exit_mmap)
+evolutio-4728  0Dn.. 2252us : __schedule (preempt_schedule)
+evolutio-4728  0Dn.. 2254us : profile_hit (__schedule)
+evolutio-4728  0Dn.1 2255us+: sched_clock (__schedule)
+   <...>-3     0D..2 2259us+: __switch_to (__schedule)
+   <...>-3     0D..2 2262us : __schedule <evolutio-4728> (74 62)
+   <...>-3     0...1 2263us : trace_stop_sched_switched (__schedule)
+   <...>-3     0D..2 2264us+: trace_stop_sched_switched <<...>-3> (62 0)
+   <...>-3     0D..2 2266us : trace_stop_sched_switched (__schedule)
 
---nextPart1236337.oQmFIiGLjW
-Content-Type: application/pgp-signature
+The problem is that we now do a lot more work in free_pgtables under the
+mm->page_table_lock spinlock so preemption can be delayed for a long
+time.  Here is the change responsible:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+--- ../linux-2.6.14-rt22/mm/memory.c    2005-12-05 14:47:02.000000000 -0500
++++ ../linux-2.6.15-rc5-rt2/mm/memory.c 2005-12-22 16:35:26.000000000 -0500
+@@ -260,6 +261,12 @@
+                struct vm_area_struct *next = vma->vm_next;
+                unsigned long addr = vma->vm_start;
+ 
++               /*
++                * Hide vma from rmap and vmtruncate before freeing pgtables
++                */
++               anon_vma_unlink(vma);
++               unlink_file_vma(vma);
++
+                if (is_hugepage_only_range(vma->vm_mm, addr, HPAGE_SIZE)) {
+                        hugetlb_free_pgd_range(tlb, addr, vma->vm_end,
+                                floor, next? next->vm_start: ceiling);
+@@ -272,6 +279,8 @@
+                                                        HPAGE_SIZE)) {
+                                vma = next; 
+                                next = vma->vm_next;
++                               anon_vma_unlink(vma);
++                               unlink_file_vma(vma);
+                        }
+                        free_pgd_range(tlb, addr, vma->vm_end,
+                                floor, next? next->vm_start: ceiling);
 
-iD8DBQBDsc3EZUg7+tp6mRURAvQMAJ0SdwcPPF6JhsYbO9GB0sNWntq9pwCfVnNS
-TsCZe5wyyD3q5VNhQ0+uyQQ=
-=gy+0
------END PGP SIGNATURE-----
+What was the purpose of this change?
 
---nextPart1236337.oQmFIiGLjW--
+Lee
+
+
+

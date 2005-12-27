@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbVL0BrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbVL0BtK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbVL0BrM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 20:47:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVL0BrM
+	id S932191AbVL0BtK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 20:49:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVL0BtJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 20:47:12 -0500
-Received: from web53708.mail.yahoo.com ([206.190.37.29]:26007 "HELO
-	web53708.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S932189AbVL0BrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 20:47:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=E9OgRdTm51T3jEKrwh/x7J0q6u12EM40z3XSFi7eAOTtNZA2wjNwrlRVNpM/xICofHJtEXX2uLViiQE/RZUjAsRM1HDtJINDkG3O8OwHaA0cjx+FgRwmYOv+rEuBBTuns9eZCUa39DX+joyq2ta2Y+Okn14w9aAFXqB0166w1wQ=  ;
-Message-ID: <20051227014710.43609.qmail@web53708.mail.yahoo.com>
-Date: Mon, 26 Dec 2005 17:47:10 -0800 (PST)
-From: Mikado <mikado4vn@yahoo.com>
-Subject: Re: How to obtain process ID that created a packet
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org, linux-c-programming@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0512262334210.12671@yvahk01.tjqt.qr>
+	Mon, 26 Dec 2005 20:49:09 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:31690 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932191AbVL0BtI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 20:49:08 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Gerhard Mack <gmack@innerfire.net>
+Subject: Re: ati X300 support?
+Date: Tue, 27 Dec 2005 01:49:24 +0000
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net>
+In-Reply-To: <Pine.LNX.4.64.0512261858200.28109@innerfire.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512270149.24440.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Hi,
-> >
-> >Is there any way to catch REAL pid that generated a packet from 'struct sk_buff', 'struct
-sock', 'struct socket', 'struct file' or etc... ? direct/indirect ways are accepted.
-> 
-> The question is: when do you test for the PID? You would have to do it 
-> within send(), because anywhere else, you do not know. A socket may be 
-> shared among multiple processes (most simple way: fork()).
+On Monday 26 December 2005 23:59, Gerhard Mack wrote:
+> hello,
+>
+> Does anyone know when there will be working support for the ATI X300 I
+> tried the latest kernel (2.6.15-rc7) but I don't see drivers for it.
 
-I'm hooking in NF_IP_LOCAL_OUT of netfilter code using nf_register_hook() function.
+The only support the kernel should and currently does provide for this 
+hardware is the "radeon" drm module. I believe the X300 is an R3xx core, so 
+you might find it's supported minimally in the current Xorg release 
+(6.9.0/7.0.0). My Mobility Radeon 9600 seems to work fine with this 
+combination.
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Alternatively you may want to look into running ATI's proprietary driver 
+(fglrx). Both are compatible with 2.6.14.
+
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

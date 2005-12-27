@@ -1,91 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbVL0W1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbVL0W1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbVL0W1H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 17:27:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932378AbVL0W1H
+	id S932378AbVL0W1N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 17:27:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVL0W1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 17:27:07 -0500
-Received: from mout0.freenet.de ([194.97.50.131]:47015 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S932377AbVL0W1G (ORCPT
+	Tue, 27 Dec 2005 17:27:13 -0500
+Received: from [204.225.94.109] ([204.225.94.109]:49421 "EHLO pcburn.com")
+	by vger.kernel.org with ESMTP id S932378AbVL0W1M (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 17:27:06 -0500
-From: Michael Buesch <mbuesch@freenet.de>
-To: Alex Davis <alex14641@yahoo.com>
-Subject: Re: [2.6 patch] i386: always use 4k stacks
-Date: Tue, 27 Dec 2005 23:26:41 +0100
-User-Agent: KMail/1.8.3
-References: <20051216052913.GD30754@redhat.com> <20051216061605.46520.qmail@web50211.mail.yahoo.com> <20051227210359.GG20654@vasa.acc.umu.se>
-In-Reply-To: <20051227210359.GG20654@vasa.acc.umu.se>
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
-       David Weinehall <tao@acc.umu.se>
+	Tue, 27 Dec 2005 17:27:12 -0500
+Message-ID: <43B1BFB8.8050207@pcburn.com>
+Date: Tue, 27 Dec 2005 17:27:04 -0500
+From: Chris Bergeron <chris@pcburn.com>
+Reply-To: chris@pcburn.com
+Organization: PCBurn Media
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Message-Id: <200512272326.41438.mbuesch@freenet.de>
-Content-Type: multipart/signed;
-  boundary="nextPart1482860.F69lHSxeDj";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+CC: Gerhard Mack <gmack@innerfire.net>, linux-kernel@vger.kernel.org
+Subject: Re: ati X300 support?
+References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net> <200512271545.31224.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0512271047260.2104@innerfire.net> <200512271603.30939.s0348365@sms.ed.ac.uk>
+In-Reply-To: <200512271603.30939.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1482860.F69lHSxeDj
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Alistair John Strachan wrote:
 
-On Tuesday 27 December 2005 22:03, David Weinehall wrote:
-> On Thu, Dec 15, 2005 at 10:16:05PM -0800, Alex Davis wrote:
-> >=20
-> >=20
-> > --- Dave Jones <davej@redhat.com> wrote:
-> >=20
-> > > On Thu, Dec 15, 2005 at 09:20:54PM -0800, Alex Davis wrote:
-> > >  > The problem is that, with laptops, most of the time you DON'T
-> > >  > have a choice: HP and Dell primarily use a Broadcomm integrated
-> > >  > wireless card in ther products.  As of yet, there is no open
-> > >  > source driver for Broadcomm wireless.
-> > >=20
-> > > We've already been through all this the previous times this came up.
-> > >=20
-> > > http://bcm43xx.berlios.de
-> > >=20
-> > > Whilst it's in early stages, it's making progress.
-> > >=20
-> > > 		Dave
-> > >=20
-> > >=20
-> > I understand that, and am grateful for the effort, but the point is
-> > it's not ready. Are you expecting people to lose an important feature
-> > of their laptop until you get the driver ready?=20
->=20
-> Yeah, it must be oh so important for the laptop owners with that
-> particular chipset to run the -mm experimental kernels instead of, their
-> distro kernel or the stable 2.6-kernel series or Linus latest
-> installment (or even a git-snapshot or checkout...)
+>On Tuesday 27 December 2005 15:57, Gerhard Mack wrote:
+>  
+>
+>>I have it working in X.org with no problem.  I just can't get the drm
+>>module working in the kernel.  Last time I tried to just add my PCI ids
+>>the problem was a lack of PCIE support in the drm drivers.
+>>    
+>>
+>
+>I'd try again, I have a vague memory of reading a changelog a few releases ago 
+>that mentioned PCIe support in radeon-drm.
+>
+>  
+>
+>>FYI the fglrx drivers suck badly.  ATI hasn't bothered to keep their
+>>drivers up to date at all and the result is that they finally have
+>>working 2.6.14 drivers but only for 32 bit machines.  x86_64 is still
+>>broken on any recent kernel and it's been that way for months.  ATI's tech
+>>support basically gave up after several days and just informed me it
+>>wasn't really supported and there is nothing they could do for me.
+>>    
+>>
+>
+>You're better off running open source drivers anyway, it's less hassle, you 
+>don't have to worry about every kernel upgrade breaking them, and it's only 
+>an X300 anyway -- on my Mobility 9600, I just play a few small games and 
+>expect OpenGL accelerated applications to work properly.
+>
+>If your goals are similar, they're probably achievable with mainline.
+>
+>  
+>
 
-Well, the devicescape port of the bcm43xx driver works
-very relieably on my Apple PowerBook with WPA encryption.
-(WEP does also work).
-I don't think there are lots of issues left for non-AccessPoint
-modes. I simply assume you want to run the card in STA mode,
-instead of rendering your expensive notebook into an AP. ;)
+The DRI project only supports up to the Radeon 9200 unless I missed an 
+update and their page is outdated.  Check the DRI ATI page for details.
 
-It's been a long time, since I plugged my ethernet cable into
-the notebook the last time... .
+http://dri.freedesktop.org/wiki/ATI
 
-=2D-=20
-Greetings Michael.
+Now.. the fglrx driver supposedly supports the X300, but if ATI won't 
+support you on it that doesn't mean much, I guess. 
 
---nextPart1482860.F69lHSxeDj
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBDsb+hlb09HEdWDKgRAioYAJ0bNKLZwIMYBeKOrj/ynAloRjDi5gCguq1F
-mMF2AcFEdJe/tITB3O7NEpE=
-=fmdb
------END PGP SIGNATURE-----
-
---nextPart1482860.F69lHSxeDj--
+-- Chris
+Editor, PCBurn.com

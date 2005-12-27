@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932355AbVL0Rxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932362AbVL0SDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932355AbVL0Rxg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 12:53:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932356AbVL0Rxg
+	id S932362AbVL0SDD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 13:03:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932365AbVL0SDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 12:53:36 -0500
-Received: from wproxy.gmail.com ([64.233.184.202]:31546 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932355AbVL0Rxf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 12:53:35 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=pyUxGFLinXfMMCdsDIkxhEE9+wYw+od3LwxyqFByWQU7eIQSeAucpkuTNerbkXoI1nJAMlNsyCyhYxxIUdl7uQPKpdrX2lJxf6a5SjRTrnjks5pAIAHhS+aPgYeEjIBL7xpaB4Kcfd8UEzkSaj6hbsPSOrQPOyXnDCzVnYN38oc=
-Message-ID: <37219a840512270953w6c35d1f1o15553ab81b0b58f4@mail.gmail.com>
-Date: Tue, 27 Dec 2005 12:53:34 -0500
-From: Michael Krufky <mkrufky@gmail.com>
-To: James Courtier-Dutton <James@superbug.co.uk>
-Subject: Re: Ho ho ho.. Linux 2.6.15-rc7
-Cc: Lee Revell <rlrevell@joe-job.com>, Mark Knecht <markknecht@gmail.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <43B1405D.2050202@superbug.co.uk>
+	Tue, 27 Dec 2005 13:03:03 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:27815 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S932362AbVL0SDB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 13:03:01 -0500
+Date: Tue, 27 Dec 2005 19:02:57 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+cc: LKML <linux-kernel@vger.kernel.org>, Stelian Pop <stelian@popies.net>
+Subject: Re: [RFT] Sonypi: convert to the new platform device interface
+In-Reply-To: <200512251617.09153.dtor_core@ameritech.net>
+Message-ID: <Pine.LNX.4.61.0512271859240.3068@yvahk01.tjqt.qr>
+References: <200512130219.41034.dtor_core@ameritech.net>
+ <d120d5000512131104x260fdbf2mcc58fb953559fec5@mail.gmail.com>
+ <Pine.LNX.4.61.0512252207020.15152@yvahk01.tjqt.qr> <200512251617.09153.dtor_core@ameritech.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org>
-	 <5bdc1c8b0512261002n6167a78ewfc45a6d3a5078ac0@mail.gmail.com>
-	 <1135620892.8293.60.camel@mindpipe> <43B1405D.2050202@superbug.co.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/27/05, James Courtier-Dutton <James@superbug.co.uk> wrote:
-> Lee Revell wrote:
-> > On Mon, 2005-12-26 at 10:02 -0800, Mark Knecht wrote:
-> >
-> >>Hi Linus,
-> >>   I've visiting at my parents house and gave 2.6.15-rc7 a try on my
-> >>dad's machine. This machine is his normal desktop box which I
-> >>administer remotely, as well as a MythTV server. The new kernel built
-> >>and booted fine. I then built the NVidia stuff. However when I tried
-> >>to build the ivtv driver from portage it failed:
-> >
-> >
-> > There's nothing the kernel developers can do about regressions in out of
-> > tree modules - there is no stable kernel module API so the authors of
-> > that module will have to fix it.
-> >
-> > Any idea why the IVTV module has not been submitted for mainline?
-> >
-> > Lee
-> >
+>> It does not work here on a SONY VAIO U3. After loading the sonypi module, 
+>> neither mev nor showkey return something for the special stuff like 
+>> jogwheel, jogbutton or Fn keys respectively.
+>> 
+>> Running 2.6.15-rc7, this appeared in the kernel log:
+>> Dec 25 22:06:14 takeshi kernel: sonypi: request_irq failed
 >
-> No idea. I even asked the IVTV developers mailing list some time ago
-> trying to get them to include it in mainline, but they did not want to
-> for some odd reason I could not work out.
+>Just in case I am sending corrected patch.
 >
-> Maybe someone else can kick them a little harder. :-)
+Ok now it works. (Just like with the old sonypi :-)
 
-Hehe... Please see the earlier messages in this thread... It is a
-plan-in-motion.  Maybe for 2.6.17 or 2.6.18.  ...depending on some
-other factors...
+However, there are some things that remain unresolved:
+- the "mousewheel" reports only once every 2 seconds when constantly
+  wheeling (in mev)
+- pressing the jogdial button produces a keyboard event (keycode 158) 
+  rather than a mousebutton 3 event
 
--Mike
+BTW, how can I use the Fn keys on console (keycodes 466-477) for arbitrary 
+shell commands?
+Such a feature, among which special combinations like Ctrl+Alt+Del also 
+belong, are handled by the kernel which leaves almost no room for 
+user-defined userspace action. Any idea?
+
+
+
+Jan Engelhardt
+-- 
+| Alphagate Systems, http://alphagate.hopto.org/
+| jengelh's site, http://jengelh.hopto.org/

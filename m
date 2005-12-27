@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbVL0ECh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbVL0EFG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbVL0ECh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 23:02:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932207AbVL0ECh
+	id S932207AbVL0EFG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 23:05:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbVL0EFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 23:02:37 -0500
-Received: from [139.30.44.16] ([139.30.44.16]:22356 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S932197AbVL0ECh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 23:02:37 -0500
-Date: Tue, 27 Dec 2005 05:02:32 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
+	Mon, 26 Dec 2005 23:05:05 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:46536 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932207AbVL0EFB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Dec 2005 23:05:01 -0500
+Date: Mon, 26 Dec 2005 23:04:52 -0500
+From: Dave Jones <davej@redhat.com>
 To: jeff shia <tshxiayu@gmail.com>
-cc: linux-kernel@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: do we still need the jiffies wraparound functions ?
-In-Reply-To: <7cd5d4b40512261932v12149210u52cf97c4bc203871@mail.gmail.com>
-Message-ID: <Pine.LNX.4.63.0512270458260.10175@gockel.physik3.uni-rostock.de>
+Message-ID: <20051227040452.GA27781@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	jeff shia <tshxiayu@gmail.com>, linux-kernel@vger.kernel.org
 References: <7cd5d4b40512261932v12149210u52cf97c4bc203871@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7cd5d4b40512261932v12149210u52cf97c4bc203871@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Dec 2005, jeff shia wrote:
+On Tue, Dec 27, 2005 at 11:32:41AM +0800, jeff shia wrote:
+ > Hello,
+ > 
+ > Under the kernel 2.6.x,the jiffies is defined as u64.We cannot count
+ > on it to overflow.
 
-> Under the kernel 2.6.x,the jiffies is defined as u64.We cannot count
-> on it to overflow.
+You can guarantee it will overflow within a few minutes of booting.
+This is done deliberatly to catch jiffy-wrap bugs.
 
-Actually, no. jiffies is still defined as unsigned long, which reduces 
-overhead where 64 bit jiffies are not needed. Only jiffies_64 is an u64.
+ > Do we still need the functions to solve this problem?
 
-> Do we still need the functions to solve this problem?
+yes.
 
-Yes.
-
-Tim
+		Dave

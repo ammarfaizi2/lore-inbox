@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751122AbVL0RIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932353AbVL0R2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751122AbVL0RIy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 12:08:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbVL0RIy
+	id S932353AbVL0R2c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 12:28:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbVL0R2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 12:08:54 -0500
-Received: from anf141.internetdsl.tpnet.pl ([83.17.87.141]:62651 "EHLO
-	anf141.internetdsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S1751122AbVL0RIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 12:08:53 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH -mm 0/3] swsusp: swap handling improvements
-Date: Tue, 27 Dec 2005 17:47:42 +0100
-User-Agent: KMail/1.9
-Cc: Pavel Machek <pavel@suse.cz>, LKML <linux-kernel@vger.kernel.org>
+	Tue, 27 Dec 2005 12:28:08 -0500
+Received: from smtp114.sbc.mail.mud.yahoo.com ([68.142.198.213]:12885 "HELO
+	smtp114.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751128AbVL0R2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 12:28:03 -0500
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: [PATCH] USB_BANDWIDTH documentation change
+Date: Tue, 27 Dec 2005 09:02:06 -0800
+User-Agent: KMail/1.7.1
+Cc: Greg KH <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>,
+       Bodo Eggert <7eggert@gmx.de>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0512262244480.22764@be1.lrz> <Pine.LNX.4.44L0.0512261731001.10595-100000@netrider.rowland.org> <20051227041747.GA23916@kroah.com>
+In-Reply-To: <20051227041747.GA23916@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200512271747.43374.rjw@sisk.pl>
+Message-Id: <200512270902.07144.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Monday 26 December 2005 8:17 pm, Greg KH wrote:
+> 
+> I just saw (but can't find again, sorry) a gentoo bug of an external usb
+> driver on x86-64 that oopses _unless_ this config option is set.  So for
+> some people it is necessary and not broken.
 
-The following series of patches improves the handling of swap partitions
-by swsusp and changes the way it writes the image to swap.  As a result,
-the swap-handling part of swsusp is simplified quite a bit.
+USB should never overcommit.  IMO the right answer is to remove the option
+and always check.  And also remove the old usb_check_bandwidth() call, which
+doesn't even have an accurate model for that reservation.
 
-The patches in this series are also necessary for implementing the swsusp's
-userland interface (coming soon).
-
-The third patch has been acked by Pavel, but of course it depends on the
-previous two.  Still, I posted them for comments some time ago and there
-have not been any, so I assume there are no objections. ;-)
-
-Please apply.
-
-Greetings,
-Rafael
-
-
--- 
-Beer is proof that God loves us and wants us to be happy - Benjamin Franklin
+- Dave
 

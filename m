@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbVL0BVz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbVL0B2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbVL0BVz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 20:21:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbVL0BVz
+	id S932183AbVL0B2E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 20:28:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932186AbVL0B2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 20:21:55 -0500
-Received: from smtp4.libero.it ([193.70.192.54]:8888 "EHLO smtp4.libero.it")
-	by vger.kernel.org with ESMTP id S932184AbVL0BVy (ORCPT
+	Mon, 26 Dec 2005 20:28:03 -0500
+Received: from gate.crashing.org ([63.228.1.57]:28114 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932183AbVL0B2B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 20:21:54 -0500
-Date: Tue, 27 Dec 2005 02:22:42 +0100
-From: Alessandro Zummo <alessandro.zummo@towertech.it>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 7/7] RTC subsystem, test device/driver
-Message-ID: <20051227022242.12628e66@inspiron>
-In-Reply-To: <200512261845.34731.dtor_core@ameritech.net>
-References: <20051226195913.6f680634@inspiron>
-	<200512261845.34731.dtor_core@ameritech.net>
-Organization: Tower Technologies
-X-Mailer: Sylpheed
+	Mon, 26 Dec 2005 20:28:01 -0500
+Subject: Re: Suspend to {mem,disk} broken in 2.6.15-rc6/rc7 on my T42
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jules Villard <jvillard@ens-lyon.fr>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Dave Airlie <airlied@linux.ie>
+In-Reply-To: <20051227011932.GA9771@blatterie>
+References: <20051226194527.GA3036@blatterie>
+	 <Pine.LNX.4.64.0512261545460.14098@g5.osdl.org>
+	 <20051227011932.GA9771@blatterie>
+Content-Type: text/plain
+Date: Tue, 27 Dec 2005 12:27:46 +1100
+Message-Id: <1135646867.4780.12.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.4.1 
 Content-Transfer-Encoding: 7bit
-X-Scanned: with antispam and antivirus automated system at libero.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Dec 2005 18:45:34 -0500
-Dmitry Torokhov <dtor_core@ameritech.net> wrote:
 
-> You should never ever statically allicate devices that can be unregistered.
-> Guess what will happen if one does this:
-> 
-> 	rmmod rtc_test  < /sys/class/rtc/rtcX/date
-> 
-> where rctX is class device created by rtc-test0 or rtc-test1.
+> First revert wasn't enough, but the second one made it! Everything is
+> working now.
 
- Will fix, thanks!
+That is not good. See my other mail. I need more infos to understand
+what's up.
 
--- 
+Ben.
 
- Best regards,
-
- Alessandro Zummo,
-  Tower Technologies - Turin, Italy
-
-  http://www.towertech.it
 

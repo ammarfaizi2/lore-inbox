@@ -1,39 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVL0Esi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbVL0EvZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbVL0Esi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 23:48:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVL0Esi
+	id S932222AbVL0EvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 23:51:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVL0EvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 23:48:38 -0500
-Received: from stinky.trash.net ([213.144.137.162]:43426 "EHLO
-	stinky.trash.net") by vger.kernel.org with ESMTP id S932219AbVL0Esi
+	Mon, 26 Dec 2005 23:51:25 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:4156 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932222AbVL0EvY convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 23:48:38 -0500
-Message-ID: <43B0C788.3010803@trash.net>
-Date: Tue, 27 Dec 2005 05:48:08 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
-X-Accept-Language: en-us, en
+	Mon, 26 Dec 2005 23:51:24 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=onPSv1hChKwnnN8h4xBon2R3FlkRp7nCXYMuZe0TQtuZQA4xxnI0/FmNWSlYTNG0k7fAqVx7xbaGPlE9IRj1W90Tgc+nxqJffuy6TMMpf5LSHT0Y5ZBp/ACKKHZx4u++qe63TeMyl1zpQzP8A2wHxvHnZh4oDBaPezHQkZUoKio=
+Message-ID: <9026964a0512262051m4653c126q4aae75b609c20d2@mail.gmail.com>
+Date: Mon, 26 Dec 2005 23:51:23 -0500
+From: Yi Wang <wymail@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: How to get blocking information?
 MIME-Version: 1.0
-To: gcoady@gmail.com
-CC: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
-       torvalds@osdl.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-Subject: Re: Linux 2.6.14.5
-References: <20051227005327.GA21786@kroah.com> <32b1r156pu7much2m94ajva2bmcs4mpcag@4ax.com>
-In-Reply-To: <32b1r156pu7much2m94ajva2bmcs4mpcag@4ax.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady wrote:
-> netfilter is broken compared to 2.6.15-rc7 (first 2.6 kernel tested 
-> on this box) or 2.4.32 :(  Same ruleset as used for months.
-> 
-> Fails to recognise named chains with a useless error message:
-> 
-> "iptables: No chain/target/match by that name"
+Hi,
 
-Please give an example of a failing command.
+I am new to Linux kernel and now working on a project, which tries to
+modifies the kernel a little bit and get some blocking information
+about system calls. That is, if a system call gets blocked (put into
+sleep), I want to know the "reason for sleep" and the "file name &
+line number which causes the blocking".
+
+I know that there are data structs in FreeBSD holding these
+information, but I don't know if linux has the same facility
+(functions / data structs). Hope someone can give me a hint.
+
+Also, I wonder if ru_majflt in struct rusage (linux/resource.c) is
+already implemented.
+
+Thanks!
+Yi

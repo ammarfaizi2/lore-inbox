@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbVL0PUP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751110AbVL0Pdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750904AbVL0PUP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 10:20:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbVL0PUP
+	id S1751110AbVL0Pdc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 10:33:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbVL0Pdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 10:20:15 -0500
-Received: from mail.stdbev.com ([63.161.72.3]:28097 "EHLO
-	mail.standardbeverage.com") by vger.kernel.org with ESMTP
-	id S1750904AbVL0PUO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 10:20:14 -0500
-Message-ID: <c5fab017ea006f87e47b347f10a6a0ae@stdbev.com>
-Date: Tue, 27 Dec 2005 09:20:15 -0600
-From: "Jason Munro" <jason@stdbev.com>
-Subject: Re: recommended mail clients [was] [PATCH] ati-agp suspend/resume support (try 2)
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: <rostedt@goodmis.org>, <jaco@kroon.co.za>, <linux-kernel@vger.kernel.org>,
-       <pavel@ucw.cz>, <s0348365@sms.ed.ac.uk>
-Reply-to: <jason@stdbev.com>
-In-Reply-To: <Pine.LNX.4.61.0512262323110.12671@yvahk01.tjqt.qr>
-References: <43AF7724.8090302@kroon.co.za>
-            <43AFB005.50608@kroon.co.za>
-            <1135607906.5774.23.camel@localhost.localdomain>
-            <200512261535.09307.s0348365@sms.ed.ac.uk>
-            <Pine.LNX.4.61.0512262323110.12671@yvahk01.tjqt.qr>
-X-Mailer: Hastymail 1.5-CVS
-x-priority: 3
-MIME-Version: 1.0
+	Tue, 27 Dec 2005 10:33:32 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:35735 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S1751110AbVL0Pdc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 10:33:32 -0500
+Date: Tue, 27 Dec 2005 16:33:30 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Con Kolivas <kernel@kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Daniel Petrini <d.pensator@gmail.com>, Tony Lindgren <tony@atomide.com>,
+       vatsa@in.ibm.com, ck list <ck@vds.kolivas.org>,
+       Adam Belay <abelay@novell.com>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       ipw2100-admin@linux.intel.com
+Subject: C4 non-strangeness [was: C4 strangeness [was Re: [PATCH] i386 No Idle HZ aka dynticks 051221]
+Message-ID: <20051227153330.GA32545@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Pavel Machek <pavel@ucw.cz>, Theodore Ts'o <tytso@mit.edu>,
+	Con Kolivas <kernel@kolivas.org>,
+	linux kernel mailing list <linux-kernel@vger.kernel.org>,
+	Daniel Petrini <d.pensator@gmail.com>,
+	Tony Lindgren <tony@atomide.com>, vatsa@in.ibm.com,
+	ck list <ck@vds.kolivas.org>, Adam Belay <abelay@novell.com>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+	ipw2100-admin@linux.intel.com
+References: <200512210310.51084.kernel@kolivas.org> <20051225171617.GA6929@thunk.org> <20051226025525.GA6697@thunk.org> <20051226203806.GC1974@elf.ucw.cz> <20051226225246.GA9915@thunk.org> <20051226232712.GH1974@elf.ucw.cz> <20051227140325.GA1620@elf.ucw.cz> <20051227142238.GA1696@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051227142238.GA1696@elf.ucw.cz>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4:26:17 pm 26 Dec 2005 Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
-> >>
-> >>  I use pine and evolution.  Pine is text based and great when I
-> >>  ssh into my machine to work.  Evolution is slow, but plays well
-> >>  with pine and it handles things needed for LKML very well. (the
-> >>  drop down menu "Normal" may be changed to "Preformat", which
-> >>  allows of inserting text files "as-is").
-> >
-> > Dare I say it, KMail has also been doing the Right Thing for a long
-> > time. It will only line wrap things that you insert by typing;
-> > pastes are left untouched.
-> >
-> > This satisfies Linus's demand that all patches be part of the email
-> > body and not an attachment.
->
->
-> Do not always blame the MUA, because actually, the MTAs may do
-> anything with the mail text. That's (among other reasons) why things
-> like MIME attachments were invented, because they (their respective
-> uuencoded or base64encoded "text") can be wrapped but does not change
-> the decoded form.  - Something like that is in the pine doc.
+Hi,
 
-So which is preferable for someone handling inline patches. A properly
-encoded message text that when decoded with a compliant client accurately
-represents the original text (no whitespace mangling etc), or a message
-text that is accurate in it's raw state but may be altered during transit?
+On Tue, Dec 27, 2005 at 03:22:38PM +0100, Pavel Machek wrote:
+> So... I guess I found out what is going on.
+> 
+> When power is unplugged, X32 adds C4 state. When power is plugged, X32
+> removes C4 state (behaviour Ted seen). When I load ipw2200, this
+> behaviour stops, and I see everything up-to C4. Strange. I remember
+> ipw had some problems with C3 and C4, perhaps this is related?
 
+Nothing strange at all. The C-States are exported by the BIOS to the OS
+using the _CST method/object/whatever. This can change on runtime. When the
+BIOS recognizes it is on battery power, the _CST contains the C4 state, if
+it is on AC power, the _CST doesn't contain it. The ACPI code follows what
+it is told by the BIOS, for it has no chance to know about this additional
+C-State if on AC power, and it wouldn't be wise to second-guess the BIOS.
 
-\__  Jason Munro
- \__ jason@stdbev.com
-  \__ http://hastymail.sourceforge.net/
+Ipw does limit the max_cstate setting dynamically if it recognizes problems;
+however I haven't seen _any_ such things lately on my own system. Might be
+related to dyntick being _enabled_, though ;-)
 
+	Dominik

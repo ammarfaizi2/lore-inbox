@@ -1,46 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbVL0PsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751119AbVL0P5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbVL0PsH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 10:48:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751118AbVL0PsH
+	id S1751119AbVL0P5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 10:57:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVL0P5Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 10:48:07 -0500
-Received: from xproxy.gmail.com ([66.249.82.206]:46259 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751113AbVL0PsG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 10:48:06 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kOluW6rFHfofgkTiJoueDBVmvh64z16FC1Dle8357NdQIyb8ZHmi4IRr6E6tOCwwflh+xFXDdg9t/RihGwt7sVuvPMC+89c9dy9yknAz2TNk3kWYY0CxDqsGjX1XLoJlAYmBtBGiXQLR792p+czqx8j5uYUYgrcIrgZAFiHZUbk=
-Message-ID: <b6c5339f0512270748o477854fbrecc56784b5b340e7@mail.gmail.com>
-Date: Tue, 27 Dec 2005 10:48:05 -0500
-From: Bob Copeland <email@bobcopeland.com>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: recommended mail clients [was] [PATCH] ati-agp suspend/resume support (try 2)
-Cc: Lee Revell <rlrevell@joe-job.com>, jaco@kroon.co.za, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20051226105056.0fc2ebaa.rdunlap@xenotime.net>
+	Tue, 27 Dec 2005 10:57:25 -0500
+Received: from mtl.rackplans.net ([65.39.167.249]:29088 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id S1751119AbVL0P5Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 10:57:25 -0500
+Date: Tue, 27 Dec 2005 10:57:16 -0500 (EST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ati X300 support?
+In-Reply-To: <200512271545.31224.s0348365@sms.ed.ac.uk>
+Message-ID: <Pine.LNX.4.64.0512271047260.2104@innerfire.net>
+References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net>
+ <200512270149.24440.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0512270817340.15649@innerfire.net>
+ <200512271545.31224.s0348365@sms.ed.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <43AF7724.8090302@kroon.co.za> <20051226082934.GD1844@elf.ucw.cz>
-	 <43AFB005.50608@kroon.co.za> <1135609521.8293.33.camel@mindpipe>
-	 <20051226105056.0fc2ebaa.rdunlap@xenotime.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's been done afaik (at least in thunderbird bugzilla).
-> The answer was something like "just use a plug-in (external) editor."
-> I tried that, but it (tbird) still truncates trailing whitespace iirc.
-> They seem to think that it's not a problem.  :(
+I have it working in X.org with no problem.  I just can't get the drm
+module working in the kernel.  Last time I tried to just add my PCI ids 
+the problem was a lack of PCIE support in the drm drivers. 
 
-Incidentally, while using mutt would be so much better, this is a
-handy technique for those trapped behind a firewall with http proxy
-who don't want to draw the ire of sysadmins by tunnelling.  Thought
-I'd share since I did it expressly for sending patches:
+FYI the fglrx drivers suck badly.  ATI hasn't bothered to keep their 
+drivers up to date at all and the result is that they finally have  
+working 2.6.14 drivers but only for 32 bit machines.  x86_64 is still 
+broken on any recent kernel and it's been that way for months.  ATI's tech 
+support basically gave up after several days and just informed me it 
+wasn't really supported and there is nothing they could do for me.
 
-1. Set up webmail.
-2. Hack webmail to use wrap="off" on the textareas.
-3. Use mosex or similar to have $YOUR_X11_EDITOR for editing textareas.
+	Gerhard
+
+On Tue, 27 Dec 2005, Alistair John Strachan wrote:
+
+> Date: Tue, 27 Dec 2005 15:45:31 +0000
+> From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+> To: Gerhard Mack <gmack@innerfire.net>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: ati X300 support?
+> 
+> On Tuesday 27 December 2005 13:17, Gerhard Mack wrote:
+> > The raedon drm module does not seem to detect the card.
+> 
+> Try finding the place where the supported PCI ids are written, and add your 
+> card's PCI ID. If the DRM module successfully detects your card, email the 
+> maintainers with the information (and ideally a patch which adds this 
+> information).
+> 
+> I don't know for sure, but according to this page:
+> 
+> http://dri.freedesktop.org/wiki/ATIRadeon#head-cef41521e55884edc9cd417b42fb2b8b4fcda672
+> 
+> "X300 denotes a rv370 based card."
+> 
+> This may imply that the r300 driver is useable with this hardware.
+> 
+> 
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.

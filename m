@@ -1,68 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbVL0EqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbVL0Esi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbVL0EqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 23:46:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbVL0EqQ
+	id S932219AbVL0Esi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 23:48:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbVL0Esi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 23:46:16 -0500
-Received: from wproxy.gmail.com ([64.233.184.204]:44252 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932220AbVL0EqP convert rfc822-to-8bit
+	Mon, 26 Dec 2005 23:48:38 -0500
+Received: from stinky.trash.net ([213.144.137.162]:43426 "EHLO
+	stinky.trash.net") by vger.kernel.org with ESMTP id S932219AbVL0Esi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 23:46:15 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=NwfetVXc+qkALB2qiaLkTXaEPdvVBWTPtD4KgtLknEZ9wRjleDxxGMUouPUKnPts/PaNyztLjNSUOQWA5BcFDsLaWH13HXcLhIuYxMmOA7w9/dUlne4arfAbH9mT23OzYecMEHwO3zhJnCZGM3y/t6xkmTAI0AO+AbwsSQD/5Wc=
-Message-ID: <7cd5d4b40512262046w6f7a8161jfaf1e618e5722b4@mail.gmail.com>
-Date: Tue, 27 Dec 2005 12:46:14 +0800
-From: jeff shia <tshxiayu@gmail.com>
-To: linux-kernel@vger.kernel.org, robert love <rml@novell.com>
-Subject: something about jiffies wraparound overflow
+	Mon, 26 Dec 2005 23:48:38 -0500
+Message-ID: <43B0C788.3010803@trash.net>
+Date: Tue, 27 Dec 2005 05:48:08 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+To: gcoady@gmail.com
+CC: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
+       torvalds@osdl.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: Linux 2.6.14.5
+References: <20051227005327.GA21786@kroah.com> <32b1r156pu7much2m94ajva2bmcs4mpcag@4ax.com>
+In-Reply-To: <32b1r156pu7much2m94ajva2bmcs4mpcag@4ax.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- Hello,
+Grant Coady wrote:
+> netfilter is broken compared to 2.6.15-rc7 (first 2.6 kernel tested 
+> on this box) or 2.4.32 :(  Same ruleset as used for months.
+> 
+> Fails to recognise named chains with a useless error message:
+> 
+> "iptables: No chain/target/match by that name"
 
-we use the following to solve the problem of jiffies wraparound.
-#define time_after(a,b)		\
-	(typecheck(unsigned long, a) && \
-	 typecheck(unsigned long, b) && \
-	 ((long)(b) - (long)(a) < 0))
-#define time_before(a,b)	time_after(b,a)
-
-#define time_after_eq(a,b)	\
-	(typecheck(unsigned long, a) && \
-	 typecheck(unsigned long, b) && \
-	 ((long)(a) - (long)(b) >= 0))
-#define time_before_eq(a,b)	time_after_eq(b,a)
-
-But I cannot understand it has some differences comparing with the
-following code.
-
-/* code 2*/
-
-unsigned long timeout = jiffies + HZ/2;
-
-if(timeout < jiffies)
-{
-        /* not timeout...*/
-}
-else
-{
-        /* timeout processing...*/
-}
-
-questions:
-  1.why the macros of time_after can solve the jiffies wraparound problem?
-  2.Is there any other possibilities for the "code 2" to overflow
-except the jiffies overflow?
-
-Any help will be preferred .
-Thank you,
-
-
-Yours.
+Please give an example of a failing command.

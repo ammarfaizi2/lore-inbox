@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbVL0KtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbVL0Kz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbVL0KtR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 05:49:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751104AbVL0KtQ
+	id S932166AbVL0Kz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 05:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbVL0Kz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 05:49:16 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:17854 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750734AbVL0KtQ (ORCPT
+	Tue, 27 Dec 2005 05:55:29 -0500
+Received: from hobbit.corpit.ru ([81.13.94.6]:21085 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S932166AbVL0Kz2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 05:49:16 -0500
-Date: Tue, 27 Dec 2005 16:19:00 +0530 (IST)
-From: Sripathi Kodi <sripathik@in.ibm.com>
-X-X-Sender: sripathi@sripathi.in.ibm.com
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Sripathi Kodi <sripathik@in.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: Problem due to removing ppc64 rtc.c?
-In-Reply-To: <1135679117.4780.38.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.63.0512271617380.3537@sripathi.in.ibm.com>
-References: <Pine.LNX.4.63.0512271505030.3537@sripathi.in.ibm.com>
- <1135679117.4780.38.camel@localhost.localdomain>
+	Tue, 27 Dec 2005 05:55:28 -0500
+Message-ID: <43B11D9C.6000601@tls.msk.ru>
+Date: Tue, 27 Dec 2005 13:55:24 +0300
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Mikado <mikado4vn@yahoo.com>, linux-kernel@vger.kernel.org,
+       linux-c-programming@vger.kernel.org
+Subject: Re: How to obtain process ID that created a packet
+References: <20051227014710.43609.qmail@web53708.mail.yahoo.com> <Pine.LNX.4.61.0512270925020.10069@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0512270925020.10069@yvahk01.tjqt.qr>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Dec 2005, Benjamin Herrenschmidt wrote:
-
-> On Tue, 2005-12-27 at 15:45 +0530, Sripathi Kodi wrote:
->
+Jan Engelhardt wrote:
+>>>The question is: when do you test for the PID? You would have to do it 
+>>>within send(), because anywhere else, you do not know. A socket may be 
+>>>shared among multiple processes (most simple way: fork()).
 >>
->> Before your changes,  rtc_ioctl was implemented in the PPC  specific rtc.c and
->> it used  to call ppc_md.get_rtc_time  for RTC_RD_TIME,  which I think  used to
->> end  up  in  rtas_get_rtc_time.  After  your changes,  time  is  now  read  in
->> rtc_get_rtc_time using CMOS_READ calls, which apparently is resulting in wrong
->> values being  read. I changed  rtc_do_ioctl to make it  call rtas_get_rtc_time
->> for RTC_RD_TIME call and the problem went away.
->>
->> Have I  missed something or  does this  need fixing? Do  we really need  a PPC
->> specific rtc_ioctl call that calls into rtas_get_rtc_time?
->
-> I think the problem is that you still have CONFIG_RTC in your .config
-> instead of CONFIG_GEN_RTC
->
-> Ben.
+>>I'm hooking in NF_IP_LOCAL_OUT of netfilter code using nf_register_hook() function.
+> 
+> 
+> In sys_send(), I would have said you could use "current", but in netfilter 
+> I can't tell exactly whether it is going to work on SMP.
+> 
+> Check net/ipv4/netfilter/ipt_owner.c, it provides a way to match packets vs 
+> pids, but it's not easy to find out.
 
-Yes, that was indeed the problem. Thanks a lot.
+In current 2.6 kernel, net/ipv4/netfilter/ipt_owner.c:checkentry() :
 
--Sripathi.
+        if (info->match & (IPT_OWNER_PID|IPT_OWNER_SID|IPT_OWNER_COMM)) {
+                printk("ipt_owner: pid, sid and command matching "
+                       "not supported anymore\n");
+                return 0;
+        }
+
+So... even netfilter, breaking backward compatibility, does not support
+pid match anymore...
+
+/mjt

@@ -1,85 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbVL0QbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbVL0Q6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750844AbVL0QbH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 11:31:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbVL0QbH
+	id S932308AbVL0Q6l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 11:58:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbVL0Q6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 11:31:07 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:44701 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750843AbVL0QbG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 11:31:06 -0500
-Date: Tue, 27 Dec 2005 10:30:59 -0600
-From: Jack Steiner <steiner@sgi.com>
-To: torvalds@osdl.org
-Cc: akpm@osdl.org, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] - Fix memory ordering problem in wake_futex()
-Message-ID: <20051227163059.GA2381@sgi.com>
-References: <20051223163816.GA30906@sgi.com> <20051224134523.GA7187@sgi.com> <20051224181325.GH24601@pb15.lixom.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051224181325.GH24601@pb15.lixom.net>
-User-Agent: Mutt/1.5.6i
+	Tue, 27 Dec 2005 11:58:41 -0500
+Received: from smtp-8.smtp.ucla.edu ([169.232.47.137]:56243 "EHLO
+	smtp-8.smtp.ucla.edu") by vger.kernel.org with ESMTP
+	id S932308AbVL0Q6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 11:58:40 -0500
+Date: Tue, 27 Dec 2005 08:58:39 -0800 (PST)
+From: Chris Stromsoe <cbs@cts.ucla.edu>
+To: linux-kernel@vger.kernel.org
+Subject: bad pmd filemap.c, oops; 2.4.30 and 2.4.32
+Message-ID: <Pine.LNX.4.64.0512270844080.14284@potato.cts.ucla.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Probable-Spam: no
+X-Spam-Report: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+I have a machine that oopsed twice in the last 3 weeks.  Immediately 
+before each oops was a "filemap.c:2234: bad pmd" message.  The first oops 
+happened with 2.4.30, the second with 2.4.32.  The oops from 2.4.30 is 
+below.  I don't have the oops from 2.4.32.
+
+The machine is a usenet feeder and does a constant ~110mbit/s traffic.  I 
+have the tg3 and bonding modules loaded.  There are 2 Adaptec controllers, 
+one onboard, one pci (aic7899 and 3960D).  There are 5 disks off the first 
+channel of aic7899 (comes up as scsi2), 4 of which are in a RAID5.  The 
+other 3 channels are unused.  I have the .config for 2.4.30 available if 
+needed.
+
+Pointers for where to look if/when it happens again would be appreciated. 
+Thanks.
 
 
-Here is a fix for a ugly race condition that occurs in wake_futex(). The
-failure was detected on IA64 but may also occur on other architectures.
+-Chris
 
-On IA64, locks are released using a "st.rel" instruction. This ensures that
-preceding "stores" are visible before the lock is released but does NOT prevent
-a "store" that follows the "st.rel" from becoming visible before the "st.rel".
+filemap.c:2234: bad pmd 00c001e3.
+filemap.c:2234: bad pmd 010001e3.
+Unable to handle kernel paging request at virtual address c13aef08
+  printing eip:
+c012d7b6
+*pde = 010001e3
+*pte = ce919a00
+Oops: 0000
+CPU:    1
+EIP:    0010:[mark_page_accessed+6/48]    Not tainted
+EFLAGS: 00010296
+eax: c13aeef0   ebx: c13aeef0   ecx: 0005d800   edx: ee030900
+esi: 0005d7a0   edi: 0005d8a9   ebp: f66b1c3c   esp: f66b1c38
+ds: 0018   es: 0018   ss: 0018
+Process innfeed (pid: 526, stackpage=f66b1000)
+Stack: c13aeef0 f66b1c70 c012ea08 ee030900 0005d7a0 0005d8a9 0005d8a9 f7fa1d60
+        f6628080 f6628144 f7628200 ee030900 c012e830 f77f4d80 f66b1cb8 c012a18e
+        ee030900 63ca0000 00000000 f66b1ce4 c027404c 00000000 f77f4d80 00000106
+Call Trace:    [filemap_nopage+472/544] [filemap_nopage+0/544] [do_no_page+126/608] [ip_queue_xmit+780/1424] [handle_mm_fault+121/272]
+   [do_page_fault+1024/1472] [tcp_write_xmit+353/688] [tcp_new_space+137/160] [tcp_rcv_established+716/2480] [memcpy_toiovec+67/112] [do_page_fault+0/1472]
+   [error_code+52/60] [csum_partial_copy_generic+61/260] [tcp_sendmsg+2367/4512] [inet_sendmsg+65/80] [sock_sendmsg+102/176] [sock_readv_writev+116/176]
+   [sock_writev+79/96] [do_readv_writev+567/608] [sys_writev+88/128] [system_call+51/56]
 
-The failure I saw is a task that owned a futex_q resumed prematurely and
-was context-switch off of the cpu. The task's switch_stack occupied the same
-space as the futex_q. The store to q->lock_ptr in futex_wait()overwrote the 
-ar.bspstore in the switch_stack. When the task resumed, it ran with a corrupted 
-ar.bspstore.  Things went downhill from there.
-
-Without the fix, the application fails roughly every 10 minutes. With
-the fix, it ran over 16 hours without a failure.
-
-----
-Fix a memory ordering problem that occurs on IA64. The "store" to q->lock_ptr
-in wake_futex() can become visible before wake_up_all() clears the lock in the
-futex_q.
+Code: 8b 40 18 a8 80 75 07 8b 43 18 a8 04 75 0c f0 0f ba 6b 18 02
 
 
 
-	Signed-off-by: Jack Steiner <steiner@sgi.com>
-
-
-
-
-
-Index: linux/kernel/futex.c
-===================================================================
---- linux.orig/kernel/futex.c	2005-12-24 15:09:23.381357908 -0600
-+++ linux/kernel/futex.c	2005-12-24 15:14:26.362119396 -0600
-@@ -262,15 +262,18 @@ static void wake_futex(struct futex_q *q
- 	list_del_init(&q->list);
- 	if (q->filp)
- 		send_sigio(&q->filp->f_owner, q->fd, POLL_IN);
--	/*
--	 * The lock in wake_up_all() is a crucial memory barrier after the
--	 * list_del_init() and also before assigning to q->lock_ptr.
--	 */
- 	wake_up_all(&q->waiters);
-+
- 	/*
- 	 * The waiting task can free the futex_q as soon as this is written,
- 	 * without taking any locks.  This must come last.
-+	 *
-+	 * A memory barrier is required here to prevent the following store
-+	 * to lock_ptr from getting ahead of the wakeup. Clearing the lock
-+	 * at the end of wake_up_all() is not a write barrier on all
-+	 * architectures.
- 	 */
-+	smp_wmb();
- 	q->lock_ptr = NULL;
- }
- 

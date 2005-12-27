@@ -1,143 +1,273 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932280AbVL0VTs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751147AbVL0VRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932280AbVL0VTs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 16:19:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbVL0VTs
+	id S1751147AbVL0VRh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 16:17:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751148AbVL0VRh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 16:19:48 -0500
-Received: from thorn.pobox.com ([208.210.124.75]:50651 "EHLO thorn.pobox.com")
-	by vger.kernel.org with ESMTP id S1751146AbVL0VTr (ORCPT
+	Tue, 27 Dec 2005 16:17:37 -0500
+Received: from www.tuxrocks.com ([64.62.190.123]:38927 "EHLO tuxrocks.com")
+	by vger.kernel.org with ESMTP id S1751147AbVL0VRh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 16:19:47 -0500
-Date: Tue, 27 Dec 2005 15:19:36 -0600
-From: Nathan Lynch <ntl@pobox.com>
-To: Yanmin Zhang <ymzhang@unix-os.sc.intel.com>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       linux-ia64@vger.kernel.org,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Shah, Rajesh" <rajesh.shah@intel.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       yanmin.zhang@intel.com
-Subject: Re: [PATCH v2:3/3]Export cpu topology by sysfs
-Message-ID: <20051227211934.GA12674@localhost.localdomain>
-References: <8126E4F969BA254AB43EA03C59F44E84044DEE70@pdsmsx404> <20051227024140.A9081@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051227024140.A9081@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 27 Dec 2005 16:17:37 -0500
+Message-ID: <43B1AE23.4020105@tuxrocks.com>
+Date: Tue, 27 Dec 2005 14:12:03 -0700
+From: Frank Sorenson <frank@tuxrocks.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com
+CC: Denis Vlasenko <vda@ilport.com.ua>,
+       "linux-os (Dick Johnson)" <linux-os@analogic.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 4k stacks
+References: <Pine.LNX.4.61.0512221640490.8179@chaos.analogic.com> <200512242143.10291.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <200512260242.52379.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <200512260340.55037.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+In-Reply-To: <200512260340.55037.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------090300090700070506070802"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yanmin Zhang wrote:
+This is a multi-part message in MIME format.
+--------------090300090700070506070802
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Andrew James Wade wrote:
+> I've modified stack.c to handle 4k stacks. It can also provide information
+> for 8k stacks (fwiw) by changing STACK_GRANULARITY.
 > 
-> Items (attributes) are similar to /proc/cpuinfo.
-> 
-> 1) /sys/devices/system/cpu/cpuX/topology/physical_package_id:
-> represent the physical package id of  cpu X;
-> 2) /sys/devices/system/cpu/cpuX/topology/core_id:
-> represent the cpu core id to cpu X;
-> 3) /sys/devices/system/cpu/cpuX/topology/thread_id:
-> represent the cpu thread id  to cpu X;
+> It found one stack with only 756 bytes left. I hope it's just due to a
+> greedy boot-time function as I'm not running anything particularly exotic.
+> (CIFS & Reiser4).
 
-So what is the format of the *_id attributes?  Looks like this is
-determined by the architecture, which is okay, but it doesn't seem
-explicit.
+Yes, it does appear to be a boot-time function.  It eventually becomes
+PID 1, and the stack usage shrinks considerably.
 
-What about sane default values for the *_id attributes?  For example,
-say I have a uniprocessor PC without HT or multicore -- should all of
-these attributes have zero values, or some kind of "special" value to
-mean "not applicable"?
+Here is a different approach that uses a kernel module, rather than
+/dev/mem.  This module will display current stack usage for each PID, as
+well as the maximum usage if the kernel has the stack-poison patch.
+Also, the current call trace for each PID can be displayed if loaded
+with "verbose=1".
 
-Hmm, why should thread_id be exported at all?  Is it useful to
-userspace in a way that the logical cpu id is not?
+for example:
+1: init - free stack now: 3640, at max usage: 740
+2: ksoftirqd/0 - free stack now: 3880, at max usage: 3788
+3: watchdog/0 - free stack now: 3828, at max usage: 3736
+4: events/0 - free stack now: 3784, at max usage: 3012
+...
 
-> 4) /sys/devices/system/cpu/cpuX/topology/thread_siblings:
-> represent the thread siblings to cpu X in the same core;
-> 5) /sys/devices/system/cpu/cpuX/topology/core_siblings:
-> represent the thread siblings to cpu X in the same physical package;
-> 
-> If one architecture wants to support this feature, it just needs to
-> implement 5 defines, typically in file include/asm-XXX/topology.h.
-> The 5 defines are:
-> #define topology_physical_package_id(cpu)
-> #define topology_core_id(cpu)
-> #define topology_thread_id(cpu)
-> #define topology_thread_siblings(cpu)
-> #define topology_core_siblings(cpu)
-> 
-> The type of siblings is cpumask_t.
-> 
-> If an attribute isn't defined on an architecture, it won't be
-> exported.
+Disclaimer: This seems to work for me, but I'm not a very experienced
+kernel hacker, so if it breaks, take care that you don't get hurt.
 
-Okay, but which combinations of attributes are valid?  E.g. I would
-think that it's fine for an architecture to define topology_thread_id
-and topology_thread_siblings without any of the others, correct?
+Comments and fixes are welcome.
 
-Also I'd rather the architectures have the ability to define these as
-functions instead of macros.
+Thanks,
 
-<snip>
+Frank
+- --
+Frank Sorenson - KD7TZK
+Systems Manager, Computer Science Department
+Brigham Young University
+frank@tuxrocks.com
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
 
-> +/* Add/Remove cpu_topology interface for CPU device */
-> +static int __cpuinit topology_add_dev(struct sys_device * sys_dev)
-> +{
-> +	sysfs_create_group(&sys_dev->kobj, &topology_attr_group);
-> +	return 0;
-> +}
+iD8DBQFDsa4iaI0dwg4A47wRAo14AKCbaraQkijBHpzSJdFzoTG1L/MXjgCg8VDe
+130LL3/dMhRjVw4Wp8IN0a8=
+=skKB
+-----END PGP SIGNATURE-----
 
-Can't sysfs_create_group fail?
+--------------090300090700070506070802
+Content-Type: text/x-csrc;
+ name="stack_avail.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="stack_avail.c"
 
-> +
-> +static int __cpuinit topology_remove_dev(struct sys_device * sys_dev)
-> +{
-> +	sysfs_remove_group(&sys_dev->kobj, &topology_attr_group);
-> +	return 0;
-> +}
-> +
-> +static int __cpuinit topology_cpu_callback(struct notifier_block *nfb,
-> +		unsigned long action, void *hcpu)
-> +{
-> +	unsigned int cpu = (unsigned long)hcpu;
-> +	struct sys_device *sys_dev;
-> +
-> +	sys_dev = get_cpu_sysdev(cpu);
-> +	switch (action) {
-> +		case CPU_ONLINE:
-> +			topology_add_dev(sys_dev);
-> +			break;
-> +		case CPU_DEAD:
-> +			topology_remove_dev(sys_dev);
-> +			break;
-> +	}
-> +	return NOTIFY_OK;
-> +}
+/*
+* stack_avail - A linux kernel module to display available stack
+*		If the kernel stack-poison patch has been applied, this
+*		module also displays available stack at maximum usage
+* Copyright Frank Sorenson <frank@tuxrocks.com> 2005
+*
+* Permission is hereby granted to copy, modify and redistribute this code
+* in terms of the GNU Library General Public License, Version 2 or later,
+* at your option.
+*
+*/
 
-I don't think it makes much sense to add and remove the attribute
-group for cpu online/offline events.  The topology information for an
-offline cpu is potentially valuable -- it could help the admin decide
-which processor to online at runtime, for example.
+#include <linux/module.h>
+#include <linux/kallsyms.h>
 
-I believe the correct time to update the topology information is when
-the topology actually changes (e.g. physical addition or removal of a
-processor) -- this is independent of online/offline operations.
+static int verbose = 0;
 
-In general, I'm still a little uneasy with exporting the cpu topology
-in this way.  I can see how the information would be useful, and right
-now, Linux does not do a great job of exposing to userspace these
-relationships between cpus.  So I see the need.  But the things about
-this approach which I don't like are:
+static unsigned long sinittext;
+static unsigned long einittext;
+static unsigned long stext;
+static unsigned long etext;
 
-- Attributes which are not applicable to the running system will be
-  exported anyway.  Discovery at runtime would be less confusing, I
-  think.
-
-- This locks us into exporting a three-level topology (thread, core,
-  package), with hard-coded names, when it seems probable that there
-  will be systems with more levels than that in the future.
-
-Have you considered basing the exported topology on sched domains?
+// task_struct - /UML/Source/Host/linux-2.6.15-rc5-mm3+fs3/include/linux/sched.h
+// thread_struct - /UML/Source/Host/linux-2.6.15-rc5-mm3+fs3/include/asm-i386/processor.h
+// thread_info - /UML/Source/Host/linux-2.6.15-rc5-mm3+fs3/include/asm-i386/thread_info.h
 
 
-Nathan
+static inline int valid_stack_ptr(struct thread_info *tinfo, void *p)
+{
+	return  p > (void *)tinfo &&
+		p < (void *)tinfo + THREAD_SIZE - 3;
+}
+
+static int core_kernel_text(unsigned long addr)
+{
+	if (addr >= (unsigned long)stext &&
+		addr <= (unsigned long)etext)
+		return 1;
+
+	if (addr >= (unsigned long)sinittext &&
+		addr <= (unsigned long)einittext)
+		return 1;
+	return 0;
+}
+
+int my_kernel_text_address(unsigned long addr)
+{
+	if (core_kernel_text(addr))
+		return 1;
+	return 0;
+//	return __module_text_address(addr) != NULL;
+}
+
+
+static inline unsigned long print_context_stack(struct thread_info *tinfo,
+	unsigned long *stack, unsigned long ebp)
+{
+	unsigned long addr;
+#ifdef  CONFIG_FRAME_POINTER
+	while (valid_stack_ptr(tinfo, (void *)ebp)) {
+		addr = *(unsigned long *)(ebp + 4);
+		printk(" [<%08lx>] ", addr);
+		print_symbol("%s", addr);
+		printk("\n");
+		ebp = *(unsigned long *)ebp;
+	}
+#else
+	while (valid_stack_ptr(tinfo, stack)) {
+		addr = *stack++;
+		if (my_kernel_text_address(addr)) {
+			printk(" [<%08lx>]", addr);
+			print_symbol(" %s", addr);
+			printk("\n");
+		}
+	}
+#endif
+	return ebp;
+}
+
+void show_trace(struct task_struct *task, unsigned long * stack)
+{
+	unsigned long ebp;
+
+	ebp = *(unsigned long *) task->thread.esp;
+
+	while (1) {
+		struct thread_info *context;
+		context = (struct thread_info *)
+			((unsigned long)stack & (~(THREAD_SIZE - 1)));
+		ebp = print_context_stack(context, stack, ebp);
+		stack = (unsigned long*)context->previous_esp;
+		if (!stack)
+			break;
+		printk(" =======================\n");
+	}
+}
+
+static int stack_avail_load(void)
+{
+	struct task_struct *task;
+	unsigned char *base_addr;
+	unsigned char *max_addr;
+	unsigned char *ptr;
+	unsigned long current_avail;
+	unsigned long poisoned_avail;
+
+	sinittext = kallsyms_lookup_name("_sinittext");
+	einittext = kallsyms_lookup_name("_einittext");
+	stext = kallsyms_lookup_name("_stext");
+	etext = kallsyms_lookup_name("_etext");
+
+	printk("Displaying stack space available:\n");
+
+	for_each_process(task) {
+		printk("%d: %s", task->pid, task->comm);
+
+		base_addr = (unsigned char *)(task->thread.esp & 0xFFFFF000);
+		max_addr = base_addr + THREAD_SIZE - 1;
+		ptr = base_addr + sizeof(struct thread_info);
+		while (*ptr == 'Q') {
+			ptr ++;
+		}
+		current_avail = (unsigned long)(task->thread.esp) -
+			(unsigned long)(base_addr) - sizeof(struct thread_info);
+		poisoned_avail = THREAD_SIZE - ((unsigned long)(max_addr - ptr)) -
+			sizeof(struct thread_info) - 1;
+
+		printk(" - free stack now: %lu", current_avail);
+		if (poisoned_avail != 0)
+			printk(", at max usage: %lu", poisoned_avail);
+
+		if (verbose) {
+			printk("\nCurrent call Trace:\n");
+			show_trace(task, (unsigned long *)(task->thread.esp));
+		}
+		printk("\n");
+	}
+	return 0;
+}
+
+static void stack_avail_unload(void)
+{
+	printk("stack_avail module unloading\n");
+}
+
+module_init(stack_avail_load);
+module_exit(stack_avail_unload);
+module_param(verbose, int, 0);
+
+MODULE_AUTHOR ("Frank Sorenson, frank@tuxrocks.com");
+MODULE_DESCRIPTION ("Displays available stack space");
+MODULE_LICENSE("GPL");
+
+--------------090300090700070506070802
+Content-Type: text/plain;
+ name="Makefile"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="Makefile"
+
+KVER := $(shell uname -r)
+KSRC := /lib/modules/$(KVER)/build
+
+PWD = $(shell pwd)
+
+obj-m += stack_avail.o
+
+all: modules
+
+modules:
+	$(MAKE) -C $(KSRC) SUBDIRS=$(PWD) BUILD_DIR=$(PWD) modules
+
+ioctl: ioctl.c
+	$(CC) $< -o $@
+
+clean:
+	@find . \
+		\( -name '*.ko' -o -name '.*.cmd' \
+		-o -name '*.o' -o -name '*.mod.c' \) \
+		-type f -print | xargs rm -f
+
+--------------090300090700070506070802--

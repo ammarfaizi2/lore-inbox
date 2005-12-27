@@ -1,56 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbVL0NXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbVL0Nym@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbVL0NXt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 08:23:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbVL0NXt
+	id S932312AbVL0Nym (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 08:54:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbVL0Nym
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 08:23:49 -0500
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:35850 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id S932306AbVL0NXt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 08:23:49 -0500
-Message-ID: <43B1405D.2050202@superbug.co.uk>
-Date: Tue, 27 Dec 2005 13:23:41 +0000
-From: James Courtier-Dutton <James@superbug.co.uk>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051218)
-X-Accept-Language: en-us, en
+	Tue, 27 Dec 2005 08:54:42 -0500
+Received: from math.ut.ee ([193.40.36.2]:7328 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S932312AbVL0Nyl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 08:54:41 -0500
+Date: Tue, 27 Dec 2005 15:54:29 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
+In-Reply-To: <20051223104146.GB22506@flint.arm.linux.org.uk>
+Message-ID: <Pine.SOC.4.61.0512271553480.7835@math.ut.ee>
+References: <1134573803.25663.35.camel@localhost.localdomain>
+ <20051214160700.7348A14BEA@rhn.tartu-labor> <20051214172445.GF7124@flint.arm.linux.org.uk>
+ <Pine.SOC.4.61.0512212221310.651@math.ut.ee> <20051221221516.GK1736@flint.arm.linux.org.uk>
+ <Pine.SOC.4.61.0512221231430.6200@math.ut.ee> <20051222130744.GA31339@flint.arm.linux.org.uk>
+ <Pine.SOC.4.61.0512231117560.25532@math.ut.ee> <20051223093343.GA22506@flint.arm.linux.org.uk>
+ <Pine.SOC.4.61.0512231204290.8311@math.ut.ee> <20051223104146.GB22506@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Mark Knecht <markknecht@gmail.com>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Ho ho ho.. Linux 2.6.15-rc7
-References: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org>	 <5bdc1c8b0512261002n6167a78ewfc45a6d3a5078ac0@mail.gmail.com> <1135620892.8293.60.camel@mindpipe>
-In-Reply-To: <1135620892.8293.60.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Mon, 2005-12-26 at 10:02 -0800, Mark Knecht wrote:
-> 
->>Hi Linus,
->>   I've visiting at my parents house and gave 2.6.15-rc7 a try on my
->>dad's machine. This machine is his normal desktop box which I
->>administer remotely, as well as a MythTV server. The new kernel built
->>and booted fine. I then built the NVidia stuff. However when I tried
->>to build the ivtv driver from portage it failed:
-> 
-> 
-> There's nothing the kernel developers can do about regressions in out of
-> tree modules - there is no stable kernel module API so the authors of
-> that module will have to fix it.
-> 
-> Any idea why the IVTV module has not been submitted for mainline?
-> 
-> Lee
-> 
+> Right, discard all the patches I sent previously and use this one.
 
-No idea. I even asked the IVTV developers mailing list some time ago 
-trying to get them to include it in mainline, but they did not want to 
-for some odd reason I could not work out.
+No messages at all so far, with several serial sessions.
 
-Maybe someone else can kick them a little harder. :-)
-
-James
-
+-- 
+Meelis Roos (mroos@linux.ee)

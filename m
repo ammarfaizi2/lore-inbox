@@ -1,61 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbVL0NSQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbVL0NWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbVL0NSQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 08:18:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbVL0NSQ
+	id S932297AbVL0NWi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 08:22:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbVL0NWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 08:18:16 -0500
-Received: from mtl.rackplans.net ([65.39.167.249]:25289 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id S932170AbVL0NSQ (ORCPT
+	Tue, 27 Dec 2005 08:22:38 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:5315 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932297AbVL0NWh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 08:18:16 -0500
-Date: Tue, 27 Dec 2005 08:17:53 -0500 (EST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ati X300 support?
-In-Reply-To: <200512270149.24440.s0348365@sms.ed.ac.uk>
-Message-ID: <Pine.LNX.4.64.0512270817340.15649@innerfire.net>
-References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net>
- <200512270149.24440.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Dec 2005 08:22:37 -0500
+Date: Tue, 27 Dec 2005 05:22:14 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Hirokazu Takata <takata@linux-m32r.org>
+Cc: viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org, takata@linux-m32r.org
+Subject: Re: [WTF?] sys_tas() on m32r
+Message-Id: <20051227052214.0098e7bf.akpm@osdl.org>
+In-Reply-To: <20051227.142739.599244061.takata.hirokazu@renesas.com>
+References: <20051223061556.GR27946@ftp.linux.org.uk>
+	<20051223055526.bc1a4044.akpm@osdl.org>
+	<20051227.142739.599244061.takata.hirokazu@renesas.com>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The raedon drm module does not seem to detect the card.
-
-	Gerhard
-
-
-On Tue, 27 Dec 2005, Alistair John Strachan wrote:
-
-> Date: Tue, 27 Dec 2005 01:49:24 +0000
-> From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-> To: Gerhard Mack <gmack@innerfire.net>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: ati X300 support?
+Hirokazu Takata <takata@linux-m32r.org> wrote:
+>
+> I tried the latter way as the following patch, but the result was not 
+> so gratifying; some hangups/lockups or kernel panics happened unexpectedly.
 > 
-> On Monday 26 December 2005 23:59, Gerhard Mack wrote:
-> > hello,
-> >
-> > Does anyone know when there will be working support for the ATI X300 I
-> > tried the latest kernel (2.6.15-rc7) but I don't see drivers for it.
+> Am I missing anything?
+> Any more comments or suggestions will be greatly appreciated.
 > 
-> The only support the kernel should and currently does provide for this 
-> hardware is the "radeon" drm module. I believe the X300 is an R3xx core, so 
-> you might find it's supported minimally in the current Xorg release 
-> (6.9.0/7.0.0). My Mobility Radeon 9600 seems to work fine with this 
-> combination.
-> 
-> Alternatively you may want to look into running ATI's proprietary driver 
-> (fglrx). Both are compatible with 2.6.14.
-> 
-> 
+> ...
+> --- linux-2.6.15-rc7.orig/arch/m32r/kernel/sys_m32r.c	2005-12-27 10:33:05.301372856 +0900
+> +++ linux-2.6.15-rc7/arch/m32r/kernel/sys_m32r.c	2005-12-27 10:33:10.222624712 +0900
+> @@ -29,44 +29,31 @@
+>  
+>  /*
+>   * sys_tas() - test-and-set
+> - * linuxthreads testing version
+>   */
+> -#ifndef CONFIG_SMP
+>  asmlinkage int sys_tas(int *addr)
+>  {
+>  	int oldval;
+> -	unsigned long flags;
+>  
+>  	if (!access_ok(VERIFY_WRITE, addr, sizeof (int)))
+>  		return -EFAULT;
+> -	local_irq_save(flags);
+> -	oldval = *addr;
+> -	if (!oldval)
+> -		*addr = 1;
+> -	local_irq_restore(flags);
+> -	return oldval;
+> -}
+> -#else /* CONFIG_SMP */
+> -#include <linux/spinlock.h>
+> -
+> -static DEFINE_SPINLOCK(tas_lock);
+> -
+> -asmlinkage int sys_tas(int *addr)
+> -{
+> -	int oldval;
+>  
+> -	if (!access_ok(VERIFY_WRITE, addr, sizeof (int)))
+> -		return -EFAULT;
+> -
+> -	_raw_spin_lock(&tas_lock);
+> -	oldval = *addr;
+> -	if (!oldval)
+> -		*addr = 1;
+> -	_raw_spin_unlock(&tas_lock);
+> +	for ( ; ; ) {
+> +		get_user(oldval, addr);
 
---
-Gerhard Mack
+We need to check for -EFAULT here and fail the syscall if a fault was
+detected.  Without this we'll certainly get lockups if the user passed a
+bad address.  But this doesn't seem sufficient to eplain the problems which
+you've observed.
 
-gmack@innerfire.net
 
-<>< As a computer I find your faith in technology amusing.

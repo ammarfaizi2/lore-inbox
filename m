@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbVL0Ct0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbVL0Cw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbVL0Ct0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 21:49:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932197AbVL0Ct0
+	id S932201AbVL0Cw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 21:52:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbVL0Cw0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 21:49:26 -0500
-Received: from xproxy.gmail.com ([66.249.82.207]:26557 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932196AbVL0CtZ convert rfc822-to-8bit
+	Mon, 26 Dec 2005 21:52:26 -0500
+Received: from xproxy.gmail.com ([66.249.82.202]:45278 "EHLO xproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932197AbVL0CwZ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 21:49:25 -0500
+	Mon, 26 Dec 2005 21:52:25 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aohBKXQy0wISwuPOjP4EVIfKfymaJgvhcEvqGfmkOa/DDOymsNDdAh16psXjzGkSphuNHz273aUpenR6ZjvGi6t3RWPRNwTmPFzYE8NwZ6i76upagFGR0oyZZ9EUsTLn9kyXnodUI1F5sToIwy/AXEm5brWgSdbi4muLxXV399E=
-Message-ID: <5bdc1c8b0512261849i3c935887gedf116bf9faa29e1@mail.gmail.com>
-Date: Mon, 26 Dec 2005 18:49:24 -0800
-From: Mark Knecht <markknecht@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Ho ho ho.. Linux 2.6.15-rc7
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1135620892.8293.60.camel@mindpipe>
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=MmhydANPoN9O0jFi6OScha4dXODlsy2rJPDjJjOqK+esQkUw8WWVv98XnddIk88uriIH2fAONRzzo7LyvXIkyEb//Klm9RwVbpXD3UGmnxbAGdyH+rMQzkwFAVZaacgSbqkQQ1y8oNHtXS/k7SpJ5InXRuqs7iG0uOE+95eD21g=
+Message-ID: <71a51c440512261852u593a2795y@mail.gmail.com>
+Date: Tue, 27 Dec 2005 10:52:25 +0800
+From: "Legend W." <mrwangxc@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Machine Check Exception !
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org>
-	 <5bdc1c8b0512261002n6167a78ewfc45a6d3a5078ac0@mail.gmail.com>
-	 <1135620892.8293.60.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/26/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Mon, 2005-12-26 at 10:02 -0800, Mark Knecht wrote:
-> > Hi Linus,
-> >    I've visiting at my parents house and gave 2.6.15-rc7 a try on my
-> > dad's machine. This machine is his normal desktop box which I
-> > administer remotely, as well as a MythTV server. The new kernel built
-> > and booted fine. I then built the NVidia stuff. However when I tried
-> > to build the ivtv driver from portage it failed:
->
-> There's nothing the kernel developers can do about regressions in out of
-> tree modules - there is no stable kernel module API so the authors of
-> that module will have to fix it.
->
-> Any idea why the IVTV module has not been submitted for mainline?
->
-> Lee
+Hello,
 
-Lee, et all,
-   Yes, I understood ivtv wasn't part of the kernel, and I did
-consider trying something newer, but that meant testing that this new
-ivtv didn't cause other problems which I didn't have time for as I'm
-leaving tomorrow morning for home. Testing ivtv within MythTV is a
-long involved process (literally hours and hours really) and I didn't
-want to leave my folks without their beloved TV recording system if
-something went wrong. I'll test the new kernel on my machines at home,
-including with ivtv, and then I'll update them when I know it works
-for me.
+I get the following message under 2.4.21 from RedHat:
 
-   None the less, and maybe as a non-developer I'm seeing this wrong,
-but when a new kernel causes some drive to say a symbol isn't
-available, as a user type I have no way of knowing if the symbol was
-dropped on purpose or something got left out.
+CPU 3: Machine Check Exception: 0000000000000004
+<Bank 0: b20000001040080f
 
-   I'm glad it's considered a non-issue.
+and the box is dead.
 
-Best regards and Happy upcoming New Years,
-Mark
+When i use parsemce, it said:
+Status: (4) Machine Check in progress.
+Restart IP invalid.
+parsebank(0): b20000001040080f @ 3
+        External tag parity error
+        CPU state corrupt. Restart not possible
+        Error enabled in control register
+        Error not corrected.
+        Bus and interconnect error
+        Participation: Local processor originated request
+        Timeout: Request did not timeout
+        Request: Generic error
+        Transaction type : Invalid
+        Memory/IO : Other
+
+Can anybody please enlighten me what this means or what a possible
+problem behind might be?
+
+Thank you in advance
+
+PS: my box has dual Xeon 2.8G CPU

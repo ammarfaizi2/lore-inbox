@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVL0EUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbVL0EjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932211AbVL0EUE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 23:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbVL0EUE
+	id S932215AbVL0EjL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 23:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbVL0EjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 23:20:04 -0500
-Received: from mail.kroah.org ([69.55.234.183]:60297 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932211AbVL0EUD (ORCPT
+	Mon, 26 Dec 2005 23:39:11 -0500
+Received: from xenotime.net ([66.160.160.81]:38816 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932215AbVL0EjK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 23:20:03 -0500
-Date: Mon, 26 Dec 2005 20:17:47 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Bodo Eggert <7eggert@gmx.de>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [PATCH] USB_BANDWIDTH documentation change
-Message-ID: <20051227041747.GA23916@kroah.com>
-References: <Pine.LNX.4.58.0512262244480.22764@be1.lrz> <Pine.LNX.4.44L0.0512261731001.10595-100000@netrider.rowland.org>
+	Mon, 26 Dec 2005 23:39:10 -0500
+Date: Mon, 26 Dec 2005 20:39:48 -0800
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] SubmittingPatches: diffstat options
+Message-Id: <20051226203948.3d46594f.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0512261731001.10595-100000@netrider.rowland.org>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 26, 2005 at 05:35:29PM -0500, Alan Stern wrote:
-> On Mon, 26 Dec 2005, Bodo Eggert wrote:
-> 
-> > On Mon, 26 Dec 2005, Lee Revell wrote:
-> > > On Mon, 2005-12-26 at 11:25 +0100, Bodo Eggert wrote:
-> > 
-> > > > Document the current status of CONFIG_USB_BANDWITH implementation.
-> > > 
-> > > Since most systems use uhci-hcd and/or ehci-hcd maybe we should just
-> > > mark it BROKEN?  Or EXPERIMENTAL?
-> > 
-> > It is EXPERIMENTAL, but the current documentation sounds like "YOU REALLY
-> > WANT THIS !!!1", and I /guess/ that would be true for ohci-hcd users.
-> 
-> CONFIG_USB_BANDWIDTH isn't _really_ needed.  What it does (or rather, what 
-> it would do if it worked properly) is prevent the kernel from 
-> overcommitting on USB bandwidth.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-I just saw (but can't find again, sorry) a gentoo bug of an external usb
-driver on x86-64 that oopses _unless_ this config option is set.  So for
-some people it is necessary and not broken.
+Add desired 'diffstat' options to use for kernel patches.
 
-thanks,
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/SubmittingPatches |    3 +++
+ 1 files changed, 3 insertions(+)
 
-greg k-h
+--- linux-2615-rc7.orig/Documentation/SubmittingPatches
++++ linux-2615-rc7/Documentation/SubmittingPatches
+@@ -373,6 +373,9 @@ a diffstat, to show what files have chan
+ and deleted lines per file.  A diffstat is especially useful on bigger
+ patches.  Other comments relevant only to the moment or the maintainer,
+ not suitable for the permanent changelog, should also go here.
++Use diffstat options "-p 1 -w 70" so that filenames are listed from the
++top of the kernel source tree and don't use too much horizontal space
++(easily fit in 80 columns, maybe with some indentation).
+ 
+ See more details on the proper patch format in the following
+ references.
+
+
+---

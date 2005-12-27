@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbVL0Kz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVL0LiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbVL0Kz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 05:55:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932291AbVL0Kz3
+	id S1750730AbVL0LiG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 06:38:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVL0LiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 05:55:29 -0500
-Received: from hobbit.corpit.ru ([81.13.94.6]:21085 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S932166AbVL0Kz2 (ORCPT
+	Tue, 27 Dec 2005 06:38:06 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:63203 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750730AbVL0LiE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 05:55:28 -0500
-Message-ID: <43B11D9C.6000601@tls.msk.ru>
-Date: Tue, 27 Dec 2005 13:55:24 +0300
-From: Michael Tokarev <mjt@tls.msk.ru>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20051002)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Mikado <mikado4vn@yahoo.com>, linux-kernel@vger.kernel.org,
-       linux-c-programming@vger.kernel.org
-Subject: Re: How to obtain process ID that created a packet
-References: <20051227014710.43609.qmail@web53708.mail.yahoo.com> <Pine.LNX.4.61.0512270925020.10069@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0512270925020.10069@yvahk01.tjqt.qr>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Dec 2005 06:38:04 -0500
+Date: Tue, 27 Dec 2005 12:37:38 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nicolas Pitre <nico@cam.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 3/3] mutex subsystem: inline mutex_is_locked()
+Message-ID: <20051227113738.GA23587@elte.hu>
+References: <20051223161649.GA26830@elte.hu> <Pine.LNX.4.64.0512261416370.1496@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512261416370.1496@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	1.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>>The question is: when do you test for the PID? You would have to do it 
->>>within send(), because anywhere else, you do not know. A socket may be 
->>>shared among multiple processes (most simple way: fork()).
->>
->>I'm hooking in NF_IP_LOCAL_OUT of netfilter code using nf_register_hook() function.
-> 
-> 
-> In sys_send(), I would have said you could use "current", but in netfilter 
-> I can't tell exactly whether it is going to work on SMP.
-> 
-> Check net/ipv4/netfilter/ipt_owner.c, it provides a way to match packets vs 
-> pids, but it's not easy to find out.
 
-In current 2.6 kernel, net/ipv4/netfilter/ipt_owner.c:checkentry() :
+* Nicolas Pitre <nico@cam.org> wrote:
 
-        if (info->match & (IPT_OWNER_PID|IPT_OWNER_SID|IPT_OWNER_COMM)) {
-                printk("ipt_owner: pid, sid and command matching "
-                       "not supported anymore\n");
-                return 0;
-        }
+> There is currently no advantage to not always inlining 
+> mutex_is_locked, even on x86.
 
-So... even netfilter, breaking backward compatibility, does not support
-pid match anymore...
+thanks, applied.
 
-/mjt
+	Ingo

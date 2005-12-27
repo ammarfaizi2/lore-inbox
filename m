@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbVL0PmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbVL0PpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbVL0PmG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 10:42:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbVL0PmG
+	id S1751114AbVL0PpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 10:45:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751117AbVL0PpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 10:42:06 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:19923 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751112AbVL0PmE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 10:42:04 -0500
-Date: Tue, 27 Dec 2005 16:41:28 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Nicolas Pitre <nico@cam.org>, Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 04/11] mutex subsystem, add include/asm-x86_64/mutex.h
-Message-ID: <20051227154128.GA15961@elte.hu>
-References: <20051227141548.GE6660@elte.hu> <43B158A6.7080508@cosmosbay.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Dec 2005 10:45:16 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:12205 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP
+	id S1751114AbVL0PpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 10:45:14 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Gerhard Mack <gmack@innerfire.net>
+Subject: Re: ati X300 support?
+Date: Tue, 27 Dec 2005 15:45:31 +0000
+User-Agent: KMail/1.9
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net> <200512270149.24440.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0512270817340.15649@innerfire.net>
+In-Reply-To: <Pine.LNX.4.64.0512270817340.15649@innerfire.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <43B158A6.7080508@cosmosbay.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200512271545.31224.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 27 December 2005 13:17, Gerhard Mack wrote:
+> The raedon drm module does not seem to detect the card.
 
-* Eric Dumazet <dada1@cosmosbay.com> wrote:
+Try finding the place where the supported PCI ids are written, and add your 
+card's PCI ID. If the DRM module successfully detects your card, email the 
+maintainers with the information (and ideally a patch which adds this 
+information).
 
-> >+		:"=D" (dummy)						\
-> >+		: "D" (v)						\
-> >+		: "rax", "rsi", "rdx", "rcx",				\
-> >+		  "r8", "r9", "r10", "r11", "memory");			\
-> >+} while (0)
-> 
-> Hi Ingo
-> 
-> I do think this assembly is not very fair. It has an *insane* register 
-> pressure for the compiler : The fast path is thus not so fast.
+I don't know for sure, but according to this page:
 
-if you look at the compiler output you'll notice that it's not a problem 
-actually: this fastpath is only inlined into the generic code, where it 
-has no clobbering side-effects.
+http://dri.freedesktop.org/wiki/ATIRadeon#head-cef41521e55884edc9cd417b42fb2b8b4fcda672
 
-you are right in that if this were to be inlined left and right, this 
-would be quite bad.
+"X300 denotes a rv370 based card."
 
-	Ingo
+This may imply that the r300 driver is useable with this hardware.
+
+-- 
+Cheers,
+Alistair.
+
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

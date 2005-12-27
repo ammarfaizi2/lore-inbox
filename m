@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbVL0H4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbVL0IJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbVL0H4F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 02:56:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbVL0H4F
+	id S932258AbVL0IJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 03:09:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbVL0IJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 02:56:05 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:58537 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932259AbVL0H4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 02:56:02 -0500
-Subject: Re: [PATCH 1/2]MSI(X) save/restore for suspend/resume
-From: Arjan van de Ven <arjan@infradead.org>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1135649077.17476.14.camel@sli10-desk.sh.intel.com>
-References: <1135649077.17476.14.camel@sli10-desk.sh.intel.com>
-Content-Type: text/plain
-Date: Tue, 27 Dec 2005 08:55:57 +0100
-Message-Id: <1135670158.2926.15.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 27 Dec 2005 03:09:27 -0500
+Received: from wproxy.gmail.com ([64.233.184.193]:45390 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932258AbVL0IJ1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 03:09:27 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=q9pVX6KCW/UazWrSFvApn9AgwykxEpmShB7Mp9m1n6011k957KKbk4eZFSavJ5X12URoUNMHnqwqnuwX/WM5XJTUYrRmvVzqyuTJq6E11e+hhZ7Ta+bAVGngkiszlHEfaYYBz8aKx/hoq5zmn3kEr4P6cmlEEQTgEMfcX6T1XZk=
+Message-ID: <9a8748490512270009h2ecb7d07kb044f1b2cf092f97@mail.gmail.com>
+Date: Tue, 27 Dec 2005 09:09:24 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH] Doc/applying-patches.txt fixups
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+In-Reply-To: <20051226212840.61faddc5.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20051226212840.61faddc5.rdunlap@xenotime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 12/27/05, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> From: Randy Dunlap <rdunlap@xenotime.net>
+>
+> Typos/corrections.
+>
+Fine by me. Thanks Randy.
 
-> diff -puN include/linux/pci.h~msi_save_restore include/linux/pci.h
-> --- linux-2.6.15-rc5/include/linux/pci.h~msi_save_restore	2005-12-22 09:23:16.000000000 +0800
-> +++ linux-2.6.15-rc5-root/include/linux/pci.h	2005-12-22 09:23:16.000000000 +0800
-> @@ -135,6 +135,7 @@ struct pci_dev {
->  	unsigned int	block_ucfg_access:1;	/* userspace config space access is blocked */
->  
->  	u32		saved_config_space[16]; /* config space saved at suspend time */
-> +	void		*saved_cap_space[PCI_CAP_ID_MAX + 1]; /* ext config space saved at suspend time */
->  	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
->  	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
+> Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
 
 
-void feels like sort of the wrong thing here....
-
-
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

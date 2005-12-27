@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932208AbVL0Dii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbVL0Dq4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932208AbVL0Dii (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 22:38:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbVL0Dih
+	id S932210AbVL0Dq4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 22:46:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbVL0Dq4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 22:38:37 -0500
-Received: from [218.25.172.144] ([218.25.172.144]:38416 "HELO mail.fc-cn.com")
-	by vger.kernel.org with SMTP id S932208AbVL0Dih (ORCPT
+	Mon, 26 Dec 2005 22:46:56 -0500
+Received: from mail.kroah.org ([69.55.234.183]:65005 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932210AbVL0Dqz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 22:38:37 -0500
-Date: Tue, 27 Dec 2005 11:36:52 +0800
-From: Coywolf Qi Hunt <qiyong@fc-cn.com>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [patch] elevator: elv_try_merge() cleanup
-Message-ID: <20051227033652.GA12214@localhost.localdomain>
-MIME-Version: 1.0
+	Mon, 26 Dec 2005 22:46:55 -0500
+Date: Mon, 26 Dec 2005 19:46:23 -0800
+From: Greg KH <greg@kroah.com>
+To: gcoady@gmail.com
+Cc: Greg KH <gregkh@suse.de>, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       stable@kernel.org
+Subject: Re: [stable] Re: Linux 2.6.14.5
+Message-ID: <20051227034622.GA23521@kroah.com>
+References: <20051227005327.GA21786@kroah.com> <32b1r156pu7much2m94ajva2bmcs4mpcag@4ax.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <32b1r156pu7much2m94ajva2bmcs4mpcag@4ax.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cleanup: make elv_try_merge() static, kill the dead declaration of elv_try_last_merge().
+On Tue, Dec 27, 2005 at 02:06:03PM +1100, Grant Coady wrote:
+> On Mon, 26 Dec 2005 16:53:27 -0800, Greg KH <gregkh@suse.de> wrote:
+> 
+> >We (the -stable team) are announcing the release of the 2.6.14.5 kernel.
+> >
+> >The diffstat and short summary of the fixes are below.
+> >
+> >I'll also be replying to this message with a copy of the patch between
+> >2.6.14.4 and 2.6.14.5, as it is small enough to do so.
+> 
+> netfilter is broken compared to 2.6.15-rc7 (first 2.6 kernel tested 
+> on this box) or 2.4.32 :(  Same ruleset as used for months.
 
-Signed-off-by: Coywolf Qi Hunt <qiyong@fc-cn.com>
----
+Is it broken compared to 2.6.14.4 and/or 2.6.14?  Care to figure out
+which release broke it?
 
-diff --git a/block/elevator.c b/block/elevator.c
-index 6c3fc8a..b7b3f7e 100644
---- a/block/elevator.c
-+++ b/block/elevator.c
-@@ -64,7 +64,7 @@ inline int elv_rq_merge_ok(struct reques
- }
- EXPORT_SYMBOL(elv_rq_merge_ok);
- 
--inline int elv_try_merge(struct request *__rq, struct bio *bio)
-+static inline int elv_try_merge(struct request *__rq, struct bio *bio)
- {
- 	int ret = ELEVATOR_NO_MERGE;
- 
-@@ -80,7 +80,6 @@ inline int elv_try_merge(struct request 
- 
- 	return ret;
- }
--EXPORT_SYMBOL(elv_try_merge);
- 
- static struct elevator_type *elevator_find(const char *name)
- {
-diff --git a/include/linux/elevator.h b/include/linux/elevator.h
-index a74c27e..325ee07 100644
---- a/include/linux/elevator.h
-+++ b/include/linux/elevator.h
-@@ -114,8 +114,6 @@ extern ssize_t elv_iosched_store(request
- extern int elevator_init(request_queue_t *, char *);
- extern void elevator_exit(elevator_t *);
- extern int elv_rq_merge_ok(struct request *, struct bio *);
--extern int elv_try_merge(struct request *, struct bio *);
--extern int elv_try_last_merge(request_queue_t *, struct bio *);
- 
- /*
-  * Return values from elevator merger
+thanks,
+
+greg k-h

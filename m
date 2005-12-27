@@ -1,74 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932378AbVL0W1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVL0Wxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932378AbVL0W1N (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 17:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbVL0W1N
+	id S932380AbVL0Wxv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 17:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVL0Wxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 17:27:13 -0500
-Received: from [204.225.94.109] ([204.225.94.109]:49421 "EHLO pcburn.com")
-	by vger.kernel.org with ESMTP id S932378AbVL0W1M (ORCPT
+	Tue, 27 Dec 2005 17:53:51 -0500
+Received: from sd291.sivit.org ([194.146.225.122]:28169 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S932380AbVL0Wxu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 17:27:12 -0500
-Message-ID: <43B1BFB8.8050207@pcburn.com>
-Date: Tue, 27 Dec 2005 17:27:04 -0500
-From: Chris Bergeron <chris@pcburn.com>
-Reply-To: chris@pcburn.com
-Organization: PCBurn Media
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: Gerhard Mack <gmack@innerfire.net>, linux-kernel@vger.kernel.org
-Subject: Re: ati X300 support?
-References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net> <200512271545.31224.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0512271047260.2104@innerfire.net> <200512271603.30939.s0348365@sms.ed.ac.uk>
-In-Reply-To: <200512271603.30939.s0348365@sms.ed.ac.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 27 Dec 2005 17:53:50 -0500
+Subject: Re: [RFT] Sonypi: convert to the new platform device interface
+From: Stelian Pop <stelian@popies.net>
+To: dtor_core@ameritech.net
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <d120d5000512271418m26d3da41s18a3f97470eda912@mail.gmail.com>
+References: <200512130219.41034.dtor_core@ameritech.net>
+	 <d120d5000512131104x260fdbf2mcc58fb953559fec5@mail.gmail.com>
+	 <Pine.LNX.4.61.0512252207020.15152@yvahk01.tjqt.qr>
+	 <200512251617.09153.dtor_core@ameritech.net>
+	 <Pine.LNX.4.61.0512271859240.3068@yvahk01.tjqt.qr>
+	 <d120d5000512271418m26d3da41s18a3f97470eda912@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Tue, 27 Dec 2005 23:53:36 +0100
+Message-Id: <1135724016.23182.5.camel@deep-space-9.dsnet>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair John Strachan wrote:
+Le mardi 27 décembre 2005 à 17:18 -0500, Dmitry Torokhov a écrit :
 
->On Tuesday 27 December 2005 15:57, Gerhard Mack wrote:
->  
->
->>I have it working in X.org with no problem.  I just can't get the drm
->>module working in the kernel.  Last time I tried to just add my PCI ids
->>the problem was a lack of PCIE support in the drm drivers.
->>    
->>
->
->I'd try again, I have a vague memory of reading a changelog a few releases ago 
->that mentioned PCIe support in radeon-drm.
->
->  
->
->>FYI the fglrx drivers suck badly.  ATI hasn't bothered to keep their
->>drivers up to date at all and the result is that they finally have
->>working 2.6.14 drivers but only for 32 bit machines.  x86_64 is still
->>broken on any recent kernel and it's been that way for months.  ATI's tech
->>support basically gave up after several days and just informed me it
->>wasn't really supported and there is nothing they could do for me.
->>    
->>
->
->You're better off running open source drivers anyway, it's less hassle, you 
->don't have to worry about every kernel upgrade breaking them, and it's only 
->an X300 anyway -- on my Mobility 9600, I just play a few small games and 
->expect OpenGL accelerated applications to work properly.
->
->If your goals are similar, they're probably achievable with mainline.
->
->  
->
+> > However, there are some things that remain unresolved:
+> > - the "mousewheel" reports only once every 2 seconds when constantly
+> >  wheeling (in mev)
 
-The DRI project only supports up to the Radeon 9200 unless I missed an 
-update and their page is outdated.  Check the DRI ATI page for details.
+could be because scrolling the wheel generates several kinds of events
+(up, down but also fast up, fast down etc), and only some of them get
+interpreted. Verify the events by using the verbose=1 parameter.
 
-http://dri.freedesktop.org/wiki/ATI
+> > - pressing the jogdial button produces a keyboard event (keycode 158)
+> >  rather than a mousebutton 3 event
+> >
+> 158 is KEY_BACK and is generated on type2 models.. If you load the
+> driver with verbose=1 what does it say when you press jog dial?
 
-Now.. the fglrx driver supposedly supports the X300, but if ATI won't 
-support you on it that doesn't mean much, I guess. 
+If you don't have a Back button then you can adjust the 'mask' module
+parameter in order to detect only the events you are interested in. And
+before you ask yes, Sony reused the same codes for several types of
+events...
 
--- Chris
-Editor, PCBurn.com
+> > BTW, how can I use the Fn keys on console (keycodes 466-477) for arbitrary
+> > shell commands?
+> > Such a feature, among which special combinations like Ctrl+Alt+Del also
+> > belong, are handled by the kernel which leaves almost no room for
+> > user-defined userspace action. Any idea?
+> >
+> There are daemons that read corersponding /dev/input/eventX and act on
+> it. The in-kernel keyboard driver ignores keycodes above 255.
+
+And also daemons more sonypi specific which read /dev/sonypi instead,
+like sonypid, sonypidd, jogdiald, kde etc.
+
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>
+

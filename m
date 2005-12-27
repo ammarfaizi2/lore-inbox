@@ -1,167 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVL0XUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932385AbVL0XVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbVL0XUE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 18:20:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVL0XUD
+	id S932385AbVL0XVG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 18:21:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbVL0XVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 18:20:03 -0500
-Received: from mail.gmx.de ([213.165.64.21]:57313 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932376AbVL0XUB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 18:20:01 -0500
-X-Authenticated: #556111
-Date: Wed, 28 Dec 2005 00:19:31 +0100
-From: Sebastian Reichelt <SebastianR@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: TerraTec MIDI HUBBLE USB quirk
-Message-Id: <20051228001931.3cd9b044.SebastianR@gmx.de>
-X-Mailer: Sylpheed version 1.9.12 (GTK+ 2.6.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Wed__28_Dec_2005_00_19_31_+0100_QZi/YX+O.EFfiM+a"
-X-Y-GMX-Trusted: 0
+	Tue, 27 Dec 2005 18:21:06 -0500
+Received: from mail.metronet.co.uk ([213.162.97.75]:736 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932385AbVL0XVF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 18:21:05 -0500
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: chris@pcburn.com
+Subject: Re: ati X300 support?
+Date: Tue, 27 Dec 2005 23:20:45 +0000
+User-Agent: KMail/1.9
+Cc: Gerhard Mack <gmack@innerfire.net>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net> <200512271603.30939.s0348365@sms.ed.ac.uk> <43B1BFB8.8050207@pcburn.com>
+In-Reply-To: <43B1BFB8.8050207@pcburn.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200512272320.45378.s0348365@sms.ed.ac.uk>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Tuesday 27 December 2005 22:27, Chris Bergeron wrote:
+> Alistair John Strachan wrote:
+> >On Tuesday 27 December 2005 15:57, Gerhard Mack wrote:
+> >>I have it working in X.org with no problem.  I just can't get the drm
+> >>module working in the kernel.  Last time I tried to just add my PCI ids
+> >>the problem was a lack of PCIE support in the drm drivers.
+> >
+> >I'd try again, I have a vague memory of reading a changelog a few releases
+> > ago that mentioned PCIe support in radeon-drm.
+> >
+> >>FYI the fglrx drivers suck badly.  ATI hasn't bothered to keep their
+> >>drivers up to date at all and the result is that they finally have
+> >>working 2.6.14 drivers but only for 32 bit machines.  x86_64 is still
+> >>broken on any recent kernel and it's been that way for months.  ATI's
+> >> tech support basically gave up after several days and just informed me
+> >> it wasn't really supported and there is nothing they could do for me.
+> >
+> >You're better off running open source drivers anyway, it's less hassle,
+> > you don't have to worry about every kernel upgrade breaking them, and
+> > it's only an X300 anyway -- on my Mobility 9600, I just play a few small
+> > games and expect OpenGL accelerated applications to work properly.
+> >
+> >If your goals are similar, they're probably achievable with mainline.
+>
+> The DRI project only supports up to the Radeon 9200 unless I missed an
+> update and their page is outdated.  Check the DRI ATI page for details.
+>
+> http://dri.freedesktop.org/wiki/ATI
 
---Multipart=_Wed__28_Dec_2005_00_19_31_+0100_QZi/YX+O.EFfiM+a
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Hello!
-
-The TerraTec MIDI HUBBLE USB device provides two MIDI IN and OUT ports, 
-but it seems to lack the correct interface class value (see attached 
-output of lsusb -v). I thought this could be fixed by adding the 
-following to sound/usb/usbquirks.h:
-
-{
-        USB_DEVICE_VENDOR_SPEC(0x0ccd, 0x0032),
-        .driver_info = (unsigned long) & (const snd_usb_audio_quirk_t) {
-                .vendor_name = "TerraTec Producer",
-                .product_name = "MIDI HUBBLE",
-                .ifnum = 0,
-                .type = QUIRK_MIDI_STANDARD_INTERFACE
-        }
-},
-
-But the USB subsystem still doesn't know it can use the snd_usb_audio 
-driver for this device (e.g. shown by usbmodules), and it is not 
-registered as an ALSA card. Is there anything I have to do in addition 
-to this, or did I do something wrong? The files modules.alias and 
-modules.usbmap got updated correctly, but I don't know who reads them 
-at what time.
-
-The strangest thing is that it worked on one day, even though I had not 
-done anything special yet.
-
-I hope you can help me. Thank you very much in advance.
-
-BTW: I thought about posting this in the linux-sound mailing list, but 
-it seems to be dead. Posts are almost never answered, including a post 
-I made about a solution to another sound problem 
-(http://marc.theaimsgroup.com/?l=linux-sound&m=113261865703607&w=2). 
-(Since then, a few people who have the same problem have contacted me; 
-all of them would like the fix to be integrated into the kernel.)
+Yes, you and this link are both out of date. The r300 driver provides basic 
+support for many newer video cards based on the r300 core and is shipped with 
+Xorg 7.0.0.
 
 -- 
-Sebastian Reichelt
+Cheers,
+Alistair.
 
---Multipart=_Wed__28_Dec_2005_00_19_31_+0100_QZi/YX+O.EFfiM+a
-Content-Type: text/plain;
- name="hubble.txt"
-Content-Disposition: attachment;
- filename="hubble.txt"
-Content-Transfer-Encoding: 7bit
-
-
-Bus 002 Device 003: ID 0ccd:0032 TerraTec Electronic GmbH 
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               1.10
-  bDeviceClass            0 (Defined at Interface level)
-  bDeviceSubClass         0 
-  bDeviceProtocol         0 
-  bMaxPacketSize0        64
-  idVendor           0x0ccd TerraTec Electronic GmbH
-  idProduct          0x0032 
-  bcdDevice            1.08
-  iManufacturer           1 TerraTec Producer
-  iProduct                2 MIDI HUBBLE
-  iSerial                 0 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength           54
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xc0
-      Self Powered
-    MaxPower               98mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           4
-      bInterfaceClass         0 (Defined at Interface level)
-      bInterfaceSubClass      0 
-      bInterfaceProtocol      0 
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 9
-        bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-        bRefresh                0
-        bSynchAddress           0
-      Endpoint Descriptor:
-        bLength                 9
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-        bRefresh                0
-        bSynchAddress           0
-      Endpoint Descriptor:
-        bLength                 9
-        bDescriptorType         5
-        bEndpointAddress     0x02  EP 2 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-        bRefresh                0
-        bSynchAddress           0
-      Endpoint Descriptor:
-        bLength                 9
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0040  1x 64 bytes
-        bInterval               0
-        bRefresh                0
-        bSynchAddress           0
-Device Status:     0x0000
-  (Bus Powered)
-
-
---Multipart=_Wed__28_Dec_2005_00_19_31_+0100_QZi/YX+O.EFfiM+a--
+'No sense being pessimistic, it probably wouldn't work anyway.'
+Third year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

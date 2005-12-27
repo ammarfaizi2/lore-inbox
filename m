@@ -1,65 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVL0XC2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbVL0XIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbVL0XC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 18:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVL0XC2
+	id S932379AbVL0XIA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 18:08:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVL0XIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 18:02:28 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:6335 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932231AbVL0XC1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 18:02:27 -0500
-Date: Tue, 27 Dec 2005 15:02:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/9] mutex subsystem, -V4
-Message-Id: <20051227150220.12d038e8.akpm@osdl.org>
-In-Reply-To: <20051227144242.GA8870@elte.hu>
-References: <20051222114147.GA18878@elte.hu>
-	<20051222153014.22f07e60.akpm@osdl.org>
-	<20051222233416.GA14182@infradead.org>
-	<200512251708.16483.zippel@linux-m68k.org>
-	<20051225150445.0eae9dd7.akpm@osdl.org>
-	<20051225232222.GA11828@elte.hu>
-	<20051226023549.f46add77.akpm@osdl.org>
-	<20051227144242.GA8870@elte.hu>
-X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Dec 2005 18:08:00 -0500
+Received: from 83-103-88-29.ip.fastwebnet.it ([83.103.88.29]:10656 "EHLO
+	maruska.gotadns.org") by vger.kernel.org with ESMTP id S932379AbVL0XH7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 18:07:59 -0500
+To: linux-kernel@vger.kernel.org
+Cc: vojtech@suse.cz, arjan@infradead.org, george@mvista.com
+Subject: Re: [PATCH 2.6.15-rc7] clocks: export symbol
+ do_posix_clock_monotonic_gettime + input: monotonic timestamps for evdev
+X-Archive: encrypt
+References: <m264pbo5zt.fsf@linux11.maruska.tin.it>
+	<1135669949.2926.13.camel@laptopd505.fenrus.org>
+From: mmc@maruska.dyndns.org (Michal =?iso-8859-2?q?Maru=B9ka?=)
+In-Reply-To: <1135669949.2926.13.camel@laptopd505.fenrus.org> (Arjan van de
+ Ven's message of "Tue, 27 Dec 2005 08:52:29 +0100")
+User-Agent: Gnus/5.090024 (Oort Gnus v0.24) Emacs/22.0.50 (gnu/linux)
+Date: Wed, 28 Dec 2005 00:07:49 +0100
+Message-ID: <m2bqz2m94q.fsf_-_@linux11.maruska.tin.it>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
-> 
-> * Andrew Morton <akpm@osdl.org> wrote:
-> 
-> > > hm, can you see any easy way for me to test my bold assertion on ext3, 
-> > > by somehow moving/hacking it back to semaphores?
-> > 
-> > Not really.  The problem was most apparent after the lock_kernel() 
-> > removal patches.  The first thing a CPU hit when it entered the fs was 
-> > previously lock_kernel().  That became lock_super() and performance 
-> > went down the tubes.  From memory, the bad kernel was tip-of-tree as 
-> > of Memorial Weekend 2003 ;)
-> > 
-> > I guess you could re-add all the lock_super()s as per 2.5.x's 
-> > ext3/jbd, check that it sucks running SDET on 8-way then implement the 
-> > lock_super()s via a mutex.
-> 
-> ok - does the patch below look roughly ok as a really bad (but 
-> functional) hack to restore that old behavior, for ext2?
-> 
+--=-=-=
 
-Hard to tell ;) 2.5.20's ext2 had 7 lock_super()s whereas for some reason
-this patch adds 12...
 
-I don't recall whether ext2 suffered wild context switches as badly as ext3
-did.  It becomes pretty obvious in testing.
+Arjan van de Ven <arjan@infradead.org> writes:
 
-The really bad workload was SDET, which isn't available to mortals.  So
-some hunting might be neded to find a suitable alternative.  dbench would be
-a good start I guess.
+> could you also include the patch to add the user (say evdev) in the same
+> patch please?
 
+here is my complete patch updated for -rc7:
+
+Summary:
+- export do_posix_clock_monotonic_gettime 
+- implement an ioctl call for EVDEV to request timestamping of events with
+  monotonic time. 
+
+For complete explanation see my previous mail http://lkml.org/lkml/2005/10/6/92 
+
+
+
+Signed-off-by: Michal Maruska <mmc@maruska.dyndns.org> 
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=mono-evdev.patch
+
+--- linux-2.6.15-rc7/kernel/posix-timers.c	2005-12-26 13:01:54.000000000 +0100
++++ linux-2.6.15-rc7.mmc/kernel/posix-timers.c	2005-12-26 22:59:11.883817855 +0100
+@@ -1219,6 +1219,7 @@ int do_posix_clock_monotonic_gettime(str
+ {
+ 	return do_posix_clock_monotonic_get(CLOCK_MONOTONIC, tp);
+ }
++EXPORT_SYMBOL_GPL(do_posix_clock_monotonic_gettime);
+ 
+ int do_posix_clock_nosettime(clockid_t clockid, struct timespec *tp)
+ {
+--- linux-2.6.15-rc7/drivers/input/evdev.c	2005-12-26 13:01:54.000000000 +0100
++++ linux-2.6.15-rc7.mmc/drivers/input/evdev.c	2005-12-27 16:41:06.842396740 +0100
+@@ -6,6 +6,11 @@
+  * This program is free software; you can redistribute it and/or modify it
+  * under the terms of the GNU General Public License version 2 as published by
+  * the Free Software Foundation.
++ *
++ * 
++ * 2005-12-27  Optional timestamping with monotonic time
++ *                by  Michal Maruska <mmc@maruska.dyndns.org>
++ *     
+  */
+ 
+ #define EVDEV_MINOR_BASE	64
+@@ -37,6 +42,7 @@ struct evdev_list {
+ 	struct input_event buffer[EVDEV_BUFFER_SIZE];
+ 	int head;
+ 	int tail;
++        int time_kind;      /* which time to use for the timestamps. Monotonic or timeofday. Should I use enum? */
+ 	struct fasync_struct *fasync;
+ 	struct evdev *evdev;
+ 	struct list_head node;
+@@ -44,15 +50,37 @@ struct evdev_list {
+ 
+ static struct evdev *evdev_table[EVDEV_MINORS];
+ 
++static inline
++void 
++mem_copy_time(struct timeval *a, struct timeval* b)
++{
++        memcpy(a, b, sizeof(struct timeval));
++}
++
+ static void evdev_event(struct input_handle *handle, unsigned int type, unsigned int code, int value)
+ {
+ 	struct evdev *evdev = handle->private;
+ 	struct evdev_list *list;
+ 
++        struct timeval mtv, dtv;
++        /* `do_posix_clock_monotonic_gettime' delivers a different struct,
++         * but i do the conversion immediately, and once. */
++        struct timespec mts;
++        
++        do_posix_clock_monotonic_gettime(&mts);
++        mtv.tv_sec = mts.tv_sec;
++        mtv.tv_usec = mts.tv_nsec / 1000;
++        
++        do_gettimeofday(&dtv);         /* for backward compatibility: */
++
+ 	if (evdev->grab) {
+ 		list = evdev->grab;
+ 
+-		do_gettimeofday(&list->buffer[list->head].time);
++                if (list->time_kind == EV_USE_DAY_TIME)
++                        mem_copy_time(&list->buffer[list->head].time,&dtv);
++                else
++                        mem_copy_time(&list->buffer[list->head].time,&mtv);
++
+ 		list->buffer[list->head].type = type;
+ 		list->buffer[list->head].code = code;
+ 		list->buffer[list->head].value = value;
+@@ -62,7 +90,11 @@ static void evdev_event(struct input_han
+ 	} else
+ 		list_for_each_entry(list, &evdev->list, node) {
+ 
+-			do_gettimeofday(&list->buffer[list->head].time);
++                        if (list->time_kind == EV_USE_DAY_TIME)
++                                mem_copy_time(&list->buffer[list->head].time,&dtv);
++                        else
++                                mem_copy_time(&list->buffer[list->head].time,&mtv);
++
+ 			list->buffer[list->head].type = type;
+ 			list->buffer[list->head].code = code;
+ 			list->buffer[list->head].value = value;
+@@ -134,6 +166,7 @@ static int evdev_open(struct inode * ino
+ 		return -ENOMEM;
+ 	memset(list, 0, sizeof(struct evdev_list));
+ 
++        list->time_kind = EV_USE_DAY_TIME; /* for backward compatibility! */
+ 	list->evdev = evdev_table[i];
+ 	list_add_tail(&list->node, &evdev_table[i]->list);
+ 	file->private_data = list;
+@@ -370,6 +403,17 @@ static long evdev_ioctl(struct file *fil
+ 				evdev->grab = NULL;
+ 				return 0;
+ 			}
++                case EVIOCTIME:
++                        switch (arg) {
++                        case EV_USE_MONOTONIC_TIME:
++                                list->time_kind = EV_USE_MONOTONIC_TIME;
++				return 0;
++			case EV_USE_DAY_TIME:
++                                list->time_kind = EV_USE_DAY_TIME;
++				return 0;
++                        default:
++                                return -EINVAL;
++			}
+ 
+ 		default:
+ 
+--- linux-2.6.15-rc7/include/linux/input.h	2005-12-26 13:01:54.000000000 +0100
++++ linux-2.6.15-rc7.mmc/include/linux/input.h	2005-12-27 16:48:09.932302548 +0100
+@@ -79,6 +79,15 @@ struct input_absinfo {
+ 
+ #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
+ 
++#define EVIOCTIME		_IOW('E', 0x91, int)			/* choose what kind of time to use for timestamps */
++
++/*
++ * Time used to timestamp 
++ */
++#define EV_USE_MONOTONIC_TIME 0
++#define EV_USE_DAY_TIME 1
++
++
+ /*
+  * Event types
+  */
+
+--=-=-=--

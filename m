@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932380AbVL0Wxv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbVL0XC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932380AbVL0Wxv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 17:53:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVL0Wxv
+	id S932231AbVL0XC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 18:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbVL0XC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 17:53:51 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:28169 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S932380AbVL0Wxu (ORCPT
+	Tue, 27 Dec 2005 18:02:28 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:6335 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932231AbVL0XC1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 17:53:50 -0500
-Subject: Re: [RFT] Sonypi: convert to the new platform device interface
-From: Stelian Pop <stelian@popies.net>
-To: dtor_core@ameritech.net
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <d120d5000512271418m26d3da41s18a3f97470eda912@mail.gmail.com>
-References: <200512130219.41034.dtor_core@ameritech.net>
-	 <d120d5000512131104x260fdbf2mcc58fb953559fec5@mail.gmail.com>
-	 <Pine.LNX.4.61.0512252207020.15152@yvahk01.tjqt.qr>
-	 <200512251617.09153.dtor_core@ameritech.net>
-	 <Pine.LNX.4.61.0512271859240.3068@yvahk01.tjqt.qr>
-	 <d120d5000512271418m26d3da41s18a3f97470eda912@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Tue, 27 Dec 2005 23:53:36 +0100
-Message-Id: <1135724016.23182.5.camel@deep-space-9.dsnet>
+	Tue, 27 Dec 2005 18:02:27 -0500
+Date: Tue, 27 Dec 2005 15:02:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 0/9] mutex subsystem, -V4
+Message-Id: <20051227150220.12d038e8.akpm@osdl.org>
+In-Reply-To: <20051227144242.GA8870@elte.hu>
+References: <20051222114147.GA18878@elte.hu>
+	<20051222153014.22f07e60.akpm@osdl.org>
+	<20051222233416.GA14182@infradead.org>
+	<200512251708.16483.zippel@linux-m68k.org>
+	<20051225150445.0eae9dd7.akpm@osdl.org>
+	<20051225232222.GA11828@elte.hu>
+	<20051226023549.f46add77.akpm@osdl.org>
+	<20051227144242.GA8870@elte.hu>
+X-Mailer: Sylpheed version 2.1.8 (GTK+ 2.8.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le mardi 27 décembre 2005 à 17:18 -0500, Dmitry Torokhov a écrit :
+Ingo Molnar <mingo@elte.hu> wrote:
+>
+> 
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > > hm, can you see any easy way for me to test my bold assertion on ext3, 
+> > > by somehow moving/hacking it back to semaphores?
+> > 
+> > Not really.  The problem was most apparent after the lock_kernel() 
+> > removal patches.  The first thing a CPU hit when it entered the fs was 
+> > previously lock_kernel().  That became lock_super() and performance 
+> > went down the tubes.  From memory, the bad kernel was tip-of-tree as 
+> > of Memorial Weekend 2003 ;)
+> > 
+> > I guess you could re-add all the lock_super()s as per 2.5.x's 
+> > ext3/jbd, check that it sucks running SDET on 8-way then implement the 
+> > lock_super()s via a mutex.
+> 
+> ok - does the patch below look roughly ok as a really bad (but 
+> functional) hack to restore that old behavior, for ext2?
+> 
 
-> > However, there are some things that remain unresolved:
-> > - the "mousewheel" reports only once every 2 seconds when constantly
-> >  wheeling (in mev)
+Hard to tell ;) 2.5.20's ext2 had 7 lock_super()s whereas for some reason
+this patch adds 12...
 
-could be because scrolling the wheel generates several kinds of events
-(up, down but also fast up, fast down etc), and only some of them get
-interpreted. Verify the events by using the verbose=1 parameter.
+I don't recall whether ext2 suffered wild context switches as badly as ext3
+did.  It becomes pretty obvious in testing.
 
-> > - pressing the jogdial button produces a keyboard event (keycode 158)
-> >  rather than a mousebutton 3 event
-> >
-> 158 is KEY_BACK and is generated on type2 models.. If you load the
-> driver with verbose=1 what does it say when you press jog dial?
-
-If you don't have a Back button then you can adjust the 'mask' module
-parameter in order to detect only the events you are interested in. And
-before you ask yes, Sony reused the same codes for several types of
-events...
-
-> > BTW, how can I use the Fn keys on console (keycodes 466-477) for arbitrary
-> > shell commands?
-> > Such a feature, among which special combinations like Ctrl+Alt+Del also
-> > belong, are handled by the kernel which leaves almost no room for
-> > user-defined userspace action. Any idea?
-> >
-> There are daemons that read corersponding /dev/input/eventX and act on
-> it. The in-kernel keyboard driver ignores keycodes above 255.
-
-And also daemons more sonypi specific which read /dev/sonypi instead,
-like sonypid, sonypidd, jogdiald, kde etc.
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+The really bad workload was SDET, which isn't available to mortals.  So
+some hunting might be neded to find a suitable alternative.  dbench would be
+a good start I guess.
 

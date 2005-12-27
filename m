@@ -1,184 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932379AbVL0XIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbVL0XUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932379AbVL0XIA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 18:08:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932381AbVL0XIA
+	id S932376AbVL0XUE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 18:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932384AbVL0XUD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 18:08:00 -0500
-Received: from 83-103-88-29.ip.fastwebnet.it ([83.103.88.29]:10656 "EHLO
-	maruska.gotadns.org") by vger.kernel.org with ESMTP id S932379AbVL0XH7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 18:07:59 -0500
+	Tue, 27 Dec 2005 18:20:03 -0500
+Received: from mail.gmx.de ([213.165.64.21]:57313 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932376AbVL0XUB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 18:20:01 -0500
+X-Authenticated: #556111
+Date: Wed, 28 Dec 2005 00:19:31 +0100
+From: Sebastian Reichelt <SebastianR@gmx.de>
 To: linux-kernel@vger.kernel.org
-Cc: vojtech@suse.cz, arjan@infradead.org, george@mvista.com
-Subject: Re: [PATCH 2.6.15-rc7] clocks: export symbol
- do_posix_clock_monotonic_gettime + input: monotonic timestamps for evdev
-X-Archive: encrypt
-References: <m264pbo5zt.fsf@linux11.maruska.tin.it>
-	<1135669949.2926.13.camel@laptopd505.fenrus.org>
-From: mmc@maruska.dyndns.org (Michal =?iso-8859-2?q?Maru=B9ka?=)
-In-Reply-To: <1135669949.2926.13.camel@laptopd505.fenrus.org> (Arjan van de
- Ven's message of "Tue, 27 Dec 2005 08:52:29 +0100")
-User-Agent: Gnus/5.090024 (Oort Gnus v0.24) Emacs/22.0.50 (gnu/linux)
-Date: Wed, 28 Dec 2005 00:07:49 +0100
-Message-ID: <m2bqz2m94q.fsf_-_@linux11.maruska.tin.it>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+Subject: TerraTec MIDI HUBBLE USB quirk
+Message-Id: <20051228001931.3cd9b044.SebastianR@gmx.de>
+X-Mailer: Sylpheed version 1.9.12 (GTK+ 2.6.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+ boundary="Multipart=_Wed__28_Dec_2005_00_19_31_+0100_QZi/YX+O.EFfiM+a"
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
+This is a multi-part message in MIME format.
+
+--Multipart=_Wed__28_Dec_2005_00_19_31_+0100_QZi/YX+O.EFfiM+a
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hello!
+
+The TerraTec MIDI HUBBLE USB device provides two MIDI IN and OUT ports, 
+but it seems to lack the correct interface class value (see attached 
+output of lsusb -v). I thought this could be fixed by adding the 
+following to sound/usb/usbquirks.h:
+
+{
+        USB_DEVICE_VENDOR_SPEC(0x0ccd, 0x0032),
+        .driver_info = (unsigned long) & (const snd_usb_audio_quirk_t) {
+                .vendor_name = "TerraTec Producer",
+                .product_name = "MIDI HUBBLE",
+                .ifnum = 0,
+                .type = QUIRK_MIDI_STANDARD_INTERFACE
+        }
+},
+
+But the USB subsystem still doesn't know it can use the snd_usb_audio 
+driver for this device (e.g. shown by usbmodules), and it is not 
+registered as an ALSA card. Is there anything I have to do in addition 
+to this, or did I do something wrong? The files modules.alias and 
+modules.usbmap got updated correctly, but I don't know who reads them 
+at what time.
+
+The strangest thing is that it worked on one day, even though I had not 
+done anything special yet.
+
+I hope you can help me. Thank you very much in advance.
+
+BTW: I thought about posting this in the linux-sound mailing list, but 
+it seems to be dead. Posts are almost never answered, including a post 
+I made about a solution to another sound problem 
+(http://marc.theaimsgroup.com/?l=linux-sound&m=113261865703607&w=2). 
+(Since then, a few people who have the same problem have contacted me; 
+all of them would like the fix to be integrated into the kernel.)
+
+-- 
+Sebastian Reichelt
+
+--Multipart=_Wed__28_Dec_2005_00_19_31_+0100_QZi/YX+O.EFfiM+a
+Content-Type: text/plain;
+ name="hubble.txt"
+Content-Disposition: attachment;
+ filename="hubble.txt"
+Content-Transfer-Encoding: 7bit
 
 
-Arjan van de Ven <arjan@infradead.org> writes:
+Bus 002 Device 003: ID 0ccd:0032 TerraTec Electronic GmbH 
+Device Descriptor:
+  bLength                18
+  bDescriptorType         1
+  bcdUSB               1.10
+  bDeviceClass            0 (Defined at Interface level)
+  bDeviceSubClass         0 
+  bDeviceProtocol         0 
+  bMaxPacketSize0        64
+  idVendor           0x0ccd TerraTec Electronic GmbH
+  idProduct          0x0032 
+  bcdDevice            1.08
+  iManufacturer           1 TerraTec Producer
+  iProduct                2 MIDI HUBBLE
+  iSerial                 0 
+  bNumConfigurations      1
+  Configuration Descriptor:
+    bLength                 9
+    bDescriptorType         2
+    wTotalLength           54
+    bNumInterfaces          1
+    bConfigurationValue     1
+    iConfiguration          0 
+    bmAttributes         0xc0
+      Self Powered
+    MaxPower               98mA
+    Interface Descriptor:
+      bLength                 9
+      bDescriptorType         4
+      bInterfaceNumber        0
+      bAlternateSetting       0
+      bNumEndpoints           4
+      bInterfaceClass         0 (Defined at Interface level)
+      bInterfaceSubClass      0 
+      bInterfaceProtocol      0 
+      iInterface              0 
+      Endpoint Descriptor:
+        bLength                 9
+        bDescriptorType         5
+        bEndpointAddress     0x01  EP 1 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+        bRefresh                0
+        bSynchAddress           0
+      Endpoint Descriptor:
+        bLength                 9
+        bDescriptorType         5
+        bEndpointAddress     0x81  EP 1 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+        bRefresh                0
+        bSynchAddress           0
+      Endpoint Descriptor:
+        bLength                 9
+        bDescriptorType         5
+        bEndpointAddress     0x02  EP 2 OUT
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+        bRefresh                0
+        bSynchAddress           0
+      Endpoint Descriptor:
+        bLength                 9
+        bDescriptorType         5
+        bEndpointAddress     0x82  EP 2 IN
+        bmAttributes            2
+          Transfer Type            Bulk
+          Synch Type               None
+          Usage Type               Data
+        wMaxPacketSize     0x0040  1x 64 bytes
+        bInterval               0
+        bRefresh                0
+        bSynchAddress           0
+Device Status:     0x0000
+  (Bus Powered)
 
-> could you also include the patch to add the user (say evdev) in the same
-> patch please?
 
-here is my complete patch updated for -rc7:
-
-Summary:
-- export do_posix_clock_monotonic_gettime 
-- implement an ioctl call for EVDEV to request timestamping of events with
-  monotonic time. 
-
-For complete explanation see my previous mail http://lkml.org/lkml/2005/10/6/92 
-
-
-
-Signed-off-by: Michal Maruska <mmc@maruska.dyndns.org> 
-
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=mono-evdev.patch
-
---- linux-2.6.15-rc7/kernel/posix-timers.c	2005-12-26 13:01:54.000000000 +0100
-+++ linux-2.6.15-rc7.mmc/kernel/posix-timers.c	2005-12-26 22:59:11.883817855 +0100
-@@ -1219,6 +1219,7 @@ int do_posix_clock_monotonic_gettime(str
- {
- 	return do_posix_clock_monotonic_get(CLOCK_MONOTONIC, tp);
- }
-+EXPORT_SYMBOL_GPL(do_posix_clock_monotonic_gettime);
- 
- int do_posix_clock_nosettime(clockid_t clockid, struct timespec *tp)
- {
---- linux-2.6.15-rc7/drivers/input/evdev.c	2005-12-26 13:01:54.000000000 +0100
-+++ linux-2.6.15-rc7.mmc/drivers/input/evdev.c	2005-12-27 16:41:06.842396740 +0100
-@@ -6,6 +6,11 @@
-  * This program is free software; you can redistribute it and/or modify it
-  * under the terms of the GNU General Public License version 2 as published by
-  * the Free Software Foundation.
-+ *
-+ * 
-+ * 2005-12-27  Optional timestamping with monotonic time
-+ *                by  Michal Maruska <mmc@maruska.dyndns.org>
-+ *     
-  */
- 
- #define EVDEV_MINOR_BASE	64
-@@ -37,6 +42,7 @@ struct evdev_list {
- 	struct input_event buffer[EVDEV_BUFFER_SIZE];
- 	int head;
- 	int tail;
-+        int time_kind;      /* which time to use for the timestamps. Monotonic or timeofday. Should I use enum? */
- 	struct fasync_struct *fasync;
- 	struct evdev *evdev;
- 	struct list_head node;
-@@ -44,15 +50,37 @@ struct evdev_list {
- 
- static struct evdev *evdev_table[EVDEV_MINORS];
- 
-+static inline
-+void 
-+mem_copy_time(struct timeval *a, struct timeval* b)
-+{
-+        memcpy(a, b, sizeof(struct timeval));
-+}
-+
- static void evdev_event(struct input_handle *handle, unsigned int type, unsigned int code, int value)
- {
- 	struct evdev *evdev = handle->private;
- 	struct evdev_list *list;
- 
-+        struct timeval mtv, dtv;
-+        /* `do_posix_clock_monotonic_gettime' delivers a different struct,
-+         * but i do the conversion immediately, and once. */
-+        struct timespec mts;
-+        
-+        do_posix_clock_monotonic_gettime(&mts);
-+        mtv.tv_sec = mts.tv_sec;
-+        mtv.tv_usec = mts.tv_nsec / 1000;
-+        
-+        do_gettimeofday(&dtv);         /* for backward compatibility: */
-+
- 	if (evdev->grab) {
- 		list = evdev->grab;
- 
--		do_gettimeofday(&list->buffer[list->head].time);
-+                if (list->time_kind == EV_USE_DAY_TIME)
-+                        mem_copy_time(&list->buffer[list->head].time,&dtv);
-+                else
-+                        mem_copy_time(&list->buffer[list->head].time,&mtv);
-+
- 		list->buffer[list->head].type = type;
- 		list->buffer[list->head].code = code;
- 		list->buffer[list->head].value = value;
-@@ -62,7 +90,11 @@ static void evdev_event(struct input_han
- 	} else
- 		list_for_each_entry(list, &evdev->list, node) {
- 
--			do_gettimeofday(&list->buffer[list->head].time);
-+                        if (list->time_kind == EV_USE_DAY_TIME)
-+                                mem_copy_time(&list->buffer[list->head].time,&dtv);
-+                        else
-+                                mem_copy_time(&list->buffer[list->head].time,&mtv);
-+
- 			list->buffer[list->head].type = type;
- 			list->buffer[list->head].code = code;
- 			list->buffer[list->head].value = value;
-@@ -134,6 +166,7 @@ static int evdev_open(struct inode * ino
- 		return -ENOMEM;
- 	memset(list, 0, sizeof(struct evdev_list));
- 
-+        list->time_kind = EV_USE_DAY_TIME; /* for backward compatibility! */
- 	list->evdev = evdev_table[i];
- 	list_add_tail(&list->node, &evdev_table[i]->list);
- 	file->private_data = list;
-@@ -370,6 +403,17 @@ static long evdev_ioctl(struct file *fil
- 				evdev->grab = NULL;
- 				return 0;
- 			}
-+                case EVIOCTIME:
-+                        switch (arg) {
-+                        case EV_USE_MONOTONIC_TIME:
-+                                list->time_kind = EV_USE_MONOTONIC_TIME;
-+				return 0;
-+			case EV_USE_DAY_TIME:
-+                                list->time_kind = EV_USE_DAY_TIME;
-+				return 0;
-+                        default:
-+                                return -EINVAL;
-+			}
- 
- 		default:
- 
---- linux-2.6.15-rc7/include/linux/input.h	2005-12-26 13:01:54.000000000 +0100
-+++ linux-2.6.15-rc7.mmc/include/linux/input.h	2005-12-27 16:48:09.932302548 +0100
-@@ -79,6 +79,15 @@ struct input_absinfo {
- 
- #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
- 
-+#define EVIOCTIME		_IOW('E', 0x91, int)			/* choose what kind of time to use for timestamps */
-+
-+/*
-+ * Time used to timestamp 
-+ */
-+#define EV_USE_MONOTONIC_TIME 0
-+#define EV_USE_DAY_TIME 1
-+
-+
- /*
-  * Event types
-  */
-
---=-=-=--
+--Multipart=_Wed__28_Dec_2005_00_19_31_+0100_QZi/YX+O.EFfiM+a--

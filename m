@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbVL0GHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751097AbVL0GhA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932245AbVL0GHR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 01:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbVL0GHQ
+	id S1751097AbVL0GhA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 01:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbVL0GhA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 01:07:16 -0500
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:24479
-	"HELO linuxace.com") by vger.kernel.org with SMTP id S932245AbVL0GHP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 01:07:15 -0500
-Date: Mon, 26 Dec 2005 22:07:14 -0800
-From: Phil Oester <kernel@linuxace.com>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: gcoady@gmail.com, netfilter-devel@lists.netfilter.org,
-       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, stable@kernel.org
-Subject: Re: Linux 2.6.14.5
-Message-ID: <20051227060714.GA1053@linuxace.com>
-References: <20051227005327.GA21786@kroah.com> <32b1r156pu7much2m94ajva2bmcs4mpcag@4ax.com> <20051227051729.GR15993@alpha.home.local> <3ok1r15khvs8gka6qhhvt3u302mafkkr2r@4ax.com> <20051227054519.GA14609@alpha.home.local>
+	Tue, 27 Dec 2005 01:37:00 -0500
+Received: from mail.renesas.com ([202.234.163.13]:7855 "EHLO
+	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S932243AbVL0GhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 01:37:00 -0500
+Date: Tue, 27 Dec 2005 15:36:54 +0900 (JST)
+Message-Id: <20051227.153654.610521572.takata.hirokazu@renesas.com>
+To: rlrevell@joe-job.com
+Cc: akpm@osdl.org, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org,
+       takata@linux-m32r.org
+Subject: Re: [WTF?] sys_tas() on m32r
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <1135365035.22177.17.camel@mindpipe>
+References: <20051223061556.GR27946@ftp.linux.org.uk>
+	<20051223055526.bc1a4044.akpm@osdl.org>
+	<1135365035.22177.17.camel@mindpipe>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051227054519.GA14609@alpha.home.local>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 27, 2005 at 06:45:19AM +0100, Willy Tarreau wrote:
-> On Tue, Dec 27, 2005 at 04:42:00PM +1100, Grant Coady wrote:
-> > + iptables -A INPUT -p all --match state --state ESTABLISHED,RELATED -j ACCEPT
-> > iptables: No chain/target/match by that name
+From: Lee Revell <rlrevell@joe-job.com>
+Date: Fri, 23 Dec 2005 14:10:34 -0500
+> No one uses LinuxThreads anymore?
 > 
-> So it's not only the NEW state, it's every "--match state".
+> Even the oldest of the old (Debian stable) have moved to NPTL.
+> 
+> Lee
+> 
 
-Odd...works fine here
+Of course, I hope to migrate from LinuxThreads to NPTL.
+I think it is necessary because LinuxThreads is deprecated as you said.
 
-# uname -r
-2.6.14.5
-# iptables -nL | grep state
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED 
-DROP       all  --  0.0.0.0/0            0.0.0.0/0           state INVALID 
-logdrop    tcp  --  0.0.0.0/0            0.0.0.0/0           tcp flags:!0x17/0x02 state NEW 
-ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           state RELATED,ESTABLISHED 
-DROP       all  --  0.0.0.0/0            0.0.0.0/0           state INVALID 
+BTW, to port NPTL, GNU tools with TLS support are required for m32r.
+We need much work to prepare tools before implementing kernel and NPTL. ;-)
 
-Phil
+On the other hand, I'm not certain that supporting NPTL is really good
+thing for embedded processors like m32r.
+
+A thread pointer register is required to keep an thread pointer value
+all the time;  I'm anxious that this will increase register pressure
+and worsen code performance...
+
+-- Takata

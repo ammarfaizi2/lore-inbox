@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbVL0EUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932211AbVL0EUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbVL0EUM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Dec 2005 23:20:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbVL0EUM
+	id S932211AbVL0EUE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Dec 2005 23:20:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932212AbVL0EUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Dec 2005 23:20:12 -0500
-Received: from mail.kroah.org ([69.55.234.183]:64137 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S932212AbVL0EUK (ORCPT
+	Mon, 26 Dec 2005 23:20:04 -0500
+Received: from mail.kroah.org ([69.55.234.183]:60297 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932211AbVL0EUD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Dec 2005 23:20:10 -0500
-Date: Mon, 26 Dec 2005 20:19:19 -0800
+	Mon, 26 Dec 2005 23:20:03 -0500
+Date: Mon, 26 Dec 2005 20:17:47 -0800
 From: Greg KH <greg@kroah.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       David Brownell <david-b@pacbell.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: USB rejecting sleep
-Message-ID: <20051227041919.GA24050@kroah.com>
-References: <1134937642.6102.85.camel@gaston> <20051218215051.GA18257@kroah.com> <20051222160244.GA2747@ucw.cz>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Bodo Eggert <7eggert@gmx.de>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [PATCH] USB_BANDWIDTH documentation change
+Message-ID: <20051227041747.GA23916@kroah.com>
+References: <Pine.LNX.4.58.0512262244480.22764@be1.lrz> <Pine.LNX.4.44L0.0512261731001.10595-100000@netrider.rowland.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051222160244.GA2747@ucw.cz>
+In-Reply-To: <Pine.LNX.4.44L0.0512261731001.10595-100000@netrider.rowland.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 22, 2005 at 04:02:44PM +0000, Pavel Machek wrote:
-> Hi!
+On Mon, Dec 26, 2005 at 05:35:29PM -0500, Alan Stern wrote:
+> On Mon, 26 Dec 2005, Bodo Eggert wrote:
 > 
-> > > What exactly changed in the recent USB stacks that is causing it to
-> > > abort system suspend much more often ? I'm getting lots of user reports
-> > > with 2.6.15-rc5 saying that they can't put their internal laptops to
-> > > sleep, apparently because a driver doesn't have a suspend method
-> > > (internal bluetooth in this case).
+> > On Mon, 26 Dec 2005, Lee Revell wrote:
+> > > On Mon, 2005-12-26 at 11:25 +0100, Bodo Eggert wrote:
+> > 
+> > > > Document the current status of CONFIG_USB_BANDWITH implementation.
 > > > 
-> > > It's never been mandatory so far for all drivers of all connected
-> > > devices to have a suspend method... didn't we decide back then that
-> > > disconneting those was the right way to go ?
+> > > Since most systems use uhci-hcd and/or ehci-hcd maybe we should just
+> > > mark it BROKEN?  Or EXPERIMENTAL?
 > > 
-> > Yes it is, and I have a patch in my tree now that fixes this up and
-> > keeps the suspend process working properly for usb drivers that do not
-> > have a suspend function.
-> > 
-> > Hm, I wonder if it should go in for 2.6.15?
+> > It is EXPERIMENTAL, but the current documentation sounds like "YOU REALLY
+> > WANT THIS !!!1", and I /guess/ that would be true for ohci-hcd users.
 > 
-> It would be nice to have some fixes in 2.6.15, so we are
-> not swamped with bugreports. Its a regression after all.
+> CONFIG_USB_BANDWIDTH isn't _really_ needed.  What it does (or rather, what 
+> it would do if it worked properly) is prevent the kernel from 
+> overcommitting on USB bandwidth.
 
-It's already in 2.6.15-rc7.
+I just saw (but can't find again, sorry) a gentoo bug of an external usb
+driver on x86-64 that oopses _unless_ this config option is set.  So for
+some people it is necessary and not broken.
 
 thanks,
 

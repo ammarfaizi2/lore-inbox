@@ -1,74 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932388AbVL0X3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVL0XlO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932388AbVL0X3H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 18:29:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932389AbVL0X3G
+	id S932395AbVL0XlO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 18:41:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVL0XlO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 18:29:06 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:19143 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S932388AbVL0X3F
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 18:29:05 -0500
-Message-ID: <43B1CE5E.7020801@didntduck.org>
-Date: Tue, 27 Dec 2005 18:29:34 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mail/News 1.5 (X11/20051129)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Remove unused apic_write_atomic
-Content-Type: multipart/mixed;
- boundary="------------030903070304090705040400"
+	Tue, 27 Dec 2005 18:41:14 -0500
+Received: from smtp1.brturbo.com.br ([200.199.201.163]:24717 "EHLO
+	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S932395AbVL0XlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 18:41:14 -0500
+Subject: Re: Recursive dependency for SAA7134 in 2.6.15-rc7
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Ricardo Cerqueira <v4l@cerqueira.org>, LKML <linux-kernel@vger.kernel.org>,
+       video4linux-list@redhat.com, Roman Zippel <zippel@linux-m68k.org>
+In-Reply-To: <20051227215351.3d581b13.khali@linux-fr.org>
+References: <20051227215351.3d581b13.khali@linux-fr.org>
+Content-Type: multipart/mixed; boundary="=-h6rUrWRvR9OwSURPX2lO"
+Date: Tue, 27 Dec 2005 21:40:54 -0200
+Message-Id: <1135726855.6709.4.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.2.1-1mdk 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030903070304090705040400
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+
+--=-h6rUrWRvR9OwSURPX2lO
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+
+Jean,
+
+Em Ter, 2005-12-27 às 21:53 +0100, Jean Delvare escreveu:
+> Hi all,
+> 
+> I gave a try to 2.6.15-rc7 and "make menuconfig" tells me:
+> Warning! Found recursive dependency: VIDEO_SAA7134_ALSA VIDEO_SAA7134_OSS VIDEO_SAA7134_ALSA
+> 
+> This seems to be the consequence of this patch:
+> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=7bb9529602f8bb41a92275825b808a42ed33e5be
+> 
+> How do we fix that? menuconfig is indeed really confused by the current
+> setup. I have the following patch which makes it happier:
+
+	Please test this patch. It seems that provides the same behavior with a
+non-recursive logic.
+
+Cheers, 
+Mauro.
+
+--=-h6rUrWRvR9OwSURPX2lO
+Content-Disposition: attachment; filename=v4l_dvb_saa7134_kconfig_fix.patch
+Content-Type: text/x-patch; name=v4l_dvb_saa7134_kconfig_fix.patch; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-This function is never used for x86_64.
-
-Signed-off-by: Brian Gerst <bgerst@didntduck.org>
-
---------------030903070304090705040400
-Content-Type: text/plain;
- name="apic_write_atomic"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="apic_write_atomic"
-
-[PATCH] Remove unused apic_write_atomic
-
-This function is never used for x86_64.
-
-Signed-off-by: Brian Gerst <bgerst@didntduck.org>
 
 ---
-commit 9a4863865f6c539b799adf0f41de862a7163d819
-tree 9bf9251b3a95c76c9086366c459cd067b3669e91
-parent 79cac2a221ce18642550a13bed0f0203514923ea
-author Brian Gerst <bgerst@didntduck.org> Tue, 27 Dec 2005 18:19:09 -0500
-committer Brian Gerst <bgerst@didntduck.org> Tue, 27 Dec 2005 18:19:09 -0500
 
- include/asm-x86_64/apic.h |    5 -----
- 1 files changed, 0 insertions(+), 5 deletions(-)
+ drivers/media/video/saa7134/Kconfig |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/asm-x86_64/apic.h b/include/asm-x86_64/apic.h
-index 5647b7d..50cccf5 100644
---- a/include/asm-x86_64/apic.h
-+++ b/include/asm-x86_64/apic.h
-@@ -42,11 +42,6 @@ static __inline void apic_write(unsigned
- 	*((volatile unsigned int *)(APIC_BASE+reg)) = v;
- }
+diff --git a/drivers/media/video/saa7134/Kconfig b/drivers/media/video/saa7134/Kconfig
+index c0f604a..6127c80 100644
+--- a/drivers/media/video/saa7134/Kconfig
++++ b/drivers/media/video/saa7134/Kconfig
+@@ -14,7 +14,7 @@ config VIDEO_SAA7134
  
--static __inline void apic_write_atomic(unsigned long reg, unsigned int v)
--{
--	xchg((volatile unsigned int *)(APIC_BASE+reg), v);
--}
--
- static __inline unsigned int apic_read(unsigned long reg)
- {
- 	return *((volatile unsigned int *)(APIC_BASE+reg));
+ config VIDEO_SAA7134_ALSA
+ 	tristate "Philips SAA7134 DMA audio support"
+-	depends on VIDEO_SAA7134 && SOUND && SND && (!VIDEO_SAA7134_OSS || VIDEO_SAA7134_OSS = m)
++	depends on VIDEO_SAA7134 && SOUND && SND
+ 	select SND_PCM_OSS
+ 	---help---
+ 	  This is a video4linux driver for direct (DMA) audio in
+@@ -25,7 +25,7 @@ config VIDEO_SAA7134_ALSA
+ 
+ config VIDEO_SAA7134_OSS
+ 	tristate "Philips SAA7134 DMA audio support (OSS, DEPRECATED)"
+-	depends on VIDEO_SAA7134 && SOUND_PRIME && (!VIDEO_SAA7134_ALSA || VIDEO_SAA7134_ALSA = m)
++	depends on VIDEO_SAA7134 && SOUND_PRIME && (!VIDEO_SAA7134_ALSA || ( VIDEO_SAA7134_ALSA = m && m ) )
+ 	---help---
+ 	  This is a video4linux driver for direct (DMA) audio in
+ 	  Philips SAA713x based TV cards using OSS
 
---------------030903070304090705040400--
+--=-h6rUrWRvR9OwSURPX2lO--
+

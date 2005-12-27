@@ -1,339 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbVL0OSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbVL0OXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbVL0OSM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 09:18:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932325AbVL0OQr
+	id S932328AbVL0OXf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 09:23:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932326AbVL0OXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 09:16:47 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:41662 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932324AbVL0OQk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 09:16:40 -0500
-Date: Tue, 27 Dec 2005 15:15:59 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@kvack.org>,
-       Steven Rostedt <rostedt@goodmis.org>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 06/11] mutex subsystem, add default include/asm-*/mutex.h files
-Message-ID: <20051227141559.GG6660@elte.hu>
+	Tue, 27 Dec 2005 09:23:35 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:21472 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932328AbVL0OXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 09:23:33 -0500
+Subject: Re: Is there any Buffer overflow attack mechanism that can break
+	a	vulnerable server without breaking the ongoing connection?
+From: Arjan van de Ven <arjan@infradead.org>
+To: "nashleon@gmx.de" <nashleon@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <43B14D1A.8010608@gmx.de>
+References: <4ae3c140512261247p612146f5w6ad8bf474f4ebfd5@mail.gmail.com>
+	 <1135630282.3910.8.camel@laptopd505.fenrus.org>  <43B14D1A.8010608@gmx.de>
+Content-Type: text/plain
+Date: Tue, 27 Dec 2005 15:23:30 +0100
+Message-Id: <1135693411.2926.25.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.4 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.4 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.5 TO_ADDRESS_EQ_REAL     To: repeats address as real name
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-add the per-arch mutex.h files for the remaining architectures.
+On Tue, 2005-12-27 at 12:18 -0200, nashleon@gmx.de wrote:
+> Arjan van de Ven escreveu:
+> 
+> >buffer overflows do not break connections, and as such I think you are
+> >out of luck.
+> >Having said that.. on modern linux distros it's pretty hard to do a
+> >buffer overflow exploit nowadays (NX[1] to make stacks non-executable,
+> >randomisations, compiler based detection (via FORTIFY_SOURCE and/or
+> >-fstackprotector)... add all those together and it's certainly not easy
+> >to do this....
+> >
+> >
+> >
+> >[1] or emulations of NX such as segment limits techniques
+> >
+> >  
+> >
+> 
+> Hello!
+> 
+> Locally is very simple to exploit buffer overflows in the linux kernel. 
 
-We default to asm-generic/mutex-dec.h, because that performs
-quite well on most arches. Arches that do not have atomic
-decrement/increment instructions should switch to mutex-xchg.h
-instead. Arches can also provide their own implementation for
-the mutex fastpath primitives.
+sure kernel space is a whole different kettle of fish. The good news
+there however is that in kernel space it's rather rare to work with
+buffers on the stack (by virtue of only having a really tiny stack in
+the first place). Not impossible but at least rare.
 
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-----
-
- include/asm-alpha/mutex.h     |    9 +++++++++
- include/asm-cris/mutex.h      |    9 +++++++++
- include/asm-frv/mutex.h       |    9 +++++++++
- include/asm-h8300/mutex.h     |    9 +++++++++
- include/asm-ia64/mutex.h      |    9 +++++++++
- include/asm-m32r/mutex.h      |    9 +++++++++
- include/asm-m68k/mutex.h      |    9 +++++++++
- include/asm-m68knommu/mutex.h |    9 +++++++++
- include/asm-mips/mutex.h      |    9 +++++++++
- include/asm-parisc/mutex.h    |    9 +++++++++
- include/asm-powerpc/mutex.h   |    9 +++++++++
- include/asm-s390/mutex.h      |    9 +++++++++
- include/asm-sh/mutex.h        |    9 +++++++++
- include/asm-sh64/mutex.h      |    9 +++++++++
- include/asm-sparc/mutex.h     |    9 +++++++++
- include/asm-sparc64/mutex.h   |    9 +++++++++
- include/asm-um/mutex.h        |    9 +++++++++
- include/asm-v850/mutex.h      |    9 +++++++++
- include/asm-xtensa/mutex.h    |    9 +++++++++
- 19 files changed, 171 insertions(+)
-
-Index: linux/include/asm-alpha/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-alpha/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-cris/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-cris/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-frv/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-frv/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-h8300/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-h8300/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-ia64/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-ia64/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-m32r/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-m32r/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-m68k/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-m68k/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-m68knommu/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-m68knommu/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-mips/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-mips/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-parisc/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-parisc/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-powerpc/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-powerpc/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-s390/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-s390/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-sh/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-sh/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-sh64/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-sh64/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-sparc/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-sparc/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-sparc64/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-sparc64/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-um/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-um/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-v850/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-v850/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>
-Index: linux/include/asm-xtensa/mutex.h
-===================================================================
---- /dev/null
-+++ linux/include/asm-xtensa/mutex.h
-@@ -0,0 +1,9 @@
-+/*
-+ * Pull in the generic implementation for the mutex fastpath.
-+ *
-+ * TODO: implement optimized primitives instead, or leave the generic
-+ * implementation in place, or pick the atomic_xchg() based generic
-+ * implementation. (see asm-generic/mutex-xchg.h for details)
-+ */
-+
-+#include <asm-generic/mutex-dec.h>

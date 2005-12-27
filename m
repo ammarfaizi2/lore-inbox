@@ -1,51 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932303AbVL0Mi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932304AbVL0MlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932303AbVL0Mi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 07:38:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbVL0Mi6
+	id S932304AbVL0MlI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 07:41:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932308AbVL0MlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 07:38:58 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:33227 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932303AbVL0Mi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 07:38:58 -0500
-Date: Tue, 27 Dec 2005 06:38:49 -0600
-From: Robin Holt <holt@sgi.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 1/1] Fix genksyms handling of DEFINE_PER_CPU(struct foo_s *, bar);
-Message-ID: <20051227123849.GA4535@lnx-holt.americas.sgi.com>
-References: <20051221203601.GB20619@lnx-holt.americas.sgi.com> <20051221202356.GA31487@mars.ravnborg.org> <20051221220251.GA2924@lnx-holt.americas.sgi.com> <20051226215542.GA31261@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051226215542.GA31261@mars.ravnborg.org>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 27 Dec 2005 07:41:08 -0500
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:20591 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S932304AbVL0MlH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 07:41:07 -0500
+To: Nauman Tahir <nauman.tahir@gmail.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: ia_64_bit Performance difference
+X-Message-Flag: Warning: May contain useful information
+References: <f0309ff0512262318r6d06292u7b151f2608b286cf@mail.gmail.com>
+	<1135669831.2926.11.camel@laptopd505.fenrus.org>
+	<f0309ff0512270010g39d42f83rf9da794f455854a5@mail.gmail.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 27 Dec 2005 04:40:58 -0800
+In-Reply-To: <f0309ff0512270010g39d42f83rf9da794f455854a5@mail.gmail.com> (Nauman
+ Tahir's message of "Tue, 27 Dec 2005 13:10:16 +0500")
+Message-ID: <adairtaemqt.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.17 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+X-OriginalArrivalTime: 27 Dec 2005 12:41:01.0285 (UTC) FILETIME=[CB17A950:01C60AE2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 26, 2005 at 10:55:42PM +0100, Sam Ravnborg wrote:
-> On Wed, Dec 21, 2005 at 04:02:51PM -0600, Robin Holt wrote:
-> > On Wed, Dec 21, 2005 at 09:23:56PM +0100, Sam Ravnborg wrote:
-> > > On Wed, Dec 21, 2005 at 02:36:01PM -0600, Robin Holt wrote:
-> > > > This is a one-line change to parse.y.  It results in rebuilding the
-> > > > scripts/genksyms/*_shipped files.  Those are the next four patches.
-> > > Does this differ from the first patch-set you sent out?
-> > > I plan to apply these so they will be part of next round of kbuild
-> > > updates - which will take place during next merge window.
-> > 
-> > They are the same.  It took me four to finally get all the
-> > parts out and on the lkml.
-> 
-> Applied now. I created new _shipped files with the tools I have
-> installed.
-> 
-> bison (GNU Bison) 2.0
-> flex version 2.5.4
-> GNU gperf 3.0.1
-> 
-> This is (almost) a match of the same tools used for kconfig.
+I would suggest you find the specific difference in the compiled
+kernel and/or driver that is causing your driver to run slower and
+then correct the issue.  That should fix your performance problems.
 
-Thanks.  When do you think that will be applied to Linus' tree?
-
-Robin
+ - R.

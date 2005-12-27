@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbVL0LiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbVL0Loy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbVL0LiG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 06:38:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751101AbVL0LiG
+	id S1751101AbVL0Loy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 06:44:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbVL0Loy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 06:38:06 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:63203 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750730AbVL0LiE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 06:38:04 -0500
-Date: Tue, 27 Dec 2005 12:37:38 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Nicolas Pitre <nico@cam.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 3/3] mutex subsystem: inline mutex_is_locked()
-Message-ID: <20051227113738.GA23587@elte.hu>
-References: <20051223161649.GA26830@elte.hu> <Pine.LNX.4.64.0512261416370.1496@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 27 Dec 2005 06:44:54 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:18530 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751101AbVL0Lox convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 06:44:53 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=H/rK7c3amQcRHW6Off7duyME/iwiBUkiTzb4tUO6g3/PhwIHQuratDHvATsEEDhTPkhDjZ6Ec2OiiXLnQQCikiE6g7hNefJQY7fzqTiOO/+/dM0J059vpUE0O+EVaHCYDgv2YULCRS6YGRDLyfu7fHGEpqgyCqR1XLqKcmKiMNo=
+Message-ID: <28cc27130512270344o4670b4a6m@mail.gmail.com>
+Date: Tue, 27 Dec 2005 12:44:52 +0100
+From: Luuk van der Duim <luukvanderduim@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Ho ho ho.. Linux 2.6.15-rc7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512261416370.1496@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.8 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	1.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I too have been bored during Christmas and ran 2.6.15-rc7 as Linus asked.
 
-* Nicolas Pitre <nico@cam.org> wrote:
+Furthermore I patched it with 'adaptive read-ahead', Ingo's mutex,
+Balbirs/Stevens 'slab-cache estimate optimization' and Cons 'swap
+prefetch'.
+I've enable 4k stacks and kernel preemption and up till now I've yet
+to see one glitch.
 
-> There is currently no advantage to not always inlining 
-> mutex_is_locked, even on x86.
+Usage: Watching movies, using git, compiling kernel, ftp, bittorrent..
+Nothing special...
 
-thanks, applied.
+Machine is a Athlon 1.3 GHz, 512 MB Ram, 46xx sound ALSA ..
 
-	Ingo
+    Luuk van der Duim

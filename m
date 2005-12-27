@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbVL0R2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751126AbVL0R1p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbVL0R2F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 12:28:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbVL0R2F
+	id S1751126AbVL0R1p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 12:27:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751127AbVL0R1p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 12:28:05 -0500
-Received: from smtp114.sbc.mail.mud.yahoo.com ([68.142.198.213]:11349 "HELO
-	smtp114.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751131AbVL0R2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 12:28:03 -0500
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] Re: [PATCH] USB_BANDWIDTH documentation change
-Date: Tue, 27 Dec 2005 08:57:34 -0800
-User-Agent: KMail/1.7.1
-Cc: Alan Stern <stern@rowland.harvard.edu>, Bodo Eggert <7eggert@gmx.de>,
-       Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44L0.0512261731001.10595-100000@netrider.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0512261731001.10595-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Dec 2005 12:27:45 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17380 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751126AbVL0R1o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 12:27:44 -0500
+Date: Tue, 27 Dec 2005 18:27:25 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm 0/3] swsusp: swap handling improvements
+Message-ID: <20051227172725.GG1822@elf.ucw.cz>
+References: <200512271747.43374.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200512270857.35505.david-b@pacbell.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200512271747.43374.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 December 2005 2:35 pm, Alan Stern wrote:
-s.
+On Út 27-12-05 17:47:42, Rafael J. Wysocki wrote:
+> Hi,
 > 
-> CONFIG_USB_BANDWIDTH isn't _really_ needed.
+> The following series of patches improves the handling of swap partitions
+> by swsusp and changes the way it writes the image to swap.  As a result,
+> the swap-handling part of swsusp is simplified quite a bit.
+> 
+> The patches in this series are also necessary for implementing the swsusp's
+> userland interface (coming soon).
+> 
+> The third patch has been acked by Pavel, but of course it depends on the
+> previous two.  Still, I posted them for comments some time ago and there
+> have not been any, so I assume there are no objections. ;-)
 
-I think it was there historically because the first implementations
-didn't work correctly.  In fact, the model underlying that current
-usb_check_bandwidth() call is incorrect ... reservations for periodic
-bandwidth (isochronous and interrupt transfers) are per-endpoint,
-not per-urb.
-
-
-> What it does (or rather, what  
-> it would do if it worked properly) is prevent the kernel from 
-> overcommitting on USB bandwidth.
-
-It's also completly ignored for
-
- - ohci-hcd, which never overcommits;
- - sl811-hcd, works just like ohci in that respect;
- - isp116x-hcd, ditto;
- - ehci-hcd, can't risk overcommit with transaction translators(*);
-
-The only HCDs that use usb_check_bandwidth() are the CRIS HCD
-(which, last I heard, neither built nor, after fixing build errors,
-worked) and UHCI.  Which is why this patch is incorrect ...
-
-The long term solution is to get rid of that CONFIG_ symbol and
-the code backing it, and then have all the HCD properly reserve
-periodic bandwidth, using a per-endpoint approach.
-
-- Dave
-
-(*) The issues folk have mentioned with bandwidth reservation for
-    EHCI are more "full and low speed devcies can't use all the
-    available transaction translator bandwidth" than anything else.
-    As a rule high speed devices don't see such issues ... only the
-    needing more complex scheduling models than usb_check_bandwidth
-    supports, just to work -- in even simple scenarios.  Which is why
-    EHCI never has/will use the code now protected by USB_BANDWIDTH.
-
-
+Just for the record, all the patches look good to me.
+								Pavel
+-- 
+Thanks, Sharp!

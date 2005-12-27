@@ -1,87 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbVL0XlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932404AbVL0Xp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932395AbVL0XlO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 18:41:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932399AbVL0XlO
+	id S932404AbVL0Xp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 18:45:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932407AbVL0Xp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 18:41:14 -0500
-Received: from smtp1.brturbo.com.br ([200.199.201.163]:24717 "EHLO
-	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S932395AbVL0XlO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 18:41:14 -0500
-Subject: Re: Recursive dependency for SAA7134 in 2.6.15-rc7
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Ricardo Cerqueira <v4l@cerqueira.org>, LKML <linux-kernel@vger.kernel.org>,
-       video4linux-list@redhat.com, Roman Zippel <zippel@linux-m68k.org>
-In-Reply-To: <20051227215351.3d581b13.khali@linux-fr.org>
-References: <20051227215351.3d581b13.khali@linux-fr.org>
-Content-Type: multipart/mixed; boundary="=-h6rUrWRvR9OwSURPX2lO"
-Date: Tue, 27 Dec 2005 21:40:54 -0200
-Message-Id: <1135726855.6709.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1-1mdk 
+	Tue, 27 Dec 2005 18:45:27 -0500
+Received: from mx.pathscale.com ([64.160.42.68]:43982 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932404AbVL0Xp0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 18:45:26 -0500
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: [PATCH 1 of 3] Introduce __memcpy_toio32
+X-Mercurial-Node: 7b7b442a4d6338ae8ca7c2e3124d932c9cc27b87
+Message-Id: <7b7b442a4d6338ae8ca7.1135726915@eng-12.pathscale.com>
+In-Reply-To: <patchbomb.1135726914@eng-12.pathscale.com>
+Date: Tue, 27 Dec 2005 15:41:55 -0800
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: linux-kernel@vger.kernel.org
+Cc: mpm@selenic.com, akpm@osdl.org, hch@infradead.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This routine is an arch-independent building block for memcpy_toio32.
+It copies data to a memory-mapped I/O region, using 32-bit accesses.
+This style of access is required by some devices.
 
---=-h6rUrWRvR9OwSURPX2lO
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
 
-Jean,
-
-Em Ter, 2005-12-27 às 21:53 +0100, Jean Delvare escreveu:
-> Hi all,
-> 
-> I gave a try to 2.6.15-rc7 and "make menuconfig" tells me:
-> Warning! Found recursive dependency: VIDEO_SAA7134_ALSA VIDEO_SAA7134_OSS VIDEO_SAA7134_ALSA
-> 
-> This seems to be the consequence of this patch:
-> http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=7bb9529602f8bb41a92275825b808a42ed33e5be
-> 
-> How do we fix that? menuconfig is indeed really confused by the current
-> setup. I have the following patch which makes it happier:
-
-	Please test this patch. It seems that provides the same behavior with a
-non-recursive logic.
-
-Cheers, 
-Mauro.
-
---=-h6rUrWRvR9OwSURPX2lO
-Content-Disposition: attachment; filename=v4l_dvb_saa7134_kconfig_fix.patch
-Content-Type: text/x-patch; name=v4l_dvb_saa7134_kconfig_fix.patch; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-
----
-
- drivers/media/video/saa7134/Kconfig |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/media/video/saa7134/Kconfig b/drivers/media/video/saa7134/Kconfig
-index c0f604a..6127c80 100644
---- a/drivers/media/video/saa7134/Kconfig
-+++ b/drivers/media/video/saa7134/Kconfig
-@@ -14,7 +14,7 @@ config VIDEO_SAA7134
+diff -r 789a24638663 -r 7b7b442a4d63 include/asm-generic/iomap.h
+--- a/include/asm-generic/iomap.h	Tue Dec 27 09:27:10 2005 +0800
++++ b/include/asm-generic/iomap.h	Tue Dec 27 15:41:48 2005 -0800
+@@ -56,6 +56,12 @@
+ extern void fastcall iowrite16_rep(void __iomem *port, const void *buf, unsigned long count);
+ extern void fastcall iowrite32_rep(void __iomem *port, const void *buf, unsigned long count);
  
- config VIDEO_SAA7134_ALSA
- 	tristate "Philips SAA7134 DMA audio support"
--	depends on VIDEO_SAA7134 && SOUND && SND && (!VIDEO_SAA7134_OSS || VIDEO_SAA7134_OSS = m)
-+	depends on VIDEO_SAA7134 && SOUND && SND
- 	select SND_PCM_OSS
- 	---help---
- 	  This is a video4linux driver for direct (DMA) audio in
-@@ -25,7 +25,7 @@ config VIDEO_SAA7134_ALSA
++/*
++ * MMIO copy routines.  These are guaranteed to operate in units denoted
++ * by their names.  This style of operation is required by some devices.
++ */
++extern void fastcall __memcpy_toio32(volatile void __iomem *to, const void *from, size_t count);
++
+ /* Create a virtual mapping cookie for an IO port range */
+ extern void __iomem *ioport_map(unsigned long port, unsigned int nr);
+ extern void ioport_unmap(void __iomem *);
+diff -r 789a24638663 -r 7b7b442a4d63 lib/iomap.c
+--- a/lib/iomap.c	Tue Dec 27 09:27:10 2005 +0800
++++ b/lib/iomap.c	Tue Dec 27 15:41:48 2005 -0800
+@@ -187,6 +187,22 @@
+ EXPORT_SYMBOL(iowrite16_rep);
+ EXPORT_SYMBOL(iowrite32_rep);
  
- config VIDEO_SAA7134_OSS
- 	tristate "Philips SAA7134 DMA audio support (OSS, DEPRECATED)"
--	depends on VIDEO_SAA7134 && SOUND_PRIME && (!VIDEO_SAA7134_ALSA || VIDEO_SAA7134_ALSA = m)
-+	depends on VIDEO_SAA7134 && SOUND_PRIME && (!VIDEO_SAA7134_ALSA || ( VIDEO_SAA7134_ALSA = m && m ) )
- 	---help---
- 	  This is a video4linux driver for direct (DMA) audio in
- 	  Philips SAA713x based TV cards using OSS
-
---=-h6rUrWRvR9OwSURPX2lO--
-
++/*
++ * Copy data to an MMIO region.  MMIO space accesses are performed
++ * in the sizes indicated in each function's name.
++ */
++void fastcall __memcpy_toio32(volatile void __iomem *d, const void *s, size_t count)
++{
++	volatile u32 __iomem *dst = d;
++	const u32 *src = s;
++
++	while (--count >= 0) {
++		__raw_writel(*src++, dst++);
++	}
++}
++
++EXPORT_SYMBOL_GPL(__memcpy_toio32);
++
+ /* Create a virtual mapping cookie for an IO port range */
+ void __iomem *ioport_map(unsigned long port, unsigned int nr)
+ {

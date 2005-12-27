@@ -1,32 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750907AbVL0PKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbVL0PUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750907AbVL0PKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 10:10:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751040AbVL0PKZ
+	id S1750904AbVL0PUP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 10:20:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751109AbVL0PUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 10:10:25 -0500
-Received: from quechua.inka.de ([193.197.184.2]:64749 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S1750904AbVL0PKY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 10:10:24 -0500
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ia_64_bit Performance difference
-Organization: Private Site running Debian GNU/Linux
-In-Reply-To: <f0309ff0512270010g39d42f83rf9da794f455854a5@mail.gmail.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.13.4 (i686))
-Message-Id: <E1ErGT0-0005QU-00@calista.inka.de>
-Date: Tue, 27 Dec 2005 16:10:22 +0100
+	Tue, 27 Dec 2005 10:20:15 -0500
+Received: from mail.stdbev.com ([63.161.72.3]:28097 "EHLO
+	mail.standardbeverage.com") by vger.kernel.org with ESMTP
+	id S1750904AbVL0PUO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 10:20:14 -0500
+Message-ID: <c5fab017ea006f87e47b347f10a6a0ae@stdbev.com>
+Date: Tue, 27 Dec 2005 09:20:15 -0600
+From: "Jason Munro" <jason@stdbev.com>
+Subject: Re: recommended mail clients [was] [PATCH] ati-agp suspend/resume support (try 2)
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: <rostedt@goodmis.org>, <jaco@kroon.co.za>, <linux-kernel@vger.kernel.org>,
+       <pavel@ucw.cz>, <s0348365@sms.ed.ac.uk>
+Reply-to: <jason@stdbev.com>
+In-Reply-To: <Pine.LNX.4.61.0512262323110.12671@yvahk01.tjqt.qr>
+References: <43AF7724.8090302@kroon.co.za>
+            <43AFB005.50608@kroon.co.za>
+            <1135607906.5774.23.camel@localhost.localdomain>
+            <200512261535.09307.s0348365@sms.ed.ac.uk>
+            <Pine.LNX.4.61.0512262323110.12671@yvahk01.tjqt.qr>
+X-Mailer: Hastymail 1.5-CVS
+x-priority: 3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <f0309ff0512270010g39d42f83rf9da794f455854a5@mail.gmail.com> you wrote:
-> HP Prolient DL 145 (Dual Opteron 244 Processors with 14GB RAM)
+On 4:26:17 pm 26 Dec 2005 Jan Engelhardt <jengelh@linux01.gwdg.de> wrote:
+> >>
+> >>  I use pine and evolution.  Pine is text based and great when I
+> >>  ssh into my machine to work.  Evolution is slow, but plays well
+> >>  with pine and it handles things needed for LKML very well. (the
+> >>  drop down menu "Normal" may be changed to "Preformat", which
+> >>  allows of inserting text files "as-is").
+> >
+> > Dare I say it, KMail has also been doing the Right Thing for a long
+> > time. It will only line wrap things that you insert by typing;
+> > pastes are left untouched.
+> >
+> > This satisfies Linus's demand that all patches be part of the email
+> > body and not an attachment.
+>
+>
+> Do not always blame the MUA, because actually, the MTAs may do
+> anything with the mail text. That's (among other reasons) why things
+> like MIME attachments were invented, because they (their respective
+> uuencoded or base64encoded "text") can be wrapped but does not change
+> the decoded form.  - Something like that is in the pine doc.
 
-This is BTW not IA64 (as mentioned in subject)
+So which is preferable for someone handling inline patches. A properly
+encoded message text that when decoded with a compliant client accurately
+represents the original text (no whitespace mangling etc), or a message
+text that is accurate in it's raw state but may be altered during transit?
 
-Have you tried to profile it?
 
-Gruss
-Bernd
+\__  Jason Munro
+ \__ jason@stdbev.com
+  \__ http://hastymail.sourceforge.net/
+

@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbVL0HSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932248AbVL0HNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932254AbVL0HSY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 02:18:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbVL0HSY
+	id S932248AbVL0HNI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 02:13:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbVL0HNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 02:18:24 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:36749 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932254AbVL0HSX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 02:18:23 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=A1QVYLAZC7M1aZ39+Z0rHVJ5BvALeVhDp6iDu+umJKQWVHiykSbZNnqpeK7C772i70I/yMx82WMNKUUN2fOZV27Eb/hB1rksSfcPaD3pclytk85kt6RbGnSY3EN7qmnDi3i52bweYrI868az0dovqnV7NcLKqvlG+cwsjuZ7fCk=
-Message-ID: <f0309ff0512262318r6d06292u7b151f2608b286cf@mail.gmail.com>
-Date: Tue, 27 Dec 2005 12:18:22 +0500
-From: Nauman Tahir <nauman.tahir@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: ia_64_bit Performance difference
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Tue, 27 Dec 2005 02:13:08 -0500
+Received: from inet-tsb.toshiba.co.jp ([202.33.96.40]:22982 "EHLO
+	inet-tsb.toshiba.co.jp") by vger.kernel.org with ESMTP
+	id S932248AbVL0HNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 02:13:05 -0500
+Date: Tue, 27 Dec 2005 16:12:56 +0900 (JST)
+Message-Id: <200512270712.jBR7Cvq0016461@toshiba.co.jp>
+To: willy@w.ods.org
+Cc: yasuyuki.kozakai@toshiba.co.jp, kernel@linuxace.com, gregkh@suse.de,
+       gcoady@gmail.com, netfilter-devel@lists.netfilter.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org, stable@kernel.org
+Subject: Re: Linux 2.6.14.5
+From: Yasuyuki KOZAKAI <yasuyuki.kozakai@toshiba.co.jp>
+In-Reply-To: <20051227065844.GA14828@alpha.home.local>
+References: <20051227060714.GA1053@linuxace.com>
+	<200512270641.jBR6f6vt024777@toshiba.co.jp>
+	<20051227065844.GA14828@alpha.home.local>
+X-Mailer: Mew version 4.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I have written a block device driver. Driver includes the
-implementation of write back cache policy. Purpose of the driver is
-not an issue. The problem I am facing is the considerable difference
-of performance when I run same driver on 32 and 64 BIT OS. I am
-testing the driver on 64 Bit Machine and run the same driver on both
-(32 and 64 Bit) OS. On 32 Bit, IO rate is almost double then on 64 Bit
-OS. ( i wish it could have been opposite :( )
-Is there anything to do with 64-Bit kernel compilation issue. What
-areas I have to look for?? I have used a few threads. Is there
-anything to change related to thread priority or attributes??
-regards
-Nauman
+
+From: Willy Tarreau <willy@w.ods.org>
+
+> On Tue, Dec 27, 2005 at 03:41:05PM +0900, Yasuyuki KOZAKAI wrote:
+> > From: Phil Oester <kernel@linuxace.com>
+> > Date: Mon, 26 Dec 2005 22:07:14 -0800
+> > 
+> > > On Tue, Dec 27, 2005 at 06:45:19AM +0100, Willy Tarreau wrote:
+> > > > On Tue, Dec 27, 2005 at 04:42:00PM +1100, Grant Coady wrote:
+> > > > > + iptables -A INPUT -p all --match state --state ESTABLISHED,RELATED -j ACCEPT
+> > > > > iptables: No chain/target/match by that name
+> > > > 
+> > > > So it's not only the NEW state, it's every "--match state".
+> > > 
+> > > Odd...works fine here
+> > 
+> > Willy, which version of iptables is ?
+> > And kernel config around netfilter would be helpful.
+> 
+> Hey, it's Grant who has the problem, not me. Anyway, he fixed it,
+> it seems it was related to an invalid .config.
+
+Sorry about this, and thanks for report.
+
+-- Yasuyuki Kozakai

@@ -1,83 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbVL0Uuj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751144AbVL0VED@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbVL0Uuj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 15:50:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751144AbVL0Uuj
+	id S1751144AbVL0VED (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 16:04:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbVL0VED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 15:50:39 -0500
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:42257 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S1751143AbVL0Uuj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 15:50:39 -0500
-Date: Tue, 27 Dec 2005 21:53:51 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Ricardo Cerqueira <v4l@cerqueira.org>,
-       Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Cc: LKML <linux-kernel@vger.kernel.org>, video4linux-list@redhat.com,
-       Roman Zippel <zippel@linux-m68k.org>
-Subject: Recursive dependency for SAA7134 in 2.6.15-rc7
-Message-Id: <20051227215351.3d581b13.khali@linux-fr.org>
-X-Mailer: Sylpheed version 2.0.4 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Tue, 27 Dec 2005 16:04:03 -0500
+Received: from mail.acc.umu.se ([130.239.18.156]:39328 "EHLO mail.acc.umu.se")
+	by vger.kernel.org with ESMTP id S1751144AbVL0VEB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 16:04:01 -0500
+Date: Tue, 27 Dec 2005 22:03:59 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Alex Davis <alex14641@yahoo.com>
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] i386: always use 4k stacks
+Message-ID: <20051227210359.GG20654@vasa.acc.umu.se>
+Mail-Followup-To: Alex Davis <alex14641@yahoo.com>,
+	Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
+References: <20051216052913.GD30754@redhat.com> <20051216061605.46520.qmail@web50211.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051216061605.46520.qmail@web50211.mail.yahoo.com>
+User-Agent: Mutt/1.4.2.1i
+X-Editor: Vi Improved <http://www.vim.org/>
+X-Accept-Language: Swedish, English
+X-GPG-Fingerprint: 7ACE 0FB0 7A74 F994 9B36  E1D1 D14E 8526 DC47 CA16
+X-GPG-Key: http://www.acc.umu.se/~tao/files/pub_dc47ca16.gpg.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Thu, Dec 15, 2005 at 10:16:05PM -0800, Alex Davis wrote:
+> 
+> 
+> --- Dave Jones <davej@redhat.com> wrote:
+> 
+> > On Thu, Dec 15, 2005 at 09:20:54PM -0800, Alex Davis wrote:
+> >  > The problem is that, with laptops, most of the time you DON'T
+> >  > have a choice: HP and Dell primarily use a Broadcomm integrated
+> >  > wireless card in ther products.  As of yet, there is no open
+> >  > source driver for Broadcomm wireless.
+> > 
+> > We've already been through all this the previous times this came up.
+> > 
+> > http://bcm43xx.berlios.de
+> > 
+> > Whilst it's in early stages, it's making progress.
+> > 
+> > 		Dave
+> > 
+> > 
+> I understand that, and am grateful for the effort, but the point is
+> it's not ready. Are you expecting people to lose an important feature
+> of their laptop until you get the driver ready? 
 
-I gave a try to 2.6.15-rc7 and "make menuconfig" tells me:
-Warning! Found recursive dependency: VIDEO_SAA7134_ALSA VIDEO_SAA7134_OSS VIDEO_SAA7134_ALSA
+Yeah, it must be oh so important for the laptop owners with that
+particular chipset to run the -mm experimental kernels instead of, their
+distro kernel or the stable 2.6-kernel series or Linus latest
+installment (or even a git-snapshot or checkout...)
 
-This seems to be the consequence of this patch:
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=7bb9529602f8bb41a92275825b808a42ed33e5be
 
-How do we fix that? menuconfig is indeed really confused by the current
-setup. I have the following patch which makes it happier:
-
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
----
- drivers/media/video/saa7134/Kconfig |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- linux-2.6.15-rc7.orig/drivers/media/video/saa7134/Kconfig	2005-12-26 11:04:35.000000000 +0100
-+++ linux-2.6.15-rc7/drivers/media/video/saa7134/Kconfig	2005-12-27 11:35:34.000000000 +0100
-@@ -14,7 +14,7 @@
- 
- config VIDEO_SAA7134_ALSA
- 	tristate "Philips SAA7134 DMA audio support"
--	depends on VIDEO_SAA7134 && SOUND && SND && (!VIDEO_SAA7134_OSS || VIDEO_SAA7134_OSS = m)
-+	depends on VIDEO_SAA7134 && SND
- 	select SND_PCM_OSS
- 	---help---
- 	  This is a video4linux driver for direct (DMA) audio in
-@@ -25,7 +25,7 @@
- 
- config VIDEO_SAA7134_OSS
- 	tristate "Philips SAA7134 DMA audio support (OSS, DEPRECATED)"
--	depends on VIDEO_SAA7134 && SOUND_PRIME && (!VIDEO_SAA7134_ALSA || VIDEO_SAA7134_ALSA = m)
-+	depends on VIDEO_SAA7134 && SOUND_PRIME && VIDEO_SAA7134_ALSA!=y && m
- 	---help---
- 	  This is a video4linux driver for direct (DMA) audio in
- 	  Philips SAA713x based TV cards using OSS
-
-However, I am not entirely happy with it because it introduces an
-asymmetry: the OSS variant can no more be built-in, it is now only
-available as a module. Not sure this is acceptable.
-
-Another possibility would be to fix Kconfig to properly support this
-case. Roman, what do you think?
-
-Yet another possibility would be to not express the dependencies,
-explain the mutual exclusion in the help texts, and hope that the user
-will read the help texts. I doubt this will work. This seems to be what
-was done for the eepro100/e100 case though (well, not even help texts
-in this case).
-
-Are there other similar cases in the kernel right now?
-
-It would be nice to fix this before 2.6.15.
-
-Thanks,
+Regards: David Weinehall
 -- 
-Jean Delvare
+ /) David Weinehall <tao@acc.umu.se> /) Northern lights wander      (\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\)  http://www.acc.umu.se/~tao/    (/   Full colour fire           (/

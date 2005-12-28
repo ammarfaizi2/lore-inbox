@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932453AbVL1Cld@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932394AbVL1C5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932453AbVL1Cld (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 21:41:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbVL1Cld
+	id S932394AbVL1C5m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 21:57:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932403AbVL1C5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 21:41:33 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:14043 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932453AbVL1Cld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 21:41:33 -0500
-Subject: Re: 2.6.15-rc5: latency regression vs 2.6.14 in
-	exit_mmap->free_pgtables
-From: Lee Revell <rlrevell@joe-job.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Hugh Dickins <hugh@veritas.com>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <1135726300.22744.25.camel@mindpipe>
-References: <1135726300.22744.25.camel@mindpipe>
-Content-Type: text/plain
-Date: Tue, 27 Dec 2005 21:46:59 -0500
-Message-Id: <1135738020.22744.70.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 27 Dec 2005 21:57:42 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:17261 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932394AbVL1C5m convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 21:57:42 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=UyKd/ctoV0e3ChtW/aBufNeEU0EtdL8vkeUG8HPQjOOjKLw/PAfJGn+tZYQvLxTMXjfBMyPyG9M0GtN97Dra0V6UnWjYtf3oSlY55+kfIS1edCq4hTGVrmWu+jjOE7GFZEGKvpD4l7+JNEWL4G2joY6DSrK9fja/guMTk8zgsC0=
+Message-ID: <9e4733910512271857v41f61535g91ebcb87664e7f7c@mail.gmail.com>
+Date: Tue, 27 Dec 2005 21:57:41 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: monitoring directory trees with iNotify
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-27 at 18:31 -0500, Lee Revell wrote:
-> The problem is that we now do a lot more work in free_pgtables under the
-> mm->page_table_lock spinlock so preemption can be delayed for a long
-> time.  Here is the change responsible:
+Has a directory tree monitoring mode been considered for iNotify? It
+seems likely to me that anyone using this API probably needs to
+monitor whole trees.
 
-Hugh,
+With the current API there seems to be race conditions around
+directory creation/deletion and the queue overflowing. For example if
+a new directory is created you are in a race with the creating program
+to get a watch on that directory before things start happening in it.
+A tree based watch would eliminate this problem.
 
-I have found the commit that introduced the regression:
+I'd also find a mode where the events returned full paths instead of
+watch ids useful too. With the current model I have to cache the
+entire directory tree in my app to associate the watch ids with the
+path to each directory. If the path came back with the event I could
+eliminate the shadow tree.
 
-[PATCH 16/21] mm: unlink vma before pagetables
-
-http://lkml.org/lkml/2005/10/12/227
-
-Lee
-
+--
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,78 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932502AbVL1IDy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbVL1IOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932502AbVL1IDy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 03:03:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932503AbVL1IDy
+	id S932503AbVL1IOH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 03:14:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbVL1IOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 03:03:54 -0500
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:53422 "HELO
-	ilport.com.ua") by vger.kernel.org with SMTP id S932502AbVL1IDx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 03:03:53 -0500
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: gene.heskett@verizononline.net
-Subject: Re: Linux 2.6.14.5
-Date: Wed, 28 Dec 2005 10:02:35 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <20051227005327.GA21786@kroah.com> <v573r1tpeekqf45rtk8ljemsfh5r48o9bi@4ax.com> <200512271540.08809.gene.heskett@verizon.net>
-In-Reply-To: <200512271540.08809.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Dec 2005 03:14:07 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:48818 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932503AbVL1IOG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 03:14:06 -0500
+Date: Wed, 28 Dec 2005 09:13:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nicolas Pitre <nico@cam.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 1/3] mutex subsystem: trylock
+Message-ID: <20051228081348.GA6910@elte.hu>
+References: <20051223161649.GA26830@elte.hu> <Pine.LNX.4.64.0512261411530.1496@localhost.localdomain> <20051227115129.GB23587@elte.hu> <Pine.LNX.4.64.0512271439380.3309@localhost.localdomain> <20051228074857.GA4600@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512281002.35214.vda@ilport.com.ua>
+In-Reply-To: <20051228074857.GA4600@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 December 2005 22:40, Gene Heskett wrote:
-> On Tuesday 27 December 2005 15:01, Grant Coady wrote:
-> >On Mon, 26 Dec 2005 19:33:35 -0800 (PST), "David S. Miller" 
-> <davem@davemloft.net> wrote:
-> >>Please report it to the netfilter mailing list, which is
-> >>where the netfilter developers listen and can attend to
-> >>your report.
-> >>
-> >>Thanks a lot.
-> >
-> >Why bother?
-> >
-> >"
-> >Your request to the netfilter-devel mailing list
-> >
-> >    Posting of your message titled "Re: Linux 2.6.14.5"
-> >
-> >has been rejected by the list moderator.  The moderator gave the
-> >following reason for rejecting your request:
-> >
-> >"Non-members are not allowed to post messages to this list."
-> >
-> >Any questions or comments should be directed to the list
-> > administrator at:
-> >
-> >    netfilter-devel-owner@lists.netfilter.org
-> >"
-> >
-> >Grant.
-> >
-> I too have been rejected at that address.  Like Grant, why bother seems 
-> to be the appropriate response.  If they want to here soonest when 
-> there is a problem, then the moderator should clear what is obviously 
-> not a spam message to the list in a reasonable time frame.  Its never 
-> happened to me but once and I was bascily told to "go away little 
-> boy." 
 
-Moderators of mailing lists scale badly compared to number
-China-hosted hosts spewing tons of TCP traffic to port 25...
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> I'm already subbed to about 40 lists, and while there are some I could 
-> drop to make room for others, my interests are best described as 
-> ecclectic.
+> * Nicolas Pitre <nico@cam.org> wrote:
 > 
-> If the netfilter folks want to be artificialy quiet, shrug.
+> > > here we go to great trouble trying to avoid the 'slowpath', while we 
+> > > unconditionally force the next unlock into the slowpath! So we have 
+> > > not won anything. (on a cycle count basis it's probably even a net 
+> > > loss)
+> > 
+> > I disagree.  [...elaborate analysis of the code ...]
+> 
+> you are right, it should work fine, and should be optimal. I'll add 
+> your xchg variant to mutex-xchg.h.
 
-I guess they prefer bugs to be reported thru bugzilla.
-I just reported one yesterday.
---
-vda
+the patch below adds it, and it boots fine on x86 with mutex.c hacked to 
+include asm-generic/mutex-xchg.h.
+
+	Ingo
+
+Index: linux/include/asm-generic/mutex-xchg.h
+===================================================================
+--- linux.orig/include/asm-generic/mutex-xchg.h
++++ linux/include/asm-generic/mutex-xchg.h
+@@ -82,7 +82,25 @@ do {									\
+ static inline int
+ __mutex_fastpath_trylock(atomic_t *count, int (*fn)(atomic_t *))
+ {
+-	return fn(count);
++	int prev = atomic_xchg(count, 0);
++
++	if (unlikely(prev < 0)) {
++		/*
++		 * The lock was marked contended so we must restore that
++		 * state. If while doing so we get back a prev value of 1
++		 * then we just own it.
++		 *
++		 * [ In the rare case of the mutex going to 1 and then to 0
++		 *   in this few-instructions window, this has the potential
++		 *   to trigger the slowpath for the owner's unlock path, but
++		 *   that's not a problem in practice. ]
++		 */
++		prev = atomic_xchg(count, -1);
++		if (prev < 0)
++			prev = 0;
++	}
++
++	return prev;
+ }
+ 
+ #endif

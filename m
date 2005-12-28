@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbVL1IOH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932508AbVL1IZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932503AbVL1IOH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 03:14:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932505AbVL1IOH
+	id S932508AbVL1IZi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 03:25:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbVL1IZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 03:14:07 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:48818 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932503AbVL1IOG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 03:14:06 -0500
-Date: Wed, 28 Dec 2005 09:13:48 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Nicolas Pitre <nico@cam.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [patch 1/3] mutex subsystem: trylock
-Message-ID: <20051228081348.GA6910@elte.hu>
-References: <20051223161649.GA26830@elte.hu> <Pine.LNX.4.64.0512261411530.1496@localhost.localdomain> <20051227115129.GB23587@elte.hu> <Pine.LNX.4.64.0512271439380.3309@localhost.localdomain> <20051228074857.GA4600@elte.hu>
+	Wed, 28 Dec 2005 03:25:38 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:26036 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932508AbVL1IZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 03:25:37 -0500
+Subject: Re: [PATCH 1/2]MSI(X) save/restore for suspend/resume
+From: Arjan van de Ven <arjan@infradead.org>
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1135733064.331.0.camel@sli10-desk.sh.intel.com>
+References: <1135649077.17476.14.camel@sli10-desk.sh.intel.com>
+	 <1135670158.2926.15.camel@laptopd505.fenrus.org>
+	 <1135733064.331.0.camel@sli10-desk.sh.intel.com>
+Content-Type: text/plain
+Date: Wed, 28 Dec 2005 09:25:34 +0100
+Message-Id: <1135758335.2935.0.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051228074857.GA4600@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Ingo Molnar <mingo@elte.hu> wrote:
-
-> * Nicolas Pitre <nico@cam.org> wrote:
-> 
-> > > here we go to great trouble trying to avoid the 'slowpath', while we 
-> > > unconditionally force the next unlock into the slowpath! So we have 
-> > > not won anything. (on a cycle count basis it's probably even a net 
-> > > loss)
+On Wed, 2005-12-28 at 09:24 +0800, Shaohua Li wrote:
+> On Tue, 2005-12-27 at 15:55, Arjan van de Ven wrote:
+> > > diff -puN include/linux/pci.h~msi_save_restore include/linux/pci.h
+> > > --- linux-2.6.15-rc5/include/linux/pci.h~msi_save_restore	2005-12-22 09:23:16.000000000 +0800
+> > > +++ linux-2.6.15-rc5-root/include/linux/pci.h	2005-12-22 09:23:16.000000000 +0800
+> > > @@ -135,6 +135,7 @@ struct pci_dev {
+> > >  	unsigned int	block_ucfg_access:1;	/* userspace config space access is blocked */
+> > >  
+> > >  	u32		saved_config_space[16]; /* config space saved at suspend time */
+> > > +	void		*saved_cap_space[PCI_CAP_ID_MAX + 1]; /* ext config space saved at suspend time */
+> > >  	struct bin_attribute *rom_attr; /* attribute descriptor for sysfs ROM entry */
+> > >  	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
 > > 
-> > I disagree.  [...elaborate analysis of the code ...]
-> 
-> you are right, it should work fine, and should be optimal. I'll add 
-> your xchg variant to mutex-xchg.h.
+> > 
+> > void feels like sort of the wrong thing here....
+> So what is good to you :)?
 
-the patch below adds it, and it boots fine on x86 with mutex.c hacked to 
-include asm-generic/mutex-xchg.h.
+doesn't it contain u16's ?
 
-	Ingo
 
-Index: linux/include/asm-generic/mutex-xchg.h
-===================================================================
---- linux.orig/include/asm-generic/mutex-xchg.h
-+++ linux/include/asm-generic/mutex-xchg.h
-@@ -82,7 +82,25 @@ do {									\
- static inline int
- __mutex_fastpath_trylock(atomic_t *count, int (*fn)(atomic_t *))
- {
--	return fn(count);
-+	int prev = atomic_xchg(count, 0);
-+
-+	if (unlikely(prev < 0)) {
-+		/*
-+		 * The lock was marked contended so we must restore that
-+		 * state. If while doing so we get back a prev value of 1
-+		 * then we just own it.
-+		 *
-+		 * [ In the rare case of the mutex going to 1 and then to 0
-+		 *   in this few-instructions window, this has the potential
-+		 *   to trigger the slowpath for the owner's unlock path, but
-+		 *   that's not a problem in practice. ]
-+		 */
-+		prev = atomic_xchg(count, -1);
-+		if (prev < 0)
-+			prev = 0;
-+	}
-+
-+	return prev;
- }
- 
- #endif

@@ -1,89 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbVL1OyA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbVL1Oyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964831AbVL1OyA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 09:54:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964833AbVL1OyA
+	id S964835AbVL1Oyk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 09:54:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbVL1Oyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 09:54:00 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:56805 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964831AbVL1Ox7 (ORCPT
+	Wed, 28 Dec 2005 09:54:40 -0500
+Received: from waste.org ([64.81.244.121]:34773 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S964833AbVL1Oyk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 09:53:59 -0500
-Date: Wed, 28 Dec 2005 15:53:38 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Roland Dreier <rdreier@cisco.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: [patch 01/2] allow gcc4 to control inlining
-Message-ID: <20051228145338.GA15711@elte.hu>
-References: <20051228114653.GB3003@elte.hu> <adak6dpcml0.fsf@cisco.com>
+	Wed, 28 Dec 2005 09:54:40 -0500
+Date: Wed, 28 Dec 2005 08:51:14 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, hch@infradead.org
+Subject: Re: [PATCH 1 of 3] Introduce __memcpy_toio32
+Message-ID: <20051228145114.GL3356@waste.org>
+References: <7b7b442a4d6338ae8ca7.1135726915@eng-12.pathscale.com> <adazmmmc9hl.fsf@cisco.com> <1135780804.1527.82.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <adak6dpcml0.fsf@cisco.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <1135780804.1527.82.camel@serpentine.pathscale.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Roland Dreier <rdreier@cisco.com> wrote:
-
->  > -#define inline			inline		__attribute__((always_inline))
->  > -#define __inline__		__inline__	__attribute__((always_inline))
->  > -#define __inline		__inline	__attribute__((always_inline))
+On Wed, Dec 28, 2005 at 06:40:03AM -0800, Bryan O'Sullivan wrote:
+> On Tue, 2005-12-27 at 17:10 -0800, Roland Dreier wrote:
 > 
-> Why not just delete these lines?  This:
+> > I think the principle of least surprise calls for memcpy_toio32 to be
+> > ordered the same way memcpy_toio is.  In other words there should be a
+> > wmb() after the loop.
 > 
->  > +#define inline			inline
->  > +#define __inline__		__inline__
->  > +#define __inline		__inline
+> Will do.
 > 
-> seems pointless to me.
+> > Also, no need for the { } for the while loop.
+> 
+> Fine.  There doesn't seem to be much consistency in whether to use
+> curlies for single-line blocks.
 
-indeed. I thought they were redefined to a default if not defined, but 
-that's only the case for __always_inline. Updated patch below.
+We've been very consistent in discouraging it in new code. Enforcement
+of fine points of coding style is a post-2.5 phenomenon, so it hasn't
+hit all the tree yet.
 
-	Ingo
+> > You're adding this symbol and exporting it even if the arch will
+> > supply its own version.  So this is pure kernel .text bloat...
+> 
+> I don't know what you'd prefer, so let me enumerate a few alternatives,
+> and you can either tell me which you'd prefer, or point out something
+> I've missed that would be even better.  I'm entirely flexible on this.
+> 
+>       * Use the __HAVE_ARCH_* mechanism that include/asm-*/string.h
+>         uses.  Caveat: Linus has lately come out as hating this style.
+>         It makes for the smallest patch, though.
+>       * Define the generic code in lib/, and have each arch that really
+>         uses it export it.
 
---------
-Subject: allow gcc4 to control inlining
+I'd favor this, at least for this case. If it becomes more widely
+used, we'll relocate the export.
 
-allow gcc4 compilers to decide what to inline and what not - instead
-of the kernel forcing gcc to inline all the time.
+>       * Put generic code in include/asm-generic/algo-memcpy_toio32.h,
+>         and have each arch that needs it #include it somewhere and use
+>         it.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Arjan van de Ven <arjan@infradead.org>
-----
-
- include/linux/compiler-gcc4.h |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
-
-Index: linux/include/linux/compiler-gcc4.h
-===================================================================
---- linux.orig/include/linux/compiler-gcc4.h
-+++ linux/include/linux/compiler-gcc4.h
-@@ -3,14 +3,12 @@
- /* These definitions are for GCC v4.x.  */
- #include <linux/compiler-gcc.h>
- 
--#define inline			inline		__attribute__((always_inline))
--#define __inline__		__inline__	__attribute__((always_inline))
--#define __inline		__inline	__attribute__((always_inline))
- #define __deprecated		__attribute__((deprecated))
- #define __attribute_used__	__attribute__((__used__))
- #define __attribute_pure__	__attribute__((pure))
- #define __attribute_const__	__attribute__((__const__))
--#define  noinline		__attribute__((noinline))
-+#define noinline		__attribute__((noinline))
-+#define __always_inline		inline __attribute__((always_inline))
- #define __must_check 		__attribute__((warn_unused_result))
- #define __compiler_offsetof(a,b) __builtin_offsetof(a,b)
- 
+-- 
+Mathematics is the supreme nostalgia of our time.

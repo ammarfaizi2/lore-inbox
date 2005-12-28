@@ -1,40 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbVL1TzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbVL1T5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbVL1TzU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 14:55:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbVL1TzU
+	id S964893AbVL1T5u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 14:57:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbVL1T5u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 14:55:20 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39433 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S964892AbVL1TzS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 14:55:18 -0500
-Date: Wed, 28 Dec 2005 19:55:09 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Meelis Roos <mroos@linux.ee>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
-Message-ID: <20051228195509.GA12307@flint.arm.linux.org.uk>
-Mail-Followup-To: Meelis Roos <mroos@linux.ee>, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-References: <20051214172445.GF7124@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512212221310.651@math.ut.ee> <20051221221516.GK1736@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512221231430.6200@math.ut.ee> <20051222130744.GA31339@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512231117560.25532@math.ut.ee> <20051223093343.GA22506@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512231204290.8311@math.ut.ee> <20051223104146.GB22506@flint.arm.linux.org.uk> <Pine.SOC.4.61.0512271553480.7835@math.ut.ee>
+	Wed, 28 Dec 2005 14:57:50 -0500
+Received: from mx1.suse.de ([195.135.220.2]:47334 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964893AbVL1T5t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 14:57:49 -0500
+Date: Wed, 28 Dec 2005 20:57:41 +0100
+From: Andi Kleen <ak@suse.de>
+To: John Blackwood <john.blackwood@ccur.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>, bugsy@ccur.com
+Subject: Re: [PATCH] arch/x86_64/kernel/ptrace.c linux-2.6.14.4
+Message-ID: <20051228195741.GA11515@wotan.suse.de>
+References: <43AAC435.2090702@ccur.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.SOC.4.61.0512271553480.7835@math.ut.ee>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <43AAC435.2090702@ccur.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 27, 2005 at 03:54:29PM +0200, Meelis Roos wrote:
-> >Right, discard all the patches I sent previously and use this one.
-> 
-> No messages at all so far, with several serial sessions.
+> I suppose that the read_32bit_tls() code could be instead pulled into
+> a header file such as asm-x86_64/desc.h and shared between process.c
+> and ptrace.c instead of having the read_tls_array() code below, but I
+> didn't do that in this version of the patch.
 
-Can I assume that the bug has disappeared?  Does the patch make it
-disappear?
+Please do that. But not as an inline - make it out of line.
+And read_ldt also doesn't need to be copied, it's already
+in ldt.c and can be exported from there.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Thanks,
+-Andi
+

@@ -1,85 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbVL1JGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbVL1JZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932504AbVL1JGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 04:06:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbVL1JGP
+	id S964777AbVL1JZN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 04:25:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbVL1JZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 04:06:15 -0500
-Received: from zoe.ndcservers.net ([204.10.38.178]:32191 "EHLO
-	zoe.ndcservers.net") by vger.kernel.org with ESMTP id S932504AbVL1JGO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 04:06:14 -0500
-Message-ID: <026801c60b8d$ef128360$6501a8c0@ndciwkst01>
-From: "Shaun" <mailinglists@unix-scripts.com>
-To: "DervishD" <lkml@dervishd.net>
-Cc: <linux-kernel@vger.kernel.org>
-References: <dotjb6$j8$1@sea.gmane.org> <20051228085328.GA25380@DervishD>
-Subject: Re: Memory, where's it going?
-Date: Wed, 28 Dec 2005 01:06:03 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - zoe.ndcservers.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - unix-scripts.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Wed, 28 Dec 2005 04:25:13 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:30476 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S932509AbVL1JZL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 04:25:11 -0500
+Date: Wed, 28 Dec 2005 10:26:27 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: 2.6.15rc5git1 cfq related spinlock bad magic
+Message-ID: <20051228092626.GA2772@suse.de>
+References: <20051208045048.GC24356@redhat.com> <20051209104150.GF26185@suse.de> <20051209185521.GC7473@redhat.com> <20051226145228.6eba3980.zaitcev@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051226145228.6eba3980.zaitcev@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I understand the concept and why things are cached, i've just never seen it 
-cache this much before.. usually on a machine with bearly anything running 
-on it (like this one) it uses bearly any memory at all.  My concern is that 
-with bearly anything running on it i already have dug into swap.
-
-Thanks for the responce, i just wanted to make sure their wasnt some type of 
-a memory bug.
-
-~Shaun
------ Original Message ----- 
-From: "DervishD" <lkml@dervishd.net>
-To: "Shaun" <mailinglists@unix-scripts.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, December 28, 2005 12:53 AM
-Subject: Re: Memory, where's it going?
-
-
->    Hi Shaun :)
->
-> * Shaun <mailinglists@unix-scripts.com> dixit:
->> I see that free shows that 7.7GB is cached and i'm not sure why so
->> much is cached.
->
->    Because free memory is a *waste* of memory. Why leaving unused
-> memory when it can be used for caching? The kernel will (up to some
-> extent, I suppose) try to use all free memory for caching if no app
-> needs it.
->
->    If you have 8GB of memory, it's a bit difficult to fill it just
-> with the running apps, so the kernel cleverly uses the rest for
-> caching things so the system runs faster.
->
->    For example, I have 1GB of RAM, and even when I use X (seldom...)
-> I never eat up more than, let's say, 500MB. So, I have another 500MB
-> of memory unused: the kernel uses it as cache, and that makes my
-> system run much faster (I noticed a speed increase when I switch from
-> 512 to 1G).
->
->    Raúl Núñez de Arenas Coronado
->
-> -- 
-> Linux Registered User 88736 | http://www.dervishd.net
-> http://www.pleyades.net & http://www.gotesdelluna.net
-> It's my PC and I'll cry if I want to...
+On Mon, Dec 26 2005, Pete Zaitcev wrote:
+> On Fri, 9 Dec 2005 13:55:21 -0500, Dave Jones <davej@redhat.com> wrote:
 > 
+> >  > > [311578.273186] BUG: spinlock bad magic on CPU#1, pdflush/30788 (Not tainted)
+> >[...]
+> >  > > [311578.499972] RIP: 0010:[<ffffffff8021f8bd>] <ffffffff8021f8bd>{spin_bug+138}
+> >  > > [311578.798449] Call Trace:<ffffffff8021fbdb>{_raw_spin_lock+25} <ffffffff802174a4>{cfq_exit_single_io_context+85}
+> >  > > [311578.828782]        <ffffffff80217527>{cfq_exit_io_context+33} <ffffffff8020d07d>{exit_io_context+137}
+> >  > > [311578.856762]        <ffffffff8013f937>{do_exit+183} <ffffffff80152c90>{keventd_create_kthread+0}
+> >  > > [311578.883192]        <ffffffff80110c25>{child_rip+15} <ffffffff80152c90>{keventd_create_kthread+0}
+> >  > > [311578.909852]        <ffffffff80152d86>{kthread+0} <ffffffff80110c16>{child_rip+0}
+> 
+> > Hmm, I may have also been experimenting at the time with Pete Zaitcev's
+> > ub driver. Pete, could ub have been doing something bad here?
+> 
+> Yes, this is ub's fault. I thought that blk_cleanup_queue frees the
+> queue, but this is not the case. In recent kernels, it only decrements
+> its refcount.  If CFQ is around, it keeps the queue pinned and uses
+> the queue's spinlock.  But when ub calls blk_init_queue(), it passes a
+> spinlock located in its data structure (ub_dev), which corresponds to
+> a device. The ub_dev is refcounted and freed when the device is
+> disconnected or closed. As you can see, this leaves the queue's
+> spinlock pointer dangling.
+
+That indeed looks like to be it. We've had the reference counted queue
+for a long time. CFQ is the only io scheduler that is affected by such a
+bug, although the core block layer coultd trigger it as well but the
+window is much smaller (with CFQ the window is very large).
+
+> The code was taken from Carmel, and it used to work fine for a long time.
+> I suspect now that Carmel is vulnerable, if it's hot-removed while open.
+> Maybe Jeff wants to look into it.
+
+Indeed.
+
+> The usb-storage is immune to this problem, because SCSI passes NULL to
+> blk_init_queue.
+
+SCSI did have the same problem recently, it just does the assignment
+differently.
+
+> Schedulers other than CFQ use their own spinlocks, so they do not hit
+> this problem.
+> 
+> The attached patch works around this issue by using spinlocks which are
+> static to the ub module. Thus, it places ub into the same group as floppy.
+> This is not ideal, in case someone manages to remove the module yet have
+> queues remaining... But I am reluctant to copy what scsi_request_fn is
+> doing. After all, ub is supposed to be simpler.
+> 
+> Any comments before I send this to Greg?
+
+It's probably the easiest way to fix it in a straight forward manner.
+I'll see if I can add some debug code to detect this issue...
+
+-- 
+Jens Axboe
 

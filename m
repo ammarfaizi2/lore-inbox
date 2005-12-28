@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbVL1JcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964780AbVL1JgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964779AbVL1JcV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 04:32:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbVL1JcV
+	id S964780AbVL1JgS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 04:36:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbVL1JgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 04:32:21 -0500
-Received: from zproxy.gmail.com ([64.233.162.195]:44348 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932509AbVL1JcU convert rfc822-to-8bit
+	Wed, 28 Dec 2005 04:36:18 -0500
+Received: from zproxy.gmail.com ([64.233.162.207]:17271 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932509AbVL1JgS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 04:32:20 -0500
+	Wed, 28 Dec 2005 04:36:18 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Nydg1BHFZ4VmXXY2znKpYmcQZ3oFglgQVruymPPYIfdW0S1+Mj4/rmdV5kWCfIu9vUmgA9TyZLeoLQQ0JIC/QW7KdaQZCHNeA5nhDjLrkz3DRmrC1KF/w6Stg0MVE0ZJdTKG6zqVOTDZHR1N2LUzt0qoct4tFKgAogseSMgfvFQ=
-Message-ID: <7a37e95e0512280132m59d9c333wf8d27c1dc5f85fee@mail.gmail.com>
-Date: Wed, 28 Dec 2005 15:02:19 +0530
-From: Deven Balani <devenbalani@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: scatter-gather with ping-ponging
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=B0nMUiKDeEVpmMK00+ji0NydBX8BsXsE+XWsjqXlIWtyTX466cuJzVrO3Ljzfs2LiPElOkXm6aVg4lU4M0VkPTdbCUhtNB5IoEt3+afOgmWNdlu9LTxXuxvPMpIWle+cLNkmEJgqRWqq1T2m6eNcqlJtsL0WvEAJD2VdfM26DDE=
+Message-ID: <ca992f110512280136s3fd3b31enca472108dc2232d1@mail.gmail.com>
+Date: Wed, 28 Dec 2005 18:36:15 +0900
+From: junjie cai <junjiec@gmail.com>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Subject: Re: [RFC][fat] use mpage_readpage when cluster size is page-alignment
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <2cd57c900512280040g594ba003y@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
+References: <ca992f110512272356l379dccc5k6288c28411ff7af4@mail.gmail.com>
+	 <2cd57c900512280040g594ba003y@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+hi,
 
-Does any one know to source to implement a scatter-gather list
-mechanism with ping pong mechanism.
-Or in other words,
-I want to implement chaning of buffer descriptors with double
-buffering mechanism.
+> > +static struct address_space_operations fat_mpage_aops = {
+> > +       .readpage       = fat_mpage_readpage,
+>
+> Should use mpage_readpage directly?
+>
 
-It would be helpful for if any one can give _inputs_.
+no, it is used only when the cluster size is page-alignment
 
-Thanks,
-Deven
+thanks.
+                                              junjie

@@ -1,93 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbVL1AgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbVL1Ak2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932416AbVL1AgW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 19:36:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVL1AgW
+	id S932417AbVL1Ak2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 19:40:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbVL1Ak2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 19:36:22 -0500
-Received: from mail.renesas.com ([202.234.163.13]:58251 "EHLO
-	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S932416AbVL1AgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 19:36:21 -0500
-Date: Wed, 28 Dec 2005 09:36:17 +0900 (JST)
-Message-Id: <20051228.093617.760319907.takata.hirokazu@renesas.com>
-To: akpm@osdl.org
-Cc: takata@linux-m32r.org, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [WTF?] sys_tas() on m32r
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20051227052214.0098e7bf.akpm@osdl.org>
-References: <20051223055526.bc1a4044.akpm@osdl.org>
-	<20051227.142739.599244061.takata.hirokazu@renesas.com>
-	<20051227052214.0098e7bf.akpm@osdl.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+	Tue, 27 Dec 2005 19:40:28 -0500
+Received: from sv1.valinux.co.jp ([210.128.90.2]:56722 "EHLO sv1.valinux.co.jp")
+	by vger.kernel.org with ESMTP id S932417AbVL1Ak1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 19:40:27 -0500
+Date: Wed, 28 Dec 2005 09:40:20 +0900
+From: KUROSAWA Takahiro <kurosawa@valinux.co.jp>
+To: linux-kernel@vger.kernel.org
+Subject: oom-killer causes lockups in cpuset_excl_nodes_overlap()
+X-Mailer: Sylpheed version 2.1.6+svn (GTK+ 2.6.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Message-Id: <20051228004026.72F3474005@sv1.valinux.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I'll report later.
-I will be offline until Jan. 5, 2006.
+The oom-killer causes lockups because it calls
+cpuset_excl_nodes_overlap() with tasklist_lock read-locked.
+cpuset_excl_nodes_overlap() gets cpuset_sem (or callback_sem in
+later linux versions) semaphore, which might_sleep even if the
+semaphore could be down without sleeping.  If processes call
+exit() or fork() when the oom-killer sleeps in the down(), they
+lockup because they call write_lock_irq(&tasklist_lock).
 
--- Takata
+The lockup occurred on linux-2.6.14.  The problem also seems to exist
+in linux-2.6.15-rc5-mm3 and linux-2.6.15-rc7.
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Tue, 27 Dec 2005 05:22:14 -0800
-> Hirokazu Takata <takata@linux-m32r.org> wrote:
-> >
-> > I tried the latter way as the following patch, but the result was not 
-> > so gratifying; some hangups/lockups or kernel panics happened unexpectedly.
-> > 
-> > Am I missing anything?
-> > Any more comments or suggestions will be greatly appreciated.
-> > 
-> > ...
-> > --- linux-2.6.15-rc7.orig/arch/m32r/kernel/sys_m32r.c	2005-12-27 10:33:05.301372856 +0900
-> > +++ linux-2.6.15-rc7/arch/m32r/kernel/sys_m32r.c	2005-12-27 10:33:10.222624712 +0900
-> > @@ -29,44 +29,31 @@
-> >  
-> >  /*
-> >   * sys_tas() - test-and-set
-> > - * linuxthreads testing version
-> >   */
-> > -#ifndef CONFIG_SMP
-> >  asmlinkage int sys_tas(int *addr)
-> >  {
-> >  	int oldval;
-> > -	unsigned long flags;
-> >  
-> >  	if (!access_ok(VERIFY_WRITE, addr, sizeof (int)))
-> >  		return -EFAULT;
-> > -	local_irq_save(flags);
-> > -	oldval = *addr;
-> > -	if (!oldval)
-> > -		*addr = 1;
-> > -	local_irq_restore(flags);
-> > -	return oldval;
-> > -}
-> > -#else /* CONFIG_SMP */
-> > -#include <linux/spinlock.h>
-> > -
-> > -static DEFINE_SPINLOCK(tas_lock);
-> > -
-> > -asmlinkage int sys_tas(int *addr)
-> > -{
-> > -	int oldval;
-> >  
-> > -	if (!access_ok(VERIFY_WRITE, addr, sizeof (int)))
-> > -		return -EFAULT;
-> > -
-> > -	_raw_spin_lock(&tas_lock);
-> > -	oldval = *addr;
-> > -	if (!oldval)
-> > -		*addr = 1;
-> > -	_raw_spin_unlock(&tas_lock);
-> > +	for ( ; ; ) {
-> > +		get_user(oldval, addr);
-> 
-> We need to check for -EFAULT here and fail the syscall if a fault was
-> detected.  Without this we'll certainly get lockups if the user passed a
-> bad address.  But this doesn't seem sufficient to eplain the problems which
-> you've observed.
-> 
-> 
+Regards,
+
+-- 
+KUROSAWA, Takahiro

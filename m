@@ -1,74 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932412AbVL1AbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932416AbVL1AgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932412AbVL1AbF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 19:31:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932413AbVL1AbF
+	id S932416AbVL1AgW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 19:36:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbVL1AgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 19:31:05 -0500
-Received: from mtl.rackplans.net ([65.39.167.249]:3749 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id S932412AbVL1AbE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 19:31:04 -0500
-Date: Tue, 27 Dec 2005 19:31:00 -0500 (EST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: Martin Drab <drab@kepler.fjfi.cvut.cz>
-cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ati X300 support?
-In-Reply-To: <Pine.LNX.4.60.0512280103100.29982@kepler.fjfi.cvut.cz>
-Message-ID: <Pine.LNX.4.64.0512271927130.5956@innerfire.net>
-References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net>
- <200512270149.24440.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0512270817340.15649@innerfire.net>
- <200512271545.31224.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0512271047260.2104@innerfire.net>
- <Pine.LNX.4.60.0512280103100.29982@kepler.fjfi.cvut.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Dec 2005 19:36:22 -0500
+Received: from mail.renesas.com ([202.234.163.13]:58251 "EHLO
+	mail02.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S932416AbVL1AgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 19:36:21 -0500
+Date: Wed, 28 Dec 2005 09:36:17 +0900 (JST)
+Message-Id: <20051228.093617.760319907.takata.hirokazu@renesas.com>
+To: akpm@osdl.org
+Cc: takata@linux-m32r.org, viro@ftp.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [WTF?] sys_tas() on m32r
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20051227052214.0098e7bf.akpm@osdl.org>
+References: <20051223055526.bc1a4044.akpm@osdl.org>
+	<20051227.142739.599244061.takata.hirokazu@renesas.com>
+	<20051227052214.0098e7bf.akpm@osdl.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 Dec 2005, Martin Drab wrote:
+Sorry, I'll report later.
+I will be offline until Jan. 5, 2006.
 
-> Date: Wed, 28 Dec 2005 01:20:42 +0100 (CET)
-> From: Martin Drab <drab@kepler.fjfi.cvut.cz>
-> To: Gerhard Mack <gmack@innerfire.net>
-> Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
->     linux-kernel@vger.kernel.org
-> Subject: Re: ati X300 support?
-> 
-> On Tue, 27 Dec 2005, Gerhard Mack wrote:
-> 
-> > I have it working in X.org with no problem.  I just can't get the drm
-> > module working in the kernel.  Last time I tried to just add my PCI ids 
-> > the problem was a lack of PCIE support in the drm drivers. 
+-- Takata
+
+From: Andrew Morton <akpm@osdl.org>
+Date: Tue, 27 Dec 2005 05:22:14 -0800
+> Hirokazu Takata <takata@linux-m32r.org> wrote:
+> >
+> > I tried the latter way as the following patch, but the result was not 
+> > so gratifying; some hangups/lockups or kernel panics happened unexpectedly.
 > > 
-> > FYI the fglrx drivers suck badly.  ATI hasn't bothered to keep their 
-> > drivers up to date at all and the result is that they finally have  
-> > working 2.6.14 drivers but only for 32 bit machines.  x86_64 is still 
-> > broken on any recent kernel and it's been that way for months.  ATI's tech 
-> > support basically gave up after several days and just informed me it 
-> > wasn't really supported and there is nothing they could do for me.
+> > Am I missing anything?
+> > Any more comments or suggestions will be greatly appreciated.
+> > 
+> > ...
+> > --- linux-2.6.15-rc7.orig/arch/m32r/kernel/sys_m32r.c	2005-12-27 10:33:05.301372856 +0900
+> > +++ linux-2.6.15-rc7/arch/m32r/kernel/sys_m32r.c	2005-12-27 10:33:10.222624712 +0900
+> > @@ -29,44 +29,31 @@
+> >  
+> >  /*
+> >   * sys_tas() - test-and-set
+> > - * linuxthreads testing version
+> >   */
+> > -#ifndef CONFIG_SMP
+> >  asmlinkage int sys_tas(int *addr)
+> >  {
+> >  	int oldval;
+> > -	unsigned long flags;
+> >  
+> >  	if (!access_ok(VERIFY_WRITE, addr, sizeof (int)))
+> >  		return -EFAULT;
+> > -	local_irq_save(flags);
+> > -	oldval = *addr;
+> > -	if (!oldval)
+> > -		*addr = 1;
+> > -	local_irq_restore(flags);
+> > -	return oldval;
+> > -}
+> > -#else /* CONFIG_SMP */
+> > -#include <linux/spinlock.h>
+> > -
+> > -static DEFINE_SPINLOCK(tas_lock);
+> > -
+> > -asmlinkage int sys_tas(int *addr)
+> > -{
+> > -	int oldval;
+> >  
+> > -	if (!access_ok(VERIFY_WRITE, addr, sizeof (int)))
+> > -		return -EFAULT;
+> > -
+> > -	_raw_spin_lock(&tas_lock);
+> > -	oldval = *addr;
+> > -	if (!oldval)
+> > -		*addr = 1;
+> > -	_raw_spin_unlock(&tas_lock);
+> > +	for ( ; ; ) {
+> > +		get_user(oldval, addr);
 > 
-> I don't want to defend ATI here or anything, but I use the 64-bit fglrx 
-> 8.19.10 with 2.6.15-rc5 and it works (except for the minor patch for 
-> 2.6.15-rc2-git3 and later that we came out with with Hugh Dickins and that 
-> was sent to the list not long ago).
+> We need to check for -EFAULT here and fail the syscall if a fault was
+> detected.  Without this we'll certainly get lockups if the user passed a
+> bad address.  But this doesn't seem sufficient to eplain the problems which
+> you've observed.
 > 
-> The problem with PCIe is, that IMHO they do not activate the acceleration 
-> unless an AGP is detected (at least that's what it sounds to me like). If 
-> there is PCIe, there is no AGP, though AGP is not detected, and 
-> acceleration is not enabled. I think it may be as simple as that. I was 
-> reporting this to ATI a while ago. I haven't tried the new fglrx 8.20.8 
-> yet, but if they read the reports at all, then there's a good chance that 
-> this may be fixed there already.
-
-Where is this patch? does it re add the obsolete interfaces dropped by the 
-kernel?  On my system it won't even compile.
-
-	Gerhard
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+> 

@@ -1,73 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbVL1O53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbVL1O7Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbVL1O53 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 09:57:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbVL1O53
+	id S964834AbVL1O7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 09:59:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbVL1O7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 09:57:29 -0500
-Received: from mail.gmx.net ([213.165.64.21]:36563 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964833AbVL1O53 (ORCPT
+	Wed, 28 Dec 2005 09:59:16 -0500
+Received: from waste.org ([64.81.244.121]:31442 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S964834AbVL1O7P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 09:57:29 -0500
-X-Authenticated: #5339386
-Date: Wed, 28 Dec 2005 15:55:03 +0100
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: oops in kernel 2.6.15-rc6
-Message-ID: <20051228145502.GB9777@sidney>
-References: <20051228135021.GA9777@sidney> <43B2A122.7030203@thinrope.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
+	Wed, 28 Dec 2005 09:59:15 -0500
+Date: Wed, 28 Dec 2005 08:55:54 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, hch@infradead.org
+Subject: Re: [PATCH 1 of 3] Introduce __memcpy_toio32
+Message-ID: <20051228145553.GM3356@waste.org>
+References: <patchbomb.1135726914@eng-12.pathscale.com> <7b7b442a4d6338ae8ca7.1135726915@eng-12.pathscale.com> <20051228035231.GA3356@waste.org> <1135781263.1527.89.camel@serpentine.pathscale.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <43B2A122.7030203@thinrope.net>
-User-Agent: Mutt/1.5.11
-From: Mathias Klein <ma_klein@gmx.de>
-X-Y-GMX-Trusted: 0
+In-Reply-To: <1135781263.1527.89.camel@serpentine.pathscale.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 28, 2005 at 06:47:42AM -0800, Bryan O'Sullivan wrote:
+> > > +extern void fastcall __memcpy_toio32(volatile void __iomem *to, const void *from, size_t count);
+> > > +
+> > 
+> > Minor rant: extern is always redundant for function prototypes in C.
+> 
+> I know.  My intent was to keep the prototype consistent with the
+> prevailing style of other declarations in that same routine.  If you
+> think that cleanliness is more important, I'll be happy to change it.
 
---QTprm0S8XgL7H0Dt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+No, I'm actually just raising it for discussion. I personally don't
+add them, even for consistency, as I'd like to eventually see them gone.
+But if Christoph and Andrew won't care, my tiny crusade is probably lost.
 
-On Wed, Dec 28, 2005 at 11:28:50PM +0900, Kalin KOZHUHAROV wrote:
-> Mathias Klein wrote:
-> > Hello all,
-> >=20
-> > [please CC me on replies, I'm not subscribed to this list]
-> >=20
-> > I had this following kernel oops while compiling a new kernel.=20
-> >=20
-> > Dec 27 19:02:00 sidney kernel: [14896.995613] Unable to handle kernel p=
-aging request at virtual address 76f7104d
-> > Dec 27 19:02:00 sidney kernel: [14896.995665]  printing eip:
-> > Dec 27 19:02:00 sidney kernel: [14896.995682] c013a392
-> > Dec 27 19:02:00 sidney kernel: [14896.995692] *pde =3D 00000000
-> > Dec 27 19:02:00 sidney kernel: [14896.995711] Oops: 0002 [#1]
->=20
-> I might be wrong, but that is the second oops for this run, probably the =
-first [#0] is more
-> interesting...
-
-Probably yes but there is no [#0] Oops in the logs.
-(Indeed I do have another [#1] Oops in another run with that kernel without
-an [#0] Oops)
-
-Mathias
-
---QTprm0S8XgL7H0Dt
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQFDsqdGPtJqRGqEpd8RAn3eAKCVx3W7Y3YHE4nAMlRxwb3a5UYhxQCgxupu
-zunwQfT6nEy+GHEtEYUrkYg=
-=Q+/E
------END PGP SIGNATURE-----
-
---QTprm0S8XgL7H0Dt--
+-- 
+Mathematics is the supreme nostalgia of our time.

@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964772AbVL1IdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbVL1IdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964772AbVL1IdS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 03:33:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932516AbVL1IdS
+	id S964773AbVL1IdW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 03:33:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbVL1IdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 03:33:18 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:22925 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932515AbVL1IdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 03:33:17 -0500
-Subject: Re: [vma list corruption] Re: proc_pid_readlink oopses again on
-	2.6.14.5
-From: Arjan van de Ven <arjan@infradead.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20051228065354.GE27946@ftp.linux.org.uk>
-References: <dot96e$e76$1@sea.gmane.org>
-	 <20051228065354.GE27946@ftp.linux.org.uk>
-Content-Type: text/plain
-Date: Wed, 28 Dec 2005 09:33:13 +0100
-Message-Id: <1135758794.2935.3.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 28 Dec 2005 03:33:22 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:54966 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S932507AbVL1IdV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 03:33:21 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull on x86_64 machines ?
+Date: Wed, 28 Dec 2005 10:32:15 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+References: <7vbqzadgmt.fsf@assigned-by-dhcp.cox.net> <43A91C57.20102@cosmosbay.com>
+In-Reply-To: <43A91C57.20102@cosmosbay.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200512281032.15460.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 21 December 2005 11:11, Eric Dumazet wrote:
+> I wonder if the 32 and 192 bytes caches are worth to be declared in 
+> include/linux/kmalloc_sizes.h, at least on x86_64
+> 
+> (x86_64 : PAGE_SIZE = 4096, L1_CACHE_BYTES = 64)
+> 
+> On my machines, I can say that the 32 and 192 sizes could be avoided in favor 
+> in spending less cpu cycles in __find_general_cachep()
+> 
+> Could some of you post the result of the following command on your machines :
+> 
+> # grep "size-" /proc/slabinfo |grep -v DMA|cut -c1-40
+> 
+> size-131072            0      0 131072
+> size-65536             0      0  65536
+> size-32768             2      2  32768
+> size-16384             0      0  16384
+> size-8192             13     13   8192
+> size-4096            161    161   4096
+> size-2048          40564  42976   2048
+> size-1024            681    800   1024
+> size-512           19792  37168    512
+> size-256              81    105    256
+> size-192            1218   1280    192
+> size-64            31278  86907     64
+> size-128            5457  10380    128
+> size-32              594    784     32
 
-> So you've got 0xb7c1fc20 as vma.  Which is not good, since that's a userland
-> address.
-
-sounds like it may also be a good idea to check for rootkits; some of
-those try to muck with the vma chains and stuff.... and break if the
-kernel changes a bit.
-
+# grep "size-" /proc/slabinfo |grep -v DMA|cut -c1-40
+size-131072            0      0 131072
+size-65536             0      0  65536
+size-32768             1      1  32768
+size-16384             0      0  16384
+size-8192            253    253   8192
+size-4096             89     89   4096
+size-2048            248    248   2048
+size-1024            312    312   1024
+size-512             545    648    512
+size-256             213    270    256
+size-128            5642   5642    128
+size-64             1025   1586     64
+size-32             2262   7854     32

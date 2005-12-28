@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932516AbVL1Ipw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbVL1Iwu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932516AbVL1Ipw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 03:45:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932511AbVL1Ipv
+	id S932511AbVL1Iwu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 03:52:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932518AbVL1Iwt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 03:45:51 -0500
-Received: from main.gmane.org ([80.91.229.2]:11678 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932518AbVL1Ipv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 03:45:51 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: "Shaun" <mailinglists@unix-scripts.com>
-Subject: Memory, where's it going?
-Date: Wed, 28 Dec 2005 00:45:29 -0800
-Message-ID: <dotjb6$j8$1@sea.gmane.org>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ip68-111-70-41.oc.oc.cox.net
-X-MSMail-Priority: Normal
-X-Newsreader: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-RFC2646: Format=Flowed; Original
+	Wed, 28 Dec 2005 03:52:49 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:62686 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S932511AbVL1Iwt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 03:52:49 -0500
+Date: Wed, 28 Dec 2005 09:53:28 +0100
+From: DervishD <lkml@dervishd.net>
+To: Shaun <mailinglists@unix-scripts.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Memory, where's it going?
+Message-ID: <20051228085328.GA25380@DervishD>
+Mail-Followup-To: Shaun <mailinglists@unix-scripts.com>,
+	linux-kernel@vger.kernel.org
+References: <dotjb6$j8$1@sea.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <dotjb6$j8$1@sea.gmane.org>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a server with 8GB of RAM thats running 2.6.14.3 with the UML Ska's 3 
-Patch.   It seams the system is eating more and more memory everyday but i 
-cant seam to figure out where it's going.
+    Hi Shaun :)
 
-I free shows the following...
-[root@hostXXX ~]# free
-             total       used       free     shared    buffers     cached
-Mem:       8312484    8040500     271984          0     120664    7734420
--/+ buffers/cache:     185416    8127068
-Swap:      4192924       2500    4190424
+ * Shaun <mailinglists@unix-scripts.com> dixit:
+> I see that free shows that 7.7GB is cached and i'm not sure why so
+> much is cached.
 
-I see that free shows that 7.7GB is cached and i'm not sure why so much is 
-cached.
+    Because free memory is a *waste* of memory. Why leaving unused
+memory when it can be used for caching? The kernel will (up to some
+extent, I suppose) try to use all free memory for caching if no app
+needs it.
 
-When running through a ps auxf grabbing VSZ and RSS i get the following 
-results...
+    If you have 8GB of memory, it's a bit difficult to fill it just
+with the running apps, so the kernel cleverly uses the rest for
+caching things so the system runs faster.
 
-For VSZ...
-[root@hostXXX ~]# TOTAL=0;for i in `ps auxf|awk '{print $5}'`;do TOTAL=$(($i 
-+ $TOTAL));done;echo $TOTAL
-2459016
+    For example, I have 1GB of RAM, and even when I use X (seldom...)
+I never eat up more than, let's say, 500MB. So, I have another 500MB
+of memory unused: the kernel uses it as cache, and that makes my
+system run much faster (I noticed a speed increase when I switch from
+512 to 1G).
 
-For RSS...
-[root@hostXXX ~]# TOTAL=0;for i in `ps auxf|awk '{print $6}'`;do TOTAL=$(($i 
-+ $TOTAL));done;echo $TOTAL
-2239188
-
-Anybody have any idea what is going on here?
+    Raúl Núñez de Arenas Coronado
 
 -- 
-
-~Shaun 
-
-
-
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to...

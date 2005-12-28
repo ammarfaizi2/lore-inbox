@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbVL1N5x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbVL1OAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbVL1N5x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 08:57:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964820AbVL1N5x
+	id S964821AbVL1OAg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 09:00:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbVL1OAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 08:57:53 -0500
-Received: from wproxy.gmail.com ([64.233.184.205]:51223 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S964815AbVL1N5x convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 08:57:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=K6rijBHXXE94iV9Wd7addDDHG4UpauytFg4jCyt8+TUk+zSdVwjuXg3ci1b+WRO4oBOuP/cauxq2wN7zpc9PMU5eOM5//cMY3ydiS8hhGeDjWcnsZaCHTxcO8ag9xIpA+7mFvedfZxN4AJqJAcOO4lR6VCiJyQRKASqWFE8aIJE=
-Message-ID: <c2bc1f40512280557w44d41e8fm58273fb96a1b6726@mail.gmail.com>
-Date: Wed, 28 Dec 2005 21:57:51 +0800
-From: jeanwelly <jeanwelly@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: How to debug FTP messaging in Linux FTP server
-In-Reply-To: <c2bc1f40512280455w67b3db2cx4de6e32d50f5b760@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <c2bc1f40512280455w67b3db2cx4de6e32d50f5b760@mail.gmail.com>
+	Wed, 28 Dec 2005 09:00:36 -0500
+Received: from imf25aec.mail.bellsouth.net ([205.152.59.73]:12263 "EHLO
+	imf25aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S964821AbVL1OAg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 09:00:36 -0500
+Date: Wed, 28 Dec 2005 08:00:21 -0600
+From: Tommy Reynolds <Tommy.Reynolds@MegaCoder.com>
+To: DervishD <lkml@dervishd.net>
+Cc: mailinglists@unix-scripts.com, linux-kernel@vger.kernel.org
+Subject: Re: Memory, where's it going?
+Message-Id: <20051228080021.44263f03.Tommy.Reynolds@MegaCoder.com>
+In-Reply-To: <20051228095512.GA25654@DervishD>
+References: <dotjb6$j8$1@sea.gmane.org>
+	<20051228085328.GA25380@DervishD>
+	<026801c60b8d$ef128360$6501a8c0@ndciwkst01>
+	<20051228095512.GA25654@DervishD>
+X-Mailer: Sylpheed version 2.2.0beta2 (GTK+ 2.6.10; i686-redhat-linux-gnu)
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$
+ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl
+ 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__28_Dec_2005_08_00_21_-0600_+x=zCJDkf3RlVki3"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, All
-I am using PowerPC target board and want to transfer files from board
-to a Linux FTP server.
-The current issue is that FTP server returns ERROR when I sending
-"STOR filename" from client.
-But command "TYPE type", "PASS password" and "USER username" can work
-correctly between board and server.
+--Signature=_Wed__28_Dec_2005_08_00_21_-0600_+x=zCJDkf3RlVki3
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-My question is how can I debug  or what tools can be used in Linux
-server to track what's going on in server.
-I guess there should be a lot of scenarios which can caused the STOR
-command get error return code, I appreciate if you can list some.
+Uttered DervishD <lkml@dervishd.net>, spake thus:
 
-Thanks!
+> > I understand the concept and why things are cached, i've just never
+> > seen it cache this much before..
+> Swap memory is not used just when the machine has no free memory.
+> Although this is a rough explanation and doesn't describe exactly the
+> swap mechanism, some apps will remain into swap space even if there's
+> plenty of free RAM available, as long as they are not used.=20
 
---
-Jeanwelly
-Email:jeanwelly@gmail.com
-Nortel China
+Yes.  Let me amplify that..
+
+It is not apps that are being evicted from main memory, only some
+of their pages.  The kernel will do "anticipatory swapping", moving
+pages that have not be used for some time out to the paging store, to
+make room just in case it might be needed for a burst of activity in
+the future.  This is a very neat feature.
+
+As you pointed out, do not get excited about having no free memory:
+the kernel is just doing its job especially well.
+
+However, DO get excited if swap space gets short or you see frequent
+page-in activity.
+
+Cheers
+
+--Signature=_Wed__28_Dec_2005_08_00_21_-0600_+x=zCJDkf3RlVki3
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFDspp5/0ydqkQDlQERApNhAKCw0jKVnIbVnbetaXoJFGxT7gdPaACfcka2
+odJ+TYFYPoFKWCJAxPUPN6Q=
+=e50e
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__28_Dec_2005_08_00_21_-0600_+x=zCJDkf3RlVki3--

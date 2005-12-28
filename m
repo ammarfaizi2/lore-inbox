@@ -1,67 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbVL1Oyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbVL1O53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbVL1Oyk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 09:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbVL1Oyk
+	id S964833AbVL1O53 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 09:57:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbVL1O53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 09:54:40 -0500
-Received: from waste.org ([64.81.244.121]:34773 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S964833AbVL1Oyk (ORCPT
+	Wed, 28 Dec 2005 09:57:29 -0500
+Received: from mail.gmx.net ([213.165.64.21]:36563 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964833AbVL1O53 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 09:54:40 -0500
-Date: Wed, 28 Dec 2005 08:51:14 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, hch@infradead.org
-Subject: Re: [PATCH 1 of 3] Introduce __memcpy_toio32
-Message-ID: <20051228145114.GL3356@waste.org>
-References: <7b7b442a4d6338ae8ca7.1135726915@eng-12.pathscale.com> <adazmmmc9hl.fsf@cisco.com> <1135780804.1527.82.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Dec 2005 09:57:29 -0500
+X-Authenticated: #5339386
+Date: Wed, 28 Dec 2005 15:55:03 +0100
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: oops in kernel 2.6.15-rc6
+Message-ID: <20051228145502.GB9777@sidney>
+References: <20051228135021.GA9777@sidney> <43B2A122.7030203@thinrope.net>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QTprm0S8XgL7H0Dt"
 Content-Disposition: inline
-In-Reply-To: <1135780804.1527.82.camel@serpentine.pathscale.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <43B2A122.7030203@thinrope.net>
+User-Agent: Mutt/1.5.11
+From: Mathias Klein <ma_klein@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 28, 2005 at 06:40:03AM -0800, Bryan O'Sullivan wrote:
-> On Tue, 2005-12-27 at 17:10 -0800, Roland Dreier wrote:
-> 
-> > I think the principle of least surprise calls for memcpy_toio32 to be
-> > ordered the same way memcpy_toio is.  In other words there should be a
-> > wmb() after the loop.
-> 
-> Will do.
-> 
-> > Also, no need for the { } for the while loop.
-> 
-> Fine.  There doesn't seem to be much consistency in whether to use
-> curlies for single-line blocks.
 
-We've been very consistent in discouraging it in new code. Enforcement
-of fine points of coding style is a post-2.5 phenomenon, so it hasn't
-hit all the tree yet.
+--QTprm0S8XgL7H0Dt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > You're adding this symbol and exporting it even if the arch will
-> > supply its own version.  So this is pure kernel .text bloat...
-> 
-> I don't know what you'd prefer, so let me enumerate a few alternatives,
-> and you can either tell me which you'd prefer, or point out something
-> I've missed that would be even better.  I'm entirely flexible on this.
-> 
->       * Use the __HAVE_ARCH_* mechanism that include/asm-*/string.h
->         uses.  Caveat: Linus has lately come out as hating this style.
->         It makes for the smallest patch, though.
->       * Define the generic code in lib/, and have each arch that really
->         uses it export it.
+On Wed, Dec 28, 2005 at 11:28:50PM +0900, Kalin KOZHUHAROV wrote:
+> Mathias Klein wrote:
+> > Hello all,
+> >=20
+> > [please CC me on replies, I'm not subscribed to this list]
+> >=20
+> > I had this following kernel oops while compiling a new kernel.=20
+> >=20
+> > Dec 27 19:02:00 sidney kernel: [14896.995613] Unable to handle kernel p=
+aging request at virtual address 76f7104d
+> > Dec 27 19:02:00 sidney kernel: [14896.995665]  printing eip:
+> > Dec 27 19:02:00 sidney kernel: [14896.995682] c013a392
+> > Dec 27 19:02:00 sidney kernel: [14896.995692] *pde =3D 00000000
+> > Dec 27 19:02:00 sidney kernel: [14896.995711] Oops: 0002 [#1]
+>=20
+> I might be wrong, but that is the second oops for this run, probably the =
+first [#0] is more
+> interesting...
 
-I'd favor this, at least for this case. If it becomes more widely
-used, we'll relocate the export.
+Probably yes but there is no [#0] Oops in the logs.
+(Indeed I do have another [#1] Oops in another run with that kernel without
+an [#0] Oops)
 
->       * Put generic code in include/asm-generic/algo-memcpy_toio32.h,
->         and have each arch that needs it #include it somewhere and use
->         it.
+Mathias
 
--- 
-Mathematics is the supreme nostalgia of our time.
+--QTprm0S8XgL7H0Dt
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDsqdGPtJqRGqEpd8RAn3eAKCVx3W7Y3YHE4nAMlRxwb3a5UYhxQCgxupu
+zunwQfT6nEy+GHEtEYUrkYg=
+=Q+/E
+-----END PGP SIGNATURE-----
+
+--QTprm0S8XgL7H0Dt--

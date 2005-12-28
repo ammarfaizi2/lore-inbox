@@ -1,62 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbVL1OwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbVL1OyA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbVL1OwT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 09:52:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964831AbVL1OwS
+	id S964831AbVL1OyA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 09:54:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964833AbVL1OyA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 09:52:18 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:49581 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S964822AbVL1OwS (ORCPT
+	Wed, 28 Dec 2005 09:54:00 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:56805 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964831AbVL1Ox7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 09:52:18 -0500
-Subject: Re: [PATCH 2 of 3] memcpy32 for x86_64
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       hch@infradead.org
-In-Reply-To: <20051228042232.GC3356@waste.org>
-References: <patchbomb.1135726914@eng-12.pathscale.com>
-	 <042b7d9004acd65f6655.1135726916@eng-12.pathscale.com>
-	 <20051228042232.GC3356@waste.org>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Wed, 28 Dec 2005 06:52:17 -0800
-Message-Id: <1135781537.1527.95.camel@serpentine.pathscale.com>
+	Wed, 28 Dec 2005 09:53:59 -0500
+Date: Wed, 28 Dec 2005 15:53:38 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Matt Mackall <mpm@selenic.com>
+Subject: Re: [patch 01/2] allow gcc4 to control inlining
+Message-ID: <20051228145338.GA15711@elte.hu>
+References: <20051228114653.GB3003@elte.hu> <adak6dpcml0.fsf@cisco.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <adak6dpcml0.fsf@cisco.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-27 at 22:22 -0600, Matt Mackall wrote:
 
-> It's better to do an include here. Duplicating prototypes in .c files
-> is frowned upon (despite the fact that it's already done here).
+* Roland Dreier <rdreier@cisco.com> wrote:
 
-Yeah.  I'm not thrilled about the existing style of that file, but I
-don't want to weed-whack it as I go.  That turns a small patch into a
-case of mission creep.
-
-> We've been steadily moving towards grouping EXPORTs with function
-> definitions. Do *_ksyms.c exist solely to provide exports for
-> functions defined in assembly at this point? If so, perhaps we ought
-> to come up with a suitable export macro for asm files.
-
-That might make sense, but it's also beyond the scope of what I'm trying
-to do.
-
-> Any reason this needs its own .S file?
-
-Not really.
-
->  One wonders if the
+>  > -#define inline			inline		__attribute__((always_inline))
+>  > -#define __inline__		__inline__	__attribute__((always_inline))
+>  > -#define __inline		__inline	__attribute__((always_inline))
 > 
->         .p2align 4
+> Why not just delete these lines?  This:
 > 
-> in memcpy.S is appropriate here too.
+>  > +#define inline			inline
+>  > +#define __inline__		__inline__
+>  > +#define __inline		__inline
+> 
+> seems pointless to me.
 
-It's not clear to me that it makes any difference either way.  Both
-routines obviously work :-)  Perhaps Andi can indicate his opinion.
+indeed. I thought they were redefined to a default if not defined, but 
+that's only the case for __always_inline. Updated patch below.
 
-	<b
+	Ingo
 
+--------
+Subject: allow gcc4 to control inlining
+
+allow gcc4 compilers to decide what to inline and what not - instead
+of the kernel forcing gcc to inline all the time.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+----
+
+ include/linux/compiler-gcc4.h |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+Index: linux/include/linux/compiler-gcc4.h
+===================================================================
+--- linux.orig/include/linux/compiler-gcc4.h
++++ linux/include/linux/compiler-gcc4.h
+@@ -3,14 +3,12 @@
+ /* These definitions are for GCC v4.x.  */
+ #include <linux/compiler-gcc.h>
+ 
+-#define inline			inline		__attribute__((always_inline))
+-#define __inline__		__inline__	__attribute__((always_inline))
+-#define __inline		__inline	__attribute__((always_inline))
+ #define __deprecated		__attribute__((deprecated))
+ #define __attribute_used__	__attribute__((__used__))
+ #define __attribute_pure__	__attribute__((pure))
+ #define __attribute_const__	__attribute__((__const__))
+-#define  noinline		__attribute__((noinline))
++#define noinline		__attribute__((noinline))
++#define __always_inline		inline __attribute__((always_inline))
+ #define __must_check 		__attribute__((warn_unused_result))
+ #define __compiler_offsetof(a,b) __builtin_offsetof(a,b)
+ 

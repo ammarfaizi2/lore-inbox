@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932488AbVL1HZd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932491AbVL1Hdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932488AbVL1HZd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 02:25:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932491AbVL1HZd
+	id S932491AbVL1Hdu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 02:33:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbVL1Hdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 02:25:33 -0500
-Received: from main.gmane.org ([80.91.229.2]:10689 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932488AbVL1HZc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 02:25:32 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Joshua Kwan <joshk@triplehelix.org>
-Subject: Re: [vma list corruption] Re: proc_pid_readlink oopses again on 2.6.14.5
-Date: Tue, 27 Dec 2005 23:24:10 -0800
-Message-ID: <43B23D9A.3020106@triplehelix.org>
-References: <dot96e$e76$1@sea.gmane.org> <20051228065354.GE27946@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-68-126-211-242.dsl.pltn13.pacbell.net
-User-Agent: Debian Thunderbird 1.0.7 (X11/20051017)
+	Wed, 28 Dec 2005 02:33:50 -0500
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:54011 "EHLO
+	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S932491AbVL1Hdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 02:33:50 -0500
+Date: Wed, 28 Dec 2005 01:33:45 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Serial ATA Lockups
+In-reply-to: <5oCZ7-3FB-17@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <43B23FD9.2060004@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
 X-Accept-Language: en-us, en
-In-Reply-To: <20051228065354.GE27946@ftp.linux.org.uk>
+References: <5oCZ7-3FB-17@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> Until the last line it made sense.  Code, however, is flat-out BS.
-> This chunk is from around proc_exe_link(), all right.  But it starts
-> at 3 bytes before the beginning of that function.  Perfect match to
-> build with your .config using gcc4, but...  no way in hell you would
-> get an oops at that location - it's in the middle of long chunk of
-> NOP.  So something's rotten here...
+Tomas Carnecky wrote:
+> My setup: Shuttle XPC Barebone, AMD CPU, two serial ATA disks in a 
+> software raid setup.
+> When the system is under heavy load (start World of Warcraft, dd 
+> if=/dev/zero of=/part/file etc) I get these messages in dmesg:
+> 
+> ata1: translated ATA stat/err 0x51/84 to SCSI SK/ASC/ASCQ 0xb/47/00
+> ata1: status=0x51 { DriveReady SeekComplete Error }
+> ata1: error=0x84 { DriveStatusError BadCRC }
+> 
+> over and over, pages with these messages.
 
-Do you think it might be a subtle compiler problem, and if I compiled it
-with GCC 3.3 it might go away?
-
-I'm willing to help diagnose this problem, but this is a production box
-I'm messing with, and I don't want to reboot it more than a few times,
-so I want to make those tries count with advice from folks like you :)
-
-What do you think about the oopses in my previous post?
-http://www.ussg.iu.edu/hypermail/linux/kernel/0512.0/0199.html
-These were triggered (well, I'm not sure how the first one came about)
-by running 'pidof pppd' - again in /proc/*/ walking procedures.
-
-> So you've got 0xb7c1fc20 as vma.  Which is not good, since that's a userland
-> address.  The next question is where it'd come from - it might be
-> 	* fscked task->mm
-> 	* fscked mm->mmap
-> 	* fscked vma somewhere in the chain.
-
-Note that 2.6.12 is running peachy on the machine right now, so it's not
-a hardware problem.
-
-> Doing lsof will walk vma chains of many processes, so if something is
-> corrupted it will step into that...
-
-Understood. In this particular case, it seems to have been apache2's
-process (3399)..
-
-Thanks for your diagnosis thus far.
+BadCRC indicates CRC errors during data transfers on the SATA interface. 
+This is almost certainly hardware problems - most likely a bad SATA 
+cable, or maybe a bad drive or motherboard controller.
 
 -- 
-Joshua Kwan
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

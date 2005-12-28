@@ -1,83 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbVL1RqS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbVL1Run@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932548AbVL1RqS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 12:46:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbVL1RqS
+	id S964859AbVL1Run (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 12:50:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbVL1Run
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 12:46:18 -0500
-Received: from cantor.suse.de ([195.135.220.2]:59864 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S932548AbVL1RqR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 12:46:17 -0500
-Message-ID: <3513371.1135791966050.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
-Date: Wed, 28 Dec 2005 18:46:06 +0100 (CET)
+	Wed, 28 Dec 2005 12:50:43 -0500
+Received: from mx2.suse.de ([195.135.220.15]:908 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964859AbVL1Rum convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 12:50:42 -0500
+Message-ID: <1880308.1135792235045.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+Date: Wed, 28 Dec 2005 18:50:35 +0100 (CET)
 From: Andreas Kleen <ak@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [patch 02/2] allow gcc4 to optimize unit-at-a-time
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Matt Mackall <mpm@selenic.com>,
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Subject: Re: [RFC] [PATCH] Add memcpy32 function
+Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
        linux-kernel@vger.kernel.org
-In-Reply-To: <20051228154138.GA18798@elte.hu>
+In-Reply-To: <1135782025.1527.104.camel@serpentine.pathscale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 X-Priority: 3 (normal)
 X-Mailer: SuSE Linux Openexchange Server 4 - WebMail (Build 2.4160)
 X-Operating-System: Linux 2.4.21-304-smp i386 (JVM 1.3.1_16)
 Organization: SuSE Linux AG
-References: <20051228114701.GC3003@elte.hu> <p734q4tb5na.fsf@verdi.suse.de> <20051228154138.GA18798@elte.hu>
+References: <1135301759.4212.76.camel@serpentine.pathscale.com> <p73fyodmqn6.fsf@verdi.suse.de> <1135782025.1527.104.camel@serpentine.pathscale.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mi 28.12.2005 16:41 schrieb Ingo Molnar <mingo@elte.hu>:
+Am Mi 28.12.2005 16:00 schrieb Bryan O'Sullivan <bos@pathscale.com>:
 
+> All of our uses of memcpy_toio32 (which uses memcpy32 on x86_64) copy
+> from kernel virtual addresses to MMIO space. There's no direct copying
+> from userspace to MMIO space through the driver.
 >
-> * Andi Kleen <ak@suse.de> wrote:
->
-> > But one caveat: turning on unit-at-a-time makes objdump -S / make
-> > foo/bar.lst with CONFIG_DEBUG_INFO essentially useless because
-> > objdump
-> > cannot deal with functions being out of order in the object file.
-> > This
-> > can be a big problem while analyzing oopses - essentially you have
-> > to
-> > analyze the functions without source level information. And with
-> > unit-at-a-time they become bigger so it's more difficult.
-> >
-> > But I still think it's a good idea.
->
-> hm, i dont seem to have problems with DEBUG_INFO. I picked a random
-> address within the kernel:
->
-> c035766f T schedule_timeout
->
-> (gdb) list *0xc035768f
-> 0xc035768f is in schedule_timeout (kernel/timer.c:1075).
-> 1070 * should never happens anyway). You just have the printk()
-> 1071 * that will tell you if something is gone wrong and where.
-> 1072 */
-> 1073 if (timeout < 0)
-> 1074 {
-> 1075 printk(KERN_ERR "schedule_timeout: wrong timeout "
-> 1076 "value %lx from %p
-", timeout,
-> 1077 __builtin_return_address(0));
-> 1078 current->state = TASK_RUNNING;
-> 1079 goto out;
-> (gdb)
->
-> or is it something else that breaks?
+> However, we do let userspace code directly access portions of our
+> chip.
+> That code uses a routine that is exactly the same as memcpy32 to
+> perform
+> MMIO writes. That's where I think the confusion arose on the part of
+> whoever responded to you.
 
-It's objdump that breaks. Try objdump -S. gdb can deal with it, but you
-can't generate
-mixed C/assembly listings with it, so it's hard to match up the exact
-lines.
+Ok thanks. And do you have numbers that show that the assembly
+function with rep ; movsl actually  improves performance over C?  I
+guess the MMIO
+is uncached or at best write combined and in both cases it usually
+doesn't
+matter if the CPU burns a few more cycles generating the writes or not
+because everything is bus bound and every cycle you save
+is just lost again on the next synchronization point with the hardware.
 
-(apparently it's possible through the gdb/mi interface, but I haven't
-attempted
-that yet)
+If the assembly is not really faster I would recommend you just use a
+writel()
+loop in the driver instead of adding this very special purpose function
+everywhere.
 
 -Andi
+
 
 
 

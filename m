@@ -1,99 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVL1EZq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbVL1Ej2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932467AbVL1EZq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 23:25:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbVL1EZq
+	id S932472AbVL1Ej2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 23:39:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932473AbVL1Ej2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 23:25:46 -0500
-Received: from waste.org ([64.81.244.121]:60331 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S932467AbVL1EZp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 23:25:45 -0500
-Date: Tue, 27 Dec 2005 22:22:32 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, hch@infradead.org
-Subject: Re: [PATCH 2 of 3] memcpy32 for x86_64
-Message-ID: <20051228042232.GC3356@waste.org>
-References: <patchbomb.1135726914@eng-12.pathscale.com> <042b7d9004acd65f6655.1135726916@eng-12.pathscale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <042b7d9004acd65f6655.1135726916@eng-12.pathscale.com>
-User-Agent: Mutt/1.5.9i
+	Tue, 27 Dec 2005 23:39:28 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:11140 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S932472AbVL1Ej2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 23:39:28 -0500
+Message-ID: <43B21717.5080002@didntduck.org>
+Date: Tue, 27 Dec 2005 23:39:51 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mail/News 1.5 (X11/20051129)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] gitignore x86_64 files
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 27, 2005 at 03:41:56PM -0800, Bryan O'Sullivan wrote:
-> Introduce an x86_64-specific memcpy32 routine.  The routine is similar
-> to memcpy, but is guaranteed to work in units of 32 bits at a time.
-> 
-> Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
-> 
-> diff -r 7b7b442a4d63 -r 042b7d9004ac arch/x86_64/kernel/x8664_ksyms.c
-> --- a/arch/x86_64/kernel/x8664_ksyms.c	Tue Dec 27 15:41:48 2005 -0800
-> +++ b/arch/x86_64/kernel/x8664_ksyms.c	Tue Dec 27 15:41:48 2005 -0800
-> @@ -150,6 +150,8 @@
->  extern void * memcpy(void *,const void *,__kernel_size_t);
->  extern void * __memcpy(void *,const void *,__kernel_size_t);
->  
-> +extern void memcpy32(void *,const void *,__kernel_size_t);
+Add filters for x86_64 generated files.
 
-It's better to do an include here. Duplicating prototypes in .c files
-is frowned upon (despite the fact that it's already done here).
+Signed-off-by: Brian Gerst <bgerst@didntduck.org>
 
-> +
->  EXPORT_SYMBOL(memset);
->  EXPORT_SYMBOL(strlen);
->  EXPORT_SYMBOL(memmove);
-> @@ -164,6 +166,8 @@
->  EXPORT_SYMBOL(memcpy);
->  EXPORT_SYMBOL(__memcpy);
->  
-> +EXPORT_SYMBOL_GPL(memcpy32);
-> +
+---
+commit 0e5f0274a2e711e54304c05114d48e4b56e42c21
+tree 9625ef0023b16b3faf8ea25882e3c49d15e3d3cb
+parent 54d78ad11408855b56d18e45e741c257799ed24f
+author Brian Gerst <bgerst@didntduck.org> Tue, 27 Dec 2005 23:38:23 -0500
+committer Brian Gerst <bgerst@didntduck.org> Tue, 27 Dec 2005 23:38:23 -0500
 
-We've been steadily moving towards grouping EXPORTs with function
-definitions. Do *_ksyms.c exist solely to provide exports for
-functions defined in assembly at this point? If so, perhaps we ought
-to come up with a suitable export macro for asm files.
+ arch/x86_64/boot/.gitignore       |    3 +++
+ arch/x86_64/boot/tools/.gitignore |    1 +
+ arch/x86_64/ia32/.gitignore       |    1 +
+ 3 files changed, 5 insertions(+), 0 deletions(-)
 
-> diff -r 7b7b442a4d63 -r 042b7d9004ac arch/x86_64/lib/memcpy32.S
-> --- /dev/null	Thu Jan  1 00:00:00 1970 +0000
-> +++ b/arch/x86_64/lib/memcpy32.S	Tue Dec 27 15:41:48 2005 -0800
-> @@ -0,0 +1,25 @@
-> +/*
-> + * Copyright (c) 2003, 2004, 2005 PathScale, Inc.
-> + */
-> +
-> +/*
-> + * memcpy32 - Copy a memory block, 32 bits at a time.
-> + *
-> + * Count is number of dwords; it need not be a qword multiple.
-> + * Input:
-> + * rdi destination
-> + * rsi source
-> + * rdx count
-> + */
-> +
-> + 	.globl memcpy32
-> +memcpy32:
-> +	movl %edx,%ecx
-> +	shrl $1,%ecx
-> +	andl $1,%edx
-> +	rep
-> +	movsq
-> +	movl %edx,%ecx
-> +	rep
-> +	movsd
-> +	ret
+diff --git a/arch/x86_64/boot/.gitignore b/arch/x86_64/boot/.gitignore
+new file mode 100644
+index 0000000..495f20c
+--- /dev/null
++++ b/arch/x86_64/boot/.gitignore
+@@ -0,0 +1,3 @@
++bootsect
++bzImage
++setup
+diff --git a/arch/x86_64/boot/tools/.gitignore b/arch/x86_64/boot/tools/.gitignore
+new file mode 100644
+index 0000000..378eac2
+--- /dev/null
++++ b/arch/x86_64/boot/tools/.gitignore
+@@ -0,0 +1 @@
++build
+diff --git a/arch/x86_64/ia32/.gitignore b/arch/x86_64/ia32/.gitignore
+new file mode 100644
+index 0000000..48ab174
+--- /dev/null
++++ b/arch/x86_64/ia32/.gitignore
+@@ -0,0 +1 @@
++vsyscall*.so
 
-Any reason this needs its own .S file? One wonders if the
 
-        .p2align 4
-
-in memcpy.S is appropriate here too. Splitting rep movsq across two
-lines is a little weird to me too, but I see Andi did it too.
-
--- 
-Mathematics is the supreme nostalgia of our time.

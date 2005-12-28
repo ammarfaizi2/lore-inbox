@@ -1,17 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964873AbVL1SzT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbVL1SzQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964873AbVL1SzT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 13:55:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964875AbVL1SzS
+	id S964871AbVL1SzQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 13:55:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbVL1SzO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 13:55:18 -0500
-Received: from mgw-ext03.nokia.com ([131.228.20.95]:19043 "EHLO
-	mgw-ext03.nokia.com") by vger.kernel.org with ESMTP id S964872AbVL1SzO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 28 Dec 2005 13:55:14 -0500
-Message-Id: <20051228185412.951490000@localhost.localdomain>
-References: <20051228184014.571997000@localhost.localdomain>
-Date: Wed, 28 Dec 2005 14:40:18 -0400
+Received: from mgw-ext03.nokia.com ([131.228.20.95]:14691 "EHLO
+	mgw-ext03.nokia.com") by vger.kernel.org with ESMTP id S964871AbVL1SzM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 13:55:12 -0500
+Message-Id: <20051228184014.571997000@localhost.localdomain>
+Date: Wed, 28 Dec 2005 14:40:14 -0400
 From: Anderson Lizardo <anderson.lizardo@indt.org.br>
 To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
 Cc: "Russell King - ARM Linux" <linux@arm.linux.org.uk>,
@@ -19,127 +18,68 @@ Cc: "Russell King - ARM Linux" <linux@arm.linux.org.uk>,
        Anderson Briglia <anderson.briglia@indt.org.br>,
        Anderson Lizardo <anderson.lizardo@indt.org.br>,
        Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>
-Subject: [patch 4/5] Add MMC password protection (lock/unlock) support V2
-Content-Disposition: inline; filename=mmc_sysfs.diff
-X-OriginalArrivalTime: 28 Dec 2005 18:53:52.0407 (UTC) FILETIME=[0BBBBA70:01C60BE0]
+Subject: [patch 0/5] Add MMC password protection (lock/unlock) support V2
+X-OriginalArrivalTime: 28 Dec 2005 18:53:50.0970 (UTC) FILETIME=[0AE075A0:01C60BE0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Implement MMC password reset and forced erase support. It uses the sysfs
-mechanism to send commands to the MMC subsystem. Usage:
+Hi,
 
-Forced erase:
+These series of patches add support for MultiMediaCard (MMC) password
+protection, as described in the MMC Specification v4.1. This feature is
+supported by all compliant MMC cards, and used by some devices such as Symbian
+OS cell phones to optionally protect MMC cards with a password.
 
-echo erase > /sys/bus/mmc/devices/mmc0\:0001/lockable
+By default, a MMC card with no password assigned is always in "unlocked" state.
+After password assignment, in the next power cycle the card switches to a
+"locked" state where only the "basic" and "lock card" command classes are
+accepted by the card. Only after unlocking it with the correct password the
+card can be normally used for operations like block I/O.
 
-Remove password:
+Password management and caching is done through the "Kernel Key Retention
+Service" mechanism and the sysfs filesystem. The Key Retention Service is used
+for (1) unlocking the card, (2) assigning a password to an unlocked card and
+(3) change a card's password. To remove the password and check locked/unlocked
+status, a new sysfs attribute was added to the MMC driver.
 
-echo remove > /sys/bus/mmc/devices/mmc0\:0001/lockable
+A sample text-mode reference UI written in shell script (using the keyctl
+command from the keyutils package), can be found at:
 
-Signed-off-by: Anderson Briglia <anderson.briglia@indt.org.br>
-Signed-off-by: Anderson Lizardo <anderson.lizardo@indt.org.br>
-Signed-off-by: Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>
+http://www.indt.org.br/10le/mmc_pwd/mmc_reference_ui-20051215.tar.gz
 
-Index: linux-2.6.15-rc4-omap1/drivers/mmc/mmc_sysfs.c
-===================================================================
---- linux-2.6.15-rc4-omap1.orig/drivers/mmc/mmc_sysfs.c	2005-12-15 15:47:40.000000000 -0400
-+++ linux-2.6.15-rc4-omap1/drivers/mmc/mmc_sysfs.c	2005-12-15 15:47:40.000000000 -0400
-@@ -16,6 +16,7 @@
- #include <linux/device.h>
- #include <linux/idr.h>
- #include <linux/key.h>
-+#include <linux/err.h>
- 
- #include <linux/mmc/card.h>
- #include <linux/mmc/host.h>
-@@ -64,6 +65,58 @@ static struct device_attribute mmc_dev_a
- 
- static struct device_attribute mmc_dev_attr_scr = MMC_ATTR_RO(scr);
- 
-+#ifdef	CONFIG_MMC_PASSWORDS
-+
-+static ssize_t
-+mmc_lockable_show(struct device *dev, struct device_attribute *att, char *buf)
-+{
-+	struct mmc_card *card = dev_to_mmc_card(dev);
-+
-+	if (!mmc_card_lockable(card))
-+		return sprintf(buf, "unlockable\n");
-+	else
-+		return sprintf(buf, "lockable, %slocked\n", mmc_card_locked(card) ?
-+			"" : "un");
-+}
-+
-+/*
-+ * implement MMC password reset ("remove password") and forced erase ("forgot
-+ * password").
-+ */
-+static ssize_t
-+mmc_lockable_store(struct device *dev, struct device_attribute *att,
-+	const char *data, size_t len)
-+{
-+	struct mmc_card *card = dev_to_mmc_card(dev);
-+
-+	if (!mmc_card_lockable(card))
-+		return -EINVAL;
-+
-+	if (mmc_card_locked(card) && !strncmp(data, "erase", 5)) {
-+		/* forced erase only works while card is locked */
-+		mmc_lock_unlock(card, NULL, MMC_LOCK_MODE_ERASE);
-+		return len;
-+	} else if (!mmc_card_locked(card) && !strncmp(data, "remove", 6)) {
-+		/* remove password only works while card is unlocked */
-+		struct key *mmc_key = request_key(&mmc_key_type, "mmc:key", NULL);
-+
-+		if (!IS_ERR(mmc_key)) {
-+			int err = mmc_lock_unlock(card, mmc_key, MMC_LOCK_MODE_CLR_PWD);
-+			if (!err)
-+				return len;
-+		} else
-+			dev_dbg(&card->dev, "request_key returned error %ld\n", PTR_ERR(mmc_key));
-+	}
-+
-+	return -EINVAL;
-+}
-+
-+static struct device_attribute mmc_dev_attr_lockable =
-+	__ATTR(lockable, S_IWUSR | S_IRUGO,
-+		 mmc_lockable_show, mmc_lockable_store);
-+
-+#endif
-+
- 
- static void mmc_release_card(struct device *dev)
- {
-@@ -235,6 +288,13 @@ int mmc_register_card(struct mmc_card *c
- 			if (ret)
- 				device_del(&card->dev);
- 		}
-+#ifdef CONFIG_MMC_PASSWORDS
-+		if (mmc_card_lockable(card)) {
-+			ret = device_create_file(&card->dev, &mmc_dev_attr_lockable);
-+			if (ret)
-+				device_del(&card->dev);
-+		}
-+#endif
- 	}
- 	return ret;
- }
-@@ -248,7 +308,10 @@ void mmc_remove_card(struct mmc_card *ca
- 	if (mmc_card_present(card)) {
- 		if (mmc_card_sd(card))
- 			device_remove_file(&card->dev, &mmc_dev_attr_scr);
--
-+#ifdef CONFIG_MMC_PASSWORDS
-+		if (mmc_card_lockable(card))
-+			device_remove_file(&card->dev, &mmc_dev_attr_lockable);
-+#endif
- 		device_del(&card->dev);
- 	}
- 
+New in this version:
 
+- Removed unnecessary #include directive
+- Fixed comment formatting issues.
+- Added code to force the block driver to re-probe() the card after unlocking
+  it.
+
+TODO:
+
+- Password caching: when inserting a locked card, the driver should try to
+ unlock it with the currently stored password (if any), and if it fails,
+ revoke the key containing it and fallback to the normal "no password present"
+ situation.
+
+- Currently, some host drivers assume the block length will always be a power
+ of 2. This is not true for the MMC_LOCK_UNLOCK command, which is a block
+ command that accepts arbitratry block lengths. We have made the necessary
+ changes to the omap.c driver (present on the linux-omap tree), but the same
+ needs to be done for other hosts' drivers.
+
+Known Issue:
+
+- Some cards have an incorrect behaviour (hardware bug?) regarding password
+ acceptance: if an affected card has password <pwd>, it accepts <pwd><xxx> as
+ the correct password too, where <xxx> is any sequence of characters, of any
+ length. In other words, on these cards only the first <password length> bytes
+ need to match the correct password.
+
+Comments, suggestions are welcome.
 --
-Anderson Lizardo
+Anderson Briglia,
+Anderson Lizardo,
+Carlos Eduardo Aguiar
 Embedded Linux Lab - 10LE
 Nokia Institute of Technology - INdT
 Manaus - Brazil

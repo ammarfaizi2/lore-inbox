@@ -1,35 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbVL1JZp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbVL1JcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbVL1JZp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 04:25:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbVL1JZp
+	id S964779AbVL1JcV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 04:32:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbVL1JcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 04:25:45 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:58892 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S932509AbVL1JZp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 04:25:45 -0500
-Date: Wed, 28 Dec 2005 10:27:17 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Coywolf Qi Hunt <qiyong@fc-cn.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [patch] elevator: elv_try_merge() cleanup
-Message-ID: <20051228092716.GB2772@suse.de>
-References: <20051227033652.GA12214@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Dec 2005 04:32:21 -0500
+Received: from zproxy.gmail.com ([64.233.162.195]:44348 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S932509AbVL1JcU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 04:32:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Nydg1BHFZ4VmXXY2znKpYmcQZ3oFglgQVruymPPYIfdW0S1+Mj4/rmdV5kWCfIu9vUmgA9TyZLeoLQQ0JIC/QW7KdaQZCHNeA5nhDjLrkz3DRmrC1KF/w6Stg0MVE0ZJdTKG6zqVOTDZHR1N2LUzt0qoct4tFKgAogseSMgfvFQ=
+Message-ID: <7a37e95e0512280132m59d9c333wf8d27c1dc5f85fee@mail.gmail.com>
+Date: Wed, 28 Dec 2005 15:02:19 +0530
+From: Deven Balani <devenbalani@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: scatter-gather with ping-ponging
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051227033652.GA12214@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 27 2005, Coywolf Qi Hunt wrote:
-> Cleanup: make elv_try_merge() static, kill the dead declaration of
-> elv_try_last_merge().
+Hi All,
 
-Looks good, it's an artifact of the redone merging stuff that Tejun did
-(it used to be called by io schedulers). Applied.
+Does any one know to source to implement a scatter-gather list
+mechanism with ping pong mechanism.
+Or in other words,
+I want to implement chaning of buffer descriptors with double
+buffering mechanism.
 
--- 
-Jens Axboe
+It would be helpful for if any one can give _inputs_.
 
+Thanks,
+Deven

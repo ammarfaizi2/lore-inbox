@@ -1,59 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964922AbVL1VXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbVL1V12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964922AbVL1VXf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 16:23:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbVL1VXf
+	id S964916AbVL1V12 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 16:27:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964923AbVL1V12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 16:23:35 -0500
-Received: from moutng.kundenserver.de ([212.227.126.188]:7387 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S964914AbVL1VXe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 16:23:34 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Anderson Lizardo <anderson.lizardo@indt.org.br>, linux-ide@vger.kernel.org
-Subject: Re: [patch 4/5] Add MMC password protection (lock/unlock) support V2
-Date: Wed, 28 Dec 2005 21:23:11 +0000
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk,
-       "Russell King - ARM Linux" <linux@arm.linux.org.uk>,
-       David Brownell <david-b@pacbell.net>, Tony Lindgren <tony@atomide.com>,
-       Anderson Briglia <anderson.briglia@indt.org.br>,
-       Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>
-References: <20051228184014.571997000@localhost.localdomain> <20051228185412.951490000@localhost.localdomain>
-In-Reply-To: <20051228185412.951490000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 28 Dec 2005 16:27:28 -0500
+Received: from waste.org ([64.81.244.121]:42118 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S964916AbVL1V11 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 16:27:27 -0500
+Date: Wed, 28 Dec 2005 15:24:02 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, linux-tiny@selenic.com
+Subject: [PATCH] Make sysenter support optional
+Message-ID: <20051228212402.GX3356@waste.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200512282123.12839.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 December 2005 18:40, Anderson Lizardo wrote:
-> 
-> Implement MMC password reset and forced erase support. It uses the sysfs
-> mechanism to send commands to the MMC subsystem. Usage:
-> 
-> Forced erase:
-> 
-> echo erase > /sys/bus/mmc/devices/mmc0\:0001/lockable
-> 
-> Remove password:
-> 
-> echo remove > /sys/bus/mmc/devices/mmc0\:0001/lockable
+This adds configurable sysenter support on x86. This saves about 5k on
+small systems.
 
-The MMC password support seems to be a subset of the operations
-possible on modern ATA drives. IMHO, any interface you introduce
-should be usable for both types of devices.
+$ size vmlinux-baseline vmlinux
+   text    data     bss     dec     hex filename
+2920821  523232  190652 3634705  377611 vmlinux-baseline
+2920558  518376  190652 3629586  376212 vmlinux
 
-The only interface I could find for ATA is through HDIO_DRIVE_CMD.
-This is currently used by hdparm, but it does not look like it
-fits the MMC problem well.
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Has anyone already done an ioctl or sysfs implementation of ATA
-password user interfaces, or is perhaps the one proposed here
-sufficient for ATA drives as well?
+Index: 2.6.15-misc/arch/i386/kernel/Makefile
+===================================================================
+--- 2.6.15-misc.orig/arch/i386/kernel/Makefile	2005-12-28 14:51:45.000000000 -0600
++++ 2.6.15-misc/arch/i386/kernel/Makefile	2005-12-28 14:51:46.000000000 -0600
+@@ -31,7 +31,7 @@ obj-$(CONFIG_X86_NUMAQ)		+= numaq.o
+ obj-$(CONFIG_X86_SUMMIT_NUMA)	+= summit.o
+ obj-$(CONFIG_KPROBES)		+= kprobes.o
+ obj-$(CONFIG_MODULES)		+= module.o
+-obj-y				+= sysenter.o vsyscall.o
++obj-$(CONFIG_SYSENTER)		+= sysenter.o vsyscall.o
+ obj-$(CONFIG_ACPI_SRAT) 	+= srat.o
+ obj-$(CONFIG_HPET_TIMER) 	+= time_hpet.o
+ obj-$(CONFIG_EFI) 		+= efi.o efi_stub.o
+Index: 2.6.15-misc/include/asm-i386/elf.h
+===================================================================
+--- 2.6.15-misc.orig/include/asm-i386/elf.h	2005-12-28 14:36:59.000000000 -0600
++++ 2.6.15-misc/include/asm-i386/elf.h	2005-12-28 14:51:47.000000000 -0600
+@@ -134,11 +134,13 @@ extern int dump_task_extended_fpu (struc
+ #define VSYSCALL_ENTRY	((unsigned long) &__kernel_vsyscall)
+ extern void __kernel_vsyscall;
+ 
++#ifdef CONFIG_SYSENTER
+ #define ARCH_DLINFO						\
+ do {								\
+ 		NEW_AUX_ENT(AT_SYSINFO,	VSYSCALL_ENTRY);	\
+ 		NEW_AUX_ENT(AT_SYSINFO_EHDR, VSYSCALL_BASE);	\
+ } while (0)
++#endif
+ 
+ /*
+  * These macros parameterize elf_core_dump in fs/binfmt_elf.c to write out
+Index: 2.6.15-misc/init/Kconfig
+===================================================================
+--- 2.6.15-misc.orig/init/Kconfig	2005-12-28 14:51:45.000000000 -0600
++++ 2.6.15-misc/init/Kconfig	2005-12-28 14:51:47.000000000 -0600
+@@ -352,6 +352,14 @@ config VM86
+           XFree86 to initialize some video cards via BIOS. Disabling this
+           option saves about 6k.
+ 
++config SYSENTER
++	depends X86
++	default y
++	bool "Enable syscalls via sysenter" if EMBEDDED
++	help
++	  Disabling this feature removes sysenter handling as well as
++	  vsyscall fixmaps.
++ 
+ config CC_OPTIMIZE_FOR_SIZE
+ 	bool "Optimize for size"
+ 	default y if ARM || H8300
+Index: 2.6.15-misc/include/asm-i386/processor.h
+===================================================================
+--- 2.6.15-misc.orig/include/asm-i386/processor.h	2005-12-28 14:51:44.000000000 -0600
++++ 2.6.15-misc/include/asm-i386/processor.h	2005-12-28 14:51:41.000000000 -0600
+@@ -709,8 +709,14 @@ extern void select_idle_routine(const st
+ #define cache_line_size() (boot_cpu_data.x86_cache_alignment)
+ 
+ extern unsigned long boot_option_idle_override;
++
++#ifdef CONFIG_SYSENTER
+ extern void enable_sep_cpu(void);
+ extern int sysenter_setup(void);
++#else
++#define enable_sep_cpu()
++static inline int sysenter_setup(void) { return 0; }
++#endif
+ 
+ #ifdef CONFIG_MTRR
+ extern void mtrr_ap_init(void);
 
-	Arnd <><
+-- 
+Mathematics is the supreme nostalgia of our time.

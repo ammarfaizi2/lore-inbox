@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932408AbVL1AIr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbVL1AU5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932408AbVL1AIr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 19:08:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932409AbVL1AIq
+	id S932410AbVL1AU5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 19:20:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbVL1AU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 19:08:46 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:55485 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932408AbVL1AIq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 19:08:46 -0500
-Date: Tue, 27 Dec 2005 19:08:32 -0500
-From: Dave Jones <davej@redhat.com>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove unneeded packed attribute
-Message-ID: <20051228000832.GC6917@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Brian Gerst <bgerst@didntduck.org>, Andrew Morton <akpm@osdl.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <43B1D5E0.90908@didntduck.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <43B1D5E0.90908@didntduck.org>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 27 Dec 2005 19:20:57 -0500
+Received: from kepler.fjfi.cvut.cz ([147.32.6.11]:56010 "EHLO
+	kepler.fjfi.cvut.cz") by vger.kernel.org with ESMTP id S932410AbVL1AU4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 19:20:56 -0500
+Date: Wed, 28 Dec 2005 01:20:42 +0100 (CET)
+From: Martin Drab <drab@kepler.fjfi.cvut.cz>
+To: Gerhard Mack <gmack@innerfire.net>
+cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ati X300 support?
+In-Reply-To: <Pine.LNX.4.64.0512271047260.2104@innerfire.net>
+Message-ID: <Pine.LNX.4.60.0512280103100.29982@kepler.fjfi.cvut.cz>
+References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net>
+ <200512270149.24440.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0512270817340.15649@innerfire.net>
+ <200512271545.31224.s0348365@sms.ed.ac.uk> <Pine.LNX.4.64.0512271047260.2104@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 27, 2005 at 07:01:36PM -0500, Brian Gerst wrote:
- > GCC 4.1 gives the following warning:
- > include/asm/mpspec.h:79: warning: ‘packed’ attribute ignored for field 
- > of type ‘unsigned char[5u]’
- > 
- > The packed attribute isn't really necessary anyways so just remove it.
- > 
- > Signed-off-by: Brian Gerst <bgerst@didntduck.org>
+On Tue, 27 Dec 2005, Gerhard Mack wrote:
 
-We've been carrying exactly the same diff in the Fedora rawhide kernel for
-the last week or two.
+> I have it working in X.org with no problem.  I just can't get the drm
+> module working in the kernel.  Last time I tried to just add my PCI ids 
+> the problem was a lack of PCIE support in the drm drivers. 
+> 
+> FYI the fglrx drivers suck badly.  ATI hasn't bothered to keep their 
+> drivers up to date at all and the result is that they finally have  
+> working 2.6.14 drivers but only for 32 bit machines.  x86_64 is still 
+> broken on any recent kernel and it's been that way for months.  ATI's tech 
+> support basically gave up after several days and just informed me it 
+> wasn't really supported and there is nothing they could do for me.
 
-ACKed by: Dave Jones <davej@redhat.com>
+I don't want to defend ATI here or anything, but I use the 64-bit fglrx 
+8.19.10 with 2.6.15-rc5 and it works (except for the minor patch for 
+2.6.15-rc2-git3 and later that we came out with with Hugh Dickins and that 
+was sent to the list not long ago).
 
-		Dave
+The problem with PCIe is, that IMHO they do not activate the acceleration 
+unless an AGP is detected (at least that's what it sounds to me like). If 
+there is PCIe, there is no AGP, though AGP is not detected, and 
+acceleration is not enabled. I think it may be as simple as that. I was 
+reporting this to ATI a while ago. I haven't tried the new fglrx 8.20.8 
+yet, but if they read the reports at all, then there's a good chance that 
+this may be fixed there already.
 
+Martin

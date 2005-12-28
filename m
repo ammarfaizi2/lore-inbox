@@ -1,46 +1,226 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbVL2QVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbVL2QTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbVL2QVe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 11:21:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbVL2QVd
+	id S1750789AbVL2QTW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 11:19:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbVL2QTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 11:21:33 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:39057 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750796AbVL2QVd (ORCPT
+	Thu, 29 Dec 2005 11:19:22 -0500
+Received: from kenga.kmv.ru ([217.13.212.5]:3756 "EHLO kenga.kmv.ru")
+	by vger.kernel.org with ESMTP id S1750789AbVL2QTW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 11:21:33 -0500
-To: Erez Zilber <erezz@voltaire.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: cannot boot 2.6.15-rc6 on Opteron machine
-References: <43B3CA9E.7000804@voltaire.com>
-	<1135857022.2935.19.camel@laptopd505.fenrus.org>
-	<43B3D8D3.30400@voltaire.com>
-	<1135861619.2935.35.camel@laptopd505.fenrus.org>
-	<43B3E107.6090104@voltaire.com>
-From: Andi Kleen <ak@suse.de>
-Date: 29 Dec 2005 17:21:27 +0100
-In-Reply-To: <43B3E107.6090104@voltaire.com>
-Message-ID: <p73slsbg9h4.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Dec 2005 11:19:22 -0500
+Date: Wed, 28 Dec 2005 22:04:30 +0300
+From: "Andrey J. Melnikoff (TEMHOTA)" <temnota@kmv.ru>
+To: linux-ide@vger.kernel.org
+Subject: [PATCH] [TRIVIAL] Fix PDC202XX_FORCE kconfig selection
+Message-ID: <20051228190430.GL12561@kmv.ru>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="TD8GDToEDw0WLGOL"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+X-Data-Status: msg.XXE5TZGg:29257@kenga.kmv.ru
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erez Zilber <erezz@voltaire.com> writes:
-> >
-> So, I understand that, currently (until I get a a recent enough udev),
-> 2.6.15 cannot be used with RHAS-4 on Opteron machines. Anyway, thanks
-> for your help.
 
-I think that's too strong. udev setups are fragile and seem 
-to be inventented by the devil to make kernel updates hell, but if you
-just compile the needed drivers and file systems for root statically 
-into the kernel it should work.  For network devices and other
-drivers not needed for root you can either load them manually
-early in a rc.d file or also compile them in.
+--TD8GDToEDw0WLGOL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hello.
+
+Split PDC202XX_FORCE selection into two independ option and allow user 
+select it only for specific driver.
+
+Signed-off-by: Andrey Melnikov <temnota@kmv.ru>
+
+---
+--- linux/drivers/ide/Kconfig~	2005-12-28 21:51:52.000000000 +0300
++++ linux/drivers/ide/Kconfig	2005-12-28 21:51:52.000000000 +0300
+@@ -670,11 +670,16 @@
  
-Typically when udev goes wrong it just doesn't autoload the modules,
-but still processes the events when devices appear.
+ 	  If unsure, say N.
+ 
++config PDC202XX_OLD_FORCE
++	bool "Enable controller even if disabled by BIOS"
++	depends on BLK_DEV_PDC202XX_OLD
++	help
++	  Enable the PDC202xx controller even if it has been disabled in the BIOS setup.
++
+ config BLK_DEV_PDC202XX_NEW
+ 	tristate "PROMISE PDC202{68|69|70|71|75|76|77} support"
+ 
+-# FIXME - probably wants to be one for old and for new
+-config PDC202XX_FORCE
++config PDC202XX_NEW_FORCE
+ 	bool "Enable controller even if disabled by BIOS"
+ 	depends on BLK_DEV_PDC202XX_NEW
+ 	help
+--- linux/drivers/ide/pci/pdc202xx_new.c~	2005-12-28 21:52:32.000000000 +0300
++++ linux/drivers/ide/pci/pdc202xx_new.c	2005-12-28 21:52:32.000000000 +0300
+@@ -420,7 +420,7 @@
+ 		.init_hwif	= init_hwif_pdc202new,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_NEW_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+@@ -447,7 +447,7 @@
+ 		.init_hwif	= init_hwif_pdc202new,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_NEW_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+--- linux/drivers/ide/pci/pdc202xx_old.c~	2005-12-28 21:53:26.000000000 +0300
++++ linux/drivers/ide/pci/pdc202xx_old.c	2005-12-28 21:53:26.000000000 +0300
+@@ -786,7 +786,7 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_OLD_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+@@ -799,7 +799,7 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_OLD_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+@@ -813,7 +813,7 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_OLD_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+@@ -826,7 +826,7 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_OLD_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+@@ -840,7 +840,7 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_OLD_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
 
--Andi
+
+-- 
+ Best regards, TEMHOTA-RIPN aka MJA13-RIPE
+ System Administrator. mailto:temnota@kmv.ru
+
+
+--TD8GDToEDw0WLGOL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="pdc202xx-fix-force-define.diff"
+
+--- linux/drivers/ide/Kconfig~	2005-12-28 21:51:52.000000000 +0300
++++ linux/drivers/ide/Kconfig	2005-12-28 21:51:52.000000000 +0300
+@@ -670,11 +670,16 @@
+ 
+ 	  If unsure, say N.
+ 
++config PDC202XX_OLD_FORCE
++	bool "Enable controller even if disabled by BIOS"
++	depends on BLK_DEV_PDC202XX_OLD
++	help
++	  Enable the PDC202xx controller even if it has been disabled in the BIOS setup.
++
+ config BLK_DEV_PDC202XX_NEW
+ 	tristate "PROMISE PDC202{68|69|70|71|75|76|77} support"
+ 
+-# FIXME - probably wants to be one for old and for new
+-config PDC202XX_FORCE
++config PDC202XX_NEW_FORCE
+ 	bool "Enable controller even if disabled by BIOS"
+ 	depends on BLK_DEV_PDC202XX_NEW
+ 	help
+--- linux/drivers/ide/pci/pdc202xx_new.c~	2005-12-28 21:52:32.000000000 +0300
++++ linux/drivers/ide/pci/pdc202xx_new.c	2005-12-28 21:52:32.000000000 +0300
+@@ -420,7 +420,7 @@
+ 		.init_hwif	= init_hwif_pdc202new,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_NEW_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+@@ -447,7 +447,7 @@
+ 		.init_hwif	= init_hwif_pdc202new,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_NEW_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+--- linux/drivers/ide/pci/pdc202xx_old.c~	2005-12-28 21:53:26.000000000 +0300
++++ linux/drivers/ide/pci/pdc202xx_old.c	2005-12-28 21:53:26.000000000 +0300
+@@ -786,7 +786,7 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_OLD_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+@@ -799,7 +799,7 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_OLD_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+@@ -813,7 +813,7 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_OLD_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+@@ -826,7 +826,7 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_OLD_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+@@ -840,7 +840,7 @@
+ 		.init_dma	= init_dma_pdc202xx,
+ 		.channels	= 2,
+ 		.autodma	= AUTODMA,
+-#ifndef CONFIG_PDC202XX_FORCE
++#ifndef CONFIG_PDC202XX_OLD_FORCE
+ 		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x04,0x04}},
+ #endif
+ 		.bootable	= OFF_BOARD,
+
+--TD8GDToEDw0WLGOL--

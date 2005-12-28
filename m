@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbVL1Tca@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbVL1TfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbVL1Tca (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 14:32:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964890AbVL1Tca
+	id S964890AbVL1TfB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 14:35:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbVL1TfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 14:32:30 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:60992 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S964889AbVL1Tc3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 14:32:29 -0500
-Subject: Re: ati X300 support?
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Cc: chris@pcburn.com, Gerhard Mack <gmack@innerfire.net>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <200512272320.45378.s0348365@sms.ed.ac.uk>
-References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net>
-	 <200512271603.30939.s0348365@sms.ed.ac.uk> <43B1BFB8.8050207@pcburn.com>
-	 <200512272320.45378.s0348365@sms.ed.ac.uk>
+	Wed, 28 Dec 2005 14:35:01 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:59832 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964890AbVL1TfA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 14:35:00 -0500
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
+In-Reply-To: <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
+References: <20051228114637.GA3003@elte.hu>
+	 <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
 Content-Type: text/plain
-Date: Wed, 28 Dec 2005 20:32:10 +0100
-Message-Id: <1135798330.16657.1.camel@localhost>
+Date: Wed, 28 Dec 2005 20:34:54 +0100
+Message-Id: <1135798495.2935.29.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-12-27 at 23:20 +0000, Alistair John Strachan wrote:
-> On Tuesday 27 December 2005 22:27, Chris Bergeron wrote:
-> > Alistair John Strachan wrote:
-> > >On Tuesday 27 December 2005 15:57, Gerhard Mack wrote:
-> > >>I have it working in X.org with no problem.  I just can't get the drm
-> > >>module working in the kernel.  Last time I tried to just add my PCI ids
-> > >>the problem was a lack of PCIE support in the drm drivers.
-> > >
-> > >I'd try again, I have a vague memory of reading a changelog a few releases
-> > > ago that mentioned PCIe support in radeon-drm.
-> > >
-> > >>FYI the fglrx drivers suck badly.  ATI hasn't bothered to keep their
-> > >>drivers up to date at all and the result is that they finally have
-> > >>working 2.6.14 drivers but only for 32 bit machines.  x86_64 is still
-> > >>broken on any recent kernel and it's been that way for months.  ATI's
-> > >> tech support basically gave up after several days and just informed me
-> > >> it wasn't really supported and there is nothing they could do for me.
-> > >
-> > >You're better off running open source drivers anyway, it's less hassle,
-> > > you don't have to worry about every kernel upgrade breaking them, and
-> > > it's only an X300 anyway -- on my Mobility 9600, I just play a few small
-> > > games and expect OpenGL accelerated applications to work properly.
-> > >
-> > >If your goals are similar, they're probably achievable with mainline.
-> >
-> > The DRI project only supports up to the Radeon 9200 unless I missed an
-> > update and their page is outdated.  Check the DRI ATI page for details.
-> >
-> > http://dri.freedesktop.org/wiki/ATI
+
 > 
-> Yes, you and this link are both out of date. The r300 driver provides basic 
-> support for many newer video cards based on the r300 core and is shipped with 
-> Xorg 7.0.0.
-is this only 7.0.0? i just built 6.9 and i dont have the 'r300' x
-driver, or... is it merged into the 'ati' or 'radeon' xorg driver
-module?
-> 
+> The forced inlining is not just a good idea. Several versions of gcc would 
+> NOT COMPILE the kernel without it.
+
+yup that's why the patch only does it for gcc4, in which the inlining
+heuristics finally got rewritten to something that seems to resemble
+sanity...
+
+> Also, the inlining patch apparently makes code larger in some cases, so 
+> it's not even a unconditional win.
+
+.... as long as you give the inlining algorithm enough information.
+-fno-unit-at-a-time prevents gcc from having the information, and the
+decisions it makes are then less optimal... 
+
+(unit-at-a-time allows gcc to look at the entire .c file, eg things like
+number of callers etc etc, disabling that tells gcc to do the .c file as
+single pass top-to-bottom only)
+
+
 

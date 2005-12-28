@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964836AbVL1PAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbVL1PQ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964836AbVL1PAb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 10:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbVL1PAb
+	id S964843AbVL1PQ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 10:16:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbVL1PQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 10:00:31 -0500
-Received: from mx.pathscale.com ([64.160.42.68]:28846 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S964836AbVL1PAa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 10:00:30 -0500
-Subject: Re: [RFC] [PATCH] Add memcpy32 function
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <p73fyodmqn6.fsf@verdi.suse.de>
-References: <1135301759.4212.76.camel@serpentine.pathscale.com>
-	 <p73fyodmqn6.fsf@verdi.suse.de>
-Content-Type: text/plain
-Organization: PathScale, Inc.
-Date: Wed, 28 Dec 2005 07:00:25 -0800
-Message-Id: <1135782025.1527.104.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Wed, 28 Dec 2005 10:16:59 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:52362 "HELO
+	ilport.com.ua") by vger.kernel.org with SMTP id S964843AbVL1PQ6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 10:16:58 -0500
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Subject: Re: 4k stacks
+Date: Wed, 28 Dec 2005 17:16:42 +0200
+User-Agent: KMail/1.8.2
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.61.0512221640490.8179@chaos.analogic.com> <200512241403.38482.vda@ilport.com.ua> <Pine.LNX.4.61.0512280808290.25369@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.61.0512280808290.25369@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512281716.43089.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-28 at 12:01 +0100, Andi Kleen wrote:
+On Wednesday 28 December 2005 15:14, linux-os (Dick Johnson) wrote:
+> >> Anyway, getting down to 20 bytes of stack-space available
+> >> seems to be pretty scary.
+> >
+> > +       movl    %esp, %edi
+> > +       movl    %edi, %ecx
+> > +       andl    $~0x1000, %edi
+> > +       subl    %edi, %ecx
+> >
+> > ecx will be equal to ?
+> 
+> Whatever the stack was minus that value ANDed with NOT 0x1000,
+> i.e. 0x1000 minus the stack already in use. The code assumes
+> that the stack starts and ends on a 0x1000 (page) boundary.
+> If that's not true, then all bets are off.
 
-> What irritates me is that the original author said this copy
-> would happen from user space in ipath.
-
-I'm afraid there may have been some miscommunication there.
-
-All of our uses of memcpy_toio32 (which uses memcpy32 on x86_64) copy
-from kernel virtual addresses to MMIO space.  There's no direct copying
-from userspace to MMIO space through the driver.
-
-However, we do let userspace code directly access portions of our chip.
-That code uses a routine that is exactly the same as memcpy32 to perform
-MMIO writes.  That's where I think the confusion arose on the part of
-whoever responded to you.
-
->  In that case you would need
-> exception handling for all memory accesses to return EFAULT,
-> otherwise everybody can crash the kernel.
-
-Just to be clear: we use copy_{to,from}_user for all copies between
-userspace and driver, and we return -EFAULT on short copies, so we're
-already doing the right thing in that sort of case.
-
-Sorry for the confusion.  I hope this clears that business up.
-
-	<b
-
+Hmm. I must be thick today. (esp - (esp & 0xffffefff))
+is always equal to (esp & 0x00001000). Which is either 0 or 0x1000.
+--
+vda

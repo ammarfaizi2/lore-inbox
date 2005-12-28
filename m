@@ -1,52 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932551AbVL1Rqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbVL1RqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932551AbVL1Rqa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 12:46:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932550AbVL1Rqa
+	id S932548AbVL1RqS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 12:46:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932549AbVL1RqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 12:46:30 -0500
-Received: from mail.metronet.co.uk ([213.162.97.75]:42173 "EHLO
-	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S932549AbVL1Rq3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 12:46:29 -0500
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Subject: Re: ati X300 support?
-Date: Wed, 28 Dec 2005 17:46:47 +0000
-User-Agent: KMail/1.9
-Cc: chris@pcburn.com, Gerhard Mack <gmack@innerfire.net>,
+	Wed, 28 Dec 2005 12:46:18 -0500
+Received: from cantor.suse.de ([195.135.220.2]:59864 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932548AbVL1RqR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 12:46:17 -0500
+Message-ID: <3513371.1135791966050.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
+Date: Wed, 28 Dec 2005 18:46:06 +0100 (CET)
+From: Andreas Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch 02/2] allow gcc4 to optimize unit-at-a-time
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Matt Mackall <mpm@selenic.com>,
        linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0512261858200.28109@innerfire.net> <200512272320.45378.s0348365@sms.ed.ac.uk> <1135758488.6493.326.camel@capoeira>
-In-Reply-To: <1135758488.6493.326.camel@capoeira>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+In-Reply-To: <20051228154138.GA18798@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512281746.47353.s0348365@sms.ed.ac.uk>
+X-Priority: 3 (normal)
+X-Mailer: SuSE Linux Openexchange Server 4 - WebMail (Build 2.4160)
+X-Operating-System: Linux 2.4.21-304-smp i386 (JVM 1.3.1_16)
+Organization: SuSE Linux AG
+References: <20051228114701.GC3003@elte.hu> <p734q4tb5na.fsf@verdi.suse.de> <20051228154138.GA18798@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 28 December 2005 08:28, Xavier Bestel wrote:
-> On Wed, 2005-12-28 at 00:20, Alistair John Strachan wrote:
-> > > The DRI project only supports up to the Radeon 9200 unless I missed an
-> > > update and their page is outdated.  Check the DRI ATI page for details.
-> > >
-> > > http://dri.freedesktop.org/wiki/ATI
+Am Mi 28.12.2005 16:41 schrieb Ingo Molnar <mingo@elte.hu>:
+
+>
+> * Andi Kleen <ak@suse.de> wrote:
+>
+> > But one caveat: turning on unit-at-a-time makes objdump -S / make
+> > foo/bar.lst with CONFIG_DEBUG_INFO essentially useless because
+> > objdump
+> > cannot deal with functions being out of order in the object file.
+> > This
+> > can be a big problem while analyzing oopses - essentially you have
+> > to
+> > analyze the functions without source level information. And with
+> > unit-at-a-time they become bigger so it's more difficult.
 > >
-> > Yes, you and this link are both out of date. The r300 driver provides
-> > basic support for many newer video cards based on the r300 core and is
-> > shipped with Xorg 7.0.0.
+> > But I still think it's a good idea.
 >
-> Even if experimental, r400 cores are supported too.
+> hm, i dont seem to have problems with DEBUG_INFO. I picked a random
+> address within the kernel:
 >
+> c035766f T schedule_timeout
+>
+> (gdb) list *0xc035768f
+> 0xc035768f is in schedule_timeout (kernel/timer.c:1075).
+> 1070 * should never happens anyway). You just have the printk()
+> 1071 * that will tell you if something is gone wrong and where.
+> 1072 */
+> 1073 if (timeout < 0)
+> 1074 {
+> 1075 printk(KERN_ERR "schedule_timeout: wrong timeout "
+> 1076 "value %lx from %p
+", timeout,
+> 1077 __builtin_return_address(0));
+> 1078 current->state = TASK_RUNNING;
+> 1079 goto out;
+> (gdb)
+>
+> or is it something else that breaks?
 
-Thanks Xav, I was not aware of this.
+It's objdump that breaks. Try objdump -S. gdb can deal with it, but you
+can't generate
+mixed C/assembly listings with it, so it's hard to match up the exact
+lines.
 
--- 
-Cheers,
-Alistair.
+(apparently it's possible through the gdb/mi interface, but I haven't
+attempted
+that yet)
 
-'No sense being pessimistic, it probably wouldn't work anyway.'
-Third year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+-Andi
+
+
+

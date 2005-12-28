@@ -1,90 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932487AbVL1Gx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbVL1HXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932487AbVL1Gx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 01:53:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbVL1Gx6
+	id S932335AbVL1HXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 02:23:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbVL1HXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 01:53:58 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:31415 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932487AbVL1Gx6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 01:53:58 -0500
-Date: Wed, 28 Dec 2005 06:53:54 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [vma list corruption] Re: proc_pid_readlink oopses again on 2.6.14.5
-Message-ID: <20051228065354.GE27946@ftp.linux.org.uk>
-References: <dot96e$e76$1@sea.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dot96e$e76$1@sea.gmane.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 28 Dec 2005 02:23:09 -0500
+Received: from mxfep02.bredband.com ([195.54.107.73]:41137 "EHLO
+	mxfep02.bredband.com") by vger.kernel.org with ESMTP
+	id S932335AbVL1HXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 02:23:07 -0500
+Message-ID: <43B23D53.6030206@stesmi.com>
+Date: Wed, 28 Dec 2005 08:22:59 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+CC: michael@metaparadigm.com, pwil3058@bigpond.net.au, rlrevell@joe-job.com,
+       s0348365@sms.ed.ac.uk, rostedt@goodmis.org, jaco@kroon.co.za,
+       linux-kernel@vger.kernel.org, pavel@ucw.cz
+Subject: Re: recommended mail clients [was] [PATCH] ati-agp suspend/resume
+ support (try 2)
+References: <43AF7724.8090302@kroon.co.za>	<200512261535.09307.s0348365@sms.ed.ac.uk>	<1135619641.8293.50.camel@mindpipe>	<200512262003.38552.s0348365@sms.ed.ac.uk>	<1135630831.8293.89.camel@mindpipe>	<43B1D6C6.30300@metaparadigm.com>	<43B1E5C1.4050908@bigpond.net.au>	<43B1F203.6010401@metaparadigm.com>	<20051227181239.3338b848.rdunlap@xenotime.net>	<43B204F1.1010409@bigpond.net.au>	<43B20657.30508@metaparadigm.com>	<20051227193309.756f654a.rdunlap@xenotime.net> <20051227193956.6fb9e957.rdunlap@xenotime.net>
+In-Reply-To: <20051227193956.6fb9e957.rdunlap@xenotime.net>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 27, 2005 at 09:52:26PM -0800, Joshua Kwan wrote:
-> Unable to handle kernel paging request at virtual address b7c1fc35
->  printing eip:
-> c017c2a8
-> *pde = 0afff067
-> *pte = 00000000
-> Oops: 0000 [#1]
-> Modules linked in: hostap_pci hostap ieee80211_crypt tulip ipt_state
-> ipt_MASQUERADE ppp_deflate zlib_deflate zlib_inflate bsd_comp ipt_LOG
-> iptable_mangle sch_ingress cls_u32 sch_sfq sch_cbq iptable_nat ip_nat
-> ipt_REJECT iptable_filter ip_tables ppp_async crc_ccitt ppp_generic slhc
-> ip_conntrack_irc i2c_dev via686a hwmon i2c_isa i2c_core
-> CPU:    0
-> EIP:    0060:[<c017c2a8>]    Not tainted VLI
-> EFLAGS: 00010282   (2.6.14-influx)
-> EIP is at proc_exe_link+0x28/0xa0
-> eax: cd4af070   ebx: cd4af040   ecx: cd4af070   edx: b7c1fc20
-> esi: 00000000   edi: c445bf6c   ebp: c445a000   esp: c445bf30
-> ds: 007b   es: 007b   ss: 0068
-> Process lsof (pid: 17477, threadinfo=c445a000 task=c0d82560)
-> Stack: c9473e60 00000000 c017de2c c9473e60 c445bf4c c445bf48 00000000
-> c0355fc0
->        c9473e60 00001000 c0156093 d0d6af70 bffc9250 00001000 c9473e60
-> d0d6af70
->        c12f3f60 00000000 00000000 00000000 00000000 00000001 00000000
-> 00000000
-> Call Trace:
->  [<c017de2c>] proc_pid_readlink+0x4c/0xc0
->  [<c0156093>] sys_readlink+0x53/0x80
->  [<c01060df>] do_syscall_trace+0x9f/0x148
->  [<c0102af9>] syscall_call+0x7/0xb
-> Code: 90 90 90 56 53 8b 44 24 0c ff 70 f0 e8 b2 69 f9 ff 85 c0 89 c3 5a
-> 74 77 8d 48 30 89 c8 ff 00 0f 88 72 07 00 00 8b 13 85 d2 74 14 <f6> 42
-> 15 10 74 07 8b 42 4c 85 c0 75 28 8b 52 0c 85 d2 75 ec be
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Until the last line it made sense.  Code, however, is flat-out BS.
-This chunk is from around proc_exe_link(), all right.  But it starts
-at 3 bytes before the beginning of that function.  Perfect match to
-build with your .config using gcc4, but...  no way in hell you would
-get an oops at that location - it's in the middle of long chunk of
-NOP.  So something's rotten here...
+Hi.
 
-FWIW, with the same build you will get the following at 0x28 from the
-beginning of function:
-        vma = mm->mmap;
-        while (vma) {
-                if ((vma->vm_flags & VM_EXECUTABLE) && vma->vm_file)
-                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-                        break;
-                vma = vma->vm_next;
-        }
-This check.  It turns into
-	f6 42 15 10             testb  $0x10,0x15(%edx)
-with vma in %edx.  Since your %edx is 0xb7c1fc20 and address you are trying
-to access is 0xb7c1fc35, it's a match.
+>>>>>so where is this 'Preformat' option?  I don't see it.
+>>>>
+>>>>
+>>>>Nor me.
+>>>>
+>>>
+>>>It is a drop down box in the Compose window just below the subject field
+>>>on the left (intially says "Body Text").
+>>
+>>However, if one has disabled "Compose messages in HTML format",
+>>that drop-down list does not show up.
+>>So does this generate an HTML email, using <preformat> or <tt> etc.?
+>>If so, still bad.  I'll test it to myself.
+> 
+> 
+> Looks good.  Preserves tabs and spaces.  Not HTML email.
+> Thanks.
 
-So you've got 0xb7c1fc20 as vma.  Which is not good, since that's a userland
-address.  The next question is where it'd come from - it might be
-	* fscked task->mm
-	* fscked mm->mmap
-	* fscked vma somewhere in the chain.
+It's not perfect but ok. I'm running the FC4 version of Tbird 1.0.7 and
+it works as it should with tabs and spaces everywhere if I don't sign
+or encrypt the mail.
 
-Doing lsof will walk vma chains of many processes, so if something is
-corrupted it will step into that...
+If I DO sign or encrypt the mail (using Enigmail+gpg) then the preformat
+is effectively turned off and all tabs are converted to spaces, but
+spaces are left as is.
+
+How does the other mail clients handle it (or don't they handle signed
+and/or encrypted mails?).
+
+// Stefan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFDsj1TBrn2kJu9P78RAk/rAJ0br09iGrmMa1EdcqThUmZbfbfH+gCfUEEe
+ihJpvwzdADr9bHSlopY6ipw=
+=Smdd
+-----END PGP SIGNATURE-----

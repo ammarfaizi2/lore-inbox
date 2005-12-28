@@ -1,83 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932540AbVL1RNj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932198AbVL1RJc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932540AbVL1RNj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 12:13:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932537AbVL1RNj
+	id S932198AbVL1RJc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 12:09:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932536AbVL1RJc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 12:13:39 -0500
-Received: from xproxy.gmail.com ([66.249.82.207]:42761 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932540AbVL1RNi (ORCPT
+	Wed, 28 Dec 2005 12:09:32 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:36516 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932198AbVL1RJb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 12:13:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type;
-        b=hv5yXLKsOf8QefpSBaEINXca68ECcax5jSnCRIu7phcok4WAbqyOM2ybwHQ5X7H7DPg5k963Qr74iEFww//9Vr+oIC4RRMGpqtAw9p1UYWl7494lcjcmT9HlOrstheSONCckGdXx+5rBrLe0zGCyrslHXwGzSYpPoSdmF6PMwfs=
-Message-ID: <82e4877d0512280913s66a43d4ida9eda3640520c1@mail.gmail.com>
-Date: Wed, 28 Dec 2005 12:13:37 -0500
-From: Parag Warudkar <parag.warudkar@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.15-rc7] udf/balloc.c : Fix use of uninitialized data
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_50419_29127110.1135790017586"
+	Wed, 28 Dec 2005 12:09:31 -0500
+Date: Wed, 28 Dec 2005 18:09:11 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nicolas Pitre <nico@cam.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 1/3] mutex subsystem: trylock
+Message-ID: <20051228170911.GB21451@elte.hu>
+References: <20051223161649.GA26830@elte.hu> <Pine.LNX.4.64.0512261411530.1496@localhost.localdomain> <20051227115129.GB23587@elte.hu> <Pine.LNX.4.64.0512271439380.3309@localhost.localdomain> <20051228074857.GA4600@elte.hu> <20051228081348.GA6910@elte.hu> <Pine.LNX.4.64.0512281101510.3309@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0512281101510.3309@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_50419_29127110.1135790017586
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-2.6.15-rc7 - GCC warns correctly -
- fs/udf/balloc.c: In function 'udf_table_new_block':
- fs/udf/balloc.c:757: warning: 'goal_eloc.logicalBlockNum' may be used
-uninitialized in this function
+* Nicolas Pitre <nico@cam.org> wrote:
 
-Variable goal_eloc is automatic, non-static and initialized conditionally -
+> > the patch below adds it, and it boots fine on x86 with mutex.c hacked to 
+> > include asm-generic/mutex-xchg.h.
+> 
+> Here's an additional patch to fix some comments, and to add a small 
+> optimization.
 
- if (nspread < spread)
- {
-     ...........
-     goal_eloc =3D eloc;
-     ...........
- }
+thanks, applied.
 
- The following patch fixes this by initializing the goal_eloc variable to z=
-ero.
-Hopefully zero should be better than some random data! (Patch also
-attached in case of problem with below inline version.) Compile
-tested.
-
---- linux-2.6/fs/udf/balloc.c.orig      2005-12-28 11:53:12.000000000 -0500
-+++ linux-2.6/fs/udf/balloc.c   2005-12-28 11:53:19.000000000 -0500
-@@ -754,7 +754,8 @@ static int udf_table_new_block(struct su
-        uint32_t spread =3D 0xFFFFFFFF, nspread =3D 0xFFFFFFFF;
-        uint32_t newblock =3D 0, adsize;
-        uint32_t extoffset, goal_extoffset, elen, goal_elen =3D 0;
--       kernel_lb_addr bloc, goal_bloc, eloc, goal_eloc;
-+       kernel_lb_addr bloc, goal_bloc, eloc,
-+       goal_eloc =3D { .logicalBlockNum=3D0, .partitionReferenceNum=3D0 } =
-;
-        struct buffer_head *bh, *goal_bh;
-        int8_t etype;
-
-------=_Part_50419_29127110.1135790017586
-Content-Type: application/octet-stream; name=patch
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch"
-
---- linux-2.6/fs/udf/balloc.c.orig	2005-12-28 11:53:12.000000000 -0500
-+++ linux-2.6/fs/udf/balloc.c	2005-12-28 11:53:19.000000000 -0500
-@@ -754,7 +754,8 @@ static int udf_table_new_block(struct su
- 	uint32_t spread = 0xFFFFFFFF, nspread = 0xFFFFFFFF;
- 	uint32_t newblock = 0, adsize;
- 	uint32_t extoffset, goal_extoffset, elen, goal_elen = 0;
--	kernel_lb_addr bloc, goal_bloc, eloc, goal_eloc;
-+	kernel_lb_addr bloc, goal_bloc, eloc, 
-+	goal_eloc = { .logicalBlockNum=0, .partitionReferenceNum=0 } ;
- 	struct buffer_head *bh, *goal_bh;
- 	int8_t etype;
- 
-
-------=_Part_50419_29127110.1135790017586--
+	Ingo

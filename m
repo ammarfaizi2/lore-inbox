@@ -1,95 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbVL1EWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932467AbVL1EZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932465AbVL1EWR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Dec 2005 23:22:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932466AbVL1EWR
+	id S932467AbVL1EZq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Dec 2005 23:25:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbVL1EZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Dec 2005 23:22:17 -0500
-Received: from digitalimplant.org ([64.62.235.95]:63649 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S932465AbVL1EWQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Dec 2005 23:22:16 -0500
-Date: Tue, 27 Dec 2005 20:22:04 -0800 (PST)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Pavel Machek <pavel@ucw.cz>
-cc: dtor_core@ameritech.net, Andrew Morton <akpm@osdl.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [patch] pm: fix runtime powermanagement's /sys
- interface
-In-Reply-To: <20051227220533.GA1914@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.50.0512271957410.6491-100000@monsoon.he.net>
-References: <20051227213439.GA1884@elf.ucw.cz>
- <d120d5000512271355r48d476canfea2c978c2f82810@mail.gmail.com>
- <20051227220533.GA1914@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Dec 2005 23:25:46 -0500
+Received: from waste.org ([64.81.244.121]:60331 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932467AbVL1EZp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Dec 2005 23:25:45 -0500
+Date: Tue, 27 Dec 2005 22:22:32 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, hch@infradead.org
+Subject: Re: [PATCH 2 of 3] memcpy32 for x86_64
+Message-ID: <20051228042232.GC3356@waste.org>
+References: <patchbomb.1135726914@eng-12.pathscale.com> <042b7d9004acd65f6655.1135726916@eng-12.pathscale.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <042b7d9004acd65f6655.1135726916@eng-12.pathscale.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 27, 2005 at 03:41:56PM -0800, Bryan O'Sullivan wrote:
+> Introduce an x86_64-specific memcpy32 routine.  The routine is similar
+> to memcpy, but is guaranteed to work in units of 32 bits at a time.
+> 
+> Signed-off-by: Bryan O'Sullivan <bos@pathscale.com>
+> 
+> diff -r 7b7b442a4d63 -r 042b7d9004ac arch/x86_64/kernel/x8664_ksyms.c
+> --- a/arch/x86_64/kernel/x8664_ksyms.c	Tue Dec 27 15:41:48 2005 -0800
+> +++ b/arch/x86_64/kernel/x8664_ksyms.c	Tue Dec 27 15:41:48 2005 -0800
+> @@ -150,6 +150,8 @@
+>  extern void * memcpy(void *,const void *,__kernel_size_t);
+>  extern void * __memcpy(void *,const void *,__kernel_size_t);
+>  
+> +extern void memcpy32(void *,const void *,__kernel_size_t);
 
+It's better to do an include here. Duplicating prototypes in .c files
+is frowned upon (despite the fact that it's already done here).
 
-On Tue, 27 Dec 2005, Pavel Machek wrote:
+> +
+>  EXPORT_SYMBOL(memset);
+>  EXPORT_SYMBOL(strlen);
+>  EXPORT_SYMBOL(memmove);
+> @@ -164,6 +166,8 @@
+>  EXPORT_SYMBOL(memcpy);
+>  EXPORT_SYMBOL(__memcpy);
+>  
+> +EXPORT_SYMBOL_GPL(memcpy32);
+> +
 
-> Hi!
->
-> > >  static ssize_t state_show(struct device * dev, struct device_attribute *attr, char * buf)
-> > >  {
-> > > -       return sprintf(buf, "%u\n", dev->power.power_state.event);
-> > > +       if (dev->power.power_state.event)
-> > > +               return sprintf(buf, "suspend\n");
-> > > +       else
-> > > +               return sprintf(buf, "on\n");
-> > >  }
-> >
-> > Are you sure that having only 2 options (suspend/on) is enough at the
-> > core level? I could envision having more levels, like "poweroff", etc?
->
-> Note that interface is 0/2, currently, so this is improvement :-).
+We've been steadily moving towards grouping EXPORTs with function
+definitions. Do *_ksyms.c exist solely to provide exports for
+functions defined in assembly at this point? If so, perhaps we ought
+to come up with a suitable export macro for asm files.
 
-Heh, not really. You're not really solving any problems, only giving the
-illusion that you've actually fixed something.
+> diff -r 7b7b442a4d63 -r 042b7d9004ac arch/x86_64/lib/memcpy32.S
+> --- /dev/null	Thu Jan  1 00:00:00 1970 +0000
+> +++ b/arch/x86_64/lib/memcpy32.S	Tue Dec 27 15:41:48 2005 -0800
+> @@ -0,0 +1,25 @@
+> +/*
+> + * Copyright (c) 2003, 2004, 2005 PathScale, Inc.
+> + */
+> +
+> +/*
+> + * memcpy32 - Copy a memory block, 32 bits at a time.
+> + *
+> + * Count is number of dwords; it need not be a qword multiple.
+> + * Input:
+> + * rdi destination
+> + * rsi source
+> + * rdx count
+> + */
+> +
+> + 	.globl memcpy32
+> +memcpy32:
+> +	movl %edx,%ecx
+> +	shrl $1,%ecx
+> +	andl $1,%edx
+> +	rep
+> +	movsq
+> +	movl %edx,%ecx
+> +	rep
+> +	movsd
+> +	ret
 
-As I mentioned in the thread (currently happening, BTW) on the linux-pm
-list, what you want to do is accept a string that reflects an actual state
-that the device supports. For PCI devices that support low-power states,
-this would be "D1", "D2", "D3", etc. For USB devices, which only support
-an "on" and "suspended" state, the values that this patch parses would
-actually work.
+Any reason this needs its own .S file? One wonders if the
 
-One way or another, you want the drivers to export the power states that
-they support in some fashion. Not all devices support PM, and the current
-interface is admittedly lacking in that respect. As I mentioned, the
-proper thing to do would be to not add this file for *every* device, but
-leave it up to the buses to add it for devices that support PM (and that
-have drivers bound to them that implement it).
+        .p2align 4
 
-The reason is that some drivers and devices will support more than just
-"on" and "suspended". which states those are, the power savings that they
-offer, and the tradeoff in latency for resuming from those states are real
-values and things to be considered for wanting to enter those states.
+in memcpy.S is appropriate here too. Splitting rep movsq across two
+lines is a little weird to me too, but I see Andi did it too.
 
-Your patch does nothing to actually help support those things, and doesn't
-do anything to improve the broken interface.
-
-> One day, when we find device that needs it, we may want to add more
-> states. I don't know about such device currently.
-
-There are many devices already do - there are PCI, PCI-X, PCI Express,
-ACPI devices, etc that do. But, you simply cannot create a single decent
-runtime power management interface for every single type of device. The
-power states are inherently specific to the bus that they are on. Some of
-them are specific to the device.
-
-This is not suspend - you won't be able to get away with a few arbitrary
-values that work for most systems. The proper interface should allow the
-buses and drivers to use *factual* identifiers to express the states they
-support. Anything else (including the current interface, which I wrote) is
-simply a hack.
-
-Thanks,
-
-
-	Patrick
-
+-- 
+Mathematics is the supreme nostalgia of our time.

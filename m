@@ -1,70 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964847AbVL1PmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964848AbVL1Ppb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964847AbVL1PmF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 10:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbVL1PmF
+	id S964848AbVL1Ppb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 10:45:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964849AbVL1Ppb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 10:42:05 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:17852 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964847AbVL1PmB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 10:42:01 -0500
-Date: Wed, 28 Dec 2005 16:41:38 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Matt Mackall <mpm@selenic.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 02/2] allow gcc4 to optimize unit-at-a-time
-Message-ID: <20051228154138.GA18798@elte.hu>
-References: <20051228114701.GC3003@elte.hu> <p734q4tb5na.fsf@verdi.suse.de>
+	Wed, 28 Dec 2005 10:45:31 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:2510 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S964848AbVL1Ppb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 10:45:31 -0500
+Subject: Re: Linux 2.6.14.5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: gene.heskett@verizononline.net, linux-kernel@vger.kernel.org
+In-Reply-To: <200512281002.35214.vda@ilport.com.ua>
+References: <20051227005327.GA21786@kroah.com>
+	 <v573r1tpeekqf45rtk8ljemsfh5r48o9bi@4ax.com>
+	 <200512271540.08809.gene.heskett@verizon.net>
+	 <200512281002.35214.vda@ilport.com.ua>
+Content-Type: text/plain
+Date: Wed, 28 Dec 2005 10:51:02 -0500
+Message-Id: <1135785063.4890.6.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p734q4tb5na.fsf@verdi.suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.9 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andi Kleen <ak@suse.de> wrote:
-
-> But one caveat: turning on unit-at-a-time makes objdump -S / make 
-> foo/bar.lst with CONFIG_DEBUG_INFO essentially useless because objdump 
-> cannot deal with functions being out of order in the object file. This 
-> can be a big problem while analyzing oopses - essentially you have to 
-> analyze the functions without source level information. And with 
-> unit-at-a-time they become bigger so it's more difficult.
+On Wed, 2005-12-28 at 10:02 +0200, Denis Vlasenko wrote:
+> On Tuesday 27 December 2005 22:40, Gene Heskett wrote:
+> > On Tuesday 27 December 2005 15:01, Grant Coady wrote:
+> > >On Mon, 26 Dec 2005 19:33:35 -0800 (PST), "David S. Miller" 
+> > <davem@davemloft.net> wrote:
+> > >>Please report it to the netfilter mailing list, which is
+> > >>where the netfilter developers listen and can attend to
+> > >>your report.
+> > >>
+> > >>Thanks a lot.
+> > >
+> > >Why bother?
+> > >
+> > >"
+> > >Your request to the netfilter-devel mailing list
+> > >
+> > >    Posting of your message titled "Re: Linux 2.6.14.5"
+> > >
+> > >has been rejected by the list moderator.  The moderator gave the
+> > >following reason for rejecting your request:
+> > >
+> > >"Non-members are not allowed to post messages to this list."
+> > >
+> > >Any questions or comments should be directed to the list
+> > > administrator at:
+> > >
+> > >    netfilter-devel-owner@lists.netfilter.org
+> > >"
+> > >
+> > >Grant.
+> > >
+> > I too have been rejected at that address.  Like Grant, why bother seems 
+> > to be the appropriate response.  If they want to here soonest when 
+> > there is a problem, then the moderator should clear what is obviously 
+> > not a spam message to the list in a reasonable time frame.  Its never 
+> > happened to me but once and I was bascily told to "go away little 
+> > boy." 
 > 
-> But I still think it's a good idea.
+> Moderators of mailing lists scale badly compared to number
+> China-hosted hosts spewing tons of TCP traffic to port 25...
 
-hm, i dont seem to have problems with DEBUG_INFO. I picked a random 
-address within the kernel:
+So lose the moderation.  It works fine on 10-20 other lists I am on and
+we are not buried in spam.
 
-c035766f T schedule_timeout
+Lee
 
-(gdb) list *0xc035768f
-0xc035768f is in schedule_timeout (kernel/timer.c:1075).
-1070                     * should never happens anyway). You just have the printk()
-1071                     * that will tell you if something is gone wrong and where.
-1072                     */
-1073                    if (timeout < 0)
-1074                    {
-1075                            printk(KERN_ERR "schedule_timeout: wrong timeout "
-1076                                    "value %lx from %p\n", timeout,
-1077                                    __builtin_return_address(0));
-1078                            current->state = TASK_RUNNING;
-1079                            goto out;
-(gdb)
-
-or is it something else that breaks?
-
-	Ingo

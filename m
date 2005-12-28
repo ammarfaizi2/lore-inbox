@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964864AbVL1SWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964863AbVL1SYZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964864AbVL1SWj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 13:22:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964865AbVL1SWj
+	id S964863AbVL1SYZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 13:24:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbVL1SYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 13:22:39 -0500
-Received: from cantor.suse.de ([195.135.220.2]:3037 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S964864AbVL1SWj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 13:22:39 -0500
-Message-ID: <6232114.1135794150848.SLOX.WebMail.wwwrun@imap-dhs.suse.de>
-Date: Wed, 28 Dec 2005 19:22:30 +0100 (CET)
-From: Andreas Kleen <ak@suse.de>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Subject: Re: [RFC] [PATCH] Add memcpy32 function
-Cc: Matt Mackall <mpm@selenic.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1135793503.1527.125.camel@serpentine.pathscale.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+	Wed, 28 Dec 2005 13:24:24 -0500
+Received: from mxsf01.cluster1.charter.net ([209.225.28.201]:23446 "EHLO
+	mxsf01.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S964863AbVL1SYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 13:24:24 -0500
+X-IronPort-AV: i="3.99,304,1131339600"; 
+   d="scan'208"; a="1664132363:sNHT33819412"
+Message-ID: <43B2D7A5.2080906@cybsft.com>
+Date: Wed, 28 Dec 2005 12:21:25 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: 2.6.15-rc7-rt1
+References: <20051228172643.GA26741@elte.hu>
+In-Reply-To: <20051228172643.GA26741@elte.hu>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (normal)
-X-Mailer: SuSE Linux Openexchange Server 4 - WebMail (Build 2.4160)
-X-Operating-System: Linux 2.4.21-304-smp i386 (JVM 1.3.1_16)
-Organization: SuSE Linux AG
-References: <1135301759.4212.76.camel@serpentine.pathscale.com> <p73fyodmqn6.fsf@verdi.suse.de> <1135782025.1527.104.camel@serpentine.pathscale.com> <1880308.1135792235045.SLOX.WebMail.wwwrun@imap-dhs.suse.de> <1135793503.1527.125.camel@serpentine.pathscale.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mi 28.12.2005 19:11 schrieb Bryan O'Sullivan <bos@pathscale.com>:
+Ingo Molnar wrote:
+> i have released the 2.6.15-rc7-rt1 tree, which can be downloaded from 
+> the usual place:
+> 
+>    http://redhat.com/~mingo/realtime-preempt/
+> 
+> this release mainly includes fixes from Steven Rostedt, for various 
+> problems with -rc5-rt4 - while i'm over in mutex-land ;)
+> 
+> Please re-report any bugs that remain.
 
-> On Wed, 2005-12-28 at 18:50 +0100, Andreas Kleen wrote:
->
-> > Ok thanks. And do you have numbers that show that the assembly
-> > function with rep ; movsl actually improves performance over C?
->
-> I'll see if I can ferret some numbers out. If not, I'll generate them,
-> but it will take me a day or so. I'm pretty sure it makes a difference
-> of tens to hundreds of nanoseconds, which in our case is very
-> significant (we measure some of our user-level performance in
-> increments
-> of 10ns, very repeatably).
+This one got all of the outstanding issues that I had run into thus far
+with previous patches. Compiled and booted on the old dual 933.
 
-If you test the C version use
-
-CFLAGS_memcpy32.o := -funroll-loops
-
-BTW on x86-64 with CONFIG_UNORDERED_IO writel can actually expand to a
-non temporal write which might break it.
-
--Andi
+> 
+> to build a 2.6.15-rc7-rt1 tree, the following patches should be applied:
+> 
+>   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.14.tar.bz2
+>   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.15-rc7.bz2
+>   http://redhat.com/~mingo/realtime-preempt/patch-2.6.15-rc7-rt1
+> 
+> 	Ingo
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 
+-- 
+   kr

@@ -1,87 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbVL2XZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbVL2XaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbVL2XZv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 18:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751162AbVL2XZv
+	id S1751139AbVL2XaS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 18:30:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVL2XaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 18:25:51 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:43026 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751156AbVL2XZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 18:25:50 -0500
-Date: Fri, 30 Dec 2005 00:25:48 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: userspace breakage
-Message-ID: <20051229232548.GT3811@stusta.de>
-References: <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com> <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <20051229224103.GF12056@redhat.com> <Pine.LNX.4.64.0512291451440.3298@g5.osdl.org>
+	Thu, 29 Dec 2005 18:30:18 -0500
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:27274 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S1751139AbVL2XaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 18:30:16 -0500
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: gcoady@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6..15-rc7: CONFIG_HOTPLUG help text
+Date: Fri, 30 Dec 2005 10:30:25 +1100
+Organization: http://bugsplatter.mine.nu/
+Reply-To: gcoady@gmail.com
+Message-ID: <0as8r1dh78udset3vv3d1sea5lpnkqccoi@4ax.com>
+References: <drq8r15vvepe8ike7tkm5mkcfp41npph2h@4ax.com> <9a8748490512291519h22c3ad6fvcda35fb038d0f3cf@mail.gmail.com>
+In-Reply-To: <9a8748490512291519h22c3ad6fvcda35fb038d0f3cf@mail.gmail.com>
+X-Mailer: Forte Agent 2.0/32.652
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512291451440.3298@g5.osdl.org>
-User-Agent: Mutt/1.5.11
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 29, 2005 at 02:56:16PM -0800, Linus Torvalds wrote:
-> 
-> On Thu, 29 Dec 2005, Dave Jones wrote:
->...
-> > Just a few years ago, if someone suggested breaking a userspace
-> > app in a kernel upgrade, they'd be crucified on linux-kernel, now
-> > it's 'the norm').
-> 
-> That really isn't acceptable. Breaking user space - even things that are 
-> "close" to the kernel like udev scripts and alsa-lib, really is NOT a good 
-> idea.
-> 
-> We're much better off wasting a bit of time on backwards compatibility, 
-> than wasting a lot of user time and irritation (and indirectly, developer 
-> time) on linkages to packages outside the kernel.
-> 
-> If you cannot upgrade a kernel without ugrading some user package, that 
-> should be considered a real bug and a regression.
-> 
-> There are real technical reasons for not allowing those kinds of version 
-> linkages: it makes it MUCH harder to blame the right thing when things go 
-> wrong. 
-> 
-> Now, I'm not saying that we can always support everything that goes on in 
-> user space forever, but dammit, we can try damn hard.
->...
+On Fri, 30 Dec 2005 00:19:03 +0100, Jesper Juhl <jesper.juhl@gmail.com> wrote:
 
-Was it a mistake to drop support for ipfwadm and ipchains?
-Was it a mistake to drop support for devsfs?
-Will it be a mistake to drop support for gcc < 3.2?
-Will it be a mistake to remove the obsolete raw driver?
-Will it be a mistake to drop the Video4Linux API 1 ioctls?
-Will it be a mistake to drop support for pcmcia-cs?
-...
+>On 12/30/05, Grant Coady <grant_lkml@dodo.com.au> wrote:
+>> Hi there,
+>>
+>> "
+>> CONFIG_HOTPLUG:
+>>
+>> This option is provided for the case where no in-kernel-tree
+>> modules require HOTPLUG functionality, but a module built
+>> outside the kernel tree does. Such modules require Y here.
+>> "
+>>
+>> This gives no indication it is required for udev.  Or is it me confused?
+>>
+>It doesn't mention udev specifically, but it does say quite clearly
+>that it's for out-of-kernel stuff that requires hotplug, and udev is
+>such a thing.
 
-And if any of these was or will not be a mistake, when is the right time  
-for the userspace breakage?
+udev is an out-of-tree kernel module?  Okay, why not bring it into 
+the mainline kernel then?  ;)
 
-I did agree with what you express before support for ipchains was 
-removed and support for devfs was removed, and many more I do not 
-remember currently, but I've now simply accepted that regarding kernel 
-development, 6 is an odd number.
-
-The fundamental problem is that the current development model 
-contains no well-defined points where breakages of the kernel-related 
-userspace were allowed and expected by users.
-
-> 			Linus
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Grant.

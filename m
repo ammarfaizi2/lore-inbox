@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbVL2U0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbVL2U3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750917AbVL2U0M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 15:26:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbVL2U0M
+	id S1750960AbVL2U3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 15:29:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbVL2U3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 15:26:12 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:51872 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750915AbVL2U0M (ORCPT
+	Thu, 29 Dec 2005 15:29:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:44429 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750960AbVL2U3P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 15:26:12 -0500
-Date: Thu, 29 Dec 2005 21:25:50 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
-       Matt Mackall <mpm@selenic.com>, Dave Jones <davej@redhat.com>
+	Thu, 29 Dec 2005 15:29:15 -0500
+Date: Thu, 29 Dec 2005 15:28:52 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       arjan@infradead.org, linux-kernel@vger.kernel.org, mpm@selenic.com
 Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051229202550.GB29546@elte.hu>
-References: <20051228114637.GA3003@elte.hu> <20051229043835.GC4872@stusta.de> <20051229075936.GC20177@elte.hu> <20051229135250.GE3811@stusta.de>
+Message-ID: <20051229202852.GE12056@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+	Andrew Morton <akpm@osdl.org>, arjan@infradead.org,
+	linux-kernel@vger.kernel.org, mpm@selenic.com
+References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051229135250.GE3811@stusta.de>
+In-Reply-To: <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.9 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Dec 29, 2005 at 09:41:12AM -0800, Linus Torvalds wrote:
 
-* Adrian Bunk <bunk@stusta.de> wrote:
+ > Comparing it to the kernel is ludicrous. We care about user-space 
+ > interfaces to an insane degree. We go to extreme lengths to maintain even 
+ > badly designed or unintentional interfaces. Breaking user programs simply 
+ > isn't acceptable. We're _not_ like the gcc developers. We know that 
+ > people use old binaries for years and years, and that making a new 
+ > release doesn't mean that you can just throw that out. You can trust us.
 
-> It won't be dropped on the floor indefinitely.
-> 
-> "I do plan to look at this" means that I'd currently estimate this 
-> being 2.6.19 stuff.
+Does this mean you're holding back the 2.6.15 release until we don't
+need to update udev to stop X from breaking ?
+</tongue-in-cheek>
 
-you must be kidding ...
+Seriously, we break things _every_ release. Sometimes in tiny
+'doesn't really matter' ways, sometimes in "fuck, my system no
+longer works" ways, but the days where we I didn't have to tell
+our userspace packagers to rev a half dozen or so packages up to the
+latest upstream revisions when I've pushed a rebased kernel are
+a distant memory.
 
-> Yes that's one year from now, but we need it properly analyzed and 
-> tested before getting it into Linus' tree, and I do really want it 
-> untangled from and therefore after 4k stacks.
+		Dave
 
-you are really using the wrong technology for this.
-
-look at the latency tracing patch i posted today: it includes a feature 
-that prints the worst-case stack footprint _as it happens_, and thus 
-allows the mapping of such effects in a very efficient and very 
-practical way. As it works on a live system, and profiles live function 
-traces, it goes through function pointers and irq entry nesting effects 
-too. We could perhaps put that into Fedora for a while and get the 
-worst-case footprints mapped.
-
-in fact i've been running this feature in the -rt kernel for quite some 
-time, and it enabled the fixing of a couple of bad stack abusers, and it 
-also told us what our current worst-case stack footprint is [when 4K 
-stacks are enabled]: it's execve of an ELF binary.
-
-	Ingo

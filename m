@@ -1,71 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbVL2TGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750889AbVL2TL4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbVL2TGR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 14:06:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbVL2TGR
+	id S1750889AbVL2TL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 14:11:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbVL2TL4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 14:06:17 -0500
-Received: from zproxy.gmail.com ([64.233.162.197]:31104 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1750869AbVL2TGQ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 14:06:16 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WBq/RQH/L125kUhZ0qu9O5WQacdYZNL4TsUkqxEmPiRknjft7DySK308mnI2l1gDeLpyJ1G23RWYxfdyPqRmcc+C1yA5wQH12hVg0f9sXAlL+7NMo+vprksT8LQ84Ml0q5HibjS+nsQvapMAoeDbGQKAxpNerMTI7x4B3oPOetg=
-Message-ID: <5b5833aa0512291106m5142acd5pfb12c4831b60e96b@mail.gmail.com>
-Date: Thu, 29 Dec 2005 15:06:15 -0400
-From: Anderson Lizardo <anderson.lizardo@gmail.com>
-To: Pierre Ossman <drzeus-list@drzeus.cx>,
-       Anderson Lizardo <anderson.lizardo@gmail.com>,
-       Anderson Briglia <anderson.briglia@indt.org.br>,
-       Anderson Lizardo <anderson.lizardo@indt.org.br>,
-       linux-omap-open-source@linux.omap.com, linux-kernel@vger.kernel.org,
-       Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>,
-       Russell King - ARM Linux <linux@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>, David Brownell <david-b@pacbell.net>
-Subject: Re: [patch 0/5] Add MMC password protection (lock/unlock) support
-In-Reply-To: <20051215134436.GB6211@flint.arm.linux.org.uk>
+	Thu, 29 Dec 2005 14:11:56 -0500
+Received: from mtl.rackplans.net ([65.39.167.249]:28092 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id S1750807AbVL2TLz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 14:11:55 -0500
+Date: Thu, 29 Dec 2005 14:11:52 -0500 (EST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Robert Hancock <hancockr@shaw.ca>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [solved][Re: software raid 5 broken on 2.6.14.4 sparc
+In-Reply-To: <43B43020.8080804@shaw.ca>
+Message-ID: <Pine.LNX.4.64.0512291410590.16975@innerfire.net>
+References: <5paRd-18Z-47@gated-at.bofh.it> <43B43020.8080804@shaw.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20051213213208.303580000@localhost.localdomain>
-	 <439F4AD6.9090203@indt.org.br> <439FC4A6.4010900@drzeus.cx>
-	 <5b5833aa0512141551l638b2c05xcd4588a9370bfa51@mail.gmail.com>
-	 <43A11204.2070403@drzeus.cx>
-	 <20051215091220.GA29620@flint.arm.linux.org.uk>
-	 <43A136F1.3040700@drzeus.cx>
-	 <20051215100657.GC32490@flint.arm.linux.org.uk>
-	 <20051215134436.GB6211@flint.arm.linux.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/15/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> Reading through the specs I have here, block sizes seem to be all over
-> the place.  The MMC card specs seem to imply that any block size can
-> be set, from 0 bytes to 2^32-1 bytes.
->
-> The PXA MMC interface specification allows the block size to be anything
-> from 1 to 1023 bytes, excluding CRC.  It is unclear whether a value of 0
-> means 1024.
->
-> The MMCI specification allows the block size to be specified as a power
-> of two, from 1 to 2048 bytes, excluding CRC.
+On Thu, 29 Dec 2005, Robert Hancock wrote:
 
-By "allows" do you mean we can set the block size to arbitrary values
-on MMCI too?
+> Date: Thu, 29 Dec 2005 12:51:12 -0600
+> From: Robert Hancock <hancockr@shaw.ca>
+> To: linux-kernel <linux-kernel@vger.kernel.org>
+> Cc: gmack@innerfire.net
+> Subject: Re: software raid 5 broken on 2.6.14.4 sparc
+> 
+> Gerhard Mack wrote:
+> > Hello,
+> > 
+> > I had one of 5 drives fail in my raid 5 setup and now many files are
+> > unreadable..  Isn't raid 5 supposed to compensate for exactly this
+> > happening?
+> 
+> It looks like you have multiple drives with problems here:
+> 
+> Here's sde unhappy:
+> 
+> > Dec 25 18:36:27 localhost kernel: sde: Current: sense key: Recovered Error
+> > Dec 25 18:36:27 localhost kernel:     Additional sense: Recovered data -
+> > recommend reassignment
+> 
+> sdb seems to be overheating:
+> 
+> > Dec 26 11:25:56 localhost kernel: sdb: Current: sense key: Recovered Error
+> > Dec 26 11:25:56 localhost kernel:     Additional sense: Warning - specified
+> > temperature exceeded
+> 
+> Now sdf is unhappy..
+> 
+> > Dec 29 06:26:07 localhost kernel: sdf: Current: sense key: Hardware Error
+> > Dec 29 06:26:07 localhost kernel:     Additional sense: Mechanical
+> > positioning error
+> > Dec 29 06:26:07 localhost kernel: end_request: I/O error, dev sdf, sector
+> > 9664
+> > Dec 29 06:26:07 localhost kernel: raid5: Disk failure on sdf, disabling
+> > device. Operation continuing on 4 devices
+> 
+> > Dec 29 06:26:07 localhost kernel: RAID5 conf printout:
+> > Dec 29 06:26:07 localhost kernel:  --- rd:6 wd:4 fd:2
+> > Dec 29 06:26:07 localhost kernel:  disk 0, o:1, dev:sdc
+> > Dec 29 06:26:07 localhost kernel:  disk 1, o:1, dev:sdd
+> > Dec 29 06:26:07 localhost kernel:  disk 2, o:1, dev:sde
+> > Dec 29 06:26:07 localhost kernel:  disk 3, o:0, dev:sdf
+> > Dec 29 06:26:07 localhost kernel:  disk 4, o:1, dev:sdg
+> > Dec 29 06:26:07 localhost kernel: RAID5 conf printout:
+> > Dec 29 06:26:07 localhost kernel:  --- rd:6 wd:4 fd:2
+> > Dec 29 06:26:07 localhost kernel:  disk 0, o:1, dev:sdc
+> > Dec 29 06:26:07 localhost kernel:  disk 1, o:1, dev:sdd
+> > Dec 29 06:26:07 localhost kernel:  disk 2, o:1, dev:sde
+> > Dec 29 06:26:07 localhost kernel:  disk 4, o:1, dev:sdg
+> > Dec 29 06:26:07 localhost kernel: Buffer I/O error on device md0, logical
+> > block 6040
+> > Dec 29 06:26:07 localhost kernel: lost page write due to I/O error on md0
+> > Dec 29 06:26:07 localhost kernel: REISERFS: abort (device md0): Journal
+> > write error in flush_commit_list
+> > Dec 29 06:26:07 localhost kernel: REISERFS: Aborting journal for filesystem
+> > on md0
+> > Dec 29 07:16:56 localhost kernel: ReiserFS: md0: warning: clm-6006: writing
+> > inode 2996 on readonly FS
+> > Dec 29 07:16:56 localhost kernel: ReiserFS: md0: warning: clm-6006: writing
+> > inode 2996 on readonly FS
+> > Dec 29 07:17:28 localhost kernel: Buffer I/O error on device md0, logical
+> > block 5052984
+> > Dec 29 07:17:28 localhost kernel: lost page write due to I/O error on md0
+> 
+> I don't know if this completely explains the failure, but it seems you have
+> bigger problems than one bad drive, and RAID5 cannot handle multiple drive
+> failures.
+> 
+Ahah.. I knew about sdb.. overheating (it's not part of the array) I 
+missed sde .. that one explains it.
 
-The MMC specification v4.1 is clear in one thing: the SET_BLOCKLEN
-command should be issued prior to the actual LOCK_UNLOCK command with
-*exactly* the password length + 2 bytes (which contains the operation
-mode bits and the password length in bytes). The MMC password
-unlocking (and other password operations, FWIW) doesn't work on the
-OMAP host if the SET_BLOCKLEN command argument and the block size of
-the data transfer itself do not match.
+	Thanks, 
+	Gerhard
+
 
 --
-Anderson Lizardo
-Embedded Linux Lab - 10LE
-Nokia Institute of Technology - INdT
-Manaus - Brazil
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.

@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbVL2PiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbVL2PkI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750760AbVL2PiO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 10:38:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbVL2PiO
+	id S1750710AbVL2PkI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 10:40:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbVL2PkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 10:38:14 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:8173 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750760AbVL2PiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 10:38:13 -0500
+	Thu, 29 Dec 2005 10:40:08 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:25360 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1750710AbVL2PkG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 10:40:06 -0500
+Date: Thu, 29 Dec 2005 16:40:05 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, arjan@infradead.org,
+       linux-kernel@vger.kernel.org, mpm@selenic.com
 Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-From: Arjan van de Ven <arjan@infradead.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-In-Reply-To: <20051229153529.GH3811@stusta.de>
-References: <20051228114637.GA3003@elte.hu>
-	 <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
-	 <1135798495.2935.29.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
-	 <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
-	 <20051229143846.GA18833@infradead.org>
-	 <1135868049.2935.49.camel@laptopd505.fenrus.org>
-	 <20051229153529.GH3811@stusta.de>
-Content-Type: text/plain
-Date: Thu, 29 Dec 2005 16:38:09 +0100
-Message-Id: <1135870689.2935.54.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-ID: <20051229154005.GI3811@stusta.de>
+References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051229073259.GA20177@elte.hu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > You describe a nice utopia where only the most essential functions are
-> > inlined.. but so far that hasn't worked out all that well ;) Turning
-> > "inline" back into the hint to the compiler that the C language makes it
-> > is maybe a cop-out, but it's a sustainable approach at least.
-> >...
+On Thu, Dec 29, 2005 at 08:32:59AM +0100, Ingo Molnar wrote:
 > 
-> But shouldn't nowadays gcc be able to know best even without an "inline" 
-> hint?
+> * Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > Ingo Molnar <mingo@elte.hu> wrote:
+> > >
+> > > I think gcc should arguably not be forced to inline things when doing 
+> > > -Os, and it's also expected to mess up much less than when optimizing 
+> > > for speed. So maybe forced inlining should be dependent on 
+> > > !CONFIG_CC_OPTIMIZE_FOR_SIZE?
+> > 
+> > When it comes to inlining I just don't trust gcc as far as I can spit 
+> > it.  We're putting the kernel at the mercy of future random brainfarts 
+> > and bugs from the gcc guys.  It would be better and safer IMO to 
+> > continue to force `inline' to have strict and sane semamtics, and to 
+> > simply be vigilant about our use of it.
+> 
+> i think there's quite an attitude here - we are at the mercy of "gcc 
+> brainfarts" anyway, and users are at the mercy of "kernel brainfarts" 
+> just as much. Should users disable swapping and trash-talk it just 
+> because the Linux kernel used to have a poor VM? (And the gcc folks are 
+> certainly listening - it's not like they were unwilling to fix stuff, 
+> they simply had their own decade-old technological legacies that made 
+> certain seemingly random problems much harder to attack. E.g. -Os has 
+> recently been improved quite significantly in to-be-gcc-4.2.)
+>...
+> also, there's a fundamental conflict of 'speed vs. performance' here, 
+> for a certain boundary region. For the extremes, very small and very 
+> large functions, the decision is clear, but if e.g. a CPU has tons of 
+> cache, it might prefer more agressive inlining than if it doesnt. So 
+> it's not like we can do it in a fully static manner.
+>...
 
-it will, the inline hint only affects the thresholds so it's not
-entirely without effects, but I can imagine that there are cases that
-truely are performance critical and can be optimized out and where you
-don't want to help gcc a bit (say a one line wrapper around readl or
-writel). Otoh I suspect that modern gcc will be more than smart enough
-and inline one liners anyway (if they're static of course).
+I'd formulate it the other way round as Andrew:
 
+We should force gcc to inline code where we do know best
+("static inline"s in header files) and leave the decision
+to gcc in the cases where gcc should know best controlled
+by some high-level knobs like -Os/-O2.
+
+gcc simply needs to be forced to inline in some cases in which we really 
+need inlining, but in all other cases gcc knows best and we can trust 
+gcc to make the right decision.
+
+> 	Ingo
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

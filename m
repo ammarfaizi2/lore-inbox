@@ -1,72 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbVL2ViG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbVL2WEI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbVL2ViG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 16:38:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751028AbVL2ViG
+	id S1751057AbVL2WEI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 17:04:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751060AbVL2WEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 16:38:06 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6158 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751031AbVL2ViE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 16:38:04 -0500
-Date: Thu, 29 Dec 2005 21:37:50 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Anderson Lizardo <anderson.lizardo@gmail.com>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>,
-       Anderson Briglia <anderson.briglia@indt.org.br>,
-       Anderson Lizardo <anderson.lizardo@indt.org.br>,
-       linux-omap-open-source@linux.omap.com, linux-kernel@vger.kernel.org,
-       Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>,
-       Russell King - ARM Linux <linux@arm.linux.org.uk>,
-       Tony Lindgren <tony@atomide.com>, David Brownell <david-b@pacbell.net>
-Subject: Re: [patch 0/5] Add MMC password protection (lock/unlock) support
-Message-ID: <20051229213749.GB1687@flint.arm.linux.org.uk>
-Mail-Followup-To: Anderson Lizardo <anderson.lizardo@gmail.com>,
-	Pierre Ossman <drzeus-list@drzeus.cx>,
-	Anderson Briglia <anderson.briglia@indt.org.br>,
-	Anderson Lizardo <anderson.lizardo@indt.org.br>,
-	linux-omap-open-source@linux.omap.com, linux-kernel@vger.kernel.org,
-	Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>,
-	Russell King - ARM Linux <linux@arm.linux.org.uk>,
-	Tony Lindgren <tony@atomide.com>,
-	David Brownell <david-b@pacbell.net>
-References: <439FC4A6.4010900@drzeus.cx> <5b5833aa0512141551l638b2c05xcd4588a9370bfa51@mail.gmail.com> <43A11204.2070403@drzeus.cx> <20051215091220.GA29620@flint.arm.linux.org.uk> <43A136F1.3040700@drzeus.cx> <20051215100657.GC32490@flint.arm.linux.org.uk> <20051215134436.GB6211@flint.arm.linux.org.uk> <5b5833aa0512291106m5142acd5pfb12c4831b60e96b@mail.gmail.com> <20051229200939.GA1113@flint.arm.linux.org.uk> <5b5833aa0512291323o1fe50d23m5f9fe6dc00f5f876@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5b5833aa0512291323o1fe50d23m5f9fe6dc00f5f876@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 29 Dec 2005 17:04:07 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:30413 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751057AbVL2WEG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 17:04:06 -0500
+Date: Thu, 29 Dec 2005 14:03:24 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 12/13] mutex subsystem, VFS [experimental]: convert
+ ->i_sem to ->i_mutex
+In-Reply-To: <20051229213434.GA6106@elte.hu>
+Message-ID: <Pine.LNX.4.64.0512291340000.3298@g5.osdl.org>
+References: <20051229210521.GM665@elte.hu> <Pine.LNX.4.64.0512291326230.3298@g5.osdl.org>
+ <20051229213434.GA6106@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 29, 2005 at 05:23:52PM -0400, Anderson Lizardo wrote:
-> On 12/29/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
-> > On Thu, Dec 29, 2005 at 03:06:15PM -0400, Anderson Lizardo wrote:
-> > > The MMC specification v4.1 is clear in one thing: the SET_BLOCKLEN
-> > > command should be issued prior to the actual LOCK_UNLOCK command with
-> > > *exactly* the password length + 2 bytes (which contains the operation
-> > > mode bits and the password length in bytes). The MMC password
-> > > unlocking (and other password operations, FWIW) doesn't work on the
-> > > OMAP host if the SET_BLOCKLEN command argument and the block size of
-> > > the data transfer itself do not match.
-> >
-> > Since passwords are limited to a maximum of 16 characters, this means
-> > that only passwords of length 2, 6, and 14 are possible with MMCI.
-> > All other passwords are invalid and/or impossible with this host.
+
+
+On Thu, 29 Dec 2005, Ingo Molnar wrote:
 > 
-> What do you suggest in this case?
+> > Ingo, 
+> >  you missed attribution on this. Please don't. A 
+> > 
+> > 	From: Jes Sorensen <jes@sgi.com> 
+> 
+> hm, i thought Jes having the first S-o-b line makes it well-defined that 
+> he is the author? 
 
-Well, we seem to have an increasing number of silly limitations in
-MMC host implementations.  In this particular case, I guess the
-easiest solution would be to supply a capability flag from the host
-to say "only supports power of two block sizes" - and disable
-password support if this flag is set.
+No. How many times do I have to say this? Just do a google for "sign-off", 
+"authorship" and "kernel", and the #1 hit (and a number of others in the 
+top ten) will be relevant.
 
-Yes, this means that password-locked cards become non-functional
-with such restricted hosts, but I think that's realistically
-unavoidable.
+Sign-off has a _correlation_ with authorship, but it in no way implies it. 
+Not the first one, not the middle one, and not the last one.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+So the sign-off procedure has absolute no authorship meaning. It means one 
+thing and one thing only: it means that the person is convinced he has the 
+legal right to pass it on as a GPL'd piece of code. It means absolutely 
+_nothing_ else.
+
+[ Well, it has one _practical_ meaning: anybody who signs off or 
+  acknowledges a patch will be bothered by email if that patch turns out 
+  to be buggy, which is of course one of the biggest advantages of the 
+  whole thing.  In many ways the legalistic part of sign-offs are much 
+  less important from a development standpoint than that very _practical_ 
+  side to it ]
+
+Now, _if_ you are the author and your employer is ok with it being GPL'd, 
+the author and the first sign-off should match. But that's just one case 
+of sign-offs - it's the (a) case in the sign-off rules. But the (b) case 
+for sign-off's means that the person who does the sign-off may just be 
+signing off on somebody elses GPL'd work.
+
+So the (a) case is why there's obviously a _correlation_ with the author 
+and the first Signed-off-by: line. One common case is that they are the 
+same thing. But it really is not a 1:1 relationship.
+
+Any tool that believes that the first line of sign-off is special is a 
+BUGGY tool. And my email patch-application tools are not buggy. I hope 
+nobody else has such buggy tools either.
+
+The way to specify authorship is with a "From:" at the top of the message 
+(and, if no such line exists, it will be taken from the email headers). No 
+ifs, buts, maybes or guesses.
+
+This has been discussed before, but I'll continue to repeat it until I 
+don't need to:
+
+  Sign-offs go at the end, and stack up on top of each other (ie the list 
+  of sign-offs grows as the patch is sent on-ward - everybody adds their 
+  own sign-off last in the list).
+
+  Authorship goes at the top, and never changes, and only ever lists one 
+  single author (although we do end up having things like "modified by xyz 
+  for reason-or-other" in the commentary, so there can be those kinds of 
+  secondary authorship markers, of course).
+
+I realize that having multiple authors might sometimes be the right thing 
+to do, but git (nor any other SCM I know of) tracks only one author, so at 
+least for now we have to have that "primary author" approach with 
+secondary authors just mentioned in the text as such. And obviously, it's 
+always best if _all_ authors have a signed-off line.
+
+(That said, one-liners etc don't even need a sign-off. I'll sign off on 
+other peoples trivial patches if they didn't do it themselves: I'd _much_ 
+rather give them credit even without a sign-off, than to unnecessarily 
+re-do the trivial patch myself just to have the author and first sign-off 
+match)
+
+			Linus

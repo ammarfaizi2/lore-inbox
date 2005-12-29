@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbVL2Qq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbVL2Qzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbVL2Qq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 11:46:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbVL2Qq1
+	id S1750863AbVL2Qzn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 11:55:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbVL2Qzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 11:46:27 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:17596 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP
-	id S1750829AbVL2Qq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 11:46:26 -0500
-Date: Thu, 29 Dec 2005 11:46:25 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 1/3] mutex subsystem: trylock
-In-reply-to: <20051229083333.GA31003@elte.hu>
-X-X-Sender: nico@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0512291142510.3309@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20051223161649.GA26830@elte.hu>
- <Pine.LNX.4.64.0512261411530.1496@localhost.localdomain>
- <1135685158.2926.22.camel@laptopd505.fenrus.org>
- <20051227131501.GA29134@elte.hu>
- <Pine.LNX.4.64.0512282222400.3309@localhost.localdomain>
- <20051229083333.GA31003@elte.hu>
+	Thu, 29 Dec 2005 11:55:43 -0500
+Received: from adsl-70-250-156-241.dsl.austtx.swbell.net ([70.250.156.241]:17084
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S1750862AbVL2Qzn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 11:55:43 -0500
+Message-ID: <43B41509.1000507@microgate.com>
+Date: Thu, 29 Dec 2005 10:55:37 -0600
+From: Paul Fulghum <paulkf@microgate.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Burkhard_Sch=F6lpen?= <bschoelpen@web.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA burst delay
+References: <395603262@web.de>
+In-Reply-To: <395603262@web.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Dec 2005, Ingo Molnar wrote:
+Burkhard Schölpen wrote:
+> why I cannot get longer bursts than 512 Bits...
 
-> > I'd solve it like this instead (on top of your latest patches):
-> 
-> thanks, applied.
-> 
-> > +		"1: ldrex	%0, [%3]	\n"
-> > +		"subs		%1, %0, #1	\n"
-> > +		"strexeq	%2, %1, [%3]	\n"
-> > +		"movlt		%0, #0		\n"
-> > +		"cmpeq		%2, #0		\n"
-> > +		"bgt		1b		\n"
-> 
-> so we are back to what is in essence a cmpxchg implementation?
+What value is written by the system into the
+PCI configuration space of your device for
+the latency timer?
+(8 bits at offset 0x0d, units = clock cycles)
 
-A limited cmpxchg.  Using the generic cmpxchg for this would need either 
-9 or 10 instructions instead of 6.
+You can try setting that value in your
+driver to a higher value.
 
-
-Nicolas
+-- 
+Paul Fulghum
+Microgate Systems, Ltd.

@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964969AbVL2LqN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932557AbVL2LtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964969AbVL2LqN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 06:46:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932599AbVL2LqN
+	id S932557AbVL2LtL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 06:49:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932593AbVL2LtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 06:46:13 -0500
-Received: from xproxy.gmail.com ([66.249.82.195]:18952 "EHLO xproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S932593AbVL2LqN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 06:46:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gI15Tp4cUT2850xjLz11WfVnGexi27QSw72nKowh/ko/jqRrzs/DmWxFtm2O5mhjxrEBpml6yPTzH6VBumRK/i2l2gzn3sSLLkRfvDDahmMyDCMWWDV73g+lviFs3wGf+pFriam1UBqqzH62Z9n8kSPQ/3psfo+LgYCthWQ19Io=
-Message-ID: <71a0d6ff0512290346v5909ce06k47401075955ad44a@mail.gmail.com>
-Date: Thu, 29 Dec 2005 14:46:12 +0300
-From: Alexander Shishckin <alexander.shishckin@gmail.com>
-To: "pretorious ." <pretorious_i@hotmail.com>
+	Thu, 29 Dec 2005 06:49:11 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:59103 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932557AbVL2LtK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 06:49:10 -0500
 Subject: Re: Redefinition error while compiling LKM
+From: Arjan van de Ven <arjan@infradead.org>
+To: "pretorious ." <pretorious_i@hotmail.com>
 Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <BAY23-F27F5FACE353137AF8C88F8F7290@phx.gbl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1135854129.2935.13.camel@laptopd505.fenrus.org>
-	 <BAY23-F27F5FACE353137AF8C88F8F7290@phx.gbl>
+References: <BAY23-F27F5FACE353137AF8C88F8F7290@phx.gbl>
+Content-Type: text/plain
+Date: Thu, 29 Dec 2005 12:49:07 +0100
+Message-Id: <1135856947.2935.17.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/29/05, pretorious . <pretorious_i@hotmail.com> wrote:
+On Thu, 2005-12-29 at 16:51 +0530, pretorious . wrote:
 > >
 > >and.. why on earth would you need sys/syscall.h ?? (or sys/stat.h for
 > >that matter)
 > >
 > >
->
+> 
 > Trying to override certain syscalls (mknod ...)
-You do not intercept syscalls.
-You do not intercept syscalls from a kernel module.
-You do not include libc headers in the kernel code.
 
---
-I am free of all prejudices. I hate every one equally.
+eeppp why??
+really don't do that!
+
+(overriding syscalls from modules really shouldn't be done.. there's a
+reason the syscall table isn't exported!)
+

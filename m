@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbVL2Ash@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964950AbVL2BBK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964943AbVL2Ash (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 19:48:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964950AbVL2Ash
+	id S964950AbVL2BBK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 20:01:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964946AbVL2BBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 19:48:37 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:38613 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964943AbVL2Asg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 19:48:36 -0500
-Subject: Re: 2.6.15-rc5: latency regression vs 2.6.14 in
-	exit_mmap->free_pgtables
-From: Lee Revell <rlrevell@joe-job.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com>
-References: <1135726300.22744.25.camel@mindpipe>
-	 <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com>
-Content-Type: text/plain
-Date: Wed, 28 Dec 2005 19:54:15 -0500
-Message-Id: <1135817656.4645.3.camel@mindpipe>
+	Wed, 28 Dec 2005 20:01:10 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:19416 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964950AbVL2BBJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 20:01:09 -0500
+Date: Wed, 28 Dec 2005 20:01:04 -0500
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: torvalds@osdl.org
+Subject: fix ia64 compile failure with gcc4.1
+Message-ID: <20051229010104.GA10929@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, torvalds@osdl.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-12-28 at 22:59 +0000, Hugh Dickins wrote:
-> Here's an untested patch which should mostly correct your latency
-> problem with 2.6.15-rc.  But it's certainly not the right solution,
-> and it's probably both too ugly and too late for 2.6.15.  If you
-> really want Linus to put it in, please test it out, especially on
-> ia64, and try to persuade him.  Personally I'd prefer to wait for
-> the right solution: but I don't have your low-latency needs, and
-> I'm certainly guilty of a regression here.
+__get_unaligned creates a typeof the var its passed, and writes to it,
+which on gcc4.1, spits out the following error:
 
-OK, FWIW the patch does work.
+drivers/char/vc_screen.c: In function 'vcs_write':
+drivers/char/vc_screen.c:422: error: assignment of read-only variable 'val'
 
-It occurred to me that this might only be a noticeable latency
-regression on slower machines.  Although too late for 2.6.15 it would be
-nice to have fixed for 2.6.16...
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-Lee
+--- linux-2.6.14/drivers/char/vc_screen.c~	2005-12-06 23:20:03.000000000 -0500
++++ linux-2.6.14/drivers/char/vc_screen.c	2005-12-06 23:21:35.000000000 -0500
+@@ -419,7 +419,7 @@ vcs_write(struct file *file, const char 
+ 			while (this_round > 1) {
+ 				unsigned short w;
+ 
+-				w = get_unaligned(((const unsigned short *)con_buf0));
++				w = get_unaligned(((unsigned short *)con_buf0));
+ 				vcs_scr_writew(vc, w, org++);
+ 				con_buf0 += 2;
+ 				this_round -= 2;
+
 

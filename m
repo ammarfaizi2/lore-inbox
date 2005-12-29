@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbVL2NHE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbVL2NNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbVL2NHE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 08:07:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbVL2NHD
+	id S1750716AbVL2NNN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 08:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbVL2NNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 08:07:03 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:10969 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750704AbVL2NHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 08:07:01 -0500
-Subject: Re: PROBLEM: cannot boot 2.6.15-rc6 on Opteron machine
-From: Arjan van de Ven <arjan@infradead.org>
-To: Erez Zilber <erezz@voltaire.com>
+	Thu, 29 Dec 2005 08:13:13 -0500
+Received: from dtp.xs4all.nl ([80.126.206.180]:40526 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1750716AbVL2NNM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 08:13:12 -0500
+Date: Thu, 29 Dec 2005 14:13:06 +0100
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: "G.W. Haywood" <ged@jubileegroup.co.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <43B3D8D3.30400@voltaire.com>
-References: <43B3CA9E.7000804@voltaire.com>
-	 <1135857022.2935.19.camel@laptopd505.fenrus.org>
-	 <43B3D8D3.30400@voltaire.com>
-Content-Type: text/plain
-Date: Thu, 29 Dec 2005 14:06:59 +0100
-Message-Id: <1135861619.2935.35.camel@laptopd505.fenrus.org>
+Subject: Re: Documentation patch.
+Message-ID: <20051229131306.GB5830@harddisk-recovery.com>
+References: <Pine.LNX.4.58.0512291301420.2118@mail3.jubileegroup.co.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0512291301420.2118@mail3.jubileegroup.co.uk>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-12-29 at 14:38 +0200, Erez Zilber wrote:
-> Arjan van de Ven wrote:
-> 
-> >On Thu, 2005-12-29 at 13:38 +0200, Erez Zilber wrote:
-> >  
-> >
-> >>Hi,
-> >>
-> >>I've downloaded kernel 2.6.15-rc6 (had the same problem with rc7) and 
-> >>    
-> >>
-> >
-> >2.6.15-rc needs a newer udev version...
-> >
-> >
-> >  
-> >
-> 
-> Redhat AS4 comes with udev 039. I couldn't find a newer rpm for this distribution, so I cannot replace the current udev rpm.  I've downloaded the latest udev sources from http://www.us.kernel.org/pub/linux/utils/kernel/hotplug/ and installed it but I still get the same errors.
+On Thu, Dec 29, 2005 at 01:04:01PM +0000, G.W. Haywood wrote:
+> This had me grepping the docs for a minute or two...
 
-after you get a recent enough udev you probably need to recreate a new
-initrd (and pray that you don't need a newer mkinitrd to match the newer
-udev...) since udev is also put inside the initrd.
-
-To be fair, enterprise linux distributions aren't actually designed to
-run brand spanking new kernels, and the vendors aren't likely to update
-userland tools to make newer kernels work either (unlike, say,
-distributions like Fedora Core or SuSE or .. or .. or .. )
+Thanks for your patch. Could you tell against what kernel version it is
+(I guess some 2.4 kernel) and rediff it using "diff -u" (unified diffs
+are so much easier to read).
 
 
+Erik
+
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

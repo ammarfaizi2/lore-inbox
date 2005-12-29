@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbVL2TOV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbVL2TRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbVL2TOV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 14:14:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbVL2TOV
+	id S1750901AbVL2TRV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 14:17:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbVL2TRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 14:14:21 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:34065 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750861AbVL2TOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 14:14:20 -0500
-Date: Thu, 29 Dec 2005 20:14:19 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jakub Jelinek <jakub@redhat.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051229191419.GR3811@stusta.de>
-References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051229143846.GA18833@infradead.org> <1135868049.2935.49.camel@laptopd505.fenrus.org> <20051229153529.GH3811@stusta.de> <20051229154241.GY22293@devserv.devel.redhat.com>
+	Thu, 29 Dec 2005 14:17:21 -0500
+Received: from zproxy.gmail.com ([64.233.162.192]:39265 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1750755AbVL2TRU convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 14:17:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qTsiMT3C3p5ayXwKPUcC9xHJzp3MAwHLKvcIeMn/pAeeoXzhufFCaWsbC87k5laVOd8ChHFTgmnGbGrOrRPsFgEVpg7juURZeKtXOQSLMyOK4dEIFKQbu4l7uFtjdqzlRE29AK45q0XJKmP0TdVCObmUzr6OwuqpchL6YKPiM5A=
+Message-ID: <5b5833aa0512291117p3d410c4fr268c39d0609bd9b3@mail.gmail.com>
+Date: Thu, 29 Dec 2005 15:17:19 -0400
+From: Anderson Lizardo <anderson.lizardo@gmail.com>
+To: Pierre Ossman <drzeus-list@drzeus.cx>,
+       Anderson Lizardo <anderson.lizardo@gmail.com>,
+       Anderson Briglia <anderson.briglia@indt.org.br>,
+       Anderson Lizardo <anderson.lizardo@indt.org.br>,
+       linux-omap-open-source@linux.omap.com, linux-kernel@vger.kernel.org,
+       Carlos Eduardo Aguiar <carlos.aguiar@indt.org.br>,
+       Russell King - ARM Linux <linux@arm.linux.org.uk>,
+       Tony Lindgren <tony@atomide.com>, David Brownell <david-b@pacbell.net>
+Subject: Re: [patch 0/5] Add MMC password protection (lock/unlock) support
+In-Reply-To: <20051215134436.GB6211@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051229154241.GY22293@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.11
+References: <20051213213208.303580000@localhost.localdomain>
+	 <439F4AD6.9090203@indt.org.br> <439FC4A6.4010900@drzeus.cx>
+	 <5b5833aa0512141551l638b2c05xcd4588a9370bfa51@mail.gmail.com>
+	 <43A11204.2070403@drzeus.cx>
+	 <20051215091220.GA29620@flint.arm.linux.org.uk>
+	 <43A136F1.3040700@drzeus.cx>
+	 <20051215100657.GC32490@flint.arm.linux.org.uk>
+	 <20051215134436.GB6211@flint.arm.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 29, 2005 at 10:42:41AM -0500, Jakub Jelinek wrote:
-> On Thu, Dec 29, 2005 at 04:35:29PM +0100, Adrian Bunk wrote:
-> > > You describe a nice utopia where only the most essential functions are
-> > > inlined.. but so far that hasn't worked out all that well ;) Turning
-> > > "inline" back into the hint to the compiler that the C language makes it
-> > > is maybe a cop-out, but it's a sustainable approach at least.
-> > >...
-> > 
-> > But shouldn't nowadays gcc be able to know best even without an "inline" 
-> > hint?
-> 
-> Only for static functions (and in -funit-at-a-time mode).
+On 12/15/05, Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> Reading through the specs I have here, block sizes seem to be all over
+> the place.  The MMC card specs seem to imply that any block size can
+> be set, from 0 bytes to 2^32-1 bytes.
+>
+> The PXA MMC interface specification allows the block size to be anything
+> from 1 to 1023 bytes, excluding CRC.  It is unclear whether a value of 0
+> means 1024.
+>
+> The MMCI specification allows the block size to be specified as a power
+> of two, from 1 to 2048 bytes, excluding CRC.
 
-I'm assuming -funit-at-a-time mode. Currently it's disabled on i386, but 
-this will change in the medium-term future.
+By "allows" do you mean we can set the block size to arbitrary values
+on MMCI too?
 
-> Anything else would require full IMA over the whole kernel and we aren't
-> there yet.  So inline hints are useful.  But most of the inline keywords
-> in the kernel really should be that, hints, because e.g. while it can be
+The MMC specification v4.1 is clear in one thing: the SET_BLOCKLEN
+command should be issued prior to the actual LOCK_UNLOCK command with
+*exactly* the password length + 2 bytes (which contains the operation
+mode bits and the password length in bytes). The MMC password
+unlocking (and other password operations, FWIW) doesn't work on the
+OMAP host if the SET_BLOCKLEN command argument and the block size of
+the data transfer itself do not match.
 
-Are there (on !alpha) any places in the kernel where a function is 
-inline but not static, and this is wanted?
-
-> beneficial to inline something on one arch, it may be not beneficial on
-> another arch, depending on cache sizes, number of general registers
-> available to the compiler, register preassure, speed of the call/ret
-> pair, calling convention and many other factors.
-
-Does gcc really need hints when the functions are static?
-
-> 	Jakub
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--
+Anderson Lizardo
+Embedded Linux Lab - 10LE
+Nokia Institute of Technology - INdT
+Manaus - Brazil

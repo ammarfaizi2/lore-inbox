@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbVL2MyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbVL2NET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750701AbVL2MyM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 07:54:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750704AbVL2MyM
+	id S1750712AbVL2NET (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 08:04:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750713AbVL2NET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 07:54:12 -0500
-Received: from [202.67.154.148] ([202.67.154.148]:41656 "EHLO ns666.com")
-	by vger.kernel.org with ESMTP id S1750701AbVL2MyL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 07:54:11 -0500
-Message-ID: <43B3DC7A.7010000@ns666.com>
-Date: Thu, 29 Dec 2005 13:54:18 +0100
-From: Trilight <trilight@ns666.com>
-User-Agent: Mozilla/4.8 [en] (Windows NT 5.1; U)
-X-Accept-Language: en-us
+	Thu, 29 Dec 2005 08:04:19 -0500
+Received: from jubileegroup.co.uk ([217.147.177.250]:59067 "EHLO
+	mail3.jubileegroup.co.uk") by vger.kernel.org with ESMTP
+	id S1750712AbVL2NES (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 08:04:18 -0500
+Date: Thu, 29 Dec 2005 13:04:01 +0000 (GMT)
+From: "G.W. Haywood" <ged@jubileegroup.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Documentation patch.
+Message-ID: <Pine.LNX.4.58.0512291301420.2118@mail3.jubileegroup.co.uk>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.14.5 / swapping / killing random apps
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (mail3.jubileegroup.co.uk [0.0.0.0]); Thu, 29 Dec 2005 13:04:01 +0000 (GMT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya all,
+Hi folks,
 
-I was wondering about the following;
+This had me grepping the docs for a minute or two...
+
+73,
+Ged.
+============================================================================
+
+~/src/linux/Documentation$ > diff -C3 Configure.help Configure.help.original
+*** Configure.help      Thu Dec 29 12:55:30 2005
+--- Configure.help.original     Wed Dec 28 14:11:26 2005
+***************
+*** 12827,12834 ****
+    without a specific driver are compatible with NE2000.
+
+    If you have a PCI NE2000 card however, say N here and Y to "PCI
+!   NE2000 and clones support" under "EISA, VLB, PCI and on board
+!   controllers" below. If you have a NE2000 card and are running on
+    an MCA system (a bus system used on some IBM PS/2 computers and
+    laptops), say N here and Y to "NE/2 (ne2000 MCA version) support",
+    below.
+--- 12827,12833 ----
+    without a specific driver are compatible with NE2000.
+
+    If you have a PCI NE2000 card however, say N here and Y to "PCI
+!   NE2000 support", above. If you have a NE2000 card and are running on
+    an MCA system (a bus system used on some IBM PS/2 computers and
+    laptops), say N here and Y to "NE/2 (ne2000 MCA version) support",
+    below.
 
 
-kernel: 2.6.14.5 / vanilla
-
-If a system with say a swap of 2GB on a fast drive and like 260MB is
-actively used for swapping, could it cause certain applications to crash
-? I noticed that the when swapping occurs, usualy above 200MB then
-random apps start to crash. Sometimes gnome-terminal, gnome-panel,
-xchat, metacity and so on. It happens a few times in usually 48 hours.
-
-The system has 512MB ram, ECC , checked and cleared. The system can be
-booted with m$ xp or freebsd but crashes do not occur even under heavy
-load. So that's why i'm thinking something is causing this behaviour in
-linux. I also have to say that dmcrypt was used for the swap but that
-caused the crashes to increase, so dmcrypt is not used anymore just a
-normal swap and crashes decreased to "rare" within 24 hours.
-
-Or is it "normal" that the crash risk of running apps increases the more
-swapping is done ?
-
-I plan to upgrade the memory to 1.5GB anyway, but this issue is kinda
-bothering me.
-
-Thanks in advance for any input !
-
-Mark

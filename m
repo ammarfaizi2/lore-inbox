@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932559AbVL2A3n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932561AbVL2Abc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932559AbVL2A3n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 19:29:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932563AbVL2A3n
+	id S932561AbVL2Abc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 19:31:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932562AbVL2Abc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 19:29:43 -0500
-Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:40215 "EHLO
-	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S932559AbVL2A3m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 19:29:42 -0500
-Message-ID: <43B32DEE.7010405@blueyonder.co.uk>
-Date: Thu, 29 Dec 2005 00:29:34 +0000
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-Organization: blueyonder.co.uk
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Tarkan Erimer <tarkane@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [BUG]: Hard lockups continue with linux-2.6.15-rc1-rc7
-References: <43B06063.8030909@blueyonder.co.uk> <9611fa230512281606y4ae3e163u43742b5146c71161@mail.gmail.com>
-In-Reply-To: <9611fa230512281606y4ae3e163u43742b5146c71161@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Dec 2005 00:30:37.0090 (UTC) FILETIME=[16A9B020:01C60C0F]
+	Wed, 28 Dec 2005 19:31:32 -0500
+Received: from dsl092-073-214.bos1.dsl.speakeasy.net ([66.92.73.214]:50138
+	"EHLO kevlar.burdell.org") by vger.kernel.org with ESMTP
+	id S932561AbVL2Abb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 19:31:31 -0500
+Date: Wed, 28 Dec 2005 19:30:25 -0500
+From: Sonny Rao <sonny@burdell.org>
+To: Nathan Lynch <ntl@pobox.com>
+Cc: Ravikiran G Thirumalai <kiran@scalex86.org>, linux-kernel@vger.kernel.org,
+       manfred@colorfullife.com, clameter@sgi.com, anton@samba.org,
+       shai@scalex86.org, sonnyrao@us.ibm.com, alokk@calsoftinc.com
+Subject: Re: cpu hotplug oops on 2.6.15-rc5
+Message-ID: <20051229003025.GA30666@kevlar.burdell.org>
+References: <20051219051659.GA6299@kevlar.burdell.org> <20051222092743.GE3915@localhost.localdomain> <20051222173700.GA5723@localhost.localdomain> <20051222175311.GA22393@kevlar.burdell.org> <20051222183750.GA3704@localhost.localdomain> <20051222194511.GB24385@kevlar.burdell.org> <20051228193012.GF12674@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051228193012.GF12674@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tarkan Erimer wrote:
-> Hi Sid,
-> 
-> On 12/26/05, Sid Boyce <sboyce@blueyonder.co.uk> wrote:
->> Don't rule out hardware. This SuSE 10.0 x86 box worked without problems
->> on kernels up to 2.6.15-rc6-git2, but I experienced strange apparent
->> filesystem corruptions/compile failures running normally and hard
->> lockups when running mythtv with 2.6.15-rc6-git6 and 2.6.15-rc7, while
->> on the Mandriva 2006 x86 box and the SuSE x86_64 there were no problems.
->> Until I found the suspect SDRAM, on some occasions I had to run
->> reiserfsck before 2.6.15-rc6-git2 would boot again correctly after
->> trying rc6-git6 or -rc7. Finally I got a corruption again with
->> 2.6.15-rc7, replaced the SDRAM stick with the one taken out previously,
->> booted up on 2.6.15-rc7 with no problems. I had run memtest some days
->> earlier, but only for a couple of hours. (current uptime 1 day 1.04hrs).
-> 
-> Hmmm.. It looks, it is time to run memtest on my box. Thanks for the tip.
-> 
-> Regards,
+On Wed, Dec 28, 2005 at 01:30:12PM -0600, Nathan Lynch wrote:
+> I wonder if this is related to the problem Sonny is seeing -- powerpc's
+> definitions of cpu_to_node et al. are not being used.  The culprit is
+> some too-clever preprocessor usage in asm-generic/topology.h, for
+> example:
 > 
 > 
-It's strongly recommended. I've now found that both SDRAMS with the same 
-batch number are experiencing the same error with memtest, that's after 
-I had a lockup with the one I thought was good. They will be replaced 
-under lifetime warranty by Kingston memory. I've temporarily stuck a 
-PC2700 512M stick in and it's been solid under memtest and with a full 
-workload.
-Regards
-Sid.
--- 
-Sid Boyce ... Hamradio License G3VBV, Licensed Private Pilot
-Retired IBM/Amdahl Mainframes and Sun/Fujitsu Servers Tech Support 
-Specialist, Cricket Coach
-Microsoft Windows Free Zone - Linux used for all Computing Tasks
+> #ifndef cpu_to_node
+> #define cpu_to_node(cpu)	(0)
+> #endif
+> 
+> But asm-powerpc/topology.h has cpu_to_node defined as a static inline
+> (which does not make it a preprocessor symbol), so we get the generic
+> - and incorrect - definition.
+> 
+> Does removing the #include of asm-generic/topology.h from the bottom
+> of asm-powerpc/topology.h have any effect?
+
+Hi, no it doesn't make a difference.  That include is protected by
+CONFIG_NUMA as well, so it never gets hit.  At Anton's suggestion I
+even put in an #error into asm-generic/topology.h to make sure it
+wasn't an issue -- it didn't hit.
+
+Sonny

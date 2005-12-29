@@ -1,61 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbVL2RBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbVL2RLh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbVL2RBO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 12:01:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbVL2RBN
+	id S1750891AbVL2RLh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 12:11:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750893AbVL2RLh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 12:01:13 -0500
-Received: from cpe-70-112-167-32.austin.res.rr.com ([70.112.167.32]:35514 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S1750878AbVL2RBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 12:01:13 -0500
-To: akpm@osdl.org
-Subject: [PATCH] v9fs: fix fd_close
-Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
-       mostrows@watson.ibm.com
-Message-Id: <20051229170116.765055A8033@localhost.localdomain>
-Date: Thu, 29 Dec 2005 11:01:16 -0600 (CST)
-From: ericvh@gmail.com (Eric Van Hensbergen)
+	Thu, 29 Dec 2005 12:11:37 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:32205 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750890AbVL2RLh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 12:11:37 -0500
+Date: Thu, 29 Dec 2005 17:11:35 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Christoph Hellwig <hch@lst.de>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [patch] updates XFS mutex patch
+Message-ID: <20051229171135.GA21988@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, Jes Sorensen <jes@trained-monkey.org>,
+	Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
+	torvalds@osdl.org
+References: <yq0zmmktbhk.fsf@jaguar.mkp.net> <20051229144824.GC18833@infradead.org> <20051229165811.GA23502@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20051229165811.GA23502@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] v9fs: fix fd_close
+On Thu, Dec 29, 2005 at 05:58:11PM +0100, Ingo Molnar wrote:
+> 
+> * Christoph Hellwig <hch@infradead.org> wrote:
+> 
+> > It's say just switch XFS to the one-arg mutex_init variant.
+> > 
+> > And ingo. please add the mutex_t typedef, analogue to spinlock_t it's 
+> > a totally opaqueue to the users type, so it really should be a 
+> > typedef.  After that the XFS mutex.h can just go away.
+> 
+> that's not possible, due to DEFINE_MUTEX() and due to struct mutex being 
+> embedded in other structures. I dont think we want to lose that property 
+> of struct semaphore, and only restrict mutex usage to pointers.
 
-If a 9pfs server crashes, v9fs_fd_close() is called.
-Subsequently, in cleaning up by performing a umount() on the FS
-that was provided by this server v9fs_fd_close() is called again, and
-uses the old, freed valus of trans->priv.  This patch ensures that
-trans->priv can be freed only once, otherwise this function bails early.
-
-Signed-off-by: Michal Ostrowski <mostrows@watson.ibm.com>
-Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
-
----
-commit db73617a4959fa8af9f72063e3bd666c70363d99
-tree 3e05d73b024cdcf7462aae64e62a63849d8aa175
-parent 3603bc8dc5ab33941e6378fe52ea03b7f5561109
-author Eric Van Hensbergen <ericvh@ericvh.localdomain> Thu, 29 Dec 2005 10:54:06 -0600
-committer Eric Van Hensbergen <ericvh@ericvh.localdomain> Thu, 29 Dec 2005 10:54:06 -0600
-
- fs/9p/trans_fd.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/fs/9p/trans_fd.c b/fs/9p/trans_fd.c
-index 63b58ce..b7ffb98 100644
---- a/fs/9p/trans_fd.c
-+++ b/fs/9p/trans_fd.c
-@@ -148,12 +148,12 @@ static void v9fs_fd_close(struct v9fs_tr
- 	if (!trans)
- 		return;
- 
--	trans->status = Disconnected;
--	ts = trans->priv;
-+	ts = xchg(&trans->priv, NULL);
- 
- 	if (!ts)
- 		return;
- 
-+	trans->status = Disconnected;
- 	if (ts->in_file)
- 		fput(ts->in_file);
- 
+Sorry, but I don't get this sentence at all.  Can you try to rephrase it?
+What does DEFINE_MUTEX have to do with declaring either a typedef or
+structure?

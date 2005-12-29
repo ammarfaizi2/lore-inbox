@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbVL2DWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbVL2DY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbVL2DWN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 22:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbVL2DWN
+	id S964928AbVL2DY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 22:24:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964991AbVL2DY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 22:22:13 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:42886 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S964907AbVL2DWM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 22:22:12 -0500
-Date: Wed, 28 Dec 2005 22:22:09 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 1/3] mutex subsystem: trylock
-In-reply-to: <1135685158.2926.22.camel@laptopd505.fenrus.org>
-X-X-Sender: nico@localhost.localdomain
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0512282200470.3309@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20051223161649.GA26830@elte.hu>
- <Pine.LNX.4.64.0512261411530.1496@localhost.localdomain>
- <1135685158.2926.22.camel@laptopd505.fenrus.org>
+	Wed, 28 Dec 2005 22:24:28 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:38568 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S964928AbVL2DY2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 22:24:28 -0500
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: Recursive dependency for SAA7134 in 2.6.15-rc7
+Date: Thu, 29 Dec 2005 04:20:11 +0100
+User-Agent: KMail/1.8.2
+Cc: Ricardo Cerqueira <v4l@cerqueira.org>,
+       Mauro Carvalho Chehab <mchehab@brturbo.com.br>,
+       LKML <linux-kernel@vger.kernel.org>, video4linux-list@redhat.com
+References: <20051227215351.3d581b13.khali@linux-fr.org>
+In-Reply-To: <20051227215351.3d581b13.khali@linux-fr.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200512290420.22636.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Dec 2005, Arjan van de Ven wrote:
+Hi,
 
-> btw I really think that 1) is wrong. trylock should do everything it can
-> to get the semaphore short of sleeping. Just because some cacheline got
-> written to (which might even be shared!) in the middle of the atomic op
-> is not a good enough reason to fail the trylock imho. Going into the
-> slowpath.. fine. But here it's a quality of implementation issue; you
-> COULD get the semaphore without sleeping (at least probably, you'd have
-> to retry to know for sure) but because something wrote to the same
-> cacheline as the lock... no. that's just not good enough.. sorry.
+On Tuesday 27 December 2005 21:53, Jean Delvare wrote:
 
-Well... actually it is not clear from the documentation how the 
-exclusive monitor is tagging accesses (lots of implementation specific 
-latitude).  So you are right that it could cause too many false negative 
-results.
+> I gave a try to 2.6.15-rc7 and "make menuconfig" tells me:
+> Warning! Found recursive dependency: VIDEO_SAA7134_ALSA VIDEO_SAA7134_OSS
+> VIDEO_SAA7134_ALSA
 
+Hmm, I really should make this more annoying...
 
-Nicolas
+>  config VIDEO_SAA7134_OSS
+>  	tristate "Philips SAA7134 DMA audio support (OSS, DEPRECATED)"
+> -	depends on VIDEO_SAA7134 && SOUND_PRIME && (!VIDEO_SAA7134_ALSA || 
+VIDEO_SAA7134_ALSA = m)
+> +	depends on VIDEO_SAA7134 && SOUND_PRIME && 
+> VIDEO_SAA7134_ALSA!=y && m
+
+The easiest fix would to just change the last part into "!VIDEO_SAA7134_ALSA".
+An alternative would be to use a choice.
+
+bye, Roman

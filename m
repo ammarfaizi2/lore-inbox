@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbVL2Q6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbVL2RAF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750865AbVL2Q6c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 11:58:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750867AbVL2Q6c
+	id S1750867AbVL2RAF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 12:00:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbVL2RAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 11:58:32 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:49126 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750862AbVL2Q6b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 11:58:31 -0500
-Date: Thu, 29 Dec 2005 17:58:11 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [patch] updates XFS mutex patch
-Message-ID: <20051229165811.GA23502@elte.hu>
-References: <yq0zmmktbhk.fsf@jaguar.mkp.net> <20051229144824.GC18833@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051229144824.GC18833@infradead.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 29 Dec 2005 12:00:04 -0500
+Received: from quark.didntduck.org ([69.55.226.66]:9623 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id S1750867AbVL2RAD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 12:00:03 -0500
+Message-ID: <43B41639.6060301@didntduck.org>
+Date: Thu, 29 Dec 2005 12:00:41 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mail/News 1.5 (X11/20051129)
+MIME-Version: 1.0
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Split out screen_info from tty.h
+References: <200512291639.jBTGdfLZ015516@laptop11.inf.utfsm.cl>
+In-Reply-To: <200512291639.jBTGdfLZ015516@laptop11.inf.utfsm.cl>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Christoph Hellwig <hch@infradead.org> wrote:
-
-> It's say just switch XFS to the one-arg mutex_init variant.
+Horst von Brand wrote:
+> Brian Gerst <bgerst@didntduck.org> wrote:
+>> This makes it possible for boot code to use screen_info without dragging in
+>> all of tty.h.
 > 
-> And ingo. please add the mutex_t typedef, analogue to spinlock_t it's 
-> a totally opaqueue to the users type, so it really should be a 
-> typedef.  After that the XFS mutex.h can just go away.
+> Why is that a problem? Introducing yet another .h that developers have to
+> remember and use appropiately has a cost, so... and I see no changes except
+> for different #include lines in your patch.
 
-that's not possible, due to DEFINE_MUTEX() and due to struct mutex being 
-embedded in other structures. I dont think we want to lose that property 
-of struct semaphore, and only restrict mutex usage to pointers.
+x86_64 carried a copy of screen_info in miscsetup.h which was out of
+date with the master copy in tty.h.  It couldn't include the full tty.h
+because it is compiling in 32-bit mode (causes warnings from unrelated
+junk in tty.h).  Splitting it out means that x86_64 can get the bare
+minimum it needs to compile the boot loader while having the definition
+in one place.
 
-	Ingo
+--
+				Brian Gerst

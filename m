@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbVL2QmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbVL2Qmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750818AbVL2QmY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 11:42:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbVL2QlP
+	id S1750815AbVL2Qmi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 11:42:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbVL2QlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 11:41:15 -0500
-Received: from host3-98.pool876.interbusiness.it ([87.6.98.3]:52898 "EHLO
-	zion.home.lan") by vger.kernel.org with ESMTP id S1750818AbVL2Qks
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 11:40:48 -0500
-From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: [PATCH 5/5] uml: fix compilation with CONFIG_MODE_TT disabled
-Date: Thu, 29 Dec 2005 17:40:02 +0100
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Message-Id: <20051229164001.4985.66325.stgit@zion.home.lan>
-In-Reply-To: <20051229163803.4985.66742.stgit@zion.home.lan>
-References: <20051229163803.4985.66742.stgit@zion.home.lan>
+	Thu, 29 Dec 2005 11:41:13 -0500
+Received: from mail.dvmed.net ([216.237.124.58]:23264 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750821AbVL2QlE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 11:41:04 -0500
+Message-ID: <43B41193.1070407@pobox.com>
+Date: Thu, 29 Dec 2005 11:40:51 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: York Liu <york_liu@linux.intel.com>
+CC: linux-kernel@vger.kernel.org, Netdev List <netdev@vger.kernel.org>
+Subject: Re: [Announce] Intel PRO/Wireless 2200BG 802.11b/g Access Point Project
+References: <2871.172.28.120.79.1135842580.squirrel@172.28.120.79>
+In-Reply-To: <2871.172.28.120.79.1135842580.squirrel@172.28.120.79>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  York Liu wrote: > Intel is pleased to announce the
+	launch of an open source project to > extend the current Intel
+	PRO/Wireless 2200BG Driver project (IPW2200) to > support Master
+	(Access Point) mode. The project site is up and in the > coming weeks
+	you can expect initial source to become available providing > the
+	limited access point functionality. This will be a point release, and >
+	the code is intended to be used as it however any bug fixes and patches
+	> are welcome. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 RCVD_IN_SORBS_DUL      RBL: SORBS: sent directly from dynamic IP address
+	[69.134.188.146 listed in dnsbl.sorbs.net]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+York Liu wrote:
+> Intel is pleased to announce the launch of an open source project to
+> extend the current Intel PRO/Wireless 2200BG Driver project (IPW2200) to
+> support Master (Access Point) mode. The project site is up and in the
+> coming weeks you can expect initial source to become available providing
+> the limited access point functionality. This will be a point release, and
+> the code is intended to be used as it however any bug fixes and patches
+> are welcome.
 
-Fix UML compilation when SKAS mode is disabled. Indeed, we were compiling
-SKAS-only object files, which failed due to some SKAS-only headers being
-excluded from the search path.
+Will this code be a series of patches against the upstream kernel?
 
-Thanks to the bug report from Pekka J Enberg.
+Will this code use the existing HostAP + ieee80211 code as a starting point?
 
-Acked-by: Pekka J Enberg <penberg (at) cs ! helsinki ! fi>
-Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
----
+What sort of discussion has occurred with the other wireless developers, 
+such as those on netdev@vger.kernel.org list?
 
- arch/um/sys-i386/Makefile   |    8 +++++---
- arch/um/sys-x86_64/Makefile |    5 +++--
- 2 files changed, 8 insertions(+), 5 deletions(-)
+	Jeff
 
-diff --git a/arch/um/sys-i386/Makefile b/arch/um/sys-i386/Makefile
-index 150059d..f5fd5b0 100644
---- a/arch/um/sys-i386/Makefile
-+++ b/arch/um/sys-i386/Makefile
-@@ -1,6 +1,8 @@
--obj-y = bitops.o bugs.o checksum.o delay.o fault.o ksyms.o ldt.o ptrace.o \
--	ptrace_user.o semaphore.o signal.o sigcontext.o stub.o stub_segv.o \
--	syscalls.o sysrq.o sys_call_table.o
-+obj-y := bitops.o bugs.o checksum.o delay.o fault.o ksyms.o ldt.o ptrace.o \
-+	ptrace_user.o semaphore.o signal.o sigcontext.o syscalls.o sysrq.o \
-+	sys_call_table.o
-+
-+obj-$(CONFIG_MODE_SKAS) += stub.o stub_segv.o
- 
- obj-$(CONFIG_HIGHMEM) += highmem.o
- obj-$(CONFIG_MODULES) += module.o
-diff --git a/arch/um/sys-x86_64/Makefile b/arch/um/sys-x86_64/Makefile
-index 00b2025..a351091 100644
---- a/arch/um/sys-x86_64/Makefile
-+++ b/arch/um/sys-x86_64/Makefile
-@@ -6,8 +6,9 @@
- 
- #XXX: why into lib-y?
- lib-y = bitops.o bugs.o csum-partial.o delay.o fault.o ldt.o mem.o memcpy.o \
--	ptrace.o ptrace_user.o sigcontext.o signal.o stub.o \
--	stub_segv.o syscalls.o syscall_table.o sysrq.o thunk.o
-+	ptrace.o ptrace_user.o sigcontext.o signal.o syscalls.o \
-+	syscall_table.o sysrq.o thunk.o
-+lib-$(CONFIG_MODE_SKAS) += stub.o stub_segv.o
- 
- obj-y := ksyms.o
- obj-$(CONFIG_MODULES) += module.o um_module.o
 

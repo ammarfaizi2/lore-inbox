@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbVL2Oqx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbVL2Os3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbVL2Oqx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 09:46:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVL2Oqw
+	id S1750745AbVL2Os3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 09:48:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750744AbVL2Os2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 09:46:52 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:27101 "EHLO
+	Thu, 29 Dec 2005 09:48:28 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:30429 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750738AbVL2Oqw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 09:46:52 -0500
-Date: Thu, 29 Dec 2005 14:46:50 +0000
+	id S1750742AbVL2Os2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 09:48:28 -0500
+Date: Thu, 29 Dec 2005 14:48:24 +0000
 From: Christoph Hellwig <hch@infradead.org>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: + drop-pagecache.patch added to -mm tree
-Message-ID: <20051229144650.GB18833@infradead.org>
+To: Jes Sorensen <jes@trained-monkey.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@lst.de>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [patch] updates XFS mutex patch
+Message-ID: <20051229144824.GC18833@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Coywolf Qi Hunt <coywolf@gmail.com>, linux-kernel@vger.kernel.org,
-	akpm@osdl.org
-References: <200512020130.jB21UWpS019783@shell0.pdx.osdl.net> <2cd57c900512290154k12a2265cx@mail.gmail.com>
+	Jes Sorensen <jes@trained-monkey.org>, Ingo Molnar <mingo@elte.hu>,
+	Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
+	torvalds@osdl.org
+References: <yq0zmmktbhk.fsf@jaguar.mkp.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2cd57c900512290154k12a2265cx@mail.gmail.com>
+In-Reply-To: <yq0zmmktbhk.fsf@jaguar.mkp.net>
 User-Agent: Mutt/1.4.2.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 29, 2005 at 05:54:08PM +0800, Coywolf Qi Hunt wrote:
-> 2005/12/2, akpm@osdl.org <akpm@osdl.org>:
-> >
-> > The patch titled
-> >
-> >      drop-pagecache
-> >
-> > has been added to the -mm tree.  Its filename is
-> >
-> >      drop-pagecache.patch
-> >
-> >
-> > From: Andrew Morton <akpm@osdl.org>
-> >
-> > Add /proc/sys/vm/drop-pagecache.  When written to, this will cause the kernel
-> > to discard as much pagecache and reclaimable slab objects as it can.
-> >
-> > It won't drop dirty data, so the user should run `sync' first.
-> >
-> > Caveats:
-> >
-> > a) Holds inode_lock for exorbitant amounts of time.
-> >
-> > b) Needs to be taught about NUMA nodes: propagate these all the way through
-> >    so the discarding can be controlled on a per-node basis.
-> >
-> > c) The pagecache shrinking and slab shrinking should probably have separate
-> >    controls.
+On Thu, Dec 29, 2005 at 05:59:35AM -0500, Jes Sorensen wrote:
+> Hi,
+> 
+> Please find attached an updated patch for the XFS using MUTEX
+> patch.
+> 
+> Note this is a replacement patch for the previous one.
+> 
+> Cheers,
+> Jes
+> 
+> This patch switches XFS over to use the new mutex code directly as
+> opposed to the previous workaround patch I posted earlier that avoided
+> the namespace clash by forcing it back to semaphores. This falls in the
+> 'works for me<tm>' category.
 
-d) it is a total mess.
+It's say just switch XFS to the one-arg mutex_init variant.
 
-A lot of code for something that you shouldn't do
-except for benchmarking.  If people see problems where pagecache data isn't
-dropped enough we should fix the VM instead of adding code that just bloats
-the kernel more.
+And ingo. please add the mutex_t typedef, analogue to spinlock_t it's a totally
+opaqueue to the users type, so it really should be a typedef.  After that
+the XFS mutex.h can just go away.
+

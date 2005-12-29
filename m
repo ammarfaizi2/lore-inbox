@@ -1,100 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbVL2Dve@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbVL2EGy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965002AbVL2Dve (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 22:51:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbVL2Dve
+	id S965007AbVL2EGy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 23:06:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbVL2EGy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 22:51:34 -0500
-Received: from omta02sl.mx.bigpond.com ([144.140.93.154]:39825 "EHLO
-	omta02sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S965002AbVL2Dve (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 22:51:34 -0500
-Message-ID: <43B35D43.40902@bigpond.net.au>
-Date: Thu, 29 Dec 2005 14:51:31 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.7-1.1.fc4 (X11/20050929)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Con Kolivas <kernel@kolivas.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [RFC] CPU scheduler: Simplified interactive bonus mechanism
-References: <43B22FBA.5040008@bigpond.net.au> <200512281735.00992.kernel@kolivas.org> <43B242F4.3050004@yahoo.com.au>
-In-Reply-To: <43B242F4.3050004@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02sl.mx.bigpond.com from [147.10.133.38] using ID pwil3058@bigpond.net.au at Thu, 29 Dec 2005 03:51:32 +0000
+	Wed, 28 Dec 2005 23:06:54 -0500
+Received: from relais.videotron.ca ([24.201.245.36]:25559 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S965007AbVL2EGy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 23:06:54 -0500
+Date: Wed, 28 Dec 2005 23:06:53 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: [patch 1/3] mutex subsystem: trylock
+In-reply-to: <20051227131501.GA29134@elte.hu>
+X-X-Sender: nico@localhost.localdomain
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.64.0512282222400.3309@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20051223161649.GA26830@elte.hu>
+ <Pine.LNX.4.64.0512261411530.1496@localhost.localdomain>
+ <1135685158.2926.22.camel@laptopd505.fenrus.org>
+ <20051227131501.GA29134@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> Con Kolivas wrote:
+On Tue, 27 Dec 2005, Ingo Molnar wrote:
+
 > 
->> On Wed, 28 Dec 2005 05:24 pm, Peter Williams wrote:
->>
->>> This patch implements a prototype version of a simplified interactive
->>> bonus mechanism.  The mechanism does not attempt to identify interactive
->>
->>
->>
->>> ---
->>>
->>> Your comments on this proposal are requested.
->>>
->>> ---
->>
->>
->>
->> If we're going to redo the interactivity estimator I happen to have a 
->> whole cpu scheduler design that is interactive by design without being 
->> a state machine that I've been hacking / maintining / debugging for 2 
->> years that many people are already using in production...
->>
+> * Arjan van de Ven <arjan@infradead.org> wrote:
 > 
-> What do you mean interactive by design (presumably as opposed
-> to the current scheduler which is not interactive by design)?
+> > > + * 1) if the exclusive store fails we fail, and
+> > > + *
+> > > + * 2) if the decremented value is not zero we don't even attempt the store.
+> > 
+> > 
+> > btw I really think that 1) is wrong. trylock should do everything it 
+> > can to get the semaphore short of sleeping. Just because some 
+> > cacheline got written to (which might even be shared!) in the middle 
+> > of the atomic op is not a good enough reason to fail the trylock imho. 
+> > Going into the slowpath.. fine. But here it's a quality of 
+> > implementation issue; you COULD get the semaphore without sleeping (at 
+> > least probably, you'd have to retry to know for sure) but because 
+> > something wrote to the same cacheline as the lock... no. that's just 
+> > not good enough.. sorry.
 > 
-> And what do you mean by not being a state machine?
-> 
-> Back on topic: I don't think that this patch isn't clearly
+> point. I solved this in my tree by calling the generic trylock <fn> if 
+> there's an __ex_flag failure in the ARMv6 case. Should be rare (and thus 
+> the call is under unlikely()), and should thus still enable the fast 
+> implementation.
 
-I assume that the double negative here is accidental and you mean that 
-this scheduler isn't clearly better than the current one.
+I'd solve it like this instead (on top of your latest patches):
 
-> better than what currently exists, nor would require less
-> testing than any other large scale changes to the scheduler
-> behaviour.
-> 
-> So, as Con seems to imply, it is JASW (just another scheduler
-> rewrite).
+Index: linux-2.6/include/asm-arm/mutex.h
+===================================================================
+--- linux-2.6.orig/include/asm-arm/mutex.h
++++ linux-2.6/include/asm-arm/mutex.h
+@@ -110,12 +110,7 @@ do {									\
+ 
+ /*
+  * For __mutex_fastpath_trylock we use another construct which could be
+- * described as an "incomplete atomic decrement" or a "single value cmpxchg"
+- * since it has two modes of failure:
+- *
+- * 1) if the exclusive store fails we fail, and
+- *
+- * 2) if the decremented value is not zero we don't even attempt the store.
++ * described as a "single value cmpxchg".
+  *
+  * This provides the needed trylock semantics like cmpxchg would, but it is
+  * lighter and less generic than a true cmpxchg implementation.
+@@ -123,27 +118,22 @@ do {									\
+ static inline int
+ __mutex_fastpath_trylock(atomic_t *count, int (*fn_name)(atomic_t *))
+ {
+-	int __ex_flag, __res;
++	int __ex_flag, __res, __orig;
+ 
+ 	__asm__ (
+ 
+-		"ldrex		%0, [%2]	\n"
+-		"subs		%0, %0, #1	\n"
+-		"strexeq	%1, %0, [%2]	\n"
++		"1: ldrex	%0, [%3]	\n"
++		"subs		%1, %0, #1	\n"
++		"strexeq	%2, %1, [%3]	\n"
++		"movlt		%0, #0		\n"
++		"cmpeq		%2, #0		\n"
++		"bgt		1b		\n"
+ 
+-		: "=&r" (__res), "=&r" (__ex_flag)
++		: "=&r" (__orig), "=&r" (__res), "=&r" (__ex_flag)
+ 		: "r" (&count->counter)
+ 		: "cc", "memory" );
+ 
+-	/*
+-	 * We must not return a synthetic 'failure' if the conditional
+-	 * did not succeed - drop back into the generic slowpath if
+-	 * this happens (should be rare):
+-	 */
+-	if (unlikely(__ex_flag))
+-		return fn_name(count);
+-
+-	return __res == 0;
++	return __orig;
+ }
+ 
+ #endif
 
-Not a rewrite just some major surgery to one small part (at least when 
-compared to nicksched, staircase and the SPA schedulers).  This doesn't 
-effect the run queue structure or the load balancing mechanisms.  Or, 
-for that matter, even the bonus mechanism itself other than the 
-calculation of the bonus as the way the bonus is applied once calculated 
-is unchanged.
 
-> Not that there's anything wrong with that... except
-> it is not really a good fix for a problem with the current
-> scheduler.
-
-Probably not in its present form but with a little refinement I think 
-that it may provide a solution.  As I see it the current strategy of 
-trying to identify interactive tasks and then giving them bonuses is the 
-cause of most of the remaining problems because it's hard to do and if 
-you get it wrong and identify non interactive tasks as interactive tasks 
-it can have long lasting bad effects on the scheduling quality.  So I 
-think a strategy that makes bonuses more ephemeral has some chance of 
-success.  Only time and testing will tell.
-
-I think that the big advantage of the patch (at the moment) is that it's 
-easy to understand.  Which in turn makes it easier to tweak.
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+Nicolas

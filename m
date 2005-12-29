@@ -1,115 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965007AbVL2EGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965008AbVL2EKH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965007AbVL2EGy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 23:06:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbVL2EGy
+	id S965008AbVL2EKH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 23:10:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965009AbVL2EKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 23:06:54 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:25559 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S965007AbVL2EGy
+	Wed, 28 Dec 2005 23:10:07 -0500
+Received: from wproxy.gmail.com ([64.233.184.207]:63145 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S965008AbVL2EKF convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 23:06:54 -0500
-Date: Wed, 28 Dec 2005 23:06:53 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: [patch 1/3] mutex subsystem: trylock
-In-reply-to: <20051227131501.GA29134@elte.hu>
-X-X-Sender: nico@localhost.localdomain
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.64.0512282222400.3309@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <20051223161649.GA26830@elte.hu>
- <Pine.LNX.4.64.0512261411530.1496@localhost.localdomain>
- <1135685158.2926.22.camel@laptopd505.fenrus.org>
- <20051227131501.GA29134@elte.hu>
+	Wed, 28 Dec 2005 23:10:05 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BMxUsdL8JW9ZfNjsvhuAJwNsZpLclw7WqhFdwXQyNwxP2ucqbZ+iZC9Wfue4m2Hwf1p6akUfvqUTirbUqNYj/yRqcPybwkBII91TwHQn10w9a6aQC+YBfVoHfHH9wHhcBxHCjwCN+BwevgNtnzHmsilZhD02q7rRqGl2kwTNSk4=
+Message-ID: <5c49b0ed0512282010x156d59afmb2e1dd420542440b@mail.gmail.com>
+Date: Wed, 28 Dec 2005 20:10:04 -0800
+From: Nate Diller <nate.diller@gmail.com>
+To: JaniD++ <djani22@dynamicweb.hu>
+Subject: Re: buffer cache question
+Cc: linux-kernel@vger.kernel.org, pavel@suse.cz
+In-Reply-To: <006001c6080b$03759da0$a700a8c0@dcccs>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <EXCHG2003iSnRMWuLn500000618@EXCHG2003.microtech-ks.com>
+	 <00ad01c5eefd$7990b370$a700a8c0@dcccs>
+	 <5c49b0ed0512230058q157ddedx96059d876c45a69f@mail.gmail.com>
+	 <006001c6080b$03759da0$a700a8c0@dcccs>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Dec 2005, Ingo Molnar wrote:
+> ----- Original Message -----
+> From: Nate Diller
+> To: JaniD++
+> Cc: Roger Heflin ; linux-kernel@vger.kernel.org
+> Sent: Friday, December 23, 2005 9:58 AM
+> Subject: Re: buffer cache question
+>
+> looks like you're barely using any of your high memory.  maybe NBD doesn't
+> have highmem support.  what file system are you using?
+>
+> NATE
+>
+>
+> I cannot understant this.
+> NBD need to support highmem for buffering?
+> If know right, the kernel does buffering, not NBD!
+> But the kernel only use ~830MB for buffer cache instead of dinamically use
+> all free memory like page cache.
+>
+> This is one raw disk node, independent from file system.
+>
 
-> 
-> * Arjan van de Ven <arjan@infradead.org> wrote:
-> 
-> > > + * 1) if the exclusive store fails we fail, and
-> > > + *
-> > > + * 2) if the decremented value is not zero we don't even attempt the store.
-> > 
-> > 
-> > btw I really think that 1) is wrong. trylock should do everything it 
-> > can to get the semaphore short of sleeping. Just because some 
-> > cacheline got written to (which might even be shared!) in the middle 
-> > of the atomic op is not a good enough reason to fail the trylock imho. 
-> > Going into the slowpath.. fine. But here it's a quality of 
-> > implementation issue; you COULD get the semaphore without sleeping (at 
-> > least probably, you'd have to retry to know for sure) but because 
-> > something wrote to the same cacheline as the lock... no. that's just 
-> > not good enough.. sorry.
-> 
-> point. I solved this in my tree by calling the generic trylock <fn> if 
-> there's an __ex_flag failure in the ARMv6 case. Should be rare (and thus 
-> the call is under unlikely()), and should thus still enable the fast 
-> implementation.
+this is an NBD client, using CONFIG_BLK_DEV_NBD?  on the 2.6 series
+kernel?  if so, then it, like any other kernel component using the
+page cache, needs to explicity use kmap/kunmap to make use of memory
+in the high memory zone.  on a 32 bit machine, any pages above the 896
+meg mark are treated specially inside the linux kernel (see
+http://kerneltrap.org/node/2450).
 
-I'd solve it like this instead (on top of your latest patches):
+if you don't have highmem support (CONFIG_HIGHMEM4G) enabled, then
+enabling that should fix it.  if you already have it enabled (it
+looked like it to me, based on your /proc/meminfo) then there is a bug
+somewhere.
 
-Index: linux-2.6/include/asm-arm/mutex.h
-===================================================================
---- linux-2.6.orig/include/asm-arm/mutex.h
-+++ linux-2.6/include/asm-arm/mutex.h
-@@ -110,12 +110,7 @@ do {									\
- 
- /*
-  * For __mutex_fastpath_trylock we use another construct which could be
-- * described as an "incomplete atomic decrement" or a "single value cmpxchg"
-- * since it has two modes of failure:
-- *
-- * 1) if the exclusive store fails we fail, and
-- *
-- * 2) if the decremented value is not zero we don't even attempt the store.
-+ * described as a "single value cmpxchg".
-  *
-  * This provides the needed trylock semantics like cmpxchg would, but it is
-  * lighter and less generic than a true cmpxchg implementation.
-@@ -123,27 +118,22 @@ do {									\
- static inline int
- __mutex_fastpath_trylock(atomic_t *count, int (*fn_name)(atomic_t *))
- {
--	int __ex_flag, __res;
-+	int __ex_flag, __res, __orig;
- 
- 	__asm__ (
- 
--		"ldrex		%0, [%2]	\n"
--		"subs		%0, %0, #1	\n"
--		"strexeq	%1, %0, [%2]	\n"
-+		"1: ldrex	%0, [%3]	\n"
-+		"subs		%1, %0, #1	\n"
-+		"strexeq	%2, %1, [%3]	\n"
-+		"movlt		%0, #0		\n"
-+		"cmpeq		%2, #0		\n"
-+		"bgt		1b		\n"
- 
--		: "=&r" (__res), "=&r" (__ex_flag)
-+		: "=&r" (__orig), "=&r" (__res), "=&r" (__ex_flag)
- 		: "r" (&count->counter)
- 		: "cc", "memory" );
- 
--	/*
--	 * We must not return a synthetic 'failure' if the conditional
--	 * did not succeed - drop back into the generic slowpath if
--	 * this happens (should be rare):
--	 */
--	if (unlikely(__ex_flag))
--		return fn_name(count);
--
--	return __res == 0;
-+	return __orig;
- }
- 
- #endif
+it would seem from a brief inspection that the send/recv_bvec
+functions in nbd (2.6.13) do use kmap.  I don't know the nbd code very
+well, it seems that Pavel Machek wrote the code, he or block layer
+maintainer Jens Axboe may know something I don't.  So if enabling
+highmem in your .config doesn't help, try CC'ing them with your issue.
+ in the mean time, one of the memory split patches, such as the 4G:4G
+patch, should get things working.
 
-
-Nicolas
+NATE

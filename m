@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbVL2Bow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964954AbVL2BuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964951AbVL2Bow (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Dec 2005 20:44:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964953AbVL2Bow
+	id S964954AbVL2BuT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Dec 2005 20:50:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbVL2BuT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Dec 2005 20:44:52 -0500
-Received: from smtp102.sbc.mail.re2.yahoo.com ([68.142.229.103]:44905 "HELO
-	smtp102.sbc.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S964951AbVL2Bow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Dec 2005 20:44:52 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH for 2.6.15] Input: aiptek - fix Y axis setup
-Date: Wed, 28 Dec 2005 20:44:48 -0500
-User-Agent: KMail/1.9.1
-Cc: "LKML, " <linux-kernel@vger.kernel.org>,
-       Riccardo Magliocchetti <riccardo@datahost.it>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200512282044.48328.dtor_core@ameritech.net>
+	Wed, 28 Dec 2005 20:50:19 -0500
+Received: from mail.ocs.com.au ([202.147.117.210]:65219 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S964954AbVL2BuS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Dec 2005 20:50:18 -0500
+X-Mailer: exmh version 2.7.0 06/18/2004 with nmh-1.1
+From: Keith Owens <kaos@ocs.com.au>
+To: Dave Jones <davej@redhat.com>
+Cc: Matt Mackall <mpm@selenic.com>, linux-kernel@vger.kernel.org
+Subject: Re: [POLL] SLAB : Are the 32 and 192 bytes caches really usefull on x86_64 machines ? 
+In-reply-to: Your message of "Wed, 28 Dec 2005 20:29:15 CDT."
+             <20051229012915.GB3286@redhat.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 29 Dec 2005 12:50:10 +1100
+Message-ID: <23471.1135821010@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Riccardo Magliocchetti <riccardo@datahost.it>
+Dave Jones (on Wed, 28 Dec 2005 20:29:15 -0500) wrote:
+>
+> > Something like this:
+> > 
+> > http://lwn.net/Articles/124374/
+>
+>One thing that really sticks out like a sore thumb is soft_cursor()
+>That thing gets called a *lot*, and every time it does a kmalloc/free
+>pair that 99.9% of the time is going to be the same size alloc as
+>it was the last time.  This patch makes that alloc persistent
+>(and does a realloc if the size changes).
+>The only time it should change is if the font/resolution changes I think.
 
-This patch fixes a typo introduced by conversion to dynamic input_dev
-allocation.
+Can soft_cursor() be called from multiple processes at the same time,
+in particular with dual head systems?  If so then a static variable is
+not going to work.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
----
-
- drivers/usb/input/aiptek.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: work/drivers/usb/input/aiptek.c
-===================================================================
---- work.orig/drivers/usb/input/aiptek.c
-+++ work/drivers/usb/input/aiptek.c
-@@ -2103,7 +2103,7 @@ aiptek_probe(struct usb_interface *intf,
- 	 * values.
- 	 */
- 	input_set_abs_params(inputdev, ABS_X, 0, 2999, 0, 0);
--	input_set_abs_params(inputdev, ABS_X, 0, 2249, 0, 0);
-+	input_set_abs_params(inputdev, ABS_Y, 0, 2249, 0, 0);
- 	input_set_abs_params(inputdev, ABS_PRESSURE, 0, 511, 0, 0);
- 	input_set_abs_params(inputdev, ABS_TILT_X, AIPTEK_TILT_MIN, AIPTEK_TILT_MAX, 0, 0);
- 	input_set_abs_params(inputdev, ABS_TILT_Y, AIPTEK_TILT_MIN, AIPTEK_TILT_MAX, 0, 0);

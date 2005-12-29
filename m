@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932577AbVL2HtK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932582AbVL2HxV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932577AbVL2HtK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 02:49:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932581AbVL2HtK
+	id S932582AbVL2HxV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 02:53:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932583AbVL2HxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 02:49:10 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:20651 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932577AbVL2HtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 02:49:09 -0500
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, mpm@selenic.com
-In-Reply-To: <20051228201150.b6cfca14.akpm@osdl.org>
-References: <20051228114637.GA3003@elte.hu>
-	 <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
-	 <1135798495.2935.29.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
-	 <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
-	 <20051228201150.b6cfca14.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 29 Dec 2005 08:49:04 +0100
-Message-Id: <1135842544.2935.0.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -2.8 (--)
-X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
-	Content analysis details:   (-2.8 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 29 Dec 2005 02:53:21 -0500
+Received: from mail.gmx.net ([213.165.64.21]:37557 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932582AbVL2HxU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 02:53:20 -0500
+X-Authenticated: #5339386
+Date: Thu, 29 Dec 2005 08:50:54 +0100
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: oops in kernel 2.6.15-rc6
+Message-ID: <20051229075054.GC9777@sidney>
+References: <20051228135021.GA9777@sidney> <43B2A122.7030203@thinrope.net> <20051228145502.GB9777@sidney> <84144f020512280715y61221ed0g381453cfd3c11c22@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oTHb8nViIGeoXxdp"
+Content-Disposition: inline
+In-Reply-To: <84144f020512280715y61221ed0g381453cfd3c11c22@mail.gmail.com>
+User-Agent: Mutt/1.5.11
+From: Mathias Klein <ma_klein@gmx.de>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> IOW: I'd prefer that we be the ones who specify which functions are going
-> to be inlined and which ones are not.
+--oTHb8nViIGeoXxdp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-a bold statement... especially since the "and which ones are not" isn't
-currently there, we still leave gcc a lot of freedom there ... but only
-in one direction.
+On Wed, Dec 28, 2005 at 05:15:54PM +0200, Pekka Enberg wrote:
+> #1 is the first oops. See die() in arch/i386/kernel/traps.c. Anyway,
+> try enabling CONFIG_DEBUG_SLAB and CONFIG_DEBUG_PAGEALLOC to see if
+> they pick up anything.
 
+I'll give it a try and come back if it occurs again...
+
+Thanks
+Mathias
+
+
+--oTHb8nViIGeoXxdp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQFDs5VdPtJqRGqEpd8RAro+AKCJAgBb0ZIbXeNEgCwIGWKY+v6k6wCfYDAX
+OrTPukg39fdqKNFE4Y1vKXA=
+=uaBw
+-----END PGP SIGNATURE-----
+
+--oTHb8nViIGeoXxdp--

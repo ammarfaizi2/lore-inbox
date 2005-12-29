@@ -1,75 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbVL2VDn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbVL2VDi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbVL2VDn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 16:03:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbVL2VDn
+	id S1750972AbVL2VDi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 16:03:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbVL2VDh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 16:03:43 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:41609 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750975AbVL2VDm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 16:03:42 -0500
-Date: Thu, 29 Dec 2005 22:03:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
-       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 00/13] mutex subsystem, -V9
-Message-ID: <20051229210308.GA665@elte.hu>
+	Thu, 29 Dec 2005 16:03:37 -0500
+Received: from zeniv.linux.org.uk ([195.92.253.2]:31927 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750972AbVL2VDh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 16:03:37 -0500
+Date: Thu, 29 Dec 2005 21:03:36 +0000
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 09/36] m68k: fix macro syntax to make current binutils happy
+Message-ID: <20051229210336.GJ27946@ftp.linux.org.uk>
+References: <E1EpIOj-0004qc-HA@ZenIV.linux.org.uk> <200512262259.19230.zippel@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -1.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
-	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.9 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <200512262259.19230.zippel@linux-m68k.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-this is version -V9 of the generic mutex subsystem. It consists of the 
-following 13 patches:
+On Mon, Dec 26, 2005 at 10:59:18PM +0100, Roman Zippel wrote:
+> Hi,
+> 
+> On Thursday 22 December 2005 05:49, Al Viro wrote:
+> 
+> > recent as(1) doesn't think that . terminates a macro name, so
+> > getuser.l is _not_ treated as invoking getuser with .l as the
+> > first argument.
+> 
+> Could you please hold back with the binutils changes? Eventually this should 
+> rather be fixed in gas or they have to properly document the expected 
+> behaviour, so it doesn't break the next time they change it.
 
-  add-atomic-xchg.patch
-  mutex-generic-asm-implementations.patch
-  mutex-asm-mutex.h-i386.patch
-  mutex-asm-mutex.h-x86_64.patch
-  mutex-asm-mutex.h-arm.patch
-  mutex-arch-mutex-h.patch
-  mutex-core.patch
-  mutex-docs.patch
-  mutex-debug.patch
-  mutex-debug-more.patch
-  xfs-use-mutexes.patch
-  vfs-i-sem-to-mutex.patch
-  vfs-use-more-mutexes.patch
+Unfortunately, that one _is_ documented.  BS they've pulled with macro
+arguments ("if you have ( in it, forget about sanity and just quote")
+is not, but I'm afraid that the only real way to deal with that
+properly is to do as(1) from scratch for targets we care about and
+make sure it produces binaries identical to gas(1) output on everything
+gcc is likely to throw at it.
 
-the patches are against Linus' latest GIT tree, and they should work 
-fine on every Linux architecture.
-
-i have tested all 5 mutex implementation variants under MUTEX_DEBUG_FULL 
-on x86: native, -dec, -xchg, -null and debug.
-
-Changes since -V8:
-
- 93 files changed, 502 insertions(+), 500 deletions(-)
-
-- ARMv6: __mutex_fastpath_trylock micro-optimization (Nicolas Pitre)
-
-- asm-generic/mutex-xchg.h: better __mutex_fastpath_trylock 
-  implementation (Nicolas Pitre)
-
-- XFS: use mutexes directly (Jes Sorensen)
-
-- experimental conversion of VFS: change i_sem to i_mutex (Jes Sorensen)
-
-	Ingo
+Alternatively, we could simply stop using as(1) macros and do it in C
+preprocessor, or, (much) better yet, m4.  At least those have documented
+semantics that is not likely to change at random...

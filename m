@@ -1,71 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbVL2XgA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751152AbVL2Xmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbVL2XgA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 18:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbVL2XgA
+	id S1751152AbVL2Xmr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 18:42:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbVL2Xmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 18:36:00 -0500
-Received: from wproxy.gmail.com ([64.233.184.195]:56302 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S1751157AbVL2XgA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 18:36:00 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=L6wDvzKmUTzWZmMLLbNvy9pKWcba759USprThqbzu+4D/DlktugHvOBg6J4qVVnoIyN1ZOvbFzeSihMRCpuj1umJkeryQMct90YmvOvbB+QlQa6C7DO8/m31k8oKiGbrVfEtjcF4zMiNcrnvm0O1pCNv3omQxWgM+L+wWA8Lkqs=
-Message-ID: <9a8748490512291535i3b58b99ex80e3e45d7ebeac22@mail.gmail.com>
-Date: Fri, 30 Dec 2005 00:35:59 +0100
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: gcoady@gmail.com
-Subject: Re: 2.6..15-rc7: CONFIG_HOTPLUG help text
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <0as8r1dh78udset3vv3d1sea5lpnkqccoi@4ax.com>
+	Thu, 29 Dec 2005 18:42:47 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:14813 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751152AbVL2Xmr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 18:42:47 -0500
+Date: Thu, 29 Dec 2005 15:42:32 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Jeff V. Merkey" <jmerkey@wolfmountaingroup.com>
+cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: userspace breakage
+In-Reply-To: <43B453CA.9090005@wolfmountaingroup.com>
+Message-ID: <Pine.LNX.4.64.0512291541420.3298@g5.osdl.org>
+References: <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
+ <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
+ <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
+ <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu>
+ <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com>
+ <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <20051229224103.GF12056@redhat.com>
+ <43B453CA.9090005@wolfmountaingroup.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <drq8r15vvepe8ike7tkm5mkcfp41npph2h@4ax.com>
-	 <9a8748490512291519h22c3ad6fvcda35fb038d0f3cf@mail.gmail.com>
-	 <0as8r1dh78udset3vv3d1sea5lpnkqccoi@4ax.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/30/05, Grant Coady <grant_lkml@dodo.com.au> wrote:
-> On Fri, 30 Dec 2005 00:19:03 +0100, Jesper Juhl <jesper.juhl@gmail.com> wrote:
->
-> >On 12/30/05, Grant Coady <grant_lkml@dodo.com.au> wrote:
-> >> Hi there,
-> >>
-> >> "
-> >> CONFIG_HOTPLUG:
-> >>
-> >> This option is provided for the case where no in-kernel-tree
-> >> modules require HOTPLUG functionality, but a module built
-> >> outside the kernel tree does. Such modules require Y here.
-> >> "
-> >>
-> >> This gives no indication it is required for udev.  Or is it me confused?
-> >>
-> >It doesn't mention udev specifically, but it does say quite clearly
-> >that it's for out-of-kernel stuff that requires hotplug, and udev is
-> >such a thing.
->
-> udev is an out-of-tree kernel module?  Okay, why not bring it into
-> the mainline kernel then?  ;)
->
-Heh, ok, you are right, I guess my eyes skipped the "module" bit. I
-guess it should say something along the lines of
 
- This option is provided for the case where no in-kernel-tree
- modules require HOTPLUG functionality, but a module (or
- other piece of software, like udev) built outside the kernel
- tree does.
- Such modules and other out-of-tree software require Y here.
- If in doubt say Y.
 
-How's that for a better wording?
+On Thu, 29 Dec 2005, Jeff V. Merkey wrote:
+> 
+> The breakage issue is ridiculous, assinine, and unnecessary. I have been
+> porting dsfs to the various releases over the past month, and the
+> breakage of user space, usb, nfs, memory management, is beyond absurd.
 
---
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+We're not talking about internal kernel stuff. Internal kernel stuff 
+_does_ get changed, and we dont' care about breakage of out-of-kernel 
+stuff. That's fundamental.
+
+		Linus

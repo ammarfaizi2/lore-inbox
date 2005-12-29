@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965055AbVL2I1U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbVL2Idu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965055AbVL2I1U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 03:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965056AbVL2I1U
+	id S965059AbVL2Idu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 03:33:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbVL2Idu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 03:27:20 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:51625 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965055AbVL2I1U (ORCPT
+	Thu, 29 Dec 2005 03:33:50 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:12739 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965059AbVL2Idu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 03:27:20 -0500
-Date: Thu, 29 Dec 2005 13:57:09 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>
-Cc: Andi Kleen <ak@muc.de>, Morton Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] x86_64 write apic id fix
-Message-ID: <20051229082709.GB1626@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
+	Thu, 29 Dec 2005 03:33:50 -0500
+Date: Thu, 29 Dec 2005 09:33:33 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Nicolas Pitre <nico@cam.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/3] mutex subsystem: trylock
+Message-ID: <20051229083333.GA31003@elte.hu>
+References: <20051223161649.GA26830@elte.hu> <Pine.LNX.4.64.0512261411530.1496@localhost.localdomain> <1135685158.2926.22.camel@laptopd505.fenrus.org> <20051227131501.GA29134@elte.hu> <Pine.LNX.4.64.0512282222400.3309@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.64.0512282222400.3309@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.9 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-o Apic id is in most significant 8 bits of APIC_ID register. Current code
-  is trying to write apic id to least significant 8 bits. This patch fixes
-  it.
+* Nicolas Pitre <nico@cam.org> wrote:
 
-o This fix enables booting uni kdump capture kernel on a cpu with non-zero
-  apic id.
+> > > > + * 1) if the exclusive store fails we fail, and
+> > > > + *
+> > > > + * 2) if the decremented value is not zero we don't even attempt the store.
+> > > 
+> > > 
+> > > btw I really think that 1) is wrong. trylock should do everything it 
+> > > can to get the semaphore short of sleeping. Just because some 
+> > > cacheline got written to (which might even be shared!) in the middle 
+> > > of the atomic op is not a good enough reason to fail the trylock imho. 
+> > > Going into the slowpath.. fine. But here it's a quality of 
+> > > implementation issue; you COULD get the semaphore without sleeping (at 
+> > > least probably, you'd have to retry to know for sure) but because 
+> > > something wrote to the same cacheline as the lock... no. that's just 
+> > > not good enough.. sorry.
+> > 
+> > point. I solved this in my tree by calling the generic trylock <fn> if 
+> > there's an __ex_flag failure in the ARMv6 case. Should be rare (and thus 
+> > the call is under unlikely()), and should thus still enable the fast 
+> > implementation.
+> 
+> I'd solve it like this instead (on top of your latest patches):
 
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
+thanks, applied.
 
+> +		"1: ldrex	%0, [%3]	\n"
+> +		"subs		%1, %0, #1	\n"
+> +		"strexeq	%2, %1, [%3]	\n"
+> +		"movlt		%0, #0		\n"
+> +		"cmpeq		%2, #0		\n"
+> +		"bgt		1b		\n"
 
-diff -puN arch/x86_64/kernel/apic.c~kdump-up-kernel-non-boot-cpu-fix arch/x86_64/kernel/apic.c
---- linux-2.6.15-rc5-mm3-16M/arch/x86_64/kernel/apic.c~kdump-up-kernel-non-boot-cpu-fix	2005-12-27 10:38:09.000000000 -0800
-+++ linux-2.6.15-rc5-mm3-16M-root/arch/x86_64/kernel/apic.c	2005-12-27 10:39:31.000000000 -0800
-@@ -1060,7 +1060,7 @@ int __init APIC_init_uniprocessor (void)
- 	connect_bsp_APIC();
- 
- 	phys_cpu_present_map = physid_mask_of_physid(boot_cpu_id);
--	apic_write_around(APIC_ID, boot_cpu_id);
-+	apic_write_around(APIC_ID, SET_APIC_ID(boot_cpu_id));
- 
- 	setup_local_APIC();
- 
-diff -puN include/asm-x86_64/apicdef.h~kdump-up-kernel-non-boot-cpu-fix include/asm-x86_64/apicdef.h
---- linux-2.6.15-rc5-mm3-16M/include/asm-x86_64/apicdef.h~kdump-up-kernel-non-boot-cpu-fix	2005-12-27 10:38:25.000000000 -0800
-+++ linux-2.6.15-rc5-mm3-16M-root/include/asm-x86_64/apicdef.h	2005-12-27 10:39:02.000000000 -0800
-@@ -13,6 +13,7 @@
- #define		APIC_ID		0x20
- #define			APIC_ID_MASK		(0xFFu<<24)
- #define			GET_APIC_ID(x)		(((x)>>24)&0xFFu)
-+#define			SET_APIC_ID(x)		(((x)<<24))
- #define		APIC_LVR	0x30
- #define			APIC_LVR_MASK		0xFF00FF
- #define			GET_APIC_VERSION(x)	((x)&0xFFu)
-_
+so we are back to what is in essence a cmpxchg implementation?
+
+	Ingo

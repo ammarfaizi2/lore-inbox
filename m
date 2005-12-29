@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbVL2Pfc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbVL2PiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750744AbVL2Pfc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 10:35:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbVL2Pfc
+	id S1750760AbVL2PiO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 10:38:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750761AbVL2PiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 10:35:32 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:22800 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1750744AbVL2Pfb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 10:35:31 -0500
-Date: Thu, 29 Dec 2005 16:35:29 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Arjan van de Ven <arjan@infradead.org>
+	Thu, 29 Dec 2005 10:38:14 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:8173 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750760AbVL2PiN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 10:38:13 -0500
+Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
+From: Arjan van de Ven <arjan@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
 Cc: Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@elte.hu>,
        Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051229153529.GH3811@stusta.de>
-References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051229143846.GA18833@infradead.org> <1135868049.2935.49.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1135868049.2935.49.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20051229153529.GH3811@stusta.de>
+References: <20051228114637.GA3003@elte.hu>
+	 <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
+	 <1135798495.2935.29.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
+	 <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
+	 <20051229143846.GA18833@infradead.org>
+	 <1135868049.2935.49.camel@laptopd505.fenrus.org>
+	 <20051229153529.GH3811@stusta.de>
+Content-Type: text/plain
+Date: Thu, 29 Dec 2005 16:38:09 +0100
+Message-Id: <1135870689.2935.54.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -2.8 (--)
+X-Spam-Report: SpamAssassin version 3.0.4 on pentafluge.infradead.org summary:
+	Content analysis details:   (-2.8 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 29, 2005 at 03:54:09PM +0100, Arjan van de Ven wrote:
+
+> > You describe a nice utopia where only the most essential functions are
+> > inlined.. but so far that hasn't worked out all that well ;) Turning
+> > "inline" back into the hint to the compiler that the C language makes it
+> > is maybe a cop-out, but it's a sustainable approach at least.
+> >...
 > 
-> > I don't care too much whether we put always_inline or inline at the function
-> > we _really_ want to inline.  But all others shouldn't have any inline marker.
-> > So instead of changing the pretty useful redefinitions we have to keep the
-> > code a little more readable what about getting rid of all the stupid inlines
-> > we have over the place? 
-> 
-> just in drivers/ there are well over 6400 of those. Changing most of
-> those is going to be a huge effort. The reality is, most driver writers
-> (in fact kernel code writers) tend to overestimate the gain of inline in
-> THEIR code, and to underestimate the cumulative cost of it. Despite what
-> akpm says, I think gcc can make a better judgement than most of these
-> authors (probably including me :). We can remove 6400 now, but a year
-> from now, another 1000 have been added back again I bet.
+> But shouldn't nowadays gcc be able to know best even without an "inline" 
+> hint?
 
-Are we that bad reviewing code?
+it will, the inline hint only affects the thresholds so it's not
+entirely without effects, but I can imagine that there are cases that
+truely are performance critical and can be optimized out and where you
+don't want to help gcc a bit (say a one line wrapper around readl or
+writel). Otoh I suspect that modern gcc will be more than smart enough
+and inline one liners anyway (if they're static of course).
 
-An "inline" in a .c file is simply nearly always wrong in the kernel, 
-and unless the author has a good justification for it it should be 
-removed.
-
-> You describe a nice utopia where only the most essential functions are
-> inlined.. but so far that hasn't worked out all that well ;) Turning
-> "inline" back into the hint to the compiler that the C language makes it
-> is maybe a cop-out, but it's a sustainable approach at least.
->...
-
-But shouldn't nowadays gcc be able to know best even without an "inline" 
-hint?
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

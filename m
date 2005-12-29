@@ -1,54 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbVL2Xz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbVL2X4L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbVL2Xz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 18:55:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbVL2Xz1
+	id S1751165AbVL2X4L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 18:56:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbVL2X4L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 18:55:27 -0500
-Received: from [202.67.154.148] ([202.67.154.148]:10138 "EHLO ns666.com")
-	by vger.kernel.org with ESMTP id S1751160AbVL2Xz0 (ORCPT
+	Thu, 29 Dec 2005 18:56:11 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:45023 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751161AbVL2X4K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 18:55:26 -0500
-Message-ID: <43B4776B.4030407@ns666.com>
-Date: Fri, 30 Dec 2005 00:55:23 +0100
-From: Trilight <trilight@ns666.com>
-User-Agent: Mozilla/4.8 [en] (Windows NT 5.1; U)
-X-Accept-Language: en-us
+	Thu, 29 Dec 2005 18:56:10 -0500
+Date: Thu, 29 Dec 2005 15:52:42 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: userspace breakage
+In-Reply-To: <20051229232548.GT3811@stusta.de>
+Message-ID: <Pine.LNX.4.64.0512291544310.3298@g5.osdl.org>
+References: <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
+ <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
+ <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu>
+ <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com>
+ <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <20051229224103.GF12056@redhat.com>
+ <Pine.LNX.4.64.0512291451440.3298@g5.osdl.org> <20051229232548.GT3811@stusta.de>
 MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.14.5 / swapping / killing random apps
-References: <43B3DC7A.7010000@ns666.com>	 <9a8748490512290616y34cae1aav776035e8b650264@mail.gmail.com>	 <43B40635.4030002@ns666.com> <9a8748490512291424r302d77e5pc70ba5e08ad5dec7@mail.gmail.com>
-In-Reply-To: <9a8748490512291424r302d77e5pc70ba5e08ad5dec7@mail.gmail.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
-> On 12/29/05, Trilight <trilight@ns666.com> wrote:
-> <!-- snip -->
-> 
->>I just did bad block check and it turns out to be good.
->>
->>If there is anything else i can check i'm all ears hehe
->>
-> 
-> Have you checked you log files/dmesg for clues after an occourance of
-> the problem?
-> Have you checked the logs for interresting messages leading up to the problem?
-> 
-> --
-> Jesper Juhl <jesper.juhl@gmail.com>
-> Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-> Plain text mails only, please      http://www.expita.com/nomime.html
-> 
-> 
 
 
+On Fri, 30 Dec 2005, Adrian Bunk wrote:
+> > 
+> > Now, I'm not saying that we can always support everything that goes on in 
+> > user space forever, but dammit, we can try damn hard.
+> 
+> Was it a mistake to drop support for ipfwadm and ipchains?
+> Was it a mistake to drop support for devsfs?
+> Will it be a mistake to drop support for gcc < 3.2?
 
+Those things at least were brewing for _years_. People had lots of 
+heads-up warning.
 
-I did, but there is no sign in the logs indicating something about the
-app which crashed at that moment.
+> Will it be a mistake to remove the obsolete raw driver?
+> Will it be a mistake to drop the Video4Linux API 1 ioctls?
+> Will it be a mistake to drop support for pcmcia-cs?
 
+And again, this is something that we've been warnign about. We have.
+
+I'm not talking about never obsoleting bad interfaces at all. I'm talking 
+about the unnecessary breakage that comes from changes that simply aren't 
+needed, and that isn't given proper heads-up for. 
+
+We used to have a fairly clear point where we could break things, when we 
+had major kernel releases (ie 2.4 -> 2.6 broke the module loader. It was 
+documented, and it was unavoidable). 
+
+> The fundamental problem is that the current development model 
+> contains no well-defined points where breakages of the kernel-related 
+> userspace were allowed and expected by users.
+
+The basic rule should be "never". For example, we now have three different 
+generations of the "stat()" system call, and yes, we wrote the code to 
+maintain all three interfaces. Breaking an old one for a new better one 
+simply wasn't an option.
+
+Now, the more specialized the usage is, the less strict the "never" 
+becomes. But if something becomes a pain for distribution managers (and 
+from Dave, it sounds like we've hit that way too often), that definitely 
+means that we've broken too many things.
+
+In short: I don't think anybody can complain about devfs-like things. 
+We've kept it up for a _long_ time, and there was tons of help for the 
+migration. But clearly DaveJ is unhappy, and that implies that we're not 
+doing as well as we should.
+
+(Which is not to say that we should necessarily bend over backwards to 
+make sure that DaveJ is _never_ unhappy. We should just try harder).
+
+			Linus

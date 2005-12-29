@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbVL2U3Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbVL2U3M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbVL2U3Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 15:29:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbVL2U3Q
+	id S1750962AbVL2U3M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 15:29:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750963AbVL2U3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 15:29:16 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:44429 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750960AbVL2U3P (ORCPT
+	Thu, 29 Dec 2005 15:29:12 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:62953 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750960AbVL2U3L (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 15:29:15 -0500
-Date: Thu, 29 Dec 2005 15:28:52 -0500
-From: Dave Jones <davej@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       arjan@infradead.org, linux-kernel@vger.kernel.org, mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051229202852.GE12056@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-	Andrew Morton <akpm@osdl.org>, arjan@infradead.org,
-	linux-kernel@vger.kernel.org, mpm@selenic.com
-References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org>
+	Thu, 29 Dec 2005 15:29:11 -0500
+Date: Thu, 29 Dec 2005 21:28:48 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Dave Jones <davej@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch] latency tracer, 2.6.15-rc7
+Message-ID: <20051229202848.GC29546@elte.hu>
+References: <1135726300.22744.25.camel@mindpipe> <Pine.LNX.4.61.0512282205450.2963@goblin.wat.veritas.com> <1135814419.7680.13.camel@mindpipe> <20051229082217.GA23052@elte.hu> <20051229100233.GA12056@redhat.com> <20051229101736.GA2560@elte.hu> <1135887072.6804.9.camel@mindpipe> <1135887966.6804.11.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org>
+In-Reply-To: <1135887966.6804.11.camel@mindpipe>
 User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 29, 2005 at 09:41:12AM -0800, Linus Torvalds wrote:
 
- > Comparing it to the kernel is ludicrous. We care about user-space 
- > interfaces to an insane degree. We go to extreme lengths to maintain even 
- > badly designed or unintentional interfaces. Breaking user programs simply 
- > isn't acceptable. We're _not_ like the gcc developers. We know that 
- > people use old binaries for years and years, and that making a new 
- > release doesn't mean that you can just throw that out. You can trust us.
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-Does this mean you're holding back the 2.6.15 release until we don't
-need to update udev to stop X from breaking ?
-</tongue-in-cheek>
+> > Still does not quite work for me on i386.  I applied all the patches as
+> > I'm using 4K stacks.
 
-Seriously, we break things _every_ release. Sometimes in tiny
-'doesn't really matter' ways, sometimes in "fuck, my system no
-longer works" ways, but the days where we I didn't have to tell
-our userspace packagers to rev a half dozen or so packages up to the
-latest upstream revisions when I've pushed a rebased kernel are
-a distant memory.
+oops!
 
-		Dave
+> > LD      .tmp_vmlinux1
+> > init/built-in.o: In function `start_kernel':
+> > : undefined reference to `preempt_max_latency'
+> > make: *** [.tmp_vmlinux1] Error 1
+> > 
+> 
+> This patch fixes the problem.
 
+thanks, applied - new version uploaded.
+
+	Ingo

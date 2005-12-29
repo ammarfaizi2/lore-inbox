@@ -1,84 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbVL2SxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbVL2TCN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750836AbVL2SxF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 13:53:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbVL2SxF
+	id S1750849AbVL2TCN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 14:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbVL2TCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 13:53:05 -0500
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:52093 "EHLO
-	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1750836AbVL2SxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 13:53:04 -0500
-Date: Thu, 29 Dec 2005 12:51:12 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: software raid 5 broken on 2.6.14.4 sparc
-In-reply-to: <5paRd-18Z-47@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: gmack@innerfire.net
-Message-id: <43B43020.8080804@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <5paRd-18Z-47@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+	Thu, 29 Dec 2005 14:02:13 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:47068 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S1750849AbVL2TCM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 14:02:12 -0500
+Message-Id: <200512291901.jBTJ1rOm017519@laptop11.inf.utfsm.cl>
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH 0 of 20] [RFC] ipath - PathScale InfiniPath driver 
+In-Reply-To: Message from "Bryan O'Sullivan" <bos@pathscale.com> 
+   of "Wed, 28 Dec 2005 16:31:19 -0800." <patchbomb.1135816279@eng-12.pathscale.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 18)
+Date: Thu, 29 Dec 2005 16:01:53 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.21.155]); Thu, 29 Dec 2005 16:01:59 -0300 (CLST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerhard Mack wrote:
-> Hello,
+Bryan O'Sullivan <bos@pathscale.com> wrote:
+> Following Roland's submission of our InfiniPath InfiniBand HCA driver
+> earlier this month, we have responded to people's comments by making a
+> large number of changes to the driver.
+
+Many thanks!
+
+> Here is another set of driver patches for review.  Roland is on
+> vacation until January 4, so I'm posting these in his place.  Once
+> again, your comments are appreciated.  We'd like to submit this driver
+> for inclusion in 2.6.16, so we'll be responding quickly to all
+> feedback.
 > 
-> I had one of 5 drives fail in my raid 5 setup and now many files are 
-> unreadable..  Isn't raid 5 supposed to compensate for exactly this 
-> happening?
+> A short summary of the changes we have made is as follows:
 
-It looks like you have multiple drives with problems here:
+Some comments, just based on this:
 
-Here's sde unhappy:
+[...]
 
-> Dec 25 18:36:27 localhost kernel: sde: Current: sense key: Recovered Error
-> Dec 25 18:36:27 localhost kernel:     Additional sense: Recovered data - recommend reassignment
+>   - Renamed _BITS_PER_BYTE to BITS_PER_BYTE, and moved it into
+>     linux/types.h
 
-sdb seems to be overheating:
+Haven't come across anything with this not 8 for a /long/ time now, and no
+Linux on that in sight.
 
-> Dec 26 11:25:56 localhost kernel: sdb: Current: sense key: Recovered Error
-> Dec 26 11:25:56 localhost kernel:     Additional sense: Warning - specified temperature exceeded
+[...]
 
-Now sdf is unhappy..
+> There are a few requested changes we have chosen to omit for now:
+> 
+>   - The driver still uses EXPORT_SYMBOL, for consistency with other
+>     code in drivers/infiniband
 
-> Dec 29 06:26:07 localhost kernel: sdf: Current: sense key: Hardware Error
-> Dec 29 06:26:07 localhost kernel:     Additional sense: Mechanical positioning error
-> Dec 29 06:26:07 localhost kernel: end_request: I/O error, dev sdf, sector 9664
-> Dec 29 06:26:07 localhost kernel: raid5: Disk failure on sdf, disabling device. Operation continuing on 4 devices
+I'd suppose that is your choice...
 
-> Dec 29 06:26:07 localhost kernel: RAID5 conf printout:
-> Dec 29 06:26:07 localhost kernel:  --- rd:6 wd:4 fd:2
-> Dec 29 06:26:07 localhost kernel:  disk 0, o:1, dev:sdc
-> Dec 29 06:26:07 localhost kernel:  disk 1, o:1, dev:sdd
-> Dec 29 06:26:07 localhost kernel:  disk 2, o:1, dev:sde
-> Dec 29 06:26:07 localhost kernel:  disk 3, o:0, dev:sdf
-> Dec 29 06:26:07 localhost kernel:  disk 4, o:1, dev:sdg
-> Dec 29 06:26:07 localhost kernel: RAID5 conf printout:
-> Dec 29 06:26:07 localhost kernel:  --- rd:6 wd:4 fd:2
-> Dec 29 06:26:07 localhost kernel:  disk 0, o:1, dev:sdc
-> Dec 29 06:26:07 localhost kernel:  disk 1, o:1, dev:sdd
-> Dec 29 06:26:07 localhost kernel:  disk 2, o:1, dev:sde
-> Dec 29 06:26:07 localhost kernel:  disk 4, o:1, dev:sdg
-> Dec 29 06:26:07 localhost kernel: Buffer I/O error on device md0, logical block 6040
-> Dec 29 06:26:07 localhost kernel: lost page write due to I/O error on md0
-> Dec 29 06:26:07 localhost kernel: REISERFS: abort (device md0): Journal write error in flush_commit_list
-> Dec 29 06:26:07 localhost kernel: REISERFS: Aborting journal for filesystem on md0
-> Dec 29 07:16:56 localhost kernel: ReiserFS: md0: warning: clm-6006: writing inode 2996 on readonly FS
-> Dec 29 07:16:56 localhost kernel: ReiserFS: md0: warning: clm-6006: writing inode 2996 on readonly FS
-> Dec 29 07:17:28 localhost kernel: Buffer I/O error on device md0, logical block 5052984
-> Dec 29 07:17:28 localhost kernel: lost page write due to I/O error on md0
+>   - Someone asked for the kernel's i2c infrastructure to be used, but
+>     our i2c usage is very specialised, and it would be more of a mess
+>     to use the kernel's
 
-I don't know if this completely explains the failure, but it seems you 
-have bigger problems than one bad drive, and RAID5 cannot handle 
-multiple drive failures.
+Problem with that is that if everybody and Aunt Tillie does the same, the
+kernel as a whole gets to be a mess.
 
+>   - We're still using ioctls instead of sysfs or configfs in some
+>     cases, to maintain userspace compatibility
+
+With what? You can very well ask people to upgrade to the latest userland
+utilities, and even make them run the old versions when they find that the
+new interface isn't there. Happened recently with modprobe/modutils.
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

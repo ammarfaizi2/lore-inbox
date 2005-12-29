@@ -1,69 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965050AbVL2ILX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932594AbVL2IME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965050AbVL2ILX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 03:11:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932592AbVL2ILX
+	id S932594AbVL2IME (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 03:12:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932595AbVL2IME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 03:11:23 -0500
-Received: from smtp102.plus.mail.mud.yahoo.com ([68.142.206.235]:7542 "HELO
-	smtp102.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932591AbVL2ILW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 03:11:22 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=XiKgW5SuMFRprKu9ZK17k+XDhX6Xgvb1wea6AAnT0hct9ZlkIzlwsiUox3fKGvPmH5nLtTAPRvKaU7cbqWsudWhrWjhW4NrzbAMVYrB7eblu+ST9r9qcaM2cxSiDz1LQiDcqDjCintBSYF/hDtyfFxNXET4VSHZqjnul4GjdhEw=  ;
-Message-ID: <43B39A23.8000302@yahoo.com.au>
-Date: Thu, 29 Dec 2005 19:11:15 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+	Thu, 29 Dec 2005 03:12:04 -0500
+Received: from math.ut.ee ([193.40.36.2]:3807 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S932593AbVL2IMD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 03:12:03 -0500
+Date: Thu, 29 Dec 2005 10:11:45 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Serial: bug in 8250.c when handling PCI or other level triggers
+In-Reply-To: <20051228195509.GA12307@flint.arm.linux.org.uk>
+Message-ID: <Pine.SOC.4.61.0512291011320.28176@math.ut.ee>
+References: <20051214172445.GF7124@flint.arm.linux.org.uk>
+ <Pine.SOC.4.61.0512212221310.651@math.ut.ee> <20051221221516.GK1736@flint.arm.linux.org.uk>
+ <Pine.SOC.4.61.0512221231430.6200@math.ut.ee> <20051222130744.GA31339@flint.arm.linux.org.uk>
+ <Pine.SOC.4.61.0512231117560.25532@math.ut.ee> <20051223093343.GA22506@flint.arm.linux.org.uk>
+ <Pine.SOC.4.61.0512231204290.8311@math.ut.ee> <20051223104146.GB22506@flint.arm.linux.org.uk>
+ <Pine.SOC.4.61.0512271553480.7835@math.ut.ee> <20051228195509.GA12307@flint.arm.linux.org.uk>
 MIME-Version: 1.0
-To: Peter Williams <pwil3058@bigpond.net.au>
-CC: Paolo Ornati <ornati@fastwebnet.it>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Con Kolivas <kernel@kolivas.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [SCHED] Totally WRONG prority calculation with specific test-case
- (since 2.6.10-bk12)
-References: <20051227190918.65c2abac@localhost>	<20051227224846.6edcff88@localhost>	<43B1D551.5050503@bigpond.net.au> <20051228112058.2c0c1137@localhost> <43B29540.1030904@bigpond.net.au> <43B3545D.3010508@yahoo.com.au> <43B35986.90408@bigpond.net.au>
-In-Reply-To: <43B35986.90408@bigpond.net.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> Nick Piggin wrote:
+> Can I assume that the bug has disappeared?  Does the patch make it
+> disappear?
 
->> It isn't a dead scheduler any more than any of the other out of tree
->> schedulers are (which isn't saying much, unfortunately).
-> 
-> 
-> Ingosched, staircase and my SPA schedulers are all evolving slowly.
->  Are there any out there that I don't have in PlugSched that you think 
-> should be?
-> 
-
-Not that I know of...
-
->>
->> I've probably got a small number of cleanups and microoptimisations
->> relative to what you have (I can't remember exactly what you sucked up)
->> ... but other than that there hasn't been much development work done for
->> some time because there is not much wrong with it.
->>
-> 
-> I was starting to think that you'd lost interest in this which is why I 
-> said it was more or less dead.  Sorry.
-> 
-
-No worries. I haven't lost interest so much as people seem to be fairly
-happy with the current scheduler and least aren't busting my door down
-for updates to nicksched ;)
-
-I'll do a resynch for 2.6.15 though.
+Yes, seems so.
 
 -- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Meelis Roos (mroos@linux.ee)

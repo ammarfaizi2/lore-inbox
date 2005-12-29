@@ -1,119 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750759AbVL2Qkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbVL2QlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750759AbVL2Qkm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 11:40:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbVL2Qkm
+	id S1750810AbVL2QlM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 11:41:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750815AbVL2Qkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 11:40:42 -0500
-Received: from hera.kernel.org ([140.211.167.34]:47318 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1750759AbVL2Qkl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 11:40:41 -0500
-Date: Thu, 29 Dec 2005 14:31:05 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Cc: Willy Tarreau <willy@w.ods.org>
-Subject: Linux 2.4.33-pre1
-Message-ID: <20051229163105.GA6226@dmt.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Thu, 29 Dec 2005 11:40:45 -0500
+Received: from host3-98.pool876.interbusiness.it ([87.6.98.3]:50082 "EHLO
+	zion.home.lan") by vger.kernel.org with ESMTP id S1750810AbVL2Qkn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 11:40:43 -0500
+From: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 3/5] uml: hostfs - fix possible PAGE_CACHE_SHIFT overflows
+Date: Thu, 29 Dec 2005 17:39:57 +0100
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Dike <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Message-Id: <20051229163956.4985.92278.stgit@zion.home.lan>
+In-Reply-To: <20051229163803.4985.66742.stgit@zion.home.lan>
+References: <20051229163803.4985.66742.stgit@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi! 
 
-Here goes the first -pre of v2.4.33 - it contains a bunch of security
-related fixes (mostly DoS fixes), the last large SATA update, sis900 
-update, amongst others.
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
+Prevent page->index << PAGE_CACHE_SHIFT from overflowing.
 
-Summary of changes from v2.4.32 to v2.4.33-pre1
-============================================
+There is a casting there, but was added without care, so it's at the wrong
+place. Note the extra parens around the shift - "+" is higher precedence than
+"<<", leading to a GCC warning which saved all us.
 
-Adrian Bunk:
-      airo.c/airo_cs.c: correct prototypes
-      drivers/scsi/dpt_i2o.c: fix a NULL pointer dereference
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-Akira Tsukamoto:
-      fix for clock running too fast
-      ide: add recent ATI IXP300/400 PATA support
+ fs/hostfs/hostfs_kern.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletions(-)
 
-Chris Ross:
-      Don't panic on IDE DMA errors
-
-dann frazier:
-      Backport of CVE-2005-2709 fix
-
-Dave Anderson:
-      x86-64: user code panics kernel in exec.c (CVE-2005-2708)
-
-David S. Miller:
-      [SPARC64]: Fix trap state reading for instruction_access_exception.
-      [SPARC64]: Do not call winfix_dax blindly
-      [SPARC64]: Revamp Spitfire error trap handling.
-      [SPARC64]: More fully work around Spitfire Errata 51.
-      [IPV6] mcast: IPV6 side of IGMP DoS fix.
-
-David Stevens:
-      [IGMP]: workaround for IGMP v1/v2 bug
-
-Horms:
-      local denial-of-service with file lease
-
-Jeff Garzik:
-      [libata] resync with kernel 2.6.13
-      [libata sata_sx4] trim trailing whitespace
-      [libata] resync with 2.6.14
-      [libata] resync with 2.6.15-rc3
-      [libata] fix build
-      [libata] fix potential oops in pdev_printk() compat helper
-
-Karl Magnus Kolstoe:
-      add Pioneer DRM-624X to drivers/scsi/scsi_scan.c
-
-Konstantin Khorenko:
-      sis900: come alive after temporary memory shortage
-
-Krzysztof Strasburger:
-      NFS server as a module with -mregparm=3
-
-Linus Torvalds:
-      Fix ptrace self-attach rule (2.6 backport)
-
-Maciej W. Rozycki:
-      fs/smbfs/proc.c: fix data corruption in smb_proc_setattr_unix()
-
-Marcelo Tosatti:
-      Revert broken sis900 update
-      Merge http://w.ods.org/kernel/2.4/linux-2.4-upstream
-      Change VERSION to 2.4.33-pre1
-      Merge master.kernel.org:/.../davem/net-2.4
-
-Marcus Meissner:
-      Fix sendmsg overflow (CVE-2005-2490)
-
-NeilBrown:
-      dcache: avoid race when updating nr_unused count of unused dentries
-
-Nick Warne:
-      Reintroduction i386 CONFIG_DUMMY_KEYB option
-
-Pete Zaitcev:
-      usb: ehci in 2.4 with async_unlink
-
-Vasily Averin:
-      sis900: come alive after temporary memory shortage (fixed version)
-      aic7xxx: reset handler selects a wrong command
-
-Vijay Sampath:
-      MTD: kernel stuck in tight loop occasionally on flash access
-
-Willy Tarreau:
-      IPv6: small fix for ip6_mc_msfilter
-      Fix SATA update KM_IRQ issue with highmem
-
-Yan Zheng:
-      IPv6: fix refcnt of struct ip6_flowlabel
+diff --git a/fs/hostfs/hostfs_kern.c b/fs/hostfs/hostfs_kern.c
+index 3aac164..b3ad0bd 100644
+--- a/fs/hostfs/hostfs_kern.c
++++ b/fs/hostfs/hostfs_kern.c
+@@ -501,11 +501,16 @@ int hostfs_commit_write(struct file *fil
+ 	long long start;
+ 	int err = 0;
+ 
+-	start = (long long) (page->index << PAGE_CACHE_SHIFT) + from;
++	start = (((long long) page->index) << PAGE_CACHE_SHIFT) + from;
+ 	buffer = kmap(page);
+ 	err = write_file(FILE_HOSTFS_I(file)->fd, &start, buffer + from,
+ 			 to - from);
+ 	if(err > 0) err = 0;
++
++	/* Actually, if !err, write_file has added to-from to start, so, despite
++	 * the appearance, we are comparing i_size against the _last_ written
++	 * location, as we should. */
++
+ 	if(!err && (start > inode->i_size))
+ 		inode->i_size = start;
+ 
 

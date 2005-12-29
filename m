@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbVL2V0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbVL2V2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751013AbVL2V0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 16:26:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbVL2V0Q
+	id S1751016AbVL2V2r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 16:28:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751017AbVL2V2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 16:26:16 -0500
-Received: from smtp.osdl.org ([65.172.181.4]:14536 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750974AbVL2V0P (ORCPT
+	Thu, 29 Dec 2005 16:28:46 -0500
+Received: from smtp.osdl.org ([65.172.181.4]:35784 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751015AbVL2V2q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 16:26:15 -0500
-Date: Thu, 29 Dec 2005 13:25:42 -0800 (PST)
+	Thu, 29 Dec 2005 16:28:46 -0500
+Date: Thu, 29 Dec 2005 13:27:36 -0800 (PST)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Jones <davej@redhat.com>
-cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       arjan@infradead.org, linux-kernel@vger.kernel.org, mpm@selenic.com
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-In-Reply-To: <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0512291322560.3298@g5.osdl.org>
-References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org>
- <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org>
- <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu>
- <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu>
- <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229202852.GE12056@redhat.com>
- <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 12/13] mutex subsystem, VFS [experimental]: convert
+ ->i_sem to ->i_mutex
+In-Reply-To: <20051229210521.GM665@elte.hu>
+Message-ID: <Pine.LNX.4.64.0512291326230.3298@g5.osdl.org>
+References: <20051229210521.GM665@elte.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Ingo, 
+ you missed attribution on this. Please don't. A 
 
-On Thu, 29 Dec 2005, Linus Torvalds wrote:
-> 
-> At least _I_ take breakage reports seriously. If there are maintainers 
-> that don't, complain to them. I'll back you up. Breaking user space simply 
-> isn't acceptable without years of preparation and warning.
+	From: Jes Sorensen <jes@sgi.com> 
 
-Btw, sometimes we knowingly change semantics that we believe that nobody 
-would ever be able to care about. Then we literally _depend_ on people 
-complaining about breakage in case we were wrong, and if you guys don't, 
-and just curse, and upgrade programs, we actually miss out on real 
-information.
-
-And yes, occasionally we don't have much choice, and things break. It 
-should be extremely rare, though. Much more commonly it would be a bug or 
-an unintentional change that somebody didn't even realized changed 
-semantics subtly.
+at the top would be appreciated in the patch series next time around 
+(since I'm obviously _not_ going to apply the series before 2.6.15, 
+regardless of any other issues ;)
 
 		Linus
+---
+On Thu, 29 Dec 2005, Ingo Molnar wrote:
+>
+> This patch converts the inode semaphore to a mutex. I have tested it on
+> XFS and compiled as much as one can consider on an ia64. Anyway your
+> luck with it might be different.
+> 
+> Signed-off-by: Jes Sorensen <jes@sgi.com>
+> Signed-off-by: Ingo Molnar <mingo@elte.hu>

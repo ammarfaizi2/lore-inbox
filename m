@@ -1,68 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965052AbVL2IW2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965051AbVL2IWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965052AbVL2IW2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 03:22:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965053AbVL2IW2
+	id S965051AbVL2IWK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 03:22:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965052AbVL2IWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 03:22:28 -0500
-Received: from nproxy.gmail.com ([64.233.182.193]:54379 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S965052AbVL2IW1 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 03:22:27 -0500
+	Thu, 29 Dec 2005 03:22:10 -0500
+Received: from smtp110.plus.mail.mud.yahoo.com ([68.142.206.243]:41837 "HELO
+	smtp110.plus.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965051AbVL2IWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 03:22:09 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Ja+bAHUWRYMCfSg+C1uGzW6eAJcVtFnxbgKBc4MNZtR+ak2hQpdevsPzw8tAoowD8hA5B7yF60tiu9pdyaisjk904ckfS95BYqYiiLlcZYtil5NlpatCZcsG98NdcSbpdpWIXKQBuk/vJz/+nJ5ijLvHj2epUOVRd9w7OyGov/o=
-Message-ID: <84144f020512290022i20504893n95eb01484de62e3f@mail.gmail.com>
-Date: Thu, 29 Dec 2005 10:22:26 +0200
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: "Bryan O'Sullivan" <bos@pathscale.com>
-Subject: Re: [PATCH 6 of 20] ipath - driver debugging headers
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-In-Reply-To: <9e8d017ed298d591ea33.1135816285@eng-12.pathscale.com>
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=AF/mnRYGKvygI61bI7mn6GdIKMyVuyxmXHBwZO4X1dSJnUaVQn/+YBw1RWmwQ3NZVeA/w5Sa1DNdabpZcUl81H6Mm/jUjC/SgAmbxma2rxC6Oh2lKrJ57nCJ0IYvkQU8gpR8vZX1Mm+WlKzjPVQRXLsWU2C500Gs/dBjquUp98E=  ;
+Message-ID: <43B39CAD.9040002@yahoo.com.au>
+Date: Thu, 29 Dec 2005 19:22:05 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <patchbomb.1135816279@eng-12.pathscale.com>
-	 <9e8d017ed298d591ea33.1135816285@eng-12.pathscale.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+CC: Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [RFC] CPU scheduler: Simplified interactive bonus mechanism
+References: <43B22FBA.5040008@bigpond.net.au> <200512281735.00992.kernel@kolivas.org> <43B242F4.3050004@yahoo.com.au> <43B35D43.40902@bigpond.net.au>
+In-Reply-To: <43B35D43.40902@bigpond.net.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/29/05, Bryan O'Sullivan <bos@pathscale.com> wrote:
-> +#endif /* _IPATH_DEBUG_H */
-> diff -r 2d9a3f27a10c -r 9e8d017ed298 drivers/infiniband/hw/ipath/ipath_kdebug.h
-> --- /dev/null   Thu Jan  1 00:00:00 1970 +0000
-> +++ b/drivers/infiniband/hw/ipath/ipath_kdebug.h        Wed Dec 28 14:19:42 2005 -0800
-> @@ -0,0 +1,109 @@
-> +#ifndef _IPATH_KDEBUG_H
-> +#define _IPATH_KDEBUG_H
-> +
-> +#include "ipath_debug.h"
-> +
-> +/*
-> + * This file contains lightweight kernel tracing code.
-> + */
-> +
-> +extern unsigned infinipath_debug;
-> +const char *ipath_get_unit_name(int unit);
-> +
-> +#if _IPATH_DEBUGGING
-> +
-> +#define _IPATH_UNIT_ERROR(unit,fmt,...) \
-> +        printk(KERN_ERR "%s: " fmt, ipath_get_unit_name(unit), ##__VA_ARGS__)
-> +
-> +#define _IPATH_ERROR(fmt,...) printk(KERN_ERR "infinipath: " fmt, ##__VA_ARGS__)
-> +
-> +#define _IPATH_INFO(fmt,...) \
-> +       do { \
-> +               if(unlikely(infinipath_debug & __IPATH_INFO)) \
-> +                       printk(KERN_INFO "infinipath: " fmt, ##__VA_ARGS__); \
-> +       } while(0)
-> +
+Peter Williams wrote:
+> Nick Piggin wrote:
 
-[snip, snip]
+>> Back on topic: I don't think that this patch isn't clearly
+> 
+> 
+> I assume that the double negative here is accidental and you mean that 
+> this scheduler isn't clearly better than the current one.
+> 
 
-Please consider using dev_dbg, dev_err, et al from <linux/device.h>.
+Yep.
 
-                          Pekka
+>> better than what currently exists, nor would require less
+>> testing than any other large scale changes to the scheduler
+>> behaviour.
+>>
+>> So, as Con seems to imply, it is JASW (just another scheduler
+>> rewrite).
+> 
+> 
+> Not a rewrite just some major surgery to one small part (at least when 
+> compared to nicksched, staircase and the SPA schedulers).  This doesn't 
+> effect the run queue structure or the load balancing mechanisms.  Or, 
+
+Well, the runqueue structure is the "easy" part of it. And load balancing
+should not be changed at all[*] by any of these things because we are talking
+about a per-CPU runqueue model.
+
+[*] Apart from obvious and really hard to analyse things like which task is
+     actually running at a point in time, and changing the cache-hotness of
+     things...
+
+> for that matter, even the bonus mechanism itself other than the 
+> calculation of the bonus as the way the bonus is applied once calculated 
+> is unchanged.
+> 
+
+OK maybe it isn't as large scale a change as one of the rewrites, however
+it still is going to probably wildly change behaviour of situations outside
+the little box you analysed and found it to be an improvement for.
+
+But points to you for experimenting and trying new things. Don't let me
+put you off because I'm not much of an expert on ingosched so it may not
+be as large a change as I'm making it out to be.
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

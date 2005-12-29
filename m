@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965059AbVL2Idu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965060AbVL2IlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965059AbVL2Idu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 03:33:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965060AbVL2Idu
+	id S965060AbVL2IlV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 03:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965062AbVL2IlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 03:33:50 -0500
-Received: from mx2.mail.elte.hu ([157.181.151.9]:12739 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965059AbVL2Idu (ORCPT
+	Thu, 29 Dec 2005 03:41:21 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:29876 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965060AbVL2IlU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 03:33:50 -0500
-Date: Thu, 29 Dec 2005 09:33:33 +0100
+	Thu, 29 Dec 2005 03:41:20 -0500
+Date: Thu, 29 Dec 2005 09:41:00 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Nicolas Pitre <nico@cam.org>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/3] mutex subsystem: trylock
-Message-ID: <20051229083333.GA31003@elte.hu>
-References: <20051223161649.GA26830@elte.hu> <Pine.LNX.4.64.0512261411530.1496@localhost.localdomain> <1135685158.2926.22.camel@laptopd505.fenrus.org> <20051227131501.GA29134@elte.hu> <Pine.LNX.4.64.0512282222400.3309@localhost.localdomain>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [patch 2/3] mutex subsystem: fastpath inlining
+Message-ID: <20051229084100.GB31003@elte.hu>
+References: <20051223161649.GA26830@elte.hu> <Pine.LNX.4.64.0512261414300.1496@localhost.localdomain> <20051227115525.GC23587@elte.hu> <Pine.LNX.4.64.0512271548030.3309@localhost.localdomain> <20051228074154.GA4442@elte.hu> <Pine.LNX.4.64.0512281639490.3309@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0512282222400.3309@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.64.0512281639490.3309@localhost.localdomain>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: -1.9
 X-ELTE-SpamLevel: 
@@ -36,37 +37,44 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Nicolas Pitre <nico@cam.org> wrote:
 
-> > > > + * 1) if the exclusive store fails we fail, and
-> > > > + *
-> > > > + * 2) if the decremented value is not zero we don't even attempt the store.
-> > > 
-> > > 
-> > > btw I really think that 1) is wrong. trylock should do everything it 
-> > > can to get the semaphore short of sleeping. Just because some 
-> > > cacheline got written to (which might even be shared!) in the middle 
-> > > of the atomic op is not a good enough reason to fail the trylock imho. 
-> > > Going into the slowpath.. fine. But here it's a quality of 
-> > > implementation issue; you COULD get the semaphore without sleeping (at 
-> > > least probably, you'd have to retry to know for sure) but because 
-> > > something wrote to the same cacheline as the lock... no. that's just 
-> > > not good enough.. sorry.
-> > 
-> > point. I solved this in my tree by calling the generic trylock <fn> if 
-> > there's an __ex_flag failure in the ARMv6 case. Should be rare (and thus 
-> > the call is under unlikely()), and should thus still enable the fast 
-> > implementation.
+> This is with all mutex patches applied and CONFIG_DEBUG_MUTEX_FULL=n, 
+> therefore using the current semaphore code:
 > 
-> I'd solve it like this instead (on top of your latest patches):
+>    text	   data	    bss	    dec	    hex	filename
+> 1821108	 287792	  88264	2197164	 2186ac	vmlinux
+> 
+> Now with CONFIG_DEBUG_MUTEX_FULL=y to substitute semaphores with 
+> mutexes:
+> 
+>    text	   data	    bss	    dec	    hex	filename
+> 1797108	 287568	  88172	2172848	 2127b0	vmlinux
+> 
+> Finally with CONFIG_DEBUG_MUTEX_FULL=y and fast paths inlined:
+> 
+>    text	   data	    bss	    dec	    hex	filename
+> 1807824	 287136	  88172	2183132	 214fdc	vmlinux
+> 
+> This last case is not the smallest, but it is the fastest.
 
-thanks, applied.
+i.e. 1.3% text savings from going to mutexes, and inlining them again 
+gives up 0.5% of that. We've uninlined stuff for a smaller gain in the 
+past ...
 
-> +		"1: ldrex	%0, [%3]	\n"
-> +		"subs		%1, %0, #1	\n"
-> +		"strexeq	%2, %1, [%3]	\n"
-> +		"movlt		%0, #0		\n"
-> +		"cmpeq		%2, #0		\n"
-> +		"bgt		1b		\n"
+> > Note that x86 went to a non-inlined fastpath _despite_ 
+> > having a compact CISC semaphore fastpath.
+> 
+> The function call overhead on x86 is less significant than the ARM 
+> one, so always calling out of line code might be sensible in that 
+> case.
 
-so we are back to what is in essence a cmpxchg implementation?
+i'm highly doubtful we should do that. The spinlock APIs are 4 times 
+more frequent than mutexes are ever going to be, still they too are 
+mostly out of line. (and we only inline the unlock portions that are a 
+space win!) Can you measure any significant difference in performance?  
+(e.g. lat_pipe triggers the mutex fastpath, in DEBUG_MUTEX_FULL=y mode) 
+
+the performance won by inlining is often offset by the performance cost 
+of the higher icache footprint. (and ARM CPUs dont have that large 
+caches to begin with)
 
 	Ingo

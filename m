@@ -1,77 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbVL2WY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbVL2WYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbVL2WY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 17:24:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbVL2WY6
+	id S1751055AbVL2WYs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 17:24:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbVL2WYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 17:24:58 -0500
-Received: from waste.org ([64.81.244.121]:15084 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1751054AbVL2WY5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 17:24:57 -0500
-Date: Thu, 29 Dec 2005 16:20:59 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       arjan@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 00/2] improve .text size on gcc 4.0 and newer compilers
-Message-ID: <20051229222059.GC3356@waste.org>
-References: <20051228114637.GA3003@elte.hu> <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <1135798495.2935.29.camel@laptopd505.fenrus.org> <Pine.LNX.4.64.0512281300220.14098@g5.osdl.org> <20051228212313.GA4388@elte.hu> <20051228214845.GA7859@elte.hu> <20051228201150.b6cfca14.akpm@osdl.org> <20051229073259.GA20177@elte.hu> <Pine.LNX.4.64.0512290923420.14098@g5.osdl.org> <20051229201953.GA29546@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Dec 2005 17:24:48 -0500
+Received: from zproxy.gmail.com ([64.233.162.205]:20528 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S1751054AbVL2WYr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 17:24:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=N2ikK+fYZoGVZ8WSzSX4YXrLfc6TbKpatFDY/78gnjdxPk9OW5+UNI3dAFDZ0varg5/jlZB2xn/tqNJnvBfhHZsJaOzQa4hIkjJj96Ct+cILZFuXzhqacKAs9N3asiViidgzF1RgFtFNbpQbY5y45JKXorbKvbaC++M23QNPnK4=
+Message-ID: <9a8748490512291424r302d77e5pc70ba5e08ad5dec7@mail.gmail.com>
+Date: Thu, 29 Dec 2005 23:24:46 +0100
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Trilight <trilight@ns666.com>
+Subject: Re: 2.6.14.5 / swapping / killing random apps
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <43B40635.4030002@ns666.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20051229201953.GA29546@elte.hu>
-User-Agent: Mutt/1.5.9i
+References: <43B3DC7A.7010000@ns666.com>
+	 <9a8748490512290616y34cae1aav776035e8b650264@mail.gmail.com>
+	 <43B40635.4030002@ns666.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 29, 2005 at 09:19:53PM +0100, Ingo Molnar wrote:
-> 
-> * Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> > > i think there's quite an attitude here - we are at the mercy of "gcc 
-> > > brainfarts" anyway, and users are at the mercy of "kernel brainfarts" 
-> > > just as much.
-> > 
-> > There's a huge difference here. The gcc people very much have a "Oh, 
-> > we changed old documented behaviour - live with it" attitude, together 
-> > with "That was a gcc extension, not part of the C language, so when we 
-> > change how gcc behaves, it's _your_ problem" approach.
-> > 
-> > At least they used to.
-> 
-> yeah, i think that was definitely the case historically.
-> 
-> > Maybe the right thing to do is to just heed that warning, and remove 
-> > such functions from header files and make them no-inline? That way we 
-> > get the size fixes _regardless_ of any compiler options.
-> 
-> i think the eye-opener (for me at least) was that there's really a
-> massive 5%+ size difference here, from 2 simple patches. And meanwhile
-> Matt is doing truly hard size-reduction work and is mailing patches to
-> lkml that remove 200-300 bytes of .text, which is 0.01% of code, apiece.
+On 12/29/05, Trilight <trilight@ns666.com> wrote:
+<!-- snip -->
+>
+> I just did bad block check and it turns out to be good.
+>
+> If there is anything else i can check i'm all ears hehe
+>
+Have you checked you log files/dmesg for clues after an occourance of
+the problem?
+Have you checked the logs for interresting messages leading up to the problem?
 
-For the record, my cut-off for non-trivial stuff is currently about
-1K. Which is more like 0.1% for minimal kernels. Unfortunately, the
-impact of these patches on a stripped-down kernel is less substantial
-than on a featureful one, so 
-
-> Debloating is like scalability, a piece-by-piece process where we'll
-> only see the full effects after doing 100 independent steps, but still
-> we must not ignore the big effects either, nor must we get ourselves
-> into losing maintainance battles.
-> 
-> The current inline model seems to be a lost battle, the 'size noise'
-> caused by spurious inlines (which count in the thousands) is _far_
-> outpowering most of the size reduction efforts. And i think it can be
-> argued that at least in the -Os case gcc has a very clear directive wrt.
-> what to do - and much less room to mess up. Independently of how much we
-> trust it.
-
-I think both these patches deserve a spin in -mm. But I can see
-arguments for staging it. Hopefully we can get Andrew to take the
-unit-at-a-time piece for post-2.6.15 and try out the inlining after
-we've got some confidence with the first.
-
--- 
-Mathematics is the supreme nostalgia of our time.
+--
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750937AbVL2UAg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750935AbVL2T7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750937AbVL2UAg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 15:00:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750938AbVL2UAg
+	id S1750935AbVL2T7t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 14:59:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbVL2T7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 15:00:36 -0500
-Received: from waste.org ([64.81.244.121]:29106 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S1750936AbVL2UAf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 15:00:35 -0500
-Date: Thu, 29 Dec 2005 13:56:41 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-tiny@selenic.com
-Subject: Re: Fwd: [PATCH] Make sysenter support optional
-Message-ID: <20051229195641.GB3356@waste.org>
-References: <20051228212402.GX3356@waste.org> <a36005b50512281407x74415958tb0fa2b52f4dd7988@mail.gmail.com> <43B30E19.6080207@redhat.com>
+	Thu, 29 Dec 2005 14:59:49 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:3543 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1750933AbVL2T7t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 14:59:49 -0500
+Subject: Re: EHCI TT bandwidth (was Re: [PATCH] USB_BANDWIDTH documentation
+	change)
+From: Lee Revell <rlrevell@joe-job.com>
+To: ddstreet@ieee.org
+Cc: David Brownell <david-b@pacbell.net>,
+       linux-usb-devel@lists.sourceforge.net,
+       Alan Stern <stern@rowland.harvard.edu>, Bodo Eggert <7eggert@gmx.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.51.0512291433090.27091@dylan.root.cx>
+References: <Pine.LNX.4.44L0.0512261731001.10595-100000@netrider.rowland.org>
+	 <200512270857.35505.david-b@pacbell.net>
+	 <Pine.LNX.4.51.0512291433090.27091@dylan.root.cx>
+Content-Type: text/plain
+Date: Thu, 29 Dec 2005 15:05:39 -0500
+Message-Id: <1135886739.6804.4.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <43B30E19.6080207@redhat.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 28, 2005 at 02:13:45PM -0800, Ulrich Drepper wrote:
-> > This adds configurable sysenter support on x86. This saves about 5k on
-> > small systems.
+On Thu, 2005-12-29 at 14:41 -0500, Dan Streetman wrote:
+> On Tue, 27 Dec 2005, David Brownell wrote:
 > 
-> You not only remove the sysenter support but also the vdso.  And the
-> later is a very bad idea.  It is already today basically impossible to
-> have reliable backtraces without the vdso and the unwind info it
-> contains for signal handlers.  And things can only get worse in future.
->  The magic heuristics in the compiler are not reliable.  It's simply the
-> wrong face, this in a interface between the kernel and the libc, the
-> compiler should not have such knowledge.
+> >(*) The issues folk have mentioned with bandwidth reservation for
+> >    EHCI are more "full and low speed devcies can't use all the
+> >    available transaction translator bandwidth" than anything else.
 > 
-> The vdso should be mandatory for all configurations.
+> The patches I just sent to the linux-usb-devel list (couple days ago) take
+> care of those scheduling restrictions...do you have any comments on them?  
+> It would be great to get them in the kernel so EHCI can fully schedule any
+> lowspeed or fullspeed buses that it manages.  I even put the changes 
+> inside a kernel CONFIG option so people can test out the patches fully 
+> before replacing the old model.
+> 
 
-It's under CONFIG_EMBEDDED. Think uclibc. Think systems without
-interactive shells.
+How do I test them?  Should this make USB audio work with
+CONFIG_USB_BANDWIDTH?
 
--- 
-Mathematics is the supreme nostalgia of our time.
+Lee
+

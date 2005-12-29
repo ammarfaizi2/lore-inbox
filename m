@@ -1,38 +1,32 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965045AbVL2HEO (ORCPT <rfc822;ralf@linux-mips.org>);
-	Thu, 29 Dec 2005 02:04:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965044AbVL2HEO
+	id S965069AbVL2IzN (ORCPT <rfc822;ralf@linux-mips.org>);
+	Thu, 29 Dec 2005 03:55:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965068AbVL2IzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 02:04:14 -0500
-Received: from pcp05050375pcs.gillst01.ar.comcast.net ([68.46.245.11]:10508
-	"HELO pcp05050375pcs.gillst01.ar.comcast.net") by vger.kernel.org
-	with SMTP id S965045AbVL2HEN (ORCPT
+	Thu, 29 Dec 2005 03:55:12 -0500
+Received: from [58.65.99.195] ([58.65.99.195]:5384 "HELO cieba.nl")
+	by vger.kernel.org with SMTP id S965069AbVL2IzL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 02:04:13 -0500
-Reply-To: "Joel Hager" <dgraystozxtk@graystone.com>
-From: "Joel" <dgraystozxtk@graystone.com>
-Message-ID: <6432935238.20051229010645@zqhwcqnw>
-Date: Thu, 29 Dec 2005 01:06:45 -0600
-To: <linux-kernel@vger.kernel.org>
-Subject: 
+	Thu, 29 Dec 2005 03:55:11 -0500
+Message-ID: <97b401c60c47$36ca9bd2$4d767ca7@cieba.nl>
+From: "Wyatt Hunt" <huntpn@tvspil.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Home delivery cials-tabs
+Date: Thu, 29 Dec 2005 08:12:25 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed; charset=iso-8859-1; reply-type=original
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965045AbVL2HEO@vger.kernel.org>
-
-have Corp. $$$ 91003 $$$
-
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-
-Hello, handsome!
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S965069AbVL2IzN@vger.kernel.org>
 
 
-Guten Tag :))
-http://zatepenypuu.org/mm/
+Be ERECT in less than 15 mins
 
+PRlCE: $ 2 / use
 
-
-The men who succeed are the efficient few. They are the few who have the ambition and will power to develop themselves.The first essentials, of course, is to know what you want.I will not eat oysters. I want my food dead -- not sick, not wounded -- dead.
-
+visit our megasite --> directloqii.com
 

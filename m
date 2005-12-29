@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbVL2QXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbVL2Q3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750797AbVL2QXN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 11:23:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750798AbVL2QXN
+	id S1750799AbVL2Q3i (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 11:29:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750800AbVL2Q3i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 11:23:13 -0500
-Received: from cantor2.suse.de ([195.135.220.15]:2450 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750797AbVL2QXL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 11:23:11 -0500
-Date: Thu, 29 Dec 2005 17:23:10 +0100
-From: Andi Kleen <ak@suse.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       discuss@x86-64.org
-Subject: Re: [2.6.15-rc7 patch] Reject SRAT tables that don't cover all memory
-Message-ID: <20051229162310.GJ11515@wotan.suse.de>
-References: <Pine.LNX.4.64.0512241930370.14098@g5.osdl.org> <20051229133902.GD3811@stusta.de> <20051229160741.GI11515@wotan.suse.de> <20051229162020.GK3811@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20051229162020.GK3811@stusta.de>
+	Thu, 29 Dec 2005 11:29:38 -0500
+Received: from web34106.mail.mud.yahoo.com ([66.163.178.104]:11691 "HELO
+	web34106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750799AbVL2Q3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 11:29:38 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=MOuyl0bTeYZogAKZX+hnQHvj9tXn2Pn1FawdlIXtIxTxdahyPQtjWH9gkU5lKkDRQkCQqCpGxVtkLRcsATCE2f9jJVgZVrj6dh4yi+fzjGFLu7VGfuO0iJVGPUmh939Yfjxn61NQ6fseL7ZK5cLuSkPllJwB5gSTlpbRpsUq6i8=  ;
+Message-ID: <20051229162935.67301.qmail@web34106.mail.mud.yahoo.com>
+Date: Thu, 29 Dec 2005 08:29:35 -0800 (PST)
+From: Kenny Simpson <theonetruekenny@yahoo.com>
+Subject: RAID controller safety
+To: linux kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 29, 2005 at 05:20:20PM +0100, Adrian Bunk wrote:
-> On Thu, Dec 29, 2005 at 05:07:41PM +0100, Andi Kleen wrote:
-> > On Thu, Dec 29, 2005 at 02:39:02PM +0100, Adrian Bunk wrote:
-> > > Below is a patch by Andi Kleen from kernel Bugzilla #5758 fixing a 
-> > > post-2.6.14 regression.
-> > 
-> > WTF are you submitting my patches? Please don't do this - I am perfectly
-> > capable to do this on my own when the time is ripe for them. For this
-> > patch that's post 2.6.15 and after more testing.
-> 
-> According to the bug logs this is a regression in 2.6.15-rc, and it's 
-> not good if 2.6.15 will not boot on some machines where 2.6.14 did.
+Hello,
+  I am trying to determine which drivers and what hardware can be used to give reliable fsync
+behavior.  I see many drivers with FIXME or TODO comments which make me nervous.
+  I see the sd driver supports the direct SYNCHRONIZE_CACHE, but I'me having a hard time tracing
+through how this translates to raid controllers and their drivers.
+  Specificly, I am looking at the Adaptec RAID controllers and their i2o drivers.  I am told the
+kernel's i2o driver lacks a strong guarantee on fsync, and so far am unable to determine if the
+dpt_i2o driver also falls short in this reguard.
 
-The risk at this stage of breaking more than fixing is too high.
+  I don't mean to start a 'drives lie - disable all caching, buy FC drives' flame war.  I know
+drives can lie, but I'd like to know if the drivers are lying too.
 
-Especially since it's only one relatively obscure machine with totally
-broken BIOS. And a workaround exists. 
+thanks,
+-Kenny
 
-Please leave the decision of what patches are release critical and what
-not for x86-64 to me. Thanks.
 
--Andi
 
+	
+		
+__________________________________ 
+Yahoo! for Good - Make a difference this year. 
+http://brand.yahoo.com/cybergivingweek2005/

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750980AbVL2VD7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbVL2VEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750980AbVL2VD7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 16:03:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbVL2VD7
+	id S1750986AbVL2VEL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 16:04:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbVL2VEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 16:03:59 -0500
-Received: from mx3.mail.elte.hu ([157.181.1.138]:10635 "EHLO mx3.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750976AbVL2VDu (ORCPT
+	Thu, 29 Dec 2005 16:04:01 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:44937 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750978AbVL2VDu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 29 Dec 2005 16:03:50 -0500
-Date: Thu, 29 Dec 2005 22:03:16 +0100
+Date: Thu, 29 Dec 2005 22:03:26 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
@@ -19,321 +19,297 @@ Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
        Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [patch 01/13] mutex subsystem, add atomic_xchg() to all arches
-Message-ID: <20051229210316.GB665@elte.hu>
+Subject: [patch 02/13] mutex subsystem, add asm-generic/mutex-[dec|xchg|null].h implementations
+Message-ID: <20051229210326.GC665@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: 0.0
+X-ELTE-SpamScore: -1.9
 X-ELTE-SpamLevel: 
 X-ELTE-SpamCheck: no
 X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
-	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.9 AWL                    AWL: From: address is in the auto white-list
 X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-add atomic_xchg() to all the architectures. Needed by the new mutex code.
+Add three (generic) mutex fastpath implementations.
+
+The mutex-xchg.h implementation is atomic_xchg() based, and should
+work fine on every architecture.
+
+The mutex-dec.h implementation is atomic_dec_return() based - this
+one too should work on every architecture, but might not perform the
+most optimally on architectures that have no atomic-dec/inc instructions.
+
+The mutex-null.h implementation forces all calls into the slowpath. This
+is used for mutex debugging, but it can also be used on platforms that do
+not want (or need) a fastpath at all.
 
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
 Signed-off-by: Arjan van de Ven <arjan@infradead.org>
 
 ----
 
- include/asm-alpha/atomic.h     |    1 +
- include/asm-arm/atomic.h       |    2 ++
- include/asm-arm26/atomic.h     |    2 ++
- include/asm-cris/atomic.h      |    2 ++
- include/asm-frv/atomic.h       |    1 +
- include/asm-h8300/atomic.h     |    2 ++
- include/asm-i386/atomic.h      |    1 +
- include/asm-ia64/atomic.h      |    1 +
- include/asm-m32r/atomic.h      |    1 +
- include/asm-m68k/atomic.h      |    1 +
- include/asm-m68knommu/atomic.h |    1 +
- include/asm-mips/atomic.h      |    1 +
- include/asm-parisc/atomic.h    |    1 +
- include/asm-powerpc/atomic.h   |    1 +
- include/asm-s390/atomic.h      |    1 +
- include/asm-sh/atomic.h        |    2 ++
- include/asm-sh64/atomic.h      |    2 ++
- include/asm-sparc/atomic.h     |    1 +
- include/asm-sparc64/atomic.h   |    1 +
- include/asm-v850/atomic.h      |    2 ++
- include/asm-x86_64/atomic.h    |    1 +
- include/asm-xtensa/atomic.h    |    1 +
- 22 files changed, 29 insertions(+)
+ include/asm-generic/mutex-dec.h  |  103 +++++++++++++++++++++++++++++++++++
+ include/asm-generic/mutex-null.h |   24 ++++++++
+ include/asm-generic/mutex-xchg.h |  112 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 239 insertions(+)
 
-Index: linux/include/asm-alpha/atomic.h
+Index: linux/include/asm-generic/mutex-dec.h
 ===================================================================
---- linux.orig/include/asm-alpha/atomic.h
-+++ linux/include/asm-alpha/atomic.h
-@@ -176,6 +176,7 @@ static __inline__ long atomic64_sub_retu
- }
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-arm/atomic.h
-===================================================================
---- linux.orig/include/asm-arm/atomic.h
-+++ linux/include/asm-arm/atomic.h
-@@ -175,6 +175,8 @@ static inline void atomic_clear_mask(uns
- 
- #endif /* __LINUX_ARM_ARCH__ */
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+--- /dev/null
++++ linux/include/asm-generic/mutex-dec.h
+@@ -0,0 +1,103 @@
++/*
++ * asm-generic/mutex-dec.h
++ *
++ * Generic implementation of the mutex fastpath, based on atomic
++ * decrement/increment.
++ */
++#ifndef _ASM_GENERIC_MUTEX_DEC_H
++#define _ASM_GENERIC_MUTEX_DEC_H
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int c, old;
-Index: linux/include/asm-arm26/atomic.h
-===================================================================
---- linux.orig/include/asm-arm26/atomic.h
-+++ linux/include/asm-arm26/atomic.h
-@@ -76,6 +76,8 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++/**
++ *  __mutex_fastpath_lock - try to take the lock by moving the count
++ *                          from 1 to a 0 value
++ *  @count: pointer of type atomic_t
++ *  @fn: function to call if the original value was not 1
++ *
++ * Change the count from 1 to a value lower than 1, and call <fn> if it
++ * wasn't 1 originally. This function MUST leave the value lower than 1
++ * even when the "1" assertion wasn't true.
++ */
++#define __mutex_fastpath_lock(count, fn)				\
++do {									\
++	if (unlikely(atomic_dec_return(count) < 0))			\
++		fn(count);						\
++} while (0)
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int ret;
-Index: linux/include/asm-cris/atomic.h
-===================================================================
---- linux.orig/include/asm-cris/atomic.h
-+++ linux/include/asm-cris/atomic.h
-@@ -136,6 +136,8 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++/**
++ *  __mutex_fastpath_lock_retval - try to take the lock by moving the count
++ *                                 from 1 to a 0 value
++ *  @count: pointer of type atomic_t
++ *  @fn: function to call if the original value was not 1
++ *
++ * Change the count from 1 to a value lower than 1, and call <fn> if it
++ * wasn't 1 originally. This function returns 0 if the fastpath succeeds,
++ * or anything the slow path function returns.
++ */
++static inline int
++__mutex_fastpath_lock_retval(atomic_t *count, int (*fn)(atomic_t *))
++{
++	if (unlikely(atomic_dec_return(count) < 0))
++		return fn(count);
++	else
++		return 0;
++}
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int ret;
-Index: linux/include/asm-frv/atomic.h
-===================================================================
---- linux.orig/include/asm-frv/atomic.h
-+++ linux/include/asm-frv/atomic.h
-@@ -415,6 +415,7 @@ extern uint32_t __cmpxchg_32(uint32_t *v
- #endif
- 
- #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-h8300/atomic.h
-===================================================================
---- linux.orig/include/asm-h8300/atomic.h
-+++ linux/include/asm-h8300/atomic.h
-@@ -95,6 +95,8 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++/**
++ *  __mutex_fastpath_unlock - try to promote the count from 0 to 1
++ *  @count: pointer of type atomic_t
++ *  @fn: function to call if the original value was not 0
++ *
++ * Try to promote the count from 0 to 1. If it wasn't 0, call <fn>.
++ * In the failure case, this function is allowed to either set the value to
++ * 1, or to set it to a value lower than 1.
++ *
++ * If the implementation sets it to a value of lower than 1, then the
++ * __mutex_slowpath_needs_to_unlock() macro needs to return 1, it needs
++ * to return 0 otherwise.
++ */
++#define __mutex_fastpath_unlock(count, fn)				\
++do {									\
++	if (unlikely(atomic_inc_return(count) <= 0))			\
++		fn(count);						\
++} while (0)
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int ret;
-Index: linux/include/asm-i386/atomic.h
-===================================================================
---- linux.orig/include/asm-i386/atomic.h
-+++ linux/include/asm-i386/atomic.h
-@@ -216,6 +216,7 @@ static __inline__ int atomic_sub_return(
- }
- 
- #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
-Index: linux/include/asm-ia64/atomic.h
-===================================================================
---- linux.orig/include/asm-ia64/atomic.h
-+++ linux/include/asm-ia64/atomic.h
-@@ -89,6 +89,7 @@ ia64_atomic64_sub (__s64 i, atomic64_t *
- }
- 
- #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-m32r/atomic.h
-===================================================================
---- linux.orig/include/asm-m32r/atomic.h
-+++ linux/include/asm-m32r/atomic.h
-@@ -243,6 +243,7 @@ static __inline__ int atomic_dec_return(
- #define atomic_add_negative(i,v) (atomic_add_return((i), (v)) < 0)
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
-Index: linux/include/asm-m68k/atomic.h
-===================================================================
---- linux.orig/include/asm-m68k/atomic.h
-+++ linux/include/asm-m68k/atomic.h
-@@ -140,6 +140,7 @@ static inline void atomic_set_mask(unsig
- }
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-m68knommu/atomic.h
-===================================================================
---- linux.orig/include/asm-m68knommu/atomic.h
-+++ linux/include/asm-m68knommu/atomic.h
-@@ -129,6 +129,7 @@ static inline int atomic_sub_return(int 
- }
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-mips/atomic.h
-===================================================================
---- linux.orig/include/asm-mips/atomic.h
-+++ linux/include/asm-mips/atomic.h
-@@ -289,6 +289,7 @@ static __inline__ int atomic_sub_if_posi
- }
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
-Index: linux/include/asm-parisc/atomic.h
-===================================================================
---- linux.orig/include/asm-parisc/atomic.h
-+++ linux/include/asm-parisc/atomic.h
-@@ -165,6 +165,7 @@ static __inline__ int atomic_read(const 
- 
- /* exported interface */
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
-Index: linux/include/asm-powerpc/atomic.h
-===================================================================
---- linux.orig/include/asm-powerpc/atomic.h
-+++ linux/include/asm-powerpc/atomic.h
-@@ -165,6 +165,7 @@ static __inline__ int atomic_dec_return(
- }
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
-Index: linux/include/asm-s390/atomic.h
-===================================================================
---- linux.orig/include/asm-s390/atomic.h
-+++ linux/include/asm-s390/atomic.h
-@@ -199,6 +199,7 @@ atomic_compare_and_swap(int expected_old
- }
- 
- #define atomic_cmpxchg(v, o, n) (atomic_compare_and_swap((o), (n), &((v)->counter)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-sh/atomic.h
-===================================================================
---- linux.orig/include/asm-sh/atomic.h
-+++ linux/include/asm-sh/atomic.h
-@@ -101,6 +101,8 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++#define __mutex_slowpath_needs_to_unlock()		1
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int ret;
-Index: linux/include/asm-sh64/atomic.h
-===================================================================
---- linux.orig/include/asm-sh64/atomic.h
-+++ linux/include/asm-sh64/atomic.h
-@@ -113,6 +113,8 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
++/**
++ * __mutex_fastpath_trylock - try to acquire the mutex, without waiting
++ *
++ *  @count: pointer of type atomic_t
++ *  @fn: fallback function
++ *
++ * Change the count from 1 to a value lower than 1, and return 0 (failure)
++ * if it wasn't 1 originally, or return 1 (success) otherwise. This function
++ * MUST leave the value lower than 1 even when the "1" assertion wasn't true.
++ * Additionally, if the value was < 0 originally, this function must not leave
++ * it to 0 on failure.
++ *
++ * If the architecture has no effective trylock variant, it should call the
++ * <fn> spinlock-based trylock variant unconditionally.
++ */
++static inline int
++__mutex_fastpath_trylock(atomic_t *count, int (*fn)(atomic_t *))
++{
++	/*
++	 * We have two variants here. The cmpxchg based one is the best one
++	 * because it never induce a false contention state.  It is included
++	 * here because architectures using the inc/dec algorithms over the
++	 * xchg ones are much more likely to support cmpxchg natively.
++	 *
++	 * If not we fall back to the spinlock based variant - that is
++	 * just as efficient (and simpler) as a 'destructive' probing of
++	 * the mutex state would be.
++	 */
++#ifdef __HAVE_ARCH_CMPXCHG
++	if (likely(atomic_cmpxchg(count, 1, 0)) == 1)
++		return 1;
++	return 0;
++#else
++	return fn(count);
++#endif
++}
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int ret;
-Index: linux/include/asm-sparc/atomic.h
++#endif
+Index: linux/include/asm-generic/mutex-null.h
 ===================================================================
---- linux.orig/include/asm-sparc/atomic.h
-+++ linux/include/asm-sparc/atomic.h
-@@ -20,6 +20,7 @@ typedef struct { volatile int counter; }
- 
- extern int __atomic_add_return(int, atomic_t *);
- extern int atomic_cmpxchg(atomic_t *, int, int);
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- extern int atomic_add_unless(atomic_t *, int, int);
- extern void atomic_set(atomic_t *, int);
- 
-Index: linux/include/asm-sparc64/atomic.h
-===================================================================
---- linux.orig/include/asm-sparc64/atomic.h
-+++ linux/include/asm-sparc64/atomic.h
-@@ -72,6 +72,7 @@ extern int atomic64_sub_ret(int, atomic6
- #define atomic64_add_negative(i, v) (atomic64_add_ret(i, v) < 0)
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- #define atomic_add_unless(v, a, u)				\
- ({								\
-Index: linux/include/asm-v850/atomic.h
-===================================================================
---- linux.orig/include/asm-v850/atomic.h
-+++ linux/include/asm-v850/atomic.h
-@@ -104,6 +104,8 @@ static inline int atomic_cmpxchg(atomic_
- 	return ret;
- }
- 
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
+--- /dev/null
++++ linux/include/asm-generic/mutex-null.h
+@@ -0,0 +1,24 @@
++/*
++ * asm-generic/mutex-null.h
++ *
++ * Generic implementation of the mutex fastpath, based on NOP :-)
++ *
++ * This is used by the mutex-debugging infrastructure, but it can also
++ * be used by architectures that (for whatever reason) want to use the
++ * spinlock based slowpath.
++ */
++#ifndef _ASM_GENERIC_MUTEX_NULL_H
++#define _ASM_GENERIC_MUTEX_NULL_H
 +
- static inline int atomic_add_unless(atomic_t *v, int a, int u)
- {
- 	int ret;
-Index: linux/include/asm-x86_64/atomic.h
++/* extra parameter only needed for mutex debugging: */
++#ifndef __IP__
++# define __IP__
++#endif
++
++#define __mutex_fastpath_lock(count, fn_name)		fn_name(count __IP__)
++#define __mutex_fastpath_lock_retval(count, fn_name)	fn_name(count __IP__)
++#define __mutex_fastpath_unlock(count, fn_name)		fn_name(count __IP__)
++#define __mutex_fastpath_trylock(count, fn_name)	fn_name(count)
++#define __mutex_slowpath_needs_to_unlock()		1
++
++#endif
+Index: linux/include/asm-generic/mutex-xchg.h
 ===================================================================
---- linux.orig/include/asm-x86_64/atomic.h
-+++ linux/include/asm-x86_64/atomic.h
-@@ -389,6 +389,7 @@ static __inline__ long atomic64_sub_retu
- #define atomic64_dec_return(v)  (atomic64_sub_return(1,v))
- 
- #define atomic_cmpxchg(v, old, new) ((int)cmpxchg(&((v)->counter), old, new))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
-Index: linux/include/asm-xtensa/atomic.h
-===================================================================
---- linux.orig/include/asm-xtensa/atomic.h
-+++ linux/include/asm-xtensa/atomic.h
-@@ -224,6 +224,7 @@ static inline int atomic_sub_return(int 
- #define atomic_add_negative(i,v) (atomic_add_return((i),(v)) < 0)
- 
- #define atomic_cmpxchg(v, o, n) ((int)cmpxchg(&((v)->counter), (o), (n)))
-+#define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- 
- /**
-  * atomic_add_unless - add unless the number is a given value
+--- /dev/null
++++ linux/include/asm-generic/mutex-xchg.h
+@@ -0,0 +1,112 @@
++/*
++ * asm-generic/mutex-xchg.h
++ *
++ * Generic implementation of the mutex fastpath, based on xchg().
++ *
++ * NOTE: An xchg based implementation is less optimal than an atomic
++ *       decrement/increment based implementation. If your architecture
++ *       has a reasonable atomic dec/inc then you should probably use
++ *	 asm-generic/mutex-dec.h instead, or you could open-code an
++ *	 optimized version in asm/mutex.h.
++ */
++#ifndef _ASM_GENERIC_MUTEX_XCHG_H
++#define _ASM_GENERIC_MUTEX_XCHG_H
++
++/**
++ *  __mutex_fastpath_lock - try to take the lock by moving the count
++ *                          from 1 to a 0 value
++ *  @count: pointer of type atomic_t
++ *  @fn: function to call if the original value was not 1
++ *
++ * Change the count from 1 to a value lower than 1, and call <fn> if it
++ * wasn't 1 originally. This function MUST leave the value lower than 1
++ * even when the "1" assertion wasn't true.
++ */
++#define __mutex_fastpath_lock(count, fn_name)				\
++do {									\
++	if (unlikely(atomic_xchg(count, 0) != 1))			\
++		fn_name(count);						\
++} while (0)
++
++
++/**
++ *  __mutex_fastpath_lock_retval - try to take the lock by moving the count
++ *                                 from 1 to a 0 value
++ *  @count: pointer of type atomic_t
++ *  @fn: function to call if the original value was not 1
++ *
++ * Change the count from 1 to a value lower than 1, and call <fn> if it
++ * wasn't 1 originally. This function returns 0 if the fastpath succeeds,
++ * or anything the slow path function returns
++ */
++static inline int
++__mutex_fastpath_lock_retval(atomic_t *count,
++			     int (*fn_name)(atomic_t *))
++{
++	if (unlikely(atomic_xchg(count, 0) != 1))
++		return fn_name(count);
++	else
++		return 0;
++}
++
++/**
++ *  __mutex_fastpath_unlock - try to promote the mutex from 0 to 1
++ *  @count: pointer of type atomic_t
++ *  @fn: function to call if the original value was not 0
++ *
++ * try to promote the mutex from 0 to 1. if it wasn't 0, call <function>
++ * In the failure case, this function is allowed to either set the value to
++ * 1, or to set it to a value lower than one.
++ * If the implementation sets it to a value of lower than one, the
++ * __mutex_slowpath_needs_to_unlock() macro needs to return 1, it needs
++ * to return 0 otherwise.
++ */
++#define __mutex_fastpath_unlock(count, fn_name)				\
++do {									\
++	if (unlikely(atomic_xchg(count, 1) != 0))			\
++		fn_name(count);						\
++} while (0)
++
++#define __mutex_slowpath_needs_to_unlock()		0
++
++/**
++ * __mutex_fastpath_trylock - try to acquire the mutex, without waiting
++ *
++ *  @count: pointer of type atomic_t
++ *  @fn: spinlock based trylock implementation
++ *
++ * Change the count from 1 to a value lower than 1, and return 0 (failure)
++ * if it wasn't 1 originally, or return 1 (success) otherwise. This function
++ * MUST leave the value lower than 1 even when the "1" assertion wasn't true.
++ * Additionally, if the value was < 0 originally, this function must not leave
++ * it to 0 on failure.
++ *
++ * If the architecture has no effective trylock variant, it should call the
++ * <fn> spinlock-based trylock variant unconditionally.
++ */
++static inline int
++__mutex_fastpath_trylock(atomic_t *count, int (*fn)(atomic_t *))
++{
++	int prev = atomic_xchg(count, 0);
++
++	if (unlikely(prev < 0)) {
++		/*
++		 * The lock was marked contended so we must restore that
++		 * state. If while doing so we get back a prev value of 1
++		 * then we just own it.
++		 *
++		 * [ In the rare case of the mutex going to 1, to 0, to -1
++		 *   and then back to 0 in this few-instructions window,
++		 *   this has the potential to trigger the slowpath for the
++		 *   owner's unlock path needlessly, but that's not a problem
++		 *   in practice. ]
++		 */
++		prev = atomic_xchg(count, prev);
++		if (prev < 0)
++			prev = 0;
++	}
++
++	return prev;
++}
++
++#endif

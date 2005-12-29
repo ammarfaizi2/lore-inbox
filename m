@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751071AbVL2WiM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbVL2WsT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751071AbVL2WiM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 17:38:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbVL2WiM
+	id S1751068AbVL2WsT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 17:48:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751077AbVL2WsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 17:38:12 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:63114 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S1751070AbVL2WiL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 17:38:11 -0500
-Date: Thu, 29 Dec 2005 23:38:05 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Greg KH <greg@kroah.com>
-Cc: Kumar Gala <galak@gate.crashing.org>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: pci_scan_bridge and cardbus controllers?
-Message-ID: <20051229223805.GA22490@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Greg KH <greg@kroah.com>, Kumar Gala <galak@gate.crashing.org>,
-	linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-References: <Pine.LNX.4.44.0512141311140.14530-100000@gate.crashing.org> <20051229071756.GD8863@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 Dec 2005 17:48:19 -0500
+Received: from ns2.uludag.org.tr ([193.140.100.220]:25254 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1751068AbVL2WsT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 17:48:19 -0500
+From: Ismail Donmez <ismail@uludag.org.tr>
+Organization: TUBITAK/UEKAE
+To: Dave Jones <davej@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: userspace breakage
+Date: Fri, 30 Dec 2005 00:47:47 +0200
+User-Agent: KMail/1.9.1
+References: <Pine.LNX.4.64.0512281111080.14098@g5.osdl.org> <Pine.LNX.4.64.0512291240490.3298@g5.osdl.org> <20051229224103.GF12056@redhat.com>
+In-Reply-To: <20051229224103.GF12056@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20051229071756.GD8863@kroah.com>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200512300047.48159.ismail@uludag.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Cuma 30 Aralık 2005 00:41 tarihinde, Dave Jones şunları yazmıştı: 
+[...]
+> The udev situation I mentioned has been known about for at least a month,
+> probably longer. With old udev, we don't get /dev/input/event* created
+> with 2.6.15rc.
+>
+> At some point in time it became defacto that certain things like udev,
+> hotplug, alsa-lib, wireless-tools and a bunch of others have to have kept
+> in lockstep with the kernel, and if it breaks, it's your fault for not
+> upgrading your userspace.
+>
+> Seriously, I (and many others) have been complaining about this
+> for months. (Pretty much every time the "Please can we have a 2.7"
+> thread comes up). [note, that I actually prefer the 'new' approach
+> to development in 2.6, what I object to is that at the same time we
+> threw out the 'lets be careful about not breaking userspace' mantra.]
+>
+> Just a few years ago, if someone suggested breaking a userspace
+> app in a kernel upgrade, they'd be crucified on linux-kernel, now
+> it's 'the norm').
 
-On Wed, Dec 28, 2005 at 11:17:56PM -0800, Greg KH wrote:
-> On Wed, Dec 14, 2005 at 01:45:30PM -0600, Kumar Gala wrote:
-> > in pci_fixup_parent_subordinate_busnr() we will only reassign bus numbers 
-> > if pcibios_assign_all_busses() returns 1.
-> > 
-> > If we got to pci_fixup_parent_subordinate_busnr() and
-> > pcibios_assign_all_busses() returns 0, should we not print out some
-> > warning since we most likely got here because the bios didn't init things
-> > properly?
-> > 
-> > I came across this on an embedded system in which we had a cardbus 
-> > controller behind a P2P bridge.  The bios did not reserve any bus numbers 
-> > for the cardbus controller like linux does.  So I ended up with:
-> 
-> Ick.  Perhaps the pcmcia developers would know better what they want to
-> have done here?  Try asking on their list :)
+We had two userspace wireless monitoring program depending 
+on /sys/class/net/<device name>/wireless directory to be present and now its 
+gone in 2.6.15 and I can't find one line of changelog where its gone or 
+why. /sys seems to be the mostly abused part of kernel-userspace relationship 
+with changing paths,names and now disappearing directories....
 
-Well, there is such a patch in your PCI queue already -- see
-http://bugzilla.kernel.org/show_bug.cgi?id=5557 for details.
-
-	Dominik
+Regards,
+ismail

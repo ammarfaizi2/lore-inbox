@@ -1,32 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbVL2TdK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbVL2TmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750921AbVL2TdK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 14:33:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750923AbVL2TdK
+	id S1750923AbVL2TmS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 14:42:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbVL2TmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 14:33:10 -0500
-Received: from saraswathi.solana.com ([198.99.130.12]:64988 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750921AbVL2TdJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 14:33:09 -0500
-Date: Thu, 29 Dec 2005 15:25:01 -0500
-From: Jeff Dike <jdike@addtoit.com>
-To: "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [uml-devel] [PATCH 0/5] UML: last patches for 2.6.15
-Message-ID: <20051229202501.GA6659@ccure.user-mode-linux.org>
-References: <20051229163803.4985.66742.stgit@zion.home.lan>
+	Thu, 29 Dec 2005 14:42:18 -0500
+Received: from mx3.mail.elte.hu ([157.181.1.138]:41389 "EHLO mx3.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750923AbVL2TmR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 14:42:17 -0500
+Date: Thu, 29 Dec 2005 20:41:53 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Christoph Hellwig <hch@lst.de>,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: [patch] updates XFS mutex patch
+Message-ID: <20051229194153.GA27897@elte.hu>
+References: <yq0zmmktbhk.fsf@jaguar.mkp.net> <20051229144824.GC18833@infradead.org> <20051229165811.GA23502@elte.hu> <20051229171135.GA21988@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20051229163803.4985.66742.stgit@zion.home.lan>
+In-Reply-To: <20051229171135.GA21988@infradead.org>
 User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: 0.0
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=0.0 required=5.9 tests=AWL autolearn=no SpamAssassin version=3.0.3
+	0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 29, 2005 at 05:38:03PM +0100, Paolo 'Blaisorblade' Giarrusso wrote:
-> Some last-minute fixes for 2.6.15 - please merge them, they've been tested
-> (more or less depending on the changes).
 
-Acked-by: Jeff Dike <jdike@addtoit.com>
+* Christoph Hellwig <hch@infradead.org> wrote:
+
+> > > It's say just switch XFS to the one-arg mutex_init variant.
+> > > 
+> > > And ingo. please add the mutex_t typedef, analogue to spinlock_t it's 
+> > > a totally opaqueue to the users type, so it really should be a 
+> > > typedef.  After that the XFS mutex.h can just go away.
+> > 
+> > that's not possible, due to DEFINE_MUTEX() and due to struct mutex being 
+> > embedded in other structures. I dont think we want to lose that property 
+> > of struct semaphore, and only restrict mutex usage to pointers.
+> 
+> Sorry, but I don't get this sentence at all.  Can you try to rephrase 
+> it? What does DEFINE_MUTEX have to do with declaring either a typedef 
+> or structure?
+
+i think i misunderstood you. I thought you wanted a mutex_t a'la 
+kmem_cache_t (which is only fully defined in mm/slab.c) - for the 
+purpose of hiding the implementation of mutex_t. If the implementation 
+of mutex_t is still present in mutex.h, i dont see what the advantage 
+is. What's the difference between 'struct mutex' and 'mutex_t', besides 
+that first one being clearer that here we have a kernel object? (we 
+generally use the _t types for type-safe variations of integer types, 
+e.g. pte_t.)
+
+	Ingo

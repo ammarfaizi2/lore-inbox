@@ -1,49 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbVL2VDi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbVL2VEj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbVL2VDi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Dec 2005 16:03:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbVL2VDh
+	id S1750995AbVL2VEj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Dec 2005 16:04:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750978AbVL2VEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Dec 2005 16:03:37 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:31927 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750972AbVL2VDh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Dec 2005 16:03:37 -0500
-Date: Thu, 29 Dec 2005 21:03:36 +0000
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: linux-m68k@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 09/36] m68k: fix macro syntax to make current binutils happy
-Message-ID: <20051229210336.GJ27946@ftp.linux.org.uk>
-References: <E1EpIOj-0004qc-HA@ZenIV.linux.org.uk> <200512262259.19230.zippel@linux-m68k.org>
+	Thu, 29 Dec 2005 16:04:16 -0500
+Received: from mx2.mail.elte.hu ([157.181.151.9]:52105 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750981AbVL2VEA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Dec 2005 16:04:00 -0500
+Date: Thu, 29 Dec 2005 22:03:36 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Nicolas Pitre <nico@cam.org>,
+       Jes Sorensen <jes@trained-monkey.org>, Al Viro <viro@ftp.linux.org.uk>,
+       Oleg Nesterov <oleg@tv-sign.ru>, David Howells <dhowells@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [patch 03/13] mutex subsystem, add include/asm-i386/mutex.h
+Message-ID: <20051229210336.GD665@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200512262259.19230.zippel@linux-m68k.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -1.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-1.9 required=5.9 tests=ALL_TRUSTED,AWL autolearn=no SpamAssassin version=3.0.3
+	-2.8 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.9 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 26, 2005 at 10:59:18PM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Thursday 22 December 2005 05:49, Al Viro wrote:
-> 
-> > recent as(1) doesn't think that . terminates a macro name, so
-> > getuser.l is _not_ treated as invoking getuser with .l as the
-> > first argument.
-> 
-> Could you please hold back with the binutils changes? Eventually this should 
-> rather be fixed in gas or they have to properly document the expected 
-> behaviour, so it doesn't break the next time they change it.
+add the i386 version of mutex.h, optimized in assembly.
 
-Unfortunately, that one _is_ documented.  BS they've pulled with macro
-arguments ("if you have ( in it, forget about sanity and just quote")
-is not, but I'm afraid that the only real way to deal with that
-properly is to do as(1) from scratch for targets we care about and
-make sure it produces binaries identical to gas(1) output on everything
-gcc is likely to throw at it.
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Alternatively, we could simply stop using as(1) macros and do it in C
-preprocessor, or, (much) better yet, m4.  At least those have documented
-semantics that is not likely to change at random...
+----
+
+ include/asm-i386/mutex.h |  140 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 140 insertions(+)
+
+Index: linux/include/asm-i386/mutex.h
+===================================================================
+--- /dev/null
++++ linux/include/asm-i386/mutex.h
+@@ -0,0 +1,140 @@
++/*
++ * Assembly implementation of the mutex fastpath, based on atomic
++ * decrement/increment.
++ *
++ * started by Ingo Molnar:
++ *
++ *  Copyright (C) 2004, 2005 Red Hat, Inc., Ingo Molnar <mingo@redhat.com>
++ */
++#ifndef _ASM_MUTEX_H
++#define _ASM_MUTEX_H
++
++/**
++ *  __mutex_fastpath_lock - try to take the lock by moving the count
++ *                          from 1 to a 0 value
++ *  @count: pointer of type atomic_t
++ *  @fn: function to call if the original value was not 1
++ *
++ * Change the count from 1 to a value lower than 1, and call <fn> if it
++ * wasn't 1 originally. This function MUST leave the value lower than 1
++ * even when the "1" assertion wasn't true.
++ */
++#define __mutex_fastpath_lock(count, fn_name)				\
++do {									\
++	/* type-check the function too: */				\
++	void fastcall (*__tmp)(atomic_t *) = fn_name;			\
++	unsigned int dummy;						\
++									\
++	(void)__tmp;							\
++	typecheck(atomic_t *, count);					\
++									\
++	__asm__ __volatile__(						\
++		LOCK	"   decl (%%eax)	\n"			\
++			"   js 2f		\n"			\
++			"1:			\n"			\
++									\
++		LOCK_SECTION_START("")					\
++			"2: call "#fn_name"	\n"			\
++			"   jmp 1b		\n"			\
++		LOCK_SECTION_END					\
++									\
++		:"=a" (dummy)						\
++		: "a" (count)						\
++		: "memory", "ecx", "edx");				\
++} while (0)
++
++
++/**
++ *  __mutex_fastpath_lock_retval - try to take the lock by moving the count
++ *                                 from 1 to a 0 value
++ *  @count: pointer of type atomic_t
++ *  @fn: function to call if the original value was not 1
++ *
++ * Change the count from 1 to a value lower than 1, and call <fn> if it
++ * wasn't 1 originally. This function returns 0 if the fastpath succeeds,
++ * or anything the slow path function returns
++ */
++static inline int
++__mutex_fastpath_lock_retval(atomic_t *count,
++			     int fastcall (*fn_name)(atomic_t *))
++{
++	if (unlikely(atomic_dec_return(count) < 0))
++		return fn_name(count);
++	else
++		return 0;
++}
++
++/**
++ *  __mutex_fastpath_unlock - try to promote the mutex from 0 to 1
++ *  @count: pointer of type atomic_t
++ *  @fn: function to call if the original value was not 0
++ *
++ * try to promote the mutex from 0 to 1. if it wasn't 0, call <fn>.
++ * In the failure case, this function is allowed to either set the value
++ * to 1, or to set it to a value lower than 1.
++ *
++ * If the implementation sets it to a value of lower than 1, the
++ * __mutex_slowpath_needs_to_unlock() macro needs to return 1, it needs
++ * to return 0 otherwise.
++ */
++#define __mutex_fastpath_unlock(count, fn_name)				\
++do {									\
++	/* type-check the function too: */				\
++	void fastcall (*__tmp)(atomic_t *) = fn_name;			\
++	unsigned int dummy;						\
++									\
++	(void)__tmp;							\
++	typecheck(atomic_t *, count);					\
++									\
++	__asm__ __volatile__(						\
++		LOCK	"   incl (%%eax)	\n"			\
++			"   jle 2f		\n"			\
++			"1:			\n"			\
++									\
++		LOCK_SECTION_START("")					\
++			"2: call "#fn_name"	\n"			\
++			"   jmp 1b		\n"			\
++		LOCK_SECTION_END					\
++									\
++		:"=a" (dummy)						\
++		: "a" (count)						\
++		: "memory", "ecx", "edx");				\
++} while (0)
++
++#define __mutex_slowpath_needs_to_unlock()	1
++
++/**
++ * __mutex_fastpath_trylock - try to acquire the mutex, without waiting
++ *
++ *  @count: pointer of type atomic_t
++ *  @fn: fallback function
++ *
++ * Change the count from 1 to a value lower than 1, and return 0 (failure)
++ * if it wasn't 1 originally, or return 1 (success) otherwise. This function
++ * MUST leave the value lower than 1 even when the "1" assertion wasn't true.
++ * Additionally, if the value was < 0 originally, this function must not leave
++ * it to 0 on failure.
++ */
++static inline int
++__mutex_fastpath_trylock(atomic_t *count, int (*fn)(atomic_t *))
++{
++	/*
++	 * We have two variants here. The cmpxchg based one is the best one
++	 * because it never induce a false contention state.  It is included
++	 * here because architectures using the inc/dec algorithms over the
++	 * xchg ones are much more likely to support cmpxchg natively.
++	 *
++	 * If not we fall back to the spinlock based variant - that is
++	 * just as efficient (and simpler) as a 'destructive' probing of
++	 * the mutex state would be.
++	 */
++#ifdef __HAVE_ARCH_CMPXCHG
++	if (likely(atomic_cmpxchg(count, 1, 0)) == 1)
++		return 1;
++	return 0;
++#else
++	return fn(count);
++#endif
++}
++
++#endif
